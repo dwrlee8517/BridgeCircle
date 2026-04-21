@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investor Concept + MVP Pitch | Alumni Network</title>
+    <style>
+      :root {
+        --ink: #10212b;
+        --ink-soft: #355160;
+        --paper: #f6f1e4;
+        --paper-2: #fffaf0;
+        --accent: #df6a3a;
+        --accent-2: #f3b36d;
+        --mint: #9ec9ba;
+        --slate: #d4ddd8;
+        --panel: rgba(255, 250, 240, 0.86);
+        --line: rgba(16, 33, 43, 0.12);
+        --shadow: 0 22px 60px rgba(16, 33, 43, 0.12);
+        --radius-xl: 28px;
+        --radius-lg: 22px;
+        --radius-md: 16px;
+        --max: 1180px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(243, 179, 109, 0.34), transparent 28%),
+          radial-gradient(circle at 85% 15%, rgba(158, 201, 186, 0.35), transparent 25%),
+          linear-gradient(180deg, #f4ecd7 0%, #f8f5eb 38%, #fffaf3 100%);
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(16, 33, 43, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(16, 33, 43, 0.03) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 92%);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        width: min(var(--max), calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .hero {
+        position: relative;
+        padding: 44px 0 24px;
+      }
+
+      .hero-shell {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 28px;
+        align-items: stretch;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+
+      .hero-copy {
+        padding: 34px 34px 28px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(16, 33, 43, 0.06);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        margin: 0;
+        line-height: 0.98;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin-top: 20px;
+        font-size: clamp(2.5rem, 6vw, 5.35rem);
+        letter-spacing: -0.06em;
+      }
+
+      .hero-copy h1 span {
+        display: block;
+        color: var(--accent);
+      }
+
+      .subhead {
+        margin-top: 18px;
+        max-width: 62ch;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--ink-soft);
+      }
+
+      .hero-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .mini-card {
+        padding: 16px;
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.68);
+        border: 1px solid rgba(16, 33, 43, 0.08);
+      }
+
+      .mini-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.2rem;
+        letter-spacing: -0.04em;
+      }
+
+      .mini-card p {
+        margin: 0;
+        font-size: 0.95rem;
+        line-height: 1.45;
+        color: var(--ink-soft);
+      }
+
+      .hero-visual {
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow: hidden;
+      }
+
+      .network-card {
+        position: relative;
+        min-height: 370px;
+        border-radius: 24px;
+        padding: 18px;
+        background:
+          radial-gradient(circle at top right, rgba(223, 106, 58, 0.25), transparent 32%),
+          linear-gradient(180deg, #14303d 0%, #10212b 100%);
+        color: #f7efe0;
+        overflow: hidden;
+      }
+
+      .network-card h3 {
+        font-size: 1.18rem;
+        letter-spacing: -0.03em;
+      }
+
+      .network-card p {
+        margin: 10px 0 0;
+        max-width: 34ch;
+        line-height: 1.5;
+        color: rgba(247, 239, 224, 0.82);
+      }
+
+      .network-svg {
+        position: absolute;
+        right: -20px;
+        bottom: -24px;
+        width: 82%;
+        max-width: 420px;
+      }
+
+      .legend {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .legend-item {
+        padding: 14px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .legend-item strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .legend-item span {
+        color: rgba(247, 239, 224, 0.78);
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+
+      main {
+        padding-bottom: 60px;
+      }
+
+      section {
+        margin-top: 28px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-end;
+        margin-bottom: 16px;
+      }
+
+      .section-head h2 {
+        font-size: clamp(1.7rem, 3vw, 2.65rem);
+        letter-spacing: -0.05em;
+      }
+
+      .section-head p {
+        margin: 0;
+        max-width: 48ch;
+        color: var(--ink-soft);
+        line-height: 1.55;
+      }
+
+      .market-grid,
+      .opportunity-grid,
+      .mvp-grid,
+      .revenue-grid,
+      .source-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .market-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .market-card,
+      .opportunity-card,
+      .spec-card,
+      .revenue-card,
+      .source-card,
+      .note-card,
+      .swimlane,
+      .competitor-card {
+        padding: 22px;
+        border-radius: var(--radius-lg);
+        background: var(--panel);
+        border: 1px solid rgba(16, 33, 43, 0.08);
+        box-shadow: var(--shadow);
+      }
+
+      .market-card h3,
+      .opportunity-card h3,
+      .spec-card h3,
+      .revenue-card h3,
+      .swimlane h3,
+      .competitor-card h3 {
+        font-size: 1.15rem;
+        letter-spacing: -0.04em;
+      }
+
+      .market-card p,
+      .opportunity-card p,
+      .spec-card p,
+      .revenue-card p,
+      .swimlane p,
+      .competitor-card p,
+      .source-card p,
+      .note-card p {
+        margin: 10px 0 0;
+        color: var(--ink-soft);
+        line-height: 1.55;
+      }
+
+      .kicker {
+        display: inline-block;
+        margin-bottom: 12px;
+        color: var(--accent);
+        font-size: 0.78rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      .market-card ul,
+      .spec-card ul,
+      .revenue-card ul,
+      .swimlane ul,
+      .note-card ul {
+        margin: 14px 0 0;
+        padding-left: 18px;
+        color: var(--ink-soft);
+      }
+
+      .market-card li,
+      .spec-card li,
+      .revenue-card li,
+      .swimlane li,
+      .note-card li {
+        margin-top: 8px;
+        line-height: 1.45;
+      }
+
+      .competitive-layout {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+      }
+
+      .competitor-stack {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .competitor-card strong {
+        display: block;
+        margin-top: 14px;
+        font-size: 0.95rem;
+      }
+
+      .competitor-card small,
+      .source-card small,
+      .note-card small {
+        display: block;
+        margin-top: 12px;
+        color: rgba(53, 81, 96, 0.78);
+        line-height: 1.45;
+      }
+
+      .opportunity-grid {
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+
+      .fit-table {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .fit-row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 14px;
+        border-radius: 16px;
+        background: rgba(16, 33, 43, 0.04);
+      }
+
+      .fit-row strong {
+        font-size: 0.95rem;
+      }
+
+      .fit-row span {
+        color: var(--ink-soft);
+        line-height: 1.5;
+      }
+
+      .mvp-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .flow-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .swimlane {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .steps {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 14px;
+        border-radius: 16px;
+        background: rgba(16, 33, 43, 0.05);
+      }
+
+      .step-num {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        font-weight: 700;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .step span {
+        color: var(--ink-soft);
+        line-height: 1.45;
+      }
+
+      .spec-card .tag-row,
+      .revenue-card .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(16, 33, 43, 0.06);
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+      }
+
+      .revenue-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .note-layout {
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 16px;
+      }
+
+      .source-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .source-card a {
+        font-weight: 700;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+      }
+
+      .footer-note {
+        margin-top: 18px;
+        padding: 18px 22px;
+        border-radius: 18px;
+        background: rgba(16, 33, 43, 0.06);
+        color: var(--ink-soft);
+        line-height: 1.55;
+      }
+
+      @media (max-width: 1080px) {
+        .hero-shell,
+        .competitive-layout,
+        .opportunity-grid,
+        .flow-layout,
+        .note-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .market-grid,
+        .mvp-grid,
+        .revenue-grid,
+        .source-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 760px) {
+        .wrap {
+          width: min(var(--max), calc(100% - 20px));
+        }
+
+        .hero-copy,
+        .market-card,
+        .opportunity-card,
+        .spec-card,
+        .revenue-card,
+        .source-card,
+        .note-card,
+        .swimlane,
+        .competitor-card {
+          padding: 18px;
+        }
+
+        .hero-meta,
+        .market-grid,
+        .mvp-grid,
+        .revenue-grid,
+        .source-grid,
+        .competitor-stack {
+          grid-template-columns: 1fr;
+        }
+
+        .legend {
+          grid-template-columns: 1fr;
+        }
+
+        .section-head {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .fit-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <div class="hero-shell">
+          <div class="panel hero-copy">
+            <div class="eyebrow">Prepared April 21, 2026</div>
+            <h1>
+              Warm network infrastructure
+              <span>for verified communities</span>
+            </h1>
+            <p class="subhead">
+              A user-first alumni platform that turns shared affiliation into
+              mentorship, referrals, recruiting, local events, and long-term
+              belonging. The market already has strong admin suites; the open
+              wedge is recurring member-side value with less profile friction.
+            </p>
+            <div class="hero-meta">
+              <div class="mini-card">
+                <strong>Market reality</strong>
+                <p>
+                  Established platforms already bundle directories, mentoring,
+                  events, jobs, giving, and analytics.
+                </p>
+              </div>
+              <div class="mini-card">
+                <strong>Open gap</strong>
+                <p>
+                  No clear scaled winner is built around everyday member
+                  activity, fast help requests, and freshness by default.
+                </p>
+              </div>
+              <div class="mini-card">
+                <strong>Best wedge</strong>
+                <p>
+                  Start with trusted people search plus structured help:
+                  referral, mentor, hire, relocate, host.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel hero-visual">
+            <div class="network-card">
+              <h3>Core thesis</h3>
+              <p>
+                Build the product people want to open weekly, then make it
+                administratively easy enough that schools, clubs, fellowships,
+                and company alumni groups can adopt it without a large ops team.
+              </p>
+              <svg class="network-svg" viewBox="0 0 420 320" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="glowA" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#F3B36D" />
+                    <stop offset="100%" stop-color="#DF6A3A" />
+                  </linearGradient>
+                  <linearGradient id="glowB" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#9EC9BA" />
+                    <stop offset="100%" stop-color="#EFF3E4" />
+                  </linearGradient>
+                </defs>
+                <path d="M65 77C103 92 146 89 181 115C214 139 229 185 263 208C302 235 349 239 390 255" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+                <path d="M54 228C111 184 168 176 218 128C245 103 267 68 311 52C340 42 370 43 397 32" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+                <path d="M98 39C123 79 136 119 168 152C199 185 242 214 274 252" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+                <circle cx="65" cy="77" r="16" fill="url(#glowA)" />
+                <circle cx="181" cy="115" r="20" fill="url(#glowB)" />
+                <circle cx="263" cy="208" r="18" fill="url(#glowA)" />
+                <circle cx="390" cy="255" r="14" fill="url(#glowB)" />
+                <circle cx="54" cy="228" r="18" fill="url(#glowB)" />
+                <circle cx="218" cy="128" r="14" fill="url(#glowA)" />
+                <circle cx="311" cy="52" r="22" fill="url(#glowB)" />
+                <circle cx="98" cy="39" r="12" fill="url(#glowA)" />
+                <circle cx="274" cy="252" r="24" fill="url(#glowA)" />
+                <circle cx="355" cy="96" r="10" fill="url(#glowB)" />
+                <circle cx="149" cy="234" r="12" fill="#F7EFE0" fill-opacity=".35" />
+                <circle cx="341" cy="186" r="12" fill="#F7EFE0" fill-opacity=".35" />
+              </svg>
+            </div>
+            <div class="legend">
+              <div class="legend-item">
+                <strong>Younger members</strong>
+                <span>Need access, belonging, jobs, referrals, and local peers.</span>
+              </div>
+              <div class="legend-item">
+                <strong>Established members</strong>
+                <span>Want low-friction ways to mentor, recruit, sponsor, and stay visible.</span>
+              </div>
+              <div class="legend-item">
+                <strong>Administrators</strong>
+                <span>Need simple setup, trust controls, activity, and measurable outcomes.</span>
+              </div>
+              <div class="legend-item">
+                <strong>Monetization</strong>
+                <span>Start with software spend, then layer recruiting, events, and sponsorships.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Current market</div>
+              <h2>What the alumni software market looks like now</h2>
+            </div>
+            <p>
+              This is not a blank category. The incumbents are broad, mostly
+              admin-led platforms sold as infrastructure for alumni engagement,
+              advancement, careers, events, and data operations.
+            </p>
+          </div>
+
+          <div class="market-grid">
+            <article class="market-card">
+              <div class="kicker">Incumbent suites</div>
+              <h3>Higher-ed platforms are already feature-complete on paper</h3>
+              <p>
+                PeopleGrove, Hivebrite, Gravyty/Graduway, Almabase, ToucanTech,
+                and Hoopstr all promote combinations of mentoring, directories,
+                jobs, events, messaging, analytics, and giving.
+              </p>
+              <ul>
+                <li>PeopleGrove states 500+ institutional partners and 20M+ users across the country.</li>
+                <li>Almabase says it is used by 2,000+ mission-driven organizations.</li>
+                <li>ToucanTech says it serves 300+ schools and universities.</li>
+              </ul>
+            </article>
+
+            <article class="market-card">
+              <div class="kicker">Admin-first buying motion</div>
+              <h3>The category is sold as institutional software</h3>
+              <p>
+                The dominant language is about advancement, donor pipelines,
+                reporting, governance, and tech consolidation. That is strong
+                for procurement, but it often means the end-user experience is
+                a secondary design constraint.
+              </p>
+              <ul>
+                <li>PeopleGrove emphasizes alumni engagement plus philanthropy and CASE reporting.</li>
+                <li>Almabase leads with "turning thousands of constituents into donors."</li>
+                <li>ToucanTech explicitly targets development teams, fundraisers, and community managers.</li>
+              </ul>
+            </article>
+
+            <article class="market-card">
+              <div class="kicker">AI is already arriving</div>
+              <h3>Search, matching, and data refresh are becoming table stakes</h3>
+              <p>
+                The market has started moving beyond static directories. Hivebrite
+                now markets AI search and AI matchmaking, and Hoopstr markets
+                automatic alumni discovery, refresh, and scoring.
+              </p>
+              <ul>
+                <li>Hivebrite promotes AI search, content recommendations, and Orbiit AI matching.</li>
+                <li>Hoopstr Magic says it enriches alumni data automatically and refreshes work history and titles.</li>
+                <li>Almabase already supports profile updates pulled from Facebook and LinkedIn.</li>
+              </ul>
+            </article>
+
+            <article class="market-card">
+              <div class="kicker">Commercial shape</div>
+              <h3>Pricing is still fundamentally B2B and quote-led</h3>
+              <p>
+                The current market mostly sells annual software to organizations.
+                Public plan detail is limited, and add-ons typically include
+                ticketed events, memberships, messaging, fundraising, and support.
+              </p>
+              <ul>
+                <li>Hivebrite exposes Connect / Scale / Enterprise tiers, with pricing moving to contact-sales at higher tiers.</li>
+                <li>Most competitors still push demo-driven pricing rather than transparent self-serve.</li>
+                <li>This leaves room for easier adoption, but only if trust and support remain strong.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="competitive-layout">
+            <div class="competitor-stack">
+              <article class="competitor-card">
+                <div class="kicker">Higher education</div>
+                <h3>PeopleGrove</h3>
+                <p>
+                  Strong institutional footprint, mentorship, alumni engagement,
+                  career readiness, and advancement framing. Clear signal that
+                  the category already links community activity to giving.
+                </p>
+                <small>
+                  Official positioning includes 500+ partners, 20M+ users,
+                  mentorship, alumni engagement, and advancement workflows.
+                </small>
+              </article>
+
+              <article class="competitor-card">
+                <div class="kicker">Flexible community stack</div>
+                <h3>Hivebrite</h3>
+                <p>
+                  A generalized community platform with higher-ed packaging:
+                  directory, jobs, groups, events, ticketing, messaging,
+                  memberships, AI search, and AI matching.
+                </p>
+                <small>
+                  Official pages also emphasize fragmented tech, data privacy,
+                  and institutional advancement as core pain points.
+                </small>
+              </article>
+
+              <article class="competitor-card">
+                <div class="kicker">Advancement overlay</div>
+                <h3>Almabase + ToucanTech</h3>
+                <p>
+                  Both are strong on CRM sync, events, communications, and
+                  keeping alumni records current. The positioning is clearly
+                  useful, but deeply operational and staff-oriented.
+                </p>
+                <small>
+                  Almabase explicitly promotes AI-powered constituent-to-donor
+                  workflows; ToucanTech presents an all-in-one CRM + portal.
+                </small>
+              </article>
+
+              <article class="competitor-card">
+                <div class="kicker">Corporate alumni</div>
+                <h3>EnterpriseAlumni + PeoplePath</h3>
+                <p>
+                  The corporate side already treats alumni as a recruiting,
+                  revenue, and brand asset. That validates the economic value of
+                  verified ex-member communities beyond schools.
+                </p>
+                <small>
+                  Official messaging centers on rehires, referrals, revenue,
+                  candidate pipelines, and alumni-led brand advocacy.
+                </small>
+              </article>
+            </div>
+
+            <article class="note-card">
+              <div class="kicker">Where the opening still is</div>
+              <h3>There is still room for a user-first winner</h3>
+              <p>
+                The market has mature admin platforms, but much less evidence of
+                a dominant product whose primary habit loop is member-side:
+                finding the right person, asking for specific help, getting a
+                fast response, and coming back again.
+              </p>
+              <div class="fit-table">
+                <div class="fit-row">
+                  <strong>Existing leader set</strong>
+                  <span>
+                    Institution-bought, broad, operationally useful, often tied
+                    to advancement or alumni-office goals.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Emerging member-first layer</strong>
+                  <span>
+                    Newer entrants such as Aluum position themselves as
+                    cost-free and "built for alumni, not institutional
+                    fundraising," but do not yet look like the dominant category
+                    winner.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Open gap</strong>
+                  <span>
+                    A verified, low-friction, recurring-use product that makes
+                    help exchange easier than LinkedIn and more useful than a
+                    static alumni portal.
+                  </span>
+                </div>
+              </div>
+              <small>
+                Inference: the strongest open opportunity is not "build alumni
+                software" but "build habitual, trusted help exchange inside
+                verified communities."
+              </small>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Product concept</div>
+              <h2>The investor-style one-page concept</h2>
+            </div>
+            <p>
+              Position the company as the warm-network layer for trusted
+              communities, not as another admin dashboard with a directory.
+            </p>
+          </div>
+
+          <div class="opportunity-grid">
+            <article class="opportunity-card">
+              <div class="kicker">Concept</div>
+              <h3>Product thesis</h3>
+              <p>
+                Build the trusted lifecycle network for alumni groups, student
+                organizations, fellowships, and company alumni communities.
+                Younger members come for access, local connection, and career
+                help. Experienced members stay to mentor, recruit, sponsor, and
+                build reputation. Administrators buy because the system stays
+                current, active, and measurable without heavy manual upkeep.
+              </p>
+              <div class="fit-table">
+                <div class="fit-row">
+                  <strong>Problem</strong>
+                  <span>
+                    Existing products solve institutional management better than
+                    they solve recurring member motivation.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Insight</strong>
+                  <span>
+                    Alumni do not want a database; they want a faster path to
+                    help, opportunities, and belonging.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Wedge</strong>
+                  <span>
+                    Intent-driven people discovery: "find me the right person
+                    for this need" rather than "browse an alumni directory."
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Why now</strong>
+                  <span>
+                    AI can finally rank, explain, and match at the intent level,
+                    while verified communities still offer trust that open
+                    networks lack.
+                  </span>
+                </div>
+              </div>
+            </article>
+
+            <article class="opportunity-card">
+              <div class="kicker">Best customer to start with</div>
+              <h3>Initial go-to-market</h3>
+              <p>
+                Start with graduate programs, selective student organizations,
+                and fellowships with 500 to 10,000 members. They have identity,
+                outcomes pressure, lower procurement friction than a full
+                university sale, and clear member jobs-to-be-done.
+              </p>
+              <div class="fit-table">
+                <div class="fit-row">
+                  <strong>Buyer</strong>
+                  <span>
+                    Program director, alumni lead, career-services lead,
+                    association manager, or chapter operator.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Member trigger</strong>
+                  <span>
+                    Referral ask, city move, first job, event meetup, founder
+                    intro, quick mentor office hour.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Success metric</strong>
+                  <span>
+                    Search-to-contact conversion, response rate, monthly actives,
+                    repeat help exchange, and refreshed-profile coverage.
+                  </span>
+                </div>
+                <div class="fit-row">
+                  <strong>Business model</strong>
+                  <span>
+                    Low but real organizational subscription first; later add
+                    recruiting, events, sponsorships, and optional paid expert
+                    sessions.
+                  </span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Product guardrails</div>
+              <h2>One critical technical constraint</h2>
+            </div>
+            <p>
+              LinkedIn sign-in is useful for authentication and light profile
+              import, but it should not be treated as an unrestricted,
+              always-on recruiting data pipe.
+            </p>
+          </div>
+
+          <div class="note-layout">
+            <article class="note-card">
+              <div class="kicker">What is available</div>
+              <h3>LinkedIn can reduce onboarding friction</h3>
+              <p>
+                Microsoft Learn currently documents Sign In with LinkedIn using
+                lite profile and email permissions, which supports faster member
+                registration and some authenticated-member profile retrieval.
+              </p>
+              <ul>
+                <li><code>r_liteprofile</code> covers id, name, and profile picture.</li>
+                <li><code>r_emailaddress</code> covers member email retrieval.</li>
+                <li>
+                  This is useful for "import and confirm" onboarding and for
+                  periodic refresh prompts, not as the sole system-of-record.
+                </li>
+              </ul>
+            </article>
+
+            <article class="note-card">
+              <div class="kicker">What to avoid</div>
+              <h3>Design sync as consented enrichment, not silent scraping</h3>
+              <p>
+                LinkedIn's Profile API is officially restricted to approved
+                developers, and the documented restrictions on member data make
+                it risky to base recruiting enrichment or ad targeting on that
+                data stream.
+              </p>
+              <ul>
+                <li>Do not promise fully automatic cross-user profile building from LinkedIn APIs.</li>
+                <li>Do not build the recruiting economics on top of restricted member-data usage.</li>
+                <li>
+                  Safer MVP: import from authenticated member sources, suggest
+                  updates, ask for confirmation, and respect public/private/hidden visibility controls.
+                </li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">MVP spec</div>
+              <h2>Scope the first version around action, not community clutter</h2>
+            </div>
+            <p>
+              The MVP should help members do five things: join fast, keep data
+              current, find the right person, ask for help, and show up to the
+              right events.
+            </p>
+          </div>
+
+          <div class="mvp-grid">
+            <article class="spec-card">
+              <div class="kicker">Must build</div>
+              <h3>Member experience</h3>
+              <ul>
+                <li>School or organization verification at sign-up.</li>
+                <li>Progressive profile setup with import, resume upload, and manual edits.</li>
+                <li>Availability and willingness settings: mentor, hire, refer, host, sponsor.</li>
+                <li>Natural-language search for people, opportunities, and local peers.</li>
+                <li>Structured help requests: referral, mentor chat, relocation help, warm intro.</li>
+                <li>Direct messaging or intro request workflow with explainable match reasons.</li>
+                <li>Event discovery, RSVP, and attendee context.</li>
+              </ul>
+              <div class="tag-row">
+                <span class="tag">Search</span>
+                <span class="tag">Profiles</span>
+                <span class="tag">Help requests</span>
+                <span class="tag">Messaging</span>
+                <span class="tag">Events</span>
+              </div>
+            </article>
+
+            <article class="spec-card">
+              <div class="kicker">Must build</div>
+              <h3>Admin experience</h3>
+              <ul>
+                <li>Fast org creation with domain verification or invite roster import.</li>
+                <li>Member approval rules and trust controls.</li>
+                <li>Lightweight segmentation and announcement tools.</li>
+                <li>Event creation, RSVP tracking, and reminders.</li>
+                <li>Basic analytics: activation, monthly active members, response rate, event conversion, profile freshness.</li>
+                <li>Privacy presets and moderation queue.</li>
+              </ul>
+              <div class="tag-row">
+                <span class="tag">Verification</span>
+                <span class="tag">Moderation</span>
+                <span class="tag">Events</span>
+                <span class="tag">Analytics</span>
+                <span class="tag">Messaging</span>
+              </div>
+            </article>
+
+            <article class="spec-card">
+              <div class="kicker">Defer</div>
+              <h3>Not in MVP</h3>
+              <ul>
+                <li>Full fundraising suite and donation campaigns.</li>
+                <li>Generic ad marketplace.</li>
+                <li>Complex CRM replacement.</li>
+                <li>Large open social feed with heavy content moderation burden.</li>
+                <li>Paid mentoring brokerage as a core assumption.</li>
+                <li>Overbuilt chapter hierarchy and enterprise permissions.</li>
+              </ul>
+              <div class="tag-row">
+                <span class="tag">No donor CRM</span>
+                <span class="tag">No ad dependency</span>
+                <span class="tag">No full marketplace</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">User flow</div>
+              <h2>MVP flows that should feel effortless</h2>
+            </div>
+            <p>
+              The product should move from directory logic to outcome logic:
+              what the member needs right now, who is most likely to help, and
+              how the community learns from each interaction.
+            </p>
+          </div>
+
+          <div class="flow-layout">
+            <article class="swimlane">
+              <div class="kicker">Member journey</div>
+              <h3>Join -> enrich -> ask -> connect -> return</h3>
+              <div class="steps">
+                <div class="step">
+                  <div class="step-num">1</div>
+                  <div>
+                    <strong>Verified join</strong>
+                    <span>
+                      Member signs in using institution email, invite link, or
+                      approved verification path. Import available details, then
+                      ask only the next two useful questions.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">2</div>
+                  <div>
+                    <strong>Progressive enrichment</strong>
+                    <span>
+                      Ask for current role, city, interests, and what the member
+                      is open to: mentor, be mentored, hire, refer, host, or sponsor.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">3</div>
+                  <div>
+                    <strong>Intent search</strong>
+                    <span>
+                      User types a real request such as "find alumni in Austin
+                      working in healthcare who are open to mentoring."
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">4</div>
+                  <div>
+                    <strong>Explainable match</strong>
+                    <span>
+                      System ranks results by fit, availability, recency, and
+                      likely responsiveness, then shows why each result surfaced.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">5</div>
+                  <div>
+                    <strong>Structured outreach</strong>
+                    <span>
+                      User sends a targeted help request with optional AI-drafted
+                      copy; the system follows up gently if there is no response.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="swimlane">
+              <div class="kicker">Admin journey</div>
+              <h3>Create -> launch -> monitor -> re-engage</h3>
+              <div class="steps">
+                <div class="step">
+                  <div class="step-num">1</div>
+                  <div>
+                    <strong>Fast org setup</strong>
+                    <span>
+                      Verify the organization, upload a roster if one exists,
+                      choose launch rules, and apply brand basics in minutes.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">2</div>
+                  <div>
+                    <strong>Launch with one promise</strong>
+                    <span>
+                      Promote one clear member value proposition first: mentor,
+                      referral, local network, or hiring access.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">3</div>
+                  <div>
+                    <strong>Watch the core metrics</strong>
+                    <span>
+                      Track activation, searches, contact requests, response
+                      rates, refreshed profiles, and event conversion.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">4</div>
+                  <div>
+                    <strong>Run targeted nudges</strong>
+                    <span>
+                      Ask older members to host office hours, invite younger
+                      members to city events, and prompt stale-profile updates.
+                    </span>
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-num">5</div>
+                  <div>
+                    <strong>Earn the next module</strong>
+                    <span>
+                      Once the community is active, add recruiting tools,
+                      sponsorship surfaces, or annual-event monetization.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Monetization</div>
+              <h2>Revenue plan that does not poison trust early</h2>
+            </div>
+            <p>
+              The cleanest strategy is a low-friction B2B base with monetized
+              workflows added only after member value is proven.
+            </p>
+          </div>
+
+          <div class="revenue-grid">
+            <article class="revenue-card">
+              <div class="kicker">Phase 1</div>
+              <h3>Base software</h3>
+              <p>
+                Low annual subscription for the organization. Enough to qualify
+                commitment and fund support, but not so high that adoption dies
+                in procurement.
+              </p>
+              <div class="tag-row">
+                <span class="tag">Recurring SaaS</span>
+                <span class="tag">Clean incentive alignment</span>
+              </div>
+            </article>
+
+            <article class="revenue-card">
+              <div class="kicker">Phase 2</div>
+              <h3>Premium admin modules</h3>
+              <p>
+                Advanced campaigns, segmentation, richer analytics, custom
+                branding, mobile push, and deeper permissions once active
+                communities justify the spend.
+              </p>
+              <div class="tag-row">
+                <span class="tag">Upsell path</span>
+                <span class="tag">Admin ROI</span>
+              </div>
+            </article>
+
+            <article class="revenue-card">
+              <div class="kicker">Phase 3</div>
+              <h3>Recruiting + events</h3>
+              <p>
+                Employer access, sponsored recruiting events, paid opportunity
+                placement, ticketed events, and sponsor visibility. This is
+                stronger than generic ad inventory.
+              </p>
+              <div class="tag-row">
+                <span class="tag">High-intent spend</span>
+                <span class="tag">Mission aligned</span>
+              </div>
+            </article>
+
+            <article class="revenue-card">
+              <div class="kicker">Later only</div>
+              <h3>Optional transactions</h3>
+              <p>
+                Take rates on paid expert sessions or structured external
+                mentoring can work later, but should not be required for the
+                core community to feel healthy.
+              </p>
+              <div class="tag-row">
+                <span class="tag">Possible 5-10% fee</span>
+                <span class="tag">Not core at launch</span>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Why this can win</div>
+              <h2>The right differentiation statement</h2>
+            </div>
+            <p>
+              Do not position this as a better alumni database. Position it as
+              the fastest route from shared affiliation to trusted action.
+            </p>
+          </div>
+
+          <div class="note-layout">
+            <article class="note-card">
+              <div class="kicker">Positioning</div>
+              <h3>What to say</h3>
+              <ul>
+                <li>A verified help network for alumni and mission-driven communities.</li>
+                <li>Better than LinkedIn for warm, contextual asks inside trusted groups.</li>
+                <li>Better than legacy alumni portals for recurring member value.</li>
+                <li>Better than one-off event or directory tools because it compounds relationship data over time.</li>
+              </ul>
+            </article>
+
+            <article class="note-card">
+              <div class="kicker">Company discipline</div>
+              <h3>What to protect</h3>
+              <ul>
+                <li>Do not let ads become the product before the network becomes useful.</li>
+                <li>Do not overload launch with giving, feeds, forums, and commerce.</li>
+                <li>Do not assume silent third-party data sync is available or compliant.</li>
+                <li>Do not sell "engagement" if you cannot show repeated member behavior.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">Primary sources</div>
+              <h2>Current-market references used in this pitch</h2>
+            </div>
+            <p>
+              All market claims below were grounded in currently accessible
+              official product pages, app listings, or Microsoft Learn
+              documentation as of April 21, 2026.
+            </p>
+          </div>
+
+          <div class="source-grid">
+            <article class="source-card">
+              <a href="https://www.peoplegrove.com/" target="_blank" rel="noreferrer">PeopleGrove</a>
+              <p>
+                Official higher-ed platform framing around alumni engagement,
+                mentorship, career readiness, and institutional outcomes. Search
+                results and product pages reference 500+ institutional partners
+                and 20M+ users.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://www.peoplegrove.com/solutions/universities/alumni-and-advancement/" target="_blank" rel="noreferrer">PeopleGrove Alumni &amp; Advancement</a>
+              <p>
+                Official positioning around alumni engagement, philanthropy,
+                CASE reporting, mentoring, and measurable advancement impact.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://hivebrite.io/alumni-management-software/" target="_blank" rel="noreferrer">Hivebrite Alumni Management</a>
+              <p>
+                Official problem framing around fragmented tech, outdated
+                systems, engagement, data privacy, jobs, ticketing, mobile, and
+                sub-communities.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://hivebrite.io/pricing/" target="_blank" rel="noreferrer">Hivebrite Pricing</a>
+              <p>
+                Public Connect / Scale / Enterprise structure, including
+                memberships, messaging, events, analytics, profile update
+                campaigns, ticketed events, and AI matching.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://hivebrite.io/product-overview/" target="_blank" rel="noreferrer">Hivebrite Platform Overview</a>
+              <p>
+                Official references to AI search, content recommendations, and
+                Orbiit matchmaking based on shared interests, goals, and expertise.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://www.almabase.com/" target="_blank" rel="noreferrer">Almabase</a>
+              <p>
+                Official "AI-powered platform" framing tied to CRM-backed
+                digital engagement, events, giving, donor growth, and 2,000+
+                organizations.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://www.almabase.com/products/online-alumni-community" target="_blank" rel="noreferrer">Almabase Online Alumni Community</a>
+              <p>
+                Official references to mentorship, jobs, affinity groups, and
+                updated alumni information pulled from Facebook and LinkedIn.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://toucantech.com/pages/alumni-management-software" target="_blank" rel="noreferrer">ToucanTech</a>
+              <p>
+                Official all-in-one CRM + website + alumni portal framing and a
+                stated base of 300+ schools and universities.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://enterprisealumni.com/" target="_blank" rel="noreferrer">EnterpriseAlumni</a>
+              <p>
+                Official corporate alumni positioning around revenue, rehires,
+                recruitment, branded apps, and business development.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://peoplepath.com/" target="_blank" rel="noreferrer">PeoplePath</a>
+              <p>
+                Official corporate alumni positioning around revenue share,
+                rehires, cost savings, referrals, leadership networks, and talent relationships.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://hoopstr.ai/" target="_blank" rel="noreferrer">Hoopstr</a>
+              <p>
+                Official evidence that Vaave has rebranded to Hoopstr and now
+                pitches alumni activation, placements, mentoring, fundraising,
+                talent solutions, and brand partnerships.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://hoopstr.ai/magic" target="_blank" rel="noreferrer">Hoopstr Magic</a>
+              <p>
+                Official references to automatic alumni discovery, refreshed job
+                history, recruiter / donor / mentor scoring, and AI-driven
+                alumni intelligence.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://myaluum.com/" target="_blank" rel="noreferrer">Aluum</a>
+              <p>
+                Official direct-to-member positioning: free alumni network,
+                cross-school discovery, career services, deals, events, and
+                "built for alumni" messaging.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://apps.apple.com/us/app/aluum/id6743453345" target="_blank" rel="noreferrer">Aluum App Store Listing</a>
+              <p>
+                Public evidence of a member-first alumni app offering jobs,
+                searchable alumni, and an explicitly anti-membership-fee pitch.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin" target="_blank" rel="noreferrer">LinkedIn Sign In with LinkedIn</a>
+              <p>
+                Official Microsoft Learn documentation for lite profile and
+                email scopes available for authenticated-member sign-in.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://learn.microsoft.com/en-us/linkedin/shared/integrations/people/profile-api?view=li-lms-2025-04" target="_blank" rel="noreferrer">LinkedIn Profile API</a>
+              <p>
+                Official documentation stating that broader Profile API use is
+                restricted to approved developers and subject to data restrictions.
+              </p>
+            </article>
+
+            <article class="source-card">
+              <a href="https://learn.microsoft.com/en-us/linkedin/marketing/restricted-use-cases?view=li-lms-2025-04" target="_blank" rel="noreferrer">LinkedIn Member Data Restrictions</a>
+              <p>
+                Official restrictions stating member data should not be used for
+                advertising, sales, or recruiting use cases in the ways described there.
+              </p>
+            </article>
+          </div>
+
+          <div class="footer-note">
+            Inference notes: the statement that the category is still open for a
+            user-first winner is an inference from the current leader set, which
+            remains heavily institution-sold and operations-led. I did find
+            emerging member-first products such as Aluum, so the opportunity is
+            better framed as "no dominant member-first category winner yet" rather
+            than "no one is trying."
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
