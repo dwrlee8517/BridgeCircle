@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BridgeCircle — The /lib Pattern</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+<style>
+  :root {
+    --bg: #0f1419;
+    --bg-2: #1a2028;
+    --fg: #e8e8e8;
+    --muted: #8a95a3;
+    --accent: #5ab4ff;
+    --ok: #7ed07e;
+    --bad: #ff8a7a;
+    --warn: #f6c76a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; height: 100%; }
+  body { overflow: hidden; }
+
+  .slide {
+    display: none;
+    position: absolute;
+    inset: 0;
+    padding: 60px 80px 80px 80px;
+    overflow-y: auto;
+    animation: fade 0.25s ease-out;
+  }
+  .slide.active { display: block; }
+  .slide.title-slide.active { display: flex; flex-direction: column; justify-content: center; }
+  @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .slide h1 { font-size: 52px; margin: 0 0 16px 0; letter-spacing: -1px; line-height: 1.1; }
+  .slide h2 { font-size: 38px; margin: 0 0 28px 0; color: var(--accent); font-weight: 600; letter-spacing: -0.5px; }
+  .slide h3 { font-size: 22px; margin: 20px 0 10px 0; color: var(--fg); font-weight: 600; }
+  .slide p { font-size: 22px; line-height: 1.55; max-width: 920px; color: var(--fg); margin: 0 0 16px 0; }
+  .slide .lead { font-size: 28px; color: var(--muted); margin-bottom: 24px; max-width: 900px; }
+  .slide ul { font-size: 20px; line-height: 1.7; max-width: 900px; padding-left: 24px; }
+  .slide li { margin-bottom: 6px; }
+  .slide .label { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+
+  pre[class*="language-"] {
+    background: var(--bg-2) !important;
+    border-radius: 8px;
+    padding: 20px 24px !important;
+    max-width: 1100px;
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 12px 0;
+    border: 1px solid #232a33;
+  }
+  code { font-family: "SF Mono", Monaco, Consolas, monospace; }
+  p code, li code { background: #232a33; padding: 2px 7px; border-radius: 4px; font-size: 0.88em; color: #d6e0e8; }
+
+  .diagram {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    white-space: pre;
+    background: var(--bg-2);
+    border: 1px solid #232a33;
+    border-radius: 8px;
+    padding: 24px;
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 1000px;
+    color: #d6e0e8;
+  }
+  .diagram .arrow { color: var(--accent); }
+  .diagram .node { color: var(--warn); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 1200px; }
+  .two-col.wide { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .two-col h3 { font-size: 18px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+
+  .callout { background: rgba(126, 208, 126, 0.08); border-left: 4px solid var(--ok); padding: 18px 24px; border-radius: 4px; max-width: 900px; margin: 20px 0; }
+  .warn { background: rgba(255, 138, 122, 0.08); border-left: 4px solid var(--bad); padding: 18px 24px; border-radius: 4px; max-width: 900px; margin: 20px 0; }
+  .callout p, .warn p { font-size: 19px; margin: 0; }
+
+  .counter { position: fixed; bottom: 20px; right: 30px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .hint { position: fixed; bottom: 20px; left: 30px; font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
+
+  .title-slide h1 { font-size: 64px; }
+  .title-slide .sub { font-size: 28px; color: var(--muted); max-width: 800px; }
+
+  .kbd { background: #2a323d; border: 1px solid #3a424d; border-radius: 4px; padding: 2px 8px; font-size: 14px; font-family: "SF Mono", Monaco, monospace; color: #d6e0e8; }
+
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.25s ease; z-index: 100; }
+
+  .ok-txt { color: var(--ok); font-weight: 600; }
+  .bad-txt { color: var(--bad); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<!-- SLIDE 1: Title -->
+<section class="slide title-slide active">
+  <h1>The /lib Pattern</h1>
+  <p class="sub">Keeping BridgeCircle's business logic future-proof. Also: a quick tour of how a web app actually works.</p>
+  <p style="font-size: 16px; color: var(--muted); margin-top: 40px;">Use <span class="kbd">→</span> to advance, <span class="kbd">←</span> to go back.</p>
+</section>
+
+<!-- SLIDE 2: Big picture -->
+<section class="slide">
+  <div class="label">Part 1 · How a web app works</div>
+  <h2>The 10-second picture</h2>
+  <div class="diagram">
+<span class="node">[ Browser ]</span>   <span class="arrow">──HTTP request──▶</span>   <span class="node">[ Server ]</span>   <span class="arrow">──SQL──▶</span>   <span class="node">[ Database ]</span>
+                                                    │
+<span class="node">[ Browser ]</span>   <span class="arrow">◀──JSON response──</span>   <span class="node">[ Server ]</span>   <span class="arrow">◀──rows──</span>
+  </div>
+  <p style="margin-top: 24px;">Every click, search, and form submit boils down to this. The browser asks. The server answers. The database stores state.</p>
+</section>
+
+<!-- SLIDE 3: Concrete flow -->
+<section class="slide">
+  <div class="label">Part 1 · How a web app works</div>
+  <h2>A real flow: sending a mentorship request</h2>
+  <div class="diagram">
+1. User fills form, clicks <span class="node">"Send"</span>
+2. Browser sends <span class="arrow">POST /api/mentorship/request</span> with form data as JSON
+3. Server receives it — runs your code
+4. Server checks: is this mentor open? at capacity? who's asking?
+5. Server writes a row to Postgres: <span class="node">mentorship_request</span>
+6. Server emails the mentor via Resend
+7. Server responds: <span class="arrow">{ ok: true, requestId: "abc" }</span>
+8. Browser shows a toast: <span class="node">"Request sent"</span>
+  </div>
+  <p style="margin-top: 20px; color: var(--muted);">Steps 3–6 are where <strong>all the business rules live</strong>. That's the code we need to get right.</p>
+</section>
+
+<!-- SLIDE 4: TypeScript basics -->
+<section class="slide">
+  <div class="label">Part 2 · TypeScript, briefly</div>
+  <h2>Types describe the shape of your data</h2>
+  <p>TypeScript is JavaScript + a type system. You tell the compiler what shape data must have, and it catches bugs before users do.</p>
+  <pre><code class="language-typescript">type Mentor = {
+  id: string
+  name: string
+  mentor_open: boolean
+  max_pending: number
+}
+
+// The compiler errors if you try to do this:
+const m: Mentor = { id: "abc", name: "Rick" }
+//                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+// missing: mentor_open, max_pending</code></pre>
+  <p>Types are erased at build time. They don't exist at runtime — they're a safety net for you, not a library.</p>
+</section>
+
+<!-- SLIDE 5: Function types -->
+<section class="slide">
+  <div class="label">Part 2 · TypeScript, briefly</div>
+  <h2>Functions have input types and output types</h2>
+  <pre><code class="language-typescript">function greet(name: string): string {
+  return `Hello, ${name}`
+}
+
+// Input: one string. Output: one string.
+// Calling greet(123) is a compile error.</code></pre>
+  <p>Later we'll see a function whose return type is a <em>union</em> — it returns either a success shape or a failure shape, and TypeScript forces the caller to handle both.</p>
+  <pre><code class="language-typescript">type Result =
+  | { ok: true; value: number }
+  | { ok: false; error: string }
+
+// The caller must check `result.ok` before touching `value` or `error`.</code></pre>
+</section>
+
+<!-- SLIDE 6: Next.js API route -->
+<section class="slide">
+  <div class="label">Part 3 · Next.js API routes</div>
+  <h2>An API route is a file that handles HTTP</h2>
+  <p>In Next.js App Router, the file's <em>path</em> becomes the URL.</p>
+  <pre><code class="language-typescript">// File: src/app/api/mentorship/route.ts
+// URL:  POST /api/mentorship
+
+export async function POST(req: Request) {
+  const body = await req.json()       // read incoming JSON
+  console.log('got body:', body)
+  return Response.json({ ok: true })  // send JSON back
+}</code></pre>
+  <p><code>req</code> is the incoming HTTP request. Whatever the function <em>returns</em> is sent back to the browser.</p>
+</section>
+
+<!-- SLIDE 7: The bad example -->
+<section class="slide">
+  <div class="label">Part 4 · The problem</div>
+  <h2>What "business logic in the route" looks like</h2>
+  <pre><code class="language-typescript">// src/app/api/mentorship/route.ts
+export async function POST(req: Request) {
+  const body = await req.json()
+  const session = await getServerSession()
+  if (!session) return Response.json({ error: 'unauth' }, { status: 401 })
+
+  // ⚠️ Business rules start here, tangled with HTTP plumbing:
+  const mentor = await supabase.from('profiles')
+    .select().eq('id', body.mentorId).single()
+
+  if (!mentor.data?.mentor_open)
+    return Response.json({ error: 'closed' }, { status: 400 })
+
+  const pending = await supabase.from('mentorship_request')
+    .select('*', { count: 'exact' })
+    .eq('mentor_id', body.mentorId).eq('status', 'pending')
+
+  if (pending.count >= mentor.data.max_pending)
+    return Response.json({ error: 'full' }, { status: 400 })
+
+  const request = await supabase.from('mentorship_request')
+    .insert({ ...body, status: 'pending' }).select().single()
+
+  await resend.emails.send({ to: mentor.data.email, /* ... */ })
+  return Response.json(request.data)
+}</code></pre>
+</section>
+
+<!-- SLIDE 8: Why it hurts -->
+<section class="slide">
+  <div class="label">Part 4 · The problem</div>
+  <h2>Nothing wrong with this today. Tomorrow it breaks.</h2>
+  <ul>
+    <li><span class="bad-txt">Mobile app</span> needs the same rule — you copy-paste the logic into another endpoint.</li>
+    <li><span class="bad-txt">Weekly worker</span> auto-pauses inactive mentors — it needs "is mentor open?" — copy-paste.</li>
+    <li><span class="bad-txt">Admin panel</span> wants to create a request on behalf of someone — copy-paste.</li>
+    <li><span class="bad-txt">Unit test</span> requires mocking <code>Request</code>, <code>Response</code>, Supabase, Resend — painful, so you skip it.</li>
+    <li><span class="bad-txt">Bug found</span> in the rule — you fix it in one place, forget the other four copies.</li>
+  </ul>
+  <div class="warn"><p>The rule "mentor must be open and under capacity" is a <strong>business concept</strong>. It shouldn't live inside a web framework's request/response handler.</p></div>
+</section>
+
+<!-- SLIDE 9: The fix — two files -->
+<section class="slide">
+  <div class="label">Part 5 · The /lib pattern</div>
+  <h2>Split into two files</h2>
+  <div class="two-col wide">
+    <div>
+      <h3>/lib/mentorship/createRequest.ts</h3>
+      <p style="font-size: 16px; color: var(--muted);">Pure business logic. No HTTP. No Next.js. Framework-agnostic.</p>
+    </div>
+    <div>
+      <h3>/app/api/mentorship/route.ts</h3>
+      <p style="font-size: 16px; color: var(--muted);">Thin transport wrapper. ~10 lines. Parses input, calls lib, returns response.</p>
+    </div>
+  </div>
+  <p style="margin-top: 20px;">The lib function can be called from an API route, a server action, a background worker, a test, or a completely different service in the future.</p>
+</section>
+
+<!-- SLIDE 10: The types -->
+<section class="slide">
+  <div class="label">Part 5 · The /lib pattern</div>
+  <h2>Define input and result types first</h2>
+  <pre><code class="language-typescript">// src/lib/mentorship/createRequest.ts
+
+export type CreateRequestInput = {
+  menteeId: string
+  mentorId: string
+  reason: string
+  helpNeeded: string
+}
+
+export type CreateRequestResult =
+  | { ok: true;  requestId: string }
+  | { ok: false; error: 'mentor_closed' | 'mentor_full' | 'not_found' }</code></pre>
+  <p><code>CreateRequestResult</code> is a union: either success with a <code>requestId</code>, or failure with a specific <code>error</code>. The compiler forces any caller to handle both branches.</p>
+</section>
+
+<!-- SLIDE 11: The function -->
+<section class="slide">
+  <div class="label">Part 5 · The /lib pattern</div>
+  <h2>The function — business rules, nothing else</h2>
+  <pre><code class="language-typescript">export async function createMentorshipRequest(
+  input: CreateRequestInput,
+  deps: { db: DbClient; notify: Notifier }
+): Promise&lt;CreateRequestResult&gt; {
+
+  const mentor = await deps.db.profiles.findById(input.mentorId)
+  if (!mentor)               return { ok: false, error: 'not_found' }
+  if (!mentor.mentor_open)   return { ok: false, error: 'mentor_closed' }
+
+  const pending = await deps.db.mentorshipRequests.countPending(input.mentorId)
+  if (pending >= mentor.max_pending)
+    return { ok: false, error: 'mentor_full' }
+
+  const request = await deps.db.mentorshipRequests.create({
+    ...input, status: 'pending',
+  })
+  await deps.notify.mentorshipRequestCreated(mentor.email, request)
+  return { ok: true, requestId: request.id }
+}</code></pre>
+  <p style="margin-top: 8px;">Notice: no <code>Request</code>, no <code>Response</code>, no Next.js imports. <code>deps</code> is how we pass in the database and notifier — <em>injected</em> instead of imported, so we can swap them for testing.</p>
+</section>
+
+<!-- SLIDE 12: The thin wrapper -->
+<section class="slide">
+  <div class="label">Part 5 · The /lib pattern</div>
+  <h2>The route handler becomes trivial</h2>
+  <pre><code class="language-typescript">// src/app/api/mentorship/route.ts
+import { createMentorshipRequest } from '@/lib/mentorship/createRequest'
+import { db } from '@/db/server'
+import { notify } from '@/notify/resend'
+import { requireSession } from '@/lib/auth/session'
+import { createRequestSchema } from '@/lib/mentorship/schemas'
+
+export async function POST(req: Request) {
+  const session = await requireSession()
+  const input = createRequestSchema.parse(await req.json())
+
+  const result = await createMentorshipRequest(
+    { ...input, menteeId: session.userId },
+    { db, notify }
+  )
+
+  if (!result.ok)
+    return Response.json({ error: result.error }, { status: 400 })
+  return Response.json({ requestId: result.requestId })
+}</code></pre>
+  <p>Parse input. Load session. Call lib. Map result to HTTP. That's the whole handler.</p>
+</section>
+
+<!-- SLIDE 13: The payoff diagram -->
+<section class="slide">
+  <div class="label">Part 6 · Why this future-proofs BridgeCircle</div>
+  <h2>One function, many callers</h2>
+  <div class="diagram">
+                            <span class="node">/lib/mentorship/createRequest.ts</span>
+                                        ▲
+                                        │
+        ┌───────────────────────┬───────┼───────────────────────┐
+        │                       │       │                       │
+<span class="arrow">[API route]</span>           <span class="arrow">[server action]</span>   <span class="arrow">[Inngest worker]</span>       <span class="arrow">[test]</span>
+ web user clicks       form mutation     weekly sweep auto-       fake db,
+ "Send request"        from a page       pauses mentors           instant check
+  </div>
+  <p style="margin-top: 20px;">Bug fix in one place. Rule change in one place. New caller tomorrow? It just imports the function.</p>
+</section>
+
+<!-- SLIDE 14: Why it survives mobile -->
+<section class="slide">
+  <div class="label">Part 6 · Why this future-proofs BridgeCircle</div>
+  <h2>When the native mobile app arrives</h2>
+  <p>The mobile app needs the exact same rule: "is mentor open? under capacity? create a request, notify them."</p>
+  <ul>
+    <li><span class="ok-txt">Option A:</span> mobile app calls the same <code>/api/mentorship</code> endpoint you already built. Zero changes.</li>
+    <li><span class="ok-txt">Option B:</span> you want a dedicated backend service for mobile. Copy <code>/lib/mentorship/</code> into it. No Next.js tangles to unwind.</li>
+  </ul>
+  <p>Either way, the rules were never coupled to the web framework. That's the payoff.</p>
+</section>
+
+<!-- SLIDE 15: Folder structure -->
+<section class="slide">
+  <div class="label">Part 7 · How it looks in the repo</div>
+  <h2>Folder layout</h2>
+  <div class="diagram">
+app/src/
+├── <span class="node">app/</span>        ← Next.js routes (HTTP + UI)
+│   ├── api/          POST/GET handlers (thin wrappers)
+│   └── (member)/     pages, server components
+├── <span class="node">components/ui/</span>  shadcn components
+├── <span class="node">lib/</span>        ← business logic (framework-free)
+│   ├── mentorship/   createRequest, acceptRequest, autoPause
+│   ├── profile/      update, computeCompleteness, applyVisibility
+│   ├── search/       rank, applyFilters, extractEntities
+│   ├── invite/       validate, send, resend, expire
+│   └── events/       createEvent, rsvp
+├── <span class="node">db/</span>         ← typed Supabase wrappers
+└── <span class="node">notify/</span>     ← Resend + push wrappers
+  </div>
+  <p style="margin-top: 20px;">The rule of thumb: anything you'd explain to a non-engineer as a product rule lives in <code>/lib/</code>.</p>
+</section>
+
+<!-- SLIDE 16: The rule -->
+<section class="slide">
+  <div class="label">Part 8 · The rule to remember</div>
+  <h2>Route handlers do four things. Nothing else.</h2>
+  <div class="callout" style="margin-top: 28px;">
+    <ol style="font-size: 22px; line-height: 1.8; margin: 0; padding-left: 24px;">
+      <li>Parse input (<code>zod</code>)</li>
+      <li>Load session / check auth</li>
+      <li>Call a <code>/lib</code> function with dependencies</li>
+      <li>Map the result to an HTTP response</li>
+    </ol>
+  </div>
+  <p style="margin-top: 24px;">If a line of code looks like a <em>business rule</em> ("mentor must be open," "invite must be unexpired," "user must be friends to DM") and it's inside <code>/app/api/</code>, it's in the wrong place. Move it to <code>/lib</code>.</p>
+</section>
+
+<!-- SLIDE 17: End -->
+<section class="slide title-slide">
+  <h1>That's it.</h1>
+  <p class="sub">One folder, one rule, and BridgeCircle stays portable through mobile, scale, framework churn, and future backends.</p>
+  <p style="font-size: 18px; color: var(--muted); margin-top: 40px;">Next step: <code>day-0-setup.md</code>.</p>
+</section>
+
+<div class="counter"><span id="n">1</span> / <span id="total">17</span></div>
+<div class="hint"><span class="kbd">←</span> <span class="kbd">→</span> navigate &nbsp;·&nbsp; <span class="kbd">Home</span> <span class="kbd">End</span> jump</div>
+
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  document.getElementById('total').textContent = total;
+  let current = 0;
+
+  function show(i) {
+    i = Math.max(0, Math.min(total - 1, i));
+    slides[current].classList.remove('active');
+    slides[i].classList.add('active');
+    slides[i].scrollTop = 0;
+    current = i;
+    document.getElementById('n').textContent = i + 1;
+    document.getElementById('progress').style.width = `${((i + 1) / total) * 100}%`;
+    // update hash for deep-linking
+    history.replaceState(null, '', `#${i + 1}`);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(current + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(current - 1); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(total - 1); }
+  });
+
+  document.addEventListener('click', (e) => {
+    // click right half = next, left half = prev (skip if clicking inside a code block or link)
+    if (e.target.closest('pre') || e.target.closest('a')) return;
+    const x = e.clientX / window.innerWidth;
+    if (x > 0.5) show(current + 1);
+    else show(current - 1);
+  });
+
+  // deep-link: #3 opens slide 3
+  const hash = parseInt(location.hash.replace('#', ''), 10);
+  if (!isNaN(hash) && hash >= 1 && hash <= total) show(hash - 1);
+  else show(0);
+</script>
+</body>
+</html>
