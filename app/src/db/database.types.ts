@@ -968,7 +968,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_active_member_of: { Args: { org_id: string }; Returns: boolean }
+      is_admin_of: { Args: { org_id: string }; Returns: boolean }
+      shares_org_with: { Args: { other_user_id: string }; Returns: boolean }
     }
     Enums: {
       admin_role: "super_admin" | "admin" | "event_moderator" | "ambassador"
