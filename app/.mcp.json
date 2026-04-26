@@ -6,7 +6,7 @@
     },
     "supabase": {
       "type": "http",
-      "url": "https://mcp.supabase.com/mcp?project_ref=edumxwzilfgvamzarwvo"
+      "url": "https://mcp.supabase.com/mcp?project_ref=ojpvahiuafdcynbdbmri"
     },
     "railway": {
       "command": "npx",

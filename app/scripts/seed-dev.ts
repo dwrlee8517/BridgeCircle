@@ -5,16 +5,17 @@
  *   SEED_CONFIRM=YES pnpm dlx tsx --env-file=.env.local scripts/seed-dev.ts
  *
  * What it does:
- *   - Wipes the relevant tables in the dev database (in dependency order).
+ *   - Wipes the relevant tables in the dev database.
  *   - Re-creates a small, hand-curated set of fake users, profiles, mentors,
  *     mentorship requests, events, and RSVPs that exercise the Phase 1 flows.
  *   - Prints a summary so you can sanity-check what landed.
  *
  * Prerequisites:
  *   - .env.local points at bridgecircle-dev (NOT production).
- *   - The Phase 1 migrations from phase-1-launch-spec.md have been applied
- *     to bridgecircle-dev. Without those tables, this script fails on the
- *     first insert with "relation does not exist" — that's expected.
+ *   - 0001_init has been applied to bridgecircle-dev. Without those tables,
+ *     the script fails on the first insert with "relation does not exist".
+ *   - The auth trigger from 0001_init auto-creates public.users rows when
+ *     auth.admin.createUser is called — this script relies on that.
  *
  * Safety:
  *   - Refuses to run unless SEED_CONFIRM=YES is set.
@@ -34,7 +35,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SECRET = process.env.SUPABASE_SECRET_KEY
-const PROD_PROJECT_REF = process.env.PROD_PROJECT_REF // optional extra guard
+const PROD_PROJECT_REF = process.env.PROD_PROJECT_REF
 
 function refuse(reason: string): never {
   console.error(`\n[seed-dev] refusing to run: ${reason}\n`)
@@ -57,10 +58,6 @@ if (PROD_PROJECT_REF && SUPABASE_URL.includes(PROD_PROJECT_REF)) {
   refuse(`SUPABASE_URL appears to be production (matches PROD_PROJECT_REF=${PROD_PROJECT_REF}).`)
 }
 
-console.log(`[seed-dev] target Supabase URL: ${SUPABASE_URL}`)
-console.log('[seed-dev] you have 3 seconds to abort with Ctrl+C if this is the wrong project...')
-await new Promise((r) => setTimeout(r, 3000))
-
 const admin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SECRET, {
   auth: { persistSession: false, autoRefreshToken: false },
 })
@@ -69,7 +66,7 @@ const admin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SECRET, {
 // Curated fake data
 //
 // Hand-curated rather than random so test scenarios are recognizable and
-// reproducible. Update IDs/emails here when you want to add new personas.
+// reproducible. Update emails/personas here when you want to add new ones.
 // ---------------------------------------------------------------------------
 
 const ORG = {
@@ -78,31 +75,32 @@ const ORG = {
   slug: 'chadwick-dev',
 }
 
+type AdminRole = 'super_admin' | 'admin' | 'event_moderator' | 'ambassador'
+
 type Persona = {
-  id: string
   email: string
   password: string
-  fullName: string
+  name: string
   gradYear: number
-  city: string
-  employer: string
-  title: string
-  university: string
-  major: string
+  city: string | null
+  employer: string | null
+  title: string | null
+  university: string | null
+  major: string | null
+  bio?: string | null
   openToMentor: boolean
   mentorTopics?: string[]
   maxPending?: number
   maxActive?: number
-  bio?: string
-  role?: 'super_admin' | 'admin' | 'member'
+  pausedAt?: string
+  adminRole?: AdminRole
 }
 
 const PERSONAS: Persona[] = [
   {
-    id: 'aaaa0000-0000-0000-0000-000000000001',
     email: 'admin-amy@example.com',
     password: 'devseed-password-1',
-    fullName: 'Amy Admin',
+    name: 'Amy Admin',
     gradYear: 2005,
     city: 'Palos Verdes, CA',
     employer: 'Chadwick School',
@@ -110,78 +108,77 @@ const PERSONAS: Persona[] = [
     university: 'Stanford University',
     major: 'Public Policy',
     openToMentor: false,
-    role: 'super_admin',
+    adminRole: 'super_admin',
   },
   {
-    id: 'aaaa0000-0000-0000-0000-000000000002',
     email: 'mentor-mark@example.com',
     password: 'devseed-password-2',
-    fullName: 'Mark Mentor',
+    name: 'Mark Mentor',
     gradYear: 2008,
     city: 'San Francisco, CA',
     employer: 'Acme Consulting',
     title: 'Senior Partner',
     university: 'University of Pennsylvania',
     major: 'Economics',
+    bio: 'Open to ~30min calls with current students or recent grads.',
     openToMentor: true,
     mentorTopics: ['consulting', 'career change', 'business school'],
     maxPending: 5,
     maxActive: 3,
-    bio: 'Open to ~30min calls with current students or recent grads.',
   },
   {
-    id: 'aaaa0000-0000-0000-0000-000000000003',
     email: 'mentor-mei@example.com',
     password: 'devseed-password-3',
-    fullName: 'Mei Mentor',
+    name: 'Mei Mentor',
     gradYear: 2012,
     city: 'Seoul, South Korea',
     employer: 'Hyundai Motor',
     title: 'Product Director',
     university: 'Yonsei University',
     major: 'Industrial Engineering',
+    bio: 'Happy to chat about the PM transition or relocating to Asia.',
     openToMentor: true,
     mentorTopics: ['product management', 'returning to Korea', 'engineering to PM'],
     maxPending: 10,
     maxActive: 5,
-    bio: 'Happy to chat about the PM transition or relocating to Asia.',
   },
   {
-    id: 'aaaa0000-0000-0000-0000-000000000004',
     email: 'mentor-fully-booked@example.com',
     password: 'devseed-password-4',
-    fullName: 'Felix Atcapacity',
+    name: 'Felix Atcapacity',
     gradYear: 2010,
     city: 'New York, NY',
     employer: 'Goldman Sachs',
     title: 'VP, Equity Research',
     university: 'Harvard University',
     major: 'Mathematics',
+    bio: 'Currently at max mentee capacity.',
     openToMentor: true,
     mentorTopics: ['finance', 'investment banking'],
-    maxPending: 1, // intentionally low so we can test capacity-full state
+    // Intentionally low so we can test the capacity-full state in the UI.
+    maxPending: 1,
     maxActive: 1,
-    bio: 'Currently at max mentee capacity.',
   },
   {
-    id: 'aaaa0000-0000-0000-0000-000000000005',
     email: 'mentor-paused@example.com',
     password: 'devseed-password-5',
-    fullName: 'Paula Paused',
+    name: 'Paula Paused',
     gradYear: 2009,
     city: 'Boston, MA',
     employer: 'Mass General Hospital',
     title: 'Attending Physician',
     university: 'Johns Hopkins University',
     major: 'Biology',
-    openToMentor: false, // paused for testing the auto-pause UI
     bio: 'Paused while away.',
+    // is_open=true but paused_at set: tests the "paused while away" UI state.
+    openToMentor: true,
+    mentorTopics: ['medicine', 'med school applications'],
+    pausedAt: new Date().toISOString(),
   },
   {
-    id: 'bbbb0000-0000-0000-0000-000000000001',
     email: 'student-sam@example.com',
     password: 'devseed-password-6',
-    fullName: 'Sam Student',
+    name: 'Sam Student',
     gradYear: 2024,
     city: 'Los Angeles, CA',
     employer: 'UCLA',
@@ -191,10 +188,9 @@ const PERSONAS: Persona[] = [
     openToMentor: false,
   },
   {
-    id: 'bbbb0000-0000-0000-0000-000000000002',
     email: 'recent-grad-ria@example.com',
     password: 'devseed-password-7',
-    fullName: 'Ria Recent',
+    name: 'Ria Recent',
     gradYear: 2022,
     city: 'San Francisco, CA',
     employer: 'Stripe',
@@ -204,10 +200,9 @@ const PERSONAS: Persona[] = [
     openToMentor: false,
   },
   {
-    id: 'bbbb0000-0000-0000-0000-000000000003',
     email: 'recent-grad-rohan@example.com',
     password: 'devseed-password-8',
-    fullName: 'Rohan Recent',
+    name: 'Rohan Recent',
     gradYear: 2021,
     city: 'Seattle, WA',
     employer: 'Microsoft',
@@ -217,18 +212,17 @@ const PERSONAS: Persona[] = [
     openToMentor: false,
   },
   {
-    id: 'bbbb0000-0000-0000-0000-000000000004',
     email: 'incomplete-iris@example.com',
     password: 'devseed-password-9',
-    fullName: 'Iris Incomplete',
+    name: 'Iris Incomplete',
     gradYear: 2023,
-    city: '',
-    employer: '',
-    title: '',
-    university: '',
-    major: '',
-    openToMentor: false,
+    city: null,
+    employer: null,
+    title: null,
+    university: null,
+    major: null,
     bio: 'Profile intentionally left incomplete to test profile-completion prompts.',
+    openToMentor: false,
   },
 ]
 
@@ -237,14 +231,14 @@ const EVENTS = [
     id: 'eeee0000-0000-0000-0000-000000000001',
     title: 'Spring Alumni Mixer (Palos Verdes)',
     description: 'Casual evening drinks at the Palos Verdes campus.',
-    locationText: 'Chadwick School Main Campus',
+    location: 'Chadwick School Main Campus',
     startsAt: futureIso(14),
   },
   {
     id: 'eeee0000-0000-0000-0000-000000000002',
     title: 'Songdo Alumni Coffee',
     description: 'Saturday morning coffee meetup for Chadwick International alumni.',
-    locationText: 'Cafe Onion, Songdo',
+    location: 'Cafe Onion, Songdo',
     startsAt: futureIso(21),
   },
 ]
@@ -257,45 +251,34 @@ function futureIso(daysFromNow: number): string {
 
 // ---------------------------------------------------------------------------
 // Steps
-//
-// Each step is small and named so the console output reads like a checklist.
-// If a step throws, the script stops — re-running starts from the top with
-// a fresh wipe.
 // ---------------------------------------------------------------------------
 
 async function wipe() {
-  // Order matters: child tables before parents.
-  const tables = [
-    'event_rsvp',
-    'event',
-    'message',
-    'mentorship_thread',
-    'mentorship_request',
-    'mentorship_preference',
-    'invite',
-    'admin_role_assignment',
-    'audit_log',
-    'organization_membership',
-    'profile',
-    'organization',
-  ]
-  for (const t of tables) {
-    const { error } = await admin.from(t).delete().neq('id', '00000000-0000-0000-0000-000000000000')
-    if (error && !error.message.includes('does not exist')) throw error
-  }
-
-  // Wipe auth users we previously seeded. Match by email prefix.
+  // Lean on the cascade rules in 0001_init:
+  //   1. Deleting seeded auth users cascades through public.users to
+  //      base_profiles, organization_memberships (→ organization_profiles,
+  //      mentorship_preferences), mentorship_requests / threads, messages,
+  //      event_rsvps, admin_role_assignments, friend_*, notifications,
+  //      saved_searches.
+  //   2. Deleting the org cascades to events, invites, announcements, and any
+  //      stragglers tied to organization_id rather than user_id.
+  // audit_log rows survive (FKs are ON DELETE SET NULL) — fine because the
+  // seed never writes to audit_log.
   const { data: users } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
   for (const u of users?.users ?? []) {
     if (PERSONAS.some((p) => p.email === u.email)) {
       await admin.auth.admin.deleteUser(u.id)
     }
   }
+
+  const { error: orgError } = await admin.from('organizations').delete().eq('id', ORG.id)
+  if (orgError && !orgError.message.includes('does not exist')) throw orgError
+
   console.log('[seed-dev] wiped existing seed data')
 }
 
 async function createOrg() {
-  const { error } = await admin.from('organization').insert({
+  const { error } = await admin.from('organizations').insert({
     id: ORG.id,
     name: ORG.name,
     slug: ORG.slug,
@@ -306,66 +289,76 @@ async function createOrg() {
 
 async function createUsersAndProfiles() {
   for (const p of PERSONAS) {
+    // Auth admin create: the on_auth_user_created trigger inserts into
+    // public.users. We then layer profile + membership + preference rows.
     const { data, error } = await admin.auth.admin.createUser({
       email: p.email,
       password: p.password,
       email_confirm: true,
-      user_metadata: { full_name: p.fullName },
+      user_metadata: { full_name: p.name },
     })
     if (error) throw error
     const userId = data.user.id
 
-    const { error: profileError } = await admin.from('profile').insert({
-      id: userId,
-      organization_id: ORG.id,
-      full_name: p.fullName,
-      graduation_year: p.gradYear,
+    const { error: baseProfileError } = await admin.from('base_profiles').insert({
+      user_id: userId,
+      name: p.name,
+      current_employer: p.employer,
+      current_title: p.title,
       city: p.city,
-      employer: p.employer,
-      title: p.title,
       university: p.university,
       major: p.major,
-      open_to_mentor: p.openToMentor,
-      bio: p.bio ?? null,
     })
-    if (profileError) throw profileError
+    if (baseProfileError) throw baseProfileError
 
-    const { error: mbError } = await admin.from('organization_membership').insert({
-      user_id: userId,
-      organization_id: ORG.id,
-      status: 'approved',
-    })
-    if (mbError) throw mbError
-
-    if (p.openToMentor) {
-      const { error: prefError } = await admin.from('mentorship_preference').insert({
+    const { data: membership, error: mbError } = await admin
+      .from('organization_memberships')
+      .insert({
         user_id: userId,
         organization_id: ORG.id,
+        status: 'active',
+        joined_at: new Date().toISOString(),
+      })
+      .select('id')
+      .single()
+    if (mbError) throw mbError
+    const membershipId = membership.id
+
+    const { error: orgProfileError } = await admin.from('organization_profiles').insert({
+      organization_membership_id: membershipId,
+      graduation_year: p.gradYear,
+      bio: p.bio ?? null,
+      mentoring_topics: p.mentorTopics ?? null,
+      open_to_mentor: p.openToMentor,
+    })
+    if (orgProfileError) throw orgProfileError
+
+    if (p.openToMentor) {
+      const { error: prefError } = await admin.from('mentorship_preferences').insert({
+        organization_membership_id: membershipId,
+        is_open: true,
         topics: p.mentorTopics ?? [],
-        max_pending: p.maxPending ?? 5,
-        max_active: p.maxActive ?? 3,
+        max_pending_requests: p.maxPending ?? 10,
+        max_active_mentees: p.maxActive ?? 5,
+        paused_at: p.pausedAt ?? null,
       })
       if (prefError) throw prefError
     }
 
-    if (p.role && p.role !== 'member') {
-      const { error: roleError } = await admin.from('admin_role_assignment').insert({
+    if (p.adminRole) {
+      const { error: roleError } = await admin.from('admin_role_assignments').insert({
         user_id: userId,
         organization_id: ORG.id,
-        role: p.role,
+        role: p.adminRole,
       })
       if (roleError) throw roleError
     }
 
-    // Persona ID columns are independent of auth user IDs in this dataset —
-    // we do not write the curated `p.id` to any table; auth.users assigned its
-    // own UUID. Print the mapping for cross-reference during debugging.
-    console.log(`[seed-dev] user: ${p.fullName} <${p.email}>  auth.id=${userId}`)
+    console.log(`[seed-dev] user: ${p.name} <${p.email}>  auth.id=${userId}`)
   }
 }
 
 async function createMentorshipScenarios() {
-  // Look up the auth IDs we just created so we can wire requests by email.
   const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
   const idByEmail = new Map<string, string>()
   for (const u of usersList?.users ?? []) {
@@ -381,40 +374,47 @@ async function createMentorshipScenarios() {
 
   const requests = [
     {
+      organization_id: ORG.id,
       mentee_id: sam,
       mentor_id: mark,
       reason: 'Trying to decide between consulting and product roles after graduation.',
       help_needed: 'Looking for a 30-min call about how to evaluate the two paths.',
-      status: 'pending',
+      status: 'pending' as const,
     },
     {
+      organization_id: ORG.id,
       mentee_id: ria,
       mentor_id: mei,
       reason: 'Considering a move from Stripe SF to a PM role in Korea.',
       help_needed: 'Want to talk about engineering -> PM transition and Seoul tech scene.',
-      status: 'accepted',
+      status: 'accepted' as const,
+      responded_at: new Date().toISOString(),
     },
     {
+      organization_id: ORG.id,
       mentee_id: rohan,
       mentor_id: felix,
       reason: 'Curious about transitioning from PM to investment banking.',
       help_needed: 'Open to a quick chat about whether the move makes sense.',
-      status: 'declined',
+      status: 'declined' as const,
+      responded_at: new Date().toISOString(),
     },
   ]
 
   for (const r of requests) {
     const { data: req, error } = await admin
-      .from('mentorship_request')
+      .from('mentorship_requests')
       .insert(r)
-      .select('id')
+      .select('id, mentor_id, mentee_id, status')
       .single()
     if (error) throw error
 
-    if (r.status === 'accepted' && req) {
-      const { error: threadError } = await admin
-        .from('mentorship_thread')
-        .insert({ request_id: req.id })
+    if (req.status === 'accepted') {
+      const { error: threadError } = await admin.from('mentorship_threads').insert({
+        request_id: req.id,
+        mentor_id: req.mentor_id,
+        mentee_id: req.mentee_id,
+      })
       if (threadError) throw threadError
     }
   }
@@ -422,19 +422,20 @@ async function createMentorshipScenarios() {
 }
 
 async function createEventsAndRsvps() {
+  const nowIso = new Date().toISOString()
   for (const e of EVENTS) {
-    const { error } = await admin.from('event').insert({
+    const { error } = await admin.from('events').insert({
       id: e.id,
       organization_id: ORG.id,
       title: e.title,
       description: e.description,
-      location_text: e.locationText,
+      location: e.location,
       starts_at: e.startsAt,
+      published_at: nowIso,
     })
     if (error) throw error
   }
 
-  // RSVP a couple of recent grads to the first event.
   const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
   const idByEmail = new Map<string, string>()
   for (const u of usersList?.users ?? []) {
@@ -443,7 +444,7 @@ async function createEventsAndRsvps() {
   const ria = idByEmail.get('recent-grad-ria@example.com')!
   const rohan = idByEmail.get('recent-grad-rohan@example.com')!
 
-  const { error } = await admin.from('event_rsvp').insert([
+  const { error } = await admin.from('event_rsvps').insert([
     { event_id: EVENTS[0].id, user_id: ria, status: 'going' },
     { event_id: EVENTS[0].id, user_id: rohan, status: 'going' },
   ])
@@ -456,6 +457,10 @@ async function createEventsAndRsvps() {
 // ---------------------------------------------------------------------------
 
 async function main() {
+  console.log(`[seed-dev] target Supabase URL: ${SUPABASE_URL}`)
+  console.log('[seed-dev] you have 3 seconds to abort with Ctrl+C if this is the wrong project...')
+  await new Promise((r) => setTimeout(r, 3000))
+
   await wipe()
   await createOrg()
   await createUsersAndProfiles()
