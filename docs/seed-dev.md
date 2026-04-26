@@ -20,22 +20,22 @@ The complement to `docs/environments.md`: that doc explains *why* dev and prod d
 
 ## Prerequisites
 
-The script targets the data model from `phase-1-launch-spec.md`. It will not run successfully until those tables exist in `bridgecircle-dev`. Specifically, it expects these tables:
+The script targets the schema defined in `0001_init.sql` (see `docs/data-model.md`). It will not run successfully until that migration has been applied to `bridgecircle-dev`. Specifically, it writes to:
 
-- `organization`
-- `organization_membership`
-- `profile`
-- `mentorship_preference`
-- `mentorship_request`
-- `mentorship_thread`
-- `message`
-- `event`
-- `event_rsvp`
-- `admin_role_assignment`
-- `audit_log`
-- `invite`
+- `organizations`
+- `organization_memberships`
+- `base_profiles` (identity card — name, employer, city, university, …)
+- `organization_profiles` (org-context overlay — graduation year, bio, mentoring topics, open-to-mentor)
+- `mentorship_preferences` (keyed on `organization_membership_id`, not `user_id`)
+- `mentorship_requests`
+- `mentorship_threads`
+- `events`
+- `event_rsvps`
+- `admin_role_assignments`
 
-If you run the script before migrations are in place, it fails with PostgreSQL's `relation "<name>" does not exist` error. That is the expected outcome — the script is an artifact you build toward, not a workaround for the missing schema.
+It also relies on the `on_auth_user_created` trigger from `0001_init.sql`: when the script calls `auth.admin.createUser`, the trigger inserts the matching `public.users` row, and the script then layers `base_profiles` / `organization_memberships` / `organization_profiles` on top.
+
+If you run the script before the migration is applied, it fails with PostgreSQL's `relation "<name>" does not exist` error. That is the expected outcome — the script is an artifact you build toward, not a workaround for the missing schema.
 
 The other prerequisites are environment-side:
 
@@ -127,7 +127,7 @@ The script is plain TypeScript; extending it is just editing the file. Common ex
 
 ### Add a new persona
 
-Add an entry to the `PERSONAS` array. The shape is documented at the top of the array. Pick an unused `aaaa…` or `bbbb…` UUID for visual grouping (admins / mentors vs members) — IDs are arbitrary inside the script but consistent prefixes make the data easier to scan.
+Add an entry to the `PERSONAS` array. The shape is documented at the top of the array. Auth IDs are assigned by Supabase at `createUser` time — the script holds them in a per-run map and writes them through to the `base_profiles` / `organization_memberships` / etc. inserts.
 
 ### Add a new mentorship scenario
 
@@ -135,17 +135,13 @@ Edit `createMentorshipScenarios()`. Look up the relevant personas by email (the 
 
 ### Add data for a new feature
 
-Add a new step function (`async function createWhatever()`), call it from `main()`, and add the corresponding tables to the wipe list at the top of `wipe()` so future re-runs clean them up.
+Add a new step function (`async function createWhatever()`), call it from `main()`. The wipe step does not need editing as long as your new rows are scoped to either the seeded auth users or the seeded `organizations` row — both cascade on delete and clean up automatically. If you add data tied to neither (a global lookup table, say), wipe it explicitly in `wipe()`.
 
 ### Add randomness without losing reproducibility
 
 Use a seeded PRNG (e.g. `seedrandom`) with a hard-coded seed. The output is "random-looking" but identical across runs. Avoid `Math.random()` and `Date.now()` in seed values — they make every run different and break the reproducibility benefit.
 
 ## Limitations And Things To Watch
-
-### The schema names are guesses against the spec
-
-Column names in the script (`organization_id`, `open_to_mentor`, `graduation_year`, etc.) are taken from `phase-1-launch-spec.md` and `phase-1-spec.md`. When you write the actual migrations, exact column names may differ. After the first migrations land, do a pass over the script to align column names with what migrations actually created. Treat any mismatch as a sign one of the two needs to change.
 
 ### It bypasses RLS
 
@@ -157,7 +153,7 @@ Supabase's `auth.users` table is internal and managed by the Auth service. The s
 
 ### It assumes a single organization
 
-`bridgecircle-dev` is currently single-org. When Chadwick International joins as a second org, extend `ORG` to an array of orgs and adjust the per-persona `organization_id` accordingly. Multi-org seed data is also where you'd test the `base_profile` / `organization_profile` overlay separation.
+`bridgecircle-dev` is currently single-org. When Chadwick International joins as a second org, extend `ORG` to an array of orgs and give each persona memberships in both. The script already creates a `base_profile` per user and an `organization_profile` per membership, so multi-org just means looping membership creation across the array — the schema split does the rest.
 
 ### It does not seed Resend, Sentry, or Stripe state
 
@@ -183,7 +179,7 @@ The personas use `@example.com` addresses (a reserved domain that does not deliv
 Update this file whenever you:
 
 - Add or remove personas in the script.
-- Change the table list in `wipe()` (typically when adding a new entity).
+- Add a new step that writes to a table not already covered by the cascade-driven wipe.
 - Change the run command (e.g. install `tsx` as a dev dependency to drop the `dlx`).
 - Change safety guards.
 
