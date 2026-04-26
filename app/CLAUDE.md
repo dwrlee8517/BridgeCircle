@@ -21,23 +21,27 @@ Read these before writing code. They override anything in this file if they disa
 
 ## Current Progress
 
-Day 0 is complete. The app is scaffolded and deployable.
+Day 0 (scaffold) and Day 1 (schema) are complete. The app is deployable and the database is alive.
 
 Scaffolded and wired:
 
 - Next.js 16 (App Router) + React 19 + TypeScript
 - Tailwind v4 + shadcn/ui (`radix-nova` style, `neutral` base)
-- Supabase clients in `src/db/` (`client.ts`, `server.ts`, `admin.ts`)
+- Supabase clients in `src/db/` (`client.ts`, `server.ts`, `admin.ts`), all typed as `createClient<Database>()` against generated `src/db/database.types.ts`
 - Sentry instrumentation (`src/instrumentation.ts`, `src/instrumentation-client.ts`, `next.config.ts` wraps with `withSentryConfig`)
 - Biome formatter + linter, ESLint with `eslint-config-next`
 - Vitest + Testing Library installed (no tests yet)
 - shadcn primitives in `src/components/ui/`: button, input, textarea, select, card, dialog, tabs, table, avatar, badge, sonner (toast), dropdown-menu, radio-group, checkbox, label
-- Sentry MCP server configured in `.mcp.json`
+- Sentry + Supabase + Railway MCP servers configured in `.mcp.json`. **Supabase MCP points at `bridgecircle-dev`, never prod** — prod work happens via CLI with explicit `--project-ref`.
+- Supabase CLI bootstrapped (`supabase/config.toml`, `supabase/migrations/`); first migrations applied: `0001_init` (full 20-table schema + auth.users → public.users trigger) and `grant_public_schema` (role grants, see Supabase Conventions).
+- `pnpm db:types` regenerates `src/db/database.types.ts` from the linked dev project.
+- Dev seed: `app/scripts/seed-dev.ts` writes 9 personas + 3 mentorship requests + 2 events (see `../docs/seed-dev.md`).
 
-Not yet built (next up = Week 1 of `phase-1-launch-spec.md`):
+Not yet built (next up = remaining Week 1 of `phase-1-launch-spec.md`):
 
+- RLS policies (`0003_rls.sql` — prerequisite for any user-scoped reads from feature code)
 - auth (Supabase Auth + Google OAuth + invite-token signup)
-- schema migrations and any `src/lib/*` business logic
+- any `src/lib/*` business logic
 - Resend integration for invite emails
 - any feature route groups under `src/app/`
 
@@ -57,8 +61,12 @@ app/src/
 │   ├── search/
 │   ├── invite/
 │   └── events/
-├── db/                   typed Supabase wrappers (already exists)
+├── db/                   typed Supabase wrappers + generated database.types.ts
 └── notify/               email / push wrappers (create when adding Resend)
+
+app/supabase/
+├── config.toml           Supabase CLI config (project_id = "bridgecircle")
+└── migrations/           forward-only SQL — once applied to any DB, immutable
 ```
 
 The `/lib` folders are not all created yet — add them as features land. Do not create empty placeholder files.
@@ -97,7 +105,10 @@ Do not introduce alternative providers or frameworks without checking with the u
 - Use `sb_publishable_*` and `sb_secret_*` keys (the new format). Do not use the deprecated `anon` / `service_role` JWT names in code or env var names.
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are safe in the client.
 - `SUPABASE_SECRET_KEY` is server-only — never import it from a client component or `'use client'` file.
-- Use `src/db/client.ts` from client/browser code, `src/db/server.ts` from server components and route handlers, `src/db/admin.ts` only for privileged server-side operations (invite verification, admin actions).
+- Use `src/db/client.ts` from client/browser code, `src/db/server.ts` from server components and route handlers, `src/db/admin.ts` only for privileged server-side operations (invite verification, admin actions). All three are typed `<Database>` against `src/db/database.types.ts`.
+- After applying any migration, run `pnpm db:types` and commit the regenerated `database.types.ts`. Otherwise the next build fails on missing tables/columns.
+- `auth.users → public.users` is wired by the `on_auth_user_created` trigger in `0001_init`. Code that creates users via `supabase.auth.admin.createUser` does **not** need to insert into `public.users` separately, but it does need to insert `base_profiles` / `organization_memberships` / `organization_profiles` rows itself (those are not triggered).
+- Tables created via `supabase db push` do **not** auto-receive role grants the way the dashboard does. The `alter default privileges` block in `grant_public_schema.sql` covers future tables in `public` — but if you add a table in a custom schema or run `db reset` in unusual contexts, the same `42501 permission denied` error will resurface. See `../docs/environments.md`.
 
 ## Commands
 

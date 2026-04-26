@@ -163,6 +163,10 @@ Those services are external and have their own data. If a flow you're testing de
 
 The personas use `@example.com` addresses (a reserved domain that does not deliver email). If your app code sends a welcome email when a profile is created, those emails go nowhere and Resend silently accepts them — perfect for dev. **Do not** swap in real-looking domains here unless you're prepared for the script to actually mail those addresses.
 
+### Top-level `await` does not work in `pnpm dlx tsx`
+
+`tsx` resolves `.ts` files as CommonJS unless the surrounding `package.json` has `"type": "module"`. CJS doesn't allow top-level `await`, so anything you want to `await` outside a function must live inside `main()` (or another `async` function). The countdown-before-wipe is one such case — it runs from inside `main()` for this reason. If you add a new step that needs to `await` something during script init, wrap it in an async function rather than putting it at file scope.
+
 ## Quick Reference
 
 | Task | Command |
