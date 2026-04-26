@@ -89,6 +89,7 @@ pnpm lint                      # eslint
 pnpm biome format --write .    # format code
 pnpm biome check .             # lint via biome
 pnpm vitest                    # run tests
+pnpm db:types                  # regenerate src/db/database.types.ts from the linked Supabase project
 ```
 
 Always use pnpm (pinned to 10.33.2 in `package.json`). Do not use `npm` or `yarn`.
@@ -137,7 +138,7 @@ If the build fails, the previous version keeps serving — there's no downtime r
 
 ### Schema (database) changes
 
-Schema is managed by **migration files** in `supabase/migrations/` (folder will be created when the first migration is written). Migrations are forward-only files that describe a schema change.
+Schema is managed by **migration files** in `app/supabase/migrations/`. Migrations are forward-only files that describe a schema change.
 
 Workflow when adding a column or table:
 
@@ -150,13 +151,19 @@ Workflow when adding a column or table:
    ```bash
    pnpm dlx supabase db push   # while linked to bridgecircle-dev
    ```
-4. Update the app code that depends on the new schema.
-5. Test locally against the now-migrated dev database.
-6. Commit migration + code together to a feature branch.
-7. Merge to `main`. Railway redeploys the app.
-8. Apply the same migration to production:
+4. Regenerate typed schema and commit it:
    ```bash
-   pnpm dlx supabase db push   # while linked to bridgecircle (prod)
+   pnpm db:types               # writes src/db/database.types.ts
+   ```
+   Skipping this step works locally until your next `pnpm build` — at which point TypeScript fails on the missing tables/columns.
+5. Update the app code that depends on the new schema.
+6. Test locally against the now-migrated dev database.
+7. Commit migration + regenerated types + code together to a feature branch.
+8. Merge to `main`. Railway redeploys the app.
+9. Apply the same migration to production:
+   ```bash
+   pnpm dlx supabase link --project-ref <prod_ref>
+   pnpm dlx supabase db push
    ```
 
 ### Order of operations matters
@@ -240,6 +247,26 @@ Once a migration has been applied to any database, treat the file as immutable h
 ### Don't reuse OAuth state across environments carelessly
 
 Both Supabase projects use the same Google OAuth client, but they have different callback URLs registered. If you ever rotate the Google client secret, you must update both Supabase projects (in their Auth → Google provider settings). Forgetting one breaks login on that environment.
+
+### Keep the Supabase MCP pointed at dev, never prod
+
+`app/.mcp.json` configures a Supabase MCP server with a hardcoded `project_ref`. **That ref must be the dev project.** The MCP exposes tools like `apply_migration` and `execute_sql` to any Claude Code session; if it's pointed at prod, an accidental call writes to real alumni data with no second confirmation.
+
+Workflow rule: prod schema changes go through `pnpm dlx supabase link --project-ref <prod_ref>` + `pnpm dlx supabase db push` from your shell, where you explicitly type the prod ref. Never via MCP.
+
+If you ever set up a second machine, audit `.mcp.json` after the initial clone — the file is committed so it'll be whatever the last contributor saved, which should be the dev ref but verify.
+
+### `supabase db push` does not auto-grant table privileges
+
+This one bit us on Day 1. When Supabase tables are created via the **dashboard SQL editor**, the platform auto-applies grants to the `service_role`, `authenticated`, and `anon` Postgrest roles. When the same tables are created via **`supabase db push`** from a CLI migration, those grants are not applied — and any insert/select via the `sb_secret_` key fails with `42501 permission denied for table <name>`.
+
+The fix lives in `app/supabase/migrations/20260426214838_grant_public_schema.sql`: it grants the three roles on all current tables in `public` and uses `alter default privileges` so future tables inherit the same grants automatically. Future migrations that just `create table` in `public` are covered.
+
+Edge cases where the issue can resurface:
+
+- A new table created in a **custom schema** (anything other than `public`). Add a `grant ... on schema <name>` block in the same migration.
+- A table created via raw SQL run as a non-`postgres` role. Default privileges only apply to objects created by the role they were set on.
+- After a `supabase db reset --linked` against an environment that doesn't replay every migration in order — unlikely, but if you see `42501` after a reset, suspect grants first.
 
 ## Merging Workflow
 
