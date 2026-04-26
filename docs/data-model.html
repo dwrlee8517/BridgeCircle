@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BridgeCircle — Phase 1 Data Model</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --bg-2: #1a2028;
+    --bg-3: #232a33;
+    --fg: #e8e8e8;
+    --muted: #8a95a3;
+    --accent: #5ab4ff;
+    --ok: #7ed07e;
+    --warn: #f6c76a;
+    --bad: #ff8a7a;
+    --purple: #c89cff;
+    --pink: #ff8ec0;
+    --teal: #5ad9c0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 48px 32px 80px; }
+  header { margin-bottom: 48px; }
+  header h1 { font-size: 44px; margin: 0 0 8px; letter-spacing: -1px; }
+  header .sub { color: var(--muted); font-size: 18px; max-width: 720px; }
+  header .meta { margin-top: 16px; font-size: 14px; color: var(--muted); }
+  header .meta a { color: var(--accent); text-decoration: none; }
+  header .meta a:hover { text-decoration: underline; }
+
+  h2 {
+    font-size: 26px;
+    margin: 56px 0 8px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  h2 .count {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 12px;
+    letter-spacing: 0;
+  }
+  h3 { font-size: 18px; margin: 0 0 4px; color: var(--fg); font-weight: 600; }
+  p { margin: 0 0 12px; max-width: 880px; }
+  p.lead { color: var(--muted); font-size: 16px; margin-bottom: 20px; max-width: 880px; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: var(--bg-2);
+    border: 1px solid var(--bg-3);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .swatch {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Domain section */
+  .domain {
+    margin-bottom: 12px;
+  }
+  .domain-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .domain-tag {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .tag-live { background: rgba(126, 208, 126, 0.15); color: var(--ok); }
+  .tag-deferred { background: rgba(246, 199, 106, 0.12); color: var(--warn); }
+
+  .table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  /* Table card */
+  .table-card {
+    background: var(--bg-2);
+    border: 1px solid var(--bg-3);
+    border-left-width: 3px;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+  .table-card.identity   { border-left-color: var(--accent); }
+  .table-card.mentorship { border-left-color: var(--ok); }
+  .table-card.events     { border-left-color: var(--teal); }
+  .table-card.admin      { border-left-color: var(--purple); }
+  .table-card.social     { border-left-color: var(--pink); }
+  .table-card.system     { border-left-color: var(--warn); }
+  .table-card.deferred {
+    opacity: 0.78;
+    border-style: dashed;
+  }
+  .table-card .name {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 14px;
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .table-card .why {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .table-card .fields {
+    margin-top: 8px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    color: #a8b3c1;
+    line-height: 1.6;
+  }
+  .table-card .fields .pk { color: var(--accent); }
+  .table-card .fields .fk { color: var(--purple); }
+  .table-card .fields .enum { color: var(--warn); }
+
+  /* Flow diagrams */
+  .flow {
+    background: var(--bg-2);
+    border: 1px solid var(--bg-3);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+    color: #d6e0e8;
+    margin-bottom: 24px;
+  }
+  .flow .arrow { color: var(--accent); }
+  .flow .node { color: var(--warn); }
+  .flow .step { color: var(--ok); }
+
+  .why-section {
+    background: var(--bg-2);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 4px;
+    margin: 16px 0 24px;
+    max-width: 920px;
+  }
+  .why-section strong { color: var(--accent); }
+  .why-section p { margin: 0 0 8px; font-size: 14px; }
+  .why-section p:last-child { margin: 0; }
+
+  .pillgroup { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pill {
+    font-size: 11px;
+    background: var(--bg-3);
+    color: #c0cad6;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .pill.fk { color: var(--purple); }
+  .pill.enum { color: var(--warn); }
+
+  /* Two-col why blocks */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+  .why-card {
+    background: var(--bg-2);
+    border: 1px solid var(--bg-3);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+  .why-card h4 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: var(--accent);
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+  }
+  .why-card p { color: #c0cad6; margin: 0; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <h1>BridgeCircle data model</h1>
+  <div class="sub">The 20 tables that ship in <code>0001_init.sql</code> on Day 1, grouped by domain, with the design rationale for each.</div>
+  <div class="meta">
+    Source: <a href="phase-1-launch-spec.md">phase-1-launch-spec.md</a> &middot;
+    Companion: <a href="data-model.md">data-model.md</a>
+  </div>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><span class="swatch" style="background: var(--accent)"></span>Identity / org</div>
+  <div class="legend-item"><span class="swatch" style="background: var(--ok)"></span>Mentorship</div>
+  <div class="legend-item"><span class="swatch" style="background: var(--teal)"></span>Events</div>
+  <div class="legend-item"><span class="swatch" style="background: var(--purple)"></span>Admin / audit</div>
+  <div class="legend-item"><span class="swatch" style="background: var(--pink)"></span>Social (week 3+)</div>
+  <div class="legend-item"><span class="swatch" style="background: var(--warn)"></span>System (week 3+)</div>
+  <div class="legend-item"><span class="swatch" style="background: var(--bg-3); border: 1px dashed var(--muted)"></span>Schema only, no UI yet</div>
+</div>
+
+<!-- ========================= IDENTITY ========================= -->
+<h2>Identity &amp; organization membership <span class="count">6 tables</span></h2>
+<p class="lead">The foundation. Every other domain scopes through <code>organization_id</code> so multi-org never requires a destructive migration.</p>
+
+<div class="flow">
+auth.users <span class="arrow">───1—1───▶</span> <span class="node">users</span> <span class="arrow">───1—1───▶</span> <span class="node">base_profiles</span>
+                                │
+                                │ 1—N
+                                ▼
+              <span class="node">organization_memberships</span> <span class="arrow">───N—1───▶</span> <span class="node">organizations</span>
+                                │                                    ▲
+                                │ 1—1                                │ 1—N
+                                ▼                                    │
+                  <span class="node">organization_profiles</span>                       <span class="node">invites</span>
+</div>
+
+<div class="table-grid">
+  <div class="table-card identity">
+    <div class="name">users</div>
+    <div class="why">Shadow of <code>auth.users</code>. We don't put profile data here — Supabase owns that table.</div>
+    <div class="fields"><span class="pk">id</span> (FK auth.users.id), email, deleted_at, last_seen_at, created_at</div>
+  </div>
+  <div class="table-card identity">
+    <div class="name">organizations</div>
+    <div class="why">Two rows at launch: Chadwick School, Chadwick International. Every other table scopes here.</div>
+    <div class="fields"><span class="pk">id</span>, slug, name, logo_url, created_at</div>
+  </div>
+  <div class="table-card identity">
+    <div class="name">organization_memberships</div>
+    <div class="why">The join that does the real work. Approval queue lives in <code>status</code>.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">user_id</span>, <span class="fk">organization_id</span>, <span class="enum">status</span>, joined_at, approved_by, approved_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">status: pending | active | rejected | revoked</span>
+    </div>
+  </div>
+  <div class="table-card identity">
+    <div class="name">base_profiles</div>
+    <div class="why">Reusable identity. One per user. Survives multi-org.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">user_id</span>, full_name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url</div>
+  </div>
+  <div class="table-card identity">
+    <div class="name">organization_profiles</div>
+    <div class="why">Org-specific overlay. UI merges this with <code>base_profiles</code> at launch — split is invisible until org #2.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">membership_id</span>, graduation_year, bio, mentoring_topics, open_to_mentor</div>
+  </div>
+  <div class="table-card identity">
+    <div class="name">invites</div>
+    <div class="why">The promise to join. Token validation lives here, before any user exists.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">organization_id</span>, email, token, <span class="enum">status</span>, expires_at, sent_by, accepted_by, full_name?, graduation_year?</div>
+    <div class="pillgroup">
+      <span class="pill enum">status: pending | accepted | expired | revoked</span>
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="why-card">
+    <h4>Why split base_profile / organization_profile?</h4>
+    <p>UI shows one profile at launch. But when Chadwick International onboards as org #2, an existing user adds an <code>organization_profile</code> row without rebuilding identity. Without the split, multi-org needs a destructive migration.</p>
+  </div>
+  <div class="why-card">
+    <h4>Why invites separate from memberships?</h4>
+    <p>Invite is a promise; membership is the fact. Token validation works before signup, when no user row exists. A revoked invite shouldn't disturb membership history.</p>
+  </div>
+</div>
+
+<!-- ========================= MENTORSHIP ========================= -->
+<h2>Mentorship <span class="count">4 tables — the core launch loop</span></h2>
+<p class="lead">Request → accept → thread → messages. The request and the conversation are deliberately separate tables.</p>
+
+<div class="flow">
+<span class="node">mentorship_preferences</span>  (per organization_membership)
+        │
+        │ governs who appears as "open to mentor"
+        ▼
+<span class="node">mentorship_requests</span> ──(status=accepted)──<span class="arrow">▶</span> <span class="node">mentorship_threads</span>
+                                                  │ 1—N
+                                                  ▼
+                                              <span class="node">messages</span> (thread_type='mentorship')
+</div>
+
+<div class="table-grid">
+  <div class="table-card mentorship">
+    <div class="name">mentorship_preferences</div>
+    <div class="why">Per <code>organization_membership</code>, not per user — open-to-mentor at one org doesn't mean open at another.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">membership_id</span>, is_open, topics[], screening_prompt, max_active_mentees, max_pending_requests, paused_at</div>
+  </div>
+  <div class="table-card mentorship">
+    <div class="name">mentorship_requests</div>
+    <div class="why">The application. Closes once decided. Carries the screening answer.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">mentor_id</span>, <span class="fk">mentee_id</span>, <span class="fk">organization_id</span>, <span class="enum">status</span>, reason, help_needed, background, screening_answer, responded_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">status: pending | accepted | declined | expired</span>
+    </div>
+  </div>
+  <div class="table-card mentorship">
+    <div class="name">mentorship_threads</div>
+    <div class="why">Created on accept. Outlives the request — a future "re-request" creates a new thread.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">request_id</span>, mentor_id, mentee_id, <span class="enum">status</span>, last_message_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">status: active | archived</span>
+    </div>
+  </div>
+  <div class="table-card mentorship">
+    <div class="name">messages</div>
+    <div class="why">Polymorphic by enum. One inbox query covers mentorship + DM threads.</div>
+    <div class="fields"><span class="pk">id</span>, thread_id, <span class="enum">thread_type</span>, sender_id, body, read_at, created_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">thread_type: mentorship | direct</span>
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="why-card">
+    <h4>Why thread separate from request?</h4>
+    <p>Different lifecycle. Requests close once decided; threads stay open until archived. A future "re-request the same mentor" feature creates a new request and new thread, leaving history intact.</p>
+  </div>
+  <div class="why-card">
+    <h4>Why one messages table for both DM and mentorship?</h4>
+    <p>Inbox = "all unread messages for user X." One scan instead of two unioned scans. Notification fan-out and moderation also become single-surface. The <code>thread_type</code> enum is the only branching cost.</p>
+  </div>
+</div>
+
+<!-- ========================= EVENTS ========================= -->
+<h2>Events <span class="count">2 tables</span></h2>
+<p class="lead">Minimum surface. No waitlist, no maybe, no plus-ones. Add only if real demand surfaces.</p>
+
+<div class="flow">
+<span class="node">organizations</span> <span class="arrow">───1—N───▶</span> <span class="node">events</span> <span class="arrow">───1—N───▶</span> <span class="node">event_rsvps</span> <span class="arrow">───N—1───▶</span> <span class="node">users</span>
+</div>
+
+<div class="table-grid">
+  <div class="table-card events">
+    <div class="name">events</div>
+    <div class="why">Title, time, place, description. <code>published_at</code> separates drafts from live.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">organization_id</span>, created_by, title, description, location, starts_at, ends_at, published_at</div>
+  </div>
+  <div class="table-card events">
+    <div class="name">event_rsvps</div>
+    <div class="why">One row per (event, user). Going or not — that's the whole vocabulary.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">event_id</span>, <span class="fk">user_id</span>, <span class="enum">status</span>, responded_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">status: going | not_going</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= ADMIN ========================= -->
+<h2>Admin &amp; audit <span class="count">2 tables</span></h2>
+<p class="lead">Per-org role scoping. Audit writes from Day 1 even though we don't build a viewer until later.</p>
+
+<div class="table-grid">
+  <div class="table-card admin">
+    <div class="name">admin_role_assignments</div>
+    <div class="why">Per-org elevation above member. Founder is super_admin of both orgs independently.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">user_id</span>, <span class="fk">organization_id</span>, <span class="enum">role</span>, granted_by, granted_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">role: super_admin | admin | event_moderator | ambassador</span>
+    </div>
+  </div>
+  <div class="table-card admin">
+    <div class="name">audit_log</div>
+    <div class="why">Write-only at launch. The first time you need it, it's too late to add — so it ships now.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">actor_id</span>, organization_id, action, target_type, target_id, payload (jsonb), created_at</div>
+  </div>
+</div>
+
+<!-- ========================= SOCIAL ========================= -->
+<h2>Social <span class="domain-tag tag-deferred">schema only</span> <span class="count">3 tables</span></h2>
+<p class="lead">Friend requests and DMs land in week 3. Schema ships now so foreign keys resolve and week 3 becomes UI work, not a migration.</p>
+
+<div class="flow">
+<span class="node">friend_requests</span> ──(accept)──<span class="arrow">▶</span> <span class="node">friendships</span> ──(first DM)──<span class="arrow">▶</span> <span class="node">direct_message_threads</span> <span class="arrow">───▶</span> <span class="node">messages</span>
+                                  (one row per pair,                  (created lazily)
+                                   user_a_id < user_b_id)
+</div>
+
+<div class="table-grid">
+  <div class="table-card social deferred">
+    <div class="name">friend_requests</div>
+    <div class="why">Pending requests with optional intro message. Same request-then-relationship pattern as mentorship.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">requester_id</span>, <span class="fk">recipient_id</span>, intro_message, <span class="enum">status</span>, responded_at</div>
+    <div class="pillgroup">
+      <span class="pill enum">status: pending | accepted | declined</span>
+    </div>
+  </div>
+  <div class="table-card social deferred">
+    <div class="name">friendships</div>
+    <div class="why">One row per friendship. CHECK constraint enforces <code>user_a_id &lt; user_b_id</code> — no duplicates.</div>
+    <div class="fields"><span class="pk">id</span>, user_a_id, user_b_id, became_friends_at  CHECK (user_a_id &lt; user_b_id)</div>
+  </div>
+  <div class="table-card social deferred">
+    <div class="name">direct_message_threads</div>
+    <div class="why">One per friend pair. Created lazily on first DM, not at friendship time.</div>
+    <div class="fields"><span class="pk">id</span>, user_a_id, user_b_id, last_message_at  CHECK (user_a_id &lt; user_b_id)</div>
+  </div>
+</div>
+
+<div class="why-card" style="max-width: 920px;">
+  <h4>Why store friendships canonically (one row, ordered ids)?</h4>
+  <p>Two-row representation ("X is friends with Y" + "Y is friends with X") doubles writes and creates consistency risk. One row with <code>user_a_id &lt; user_b_id</code> makes "are they friends?" a single PK lookup and makes the unique index trivial.</p>
+</div>
+
+<!-- ========================= SYSTEM ========================= -->
+<h2>System <span class="domain-tag tag-deferred">schema only</span> <span class="count">4 tables</span></h2>
+<p class="lead">Announcements, in-app notifications, profile freshness prompts, and saved searches. UIs come in week 3+ but the rows can start being written sooner if needed.</p>
+
+<div class="table-grid">
+  <div class="table-card system deferred">
+    <div class="name">announcements</div>
+    <div class="why">Org-scoped, admin-authored. Week 3 surface.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">organization_id</span>, author_id, title, body, published_at</div>
+  </div>
+  <div class="table-card system deferred">
+    <div class="name">notifications</div>
+    <div class="why">Per-user delivery log. Email-only at launch, but rows still get written so the in-app tray works on day one of week 3.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">user_id</span>, <span class="enum">type</span>, payload (jsonb), read_at, created_at</div>
+  </div>
+  <div class="table-card system deferred">
+    <div class="name">profile_refresh_prompts</div>
+    <div class="why">Per <code>organization_membership</code>. Drives the 6–12 month freshness loop.</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">membership_id</span>, due_at, last_confirmed_at, dismissed_at</div>
+  </div>
+  <div class="table-card system deferred">
+    <div class="name">saved_searches</div>
+    <div class="why">Per-user. Stores filter blob and optional notify cadence for "alert me when matches appear."</div>
+    <div class="fields"><span class="pk">id</span>, <span class="fk">user_id</span>, name, filters (jsonb), notify_cadence, last_notified_at</div>
+  </div>
+</div>
+
+<!-- ========================= LIFECYCLES ========================= -->
+<h2>Lifecycle flows</h2>
+<p class="lead">The three paths every member takes through the schema.</p>
+
+<h3 style="margin-top: 20px;">Onboarding — invite to active member</h3>
+<div class="flow">
+<span class="step">1.</span> Admin uploads CSV          <span class="arrow">───▶</span>  insert <span class="node">invites</span> (status=pending)
+<span class="step">2.</span> Resend sends token email   <span class="arrow">───▶</span>  audit_log: invite.sent
+<span class="step">3.</span> User clicks /join?token=xyz
+<span class="step">4.</span> Server validates token     <span class="arrow">───▶</span>  match against <span class="node">invites</span>
+<span class="step">5.</span> User signs up via Supabase Auth
+                                <span class="arrow">───▶</span>  trigger creates <span class="node">users</span> row
+<span class="step">6.</span> Token auto-approves        <span class="arrow">───▶</span>  insert <span class="node">organization_memberships</span> (status=active)
+                                <span class="arrow">───▶</span>  invite.status = accepted
+<span class="step">7.</span> Profile setup screen       <span class="arrow">───▶</span>  insert <span class="node">base_profiles</span> + <span class="node">organization_profiles</span>
+<span class="step">8.</span> audit_log: member.joined
+</div>
+
+<h3>Mentorship request — the repeat loop</h3>
+<div class="flow">
+<span class="step">1.</span> Mentee searches            <span class="arrow">───▶</span>  filter by <span class="node">mentorship_preferences</span>.is_open
+<span class="step">2.</span> Mentee opens profile       <span class="arrow">───▶</span>  request composer
+<span class="step">3.</span> Submit                     <span class="arrow">───▶</span>  insert <span class="node">mentorship_requests</span> (status=pending)
+<span class="step">4.</span> Resend emails mentor       <span class="arrow">───▶</span>  insert <span class="node">notifications</span> row
+<span class="step">5.</span> Mentor accepts             <span class="arrow">───▶</span>  request.status = accepted
+                                <span class="arrow">───▶</span>  insert <span class="node">mentorship_threads</span>
+                                <span class="arrow">───▶</span>  insert system <span class="node">messages</span> row
+<span class="step">6.</span> Both inboxes show thread
+<span class="step">7.</span> audit_log: mentorship.accepted
+</div>
+
+<h3>Mentor inactivity sweep — Railway worker, daily</h3>
+<div class="flow">
+<span class="step">1.</span> SELECT <span class="node">mentorship_preferences</span> WHERE is_open=true AND paused_at IS NULL
+<span class="step">2.</span> For each: any <span class="node">mentorship_requests</span> older than 14 days, status=pending?
+<span class="step">3.</span> If yes <span class="arrow">───▶</span> mentorship_preferences.paused_at = now()
+<span class="step">4.</span> Search rankings drop "paused while away" mentors
+<span class="step">5.</span> On next mentor login <span class="arrow">───▶</span> unpause prompt <span class="arrow">───▶</span> paused_at = null
+</div>
+
+<!-- ========================= CROSS-CUTTING ========================= -->
+<h2>Cross-cutting decisions</h2>
+
+<div class="two-col">
+  <div class="why-card">
+    <h4>Every scoped table carries organization_id</h4>
+    <p>Mentorship requests, events, admin roles, profile overlays, audit rows — all scope by org. RLS becomes "is the requester an active member of this <code>organization_id</code>?" — no multi-hop joins.</p>
+  </div>
+  <div class="why-card">
+    <h4>Status enums, not boolean flags</h4>
+    <p>Booleans drift into illegal combinations (<code>is_pending=true AND is_accepted=true</code>). Enums make illegal states unrepresentable.</p>
+  </div>
+  <div class="why-card">
+    <h4>audit_log writes from Day 1</h4>
+    <p>The first time you need it (mentor reports unauthorized signup, admin says "I never approved that"), it's too late to add. Write rows from the first admin action — no gaps.</p>
+  </div>
+  <div class="why-card">
+    <h4>What's deliberately not here</h4>
+    <p>No <code>meetup_proposals</code>, no <code>mentorship_response</code> table (response is a state on the request), no <code>profile_visibility_setting</code> table (defaults hardcoded in app code), no ambassador workflow tables. Each is a deliberate scope cut.</p>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
