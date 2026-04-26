@@ -58,10 +58,6 @@ if (PROD_PROJECT_REF && SUPABASE_URL.includes(PROD_PROJECT_REF)) {
   refuse(`SUPABASE_URL appears to be production (matches PROD_PROJECT_REF=${PROD_PROJECT_REF}).`)
 }
 
-console.log(`[seed-dev] target Supabase URL: ${SUPABASE_URL}`)
-console.log('[seed-dev] you have 3 seconds to abort with Ctrl+C if this is the wrong project...')
-await new Promise((r) => setTimeout(r, 3000))
-
 const admin: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_SECRET, {
   auth: { persistSession: false, autoRefreshToken: false },
 })
@@ -461,6 +457,10 @@ async function createEventsAndRsvps() {
 // ---------------------------------------------------------------------------
 
 async function main() {
+  console.log(`[seed-dev] target Supabase URL: ${SUPABASE_URL}`)
+  console.log('[seed-dev] you have 3 seconds to abort with Ctrl+C if this is the wrong project...')
+  await new Promise((r) => setTimeout(r, 3000))
+
   await wipe()
   await createOrg()
   await createUsersAndProfiles()
