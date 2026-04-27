@@ -1,6 +1,8 @@
 import { render } from '@react-email/components'
 import { Resend } from 'resend'
 import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-email'
+import { FriendRequestAcceptedEmail } from './emails/friend-request-accepted-email'
+import { FriendRequestEmail } from './emails/friend-request-email'
 import { InviteEmail } from './emails/invite-email'
 import { MentorshipAcceptedEmail } from './emails/mentorship-accepted-email'
 import { MentorshipRequestEmail } from './emails/mentorship-request-email'
@@ -107,6 +109,64 @@ export async function sendEventRsvpConfirmationEmail(
     from: FROM,
     to: [input.to],
     subject: `You're going to ${input.eventTitle}`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendFriendRequestInput = {
+  to: string
+  senderName: string
+  reviewUrl: string
+  message: string | null
+}
+
+export async function sendFriendRequestEmail(input: SendFriendRequestInput): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    FriendRequestEmail({
+      senderName: input.senderName,
+      reviewUrl: input.reviewUrl,
+      message: input.message,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `${input.senderName} sent you a friend request`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendFriendRequestAcceptedInput = {
+  to: string
+  accepterName: string
+  profileUrl: string
+}
+
+export async function sendFriendRequestAcceptedEmail(
+  input: SendFriendRequestAcceptedInput,
+): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    FriendRequestAcceptedEmail({
+      accepterName: input.accepterName,
+      profileUrl: input.profileUrl,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `${input.accepterName} accepted your friend request`,
     html,
   })
 
