@@ -7,7 +7,7 @@ import { saveProfile } from '@/lib/profile/saveProfile'
 import { parseProfileForm } from '@/lib/profile/schemas'
 import type { ProfileFormState } from '@/components/profile-form'
 
-export async function onboardingAction(
+export async function editProfileAction(
   _prev: ProfileFormState,
   formData: FormData,
 ): Promise<ProfileFormState> {
@@ -27,16 +27,8 @@ export async function onboardingAction(
   const result = await saveProfile(supabase, session.userId, parsed.data)
 
   if (!result.ok) {
-    if (result.error === 'no_membership') {
-      await supabase.auth.signOut()
-      redirect(
-        `/sign-in?error=${encodeURIComponent(
-          "We couldn't find an invite for this email. Ask your admin to send you one.",
-        )}`,
-      )
-    }
     return { error: 'Could not save your profile. Try again.' }
   }
 
-  redirect('/')
+  redirect(`/profile/${session.userId}`)
 }

@@ -6,11 +6,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { saveProfile, type OnboardingState } from './actions'
 
-const initialState: OnboardingState = {}
+export type ProfileFormState = {
+  error?: string
+  fieldErrors?: Record<string, string>
+}
 
-type Defaults = {
+export type ProfileFormDefaults = {
   name: string
   city: string
   currentEmployer: string
@@ -26,12 +28,26 @@ type Defaults = {
   mentoringTopics: string
 }
 
-export function OnboardingForm({ defaults }: { defaults: Defaults }) {
-  const [state, action, pending] = useActionState(saveProfile, initialState)
+type Props = {
+  defaults: ProfileFormDefaults
+  action: (state: ProfileFormState, formData: FormData) => Promise<ProfileFormState>
+  submitLabel?: string
+  submittingLabel?: string
+}
+
+const initialState: ProfileFormState = {}
+
+export function ProfileForm({
+  defaults,
+  action,
+  submitLabel = 'Save and continue',
+  submittingLabel = 'Saving…',
+}: Props) {
+  const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
 
   return (
-    <form action={action} className="space-y-5">
+    <form action={formAction} className="space-y-5">
       <Section title="Basics">
         <Field id="name" label="Full name" error={fe.name} required>
           <Input id="name" name="name" defaultValue={defaults.name} required />
@@ -143,7 +159,7 @@ export function OnboardingForm({ defaults }: { defaults: Defaults }) {
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? 'Saving…' : 'Save and continue'}
+        {pending ? submittingLabel : submitLabel}
       </Button>
     </form>
   )
