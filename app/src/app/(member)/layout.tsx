@@ -5,10 +5,14 @@ import { requireSession } from '@/lib/auth/session'
 /**
  * Auth-required layout. Wraps everything under (member). Two checks:
  *   1. session must exist (defense in depth on top of proxy.ts)
- *   2. base_profiles.name must be set (otherwise redirect to /onboarding)
+ *   2. profile must be onboarded (otherwise redirect to /onboarding)
  *
- * The proxy already redirects unauthenticated requests to /sign-in, so
- * step 1 is mostly belt-and-braces. Step 2 is the onboarding gate.
+ * "Onboarded" = current_employer is set. We use that as the canary because:
+ *   - The invite-accept flow only sets `name` (from the optional CSV column),
+ *     so `name IS NOT NULL` would let users skip onboarding when the admin
+ *     pre-filled their name on the invite.
+ *   - current_employer is only ever set by the user during onboarding —
+ *     that's a clean signal that they've gone through the form.
  */
 export default async function MemberLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession()
@@ -16,11 +20,11 @@ export default async function MemberLayout({ children }: { children: React.React
 
   const { data: profile } = await supabase
     .from('base_profiles')
-    .select('name')
+    .select('current_employer')
     .eq('user_id', session.userId)
     .maybeSingle()
 
-  if (!profile?.name) {
+  if (!profile?.current_employer) {
     redirect('/onboarding')
   }
 
