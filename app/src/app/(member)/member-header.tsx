@@ -28,6 +28,9 @@ export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/search">Search</Link>
           </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/inbox">Inbox</Link>
+          </Button>
           {isAdmin ? (
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/invite">Admin</Link>
@@ -36,17 +39,14 @@ export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
         </nav>
         <div className="ml-auto">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label="Account menu"
-                type="button"
-              >
-                <Avatar className="size-8">
-                  {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
-                  <AvatarFallback>{(name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
-                </Avatar>
-              </button>
+            <DropdownMenuTrigger
+              aria-label="Account menu"
+              className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Avatar className="size-8">
+                {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
+                <AvatarFallback>{(name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
+              </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
