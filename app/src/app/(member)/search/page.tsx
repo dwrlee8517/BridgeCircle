@@ -134,6 +134,7 @@ export default async function SearchPage({
                   name="openToMentor"
                   defaultChecked={!!filters.openToMentor}
                   className="h-4 w-4"
+                  suppressHydrationWarning
                 />
                 Only show mentors
               </label>
