@@ -1,10 +1,11 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { headers, cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 import { z } from 'zod'
 import { createClient } from '@/db/server'
 import { createAdminClient } from '@/db/admin'
+import { getAppOrigin } from '@/lib/auth/app-url'
 import { verifyInviteToken } from '@/lib/invite/verify'
 import { acceptInvite } from '@/lib/invite/accept'
 
@@ -91,8 +92,7 @@ export async function startGoogleSignup(formData: FormData) {
   })
 
   const supabase = await createClient()
-  const h = await headers()
-  const origin = h.get('origin') ?? 'http://localhost:3000'
+  const origin = await getAppOrigin()
   const redirectTo = `${origin}/auth/callback`
 
   const { data, error } = await supabase.auth.signInWithOAuth({

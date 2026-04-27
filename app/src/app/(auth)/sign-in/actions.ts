@@ -1,8 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
 import { createClient } from '@/db/server'
+import { getAppOrigin } from '@/lib/auth/app-url'
 import { signInSchema } from '@/lib/invite/schemas'
 
 export type SignInState = {
@@ -33,8 +33,7 @@ export async function signInWithPassword(
 
 export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
-  const h = await headers()
-  const origin = h.get('origin') ?? 'http://localhost:3000'
+  const origin = await getAppOrigin()
   const next = formData.get('next')
   const redirectTo = `${origin}/auth/callback${
     typeof next === 'string' && next.startsWith('/') ? `?next=${encodeURIComponent(next)}` : ''

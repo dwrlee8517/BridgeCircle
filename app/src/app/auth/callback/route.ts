@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@/db/server'
+import { getAppOrigin } from '@/lib/auth/app-url'
 import { verifyInviteToken } from '@/lib/invite/verify'
 import { acceptInvite } from '@/lib/invite/accept'
 
@@ -15,10 +16,16 @@ const PENDING_INVITE_COOKIE = 'pending_invite_token'
  *   3. Redirect to /onboarding (new signups) or ?next= (returning users).
  */
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  const nextParam = searchParams.get('next')
-  const errorParam = searchParams.get('error_description')
+  const url = new URL(request.url)
+  const code = url.searchParams.get('code')
+  const nextParam = url.searchParams.get('next')
+  const errorParam = url.searchParams.get('error_description')
+
+  // Use the public app origin, NOT the request URL's origin. On Railway
+  // request.url returns the internal "localhost:8080" because the container
+  // binds to that port; using it as the redirect base sends users to a dead
+  // URL after sign-in.
+  const origin = await getAppOrigin()
 
   if (errorParam) {
     return NextResponse.redirect(
