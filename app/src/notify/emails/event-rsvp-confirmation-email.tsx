@@ -11,27 +11,45 @@ import {
 } from '@react-email/components'
 
 type Props = {
-  mentorName: string
-  threadUrl: string
+  eventTitle: string
+  eventStartsAt: string
+  eventLocation: string | null
+  eventUrl: string
 }
 
-export function MentorshipAcceptedEmail({ mentorName, threadUrl }: Props) {
+export function EventRsvpConfirmationEmail({
+  eventTitle,
+  eventStartsAt,
+  eventLocation,
+  eventUrl,
+}: Props) {
+  const when = new Date(eventStartsAt).toLocaleString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  })
+
   return (
     <Html>
       <Head />
-      <Preview>{`${mentorName} accepted your mentorship request`}</Preview>
+      <Preview>{`You're going to ${eventTitle}`}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={heading}>{mentorName} said yes 🎉</Heading>
+          <Heading style={heading}>You're going 🎟️</Heading>
           <Text style={paragraph}>
-            <strong>{mentorName}</strong> accepted your mentorship request on BridgeCircle.
+            <strong>{eventTitle}</strong>
           </Text>
+          <Text style={paragraph}>{when}</Text>
+          {eventLocation ? <Text style={paragraph}>{eventLocation}</Text> : null}
           <Text style={paragraph}>
-            Open the thread to introduce yourself and figure out a time to chat.
+            We won't email reminders, so add it to your calendar now if you want a nudge later.
           </Text>
           <Section style={buttonSection}>
-            <Button style={button} href={threadUrl}>
-              Open thread
+            <Button style={button} href={eventUrl}>
+              View event
             </Button>
           </Section>
         </Container>
