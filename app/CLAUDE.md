@@ -164,3 +164,12 @@ From `phase-1-launch-spec.md`:
 - Sentry instrumentation on API routes
 - at least one real test event
 - admin can approve members from the queue without touching SQL
+
+## Post-Launch Backlog
+
+Not blockers for the May 25 demo. Revisit after launch.
+
+- **Migrate to Supabase branching** (account is on Pro). Today the dev/prod separation is two independent projects (`bridgecircle-dev` + `bridgecircle`); migrations are pushed via `supabase link --project-ref ...` to each in turn. Branching would replace this with one project + a long-lived `dev` branch + ephemeral PR-preview branches, which gives drift detection on merge and per-PR isolated environments. Migration cost ~2 hours; adds usage-based realtime/compute billing per branch. Not urgent — current setup is working.
+- **CI drift check** for migrations. Fail the PR build if `supabase migration list --linked` against prod is missing migrations that exist locally. Currently relies on memory.
+- **`pnpm db:promote` script** that automates link → push → re-link-to-dev so prod schema promotion is one command.
+- **Cost monitoring on Anthropic API** — every NL search query hits Haiku twice; resume import hits it once. No observability today. Consider Sentry breadcrumbs or a counter row.
