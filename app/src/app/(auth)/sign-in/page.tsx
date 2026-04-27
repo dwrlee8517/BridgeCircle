@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth/session'
 import { SignInForm } from './sign-in-form'
 
-type SearchParams = { next?: string }
+type SearchParams = { next?: string; error?: string }
 
 export default async function SignInPage({
   searchParams,
@@ -14,5 +14,5 @@ export default async function SignInPage({
   if (session) {
     redirect(params.next?.startsWith('/') ? params.next : '/')
   }
-  return <SignInForm next={params.next ?? null} />
+  return <SignInForm next={params.next ?? null} initialError={params.error ?? null} />
 }

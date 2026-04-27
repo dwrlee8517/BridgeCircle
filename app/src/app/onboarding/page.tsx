@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
@@ -23,6 +24,15 @@ export default async function OnboardingPage() {
       .limit(1)
       .maybeSingle(),
   ])
+
+  if (!membership) {
+    await supabase.auth.signOut()
+    redirect(
+      `/sign-in?error=${encodeURIComponent(
+        "We couldn't find an invite for this email. Ask your admin to send you one.",
+      )}`,
+    )
+  }
 
   let orgProfile: {
     graduation_year: number | null

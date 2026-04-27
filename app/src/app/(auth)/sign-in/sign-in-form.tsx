@@ -9,7 +9,13 @@ import { signInWithGoogle, signInWithPassword, type SignInState } from './action
 
 const initialState: SignInState = {}
 
-export function SignInForm({ next }: { next: string | null }) {
+export function SignInForm({
+  next,
+  initialError,
+}: {
+  next: string | null
+  initialError: string | null
+}) {
   const [state, action, pending] = useActionState(signInWithPassword, initialState)
 
   return (
@@ -19,6 +25,11 @@ export function SignInForm({ next }: { next: string | null }) {
         <CardDescription className="text-base">Sign in to BridgeCircle</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 pb-6">
+        {initialError ? (
+          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            {initialError}
+          </div>
+        ) : null}
         <form action={signInWithGoogle}>
           {next ? <input type="hidden" name="next" value={next} /> : null}
           <Button type="submit" variant="outline" className="h-11 w-full text-base">

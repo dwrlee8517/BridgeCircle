@@ -49,10 +49,28 @@ export async function GET(request: Request) {
       await acceptInvite({ inviteId: verified.invite.id, userId: data.user.id })
       return NextResponse.redirect(`${origin}/onboarding`)
     }
-    // Mismatched email or invalid token: still sign in but show the error.
-    // The (member) layout will block access until they get a real invite.
+    // Mismatched email or invalid token. Fall through to the no-invite check
+    // below — if they have a prior membership that's fine, otherwise we
+    // bounce them out.
+  }
+
+  // Returning user (no pending invite cookie). Confirm they actually have an
+  // active membership; otherwise this is a Google sign-in for someone who
+  // never went through an invite, and we should not let them in.
+  const { data: membership } = await supabase
+    .from('organization_memberships')
+    .select('id')
+    .eq('user_id', data.user.id)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (!membership) {
+    await supabase.auth.signOut()
     return NextResponse.redirect(
-      `${origin}/sign-in?error=${encodeURIComponent('Invite token did not match this Google account.')}`,
+      `${origin}/sign-in?error=${encodeURIComponent(
+        "We couldn't find an invite for this email. Ask your admin to send you one.",
+      )}`,
     )
   }
 
