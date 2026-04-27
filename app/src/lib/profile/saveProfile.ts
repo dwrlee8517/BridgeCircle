@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { setMentorOpen } from '@/lib/mentorship/preferences'
 import type { ProfileFormInput } from './schemas'
 
 export type SaveProfileResult =
@@ -65,7 +66,6 @@ export async function saveProfile(
       graduation_year: input.graduationYear,
       bio: input.bio || null,
       mentoring_topics: topics,
-      open_to_mentor: input.openToMentor,
       updated_at: new Date().toISOString(),
     })
     .eq('organization_membership_id', membership.id)
@@ -73,6 +73,9 @@ export async function saveProfile(
   if (orgErr) {
     return { ok: false, error: 'db_error', detail: orgErr.message }
   }
+
+  const prefResult = await setMentorOpen(supabase, membership.id, input.openToMentor)
+  if (!prefResult.ok) return prefResult
 
   return { ok: true }
 }

@@ -35,7 +35,9 @@ export async function getProfile(
 ): Promise<ProfileView | null> {
   const { data: base } = await supabase
     .from('base_profiles')
-    .select('user_id, name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url')
+    .select(
+      'user_id, name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url',
+    )
     .eq('user_id', userId)
     .maybeSingle()
   if (!base) return null
@@ -51,7 +53,7 @@ export async function getProfile(
 
   const { data: orgProfile } = await supabase
     .from('organization_profiles')
-    .select('graduation_year, bio, mentoring_topics, open_to_mentor')
+    .select('graduation_year, bio, mentoring_topics')
     .eq('organization_membership_id', membership.id)
     .maybeSingle()
 
@@ -80,7 +82,7 @@ export async function getProfile(
     bio: orgProfile?.bio ?? null,
     graduationYear: orgProfile?.graduation_year ?? null,
     mentoringTopics: orgProfile?.mentoring_topics ?? null,
-    openToMentor: orgProfile?.open_to_mentor ?? false,
+    openToMentor: pref?.is_open ?? false,
     isOpenAsMentor: !!pref?.is_open && !pref.paused_at,
     mentorPaused: !!pref?.paused_at,
   }

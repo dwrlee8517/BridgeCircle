@@ -5,7 +5,7 @@ import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { submitRequest, type RequestFormState } from './actions'
+import { type RequestFormState, submitRequest } from './actions'
 
 const initialState: RequestFormState = {}
 

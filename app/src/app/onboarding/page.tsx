@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProfileForm } from '@/components/profile-form'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { onboardingAction } from './actions'
@@ -35,20 +35,18 @@ export default async function OnboardingPage() {
     )
   }
 
-  let orgProfile: {
-    graduation_year: number | null
-    bio: string | null
-    mentoring_topics: string[] | null
-    open_to_mentor: boolean | null
-  } | null = null
-  if (membership) {
-    const { data } = await supabase
+  const [{ data: orgProfile }, { data: pref }] = await Promise.all([
+    supabase
       .from('organization_profiles')
-      .select('graduation_year, bio, mentoring_topics, open_to_mentor')
+      .select('graduation_year, bio, mentoring_topics')
       .eq('organization_membership_id', membership.id)
-      .maybeSingle()
-    orgProfile = data
-  }
+      .maybeSingle(),
+    supabase
+      .from('mentorship_preferences')
+      .select('is_open')
+      .eq('organization_membership_id', membership.id)
+      .maybeSingle(),
+  ])
 
   const orgName =
     (membership?.organizations as { name: string } | null)?.name ?? 'your organization'
@@ -79,7 +77,7 @@ export default async function OnboardingPage() {
               graduationYear: orgProfile?.graduation_year?.toString() ?? '',
               bio: orgProfile?.bio ?? '',
               mentoringTopics: orgProfile?.mentoring_topics?.join(', ') ?? '',
-              openToMentor: orgProfile?.open_to_mentor ?? false,
+              openToMentor: pref?.is_open ?? false,
             }}
           />
         </CardContent>

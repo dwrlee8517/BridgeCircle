@@ -14,6 +14,7 @@ export type CreateRequestResult =
         | 'mentor_closed'
         | 'mentor_paused'
         | 'mentor_full'
+        | 'mentor_at_capacity'
         | 'duplicate_pending'
         | 'db_error'
       detail?: string
@@ -67,21 +68,31 @@ export async function createMentorshipRequest(
 
   const { data: pref } = await supabase
     .from('mentorship_preferences')
-    .select('is_open, paused_at, max_pending_requests')
+    .select('is_open, paused_at, max_pending_requests, max_active_mentees')
     .eq('organization_membership_id', mentorMembership.id)
     .maybeSingle()
 
   if (!pref?.is_open) return { ok: false, error: 'mentor_closed' }
   if (pref.paused_at) return { ok: false, error: 'mentor_paused' }
 
-  const { count: pendingCount } = await supabase
-    .from('mentorship_requests')
-    .select('id', { count: 'exact', head: true })
-    .eq('mentor_id', input.mentorId)
-    .eq('status', 'pending')
+  const [{ count: pendingCount }, { count: activeCount }] = await Promise.all([
+    supabase
+      .from('mentorship_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('mentor_id', input.mentorId)
+      .eq('status', 'pending'),
+    supabase
+      .from('mentorship_threads')
+      .select('id', { count: 'exact', head: true })
+      .eq('mentor_id', input.mentorId)
+      .eq('status', 'active'),
+  ])
 
   if (pendingCount !== null && pendingCount >= pref.max_pending_requests) {
     return { ok: false, error: 'mentor_full' }
+  }
+  if (activeCount !== null && activeCount >= pref.max_active_mentees) {
+    return { ok: false, error: 'mentor_at_capacity' }
   }
 
   // Reject duplicate pending from same mentee → mentor.

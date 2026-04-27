@@ -10,11 +10,7 @@ import { getProfile } from '@/lib/profile/getProfile'
 
 type Params = { id: string }
 
-export default async function ProfileDetailPage({
-  params,
-}: {
-  params: Promise<Params>
-}) {
+export default async function ProfileDetailPage({ params }: { params: Promise<Params> }) {
   const session = await requireSession()
   const { id } = await params
   const supabase = await createClient()
@@ -42,8 +38,7 @@ export default async function ProfileDetailPage({
     if (req) {
       relatedRequestId = req.id
       if (req.status === 'pending') {
-        mentorshipState =
-          req.mentor_id === session.userId ? 'pending_incoming' : 'pending_outgoing'
+        mentorshipState = req.mentor_id === session.userId ? 'pending_incoming' : 'pending_outgoing'
       } else if (req.status === 'accepted') {
         mentorshipState = 'active'
         const { data: thread } = await supabase
@@ -165,9 +160,7 @@ export default async function ProfileDetailPage({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wide">
-        {title}
-      </h3>
+      <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wide">{title}</h3>
       <div className="space-y-1">{children}</div>
     </div>
   )

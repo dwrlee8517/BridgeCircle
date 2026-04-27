@@ -79,7 +79,7 @@ export async function searchAlumni(
       .in('user_id', userIds),
     supabase
       .from('organization_profiles')
-      .select('organization_membership_id, graduation_year, mentoring_topics, open_to_mentor, bio')
+      .select('organization_membership_id, graduation_year, mentoring_topics, bio')
       .in('organization_membership_id', membershipIds),
     supabase
       .from('mentorship_preferences')

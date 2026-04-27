@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { sendMessageAction, type MessageFormState } from './actions'
+import { type MessageFormState, sendMessageAction } from './actions'
 
 const initialState: MessageFormState = {}
 

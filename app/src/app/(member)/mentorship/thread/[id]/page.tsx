@@ -1,11 +1,11 @@
+import { format, formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { format, formatDistanceToNow } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { getThread, type ThreadParticipant, type ThreadMessage } from '@/lib/mentorship/getThread'
+import { getThread, type ThreadMessage, type ThreadParticipant } from '@/lib/mentorship/getThread'
 import { MessageForm } from './message-form'
 
 type Params = { id: string }
@@ -70,9 +70,7 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
 
           <div className="space-y-3">
             {thread.messages.length === 0 ? (
-              <p className="text-sm text-muted-foreground italic">
-                No messages yet. Say hello.
-              </p>
+              <p className="text-sm text-muted-foreground italic">No messages yet. Say hello.</p>
             ) : (
               thread.messages.map((m) => (
                 <MessageRow

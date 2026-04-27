@@ -31,3 +31,49 @@ export function parseMessageForm(formData: FormData) {
     body: formData.get('body'),
   })
 }
+
+const checkbox = z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean())
+
+const positiveInt = z.preprocess(
+  (v) => (typeof v === 'string' && v.length > 0 ? Number(v) : v),
+  z.number().int().min(1, 'Must be at least 1.').max(100, 'Keep it under 100.'),
+)
+
+export const mentorshipPreferenceSchema = z.object({
+  isOpen: checkbox,
+  topics: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .nullable()
+    .transform((v) =>
+      v
+        ? v
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [],
+    ),
+  screeningPrompt: z
+    .string()
+    .trim()
+    .max(280, 'Keep it to one sentence (280 chars).')
+    .optional()
+    .nullable()
+    .transform((v) => (v && v.length > 0 ? v : null)),
+  maxActiveMentees: positiveInt,
+  maxPendingRequests: positiveInt,
+})
+
+export type MentorshipPreferenceInput = z.infer<typeof mentorshipPreferenceSchema>
+
+export function parseMentorshipPreferenceForm(formData: FormData) {
+  return mentorshipPreferenceSchema.safeParse({
+    isOpen: formData.get('isOpen'),
+    topics: formData.get('topics'),
+    screeningPrompt: formData.get('screeningPrompt'),
+    maxActiveMentees: formData.get('maxActiveMentees'),
+    maxPendingRequests: formData.get('maxPendingRequests'),
+  })
+}
