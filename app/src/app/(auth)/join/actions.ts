@@ -97,7 +97,14 @@ export async function startGoogleSignup(formData: FormData) {
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo },
+    options: {
+      redirectTo,
+      // Force the account picker so users explicitly choose the Google
+      // account that matches the invite email. Otherwise the silent flow
+      // can use whatever account Chrome is currently signed into, fail the
+      // email-match check in /auth/callback, and confuse the user.
+      queryParams: { prompt: 'select_account' },
+    },
   })
   if (error || !data.url) {
     redirect('/sign-in?error=oauth_start_failed')
