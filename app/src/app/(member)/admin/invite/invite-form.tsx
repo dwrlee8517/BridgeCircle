@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { inviteFromForm, type InviteFormState } from './actions'
+import { type InviteFormState, inviteFromForm } from './actions'
 
 const initialState: InviteFormState = {}
 
@@ -16,7 +16,7 @@ export function InviteForm() {
     if (state.success && formRef.current) {
       formRef.current.reset()
     }
-  }, [state.success, state.emailJustSent])
+  }, [state.success])
 
   return (
     <form ref={formRef} action={action} className="space-y-3">

@@ -18,11 +18,7 @@ export type SendInviteResult =
   | { ok: true; inviteId: string; emailId: string | null }
   | {
       ok: false
-      error:
-        | 'duplicate'
-        | 'org_not_found'
-        | 'send_failed'
-        | 'db_error'
+      error: 'duplicate' | 'org_not_found' | 'send_failed' | 'db_error'
       detail?: string
     }
 

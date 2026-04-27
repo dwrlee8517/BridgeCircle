@@ -1,15 +1,18 @@
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/db/server'
 import { requireAdmin } from '@/lib/auth/session'
+import { CsvInviteForm } from './csv-form'
 import { InviteForm } from './invite-form'
 
 type InviteStatus = 'pending' | 'accepted' | 'expired' | 'revoked'
@@ -33,28 +36,39 @@ export default async function AdminInvitePage() {
         .select('id, email, status, full_name, graduation_year, created_at, accepted_at')
         .eq('organization_id', adminOrg.organization_id)
         .order('created_at', { ascending: false })
-        .limit(20)
+        .limit(50)
     : { data: [] }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Invite an alumnus</CardTitle>
+          <CardTitle>Invite alumni</CardTitle>
           <CardDescription>
-            Sends a join link to the email below from invites@bridgecircle.org. The recipient
-            joins {orgName} when they accept.
+            Send join links from invites@bridgecircle.org. Recipients join {orgName} when they
+            accept.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <InviteForm />
+          <Tabs defaultValue="single">
+            <TabsList>
+              <TabsTrigger value="single">Single</TabsTrigger>
+              <TabsTrigger value="csv">CSV upload</TabsTrigger>
+            </TabsList>
+            <TabsContent value="single" className="pt-4">
+              <InviteForm />
+            </TabsContent>
+            <TabsContent value="csv" className="pt-4">
+              <CsvInviteForm />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
           <CardTitle>Recent invites</CardTitle>
-          <CardDescription>Last 20 sent.</CardDescription>
+          <CardDescription>Last 50 sent.</CardDescription>
         </CardHeader>
         <CardContent>
           {invites && invites.length > 0 ? (
