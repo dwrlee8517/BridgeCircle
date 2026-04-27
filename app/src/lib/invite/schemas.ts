@@ -3,13 +3,7 @@ import { z } from 'zod'
 export const inviteCreateSchema = z.object({
   email: z.email().trim().toLowerCase(),
   fullName: z.string().trim().min(1).optional().nullable(),
-  graduationYear: z
-    .number()
-    .int()
-    .min(1900)
-    .max(2100)
-    .optional()
-    .nullable(),
+  graduationYear: z.number().int().min(1900).max(2100).optional().nullable(),
 })
 
 export type InviteCreateInput = z.infer<typeof inviteCreateSchema>

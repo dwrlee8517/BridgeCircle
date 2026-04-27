@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { requireAdmin } from '@/lib/auth/session'
 import { createClient } from '@/db/server'
+import { requireAdmin } from '@/lib/auth/session'
 import { sendInvite } from '@/lib/invite/send'
 
 const formSchema = z.object({
