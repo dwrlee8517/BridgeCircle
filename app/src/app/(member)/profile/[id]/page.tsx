@@ -26,6 +26,9 @@ export default async function ProfileDetailPage({
 
   // Mentorship state with this user (only meaningful when viewing someone else)
   let mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active' = 'none'
+  let relatedRequestId: string | null = null
+  let relatedThreadId: string | null = null
+
   if (!isSelf) {
     const { data: req } = await supabase
       .from('mentorship_requests')
@@ -37,11 +40,18 @@ export default async function ProfileDetailPage({
       .limit(1)
       .maybeSingle()
     if (req) {
+      relatedRequestId = req.id
       if (req.status === 'pending') {
         mentorshipState =
           req.mentor_id === session.userId ? 'pending_incoming' : 'pending_outgoing'
       } else if (req.status === 'accepted') {
         mentorshipState = 'active'
+        const { data: thread } = await supabase
+          .from('mentorship_threads')
+          .select('id')
+          .eq('request_id', req.id)
+          .maybeSingle()
+        relatedThreadId = thread?.id ?? null
       }
     }
   }
@@ -141,6 +151,8 @@ export default async function ProfileDetailPage({
                 profileUserId={profile.userId}
                 isOpenAsMentor={profile.isOpenAsMentor}
                 state={mentorshipState}
+                relatedRequestId={relatedRequestId}
+                relatedThreadId={relatedThreadId}
               />
             )}
           </div>
@@ -174,29 +186,33 @@ function MentorshipAction({
   profileUserId,
   isOpenAsMentor,
   state,
+  relatedRequestId,
+  relatedThreadId,
 }: {
   profileUserId: string
   isOpenAsMentor: boolean
   state: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active'
+  relatedRequestId: string | null
+  relatedThreadId: string | null
 }) {
-  if (state === 'active') {
+  if (state === 'active' && relatedThreadId) {
     return (
       <Button asChild>
-        <Link href="/inbox">Active mentorship · go to thread</Link>
+        <Link href={`/mentorship/thread/${relatedThreadId}`}>Open mentorship thread</Link>
       </Button>
     )
   }
-  if (state === 'pending_outgoing') {
+  if (state === 'pending_outgoing' && relatedRequestId) {
     return (
-      <Button variant="outline" disabled>
-        Request pending
+      <Button asChild variant="outline">
+        <Link href={`/mentorship/request/${relatedRequestId}`}>Request pending — view</Link>
       </Button>
     )
   }
-  if (state === 'pending_incoming') {
+  if (state === 'pending_incoming' && relatedRequestId) {
     return (
       <Button asChild>
-        <Link href="/inbox">Review their request</Link>
+        <Link href={`/mentorship/request/${relatedRequestId}`}>Review their request</Link>
       </Button>
     )
   }

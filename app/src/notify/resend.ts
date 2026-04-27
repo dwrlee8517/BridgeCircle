@@ -1,6 +1,8 @@
 import { Resend } from 'resend'
 import { render } from '@react-email/components'
 import { InviteEmail } from './emails/invite-email'
+import { MentorshipRequestEmail } from './emails/mentorship-request-email'
+import { MentorshipAcceptedEmail } from './emails/mentorship-accepted-email'
 
 // Wrapped Resend client. Server-only: uses RESEND_API_KEY which is not exposed
 // to the browser. Importing from a 'use client' file will fail at build time.
@@ -33,11 +35,55 @@ export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyRes
     html,
   })
 
-  if (error) {
-    return { ok: false, error: error.message }
-  }
-  if (!data?.id) {
-    return { ok: false, error: 'no id returned' }
-  }
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendMentorshipRequestInput = {
+  to: string
+  menteeName: string
+  reviewUrl: string
+}
+
+export async function sendMentorshipRequestEmail(
+  input: SendMentorshipRequestInput,
+): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(MentorshipRequestEmail(input))
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `${input.menteeName} sent you a mentorship request`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendMentorshipAcceptedInput = {
+  to: string
+  mentorName: string
+  threadUrl: string
+}
+
+export async function sendMentorshipAcceptedEmail(
+  input: SendMentorshipAcceptedInput,
+): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(MentorshipAcceptedEmail(input))
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `${input.mentorName} accepted your mentorship request`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
   return { ok: true, id: data.id }
 }
