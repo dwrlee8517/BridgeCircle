@@ -1,0 +1,72 @@
+import Link from 'next/link'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { signOut } from '../(auth)/sign-in/actions'
+
+type Props = {
+  userId: string
+  name: string | null
+  avatarUrl: string | null
+  isAdmin: boolean
+}
+
+export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
+  return (
+    <header className="border-b bg-background">
+      <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
+        <Link href="/search" className="font-semibold">
+          BridgeCircle
+        </Link>
+        <nav className="flex items-center gap-1 text-sm">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/search">Search</Link>
+          </Button>
+          {isAdmin ? (
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/admin/invite">Admin</Link>
+            </Button>
+          ) : null}
+        </nav>
+        <div className="ml-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Account menu"
+                type="button"
+              >
+                <Avatar className="size-8">
+                  {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
+                  <AvatarFallback>{(name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href={`/profile/${userId}`}>My profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/profile/edit">Edit profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <form action={signOut} className="w-full">
+                  <button type="submit" className="w-full text-left">
+                    Sign out
+                  </button>
+                </form>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  )
+}

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { MemberHeader } from './member-header'
 
 /**
  * Auth-required layout. Wraps everything under (member). Three checks:
@@ -37,7 +38,7 @@ export default async function MemberLayout({ children }: { children: React.React
 
   const { data: profile } = await supabase
     .from('base_profiles')
-    .select('current_employer')
+    .select('name, current_employer, avatar_url')
     .eq('user_id', session.userId)
     .maybeSingle()
 
@@ -45,5 +46,23 @@ export default async function MemberLayout({ children }: { children: React.React
     redirect('/onboarding')
   }
 
-  return <>{children}</>
+  const { data: adminRoles } = await supabase
+    .from('admin_role_assignments')
+    .select('role')
+    .eq('user_id', session.userId)
+    .in('role', ['super_admin', 'admin'])
+    .limit(1)
+  const isAdmin = !!adminRoles && adminRoles.length > 0
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <MemberHeader
+        userId={session.userId}
+        name={profile.name}
+        avatarUrl={profile.avatar_url}
+        isAdmin={isAdmin}
+      />
+      <main className="flex-1">{children}</main>
+    </div>
+  )
 }
