@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { createAdminClient } from '@/db/admin'
 import { sendMentorshipAcceptedEmail } from '@/notify/resend'
 
 export type RespondInput = {
@@ -38,14 +39,27 @@ export async function respondToRequest(
   if (reqErr || !req) return { ok: false, error: 'not_found' }
   if (req.mentor_id !== mentorId) return { ok: false, error: 'not_mentor' }
 
-  // Idempotent: if already accepted, return existing thread; if declined, return null.
+  // Thread inserts use the admin client because mentorship_threads has no
+  // INSERT policy for the authenticated role (see 0003_rls.sql comment:
+  // "Inserts via service_role only — server-side after request acceptance").
+  // Without this, the insert silently fails under RLS and we end up with an
+  // accepted request with no thread backing it.
+  const admin = createAdminClient()
+
+  // Idempotent recovery: if already accepted, return existing thread (or
+  // create one if it's missing — covers any historical broken state from
+  // the bug this commit fixes).
   if (req.status === 'accepted') {
     const { data: existing } = await supabase
       .from('mentorship_threads')
       .select('id')
       .eq('request_id', req.id)
       .maybeSingle()
-    return { ok: true, threadId: existing?.id ?? null }
+    if (existing) return { ok: true, threadId: existing.id }
+    const recovered = await createThread(admin, req)
+    if (!recovered.ok) return recovered
+    await sendAcceptedEmail(supabase, appOrigin, recovered.threadId, req.mentor_id, req.mentee_id)
+    return { ok: true, threadId: recovered.threadId }
   }
   if (req.status === 'declined') {
     return { ok: true, threadId: null }
@@ -63,20 +77,9 @@ export async function respondToRequest(
 
   let threadId: string | null = null
   if (input.decision === 'accepted') {
-    const { data: thread, error: threadErr } = await supabase
-      .from('mentorship_threads')
-      .insert({
-        request_id: req.id,
-        mentor_id: req.mentor_id,
-        mentee_id: req.mentee_id,
-      })
-      .select('id')
-      .single()
-    if (threadErr || !thread) {
-      return { ok: false, error: 'db_error', detail: threadErr?.message }
-    }
-    threadId = thread.id
-
+    const result = await createThread(admin, req)
+    if (!result.ok) return result
+    threadId = result.threadId
     await sendAcceptedEmail(supabase, appOrigin, threadId, req.mentor_id, req.mentee_id)
   }
 
@@ -89,6 +92,25 @@ export async function respondToRequest(
   })
 
   return { ok: true, threadId }
+}
+
+async function createThread(
+  admin: SupabaseClient<Database>,
+  req: { id: string; mentor_id: string; mentee_id: string },
+): Promise<{ ok: true; threadId: string } | { ok: false; error: 'db_error'; detail?: string }> {
+  const { data: thread, error } = await admin
+    .from('mentorship_threads')
+    .insert({
+      request_id: req.id,
+      mentor_id: req.mentor_id,
+      mentee_id: req.mentee_id,
+    })
+    .select('id')
+    .single()
+  if (error || !thread) {
+    return { ok: false, error: 'db_error', detail: error?.message }
+  }
+  return { ok: true, threadId: thread.id }
 }
 
 async function sendAcceptedEmail(
