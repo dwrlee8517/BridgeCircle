@@ -35,8 +35,8 @@ export function MentorshipRequestEmail({ menteeName, reviewUrl }: Props) {
             </Button>
           </Section>
           <Text style={footer}>
-            You're receiving this because you're listed as open to mentor on BridgeCircle.
-            You can pause or close mentoring any time in your mentor settings.
+            You're receiving this because you're listed as open to mentor on BridgeCircle. You can
+            pause or close mentoring any time in your mentor settings.
           </Text>
         </Container>
       </Body>
@@ -46,8 +46,7 @@ export function MentorshipRequestEmail({ menteeName, reviewUrl }: Props) {
 
 const body = {
   backgroundColor: '#f6f6f6',
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 }
 const container = {
   backgroundColor: '#ffffff',

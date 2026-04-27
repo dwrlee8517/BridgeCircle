@@ -29,8 +29,8 @@ export function InviteEmail({ fullName, schoolName, joinUrl }: Props) {
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
             You've been invited to join the <strong>{schoolName}</strong> alumni network on
-            BridgeCircle — a private space for {schoolName} alumni to find each other, share
-            advice, and stay connected.
+            BridgeCircle — a private space for {schoolName} alumni to find each other, share advice,
+            and stay connected.
           </Text>
           <Section style={buttonSection}>
             <Button style={button} href={joinUrl}>
@@ -53,8 +53,7 @@ export function InviteEmail({ fullName, schoolName, joinUrl }: Props) {
 
 const body = {
   backgroundColor: '#f6f6f6',
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 }
 
 const container = {
