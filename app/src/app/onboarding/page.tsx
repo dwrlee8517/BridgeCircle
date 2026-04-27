@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ProfileForm } from '@/components/profile-form'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { OnboardingForm } from './onboarding-form'
+import { onboardingAction } from './actions'
 
 export default async function OnboardingPage() {
   const session = await requireSession('/onboarding')
@@ -62,7 +63,9 @@ export default async function OnboardingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <OnboardingForm
+          <ProfileForm
+            action={onboardingAction}
+            submitLabel="Save and continue"
             defaults={{
               name: base?.name ?? '',
               headline: base?.headline ?? '',
