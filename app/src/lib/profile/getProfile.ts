@@ -2,6 +2,22 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 
+export type CareerEntry = {
+  employer: string
+  title: string
+  start_date: string | null
+  end_date: string | null
+  description: string | null
+}
+
+export type EducationEntry = {
+  school: string
+  degree: string | null
+  field: string | null
+  start_date: string | null
+  end_date: string | null
+}
+
 export type ProfileView = {
   userId: string
   membershipId: string
@@ -19,6 +35,9 @@ export type ProfileView = {
   bio: string | null
   graduationYear: number | null
   mentoringTopics: string[] | null
+  careerHistory: CareerEntry[] | null
+  educationHistory: EducationEntry[] | null
+  skills: string[] | null
   openToMentor: boolean
   isOpenAsMentor: boolean
   mentorPaused: boolean
@@ -36,7 +55,7 @@ export async function getProfile(
   const { data: base } = await supabase
     .from('base_profiles')
     .select(
-      'user_id, name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url',
+      'user_id, name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url, career_history, education_history, skills',
     )
     .eq('user_id', userId)
     .maybeSingle()
@@ -82,6 +101,9 @@ export async function getProfile(
     bio: orgProfile?.bio ?? null,
     graduationYear: orgProfile?.graduation_year ?? null,
     mentoringTopics: orgProfile?.mentoring_topics ?? null,
+    careerHistory: (base.career_history as CareerEntry[] | null) ?? null,
+    educationHistory: (base.education_history as EducationEntry[] | null) ?? null,
+    skills: base.skills ?? null,
     openToMentor: pref?.is_open ?? false,
     isOpenAsMentor: !!pref?.is_open && !pref.paused_at,
     mentorPaused: !!pref?.paused_at,

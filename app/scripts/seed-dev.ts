@@ -77,6 +77,22 @@ const ORG = {
 
 type AdminRole = 'super_admin' | 'admin' | 'event_moderator' | 'ambassador'
 
+type CareerEntry = {
+  employer: string
+  title: string
+  start_date: string | null
+  end_date: string | null
+  description: string | null
+}
+
+type EducationEntry = {
+  school: string
+  degree: string | null
+  field: string | null
+  start_date: string | null
+  end_date: string | null
+}
+
 type Persona = {
   email: string
   password: string
@@ -94,6 +110,9 @@ type Persona = {
   maxActive?: number
   pausedAt?: string
   adminRole?: AdminRole
+  careerHistory?: CareerEntry[]
+  educationHistory?: EducationEntry[]
+  skills?: string[]
 }
 
 const PERSONAS: Persona[] = [
@@ -109,6 +128,26 @@ const PERSONAS: Persona[] = [
     major: 'Public Policy',
     openToMentor: false,
     adminRole: 'super_admin',
+    careerHistory: [
+      {
+        employer: 'Chadwick School',
+        title: 'Alumni Board Chair',
+        start_date: '2020',
+        end_date: null,
+        description: 'Volunteer role coordinating alumni engagement and the annual giving campaign.',
+      },
+      {
+        employer: 'Bain & Company',
+        title: 'Senior Manager',
+        start_date: '2010',
+        end_date: '2020',
+        description: 'Public sector and education practice.',
+      },
+    ],
+    educationHistory: [
+      { school: 'Stanford University', degree: 'AB', field: 'Public Policy', start_date: '2001', end_date: '2005' },
+    ],
+    skills: ['nonprofit governance', 'fundraising', 'public policy', 'community organizing'],
   },
   {
     email: 'mentor-mark@example.com',
@@ -125,6 +164,34 @@ const PERSONAS: Persona[] = [
     mentorTopics: ['consulting', 'career change', 'business school'],
     maxPending: 5,
     maxActive: 3,
+    careerHistory: [
+      {
+        employer: 'Acme Consulting',
+        title: 'Senior Partner',
+        start_date: '2018',
+        end_date: null,
+        description: 'Lead the financial services practice; advising on growth strategy and M&A.',
+      },
+      {
+        employer: 'McKinsey & Company',
+        title: 'Engagement Manager',
+        start_date: '2014',
+        end_date: '2018',
+        description: 'Strategy projects across consumer and financial services clients.',
+      },
+      {
+        employer: 'McKinsey & Company',
+        title: 'Business Analyst',
+        start_date: '2008',
+        end_date: '2010',
+        description: 'Pre-MBA generalist role.',
+      },
+    ],
+    educationHistory: [
+      { school: 'Harvard Business School', degree: 'MBA', field: null, start_date: '2012', end_date: '2014' },
+      { school: 'University of Pennsylvania', degree: 'BA', field: 'Economics', start_date: '2004', end_date: '2008' },
+    ],
+    skills: ['strategy', 'consulting', 'financial modeling', 'M&A', 'business school'],
   },
   {
     email: 'mentor-mei@example.com',
@@ -136,11 +203,56 @@ const PERSONAS: Persona[] = [
     title: 'Product Director',
     university: 'Yonsei University',
     major: 'Industrial Engineering',
-    bio: 'Happy to chat about the PM transition or relocating to Asia.',
+    bio: 'Happy to chat about the PM transition, relocating to Asia, or pivoting from creative roles into product.',
     openToMentor: true,
     mentorTopics: ['product management', 'returning to Korea', 'engineering to PM'],
     maxPending: 10,
     maxActive: 5,
+    // Mei's career path is the demo target for Day 10's NL search:
+    // a query like "photography mentor" should surface her despite her
+    // current title being "Product Director" — the LLM rerank step will
+    // see the past roles in careerHistory.
+    careerHistory: [
+      {
+        employer: 'Hyundai Motor',
+        title: 'Product Director',
+        start_date: '2021',
+        end_date: null,
+        description: 'Lead the in-vehicle infotainment product team across global markets.',
+      },
+      {
+        employer: 'Kakao',
+        title: 'Senior Product Manager',
+        start_date: '2018',
+        end_date: '2021',
+        description: 'Owned the visual search and image-recognition product line.',
+      },
+      {
+        employer: 'Naver',
+        title: 'Product Designer',
+        start_date: '2014',
+        end_date: '2018',
+        description: 'Visual design and user research for Naver Photos and the camera app.',
+      },
+      {
+        employer: 'Vogue Korea',
+        title: 'Photo Editor',
+        start_date: '2012',
+        end_date: '2014',
+        description: 'Editorial photo selection and on-set art direction for fashion shoots.',
+      },
+    ],
+    educationHistory: [
+      { school: 'Yonsei University', degree: 'BS', field: 'Industrial Engineering', start_date: '2008', end_date: '2012' },
+    ],
+    skills: [
+      'product management',
+      'design systems',
+      'photo editing',
+      'art direction',
+      'visual search',
+      'Korean',
+    ],
   },
   {
     email: 'mentor-fully-booked@example.com',
@@ -158,6 +270,34 @@ const PERSONAS: Persona[] = [
     // Intentionally low so we can test the capacity-full state in the UI.
     maxPending: 1,
     maxActive: 1,
+    careerHistory: [
+      {
+        employer: 'Goldman Sachs',
+        title: 'VP, Equity Research',
+        start_date: '2018',
+        end_date: null,
+        description: 'Cover the US semiconductors sector.',
+      },
+      {
+        employer: 'Goldman Sachs',
+        title: 'Associate, Equity Research',
+        start_date: '2014',
+        end_date: '2018',
+        description: null,
+      },
+      {
+        employer: 'JPMorgan Chase',
+        title: 'Investment Banking Analyst',
+        start_date: '2010',
+        end_date: '2012',
+        description: 'TMT coverage group.',
+      },
+    ],
+    educationHistory: [
+      { school: 'Columbia Business School', degree: 'MBA', field: null, start_date: '2012', end_date: '2014' },
+      { school: 'Harvard University', degree: 'AB', field: 'Mathematics', start_date: '2006', end_date: '2010' },
+    ],
+    skills: ['equity research', 'capital markets', 'semiconductors', 'financial modeling'],
   },
   {
     email: 'mentor-paused@example.com',
@@ -174,6 +314,27 @@ const PERSONAS: Persona[] = [
     openToMentor: true,
     mentorTopics: ['medicine', 'med school applications'],
     pausedAt: new Date().toISOString(),
+    careerHistory: [
+      {
+        employer: 'Mass General Hospital',
+        title: 'Attending Physician',
+        start_date: '2017',
+        end_date: null,
+        description: 'Internal medicine, hospitalist track.',
+      },
+      {
+        employer: 'Johns Hopkins Hospital',
+        title: 'Resident Physician',
+        start_date: '2014',
+        end_date: '2017',
+        description: null,
+      },
+    ],
+    educationHistory: [
+      { school: 'Johns Hopkins School of Medicine', degree: 'MD', field: null, start_date: '2010', end_date: '2014' },
+      { school: 'Johns Hopkins University', degree: 'BS', field: 'Biology', start_date: '2005', end_date: '2009' },
+    ],
+    skills: ['internal medicine', 'med school applications', 'clinical research'],
   },
   {
     email: 'student-sam@example.com',
@@ -186,6 +347,10 @@ const PERSONAS: Persona[] = [
     university: 'UCLA',
     major: 'Computer Science',
     openToMentor: false,
+    educationHistory: [
+      { school: 'UCLA', degree: 'BS', field: 'Computer Science', start_date: '2020', end_date: '2024' },
+    ],
+    skills: ['python', 'data analysis', 'machine learning'],
   },
   {
     email: 'recent-grad-ria@example.com',
@@ -198,6 +363,19 @@ const PERSONAS: Persona[] = [
     university: 'UC Berkeley',
     major: 'Computer Science',
     openToMentor: false,
+    careerHistory: [
+      {
+        employer: 'Stripe',
+        title: 'Software Engineer',
+        start_date: '2022',
+        end_date: null,
+        description: 'Backend engineering on the payments platform.',
+      },
+    ],
+    educationHistory: [
+      { school: 'UC Berkeley', degree: 'BS', field: 'Computer Science', start_date: '2018', end_date: '2022' },
+    ],
+    skills: ['typescript', 'distributed systems', 'payments'],
   },
   {
     email: 'recent-grad-rohan@example.com',
@@ -210,6 +388,19 @@ const PERSONAS: Persona[] = [
     university: 'University of Washington',
     major: 'Business Administration',
     openToMentor: false,
+    careerHistory: [
+      {
+        employer: 'Microsoft',
+        title: 'Product Manager',
+        start_date: '2021',
+        end_date: null,
+        description: 'PM on Azure developer experience.',
+      },
+    ],
+    educationHistory: [
+      { school: 'University of Washington', degree: 'BBA', field: 'Business Administration', start_date: '2017', end_date: '2021' },
+    ],
+    skills: ['product management', 'developer tools', 'cloud'],
   },
   {
     email: 'incomplete-iris@example.com',
@@ -308,6 +499,9 @@ async function createUsersAndProfiles() {
       city: p.city,
       university: p.university,
       major: p.major,
+      career_history: p.careerHistory ?? null,
+      education_history: p.educationHistory ?? null,
+      skills: p.skills ?? null,
     })
     if (baseProfileError) throw baseProfileError
 

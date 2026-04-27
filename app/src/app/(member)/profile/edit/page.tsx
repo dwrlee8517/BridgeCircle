@@ -29,8 +29,20 @@ export default async function EditProfilePage() {
       </Link>
       <Card>
         <CardHeader>
-          <CardTitle>Edit profile</CardTitle>
-          <CardDescription>Update your details. Required fields are marked with *.</CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Edit profile</CardTitle>
+              <CardDescription>
+                Update your details. Required fields are marked with *.
+              </CardDescription>
+            </div>
+            <Link
+              href="/profile/import"
+              className="text-sm font-medium text-primary hover:underline whitespace-nowrap"
+            >
+              Refresh from resume →
+            </Link>
+          </div>
         </CardHeader>
         <CardContent>
           <ProfileForm
