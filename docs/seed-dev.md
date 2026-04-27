@@ -169,14 +169,28 @@ The personas use `@example.com` addresses (a reserved domain that does not deliv
 
 ## Quick Reference
 
+### Commands
+
 | Task | Command |
 |---|---|
 | Seed (or re-seed) the dev database | `SEED_CONFIRM=YES pnpm dlx tsx --env-file=.env.local scripts/seed-dev.ts` |
 | Reset schema then re-seed | `pnpm dlx supabase db reset && SEED_CONFIRM=YES pnpm dlx tsx --env-file=.env.local scripts/seed-dev.ts` |
-| Sign in as the test admin | email: `admin-amy@example.com`, password: `devseed-password-1` |
-| Sign in as the typical mentor | email: `mentor-mark@example.com`, password: `devseed-password-2` |
-| Sign in as the at-capacity mentor | email: `mentor-fully-booked@example.com`, password: `devseed-password-4` |
-| Sign in as the student requesting mentorship | email: `student-sam@example.com`, password: `devseed-password-6` |
+
+### Test accounts
+
+All passwords follow `devseed-password-N` where N matches the persona's order in [scripts/seed-dev.ts](../app/scripts/seed-dev.ts).
+
+| # | Name | Email | Password | What they cover |
+| --- | --- | --- | --- | --- |
+| 1 | Amy Admin | `admin-amy@example.com` | `devseed-password-1` | super_admin role; admin permissions, role-gated routes |
+| 2 | Mark Mentor | `mentor-mark@example.com` | `devseed-password-2` | open mentor; the typical mentorship-request flow |
+| 3 | Mei Mentor | `mentor-mei@example.com` | `devseed-password-3` | open mentor; second mentor for accepted-request scenario |
+| 4 | Felix Atcapacity | `mentor-fully-booked@example.com` | `devseed-password-4` | open mentor with `max_pending=1, max_active=1` — capacity-full UI |
+| 5 | Paula Paused | `mentor-paused@example.com` | `devseed-password-5` | open mentor with `paused_at` set — paused-while-away UI |
+| 6 | Sam Student | `student-sam@example.com` | `devseed-password-6` | mentee originating a pending request |
+| 7 | Ria Recent | `recent-grad-ria@example.com` | `devseed-password-7` | mentee with an accepted request and an event RSVP |
+| 8 | Rohan Recent | `recent-grad-rohan@example.com` | `devseed-password-8` | mentee with a declined request and an event RSVP |
+| 9 | Iris Incomplete | `incomplete-iris@example.com` | `devseed-password-9` | blank profile fields — profile-completion prompt rendering |
 
 ## When This Doc Gets Outdated
 
