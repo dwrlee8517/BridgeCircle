@@ -112,7 +112,13 @@ export default async function ProfileDetailPage({
             </Section>
           ) : null}
 
-          {profile.linkedinUrl ? (
+          {/*
+            Per phase-1-launch-spec.md:32, contact links (LinkedIn URL) are
+            friends-only by default. Friendships ship in week 3+, so at launch
+            this means: only the profile owner sees their own LinkedIn URL.
+            When friendships land, this gate broadens to (isSelf || isFriend).
+          */}
+          {profile.linkedinUrl && isSelf ? (
             <Section title="Links">
               <a
                 href={profile.linkedinUrl}
