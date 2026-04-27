@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ProfileForm } from '@/components/profile-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -52,7 +53,23 @@ export default async function OnboardingPage() {
     (membership?.organizations as { name: string } | null)?.name ?? 'your organization'
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
+    <div className="mx-auto max-w-2xl px-4 py-10 space-y-4">
+      <Card className="bg-muted/30">
+        <CardContent className="py-4 flex items-center justify-between gap-3">
+          <div className="text-sm">
+            <span className="font-medium">Have a resume?</span>{' '}
+            <span className="text-muted-foreground">
+              Import to fill the form in faster — you can edit anything before saving.
+            </span>
+          </div>
+          <Link
+            href="/profile/import?return=/onboarding"
+            className="text-sm font-medium text-primary hover:underline whitespace-nowrap"
+          >
+            Import →
+          </Link>
+        </CardContent>
+      </Card>
       <Card>
         <CardHeader>
           <CardTitle>Welcome to {orgName}</CardTitle>

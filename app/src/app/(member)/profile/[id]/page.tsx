@@ -117,6 +117,64 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
             </Section>
           ) : null}
 
+          {profile.careerHistory && profile.careerHistory.length > 0 ? (
+            <Section title="Career history">
+              <ol className="space-y-3">
+                {profile.careerHistory.map((c) => (
+                  <li
+                    key={`${c.employer}|${c.title}|${c.start_date ?? ''}`}
+                    className="space-y-0.5"
+                  >
+                    <div className="text-sm font-medium">
+                      {c.title}
+                      <span className="text-muted-foreground"> · {c.employer}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {c.start_date ?? '?'} – {c.end_date ?? 'present'}
+                    </div>
+                    {c.description ? (
+                      <p className="text-sm text-muted-foreground">{c.description}</p>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            </Section>
+          ) : null}
+
+          {profile.educationHistory && profile.educationHistory.length > 0 ? (
+            <Section title="Education history">
+              <ol className="space-y-2">
+                {profile.educationHistory.map((e) => (
+                  <li key={`${e.school}|${e.start_date ?? ''}`} className="space-y-0.5">
+                    <div className="text-sm font-medium">{e.school}</div>
+                    {e.degree || e.field ? (
+                      <div className="text-xs text-muted-foreground">
+                        {[e.degree, e.field].filter(Boolean).join(', ')}
+                      </div>
+                    ) : null}
+                    {e.start_date || e.end_date ? (
+                      <div className="text-xs text-muted-foreground">
+                        {e.start_date ?? '?'} – {e.end_date ?? '?'}
+                      </div>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            </Section>
+          ) : null}
+
+          {profile.skills && profile.skills.length > 0 ? (
+            <Section title="Skills">
+              <div className="flex flex-wrap gap-1.5">
+                {profile.skills.map((s) => (
+                  <Badge key={s} variant="outline">
+                    {s}
+                  </Badge>
+                ))}
+              </div>
+            </Section>
+          ) : null}
+
           {/*
             Per phase-1-launch-spec.md:32, contact links (LinkedIn URL) are
             friends-only by default. Friendships ship in week 3+, so at launch

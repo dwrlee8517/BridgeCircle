@@ -181,42 +181,51 @@ export type Database = {
       base_profiles: {
         Row: {
           avatar_url: string | null
+          career_history: Json | null
           city: string | null
           created_at: string
           current_employer: string | null
           current_title: string | null
+          education_history: Json | null
           headline: string | null
           linkedin_url: string | null
           major: string | null
           name: string | null
+          skills: string[] | null
           university: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          career_history?: Json | null
           city?: string | null
           created_at?: string
           current_employer?: string | null
           current_title?: string | null
+          education_history?: Json | null
           headline?: string | null
           linkedin_url?: string | null
           major?: string | null
           name?: string | null
+          skills?: string[] | null
           university?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          career_history?: Json | null
           city?: string | null
           created_at?: string
           current_employer?: string | null
           current_title?: string | null
+          education_history?: Json | null
           headline?: string | null
           linkedin_url?: string | null
           major?: string | null
           name?: string | null
+          skills?: string[] | null
           university?: string | null
           updated_at?: string
           user_id?: string
