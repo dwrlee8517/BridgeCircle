@@ -104,6 +104,7 @@ type Persona = {
   university: string | null
   major: string | null
   bio?: string | null
+  linkedinUrl?: string | null
   openToMentor: boolean
   mentorTopics?: string[]
   maxPending?: number
@@ -126,6 +127,7 @@ const PERSONAS: Persona[] = [
     title: 'Alumni Board Chair',
     university: 'Stanford University',
     major: 'Public Policy',
+    linkedinUrl: 'https://linkedin.com/in/amy-admin-chadwick',
     openToMentor: false,
     adminRole: 'super_admin',
     careerHistory: [
@@ -160,6 +162,7 @@ const PERSONAS: Persona[] = [
     university: 'University of Pennsylvania',
     major: 'Economics',
     bio: 'Open to ~30min calls with current students or recent grads.',
+    linkedinUrl: 'https://linkedin.com/in/mark-mentor-acme',
     openToMentor: true,
     mentorTopics: ['consulting', 'career change', 'business school'],
     maxPending: 5,
@@ -204,6 +207,7 @@ const PERSONAS: Persona[] = [
     university: 'Yonsei University',
     major: 'Industrial Engineering',
     bio: 'Happy to chat about the PM transition, relocating to Asia, or pivoting from creative roles into product.',
+    linkedinUrl: 'https://linkedin.com/in/mei-mentor-hyundai',
     openToMentor: true,
     mentorTopics: ['product management', 'returning to Korea', 'engineering to PM'],
     maxPending: 10,
@@ -265,6 +269,7 @@ const PERSONAS: Persona[] = [
     university: 'Harvard University',
     major: 'Mathematics',
     bio: 'Currently at max mentee capacity.',
+    linkedinUrl: 'https://linkedin.com/in/felix-atcapacity-gs',
     openToMentor: true,
     mentorTopics: ['finance', 'investment banking'],
     // Intentionally low so we can test the capacity-full state in the UI.
@@ -310,6 +315,7 @@ const PERSONAS: Persona[] = [
     university: 'Johns Hopkins University',
     major: 'Biology',
     bio: 'Paused while away.',
+    linkedinUrl: 'https://linkedin.com/in/paula-paused-mgh',
     // is_open=true but paused_at set: tests the "paused while away" UI state.
     openToMentor: true,
     mentorTopics: ['medicine', 'med school applications'],
@@ -346,6 +352,7 @@ const PERSONAS: Persona[] = [
     title: 'Senior, Computer Science',
     university: 'UCLA',
     major: 'Computer Science',
+    linkedinUrl: 'https://linkedin.com/in/sam-student-ucla',
     openToMentor: false,
     educationHistory: [
       { school: 'UCLA', degree: 'BS', field: 'Computer Science', start_date: '2020', end_date: '2024' },
@@ -362,6 +369,7 @@ const PERSONAS: Persona[] = [
     title: 'Software Engineer',
     university: 'UC Berkeley',
     major: 'Computer Science',
+    linkedinUrl: 'https://linkedin.com/in/ria-recent-stripe',
     openToMentor: false,
     careerHistory: [
       {
@@ -387,6 +395,7 @@ const PERSONAS: Persona[] = [
     title: 'Product Manager',
     university: 'University of Washington',
     major: 'Business Administration',
+    linkedinUrl: 'https://linkedin.com/in/rohan-recent-msft',
     openToMentor: false,
     careerHistory: [
       {
@@ -499,6 +508,7 @@ async function createUsersAndProfiles() {
       city: p.city,
       university: p.university,
       major: p.major,
+      linkedin_url: p.linkedinUrl ?? null,
       career_history: p.careerHistory ?? null,
       education_history: p.educationHistory ?? null,
       skills: p.skills ?? null,
