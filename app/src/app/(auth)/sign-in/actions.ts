@@ -41,7 +41,13 @@ export async function signInWithGoogle(formData: FormData) {
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo },
+    options: {
+      redirectTo,
+      // Force the account picker so users can switch accounts on /sign-in
+      // instead of getting silently logged in as whoever Chrome happens to be
+      // currently signed into.
+      queryParams: { prompt: 'select_account' },
+    },
   })
   if (error || !data.url) {
     redirect(`/sign-in?error=${encodeURIComponent('Could not start Google sign-in.')}`)
