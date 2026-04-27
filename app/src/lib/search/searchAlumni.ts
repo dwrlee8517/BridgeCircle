@@ -3,6 +3,22 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import type { SearchFilters } from './schemas'
 
+export type CareerEntry = {
+  employer: string
+  title: string
+  start_date: string | null
+  end_date: string | null
+  description: string | null
+}
+
+export type EducationEntry = {
+  school: string
+  degree: string | null
+  field: string | null
+  start_date: string | null
+  end_date: string | null
+}
+
 export type SearchHit = {
   userId: string
   name: string | null
@@ -17,6 +33,12 @@ export type SearchHit = {
   isOpenAsMentor: boolean
   mentorPaused: boolean
   mentoringTopics: string[] | null
+  // Rich fields populated for the NL rerank step. The structured-search UI
+  // doesn't display them but the NL orchestrator passes them to Haiku.
+  bio: string | null
+  careerHistory: CareerEntry[] | null
+  educationHistory: EducationEntry[] | null
+  skills: string[] | null
   reason: string
   score: number
 }
@@ -74,7 +96,7 @@ export async function searchAlumni(
     supabase
       .from('base_profiles')
       .select(
-        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url',
+        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills',
       )
       .in('user_id', userIds),
     supabase
@@ -177,6 +199,10 @@ export async function searchAlumni(
       isOpenAsMentor,
       mentorPaused: !!pref?.paused_at,
       mentoringTopics: op?.mentoring_topics ?? null,
+      bio: op?.bio ?? null,
+      careerHistory: (base.career_history as CareerEntry[] | null) ?? null,
+      educationHistory: (base.education_history as EducationEntry[] | null) ?? null,
+      skills: base.skills ?? null,
       reason: reasons.slice(0, 2).join(' · ') || 'in your network',
       score,
     })
