@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { getFriendshipState } from '@/lib/friendship/friendshipState'
 import { getProfile } from '@/lib/profile/getProfile'
+import { FriendshipAction } from './friendship-action'
 
 type Params = { id: string }
 
@@ -24,6 +26,23 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
   let mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active' = 'none'
   let relatedRequestId: string | null = null
   let relatedThreadId: string | null = null
+
+  // Friendship state — used both to gate friends-only fields (LinkedIn) and
+  // to render the right CTA button.
+  const friendship = isSelf
+    ? { kind: 'self' as const }
+    : await getFriendshipState(supabase, session.userId, id)
+  const isFriend = friendship.kind === 'friends'
+  const friendshipActionKind: 'friends' | 'pending_outgoing' | 'pending_incoming' | 'none' =
+    friendship.kind === 'self'
+      ? 'none'
+      : friendship.kind === 'friends'
+        ? 'friends'
+        : friendship.kind === 'pending_outgoing'
+          ? 'pending_outgoing'
+          : friendship.kind === 'pending_incoming'
+            ? 'pending_incoming'
+            : 'none'
 
   if (!isSelf) {
     const { data: req } = await supabase
@@ -181,7 +200,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
             this means: only the profile owner sees their own LinkedIn URL.
             When friendships land, this gate broadens to (isSelf || isFriend).
           */}
-          {profile.linkedinUrl && isSelf ? (
+          {profile.linkedinUrl && (isSelf || isFriend) ? (
             <Section title="Links">
               <a
                 href={profile.linkedinUrl}
@@ -194,19 +213,22 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
             </Section>
           ) : null}
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-2 flex-wrap">
             {isSelf ? (
               <Button asChild>
                 <Link href="/profile/edit">Edit profile</Link>
               </Button>
             ) : (
-              <MentorshipAction
-                profileUserId={profile.userId}
-                isOpenAsMentor={profile.isOpenAsMentor}
-                state={mentorshipState}
-                relatedRequestId={relatedRequestId}
-                relatedThreadId={relatedThreadId}
-              />
+              <>
+                <MentorshipAction
+                  profileUserId={profile.userId}
+                  isOpenAsMentor={profile.isOpenAsMentor}
+                  state={mentorshipState}
+                  relatedRequestId={relatedRequestId}
+                  relatedThreadId={relatedThreadId}
+                />
+                <FriendshipAction profileUserId={profile.userId} state={friendshipActionKind} />
+              </>
             )}
           </div>
         </CardContent>
