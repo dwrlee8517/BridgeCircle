@@ -19,18 +19,19 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
   const [state, action, pending] = useActionState(signUpWithPassword, initialState)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 text-base">
       <div className="space-y-1">
-        <p className="text-sm text-muted-foreground">
-          {fullName ? `${fullName} —` : ''} you're invited to
-        </p>
-        <h1 className="text-xl font-semibold">{organizationName}</h1>
+        {fullName ? (
+          <p className="text-sm text-muted-foreground">{fullName} —</p>
+        ) : null}
+        <p className="text-sm text-muted-foreground">You're invited to</p>
+        <h1 className="text-2xl font-semibold">{organizationName}</h1>
         <p className="text-sm text-muted-foreground">on BridgeCircle</p>
       </div>
 
       <form action={startGoogleSignup}>
         <input type="hidden" name="token" value={token} />
-        <Button type="submit" variant="outline" className="w-full">
+        <Button type="submit" variant="outline" className="h-11 w-full text-base">
           Sign up with Google
         </Button>
       </form>
@@ -44,14 +45,26 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
         </div>
       </div>
 
-      <form action={action} className="space-y-3">
+      <form action={action} className="space-y-4">
         <input type="hidden" name="token" value={token} />
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" value={email} disabled readOnly />
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-sm">
+            Email
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            value={email}
+            disabled
+            readOnly
+            className="h-11 text-base md:text-base"
+          />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Choose a password</Label>
+        <div className="space-y-1.5">
+          <Label htmlFor="password" className="text-sm">
+            Choose a password
+          </Label>
           <Input
             id="password"
             name="password"
@@ -60,10 +73,11 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
             required
             minLength={8}
             placeholder="At least 8 characters"
+            className="h-11 text-base md:text-base"
           />
         </div>
         {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-        <Button type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" className="h-11 w-full text-base" disabled={pending}>
           {pending ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
