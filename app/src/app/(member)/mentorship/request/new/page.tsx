@@ -44,15 +44,18 @@ export default async function NewMentorshipRequestPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
-      <Link href={`/profile/${mentor.userId}`} className="text-sm text-muted-foreground hover:underline">
+      <Link
+        href={`/profile/${mentor.userId}`}
+        className="text-sm text-muted-foreground hover:underline"
+      >
         ← Back to {mentor.name}'s profile
       </Link>
       <Card>
         <CardHeader>
           <CardTitle>Request mentorship from {mentor.name}</CardTitle>
           <CardDescription>
-            They'll get an email notification and can accept or decline. Be specific — concrete
-            asks get answered faster.
+            They'll get an email notification and can accept or decline. Be specific — concrete asks
+            get answered faster.
           </CardDescription>
         </CardHeader>
         <CardContent>

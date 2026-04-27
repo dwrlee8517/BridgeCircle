@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProfileForm } from '@/components/profile-form'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
@@ -21,15 +21,16 @@ export default async function EditProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
-      <Link href={`/profile/${session.userId}`} className="text-sm text-muted-foreground hover:underline">
+      <Link
+        href={`/profile/${session.userId}`}
+        className="text-sm text-muted-foreground hover:underline"
+      >
         ← Back to profile
       </Link>
       <Card>
         <CardHeader>
           <CardTitle>Edit profile</CardTitle>
-          <CardDescription>
-            Update your details. Required fields are marked with *.
-          </CardDescription>
+          <CardDescription>Update your details. Required fields are marked with *.</CardDescription>
         </CardHeader>
         <CardContent>
           <ProfileForm

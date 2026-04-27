@@ -14,14 +14,17 @@ export const profileFormSchema = z.object({
   currentTitle: z.string().trim().min(1, 'Current title is required.'),
   university: z.string().trim().min(1, 'University is required.'),
   major: z.string().trim().min(1, 'Major is required.'),
-  openToMentor: z.preprocess(
-    (v) => v === 'on' || v === 'true' || v === true,
-    z.boolean(),
-  ),
+  openToMentor: z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean()),
   headline: z.string().trim().max(200).optional().nullable(),
   bio: z.string().trim().max(1000).optional().nullable(),
-  linkedinUrl: z.union([z.url(), z.literal('')]).optional().nullable(),
-  avatarUrl: z.union([z.url(), z.literal('')]).optional().nullable(),
+  linkedinUrl: z
+    .union([z.url(), z.literal('')])
+    .optional()
+    .nullable(),
+  avatarUrl: z
+    .union([z.url(), z.literal('')])
+    .optional()
+    .nullable(),
   mentoringTopics: z.string().trim().max(500).optional().nullable(),
 })
 

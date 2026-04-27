@@ -1,11 +1,11 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import type { ProfileFormState } from '@/components/profile-form'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { saveProfile } from '@/lib/profile/saveProfile'
 import { parseProfileForm } from '@/lib/profile/schemas'
-import type { ProfileFormState } from '@/components/profile-form'
 
 export async function editProfileAction(
   _prev: ProfileFormState,

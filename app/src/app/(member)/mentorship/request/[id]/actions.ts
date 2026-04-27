@@ -1,10 +1,10 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/db/server'
-import { requireSession } from '@/lib/auth/session'
 import { getAppOrigin } from '@/lib/auth/app-url'
+import { requireSession } from '@/lib/auth/session'
 import { respondToRequest } from '@/lib/mentorship/respondToRequest'
 
 export async function acceptAction(formData: FormData) {

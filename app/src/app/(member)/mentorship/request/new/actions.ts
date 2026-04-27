@@ -2,8 +2,8 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/db/server'
-import { requireSession } from '@/lib/auth/session'
 import { getAppOrigin } from '@/lib/auth/app-url'
+import { requireSession } from '@/lib/auth/session'
 import { createMentorshipRequest } from '@/lib/mentorship/createRequest'
 import { parseMentorshipRequestForm } from '@/lib/mentorship/schemas'
 
@@ -51,6 +51,8 @@ function errorMessage(err: string): string {
       return 'This mentor is paused while away.'
     case 'mentor_full':
       return 'This mentor is at their maximum number of pending requests right now.'
+    case 'mentor_at_capacity':
+      return 'This mentor is at their maximum number of active mentees right now.'
     case 'duplicate_pending':
       return 'You already have a pending request to this mentor.'
     default:

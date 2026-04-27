@@ -1,6 +1,6 @@
+import { format } from 'date-fns'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,11 +11,7 @@ import { acceptAction, declineAction } from './actions'
 
 type Params = { id: string }
 
-export default async function RequestDetailPage({
-  params,
-}: {
-  params: Promise<Params>
-}) {
+export default async function RequestDetailPage({ params }: { params: Promise<Params> }) {
   const session = await requireSession()
   const { id } = await params
   const supabase = await createClient()
@@ -69,15 +65,15 @@ export default async function RequestDetailPage({
           </Avatar>
           <div className="flex-1 space-y-1">
             <CardTitle className="text-lg">
-              {isMentor ? `Request from ${otherProfile?.name}` : `Your request to ${otherProfile?.name}`}
+              {isMentor
+                ? `Request from ${otherProfile?.name}`
+                : `Your request to ${otherProfile?.name}`}
             </CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={req.status as Status} />
               <span className="text-xs text-muted-foreground">
                 Sent {format(new Date(req.created_at), 'PP')}
-                {req.responded_at
-                  ? ` · responded ${format(new Date(req.responded_at), 'PP')}`
-                  : ''}
+                {req.responded_at ? ` · responded ${format(new Date(req.responded_at), 'PP')}` : ''}
               </span>
             </div>
             {otherProfile?.headline ? (
@@ -139,9 +135,7 @@ function StatusBadge({ status }: { status: Status }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wide">
-        {label}
-      </h3>
+      <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wide">{label}</h3>
       <p className="text-sm whitespace-pre-line">{children}</p>
     </div>
   )

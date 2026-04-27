@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { sendMessage } from '@/lib/mentorship/sendMessage'
 import { parseMessageForm } from '@/lib/mentorship/schemas'
+import { sendMessage } from '@/lib/mentorship/sendMessage'
 
 export type MessageFormState = {
   error?: string
@@ -17,7 +17,7 @@ export async function sendMessageAction(
   const session = await requireSession()
   const parsed = parseMessageForm(formData)
   if (!parsed.success) {
-    return { error: 'Message can\'t be empty.' }
+    return { error: "Message can't be empty." }
   }
 
   const supabase = await createClient()

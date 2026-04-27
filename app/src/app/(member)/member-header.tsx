@@ -55,6 +55,9 @@ export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
               <DropdownMenuItem asChild>
                 <Link href="/profile/edit">Edit profile</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/mentorship/settings">Mentor settings</Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <form action={signOut} className="w-full">
