@@ -8,6 +8,7 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getFriendshipState } from '@/lib/friendship/friendshipState'
 import { getProfile } from '@/lib/profile/getProfile'
+import { startThreadAction } from '../../messages/[id]/actions'
 import { FriendshipAction } from './friendship-action'
 
 type Params = { id: string }
@@ -228,6 +229,14 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
                   relatedThreadId={relatedThreadId}
                 />
                 <FriendshipAction profileUserId={profile.userId} state={friendshipActionKind} />
+                {isFriend ? (
+                  <form action={startThreadAction}>
+                    <input type="hidden" name="receiverId" value={profile.userId} />
+                    <Button type="submit" variant="outline">
+                      Message
+                    </Button>
+                  </form>
+                ) : null}
               </>
             )}
           </div>
