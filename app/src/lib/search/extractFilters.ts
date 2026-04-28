@@ -5,14 +5,30 @@ import { z } from 'zod'
 const MODEL = 'claude-haiku-4-5-20251001'
 const MAX_OUTPUT_TOKENS = 512
 
+/**
+ * Scope tells the filter whether to match against the directory field
+ * (current_employer / university / major), the JSONB history, or both.
+ *
+ *   - 'current'  → only the directory field (e.g. "currently at McKinsey")
+ *   - 'past'     → only entries in career_history / education_history
+ *   - 'any'      → either side matches (default; covers most queries)
+ *
+ * The LLM picks 'current' or 'past' only when the query explicitly says so;
+ * otherwise it returns null and the orchestrator defaults to 'any'.
+ */
+const scopeSchema = z.enum(['current', 'past', 'any']).nullable()
+
 export const extractedFiltersSchema = z.object({
   // Hard structured filters — applied to SQL.
   mentorOpen: z.boolean().nullable(),
   city: z.string().trim().max(120).nullable(),
   country: z.string().trim().max(120).nullable(),
   university: z.string().trim().max(200).nullable(),
+  universityScope: scopeSchema,
   major: z.string().trim().max(200).nullable(),
+  majorScope: scopeSchema,
   employer: z.string().trim().max(200).nullable(),
+  employerScope: scopeSchema,
   gradYearMin: z.number().int().min(1900).max(2100).nullable(),
   gradYearMax: z.number().int().min(1900).max(2100).nullable(),
   // Soft thematic intent — NOT a SQL filter, passed to rerank.
@@ -38,8 +54,11 @@ Return ONLY a JSON object matching this exact shape — no prose, no markdown fe
   "city": string | null,
   "country": string | null,
   "university": string | null,
+  "universityScope": "current" | "past" | "any" | null,
   "major": string | null,
+  "majorScope": "current" | "past" | "any" | null,
   "employer": string | null,
+  "employerScope": "current" | "past" | "any" | null,
   "gradYearMin": number | null,
   "gradYearMax": number | null,
   "theme": string | null
@@ -49,6 +68,10 @@ Rules:
 - mentorOpen: true if the query implies mentorship (e.g. "mentor me", "advice", "guide", "help me figure out"). null otherwise.
 - city / country: extract location only if explicit. "in the US" → country="United States", city=null. "in NYC" → city="New York". null if no location given.
 - university / major / employer: extract only if a specific institution or company is named. null otherwise.
+- *Scope rules* (only relevant when the matching field is non-null):
+    - "current" if the query says the candidate is there NOW: "currently at McKinsey", "right now at X", "working at X", "still at X".
+    - "past" if the query says the candidate WAS there before: "former McKinsey", "ex-X", "previously at X", "with a past role at X", "background in X" (when X is a company; "background in journalism" is theme not employer).
+    - "any" or null when the query doesn't disambiguate ("McKinsey alumni", "anyone from McKinsey").
 - gradYearMin / gradYearMax: extract only if a year or range is implied ("recent grads" → gradYearMin = current year - 5; "class of 2010" → both = 2010). null if not implied.
 - theme: a short noun phrase capturing the *substantive intent* of the query — what kind of person they are looking for, beyond filter values. Examples:
     "someone who can mentor me on photography in the US" → theme="photography career experience"

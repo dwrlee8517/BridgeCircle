@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import { type ExtractedFilters, extractSearchFilters } from './extractFilters'
 import { type RerankCandidate, rerankCandidates } from './rerankCandidates'
-import type { SearchFilters } from './schemas'
+import type { FilterScope, FilterScopes, SearchFilters } from './schemas'
 import { type SearchHit, searchAlumni } from './searchAlumni'
 
 /**
@@ -91,6 +91,15 @@ export async function searchAlumniNL(
     openToMentor: userExtra.openToMentor ?? (llmFilters.mentorOpen === true ? true : undefined),
   }
 
+  // Per-field scope (current vs past vs any). Only applies when the
+  // matching filter is non-null; null/'any' from the LLM falls through
+  // to the default behavior in searchAlumni.
+  const scopes: FilterScopes = {
+    employer: normalizeScope(llmFilters.employerScope),
+    university: normalizeScope(llmFilters.universityScope),
+    major: normalizeScope(llmFilters.majorScope),
+  }
+
   const pool = await searchAlumni(supabase, {
     organizationId: input.organizationId,
     viewerId: input.viewerId,
@@ -99,6 +108,7 @@ export async function searchAlumniNL(
     viewerCity: input.viewerCity,
     viewerGraduationYear: input.viewerGraduationYear,
     filters: mergedFilters,
+    scopes,
     limit: RERANK_POOL_LIMIT,
   })
 
@@ -180,4 +190,8 @@ export async function searchAlumniNL(
     poolSize: pool.length,
     llmFallback: null,
   }
+}
+
+function normalizeScope(scope: 'current' | 'past' | 'any' | null): FilterScope {
+  return scope ?? 'any'
 }

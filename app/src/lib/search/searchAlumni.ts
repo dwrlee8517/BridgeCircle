@@ -2,7 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import { canSeeSection, deriveViewerKind, parseStoredPrivacySettings } from '@/lib/profile/privacy'
-import type { SearchFilters } from './schemas'
+import type { FilterScopes, SearchFilters } from './schemas'
 
 export type CareerEntry = {
   employer: string
@@ -52,6 +52,9 @@ export type SearchInput = {
   viewerCity: string | null
   viewerGraduationYear: number | null
   filters: SearchFilters
+  // Optional per-field scope. Defaults to 'any' (current OR past). Set by
+  // the NL extraction step to honor "currently at X" vs "former X" intent.
+  scopes?: FilterScopes
   limit?: number
 }
 
@@ -162,21 +165,24 @@ export async function searchAlumni(
     if (f.city && !ci(base.city).includes(ci(f.city))) continue
     if (f.employer) {
       const target = ci(f.employer)
+      const scope = input.scopes?.employer ?? 'any'
       const matchesCurrent = ci(base.current_employer).includes(target)
       const matchesPast = rawCareer.some((c) => ci(c.employer).includes(target))
-      if (!matchesCurrent && !matchesPast) continue
+      if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
     }
     if (f.university) {
       const target = ci(f.university)
+      const scope = input.scopes?.university ?? 'any'
       const matchesCurrent = ci(base.university).includes(target)
       const matchesPast = rawEducation.some((e) => ci(e.school).includes(target))
-      if (!matchesCurrent && !matchesPast) continue
+      if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
     }
     if (f.major) {
       const target = ci(f.major)
+      const scope = input.scopes?.major ?? 'any'
       const matchesCurrent = ci(base.major).includes(target)
       const matchesPast = rawEducation.some((e) => ci(e.field).includes(target))
-      if (!matchesCurrent && !matchesPast) continue
+      if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
     }
     if (f.topic) {
       const topics = (op?.mentoring_topics ?? []).map((t) => t.toLowerCase())
@@ -264,4 +270,14 @@ export async function searchAlumni(
 
 function ci(s: string | null | undefined): string {
   return (s ?? '').toLowerCase()
+}
+
+function scopeMatch(
+  scope: 'current' | 'past' | 'any',
+  matchesCurrent: boolean,
+  matchesPast: boolean,
+): boolean {
+  if (scope === 'current') return matchesCurrent
+  if (scope === 'past') return matchesPast
+  return matchesCurrent || matchesPast
 }
