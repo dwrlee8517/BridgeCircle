@@ -146,13 +146,38 @@ export async function searchAlumni(
     const pref = prefByMembership.get(membershipId)
     const isOpenAsMentor = !!pref?.is_open && !pref.paused_at
 
+    // Career and education history may match the filter via past entries
+    // even when the directory field doesn't. We use the *raw* JSONB here
+    // (pre-privacy-redaction) because filter inclusion only reveals that
+    // the person is a relevant match — their name and current role are
+    // already always-org-visible. The privacy redaction below blocks the
+    // private *details* (dates, descriptions, past employer names beyond
+    // the matched one) from being shown or fed to the LLM rerank.
+    const rawCareer = (base.career_history as CareerEntry[] | null) ?? []
+    const rawEducation = (base.education_history as EducationEntry[] | null) ?? []
+
     if (f.openToMentor && !isOpenAsMentor) continue
     if (f.gradYearMin && (op?.graduation_year ?? -Infinity) < f.gradYearMin) continue
     if (f.gradYearMax && (op?.graduation_year ?? Infinity) > f.gradYearMax) continue
     if (f.city && !ci(base.city).includes(ci(f.city))) continue
-    if (f.employer && !ci(base.current_employer).includes(ci(f.employer))) continue
-    if (f.university && !ci(base.university).includes(ci(f.university))) continue
-    if (f.major && !ci(base.major).includes(ci(f.major))) continue
+    if (f.employer) {
+      const target = ci(f.employer)
+      const matchesCurrent = ci(base.current_employer).includes(target)
+      const matchesPast = rawCareer.some((c) => ci(c.employer).includes(target))
+      if (!matchesCurrent && !matchesPast) continue
+    }
+    if (f.university) {
+      const target = ci(f.university)
+      const matchesCurrent = ci(base.university).includes(target)
+      const matchesPast = rawEducation.some((e) => ci(e.school).includes(target))
+      if (!matchesCurrent && !matchesPast) continue
+    }
+    if (f.major) {
+      const target = ci(f.major)
+      const matchesCurrent = ci(base.major).includes(target)
+      const matchesPast = rawEducation.some((e) => ci(e.field).includes(target))
+      if (!matchesCurrent && !matchesPast) continue
+    }
     if (f.topic) {
       const topics = (op?.mentoring_topics ?? []).map((t) => t.toLowerCase())
       if (!topics.some((t) => t.includes(ci(f.topic ?? '')))) continue
@@ -225,10 +250,8 @@ export async function searchAlumni(
       mentorPaused: !!pref?.paused_at,
       mentoringTopics: showBio ? (op?.mentoring_topics ?? null) : null,
       bio: showBio ? (op?.bio ?? null) : null,
-      careerHistory: showCareer ? ((base.career_history as CareerEntry[] | null) ?? null) : null,
-      educationHistory: showEducation
-        ? ((base.education_history as EducationEntry[] | null) ?? null)
-        : null,
+      careerHistory: showCareer ? (rawCareer.length > 0 ? rawCareer : null) : null,
+      educationHistory: showEducation ? (rawEducation.length > 0 ? rawEducation : null) : null,
       skills: showSkills ? (base.skills ?? null) : null,
       reason: reasons.slice(0, 2).join(' · ') || 'in your network',
       score,
