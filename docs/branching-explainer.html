@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BridgeCircle — Supabase Branching vs Two Projects</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --bg-2: #1a2028;
+    --bg-3: #232a33;
+    --fg: #e8e8e8;
+    --muted: #8a95a3;
+    --accent: #5ab4ff;
+    --ok: #7ed07e;
+    --bad: #ff8a7a;
+    --warn: #f6c76a;
+    --line: #2c3540;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 60px 32px 100px; }
+  header { padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+  h1 { font-size: 36px; margin: 0 0 8px; letter-spacing: -0.5px; }
+  h2 { font-size: 26px; margin: 56px 0 16px; color: var(--accent); letter-spacing: -0.3px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 18px; margin: 24px 0 8px; color: var(--fg); font-weight: 600; }
+  p { margin: 0 0 14px; max-width: 880px; color: #d6dde4; }
+  .lead { color: var(--muted); font-size: 18px; max-width: 800px; }
+  .toc { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 24px 0; }
+  .toc strong { display: block; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .toc ul { margin: 0; padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: #c9d6e2; text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  code { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 0.92em; background: var(--bg-3); padding: 2px 7px; border-radius: 4px; }
+  pre { background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; font-size: 14px; line-height: 1.55; }
+  pre code { background: transparent; padding: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px; }
+  .panel.current { border-left: 3px solid var(--bad); }
+  .panel.future { border-left: 3px solid var(--ok); }
+  .panel h3 { margin-top: 0; }
+  .panel .tag { display: inline-block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-bottom: 10px; }
+  .panel.current .tag { background: rgba(255,138,122,0.12); color: var(--bad); }
+  .panel.future .tag { background: rgba(126,208,126,0.14); color: var(--ok); }
+
+  /* Visual ASCII-ish diagrams */
+  .diagram {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 22px 26px;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.65;
+    white-space: pre;
+    color: #c9d6e2;
+  }
+
+  /* Workflow flow diagrams */
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
+  .flow .step { background: var(--bg-2); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; font-size: 14px; min-width: 110px; text-align: center; }
+  .flow .step.manual { border-color: var(--bad); color: #ffbcb1; }
+  .flow .step.auto { border-color: var(--ok); color: #b1e3b1; }
+  .flow .step.git { border-color: var(--accent); color: #b8dcff; }
+  .flow .arrow { color: var(--muted); font-size: 18px; }
+
+  /* Architecture box diagrams */
+  .arch { display: grid; gap: 12px; padding: 14px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; margin: 12px 0; }
+  .arch .project { border: 1.5px solid var(--accent); border-radius: 8px; padding: 12px 16px; background: rgba(90,180,255,0.04); }
+  .arch .project .title { font-weight: 600; color: var(--accent); margin-bottom: 6px; font-size: 14px; }
+  .arch .project .body { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .arch .branch { margin-left: 32px; border: 1.5px solid var(--ok); border-radius: 8px; padding: 10px 14px; background: rgba(126,208,126,0.04); position: relative; }
+  .arch .branch::before { content: "└─"; position: absolute; left: -22px; top: 8px; color: var(--ok); font-family: monospace; }
+  .arch .branch .title { color: var(--ok); font-weight: 600; font-size: 13px; }
+  .arch .branch .body { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .arch .ephemeral { border-style: dashed; opacity: 0.85; }
+
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; background: var(--bg-2); }
+  td.yes { color: var(--ok); }
+  td.no { color: var(--bad); }
+  td.warn { color: var(--warn); }
+
+  .callout { background: var(--bg-2); border-left: 3px solid var(--warn); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+  .callout.ok { border-left-color: var(--ok); }
+  .callout.bad { border-left-color: var(--bad); }
+  .callout strong { display: block; margin-bottom: 4px; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--warn); }
+  .callout.ok strong { color: var(--ok); }
+  .callout.bad strong { color: var(--bad); }
+
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 600; vertical-align: middle; }
+  .pill.green { background: rgba(126,208,126,0.18); color: var(--ok); }
+  .pill.red { background: rgba(255,138,122,0.18); color: var(--bad); }
+  .pill.yellow { background: rgba(246,199,106,0.18); color: var(--warn); }
+  .pill.blue { background: rgba(90,180,255,0.18); color: var(--accent); }
+
+  ul.tight li { margin-bottom: 4px; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+
+  /* Step-by-step migration journey */
+  .timeline { display: grid; gap: 0; margin: 18px 0; padding: 0; list-style: none; }
+  .timeline li { display: grid; grid-template-columns: 64px 1fr; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .timeline li:last-child { border-bottom: 0; }
+  .timeline .num { font-weight: 700; font-size: 22px; color: var(--accent); font-family: "SF Mono", Monaco, monospace; text-align: right; }
+  .timeline .label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .timeline .body { font-size: 14px; color: #c9d6e2; }
+  .timeline .body code { font-size: 0.86em; }
+
+  footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Supabase Branching vs Two Projects</h1>
+  <p class="lead">Visual explainer: how the BridgeCircle deploy workflow changes if we switch from <code>bridgecircle-dev</code> + <code>bridgecircle</code> (two separate projects) to a single project with a long-lived <code>dev</code> branch and PR-preview branches.</p>
+</header>
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ul>
+    <li><a href="#mental-model">1. Mental model — boxes &amp; arrows</a></li>
+    <li><a href="#today-vs-tomorrow">2. Today's flow vs the branching flow</a></li>
+    <li><a href="#what-lives-where">3. What lives where (data, secrets, config)</a></li>
+    <li><a href="#typical-pr">4. A typical PR, side by side</a></li>
+    <li><a href="#what-changes">5. What concretely changes for me</a></li>
+    <li><a href="#gotchas">6. Gotchas worth knowing</a></li>
+    <li><a href="#cutover">7. The cutover sequence</a></li>
+    <li><a href="#decision">8. Should I do it?</a></li>
+  </ul>
+</div>
+
+<h2 id="mental-model">1. Mental model</h2>
+
+<p>Two ways to spell "dev and prod are separate." One uses two billing-distinct Supabase projects; the other uses one project with branches inside it (like git for your database).</p>
+
+<div class="grid-2">
+  <div class="panel current">
+    <span class="tag">Today</span>
+    <h3>Two separate projects</h3>
+    <div class="arch">
+      <div class="project">
+        <div class="title">bridgecircle-dev</div>
+        <div class="body">Your dev DB. Has 9 personas. <br>Pointed at by local <code>pnpm dev</code>.</div>
+      </div>
+      <div class="project">
+        <div class="title">bridgecircle (prod)</div>
+        <div class="body">Your prod DB. Empty until launch.<br>Pointed at by Railway deploys.</div>
+      </div>
+    </div>
+    <p style="font-size: 13px; color: var(--muted); margin-top: 8px;">No relationship between them. Migrations are duplicated by your hands.</p>
+  </div>
+
+  <div class="panel future">
+    <span class="tag">With branching</span>
+    <h3>One project, many branches</h3>
+    <div class="arch">
+      <div class="project">
+        <div class="title">bridgecircle (prod / "main")</div>
+        <div class="body">The trunk. What real members hit.</div>
+        <div class="branch" style="margin-top: 12px;">
+          <div class="title">dev (persistent)</div>
+          <div class="body">Long-lived. Replaces bridgecircle-dev. Your daily local target.</div>
+        </div>
+        <div class="branch ephemeral">
+          <div class="title">pr-21 (preview)</div>
+          <div class="body">Auto-created when PR opens. Auto-deleted on merge.</div>
+        </div>
+        <div class="branch ephemeral">
+          <div class="title">pr-22 (preview)</div>
+          <div class="body">Each open PR gets its own.</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size: 13px; color: var(--muted); margin-top: 8px;">Branches share parentage with prod. Migrations flow from PR → preview branch → merge → prod automatically.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Key shift</strong>
+  Today, "dev" and "prod" are two databases that <em>happen</em> to share migration files. With branching, "dev" is a fork of "prod" — it inherits prod's migration history by construction, and merges that flow makes drift physically impossible.
+</div>
+
+<hr>
+
+<h2 id="today-vs-tomorrow">2. Today's flow vs the branching flow</h2>
+
+<p>The same task — "ship a migration that adds a column" — viewed as a flow diagram.</p>
+
+<h3>Today (manual, two-project)</h3>
+<div class="flow">
+  <div class="step">edit <code>.sql</code></div>
+  <span class="arrow">→</span>
+  <div class="step manual">link to dev</div>
+  <span class="arrow">→</span>
+  <div class="step manual">db push</div>
+  <span class="arrow">→</span>
+  <div class="step">test locally</div>
+  <span class="arrow">→</span>
+  <div class="step git">merge PR</div>
+  <span class="arrow">→</span>
+  <div class="step manual">link to prod</div>
+  <span class="arrow">→</span>
+  <div class="step manual">dry-run</div>
+  <span class="arrow">→</span>
+  <div class="step manual">db push</div>
+  <span class="arrow">→</span>
+  <div class="step manual">re-link to dev</div>
+</div>
+<p style="color: var(--muted); font-size: 13px;"><span class="pill red">9 steps</span> &nbsp; 6 manual CLI invocations. The "I forgot to push to prod" failure mode lives in this flow.</p>
+
+<h3>With branching (git-driven)</h3>
+<div class="flow">
+  <div class="step">edit <code>.sql</code></div>
+  <span class="arrow">→</span>
+  <div class="step git">git push</div>
+  <span class="arrow">→</span>
+  <div class="step auto">preview branch built</div>
+  <span class="arrow">→</span>
+  <div class="step">test on preview</div>
+  <span class="arrow">→</span>
+  <div class="step git">merge PR</div>
+  <span class="arrow">→</span>
+  <div class="step auto">prod migrates</div>
+</div>
+<p style="color: var(--muted); font-size: 13px;"><span class="pill green">6 steps</span> &nbsp; 0 manual CLI invocations. <code>git push</code> and <code>merge</code> are git ops you already do.</p>
+
+<div class="callout ok">
+  <strong>The actual win</strong>
+  It's not "fewer steps" (that's surface). It's that <strong>the prod-push step becomes automatic</strong>. Today, prod-push is something I have to remember; tomorrow, it's a side effect of merging the PR.
+</div>
+
+<hr>
+
+<h2 id="what-lives-where">3. What lives where</h2>
+
+<p>Branches are <em>schema-level</em> isolation. Some things flow from prod automatically; some don't. This table is what I'd want to remember during cutover.</p>
+
+<table>
+  <thead>
+    <tr><th>Thing</th><th>In a new branch?</th><th>How</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Schema (tables, columns, indexes, RLS policies)</td><td class="yes">Yes</td><td>Replays migrations from <code>app/supabase/migrations/</code></td></tr>
+    <tr><td>Realtime publication membership</td><td class="yes">Yes</td><td>Because we did it via migration (<code>20260427233336_messages_realtime.sql</code>)</td></tr>
+    <tr><td>Storage bucket definitions</td><td class="yes">Yes</td><td>Declared in <code>supabase/config.toml</code> + bucket migration</td></tr>
+    <tr><td>Edge Functions</td><td class="yes">Yes</td><td>If declared in <code>config.toml</code>. We have none.</td></tr>
+    <tr><td>Production data (auth users, profiles, messages)</td><td class="no">No</td><td>Branches are data-less. Always.</td></tr>
+    <tr><td>Storage objects (uploaded files)</td><td class="no">No</td><td>Just bucket definitions, no objects.</td></tr>
+    <tr><td>Secrets (<code>ANTHROPIC_API_KEY</code>, <code>RESEND_API_KEY</code>, etc.)</td><td class="warn">Per-branch</td><td>Set separately on each persistent branch + prod</td></tr>
+    <tr><td>Seed data (our 9 personas)</td><td class="warn">Manual</td><td><code>seed-dev.ts</code> isn't auto-run. Run it locally pointing at the dev branch.</td></tr>
+    <tr><td>Custom DB roles, dashboard-toggled settings</td><td class="no">No</td><td>If you click in the UI, branches don't see it. Migrations are the source of truth.</td></tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>Why "data-less" is OK for us</strong>
+  Today, dev and prod also don't share data — dev has personas, prod is empty. Branching keeps that property; it just makes it explicit. Post-launch we still wouldn't want prod data on dev (privacy, member trust). If we ever need a "test risky migration against real data" branch, we'd dump-and-restore manually. The pattern doesn't change.
+</div>
+
+<hr>
+
+<h2 id="typical-pr">4. A typical PR, side by side</h2>
+
+<p>Imagine I'm shipping the upcoming "admin approval queue" feature with a tiny migration that adds a <code>reviewed_at</code> column.</p>
+
+<div class="grid-2">
+<div class="panel current">
+<span class="tag">Today</span>
+<h3>What I do, in order</h3>
+<ol style="font-size: 13px; line-height: 1.7; padding-left: 22px;">
+  <li>Branch off main: <code>git checkout -b admin-queue</code></li>
+  <li>Write migration file</li>
+  <li>Run <code>pnpm dlx supabase db push</code> on dev</li>
+  <li>Run <code>pnpm db:types</code></li>
+  <li>Build feature, commit, push branch</li>
+  <li>Open PR, test locally pointing at dev</li>
+  <li>Merge to main</li>
+  <li>Run <code>pnpm dlx supabase link --project-ref &lt;prod&gt;</code></li>
+  <li>Run <code>pnpm dlx supabase db push --dry-run</code></li>
+  <li>Run <code>pnpm dlx supabase db push</code></li>
+  <li>Run <code>pnpm dlx supabase link --project-ref &lt;dev&gt;</code></li>
+</ol>
+</div>
+
+<div class="panel future">
+<span class="tag">With branching</span>
+<h3>What I do, in order</h3>
+<ol style="font-size: 13px; line-height: 1.7; padding-left: 22px;">
+  <li>Branch off main: <code>git checkout -b admin-queue</code></li>
+  <li>Write migration file</li>
+  <li><span style="color: var(--muted);">(skipped — happens on push)</span></li>
+  <li>Build feature, commit, push branch</li>
+  <li>Supabase auto-creates a preview branch and applies migrations</li>
+  <li>Open PR, test against the preview branch's URL</li>
+  <li>Merge to main</li>
+  <li><span style="color: var(--muted);">(skipped — auto-deploys to prod)</span></li>
+  <li>Run <code>pnpm db:types</code> if I want fresh types locally</li>
+</ol>
+</div>
+</div>
+
+<p>The 11-step list shrinks to ~7 effective steps. More importantly, the steps that disappear are the <em>error-prone manual ones</em> — the link/relink dance and the prod-push.</p>
+
+<hr>
+
+<h2 id="what-changes">5. What concretely changes for me</h2>
+
+<h3>Things that disappear</h3>
+<ul class="tight">
+  <li>All <code>supabase link --project-ref ...</code> invocations</li>
+  <li>Manual <code>db push</code> to dev (auto-runs on PR push)</li>
+  <li>Manual <code>db push</code> to prod (auto-runs on merge to main)</li>
+  <li>The dry-run-then-push two-step before prod</li>
+</ul>
+
+<h3>Things that change shape</h3>
+<ul class="tight">
+  <li><code>pnpm db:types</code> now points at the persistent dev branch's project ref. Update once.</li>
+  <li>The CI status check on PRs becomes "Supabase Preview must succeed" — same idea as a build check, just different name.</li>
+  <li>"Check what migrations are pending on prod" becomes "look at the PR's status check" instead of "manually link and run migration list."</li>
+</ul>
+
+<h3>New requirements</h3>
+<ul class="tight">
+  <li>Set every secret on each branch separately — <code>ANTHROPIC_API_KEY</code>, <code>RESEND_API_KEY</code>, <code>SUPABASE_SECRET_KEY</code>, etc. on the dev branch <strong>and</strong> on prod.</li>
+  <li>Decide where the seed runs (see below).</li>
+  <li>Add a GitHub branch protection rule on <code>main</code> that requires the Supabase Preview check to pass.</li>
+</ul>
+
+<h3>The <code>seed-dev.ts</code> wrinkle</h3>
+<p>Supabase's auto-seed only runs <code>seed.sql</code> files. Our seed is TypeScript using the JS client (because <code>auth.admin.createUser</code> is way nicer than raw SQL). Two options:</p>
+<div class="grid-2">
+  <div class="panel" style="border-left: 3px solid var(--bad);">
+    <h3 style="margin-top: 0;">Option A: convert to <code>seed.sql</code></h3>
+    <p style="font-size: 14px;">Lose the ergonomic auth-creation. Translate every persona into raw SQL. Probably not worth it.</p>
+  </div>
+  <div class="panel" style="border-left: 3px solid var(--ok);">
+    <h3 style="margin-top: 0;">Option B: keep TS, run manually <span class="pill green">recommended</span></h3>
+    <p style="font-size: 14px;">Run <code>seed-dev.ts</code> locally <strong>once</strong> after creating the persistent dev branch, pointing at the branch's connection string. Same as today, just one-time. Preview branches stay empty (you don't need 9 personas to test a migration).</p>
+  </div>
+</div>
+
+<hr>
+
+<h2 id="gotchas">6. Gotchas worth knowing</h2>
+
+<div class="callout">
+  <strong>Working directory</strong>
+  Our <code>supabase/</code> lives at <code>app/supabase/</code>, not at the repo root. The GitHub integration's <em>working directory</em> field has to be set to <code>app</code>. If you leave it at <code>.</code>, branches will silently no-op on every PR.
+</div>
+
+<div class="callout">
+  <strong>Persistent-branch chicken-and-egg</strong>
+  You can't add a <code>[remotes.dev]</code> block to <code>config.toml</code> until the persistent branch exists. Order: create branch → grab its project ref → write the config block → commit.
+</div>
+
+<div class="callout bad">
+  <strong>Rollback is destructive</strong>
+  No "revert this migration" button. To undo: delete the preview branch and reopen the PR. Any data you typed into the branch is wiped. Treat preview branch state as throwaway.
+</div>
+
+<div class="callout">
+  <strong>Pre-cutover audit</strong>
+  Anything I configured via the dashboard UI on the current dev project that <em>isn't</em> in a migration file won't carry over. Audit list:
+  <ul style="margin-top: 8px;">
+    <li>Realtime publication members → <span style="color: var(--ok);">in migration ✓</span></li>
+    <li>RLS policies → <span style="color: var(--ok);">in migration ✓</span></li>
+    <li>Storage buckets → <span style="color: var(--ok);">in migration ✓</span></li>
+    <li>Edge Functions → <span style="color: var(--ok);">none ✓</span></li>
+    <li>Custom DB roles → <span style="color: var(--ok);">none ✓</span></li>
+  </ul>
+  We're clean. The <code>/lib</code> discipline + migration-only schema work paid off here.
+</div>
+
+<div class="callout">
+  <strong>Pricing not in the docs</strong>
+  The branching guide pages don't quote per-branch pricing. The configuration page links out to a separate pricing page. <strong>Verify what a persistent branch costs on Pro before decommissioning <code>bridgecircle-dev</code>.</strong> Don't trust any number a model quotes.
+</div>
+
+<hr>
+
+<h2 id="cutover">7. The cutover sequence</h2>
+
+<p>Realistic time estimate: 1–3 hours, mostly waiting and verifying. The actual clicking and editing is maybe 30 minutes.</p>
+
+<ol class="timeline">
+  <li>
+    <div class="num">1</div>
+    <div>
+      <div class="label">You</div>
+      <div class="body">Open <a href="https://supabase.com/pricing" style="color: var(--accent);">Supabase pricing page</a>. Confirm per-branch cost on Pro is acceptable. Stop here if not.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">2</div>
+    <div>
+      <div class="label">You</div>
+      <div class="body">Dashboard → bridgecircle (prod) → Database → Branching → Enable. Connect the GitHub repo.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">3</div>
+    <div>
+      <div class="label">You</div>
+      <div class="body">In the GitHub integration, set <strong>working directory</strong> to <code>app</code> (not <code>.</code>). Enable "Automatic branching" and "Deploy to production."</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">4</div>
+    <div>
+      <div class="label">You</div>
+      <div class="body">Create a persistent branch named <code>dev</code> via the dashboard. Wait for it to build (~1–2 minutes — runs the migration history).</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">5</div>
+    <div>
+      <div class="label">Me</div>
+      <div class="body">Add <code>[remotes.dev]</code> block to <code>app/supabase/config.toml</code> with the branch's project ref. Update <code>pnpm db:types</code> script if needed.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">6</div>
+    <div>
+      <div class="label">You</div>
+      <div class="body">Copy secrets to both: persistent dev branch + prod. Settings → API → Project secrets. Each branch has its own.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">7</div>
+    <div>
+      <div class="label">Me</div>
+      <div class="body">Run <code>seed-dev.ts</code> against the persistent dev branch's connection string. Verify 9 personas show up.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">8</div>
+    <div>
+      <div class="label">Both</div>
+      <div class="body">Smoke test: sign in as Mark locally → search → friend request → DM → privacy settings. If all green, cutover succeeded.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">9</div>
+    <div>
+      <div class="label">You</div>
+      <div class="body">GitHub repo → Settings → Branches → require "Supabase Preview" status check before merging to <code>main</code>.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">10</div>
+    <div>
+      <div class="label">Me</div>
+      <div class="body">Update CLAUDE.md: remove the "branching as backlog" item, document the new workflow in Supabase Conventions.</div>
+    </div>
+  </li>
+  <li>
+    <div class="num">11</div>
+    <div>
+      <div class="label">You (optional)</div>
+      <div class="body">After a week of green PRs, archive or delete the standalone <code>bridgecircle-dev</code> project to save the line item.</div>
+    </div>
+  </li>
+</ol>
+
+<hr>
+
+<h2 id="decision">8. Should I do it?</h2>
+
+<p>Three lenses to look at the decision through.</p>
+
+<div class="grid-2">
+  <div class="panel" style="border-left: 3px solid var(--ok);">
+    <h3 style="margin-top: 0;">Reasons to do it now</h3>
+    <ul class="tight" style="font-size: 14px;">
+      <li>Pre-launch is the safest moment — prod has no real users to disturb.</li>
+      <li>Migrations already 100% in code (no dashboard drift), so cutover is mechanical.</li>
+      <li>You said you have time.</li>
+      <li>"I forgot to push to prod" risk goes away before real members exist.</li>
+      <li>The PR-preview infrastructure pays off if you ever bring on a 2nd engineer or alumni board reviewer.</li>
+    </ul>
+  </div>
+  <div class="panel" style="border-left: 3px solid var(--bad);">
+    <h3 style="margin-top: 0;">Reasons to wait</h3>
+    <ul class="tight" style="font-size: 14px;">
+      <li>Demo is in 4 weeks. Anything that touches infra burns demo-prep time.</li>
+      <li>Current setup has worked for 5 migrations in a row without drama.</li>
+      <li>One more failure mode to debug if something goes sideways at the worst time.</li>
+      <li>The wins are workflow improvements, not feature improvements — no demo-day visibility.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="callout ok" style="margin-top: 24px;">
+  <strong>Recommendation</strong>
+  If you have time and the per-branch pricing is reasonable, do it now. The workflow improvement compounds, and post-launch is a worse moment because real members exist. If pricing is unfriendly or you'd rather de-risk demo prep, the current two-project setup will keep working — branching is on the post-launch backlog regardless.
+</div>
+
+<footer>
+  Companion to <code>docs/branching-explainer.html</code>. Sourced from the official Supabase branching docs:
+  <a href="https://supabase.com/docs/guides/deployment/branching" style="color: var(--accent);">overview</a> ·
+  <a href="https://supabase.com/docs/guides/deployment/branching/github-integration" style="color: var(--accent);">github integration</a> ·
+  <a href="https://supabase.com/docs/guides/deployment/branching/dashboard" style="color: var(--accent);">dashboard</a> ·
+  <a href="https://supabase.com/docs/guides/deployment/branching/working-with-branches" style="color: var(--accent);">working with branches</a> ·
+  <a href="https://supabase.com/docs/guides/deployment/branching/configuration" style="color: var(--accent);">configuration</a> ·
+  <a href="https://supabase.com/docs/guides/deployment/branching/integrations" style="color: var(--accent);">integrations</a>.
+</footer>
+
+</div>
+</body>
+</html>
