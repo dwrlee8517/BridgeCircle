@@ -1,7 +1,8 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import type { SearchFilters } from './schemas'
+import { canSeeSection, deriveViewerKind, parseStoredPrivacySettings } from '@/lib/profile/privacy'
+import type { FilterScopes, SearchFilters } from './schemas'
 
 export type CareerEntry = {
   employer: string
@@ -51,6 +52,9 @@ export type SearchInput = {
   viewerCity: string | null
   viewerGraduationYear: number | null
   filters: SearchFilters
+  // Optional per-field scope. Defaults to 'any' (current OR past). Set by
+  // the NL extraction step to honor "currently at X" vs "former X" intent.
+  scopes?: FilterScopes
   limit?: number
 }
 
@@ -92,11 +96,11 @@ export async function searchAlumni(
   const membershipIds = memberships.map((m) => m.id)
   const membershipByUser = new Map(memberships.map((m) => [m.user_id, m.id]))
 
-  const [baseRes, orgProfileRes, prefRes] = await Promise.all([
+  const [baseRes, orgProfileRes, prefRes, friendsRes] = await Promise.all([
     supabase
       .from('base_profiles')
       .select(
-        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills',
+        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
       )
       .in('user_id', userIds),
     supabase
@@ -107,6 +111,12 @@ export async function searchAlumni(
       .from('mentorship_preferences')
       .select('organization_membership_id, is_open, paused_at')
       .in('organization_membership_id', membershipIds),
+    // Pull viewer's friend list once so we can compute the per-candidate
+    // visibility tier in JS without N extra queries.
+    supabase
+      .from('friendships')
+      .select('user_a_id, user_b_id')
+      .or(`user_a_id.eq.${input.viewerId},user_b_id.eq.${input.viewerId}`),
   ])
 
   if (baseRes.error) throw new Error(`searchAlumni base_profiles: ${baseRes.error.message}`)
@@ -114,12 +124,18 @@ export async function searchAlumni(
     throw new Error(`searchAlumni org_profiles: ${orgProfileRes.error.message}`)
   if (prefRes.error)
     throw new Error(`searchAlumni mentorship_preferences: ${prefRes.error.message}`)
+  if (friendsRes.error) throw new Error(`searchAlumni friendships: ${friendsRes.error.message}`)
 
   const orgProfileByMembership = new Map(
     (orgProfileRes.data ?? []).map((p) => [p.organization_membership_id, p]),
   )
   const prefByMembership = new Map(
     (prefRes.data ?? []).map((p) => [p.organization_membership_id, p]),
+  )
+  const friendIds = new Set(
+    (friendsRes.data ?? []).map((f) =>
+      f.user_a_id === input.viewerId ? f.user_b_id : f.user_a_id,
+    ),
   )
 
   const f = input.filters
@@ -133,13 +149,41 @@ export async function searchAlumni(
     const pref = prefByMembership.get(membershipId)
     const isOpenAsMentor = !!pref?.is_open && !pref.paused_at
 
+    // Career and education history may match the filter via past entries
+    // even when the directory field doesn't. We use the *raw* JSONB here
+    // (pre-privacy-redaction) because filter inclusion only reveals that
+    // the person is a relevant match — their name and current role are
+    // already always-org-visible. The privacy redaction below blocks the
+    // private *details* (dates, descriptions, past employer names beyond
+    // the matched one) from being shown or fed to the LLM rerank.
+    const rawCareer = (base.career_history as CareerEntry[] | null) ?? []
+    const rawEducation = (base.education_history as EducationEntry[] | null) ?? []
+
     if (f.openToMentor && !isOpenAsMentor) continue
     if (f.gradYearMin && (op?.graduation_year ?? -Infinity) < f.gradYearMin) continue
     if (f.gradYearMax && (op?.graduation_year ?? Infinity) > f.gradYearMax) continue
     if (f.city && !ci(base.city).includes(ci(f.city))) continue
-    if (f.employer && !ci(base.current_employer).includes(ci(f.employer))) continue
-    if (f.university && !ci(base.university).includes(ci(f.university))) continue
-    if (f.major && !ci(base.major).includes(ci(f.major))) continue
+    if (f.employer) {
+      const target = ci(f.employer)
+      const scope = input.scopes?.employer ?? 'any'
+      const matchesCurrent = ci(base.current_employer).includes(target)
+      const matchesPast = rawCareer.some((c) => ci(c.employer).includes(target))
+      if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
+    }
+    if (f.university) {
+      const target = ci(f.university)
+      const scope = input.scopes?.university ?? 'any'
+      const matchesCurrent = ci(base.university).includes(target)
+      const matchesPast = rawEducation.some((e) => ci(e.school).includes(target))
+      if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
+    }
+    if (f.major) {
+      const target = ci(f.major)
+      const scope = input.scopes?.major ?? 'any'
+      const matchesCurrent = ci(base.major).includes(target)
+      const matchesPast = rawEducation.some((e) => ci(e.field).includes(target))
+      if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
+    }
     if (f.topic) {
       const topics = (op?.mentoring_topics ?? []).map((t) => t.toLowerCase())
       if (!topics.some((t) => t.includes(ci(f.topic ?? '')))) continue
@@ -185,6 +229,18 @@ export async function searchAlumni(
       if (diff <= 2) reasons.push('similar grad year')
     }
 
+    // Privacy redaction. Directory fields stay visible; configurable
+    // sections (career_history, education_history, skills, bio, mentoring
+    // topics) get redacted to null when the viewer's relationship to this
+    // candidate is below the candidate's tier. Day 10 NL rerank reads
+    // these fields and shouldn't see private content for non-friends.
+    const candidatePrivacy = parseStoredPrivacySettings(base.privacy_settings)
+    const viewerKind = deriveViewerKind(false, friendIds.has(base.user_id))
+    const showCareer = canSeeSection(candidatePrivacy, 'career_history', viewerKind)
+    const showEducation = canSeeSection(candidatePrivacy, 'education_history', viewerKind)
+    const showBio = canSeeSection(candidatePrivacy, 'bio', viewerKind)
+    const showSkills = canSeeSection(candidatePrivacy, 'skills', viewerKind)
+
     hits.push({
       userId: base.user_id,
       name: base.name,
@@ -198,11 +254,11 @@ export async function searchAlumni(
       avatarUrl: base.avatar_url,
       isOpenAsMentor,
       mentorPaused: !!pref?.paused_at,
-      mentoringTopics: op?.mentoring_topics ?? null,
-      bio: op?.bio ?? null,
-      careerHistory: (base.career_history as CareerEntry[] | null) ?? null,
-      educationHistory: (base.education_history as EducationEntry[] | null) ?? null,
-      skills: base.skills ?? null,
+      mentoringTopics: showBio ? (op?.mentoring_topics ?? null) : null,
+      bio: showBio ? (op?.bio ?? null) : null,
+      careerHistory: showCareer ? (rawCareer.length > 0 ? rawCareer : null) : null,
+      educationHistory: showEducation ? (rawEducation.length > 0 ? rawEducation : null) : null,
+      skills: showSkills ? (base.skills ?? null) : null,
       reason: reasons.slice(0, 2).join(' · ') || 'in your network',
       score,
     })
@@ -214,4 +270,14 @@ export async function searchAlumni(
 
 function ci(s: string | null | undefined): string {
   return (s ?? '').toLowerCase()
+}
+
+function scopeMatch(
+  scope: 'current' | 'past' | 'any',
+  matchesCurrent: boolean,
+  matchesPast: boolean,
+): boolean {
+  if (scope === 'current') return matchesCurrent
+  if (scope === 'past') return matchesPast
+  return matchesCurrent || matchesPast
 }

@@ -33,6 +33,19 @@ export const searchFiltersSchema = z.object({
 
 export type SearchFilters = z.infer<typeof searchFiltersSchema>
 
+/**
+ * Filter scope for fields that have both a "current" directory column and a
+ * JSONB history. Set by the NL extraction step when the query disambiguates;
+ * the structured form leaves it undefined which defaults to 'any'.
+ */
+export type FilterScope = 'current' | 'past' | 'any'
+
+export type FilterScopes = {
+  employer?: FilterScope
+  university?: FilterScope
+  major?: FilterScope
+}
+
 const emptyFilters: SearchFilters = {
   q: undefined,
   city: undefined,

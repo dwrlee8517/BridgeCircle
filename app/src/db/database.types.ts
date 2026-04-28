@@ -191,6 +191,7 @@ export type Database = {
           linkedin_url: string | null
           major: string | null
           name: string | null
+          privacy_settings: Json
           skills: string[] | null
           university: string | null
           updated_at: string
@@ -208,6 +209,7 @@ export type Database = {
           linkedin_url?: string | null
           major?: string | null
           name?: string | null
+          privacy_settings?: Json
           skills?: string[] | null
           university?: string | null
           updated_at?: string
@@ -225,6 +227,7 @@ export type Database = {
           linkedin_url?: string | null
           major?: string | null
           name?: string | null
+          privacy_settings?: Json
           skills?: string[] | null
           university?: string | null
           updated_at?: string

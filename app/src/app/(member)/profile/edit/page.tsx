@@ -5,11 +5,14 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
 import { editProfileAction } from './actions'
+import { PrivacyForm } from './privacy-form'
 
 export default async function EditProfilePage() {
   const session = await requireSession()
   const supabase = await createClient()
-  const profile = await getProfile(supabase, session.userId)
+  // Pass the viewer = self so getProfile returns unredacted data — we need
+  // the real values to populate the edit form.
+  const profile = await getProfile(supabase, session.userId, session.userId)
 
   if (!profile) {
     return (
@@ -64,6 +67,18 @@ export default async function EditProfilePage() {
               openToMentor: profile.openToMentor,
             }}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Privacy</CardTitle>
+          <CardDescription>
+            Control who sees each part of your profile. Saves separately from the form above.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PrivacyForm initial={profile.privacySettings} />
         </CardContent>
       </Card>
     </div>
