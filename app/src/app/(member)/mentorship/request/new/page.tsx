@@ -13,13 +13,16 @@ export default async function NewMentorshipRequestPage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  await requireSession()
+  const session = await requireSession()
   const params = await searchParams
 
   if (!params.to) notFound()
 
   const supabase = await createClient()
-  const mentor = await getProfile(supabase, params.to)
+  // Pass viewerId so privacy redaction applies — per locked decision,
+  // mentorship doesn't override privacy. The mentee sees only what
+  // privacy settings + their (likely non-friend) relationship allows.
+  const mentor = await getProfile(supabase, params.to, session.userId)
   if (!mentor) notFound()
 
   if (!mentor.isOpenAsMentor) {

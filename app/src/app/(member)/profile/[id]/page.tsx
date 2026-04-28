@@ -17,23 +17,23 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
   const session = await requireSession()
   const { id } = await params
   const supabase = await createClient()
-  const profile = await getProfile(supabase, id)
+  const profile = await getProfile(supabase, id, session.userId)
 
   if (!profile) notFound()
 
-  const isSelf = profile.userId === session.userId
+  const isSelf = profile.isSelf
+  const isFriend = profile.isFriend
 
   // Mentorship state with this user (only meaningful when viewing someone else)
   let mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active' = 'none'
   let relatedRequestId: string | null = null
   let relatedThreadId: string | null = null
 
-  // Friendship state — used both to gate friends-only fields (LinkedIn) and
-  // to render the right CTA button.
+  // Full friendship enum — needed for the CTA button which has more states
+  // (pending_outgoing, pending_incoming) than the boolean profile.isFriend.
   const friendship = isSelf
     ? { kind: 'self' as const }
     : await getFriendshipState(supabase, session.userId, id)
-  const isFriend = friendship.kind === 'friends'
   const friendshipActionKind: 'friends' | 'pending_outgoing' | 'pending_incoming' | 'none' =
     friendship.kind === 'self'
       ? 'none'
@@ -195,13 +195,11 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
             </Section>
           ) : null}
 
-          {/*
-            Per phase-1-launch-spec.md:32, contact links (LinkedIn URL) are
-            friends-only by default. Friendships ship in week 3+, so at launch
-            this means: only the profile owner sees their own LinkedIn URL.
-            When friendships land, this gate broadens to (isSelf || isFriend).
-          */}
-          {profile.linkedinUrl && (isSelf || isFriend) ? (
+          {/* linkedinUrl is server-redacted by getProfile per the profile
+              owner's privacy settings (default: friends-only). A null here
+              means either the field isn't set or the viewer can't see it —
+              both render the same way. */}
+          {profile.linkedinUrl ? (
             <Section title="Links">
               <a
                 href={profile.linkedinUrl}

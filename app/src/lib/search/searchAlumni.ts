@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { canSeeSection, deriveViewerKind, parseStoredPrivacySettings } from '@/lib/profile/privacy'
 import type { SearchFilters } from './schemas'
 
 export type CareerEntry = {
@@ -92,11 +93,11 @@ export async function searchAlumni(
   const membershipIds = memberships.map((m) => m.id)
   const membershipByUser = new Map(memberships.map((m) => [m.user_id, m.id]))
 
-  const [baseRes, orgProfileRes, prefRes] = await Promise.all([
+  const [baseRes, orgProfileRes, prefRes, friendsRes] = await Promise.all([
     supabase
       .from('base_profiles')
       .select(
-        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills',
+        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
       )
       .in('user_id', userIds),
     supabase
@@ -107,6 +108,12 @@ export async function searchAlumni(
       .from('mentorship_preferences')
       .select('organization_membership_id, is_open, paused_at')
       .in('organization_membership_id', membershipIds),
+    // Pull viewer's friend list once so we can compute the per-candidate
+    // visibility tier in JS without N extra queries.
+    supabase
+      .from('friendships')
+      .select('user_a_id, user_b_id')
+      .or(`user_a_id.eq.${input.viewerId},user_b_id.eq.${input.viewerId}`),
   ])
 
   if (baseRes.error) throw new Error(`searchAlumni base_profiles: ${baseRes.error.message}`)
@@ -114,12 +121,18 @@ export async function searchAlumni(
     throw new Error(`searchAlumni org_profiles: ${orgProfileRes.error.message}`)
   if (prefRes.error)
     throw new Error(`searchAlumni mentorship_preferences: ${prefRes.error.message}`)
+  if (friendsRes.error) throw new Error(`searchAlumni friendships: ${friendsRes.error.message}`)
 
   const orgProfileByMembership = new Map(
     (orgProfileRes.data ?? []).map((p) => [p.organization_membership_id, p]),
   )
   const prefByMembership = new Map(
     (prefRes.data ?? []).map((p) => [p.organization_membership_id, p]),
+  )
+  const friendIds = new Set(
+    (friendsRes.data ?? []).map((f) =>
+      f.user_a_id === input.viewerId ? f.user_b_id : f.user_a_id,
+    ),
   )
 
   const f = input.filters
@@ -185,6 +198,18 @@ export async function searchAlumni(
       if (diff <= 2) reasons.push('similar grad year')
     }
 
+    // Privacy redaction. Directory fields stay visible; configurable
+    // sections (career_history, education_history, skills, bio, mentoring
+    // topics) get redacted to null when the viewer's relationship to this
+    // candidate is below the candidate's tier. Day 10 NL rerank reads
+    // these fields and shouldn't see private content for non-friends.
+    const candidatePrivacy = parseStoredPrivacySettings(base.privacy_settings)
+    const viewerKind = deriveViewerKind(false, friendIds.has(base.user_id))
+    const showCareer = canSeeSection(candidatePrivacy, 'career_history', viewerKind)
+    const showEducation = canSeeSection(candidatePrivacy, 'education_history', viewerKind)
+    const showBio = canSeeSection(candidatePrivacy, 'bio', viewerKind)
+    const showSkills = canSeeSection(candidatePrivacy, 'skills', viewerKind)
+
     hits.push({
       userId: base.user_id,
       name: base.name,
@@ -198,11 +223,13 @@ export async function searchAlumni(
       avatarUrl: base.avatar_url,
       isOpenAsMentor,
       mentorPaused: !!pref?.paused_at,
-      mentoringTopics: op?.mentoring_topics ?? null,
-      bio: op?.bio ?? null,
-      careerHistory: (base.career_history as CareerEntry[] | null) ?? null,
-      educationHistory: (base.education_history as EducationEntry[] | null) ?? null,
-      skills: base.skills ?? null,
+      mentoringTopics: showBio ? (op?.mentoring_topics ?? null) : null,
+      bio: showBio ? (op?.bio ?? null) : null,
+      careerHistory: showCareer ? ((base.career_history as CareerEntry[] | null) ?? null) : null,
+      educationHistory: showEducation
+        ? ((base.education_history as EducationEntry[] | null) ?? null)
+        : null,
+      skills: showSkills ? (base.skills ?? null) : null,
       reason: reasons.slice(0, 2).join(' · ') || 'in your network',
       score,
     })
