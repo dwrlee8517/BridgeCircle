@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist_Mono, Manrope } from 'next/font/google'
 import './globals.css'
 
@@ -18,6 +18,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'BridgeCircle',
   description: 'A verified alumni network.',
+}
+
+// Required for proper mobile rendering — without this iOS Safari renders the
+// page at desktop scale and zooms out. `width=device-width, initial-scale=1`
+// is the modern default; we don't disable user zoom (accessibility).
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

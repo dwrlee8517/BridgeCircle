@@ -32,9 +32,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <>
       <div className="border-b bg-muted/30">
-        <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-2 text-sm">
-          <span className="font-medium text-muted-foreground">Admin</span>
-          <nav className="flex gap-3">
+        <div className="mx-auto flex max-w-5xl items-center gap-4 overflow-x-auto px-4 py-2 text-sm">
+          <span className="shrink-0 font-medium text-muted-foreground">Admin</span>
+          <nav className="flex shrink-0 gap-3 whitespace-nowrap">
             <Link href="/admin/invite" className="hover:underline">
               Invite
             </Link>
