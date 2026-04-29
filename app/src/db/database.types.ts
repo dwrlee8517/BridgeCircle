@@ -723,6 +723,7 @@ export type Database = {
           created_at: string
           id: string
           organization_id: string | null
+          payload: Json | null
           read_at: string | null
           target_id: string | null
           target_type: string | null
@@ -733,6 +734,7 @@ export type Database = {
           created_at?: string
           id?: string
           organization_id?: string | null
+          payload?: Json | null
           read_at?: string | null
           target_id?: string | null
           target_type?: string | null
@@ -743,6 +745,7 @@ export type Database = {
           created_at?: string
           id?: string
           organization_id?: string | null
+          payload?: Json | null
           read_at?: string | null
           target_id?: string | null
           target_type?: string | null

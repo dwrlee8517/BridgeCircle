@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { createNotification } from '@/lib/notifications/createNotification'
 import type { SendFriendRequestInput } from './schemas'
 
 export type SendFriendRequestDeps = {
@@ -112,12 +113,24 @@ export async function sendFriendRequest(
     return { ok: false, error: 'request_exists' }
   }
 
+  // Sender name lookup is shared by both the email notify and the in-app
+  // notification, so do it once outside the if-block.
+  const { data: senderProfile } = await db
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', senderId)
+    .maybeSingle()
+
+  await createNotification({
+    userId: receiverId,
+    type: 'friend_request_received',
+    organizationId: Array.from(senderOrgs).find((o) => receiverOrgs.has(o)) ?? null,
+    targetType: 'friend_request',
+    targetId: inserted.id,
+    payload: { actor_id: senderId, actor_name: senderProfile?.name ?? null },
+  })
+
   if (deps.notify) {
-    const { data: senderProfile } = await db
-      .from('base_profiles')
-      .select('name')
-      .eq('user_id', senderId)
-      .maybeSingle()
     try {
       await deps.notify({
         receiverId,

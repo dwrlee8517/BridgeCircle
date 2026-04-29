@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { createNotification } from '@/lib/notifications/createNotification'
 import type { SendMessageInput } from './schemas'
 
 export type SendMessageDeps = {
@@ -68,5 +69,25 @@ export async function sendMessage(
     .single()
 
   if (insertErr || !inserted) return { ok: false, error: 'insert_failed' }
+
+  // Notify the other party. We deliberately don't coalesce or rate-limit
+  // here for demo simplicity — every message creates a notification row.
+  // Realistic mitigation if this becomes noisy: only notify if the
+  // recipient hasn't read the thread recently (markThreadRead's last_read_at).
+  const otherUserId = thread.user_a_id === viewerId ? thread.user_b_id : thread.user_a_id
+  const { data: senderProfile } = await db
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', viewerId)
+    .maybeSingle()
+  await createNotification({
+    userId: otherUserId,
+    type: 'direct_message',
+    organizationId: null,
+    targetType: 'direct_message_thread',
+    targetId: input.threadId,
+    payload: { actor_id: viewerId, actor_name: senderProfile?.name ?? null },
+  })
+
   return { ok: true, messageId: inserted.id, createdAt: inserted.created_at }
 }

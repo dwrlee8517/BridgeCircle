@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { listNotifications } from '@/lib/notifications/listNotifications'
+import { unreadCount } from '@/lib/notifications/unreadCount'
 import { MemberHeader } from './member-header'
 
 /**
@@ -32,10 +34,7 @@ export default async function MemberLayout({ children }: { children: React.React
     // callback: pending self-delete → /cancel-delete; self-deactivated only →
     // /reactivate; nothing else → sign out and reject.
     const [{ data: allMemberships }, { data: userRow }] = await Promise.all([
-      supabase
-        .from('organization_memberships')
-        .select('status')
-        .eq('user_id', session.userId),
+      supabase.from('organization_memberships').select('status').eq('user_id', session.userId),
       supabase
         .from('users')
         .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at')
@@ -81,6 +80,14 @@ export default async function MemberLayout({ children }: { children: React.React
     .limit(1)
   const isAdmin = !!adminRoles && adminRoles.length > 0
 
+  // Notifications for the bell — fetched once at layout level so every
+  // (member) route gets a fresh server-rendered view. Realtime takes over
+  // from there for live updates without polling.
+  const [notifications, unreadResult] = await Promise.all([
+    listNotifications(supabase, session.userId, { limit: 15 }),
+    unreadCount(supabase, session.userId),
+  ])
+
   return (
     <div className="flex min-h-screen flex-col">
       <MemberHeader
@@ -88,6 +95,8 @@ export default async function MemberLayout({ children }: { children: React.React
         name={profile.name}
         avatarUrl={profile.avatar_url}
         isAdmin={isAdmin}
+        notifications={notifications}
+        unreadCount={unreadResult}
       />
       <main className="flex-1">{children}</main>
     </div>

@@ -1,6 +1,7 @@
 import 'server-only'
 import * as Sentry from '@sentry/nextjs'
 import { createAdminClient } from '@/db/admin'
+import { createNotificationsForMany } from '@/lib/notifications/createNotification'
 import { sendEventCanceledEmail } from '@/notify/resend'
 
 export type CancelEventInput = {
@@ -66,6 +67,18 @@ export async function cancelEvent(input: CancelEventInput): Promise<CancelEventR
     .select('user_id')
     .eq('event_id', input.eventId)
     .in('status', ['going', 'waitlisted'])
+
+  // In-app notifications fan out first — cheap, always-on. Emails follow.
+  await createNotificationsForMany(
+    (rsvps ?? []).map((r) => r.user_id),
+    {
+      type: 'event_canceled',
+      organizationId: event.organization_id,
+      targetType: 'event',
+      targetId: input.eventId,
+      payload: { actor_id: input.actorUserId, event_title: event.title },
+    },
+  )
 
   let emailsSent = 0
   for (const r of rsvps ?? []) {

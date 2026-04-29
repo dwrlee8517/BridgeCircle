@@ -8,16 +8,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import type { NotificationRow } from '@/lib/notifications/types'
 import { signOut } from '../(auth)/sign-in/actions'
+import { NotificationsBell } from './notifications-bell'
 
 type Props = {
   userId: string
   name: string | null
   avatarUrl: string | null
   isAdmin: boolean
+  notifications: NotificationRow[]
+  unreadCount: number
 }
 
-export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
+export function MemberHeader({
+  userId,
+  name,
+  avatarUrl,
+  isAdmin,
+  notifications,
+  unreadCount,
+}: Props) {
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
@@ -49,7 +60,12 @@ export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
             </Button>
           ) : null}
         </nav>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-1">
+          <NotificationsBell
+            initial={notifications}
+            initialUnread={unreadCount}
+            viewerId={userId}
+          />
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label="Account menu"
