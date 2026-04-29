@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { Calendar, MapPin, Sparkles } from 'lucide-react'
+import { Calendar, MapPin, Plus, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -70,8 +70,11 @@ export default async function EventsPage({
           <p className="text-sm text-muted-foreground">Gatherings for {orgName}.</p>
         </div>
         {isAdmin ? (
-          <Button asChild>
-            <Link href="/admin/events">Create event</Link>
+          <Button asChild size="lg">
+            <Link href="/admin/events">
+              <Plus className="size-4" />
+              Create event
+            </Link>
           </Button>
         ) : null}
       </div>
