@@ -45,15 +45,102 @@ Other shared services (one of each, used by both):
 
 Local development never touches the production database. Production never touches the dev database. Both can talk to Resend and Sentry, but each tags its own activity so you can filter.
 
+## Manual Production Configuration
+
+Everything in this section was set up by hand outside the codebase. None of it is reproducible from `git clone` alone — losing this knowledge means re-discovering it under pressure. Update the relevant subsection whenever you change one of these.
+
+### DNS records on `bridgecircle.org`
+
+Configured at the domain registrar (whichever you use). Required for Resend to send mail with passing SPF + DKIM checks.
+
+| Type | Name | Purpose | Status |
+|---|---|---|---|
+| TXT | `resend._domainkey.bridgecircle.org` | DKIM public key — proves emails are signed by us | Verified (added 2026-04-29) |
+| MX | `send.bridgecircle.org` | Return path for bounces (points at `feedback-smtp.*.amazonses.com`, priority 10) | Verified |
+| TXT | `send.bridgecircle.org` | SPF — authorizes Resend/SES to send from our domain (`v=spf1 include:amazonses.com ~all`) | Verified |
+
+Optional (recommended later, not blocking demo):
+- `_dmarc.bridgecircle.org` TXT — DMARC policy. Suggested starter: `v=DMARC1; p=none; rua=mailto:rlee8517@gmail.com`. Adds the third leg of email auth and gives reports on spoofing attempts.
+
+The exact record contents are visible in the Resend dashboard → Domains → bridgecircle.org → DNS Records. **Don't store the raw DKIM public key here** — it changes if you ever rotate, and the dashboard is the source of truth.
+
+### Railway environment variables
+
+Set in **Railway → BridgeCircle service → Variables tab**. Production secrets live here (and only here outside your password manager).
+
+| Variable | Purpose | Example value (NOT actual) |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Prod Supabase project URL | `https://<prod-ref>.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Prod publishable key (browser-safe) | `sb_publishable_…` |
+| `SUPABASE_SECRET_KEY` | Prod service-role key (server-only, RLS bypass) | `sb_secret_…` |
+| `RESEND_API_KEY` | Resend API key | `re_…` |
+| `RESEND_FROM` | Sender address used by every Resend send. Set 2026-04-29 to `BridgeCircle <noreply@bridgecircle.org>`. Defaults to `BridgeCircle <invites@bridgecircle.org>` if unset. | `BridgeCircle <noreply@bridgecircle.org>` |
+| `ANTHROPIC_API_KEY` | Claude Haiku key for resume extraction + NL search entity extraction | `sk-ant-…` |
+| `NEXT_PUBLIC_SITE_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
+| `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
+
+Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and use the same Resend/Anthropic/Sentry keys as prod (they're cheap and the activity is environment-tagged on the provider side). **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@` and you can tell at a glance whether an email was sent from your laptop or from prod.
+
+### Third-party services
+
+**Supabase**
+- `bridgecircle` (production) — **Pro plan** (~$25/mo). Required for the GitHub branching integration that runs migrations on PR preview branches.
+- `bridgecircle-dev` (development) — Free plan. Used for daily local dev only.
+- Both have Google OAuth provider enabled (Auth → Providers → Google), pointing at the same Google Cloud OAuth client with two registered redirect URIs (one per project).
+- Prod has the **GitHub integration** turned on (Settings → Integrations → GitHub) with the working directory set to `app`. This is what triggers preview branches on PR + auto-deploy on merge.
+
+**Resend**
+- One workspace for both dev and prod.
+- Sender domain `bridgecircle.org` verified (see DNS table above).
+- `noreply@bridgecircle.org` is the prod sender (set via `RESEND_FROM`).
+- `invites@bridgecircle.org` is the dev sender (default when `RESEND_FROM` unset).
+
+**Sentry**
+- One project, DSN hardcoded in `src/instrumentation-client.ts` (it's a public key, safe in source).
+- Environment is auto-tagged via `NODE_ENV` so dev and prod errors filter separately in the Sentry UI.
+
+**Google OAuth**
+- One Google Cloud OAuth client.
+- Two authorized redirect URIs: one for `bridgecircle-dev`, one for `bridgecircle` (prod). Both use Supabase's standard `<project-ref>.supabase.co/auth/v1/callback` pattern.
+- If you ever rotate the Google client secret, you must update **both** Supabase projects' Auth → Google provider settings.
+
+**Anthropic**
+- Single API key shared by dev and prod (low-volume usage).
+- Used for resume extraction (1 call per resume import) and NL search (2 calls per query: extract filters + rerank candidates).
+- No usage caps configured today — see "post-launch backlog" in `app/CLAUDE.md` for cost monitoring.
+
+### GitHub repository
+
+- **Default branch**: `main`. Pushes here trigger Railway auto-deploy + Supabase prod migration auto-apply.
+- **Branching integration**: Supabase's GitHub app installed and pointed at this repo with working directory `app/`. Runs migrations on PR preview branches; merging to `main` auto-applies them to the prod Supabase project.
+- **Required status checks**: "Supabase Preview" should be required on `main`. **Currently "Not enforced"** because that requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory until Pro is enabled or the repo moves to an org plan.
+- **CI**: no GitHub Actions yet. `pnpm build` and `pnpm biome check` are run locally before each PR.
+
+### Where to look when something breaks in prod
+
+| Symptom | First place to look |
+|---|---|
+| Site won't load | Railway → Deployments tab (look for failed build) |
+| Emails not arriving | Resend dashboard → Logs (per-message status, bounce reasons) |
+| Errors in admin actions | Sentry dashboard → Issues (filtered to environment=production) |
+| Database query failures | Supabase prod dashboard → Logs → Postgres |
+| OAuth login failing | Supabase prod dashboard → Logs → Auth + Google Cloud → OAuth consent screen |
+| Migration didn't apply on merge | Supabase prod dashboard → Database → Migrations + the GitHub PR's "Supabase Preview" check |
+
 ## Where The Env Vars Live
+
+For the full prod inventory + descriptions, see **Manual Production Configuration → Railway environment variables** above. The summary split below is the laptop ↔ Railway pairing only.
 
 | Variable | Local (`.env.local`) | Railway (Variables tab) |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | dev project URL | prod project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | dev publishable key | prod publishable key |
 | `SUPABASE_SECRET_KEY` | dev secret key | prod secret key |
-| `RESEND_API_KEY` | (when added) Resend key | (when added) Resend key |
-| `SENTRY_AUTH_TOKEN` | (build-time only) | set by Sentry wizard |
+| `RESEND_API_KEY` | Resend key (shared with prod) | Resend key |
+| `RESEND_FROM` | (leave unset → defaults to `invites@`) | `BridgeCircle <noreply@bridgecircle.org>` |
+| `ANTHROPIC_API_KEY` | Claude key (shared with prod) | Claude key |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
+| `SENTRY_AUTH_TOKEN` | (build-time only, optional locally) | set by Sentry wizard |
 
 `.env.local` is in `.gitignore` and must never be committed. Railway's Variables tab is the only place production secrets live in human-readable form — keep a backup copy in your password manager.
 
@@ -138,7 +225,9 @@ If the build fails, the previous version keeps serving — there's no downtime r
 
 ### Schema (database) changes
 
-Schema is managed by **migration files** in `app/supabase/migrations/`. Migrations are forward-only files that describe a schema change.
+> **This section was rewritten on 2026-04-29 when we cut over to Supabase + GitHub branching.** The pre-cutover process required a manual `supabase link --project-ref <prod>` + `db push` after merge. That step is gone — Supabase auto-applies on merge. See `docs/branching-explainer.html` for the architecture decision and `app/CLAUDE.md` (section "Migration Workflow (post-2026-04-29)") for the canonical step-by-step.
+
+Schema is managed by **migration files** in `app/supabase/migrations/`. Forward-only — once applied to any DB, treat the file as immutable history.
 
 Workflow when adding a column or table:
 
@@ -149,7 +238,7 @@ Workflow when adding a column or table:
 2. Edit the generated SQL file under `supabase/migrations/`.
 3. Apply to dev:
    ```bash
-   pnpm dlx supabase db push   # while linked to bridgecircle-dev
+   pnpm dlx supabase db push   # bridgecircle-dev (linked locally)
    ```
 4. Regenerate typed schema and commit it:
    ```bash
@@ -159,28 +248,19 @@ Workflow when adding a column or table:
 5. Update the app code that depends on the new schema.
 6. Test locally against the now-migrated dev database.
 7. Commit migration + regenerated types + code together to a feature branch.
-8. Merge to `main`. Railway redeploys the app.
-9. Apply the same migration to production:
-   ```bash
-   pnpm dlx supabase link --project-ref <prod_ref>
-   pnpm dlx supabase db push
-   ```
+8. Push the branch and open a PR. **Supabase's GitHub integration spins up a preview branch off the prod project and runs the migration on it.** A "Supabase Preview" check appears on the PR — wait for it to turn green before merging.
+9. Merge the PR. Two things happen automatically:
+   - Railway picks up the merge and redeploys the app.
+   - Supabase auto-applies the migration to the prod project (`bridgecircle`).
+10. The preview branch auto-deletes after merge.
 
-### Order of operations matters
+**Do not** run `supabase db push` against prod manually anymore. The integration owns the prod side; manual pushes risk schema drift.
 
-For **additive** changes (new column, new table) — apply the migration to prod **before** the new code reaches users:
+### Order of operations is handled for you
 
-```
-Apply migration to prod → push code to main / Railway deploy
-```
+The branching integration takes care of the additive-vs-destructive ordering: the migration runs in lockstep with the code merge, so both go live together. The "always-superset" rule from the pre-cutover days no longer applies — you don't have to interleave code and SQL deploys by hand.
 
-For **destructive** changes (drop column, drop table) — push code first, then apply the migration:
-
-```
-Push code to main / Railway deploy → apply migration to prod
-```
-
-The rule of thumb: the database should always be a *superset* of what the running code expects. Add things to the database before code, remove things after code.
+If a migration ever needs to be rolled back: write a forward-only "revert" migration. There is no destructive rollback in this setup.
 
 ### Env var changes
 
@@ -299,11 +379,14 @@ If the deploy succeeds but a bug shows up:
 These exist as concepts in the broader docs but are **not** in the current setup:
 
 - **No staging environment.** Just dev (laptop) and prod (Railway). Add a third tier only when production has real users and a regression has real cost — likely after the May 25 alumni board meeting.
-- **No CI checks on PRs.** Pushing a PR doesn't run tests automatically yet. Run `pnpm build` and tests locally before merging. Worth adding GitHub Actions later for `pnpm build` + `pnpm vitest` + `pnpm biome check` on every PR.
-- **No branch protection on `main`.** Anyone with repo access can push directly. Worth turning on (Settings → Branches → Add rule → require PR) before launch.
-- **No PR preview environments on Railway.** Each PR doesn't get its own URL. Can be enabled in Railway's service settings if needed for testing against real infra.
+- **No CI checks on PRs.** Pushing a PR doesn't run tests automatically yet (Supabase Preview runs the migration check, but that's it). Run `pnpm build` and `pnpm biome check` locally before merging. Worth adding GitHub Actions later for `pnpm build` + `pnpm vitest` + `pnpm biome check` on every PR.
+- **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
+- **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
+- **No persistent dev branch on the prod Supabase project.** We use `bridgecircle-dev` (separate Free project) for daily development instead. Costs $0 vs. ~$10/mo for a persistent dev branch but adds the manual `pnpm dlx supabase db push` step. See `app/CLAUDE.md` post-launch backlog for the trade-off.
+- **No DMARC record on bridgecircle.org.** SPF + DKIM are verified, which is enough for inbox delivery at Gmail / Outlook. DMARC adds a third leg + reporting; recommended post-launch.
+- **No cost monitoring on Anthropic API.** Resume extraction + NL search both call Claude Haiku. Low volume during pilot but no observability today. Sentry breadcrumbs or a counter row would suffice; see `app/CLAUDE.md` post-launch backlog.
 
-These are all good upgrades to make incrementally. None are urgent right now.
+These are all good upgrades to make incrementally. None are urgent for the May 25 demo.
 
 ## Quick Reference
 
@@ -312,12 +395,16 @@ These are all good upgrades to make incrementally. None are urgent right now.
 | Which database does `pnpm dev` write to? | `bridgecircle-dev` (via `.env.local`) |
 | Which database does the live site write to? | `bridgecircle` (via Railway Variables) |
 | What triggers a production deploy? | Push or merge to `main` |
+| What triggers a production migration? | Merge to `main` — Supabase auto-applies via the GitHub integration |
 | Where are env vars set for prod? | Railway dashboard → Variables tab |
 | Where are env vars set for local dev? | `app/.env.local` (gitignored) |
 | What's the source of truth for schema? | `supabase/migrations/` files in the repo |
+| What's the source of truth for prod env vars + DNS? | This file's "Manual Production Configuration" section |
 | Can I edit the schema in the Supabase dashboard? | No. Always write a migration. |
 | Can I run SQL queries in the Supabase dashboard? | Reads yes, writes no — especially against prod. |
+| Can I run `supabase db push --linked` against prod? | No. The branching integration owns prod migrations now. |
 | What if I push a broken commit to `main`? | Build fails on Railway, prod keeps running the previous version. Fix on a new PR. |
+| Where does prod email come from? | `noreply@bridgecircle.org` (set via `RESEND_FROM` in Railway). Dev uses the default `invites@bridgecircle.org`. |
 
 ## When This Doc Gets Outdated
 
@@ -327,7 +414,12 @@ Update this file whenever you:
 - Add a new third-party service to the stack.
 - Change which branch Railway watches.
 - Add CI / PR checks.
-- Add branch protection rules.
-- Add new env vars that other developers will need to know about.
+- Change branch protection or required-status-check configuration.
+- Add new env vars that anyone else will need to know about.
+- Add, change, or remove a DNS record on `bridgecircle.org`.
+- Change the Resend sender address (`RESEND_FROM`).
+- Upgrade or downgrade a Supabase / Railway / Resend plan.
+- Rotate any API key, secret, or OAuth credential.
+- Change the GitHub integration config (working directory, branch, etc.).
 
-Out-of-date workflow docs are worse than no workflow docs. If the file disagrees with reality, fix the file.
+The "Manual Production Configuration" section is the canonical inventory of every non-code change made to prod — keep it accurate. Out-of-date workflow docs are worse than no workflow docs. If the file disagrees with reality, fix the file.
