@@ -51,18 +51,33 @@ Everything in this section was set up by hand outside the codebase. None of it i
 
 ### DNS records on `bridgecircle.org`
 
-Configured at the domain registrar (whichever you use). Required for Resend to send mail with passing SPF + DKIM checks.
+Hosted at **Cloudflare** (registrar / nameservers). All records run in "DNS only" mode (gray cloud) — Cloudflare proxying is not enabled. For the Railway CNAME this is required because Railway terminates its own TLS; toggling proxying on would break the cert handshake.
+
+**For email (Resend):**
 
 | Type | Name | Purpose | Status |
 |---|---|---|---|
 | TXT | `resend._domainkey.bridgecircle.org` | DKIM public key — proves emails are signed by us | Verified (added 2026-04-29) |
 | MX | `send.bridgecircle.org` | Return path for bounces (points at `feedback-smtp.*.amazonses.com`, priority 10) | Verified |
 | TXT | `send.bridgecircle.org` | SPF — authorizes Resend/SES to send from our domain (`v=spf1 include:amazonses.com ~all`) | Verified |
+| TXT | `_dmarc.bridgecircle.org` | DMARC monitor-only policy (`v=DMARC1; p=none;`) | Active (added 2026-04-29) |
 
-Optional (recommended later, not blocking demo):
-- `_dmarc.bridgecircle.org` TXT — DMARC policy. Suggested starter: `v=DMARC1; p=none; rua=mailto:rlee8517@gmail.com`. Adds the third leg of email auth and gives reports on spoofing attempts.
+DMARC is currently in monitor-only mode (`p=none`) — failures are *not* rejected, but no reports are collected because there's no `rua=` reporting address. To start receiving daily auth reports, change the value to `v=DMARC1; p=none; rua=mailto:<your-monitoring-address>`. Tighten to `p=quarantine` or `p=reject` later once you've confirmed all legitimate sending paths pass.
 
-The exact record contents are visible in the Resend dashboard → Domains → bridgecircle.org → DNS Records. **Don't store the raw DKIM public key here** — it changes if you ever rotate, and the dashboard is the source of truth.
+**For the app (Railway):**
+
+| Type | Name | Purpose | Status |
+|---|---|---|---|
+| CNAME | `bridgecircle.org` (apex) | Points the root domain at Railway's app hostname (`<service>.up.railway.app`). Cloudflare's CNAME flattening makes this work at the apex. | DNS only |
+| TXT | `_railway-verify.bridgecircle.org` | Railway's proof-of-domain-ownership token | Active |
+
+**Railway custom-domain checklist** (the CNAME alone is not enough — three more touches are needed for `https://bridgecircle.org` to fully work):
+
+- [ ] Add `bridgecircle.org` under **Railway → service → Settings → Networking → Custom Domain**. Without this, Railway responds 404 to traffic arriving at the hostname.
+- [ ] Set `NEXT_PUBLIC_SITE_URL=https://bridgecircle.org` in Railway Variables. This drives absolute URLs in outbound emails (e.g. the "View on BridgeCircle" button in announcement emails). If it still points at `*.up.railway.app`, members will see Railway URLs in their inbox.
+- [ ] Add the new domain's callback URL to **both** Supabase Auth → Providers → Google **and** the Google Cloud OAuth client's Authorized redirect URIs. Without this, sign-in 400s after the Google round-trip.
+
+Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway verify token live in the Resend / Railway dashboards. **Don't paste them into this doc** — they change on rotation and the dashboards are authoritative.
 
 ### Railway environment variables
 
@@ -383,7 +398,7 @@ These exist as concepts in the broader docs but are **not** in the current setup
 - **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
 - **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
 - **No persistent dev branch on the prod Supabase project.** We use `bridgecircle-dev` (separate Free project) for daily development instead. Costs $0 vs. ~$10/mo for a persistent dev branch but adds the manual `pnpm dlx supabase db push` step. See `app/CLAUDE.md` post-launch backlog for the trade-off.
-- **No DMARC record on bridgecircle.org.** SPF + DKIM are verified, which is enough for inbox delivery at Gmail / Outlook. DMARC adds a third leg + reporting; recommended post-launch.
+- **DMARC reporting not configured.** A `_dmarc` record exists in monitor-only mode (`p=none`) but has no `rua=` reporting address, so no daily auth reports are collected. Add a reporting mailbox + tighten the policy post-launch.
 - **No cost monitoring on Anthropic API.** Resume extraction + NL search both call Claude Haiku. Low volume during pilot but no observability today. Sentry breadcrumbs or a counter row would suffice; see `app/CLAUDE.md` post-launch backlog.
 
 These are all good upgrades to make incrementally. None are urgent for the May 25 demo.
