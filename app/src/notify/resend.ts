@@ -1,7 +1,9 @@
 import { render } from '@react-email/components'
 import { Resend } from 'resend'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
+import { EventCanceledEmail } from './emails/event-canceled-email'
 import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-email'
+import { EventWaitlistPromotedEmail } from './emails/event-waitlist-promoted-email'
 import { FriendRequestAcceptedEmail } from './emails/friend-request-accepted-email'
 import { FriendRequestEmail } from './emails/friend-request-email'
 import { InviteEmail } from './emails/invite-email'
@@ -264,6 +266,74 @@ export async function sendAccountDeleteScheduledEmail(
     from: FROM,
     to: [input.to],
     subject: 'Your BridgeCircle account has been deactivated',
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendEventCanceledInput = {
+  to: string
+  recipientName: string | null
+  eventTitle: string
+  eventStartsAt: string
+  eventLocation: string | null
+  reason: string | null
+}
+
+export async function sendEventCanceledEmail(input: SendEventCanceledInput): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    EventCanceledEmail({
+      recipientName: input.recipientName,
+      eventTitle: input.eventTitle,
+      eventStartsAt: input.eventStartsAt,
+      eventLocation: input.eventLocation,
+      reason: input.reason,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `${input.eventTitle} has been canceled`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendEventWaitlistPromotedInput = {
+  to: string
+  recipientName: string | null
+  eventTitle: string
+  eventStartsAt: string
+  eventLocation: string | null
+  eventUrl: string
+}
+
+export async function sendEventWaitlistPromotedEmail(
+  input: SendEventWaitlistPromotedInput,
+): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    EventWaitlistPromotedEmail({
+      recipientName: input.recipientName,
+      eventTitle: input.eventTitle,
+      eventStartsAt: input.eventStartsAt,
+      eventLocation: input.eventLocation,
+      eventUrl: input.eventUrl,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `A spot opened up for ${input.eventTitle}`,
     html,
   })
 

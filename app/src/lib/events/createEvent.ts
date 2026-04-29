@@ -34,6 +34,7 @@ export async function createEvent(
       description: input.description,
       location: input.location,
       starts_at: input.startsAt,
+      capacity: input.capacity ?? null,
       published_at: nowIso,
     })
     .select('id')
