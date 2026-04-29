@@ -32,7 +32,7 @@ export function MemberHeader({
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3">
-        <Link href="/search" className="font-semibold">
+        <Link href="/" className="font-semibold">
           BridgeCircle
         </Link>
         <nav className="flex items-center gap-1 text-sm">
