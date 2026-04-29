@@ -137,7 +137,7 @@ function Hero({
 function StatTile({ value, label }: { value: number; label: string }) {
   return (
     <div className="rounded-lg bg-background px-4 py-3 text-center">
-      <div className="text-2xl font-semibold tracking-tight tabular-nums">{value}</div>
+      <div className="text-2xl font-semibold tracking-tight tabular-nums text-primary">{value}</div>
       <div className="mt-0.5 text-xs text-muted-foreground">{label}</div>
     </div>
   )
@@ -204,12 +204,12 @@ function SectionHeader({
   return (
     <div className="mb-3 flex items-baseline justify-between">
       <h2 id={id} className="flex items-center gap-2 text-base font-semibold">
-        <span className="text-muted-foreground">{icon}</span>
+        <span className="text-primary">{icon}</span>
         {title}
       </h2>
       <Link
         href={seeAll.href}
-        className="text-xs font-medium text-muted-foreground hover:text-primary"
+        className="text-xs font-medium text-primary hover:underline underline-offset-2"
       >
         {seeAll.label}
       </Link>
@@ -329,11 +329,13 @@ function EventMiniRow({ event }: { event: HomeEvent }) {
       href={`/events/${event.id}`}
       className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
     >
-      <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-md border bg-accent/40 text-center">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-md border border-primary/15 bg-primary/8 text-center">
+        <span className="text-[10px] font-medium uppercase tracking-wide text-primary/80">
           {format(start, 'MMM')}
         </span>
-        <span className="text-base font-semibold leading-none">{format(start, 'd')}</span>
+        <span className="text-base font-semibold leading-none text-primary">
+          {format(start, 'd')}
+        </span>
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{event.title}</p>

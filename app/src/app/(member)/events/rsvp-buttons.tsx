@@ -1,5 +1,6 @@
 'use client'
 
+import { Check, X } from 'lucide-react'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { rsvpAction } from './actions'
@@ -44,42 +45,44 @@ export function RsvpButtons({ eventId, current, isFull }: Props) {
     })
   }
 
-  // Going button label adapts to context.
+  // Going button label + variant adapts to context. The visual rule:
+  //   active state  → filled with primary color (clear "you picked this")
+  //   inactive      → outline (clear "you can pick this")
+  // Previously both states used the same neutral-feeling chips, which made
+  // the buttons read as inactive tabs rather than toggle states.
   let goingLabel: string
-  let goingVariant: 'default' | 'outline' | 'secondary'
+  const goingActive = current === 'going' || current === 'waitlisted'
   if (current === 'going') {
-    goingLabel = '✓ Going'
-    goingVariant = 'default'
+    goingLabel = 'Going'
   } else if (current === 'waitlisted') {
     goingLabel = 'On waitlist'
-    goingVariant = 'secondary'
   } else if (isFull) {
     goingLabel = 'Join waitlist'
-    goingVariant = 'outline'
   } else {
     goingLabel = 'Going'
-    goingVariant = 'outline'
   }
 
+  const notGoingActive = current === 'not_going'
+
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <div className="flex gap-2">
         <Button
           type="button"
-          size="sm"
-          variant={goingVariant}
+          variant={goingActive ? 'default' : 'outline'}
           onClick={() => submit('going')}
           disabled={pending}
         >
+          {goingActive ? <Check className="size-3.5" /> : null}
           {goingLabel}
         </Button>
         <Button
           type="button"
-          size="sm"
-          variant={current === 'not_going' ? 'secondary' : 'ghost'}
+          variant={notGoingActive ? 'default' : 'outline'}
           onClick={() => submit('not_going')}
           disabled={pending}
         >
+          {notGoingActive ? <X className="size-3.5" /> : null}
           Not going
         </Button>
       </div>
