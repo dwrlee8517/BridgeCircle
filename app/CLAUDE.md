@@ -110,6 +110,32 @@ Do not introduce alternative providers or frameworks without checking with the u
 - `auth.users → public.users` is wired by the `on_auth_user_created` trigger in `0001_init`. Code that creates users via `supabase.auth.admin.createUser` does **not** need to insert into `public.users` separately, but it does need to insert `base_profiles` / `organization_memberships` / `organization_profiles` rows itself (those are not triggered).
 - Tables created via `supabase db push` do **not** auto-receive role grants the way the dashboard does. The `alter default privileges` block in `grant_public_schema.sql` covers future tables in `public` — but if you add a table in a custom schema or run `db reset` in unusual contexts, the same `42501 permission denied` error will resurface. See `../docs/environments.md`.
 
+## Migration Workflow (post-2026-04-29)
+
+We use a **hybrid branching setup**: `bridgecircle-dev` is still a separate Free project for daily local development, but the prod project (`bridgecircle`) has the Supabase + GitHub branching integration enabled. See `../docs/branching-explainer.html` for the full rationale.
+
+For each migration the workflow is:
+
+```
+1. edit / add SQL file in app/supabase/migrations/
+2. pnpm dlx supabase db push                       (applies to bridgecircle-dev)
+3. pnpm db:types                                   (regenerate database.types.ts)
+4. test locally
+5. git push branch + open PR
+6. → Supabase auto-creates a preview branch off prod and runs migrations
+   → "Supabase Preview" status check on the PR turns green
+7. merge PR → Supabase auto-applies migrations to bridgecircle (prod)
+8. preview branch auto-deletes
+```
+
+Step 7 is what replaced the manual `supabase link --project-ref <prod>` + `db push --dry-run` + `db push` + re-link dance. **Do not push to prod manually.** The integration owns the prod side; manual pushes risk drift.
+
+Branch protection on `main` requires the Supabase Preview check to pass before merging. Don't merge a PR with a failing migration check.
+
+If a migration ever needs to be rolled back: write a forward-only "revert" migration. There is no destructive rollback in this setup. (Preview branches *can* be deleted destructively — they're throwaway by design — but prod's history is append-only.)
+
+The local dev project (`bridgecircle-dev`) and prod stay in sync only because we always run step 2 before opening the PR. If you skip step 2, dev will be behind main; harmless until you try to test a future feature locally that depends on the missed migration.
+
 ## Commands
 
 From `app/`:
@@ -169,7 +195,5 @@ From `phase-1-launch-spec.md`:
 
 Not blockers for the May 25 demo. Revisit after launch.
 
-- **Migrate to Supabase branching** (account is on Pro). Today the dev/prod separation is two independent projects (`bridgecircle-dev` + `bridgecircle`); migrations are pushed via `supabase link --project-ref ...` to each in turn. Branching would replace this with one project + a long-lived `dev` branch + ephemeral PR-preview branches, which gives drift detection on merge and per-PR isolated environments. Migration cost ~2 hours; adds usage-based realtime/compute billing per branch. Not urgent — current setup is working.
-- **CI drift check** for migrations. Fail the PR build if `supabase migration list --linked` against prod is missing migrations that exist locally. Currently relies on memory.
-- **`pnpm db:promote` script** that automates link → push → re-link-to-dev so prod schema promotion is one command.
 - **Cost monitoring on Anthropic API** — every NL search query hits Haiku twice; resume import hits it once. No observability today. Consider Sentry breadcrumbs or a counter row.
+- **Persistent `dev` branch on prod project** — replace `bridgecircle-dev` (separate Free project) with a persistent dev branch on the prod Pro project (~$10/mo). Would unify the dashboard, enable cheap dev resets, and remove the manual `pnpm dlx supabase db push` step from daily dev. Skipped at the 2026-04-29 cutover because the cost-vs-marginal-improvement math didn't justify it pre-launch.
