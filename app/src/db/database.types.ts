@@ -995,9 +995,93 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      analytics_active_membership_count: {
+        Row: {
+          active_members: number | null
+          organization_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_invited_to_active: {
+        Row: {
+          became_active_30d: number | null
+          invited_30d: number | null
+          organization_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_mentorship_30d: {
+        Row: {
+          eligible_for_response_check: number | null
+          organization_id: string | null
+          responded_within_7d: number | null
+          total_requests: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentorship_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_profile_freshness: {
+        Row: {
+          fresh_profiles: number | null
+          organization_id: string | null
+          total_active: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_upcoming_rsvps: {
+        Row: {
+          going_count: number | null
+          organization_id: string | null
+          upcoming_events: number | null
+          waitlist_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      analytics_active_signed_in_count: {
+        Args: { _org: string; _within?: string }
+        Returns: number
+      }
       is_active_member_of: { Args: { org_id: string }; Returns: boolean }
       is_admin_of: { Args: { org_id: string }; Returns: boolean }
       shares_org_with: { Args: { other_user_id: string }; Returns: boolean }
