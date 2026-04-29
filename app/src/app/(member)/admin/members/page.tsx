@@ -13,6 +13,8 @@ import {
 import { createClient } from '@/db/server'
 import { listMembers, type MembershipStatus } from '@/lib/admin/listMembers'
 import { requireAdmin } from '@/lib/auth/session'
+import { ApprovalModeToggle } from './approval-mode-toggle'
+import { MemberRowActions } from './member-row-actions'
 
 export default async function AdminMembersPage() {
   const session = await requireAdmin()
@@ -20,7 +22,7 @@ export default async function AdminMembersPage() {
 
   const { data: roles } = await supabase
     .from('admin_role_assignments')
-    .select('organization_id, organizations(name)')
+    .select('organization_id, organizations(name, requires_admin_approval)')
     .eq('user_id', session.userId)
     .in('role', ['super_admin', 'admin'])
     .limit(1)
@@ -34,12 +36,15 @@ export default async function AdminMembersPage() {
     )
   }
 
-  const orgName = (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization'
+  const org = adminOrg.organizations as { name: string; requires_admin_approval: boolean } | null
+  const orgName = org?.name ?? 'your organization'
+  const requiresApproval = org?.requires_admin_approval ?? false
   const members = await listMembers(supabase, adminOrg.organization_id)
 
   const counts = {
     active: members.filter((m) => m.status === 'active').length,
     pending: members.filter((m) => m.status === 'pending').length,
+    revoked: members.filter((m) => m.status === 'revoked').length,
     mentors: members.filter((m) => m.isOpenAsMentor).length,
   }
 
@@ -49,15 +54,38 @@ export default async function AdminMembersPage() {
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle>Members</CardTitle>
+              <CardTitle>Approval mode</CardTitle>
               <CardDescription>
-                Everyone who's joined {orgName} (or accepted an invite and is awaiting approval).
+                {requiresApproval
+                  ? `New ${orgName} signups land in the approval queue and an admin must approve them before they gain access.`
+                  : `New ${orgName} signups are auto-approved as soon as they redeem a valid invite token.`}
               </CardDescription>
             </div>
-            <div className="flex gap-1.5 text-xs">
+            <ApprovalModeToggle requiresApproval={requiresApproval} />
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Members</CardTitle>
+              <CardDescription>
+                Everyone who's joined {orgName}, plus pending and deactivated accounts.{' '}
+                <Link href="/admin/approvals" className="underline">
+                  Approval queue
+                </Link>{' '}
+                is the focused view for pending decisions.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap justify-end gap-1.5 text-xs">
               <Badge variant="default">{counts.active} active</Badge>
               {counts.pending > 0 ? (
                 <Badge variant="secondary">{counts.pending} pending</Badge>
+              ) : null}
+              {counts.revoked > 0 ? (
+                <Badge variant="destructive">{counts.revoked} revoked</Badge>
               ) : null}
               <Badge variant="outline">{counts.mentors} open mentors</Badge>
             </div>
@@ -79,6 +107,7 @@ export default async function AdminMembersPage() {
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Profile</TableHead>
                   <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -103,13 +132,31 @@ export default async function AdminMembersPage() {
                     <TableCell className="text-sm">{m.city ?? '—'}</TableCell>
                     <TableCell className="text-sm">{m.currentEmployer ?? '—'}</TableCell>
                     <TableCell>
-                      <StatusBadge status={m.status} />
+                      <div className="flex flex-col items-start gap-1">
+                        <StatusBadge status={m.status} />
+                        {m.deletionScheduledFor ? (
+                          <DeletionBadge
+                            scheduledFor={m.deletionScheduledFor}
+                            initiatedByAdmin={m.deletionInitiatedByAdmin}
+                          />
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right text-sm tabular-nums">
                       <CompletionCell percent={m.completionPercent} />
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {m.joinedAt ? format(new Date(m.joinedAt), 'MMM d') : '—'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <MemberRowActions
+                        membershipId={m.membershipId}
+                        userId={m.userId}
+                        status={m.status}
+                        memberName={m.name}
+                        memberEmail={m.email}
+                        deletionScheduledFor={m.deletionScheduledFor}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -128,8 +175,44 @@ function StatusBadge({ status }: { status: MembershipStatus }) {
     pending: 'secondary',
     rejected: 'outline',
     revoked: 'destructive',
+    self_deactivated: 'secondary',
   }
-  return <Badge variant={variant[status]}>{status}</Badge>
+  const label: Record<MembershipStatus, string> = {
+    active: 'active',
+    pending: 'pending',
+    rejected: 'rejected',
+    revoked: 'revoked',
+    self_deactivated: 'self-paused',
+  }
+  return <Badge variant={variant[status]}>{label[status]}</Badge>
+}
+
+function DeletionBadge({
+  scheduledFor,
+  initiatedByAdmin,
+}: {
+  scheduledFor: string
+  initiatedByAdmin: boolean
+}) {
+  const due = new Date(scheduledFor).getTime()
+  const ms = due - Date.now()
+  const days = Math.round(ms / (1000 * 60 * 60 * 24))
+  const overdue = ms < 0
+  const label = overdue
+    ? `delete ${Math.abs(days)}d overdue`
+    : days === 0
+      ? 'delete today'
+      : `delete in ${days}d`
+  const initiator = initiatedByAdmin ? 'admin' : 'self'
+  return (
+    <Badge
+      variant={overdue ? 'destructive' : 'outline'}
+      className="text-[10px] leading-4"
+      title={`Initiated by ${initiator}`}
+    >
+      {label}
+    </Badge>
+  )
 }
 
 function CompletionCell({ percent }: { percent: number }) {

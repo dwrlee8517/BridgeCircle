@@ -2,13 +2,16 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 import type { ProfileFormState } from '@/components/profile-form'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { PRIVACY_SECTIONS, privacySettingsSchema } from '@/lib/profile/privacy'
 import { savePrivacySettings } from '@/lib/profile/savePrivacySettings'
 import { saveProfile } from '@/lib/profile/saveProfile'
+import { SELF_DELETE_REASON_CATEGORIES, scheduleSelfDelete } from '@/lib/profile/scheduleSelfDelete'
 import { parseProfileForm } from '@/lib/profile/schemas'
+import { selfDeactivate } from '@/lib/profile/selfDeactivate'
 
 export async function editProfileAction(
   _prev: ProfileFormState,
@@ -65,4 +68,76 @@ export async function savePrivacySettingsAction(
 
   revalidatePath(`/profile/${session.userId}`)
   return { ok: true, message: 'Privacy settings saved.' }
+}
+
+// =============================================================================
+// Danger zone — self-deactivate / self-delete
+// =============================================================================
+
+export type SelfDeactivateState = { ok?: boolean; error?: string }
+
+/**
+ * User pauses their own account. No dialog, no email — silent. After flipping
+ * memberships to self_deactivated, sign the user out so they don't continue
+ * navigating into pages that will all be empty under RLS.
+ */
+export async function selfDeactivateAction(
+  _prev: SelfDeactivateState,
+  _formData: FormData,
+): Promise<SelfDeactivateState> {
+  const session = await requireSession()
+  const result = await selfDeactivate({ userId: session.userId })
+
+  if (!result.ok) {
+    if (result.error === 'no_active_membership') {
+      return { error: 'You have no active membership to deactivate.' }
+    }
+    return { error: 'Could not deactivate. Try again.' }
+  }
+
+  // Sign out so navigation cleanly resets. The user can sign back in any time
+  // and the auth callback will route them to /reactivate.
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/sign-in?paused=1')
+}
+
+const selfDeleteSchema = z.object({
+  reasonCategory: z.enum(SELF_DELETE_REASON_CATEGORIES),
+  customReason: z.string().trim().max(1000).optional(),
+})
+
+export type SelfDeleteState = { ok?: boolean; error?: string }
+
+/**
+ * User schedules their own account for deletion (30-day grace). After
+ * scheduling, redirect to /cancel-delete which doubles as their landing page
+ * during grace — they can change their mind there at any time.
+ */
+export async function scheduleSelfDeleteAction(
+  _prev: SelfDeleteState,
+  formData: FormData,
+): Promise<SelfDeleteState> {
+  const session = await requireSession()
+
+  const parsed = selfDeleteSchema.safeParse({
+    reasonCategory: formData.get('reasonCategory'),
+    customReason: formData.get('customReason') ?? undefined,
+  })
+  if (!parsed.success) return { error: 'Please pick a reason.' }
+
+  const result = await scheduleSelfDelete({
+    userId: session.userId,
+    reasonCategory: parsed.data.reasonCategory,
+    customReason: parsed.data.customReason ?? null,
+  })
+
+  if (!result.ok) {
+    if (result.error === 'already_scheduled') {
+      return { error: 'Your account is already scheduled for deletion.' }
+    }
+    return { error: 'Could not schedule deletion. Try again.' }
+  }
+
+  redirect('/cancel-delete')
 }

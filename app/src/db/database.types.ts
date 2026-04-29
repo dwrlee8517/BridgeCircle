@@ -861,18 +861,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          requires_admin_approval: boolean
           slug: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          requires_admin_approval?: boolean
           slug: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          requires_admin_approval?: boolean
           slug?: string
         }
         Relationships: []
@@ -957,18 +960,27 @@ export type Database = {
       users: {
         Row: {
           created_at: string
+          delete_initiated_by_admin: boolean
+          delete_reason: string | null
+          delete_scheduled_for: string | null
           deleted_at: string | null
           id: string
           last_seen_at: string | null
         }
         Insert: {
           created_at?: string
+          delete_initiated_by_admin?: boolean
+          delete_reason?: string | null
+          delete_scheduled_for?: string | null
           deleted_at?: string | null
           id: string
           last_seen_at?: string | null
         }
         Update: {
           created_at?: string
+          delete_initiated_by_admin?: boolean
+          delete_reason?: string | null
+          delete_scheduled_for?: string | null
           deleted_at?: string | null
           id?: string
           last_seen_at?: string | null
@@ -989,7 +1001,12 @@ export type Database = {
       event_rsvp_status: "going" | "not_going"
       friend_request_status: "pending" | "accepted" | "declined"
       invite_status: "pending" | "accepted" | "expired" | "revoked"
-      membership_status: "pending" | "active" | "rejected" | "revoked"
+      membership_status:
+        | "pending"
+        | "active"
+        | "rejected"
+        | "revoked"
+        | "self_deactivated"
       mentorship_request_status: "pending" | "accepted" | "declined" | "expired"
       mentorship_thread_status: "active" | "archived"
       message_thread_type: "mentorship" | "direct"
@@ -1127,7 +1144,13 @@ export const Constants = {
       event_rsvp_status: ["going", "not_going"],
       friend_request_status: ["pending", "accepted", "declined"],
       invite_status: ["pending", "accepted", "expired", "revoked"],
-      membership_status: ["pending", "active", "rejected", "revoked"],
+      membership_status: [
+        "pending",
+        "active",
+        "rejected",
+        "revoked",
+        "self_deactivated",
+      ],
       mentorship_request_status: ["pending", "accepted", "declined", "expired"],
       mentorship_thread_status: ["active", "archived"],
       message_thread_type: ["mentorship", "direct"],

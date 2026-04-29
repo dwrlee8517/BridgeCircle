@@ -61,26 +61,51 @@ export async function GET(request: Request) {
     // bounce them out.
   }
 
-  // Returning user (no pending invite cookie). Confirm they actually have an
-  // active membership; otherwise this is a Google sign-in for someone who
-  // never went through an invite, and we should not let them in.
-  const { data: membership } = await supabase
-    .from('organization_memberships')
-    .select('id')
-    .eq('user_id', data.user.id)
-    .eq('status', 'active')
-    .limit(1)
-    .maybeSingle()
+  // Returning user (no pending invite cookie). Branch on lifecycle state:
+  //   1. Active membership exists → land on /<next>
+  //   2. No active, but pending self-delete grace → /cancel-delete
+  //   3. No active, but self_deactivated memberships exist → /reactivate
+  //   4. Otherwise → not invited / not authorized → reject
+  //
+  // Admin-initiated deletions ban the auth user immediately, so they never
+  // reach this branch — the auth.exchangeCodeForSession above fails for
+  // banned users and we redirect to /sign-in with the error.
+  const [{ data: memberships }, { data: userRow }] = await Promise.all([
+    supabase
+      .from('organization_memberships')
+      .select('status')
+      .eq('user_id', data.user.id),
+    supabase
+      .from('users')
+      .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at')
+      .eq('id', data.user.id)
+      .maybeSingle(),
+  ])
 
-  if (!membership) {
-    await supabase.auth.signOut()
-    return NextResponse.redirect(
-      `${origin}/sign-in?error=${encodeURIComponent(
-        "We couldn't find an invite for this email. Ask your admin to send you one.",
-      )}`,
-    )
+  const hasActive = memberships?.some((m) => m.status === 'active') ?? false
+  const hasSelfDeactivated = memberships?.some((m) => m.status === 'self_deactivated') ?? false
+
+  if (hasActive) {
+    const safeNext = nextParam && nextParam.startsWith('/') ? nextParam : '/'
+    return NextResponse.redirect(`${origin}${safeNext}`)
   }
 
-  const safeNext = nextParam && nextParam.startsWith('/') ? nextParam : '/'
-  return NextResponse.redirect(`${origin}${safeNext}`)
+  if (
+    userRow?.delete_scheduled_for &&
+    !userRow.delete_initiated_by_admin &&
+    !userRow.deleted_at
+  ) {
+    return NextResponse.redirect(`${origin}/cancel-delete`)
+  }
+
+  if (hasSelfDeactivated) {
+    return NextResponse.redirect(`${origin}/reactivate`)
+  }
+
+  await supabase.auth.signOut()
+  return NextResponse.redirect(
+    `${origin}/sign-in?error=${encodeURIComponent(
+      "We couldn't find an invite for this email. Ask your admin to send you one.",
+    )}`,
+  )
 }

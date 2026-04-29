@@ -2,7 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 
-export type MembershipStatus = 'pending' | 'active' | 'rejected' | 'revoked'
+export type MembershipStatus = 'pending' | 'active' | 'rejected' | 'revoked' | 'self_deactivated'
 
 export type AdminMemberRow = {
   membershipId: string
@@ -16,6 +16,10 @@ export type AdminMemberRow = {
   currentEmployer: string | null
   isOpenAsMentor: boolean
   completionPercent: number
+  /** When set, this account is in the deletion grace window. Drives the row's
+   * "scheduled for deletion" badge and swaps the row actions to cancel/finalize. */
+  deletionScheduledFor: string | null
+  deletionInitiatedByAdmin: boolean
 }
 
 const COMPLETION_FIELDS = [
@@ -45,7 +49,13 @@ export async function listMembers(
     .from('organization_memberships')
     .select('id, user_id, status, joined_at, created_at')
     .eq('organization_id', organizationId)
-    .in('status', ['pending', 'active'])
+    // Includes revoked + self_deactivated rows so admins can manage the full
+    // lifecycle. Pending rows surface here too (admins can also see them on
+    // the approval queue) — that's intentional: the members page is the
+    // catch-all view, /admin/approvals is the focused decision view. We
+    // exclude 'rejected' as terminal, and we exclude users.deleted_at IS NOT
+    // NULL via the join below.
+    .in('status', ['pending', 'active', 'revoked', 'self_deactivated'])
     .order('created_at', { ascending: false })
     .limit(500)
 
@@ -55,8 +65,17 @@ export async function listMembers(
   const userIds = memberships.map((m) => m.user_id)
   const membershipIds = memberships.map((m) => m.id)
 
-  const [baseRes, orgProfileRes, prefRes] = await Promise.all([
-    supabase
+  // base_profiles is read via the admin client because the org-mate RLS
+  // policy (shares_org_with) requires both users to be 'active'. Revoked
+  // and pending members would otherwise return null name/city/employer to
+  // the admin viewer, which defeats the whole "see who's deactivated"
+  // purpose of this page. Admin client escapes RLS for this read only.
+  // Same client is used to fetch users rows (for delete-scheduled state).
+  const { createAdminClient } = await import('@/db/admin')
+  const admin = createAdminClient()
+
+  const [baseRes, orgProfileRes, prefRes, usersRes] = await Promise.all([
+    admin
       .from('base_profiles')
       .select('user_id, name, city, current_employer, current_title, university, major')
       .in('user_id', userIds),
@@ -68,12 +87,25 @@ export async function listMembers(
       .from('mentorship_preferences')
       .select('organization_membership_id, is_open, paused_at')
       .in('organization_membership_id', membershipIds),
+    admin
+      .from('users')
+      .select('id, deleted_at, delete_scheduled_for, delete_initiated_by_admin')
+      .in('id', userIds),
   ])
 
   if (baseRes.error) throw new Error(`listMembers base_profiles: ${baseRes.error.message}`)
   if (orgProfileRes.error)
     throw new Error(`listMembers org_profiles: ${orgProfileRes.error.message}`)
   if (prefRes.error) throw new Error(`listMembers prefs: ${prefRes.error.message}`)
+  if (usersRes.error) throw new Error(`listMembers users: ${usersRes.error.message}`)
+
+  // Filter out fully-deleted users — they're tombstoned and shouldn't appear
+  // in the admin members table. Their profile data has already been wiped.
+  const userById = new Map((usersRes.data ?? []).map((u) => [u.id, u]))
+  const liveMemberships = memberships.filter((m) => {
+    const u = userById.get(m.user_id)
+    return !u?.deleted_at
+  })
 
   const baseByUser = new Map((baseRes.data ?? []).map((b) => [b.user_id, b]))
   const orgProfileByMembership = new Map(
@@ -83,8 +115,6 @@ export async function listMembers(
     (prefRes.data ?? []).map((p) => [p.organization_membership_id, p]),
   )
 
-  const { createAdminClient } = await import('@/db/admin')
-  const admin = createAdminClient()
   const emailByUser = new Map<string, string>()
   await Promise.all(
     userIds.map(async (uid) => {
@@ -93,10 +123,11 @@ export async function listMembers(
     }),
   )
 
-  return memberships.map((m) => {
+  return liveMemberships.map((m) => {
     const base = baseByUser.get(m.user_id)
     const op = orgProfileByMembership.get(m.id)
     const pref = prefByMembership.get(m.id)
+    const userRow = userById.get(m.user_id)
 
     const fieldValues = {
       name: base?.name,
@@ -125,6 +156,8 @@ export async function listMembers(
       currentEmployer: base?.current_employer ?? null,
       isOpenAsMentor: !!pref?.is_open && !pref.paused_at,
       completionPercent,
+      deletionScheduledFor: userRow?.delete_scheduled_for ?? null,
+      deletionInitiatedByAdmin: userRow?.delete_initiated_by_admin ?? false,
     }
   })
 }

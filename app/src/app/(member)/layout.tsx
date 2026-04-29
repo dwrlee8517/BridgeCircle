@@ -28,6 +28,33 @@ export default async function MemberLayout({ children }: { children: React.React
     .maybeSingle()
 
   if (!membership) {
+    // No active membership — branch by lifecycle state. Same logic as the auth
+    // callback: pending self-delete → /cancel-delete; self-deactivated only →
+    // /reactivate; nothing else → sign out and reject.
+    const [{ data: allMemberships }, { data: userRow }] = await Promise.all([
+      supabase
+        .from('organization_memberships')
+        .select('status')
+        .eq('user_id', session.userId),
+      supabase
+        .from('users')
+        .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at')
+        .eq('id', session.userId)
+        .maybeSingle(),
+    ])
+
+    if (
+      userRow?.delete_scheduled_for &&
+      !userRow.delete_initiated_by_admin &&
+      !userRow.deleted_at
+    ) {
+      redirect('/cancel-delete')
+    }
+
+    if (allMemberships?.some((m) => m.status === 'self_deactivated')) {
+      redirect('/reactivate')
+    }
+
     await supabase.auth.signOut()
     redirect(
       `/sign-in?error=${encodeURIComponent(
