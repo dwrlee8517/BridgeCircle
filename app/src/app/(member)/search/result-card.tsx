@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 
 export type ResultCardProps = {
   userId: string
@@ -54,9 +55,13 @@ export function ResultCard(props: ResultCardProps) {
                 </span>
               ) : null}
               {props.isOpenAsMentor ? (
-                <Badge variant="default">Mentor</Badge>
+                <StatusBadge tone="open" dot>
+                  Mentor
+                </StatusBadge>
               ) : props.mentorPaused ? (
-                <Badge variant="outline">Paused</Badge>
+                <StatusBadge tone="warn" dot>
+                  Paused
+                </StatusBadge>
               ) : null}
               {props.rerankScore !== null ? (
                 <Badge variant="secondary" className="ml-auto">

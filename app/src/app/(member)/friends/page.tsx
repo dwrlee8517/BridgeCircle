@@ -1,8 +1,10 @@
 import { formatDistanceToNow } from 'date-fns'
+import { Users } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { listFriends } from '@/lib/friendship/listFriends'
@@ -98,35 +100,32 @@ export default async function FriendsPage() {
                 <span className="text-xs text-muted-foreground">
                   sent {formatDistanceToNow(new Date(r.createdAt), { addSuffix: true })}
                 </span>
-                <Badge variant="outline" className="ml-auto">
+                <StatusBadge tone="warn" className="ml-auto">
                   Pending
-                </Badge>
+                </StatusBadge>
               </div>
             ))}
           </CardContent>
         </Card>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Your friends</CardTitle>
-          <CardDescription>
-            {friends.length === 0
-              ? "You haven't added any friends yet."
-              : `${friends.length} ${friends.length === 1 ? 'friend' : 'friends'}.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {friends.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Browse the{' '}
-              <Link href="/search" className="text-primary hover:underline">
-                directory
-              </Link>{' '}
-              and send a friend request from anyone&apos;s profile.
-            </p>
-          ) : (
-            friends.map((f) => (
+      {friends.length === 0 && incoming.length === 0 && outgoing.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No friends yet"
+          description="Browse the directory and send a friend request from anyone's profile. Once accepted, you can message each other directly."
+          action={{ label: 'Browse the directory', href: '/search' }}
+        />
+      ) : friends.length === 0 ? null : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Your friends</CardTitle>
+            <CardDescription>
+              {`${friends.length} ${friends.length === 1 ? 'friend' : 'friends'}.`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {friends.map((f) => (
               <Link
                 key={f.friendshipId}
                 href={`/profile/${f.userId}`}
@@ -154,10 +153,10 @@ export default async function FriendsPage() {
                   {f.city ? <p className="text-xs text-muted-foreground">{f.city}</p> : null}
                 </div>
               </Link>
-            ))
-          )}
-        </CardContent>
-      </Card>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

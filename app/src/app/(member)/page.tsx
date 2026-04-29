@@ -2,9 +2,9 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { ArrowRight, Calendar, MapPin, Megaphone, Sparkles, Users } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getHomeFeed, type HomeEvent, type HomeMember } from '@/lib/home/getHomeFeed'
@@ -276,13 +276,9 @@ function MemberMiniRow({ member, mentorBadge }: { member: HomeMember; mentorBadg
             </span>
           ) : null}
           {mentorBadge ? (
-            <Badge
-              variant="secondary"
-              className="ml-auto bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-            >
-              <span className="mr-1 inline-block size-1.5 rounded-full bg-emerald-500" />
+            <StatusBadge tone="open" dot className="ml-auto">
               Mentor
-            </Badge>
+            </StatusBadge>
           ) : null}
         </div>
         {subtitle ? (

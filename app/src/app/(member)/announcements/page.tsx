@@ -1,5 +1,7 @@
 import { format, formatDistanceToNow } from 'date-fns'
+import { Megaphone } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { listAnnouncements } from '@/lib/announcements/listAnnouncements'
 import { requireSession } from '@/lib/auth/session'
@@ -31,11 +33,11 @@ export default async function AnnouncementsPage() {
       </div>
 
       {announcements.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            No announcements yet.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Megaphone}
+          title="No announcements yet"
+          description={`Check back soon — admins post updates from ${orgName} here.`}
+        />
       ) : (
         announcements.map((a) => (
           <Card key={a.id}>

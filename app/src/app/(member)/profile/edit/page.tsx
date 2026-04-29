@@ -5,6 +5,7 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
 import { editProfileAction } from './actions'
+import { AvatarUploader } from './avatar-uploader'
 import { DangerZone } from './danger-zone'
 import { PrivacyForm } from './privacy-form'
 
@@ -48,7 +49,10 @@ export default async function EditProfilePage() {
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          <div className="rounded-lg border bg-accent/30 p-4">
+            <AvatarUploader initialAvatarUrl={profile.avatarUrl} initialName={profile.name} />
+          </div>
           <ProfileForm
             action={editProfileAction}
             submitLabel="Save changes"
