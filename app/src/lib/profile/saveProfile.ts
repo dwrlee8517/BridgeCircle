@@ -28,6 +28,24 @@ export async function saveProfile(
         .filter(Boolean)
     : null
 
+  // career_history / education_history land in JSONB with snake_case fields,
+  // matching what the resume-import path writes — keeps the two write paths
+  // schema-compatible.
+  const careerHistory = input.careerHistory.map((e) => ({
+    employer: e.employer,
+    title: e.title,
+    start_date: e.startDate,
+    end_date: e.endDate,
+    description: e.description,
+  }))
+  const educationHistory = input.educationHistory.map((e) => ({
+    school: e.school,
+    degree: e.degree,
+    field: e.field,
+    start_date: e.startDate,
+    end_date: e.endDate,
+  }))
+
   const { error: baseErr } = await supabase
     .from('base_profiles')
     .update({
@@ -40,6 +58,9 @@ export async function saveProfile(
       major: input.major,
       linkedin_url: input.linkedinUrl || null,
       avatar_url: input.avatarUrl || null,
+      skills: input.skills,
+      career_history: careerHistory,
+      education_history: educationHistory,
       updated_at: new Date().toISOString(),
     })
     .eq('user_id', userId)

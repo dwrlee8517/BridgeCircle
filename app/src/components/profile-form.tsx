@@ -1,6 +1,13 @@
 'use client'
 
 import { useActionState } from 'react'
+import {
+  type CareerEntryInput,
+  CareerHistoryField,
+  type EducationEntryInput,
+  EducationHistoryField,
+  SkillsField,
+} from '@/components/profile-history-fields'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -26,6 +33,10 @@ export type ProfileFormDefaults = {
   linkedinUrl: string
   avatarUrl: string
   mentoringTopics: string
+  /** Already-saved JSONB arrays. Editors are seeded from these. */
+  skills: string[]
+  careerHistory: CareerEntryInput[]
+  educationHistory: EducationEntryInput[]
 }
 
 type Props = {
@@ -88,16 +99,25 @@ export function ProfileForm({
 
       <Section title="Education">
         <Field id="university" label="University" error={fe.university} required>
-          <Input
-            id="university"
-            name="university"
-            defaultValue={defaults.university}
-            required
-          />
+          <Input id="university" name="university" defaultValue={defaults.university} required />
         </Field>
         <Field id="major" label="Major" error={fe.major} required>
           <Input id="major" name="major" defaultValue={defaults.major} required />
         </Field>
+        <EducationHistoryField initial={defaults.educationHistory} />
+        {fe.educationHistory ? (
+          <p className="text-xs text-destructive">{fe.educationHistory}</p>
+        ) : null}
+      </Section>
+
+      <Section title="Career history">
+        <CareerHistoryField initial={defaults.careerHistory} />
+        {fe.careerHistory ? <p className="text-xs text-destructive">{fe.careerHistory}</p> : null}
+      </Section>
+
+      <Section title="Skills">
+        <SkillsField initial={defaults.skills} />
+        {fe.skills ? <p className="text-xs text-destructive">{fe.skills}</p> : null}
       </Section>
 
       <Section title="Mentorship">

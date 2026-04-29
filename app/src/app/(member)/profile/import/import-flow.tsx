@@ -24,6 +24,23 @@ export type CurrentProfile = {
   currentTitle: string | null
   university: string | null
   major: string | null
+  /** Already-saved career history. Shown alongside extracted entries so the
+   * user can untick any of them to remove from their profile. */
+  careerHistory: Array<{
+    employer: string
+    title: string
+    start_date: string | null
+    end_date: string | null
+    description: string | null
+  }>
+  educationHistory: Array<{
+    school: string
+    degree: string | null
+    field: string | null
+    start_date: string | null
+    end_date: string | null
+  }>
+  skills: string[]
 }
 
 const SCALAR_FIELDS = [
@@ -39,9 +56,11 @@ const SCALAR_FIELDS = [
 type ScalarKey = (typeof SCALAR_FIELDS)[number]['key']
 
 type ScalarChoice = { use: boolean; value: string | null }
-type CareerChoice = CareerEntry & { use: boolean; _key: string }
-type EducationChoice = EducationEntry & { use: boolean; _key: string }
-type SkillChoice = { use: boolean; value: string; _key: string }
+/** `_origin` lets us tag whether this row came from the user's existing
+ * profile or from this extraction run, so we can render a small badge. */
+type CareerChoice = CareerEntry & { use: boolean; _key: string; _origin: 'saved' | 'new' }
+type EducationChoice = EducationEntry & { use: boolean; _key: string; _origin: 'saved' | 'new' }
+type SkillChoice = { use: boolean; value: string; _key: string; _origin: 'saved' | 'new' }
 
 let nextKey = 0
 function k(): string {
@@ -159,17 +178,73 @@ function ConfirmStep({
     major: { use: profile.major !== null, value: profile.major },
   }))
 
-  const [careerHistory, setCareerHistory] = useState<CareerChoice[]>(() =>
-    profile.careerHistory.map((e) => ({ ...e, use: true, _key: k() })),
-  )
+  // Seed with already-saved entries first, then append extracted ones that
+  // aren't duplicates. Match keys:
+  //   career    → employer + title + start_date (case-insensitive employer/title)
+  //   education → school + start_date (case-insensitive school)
+  //   skills    → value (case-insensitive)
+  // For duplicates we keep the saved entry (user-curated) over the extracted
+  // one. Both default to `use: true`; user unticks anything they want gone.
+  const [careerHistory, setCareerHistory] = useState<CareerChoice[]>(() => {
+    const savedKeys = new Set(
+      current.careerHistory.map(
+        (e) => `${e.employer.toLowerCase()}|${e.title.toLowerCase()}|${e.start_date ?? ''}`,
+      ),
+    )
+    const saved: CareerChoice[] = current.careerHistory.map((e) => ({
+      employer: e.employer,
+      title: e.title,
+      startDate: e.start_date,
+      endDate: e.end_date,
+      description: e.description,
+      use: true,
+      _key: k(),
+      _origin: 'saved',
+    }))
+    const extras: CareerChoice[] = profile.careerHistory
+      .filter(
+        (e) =>
+          !savedKeys.has(
+            `${e.employer.toLowerCase()}|${e.title.toLowerCase()}|${e.startDate ?? ''}`,
+          ),
+      )
+      .map((e) => ({ ...e, use: true, _key: k(), _origin: 'new' }))
+    return [...saved, ...extras]
+  })
 
-  const [educationHistory, setEducationHistory] = useState<EducationChoice[]>(() =>
-    profile.educationHistory.map((e) => ({ ...e, use: true, _key: k() })),
-  )
+  const [educationHistory, setEducationHistory] = useState<EducationChoice[]>(() => {
+    const savedKeys = new Set(
+      current.educationHistory.map((e) => `${e.school.toLowerCase()}|${e.start_date ?? ''}`),
+    )
+    const saved: EducationChoice[] = current.educationHistory.map((e) => ({
+      school: e.school,
+      degree: e.degree,
+      field: e.field,
+      startDate: e.start_date,
+      endDate: e.end_date,
+      use: true,
+      _key: k(),
+      _origin: 'saved',
+    }))
+    const extras: EducationChoice[] = profile.educationHistory
+      .filter((e) => !savedKeys.has(`${e.school.toLowerCase()}|${e.startDate ?? ''}`))
+      .map((e) => ({ ...e, use: true, _key: k(), _origin: 'new' }))
+    return [...saved, ...extras]
+  })
 
-  const [skills, setSkills] = useState<SkillChoice[]>(() =>
-    profile.skills.map((s) => ({ use: true, value: s, _key: k() })),
-  )
+  const [skills, setSkills] = useState<SkillChoice[]>(() => {
+    const savedSet = new Set(current.skills.map((s) => s.toLowerCase()))
+    const saved: SkillChoice[] = current.skills.map((s) => ({
+      use: true,
+      value: s,
+      _key: k(),
+      _origin: 'saved',
+    }))
+    const extras: SkillChoice[] = profile.skills
+      .filter((s) => !savedSet.has(s.toLowerCase()))
+      .map((s) => ({ use: true, value: s, _key: k(), _origin: 'new' }))
+    return [...saved, ...extras]
+  })
 
   const [newSkill, setNewSkill] = useState('')
 
@@ -192,7 +267,9 @@ function ConfirmStep({
       setNewSkill('')
       return
     }
-    setSkills((s) => [...s, { use: true, value: v, _key: k() }])
+    // Manually-added skills count as 'new' — the user just typed them in
+    // this session; they're not part of the saved profile yet.
+    setSkills((s) => [...s, { use: true, value: v, _key: k(), _origin: 'new' }])
     setNewSkill('')
   }
 
@@ -247,7 +324,9 @@ function ConfirmStep({
         subtitle={`${careerHistory.filter((e) => e.use).length} of ${careerHistory.length} included`}
       >
         {careerHistory.length === 0 ? (
-          <p className="text-sm text-muted-foreground">None extracted.</p>
+          <p className="text-sm text-muted-foreground">
+            Nothing on your profile and nothing extracted.
+          </p>
         ) : (
           <div className="space-y-3">
             {careerHistory.map((entry, idx) => (
@@ -266,7 +345,9 @@ function ConfirmStep({
         subtitle={`${educationHistory.filter((e) => e.use).length} of ${educationHistory.length} included`}
       >
         {educationHistory.length === 0 ? (
-          <p className="text-sm text-muted-foreground">None extracted.</p>
+          <p className="text-sm text-muted-foreground">
+            Nothing on your profile and nothing extracted.
+          </p>
         ) : (
           <div className="space-y-3">
             {educationHistory.map((entry, idx) => (
@@ -281,6 +362,10 @@ function ConfirmStep({
       </Section>
 
       <Section title="Skills" subtitle={`${skills.filter((s) => s.use).length} included`}>
+        <p className="text-xs text-muted-foreground">
+          Click any chip to remove it (or restore it). Skills already on your profile show with a
+          dot.
+        </p>
         <div className="flex flex-wrap gap-1.5">
           {skills.map((s, idx) => (
             <button
@@ -294,7 +379,9 @@ function ConfirmStep({
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-muted-foreground/30 text-muted-foreground line-through'
               }`}
+              title={s._origin === 'saved' ? 'Already on your profile' : 'From this resume'}
             >
+              {s._origin === 'saved' ? '• ' : ''}
               {s.value}
             </button>
           ))}
@@ -326,7 +413,7 @@ function ConfirmStep({
           <Button type="button" variant="outline" asChild>
             <Link href={returnTo}>Cancel</Link>
           </Button>
-          <Button type="submit" disabled={pending || includedCount === 0}>
+          <Button type="submit" disabled={pending}>
             {pending ? 'Applying…' : 'Apply selected'}
           </Button>
         </div>
@@ -415,6 +502,12 @@ function CareerCard({
             current
           </Badge>
         ) : null}
+        <Badge
+          variant={entry._origin === 'saved' ? 'outline' : 'default'}
+          className="ml-auto text-[10px]"
+        >
+          {entry._origin === 'saved' ? 'on profile' : 'from resume'}
+        </Badge>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         <Input
@@ -473,6 +566,12 @@ function EducationCard({
         <span className="text-xs text-muted-foreground">
           {entry.startDate ?? '?'} – {entry.endDate ?? '?'}
         </span>
+        <Badge
+          variant={entry._origin === 'saved' ? 'outline' : 'default'}
+          className="ml-auto text-[10px]"
+        >
+          {entry._origin === 'saved' ? 'on profile' : 'from resume'}
+        </Badge>
       </div>
       <Input
         value={entry.school}

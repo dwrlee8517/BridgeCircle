@@ -8,14 +8,19 @@ export type ApplyResult = { ok: true } | { ok: false; error: 'db_error'; detail?
 type BaseProfileUpdate = Database['public']['Tables']['base_profiles']['Update']
 
 /**
- * Take the user-confirmed extraction selections and write them to
- * base_profiles. Updates only fields where `use === true`. Replaces the
- * career_history / education_history JSONB arrays wholesale (the user
- * picks which entries to keep on the confirm screen, so we trust the
- * outcome). skills is replaced with the kept tags.
+ * Take the user-confirmed selections and write them to base_profiles.
  *
- * Idempotent: re-running with the same selections is a no-op-ish update
- * (just bumps updated_at).
+ * Scalars: updates only the keys the user kept (`use === true`).
+ *
+ * Arrays (career_history, education_history, skills): replaced wholesale
+ * with whatever the user kept. The confirm step is seeded with both
+ * already-saved entries AND newly-extracted ones, so unchecking either
+ * type means "remove from my profile". An empty kept-set explicitly
+ * clears the field — that's intentional, not a bug. Callers who want to
+ * leave an array untouched should not show it on the confirm screen at
+ * all (the action wouldn't include it in `input` then).
+ *
+ * Idempotent: re-running with the same selections is a no-op-ish update.
  */
 export async function applyExtractedToProfile(
   supabase: SupabaseClient<Database>,
@@ -32,12 +37,16 @@ export async function applyExtractedToProfile(
   if (input.scalars.name.use) update.name = norm(input.scalars.name.value)
   if (input.scalars.headline.use) update.headline = norm(input.scalars.headline.value)
   if (input.scalars.city.use) update.city = norm(input.scalars.city.value)
-  if (input.scalars.currentEmployer.use) update.current_employer = norm(input.scalars.currentEmployer.value)
+  if (input.scalars.currentEmployer.use)
+    update.current_employer = norm(input.scalars.currentEmployer.value)
   if (input.scalars.currentTitle.use) update.current_title = norm(input.scalars.currentTitle.value)
   if (input.scalars.university.use) update.university = norm(input.scalars.university.value)
   if (input.scalars.major.use) update.major = norm(input.scalars.major.value)
 
-  const careerKept = input.careerHistory
+  // Arrays: always assign. Empty array = user explicitly cleared the field.
+  // null is reserved for "never had this set"; once a user has interacted
+  // with the section, store [] rather than null so the distinction is clear.
+  update.career_history = input.careerHistory
     .filter((e) => e.use)
     .map((e) => ({
       employer: e.employer,
@@ -46,9 +55,8 @@ export async function applyExtractedToProfile(
       end_date: e.endDate,
       description: e.description,
     }))
-  if (careerKept.length > 0) update.career_history = careerKept
 
-  const educationKept = input.educationHistory
+  update.education_history = input.educationHistory
     .filter((e) => e.use)
     .map((e) => ({
       school: e.school,
@@ -57,10 +65,8 @@ export async function applyExtractedToProfile(
       start_date: e.startDate,
       end_date: e.endDate,
     }))
-  if (educationKept.length > 0) update.education_history = educationKept
 
-  const skillsKept = input.skills.filter((s) => s.use).map((s) => s.value)
-  if (skillsKept.length > 0) update.skills = skillsKept
+  update.skills = input.skills.filter((s) => s.use).map((s) => s.value)
 
   const { error } = await supabase.from('base_profiles').update(update).eq('user_id', userId)
 
