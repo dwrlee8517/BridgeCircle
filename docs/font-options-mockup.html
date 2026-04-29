@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BridgeCircle — Font Options</title>
+
+<!-- Load all 10 candidate fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Lato:wght@400;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --shell-bg: #0f1419;
+    --shell-panel: #1a2028;
+    --shell-fg: #e8e8e8;
+    --shell-muted: #8a95a3;
+    --shell-line: #2c3540;
+    --shell-accent: #5ab4ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--shell-bg);
+    color: var(--shell-fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  .shell { max-width: 1180px; margin: 0 auto; padding: 56px 32px 100px; }
+  .shell h1 { font-size: 32px; margin: 0 0 4px; letter-spacing: -0.5px; }
+  .shell .lead { color: var(--shell-muted); font-size: 16px; max-width: 760px; margin: 0 0 28px; }
+  .shell h2 { font-size: 22px; margin: 48px 0 6px; color: var(--shell-accent); }
+  .css-snippet { font-family: "SF Mono", Monaco, Consolas, monospace; background: var(--shell-panel); border: 1px solid var(--shell-line); border-radius: 8px; padding: 12px 14px; font-size: 12px; line-height: 1.55; overflow-x: auto; color: #c9d6e2; margin: 12px 0 0; white-space: pre; }
+  .css-snippet .v { color: #b8dcff; }
+  .css-snippet .c { color: #7ed07e; }
+
+  .toc { background: var(--shell-panel); border: 1px solid var(--shell-line); border-radius: 10px; padding: 16px 22px; margin: 18px 0 36px; }
+  .toc strong { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--shell-muted); margin-bottom: 8px; }
+  .toc ol { margin: 0; padding-left: 22px; column-count: 2; column-gap: 30px; }
+  .toc li { margin: 3px 0; break-inside: avoid; }
+  .toc a { color: #c9d6e2; text-decoration: none; font-size: 13px; }
+  .toc a:hover { color: var(--shell-accent); }
+
+  /* Theme card scaffold (dark wrapper around each preview) */
+  .theme {
+    border: 1px solid var(--shell-line);
+    border-radius: 14px;
+    background: var(--shell-panel);
+    padding: 14px 14px 18px;
+    margin: 16px 0 0;
+  }
+  .theme-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 12px; padding: 0 4px; gap: 16px; }
+  .theme-name { font-size: 18px; font-weight: 700; color: var(--shell-fg); letter-spacing: -0.2px; }
+  .theme-tagline { font-size: 12px; color: var(--shell-muted); margin-top: 2px; }
+  .ref-line { font-size: 11px; color: var(--shell-muted); margin: 0 4px 12px; font-style: italic; }
+  .badges { display: flex; gap: 8px; }
+  .badge { font-size: 10px; padding: 3px 8px; border-radius: 999px; background: rgba(90,180,255,0.12); color: var(--shell-accent); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+  .badge.free { background: rgba(126,208,126,0.14); color: #8eda8e; }
+  .badge.fontshare { background: rgba(246,199,106,0.12); color: #f6c76a; }
+
+  /* === Discord theme baked into all previews === */
+  .preview {
+    --bc-bg: #ffffff;
+    --bc-bg-soft: #f2f3f5;
+    --bc-fg: #060607;
+    --bc-muted: #4e5058;
+    --bc-card: #ffffff;
+    --bc-border: #e3e5e8;
+    --bc-primary: #5865f2;
+    --bc-primary-foreground: #ffffff;
+    --bc-accent: #eef0fd;
+    --bc-accent-foreground: #5865f2;
+    --bc-destructive: #f23f42;
+    --bc-radius: 8px;
+    background: var(--bc-bg);
+    color: var(--bc-fg);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .topbar { background: var(--bc-bg); border-bottom: 1px solid var(--bc-border); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
+  .topbar .brand { font-weight: 800; font-size: 16px; color: var(--bc-primary); letter-spacing: -0.3px; }
+  .topbar .nav { display: flex; gap: 20px; color: var(--bc-muted); }
+  .topbar .nav a { color: var(--bc-muted); text-decoration: none; }
+  .topbar .nav a.active { color: var(--bc-fg); font-weight: 600; }
+  .topbar .right { display: flex; align-items: center; gap: 12px; }
+  .topbar .bell { color: var(--bc-muted); position: relative; }
+  .topbar .bell .dot { position: absolute; top: -3px; right: -5px; background: var(--bc-destructive); color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 999px; line-height: 1.2; }
+  .topbar .avatar { width: 28px; height: 28px; border-radius: 999px; background: var(--bc-primary); color: var(--bc-primary-foreground); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+
+  .body-pad { padding: 22px 22px 26px; background: var(--bc-bg-soft); }
+  .heading { font-size: 22px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.3px; color: var(--bc-fg); }
+  .sub-heading { font-size: 13px; color: var(--bc-muted); margin: 0 0 18px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+  .card { background: var(--bc-card); border: 1px solid var(--bc-border); border-radius: var(--bc-radius); padding: 16px 16px 14px; }
+  .card .label { font-size: 11px; color: var(--bc-muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+  .card .value { font-size: 30px; font-weight: 700; color: var(--bc-fg); margin: 4px 0 2px; line-height: 1.05; letter-spacing: -0.5px; }
+  .card .sub { font-size: 12px; color: var(--bc-muted); }
+  .card .footnote { font-size: 11px; color: var(--bc-muted); margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--bc-border); }
+
+  .member-card { display: flex; gap: 12px; align-items: flex-start; }
+  .member-card .av { width: 44px; height: 44px; border-radius: 999px; background: var(--bc-primary); color: var(--bc-primary-foreground); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+  .member-card h4 { margin: 0; font-size: 14px; font-weight: 600; color: var(--bc-fg); }
+  .member-card .role { font-size: 12px; color: var(--bc-muted); margin-top: 2px; }
+  .member-card .tag { display: inline-block; font-size: 11px; padding: 2px 8px; margin-top: 8px; border-radius: 999px; background: #23a559; color: #fff; font-weight: 600; }
+
+  .body-text { font-size: 14px; line-height: 1.7; color: var(--bc-fg); margin: 16px 0; max-width: 640px; }
+  .body-text strong { color: var(--bc-fg); }
+  .body-text a { color: var(--bc-primary); text-decoration: none; }
+  .body-text a:hover { text-decoration: underline; }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--bc-radius); font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; border: 1px solid transparent; font-family: inherit; }
+  .btn-default { background: var(--bc-primary); color: var(--bc-primary-foreground); }
+  .btn-outline { background: transparent; color: var(--bc-fg); border-color: var(--bc-border); }
+  .btn-ghost { background: transparent; color: var(--bc-fg); }
+  .btn-link { background: transparent; color: var(--bc-primary); padding: 8px 4px; }
+
+  .row-label { font-size: 11px; color: var(--bc-muted); margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+
+  /* === Per-font overrides === */
+  .f-inter .preview      { font-family: "Inter", system-ui, sans-serif; }
+  .f-manrope .preview    { font-family: "Manrope", system-ui, sans-serif; }
+  .f-jakarta .preview    { font-family: "Plus Jakarta Sans", system-ui, sans-serif; }
+  .f-dm .preview         { font-family: "DM Sans", system-ui, sans-serif; }
+  .f-outfit .preview     { font-family: "Outfit", system-ui, sans-serif; }
+  .f-sora .preview       { font-family: "Sora", system-ui, sans-serif; }
+  .f-satoshi .preview    { font-family: "Satoshi", system-ui, sans-serif; }
+  .f-lato .preview       { font-family: "Lato", system-ui, sans-serif; }
+  .f-plex .preview       { font-family: "IBM Plex Sans", system-ui, sans-serif; }
+  .f-onest .preview      { font-family: "Onest", system-ui, sans-serif; }
+
+  .summary { background: var(--shell-panel); border: 1px solid var(--shell-line); border-radius: 10px; padding: 18px 22px; margin-top: 36px; font-size: 13px; }
+  .summary h3 { margin: 0 0 10px; color: var(--shell-accent); font-size: 16px; }
+  .summary table { border-collapse: collapse; width: 100%; }
+  .summary th, .summary td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--shell-line); font-size: 12px; vertical-align: top; }
+  .summary th { color: var(--shell-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px; }
+  .summary td.skip { color: #ffbcb1; }
+
+  .howto { background: var(--shell-panel); border: 1px solid var(--shell-line); border-radius: 10px; padding: 18px 22px; margin-top: 24px; font-size: 13px; }
+  .howto h3 { margin: 0 0 10px; color: var(--shell-accent); font-size: 16px; }
+  .howto code { background: var(--shell-bg); padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: "SF Mono", Monaco, monospace; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<h1>BridgeCircle — Font Options</h1>
+<p class="lead">Ten typography options applied to the same UI (with the Discord theme baked in). The full snippet under each one shows the <code>next/font</code> import + the variable wiring you'd add to <code>app/layout.tsx</code>. Current font is <strong>Geist</strong>.</p>
+
+<div class="toc">
+  <strong>Jump to a font</strong>
+  <ol>
+    <li><a href="#f-inter">Inter — UI workhorse</a></li>
+    <li><a href="#f-manrope">Manrope — friendly geometric</a></li>
+    <li><a href="#f-jakarta">Plus Jakarta Sans — modern fintech</a></li>
+    <li><a href="#f-dm">DM Sans — clean with character</a></li>
+    <li><a href="#f-outfit">Outfit — playful clean</a></li>
+    <li><a href="#f-sora">Sora — modern geometric</a></li>
+    <li><a href="#f-satoshi">Satoshi — premium feel</a></li>
+    <li><a href="#f-lato">Lato — Slack's font</a></li>
+    <li><a href="#f-plex">IBM Plex Sans — corporate-warm</a></li>
+    <li><a href="#f-onest">Onest — modern fresh</a></li>
+  </ol>
+</div>
+
+<!-- ============= 1. Inter ============= -->
+<div class="theme f-inter" id="f-inter">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">1. Inter</span>
+      <div class="theme-tagline">The UI workhorse. Optimized for screens; nothing surprises you.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: Vercel, Mozilla, GitHub, Figma, Linear (until they switched to Inter Tight). Designed by Rasmus Andersson, 2016. The default-by-popularity for product UIs.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="c">// app/layout.tsx</span>
+<span class="v">import</span> { Inter } <span class="v">from</span> 'next/font/google'
+
+<span class="v">const</span> sans = Inter({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })
+<span class="c">// then: &lt;html className={sans.variable}&gt;</span></pre>
+</div>
+
+<!-- ============= 2. Manrope ============= -->
+<div class="theme f-manrope" id="f-manrope">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">2. Manrope</span>
+      <div class="theme-tagline">Friendly geometric. Warmer than Inter without losing professionalism.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: many indie SaaS products, Cal.com (in some surfaces), portfolio sites. Designed by Mikhail Sharanda. Has slight personality — letters feel approachable.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { Manrope } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = Manrope({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 3. Plus Jakarta Sans ============= -->
+<div class="theme f-jakarta" id="f-jakarta">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">3. Plus Jakarta Sans</span>
+      <div class="theme-tagline">Modern with subtle personality. Common in fintech / startup landing pages.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: many fintech startups, Indonesian government design system (origin), modern SaaS landing pages. Slightly humanist; reads as "modern but friendly."</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { Plus_Jakarta_Sans } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = Plus_Jakarta_Sans({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 4. DM Sans ============= -->
+<div class="theme f-dm" id="f-dm">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">4. DM Sans</span>
+      <div class="theme-tagline">Clean with strong character. Distinct letterforms without shouting.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: many Vercel sites pre-Geist, Mailchimp's redesigned dashboards, several YC startup landing pages. Originally commissioned by DeepMind, hence "DM."</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { DM_Sans } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = DM_Sans({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 5. Outfit ============= -->
+<div class="theme f-outfit" id="f-outfit">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">5. Outfit</span>
+      <div class="theme-tagline">Playful clean. Slightly rounder; reads warmer for community products.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: Outfit Inc (origin), many community / no-code products, indie SaaS. Friendly geometric with rounded terminals — feels approachable without being childish.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { Outfit } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = Outfit({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 6. Sora ============= -->
+<div class="theme f-sora" id="f-sora">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">6. Sora</span>
+      <div class="theme-tagline">Modern geometric, slight tech edge. Sits between Inter and Outfit.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: AI / dev-tool startups, modern crypto landing pages. Designed by Soulplus Idea + Google Fonts. Clean lines + slight character in numerals — looks great in dashboards with stats.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { Sora } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = Sora({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 7. Satoshi ============= -->
+<div class="theme f-satoshi" id="f-satoshi">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">7. Satoshi</span>
+      <div class="theme-tagline">Premium feel. Slightly tighter, sharper than Inter; looks expensive.</div>
+    </div>
+    <div class="badges"><span class="badge fontshare">Fontshare (free)</span></div>
+  </div>
+  <p class="ref-line">Used by: Cal.com, many high-end indie products, Fontshare's own marketing. Designed by Indian Type Foundry. Not on Google Fonts — load via Fontshare CDN or self-host.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="c">// next/font/local — download .woff2 from fontshare.com first</span>
+<span class="v">import</span> localFont <span class="v">from</span> 'next/font/local'
+
+<span class="v">const</span> sans = localFont({
+  src: [
+    { path: <span class="v">'./satoshi-regular.woff2'</span>, weight: <span class="v">'400'</span> },
+    { path: <span class="v">'./satoshi-medium.woff2'</span>,  weight: <span class="v">'500'</span> },
+    { path: <span class="v">'./satoshi-bold.woff2'</span>,    weight: <span class="v">'700'</span> },
+  ],
+  variable: <span class="v">'--font-sans'</span>,
+})</pre>
+</div>
+
+<!-- ============= 8. Lato ============= -->
+<div class="theme f-lato" id="f-lato">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">8. Lato</span>
+      <div class="theme-tagline">Slack's typeface. Friendly, approachable, very widely deployed.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: Slack (their primary font), Sketch, many enterprise SaaS dashboards. Designed by Łukasz Dziedzic, 2010. The "everyone knows it but no one will recognize it as Lato" choice.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { Lato } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = Lato({ subsets: ['latin'], weight: ['400', '700', '900'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 9. IBM Plex Sans ============= -->
+<div class="theme f-plex" id="f-plex">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">9. IBM Plex Sans</span>
+      <div class="theme-tagline">Corporate-warm. Slightly idiosyncratic — recognizable as "the IBM look."</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: IBM (everywhere), many academic / institutional sites, some Linux distributions. Designed by Mike Abbink + Bold Monday, 2017. Has a distinct "engineered humanism" feel — fits institutional products.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { IBM_Plex_Sans } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400','500','600','700'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= 10. Onest ============= -->
+<div class="theme f-onest" id="f-onest">
+  <div class="theme-head">
+    <div>
+      <span class="theme-name">10. Onest</span>
+      <div class="theme-tagline">Modern fresh. Variable font, recently popular as an Inter alternative.</div>
+    </div>
+    <div class="badges"><span class="badge free">Free</span><span class="badge">Google Fonts</span></div>
+  </div>
+  <p class="ref-line">Used by: many 2024-era startup sites looking for "Inter but slightly different." Designed by Rosalie Wagner, released 2023. Variable font; reads slightly cleaner than Inter at large sizes.</p>
+  <div class="preview">
+    <div class="topbar"><span class="brand">BridgeCircle</span><div class="nav"><a href="#">Search</a><a href="#">Friends</a><a href="#">Events</a><a href="#" class="active">Admin</a></div><div class="right"><span class="bell">🔔<span class="dot">2</span></span><span class="avatar">RL</span></div></div>
+    <div class="body-pad">
+      <h2 class="heading">Welcome back, Richard</h2>
+      <p class="sub-heading">Here's what's happening across Chadwick School this week.</p>
+      <div class="grid">
+        <div class="card"><div class="label">Active members</div><div class="value">41</div><div class="sub">6 of 10 total · last 30 days</div><div class="footnote">Signed in last 30 days</div></div>
+        <div class="card member-card"><div class="av">SK</div><div><h4>Sarah Kim</h4><div class="role">Class of 2008 · PM at Stripe</div><span class="tag">Open to mentor</span></div></div>
+      </div>
+      <p class="body-text">Sarah is a Chadwick School alumna who joined the network last week. She's <strong>open to mentoring</strong> recent grads in product management. <a href="#">Send a request →</a></p>
+      <div class="row-label">Buttons</div>
+      <div class="btn-row"><a class="btn btn-default" href="#">Send request</a><a class="btn btn-outline" href="#">View profile</a><a class="btn btn-ghost" href="#">Skip</a><a class="btn btn-link" href="#">Learn more</a></div>
+    </div>
+  </div>
+  <pre class="css-snippet"><span class="v">import</span> { Onest } <span class="v">from</span> 'next/font/google'
+<span class="v">const</span> sans = Onest({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })</pre>
+</div>
+
+<!-- ============= Summary table ============= -->
+<div class="summary">
+  <h3>Side by side</h3>
+  <table>
+    <thead><tr><th>Font</th><th>Best when…</th><th>Watch out</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1. Inter</strong></td><td>You want zero risk. Reads correctly to anyone, scales to any size.</td><td class="skip">"Everywhere font" — same as 70% of SaaS apps. Your product won't stand out by typography.</td></tr>
+      <tr><td><strong>2. Manrope</strong></td><td>You want Inter's reliability + a bit more warmth. Sweet spot for community products.</td><td class="skip">Very subtle differentiation; some readers can't tell it apart from Inter.</td></tr>
+      <tr><td><strong>3. Plus Jakarta Sans</strong></td><td>You want a "modern startup" cue without going experimental. Strong default for landing pages.</td><td class="skip">Slightly heavier feel — may dominate cards/labels at small sizes.</td></tr>
+      <tr><td><strong>4. DM Sans</strong></td><td>You want recognizable character. The lowercase 'a' and numerals have personality.</td><td class="skip">Polarizing. Some find DM Sans's quirks distracting in long body text.</td></tr>
+      <tr><td><strong>5. Outfit</strong></td><td>Community / social product. Friendliest of the geometric sans options. Pairs very well with Discord theme.</td><td class="skip">Reads slightly informal — may undermine "professional alumni network" framing in board demo.</td></tr>
+      <tr><td><strong>6. Sora</strong></td><td>You want geometric / "tech-forward" look. Numbers stand out — great for analytics dashboards.</td><td class="skip">Cool register; less warm than the network's emotional thesis.</td></tr>
+      <tr><td><strong>7. Satoshi</strong></td><td>You want "looks expensive." Highest perceived premium of any free font here.</td><td class="skip">More setup (next/font/local + .woff2 download). Not on Google Fonts.</td></tr>
+      <tr><td><strong>8. Lato</strong></td><td>You want familiar warmth. Lato has a reputation for "approachable" — the Slack-of-fonts vibe.</td><td class="skip">Looks dated to designers. The 2010s SaaS default.</td></tr>
+      <tr><td><strong>9. IBM Plex Sans</strong></td><td>You want institutional-but-not-corporate. Strong fit for school / academic context.</td><td class="skip">Strong personality — every character is identifiable as Plex. Not for everyone.</td></tr>
+      <tr><td><strong>10. Onest</strong></td><td>You want Inter-but-fresher. The "current 2024 hotness" pick.</td><td class="skip">Newer; less battle-tested in long-running products.</td></tr>
+    </tbody>
+  </table>
+  <p style="margin: 16px 0 0; color: var(--shell-muted); font-size: 12px;">
+    <strong>My ranked picks for BridgeCircle</strong>:
+    <strong>Manrope (#2)</strong> &gt; <strong>Plus Jakarta Sans (#3)</strong> &gt; <strong>Outfit (#5)</strong> &gt; <strong>Inter (#1)</strong>.
+    Manrope wins because it's "Inter but warmer" — keeps professionalism, adds the human-network feel. Outfit is the most Discord-aligned (rounder, friendlier) but maybe too informal for the board demo. Skip Lato unless you specifically want Slack's vibe; skip Sora if numbers/density isn't a priority.
+  </p>
+</div>
+
+<!-- ============= How to apply ============= -->
+<div class="howto">
+  <h3>How to apply your pick</h3>
+  <p>Three lines of code in <code>app/src/app/layout.tsx</code> + a CSS variable rename. Reversible in one commit.</p>
+  <pre class="css-snippet"><span class="c">// 1. Swap the font import in app/src/app/layout.tsx</span>
+<span class="v">import</span> { Manrope } <span class="v">from</span> 'next/font/google'   <span class="c">// or whichever you picked</span>
+
+<span class="v">const</span> sans = Manrope({ subsets: ['latin'], variable: <span class="v">'--font-sans'</span> })
+
+<span class="c">// 2. Apply on &lt;html&gt;</span>
+&lt;html className={`${sans.variable} font-sans`}&gt;
+
+<span class="c">// 3. Confirm globals.css points to the right variable (already does):</span>
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+}</pre>
+  <p style="margin-top: 14px; font-size: 12px; color: var(--shell-muted);">If you also want a serif heading font (e.g. Spectral or Playfair for editorial moments), wire a second import to <code>--font-heading</code> and use the <code>font-heading</code> Tailwind utility on <code>&lt;h1&gt;</code> / <code>&lt;h2&gt;</code>.</p>
+</div>
+
+</div>
+</body>
+</html>
