@@ -41,14 +41,17 @@ export function MemberHeader({
 }: Props) {
   return (
     <header className="border-b bg-background">
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
-        {/* Mobile hamburger — visible only at <md, opens nav as a dropdown.
-            We avoid pulling in shadcn/sheet just for this; DropdownMenu is
-            already in the app and gives us the right semantics. */}
+      {/* @container makes child @[...]:utility classes responsive to the
+          header's own width rather than the viewport's. The threshold
+          (820px) was calibrated to where wordmark + 7 nav buttons + bell +
+          avatar fit comfortably. Below that we collapse to a hamburger. */}
+      <div className="@container mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+        {/* Hamburger — visible whenever the inline nav doesn't fit. Opens
+            the same links as a DropdownMenu (no shadcn/sheet needed). */}
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Open navigation"
-            className="rounded-md p-1.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+            className="rounded-md p-1.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring @[820px]:hidden"
           >
             <Menu className="size-5" />
           </DropdownMenuTrigger>
@@ -73,8 +76,8 @@ export function MemberHeader({
           BridgeCircle
         </Link>
 
-        {/* Inline nav — visible only at md+. Same links as the dropdown.  */}
-        <nav className="hidden items-center gap-1 text-sm md:flex">
+        {/* Inline nav — visible only when the header is wide enough.  */}
+        <nav className="hidden items-center gap-1 text-sm @[820px]:flex">
           {NAV_LINKS.map((link) => (
             <Button key={link.href} variant="ghost" size="sm" asChild>
               <Link href={link.href}>{link.label}</Link>
