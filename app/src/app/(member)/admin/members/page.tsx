@@ -98,71 +98,73 @@ export default async function AdminMembersPage() {
               No members yet. Send some invites to get started.
             </p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Year</TableHead>
-                  <TableHead>City</TableHead>
-                  <TableHead>Employer</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Profile</TableHead>
-                  <TableHead>Joined</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {members.map((m) => (
-                  <TableRow key={m.membershipId}>
-                    <TableCell>
-                      <div className="font-medium">
-                        <Link href={`/profile/${m.userId}`} className="hover:underline">
-                          {m.name ?? (
-                            <span className="italic text-muted-foreground">(no name)</span>
-                          )}
-                        </Link>
-                        {m.isOpenAsMentor ? (
-                          <Pill tone="open" className="ml-2 align-middle text-[10px]" dot>
-                            mentor
-                          </Pill>
-                        ) : null}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{m.email}</div>
-                    </TableCell>
-                    <TableCell className="text-sm">{m.graduationYear ?? '—'}</TableCell>
-                    <TableCell className="text-sm">{m.city ?? '—'}</TableCell>
-                    <TableCell className="text-sm">{m.currentEmployer ?? '—'}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-col items-start gap-1">
-                        <StatusBadge status={m.status} />
-                        {m.deletionScheduledFor ? (
-                          <DeletionBadge
-                            scheduledFor={m.deletionScheduledFor}
-                            initiatedByAdmin={m.deletionInitiatedByAdmin}
-                          />
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right text-sm tabular-nums">
-                      <CompletionCell percent={m.completionPercent} />
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {m.joinedAt ? format(new Date(m.joinedAt), 'MMM d') : '—'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <MemberRowActions
-                        membershipId={m.membershipId}
-                        userId={m.userId}
-                        status={m.status}
-                        memberName={m.name}
-                        memberEmail={m.email}
-                        deletionScheduledFor={m.deletionScheduledFor}
-                      />
-                    </TableCell>
+            <div className="-mx-6 overflow-x-auto px-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Year</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>Employer</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Profile</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {members.map((m) => (
+                    <TableRow key={m.membershipId}>
+                      <TableCell>
+                        <div className="font-medium">
+                          <Link href={`/profile/${m.userId}`} className="hover:underline">
+                            {m.name ?? (
+                              <span className="italic text-muted-foreground">(no name)</span>
+                            )}
+                          </Link>
+                          {m.isOpenAsMentor ? (
+                            <Pill tone="open" className="ml-2 align-middle text-[10px]" dot>
+                              mentor
+                            </Pill>
+                          ) : null}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{m.email}</div>
+                      </TableCell>
+                      <TableCell className="text-sm">{m.graduationYear ?? '—'}</TableCell>
+                      <TableCell className="text-sm">{m.city ?? '—'}</TableCell>
+                      <TableCell className="text-sm">{m.currentEmployer ?? '—'}</TableCell>
+                      <TableCell>
+                        <div className="flex flex-col items-start gap-1">
+                          <StatusBadge status={m.status} />
+                          {m.deletionScheduledFor ? (
+                            <DeletionBadge
+                              scheduledFor={m.deletionScheduledFor}
+                              initiatedByAdmin={m.deletionInitiatedByAdmin}
+                            />
+                          ) : null}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right text-sm tabular-nums">
+                        <CompletionCell percent={m.completionPercent} />
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {m.joinedAt ? format(new Date(m.joinedAt), 'MMM d') : '—'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <MemberRowActions
+                          membershipId={m.membershipId}
+                          userId={m.userId}
+                          status={m.status}
+                          memberName={m.name}
+                          memberEmail={m.email}
+                          deletionScheduledFor={m.deletionScheduledFor}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

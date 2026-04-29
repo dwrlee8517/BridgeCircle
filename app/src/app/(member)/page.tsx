@@ -123,7 +123,7 @@ function Hero({
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 rounded-xl border bg-accent/40 p-1">
+      <div className="grid grid-cols-3 gap-1.5 rounded-xl border bg-accent/40 p-1 sm:gap-3">
         <StatTile value={stats.newJoinersLast7d} label="new this week" />
         <StatTile value={stats.openMentorsTotal} label="open to mentor" />
         <StatTile value={stats.upcomingEventsTotal} label="upcoming events" />
@@ -136,9 +136,13 @@ function Hero({
 
 function StatTile({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-lg bg-background px-4 py-3 text-center">
-      <div className="text-2xl font-semibold tracking-tight tabular-nums text-primary">{value}</div>
-      <div className="mt-0.5 text-xs text-muted-foreground">{label}</div>
+    <div className="rounded-lg bg-background px-2 py-3 text-center sm:px-4">
+      <div className="text-xl font-semibold tracking-tight tabular-nums text-primary sm:text-2xl">
+        {value}
+      </div>
+      <div className="mt-0.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
+        {label}
+      </div>
     </div>
   )
 }
