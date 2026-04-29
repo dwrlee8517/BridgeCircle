@@ -1,8 +1,10 @@
 import { format } from 'date-fns'
+import { Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { type EventRow, listEvents } from '@/lib/events/listEvents'
@@ -83,26 +85,24 @@ export default async function EventsPage({
       </div>
 
       {events.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            {view === 'upcoming' ? (
-              <>
-                No upcoming events yet.
-                {isAdmin ? (
-                  <>
-                    {' '}
-                    <Link href="/admin/events" className="underline">
-                      Create one
-                    </Link>
-                    .
-                  </>
-                ) : null}
-              </>
-            ) : (
-              <>No past events.</>
-            )}
-          </CardContent>
-        </Card>
+        view === 'upcoming' ? (
+          <EmptyState
+            icon={Calendar}
+            title="No upcoming events"
+            description={
+              isAdmin
+                ? 'Schedule a mixer, panel, or campus visit. Members will see it on their dashboard.'
+                : 'Check back soon — events show up here as they get scheduled.'
+            }
+            action={isAdmin ? { label: 'Create event', href: '/admin/events' } : undefined}
+          />
+        ) : (
+          <EmptyState
+            icon={Calendar}
+            title="No past events"
+            description="Once events have happened, they'll show up here for reference."
+          />
+        )
       ) : (
         events.map((e) => <EventCard key={e.id} event={e} viewIsPast={view === 'past'} />)
       )}

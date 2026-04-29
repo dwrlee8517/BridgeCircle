@@ -2,6 +2,7 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { Bell, CalendarX, Handshake, Megaphone, MessageSquare, UserPlus } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { listNotifications } from '@/lib/notifications/listNotifications'
@@ -33,12 +34,12 @@ export default async function NotificationsPage() {
       </div>
 
       {items.length === 0 ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Nothing yet. Friend requests, mentor responses, messages, and announcements will show up
-            here as they happen.
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Bell}
+          title="No notifications yet"
+          description="Friend requests, mentor responses, messages, and announcements will show up here as they happen."
+          action={{ label: 'Browse the directory', href: '/search' }}
+        />
       ) : (
         <Card>
           <CardContent className="p-0">

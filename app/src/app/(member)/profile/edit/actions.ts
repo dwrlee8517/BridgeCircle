@@ -12,6 +12,7 @@ import { saveProfile } from '@/lib/profile/saveProfile'
 import { SELF_DELETE_REASON_CATEGORIES, scheduleSelfDelete } from '@/lib/profile/scheduleSelfDelete'
 import { parseProfileForm } from '@/lib/profile/schemas'
 import { selfDeactivate } from '@/lib/profile/selfDeactivate'
+import { uploadAvatar } from '@/lib/profile/uploadAvatar'
 
 export async function editProfileAction(
   _prev: ProfileFormState,
@@ -37,6 +38,35 @@ export async function editProfileAction(
   }
 
   redirect(`/profile/${session.userId}`)
+}
+
+export type AvatarUploadResult = { error?: string; publicUrl?: string }
+
+/**
+ * Upload a new avatar to the public 'avatars' bucket and update the
+ * caller's base_profile.avatar_url. Called from the AvatarUploader client
+ * component on file change.
+ */
+export async function uploadAvatarAction(formData: FormData): Promise<AvatarUploadResult> {
+  const session = await requireSession()
+  const file = formData.get('file')
+  if (!(file instanceof File)) {
+    return { error: 'No file selected.' }
+  }
+  const supabase = await createClient()
+  const result = await uploadAvatar(supabase, session.userId, file)
+  if (!result.ok) {
+    const messages: Record<typeof result.error, string> = {
+      too_large: 'File is too large. Please pick something under 4 MB.',
+      unsupported_type: 'Unsupported format. Use JPEG, PNG, WebP, or GIF.',
+      upload_failed: 'Upload failed. Please try again.',
+      profile_update_failed: 'Uploaded, but could not update your profile. Refresh and retry.',
+    }
+    return { error: messages[result.error] }
+  }
+  revalidatePath('/profile/edit')
+  revalidatePath(`/profile/${session.userId}`)
+  return { publicUrl: result.publicUrl }
 }
 
 export type PrivacyFormState = { ok: boolean; message: string } | null

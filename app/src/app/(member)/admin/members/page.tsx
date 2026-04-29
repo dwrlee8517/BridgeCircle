@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatusBadge as Pill } from '@/components/ui/status-badge'
 import {
   Table,
   TableBody,
@@ -121,9 +122,9 @@ export default async function AdminMembersPage() {
                           )}
                         </Link>
                         {m.isOpenAsMentor ? (
-                          <Badge variant="default" className="ml-2 align-middle text-[10px]">
+                          <Pill tone="open" className="ml-2 align-middle text-[10px]" dot>
                             mentor
-                          </Badge>
+                          </Pill>
                         ) : null}
                       </div>
                       <div className="text-xs text-muted-foreground">{m.email}</div>
@@ -170,13 +171,13 @@ export default async function AdminMembersPage() {
 }
 
 function StatusBadge({ status }: { status: MembershipStatus }) {
-  const variant: Record<MembershipStatus, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-    active: 'default',
-    pending: 'secondary',
-    rejected: 'outline',
-    revoked: 'destructive',
-    self_deactivated: 'secondary',
-  }
+  const tone = {
+    active: 'open',
+    pending: 'warn',
+    rejected: 'muted',
+    revoked: 'alert',
+    self_deactivated: 'warn',
+  } as const
   const label: Record<MembershipStatus, string> = {
     active: 'active',
     pending: 'pending',
@@ -184,7 +185,11 @@ function StatusBadge({ status }: { status: MembershipStatus }) {
     revoked: 'revoked',
     self_deactivated: 'self-paused',
   }
-  return <Badge variant={variant[status]}>{label[status]}</Badge>
+  return (
+    <Pill tone={tone[status]} dot>
+      {label[status]}
+    </Pill>
+  )
 }
 
 function DeletionBadge({

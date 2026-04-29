@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import { format, formatDistanceToNow } from 'date-fns'
+import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 
@@ -69,7 +69,7 @@ export default async function InboxPage() {
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}
-                badge={<Badge>Awaiting your response</Badge>}
+                badge={<StatusBadge tone="warn">Awaiting your response</StatusBadge>}
                 summary={r.reason ?? ''}
                 ago={r.created_at}
               />
@@ -93,7 +93,7 @@ export default async function InboxPage() {
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}
-                badge={<Badge variant="secondary">{role}</Badge>}
+                badge={<StatusBadge tone="info">{role}</StatusBadge>}
                 summary="Open thread →"
                 ago={ts}
               />
@@ -110,13 +110,15 @@ export default async function InboxPage() {
         {(outgoing.data ?? []).map((r) => {
           const p = profileMap.get(r.mentor_id)
           const badge =
-            r.status === 'pending'
-              ? <Badge variant="secondary">Pending</Badge>
-              : r.status === 'accepted'
-                ? <Badge>Accepted</Badge>
-                : r.status === 'declined'
-                  ? <Badge variant="outline">Declined</Badge>
-                  : <Badge variant="outline">{r.status}</Badge>
+            r.status === 'pending' ? (
+              <StatusBadge tone="warn">Pending</StatusBadge>
+            ) : r.status === 'accepted' ? (
+              <StatusBadge tone="open">Accepted</StatusBadge>
+            ) : r.status === 'declined' ? (
+              <StatusBadge tone="alert">Declined</StatusBadge>
+            ) : (
+              <StatusBadge tone="muted">{r.status}</StatusBadge>
+            )
           return (
             <Link key={r.id} href={`/mentorship/request/${r.id}`}>
               <RequestCard
@@ -182,7 +184,10 @@ function RequestCard({
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-medium">{name}</span>
           {badge}
-          <span className="text-xs text-muted-foreground ml-auto" title={format(new Date(ago), 'PPpp')}>
+          <span
+            className="text-xs text-muted-foreground ml-auto"
+            title={format(new Date(ago), 'PPpp')}
+          >
             {formatDistanceToNow(new Date(ago), { addSuffix: true })}
           </span>
         </div>
