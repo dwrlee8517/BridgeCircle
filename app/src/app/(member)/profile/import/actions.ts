@@ -1,5 +1,6 @@
 'use server'
 
+import * as Sentry from '@sentry/nextjs'
 import { redirect } from 'next/navigation'
 import { createAdminClient } from '@/db/admin'
 import { createClient } from '@/db/server'
@@ -47,7 +48,12 @@ export async function extractFromUploadAction(
   // upload fails we still try the extraction — the file isn't required for
   // anything downstream.
   const supabase = await createClient()
-  await storeResumeUpload(supabase, session.userId, file.name, bytes, file.type).catch(() => null)
+  await storeResumeUpload(supabase, session.userId, file.name, bytes, file.type).catch((err) => {
+    Sentry.captureException(err, {
+      extra: { scope: 'resume-upload-store', userId: session.userId, fileName: file.name },
+    })
+    return null
+  })
 
   const mimeType = file.type as
     | 'application/pdf'

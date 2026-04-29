@@ -40,6 +40,9 @@ export function MemberHeader({ userId, name, avatarUrl, isAdmin }: Props) {
           <Button variant="ghost" size="sm" asChild>
             <Link href="/events">Events</Link>
           </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/announcements">Announcements</Link>
+          </Button>
           {isAdmin ? (
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/invite">Admin</Link>

@@ -1,4 +1,5 @@
 import 'server-only'
+import * as Sentry from '@sentry/nextjs'
 import { createAdminClient } from '@/db/admin'
 import { sendEventCanceledEmail } from '@/notify/resend'
 
@@ -84,7 +85,19 @@ export async function cancelEvent(input: CancelEventInput): Promise<CancelEventR
       eventLocation: event.location,
       reason: input.reason ?? null,
     })
-    if (sendResult.ok) emailsSent += 1
+    if (sendResult.ok) {
+      emailsSent += 1
+    } else {
+      Sentry.captureMessage('event-canceled email failed', {
+        level: 'warning',
+        extra: {
+          scope: 'event-cancel-fanout',
+          eventId: input.eventId,
+          userId: r.user_id,
+          error: sendResult.error,
+        },
+      })
+    }
   }
 
   return { ok: true, emailsSent }

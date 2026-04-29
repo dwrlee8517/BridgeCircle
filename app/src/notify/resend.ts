@@ -1,6 +1,7 @@
 import { render } from '@react-email/components'
 import { Resend } from 'resend'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
+import { AnnouncementEmail } from './emails/announcement-email'
 import { EventCanceledEmail } from './emails/event-canceled-email'
 import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-email'
 import { EventWaitlistPromotedEmail } from './emails/event-waitlist-promoted-email'
@@ -19,7 +20,11 @@ import { MentorshipRequestEmail } from './emails/mentorship-request-email'
 const apiKey = process.env.RESEND_API_KEY
 const resend = apiKey ? new Resend(apiKey) : null
 
-const FROM = 'BridgeCircle <invites@bridgecircle.org>'
+// Sender address. Configurable so we can swap in a verified domain (e.g.
+// noreply@bridgecircle.org or events@…) without code changes once the user
+// has added the SPF/DKIM records in Resend. Default keeps the current
+// invites@ address that's already wired up.
+const FROM = process.env.RESEND_FROM ?? 'BridgeCircle <invites@bridgecircle.org>'
 
 export type SendInviteInput = {
   to: string
@@ -334,6 +339,39 @@ export async function sendEventWaitlistPromotedEmail(
     from: FROM,
     to: [input.to],
     subject: `A spot opened up for ${input.eventTitle}`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendAnnouncementInput = {
+  to: string
+  recipientName: string | null
+  orgName: string
+  title: string
+  body: string | null
+  announcementsUrl: string
+}
+
+export async function sendAnnouncementEmail(input: SendAnnouncementInput): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    AnnouncementEmail({
+      recipientName: input.recipientName,
+      orgName: input.orgName,
+      title: input.title,
+      body: input.body,
+      announcementsUrl: input.announcementsUrl,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: `${input.orgName}: ${input.title}`,
     html,
   })
 
