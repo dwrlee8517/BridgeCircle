@@ -317,6 +317,7 @@ export type Database = {
       }
       events: {
         Row: {
+          capacity: number | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -329,6 +330,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          capacity?: number | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -341,6 +343,7 @@ export type Database = {
           title: string
         }
         Update: {
+          capacity?: number | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -998,7 +1001,7 @@ export type Database = {
     }
     Enums: {
       admin_role: "super_admin" | "admin" | "event_moderator" | "ambassador"
-      event_rsvp_status: "going" | "not_going"
+      event_rsvp_status: "going" | "not_going" | "waitlisted"
       friend_request_status: "pending" | "accepted" | "declined"
       invite_status: "pending" | "accepted" | "expired" | "revoked"
       membership_status:
@@ -1141,7 +1144,7 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ["super_admin", "admin", "event_moderator", "ambassador"],
-      event_rsvp_status: ["going", "not_going"],
+      event_rsvp_status: ["going", "not_going", "waitlisted"],
       friend_request_status: ["pending", "accepted", "declined"],
       invite_status: ["pending", "accepted", "expired", "revoked"],
       membership_status: [

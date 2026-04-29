@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -34,8 +35,12 @@ export default async function AdminEventsPage() {
   }
   const orgName = (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization'
 
+  // Admin sees everything in the org: past, future, AND canceled (events
+  // with published_at = null). Member views never see drafts/canceled — RLS
+  // and the default listEvents filter both block them.
   const events = await listEvents(supabase, adminOrg.organization_id, session.userId, {
     includePast: true,
+    includeDrafts: true,
   })
 
   const now = Date.now()
@@ -74,20 +79,39 @@ export default async function AdminEventsPage() {
                   <TableHead>When</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead className="text-right">Going</TableHead>
+                  <TableHead className="text-right">Capacity</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {events.map((e) => {
                   const isPast = new Date(e.startsAt).getTime() < now
+                  const isCanceled = e.publishedAt === null
                   return (
                     <TableRow key={e.id}>
                       <TableCell>
-                        <div className="font-medium">{e.title}</div>
-                        {isPast ? (
-                          <Badge variant="outline" className="mt-0.5 text-[10px]">
-                            past
-                          </Badge>
-                        ) : null}
+                        <div className="font-medium">
+                          <Link href={`/events/${e.id}`} className="hover:underline">
+                            {e.title}
+                          </Link>
+                        </div>
+                        <div className="flex gap-1 mt-0.5">
+                          {isPast ? (
+                            <Badge variant="outline" className="text-[10px]">
+                              past
+                            </Badge>
+                          ) : null}
+                          {isCanceled ? (
+                            <Badge variant="destructive" className="text-[10px]">
+                              canceled
+                            </Badge>
+                          ) : null}
+                          {e.waitlistCount > 0 ? (
+                            <Badge variant="secondary" className="text-[10px]">
+                              {e.waitlistCount} waitlisted
+                            </Badge>
+                          ) : null}
+                        </div>
                       </TableCell>
                       <TableCell className="text-sm">
                         {format(new Date(e.startsAt), 'MMM d, h:mm a')}
@@ -95,6 +119,17 @@ export default async function AdminEventsPage() {
                       <TableCell className="text-sm">{e.location ?? '—'}</TableCell>
                       <TableCell className="text-right text-sm tabular-nums">
                         {e.goingCount}
+                      </TableCell>
+                      <TableCell className="text-right text-sm tabular-nums">
+                        {e.capacity ?? '∞'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link
+                          href={`/admin/events/${e.id}/edit`}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          Edit
+                        </Link>
                       </TableCell>
                     </TableRow>
                   )
