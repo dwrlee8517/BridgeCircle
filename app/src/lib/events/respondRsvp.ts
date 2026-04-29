@@ -1,4 +1,5 @@
 import 'server-only'
+import * as Sentry from '@sentry/nextjs'
 import { createAdminClient } from '@/db/admin'
 import { sendEventRsvpConfirmationEmail, sendEventWaitlistPromotedEmail } from '@/notify/resend'
 import type { RsvpInput } from './schemas'
@@ -102,8 +103,12 @@ export async function respondRsvp(
       eventStartsAt: event.starts_at,
       eventLocation: event.location,
       eventUrl: `${appOrigin}/events/${event.id}`,
-    }).catch(() => {
-      // Best-effort. The RSVP row is already written.
+    }).catch((err) => {
+      // Best-effort. The RSVP row is already written; log to Sentry so we
+      // can investigate if delivery fails for real users.
+      Sentry.captureException(err, {
+        extra: { scope: 'rsvp-confirmation-email', eventId: event.id, userId },
+      })
     })
   }
 
@@ -157,7 +162,9 @@ async function promoteOldestWaitlisted(
     eventStartsAt: event.starts_at,
     eventLocation: event.location,
     eventUrl: `${appOrigin}/events/${eventId}`,
-  }).catch(() => {
-    // Best-effort.
+  }).catch((err) => {
+    Sentry.captureException(err, {
+      extra: { scope: 'waitlist-promoted-email', eventId, userId: oldest.user_id },
+    })
   })
 }
