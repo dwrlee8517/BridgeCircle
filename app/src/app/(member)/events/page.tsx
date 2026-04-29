@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { type EventRow, listEvents } from '@/lib/events/listEvents'
+import { displayOrgName } from '@/lib/utils'
 import { RsvpButtons } from './rsvp-buttons'
 
 type SearchParams = { view?: string }
@@ -30,7 +31,7 @@ export default async function EventsPage({
 
   if (!membership) return null
 
-  const orgName = (membership.organizations as { name: string } | null)?.name ?? 'your network'
+  const orgName = displayOrgName((membership.organizations as { name: string } | null)?.name)
 
   // Fetch is RLS-respected: members only see published events. The Past tab
   // pulls includePast and then we filter locally so we don't have to write a
