@@ -5,6 +5,7 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
 import { editProfileAction } from './actions'
+import { DangerZone } from './danger-zone'
 import { PrivacyForm } from './privacy-form'
 
 export default async function EditProfilePage() {
@@ -81,6 +82,8 @@ export default async function EditProfilePage() {
           <PrivacyForm initial={profile.privacySettings} />
         </CardContent>
       </Card>
+
+      <DangerZone />
     </div>
   )
 }

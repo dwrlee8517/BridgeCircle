@@ -44,6 +44,17 @@ export async function acceptInvite({ inviteId, userId }: AcceptInput): Promise<A
     return { ok: false, error: 'invite_not_pending' }
   }
 
+  // Whether this org requires admin approval before granting access. Default
+  // (false) preserves the original auto-approve flow; if an admin has flipped
+  // the toggle, new invite acceptances land in the approval queue instead.
+  const { data: org } = await admin
+    .from('organizations')
+    .select('requires_admin_approval')
+    .eq('id', invite.organization_id)
+    .maybeSingle()
+
+  const requiresApproval = org?.requires_admin_approval ?? false
+
   const { data: existingMembership } = await admin
     .from('organization_memberships')
     .select('id, status')
@@ -60,8 +71,10 @@ export async function acceptInvite({ inviteId, userId }: AcceptInput): Promise<A
       .insert({
         user_id: userId,
         organization_id: invite.organization_id,
-        status: 'active',
-        joined_at: new Date().toISOString(),
+        status: requiresApproval ? 'pending' : 'active',
+        // joined_at marks the moment the user gained org access. Pending
+        // members don't have access yet — admin approval will set it.
+        joined_at: requiresApproval ? null : new Date().toISOString(),
       })
       .select('id')
       .single()
@@ -110,7 +123,7 @@ export async function acceptInvite({ inviteId, userId }: AcceptInput): Promise<A
     await admin.from('audit_log').insert({
       actor_id: userId,
       organization_id: invite.organization_id,
-      action: 'member.joined',
+      action: requiresApproval ? 'member.joined_pending_approval' : 'member.joined',
       target_type: 'invite',
       target_id: inviteId,
     })
