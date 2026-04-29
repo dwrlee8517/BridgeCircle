@@ -71,11 +71,13 @@ DMARC is currently in monitor-only mode (`p=none`) — failures are *not* reject
 | CNAME | `bridgecircle.org` (apex) | Points the root domain at Railway's app hostname (`<service>.up.railway.app`). Cloudflare's CNAME flattening makes this work at the apex. | DNS only |
 | TXT | `_railway-verify.bridgecircle.org` | Railway's proof-of-domain-ownership token | Active |
 
-**Railway custom-domain checklist** (the CNAME alone is not enough — three more touches are needed for `https://bridgecircle.org` to fully work):
+**Railway custom-domain checklist** (the CNAME alone is not enough — these are the additional touches for `https://bridgecircle.org` to fully work end-to-end):
 
 - [ ] Add `bridgecircle.org` under **Railway → service → Settings → Networking → Custom Domain**. Without this, Railway responds 404 to traffic arriving at the hostname.
-- [ ] Set `NEXT_PUBLIC_SITE_URL=https://bridgecircle.org` in Railway Variables. This drives absolute URLs in outbound emails (e.g. the "View on BridgeCircle" button in announcement emails). If it still points at `*.up.railway.app`, members will see Railway URLs in their inbox.
-- [ ] Add the new domain's callback URL to **both** Supabase Auth → Providers → Google **and** the Google Cloud OAuth client's Authorized redirect URIs. Without this, sign-in 400s after the Google round-trip.
+- [ ] Set `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` in Railway Variables. The code in `src/lib/auth/app-url.ts` reads this env var to build absolute URLs in outbound emails (e.g. the "View on BridgeCircle" button in announcement emails) and OAuth `redirectTo` URLs. If it still points at `*.up.railway.app`, members see Railway URLs in their inbox.
+- [ ] In **Supabase Dashboard → Authentication → URL Configuration**: set **Site URL** to `https://bridgecircle.org` and add `https://bridgecircle.org/auth/callback` to **Additional Redirect URLs**. Supabase rejects any post-auth redirect not in this allowlist; without it, sign-in succeeds but the redirect back to the app fails.
+
+**What you do NOT need to do** for the custom domain: add `bridgecircle.org` to the Google Cloud OAuth client's authorized redirect URIs. Google only redirects to the Supabase callback (`<supabase-ref>.supabase.co/auth/v1/callback`), never directly to the app — so the Google client only needs the two Supabase URLs (one per project), which it already has.
 
 Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway verify token live in the Resend / Railway dashboards. **Don't paste them into this doc** — they change on rotation and the dashboards are authoritative.
 
@@ -91,7 +93,7 @@ Set in **Railway → BridgeCircle service → Variables tab**. Production secret
 | `RESEND_API_KEY` | Resend API key | `re_…` |
 | `RESEND_FROM` | Sender address used by every Resend send. Set 2026-04-29 to `BridgeCircle <noreply@bridgecircle.org>`. Defaults to `BridgeCircle <invites@bridgecircle.org>` if unset. | `BridgeCircle <noreply@bridgecircle.org>` |
 | `ANTHROPIC_API_KEY` | Claude Haiku key for resume extraction + NL search entity extraction | `sk-ant-…` |
-| `NEXT_PUBLIC_SITE_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
+| `NEXT_PUBLIC_APP_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
 | `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
 
 Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and use the same Resend/Anthropic/Sentry keys as prod (they're cheap and the activity is environment-tagged on the provider side). **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@` and you can tell at a glance whether an email was sent from your laptop or from prod.
@@ -154,7 +156,7 @@ For the full prod inventory + descriptions, see **Manual Production Configuratio
 | `RESEND_API_KEY` | Resend key (shared with prod) | Resend key |
 | `RESEND_FROM` | (leave unset → defaults to `invites@`) | `BridgeCircle <noreply@bridgecircle.org>` |
 | `ANTHROPIC_API_KEY` | Claude key (shared with prod) | Claude key |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
 | `SENTRY_AUTH_TOKEN` | (build-time only, optional locally) | set by Sentry wizard |
 
 `.env.local` is in `.gitignore` and must never be committed. Railway's Variables tab is the only place production secrets live in human-readable form — keep a backup copy in your password manager.
