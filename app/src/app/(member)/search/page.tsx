@@ -7,6 +7,7 @@ import type { ExtractedFilters } from '@/lib/search/extractFilters'
 import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
+import { displayOrgName } from '@/lib/utils'
 import { ResultCard } from './result-card'
 import { SearchForm } from './search-form'
 
@@ -51,8 +52,7 @@ export default async function SearchPage({
       .maybeSingle(),
   ])
 
-  const orgName =
-    (viewerMembership.organizations as { name: string } | null)?.name ?? 'your network'
+  const orgName = displayOrgName((viewerMembership.organizations as { name: string } | null)?.name)
 
   let nlHits: NLSearchHit[] = []
   let structuredHits: SearchHit[] = []

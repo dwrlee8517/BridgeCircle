@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { listAnnouncements } from '@/lib/announcements/listAnnouncements'
 import { requireSession } from '@/lib/auth/session'
+import { displayOrgName } from '@/lib/utils'
 
 export default async function AnnouncementsPage() {
   const session = await requireSession()
@@ -17,7 +18,7 @@ export default async function AnnouncementsPage() {
     .maybeSingle()
   if (!membership) return null
 
-  const orgName = (membership.organizations as { name: string } | null)?.name ?? 'your network'
+  const orgName = displayOrgName((membership.organizations as { name: string } | null)?.name)
   const announcements = await listAnnouncements(supabase, membership.organization_id, {
     limit: 50,
   })
