@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { createNotification } from '@/lib/notifications/createNotification'
 import { sendMentorshipRequestEmail } from '@/notify/resend'
 import type { MentorshipRequestInput } from './schemas'
 
@@ -132,6 +133,21 @@ export async function createMentorshipRequest(
   })
 
   // Best-effort email — fetch mentor + mentee names then send.
+  const { data: menteeBase } = await supabase
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', menteeId)
+    .maybeSingle()
+
+  await createNotification({
+    userId: input.mentorId,
+    type: 'mentorship_request_received',
+    organizationId: mentorMembership.organization_id,
+    targetType: 'mentorship_request',
+    targetId: created.id,
+    payload: { actor_id: menteeId, actor_name: menteeBase?.name ?? null },
+  })
+
   await sendRequestEmail(supabase, appOrigin, created.id, input.mentorId, menteeId)
 
   return { ok: true, requestId: created.id }

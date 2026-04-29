@@ -2,6 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/db/admin'
 import type { Database } from '@/db/database.types'
+import { createNotification } from '@/lib/notifications/createNotification'
 import { sendMentorshipAcceptedEmail } from '@/notify/resend'
 
 export type RespondInput = {
@@ -89,6 +90,25 @@ export async function respondToRequest(
     action: `mentorship_request.${input.decision}`,
     target_type: 'mentorship_request',
     target_id: req.id,
+  })
+
+  // In-app notification to the mentee. On accept, deep-link goes to the
+  // thread; on decline it goes back to the request page (where they can see
+  // the status).
+  const { data: mentorBase } = await supabase
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', mentorId)
+    .maybeSingle()
+
+  await createNotification({
+    userId: req.mentee_id,
+    type:
+      input.decision === 'accepted' ? 'mentorship_request_accepted' : 'mentorship_request_declined',
+    organizationId: req.organization_id,
+    targetType: input.decision === 'accepted' ? 'mentorship_thread' : 'mentorship_request',
+    targetId: input.decision === 'accepted' ? threadId : req.id,
+    payload: { actor_id: mentorId, actor_name: mentorBase?.name ?? null },
   })
 
   return { ok: true, threadId }

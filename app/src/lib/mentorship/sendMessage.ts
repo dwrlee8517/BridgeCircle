@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { createNotification } from '@/lib/notifications/createNotification'
 import type { MessageInput } from './schemas'
 
 export type SendMessageResult =
@@ -54,6 +55,22 @@ export async function sendMessage(
     .from('mentorship_threads')
     .update({ last_message_at: now })
     .eq('id', input.threadId)
+
+  // Notify the other participant.
+  const otherUserId = thread.mentor_id === senderId ? thread.mentee_id : thread.mentor_id
+  const { data: senderProfile } = await supabase
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', senderId)
+    .maybeSingle()
+  await createNotification({
+    userId: otherUserId,
+    type: 'mentorship_message',
+    organizationId: null,
+    targetType: 'mentorship_thread',
+    targetId: input.threadId,
+    payload: { actor_id: senderId, actor_name: senderProfile?.name ?? null },
+  })
 
   return { ok: true, messageId: created.id }
 }

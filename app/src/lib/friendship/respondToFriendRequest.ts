@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { createNotification } from '@/lib/notifications/createNotification'
 import type { RespondToFriendRequestInput } from './schemas'
 
 export type RespondDeps = {
@@ -97,12 +98,23 @@ export async function respondToFriendRequest(
     friendshipId = inserted.id
   }
 
+  // Accepter name lookup is shared between in-app notification and email.
+  const { data: accepterProfile } = await db
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', viewerId)
+    .maybeSingle()
+
+  await createNotification({
+    userId: req.sender_id,
+    type: 'friend_request_accepted',
+    organizationId: null,
+    targetType: 'user',
+    targetId: viewerId,
+    payload: { actor_id: viewerId, actor_name: accepterProfile?.name ?? null },
+  })
+
   if (deps.notify) {
-    const { data: accepterProfile } = await db
-      .from('base_profiles')
-      .select('name')
-      .eq('user_id', viewerId)
-      .maybeSingle()
     try {
       await deps.notify({
         receiverId: req.sender_id,
