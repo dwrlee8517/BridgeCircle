@@ -66,6 +66,21 @@ export default async function EditProfilePage() {
               bio: profile.bio ?? '',
               mentoringTopics: profile.mentoringTopics?.join(', ') ?? '',
               openToMentor: profile.openToMentor,
+              skills: profile.skills ?? [],
+              careerHistory: (profile.careerHistory ?? []).map((e) => ({
+                employer: e.employer,
+                title: e.title,
+                startDate: e.start_date ?? null,
+                endDate: e.end_date ?? null,
+                description: e.description ?? null,
+              })),
+              educationHistory: (profile.educationHistory ?? []).map((e) => ({
+                school: e.school,
+                degree: e.degree ?? null,
+                field: e.field ?? null,
+                startDate: e.start_date ?? null,
+                endDate: e.end_date ?? null,
+              })),
             }}
           />
         </CardContent>

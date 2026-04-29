@@ -21,7 +21,9 @@ export default async function ImportResumePage({
   const supabase = await createClient()
   const { data: base } = await supabase
     .from('base_profiles')
-    .select('name, headline, city, current_employer, current_title, university, major')
+    .select(
+      'name, headline, city, current_employer, current_title, university, major, career_history, education_history, skills',
+    )
     .eq('user_id', session.userId)
     .maybeSingle()
 
@@ -33,6 +35,12 @@ export default async function ImportResumePage({
     currentTitle: base?.current_title ?? null,
     university: base?.university ?? null,
     major: base?.major ?? null,
+    // Existing arrays are passed in so the confirm step can show them
+    // alongside the freshly-extracted entries — that's the only way the
+    // user can untick something they've previously saved.
+    careerHistory: (base?.career_history as CareerEntryFromDb[] | null) ?? [],
+    educationHistory: (base?.education_history as EducationEntryFromDb[] | null) ?? [],
+    skills: base?.skills ?? [],
   }
 
   return (
@@ -45,7 +53,7 @@ export default async function ImportResumePage({
           <CardTitle>Import from resume</CardTitle>
           <CardDescription>
             Upload a PDF or DOCX. We extract your career history, education, and skills, then let
-            you review every field before saving anything.
+            you review every field — including ones already on your profile — before saving.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -54,4 +62,22 @@ export default async function ImportResumePage({
       </Card>
     </div>
   )
+}
+
+// Shape of entries as they live in base_profiles JSONB columns. snake_case
+// because that's what we serialize. Promoted to a type so the cast above is
+// not silently `any`.
+type CareerEntryFromDb = {
+  employer: string
+  title: string
+  start_date: string | null
+  end_date: string | null
+  description: string | null
+}
+type EducationEntryFromDb = {
+  school: string
+  degree: string | null
+  field: string | null
+  start_date: string | null
+  end_date: string | null
 }

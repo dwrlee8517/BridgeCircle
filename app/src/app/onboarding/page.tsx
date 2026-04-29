@@ -14,7 +14,7 @@ export default async function OnboardingPage() {
     supabase
       .from('base_profiles')
       .select(
-        'name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url',
+        'name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url, skills, career_history, education_history',
       )
       .eq('user_id', session.userId)
       .maybeSingle(),
@@ -95,10 +95,44 @@ export default async function OnboardingPage() {
               bio: orgProfile?.bio ?? '',
               mentoringTopics: orgProfile?.mentoring_topics?.join(', ') ?? '',
               openToMentor: pref?.is_open ?? false,
+              skills: base?.skills ?? [],
+              careerHistory: ((base?.career_history as DbCareerEntry[] | null) ?? []).map((e) => ({
+                employer: e.employer,
+                title: e.title,
+                startDate: e.start_date ?? null,
+                endDate: e.end_date ?? null,
+                description: e.description ?? null,
+              })),
+              educationHistory: ((base?.education_history as DbEducationEntry[] | null) ?? []).map(
+                (e) => ({
+                  school: e.school,
+                  degree: e.degree ?? null,
+                  field: e.field ?? null,
+                  startDate: e.start_date ?? null,
+                  endDate: e.end_date ?? null,
+                }),
+              ),
             }}
           />
         </CardContent>
       </Card>
     </div>
   )
+}
+
+// Local types for the JSONB columns. The DB stores snake_case fields; the
+// form expects camelCase. The mapping happens inline in `defaults`.
+type DbCareerEntry = {
+  employer: string
+  title: string
+  start_date: string | null
+  end_date: string | null
+  description: string | null
+}
+type DbEducationEntry = {
+  school: string
+  degree: string | null
+  field: string | null
+  start_date: string | null
+  end_date: string | null
 }

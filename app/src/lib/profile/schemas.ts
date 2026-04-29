@@ -1,5 +1,40 @@
 import { z } from 'zod'
 
+// Shape of one career-history entry as it lives in the DB JSONB column.
+// The field editor serializes a JSON-stringified array of these shapes into
+// a hidden form input; we parse it back here.
+const careerEntrySchema = z.object({
+  employer: z.string().trim().min(1).max(200),
+  title: z.string().trim().min(1).max(200),
+  startDate: z.string().trim().max(10).nullable(),
+  endDate: z.string().trim().max(10).nullable(),
+  description: z.string().trim().max(1000).nullable(),
+})
+
+const educationEntrySchema = z.object({
+  school: z.string().trim().min(1).max(200),
+  degree: z.string().trim().max(200).nullable(),
+  field: z.string().trim().max(200).nullable(),
+  startDate: z.string().trim().max(10).nullable(),
+  endDate: z.string().trim().max(10).nullable(),
+})
+
+// Helper: a hidden form input ships JSON-stringified arrays. Pre-process
+// from string → parsed value, then run the array schema. Empty / missing
+// inputs default to []. Invalid JSON or shape errors surface as field
+// errors on the form.
+function jsonArrayPreprocessor<T>(itemSchema: z.ZodType<T>) {
+  return z.preprocess((raw) => {
+    if (raw === null || raw === undefined || raw === '') return []
+    if (typeof raw !== 'string') return raw
+    try {
+      return JSON.parse(raw)
+    } catch {
+      return undefined // makes the array schema error out below
+    }
+  }, z.array(itemSchema).max(50))
+}
+
 export const profileFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required.'),
   graduationYear: z
@@ -26,6 +61,9 @@ export const profileFormSchema = z.object({
     .optional()
     .nullable(),
   mentoringTopics: z.string().trim().max(500).optional().nullable(),
+  skills: jsonArrayPreprocessor(z.string().trim().min(1).max(80)),
+  careerHistory: jsonArrayPreprocessor(careerEntrySchema),
+  educationHistory: jsonArrayPreprocessor(educationEntrySchema),
 })
 
 export type ProfileFormInput = z.infer<typeof profileFormSchema>
@@ -45,5 +83,8 @@ export function parseProfileForm(formData: FormData) {
     linkedinUrl: formData.get('linkedinUrl'),
     avatarUrl: formData.get('avatarUrl'),
     mentoringTopics: formData.get('mentoringTopics'),
+    skills: formData.get('skills'),
+    careerHistory: formData.get('careerHistory'),
+    educationHistory: formData.get('educationHistory'),
   })
 }
