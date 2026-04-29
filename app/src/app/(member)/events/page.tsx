@@ -1,10 +1,11 @@
 import { format } from 'date-fns'
-import { Calendar } from 'lucide-react'
+import { Calendar, MapPin, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { RailSection, TwoColumn } from '@/components/ui/two-column'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { type EventRow, listEvents } from '@/lib/events/listEvents'
@@ -62,7 +63,7 @@ export default async function EventsPage({
   const events = view === 'upcoming' ? upcoming : past
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 space-y-4">
+    <TwoColumn aside={<EventsRail upcoming={upcoming} isAdmin={isAdmin} />}>
       <div className="flex items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Events</h1>
@@ -104,9 +105,78 @@ export default async function EventsPage({
           />
         )
       ) : (
-        events.map((e) => <EventCard key={e.id} event={e} viewIsPast={view === 'past'} />)
+        <div className="space-y-4">
+          {events.map((e) => (
+            <EventCard key={e.id} event={e} viewIsPast={view === 'past'} />
+          ))}
+        </div>
       )}
-    </div>
+    </TwoColumn>
+  )
+}
+
+// =============================================================================
+// Right rail — "next 7 days" mini-list + admin tips
+// =============================================================================
+
+function EventsRail({ upcoming, isAdmin }: { upcoming: EventRow[]; isAdmin: boolean }) {
+  const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000
+  const next7 = upcoming
+    .filter((e) => new Date(e.startsAt).getTime() <= sevenDaysFromNow)
+    .slice(0, 5)
+
+  return (
+    <>
+      <RailSection title="Next 7 days">
+        {next7.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nothing this week.</p>
+        ) : (
+          <ul className="space-y-3">
+            {next7.map((e) => (
+              <li key={e.id}>
+                <Link
+                  href={`/events/${e.id}`}
+                  className="flex items-start gap-2.5 text-sm hover:text-primary"
+                >
+                  <div className="flex size-9 shrink-0 flex-col items-center justify-center rounded-md border bg-accent/40">
+                    <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {format(new Date(e.startsAt), 'MMM')}
+                    </span>
+                    <span className="text-xs font-semibold leading-none">
+                      {format(new Date(e.startsAt), 'd')}
+                    </span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium leading-tight">{e.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(e.startsAt), 'EEE · h:mm a')}
+                    </p>
+                    {e.location ? (
+                      <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
+                        <MapPin className="size-3 shrink-0" />
+                        {e.location}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </RailSection>
+
+      {isAdmin ? (
+        <RailSection title="Admin tips">
+          <p className="flex items-start gap-2 text-sm text-muted-foreground">
+            <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span>
+              Set a capacity to enable the waitlist — newcomers join an automatic queue when the
+              event fills up.
+            </span>
+          </p>
+        </RailSection>
+      ) : null}
+    </>
   )
 }
 

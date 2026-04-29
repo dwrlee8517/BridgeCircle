@@ -1,6 +1,8 @@
+import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { RailSection, TwoColumn } from '@/components/ui/two-column'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import type { ExtractedFilters } from '@/lib/search/extractFilters'
@@ -112,7 +114,7 @@ export default async function SearchPage({
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
+    <TwoColumn aside={<SearchRail />}>
       <div>
         <h1 className="text-2xl font-semibold">Search {orgName}</h1>
         <p className="text-sm text-muted-foreground">
@@ -234,7 +236,55 @@ export default async function SearchPage({
           </>
         )}
       </div>
-    </div>
+    </TwoColumn>
+  )
+}
+
+// =============================================================================
+// Right rail — quick-filter chips + tip card
+// =============================================================================
+function SearchRail() {
+  const thisYear = new Date().getFullYear()
+  const recentGradMin = thisYear - 4
+  const recentGradMax = thisYear
+
+  return (
+    <>
+      <RailSection title="Quick filters">
+        <div className="flex flex-wrap gap-2">
+          <RailChip href="/search?openToMentor=true">Mentors only</RailChip>
+          <RailChip href={`/search?gradYearMin=${recentGradMin}&gradYearMax=${recentGradMax}`}>
+            Recent grads
+          </RailChip>
+          <RailChip href={`/search?gradYearMin=${thisYear - 14}&gradYearMax=${thisYear - 5}`}>
+            Class of '{`${thisYear - 14}`.slice(-2)}–'{`${thisYear - 5}`.slice(-2)}
+          </RailChip>
+          <RailChip href="/search?city=San%20Francisco">SF Bay Area</RailChip>
+          <RailChip href="/search?city=New%20York">New York</RailChip>
+        </div>
+      </RailSection>
+
+      <RailSection title="Pro tip">
+        <p className="flex items-start gap-2 text-sm text-muted-foreground">
+          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>
+            Try plain English: <em className="not-italic text-foreground">"PM in NYC"</em> or{' '}
+            <em className="not-italic text-foreground">"someone in healthcare in California"</em>.
+          </span>
+        </p>
+      </RailSection>
+    </>
+  )
+}
+
+function RailChip({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex items-center rounded-full border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
+    >
+      {children}
+    </Link>
   )
 }
 
