@@ -10,7 +10,6 @@ import {
   UserPlus,
 } from 'lucide-react'
 import Link from 'next/link'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { StatusBadge } from '@/components/ui/status-badge'
@@ -140,7 +139,7 @@ function Hero({
           {cohortYear ? `Class of ${cohortYear} · ` : ''}Welcome back to {orgName}
         </p>
         <h1
-          className="bc-fraunces mt-3 max-w-2xl text-4xl font-bold leading-[1.05] tracking-[-0.025em] sm:text-5xl md:text-[56px]"
+          className="bc-fraunces mt-3 max-w-4xl text-balance text-4xl font-bold leading-[1.05] tracking-[-0.025em] sm:text-5xl md:text-[56px]"
           style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
         >
           {greeting}, {firstName}.
@@ -281,38 +280,30 @@ function MenteeRequestCard({ request }: { request: HomePendingMentorRequest }) {
   const ask = request.reason || request.helpNeeded || ''
   return (
     <Card className="transition-all hover:border-primary/60 hover:shadow-md">
-      <CardContent className="flex items-start gap-4 p-5">
-        <Avatar className="size-12 shrink-0">
-          {request.menteeAvatarUrl ? (
-            <AvatarImage src={request.menteeAvatarUrl} alt={request.menteeName ?? ''} />
+      <CardContent className="p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-base font-semibold text-foreground">
+            {request.menteeName ?? 'Someone'}
+          </h3>
+          {yearShort ? (
+            <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
+              Class of {yearShort}
+            </span>
           ) : null}
-          <AvatarFallback>{(request.menteeName ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold text-foreground">
-              {request.menteeName ?? 'Someone'}
-            </h3>
-            {yearShort ? (
-              <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
-                Class of {yearShort}
-              </span>
-            ) : null}
-            <StatusBadge tone="warn">Pending response</StatusBadge>
-          </div>
-          {ask ? (
-            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-              &ldquo;{ask}&rdquo;
-            </p>
-          ) : null}
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <Link href={`/mentorship/request/${request.id}`}>Review request</Link>
-            </Button>
-            <Button asChild size="sm" variant="ghost">
-              <Link href={`/mentorship/request/${request.id}`}>View profile</Link>
-            </Button>
-          </div>
+          <StatusBadge tone="warn">Pending response</StatusBadge>
+        </div>
+        {ask ? (
+          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+            &ldquo;{ask}&rdquo;
+          </p>
+        ) : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button asChild size="sm">
+            <Link href={`/mentorship/request/${request.id}`}>Review request</Link>
+          </Button>
+          <Button asChild size="sm" variant="ghost">
+            <Link href={`/mentorship/request/${request.id}`}>View profile</Link>
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -357,73 +348,36 @@ function NewAlumniSection({ members }: { members: HomeMember[] }) {
 }
 
 function ProfileTile({ member }: { member: HomeMember }) {
-  const initials = (member.name ?? '?')
-    .split(/\s+/)
-    .map((s) => s[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
   const yearShort = member.graduationYear ? `'${`${member.graduationYear}`.slice(-2)}` : null
   return (
     <Link
       href={`/profile/${member.userId}`}
       className="group block rounded-lg border bg-card p-5 transition-all hover:border-primary/60 hover:shadow-md"
     >
-      <div className="flex gap-3.5">
-        <div className="relative size-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[linear-gradient(135deg,#1e293b_0%,#3f465c_100%)]">
-          {member.avatarUrl ? (
-            // biome-ignore lint/performance/noImgElement: Supabase storage URL, Image config not needed
-            <img
-              src={member.avatarUrl}
-              alt=""
-              className="absolute inset-0 size-full object-cover"
-            />
-          ) : (
-            <>
-              <div
-                aria-hidden
-                className="absolute inset-0 opacity-50"
-                style={{
-                  backgroundImage: 'radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px)',
-                  backgroundSize: '10px 10px',
-                }}
-              />
-              <span className="bc-fraunces relative flex size-full items-center justify-center text-2xl font-bold text-white">
-                {initials}
-              </span>
-            </>
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3
-            className="bc-fraunces truncate text-lg font-semibold text-foreground"
-            style={{ fontVariationSettings: '"SOFT" 50, "opsz" 22' }}
-          >
-            {member.name ?? '—'}
-          </h3>
-          {member.currentTitle || member.currentEmployer ? (
-            <p className="mt-0.5 truncate text-[13px] font-medium text-foreground">
-              {member.currentTitle ? <span>{member.currentTitle}</span> : null}
-              {member.currentTitle && member.currentEmployer ? <span> at </span> : null}
-              {member.currentEmployer ? (
-                <span className="font-semibold">{member.currentEmployer}</span>
-              ) : null}
-            </p>
+      <h3
+        className="bc-fraunces truncate text-lg font-semibold text-foreground"
+        style={{ fontVariationSettings: '"SOFT" 50, "opsz" 22' }}
+      >
+        {member.name ?? '—'}
+      </h3>
+      {member.currentTitle || member.currentEmployer ? (
+        <p className="mt-1 line-clamp-2 text-[13px] font-medium text-foreground">
+          {member.currentTitle ? <span>{member.currentTitle}</span> : null}
+          {member.currentTitle && member.currentEmployer ? <span> at </span> : null}
+          {member.currentEmployer ? (
+            <span className="font-semibold">{member.currentEmployer}</span>
           ) : null}
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            {yearShort ? (
-              <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
-                {yearShort}
-              </span>
-            ) : null}
-            {member.city ? (
-              <span className="text-xs text-muted-foreground">{member.city}</span>
-            ) : null}
-          </div>
-        </div>
+        </p>
+      ) : null}
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        {yearShort ? (
+          <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
+            {yearShort}
+          </span>
+        ) : null}
+        {member.city ? <span className="text-xs text-muted-foreground">{member.city}</span> : null}
       </div>
-      <p className="bc-pull-quote mt-3.5 text-[13px] text-foreground">
+      <p className="bc-pull-quote mt-3 line-clamp-3 text-[13px] text-foreground">
         &ldquo;Open to mentoring junior alumni in the network.&rdquo;
       </p>
     </Link>
@@ -653,26 +607,25 @@ function AnnouncementBanner({
   announcement: { id: string; title: string; body: string | null; publishedAt: string }
 }) {
   return (
-    <Link
-      href="/announcements"
-      className="block rounded-xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10"
-    >
-      <div className="flex items-start gap-3">
-        <Megaphone className="mt-0.5 size-4 shrink-0 text-primary" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-primary">
-              Latest announcement
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(announcement.publishedAt), { addSuffix: true })}
-            </span>
+    <Link href="/announcements" className="block">
+      <Card className="border-transparent bg-muted transition-shadow hover:shadow-md">
+        <CardContent className="flex items-start gap-3 p-4">
+          <Megaphone className="mt-0.5 size-4 shrink-0 text-primary" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Latest announcement
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(announcement.publishedAt), { addSuffix: true })}
+              </span>
+            </div>
+            <p className="mt-0.5 truncate font-semibold text-foreground">{announcement.title}</p>
+            <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{announcement.body}</p>
           </div>
-          <p className="mt-0.5 truncate font-medium">{announcement.title}</p>
-          <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{announcement.body}</p>
-        </div>
-        <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
-      </div>
+          <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
+        </CardContent>
+      </Card>
     </Link>
   )
 }
