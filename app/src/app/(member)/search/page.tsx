@@ -1,8 +1,6 @@
-import { Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { RailSection, TwoColumn } from '@/components/ui/two-column'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import type { ExtractedFilters } from '@/lib/search/extractFilters'
@@ -41,7 +39,7 @@ export default async function SearchPage({
     return null
   }
 
-  const [{ data: viewerBase }, { data: viewerOrgProfile }] = await Promise.all([
+  const [{ data: viewerBase }, { data: viewerOrgProfile }, totalAlumniRes] = await Promise.all([
     supabase
       .from('base_profiles')
       .select('university, major, city')
@@ -52,9 +50,15 @@ export default async function SearchPage({
       .select('graduation_year')
       .eq('organization_membership_id', viewerMembership.id)
       .maybeSingle(),
+    supabase
+      .from('organization_memberships')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', viewerMembership.organization_id)
+      .eq('status', 'active'),
   ])
 
   const orgName = displayOrgName((viewerMembership.organizations as { name: string } | null)?.name)
+  const totalAlumni = totalAlumniRes.count ?? 0
 
   let nlHits: NLSearchHit[] = []
   let structuredHits: SearchHit[] = []
@@ -97,9 +101,6 @@ export default async function SearchPage({
     })
   }
 
-  // Whether the structured filter row is open by default. Open it if the
-  // user has any filter set, OR if NL produced no results so they have an
-  // obvious next step.
   const anyFilter = !!(
     filters.q ||
     filters.city ||
@@ -112,179 +113,179 @@ export default async function SearchPage({
     filters.openToMentor
   )
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
+  const resultCount = useNL ? nlHits.length : structuredHits.length
 
   return (
-    <TwoColumn aside={<SearchRail />}>
-      <div>
-        <h1 className="text-2xl font-semibold">Search {orgName}</h1>
-        <p className="text-sm text-muted-foreground">
-          Describe who you&apos;re looking for in plain English, or use filters below.
-        </p>
-      </div>
+    <div>
+      <Hero orgName={orgName} totalAlumni={totalAlumni} />
 
-      <Card>
-        <CardContent className="pt-6">
-          <SearchForm
-            filtersOpen={filtersOpen}
-            defaults={{
-              nl: nlQuery,
-              q: filters.q ?? '',
-              city: filters.city ?? '',
-              employer: filters.employer ?? '',
-              university: filters.university ?? '',
-              major: filters.major ?? '',
-              topic: filters.topic ?? '',
-              gradYearMin: filters.gradYearMin?.toString() ?? '',
-              gradYearMax: filters.gradYearMax?.toString() ?? '',
-              openToMentor: !!filters.openToMentor,
-            }}
-          />
-        </CardContent>
-      </Card>
-
-      {nlError ? (
-        <Card className="border-destructive/40">
-          <CardContent className="pt-6 text-sm text-destructive">{nlError}</CardContent>
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-8">
+        <Card>
+          <CardContent className="pt-6">
+            <SearchForm
+              filtersOpen={filtersOpen}
+              defaults={{
+                nl: nlQuery,
+                q: filters.q ?? '',
+                city: filters.city ?? '',
+                employer: filters.employer ?? '',
+                university: filters.university ?? '',
+                major: filters.major ?? '',
+                topic: filters.topic ?? '',
+                gradYearMin: filters.gradYearMin?.toString() ?? '',
+                gradYearMax: filters.gradYearMax?.toString() ?? '',
+                openToMentor: !!filters.openToMentor,
+              }}
+            />
+          </CardContent>
         </Card>
-      ) : null}
 
-      {useNL && nlExtracted ? (
-        <NLExtractionSummary
-          query={nlQuery}
-          extracted={nlExtracted}
-          poolSize={nlPoolSize}
-          fallback={nlFallback}
-          shownCount={nlHits.length}
-        />
-      ) : null}
+        {nlError ? (
+          <Card className="border-destructive/40">
+            <CardContent className="pt-6 text-sm text-destructive">{nlError}</CardContent>
+          </Card>
+        ) : null}
 
-      <div className="space-y-3">
+        {useNL && nlExtracted ? (
+          <NLExtractionSummary
+            query={nlQuery}
+            extracted={nlExtracted}
+            poolSize={nlPoolSize}
+            fallback={nlFallback}
+            shownCount={nlHits.length}
+          />
+        ) : null}
+
+        <ResultsHeader resultCount={resultCount} />
+
         {useNL ? (
           nlHits.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6 text-sm text-muted-foreground">
-                {nlPoolSize === 0
+            <EmptyResults
+              text={
+                nlPoolSize === 0
                   ? 'No alumni matched the filters extracted from your query. Try removing constraints in the filter panel.'
-                  : 'The pool was narrowed but no candidates scored highly. Try a broader query.'}
-              </CardContent>
-            </Card>
+                  : 'The pool was narrowed but no candidates scored highly. Try a broader query.'
+              }
+            />
           ) : (
-            nlHits.map((h) => (
-              <ResultCard
-                key={h.userId}
-                userId={h.userId}
-                name={h.name}
-                headline={h.headline}
-                currentEmployer={h.currentEmployer}
-                currentTitle={h.currentTitle}
-                city={h.city}
-                university={h.university}
-                major={h.major}
-                graduationYear={h.graduationYear}
-                avatarUrl={h.avatarUrl}
-                isOpenAsMentor={h.isOpenAsMentor}
-                mentorPaused={h.mentorPaused}
-                rationale={h.rationale}
-                rerankScore={h.rerankScore}
-                topCareerEntry={pickTopCareerEntry(h.careerHistory)}
-              />
-            ))
+            <ResultGrid>
+              {nlHits.map((h) => (
+                <ResultCard
+                  key={h.userId}
+                  userId={h.userId}
+                  name={h.name}
+                  headline={h.headline}
+                  currentEmployer={h.currentEmployer}
+                  currentTitle={h.currentTitle}
+                  city={h.city}
+                  university={h.university}
+                  major={h.major}
+                  graduationYear={h.graduationYear}
+                  avatarUrl={h.avatarUrl}
+                  isOpenAsMentor={h.isOpenAsMentor}
+                  mentorPaused={h.mentorPaused}
+                  rationale={h.rationale}
+                  rerankScore={h.rerankScore}
+                  topCareerEntry={pickTopCareerEntry(h.careerHistory)}
+                />
+              ))}
+            </ResultGrid>
           )
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">
-              {structuredHits.length} {structuredHits.length === 1 ? 'result' : 'results'}
-            </p>
-            {structuredHits.map((h) => (
-              <ResultCard
-                key={h.userId}
-                userId={h.userId}
-                name={h.name}
-                headline={h.headline}
-                currentEmployer={h.currentEmployer}
-                currentTitle={h.currentTitle}
-                city={h.city}
-                university={h.university}
-                major={h.major}
-                graduationYear={h.graduationYear}
-                avatarUrl={h.avatarUrl}
-                isOpenAsMentor={h.isOpenAsMentor}
-                mentorPaused={h.mentorPaused}
-                rationale={null}
-                rerankScore={null}
-                topCareerEntry={null}
-              />
-            ))}
+            {structuredHits.length > 0 ? (
+              <ResultGrid>
+                {structuredHits.map((h) => (
+                  <ResultCard
+                    key={h.userId}
+                    userId={h.userId}
+                    name={h.name}
+                    headline={h.headline}
+                    currentEmployer={h.currentEmployer}
+                    currentTitle={h.currentTitle}
+                    city={h.city}
+                    university={h.university}
+                    major={h.major}
+                    graduationYear={h.graduationYear}
+                    avatarUrl={h.avatarUrl}
+                    isOpenAsMentor={h.isOpenAsMentor}
+                    mentorPaused={h.mentorPaused}
+                    rationale={null}
+                    rerankScore={null}
+                    topCareerEntry={null}
+                  />
+                ))}
+              </ResultGrid>
+            ) : null}
             {structuredHits.length === 0 && anyFilter ? (
-              <Card>
-                <CardContent className="pt-6 text-sm text-muted-foreground">
-                  No alumni matched these filters.{' '}
-                  <Link href="/search" className="text-primary hover:underline">
-                    Clear all
-                  </Link>{' '}
-                  and try again.
-                </CardContent>
-              </Card>
+              <EmptyResults
+                text={
+                  <>
+                    No alumni matched these filters.{' '}
+                    <Link href="/search" className="text-primary hover:underline">
+                      Clear all
+                    </Link>{' '}
+                    and try again.
+                  </>
+                }
+              />
             ) : null}
             {structuredHits.length === 0 && !anyFilter ? (
-              <Card>
-                <CardContent className="pt-6 text-sm text-muted-foreground">
-                  Type a question above or open the filters to browse alumni.
-                </CardContent>
-              </Card>
+              <EmptyResults text="Type a question above or open the filters to browse alumni." />
             ) : null}
           </>
         )}
       </div>
-    </TwoColumn>
+    </div>
   )
 }
 
 // =============================================================================
-// Right rail — quick-filter chips + tip card
+// Hero — soft white-to-slate gradient + Fraunces title.
 // =============================================================================
-function SearchRail() {
-  const thisYear = new Date().getFullYear()
-  const recentGradMin = thisYear - 4
-  const recentGradMax = thisYear
 
+function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }) {
   return (
-    <>
-      <RailSection title="Quick filters">
-        <div className="flex flex-wrap gap-2">
-          <RailChip href="/search?openToMentor=true">Mentors only</RailChip>
-          <RailChip href={`/search?gradYearMin=${recentGradMin}&gradYearMax=${recentGradMax}`}>
-            Recent grads
-          </RailChip>
-          <RailChip href={`/search?gradYearMin=${thisYear - 14}&gradYearMax=${thisYear - 5}`}>
-            Class of '{`${thisYear - 14}`.slice(-2)}–'{`${thisYear - 5}`.slice(-2)}
-          </RailChip>
-          <RailChip href="/search?city=San%20Francisco">SF Bay Area</RailChip>
-          <RailChip href="/search?city=New%20York">New York</RailChip>
-        </div>
-      </RailSection>
-
-      <RailSection title="Pro tip">
-        <p className="flex items-start gap-2 text-sm text-muted-foreground">
-          <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
-          <span>
-            Try plain English: <em className="not-italic text-foreground">"PM in NYC"</em> or{' '}
-            <em className="not-italic text-foreground">"someone in healthcare in California"</em>.
-          </span>
+    <section className="border-b bg-[linear-gradient(180deg,#fff_0%,#fafbfd_100%)]">
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Network · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
         </p>
-      </RailSection>
-    </>
+        <h1
+          className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          Alumni Directory
+        </h1>
+        <p className="mt-3 max-w-2xl text-base text-muted-foreground">
+          Find mentors, classmates, and collaborators across {orgName}. Describe who you're looking
+          for in plain English, or use the filters below.
+        </p>
+      </div>
+    </section>
   )
 }
 
-function RailChip({ href, children }: { href: string; children: React.ReactNode }) {
+function ResultsHeader({ resultCount }: { resultCount: number }) {
   return (
-    <Link
-      href={href}
-      className="inline-flex items-center rounded-full border bg-background px-3 py-1 text-xs font-medium text-foreground transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
-    >
-      {children}
-    </Link>
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-muted-foreground">
+        <strong className="text-foreground">{resultCount.toLocaleString()}</strong>{' '}
+        {resultCount === 1 ? 'alum matches' : 'alumni match'} your filters
+      </p>
+    </div>
+  )
+}
+
+function ResultGrid({ children }: { children: React.ReactNode }) {
+  return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
+}
+
+function EmptyResults({ text }: { text: React.ReactNode }) {
+  return (
+    <Card>
+      <CardContent className="py-10 text-center text-sm text-muted-foreground">{text}</CardContent>
+    </Card>
   )
 }
 
@@ -328,8 +329,8 @@ function NLExtractionSummary({
 
   return (
     <Card className="bg-muted/30">
-      <CardContent className="py-4 space-y-2">
-        <div className="flex items-center gap-2 flex-wrap text-sm">
+      <CardContent className="space-y-2 py-4">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-muted-foreground">Searching for:</span>
           <span className="font-medium">&ldquo;{query}&rdquo;</span>
         </div>

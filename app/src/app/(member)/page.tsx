@@ -1,5 +1,14 @@
 import { format, formatDistanceToNow } from 'date-fns'
-import { ArrowRight, Calendar, MapPin, Megaphone, Sparkles, Users } from 'lucide-react'
+import {
+  ArrowRight,
+  CalendarDays,
+  CalendarX,
+  Handshake,
+  MapPin,
+  Megaphone,
+  MessageSquare,
+  UserPlus,
+} from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -7,21 +16,20 @@ import { Card, CardContent } from '@/components/ui/card'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { getHomeFeed, type HomeEvent, type HomeMember } from '@/lib/home/getHomeFeed'
+import {
+  getHomeFeed,
+  type HomeEvent,
+  type HomeMember,
+  type HomeNotification,
+  type HomePendingMentorRequest,
+} from '@/lib/home/getHomeFeed'
 import { displayOrgName } from '@/lib/utils'
 
 /**
- * Member home dashboard. Three columns of curated content + an optional
- * announcement banner above. Replaces the old `/` → `/search` redirect with
- * something the user actually wants to land on after sign-in.
- *
- * Layout choices:
- *   - Hero greeting + 3 stats so the page feels alive even when sections are short
- *   - Announcement strip (only when a recent one exists) — high-signal, dismiss-by-scrolling
- *   - 3-column grid: Recent joiners | Open mentors | Upcoming events
- *   - Each section has its own "see all" link to the full route
- *
- * Empty cells inside any section degrade to a small CTA rather than blank space.
+ * Member home dashboard. Modeled after the BridgeCircle Design System
+ * prototype's "Network" screen: dark midnight hero with the editorial Fraunces
+ * greeting, then a 2-column body — mentees waiting + new alumni on the left,
+ * featured event + recent activity on the right.
  */
 export default async function HomePage() {
   const session = await requireSession()
@@ -40,127 +48,605 @@ export default async function HomePage() {
   const orgName = (membership.organizations as { name: string } | null)?.name ?? 'your network'
   const orgDisplayName = displayOrgName(orgName)
 
-  const { data: viewerBase } = await supabase
-    .from('base_profiles')
-    .select('name')
-    .eq('user_id', session.userId)
-    .maybeSingle()
+  const [{ data: viewerBase }, { data: viewerOrgProfile }] = await Promise.all([
+    supabase.from('base_profiles').select('name').eq('user_id', session.userId).maybeSingle(),
+    supabase
+      .from('organization_profiles')
+      .select('graduation_year')
+      .eq('organization_membership_id', membership.organization_id)
+      .maybeSingle(),
+  ])
   const firstName = viewerBase?.name?.split(' ')[0] ?? 'there'
+  const cohortYear = viewerOrgProfile?.graduation_year ?? null
 
-  const feed = await getHomeFeed(supabase, membership.organization_id)
+  const feed = await getHomeFeed(supabase, membership.organization_id, session.userId)
+  const featuredEvent = feed.upcomingEvents[0] ?? null
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 space-y-8">
-      <Hero firstName={firstName} orgName={orgDisplayName} stats={feed.stats} />
+    <div>
+      <Hero
+        firstName={firstName}
+        cohortYear={cohortYear}
+        orgName={orgDisplayName}
+        pendingCount={feed.pendingMentorRequests.length}
+        nextEvent={featuredEvent}
+      />
 
-      {feed.latestAnnouncement ? (
-        <AnnouncementBanner announcement={feed.latestAnnouncement} />
-      ) : null}
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
+        {feed.latestAnnouncement ? (
+          <div className="mb-8">
+            <AnnouncementBanner announcement={feed.latestAnnouncement} />
+          </div>
+        ) : null}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <section aria-labelledby="recent-joiners">
-          <SectionHeader
-            id="recent-joiners"
-            icon={<Sparkles className="size-4" />}
-            title="Recently joined"
-            seeAll={{ href: '/search', label: 'View directory' }}
-          />
-          <MemberList members={feed.recentJoiners} emptyText="No new joiners this month." />
-        </section>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="space-y-12 lg:col-span-2">
+            <MenteesWaitingSection requests={feed.pendingMentorRequests} />
+            <NewAlumniSection members={feed.recentJoiners} />
+          </div>
 
-        <section aria-labelledby="open-mentors">
-          <SectionHeader
-            id="open-mentors"
-            icon={<Users className="size-4" />}
-            title="Open to mentor"
-            seeAll={{ href: '/search?openToMentor=true', label: 'See all mentors' }}
-          />
-          <MemberList
-            members={feed.openMentors}
-            emptyText="No mentors are open right now."
-            mentorBadge
-          />
-        </section>
-
-        <section aria-labelledby="upcoming-events">
-          <SectionHeader
-            id="upcoming-events"
-            icon={<Calendar className="size-4" />}
-            title="Upcoming events"
-            seeAll={{ href: '/events', label: 'View all events' }}
-          />
-          <EventList events={feed.upcomingEvents} />
-        </section>
+          <div className="space-y-6">
+            <FeaturedEventCard event={featuredEvent} />
+            <NotificationFeed notifications={feed.recentNotifications} />
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 // =============================================================================
-// Hero — greeting + 3 stats. Sets the tone for the rest of the page.
+// Hero — dark midnight gradient with dot grid + decorative two-circle motif.
 // =============================================================================
+
 function Hero({
   firstName,
+  cohortYear,
   orgName,
-  stats,
+  pendingCount,
+  nextEvent,
 }: {
   firstName: string
+  cohortYear: number | null
   orgName: string
-  stats: { newJoinersLast7d: number; openMentorsTotal: number; upcomingEventsTotal: number }
+  pendingCount: number
+  nextEvent: HomeEvent | null
 }) {
+  const greeting = greetingForHour(new Date().getHours())
+  const subline = heroSubline(pendingCount, nextEvent)
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Welcome back, {firstName}.</h1>
-        <p className="mt-1 text-muted-foreground">
-          {heroSubline(stats)}{' '}
-          <Link
-            href="/search"
-            className="font-medium text-primary hover:underline underline-offset-2"
-          >
-            Browse the directory →
-          </Link>
+    <section className="relative overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#131b2e_50%,#1e293b_100%)] text-white">
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-60"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(180,197,255,0.10) 1.5px, transparent 1.5px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
+      <svg
+        aria-hidden="true"
+        role="presentation"
+        viewBox="0 0 520 380"
+        className="absolute -top-10 right-[-60px] h-[380px] w-[520px] opacity-20"
+      >
+        <title>Decorative two-circle motif</title>
+        <circle cx="200" cy="190" r="140" fill="none" stroke="#b4c5ff" strokeWidth="1.5" />
+        <circle cx="320" cy="190" r="140" fill="none" stroke="#316bf3" strokeWidth="1.5" />
+      </svg>
+
+      <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-8 sm:py-20">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b4c5ff]">
+          {cohortYear ? `Class of ${cohortYear} · ` : ''}Welcome back to {orgName}
         </p>
+        <h1
+          className="bc-fraunces mt-3 max-w-2xl text-4xl font-bold leading-[1.05] tracking-[-0.025em] sm:text-5xl md:text-[56px]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          {greeting}, {firstName}.
+          <br />
+          <span className="text-[#b4c5ff]">Your circle is active today.</span>
+        </h1>
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-[17px]">
+          {subline}
+        </p>
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Button size="lg" asChild className="gap-2">
+            <Link href="/inbox">
+              <Handshake className="size-4" />
+              Review mentor requests
+            </Link>
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            asChild
+            className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+          >
+            <Link href="/events">
+              <CalendarDays className="size-4" />
+              Upcoming events
+            </Link>
+          </Button>
+        </div>
       </div>
-
-      <div className="grid grid-cols-3 gap-1.5 rounded-xl border bg-accent/40 p-1 sm:gap-3">
-        <StatTile value={stats.newJoinersLast7d} label="new this week" />
-        <StatTile value={stats.openMentorsTotal} label="open to mentor" />
-        <StatTile value={stats.upcomingEventsTotal} label="upcoming events" />
-      </div>
-
-      <p className="sr-only">{orgName}</p>
-    </div>
+    </section>
   )
 }
 
-function StatTile({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="rounded-lg bg-background px-2 py-3 text-center sm:px-4">
-      <div className="text-xl font-semibold tracking-tight tabular-nums text-primary sm:text-2xl">
-        {value}
-      </div>
-      <div className="mt-0.5 text-[11px] leading-tight text-muted-foreground sm:text-xs">
-        {label}
-      </div>
-    </div>
-  )
+function greetingForHour(hour: number): string {
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
 }
 
-function heroSubline(stats: {
-  newJoinersLast7d: number
-  openMentorsTotal: number
-  upcomingEventsTotal: number
+function heroSubline(pendingCount: number, nextEvent: HomeEvent | null): string {
+  const parts: string[] = []
+  if (pendingCount === 1) parts.push('One mentee is waiting on your reply')
+  else if (pendingCount > 1) parts.push(`${pendingCount} mentees are waiting on your reply`)
+  if (nextEvent) {
+    const days = Math.max(
+      0,
+      Math.round((new Date(nextEvent.startsAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+    )
+    if (days === 0) parts.push(`${nextEvent.title} is today`)
+    else if (days === 1) parts.push(`${nextEvent.title} is tomorrow`)
+    else parts.push(`${nextEvent.title} is ${days} days out`)
+  }
+  if (parts.length === 0) {
+    return 'Quiet across the network today. A good moment to refresh your profile or send an intro.'
+  }
+  return `${parts.join(', and ')}.`
+}
+
+// =============================================================================
+// Section header — eyebrow + Fraunces title + view-all link, prototype style.
+// =============================================================================
+
+function SectionHeader({
+  eyebrow,
+  title,
+  actionHref,
+  actionLabel,
+}: {
+  eyebrow: string
+  title: string
+  actionHref?: string
+  actionLabel?: string
 }) {
-  const n = stats.newJoinersLast7d
-  if (n === 0) return 'Quiet week. A good time to refresh your profile or reach out to a mentor.'
-  if (n === 1) return 'One alum joined this week.'
-  return `${n} alumni joined this week.`
+  return (
+    <div className="mb-5 flex items-end justify-between gap-3">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          {eyebrow}
+        </p>
+        <h2
+          className="bc-fraunces mt-1.5 text-2xl font-bold tracking-[-0.02em] text-foreground sm:text-[28px]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          {title}
+        </h2>
+      </div>
+      {actionHref && actionLabel ? (
+        <Link href={actionHref} className="text-sm font-semibold text-primary hover:underline">
+          {actionLabel} →
+        </Link>
+      ) : null}
+    </div>
+  )
 }
 
 // =============================================================================
-// Announcement strip — accent-tinted, only when a recent announcement exists.
+// Mentees waiting on you — pending mentor requests directed at the viewer.
 // =============================================================================
+
+function MenteesWaitingSection({ requests }: { requests: HomePendingMentorRequest[] }) {
+  return (
+    <section aria-labelledby="mentees-waiting">
+      <SectionHeader
+        eyebrow="Mentorship"
+        title="Mentees waiting on you"
+        actionHref="/inbox"
+        actionLabel={requests.length > 0 ? `View all ${requests.length}` : undefined}
+      />
+      <h2 id="mentees-waiting" className="sr-only">
+        Mentees waiting on you
+      </h2>
+      {requests.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <p className="text-sm text-muted-foreground">
+              No pending mentor requests. When a mentee reaches out, they'll appear here.
+            </p>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/mentorship/settings">Mentor settings</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {requests.map((r) => (
+            <MenteeRequestCard key={r.id} request={r} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function MenteeRequestCard({ request }: { request: HomePendingMentorRequest }) {
+  const yearShort = request.menteeGraduationYear
+    ? `'${`${request.menteeGraduationYear}`.slice(-2)}`
+    : null
+  const ask = request.reason || request.helpNeeded || ''
+  return (
+    <Card className="transition-all hover:border-primary/60 hover:shadow-md">
+      <CardContent className="flex items-start gap-4 p-5">
+        <Avatar className="size-12 shrink-0">
+          {request.menteeAvatarUrl ? (
+            <AvatarImage src={request.menteeAvatarUrl} alt={request.menteeName ?? ''} />
+          ) : null}
+          <AvatarFallback>{(request.menteeName ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-base font-semibold text-foreground">
+              {request.menteeName ?? 'Someone'}
+            </h3>
+            {yearShort ? (
+              <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
+                Class of {yearShort}
+              </span>
+            ) : null}
+            <StatusBadge tone="warn">Pending response</StatusBadge>
+          </div>
+          {ask ? (
+            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+              &ldquo;{ask}&rdquo;
+            </p>
+          ) : null}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button asChild size="sm">
+              <Link href={`/mentorship/request/${request.id}`}>Review request</Link>
+            </Button>
+            <Button asChild size="sm" variant="ghost">
+              <Link href={`/mentorship/request/${request.id}`}>View profile</Link>
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// =============================================================================
+// New alumni in your area — V3+ profile tiles, 3-up grid.
+// =============================================================================
+
+function NewAlumniSection({ members }: { members: HomeMember[] }) {
+  const subset = members.slice(0, 3)
+  return (
+    <section aria-labelledby="new-alumni">
+      <SectionHeader
+        eyebrow="Network"
+        title="New alumni in your area"
+        actionHref="/search"
+        actionLabel="Open directory"
+      />
+      <h2 id="new-alumni" className="sr-only">
+        New alumni in your area
+      </h2>
+      {subset.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <p className="text-sm text-muted-foreground">No new joiners this week.</p>
+            <Button asChild size="sm" variant="outline">
+              <Link href="/search">Browse the directory</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {subset.map((m) => (
+            <ProfileTile key={m.userId} member={m} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function ProfileTile({ member }: { member: HomeMember }) {
+  const initials = (member.name ?? '?')
+    .split(/\s+/)
+    .map((s) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+  const yearShort = member.graduationYear ? `'${`${member.graduationYear}`.slice(-2)}` : null
+  return (
+    <Link
+      href={`/profile/${member.userId}`}
+      className="group block rounded-lg border bg-card p-5 transition-all hover:border-primary/60 hover:shadow-md"
+    >
+      <div className="flex gap-3.5">
+        <div className="relative size-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[linear-gradient(135deg,#1e293b_0%,#3f465c_100%)]">
+          {member.avatarUrl ? (
+            // biome-ignore lint/performance/noImgElement: Supabase storage URL, Image config not needed
+            <img
+              src={member.avatarUrl}
+              alt=""
+              className="absolute inset-0 size-full object-cover"
+            />
+          ) : (
+            <>
+              <div
+                aria-hidden
+                className="absolute inset-0 opacity-50"
+                style={{
+                  backgroundImage: 'radial-gradient(rgba(255,255,255,.12) 1px, transparent 1px)',
+                  backgroundSize: '10px 10px',
+                }}
+              />
+              <span className="bc-fraunces relative flex size-full items-center justify-center text-2xl font-bold text-white">
+                {initials}
+              </span>
+            </>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3
+            className="bc-fraunces truncate text-lg font-semibold text-foreground"
+            style={{ fontVariationSettings: '"SOFT" 50, "opsz" 22' }}
+          >
+            {member.name ?? '—'}
+          </h3>
+          {member.currentTitle || member.currentEmployer ? (
+            <p className="mt-0.5 truncate text-[13px] font-medium text-foreground">
+              {member.currentTitle ? <span>{member.currentTitle}</span> : null}
+              {member.currentTitle && member.currentEmployer ? <span> at </span> : null}
+              {member.currentEmployer ? (
+                <span className="font-semibold">{member.currentEmployer}</span>
+              ) : null}
+            </p>
+          ) : null}
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            {yearShort ? (
+              <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
+                {yearShort}
+              </span>
+            ) : null}
+            {member.city ? (
+              <span className="text-xs text-muted-foreground">{member.city}</span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+      <p className="bc-pull-quote mt-3.5 text-[13px] text-foreground">
+        &ldquo;Open to mentoring junior alumni in the network.&rdquo;
+      </p>
+    </Link>
+  )
+}
+
+// =============================================================================
+// Featured event card — gradient header + meta + RSVP CTA.
+// =============================================================================
+
+function FeaturedEventCard({ event }: { event: HomeEvent | null }) {
+  if (!event) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+          <p className="text-sm text-muted-foreground">No upcoming events.</p>
+          <Button asChild size="sm" variant="outline">
+            <Link href="/events">Browse all events</Link>
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+  const start = new Date(event.startsAt)
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="relative h-[110px] overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#0051d5_100%)] p-5 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px)',
+            backgroundSize: '16px 16px',
+          }}
+        />
+        <p className="relative text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b4c5ff]">
+          Featured event
+        </p>
+        <h3
+          className="bc-fraunces relative mt-2 truncate text-xl font-bold tracking-[-0.015em]"
+          style={{ fontVariationSettings: '"SOFT" 50, "opsz" 25' }}
+        >
+          {event.title}
+        </h3>
+      </div>
+      <div className="p-5">
+        <div className="mb-2 flex items-center gap-2.5 text-sm font-semibold text-foreground">
+          <CalendarDays className="size-4 text-primary" />
+          <span>{format(start, 'MMM d, yyyy · h:mm a')}</span>
+        </div>
+        {event.location ? (
+          <div className="mb-4 flex items-center gap-2.5 text-sm text-muted-foreground">
+            <MapPin className="size-4 text-primary" />
+            <span className="truncate">{event.location}</span>
+          </div>
+        ) : null}
+        <div className="mb-4 flex items-center justify-between border-y py-3 text-sm">
+          <span className="text-muted-foreground">
+            {event.goingCount}
+            {event.capacity ? <span> / {event.capacity}</span> : null} attending
+          </span>
+        </div>
+        <Button asChild className="w-full">
+          <Link href={`/events/${event.id}`}>View event</Link>
+        </Button>
+      </div>
+    </Card>
+  )
+}
+
+// =============================================================================
+// Recent activity feed — last 4 notifications, prototype-style row layout.
+// =============================================================================
+
+function NotificationFeed({ notifications }: { notifications: HomeNotification[] }) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="flex items-center justify-between border-b px-5 py-4">
+        <h3 className="text-sm font-semibold text-foreground">Recent activity</h3>
+        <Link href="/notifications" className="text-xs font-semibold text-primary hover:underline">
+          View all
+        </Link>
+      </div>
+      {notifications.length === 0 ? (
+        <div className="px-5 py-8 text-center">
+          <p className="text-sm text-muted-foreground">No activity yet.</p>
+        </div>
+      ) : (
+        <ul>
+          {notifications.map((n, i) => (
+            <li key={n.id} className={i === notifications.length - 1 ? '' : 'border-b'}>
+              <NotificationRow notification={n} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  )
+}
+
+function NotificationRow({ notification: n }: { notification: HomeNotification }) {
+  const unread = n.readAt === null
+  const { Icon, tone } = iconForType(n.type)
+  const href = notificationHref(n)
+  const label = notificationCopy(n)
+  const Wrapper = ({ children }: { children: React.ReactNode }) =>
+    href ? (
+      <Link href={href} className="block">
+        {children}
+      </Link>
+    ) : (
+      <div>{children}</div>
+    )
+  return (
+    <Wrapper>
+      <div
+        className={`flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40 ${
+          unread ? 'bg-primary/[0.03]' : ''
+        }`}
+      >
+        <div
+          className="flex size-8 shrink-0 items-center justify-center rounded-full"
+          style={{ background: `${tone}26`, color: tone }}
+        >
+          <Icon className="size-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p
+            className={`text-[13px] leading-snug ${
+              unread ? 'font-semibold text-foreground' : 'font-medium text-foreground'
+            }`}
+          >
+            {label}
+          </p>
+          <span className="text-[11px] text-muted-foreground">
+            {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+          </span>
+        </div>
+        {unread ? (
+          <div aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+        ) : null}
+      </div>
+    </Wrapper>
+  )
+}
+
+function iconForType(type: string): { Icon: typeof Handshake; tone: string } {
+  switch (type) {
+    case 'mentorship_request_received':
+    case 'mentorship_request_accepted':
+    case 'mentorship_request_declined':
+      return { Icon: Handshake, tone: '#0051d5' }
+    case 'friend_request_received':
+    case 'friend_request_accepted':
+      return { Icon: UserPlus, tone: '#10b981' }
+    case 'direct_message':
+    case 'mentorship_message':
+      return { Icon: MessageSquare, tone: '#0051d5' }
+    case 'announcement':
+      return { Icon: Megaphone, tone: '#f59e0b' }
+    case 'event_canceled':
+      return { Icon: CalendarX, tone: '#ba1a1a' }
+    default:
+      return { Icon: Handshake, tone: '#0051d5' }
+  }
+}
+
+function notificationCopy(n: HomeNotification): string {
+  const actor = typeof n.payload?.actor_name === 'string' ? n.payload.actor_name : 'Someone'
+  switch (n.type) {
+    case 'friend_request_received':
+      return `${actor} sent you a friend request`
+    case 'friend_request_accepted':
+      return `${actor} accepted your friend request`
+    case 'mentorship_request_received':
+      return `${actor} requested mentorship`
+    case 'mentorship_request_accepted':
+      return `${actor} accepted your mentorship request`
+    case 'mentorship_request_declined':
+      return `${actor} declined your mentorship request`
+    case 'direct_message':
+      return `New message from ${actor}`
+    case 'mentorship_message':
+      return `${actor} sent a mentorship message`
+    case 'announcement':
+      return typeof n.payload?.title === 'string' ? n.payload.title : 'New announcement'
+    case 'event_canceled': {
+      const title = typeof n.payload?.event_title === 'string' ? n.payload.event_title : 'An event'
+      return `${title} was canceled`
+    }
+    default:
+      return 'New activity'
+  }
+}
+
+function notificationHref(n: HomeNotification): string | null {
+  switch (n.type) {
+    case 'friend_request_received':
+      return '/friends'
+    case 'friend_request_accepted':
+      return n.targetId ? `/profile/${n.targetId}` : '/friends'
+    case 'mentorship_request_received':
+    case 'mentorship_request_declined':
+      return n.targetId ? `/mentorship/request/${n.targetId}` : '/inbox'
+    case 'mentorship_request_accepted':
+      return n.targetId ? `/mentorship/thread/${n.targetId}` : '/inbox'
+    case 'direct_message':
+      return n.targetId ? `/messages/${n.targetId}` : '/messages'
+    case 'mentorship_message':
+      return n.targetId ? `/mentorship/thread/${n.targetId}` : '/inbox'
+    case 'announcement':
+      return '/announcements'
+    case 'event_canceled':
+      return n.targetId ? `/events/${n.targetId}` : '/events'
+    default:
+      return null
+  }
+}
+
+// =============================================================================
+// Announcement strip — preserved from prior implementation.
+// =============================================================================
+
 function AnnouncementBanner({
   announcement,
 }: {
@@ -186,179 +672,6 @@ function AnnouncementBanner({
           <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">{announcement.body}</p>
         </div>
         <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
-      </div>
-    </Link>
-  )
-}
-
-// =============================================================================
-// Section header — icon + title + "see all" link.
-// =============================================================================
-function SectionHeader({
-  id,
-  icon,
-  title,
-  seeAll,
-}: {
-  id: string
-  icon: React.ReactNode
-  title: string
-  seeAll: { href: string; label: string }
-}) {
-  return (
-    <div className="mb-3 flex items-baseline justify-between">
-      <h2 id={id} className="flex items-center gap-2 text-base font-semibold">
-        <span className="text-primary">{icon}</span>
-        {title}
-      </h2>
-      <Link
-        href={seeAll.href}
-        className="text-xs font-medium text-primary hover:underline underline-offset-2"
-      >
-        {seeAll.label}
-      </Link>
-    </div>
-  )
-}
-
-// =============================================================================
-// Member list — used by both Recent joiners and Open mentors.
-// =============================================================================
-function MemberList({
-  members,
-  emptyText,
-  mentorBadge = false,
-}: {
-  members: HomeMember[]
-  emptyText: string
-  mentorBadge?: boolean
-}) {
-  if (members.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-sm text-muted-foreground">{emptyText}</p>
-          <Button asChild size="sm" variant="outline">
-            <Link href="/search">Open directory</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    )
-  }
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <ul className="divide-y">
-          {members.map((m) => (
-            <li key={m.userId}>
-              <MemberMiniRow member={m} mentorBadge={mentorBadge} />
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
-  )
-}
-
-function MemberMiniRow({ member, mentorBadge }: { member: HomeMember; mentorBadge: boolean }) {
-  const subtitle = [member.currentTitle, member.currentEmployer].filter(Boolean).join(' · ')
-  return (
-    <Link
-      href={`/profile/${member.userId}`}
-      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
-    >
-      <Avatar className="size-10 shrink-0">
-        {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.name ?? ''} /> : null}
-        <AvatarFallback>{(member.name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
-      </Avatar>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">{member.name ?? '—'}</span>
-          {member.graduationYear ? (
-            <span className="text-xs text-muted-foreground tabular-nums">
-              '{`${member.graduationYear}`.slice(-2)}
-            </span>
-          ) : null}
-          {mentorBadge ? (
-            <StatusBadge tone="open" dot className="ml-auto">
-              Mentor
-            </StatusBadge>
-          ) : null}
-        </div>
-        {subtitle ? (
-          <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
-        ) : member.city ? (
-          <p className="truncate text-xs text-muted-foreground">{member.city}</p>
-        ) : null}
-      </div>
-    </Link>
-  )
-}
-
-// =============================================================================
-// Event list — denser cards with date chip on the left.
-// =============================================================================
-function EventList({ events }: { events: HomeEvent[] }) {
-  if (events.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-sm text-muted-foreground">No upcoming events.</p>
-          <Button asChild size="sm" variant="outline">
-            <Link href="/events">View past events</Link>
-          </Button>
-        </CardContent>
-      </Card>
-    )
-  }
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <ul className="divide-y">
-          {events.map((e) => (
-            <li key={e.id}>
-              <EventMiniRow event={e} />
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
-  )
-}
-
-function EventMiniRow({ event }: { event: HomeEvent }) {
-  const start = new Date(event.startsAt)
-  return (
-    <Link
-      href={`/events/${event.id}`}
-      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50"
-    >
-      <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-md border border-primary/15 bg-primary/8 text-center">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-primary/80">
-          {format(start, 'MMM')}
-        </span>
-        <span className="text-base font-semibold leading-none text-primary">
-          {format(start, 'd')}
-        </span>
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">{event.title}</p>
-        <p className="text-xs text-muted-foreground">{format(start, 'EEE · h:mm a')}</p>
-        {event.location ? (
-          <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-muted-foreground">
-            <MapPin className="size-3 shrink-0" />
-            {event.location}
-          </p>
-        ) : null}
-      </div>
-      <div className="shrink-0 text-right">
-        <div className="text-xs font-medium tabular-nums">
-          {event.goingCount}
-          {event.capacity ? (
-            <span className="text-muted-foreground"> / {event.capacity}</span>
-          ) : null}
-        </div>
-        <div className="text-[10px] text-muted-foreground">going</div>
       </div>
     </Link>
   )

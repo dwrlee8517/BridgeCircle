@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist_Mono, Manrope } from 'next/font/google'
+import { Fraunces, Geist_Mono, Manrope } from 'next/font/google'
 import './globals.css'
 
 // Body font. See docs/font-options-mockup.html for alternatives + the 3-line
@@ -8,6 +8,14 @@ import './globals.css'
 const sans = Manrope({
   variable: '--font-sans',
   subsets: ['latin'],
+})
+
+// Editorial serif voice — wordmark, profile-card names, footer microcopy.
+// Apply via the `.bc-fraunces` class. Never use for body or buttons.
+const serif = Fraunces({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  axes: ['SOFT', 'WONK', 'opsz'],
 })
 
 const geistMono = Geist_Mono({
@@ -41,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${sans.variable} ${serif.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
