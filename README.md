@@ -22,7 +22,9 @@ Start here depending on what you need:
 | What ships in Phase 1 | [docs/phase-1-launch-spec.md](docs/phase-1-launch-spec.md) |
 | Why the schema is shaped the way it is | [docs/data-model.md](docs/data-model.md) |
 | Where dev/prod live and how schema changes flow | [docs/environments.md](docs/environments.md) |
+| Secrets management with Doppler | [docs/doppler.md](docs/doppler.md) |
 | Resetting and seeding the dev database | [docs/seed-dev.md](docs/seed-dev.md) |
+| Running and writing E2E tests with Playwright | [docs/e2e-testing.md](docs/e2e-testing.md) |
 | Conventions for working in `app/` | [app/CLAUDE.md](app/CLAUDE.md) |
 
 ## Development
