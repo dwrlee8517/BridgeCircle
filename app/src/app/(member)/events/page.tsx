@@ -10,8 +10,15 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { type EventRow, listEvents } from '@/lib/events/listEvents'
 import { displayOrgName } from '@/lib/utils'
+import { RsvpQuickButton } from './rsvp-quick-button'
 
-type SearchParams = { view?: string }
+type SearchParams = { view?: string; selected?: string }
+
+export type EventAttendee = {
+  userId: string
+  name: string | null
+  avatarUrl: string | null
+}
 
 export default async function EventsPage({
   searchParams,
@@ -57,7 +64,15 @@ export default async function EventsPage({
     .sort((a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime())
 
   const events = view === 'upcoming' ? upcoming : past
-  const featured = events[0] ?? null
+  // Honor `?selected` if it points at an event in the current tab; otherwise
+  // fall back to the first event so the right panel always has content.
+  const selected = events.find((e) => e.id === sp.selected) ?? events[0] ?? null
+
+  // Pull a small attendee preview for the right-panel avatar stack — RLS
+  // already prevents leaking RSVPs from events the viewer can't see.
+  const attendees: EventAttendee[] = selected
+    ? await loadAttendeePreview(supabase, selected.id, 5)
+    : []
 
   return (
     <div>
@@ -99,14 +114,18 @@ export default async function EventsPage({
               <FilterChips />
               <div className="space-y-3">
                 {events.map((e) => (
-                  <EventListItem key={e.id} event={e} active={featured?.id === e.id} />
+                  <EventListItem key={e.id} event={e} view={view} active={selected?.id === e.id} />
                 ))}
               </div>
             </div>
             <div>
-              {featured ? (
+              {selected ? (
                 <div className="lg:sticky lg:top-24">
-                  <FeaturedEventDetail event={featured} viewIsPast={view === 'past'} />
+                  <FeaturedEventDetail
+                    event={selected}
+                    attendees={attendees}
+                    viewIsPast={view === 'past'}
+                  />
                 </div>
               ) : null}
             </div>
@@ -115,6 +134,42 @@ export default async function EventsPage({
       </div>
     </div>
   )
+}
+
+/**
+ * Up to `limit` going-RSVPs for the event, hydrated with name + avatar from
+ * base_profiles. Used only for the right-panel attendee stack — never for
+ * authorization or RSVP logic.
+ */
+async function loadAttendeePreview(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  eventId: string,
+  limit: number,
+): Promise<EventAttendee[]> {
+  const { data: rsvps } = await supabase
+    .from('event_rsvps')
+    .select('user_id, responded_at')
+    .eq('event_id', eventId)
+    .eq('status', 'going')
+    .order('responded_at', { ascending: true })
+    .limit(limit)
+  if (!rsvps || rsvps.length === 0) return []
+
+  const userIds = rsvps.map((r) => r.user_id)
+  const { data: profiles } = await supabase
+    .from('base_profiles')
+    .select('user_id, name, avatar_url')
+    .in('user_id', userIds)
+  const profileById = new Map((profiles ?? []).map((p) => [p.user_id, p]))
+
+  return rsvps.map((r) => {
+    const p = profileById.get(r.user_id)
+    return {
+      userId: r.user_id,
+      name: p?.name ?? null,
+      avatarUrl: p?.avatar_url ?? null,
+    }
+  })
 }
 
 // =============================================================================
@@ -194,11 +249,26 @@ function FilterChips() {
 // List item — date tile + status pill + title + meta.
 // =============================================================================
 
-function EventListItem({ event: e, active }: { event: EventRow; active: boolean }) {
+function EventListItem({
+  event: e,
+  view,
+  active,
+}: {
+  event: EventRow
+  view: 'upcoming' | 'past'
+  active: boolean
+}) {
   const start = new Date(e.startsAt)
+  const params = new URLSearchParams()
+  if (view === 'past') params.set('view', 'past')
+  params.set('selected', e.id)
+  // Anchor to #event-detail so the right panel scrolls into view on narrow
+  // screens where the sticky column collapses below the list.
+  const href = `/events?${params.toString()}#event-detail`
   return (
     <Link
-      href={`/events/${e.id}`}
+      href={href}
+      scroll={false}
       className={`block rounded-xl border p-5 transition-all ${
         active
           ? 'border-primary bg-card shadow-md'
@@ -239,52 +309,58 @@ function DateTile({ startsAt }: { startsAt: string }) {
 
 // =============================================================================
 // Featured detail panel — sapphire gradient hero + meta rows + RSVP CTA.
-// Whole panel links into /events/[id] for the full event page.
+// Reflects the currently-selected list item; the CTA routes to /events/[id]
+// for the full event page (RSVP, description, etc.).
 // =============================================================================
 
-function FeaturedEventDetail({ event: e, viewIsPast }: { event: EventRow; viewIsPast: boolean }) {
+function FeaturedEventDetail({
+  event: e,
+  attendees,
+  viewIsPast,
+}: {
+  event: EventRow
+  attendees: EventAttendee[]
+  viewIsPast: boolean
+}) {
   const start = new Date(e.startsAt)
-  const isFull = e.capacity !== null && e.goingCount >= e.capacity
   return (
-    <Card className="overflow-hidden p-0">
-      <Link href={`/events/${e.id}`} className="block">
-        <div className="relative overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#003ea8_60%,#0051d5_100%)] p-8 text-white">
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-60"
-            style={{
-              backgroundImage: 'radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px)',
-              backgroundSize: '16px 16px',
-            }}
-          />
-          <svg
-            aria-hidden="true"
-            role="presentation"
-            viewBox="0 0 200 200"
-            className="absolute -top-10 right-[-40px] h-[200px] w-[200px] opacity-25"
+    <Card id="event-detail" className="scroll-mt-24 overflow-hidden p-0">
+      <div className="relative overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#003ea8_60%,#0051d5_100%)] p-8 text-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-60"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px)',
+            backgroundSize: '16px 16px',
+          }}
+        />
+        <svg
+          aria-hidden="true"
+          role="presentation"
+          viewBox="0 0 200 200"
+          className="absolute -top-10 right-[-40px] h-[200px] w-[200px] opacity-25"
+        >
+          <title>Decorative two-circle motif</title>
+          <circle cx="80" cy="100" r="60" fill="none" stroke="#b4c5ff" strokeWidth="1.5" />
+          <circle cx="130" cy="100" r="60" fill="none" stroke="#fff" strokeWidth="1.5" />
+        </svg>
+        <div className="relative">
+          <span className="inline-flex h-6 items-center rounded-full bg-white/15 px-2.5 text-xs font-semibold text-white">
+            Featured
+          </span>
+          <h2
+            className="bc-fraunces mt-3 text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl"
+            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
           >
-            <title>Decorative two-circle motif</title>
-            <circle cx="80" cy="100" r="60" fill="none" stroke="#b4c5ff" strokeWidth="1.5" />
-            <circle cx="130" cy="100" r="60" fill="none" stroke="#fff" strokeWidth="1.5" />
-          </svg>
-          <div className="relative">
-            <span className="inline-flex h-6 items-center rounded-full bg-white/15 px-2.5 text-xs font-semibold text-white">
-              Featured
-            </span>
-            <h2
-              className="bc-fraunces mt-3 text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl"
-              style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-            >
-              {e.title}
-            </h2>
-            {e.description ? (
-              <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-300">
-                {e.description.length > 220 ? `${e.description.slice(0, 220)}…` : e.description}
-              </p>
-            ) : null}
-          </div>
+            {e.title}
+          </h2>
+          {e.description ? (
+            <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-300">
+              {e.description.length > 220 ? `${e.description.slice(0, 220)}…` : e.description}
+            </p>
+          ) : null}
         </div>
-      </Link>
+      </div>
       <div className="space-y-4 p-7">
         <DetailRow icon="date" label="Date" value={format(start, 'EEE, MMM d, yyyy')} />
         <DetailRow icon="time" label="Time" value={format(start, 'h:mm a')} />
@@ -296,33 +372,119 @@ function FeaturedEventDetail({ event: e, viewIsPast }: { event: EventRow; viewIs
           last
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
-          {e.waitlistCount > 0 ? (
-            <Badge variant="outline" className="text-[11px]">
-              {e.waitlistCount} on waitlist
-            </Badge>
-          ) : (
-            <span />
-          )}
-        </div>
+        {attendees.length > 0 || e.waitlistCount > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+            <AttendeeStack
+              attendees={attendees}
+              goingCount={e.goingCount}
+              waitlistCount={e.waitlistCount}
+            />
+          </div>
+        ) : null}
 
-        <div className="flex gap-2">
-          <Button asChild size="lg" className="flex-1">
+        <div className="flex items-stretch gap-2 border-t pt-4">
+          {viewIsPast ? null : (
+            <RsvpQuickButton
+              eventId={e.id}
+              current={e.viewerRsvp}
+              isFull={e.capacity !== null && e.goingCount >= e.capacity}
+              className="flex-1"
+            />
+          )}
+          <Button asChild variant="outline" size="lg" className={viewIsPast ? 'flex-1' : ''}>
             <Link href={`/events/${e.id}`}>
-              {viewIsPast ? 'View event' : isFull ? 'Join waitlist' : 'View & RSVP'}
+              View event details
               <ChevronRight className="size-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild>
+          <Button asChild variant="outline" size="icon-lg" aria-label="Share event">
             <Link href={`/events/${e.id}`}>
               <Share2 className="size-4" />
-              <span className="sr-only">Share</span>
             </Link>
           </Button>
         </div>
       </div>
     </Card>
   )
+}
+
+// =============================================================================
+// Attendee stack — overlapping pastel circles + names line, prototype style.
+// =============================================================================
+
+const STACK_PALETTE = [
+  { bg: '#dbe1ff', fg: '#00174b' }, // pale sapphire
+  { bg: '#fef3c7', fg: '#78350f' }, // pale amber
+  { bg: '#d1fae5', fg: '#064e3b' }, // pale emerald
+  { bg: '#ffdad6', fg: '#7f1d1d' }, // pale rose
+  { bg: '#dbe1ff', fg: '#00174b' },
+] as const
+
+function AttendeeStack({
+  attendees,
+  goingCount,
+  waitlistCount,
+}: {
+  attendees: EventAttendee[]
+  goingCount: number
+  waitlistCount: number
+}) {
+  const namesLine = formatAttendeesLine(attendees, goingCount)
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      {attendees.length > 0 ? (
+        <div className="flex">
+          {attendees.map((a, idx) => {
+            const palette = STACK_PALETTE[idx % STACK_PALETTE.length]
+            return (
+              <span
+                key={a.userId}
+                className="inline-flex size-8 items-center justify-center rounded-full text-xs font-semibold ring-2 ring-card"
+                style={{
+                  background: palette.bg,
+                  color: palette.fg,
+                  marginLeft: idx === 0 ? 0 : -8,
+                }}
+                title={a.name ?? undefined}
+              >
+                {initialsFor(a.name)}
+              </span>
+            )
+          })}
+        </div>
+      ) : null}
+      {namesLine ? <span className="text-sm text-muted-foreground">{namesLine}</span> : null}
+      {waitlistCount > 0 ? (
+        <Badge variant="outline" className="text-[11px]">
+          {waitlistCount} on waitlist
+        </Badge>
+      ) : null}
+    </div>
+  )
+}
+
+function initialsFor(name: string | null): string {
+  if (!name) return '?'
+  const parts = name.split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  if (parts.length === 1) return (parts[0]?.slice(0, 2) ?? '?').toUpperCase()
+  return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase()
+}
+
+function formatAttendeesLine(attendees: EventAttendee[], goingCount: number): string | null {
+  if (goingCount === 0) return null
+  const firstNames = attendees
+    .map((a) => a.name?.split(/\s+/)[0])
+    .filter((n): n is string => !!n)
+    .slice(0, 2)
+  if (firstNames.length === 0) {
+    return `${goingCount} ${goingCount === 1 ? 'alum' : 'alumni'} attending`
+  }
+  const others = Math.max(0, goingCount - firstNames.length)
+  if (others === 0) {
+    return `${firstNames.join(' and ')} attending`
+  }
+  return `${firstNames.join(', ')}, and ${others} ${others === 1 ? 'other' : 'others'} attending`
 }
 
 function DetailRow({
