@@ -48,7 +48,7 @@ export async function rsvpAction(formData: FormData): Promise<RsvpActionResult> 
     if (result.error === 'event_not_found') {
       return {
         ok: false,
-        error: "Event not found. It may have been canceled — try refreshing.",
+        error: 'Event not found. It may have been canceled — try refreshing.',
       }
     }
     return {
