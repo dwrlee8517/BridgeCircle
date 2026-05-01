@@ -1,4 +1,5 @@
 import { Menu } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -72,8 +73,19 @@ export function MemberHeader({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Link href="/" className="font-semibold">
-          BridgeCircle
+        <Link href="/" className="flex items-center gap-2" aria-label="BridgeCircle home">
+          <Image
+            src="/brand/mark.svg"
+            alt=""
+            width={28}
+            height={28}
+            className="rounded-md"
+            priority
+          />
+          <span className="bc-fraunces text-lg font-bold leading-none tracking-tight">
+            <span className="text-foreground">Bridge</span>
+            <span className="text-primary">Circle</span>
+          </span>
         </Link>
 
         {/* Inline nav — visible only when the header is wide enough.  */}

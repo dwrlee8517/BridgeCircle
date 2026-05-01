@@ -35,11 +35,34 @@ export type HomeAnnouncement = {
   publishedAt: string
 }
 
+export type HomePendingMentorRequest = {
+  id: string
+  menteeName: string | null
+  menteeAvatarUrl: string | null
+  menteeGraduationYear: number | null
+  reason: string | null
+  helpNeeded: string | null
+  createdAt: string
+}
+
+export type HomeNotification = {
+  id: string
+  type: string
+  payload: Record<string, unknown> | null
+  targetId: string | null
+  readAt: string | null
+  createdAt: string
+}
+
 export type HomeFeed = {
   recentJoiners: HomeMember[]
   openMentors: HomeMentor[]
   upcomingEvents: HomeEvent[]
   latestAnnouncement: HomeAnnouncement | null
+  /** Mentees who've requested mentorship from the viewer and are awaiting reply. */
+  pendingMentorRequests: HomePendingMentorRequest[]
+  /** Latest 4 notifications, used for the dashboard activity feed. */
+  recentNotifications: HomeNotification[]
   /** Counts for the hero strip — "3 alumni joined this week", etc. */
   stats: {
     newJoinersLast7d: number
@@ -61,56 +84,80 @@ const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 export async function getHomeFeed(
   supabase: SupabaseClient<Database>,
   organizationId: string,
+  viewerId: string,
 ): Promise<HomeFeed> {
   const sevenDaysAgo = new Date(Date.now() - SEVEN_DAYS_MS).toISOString()
   const nowIso = new Date().toISOString()
 
-  const [recentMembershipsRes, openMentorPrefsRes, upcomingEventsRes, latestAnnouncementRes] =
-    await Promise.all([
-      // Recent joiners: most recently active members in the org.
-      supabase
-        .from('organization_memberships')
-        .select('user_id, joined_at, organization_profiles(graduation_year)')
-        .eq('organization_id', organizationId)
-        .eq('status', 'active')
-        .not('joined_at', 'is', null)
-        .order('joined_at', { ascending: false })
-        .limit(6),
+  const [
+    recentMembershipsRes,
+    openMentorPrefsRes,
+    upcomingEventsRes,
+    latestAnnouncementRes,
+    pendingRequestsRes,
+    recentNotificationsRes,
+  ] = await Promise.all([
+    // Recent joiners: most recently active members in the org.
+    supabase
+      .from('organization_memberships')
+      .select('user_id, joined_at, organization_profiles(graduation_year)')
+      .eq('organization_id', organizationId)
+      .eq('status', 'active')
+      .not('joined_at', 'is', null)
+      .order('joined_at', { ascending: false })
+      .limit(6),
 
-      // Open mentors: active memberships in this org with is_open=true and
-      // not paused. We fetch the membership_id list here, then hydrate user
-      // ids + profiles in the next round.
-      supabase
-        .from('mentorship_preferences')
-        .select(
-          'organization_membership_id, organization_memberships!inner(user_id, status, organization_id, joined_at, organization_profiles(graduation_year))',
-        )
-        .eq('is_open', true)
-        .is('paused_at', null)
-        .eq('organization_memberships.status', 'active')
-        .eq('organization_memberships.organization_id', organizationId)
-        .limit(6),
+    // Open mentors: active memberships in this org with is_open=true and
+    // not paused. We fetch the membership_id list here, then hydrate user
+    // ids + profiles in the next round.
+    supabase
+      .from('mentorship_preferences')
+      .select(
+        'organization_membership_id, organization_memberships!inner(user_id, status, organization_id, joined_at, organization_profiles(graduation_year))',
+      )
+      .eq('is_open', true)
+      .is('paused_at', null)
+      .eq('organization_memberships.status', 'active')
+      .eq('organization_memberships.organization_id', organizationId)
+      .limit(6),
 
-      // Upcoming events: published, starts in the future, soonest first.
-      supabase
-        .from('events')
-        .select('id, title, starts_at, location, capacity')
-        .eq('organization_id', organizationId)
-        .gte('starts_at', nowIso)
-        .not('published_at', 'is', null)
-        .order('starts_at', { ascending: true })
-        .limit(3),
+    // Upcoming events: published, starts in the future, soonest first.
+    supabase
+      .from('events')
+      .select('id, title, starts_at, location, capacity')
+      .eq('organization_id', organizationId)
+      .gte('starts_at', nowIso)
+      .not('published_at', 'is', null)
+      .order('starts_at', { ascending: true })
+      .limit(3),
 
-      // Latest published announcement — only used if it's recent (last 14d).
-      supabase
-        .from('announcements')
-        .select('id, title, body, created_by, published_at')
-        .eq('organization_id', organizationId)
-        .not('published_at', 'is', null)
-        .order('published_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ])
+    // Latest published announcement — only used if it's recent (last 14d).
+    supabase
+      .from('announcements')
+      .select('id, title, body, created_by, published_at')
+      .eq('organization_id', organizationId)
+      .not('published_at', 'is', null)
+      .order('published_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+
+    // Pending mentor requests where viewer is the mentor.
+    supabase
+      .from('mentorship_requests')
+      .select('id, mentee_id, reason, help_needed, created_at')
+      .eq('mentor_id', viewerId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(3),
+
+    // Recent notifications for the activity feed (most recent 4).
+    supabase
+      .from('notifications')
+      .select('id, type, payload, target_id, read_at, created_at')
+      .eq('user_id', viewerId)
+      .order('created_at', { ascending: false })
+      .limit(4),
+  ])
 
   // Don't throw on individual query errors — degrade gracefully so a missing
   // row in one section doesn't blow up the whole page.
@@ -118,6 +165,8 @@ export async function getHomeFeed(
   const openMentorRows = openMentorPrefsRes.data ?? []
   const upcomingEvents = upcomingEventsRes.data ?? []
   const announcement = latestAnnouncementRes.data ?? null
+  const pendingRequests = pendingRequestsRes.data ?? []
+  const recentNotificationsRows = recentNotificationsRes.data ?? []
 
   // Collect every user_id we need to hydrate with name/avatar/job.
   const recentUserIds = recentMemberships.map((m) => m.user_id)
@@ -127,12 +176,14 @@ export async function getHomeFeed(
       return m?.user_id
     })
     .filter((id): id is string => !!id)
+  const menteeUserIds = pendingRequests.map((r) => r.mentee_id)
   const announcementAuthorId = announcement?.created_by ?? null
 
   const allUserIds = Array.from(
     new Set([
       ...recentUserIds,
       ...mentorUserIds,
+      ...menteeUserIds,
       ...(announcementAuthorId ? [announcementAuthorId] : []),
     ]),
   )
@@ -156,6 +207,21 @@ export async function getHomeFeed(
       .in('user_id', allUserIds)
     for (const p of profiles ?? []) {
       profileById.set(p.user_id, p)
+    }
+  }
+
+  // Pull graduation years for any mentees in the pending-requests list — they
+  // need to render with their cohort year on the dashboard.
+  const menteeGradYearById = new Map<string, number | null>()
+  if (menteeUserIds.length > 0) {
+    const { data: menteeOrgProfiles } = await supabase
+      .from('organization_memberships')
+      .select('user_id, organization_profiles(graduation_year)')
+      .in('user_id', menteeUserIds)
+      .eq('organization_id', organizationId)
+    for (const m of menteeOrgProfiles ?? []) {
+      const op = m.organization_profiles as { graduation_year: number | null } | null
+      menteeGradYearById.set(m.user_id, op?.graduation_year ?? null)
     }
   }
 
@@ -244,11 +310,35 @@ export async function getHomeFeed(
         }
       : null
 
+  const pendingMentorRequests: HomePendingMentorRequest[] = pendingRequests.map((r) => {
+    const p = profileById.get(r.mentee_id)
+    return {
+      id: r.id,
+      menteeName: p?.name ?? null,
+      menteeAvatarUrl: p?.avatar_url ?? null,
+      menteeGraduationYear: menteeGradYearById.get(r.mentee_id) ?? null,
+      reason: r.reason,
+      helpNeeded: r.help_needed,
+      createdAt: r.created_at,
+    }
+  })
+
+  const recentNotifications: HomeNotification[] = recentNotificationsRows.map((n) => ({
+    id: n.id,
+    type: n.type,
+    payload: (n.payload as Record<string, unknown> | null) ?? null,
+    targetId: n.target_id,
+    readAt: n.read_at,
+    createdAt: n.created_at,
+  }))
+
   return {
     recentJoiners,
     openMentors,
     upcomingEvents: events,
     latestAnnouncement,
+    pendingMentorRequests,
+    recentNotifications,
     stats: {
       newJoinersLast7d: newJoinersLast7d ?? 0,
       openMentorsTotal: openMentors.length,
