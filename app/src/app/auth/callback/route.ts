@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
-import { verifyInviteToken } from '@/lib/invite/verify'
 import { acceptInvite } from '@/lib/invite/accept'
+import { verifyInviteToken } from '@/lib/invite/verify'
 
 const PENDING_INVITE_COOKIE = 'pending_invite_token'
 
@@ -28,9 +28,7 @@ export async function GET(request: Request) {
   const origin = await getAppOrigin()
 
   if (errorParam) {
-    return NextResponse.redirect(
-      `${origin}/sign-in?error=${encodeURIComponent(errorParam)}`,
-    )
+    return NextResponse.redirect(`${origin}/sign-in?error=${encodeURIComponent(errorParam)}`)
   }
 
   if (!code) {
@@ -71,10 +69,7 @@ export async function GET(request: Request) {
   // reach this branch — the auth.exchangeCodeForSession above fails for
   // banned users and we redirect to /sign-in with the error.
   const [{ data: memberships }, { data: userRow }] = await Promise.all([
-    supabase
-      .from('organization_memberships')
-      .select('status')
-      .eq('user_id', data.user.id),
+    supabase.from('organization_memberships').select('status').eq('user_id', data.user.id),
     supabase
       .from('users')
       .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at')
@@ -90,11 +85,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}${safeNext}`)
   }
 
-  if (
-    userRow?.delete_scheduled_for &&
-    !userRow.delete_initiated_by_admin &&
-    !userRow.deleted_at
-  ) {
+  if (userRow?.delete_scheduled_for && !userRow.delete_initiated_by_admin && !userRow.deleted_at) {
     return NextResponse.redirect(`${origin}/cancel-delete`)
   }
 
