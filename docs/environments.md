@@ -131,7 +131,10 @@ Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and 
 - **Default branch**: `main`. Pushes here trigger Railway auto-deploy + Supabase prod migration auto-apply.
 - **Branching integration**: Supabase's GitHub app installed and pointed at this repo with working directory `app/`. Runs migrations on PR preview branches; merging to `main` auto-applies them to the prod Supabase project.
 - **Required status checks**: "Supabase Preview" should be required on `main`. **Currently "Not enforced"** because that requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory until Pro is enabled or the repo moves to an org plan.
-- **CI**: no GitHub Actions yet. `pnpm build` and `pnpm biome check` are run locally before each PR.
+- **CI**: GitHub Actions wired at `.github/workflows/`. Two workflows trigger on every PR to `main`:
+  - `ci.yml` — `Lint & test` (biome + vitest) and `Build (validates types vs. migrations)` jobs. The build job is the load-bearing migration-safety check: `next build` type-checks the whole codebase against `src/db/database.types.ts`, so a migration that drops a column app code still references fails the PR before merge.
+  - `e2e.yml` — `Playwright (chromium)` runs against `bridgecircle-dev` via the Doppler `DOPPLER_TOKEN` secret. Skippable via the `skip-e2e` PR label.
+  - Both Doppler-using jobs require a `DOPPLER_TOKEN` repo secret (service token from the Doppler dashboard). See [e2e-testing.md](e2e-testing.md) "Required GitHub secret".
 
 ### Where to look when something breaks in prod
 
@@ -396,7 +399,7 @@ If the deploy succeeds but a bug shows up:
 These exist as concepts in the broader docs but are **not** in the current setup:
 
 - **No staging environment.** Just dev (laptop) and prod (Railway). Add a third tier only when production has real users and a regression has real cost — likely after the May 25 alumni board meeting.
-- **No CI checks on PRs.** Pushing a PR doesn't run tests automatically yet (Supabase Preview runs the migration check, but that's it). Run `pnpm build` and `pnpm biome check` locally before merging. Worth adding GitHub Actions later for `pnpm build` + `pnpm vitest` + `pnpm biome check` on every PR.
+- **CI checks on PRs are now wired** (was previously listed as out-of-scope). `.github/workflows/ci.yml` runs biome, vitest, and `next build` on every PR. `.github/workflows/e2e.yml` runs Playwright. The Supabase Preview check still validates the migration itself on a real preview branch — together this gives three layers of migration safety: schema replay (Supabase), type compatibility (build), runtime behavior (E2E).
 - **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
 - **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
 - **No persistent dev branch on the prod Supabase project.** We use `bridgecircle-dev` (separate Free project) for daily development instead. Costs $0 vs. ~$10/mo for a persistent dev branch but adds the manual `pnpm dlx supabase db push` step. See `app/CLAUDE.md` post-launch backlog for the trade-off.
