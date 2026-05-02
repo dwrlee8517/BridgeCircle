@@ -44,13 +44,22 @@ jobs:
     name: Build (validates types vs. migrations)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # `continue-on-error` keeps the check visible on PRs (so we still see
-    # build pass/fail at a glance) but does not block merge. Tracking
-    # issue: a longstanding prerender bug on `main` makes `next build`
-    # crash with "useContext null" on several pages under React 19 + Next
-    # 16 + Sentry. This must be fixed before adding the job to the
-    # required-status-checks list. See the PR conversation for context.
-    continue-on-error: true
+    # DISABLED until the longstanding prerender bug on `main` is fixed.
+    # `next build` currently crashes with "TypeError: Cannot read
+    # properties of null (reading 'useContext')" on several pages —
+    # /admin/analytics, /admin/announcements, /mentorship/settings,
+    # /_global-error, /join — under React 19 + Next 16. The failure
+    # reproduces against unmodified main, so it is not introduced by any
+    # specific PR. Diagnosis is being tracked in a separate effort
+    # (likely Sentry's NextError import in global-error.tsx + Next 16
+    # PPR behavior).
+    #
+    # When the prerender bug is fixed:
+    #   1. Remove this `if: false` line.
+    #   2. Confirm the job goes green on a PR.
+    #   3. Add "Build (validates types vs. migrations)" to main's
+    #      required-status-checks list (Settings → Branches).
+    if: false
     steps:
       - uses: actions/checkout@v4
 
