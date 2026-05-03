@@ -131,9 +131,9 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon-sm"
             aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-            className="relative"
+            className="relative text-slate-300 hover:bg-slate-800 hover:text-white"
           >
             <Bell className="h-4 w-4" />
             {unread > 0 ? (
@@ -243,7 +243,7 @@ function RealtimeToast({ row, onClose }: { row: NotificationRow; onClose: () => 
     <div
       role="status"
       aria-live="polite"
-      className="fixed right-4 top-16 z-50 w-72 animate-in fade-in slide-in-from-top-2"
+      className="fixed right-4 top-20 z-50 w-72 animate-in fade-in slide-in-from-top-2"
     >
       <Link
         href={url ?? '#'}

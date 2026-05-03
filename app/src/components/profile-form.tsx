@@ -124,7 +124,7 @@ export function ProfileForm({
         <div className="flex items-start gap-3">
           <Checkbox id="openToMentor" name="openToMentor" defaultChecked={defaults.openToMentor} />
           <div className="space-y-1">
-            <Label htmlFor="openToMentor">I'm open to mentoring other alumni</Label>
+            <Label htmlFor="openToMentor">I&apos;m open to mentoring other alumni</Label>
             <p className="text-xs text-muted-foreground">
               You can change this any time in mentor settings.
             </p>
@@ -187,8 +187,10 @@ export function ProfileForm({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <fieldset className="space-y-3">
-      <legend className="text-sm font-medium">{title}</legend>
+    <fieldset className="space-y-4 border-t pt-5 first:border-t-0 first:pt-0">
+      <legend className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {title}
+      </legend>
       {children}
     </fieldset>
   )

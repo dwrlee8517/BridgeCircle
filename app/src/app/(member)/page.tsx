@@ -36,7 +36,7 @@ export default async function HomePage() {
 
   const { data: membership } = await supabase
     .from('organization_memberships')
-    .select('organization_id, organizations(name)')
+    .select('id, organization_id, organizations(name)')
     .eq('user_id', session.userId)
     .eq('status', 'active')
     .limit(1)
@@ -52,7 +52,7 @@ export default async function HomePage() {
     supabase
       .from('organization_profiles')
       .select('graduation_year')
-      .eq('organization_membership_id', membership.organization_id)
+      .eq('organization_membership_id', membership.id)
       .maybeSingle(),
   ])
   const firstName = viewerBase?.name?.split(' ')[0] ?? 'there'
@@ -69,6 +69,7 @@ export default async function HomePage() {
         orgName={orgDisplayName}
         pendingCount={feed.pendingMentorRequests.length}
         nextEvent={featuredEvent}
+        stats={feed.stats}
       />
 
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
@@ -104,15 +105,30 @@ function Hero({
   orgName,
   pendingCount,
   nextEvent,
+  stats,
 }: {
   firstName: string
   cohortYear: number | null
   orgName: string
   pendingCount: number
   nextEvent: HomeEvent | null
+  stats: {
+    newJoinersLast7d: number
+    openMentorsTotal: number
+    upcomingEventsTotal: number
+  }
 }) {
   const greeting = greetingForHour(new Date().getHours())
   const subline = heroSubline(pendingCount, nextEvent)
+  const statItems = [
+    { value: stats.newJoinersLast7d.toLocaleString(), label: 'Joined this week' },
+    { value: stats.openMentorsTotal.toLocaleString(), label: 'Open mentors' },
+    { value: stats.upcomingEventsTotal.toLocaleString(), label: 'Upcoming events' },
+    {
+      value: cohortYear ? `Class '${`${cohortYear}`.slice(-2)}` : 'Member',
+      label: 'Your cohort',
+    },
+  ]
   return (
     <section className="relative overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#131b2e_50%,#1e293b_100%)] text-white">
       <div
@@ -136,7 +152,7 @@ function Hero({
 
       <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-8 sm:py-20">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b4c5ff]">
-          {cohortYear ? `Class of ${cohortYear} · ` : ''}Welcome back to {orgName}
+          {cohortYear ? `Class of '${`${cohortYear}`.slice(-2)} · ` : ''}Welcome back to {orgName}
         </p>
         <h1
           className="bc-fraunces mt-3 max-w-4xl text-balance text-4xl font-bold leading-[1.05] tracking-[-0.025em] sm:text-5xl md:text-[56px]"
@@ -167,6 +183,51 @@ function Hero({
               Upcoming events
             </Link>
           </Button>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            marginTop: 56,
+            borderTop: '1px solid rgba(180,197,255,.18)',
+            paddingTop: 28,
+          }}
+        >
+          {statItems.map((item, index) => (
+            <div
+              key={item.label}
+              style={{
+                minWidth: 0,
+                borderLeft: index === 0 ? 'none' : '1px solid rgba(180,197,255,.18)',
+                padding: '0 24px',
+              }}
+            >
+              <div
+                className="bc-fraunces"
+                style={{
+                  color: '#ffffff',
+                  fontSize: 32,
+                  fontWeight: 700,
+                  letterSpacing: '-.02em',
+                  lineHeight: 1.2,
+                  fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25',
+                }}
+              >
+                {item.value}
+              </div>
+              <div
+                style={{
+                  color: '#94a3b8',
+                  fontSize: 13,
+                  lineHeight: 1.35,
+                  marginTop: 4,
+                }}
+              >
+                {item.label}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -255,7 +316,7 @@ function MenteesWaitingSection({ requests }: { requests: HomePendingMentorReques
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
             <p className="text-sm text-muted-foreground">
-              No pending mentor requests. When a mentee reaches out, they'll appear here.
+              No pending mentor requests. When a mentee reaches out, they&apos;ll appear here.
             </p>
             <Button asChild size="sm" variant="outline">
               <Link href="/mentorship/settings">Mentor settings</Link>
@@ -483,44 +544,44 @@ function NotificationRow({ notification: n }: { notification: HomeNotification }
   const { Icon, tone } = iconForType(n.type)
   const href = notificationHref(n)
   const label = notificationCopy(n)
-  const Wrapper = ({ children }: { children: React.ReactNode }) =>
+  const content = (
+    <div
+      className={`flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40 ${
+        unread ? 'bg-primary/[0.03]' : ''
+      }`}
+    >
+      <div
+        className="flex size-8 shrink-0 items-center justify-center rounded-full"
+        style={{ background: `${tone}26`, color: tone }}
+      >
+        <Icon className="size-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p
+          className={`text-[13px] leading-snug ${
+            unread ? 'font-semibold text-foreground' : 'font-medium text-foreground'
+          }`}
+        >
+          {label}
+        </p>
+        <span className="text-[11px] text-muted-foreground">
+          {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+        </span>
+      </div>
+      {unread ? (
+        <div aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
+      ) : null}
+    </div>
+  )
+
+  return (
     href ? (
       <Link href={href} className="block">
-        {children}
+        {content}
       </Link>
     ) : (
-      <div>{children}</div>
+      content
     )
-  return (
-    <Wrapper>
-      <div
-        className={`flex items-start gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40 ${
-          unread ? 'bg-primary/[0.03]' : ''
-        }`}
-      >
-        <div
-          className="flex size-8 shrink-0 items-center justify-center rounded-full"
-          style={{ background: `${tone}26`, color: tone }}
-        >
-          <Icon className="size-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p
-            className={`text-[13px] leading-snug ${
-              unread ? 'font-semibold text-foreground' : 'font-medium text-foreground'
-            }`}
-          >
-            {label}
-          </p>
-          <span className="text-[11px] text-muted-foreground">
-            {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
-          </span>
-        </div>
-        {unread ? (
-          <div aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" />
-        ) : null}
-      </div>
-    </Wrapper>
   )
 }
 

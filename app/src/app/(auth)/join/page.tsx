@@ -27,7 +27,7 @@ export default async function JoinPage({
   }
 
   return (
-    <Card>
+    <Card className="shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
       <CardContent className="pt-6">
         <JoinForm
           token={token}
