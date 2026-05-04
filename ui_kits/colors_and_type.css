@@ -1,0 +1,267 @@
+/* =========================================================================
+   BridgeCircle Design System — Colors & Typography
+   A verified alumni network. Modern professional, not boxy.
+   ========================================================================= */
+
+/* ---------- Fonts ---------- */
+/* Manrope: UI + body. Used everywhere except the wordmark/editorial accents. */
+/* Local Manrope variable font (uploaded by user). Falls back to Google Fonts
+   if loaded outside this project root. Fraunces still loads from Google. */
+@font-face {
+  font-family: "Manrope";
+  src: url("fonts/Manrope-VariableFont_wght.ttf") format("truetype-variations"),
+       url("fonts/Manrope-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* Fraunces: serif voice for the wordmark, footer microcopy, and editorial moments. */
+@font-face {
+  font-family: "Fraunces";
+  src: url("fonts/Fraunces-VariableFont.ttf") format("truetype-variations"),
+       url("fonts/Fraunces-VariableFont.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("fonts/Fraunces-Italic-VariableFont.ttf") format("truetype-variations"),
+       url("fonts/Fraunces-Italic-VariableFont.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  /* ============================================================
+     COLOR — Surfaces (cool slate, biased toward crisp neutrals)
+     ============================================================ */
+  --bc-surface:                  #f7f9fb;
+  --bc-surface-bright:           #f7f9fb;
+  --bc-surface-dim:              #d8dadc;
+  --bc-surface-container-lowest: #ffffff;
+  --bc-surface-container-low:    #f2f4f6;
+  --bc-surface-container:        #eceef0;
+  --bc-surface-container-high:   #e6e8ea;
+  --bc-surface-container-highest:#e0e3e5;
+
+  /* ============================================================
+     COLOR — Foreground / text on surfaces
+     ============================================================ */
+  --bc-on-surface:               #191c1e;
+  --bc-on-surface-variant:       #45464d;
+  --bc-outline:                  #76777d;
+  --bc-outline-variant:          #c6c6cd;
+
+  /* ============================================================
+     COLOR — Brand
+     ============================================================ */
+  /* Midnight Blue — structure, top nav, dark cards. Near-black with a navy soul. */
+  --bc-primary:                  #0b1220;     /* deepest — wordmark, top nav background */
+  --bc-primary-container:        #131b2e;     /* dark cards, premium surfaces */
+  --bc-on-primary:               #ffffff;
+  --bc-on-primary-container:     #7c839b;
+  --bc-on-primary-container-strong: #bec6e0;
+
+  /* Sapphire Blue — primary actions, focus, links, active states */
+  --bc-secondary:                #0051d5;     /* primary CTA */
+  --bc-secondary-strong:         #003ea8;     /* hover/pressed CTA */
+  --bc-secondary-soft:           #316bf3;     /* hover state on hero/marketing */
+  --bc-on-secondary:             #ffffff;
+  --bc-secondary-container:      #dbe1ff;     /* tinted background for secondary surfaces */
+  --bc-secondary-container-dim:  #b4c5ff;
+  --bc-on-secondary-container:   #00174b;
+  --bc-secondary-fixed:          #dbe1ff;
+
+  /* Slate — neutral chips, borders, dividers (slate-200 territory) */
+  --bc-slate-50:  #f8fafc;
+  --bc-slate-100: #f1f5f9;
+  --bc-slate-200: #e2e8f0;
+  --bc-slate-300: #cbd5e1;
+  --bc-slate-500: #64748b;
+  --bc-slate-700: #334155;
+  --bc-slate-800: #1e293b;
+  --bc-slate-900: #0f172a;
+  --bc-slate-950: #020617;
+
+  /* ============================================================
+     COLOR — Semantic / status
+     (mirrors codebase StatusBadge tones)
+     ============================================================ */
+  --bc-success:           #047857;   /* emerald-700 — open, accepted */
+  --bc-success-bg:        #d1fae5;   /* emerald-100 */
+  --bc-warning:           #92400e;   /* amber-800 — pending, paused, stale */
+  --bc-warning-bg:        #fef3c7;   /* amber-100 */
+  --bc-error:             #ba1a1a;   /* declined, revoked */
+  --bc-error-bg:          #ffdad6;
+  --bc-info:              var(--bc-secondary);
+  --bc-info-bg:           rgba(0, 81, 213, 0.10);
+
+  /* ============================================================
+     COLOR — Background / page
+     ============================================================ */
+  --bc-background:               var(--bc-surface);
+  --bc-on-background:            var(--bc-on-surface);
+
+  /* ============================================================
+     RADII — moderate, not bubbly
+     ============================================================ */
+  --bc-radius-sm:    0.25rem;   /* 4px  — chips, tiny inline tags */
+  --bc-radius:       0.5rem;    /* 8px  — DEFAULT — buttons, inputs, cards */
+  --bc-radius-md:    0.75rem;   /* 12px — secondary containers */
+  --bc-radius-lg:    1rem;      /* 16px — large containers, hero cards */
+  --bc-radius-xl:    1.5rem;    /* 24px — premium / decorative */
+  --bc-radius-full:  9999px;
+
+  /* ============================================================
+     SPACING — 8px base
+     ============================================================ */
+  --bc-space-xs:    4px;
+  --bc-space-base:  8px;
+  --bc-space-sm:    12px;
+  --bc-space-md:    24px;
+  --bc-space-lg:    40px;
+  --bc-space-xl:    64px;
+  --bc-gutter:      24px;
+  --bc-margin:      32px;
+  --bc-max-width:   1280px;
+
+  /* ============================================================
+     ELEVATION — soft, low-contrast, blue-tinted
+     Depth via outlines + tonal layers, not heavy shadows.
+     ============================================================ */
+  --bc-shadow-xs:    0 1px 2px 0 rgba(19, 27, 46, 0.04);
+  --bc-shadow-sm:    0 2px 6px -2px rgba(19, 27, 46, 0.05);
+  --bc-shadow:       0 4px 20px -4px rgba(19, 27, 46, 0.06);  /* "editorial-shadow" */
+  --bc-shadow-md:    0 8px 24px -6px rgba(19, 27, 46, 0.08);
+  --bc-shadow-lg:    0 12px 32px -8px rgba(19, 27, 46, 0.10);
+  --bc-shadow-focus: 0 0 0 4px rgba(0, 81, 213, 0.10);  /* sapphire focus ring */
+
+  /* ============================================================
+     BORDERS
+     ============================================================ */
+  --bc-border:        1px solid var(--bc-outline-variant);
+  --bc-border-strong: 1px solid var(--bc-outline);
+  --bc-border-soft:   1px solid var(--bc-slate-200);
+  --bc-border-dark:   1px solid var(--bc-slate-800);
+
+  /* ============================================================
+     TYPOGRAPHY — Manrope everywhere, Fraunces for editorial accents
+     ============================================================ */
+  --bc-font-sans:    'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --bc-font-serif:   'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+  --bc-font-mono:    ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Type scale — sizes, weights, leading, tracking */
+  --bc-display-lg-size: 48px;     --bc-display-lg-weight: 700;  --bc-display-lg-lh: 1.1;   --bc-display-lg-track: -0.02em;
+  --bc-headline-xl-size: 36px;    --bc-headline-xl-weight: 700; --bc-headline-xl-lh: 1.2;  --bc-headline-xl-track: -0.01em;
+  --bc-headline-lg-size: 28px;    --bc-headline-lg-weight: 600; --bc-headline-lg-lh: 1.3;
+  --bc-headline-md-size: 22px;    --bc-headline-md-weight: 600; --bc-headline-md-lh: 1.4;
+  --bc-body-lg-size: 18px;        --bc-body-lg-weight: 400;     --bc-body-lg-lh: 1.6;
+  --bc-body-md-size: 16px;        --bc-body-md-weight: 400;     --bc-body-md-lh: 1.6;
+  --bc-body-sm-size: 14px;        --bc-body-sm-weight: 400;     --bc-body-sm-lh: 1.5;
+  --bc-label-md-size: 14px;       --bc-label-md-weight: 600;    --bc-label-md-lh: 1.2;     --bc-label-md-track: 0.01em;
+  --bc-label-sm-size: 12px;       --bc-label-sm-weight: 700;    --bc-label-sm-lh: 1.2;     --bc-label-sm-track: 0.03em;
+}
+
+/* ============================================================
+   SEMANTIC TYPE CLASSES
+   Use these on real elements: <h1 class="bc-display-lg">.
+   ============================================================ */
+
+.bc-display-lg {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-display-lg-size);
+  font-weight: var(--bc-display-lg-weight);
+  line-height: var(--bc-display-lg-lh);
+  letter-spacing: var(--bc-display-lg-track);
+  color: var(--bc-on-surface);
+}
+.bc-headline-xl {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-headline-xl-size);
+  font-weight: var(--bc-headline-xl-weight);
+  line-height: var(--bc-headline-xl-lh);
+  letter-spacing: var(--bc-headline-xl-track);
+  color: var(--bc-on-surface);
+}
+.bc-headline-lg {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-headline-lg-size);
+  font-weight: var(--bc-headline-lg-weight);
+  line-height: var(--bc-headline-lg-lh);
+  color: var(--bc-on-surface);
+}
+.bc-headline-md {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-headline-md-size);
+  font-weight: var(--bc-headline-md-weight);
+  line-height: var(--bc-headline-md-lh);
+  color: var(--bc-on-surface);
+}
+.bc-body-lg {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-body-lg-size);
+  font-weight: var(--bc-body-lg-weight);
+  line-height: var(--bc-body-lg-lh);
+  color: var(--bc-on-surface-variant);
+}
+.bc-body-md {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-body-md-size);
+  font-weight: var(--bc-body-md-weight);
+  line-height: var(--bc-body-md-lh);
+  color: var(--bc-on-surface);
+}
+.bc-body-sm {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-body-sm-size);
+  font-weight: var(--bc-body-sm-weight);
+  line-height: var(--bc-body-sm-lh);
+  color: var(--bc-on-surface-variant);
+}
+.bc-label-md {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-label-md-size);
+  font-weight: var(--bc-label-md-weight);
+  line-height: var(--bc-label-md-lh);
+  letter-spacing: var(--bc-label-md-track);
+  color: var(--bc-on-surface);
+}
+.bc-label-sm {
+  font-family: var(--bc-font-sans);
+  font-size: var(--bc-label-sm-size);
+  font-weight: var(--bc-label-sm-weight);
+  line-height: var(--bc-label-sm-lh);
+  letter-spacing: var(--bc-label-sm-track);
+  text-transform: uppercase;
+  color: var(--bc-outline);
+}
+
+/* Editorial / brand voice — used sparingly: wordmark, footer, accent */
+.bc-wordmark {
+  font-family: var(--bc-font-serif);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-feature-settings: 'ss01' on;
+}
+.bc-eyebrow {
+  font-family: var(--bc-font-serif);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--bc-outline);
+}
+
+/* ============================================================
+   MOTION
+   ============================================================ */
+:root {
+  --bc-ease-standard:  cubic-bezier(0.2, 0, 0, 1);
+  --bc-ease-emphasis:  cubic-bezier(0.3, 0, 0, 1);
+  --bc-duration-quick: 150ms;
+  --bc-duration-base:  200ms;
+  --bc-duration-slow:  500ms;
+}

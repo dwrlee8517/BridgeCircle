@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>BridgeCircle — Alumni Network</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../colors_and_type.css" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400..700,0..1,-50..200" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #fafbfd;
+    font-family: var(--bc-font-sans);
+    color: var(--bc-fg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  button { font-family: inherit; }
+  a { text-decoration: none; }
+
+  /* Material Symbols Outlined — base style. The Google Fonts @import only loads
+     the @font-face; the class itself needs explicit feature settings + family. */
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "liga";
+    user-select: none;
+  }
+
+  /* Fraunces axis CSS variable applied globally */
+  :root {
+    --fraunces-soft: 50;
+    --fraunces-wonk: 0;
+    --fraunces-weight: 700;
+    --fraunces-opsz: 32;
+  }
+  .bc-fraunces {
+    font-family: "Fraunces", serif;
+    font-variation-settings:
+      "SOFT" var(--fraunces-soft),
+      "WONK" var(--fraunces-wonk),
+      "opsz" var(--fraunces-opsz);
+    font-weight: var(--fraunces-weight);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="Primitives.jsx"></script>
+<script type="text/babel" src="Cards.jsx"></script>
+<script type="text/babel" src="ProfileCardVariations.jsx"></script>
+<script type="text/babel" src="Chrome.jsx"></script>
+<script type="text/babel" src="Dashboard.jsx"></script>
+<script type="text/babel" src="Directory.jsx"></script>
+<script type="text/babel" src="Mentorship.jsx"></script>
+<script type="text/babel" src="Events.jsx"></script>
+
+<script type="text/babel">
+// ── Tweak defaults (persisted by the host on change) ─────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "frauncesSoft": 50,
+  "frauncesWonk": 0,
+  "frauncesWeight": 850,
+  "frauncesOpsz": 25,
+  "accentColor": "#0051d5",
+  "navDark": true,
+  "profileCardVariant": "v3plus"
+}/*EDITMODE-END*/;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const applyFrauncesAxes = ({ soft, wonk, weight, opsz }) => {
+  const root = document.documentElement;
+  root.style.setProperty("--fraunces-soft",   String(soft));
+  root.style.setProperty("--fraunces-wonk",   String(wonk));
+  root.style.setProperty("--fraunces-weight",  String(weight));
+  root.style.setProperty("--fraunces-opsz",   String(opsz));
+};
+
+const applyAccent = (color) => {
+  document.documentElement.style.setProperty("--bc-secondary", color);
+};
+
+// ── Main app ──────────────────────────────────────────────────────────────────
+const App = () => {
+  const [route, setRoute] = React.useState("Network");
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  // Apply tweaks to DOM whenever they change
+  React.useEffect(() => {
+    applyFrauncesAxes({
+      soft:   tweaks.frauncesSoft,
+      wonk:   tweaks.frauncesWonk,
+      weight: tweaks.frauncesWeight,
+      opsz:   tweaks.frauncesOpsz,
+    });
+    applyAccent(tweaks.accentColor);
+  }, [tweaks.frauncesSoft, tweaks.frauncesWonk, tweaks.frauncesWeight,
+      tweaks.frauncesOpsz, tweaks.accentColor]);
+
+  const Screen = (() => {
+    switch (route) {
+      case "Mentorship": return <Mentorship />;
+      case "Events":     return <Events />;
+      case "Inbox":      return <Directory variant={tweaks.profileCardVariant} />;
+      default:
+        return (
+          <Dashboard
+            onOpenMentor={() => setRoute("Mentorship")}
+            onOpenDirectory={() => setRoute("Inbox")}
+            onOpenEvents={() => setRoute("Events")}
+          />
+        );
+    }
+  })();
+
+  return (
+    <div data-screen-label={"01 " + route}>
+      <TopNav active={route} onNavigate={setRoute} />
+      {Screen}
+      <Footer />
+
+      {/* ── Tweaks panel ── */}
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Fraunces — editorial serif">
+          <TweakSlider
+            label="SOFT axis"
+            subtitle="0 = crisp corners · 100 = rounded, bouncy"
+            value={tweaks.frauncesSoft}
+            min={0} max={100} step={1}
+            onChange={(v) => setTweak("frauncesSoft", v)}
+          />
+          <TweakToggle
+            label="WONK axis"
+            subtitle="Off = symmetrical · On = charming lopsided alternates"
+            value={tweaks.frauncesWonk === 1}
+            onChange={(v) => setTweak("frauncesWonk", v ? 1 : 0)}
+          />
+          <TweakSlider
+            label="Weight"
+            subtitle="100 – 900"
+            value={tweaks.frauncesWeight}
+            min={100} max={900} step={50}
+            onChange={(v) => setTweak("frauncesWeight", v)}
+          />
+          <TweakSlider
+            label="Optical size (opsz)"
+            subtitle="9 = tight small text · 144 = loose display"
+            value={tweaks.frauncesOpsz}
+            min={9} max={144} step={1}
+            onChange={(v) => setTweak("frauncesOpsz", v)}
+          />
+          {/* Live preview */}
+          <div
+            style={{
+              marginTop: 8,
+              padding: "16px",
+              background: "#f2f4f6",
+              borderRadius: 8,
+              fontFamily: "Fraunces, serif",
+              fontVariationSettings: `"SOFT" ${tweaks.frauncesSoft}, "WONK" ${tweaks.frauncesWonk}, "opsz" ${tweaks.frauncesOpsz}`,
+              fontWeight: tweaks.frauncesWeight,
+            }}
+          >
+            <div style={{ fontSize: 28, color: "#0b1220", lineHeight: 1.1, marginBottom: 6 }}>
+              Bridge<span style={{ color: tweaks.accentColor }}>Circle</span>
+            </div>
+            <div style={{ fontSize: 16, color: "#45464d", fontStyle: "italic" }}>
+              "Good morning, Sarah. Your circle is active today."
+            </div>
+            <div style={{ fontSize: 12, color: "#76777d", marginTop: 8, fontFamily: "inherit", fontWeight: 400 }}>
+              SOFT {tweaks.frauncesSoft} · WONK {tweaks.frauncesWonk} · wght {tweaks.frauncesWeight} · opsz {tweaks.frauncesOpsz}
+            </div>
+          </div>
+        </TweakSection>
+
+        <TweakSection title="Brand">
+          <TweakColor
+            label="Accent / sapphire"
+            value={tweaks.accentColor}
+            onChange={(v) => setTweak("accentColor", v)}
+          />
+          <TweakButton
+            label="Reset to sapphire"
+            onClick={() => setTweak("accentColor", "#0051d5")}
+          />
+        </TweakSection>
+
+        <TweakSection title="Profile card style (Directory)">
+          <TweakSelect
+            label="Card variant"
+            subtitle="Switch the profile card. Open the Inbox tab to see results."
+            value={tweaks.profileCardVariant}
+            options={[
+              { value: "v2",     label: "V2 — Editorial Portrait" },
+              { value: "v3",     label: "V3 — Dense (photo + mentor)" },
+              { value: "v3plus", label: "V3+ — Dense + Bio" },
+              { value: "v5",     label: "V5 — Warm Minimal" },
+              { value: "v5plus", label: "V5+ — Warm Minimal + Bio ★" },
+            ]}
+            onChange={(v) => setTweak("profileCardVariant", v)}
+          />
+          <TweakButton
+            label="Open Directory"
+            onClick={() => setRoute("Inbox")}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
