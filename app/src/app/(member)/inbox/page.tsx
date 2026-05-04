@@ -54,8 +54,21 @@ export default async function InboxPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-semibold">Inbox</h1>
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
+      <div className="mb-8 border-b pb-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Mentorship
+        </p>
+        <h1
+          className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          Mentorship Inbox
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Review new requests, active threads, and the mentors you have reached out to.
+        </p>
+      </div>
 
       <Section
         title="Incoming requests"
@@ -149,9 +162,14 @@ function Section({
 }) {
   const arr = (Array.isArray(children) ? children : [children]).filter(Boolean)
   return (
-    <Card>
+    <Card className="mb-6 transition-all hover:border-primary/60 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
       <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardTitle
+          className="bc-fraunces text-2xl font-bold tracking-[-0.02em]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          {title}
+        </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
@@ -175,10 +193,12 @@ function RequestCard({
   ago: string
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-md border p-3 transition-colors hover:bg-muted/50">
+    <div className="flex items-start gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
       <Avatar className="size-10">
         {avatarUrl ? <AvatarImage src={avatarUrl} alt={name} /> : null}
-        <AvatarFallback>{name.slice(0, 1).toUpperCase()}</AvatarFallback>
+        <AvatarFallback className="bg-accent font-semibold text-accent-foreground">
+          {name.slice(0, 1).toUpperCase()}
+        </AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">

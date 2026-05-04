@@ -1,8 +1,6 @@
-import { Menu } from 'lucide-react'
+import { Menu, Search, Settings } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +9,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { NotificationRow } from '@/lib/notifications/types'
-import { signOut } from '../(auth)/sign-in/actions'
+import { AccountMenu } from './account-menu'
+import { MemberNav } from './member-nav'
 import { NotificationsBell } from './notifications-bell'
 
 type Props = {
@@ -41,18 +40,18 @@ export function MemberHeader({
   unreadCount,
 }: Props) {
   return (
-    <header className="border-b bg-background">
+    <header className="sticky top-0 z-50 border-b border-[#1e293b] bg-[#0b1220] text-slate-300">
       {/* @container makes child @[...]:utility classes responsive to the
           header's own width rather than the viewport's. The threshold
           (820px) was calibrated to where wordmark + 7 nav buttons + bell +
           avatar fit comfortably. Below that we collapse to a hamburger. */}
-      <div className="@container mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+      <div className="@container mx-auto flex h-[72px] max-w-7xl items-center gap-4 px-4 sm:px-8">
         {/* Hamburger — visible whenever the inline nav doesn't fit. Opens
             the same links as a DropdownMenu (no shadcn/sheet needed). */}
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Open navigation"
-            className="rounded-md p-1.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring @[820px]:hidden"
+            className="rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
           >
             <Menu className="size-5" />
           </DropdownMenuTrigger>
@@ -75,66 +74,51 @@ export function MemberHeader({
 
         <Link href="/" className="flex items-center gap-2" aria-label="BridgeCircle home">
           <Image
-            src="/brand/mark.svg"
+            src="/brand/mark-light.svg"
             alt=""
-            width={28}
-            height={28}
+            width={30}
+            height={30}
             className="rounded-md"
             priority
           />
-          <span className="bc-fraunces text-lg font-bold leading-none tracking-tight">
-            <span className="text-foreground">Bridge</span>
-            <span className="text-primary">Circle</span>
+          <span
+            className="bc-fraunces text-[22px] font-bold leading-none tracking-[-0.025em]"
+            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+          >
+            <span className="text-white">Bridge</span>
+            <span className="text-[#b4c5ff]">Circle</span>
           </span>
         </Link>
 
         {/* Inline nav — visible only when the header is wide enough.  */}
-        <nav className="hidden items-center gap-1 text-sm @[820px]:flex">
-          {NAV_LINKS.map((link) => (
-            <Button key={link.href} variant="ghost" size="sm" asChild>
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
-          ))}
-          {isAdmin ? (
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/admin/invite">Admin</Link>
-            </Button>
-          ) : null}
-        </nav>
+        <MemberNav isAdmin={isAdmin} />
 
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-2">
+          <form
+            action="/search"
+            className="hidden h-9 items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3 text-slate-300 @[1080px]:flex"
+          >
+            <Search className="size-4 text-slate-500" />
+            <input
+              name="q"
+              type="search"
+              placeholder="Search the circle..."
+              className="w-44 bg-transparent text-sm outline-none placeholder:text-slate-500"
+            />
+          </form>
           <NotificationsBell
             initial={notifications}
             initialUnread={unreadCount}
             viewerId={userId}
           />
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              aria-label="Account menu"
-              className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Avatar className="size-8">
-                {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
-                <AvatarFallback>{(name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/profile/${userId}`}>My profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/mentorship/settings">Mentor settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <form action={signOut} className="w-full">
-                  <button type="submit" className="w-full text-left">
-                    Sign out
-                  </button>
-                </form>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Link
+            href="/mentorship/settings"
+            aria-label="Mentor settings"
+            className="hidden size-9 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 sm:inline-flex"
+          >
+            <Settings className="size-4" />
+          </Link>
+          <AccountMenu userId={userId} name={name} avatarUrl={avatarUrl} />
         </div>
       </div>
     </header>

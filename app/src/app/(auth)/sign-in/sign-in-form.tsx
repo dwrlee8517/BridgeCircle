@@ -19,10 +19,20 @@ export function SignInForm({
   const [state, action, pending] = useActionState(signInWithPassword, initialState)
 
   return (
-    <Card className="text-base">
-      <CardHeader className="pt-6 pb-2">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
-        <CardDescription className="text-base">Sign in to BridgeCircle</CardDescription>
+    <Card className="text-base shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
+      <CardHeader className="pt-7 pb-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          BridgeCircle
+        </p>
+        <CardTitle
+          className="bc-fraunces text-3xl font-bold tracking-[-0.02em]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          Welcome back
+        </CardTitle>
+        <CardDescription className="text-base">
+          Sign in to your verified alumni network.
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5 pb-6">
         {initialError ? (

@@ -21,9 +21,18 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
   return (
     <div className="space-y-5 text-base">
       <div className="space-y-1">
-        {fullName ? <p className="text-sm text-muted-foreground">{fullName} —</p> : null}
-        <p className="text-sm text-muted-foreground">You're invited to</p>
-        <h1 className="text-2xl font-semibold">{organizationName}</h1>
+        {fullName ? (
+          <p className="text-sm text-muted-foreground">{fullName} —</p>
+        ) : null}
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
+          You&apos;re invited to
+        </p>
+        <h1
+          className="bc-fraunces text-3xl font-bold tracking-[-0.02em]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          {organizationName}
+        </h1>
         <p className="text-sm text-muted-foreground">on BridgeCircle</p>
       </div>
 

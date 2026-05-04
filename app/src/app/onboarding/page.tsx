@@ -53,9 +53,25 @@ export default async function OnboardingPage() {
     (membership?.organizations as { name: string } | null)?.name ?? 'your organization'
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 space-y-4">
-      <Card className="bg-muted/30">
-        <CardContent className="py-4 flex items-center justify-between gap-3">
+    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-8">
+      <div className="mb-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Member Profile
+        </p>
+        <h1
+          className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          Welcome to {orgName}
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Add the details that help other alumni find you for referrals, mentorship, and local
+          connection.
+        </p>
+      </div>
+
+      <Card className="mb-5 bg-muted/30">
+        <CardContent className="flex items-center justify-between gap-3 py-4">
           <div className="text-sm">
             <span className="font-medium">Have a resume?</span>{' '}
             <span className="text-muted-foreground">
@@ -70,9 +86,14 @@ export default async function OnboardingPage() {
           </Link>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
         <CardHeader>
-          <CardTitle>Welcome to {orgName}</CardTitle>
+          <CardTitle
+            className="bc-fraunces text-2xl font-bold tracking-[-0.02em]"
+            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+          >
+            Build Your Member Profile
+          </CardTitle>
           <CardDescription>
             A few details so other alumni can find you. You can edit any of this later.
           </CardDescription>

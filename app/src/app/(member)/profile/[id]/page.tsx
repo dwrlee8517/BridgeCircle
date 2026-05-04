@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getFriendshipState } from '@/lib/friendship/friendshipState'
@@ -72,41 +73,70 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 space-y-6">
+    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-8">
       <Link href="/search" className="text-sm text-muted-foreground hover:underline">
         ← Back to search
       </Link>
 
-      <Card>
-        <CardHeader className="flex-row items-start gap-4 space-y-0">
-          <Avatar className="size-20">
+      <Card className="mt-6 overflow-hidden p-0">
+        <CardHeader className="relative flex-row items-start gap-5 overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#131b2e_55%,#1e293b_100%)] p-7 text-white sm:p-8">
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-60"
+            style={{
+              backgroundImage: 'radial-gradient(rgba(180,197,255,0.10) 1px, transparent 1px)',
+              backgroundSize: '16px 16px',
+            }}
+          />
+          <svg
+            aria-hidden="true"
+            role="presentation"
+            viewBox="0 0 200 200"
+            className="absolute -right-10 -top-10 h-[200px] w-[200px] opacity-20"
+          >
+            <title>Decorative two-circle motif</title>
+            <circle cx="80" cy="100" r="60" fill="none" stroke="#b4c5ff" strokeWidth="1.5" />
+            <circle cx="130" cy="100" r="60" fill="none" stroke="#316bf3" strokeWidth="1.5" />
+          </svg>
+          <Avatar className="relative size-20 after:border-white/20">
             {profile.avatarUrl ? (
               <AvatarImage src={profile.avatarUrl} alt={profile.name ?? ''} />
             ) : null}
-            <AvatarFallback className="text-2xl">
+            <AvatarFallback className="bg-[#316bf3] text-2xl font-bold text-white">
               {(profile.name ?? '?').slice(0, 1).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <CardTitle className="text-2xl">{profile.name}</CardTitle>
+          <div className="relative flex-1 space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <CardTitle
+                className="bc-fraunces text-3xl font-bold tracking-[-0.02em] text-white sm:text-4xl"
+                style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+              >
+                {profile.name}
+              </CardTitle>
               {profile.graduationYear ? (
-                <span className="text-base text-muted-foreground">
-                  Class of {profile.graduationYear}
+                <span className="inline-flex h-6 items-center rounded-full bg-white/15 px-2.5 text-xs font-semibold text-white">
+                  Class of &apos;{`${profile.graduationYear}`.slice(-2)}
                 </span>
               ) : null}
               {profile.isOpenAsMentor ? (
-                <Badge variant="default">Open to mentor</Badge>
+                <StatusBadge tone="open" dot>
+                  Open to mentor
+                </StatusBadge>
               ) : profile.mentorPaused ? (
-                <Badge variant="outline">Paused while away</Badge>
+                <StatusBadge tone="warn" dot>
+                  Paused while away
+                </StatusBadge>
               ) : null}
             </div>
             {profile.headline ? (
-              <p className="text-base text-muted-foreground">{profile.headline}</p>
+              <p className="max-w-2xl text-base leading-relaxed text-slate-300">
+                {profile.headline}
+              </p>
             ) : null}
           </div>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-6 p-7 sm:p-8">
           <Section title="Now">
             <Row label="Role">
               {[profile.currentTitle, profile.currentEmployer].filter(Boolean).join(' · ') || '—'}
@@ -121,7 +151,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
 
           {profile.bio ? (
             <Section title="Bio">
-              <p className="text-sm whitespace-pre-line">{profile.bio}</p>
+              <p className="bc-pull-quote text-sm whitespace-pre-line">{profile.bio}</p>
             </Section>
           ) : null}
 
@@ -246,9 +276,11 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wide">{title}</h3>
-      <div className="space-y-1">{children}</div>
+    <div className="space-y-2.5 border-t pt-5 first:border-t-0 first:pt-0">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {title}
+      </h3>
+      <div className="space-y-1.5">{children}</div>
     </div>
   )
 }
