@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { signUpWithPassword, startGoogleSignup, type JoinState } from './actions'
+import { type JoinState, signUpWithPassword, startGoogleSignup } from './actions'
 
 const initialState: JoinState = {}
 
@@ -21,9 +21,7 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
   return (
     <div className="space-y-5 text-base">
       <div className="space-y-1">
-        {fullName ? (
-          <p className="text-sm text-muted-foreground">{fullName} —</p>
-        ) : null}
+        {fullName ? <p className="text-sm text-muted-foreground">{fullName} —</p> : null}
         <p className="text-sm text-muted-foreground">You're invited to</p>
         <h1 className="text-2xl font-semibold">{organizationName}</h1>
         <p className="text-sm text-muted-foreground">on BridgeCircle</p>
