@@ -4,19 +4,15 @@ import { JoinForm } from './join-form'
 
 type SearchParams = { token?: string; error?: string }
 
-export default async function JoinPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>
-}) {
+export default async function JoinPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams
   const token = params.token
 
   if (!token) {
     return (
       <ErrorCard title="No invite token">
-        This page only loads with a valid invite link. Check your email for the link your admin
-        sent you.
+        This page only loads with a valid invite link. Check your email for the link your admin sent
+        you.
       </ErrorCard>
     )
   }

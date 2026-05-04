@@ -1,13 +1,13 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { createClient } from '@/db/server'
 import { createAdminClient } from '@/db/admin'
+import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
-import { verifyInviteToken } from '@/lib/invite/verify'
 import { acceptInvite } from '@/lib/invite/accept'
+import { verifyInviteToken } from '@/lib/invite/verify'
 
 const PENDING_INVITE_COOKIE = 'pending_invite_token'
 const PENDING_INVITE_TTL_SECONDS = 60 * 10
@@ -21,10 +21,7 @@ const joinSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters.').max(72),
 })
 
-export async function signUpWithPassword(
-  _prev: JoinState,
-  formData: FormData,
-): Promise<JoinState> {
+export async function signUpWithPassword(_prev: JoinState, formData: FormData): Promise<JoinState> {
   const parsed = joinSchema.safeParse({
     token: formData.get('token'),
     password: formData.get('password'),
@@ -47,8 +44,7 @@ export async function signUpWithPassword(
   if (createErr || !created.user) {
     if (createErr?.message?.toLowerCase().includes('already')) {
       return {
-        error:
-          'An account with this email already exists. Sign in on the sign-in page instead.',
+        error: 'An account with this email already exists. Sign in on the sign-in page instead.',
       }
     }
     return { error: 'Could not create account. Please try again.' }
