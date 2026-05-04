@@ -16,7 +16,7 @@ test.describe("sign-in", () => {
     await expect(page).toHaveTitle(/BridgeCircle/);
 
     await expect(page.getByText(/welcome back/i)).toBeVisible();
-    await expect(page.getByText(/sign in to bridgecircle/i)).toBeVisible();
+    await expect(page.getByText(/verified alumni network/i)).toBeVisible();
 
     await expect(page.getByLabel(/email/i)).toBeVisible();
     await expect(page.getByLabel(/password/i)).toBeVisible();

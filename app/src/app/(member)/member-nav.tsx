@@ -23,7 +23,9 @@ export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
   return (
     <nav className="hidden items-center gap-7 text-sm @[900px]:flex">
       {links.map((link) => {
-        const active = link.match.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+        const active = link.match.some(
+          (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+        )
         return (
           <Link
             key={link.href}
