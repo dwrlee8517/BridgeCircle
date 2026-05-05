@@ -100,13 +100,30 @@ A few project-specific notes:
 
 ## CI Setup
 
-Not yet wired. When we add a GitHub Actions workflow for E2E, it will need:
+Wired at `.github/workflows/e2e.yml`. The job runs on every PR to `main` and via manual dispatch.
 
-- The Playwright Chromium binary cached or installed (`pnpm exec playwright install --with-deps chromium`).
-- A `DOPPLER_TOKEN` secret pointing to a service token scoped to `bridgecircle-dev` / `dev_personal` (or a dedicated `ci` config). The job runs commands as `doppler run -- ...` so secrets are injected at runtime, never written to disk.
-- A trigger on PR-to-`main`, with the option to skip via a label (long-running E2E shouldn't block hotfixes).
+What it does:
 
-The intended workflow file path is `.github/workflows/e2e.yml`.
+- Installs pnpm 10.33.2 and Node 22, restoring the pnpm store from cache.
+- Installs the Doppler CLI and authenticates non-interactively via the `DOPPLER_TOKEN` secret.
+- Caches and installs the Playwright Chromium binary (`pnpm exec playwright install --with-deps chromium`).
+- Runs `pnpm test:e2e`. Playwright's `webServer.command` (`doppler run -- pnpm dev`) inherits the `DOPPLER_TOKEN` from env and boots the Next.js dev server with `bridgecircle-dev` secrets.
+- Uploads the Playwright HTML report on every run and per-test traces on failure (artifact retention: 14 days).
+
+To bypass on a specific PR (hotfixes, doc-only changes), apply the `skip-e2e` label.
+
+### Required GitHub secret
+
+Add a single repo secret named `DOPPLER_TOKEN`:
+
+1. In the Doppler dashboard, generate a **service token** scoped to the config you want CI to use. The simplest setup is the existing `bridgecircle-dev` / `dev` config; a dedicated `ci` config (sibling of `dev`) is cleaner long-term. Whichever you pick must have `NODE_ENV=development` set explicitly (see [doppler.md](doppler.md) "The NODE_ENV Gotcha") so the dev server boots correctly.
+2. In GitHub: **Settings → Secrets and variables → Actions → New repository secret**, name it `DOPPLER_TOKEN`, paste the value.
+
+Rotate the token through the Doppler dashboard and update the GitHub secret in the same operation.
+
+### Adding it to required status checks
+
+Once a successful run has registered the check name with GitHub, add **Playwright (chromium)** to the required status checks for `main` (Settings → Branches → Branch protection rules). This is the same caveat as the Supabase Preview check: enforcement requires GitHub Pro on a personal-account private repo. See [environments.md](environments.md) "GitHub repository" for the trade-off.
 
 ## Troubleshooting
 

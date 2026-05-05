@@ -574,14 +574,12 @@ function NotificationRow({ notification: n }: { notification: HomeNotification }
     </div>
   )
 
-  return (
-    href ? (
-      <Link href={href} className="block">
-        {content}
-      </Link>
-    ) : (
-      content
-    )
+  return href ? (
+    <Link href={href} className="block">
+      {content}
+    </Link>
+  ) : (
+    content
   )
 }
 

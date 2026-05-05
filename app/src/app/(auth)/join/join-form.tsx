@@ -21,9 +21,7 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
   return (
     <div className="space-y-5 text-base">
       <div className="space-y-1">
-        {fullName ? (
-          <p className="text-sm text-muted-foreground">{fullName} —</p>
-        ) : null}
+        {fullName ? <p className="text-sm text-muted-foreground">{fullName} —</p> : null}
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           You&apos;re invited to
         </p>
