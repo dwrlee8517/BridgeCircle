@@ -50,7 +50,7 @@ export async function listEvents(
   if (!includeDrafts) query = query.not('published_at', 'is', null)
 
   const { data: events, error } = await query
-    .order('starts_at', { ascending: includePast ? false : true })
+    .order('starts_at', { ascending: !includePast })
     .limit(100)
 
   if (error) throw new Error(`listEvents events: ${error.message}`)

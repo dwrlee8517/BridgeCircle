@@ -254,10 +254,11 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
               </Button>
             ) : (
               <>
-                <MentorshipAction
+                <HelperAsks
                   profileUserId={profile.userId}
                   isOpenAsMentor={profile.isOpenAsMentor}
-                  state={mentorshipState}
+                  isOpenAsAdviceHelper={profile.isOpenAsAdviceHelper}
+                  mentorshipState={mentorshipState}
                   relatedRequestId={relatedRequestId}
                   relatedThreadId={relatedThreadId}
                 />
@@ -299,50 +300,82 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   )
 }
 
-function MentorshipAction({
+/**
+ * Helper-asks CTA cluster on the profile detail page.
+ *
+ * The mentorship-state path takes precedence: if there's an active or
+ * pending mentorship ask between viewer and profile, we surface that
+ * one button (open thread / view pending / review incoming). Otherwise
+ * we render up to two "ask" buttons — advice and/or mentorship —
+ * depending on what the helper is currently open to. Pause is honored
+ * via the isOpenAs* flags from getProfile.
+ *
+ * Advice asks intentionally don't drive the relationship-state UI: they
+ * are one-off, lower-stakes, and shouldn't gate the profile CTA. So a
+ * pending advice ask doesn't turn this into "Pending — view"; both
+ * sides can keep finding each other normally.
+ */
+function HelperAsks({
   profileUserId,
   isOpenAsMentor,
-  state,
+  isOpenAsAdviceHelper,
+  mentorshipState,
   relatedRequestId,
   relatedThreadId,
 }: {
   profileUserId: string
   isOpenAsMentor: boolean
-  state: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active'
+  isOpenAsAdviceHelper: boolean
+  mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active'
   relatedRequestId: string | null
   relatedThreadId: string | null
 }) {
-  if (state === 'active' && relatedThreadId) {
+  if (mentorshipState === 'active' && relatedThreadId) {
     return (
       <Button asChild>
         <Link href={`/mentorship/thread/${relatedThreadId}`}>Open mentorship thread</Link>
       </Button>
     )
   }
-  if (state === 'pending_outgoing' && relatedRequestId) {
+  if (mentorshipState === 'pending_outgoing' && relatedRequestId) {
     return (
       <Button asChild variant="outline">
         <Link href={`/mentorship/request/${relatedRequestId}`}>Request pending — view</Link>
       </Button>
     )
   }
-  if (state === 'pending_incoming' && relatedRequestId) {
+  if (mentorshipState === 'pending_incoming' && relatedRequestId) {
     return (
       <Button asChild>
         <Link href={`/mentorship/request/${relatedRequestId}`}>Review their request</Link>
       </Button>
     )
   }
-  if (!isOpenAsMentor) {
+
+  if (!isOpenAsMentor && !isOpenAsAdviceHelper) {
     return (
       <Button variant="outline" disabled>
-        Not open to mentor right now
+        Not open to requests right now
       </Button>
     )
   }
+
   return (
-    <Button asChild>
-      <Link href={`/mentorship/request/new?to=${profileUserId}`}>Send mentorship request</Link>
-    </Button>
+    <>
+      {isOpenAsAdviceHelper ? (
+        <Button asChild variant={isOpenAsMentor ? 'outline' : 'default'}>
+          <Link href={`/mentorship/request/new?to=${profileUserId}&type=advice`}>
+            Ask for advice
+          </Link>
+        </Button>
+      ) : null}
+      {isOpenAsMentor ? (
+        <Button asChild>
+          <Link href={`/mentorship/request/new?to=${profileUserId}&type=mentorship`}>
+            Request mentorship
+          </Link>
+        </Button>
+      ) : null}
+    </>
   )
 }

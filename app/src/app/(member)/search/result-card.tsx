@@ -56,8 +56,8 @@ export function ResultCard(props: ResultCardProps) {
           {/* Photo placeholder — charcoal gradient with initials, dot grid, availability dot */}
           <div className="relative size-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[linear-gradient(135deg,#1e293b_0%,#3f465c_100%)]">
             {props.avatarUrl ? (
-              // biome-ignore lint/performance/noImgElement: avatar URLs come from Supabase storage; Next/Image config not required here.
               // eslint-disable-next-line @next/next/no-img-element
+              // biome-ignore lint/performance/noImgElement: avatar URLs come from Supabase storage; Next/Image config not required here.
               <img
                 src={props.avatarUrl}
                 alt=""
