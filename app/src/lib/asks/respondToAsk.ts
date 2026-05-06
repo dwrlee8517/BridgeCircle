@@ -33,7 +33,7 @@ export async function respondToAsk(
 ): Promise<RespondResult> {
   const { data: ask, error: askErr } = await supabase
     .from('asks')
-    .select('id, helper_id, asker_id, organization_id, status')
+    .select('id, helper_id, asker_id, organization_id, status, ask_type')
     .eq('id', input.askId)
     .maybeSingle()
 
@@ -58,7 +58,14 @@ export async function respondToAsk(
     if (existing) return { ok: true, threadId: existing.id }
     const recovered = await createThread(admin, ask)
     if (!recovered.ok) return recovered
-    await sendAcceptedEmail(supabase, appOrigin, recovered.threadId, ask.helper_id, ask.asker_id)
+    await sendAcceptedEmail(
+      supabase,
+      appOrigin,
+      recovered.threadId,
+      ask.helper_id,
+      ask.asker_id,
+      ask.ask_type as 'advice' | 'mentorship',
+    )
     return { ok: true, threadId: recovered.threadId }
   }
   if (ask.status === 'declined') {
@@ -80,7 +87,14 @@ export async function respondToAsk(
     const result = await createThread(admin, ask)
     if (!result.ok) return result
     threadId = result.threadId
-    await sendAcceptedEmail(supabase, appOrigin, threadId, ask.helper_id, ask.asker_id)
+    await sendAcceptedEmail(
+      supabase,
+      appOrigin,
+      threadId,
+      ask.helper_id,
+      ask.asker_id,
+      ask.ask_type as 'advice' | 'mentorship',
+    )
   }
 
   await supabase.from('audit_log').insert({
@@ -102,12 +116,15 @@ export async function respondToAsk(
 
   await createNotification({
     userId: ask.asker_id,
-    type:
-      input.decision === 'accepted' ? 'mentorship_request_accepted' : 'mentorship_request_declined',
+    type: input.decision === 'accepted' ? 'ask_accepted' : 'ask_declined',
     organizationId: ask.organization_id,
     targetType: input.decision === 'accepted' ? 'ask_thread' : 'ask',
     targetId: input.decision === 'accepted' ? threadId : ask.id,
-    payload: { actor_id: helperId, actor_name: helperBase?.name ?? null },
+    payload: {
+      actor_id: helperId,
+      actor_name: helperBase?.name ?? null,
+      ask_type: ask.ask_type,
+    },
   })
 
   return { ok: true, threadId }
@@ -138,6 +155,7 @@ async function sendAcceptedEmail(
   threadId: string,
   helperId: string,
   askerId: string,
+  askType: 'advice' | 'mentorship',
 ) {
   try {
     const { data: helperBase } = await supabase
@@ -154,7 +172,8 @@ async function sendAcceptedEmail(
     await sendMentorshipAcceptedEmail({
       to: askerAuth.user.email,
       mentorName: helperBase?.name ?? 'Your helper',
-      threadUrl: `${appOrigin}/mentorship/thread/${threadId}`,
+      threadUrl: `${appOrigin}/ask/thread/${threadId}`,
+      askType,
     })
   } catch {
     // Email is best-effort.

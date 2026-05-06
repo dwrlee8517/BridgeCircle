@@ -54,7 +54,7 @@ export async function sendMessage(
   await supabase.from('ask_threads').update({ last_message_at: now }).eq('id', input.threadId)
 
   // Notify the other participant. Notification type stays as legacy
-  // 'mentorship_message' until the /ask routing rename ships.
+  // 'ask_message' until the /ask routing rename ships.
   const otherUserId = thread.helper_id === senderId ? thread.asker_id : thread.helper_id
   const { data: senderProfile } = await supabase
     .from('base_profiles')
@@ -63,7 +63,7 @@ export async function sendMessage(
     .maybeSingle()
   await createNotification({
     userId: otherUserId,
-    type: 'mentorship_message',
+    type: 'ask_message',
     organizationId: null,
     targetType: 'ask_thread',
     targetId: input.threadId,

@@ -7,7 +7,11 @@ import { cn } from '@/lib/utils'
 
 export const MEMBER_NAV_LINKS = [
   { href: '/search', label: 'Search', match: ['/search', '/profile'] },
-  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/mentorship'] },
+  // /ask is the verb-driven heart of the product — your sent asks + a CTA
+  // to start a new one. The composer at /ask/new and the thread at
+  // /ask/thread/* are reached from this surface or from a profile.
+  { href: '/ask', label: 'Ask', match: ['/ask'] },
+  { href: '/inbox', label: 'Inbox', match: ['/inbox'] },
   { href: '/messages', label: 'Messages', match: ['/messages'] },
   { href: '/friends', label: 'Friends', match: ['/friends'] },
   { href: '/events', label: 'Events', match: ['/events'] },

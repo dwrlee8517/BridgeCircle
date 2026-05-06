@@ -221,12 +221,12 @@ function Icon({ type }: { type: NotificationType }) {
     case 'friend_request_received':
     case 'friend_request_accepted':
       return <UserPlus className={className} />
-    case 'mentorship_request_received':
-    case 'mentorship_request_accepted':
-    case 'mentorship_request_declined':
+    case 'ask_received':
+    case 'ask_accepted':
+    case 'ask_declined':
       return <Handshake className={className} />
     case 'direct_message':
-    case 'mentorship_message':
+    case 'ask_message':
       return <MessageSquare className={className} />
     case 'announcement':
       return <Megaphone className={className} />

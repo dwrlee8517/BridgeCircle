@@ -12,11 +12,11 @@
 export const NOTIFICATION_TYPES = [
   'friend_request_received',
   'friend_request_accepted',
-  'mentorship_request_received',
-  'mentorship_request_accepted',
-  'mentorship_request_declined',
+  'ask_received',
+  'ask_accepted',
+  'ask_declined',
   'direct_message',
-  'mentorship_message',
+  'ask_message',
   'announcement',
   'event_canceled',
 ] as const
@@ -42,12 +42,12 @@ export function notificationIcon(t: NotificationType): string {
     case 'friend_request_received':
     case 'friend_request_accepted':
       return 'UserPlus'
-    case 'mentorship_request_received':
-    case 'mentorship_request_accepted':
-    case 'mentorship_request_declined':
+    case 'ask_received':
+    case 'ask_accepted':
+    case 'ask_declined':
       return 'Handshake'
     case 'direct_message':
-    case 'mentorship_message':
+    case 'ask_message':
       return 'MessageSquare'
     case 'announcement':
       return 'Megaphone'
@@ -65,16 +65,25 @@ export function notificationLabel(row: NotificationRow): string {
       return `${actor} sent you a friend request`
     case 'friend_request_accepted':
       return `${actor} accepted your friend request`
-    case 'mentorship_request_received':
+    case 'ask_received': {
+      const askType = row.payload?.ask_type
+      if (askType === 'advice') return `${actor} asked you for advice`
       return `${actor} requested mentorship`
-    case 'mentorship_request_accepted':
+    }
+    case 'ask_accepted': {
+      const askType = row.payload?.ask_type
+      if (askType === 'advice') return `${actor} accepted your advice request`
       return `${actor} accepted your mentorship request`
-    case 'mentorship_request_declined':
+    }
+    case 'ask_declined': {
+      const askType = row.payload?.ask_type
+      if (askType === 'advice') return `${actor} declined your advice request`
       return `${actor} declined your mentorship request`
+    }
     case 'direct_message':
       return `New message from ${actor}`
-    case 'mentorship_message':
-      return `${actor} sent a mentorship message`
+    case 'ask_message':
+      return `${actor} sent you a message`
     case 'announcement': {
       const title = typeof row.payload?.title === 'string' ? row.payload.title : 'New announcement'
       return title
@@ -96,15 +105,15 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
       return '/friends'
     case 'friend_request_accepted':
       return row.targetId ? `/profile/${row.targetId}` : '/friends'
-    case 'mentorship_request_received':
-    case 'mentorship_request_declined':
-      return row.targetId ? `/mentorship/request/${row.targetId}` : '/inbox'
-    case 'mentorship_request_accepted':
-      return row.targetId ? `/mentorship/thread/${row.targetId}` : '/inbox'
+    case 'ask_received':
+    case 'ask_declined':
+      return row.targetId ? `/ask/${row.targetId}` : '/inbox'
+    case 'ask_accepted':
+      return row.targetId ? `/ask/thread/${row.targetId}` : '/inbox'
     case 'direct_message':
       return row.targetId ? `/messages/${row.targetId}` : '/messages'
-    case 'mentorship_message':
-      return row.targetId ? `/mentorship/thread/${row.targetId}` : '/inbox'
+    case 'ask_message':
+      return row.targetId ? `/ask/thread/${row.targetId}` : '/inbox'
     case 'announcement':
       return '/announcements'
     case 'event_canceled':
@@ -119,11 +128,11 @@ export function notificationShouldToast(t: NotificationType): boolean {
   switch (t) {
     case 'friend_request_received':
     case 'friend_request_accepted':
-    case 'mentorship_request_received':
-    case 'mentorship_request_accepted':
-    case 'mentorship_request_declined':
+    case 'ask_received':
+    case 'ask_accepted':
+    case 'ask_declined':
     case 'direct_message':
-    case 'mentorship_message':
+    case 'ask_message':
       return true
     case 'announcement':
     case 'event_canceled':
