@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BridgeCircle — Day 18 Analytics Dashboard Mockup</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --bg-2: #1a2028;
+    --bg-3: #232a33;
+    --fg: #e8e8e8;
+    --muted: #8a95a3;
+    --accent: #5ab4ff;
+    --ok: #7ed07e;
+    --bad: #ff8a7a;
+    --warn: #f6c76a;
+    --line: #2c3540;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 60px 32px 100px; }
+  header { padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+  h1 { font-size: 36px; margin: 0 0 8px; letter-spacing: -0.5px; }
+  h2 { font-size: 26px; margin: 56px 0 16px; color: var(--accent); letter-spacing: -0.3px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 18px; margin: 24px 0 8px; color: var(--fg); font-weight: 600; }
+  p { margin: 0 0 14px; max-width: 880px; color: #d6dde4; }
+  .lead { color: var(--muted); font-size: 18px; max-width: 800px; }
+  .toc { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 24px 0; }
+  .toc strong { display: block; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .toc ul { margin: 0; padding-left: 20px; }
+  .toc li { margin: 4px 0; }
+  .toc a { color: #c9d6e2; text-decoration: none; }
+  .toc a:hover { color: var(--accent); }
+
+  code { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 0.92em; background: var(--bg-3); padding: 2px 7px; border-radius: 4px; }
+
+  /* === Mock app chrome (mimics the real /admin layout) === */
+  .app-frame {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 18px 0 28px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+  }
+  .app-topbar {
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #374151;
+  }
+  .app-topbar .brand { font-weight: 700; color: #111827; }
+  .app-topbar .right { display: flex; align-items: center; gap: 14px; color: #6b7280; }
+  .app-topbar .bell { position: relative; padding: 0 4px; }
+  .app-topbar .bell .dot { position: absolute; top: -2px; right: -4px; background: #dc2626; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 999px; }
+  .app-topbar .avatar { width: 24px; height: 24px; border-radius: 999px; background: #c7d2fe; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: #1e3a8a; font-weight: 600; }
+
+  .admin-subnav {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 8px 18px;
+    display: flex;
+    gap: 18px;
+    font-size: 13px;
+    color: #4b5563;
+  }
+  .admin-subnav a { color: #4b5563; text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+  .admin-subnav a.active { color: #111827; border-bottom-color: #111827; font-weight: 600; }
+  .admin-subnav a.new { color: #2563eb; }
+  .admin-subnav a.new::after { content: " ●"; color: #16a34a; font-size: 10px; vertical-align: super; }
+
+  .app-body { padding: 28px 28px 36px; background: #fafafa; min-height: 360px; }
+  .page-title-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .page-title { font-size: 22px; font-weight: 600; color: #111827; }
+  .page-meta { font-size: 12px; color: #6b7280; }
+  .page-sub { font-size: 13px; color: #6b7280; margin-bottom: 22px; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  @media (max-width: 760px) { .cards { grid-template-columns: 1fr 1fr; } }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 18px 16px;
+    transition: border-color 0.15s;
+    cursor: help;
+  }
+  .card:hover { border-color: #cbd5e1; }
+  .card .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.6px; }
+  .card .value { font-size: 32px; font-weight: 700; color: #111827; margin: 6px 0 4px; line-height: 1.1; }
+  .card .sub { font-size: 12px; color: #6b7280; }
+  .card .sub.up { color: #15803d; }
+  .card .sub.down { color: #b91c1c; }
+  .card .sub.neutral { color: #6b7280; }
+  .card .footnote { font-size: 11px; color: #9ca3af; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e5e7eb; }
+
+  .footer-note {
+    margin-top: 22px;
+    font-size: 12px;
+    color: #6b7280;
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 14px;
+  }
+
+  .empty .value { color: #9ca3af; }
+
+  /* === Dark commentary blocks === */
+  .panel { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 18px 22px; margin: 14px 0; }
+  .panel h3 { margin-top: 0; color: var(--accent); }
+  .panel ul { margin: 6px 0 0; padding-left: 22px; }
+  .panel li { margin: 4px 0; color: #d6dde4; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .meta-table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+  .meta-table th, .meta-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  .meta-table th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta-table td code { font-size: 12px; }
+
+  /* === Tooltip mock === */
+  .tooltip-demo { position: relative; display: inline-block; margin: 10px 0; }
+  .tooltip-demo .tt-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px;
+    width: 280px;
+    color: #111827;
+  }
+  .tooltip-demo .tt-pop {
+    position: absolute;
+    top: 0;
+    left: 300px;
+    background: #111827;
+    color: #f9fafb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    width: 280px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+  .tooltip-demo .tt-pop::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 18px;
+    border: 6px solid transparent;
+    border-right-color: #111827;
+    border-left: 0;
+  }
+  @media (max-width: 760px) {
+    .tooltip-demo .tt-pop { position: static; margin-top: 10px; width: 280px; }
+    .tooltip-demo .tt-pop::before { display: none; }
+  }
+
+  /* === Flow steps (admin journey) === */
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
+  .flow .step { background: var(--bg-2); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; font-size: 14px; min-width: 130px; text-align: center; color: #c9d6e2; }
+  .flow .arrow { color: var(--muted); font-size: 18px; }
+  .flow .step.start { border-color: var(--accent); color: #b8dcff; }
+  .flow .step.end { border-color: var(--ok); color: #b1e3b1; }
+
+  .out-of-scope { background: rgba(246,199,106,0.05); border: 1px solid rgba(246,199,106,0.3); border-left: 3px solid var(--warn); border-radius: 8px; padding: 14px 18px; margin: 14px 0; }
+  .out-of-scope strong { color: var(--warn); }
+  .out-of-scope ul { margin: 6px 0 0; }
+
+  .legend { font-size: 12px; color: var(--muted); margin: 12px 0; }
+  .legend .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 6px 0 14px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Day 18 — Admin Analytics Dashboard</h1>
+  <p class="lead">A walkthrough of what the analytics page will look like, how an admin gets to it, and how they can interact with each card. This is a static mockup — the real implementation matches.</p>
+</header>
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ul>
+    <li><a href="#journey">1. How an admin gets there</a></li>
+    <li><a href="#dashboard">2. The dashboard (default state)</a></li>
+    <li><a href="#interactions">3. Interactions on each card</a></li>
+    <li><a href="#states">4. Empty, loading, error states</a></li>
+    <li><a href="#cards">5. The 6 cards in detail</a></li>
+    <li><a href="#out-of-scope">6. What we're <em>not</em> building (yet)</a></li>
+  </ul>
+</div>
+
+<h2 id="journey">1. How an admin gets there</h2>
+<p>Analytics is a top-level admin tab — same row as Members, Events, Announcements. One click from anywhere in the app.</p>
+
+<div class="flow">
+  <div class="step start">Sign in (admin)</div>
+  <div class="arrow">→</div>
+  <div class="step">Click "Admin" in top nav</div>
+  <div class="arrow">→</div>
+  <div class="step">Click "Analytics" tab</div>
+  <div class="arrow">→</div>
+  <div class="step end">See dashboard</div>
+</div>
+
+<p>Non-admin members never see the link (the entire <code>/admin/*</code> tree is gated by the existing <code>requireAdmin()</code> guard).</p>
+
+<h2 id="dashboard">2. The dashboard (default state)</h2>
+<p>What the admin sees on first load. Six cards in a 3×2 grid. No filters, no date pickers, no chart libraries. Just numbers, headlines, and one-line context.</p>
+
+<div class="app-frame">
+  <div class="app-topbar">
+    <span class="brand">BridgeCircle</span>
+    <div class="right">
+      <span>Search</span>
+      <span>Friends</span>
+      <span>Events</span>
+      <span class="bell">🔔<span class="dot">2</span></span>
+      <span class="avatar">RL</span>
+    </div>
+  </div>
+  <div class="admin-subnav">
+    <a href="#">Invite</a>
+    <a href="#">Approvals</a>
+    <a href="#">Members</a>
+    <a href="#">Events</a>
+    <a href="#">Announcements</a>
+    <a href="#" class="active new">Analytics</a>
+  </div>
+  <div class="app-body">
+    <div class="page-title-row">
+      <div class="page-title">Analytics</div>
+      <div class="page-meta">Updated just now</div>
+    </div>
+    <div class="page-sub">A snapshot of org engagement. Most metrics cover the last 30 days.</div>
+
+    <div class="cards">
+      <div class="card" title="invited / signed up / completed profile in last 30 days">
+        <div class="label">Invite → Active</div>
+        <div class="value">62%</div>
+        <div class="sub neutral">28 invited · 17 active</div>
+        <div class="footnote">Last 30 days</div>
+      </div>
+
+      <div class="card" title="signed in at least once in the last 30 days">
+        <div class="label">Active members</div>
+        <div class="value">41</div>
+        <div class="sub up">↑ 6 vs prior 30d</div>
+        <div class="footnote">Signed in last 30 days</div>
+      </div>
+
+      <div class="card" title="mentorship requests sent / active member">
+        <div class="label">Mentorship request rate</div>
+        <div class="value">0.34</div>
+        <div class="sub neutral">14 requests · 41 active</div>
+        <div class="footnote">Per active member, last 30 days</div>
+      </div>
+
+      <div class="card" title="% of requests with mentor reply within 7 days">
+        <div class="label">Mentor response rate</div>
+        <div class="value">86%</div>
+        <div class="sub up">12 of 14 within 7 days</div>
+        <div class="footnote">Last 30 days</div>
+      </div>
+
+      <div class="card" title="profiles updated in the last 6 months">
+        <div class="label">Profile freshness</div>
+        <div class="value">94%</div>
+        <div class="sub neutral">98 of 104 profiles</div>
+        <div class="footnote">Updated last 6 months</div>
+      </div>
+
+      <div class="card" title="going + waitlisted across all upcoming events">
+        <div class="label">Upcoming RSVP activity</div>
+        <div class="value">73</div>
+        <div class="sub neutral">68 going · 5 waitlist · across 4 events</div>
+        <div class="footnote">All future events</div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Numbers are computed from Postgres views, refreshed on page load. No background jobs, no caching layer — load time is &lt;200ms on the dev DB.
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <span class="swatch" style="background:#15803d;"></span>green sub-line = trending up
+  <span class="swatch" style="background:#b91c1c;"></span>red = down
+  <span class="swatch" style="background:#6b7280;"></span>gray = neutral / context
+</div>
+
+<h2 id="interactions">3. Interactions on each card</h2>
+<p>Cards are intentionally low-interaction. The admin's job here is to <strong>read numbers and form a hypothesis</strong>, not to drill in. That keeps Day 18 small.</p>
+
+<div class="grid-2">
+  <div class="panel">
+    <h3>What you can do</h3>
+    <ul>
+      <li><strong>Hover a card</strong> → native browser tooltip explains what the number means (the <code>title</code> attribute).</li>
+      <li><strong>Glance at the sub-line</strong> → see the underlying counts ("12 of 14 within 7 days") so the percentage isn't context-free.</li>
+      <li><strong>Refresh the page</strong> → numbers re-query. There's no auto-refresh polling.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <h3>What you can't do (yet)</h3>
+    <ul>
+      <li>Click a card to drill into the underlying rows.</li>
+      <li>Change the date range.</li>
+      <li>Export to CSV.</li>
+      <li>See a sparkline / trend chart.</li>
+      <li>Filter by tag, year, or graduation cohort.</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Hover example — explanatory tooltip</h3>
+<p>Mocked here as a side-popover for visibility. In the real UI it's the browser's native tooltip on the card.</p>
+
+<div class="tooltip-demo">
+  <div class="tt-card">
+    <div style="font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.6px;">Mentor response rate</div>
+    <div style="font-size:32px;font-weight:700;color:#111827;margin:6px 0 4px;">86%</div>
+    <div style="font-size:12px;color:#15803d;">12 of 14 within 7 days</div>
+    <div style="font-size:11px;color:#9ca3af;margin-top:12px;padding-top:10px;border-top:1px dashed #e5e7eb;">Last 30 days</div>
+  </div>
+  <div class="tt-pop">
+    Of mentorship requests sent in the last 30 days, the percentage where the mentor accepted or declined within 7 days. Higher is better.
+  </div>
+</div>
+
+<h2 id="states">4. Empty, loading, error states</h2>
+
+<div class="grid-2">
+  <div>
+    <h3 style="color:var(--muted);">Empty (brand-new org)</h3>
+    <div class="app-frame" style="margin:8px 0;">
+      <div class="app-body" style="padding:18px;">
+        <div class="cards">
+          <div class="card empty">
+            <div class="label">Invite → Active</div>
+            <div class="value">—</div>
+            <div class="sub neutral">No invites sent</div>
+          </div>
+          <div class="card empty">
+            <div class="label">Active members</div>
+            <div class="value">1</div>
+            <div class="sub neutral">Just you</div>
+          </div>
+          <div class="card empty">
+            <div class="label">Mentorship rate</div>
+            <div class="value">—</div>
+            <div class="sub neutral">No active members</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h3 style="color:var(--muted);">Error (DB unreachable)</h3>
+    <div class="app-frame" style="margin:8px 0;">
+      <div class="app-body" style="padding:18px;">
+        <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:8px;padding:14px;font-size:14px;">
+          <strong>Couldn't load analytics.</strong><br>
+          <span style="font-size:12px;">The query failed. Refresh to retry. If this persists, check Sentry.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>No skeleton loader — the page is server-rendered and the queries are fast (single-digit ms each). Either it loads with numbers or it shows the error block.</p>
+
+<h2 id="cards">5. The 6 cards in detail</h2>
+<table class="meta-table">
+  <thead>
+    <tr>
+      <th>Card</th>
+      <th>What it answers</th>
+      <th>Backing view</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Invite → Active</strong></td>
+      <td>Of people invited in the last 30 days, what % made it to "active" (signed up + approved + has profile)?</td>
+      <td><code>analytics_invited_to_completed</code></td>
+    </tr>
+    <tr>
+      <td><strong>Active members</strong></td>
+      <td>How many distinct members signed in at least once in the last 30 days?</td>
+      <td><code>analytics_active_members</code></td>
+    </tr>
+    <tr>
+      <td><strong>Mentorship request rate</strong></td>
+      <td>Are members actually using the mentorship feature? Requests-per-active-member per 30 days.</td>
+      <td><code>analytics_mentorship_request_rate</code></td>
+    </tr>
+    <tr>
+      <td><strong>Mentor response rate</strong></td>
+      <td>When mentees reach out, do mentors reply within 7 days? Quality signal for the network.</td>
+      <td><code>analytics_mentorship_response_rate</code></td>
+    </tr>
+    <tr>
+      <td><strong>Profile freshness</strong></td>
+      <td>What % of profiles have been updated in the last 6 months? Decays naturally over time.</td>
+      <td><code>analytics_profile_freshness</code></td>
+    </tr>
+    <tr>
+      <td><strong>RSVP activity</strong></td>
+      <td>Across all upcoming events, how many seats are committed (going + waitlist)?</td>
+      <td><code>analytics_rsvp_activity</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="out-of-scope">6. What we're <em>not</em> building (yet)</h2>
+<div class="out-of-scope">
+  <strong>Explicitly deferred from Day 18.</strong> Each of these is a real feature, but cutting them keeps this PR small and demo-ready.
+  <ul>
+    <li><strong>Sparklines / trend charts</strong> — would need a charting lib (Recharts or similar). Adds bundle weight + design work.</li>
+    <li><strong>Custom date ranges</strong> — needs a date-picker UI and a parameterized query path.</li>
+    <li><strong>Drilldown on click</strong> — "show me the 12 mentors who responded" is valuable but a separate UI surface.</li>
+    <li><strong>CSV export</strong> — could ride along, but it's an admin-power-tool concern (PR C) not a metrics concern.</li>
+    <li><strong>Click-tracking events table</strong> — separate concern. The 6 cards above are computed from existing tables; we don't need a new event log to ship this.</li>
+    <li><strong>Per-cohort filters</strong> ("show me only Class of 2010") — interesting for board narratives but easy to add later.</li>
+    <li><strong>Email digest</strong> — weekly summary mailed to admins. Post-demo.</li>
+  </ul>
+</div>
+
+<p style="margin-top:36px;color:var(--muted);font-size:13px;">
+  This mockup lives at <code>docs/ui/mockups/analytics-day18.html</code>. Open it in a browser. Numbers are illustrative only — the real dashboard pulls from your dev DB.
+</p>
+
+</div>
+</body>
+</html>

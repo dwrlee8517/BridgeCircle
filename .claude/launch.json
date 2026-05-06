@@ -6,6 +6,14 @@
       "runtimeExecutable": "doppler",
       "runtimeArgs": ["run", "-p", "bridgecircle-dev", "-c", "dev", "--", "sh", "-c", "pnpm --dir app install && pnpm --dir app dev"],
       "port": 3000
+    },
+    {
+      "name": "next-dev-preview",
+      "cwd": "app",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "pnpm exec next dev --port $PORT"],
+      "port": 3001,
+      "autoPort": true
     }
   ]
 }

@@ -1,2 +1,5 @@
 .DS_Store
 docs/screenshots/
+
+# Personal Obsidian vault — note-taking workspace, not project state.
+.obsidian/
