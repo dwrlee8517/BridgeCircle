@@ -29,11 +29,11 @@ export default async function MessageThreadPage({ params }: { params: Promise<Pa
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 space-y-4">
       <Link
-        href="/messages"
+        href="/inbox"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
       >
         <ChevronLeft className="size-4" />
-        Back to messages
+        Back to inbox
       </Link>
 
       <Card>

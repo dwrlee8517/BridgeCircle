@@ -15,8 +15,11 @@ export const MEMBER_NAV_LINKS = [
   // to start a new one. The composer at /ask/new and the thread at
   // /ask/thread/* are reached from this surface or from a profile.
   { href: '/ask', label: 'Ask', match: ['/ask'] },
-  { href: '/inbox', label: 'Inbox', match: ['/inbox'] },
-  { href: '/messages', label: 'Messages', match: ['/messages'] },
+  // Inbox absorbs direct messages — the /messages list page redirects
+  // here, but /messages/[threadId] is still the conversation viewer
+  // (deep-linked from inbox), so we keep it in the match prefix list
+  // so the nav stays highlighted while reading a DM.
+  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages'] },
   { href: '/events', label: 'Events', match: ['/events'] },
   { href: '/announcements', label: 'Announcements', match: ['/announcements'] },
 ] as const

@@ -41,6 +41,15 @@ const nextConfig: NextConfig = {
         destination: '/discover?peopleIKnow=on',
         permanent: true,
       },
+      // /messages list page folded into /inbox — the inbox now shows
+      // DM threads alongside asks and friend requests. /messages/:id
+      // (the conversation viewer) keeps working; only the root list
+      // URL redirects.
+      {
+        source: '/messages',
+        destination: '/inbox',
+        permanent: true,
+      },
     ]
   },
 }

@@ -644,7 +644,7 @@ function notificationHref(n: HomeNotification): string | null {
     case 'ask_accepted':
       return n.targetId ? `/ask/thread/${n.targetId}` : '/inbox'
     case 'direct_message':
-      return n.targetId ? `/messages/${n.targetId}` : '/messages'
+      return n.targetId ? `/messages/${n.targetId}` : '/inbox'
     case 'ask_message':
       return n.targetId ? `/ask/thread/${n.targetId}` : '/inbox'
     case 'announcement':

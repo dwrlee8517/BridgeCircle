@@ -1,10 +1,12 @@
 import { format, formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { listDmThreads } from '@/lib/dm/listThreads'
 import { listPendingFriendRequests } from '@/lib/friendship/listPendingRequests'
 import { FriendRequestActions } from './friend-request-actions'
 
@@ -12,11 +14,12 @@ export default async function InboxPage() {
   const session = await requireSession()
   const supabase = await createClient()
 
-  // Three streams: asks (incoming/outgoing/threads) and friend requests
-  // (incoming/outgoing pending). Friend requests landed here when /friends
-  // folded into /discover — the inbox is the canonical "things waiting on
-  // you" surface across both ask and friendship axes.
-  const [incoming, outgoing, threads, friendRequests] = await Promise.all([
+  // Inbox is the canonical "things waiting on you / things you're in"
+  // surface. Asks (incoming/outgoing/threads), friend requests
+  // (incoming/outgoing pending), and direct messages all flow through
+  // here — friendship and DMs folded in when /friends and /messages
+  // folded into /discover and /inbox respectively.
+  const [incoming, outgoing, threads, friendRequests, dmThreads] = await Promise.all([
     supabase
       .from('asks')
       .select('id, asker_id, status, ask_type, reason, help_needed, created_at')
@@ -37,6 +40,7 @@ export default async function InboxPage() {
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false }),
     listPendingFriendRequests(supabase, session.userId),
+    listDmThreads(supabase, session.userId),
   ])
 
   const allUserIds = new Set<string>()
@@ -71,7 +75,7 @@ export default async function InboxPage() {
           Inbox
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Asks people sent you, friend requests, your active threads, and asks you&apos;ve sent.
+          Asks, friend requests, direct messages, and your open threads — everything in one place.
         </p>
       </div>
 
@@ -181,6 +185,65 @@ export default async function InboxPage() {
                 summary="Open thread →"
                 ago={ts}
               />
+            </Link>
+          )
+        })}
+      </Section>
+
+      <Section
+        title="Direct messages"
+        description="Conversations with friends."
+        emptyText="No conversations yet. Discover an alum and add them as a friend to start one."
+      >
+        {dmThreads.map((t) => {
+          const ts = t.lastMessageAt ?? null
+          const unread = t.unreadCount > 0 && !t.lastMessageFromViewer
+          return (
+            <Link
+              key={t.threadId}
+              href={`/messages/${t.threadId}`}
+              className="flex items-start gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]"
+            >
+              <Avatar className="size-10">
+                {t.otherAvatarUrl ? (
+                  <AvatarImage src={t.otherAvatarUrl} alt={t.otherName ?? ''} />
+                ) : null}
+                <AvatarFallback className="bg-accent font-semibold text-accent-foreground">
+                  {(t.otherName ?? '?').slice(0, 1).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`font-medium ${unread ? 'text-foreground' : ''}`}>
+                    {t.otherName ?? 'Friend'}
+                  </span>
+                  {t.unreadCount > 0 ? (
+                    <Badge variant="default" className="px-1.5 text-xs">
+                      {t.unreadCount}
+                    </Badge>
+                  ) : null}
+                  {ts ? (
+                    <span
+                      className="text-xs text-muted-foreground ml-auto"
+                      title={format(new Date(ts), 'PPpp')}
+                    >
+                      {formatDistanceToNow(new Date(ts), { addSuffix: true })}
+                    </span>
+                  ) : null}
+                </div>
+                {t.lastMessageBody ? (
+                  <p
+                    className={`text-sm truncate mt-1 ${
+                      unread ? 'text-foreground font-medium' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {t.lastMessageFromViewer ? 'You: ' : ''}
+                    {t.lastMessageBody}
+                  </p>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground mt-1">No messages yet</p>
+                )}
+              </div>
             </Link>
           )
         })}
