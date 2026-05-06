@@ -17,13 +17,15 @@ export type SearchFormDefaults = {
   gradYearMin: string
   gradYearMax: string
   openToMentor: boolean
+  peopleIKnow: boolean
 }
 
 /**
- * Client form that submits to /search?clean — only fields with non-empty
- * values end up in the URL. Without this, the native GET form encodes every
- * named input as an empty param ("?employer=&university=…"), which works
- * but uglifies the URL and breaks share/bookmark hygiene.
+ * Client form that submits to /discover with a clean query string —
+ * only fields with non-empty values end up in the URL. Without this,
+ * the native GET form encodes every named input as an empty param
+ * ("?employer=&university=…"), which works but uglifies the URL and
+ * breaks share/bookmark hygiene.
  */
 export function SearchForm({
   defaults,
@@ -45,7 +47,7 @@ export function SearchForm({
       params.set(key, trimmed)
     }
     const qs = params.toString()
-    router.push(qs.length > 0 ? `/search?${qs}` : '/search')
+    router.push(qs.length > 0 ? `/discover?${qs}` : '/discover')
   }
 
   return (
@@ -121,7 +123,7 @@ export function SearchForm({
             <Label htmlFor="q">Keyword (matches name, employer, headline)</Label>
             <Input id="q" name="q" defaultValue={defaults.q} />
           </div>
-          <div className="flex items-end gap-3 sm:col-span-2">
+          <div className="flex flex-wrap items-end gap-x-5 gap-y-2 sm:col-span-2">
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -132,8 +134,18 @@ export function SearchForm({
               />
               Only show mentors
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="peopleIKnow"
+                value="on"
+                defaultChecked={defaults.peopleIKnow}
+                className="h-4 w-4"
+              />
+              Only people I know
+            </label>
             <div className="ml-auto">
-              <Button type="button" variant="outline" onClick={() => router.push('/search')}>
+              <Button type="button" variant="outline" onClick={() => router.push('/discover')}>
                 Clear all
               </Button>
             </div>

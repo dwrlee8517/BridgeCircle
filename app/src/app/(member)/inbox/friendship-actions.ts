@@ -13,9 +13,12 @@ import { sendFriendRequestAcceptedEmail, sendFriendRequestEmail } from '@/notify
 export type FriendActionState = { ok: boolean; message: string }
 
 /**
- * Send a friend request — invoked from the profile page button or from
- * /friends. The receiverId is the only required field; an optional message
- * is supported but the v1 UI doesn't expose it.
+ * Send a friend request — invoked from the profile page button. The
+ * receiverId is required; an optional message is supported but the v1
+ * UI doesn't expose it.
+ *
+ * After Friends folded into Discover, the email's "review" link points
+ * recipients at /inbox where pending requests now live.
  */
 export async function sendFriendRequestAction(
   _prev: FriendActionState | null,
@@ -43,7 +46,7 @@ export async function sendFriendRequestAction(
         await sendFriendRequestEmail({
           to: email,
           senderName: senderName ?? 'A fellow alumnus',
-          reviewUrl: `${origin}/friends`,
+          reviewUrl: `${origin}/inbox`,
           message: parsed.data.message,
         })
       },
@@ -66,15 +69,14 @@ export async function sendFriendRequestAction(
     return { ok: false, message }
   }
 
-  // Refresh both the page they came from and /friends.
-  revalidatePath('/friends')
+  revalidatePath('/inbox')
   revalidatePath(`/profile/${parsed.data.receiverId}`)
   return { ok: true, message: 'Friend request sent.' }
 }
 
 /**
- * Accept or decline an incoming friend request. Invoked from the /friends
- * page or the profile page (via "Accept their request" button).
+ * Accept or decline an incoming friend request. Invoked from the
+ * /inbox Friend requests section.
  */
 export async function respondToFriendRequestAction(
   _prev: FriendActionState | null,
@@ -124,7 +126,7 @@ export async function respondToFriendRequestAction(
     return { ok: false, message }
   }
 
-  revalidatePath('/friends')
+  revalidatePath('/inbox')
   return {
     ok: true,
     message: result.outcome === 'accepted' ? "You're now friends." : 'Request declined.',

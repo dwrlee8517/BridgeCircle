@@ -635,9 +635,9 @@ function notificationCopy(n: HomeNotification): string {
 function notificationHref(n: HomeNotification): string | null {
   switch (n.type) {
     case 'friend_request_received':
-      return '/friends'
+      return '/inbox'
     case 'friend_request_accepted':
-      return n.targetId ? `/profile/${n.targetId}` : '/friends'
+      return n.targetId ? `/profile/${n.targetId}` : '/inbox'
     case 'ask_received':
     case 'ask_declined':
       return n.targetId ? `/ask/${n.targetId}` : '/inbox'

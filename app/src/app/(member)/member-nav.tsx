@@ -8,14 +8,15 @@ import { cn } from '@/lib/utils'
 export const MEMBER_NAV_LINKS = [
   // Discover frames the directory as exploration, not a query — matches
   // the brand thesis that members shouldn't start at a blank search box.
-  { href: '/discover', label: 'Discover', match: ['/discover', '/profile'] },
+  // /friends folded in here as a "People I know" filter; incoming friend
+  // requests live on /inbox alongside ask requests.
+  { href: '/discover', label: 'Discover', match: ['/discover', '/profile', '/friends'] },
   // /ask is the verb-driven heart of the product — your sent asks + a CTA
   // to start a new one. The composer at /ask/new and the thread at
   // /ask/thread/* are reached from this surface or from a profile.
   { href: '/ask', label: 'Ask', match: ['/ask'] },
   { href: '/inbox', label: 'Inbox', match: ['/inbox'] },
   { href: '/messages', label: 'Messages', match: ['/messages'] },
-  { href: '/friends', label: 'Friends', match: ['/friends'] },
   { href: '/events', label: 'Events', match: ['/events'] },
   { href: '/announcements', label: 'Announcements', match: ['/announcements'] },
 ] as const

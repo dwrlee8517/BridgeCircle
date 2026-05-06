@@ -38,14 +38,10 @@ export default async function MessagesPage() {
         <CardContent className="space-y-2">
           {threads.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              <Link href="/friends" className="text-primary hover:underline">
-                Manage friends
-              </Link>{' '}
-              or{' '}
               <Link href="/discover" className="text-primary hover:underline">
-                browse alumni
+                Discover alumni
               </Link>{' '}
-              to start.
+              and add someone as a friend to start a thread.
             </p>
           ) : (
             threads.map((t) => (

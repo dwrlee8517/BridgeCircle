@@ -2,14 +2,14 @@
 
 import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
-import { type FriendActionState, respondToFriendRequestAction } from './actions'
+import { type FriendActionState, respondToFriendRequestAction } from './friendship-actions'
 
 /**
  * Two side-by-side forms for accept / decline. Each is its own form so the
  * inline status message reflects which action the user took. The whole row
  * disables itself while either is pending.
  */
-export function RequestActions({ requestId }: { requestId: string }) {
+export function FriendRequestActions({ requestId }: { requestId: string }) {
   const [acceptState, acceptDispatch, acceptPending] = useActionState<
     FriendActionState | null,
     FormData

@@ -89,6 +89,10 @@ export async function searchAlumniNL(
     gradYearMin: userExtra.gradYearMin ?? llmFilters.gradYearMin ?? undefined,
     gradYearMax: userExtra.gradYearMax ?? llmFilters.gradYearMax ?? undefined,
     openToMentor: userExtra.openToMentor ?? (llmFilters.mentorOpen === true ? true : undefined),
+    // peopleIKnow is a viewer-side restriction — the LLM has no way to
+    // express "people the asker knows," so this passes through from the
+    // form toggle only.
+    peopleIKnow: userExtra.peopleIKnow,
   }
 
   // Per-field scope (current vs past vs any). Only applies when the

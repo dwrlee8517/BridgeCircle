@@ -5,14 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { listPendingFriendRequests } from '@/lib/friendship/listPendingRequests'
+import { FriendRequestActions } from './friend-request-actions'
 
 export default async function InboxPage() {
   const session = await requireSession()
   const supabase = await createClient()
 
-  // Three lists: incoming pending asks (where I'm the helper), outgoing
-  // (where I'm the asker), and active threads (where I'm either side).
-  const [incoming, outgoing, threads] = await Promise.all([
+  // Three streams: asks (incoming/outgoing/threads) and friend requests
+  // (incoming/outgoing pending). Friend requests landed here when /friends
+  // folded into /discover — the inbox is the canonical "things waiting on
+  // you" surface across both ask and friendship axes.
+  const [incoming, outgoing, threads, friendRequests] = await Promise.all([
     supabase
       .from('asks')
       .select('id, asker_id, status, ask_type, reason, help_needed, created_at')
@@ -32,6 +36,7 @@ export default async function InboxPage() {
       .eq('status', 'active')
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false }),
+    listPendingFriendRequests(supabase, session.userId),
   ])
 
   const allUserIds = new Set<string>()
@@ -66,9 +71,57 @@ export default async function InboxPage() {
           Inbox
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Asks people sent you, your active threads, and asks you&apos;ve sent.
+          Asks people sent you, friend requests, your active threads, and asks you&apos;ve sent.
         </p>
       </div>
+
+      {friendRequests.incoming.length > 0 ? (
+        <Section
+          title="Friend requests"
+          description="People who'd like to connect with you."
+          emptyText="No friend requests."
+        >
+          {friendRequests.incoming.map((r) => (
+            <div key={r.requestId} className="flex items-start gap-3 rounded-lg border bg-card p-4">
+              <Link href={`/profile/${r.otherUserId}`} className="shrink-0">
+                <Avatar className="size-10">
+                  {r.avatarUrl ? <AvatarImage src={r.avatarUrl} alt={r.name ?? ''} /> : null}
+                  <AvatarFallback className="bg-accent font-semibold text-accent-foreground">
+                    {(r.name ?? '?').slice(0, 1).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+              <div className="flex-1 min-w-0 space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link href={`/profile/${r.otherUserId}`} className="font-medium hover:underline">
+                    {r.name ?? 'Someone'}
+                  </Link>
+                  <StatusBadge tone="info">Friend request</StatusBadge>
+                  <span
+                    className="text-xs text-muted-foreground ml-auto"
+                    title={format(new Date(r.createdAt), 'PPpp')}
+                  >
+                    {formatDistanceToNow(new Date(r.createdAt), { addSuffix: true })}
+                  </span>
+                </div>
+                {[r.currentTitle, r.currentEmployer].filter(Boolean).length > 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    {[r.currentTitle, r.currentEmployer].filter(Boolean).join(' · ')}
+                  </p>
+                ) : null}
+                {r.message ? (
+                  <p className="text-sm italic text-muted-foreground border-l-2 pl-2">
+                    &ldquo;{r.message}&rdquo;
+                  </p>
+                ) : null}
+                <div className="pt-1">
+                  <FriendRequestActions requestId={r.requestId} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </Section>
+      ) : null}
 
       <Section
         title="Incoming asks"
@@ -170,6 +223,46 @@ export default async function InboxPage() {
           )
         })}
       </Section>
+
+      {friendRequests.outgoing.length > 0 ? (
+        <Section
+          title="Sent friend requests"
+          description="Awaiting their reply."
+          emptyText="No pending sent requests."
+        >
+          {friendRequests.outgoing.map((r) => (
+            <Link
+              key={r.requestId}
+              href={`/profile/${r.otherUserId}`}
+              className="flex items-start gap-3 rounded-lg border bg-card p-4 transition-all hover:border-primary/50 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]"
+            >
+              <Avatar className="size-10">
+                {r.avatarUrl ? <AvatarImage src={r.avatarUrl} alt={r.name ?? ''} /> : null}
+                <AvatarFallback className="bg-accent font-semibold text-accent-foreground">
+                  {(r.name ?? '?').slice(0, 1).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium">{r.name ?? 'Someone'}</span>
+                  <StatusBadge tone="warn">Pending</StatusBadge>
+                  <span
+                    className="text-xs text-muted-foreground ml-auto"
+                    title={format(new Date(r.createdAt), 'PPpp')}
+                  >
+                    {formatDistanceToNow(new Date(r.createdAt), { addSuffix: true })}
+                  </span>
+                </div>
+                {[r.currentTitle, r.currentEmployer].filter(Boolean).length > 0 ? (
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                    {[r.currentTitle, r.currentEmployer].filter(Boolean).join(' · ')}
+                  </p>
+                ) : null}
+              </div>
+            </Link>
+          ))}
+        </Section>
+      ) : null}
     </div>
   )
 }

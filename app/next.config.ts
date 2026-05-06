@@ -31,6 +31,16 @@ const nextConfig: NextConfig = {
         destination: '/discover',
         permanent: true,
       },
+      // /friends folded into /discover (with a "People I know" filter)
+      // and /inbox (where incoming requests now live). The 308 here
+      // catches stale email links and bookmarks; we send root /friends
+      // to Discover with the filter pre-applied so the user lands on
+      // their friends list, the closest analog to the old page.
+      {
+        source: '/friends',
+        destination: '/discover?peopleIKnow=on',
+        permanent: true,
+      },
     ]
   },
 }
