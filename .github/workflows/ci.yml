@@ -40,6 +40,14 @@ jobs:
       - name: ESLint
         run: pnpm lint
 
+      # Partial substitute for the disabled Build job: tsc catches type
+      # mismatches against src/db/database.types.ts after a migration —
+      # the most common "I renamed a column and forgot a caller" shape
+      # of breakage. It does not catch runtime / prerender bugs, which
+      # is what the full `next build` was supposed to cover.
+      - name: TypeScript
+        run: pnpm tsc --noEmit
+
       - name: Vitest
         run: pnpm vitest run --passWithNoTests
 
