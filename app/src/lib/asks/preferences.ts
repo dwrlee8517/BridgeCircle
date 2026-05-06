@@ -26,9 +26,11 @@ const DEFAULT_MAX_PENDING = 10
  * sensible defaults when no row exists yet (new members who haven't visited
  * settings) so the form has something to render against.
  *
- * Defaults match the schema: open_to_advice=true (lighter commitment is the
- * easy default to grow volunteer supply), open_to_mentorship=false (deeper
- * commitment is an explicit opt-in).
+ * Defaults match the schema: both opt-ins start true. Advice is the lighter
+ * commitment, broadly recruited. Mentorship defaults on too — at a small
+ * school the network needs supply, and the settings UI shows a friendly
+ * caveat when a member unchecks it (pointing at the active/pending caps as
+ * a way to keep mentorship light rather than turn it off entirely).
  *
  * Active/pending counts are scoped to mentorship asks because the caps only
  * apply to mentorship — advice has no caps in this iteration.
@@ -76,7 +78,7 @@ export async function getHelperPreference(
     organizationId: membership.organization_id,
     organizationName: orgName,
     openToAdvice: pref?.open_to_advice ?? true,
-    openToMentorship: pref?.open_to_mentorship ?? false,
+    openToMentorship: pref?.open_to_mentorship ?? true,
     topics: pref?.topics ?? [],
     screeningPrompt: pref?.screening_prompt ?? null,
     maxActiveMentees: pref?.max_active_mentees ?? DEFAULT_MAX_ACTIVE,
