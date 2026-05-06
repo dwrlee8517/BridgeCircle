@@ -28,7 +28,7 @@ export function InviteEmail({ fullName, schoolName, joinUrl }: Props) {
           <Heading style={heading}>BridgeCircle</Heading>
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
-            You've been invited to join the <strong>{schoolName}</strong> alumni network on
+            You&apos;ve been invited to join the <strong>{schoolName}</strong> alumni network on
             BridgeCircle — a private space for {schoolName} alumni to find each other, share advice,
             and stay connected.
           </Text>
@@ -43,7 +43,8 @@ export function InviteEmail({ fullName, schoolName, joinUrl }: Props) {
             <span style={{ wordBreak: 'break-all', color: '#555' }}>{joinUrl}</span>
           </Text>
           <Text style={footer}>
-            This invite expires in 14 days. If you weren't expecting this email, you can ignore it.
+            This invite expires in 14 days. If you weren&apos;t expecting this email, you can ignore
+            it.
           </Text>
         </Container>
       </Body>

@@ -107,15 +107,16 @@ export async function getHomeFeed(
       .order('joined_at', { ascending: false })
       .limit(6),
 
-    // Open mentors: active memberships in this org with is_open=true and
-    // not paused. We fetch the membership_id list here, then hydrate user
-    // ids + profiles in the next round.
+    // Open mentors: active memberships in this org with open_to_mentorship=true
+    // and not paused. We fetch the membership_id list here, then hydrate user
+    // ids + profiles in the next round. (Open-to-advice helpers are a separate
+    // surface; the home "mentors" card stays mentorship-only.)
     supabase
-      .from('mentorship_preferences')
+      .from('helper_preferences')
       .select(
         'organization_membership_id, organization_memberships!inner(user_id, status, organization_id, joined_at, organization_profiles(graduation_year))',
       )
-      .eq('is_open', true)
+      .eq('open_to_mentorship', true)
       .is('paused_at', null)
       .eq('organization_memberships.status', 'active')
       .eq('organization_memberships.organization_id', organizationId)
@@ -141,11 +142,13 @@ export async function getHomeFeed(
       .limit(1)
       .maybeSingle(),
 
-    // Pending mentor requests where viewer is the mentor.
+    // Pending asks where viewer is the helper. Includes both advice and
+    // mentorship — the home card surfaces them together as "people waiting
+    // on you" and the row UI can label by type once it's added.
     supabase
-      .from('mentorship_requests')
-      .select('id, mentee_id, reason, help_needed, created_at')
-      .eq('mentor_id', viewerId)
+      .from('asks')
+      .select('id, asker_id, reason, help_needed, created_at')
+      .eq('helper_id', viewerId)
       .eq('status', 'pending')
       .order('created_at', { ascending: false })
       .limit(3),
@@ -176,7 +179,7 @@ export async function getHomeFeed(
       return m?.user_id
     })
     .filter((id): id is string => !!id)
-  const menteeUserIds = pendingRequests.map((r) => r.mentee_id)
+  const menteeUserIds = pendingRequests.map((r) => r.asker_id)
   const announcementAuthorId = announcement?.created_by ?? null
 
   const allUserIds = Array.from(
@@ -311,12 +314,12 @@ export async function getHomeFeed(
       : null
 
   const pendingMentorRequests: HomePendingMentorRequest[] = pendingRequests.map((r) => {
-    const p = profileById.get(r.mentee_id)
+    const p = profileById.get(r.asker_id)
     return {
       id: r.id,
       menteeName: p?.name ?? null,
       menteeAvatarUrl: p?.avatar_url ?? null,
-      menteeGraduationYear: menteeGradYearById.get(r.mentee_id) ?? null,
+      menteeGraduationYear: menteeGradYearById.get(r.asker_id) ?? null,
       reason: r.reason,
       helpNeeded: r.help_needed,
       createdAt: r.created_at,

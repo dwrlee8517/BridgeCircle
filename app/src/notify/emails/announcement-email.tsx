@@ -42,7 +42,8 @@ export function AnnouncementEmail({
             </Button>
           </Section>
           <Text style={footer}>
-            You're receiving this because you're an active member of {orgName} on BridgeCircle.
+            You&apos;re receiving this because you&apos;re an active member of {orgName} on
+            BridgeCircle.
           </Text>
         </Container>
       </BodyEl>

@@ -171,8 +171,8 @@ function DeactivateDialog({
         <DialogHeader>
           <DialogTitle>Deactivate {subject}?</DialogTitle>
           <DialogDescription>
-            They'll lose access to the directory, mentorship, and messaging until reactivated. The
-            reason below is included in the email they receive.
+            They&apos;ll lose access to the directory, mentorship, and messaging until reactivated.
+            The reason below is included in the email they receive.
           </DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-4">
@@ -222,7 +222,7 @@ function ReactivateDialog({
         <DialogHeader>
           <DialogTitle>Reactivate {subject}?</DialogTitle>
           <DialogDescription>
-            They'll regain full access. A welcome-back email will be sent.
+            They&apos;ll regain full access. A welcome-back email will be sent.
           </DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-4">
@@ -260,12 +260,12 @@ function ScheduleDeletionDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-destructive">Delete {subject}'s account?</DialogTitle>
+          <DialogTitle className="text-destructive">Delete {subject}&apos;s account?</DialogTitle>
           <DialogDescription>
-            This schedules permanent deletion in 7 days. They'll be locked out immediately and their
-            profile is hidden. You can cancel any time before finalization. After 7 days, their
-            profile is tombstoned (data wiped, messages they sent become "Former member"). The
-            reason below is included in their email.
+            This schedules permanent deletion in 7 days. They&apos;ll be locked out immediately and
+            their profile is hidden. You can cancel any time before finalization. After 7 days,
+            their profile is tombstoned (data wiped, messages they sent become &quot;Former
+            member&quot;). The reason below is included in their email.
           </DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-4">
@@ -356,8 +356,8 @@ function FinalizeDialog({
           <DialogTitle className="text-destructive">Finalize deletion of {subject}?</DialogTitle>
           <DialogDescription>
             This is irreversible. Their profile data (name, employer, links) is wiped, messages they
-            sent become "Former member", and their account is permanently banned. Backups are the
-            only path to recovery after this point.
+            sent become &quot;Former member&quot;, and their account is permanently banned. Backups
+            are the only path to recovery after this point.
           </DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-4">

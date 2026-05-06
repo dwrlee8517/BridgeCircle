@@ -17,11 +17,12 @@ export function MembershipRejectedEmail({ recipientName, orgName }: Props) {
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
             Thanks for signing up for <strong>{orgName}</strong> on BridgeCircle. After review, the
-            admin team wasn't able to approve your membership at this time.
+            admin team wasn&apos;t able to approve your membership at this time.
           </Text>
           <Text style={paragraph}>
-            If you believe this is a mistake — for example, if you're an alum whose record we
-            couldn't match — please reply to this email and the admin team will take another look.
+            If you believe this is a mistake — for example, if you&apos;re an alum whose record we
+            couldn&apos;t match — please reply to this email and the admin team will take another
+            look.
           </Text>
         </Container>
       </Body>

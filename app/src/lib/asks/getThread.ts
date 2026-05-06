@@ -1,14 +1,16 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import type { AskType } from './schemas'
 
 export type ThreadView = {
   id: string
   status: 'active' | 'archived'
-  mentor: ThreadParticipant
-  mentee: ThreadParticipant
-  request: {
+  helper: ThreadParticipant
+  asker: ThreadParticipant
+  ask: {
     id: string
+    askType: AskType
     reason: string | null
     helpNeeded: string | null
     background: string | null
@@ -30,63 +32,64 @@ export type ThreadMessage = {
   readAt: string | null
 }
 
-export async function getThread(
+export async function getAskThread(
   supabase: SupabaseClient<Database>,
   threadId: string,
 ): Promise<ThreadView | null> {
   const { data: thread } = await supabase
-    .from('mentorship_threads')
-    .select('id, status, mentor_id, mentee_id, request_id')
+    .from('ask_threads')
+    .select('id, status, helper_id, asker_id, ask_id')
     .eq('id', threadId)
     .maybeSingle()
   if (!thread) return null
 
-  const [{ data: mentorBase }, { data: menteeBase }, { data: req }, { data: msgs }] =
+  const [{ data: helperBase }, { data: askerBase }, { data: ask }, { data: msgs }] =
     await Promise.all([
       supabase
         .from('base_profiles')
         .select('user_id, name, avatar_url')
-        .eq('user_id', thread.mentor_id)
+        .eq('user_id', thread.helper_id)
         .maybeSingle(),
       supabase
         .from('base_profiles')
         .select('user_id, name, avatar_url')
-        .eq('user_id', thread.mentee_id)
+        .eq('user_id', thread.asker_id)
         .maybeSingle(),
-      thread.request_id
+      thread.ask_id
         ? supabase
-            .from('mentorship_requests')
-            .select('id, reason, help_needed, background')
-            .eq('id', thread.request_id)
+            .from('asks')
+            .select('id, ask_type, reason, help_needed, background')
+            .eq('id', thread.ask_id)
             .maybeSingle()
         : Promise.resolve({ data: null as null }),
       supabase
         .from('messages')
         .select('id, sender_id, body, created_at, read_at')
         .eq('thread_id', threadId)
-        .eq('thread_type', 'mentorship')
+        .eq('thread_type', 'ask')
         .order('created_at', { ascending: true }),
     ])
 
   return {
     id: thread.id,
     status: thread.status as 'active' | 'archived',
-    mentor: {
-      userId: thread.mentor_id,
-      name: mentorBase?.name ?? null,
-      avatarUrl: mentorBase?.avatar_url ?? null,
+    helper: {
+      userId: thread.helper_id,
+      name: helperBase?.name ?? null,
+      avatarUrl: helperBase?.avatar_url ?? null,
     },
-    mentee: {
-      userId: thread.mentee_id,
-      name: menteeBase?.name ?? null,
-      avatarUrl: menteeBase?.avatar_url ?? null,
+    asker: {
+      userId: thread.asker_id,
+      name: askerBase?.name ?? null,
+      avatarUrl: askerBase?.avatar_url ?? null,
     },
-    request: req
+    ask: ask
       ? {
-          id: req.id,
-          reason: req.reason,
-          helpNeeded: req.help_needed,
-          background: req.background,
+          id: ask.id,
+          askType: ask.ask_type as AskType,
+          reason: ask.reason,
+          helpNeeded: ask.help_needed,
+          background: ask.background,
         }
       : null,
     messages: (msgs ?? []).map((m) => ({

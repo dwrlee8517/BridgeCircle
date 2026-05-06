@@ -18,8 +18,8 @@ export function MembershipDeactivatedEmail({ recipientName, orgName, reason }: P
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
             An admin has deactivated your access to <strong>{orgName}</strong> on BridgeCircle. You
-            won't appear in the directory or be reachable for new mentorship requests until you're
-            reactivated.
+            won&apos;t appear in the directory or be reachable for new mentorship requests until
+            you&apos;re reactivated.
           </Text>
           {reason ? (
             <>

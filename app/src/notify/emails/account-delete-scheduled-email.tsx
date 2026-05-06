@@ -26,7 +26,7 @@ export function AccountDeleteScheduledEmail({ recipientName, reason, scheduledFo
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
             An admin has deactivated your BridgeCircle account. Your profile is no longer visible
-            and you can't sign in.
+            and you can&apos;t sign in.
           </Text>
           <Text style={paragraph}>
             <strong>Reason given:</strong>

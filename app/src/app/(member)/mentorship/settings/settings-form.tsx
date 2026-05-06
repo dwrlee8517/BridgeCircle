@@ -28,14 +28,19 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
 
   return (
     <form action={action} className="space-y-6">
+      {/* Step #1 keeps the legacy single-toggle UI; openToAdvice defaults on
+          and is preserved across saves via this hidden input. The next step
+          (mentor settings UI redesign) replaces this with proper per-type
+          checkboxes. */}
+      <input type="hidden" name="openToAdvice" value="on" />
       <div className="flex items-start gap-3 rounded-md border p-4">
         <Checkbox id="isOpen" name="isOpen" defaultChecked={defaults.isOpen} />
         <div className="space-y-1">
           <Label htmlFor="isOpen" className="text-base">
-            I'm open to mentoring
+            I&apos;m open to mentoring
           </Label>
           <p className="text-xs text-muted-foreground">
-            When off, mentees can't send you new requests. Existing threads stay active.
+            When off, mentees can&apos;t send you new requests. Existing threads stay active.
           </p>
         </div>
       </div>

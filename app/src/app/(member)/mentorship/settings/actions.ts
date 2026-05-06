@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/db/server'
+import { saveHelperPreference } from '@/lib/asks/preferences'
+import { parseHelperPreferenceForm } from '@/lib/asks/schemas'
 import { requireSession } from '@/lib/auth/session'
-import { saveMentorshipPreference } from '@/lib/mentorship/preferences'
-import { parseMentorshipPreferenceForm } from '@/lib/mentorship/schemas'
 
 export type SettingsFormState = {
   ok?: boolean
@@ -17,7 +17,7 @@ export async function saveMentorSettings(
   formData: FormData,
 ): Promise<SettingsFormState> {
   const session = await requireSession()
-  const parsed = parseMentorshipPreferenceForm(formData)
+  const parsed = parseHelperPreferenceForm(formData)
 
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {}
@@ -29,7 +29,7 @@ export async function saveMentorSettings(
   }
 
   const supabase = await createClient()
-  const result = await saveMentorshipPreference(supabase, session.userId, parsed.data)
+  const result = await saveHelperPreference(supabase, session.userId, parsed.data)
 
   if (!result.ok) {
     if (result.error === 'no_membership') {

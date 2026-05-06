@@ -53,7 +53,7 @@ export function DangerZone() {
         <CardTitle className="text-destructive">Danger zone</CardTitle>
         <CardDescription>
           Pause your account if you need a break, or delete it permanently. Both can be reversed
-          while you're in the grace window.
+          while you&apos;re in the grace window.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -114,9 +114,9 @@ function DeleteRow() {
           <DialogHeader>
             <DialogTitle className="text-destructive">Delete your account?</DialogTitle>
             <DialogDescription>
-              You'll be hidden from other members right away. After 30 days, your profile data is
-              wiped and your messages become "Former member" in other people's history. You can
-              cancel any time during the 30 days by signing back in.
+              You&apos;ll be hidden from other members right away. After 30 days, your profile data
+              is wiped and your messages become &quot;Former member&quot; in other people&apos;s
+              history. You can cancel any time during the 30 days by signing back in.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

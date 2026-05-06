@@ -298,7 +298,7 @@ export function EducationHistoryField({
       <input type="hidden" name={name} value={JSON.stringify(wire)} />
       {items.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          Add schools beyond your alumni org if you'd like them to be searchable.
+          Add schools beyond your alumni org if you&apos;d like them to be searchable.
         </p>
       ) : (
         <div className="space-y-3">

@@ -73,7 +73,7 @@ export default async function AdminMembersPage() {
             <div>
               <CardTitle>Members</CardTitle>
               <CardDescription>
-                Everyone who's joined {orgName}, plus pending and deactivated accounts.{' '}
+                Everyone who&apos;s joined {orgName}, plus pending and deactivated accounts.{' '}
                 <Link href="/admin/approvals" className="underline">
                   Approval queue
                 </Link>{' '}
@@ -202,6 +202,7 @@ function DeletionBadge({
   initiatedByAdmin: boolean
 }) {
   const due = new Date(scheduledFor).getTime()
+  // eslint-disable-next-line react-hooks/purity -- server component, label re-derives per request
   const ms = due - Date.now()
   const days = Math.round(ms / (1000 * 60 * 60 * 24))
   const overdue = ms < 0

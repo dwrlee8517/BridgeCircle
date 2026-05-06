@@ -100,8 +100,8 @@ export async function getProfile(
     .maybeSingle()
 
   const { data: pref } = await supabase
-    .from('mentorship_preferences')
-    .select('is_open, paused_at')
+    .from('helper_preferences')
+    .select('open_to_mentorship, paused_at')
     .eq('organization_membership_id', membership.id)
     .maybeSingle()
 
@@ -157,8 +157,8 @@ export async function getProfile(
       ? ((base.education_history as EducationEntry[] | null) ?? null)
       : null,
     skills: showSkills ? (base.skills ?? null) : null,
-    openToMentor: pref?.is_open ?? false,
-    isOpenAsMentor: !!pref?.is_open && !pref.paused_at,
+    openToMentor: pref?.open_to_mentorship ?? false,
+    isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
     mentorPaused: !!pref?.paused_at,
     isSelf,
     isFriend,

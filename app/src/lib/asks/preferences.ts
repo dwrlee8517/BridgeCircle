@@ -1,13 +1,14 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import type { MentorshipPreferenceInput } from './schemas'
+import type { HelperPreferenceInput } from './schemas'
 
-export type MentorshipPreferenceView = {
+export type HelperPreferenceView = {
   membershipId: string
   organizationId: string
   organizationName: string
-  isOpen: boolean
+  openToAdvice: boolean
+  openToMentorship: boolean
   topics: string[]
   screeningPrompt: string | null
   maxActiveMentees: number
@@ -21,17 +22,21 @@ const DEFAULT_MAX_ACTIVE = 5
 const DEFAULT_MAX_PENDING = 10
 
 /**
- * Load the mentor's preference row for their primary active org. Returns
- * sensible defaults when no row exists yet (new mentors who haven't visited
+ * Load the helper's preference row for their primary active org. Returns
+ * sensible defaults when no row exists yet (new members who haven't visited
  * settings) so the form has something to render against.
  *
- * Also returns live counts (active threads, pending requests) so the UI can
- * show "3 of 5 active mentees" without a second round trip.
+ * Defaults match the schema: open_to_advice=true (lighter commitment is the
+ * easy default to grow volunteer supply), open_to_mentorship=false (deeper
+ * commitment is an explicit opt-in).
+ *
+ * Active/pending counts are scoped to mentorship asks because the caps only
+ * apply to mentorship — advice has no caps in this iteration.
  */
-export async function getMentorshipPreference(
+export async function getHelperPreference(
   supabase: SupabaseClient<Database>,
   userId: string,
-): Promise<MentorshipPreferenceView | null> {
+): Promise<HelperPreferenceView | null> {
   const { data: membership } = await supabase
     .from('organization_memberships')
     .select('id, organization_id, organizations(name)')
@@ -46,21 +51,23 @@ export async function getMentorshipPreference(
 
   const [{ data: pref }, { count: activeCount }, { count: pendingCount }] = await Promise.all([
     supabase
-      .from('mentorship_preferences')
+      .from('helper_preferences')
       .select(
-        'is_open, topics, screening_prompt, max_active_mentees, max_pending_requests, paused_at',
+        'open_to_advice, open_to_mentorship, topics, screening_prompt, max_active_mentees, max_pending_requests, paused_at',
       )
       .eq('organization_membership_id', membership.id)
       .maybeSingle(),
     supabase
-      .from('mentorship_threads')
-      .select('id', { count: 'exact', head: true })
-      .eq('mentor_id', userId)
-      .eq('status', 'active'),
+      .from('ask_threads')
+      .select('id, asks!inner(ask_type)', { count: 'exact', head: true })
+      .eq('helper_id', userId)
+      .eq('status', 'active')
+      .eq('asks.ask_type', 'mentorship'),
     supabase
-      .from('mentorship_requests')
+      .from('asks')
       .select('id', { count: 'exact', head: true })
-      .eq('mentor_id', userId)
+      .eq('helper_id', userId)
+      .eq('ask_type', 'mentorship')
       .eq('status', 'pending'),
   ])
 
@@ -68,7 +75,8 @@ export async function getMentorshipPreference(
     membershipId: membership.id,
     organizationId: membership.organization_id,
     organizationName: orgName,
-    isOpen: pref?.is_open ?? false,
+    openToAdvice: pref?.open_to_advice ?? true,
+    openToMentorship: pref?.open_to_mentorship ?? false,
     topics: pref?.topics ?? [],
     screeningPrompt: pref?.screening_prompt ?? null,
     maxActiveMentees: pref?.max_active_mentees ?? DEFAULT_MAX_ACTIVE,
@@ -79,22 +87,22 @@ export async function getMentorshipPreference(
   }
 }
 
-export type SaveMentorshipPreferenceResult =
+export type SaveHelperPreferenceResult =
   | { ok: true }
   | { ok: false; error: 'no_membership' | 'db_error'; detail?: string }
 
 /**
- * Upsert the mentor preference row for the user's primary active org.
+ * Upsert the helper preference row for the user's primary active org.
  *
- * Unpause behavior: any save action also clears `paused_at`. Mentors land on
+ * Unpause behavior: any save action also clears `paused_at`. Helpers land on
  * settings either to make a real change (which signals they're back) or to
  * actively flip themselves closed — both should release the auto-pause.
  */
-export async function saveMentorshipPreference(
+export async function saveHelperPreference(
   supabase: SupabaseClient<Database>,
   userId: string,
-  input: MentorshipPreferenceInput,
-): Promise<SaveMentorshipPreferenceResult> {
+  input: HelperPreferenceInput,
+): Promise<SaveHelperPreferenceResult> {
   const { data: membership } = await supabase
     .from('organization_memberships')
     .select('id')
@@ -105,10 +113,11 @@ export async function saveMentorshipPreference(
 
   if (!membership) return { ok: false, error: 'no_membership' }
 
-  const { error } = await supabase.from('mentorship_preferences').upsert(
+  const { error } = await supabase.from('helper_preferences').upsert(
     {
       organization_membership_id: membership.id,
-      is_open: input.isOpen,
+      open_to_advice: input.openToAdvice,
+      open_to_mentorship: input.openToMentorship,
       topics: input.topics,
       screening_prompt: input.screeningPrompt,
       max_active_mentees: input.maxActiveMentees,
@@ -124,20 +133,24 @@ export async function saveMentorshipPreference(
 }
 
 /**
- * Lightweight is_open flip used by the profile form's "open to mentor"
- * checkbox. Creates the preferences row with defaults if it doesn't exist
- * yet — keeps the profile toggle and the request gate in sync without
- * requiring the user to visit mentor settings first.
+ * Lightweight per-type opt-in flip used by the profile form's "open to
+ * mentor" checkbox. Currently writes only to `open_to_mentorship` to keep
+ * the existing single-toggle UI working; the next step (mentor settings UI)
+ * will let users control both types from the form directly.
+ *
+ * Creates the preferences row with defaults if it doesn't exist yet, so the
+ * profile toggle and the request gate stay in sync without requiring the
+ * user to visit helper settings first.
  */
-export async function setMentorOpen(
+export async function setOpenToMentorship(
   supabase: SupabaseClient<Database>,
   membershipId: string,
-  isOpen: boolean,
-): Promise<SaveMentorshipPreferenceResult> {
-  const { error } = await supabase.from('mentorship_preferences').upsert(
+  open: boolean,
+): Promise<SaveHelperPreferenceResult> {
+  const { error } = await supabase.from('helper_preferences').upsert(
     {
       organization_membership_id: membershipId,
-      is_open: isOpen,
+      open_to_mentorship: open,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'organization_membership_id' },

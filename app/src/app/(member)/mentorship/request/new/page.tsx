@@ -32,7 +32,7 @@ export default async function NewMentorshipRequestPage({
           <CardHeader>
             <CardTitle>Not open to mentor</CardTitle>
             <CardDescription>
-              {mentor.name} isn't accepting new mentorship requests right now.
+              {mentor.name} isn&apos;t accepting new mentorship requests right now.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -51,14 +51,14 @@ export default async function NewMentorshipRequestPage({
         href={`/profile/${mentor.userId}`}
         className="text-sm text-muted-foreground hover:underline"
       >
-        ← Back to {mentor.name}'s profile
+        ← Back to {mentor.name}&apos;s profile
       </Link>
       <Card>
         <CardHeader>
           <CardTitle>Request mentorship from {mentor.name}</CardTitle>
           <CardDescription>
-            They'll get an email notification and can accept or decline. Be specific — concrete asks
-            get answered faster.
+            They&apos;ll get an email notification and can accept or decline. Be specific — concrete
+            asks get answered faster.
           </CardDescription>
         </CardHeader>
         <CardContent>

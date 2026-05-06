@@ -54,7 +54,7 @@ export default async function AdminApprovalsPage() {
           {!requiresApproval ? (
             <div className="mb-4 rounded-md border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground">
               Approval mode is off — invitees become active automatically. New pending rows normally
-              won't appear here unless someone bypasses the invite flow. Flip{' '}
+              won&apos;t appear here unless someone bypasses the invite flow. Flip{' '}
               <Link href="/admin/members" className="underline">
                 approval mode
               </Link>{' '}
@@ -64,7 +64,7 @@ export default async function AdminApprovalsPage() {
 
           {pending.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No one's waiting. Pending members will show up here as they sign up.
+              No one&apos;s waiting. Pending members will show up here as they sign up.
             </p>
           ) : (
             <ul className="divide-y">

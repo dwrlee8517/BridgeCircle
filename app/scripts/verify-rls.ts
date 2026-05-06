@@ -22,7 +22,7 @@ function userClient() {
 
 async function signIn(email: string, password: string) {
   const c = userClient()
-  const { data, error } = await c.auth.signInWithPassword({ email, password })
+  const { error } = await c.auth.signInWithPassword({ email, password })
   if (error) throw new Error(`sign-in failed for ${email}: ${error.message}`)
   return c
 }
@@ -57,11 +57,11 @@ async function main() {
   }
   pass(`reads all ${samProfiles.length} base_profiles in own org`)
 
-  const { data: samRequests } = await sam.from('mentorship_requests').select('id, mentor_id, mentee_id')
+  const { data: samRequests } = await sam.from('asks').select('id, helper_id, asker_id')
   if (!samRequests || samRequests.length !== 1) {
-    fail('reads only own mentorship requests', `expected 1 (Sam→Mark), got ${samRequests?.length}`)
+    fail('reads only own asks', `expected 1 (Sam→Mark), got ${samRequests?.length}`)
   }
-  pass('reads only Sam→Mark request (cannot see Ria→Mei or Rohan→Felix)')
+  pass('reads only Sam→Mark ask (cannot see Ria→Mei or Rohan→Felix)')
 
   const { data: samMessages } = await sam.from('messages').select('id')
   if (samMessages?.length !== 0) {
@@ -75,11 +75,11 @@ async function main() {
   console.log('\nRia Recent (mentee on the accepted Ria→Mei thread):')
   const ria = await signIn('recent-grad-ria@example.com', 'devseed-password-7')
 
-  const { data: riaThreads } = await ria.from('mentorship_threads').select('id, mentor_id, mentee_id')
+  const { data: riaThreads } = await ria.from('ask_threads').select('id, helper_id, asker_id')
   if (riaThreads?.length !== 1) {
-    fail('reads own mentorship thread', `expected 1, got ${riaThreads?.length}`)
+    fail('reads own ask thread', `expected 1, got ${riaThreads?.length}`)
   }
-  pass('reads 1 mentorship thread (Ria↔Mei)')
+  pass('reads 1 ask thread (Ria↔Mei)')
 
   const { data: riaInvites } = await ria.from('invites').select('id')
   if (riaInvites?.length !== 0) {

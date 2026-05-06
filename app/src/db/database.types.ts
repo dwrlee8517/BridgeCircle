@@ -124,6 +124,125 @@ export type Database = {
           },
         ]
       }
+      ask_threads: {
+        Row: {
+          ask_id: string
+          asker_id: string
+          created_at: string
+          helper_id: string
+          id: string
+          last_message_at: string | null
+          status: Database['public']['Enums']['ask_thread_status']
+        }
+        Insert: {
+          ask_id: string
+          asker_id: string
+          created_at?: string
+          helper_id: string
+          id?: string
+          last_message_at?: string | null
+          status?: Database['public']['Enums']['ask_thread_status']
+        }
+        Update: {
+          ask_id?: string
+          asker_id?: string
+          created_at?: string
+          helper_id?: string
+          id?: string
+          last_message_at?: string | null
+          status?: Database['public']['Enums']['ask_thread_status']
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'mentorship_threads_mentee_id_fkey'
+            columns: ['asker_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'mentorship_threads_mentor_id_fkey'
+            columns: ['helper_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'mentorship_threads_request_id_fkey'
+            columns: ['ask_id']
+            isOneToOne: false
+            referencedRelation: 'asks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      asks: {
+        Row: {
+          ask_type: Database['public']['Enums']['ask_type']
+          asker_id: string
+          background: string | null
+          created_at: string
+          help_needed: string | null
+          helper_id: string
+          id: string
+          organization_id: string
+          reason: string | null
+          responded_at: string | null
+          screening_answer: string | null
+          status: Database['public']['Enums']['ask_status']
+        }
+        Insert: {
+          ask_type?: Database['public']['Enums']['ask_type']
+          asker_id: string
+          background?: string | null
+          created_at?: string
+          help_needed?: string | null
+          helper_id: string
+          id?: string
+          organization_id: string
+          reason?: string | null
+          responded_at?: string | null
+          screening_answer?: string | null
+          status?: Database['public']['Enums']['ask_status']
+        }
+        Update: {
+          ask_type?: Database['public']['Enums']['ask_type']
+          asker_id?: string
+          background?: string | null
+          created_at?: string
+          help_needed?: string | null
+          helper_id?: string
+          id?: string
+          organization_id?: string
+          reason?: string | null
+          responded_at?: string | null
+          screening_answer?: string | null
+          status?: Database['public']['Enums']['ask_status']
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'mentorship_requests_mentee_id_fkey'
+            columns: ['asker_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'mentorship_requests_mentor_id_fkey'
+            columns: ['helper_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'mentorship_requests_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       audit_log: {
         Row: {
           action: string
@@ -447,6 +566,53 @@ export type Database = {
           },
         ]
       }
+      helper_preferences: {
+        Row: {
+          created_at: string
+          max_active_mentees: number
+          max_pending_requests: number
+          open_to_advice: boolean
+          open_to_mentorship: boolean
+          organization_membership_id: string
+          paused_at: string | null
+          screening_prompt: string | null
+          topics: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          max_active_mentees?: number
+          max_pending_requests?: number
+          open_to_advice?: boolean
+          open_to_mentorship?: boolean
+          organization_membership_id: string
+          paused_at?: string | null
+          screening_prompt?: string | null
+          topics?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          max_active_mentees?: number
+          max_pending_requests?: number
+          open_to_advice?: boolean
+          open_to_mentorship?: boolean
+          organization_membership_id?: string
+          paused_at?: string | null
+          screening_prompt?: string | null
+          topics?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'mentorship_preferences_organization_membership_id_fkey'
+            columns: ['organization_membership_id']
+            isOneToOne: true
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       invites: {
         Row: {
           accepted_at: string | null
@@ -510,166 +676,6 @@ export type Database = {
             columns: ['sent_by']
             isOneToOne: false
             referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      mentorship_preferences: {
-        Row: {
-          created_at: string
-          is_open: boolean
-          max_active_mentees: number
-          max_pending_requests: number
-          organization_membership_id: string
-          paused_at: string | null
-          screening_prompt: string | null
-          topics: string[] | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          is_open?: boolean
-          max_active_mentees?: number
-          max_pending_requests?: number
-          organization_membership_id: string
-          paused_at?: string | null
-          screening_prompt?: string | null
-          topics?: string[] | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          is_open?: boolean
-          max_active_mentees?: number
-          max_pending_requests?: number
-          organization_membership_id?: string
-          paused_at?: string | null
-          screening_prompt?: string | null
-          topics?: string[] | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'mentorship_preferences_organization_membership_id_fkey'
-            columns: ['organization_membership_id']
-            isOneToOne: true
-            referencedRelation: 'organization_memberships'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      mentorship_requests: {
-        Row: {
-          background: string | null
-          created_at: string
-          help_needed: string | null
-          id: string
-          mentee_id: string
-          mentor_id: string
-          organization_id: string
-          reason: string | null
-          responded_at: string | null
-          screening_answer: string | null
-          status: Database['public']['Enums']['mentorship_request_status']
-        }
-        Insert: {
-          background?: string | null
-          created_at?: string
-          help_needed?: string | null
-          id?: string
-          mentee_id: string
-          mentor_id: string
-          organization_id: string
-          reason?: string | null
-          responded_at?: string | null
-          screening_answer?: string | null
-          status?: Database['public']['Enums']['mentorship_request_status']
-        }
-        Update: {
-          background?: string | null
-          created_at?: string
-          help_needed?: string | null
-          id?: string
-          mentee_id?: string
-          mentor_id?: string
-          organization_id?: string
-          reason?: string | null
-          responded_at?: string | null
-          screening_answer?: string | null
-          status?: Database['public']['Enums']['mentorship_request_status']
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'mentorship_requests_mentee_id_fkey'
-            columns: ['mentee_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'mentorship_requests_mentor_id_fkey'
-            columns: ['mentor_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'mentorship_requests_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      mentorship_threads: {
-        Row: {
-          created_at: string
-          id: string
-          last_message_at: string | null
-          mentee_id: string
-          mentor_id: string
-          request_id: string
-          status: Database['public']['Enums']['mentorship_thread_status']
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          last_message_at?: string | null
-          mentee_id: string
-          mentor_id: string
-          request_id: string
-          status?: Database['public']['Enums']['mentorship_thread_status']
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          last_message_at?: string | null
-          mentee_id?: string
-          mentor_id?: string
-          request_id?: string
-          status?: Database['public']['Enums']['mentorship_thread_status']
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'mentorship_threads_mentee_id_fkey'
-            columns: ['mentee_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'mentorship_threads_mentor_id_fkey'
-            columns: ['mentor_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'mentorship_threads_request_id_fkey'
-            columns: ['request_id']
-            isOneToOne: false
-            referencedRelation: 'mentorship_requests'
             referencedColumns: ['id']
           },
         ]
@@ -1082,13 +1088,14 @@ export type Database = {
     }
     Enums: {
       admin_role: 'super_admin' | 'admin' | 'event_moderator' | 'ambassador'
+      ask_status: 'pending' | 'accepted' | 'declined' | 'expired'
+      ask_thread_status: 'active' | 'archived'
+      ask_type: 'advice' | 'mentorship'
       event_rsvp_status: 'going' | 'not_going' | 'waitlisted'
       friend_request_status: 'pending' | 'accepted' | 'declined'
       invite_status: 'pending' | 'accepted' | 'expired' | 'revoked'
       membership_status: 'pending' | 'active' | 'rejected' | 'revoked' | 'self_deactivated'
-      mentorship_request_status: 'pending' | 'accepted' | 'declined' | 'expired'
-      mentorship_thread_status: 'active' | 'archived'
-      message_thread_type: 'mentorship' | 'direct'
+      message_thread_type: 'ask' | 'direct'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1218,13 +1225,14 @@ export const Constants = {
   public: {
     Enums: {
       admin_role: ['super_admin', 'admin', 'event_moderator', 'ambassador'],
+      ask_status: ['pending', 'accepted', 'declined', 'expired'],
+      ask_thread_status: ['active', 'archived'],
+      ask_type: ['advice', 'mentorship'],
       event_rsvp_status: ['going', 'not_going', 'waitlisted'],
       friend_request_status: ['pending', 'accepted', 'declined'],
       invite_status: ['pending', 'accepted', 'expired', 'revoked'],
       membership_status: ['pending', 'active', 'rejected', 'revoked', 'self_deactivated'],
-      mentorship_request_status: ['pending', 'accepted', 'declined', 'expired'],
-      mentorship_thread_status: ['active', 'archived'],
-      message_thread_type: ['mentorship', 'direct'],
+      message_thread_type: ['ask', 'direct'],
     },
   },
 } as const

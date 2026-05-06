@@ -3,9 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/db/server'
+import { respondToAsk } from '@/lib/asks/respondToAsk'
 import { getAppOrigin } from '@/lib/auth/app-url'
 import { requireSession } from '@/lib/auth/session'
-import { respondToRequest } from '@/lib/mentorship/respondToRequest'
 
 export async function acceptAction(formData: FormData) {
   const requestId = formData.get('requestId')
@@ -13,8 +13,8 @@ export async function acceptAction(formData: FormData) {
   const session = await requireSession()
   const supabase = await createClient()
   const origin = await getAppOrigin()
-  const result = await respondToRequest(supabase, origin, session.userId, {
-    requestId,
+  const result = await respondToAsk(supabase, origin, session.userId, {
+    askId: requestId,
     decision: 'accepted',
   })
   if (result.ok && result.threadId) {
@@ -31,8 +31,8 @@ export async function declineAction(formData: FormData) {
   const session = await requireSession()
   const supabase = await createClient()
   const origin = await getAppOrigin()
-  await respondToRequest(supabase, origin, session.userId, {
-    requestId,
+  await respondToAsk(supabase, origin, session.userId, {
+    askId: requestId,
     decision: 'declined',
   })
   revalidatePath('/inbox')

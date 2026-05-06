@@ -98,7 +98,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
           {event.viewerRsvp === 'waitlisted' ? (
             <p className="rounded-md border bg-muted/40 p-3 text-sm">
-              You're on the waitlist. We'll email you if a spot opens.
+              You&apos;re on the waitlist. We&apos;ll email you if a spot opens.
             </p>
           ) : null}
         </CardContent>
@@ -106,7 +106,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Who's going ({attendees.going.length})</CardTitle>
+          <CardTitle className="text-lg">Who&apos;s going ({attendees.going.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {attendees.going.length === 0 ? (
@@ -131,7 +131,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   </Link>
                   {a.graduationYear ? (
                     <span className="text-xs text-muted-foreground">
-                      '{a.graduationYear.toString().slice(2)}
+                      &apos;{a.graduationYear.toString().slice(2)}
                     </span>
                   ) : null}
                 </li>

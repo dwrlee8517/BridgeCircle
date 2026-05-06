@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/db/server'
+import { parseMessageForm } from '@/lib/asks/schemas'
+import { sendMessage } from '@/lib/asks/sendMessage'
 import { requireSession } from '@/lib/auth/session'
-import { parseMessageForm } from '@/lib/mentorship/schemas'
-import { sendMessage } from '@/lib/mentorship/sendMessage'
 
 export type MessageFormState = {
   error?: string

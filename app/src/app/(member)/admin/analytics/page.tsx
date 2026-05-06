@@ -55,7 +55,7 @@ export default async function AdminAnalyticsPage() {
       {loadError ? (
         <Card>
           <CardContent className="py-6">
-            <p className="text-sm font-medium text-destructive">Couldn't load analytics.</p>
+            <p className="text-sm font-medium text-destructive">Couldn&apos;t load analytics.</p>
             <p className="mt-1 text-xs text-muted-foreground">
               The query failed. Refresh to retry. If this persists, check Sentry.
             </p>

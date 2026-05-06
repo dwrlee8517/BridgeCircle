@@ -38,14 +38,14 @@ export function EventRsvpConfirmationEmail({
       <Preview>{`You're going to ${eventTitle}`}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={heading}>You're going 🎟️</Heading>
+          <Heading style={heading}>You&apos;re going 🎟️</Heading>
           <Text style={paragraph}>
             <strong>{eventTitle}</strong>
           </Text>
           <Text style={paragraph}>{when}</Text>
           {eventLocation ? <Text style={paragraph}>{eventLocation}</Text> : null}
           <Text style={paragraph}>
-            We won't email reminders, so add it to your calendar now if you want a nudge later.
+            We won&apos;t email reminders, so add it to your calendar now if you want a nudge later.
           </Text>
           <Section style={buttonSection}>
             <Button style={button} href={eventUrl}>
