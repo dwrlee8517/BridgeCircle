@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "next-dev",
+      "runtimeExecutable": "doppler",
+      "runtimeArgs": ["run", "-p", "bridgecircle-dev", "-c", "dev", "--", "sh", "-c", "pnpm --dir app install && pnpm --dir app dev"],
+      "port": 3000
+    }
+  ]
+}
