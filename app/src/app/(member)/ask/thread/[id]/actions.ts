@@ -29,6 +29,6 @@ export async function sendMessageAction(
     return { error: 'Could not send. Try again.' }
   }
 
-  revalidatePath(`/mentorship/thread/${parsed.data.threadId}`)
+  revalidatePath(`/ask/thread/${parsed.data.threadId}`)
   return {}
 }

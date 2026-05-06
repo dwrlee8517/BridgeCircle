@@ -161,20 +161,23 @@ export async function createAsk(
     .eq('user_id', askerId)
     .maybeSingle()
 
-  // Notification type stays as legacy 'mentorship_request_received' until the
-  // /ask routing rename ships and we add advice-specific notification types.
-  // Advice asks emit the same notification shape; the label still reads
-  // mentorship-flavored — fixed in the next step.
+  // ask_type rides along on the payload so the notification label can be
+  // type-specific without a schema change ("asked you for advice" vs.
+  // "requested mentorship").
   await createNotification({
     userId: input.helperId,
-    type: 'mentorship_request_received',
+    type: 'ask_received',
     organizationId: helperMembership.organization_id,
     targetType: 'ask',
     targetId: created.id,
-    payload: { actor_id: askerId, actor_name: askerBase?.name ?? null },
+    payload: {
+      actor_id: askerId,
+      actor_name: askerBase?.name ?? null,
+      ask_type: input.askType,
+    },
   })
 
-  await sendAskEmail(supabase, appOrigin, created.id, input.helperId, askerId)
+  await sendAskEmail(supabase, appOrigin, created.id, input.helperId, askerId, input.askType)
 
   return { ok: true, askId: created.id }
 }
@@ -185,6 +188,7 @@ async function sendAskEmail(
   askId: string,
   helperId: string,
   askerId: string,
+  askType: 'advice' | 'mentorship',
 ) {
   try {
     const [{ data: helperAuth }, { data: askerBase }] = await Promise.all([
@@ -202,7 +206,8 @@ async function sendAskEmail(
     await sendMentorshipRequestEmail({
       to: authUser.user.email,
       menteeName: askerBase?.name ?? 'A fellow alumnus',
-      reviewUrl: `${appOrigin}/mentorship/request/${askId}`,
+      reviewUrl: `${appOrigin}/ask/${askId}`,
+      askType,
     })
   } catch {
     // Email failures shouldn't fail the ask. The row is already written;

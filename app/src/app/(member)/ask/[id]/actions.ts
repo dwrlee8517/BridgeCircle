@@ -19,10 +19,10 @@ export async function acceptAction(formData: FormData) {
   })
   if (result.ok && result.threadId) {
     revalidatePath('/inbox')
-    redirect(`/mentorship/thread/${result.threadId}`)
+    redirect(`/ask/thread/${result.threadId}`)
   }
   // On error, fall through — caller refreshes and sees the latest state.
-  revalidatePath(`/mentorship/request/${requestId}`)
+  revalidatePath(`/ask/${requestId}`)
 }
 
 export async function declineAction(formData: FormData) {

@@ -3,6 +3,28 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1'],
+  // Legacy route redirects after the /mentorship/request/* → /ask/*
+  // promotion. Permanent (308) so any stale email links and bookmarks
+  // route the user to the renamed page.
+  async redirects() {
+    return [
+      {
+        source: '/mentorship/request/new',
+        destination: '/ask/new',
+        permanent: true,
+      },
+      {
+        source: '/mentorship/request/:id',
+        destination: '/ask/:id',
+        permanent: true,
+      },
+      {
+        source: '/mentorship/thread/:id',
+        destination: '/ask/thread/:id',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default withSentryConfig(nextConfig, {

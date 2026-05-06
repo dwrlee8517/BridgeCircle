@@ -360,10 +360,10 @@ function MenteeRequestCard({ request }: { request: HomePendingMentorRequest }) {
         ) : null}
         <div className="mt-3 flex flex-wrap gap-2">
           <Button asChild size="sm">
-            <Link href={`/mentorship/request/${request.id}`}>Review request</Link>
+            <Link href={`/ask/${request.id}`}>Review request</Link>
           </Button>
           <Button asChild size="sm" variant="ghost">
-            <Link href={`/mentorship/request/${request.id}`}>View profile</Link>
+            <Link href={`/ask/${request.id}`}>View profile</Link>
           </Button>
         </div>
       </CardContent>
@@ -585,15 +585,15 @@ function NotificationRow({ notification: n }: { notification: HomeNotification }
 
 function iconForType(type: string): { Icon: typeof Handshake; tone: string } {
   switch (type) {
-    case 'mentorship_request_received':
-    case 'mentorship_request_accepted':
-    case 'mentorship_request_declined':
+    case 'ask_received':
+    case 'ask_accepted':
+    case 'ask_declined':
       return { Icon: Handshake, tone: '#0051d5' }
     case 'friend_request_received':
     case 'friend_request_accepted':
       return { Icon: UserPlus, tone: '#10b981' }
     case 'direct_message':
-    case 'mentorship_message':
+    case 'ask_message':
       return { Icon: MessageSquare, tone: '#0051d5' }
     case 'announcement':
       return { Icon: Megaphone, tone: '#f59e0b' }
@@ -611,15 +611,15 @@ function notificationCopy(n: HomeNotification): string {
       return `${actor} sent you a friend request`
     case 'friend_request_accepted':
       return `${actor} accepted your friend request`
-    case 'mentorship_request_received':
+    case 'ask_received':
       return `${actor} requested mentorship`
-    case 'mentorship_request_accepted':
+    case 'ask_accepted':
       return `${actor} accepted your mentorship request`
-    case 'mentorship_request_declined':
+    case 'ask_declined':
       return `${actor} declined your mentorship request`
     case 'direct_message':
       return `New message from ${actor}`
-    case 'mentorship_message':
+    case 'ask_message':
       return `${actor} sent a mentorship message`
     case 'announcement':
       return typeof n.payload?.title === 'string' ? n.payload.title : 'New announcement'
@@ -638,15 +638,15 @@ function notificationHref(n: HomeNotification): string | null {
       return '/friends'
     case 'friend_request_accepted':
       return n.targetId ? `/profile/${n.targetId}` : '/friends'
-    case 'mentorship_request_received':
-    case 'mentorship_request_declined':
-      return n.targetId ? `/mentorship/request/${n.targetId}` : '/inbox'
-    case 'mentorship_request_accepted':
-      return n.targetId ? `/mentorship/thread/${n.targetId}` : '/inbox'
+    case 'ask_received':
+    case 'ask_declined':
+      return n.targetId ? `/ask/${n.targetId}` : '/inbox'
+    case 'ask_accepted':
+      return n.targetId ? `/ask/thread/${n.targetId}` : '/inbox'
     case 'direct_message':
       return n.targetId ? `/messages/${n.targetId}` : '/messages'
-    case 'mentorship_message':
-      return n.targetId ? `/mentorship/thread/${n.targetId}` : '/inbox'
+    case 'ask_message':
+      return n.targetId ? `/ask/thread/${n.targetId}` : '/inbox'
     case 'announcement':
       return '/announcements'
     case 'event_canceled':

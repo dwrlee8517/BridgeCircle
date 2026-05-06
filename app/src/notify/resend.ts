@@ -58,6 +58,9 @@ export type SendMentorshipRequestInput = {
   to: string
   menteeName: string
   reviewUrl: string
+  /** Subject line + greeting differ slightly per ask type. Default 'mentorship'
+   * preserves prior behavior for any callers that haven't been updated. */
+  askType?: 'advice' | 'mentorship'
 }
 
 export async function sendMentorshipRequestEmail(
@@ -65,11 +68,17 @@ export async function sendMentorshipRequestEmail(
 ): Promise<NotifyResult> {
   if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
 
+  const askType = input.askType ?? 'mentorship'
+  const subject =
+    askType === 'advice'
+      ? `${input.menteeName} asked you for advice`
+      : `${input.menteeName} sent you a mentorship request`
+
   const html = await render(MentorshipRequestEmail(input))
   const { data, error } = await resend.emails.send({
     from: FROM,
     to: [input.to],
-    subject: `${input.menteeName} sent you a mentorship request`,
+    subject,
     html,
   })
 
@@ -82,6 +91,7 @@ export type SendMentorshipAcceptedInput = {
   to: string
   mentorName: string
   threadUrl: string
+  askType?: 'advice' | 'mentorship'
 }
 
 export async function sendMentorshipAcceptedEmail(
@@ -89,11 +99,17 @@ export async function sendMentorshipAcceptedEmail(
 ): Promise<NotifyResult> {
   if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
 
+  const askType = input.askType ?? 'mentorship'
+  const subject =
+    askType === 'advice'
+      ? `${input.mentorName} replied to your advice request`
+      : `${input.mentorName} accepted your mentorship request`
+
   const html = await render(MentorshipAcceptedEmail(input))
   const { data, error } = await resend.emails.send({
     from: FROM,
     to: [input.to],
-    subject: `${input.mentorName} accepted your mentorship request`,
+    subject,
     html,
   })
 

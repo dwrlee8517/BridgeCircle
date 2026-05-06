@@ -333,21 +333,21 @@ function HelperAsks({
   if (mentorshipState === 'active' && relatedThreadId) {
     return (
       <Button asChild>
-        <Link href={`/mentorship/thread/${relatedThreadId}`}>Open mentorship thread</Link>
+        <Link href={`/ask/thread/${relatedThreadId}`}>Open mentorship thread</Link>
       </Button>
     )
   }
   if (mentorshipState === 'pending_outgoing' && relatedRequestId) {
     return (
       <Button asChild variant="outline">
-        <Link href={`/mentorship/request/${relatedRequestId}`}>Request pending — view</Link>
+        <Link href={`/ask/${relatedRequestId}`}>Request pending — view</Link>
       </Button>
     )
   }
   if (mentorshipState === 'pending_incoming' && relatedRequestId) {
     return (
       <Button asChild>
-        <Link href={`/mentorship/request/${relatedRequestId}`}>Review their request</Link>
+        <Link href={`/ask/${relatedRequestId}`}>Review their request</Link>
       </Button>
     )
   }
@@ -364,16 +364,12 @@ function HelperAsks({
     <>
       {isOpenAsAdviceHelper ? (
         <Button asChild variant={isOpenAsMentor ? 'outline' : 'default'}>
-          <Link href={`/mentorship/request/new?to=${profileUserId}&type=advice`}>
-            Ask for advice
-          </Link>
+          <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for advice</Link>
         </Button>
       ) : null}
       {isOpenAsMentor ? (
         <Button asChild>
-          <Link href={`/mentorship/request/new?to=${profileUserId}&type=mentorship`}>
-            Request mentorship
-          </Link>
+          <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Request mentorship</Link>
         </Button>
       ) : null}
     </>

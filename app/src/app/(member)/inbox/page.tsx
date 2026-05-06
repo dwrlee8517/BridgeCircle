@@ -57,23 +57,23 @@ export default async function InboxPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
       <div className="mb-8 border-b pb-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Mentorship
+          Inbox
         </p>
         <h1
           className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
           style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
         >
-          Mentorship Inbox
+          Inbox
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Review new requests, active threads, and the mentors you have reached out to.
+          Asks people sent you, your active threads, and asks you&apos;ve sent.
         </p>
       </div>
 
       <Section
-        title="Incoming requests"
-        description="People asking to be mentored by you."
-        emptyText="No pending requests."
+        title="Incoming asks"
+        description="People who reached out to you for advice or mentorship."
+        emptyText="No pending asks."
       >
         {(incoming.data ?? []).map((r) => {
           const p = profileMap.get(r.asker_id)
@@ -82,7 +82,7 @@ export default async function InboxPage() {
           const summary = r.reason ?? r.help_needed ?? ''
           const typeLabel = r.ask_type === 'advice' ? 'Advice' : 'Mentorship'
           return (
-            <Link key={r.id} href={`/mentorship/request/${r.id}`}>
+            <Link key={r.id} href={`/ask/${r.id}`}>
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}
@@ -101,8 +101,8 @@ export default async function InboxPage() {
       </Section>
 
       <Section
-        title="Active mentorships"
-        description="Threads with mentors and mentees you've connected with."
+        title="Active threads"
+        description="Conversations you've started after an accept."
         emptyText="No active threads yet."
       >
         {(threads.data ?? []).map((t) => {
@@ -120,7 +120,7 @@ export default async function InboxPage() {
                 : 'Helper'
           const ts = t.last_message_at ?? t.created_at
           return (
-            <Link key={t.id} href={`/mentorship/thread/${t.id}`}>
+            <Link key={t.id} href={`/ask/thread/${t.id}`}>
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}
@@ -134,9 +134,9 @@ export default async function InboxPage() {
       </Section>
 
       <Section
-        title="Your outgoing requests"
-        description="Requests you've sent to potential mentors."
-        emptyText="You haven't sent any requests yet."
+        title="Your outgoing asks"
+        description="Asks you've sent — full list lives at /ask."
+        emptyText="You haven't sent any asks yet."
       >
         {(outgoing.data ?? []).map((r) => {
           const p = profileMap.get(r.helper_id)
@@ -153,7 +153,7 @@ export default async function InboxPage() {
             )
           const summary = r.reason ?? r.help_needed ?? ''
           return (
-            <Link key={r.id} href={`/mentorship/request/${r.id}`}>
+            <Link key={r.id} href={`/ask/${r.id}`}>
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}

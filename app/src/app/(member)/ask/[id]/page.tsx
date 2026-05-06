@@ -117,7 +117,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
 
             {req.status === 'accepted' && threadId ? (
               <Button asChild>
-                <Link href={`/mentorship/thread/${threadId}`}>Open thread</Link>
+                <Link href={`/ask/thread/${threadId}`}>Open thread</Link>
               </Button>
             ) : null}
 
