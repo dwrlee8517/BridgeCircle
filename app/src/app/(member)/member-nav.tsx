@@ -21,7 +21,10 @@ export const MEMBER_NAV_LINKS = [
   // so the nav stays highlighted while reading a DM.
   { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages'] },
   { href: '/events', label: 'Events', match: ['/events'] },
-  { href: '/announcements', label: 'Announcements', match: ['/announcements'] },
+  // /announcements no longer has a top-nav slot — they're low-frequency
+  // admin posts. The home page surfaces the latest one as a banner;
+  // notifications and admin emails deep-link into /announcements when
+  // there's a specific post to read. The archive page itself stays.
 ] as const
 
 export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
