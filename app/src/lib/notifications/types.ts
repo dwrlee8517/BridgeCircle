@@ -111,7 +111,7 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
     case 'ask_accepted':
       return row.targetId ? `/ask/thread/${row.targetId}` : '/inbox'
     case 'direct_message':
-      return row.targetId ? `/messages/${row.targetId}` : '/messages'
+      return row.targetId ? `/messages/${row.targetId}` : '/inbox'
     case 'ask_message':
       return row.targetId ? `/ask/thread/${row.targetId}` : '/inbox'
     case 'announcement':

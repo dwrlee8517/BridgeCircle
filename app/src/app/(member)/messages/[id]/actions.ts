@@ -47,9 +47,10 @@ export async function sendMessageAction(
     return { ok: false, message }
   }
 
-  // Refresh /messages so the inbox preview updates. The thread page itself
-  // gets the new message via Realtime, no revalidate needed there.
-  revalidatePath('/messages')
+  // Refresh /inbox so the DM thread preview updates there. The thread
+  // page itself gets the new message via Realtime, no revalidate needed
+  // there.
+  revalidatePath('/inbox')
   return { ok: true, messageId: result.messageId, createdAt: result.createdAt }
 }
 
@@ -62,7 +63,7 @@ export async function startThreadAction(formData: FormData): Promise<void> {
   const session = await requireSession()
   const parsed = startThreadSchema.safeParse({ receiverId: formData.get('receiverId') })
   if (!parsed.success) {
-    redirect('/friends?error=invalid')
+    redirect('/inbox?error=invalid')
   }
 
   const supabase = await createClient()
@@ -77,7 +78,7 @@ export async function startThreadAction(formData: FormData): Promise<void> {
     if (result.error === 'not_friends') {
       redirect(`/profile/${parsed.data.receiverId}?error=not_friends`)
     }
-    redirect('/messages')
+    redirect('/inbox')
   }
 
   redirect(`/messages/${result.threadId}`)
