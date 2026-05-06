@@ -39,11 +39,11 @@ export function EventWaitlistPromotedEmail({
       <Preview>{`A spot opened up for ${eventTitle}`}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={heading}>You're in 🎉</Heading>
+          <Heading style={heading}>You&apos;re in 🎉</Heading>
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
-            A spot just opened up for <strong>{eventTitle}</strong>, and you've been moved off the
-            waitlist. You're now confirmed for <strong>{dateText}</strong>
+            A spot just opened up for <strong>{eventTitle}</strong>, and you&apos;ve been moved off
+            the waitlist. You&apos;re now confirmed for <strong>{dateText}</strong>
             {eventLocation ? (
               <>
                 {' at '}

@@ -1,17 +1,22 @@
 import { z } from 'zod'
 
-export const mentorshipRequestSchema = z.object({
-  mentorId: z.uuid(),
-  reason: z.string().trim().min(10, 'Tell the mentor a bit about why (10+ chars).').max(500),
+export const askTypeSchema = z.enum(['advice', 'mentorship'])
+export type AskType = z.infer<typeof askTypeSchema>
+
+export const askSchema = z.object({
+  helperId: z.uuid(),
+  askType: askTypeSchema,
+  reason: z.string().trim().min(10, 'Tell them a bit about why (10+ chars).').max(500),
   helpNeeded: z.string().trim().min(10, 'Be specific about what help (10+ chars).').max(500),
   background: z.string().trim().max(1000).optional().nullable(),
 })
 
-export type MentorshipRequestInput = z.infer<typeof mentorshipRequestSchema>
+export type AskInput = z.infer<typeof askSchema>
 
-export function parseMentorshipRequestForm(formData: FormData) {
-  return mentorshipRequestSchema.safeParse({
-    mentorId: formData.get('mentorId'),
+export function parseAskForm(formData: FormData) {
+  return askSchema.safeParse({
+    helperId: formData.get('helperId') ?? formData.get('mentorId'),
+    askType: formData.get('askType') ?? 'mentorship',
     reason: formData.get('reason'),
     helpNeeded: formData.get('helpNeeded'),
     background: formData.get('background'),
@@ -39,8 +44,12 @@ const positiveInt = z.preprocess(
   z.number().int().min(1, 'Must be at least 1.').max(100, 'Keep it under 100.'),
 )
 
-export const mentorshipPreferenceSchema = z.object({
-  isOpen: checkbox,
+// Helper settings save the per-type opt-ins plus mentorship-specific limits.
+// Advice is a lighter commitment by design; we keep no caps on it for now
+// (revisit if abuse appears). The screening prompt is mentorship-only.
+export const helperPreferenceSchema = z.object({
+  openToAdvice: checkbox,
+  openToMentorship: checkbox,
   topics: z
     .string()
     .trim()
@@ -66,11 +75,12 @@ export const mentorshipPreferenceSchema = z.object({
   maxPendingRequests: positiveInt,
 })
 
-export type MentorshipPreferenceInput = z.infer<typeof mentorshipPreferenceSchema>
+export type HelperPreferenceInput = z.infer<typeof helperPreferenceSchema>
 
-export function parseMentorshipPreferenceForm(formData: FormData) {
-  return mentorshipPreferenceSchema.safeParse({
-    isOpen: formData.get('isOpen'),
+export function parseHelperPreferenceForm(formData: FormData) {
+  return helperPreferenceSchema.safeParse({
+    openToAdvice: formData.get('openToAdvice'),
+    openToMentorship: formData.get('openToMentorship') ?? formData.get('isOpen'),
     topics: formData.get('topics'),
     screeningPrompt: formData.get('screeningPrompt'),
     maxActiveMentees: formData.get('maxActiveMentees'),

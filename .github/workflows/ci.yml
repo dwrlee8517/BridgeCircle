@@ -37,6 +37,9 @@ jobs:
       - name: Biome check
         run: pnpm biome check .
 
+      - name: ESLint
+        run: pnpm lint
+
       - name: Vitest
         run: pnpm vitest run --passWithNoTests
 

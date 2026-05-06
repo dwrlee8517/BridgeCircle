@@ -258,8 +258,8 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
           Alumni Directory
         </h1>
         <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-          Find mentors, classmates, and collaborators across {orgName}. Describe who you're looking
-          for in plain English, or use the filters below.
+          Find mentors, classmates, and collaborators across {orgName}. Describe who you&apos;re
+          looking for in plain English, or use the filters below.
         </p>
       </div>
     </section>

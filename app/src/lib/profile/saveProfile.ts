@@ -1,7 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import { setMentorOpen } from '@/lib/mentorship/preferences'
+import { setOpenToMentorship } from '@/lib/asks/preferences'
 import type { ProfileFormInput } from './schemas'
 
 export type SaveProfileResult =
@@ -95,7 +95,7 @@ export async function saveProfile(
     return { ok: false, error: 'db_error', detail: orgErr.message }
   }
 
-  const prefResult = await setMentorOpen(supabase, membership.id, input.openToMentor)
+  const prefResult = await setOpenToMentorship(supabase, membership.id, input.openToMentor)
   if (!prefResult.ok) return prefResult
 
   return { ok: true }

@@ -51,8 +51,8 @@ export function EventCanceledEmail({
             </>
           ) : null}
           <Text style={paragraph}>
-            No action needed on your end. Your RSVP has been removed and you won't see this event on
-            the schedule anymore.
+            No action needed on your end. Your RSVP has been removed and you won&apos;t see this
+            event on the schedule anymore.
           </Text>
         </Container>
       </Body>

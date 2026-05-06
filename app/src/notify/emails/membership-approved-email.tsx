@@ -24,7 +24,7 @@ export function MembershipApprovedEmail({ recipientName, orgName, signInUrl }: P
       <Preview>{`You're approved — welcome to ${orgName} on BridgeCircle`}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={heading}>You're in 🎉</Heading>
+          <Heading style={heading}>You&apos;re in 🎉</Heading>
           <Text style={paragraph}>{greeting}</Text>
           <Text style={paragraph}>
             An admin just approved your membership in <strong>{orgName}</strong> on BridgeCircle.

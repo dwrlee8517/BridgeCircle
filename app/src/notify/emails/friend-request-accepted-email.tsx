@@ -22,7 +22,7 @@ export function FriendRequestAcceptedEmail({ accepterName, profileUrl }: Props) 
       <Preview>{`${accepterName} accepted your friend request`}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Heading style={heading}>You're now connected</Heading>
+          <Heading style={heading}>You&apos;re now connected</Heading>
           <Text style={paragraph}>
             <strong>{accepterName}</strong> accepted your friend request on BridgeCircle. You can
             now message them directly.

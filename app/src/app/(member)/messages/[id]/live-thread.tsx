@@ -85,14 +85,11 @@ export function LiveThread({
     }
   }, [threadId])
 
-  // Append on successful send + clear the textarea via key swap.
-  const formKeyRef = useRef(0)
-  useEffect(() => {
-    if (state?.ok) {
-      // Re-issue the form so the textarea resets.
-      formKeyRef.current += 1
-    }
-  }, [state])
+  // Derive the form key from the most recent successful messageId so each
+  // send remounts the textarea (clearing it). Deriving directly avoids the
+  // "setState inside useEffect" anti-pattern — the key is just a function
+  // of state we already have.
+  const formKey = state?.ok ? state.messageId : 'composer'
 
   // Track when our own send completes and add the message to local state if
   // realtime hasn't already delivered it (it usually will, almost immediately,
@@ -147,9 +144,15 @@ export function LiveThread({
 
       {composerEnabled ? (
         <form
-          key={formKeyRef.current}
+          key={formKey}
           action={(fd) => {
             const body = (fd.get('body') as string | null)?.trim() ?? ''
+            // Side-channel: capture the body in a ref so the post-action
+            // useEffect can append it optimistically. Mutating a ref outside
+            // its read effect is what triggers the lint rule, but the
+            // sequencing is intentional — action runs at click time, then
+            // state changes, then the effect reads the latest ref.
+            // eslint-disable-next-line react-hooks/immutability -- intentional pre-effect capture
             lastSubmittedBody.current = body
             dispatch(fd)
           }}

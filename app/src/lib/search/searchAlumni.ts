@@ -61,7 +61,7 @@ export type SearchInput = {
 /**
  * Search + rank alumni in a given org.
  *
- * Per phase-1-launch-spec.md:39 ranking spec:
+ * Per docs/specs/phase-1/launch-cut.md ranking spec:
  *   open-to-mentor boost > same university > same major > same city >
  *   grad-year proximity > string match on role/industry.
  *
@@ -69,7 +69,7 @@ export type SearchInput = {
  *
  * Strategy:
  *   1. List active memberships in the org (excluding viewer)
- *   2. Bulk-fetch base_profiles + organization_profiles + mentorship_preferences
+ *   2. Bulk-fetch base_profiles + organization_profiles + helper_preferences
  *   3. Stitch in memory, apply filters, score, sort
  *
  * RLS automatically filters what each query can see — caller's session ⇒
@@ -108,8 +108,8 @@ export async function searchAlumni(
       .select('organization_membership_id, graduation_year, mentoring_topics, bio')
       .in('organization_membership_id', membershipIds),
     supabase
-      .from('mentorship_preferences')
-      .select('organization_membership_id, is_open, paused_at')
+      .from('helper_preferences')
+      .select('organization_membership_id, open_to_mentorship, paused_at')
       .in('organization_membership_id', membershipIds),
     // Pull viewer's friend list once so we can compute the per-candidate
     // visibility tier in JS without N extra queries.
@@ -122,8 +122,7 @@ export async function searchAlumni(
   if (baseRes.error) throw new Error(`searchAlumni base_profiles: ${baseRes.error.message}`)
   if (orgProfileRes.error)
     throw new Error(`searchAlumni org_profiles: ${orgProfileRes.error.message}`)
-  if (prefRes.error)
-    throw new Error(`searchAlumni mentorship_preferences: ${prefRes.error.message}`)
+  if (prefRes.error) throw new Error(`searchAlumni helper_preferences: ${prefRes.error.message}`)
   if (friendsRes.error) throw new Error(`searchAlumni friendships: ${friendsRes.error.message}`)
 
   const orgProfileByMembership = new Map(
@@ -147,7 +146,7 @@ export async function searchAlumni(
     if (!membershipId) continue
     const op = orgProfileByMembership.get(membershipId)
     const pref = prefByMembership.get(membershipId)
-    const isOpenAsMentor = !!pref?.is_open && !pref.paused_at
+    const isOpenAsMentor = !!pref?.open_to_mentorship && !pref.paused_at
 
     // Career and education history may match the filter via past entries
     // even when the directory field doesn't. We use the *raw* JSONB here

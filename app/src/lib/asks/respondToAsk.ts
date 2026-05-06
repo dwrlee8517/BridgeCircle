@@ -6,7 +6,7 @@ import { createNotification } from '@/lib/notifications/createNotification'
 import { sendMentorshipAcceptedEmail } from '@/notify/resend'
 
 export type RespondInput = {
-  requestId: string
+  askId: string
   decision: 'accepted' | 'declined'
 }
 
@@ -14,101 +14,100 @@ export type RespondResult =
   | { ok: true; threadId: string | null }
   | {
       ok: false
-      error: 'not_found' | 'not_pending' | 'not_mentor' | 'db_error'
+      error: 'not_found' | 'not_pending' | 'not_helper' | 'db_error'
       detail?: string
     }
 
 /**
- * Mentor responds to a pending mentorship request. On accept, creates a
- * mentorship_thread (if not already present) and emails the mentee.
+ * Helper responds to a pending ask. On accept, creates an ask_thread (if
+ * not already present) and emails the asker.
  *
- * Idempotent: if the request is already accepted/declined, returns ok with
+ * Idempotent: if the ask is already accepted/declined, returns ok with
  * the existing thread id (or null for declined).
  */
-export async function respondToRequest(
+export async function respondToAsk(
   supabase: SupabaseClient<Database>,
   appOrigin: string,
-  mentorId: string,
+  helperId: string,
   input: RespondInput,
 ): Promise<RespondResult> {
-  const { data: req, error: reqErr } = await supabase
-    .from('mentorship_requests')
-    .select('id, mentor_id, mentee_id, organization_id, status')
-    .eq('id', input.requestId)
+  const { data: ask, error: askErr } = await supabase
+    .from('asks')
+    .select('id, helper_id, asker_id, organization_id, status')
+    .eq('id', input.askId)
     .maybeSingle()
 
-  if (reqErr || !req) return { ok: false, error: 'not_found' }
-  if (req.mentor_id !== mentorId) return { ok: false, error: 'not_mentor' }
+  if (askErr || !ask) return { ok: false, error: 'not_found' }
+  if (ask.helper_id !== helperId) return { ok: false, error: 'not_helper' }
 
-  // Thread inserts use the admin client because mentorship_threads has no
-  // INSERT policy for the authenticated role (see 0003_rls.sql comment:
+  // Thread inserts use the admin client because ask_threads has no INSERT
+  // policy for the authenticated role (see 0003_rls.sql comment:
   // "Inserts via service_role only — server-side after request acceptance").
   // Without this, the insert silently fails under RLS and we end up with an
-  // accepted request with no thread backing it.
+  // accepted ask with no thread backing it.
   const admin = createAdminClient()
 
   // Idempotent recovery: if already accepted, return existing thread (or
-  // create one if it's missing — covers any historical broken state from
-  // the bug this commit fixes).
-  if (req.status === 'accepted') {
+  // create one if it's missing — covers any historical broken state).
+  if (ask.status === 'accepted') {
     const { data: existing } = await supabase
-      .from('mentorship_threads')
+      .from('ask_threads')
       .select('id')
-      .eq('request_id', req.id)
+      .eq('ask_id', ask.id)
       .maybeSingle()
     if (existing) return { ok: true, threadId: existing.id }
-    const recovered = await createThread(admin, req)
+    const recovered = await createThread(admin, ask)
     if (!recovered.ok) return recovered
-    await sendAcceptedEmail(supabase, appOrigin, recovered.threadId, req.mentor_id, req.mentee_id)
+    await sendAcceptedEmail(supabase, appOrigin, recovered.threadId, ask.helper_id, ask.asker_id)
     return { ok: true, threadId: recovered.threadId }
   }
-  if (req.status === 'declined') {
+  if (ask.status === 'declined') {
     return { ok: true, threadId: null }
   }
-  if (req.status !== 'pending') return { ok: false, error: 'not_pending' }
+  if (ask.status !== 'pending') return { ok: false, error: 'not_pending' }
 
   const now = new Date().toISOString()
 
   const { error: updateErr } = await supabase
-    .from('mentorship_requests')
+    .from('asks')
     .update({ status: input.decision, responded_at: now })
-    .eq('id', input.requestId)
+    .eq('id', input.askId)
 
   if (updateErr) return { ok: false, error: 'db_error', detail: updateErr.message }
 
   let threadId: string | null = null
   if (input.decision === 'accepted') {
-    const result = await createThread(admin, req)
+    const result = await createThread(admin, ask)
     if (!result.ok) return result
     threadId = result.threadId
-    await sendAcceptedEmail(supabase, appOrigin, threadId, req.mentor_id, req.mentee_id)
+    await sendAcceptedEmail(supabase, appOrigin, threadId, ask.helper_id, ask.asker_id)
   }
 
   await supabase.from('audit_log').insert({
-    actor_id: mentorId,
-    organization_id: req.organization_id,
-    action: `mentorship_request.${input.decision}`,
-    target_type: 'mentorship_request',
-    target_id: req.id,
+    actor_id: helperId,
+    organization_id: ask.organization_id,
+    action: `ask.${input.decision}`,
+    target_type: 'ask',
+    target_id: ask.id,
   })
 
-  // In-app notification to the mentee. On accept, deep-link goes to the
-  // thread; on decline it goes back to the request page (where they can see
-  // the status).
-  const { data: mentorBase } = await supabase
+  // In-app notification to the asker. On accept, deep-link goes to the
+  // thread; on decline it goes back to the ask page (where they see status).
+  // Notification type strings remain legacy until the /ask routing rename.
+  const { data: helperBase } = await supabase
     .from('base_profiles')
     .select('name')
-    .eq('user_id', mentorId)
+    .eq('user_id', helperId)
     .maybeSingle()
 
   await createNotification({
-    userId: req.mentee_id,
+    userId: ask.asker_id,
     type:
       input.decision === 'accepted' ? 'mentorship_request_accepted' : 'mentorship_request_declined',
-    organizationId: req.organization_id,
-    targetType: input.decision === 'accepted' ? 'mentorship_thread' : 'mentorship_request',
-    targetId: input.decision === 'accepted' ? threadId : req.id,
-    payload: { actor_id: mentorId, actor_name: mentorBase?.name ?? null },
+    organizationId: ask.organization_id,
+    targetType: input.decision === 'accepted' ? 'ask_thread' : 'ask',
+    targetId: input.decision === 'accepted' ? threadId : ask.id,
+    payload: { actor_id: helperId, actor_name: helperBase?.name ?? null },
   })
 
   return { ok: true, threadId }
@@ -116,14 +115,14 @@ export async function respondToRequest(
 
 async function createThread(
   admin: SupabaseClient<Database>,
-  req: { id: string; mentor_id: string; mentee_id: string },
+  ask: { id: string; helper_id: string; asker_id: string },
 ): Promise<{ ok: true; threadId: string } | { ok: false; error: 'db_error'; detail?: string }> {
   const { data: thread, error } = await admin
-    .from('mentorship_threads')
+    .from('ask_threads')
     .insert({
-      request_id: req.id,
-      mentor_id: req.mentor_id,
-      mentee_id: req.mentee_id,
+      ask_id: ask.id,
+      helper_id: ask.helper_id,
+      asker_id: ask.asker_id,
     })
     .select('id')
     .single()
@@ -137,24 +136,24 @@ async function sendAcceptedEmail(
   supabase: SupabaseClient<Database>,
   appOrigin: string,
   threadId: string,
-  mentorId: string,
-  menteeId: string,
+  helperId: string,
+  askerId: string,
 ) {
   try {
-    const { data: mentorBase } = await supabase
+    const { data: helperBase } = await supabase
       .from('base_profiles')
       .select('name')
-      .eq('user_id', mentorId)
+      .eq('user_id', helperId)
       .maybeSingle()
 
     const { createAdminClient } = await import('@/db/admin')
     const admin = createAdminClient()
-    const { data: menteeAuth } = await admin.auth.admin.getUserById(menteeId)
-    if (!menteeAuth?.user?.email) return
+    const { data: askerAuth } = await admin.auth.admin.getUserById(askerId)
+    if (!askerAuth?.user?.email) return
 
     await sendMentorshipAcceptedEmail({
-      to: menteeAuth.user.email,
-      mentorName: mentorBase?.name ?? 'Your mentor',
+      to: askerAuth.user.email,
+      mentorName: helperBase?.name ?? 'Your helper',
       threadUrl: `${appOrigin}/mentorship/thread/${threadId}`,
     })
   } catch {

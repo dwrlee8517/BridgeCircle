@@ -47,11 +47,16 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
             : 'none'
 
   if (!isSelf) {
+    // Surface the most recent mentorship-type ask either direction. Advice
+    // asks intentionally don't drive the profile-detail mentorship CTA —
+    // they're lower-burden one-off conversations, not a relationship state
+    // we want to surface as "in progress" on a profile page.
     const { data: req } = await supabase
-      .from('mentorship_requests')
-      .select('id, mentor_id, mentee_id, status')
+      .from('asks')
+      .select('id, helper_id, asker_id, status')
+      .eq('ask_type', 'mentorship')
       .or(
-        `and(mentor_id.eq.${id},mentee_id.eq.${session.userId}),and(mentor_id.eq.${session.userId},mentee_id.eq.${id})`,
+        `and(helper_id.eq.${id},asker_id.eq.${session.userId}),and(helper_id.eq.${session.userId},asker_id.eq.${id})`,
       )
       .order('created_at', { ascending: false })
       .limit(1)
@@ -59,13 +64,13 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
     if (req) {
       relatedRequestId = req.id
       if (req.status === 'pending') {
-        mentorshipState = req.mentor_id === session.userId ? 'pending_incoming' : 'pending_outgoing'
+        mentorshipState = req.helper_id === session.userId ? 'pending_incoming' : 'pending_outgoing'
       } else if (req.status === 'accepted') {
         mentorshipState = 'active'
         const { data: thread } = await supabase
-          .from('mentorship_threads')
+          .from('ask_threads')
           .select('id')
-          .eq('request_id', req.id)
+          .eq('ask_id', req.id)
           .maybeSingle()
         relatedThreadId = thread?.id ?? null
       }

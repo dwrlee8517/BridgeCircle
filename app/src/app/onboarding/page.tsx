@@ -43,8 +43,8 @@ export default async function OnboardingPage() {
       .eq('organization_membership_id', membership.id)
       .maybeSingle(),
     supabase
-      .from('mentorship_preferences')
-      .select('is_open')
+      .from('helper_preferences')
+      .select('open_to_mentorship')
       .eq('organization_membership_id', membership.id)
       .maybeSingle(),
   ])
@@ -115,7 +115,7 @@ export default async function OnboardingPage() {
               graduationYear: orgProfile?.graduation_year?.toString() ?? '',
               bio: orgProfile?.bio ?? '',
               mentoringTopics: orgProfile?.mentoring_topics?.join(', ') ?? '',
-              openToMentor: pref?.is_open ?? false,
+              openToMentor: pref?.open_to_mentorship ?? false,
               skills: base?.skills ?? [],
               careerHistory: ((base?.career_history as DbCareerEntry[] | null) ?? []).map((e) => ({
                 employer: e.employer,

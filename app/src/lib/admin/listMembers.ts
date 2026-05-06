@@ -38,7 +38,7 @@ const COMPLETION_FIELDS = [
  * lookup batched at the end).
  *
  * Profile completion is the share of the seven required launch fields
- * (per phase-1-launch-spec.md) that are filled. Cheap to compute in JS;
+ * (per docs/specs/phase-1/launch-cut.md) that are filled. Cheap to compute in JS;
  * keeps the SQL straightforward.
  */
 export async function listMembers(
@@ -84,8 +84,8 @@ export async function listMembers(
       .select('organization_membership_id, graduation_year')
       .in('organization_membership_id', membershipIds),
     supabase
-      .from('mentorship_preferences')
-      .select('organization_membership_id, is_open, paused_at')
+      .from('helper_preferences')
+      .select('organization_membership_id, open_to_mentorship, paused_at')
       .in('organization_membership_id', membershipIds),
     admin
       .from('users')
@@ -154,7 +154,7 @@ export async function listMembers(
       graduationYear: op?.graduation_year ?? null,
       city: base?.city ?? null,
       currentEmployer: base?.current_employer ?? null,
-      isOpenAsMentor: !!pref?.is_open && !pref.paused_at,
+      isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
       completionPercent,
       deletionScheduledFor: userRow?.delete_scheduled_for ?? null,
       deletionInitiatedByAdmin: userRow?.delete_initiated_by_admin ?? false,

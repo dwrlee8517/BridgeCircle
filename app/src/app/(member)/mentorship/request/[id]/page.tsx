@@ -17,20 +17,20 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
   const supabase = await createClient()
 
   const { data: req } = await supabase
-    .from('mentorship_requests')
+    .from('asks')
     .select(
-      'id, mentor_id, mentee_id, status, reason, help_needed, background, created_at, responded_at',
+      'id, helper_id, asker_id, status, ask_type, reason, help_needed, background, created_at, responded_at',
     )
     .eq('id', id)
     .maybeSingle()
 
   if (!req) notFound()
 
-  const isMentor = req.mentor_id === session.userId
-  const isMentee = req.mentee_id === session.userId
-  if (!isMentor && !isMentee) notFound()
+  const isHelper = req.helper_id === session.userId
+  const isAsker = req.asker_id === session.userId
+  if (!isHelper && !isAsker) notFound()
 
-  const otherUserId = isMentor ? req.mentee_id : req.mentor_id
+  const otherUserId = isHelper ? req.asker_id : req.helper_id
 
   const { data: otherProfile } = await supabase
     .from('base_profiles')
@@ -38,13 +38,13 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
     .eq('user_id', otherUserId)
     .maybeSingle()
 
-  // If accepted and this is the mentor or mentee, show a link to the thread.
+  // If accepted, show a link to the thread the response created.
   let threadId: string | null = null
   if (req.status === 'accepted') {
     const { data: thread } = await supabase
-      .from('mentorship_threads')
+      .from('ask_threads')
       .select('id')
-      .eq('request_id', req.id)
+      .eq('ask_id', req.id)
       .maybeSingle()
     threadId = thread?.id ?? null
   }
@@ -65,7 +65,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
           </Avatar>
           <div className="flex-1 space-y-1">
             <CardTitle className="text-lg">
-              {isMentor
+              {isHelper
                 ? `Request from ${otherProfile?.name}`
                 : `Your request to ${otherProfile?.name}`}
             </CardTitle>
@@ -87,7 +87,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
           {req.background ? <Field label="Background">{req.background}</Field> : null}
 
           <div className="flex gap-2 pt-2">
-            {isMentor && req.status === 'pending' ? (
+            {isHelper && req.status === 'pending' ? (
               <>
                 <form action={acceptAction}>
                   <input type="hidden" name="requestId" value={req.id} />
@@ -108,7 +108,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
               </Button>
             ) : null}
 
-            {isMentee ? (
+            {isAsker ? (
               <Button asChild variant="outline">
                 <Link href={`/profile/${otherUserId}`}>View their profile</Link>
               </Button>

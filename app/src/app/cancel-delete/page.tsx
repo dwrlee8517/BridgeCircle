@@ -37,6 +37,7 @@ export default async function CancelDeletePage() {
     day: 'numeric',
     year: 'numeric',
   })
+  // eslint-disable-next-line react-hooks/purity -- server component, evaluated per request
   const overdue = dueDate.getTime() < Date.now()
 
   return (

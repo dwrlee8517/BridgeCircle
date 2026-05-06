@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
+import { getHelperPreference } from '@/lib/asks/preferences'
 import { requireSession } from '@/lib/auth/session'
-import { getMentorshipPreference } from '@/lib/mentorship/preferences'
 import { SettingsForm } from './settings-form'
 
 export default async function MentorSettingsPage() {
   const session = await requireSession()
   const supabase = await createClient()
-  const pref = await getMentorshipPreference(supabase, session.userId)
+  const pref = await getHelperPreference(supabase, session.userId)
 
   if (!pref) {
     return (
@@ -50,7 +50,7 @@ export default async function MentorSettingsPage() {
           ) : null}
           <SettingsForm
             defaults={{
-              isOpen: pref.isOpen,
+              isOpen: pref.openToMentorship,
               topics: pref.topics.join(', '),
               screeningPrompt: pref.screeningPrompt ?? '',
               maxActiveMentees: pref.maxActiveMentees,

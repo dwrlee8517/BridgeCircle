@@ -138,7 +138,7 @@ export default async function FriendsPage() {
                     <span className="font-medium">{f.name ?? 'Friend'}</span>
                     {f.graduationYear ? (
                       <span className="text-sm text-muted-foreground">
-                        '{`${f.graduationYear}`.slice(-2)}
+                        &apos;{`${f.graduationYear}`.slice(-2)}
                       </span>
                     ) : null}
                   </div>

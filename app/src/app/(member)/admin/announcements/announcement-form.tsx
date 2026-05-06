@@ -51,7 +51,7 @@ export function AnnouncementForm() {
         <div className="space-y-1">
           <Label htmlFor="ann-sendEmail">Email this to every active member</Label>
           <p className="text-xs text-muted-foreground">
-            Off by default. Use sparingly — it lands in everyone's inbox immediately.
+            Off by default. Use sparingly — it lands in everyone&apos;s inbox immediately.
           </p>
         </div>
       </div>

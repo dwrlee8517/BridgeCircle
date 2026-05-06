@@ -127,8 +127,8 @@ function UploadStep({
         <Label htmlFor="file">Upload your resume</Label>
         <Input id="file" name="file" type="file" accept=".pdf,.docx" required disabled={pending} />
         <p className="text-xs text-muted-foreground">
-          PDF or DOCX, up to 5MB. We'll extract your career history, education, and skills, then let
-          you confirm before saving anything.
+          PDF or DOCX, up to 5MB. We&apos;ll extract your career history, education, and skills,
+          then let you confirm before saving anything.
         </p>
       </div>
 
@@ -301,8 +301,8 @@ function ConfirmStep({
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="rounded-md border bg-emerald-50 p-3 text-sm text-emerald-900">
-        Extracted. Review each item below — uncheck anything you don't want, edit values inline,
-        then click Apply. Nothing is saved until you confirm.
+        Extracted. Review each item below — uncheck anything you don&apos;t want, edit values
+        inline, then click Apply. Nothing is saved until you confirm.
       </div>
 
       <Section title="Profile fields">

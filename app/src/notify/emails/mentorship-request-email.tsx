@@ -27,7 +27,7 @@ export function MentorshipRequestEmail({ menteeName, reviewUrl }: Props) {
             <strong>{menteeName}</strong> sent you a mentorship request on BridgeCircle.
           </Text>
           <Text style={paragraph}>
-            Take a look — you can read what they're asking for and either accept or decline.
+            Take a look — you can read what they&apos;re asking for and either accept or decline.
           </Text>
           <Section style={buttonSection}>
             <Button style={button} href={reviewUrl}>
@@ -35,8 +35,8 @@ export function MentorshipRequestEmail({ menteeName, reviewUrl }: Props) {
             </Button>
           </Section>
           <Text style={footer}>
-            You're receiving this because you're listed as open to mentor on BridgeCircle. You can
-            pause or close mentoring any time in your mentor settings.
+            You&apos;re receiving this because you&apos;re listed as open to mentor on BridgeCircle.
+            You can pause or close mentoring any time in your mentor settings.
           </Text>
         </Container>
       </Body>

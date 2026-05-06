@@ -55,6 +55,7 @@ export default async function EventsPage({
   ])
   const isAdmin = !!adminRole
 
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
   const now = Date.now()
   const upcoming = allEvents
     .filter((e) => new Date(e.startsAt).getTime() >= now)
@@ -196,7 +197,7 @@ function Hero({
             className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
             style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
           >
-            What's happening across the circle.
+            What&apos;s happening across the circle.
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">Gatherings for {orgName}.</p>
         </div>

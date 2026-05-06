@@ -10,36 +10,36 @@ export default async function InboxPage() {
   const session = await requireSession()
   const supabase = await createClient()
 
-  // Three lists: incoming pending requests (where I'm the mentor), outgoing
-  // pending (where I'm the mentee), and active threads (where I'm either side).
+  // Three lists: incoming pending asks (where I'm the helper), outgoing
+  // (where I'm the asker), and active threads (where I'm either side).
   const [incoming, outgoing, threads] = await Promise.all([
     supabase
-      .from('mentorship_requests')
-      .select('id, mentee_id, status, reason, help_needed, created_at')
-      .eq('mentor_id', session.userId)
+      .from('asks')
+      .select('id, asker_id, status, ask_type, reason, help_needed, created_at')
+      .eq('helper_id', session.userId)
       .eq('status', 'pending')
       .order('created_at', { ascending: false }),
     supabase
-      .from('mentorship_requests')
-      .select('id, mentor_id, status, reason, help_needed, created_at, responded_at')
-      .eq('mentee_id', session.userId)
+      .from('asks')
+      .select('id, helper_id, status, ask_type, reason, help_needed, created_at, responded_at')
+      .eq('asker_id', session.userId)
       .order('created_at', { ascending: false })
       .limit(20),
     supabase
-      .from('mentorship_threads')
-      .select('id, mentor_id, mentee_id, status, last_message_at, created_at')
-      .or(`mentor_id.eq.${session.userId},mentee_id.eq.${session.userId}`)
+      .from('ask_threads')
+      .select('id, helper_id, asker_id, status, last_message_at, created_at, asks(ask_type)')
+      .or(`helper_id.eq.${session.userId},asker_id.eq.${session.userId}`)
       .eq('status', 'active')
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false }),
   ])
 
   const allUserIds = new Set<string>()
-  for (const r of incoming.data ?? []) allUserIds.add(r.mentee_id)
-  for (const r of outgoing.data ?? []) allUserIds.add(r.mentor_id)
+  for (const r of incoming.data ?? []) allUserIds.add(r.asker_id)
+  for (const r of outgoing.data ?? []) allUserIds.add(r.helper_id)
   for (const t of threads.data ?? []) {
-    allUserIds.add(t.mentor_id)
-    allUserIds.add(t.mentee_id)
+    allUserIds.add(t.helper_id)
+    allUserIds.add(t.asker_id)
   }
 
   const profileMap = new Map<string, { name: string | null; avatarUrl: string | null }>()
@@ -76,7 +76,7 @@ export default async function InboxPage() {
         emptyText="No pending requests."
       >
         {(incoming.data ?? []).map((r) => {
-          const p = profileMap.get(r.mentee_id)
+          const p = profileMap.get(r.asker_id)
           return (
             <Link key={r.id} href={`/mentorship/request/${r.id}`}>
               <RequestCard
@@ -97,9 +97,18 @@ export default async function InboxPage() {
         emptyText="No active threads yet."
       >
         {(threads.data ?? []).map((t) => {
-          const otherId = t.mentor_id === session.userId ? t.mentee_id : t.mentor_id
+          const otherId = t.helper_id === session.userId ? t.asker_id : t.helper_id
           const p = profileMap.get(otherId)
-          const role = t.mentor_id === session.userId ? 'Mentee' : 'Mentor'
+          const isHelper = t.helper_id === session.userId
+          const askType = (t.asks as { ask_type: string } | null)?.ask_type ?? 'mentorship'
+          const role =
+            askType === 'mentorship'
+              ? isHelper
+                ? 'Mentee'
+                : 'Mentor'
+              : isHelper
+                ? 'Asker'
+                : 'Helper'
           const ts = t.last_message_at ?? t.created_at
           return (
             <Link key={t.id} href={`/mentorship/thread/${t.id}`}>
@@ -121,7 +130,7 @@ export default async function InboxPage() {
         emptyText="You haven't sent any requests yet."
       >
         {(outgoing.data ?? []).map((r) => {
-          const p = profileMap.get(r.mentor_id)
+          const p = profileMap.get(r.helper_id)
           const badge =
             r.status === 'pending' ? (
               <StatusBadge tone="warn">Pending</StatusBadge>

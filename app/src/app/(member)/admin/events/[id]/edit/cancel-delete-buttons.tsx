@@ -70,7 +70,7 @@ export function CancelDeleteButtons({
           <DialogHeader>
             <DialogTitle>Cancel this event?</DialogTitle>
             <DialogDescription>
-              Members will no longer see it on /events. We'll email{' '}
+              Members will no longer see it on /events. We&apos;ll email{' '}
               {goingCount + waitlistCount === 0
                 ? 'no one (no RSVPs yet)'
                 : `${goingCount} going${
@@ -117,8 +117,8 @@ export function CancelDeleteButtons({
             <DialogTitle className="text-destructive">Delete this event permanently?</DialogTitle>
             <DialogDescription>
               This is irreversible. All RSVPs for this event will be deleted along with it. No
-              emails are sent. Use this only for typo / mistake events — to "cancel" a real event,
-              use Cancel event instead.
+              emails are sent. Use this only for typo / mistake events — to &quot;cancel&quot; a
+              real event, use Cancel event instead.
             </DialogDescription>
           </DialogHeader>
           <form action={deleteAction} className="space-y-4">
