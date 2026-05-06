@@ -24,6 +24,11 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
 
   const other = thread.helper.userId === session.userId ? thread.asker : thread.helper
   const isHelper = thread.helper.userId === session.userId
+  // Back-link target follows the same role rule as /ask/[id]: helpers
+  // belong on /inbox (active threads section), askers on /ask (their
+  // sent list, which now shows accepted threads as Open).
+  const backHref = isHelper ? '/inbox' : '/ask'
+  const backLabel = isHelper ? 'Inbox' : 'Your asks'
   // Role label adapts to ask type: mentor/mentee for ongoing mentorship,
   // helper/asker for one-off advice. Both still flow through the same
   // thread shape; only the label changes.
@@ -39,8 +44,8 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
-      <Link href="/inbox" className="text-sm text-muted-foreground hover:underline">
-        ← Inbox
+      <Link href={backHref} className="text-sm text-muted-foreground hover:underline">
+        ← {backLabel}
       </Link>
 
       <Card>
