@@ -32,6 +32,13 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
 
   const otherUserId = isHelper ? req.asker_id : req.helper_id
 
+  // Back-link target depends on which side of the ask you're on. Helpers
+  // arrive here from /inbox (their incoming asks). Askers arrive from /ask
+  // (their sent list). Linking everyone to /inbox was correct for one role
+  // and wrong for the other.
+  const backHref = isHelper ? '/inbox' : '/ask'
+  const backLabel = isHelper ? 'Inbox' : 'Your asks'
+
   const { data: otherProfile } = await supabase
     .from('base_profiles')
     .select('user_id, name, headline, avatar_url')
@@ -51,8 +58,8 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
-      <Link href="/inbox" className="text-sm text-muted-foreground hover:underline">
-        ← Inbox
+      <Link href={backHref} className="text-sm text-muted-foreground hover:underline">
+        ← {backLabel}
       </Link>
 
       <Card>

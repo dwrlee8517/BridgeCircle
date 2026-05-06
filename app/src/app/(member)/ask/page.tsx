@@ -19,9 +19,11 @@ import { requireSession } from '@/lib/auth/session'
  * "what have I asked, and what came back" view that makes the verb a
  * top-nav concept without tearing up inbox at the same time.
  *
- * The "Start a new ask" CTA routes to /search because the asker first
- * needs to pick a helper. When step #5 renames /search → /discover, the
- * link follows.
+ * The "Find someone to ask" CTA routes to /discover because the asker
+ * first needs to pick a helper — the composer is reached from a
+ * profile, not directly. The button copy names the next step honestly
+ * ("find someone") rather than promising a composer ("start a new
+ * ask") that the click doesn't actually open.
  */
 export default async function AskPage() {
   const session = await requireSession()
@@ -68,7 +70,7 @@ export default async function AskPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/discover">Start a new ask</Link>
+          <Link href="/discover">Find someone to ask</Link>
         </Button>
       </div>
 
@@ -76,7 +78,7 @@ export default async function AskPage() {
         <EmptyState
           title="You haven't asked anyone yet"
           description="Find a fellow alumnus you'd like to learn from. Quick advice or ongoing mentorship — both are first-class."
-          action={{ label: 'Find someone to ask', href: '/search' }}
+          action={{ label: 'Find someone to ask', href: '/discover' }}
         />
       ) : (
         <>

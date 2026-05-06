@@ -33,11 +33,7 @@ export function FriendshipAction({
   }
 
   if (state === 'pending_outgoing') {
-    return (
-      <Button variant="outline" disabled>
-        Request sent
-      </Button>
-    )
+    return <PendingOutgoingState />
   }
 
   if (state === 'pending_incoming') {
@@ -51,11 +47,7 @@ export function FriendshipAction({
   // After a successful send, the page revalidates and re-renders with state =
   // 'pending_outgoing'. Until that round-trip completes, show optimistic copy.
   if (result?.ok) {
-    return (
-      <Button variant="outline" disabled>
-        Request sent
-      </Button>
-    )
+    return <PendingOutgoingState />
   }
 
   return (
@@ -67,6 +59,29 @@ export function FriendshipAction({
         </Button>
       </form>
       {result && !result.ok ? <p className="text-xs text-destructive">{result.message}</p> : null}
+    </div>
+  )
+}
+
+/**
+ * Disabled "Request sent" button + a one-line pointer to /inbox so the
+ * user knows where to track outgoing requests. Used both for the
+ * server-resolved `pending_outgoing` state and the optimistic post-send
+ * state before the page revalidates.
+ */
+function PendingOutgoingState() {
+  return (
+    <div className="space-y-1">
+      <Button variant="outline" disabled>
+        Request sent
+      </Button>
+      <p className="text-xs text-muted-foreground">
+        Awaiting their reply — track in your{' '}
+        <Link href="/inbox" className="underline hover:text-foreground">
+          inbox
+        </Link>
+        .
+      </p>
     </div>
   )
 }
