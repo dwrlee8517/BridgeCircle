@@ -19,6 +19,10 @@ export type ResultCardProps = {
   avatarUrl: string | null
   isOpenAsMentor: boolean
   mentorPaused: boolean
+  // True when the viewer is already friends with this alum. Surfaces a
+  // small "Friend" badge — replaces the standalone /friends page now that
+  // discovery folds the friend dimension in.
+  isFriend: boolean
   // NL-only fields. Null in structured mode.
   rationale: string | null
   rerankScore: number | null
@@ -111,6 +115,11 @@ export function ResultCard(props: ResultCardProps) {
                 <span className="inline-flex h-5 items-center rounded-full bg-muted px-2 text-xs font-medium text-muted-foreground">
                   {yearShort}
                 </span>
+              ) : null}
+              {props.isFriend ? (
+                <StatusBadge tone="info" dot>
+                  Friend
+                </StatusBadge>
               ) : null}
               {props.isOpenAsMentor ? (
                 <StatusBadge tone="open" dot>

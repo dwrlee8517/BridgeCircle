@@ -102,9 +102,9 @@ export function notificationLabel(row: NotificationRow): string {
 export function notificationTargetUrl(row: NotificationRow): string | null {
   switch (row.type) {
     case 'friend_request_received':
-      return '/friends'
+      return '/inbox'
     case 'friend_request_accepted':
-      return row.targetId ? `/profile/${row.targetId}` : '/friends'
+      return row.targetId ? `/profile/${row.targetId}` : '/inbox'
     case 'ask_received':
     case 'ask_declined':
       return row.targetId ? `/ask/${row.targetId}` : '/inbox'

@@ -39,26 +39,36 @@ export default async function DiscoverPage({
     return null
   }
 
-  const [{ data: viewerBase }, { data: viewerOrgProfile }, totalAlumniRes] = await Promise.all([
-    supabase
-      .from('base_profiles')
-      .select('university, major, city')
-      .eq('user_id', session.userId)
-      .maybeSingle(),
-    supabase
-      .from('organization_profiles')
-      .select('graduation_year')
-      .eq('organization_membership_id', viewerMembership.id)
-      .maybeSingle(),
-    supabase
-      .from('organization_memberships')
-      .select('id', { count: 'exact', head: true })
-      .eq('organization_id', viewerMembership.organization_id)
-      .eq('status', 'active'),
-  ])
+  const [{ data: viewerBase }, { data: viewerOrgProfile }, totalAlumniRes, friendsRes] =
+    await Promise.all([
+      supabase
+        .from('base_profiles')
+        .select('university, major, city')
+        .eq('user_id', session.userId)
+        .maybeSingle(),
+      supabase
+        .from('organization_profiles')
+        .select('graduation_year')
+        .eq('organization_membership_id', viewerMembership.id)
+        .maybeSingle(),
+      supabase
+        .from('organization_memberships')
+        .select('id', { count: 'exact', head: true })
+        .eq('organization_id', viewerMembership.organization_id)
+        .eq('status', 'active'),
+      supabase
+        .from('friendships')
+        .select('user_a_id, user_b_id')
+        .or(`user_a_id.eq.${session.userId},user_b_id.eq.${session.userId}`),
+    ])
 
   const orgName = displayOrgName((viewerMembership.organizations as { name: string } | null)?.name)
   const totalAlumni = totalAlumniRes.count ?? 0
+  const friendIds = new Set(
+    (friendsRes.data ?? []).map((f) =>
+      f.user_a_id === session.userId ? f.user_b_id : f.user_a_id,
+    ),
+  )
 
   let nlHits: NLSearchHit[] = []
   let structuredHits: SearchHit[] = []
@@ -110,7 +120,8 @@ export default async function DiscoverPage({
     filters.topic ||
     filters.gradYearMin ||
     filters.gradYearMax ||
-    filters.openToMentor
+    filters.openToMentor ||
+    filters.peopleIKnow
   )
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
   const resultCount = useNL ? nlHits.length : structuredHits.length
@@ -135,6 +146,7 @@ export default async function DiscoverPage({
                 gradYearMin: filters.gradYearMin?.toString() ?? '',
                 gradYearMax: filters.gradYearMax?.toString() ?? '',
                 openToMentor: !!filters.openToMentor,
+                peopleIKnow: !!filters.peopleIKnow,
               }}
             />
           </CardContent>
@@ -184,6 +196,7 @@ export default async function DiscoverPage({
                   avatarUrl={h.avatarUrl}
                   isOpenAsMentor={h.isOpenAsMentor}
                   mentorPaused={h.mentorPaused}
+                  isFriend={friendIds.has(h.userId)}
                   rationale={h.rationale}
                   rerankScore={h.rerankScore}
                   topCareerEntry={pickTopCareerEntry(h.careerHistory)}
@@ -210,6 +223,7 @@ export default async function DiscoverPage({
                     avatarUrl={h.avatarUrl}
                     isOpenAsMentor={h.isOpenAsMentor}
                     mentorPaused={h.mentorPaused}
+                    isFriend={friendIds.has(h.userId)}
                     rationale={null}
                     rerankScore={null}
                     topCareerEntry={null}

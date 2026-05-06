@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
-import { type FriendActionState, sendFriendRequestAction } from '../../friends/actions'
+import { type FriendActionState, sendFriendRequestAction } from '../../inbox/friendship-actions'
 
 export type FriendshipActionKind = 'friends' | 'pending_outgoing' | 'pending_incoming' | 'none'
 
@@ -43,7 +43,7 @@ export function FriendshipAction({
   if (state === 'pending_incoming') {
     return (
       <Button asChild>
-        <Link href="/friends">Accept their request</Link>
+        <Link href="/inbox">Accept their request</Link>
       </Button>
     )
   }

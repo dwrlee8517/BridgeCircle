@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { NotificationRow } from '@/lib/notifications/types'
 import { AccountMenu } from './account-menu'
-import { MemberNav } from './member-nav'
+import { MEMBER_NAV_LINKS, MemberNav } from './member-nav'
 import { NotificationsBell } from './notifications-bell'
 
 type Props = {
@@ -21,15 +21,6 @@ type Props = {
   notifications: NotificationRow[]
   unreadCount: number
 }
-
-const NAV_LINKS = [
-  { href: '/search', label: 'Search' },
-  { href: '/inbox', label: 'Inbox' },
-  { href: '/messages', label: 'Messages' },
-  { href: '/friends', label: 'Friends' },
-  { href: '/events', label: 'Events' },
-  { href: '/announcements', label: 'Announcements' },
-] as const
 
 export function MemberHeader({
   userId,
@@ -56,7 +47,7 @@ export function MemberHeader({
             <Menu className="size-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
-            {NAV_LINKS.map((link) => (
+            {MEMBER_NAV_LINKS.map((link) => (
               <DropdownMenuItem key={link.href} asChild>
                 <Link href={link.href}>{link.label}</Link>
               </DropdownMenuItem>

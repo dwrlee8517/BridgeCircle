@@ -16,6 +16,11 @@ const optYear = z
     return n
   })
 
+const optBool = z
+  .union([z.literal('on'), z.literal('true'), z.literal('1')])
+  .optional()
+  .transform((v) => (v ? true : undefined))
+
 export const searchFiltersSchema = z.object({
   q: optStr,
   city: optStr,
@@ -25,10 +30,12 @@ export const searchFiltersSchema = z.object({
   topic: optStr,
   gradYearMin: optYear,
   gradYearMax: optYear,
-  openToMentor: z
-    .union([z.literal('on'), z.literal('true'), z.literal('1')])
-    .optional()
-    .transform((v) => (v ? true : undefined)),
+  openToMentor: optBool,
+  // "People I know" — restricts results to alumni you're already friends
+  // with. Surfaced in Discover after the Friends page folded in (the
+  // accepted-friends list is now this filter view rather than a separate
+  // page).
+  peopleIKnow: optBool,
 })
 
 export type SearchFilters = z.infer<typeof searchFiltersSchema>
@@ -56,6 +63,7 @@ const emptyFilters: SearchFilters = {
   gradYearMin: undefined,
   gradYearMax: undefined,
   openToMentor: undefined,
+  peopleIKnow: undefined,
 }
 
 export function parseSearchParams(

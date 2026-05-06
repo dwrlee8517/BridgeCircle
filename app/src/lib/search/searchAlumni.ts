@@ -159,6 +159,7 @@ export async function searchAlumni(
     const rawEducation = (base.education_history as EducationEntry[] | null) ?? []
 
     if (f.openToMentor && !isOpenAsMentor) continue
+    if (f.peopleIKnow && !friendIds.has(base.user_id)) continue
     if (f.gradYearMin && (op?.graduation_year ?? -Infinity) < f.gradYearMin) continue
     if (f.gradYearMax && (op?.graduation_year ?? Infinity) > f.gradYearMax) continue
     if (f.city && !ci(base.city).includes(ci(f.city))) continue
