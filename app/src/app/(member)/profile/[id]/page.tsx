@@ -79,8 +79,8 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-8">
-      <Link href="/search" className="text-sm text-muted-foreground hover:underline">
-        ← Back to search
+      <Link href="/discover" className="text-sm text-muted-foreground hover:underline">
+        ← Back to discover
       </Link>
 
       <Card className="mt-6 overflow-hidden p-0">

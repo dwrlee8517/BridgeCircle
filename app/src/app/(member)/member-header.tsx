@@ -95,7 +95,7 @@ export function MemberHeader({
 
         <div className="ml-auto flex items-center gap-2">
           <form
-            action="/search"
+            action="/discover"
             className="hidden h-9 items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3 text-slate-300 @[1080px]:flex"
           >
             <Search className="size-4 text-slate-500" />

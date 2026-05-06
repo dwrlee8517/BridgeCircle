@@ -13,7 +13,7 @@ import { SearchForm } from './search-form'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
 
-export default async function SearchPage({
+export default async function DiscoverPage({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>
@@ -222,7 +222,7 @@ export default async function SearchPage({
                 text={
                   <>
                     No alumni matched these filters.{' '}
-                    <Link href="/search" className="text-primary hover:underline">
+                    <Link href="/discover" className="text-primary hover:underline">
                       Clear all
                     </Link>{' '}
                     and try again.
@@ -249,16 +249,16 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
     <section className="border-b bg-[linear-gradient(180deg,#fff_0%,#fafbfd_100%)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Network · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
+          Discover · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
         </p>
         <h1
           className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
           style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
         >
-          Alumni Directory
+          Discover alumni
         </h1>
         <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-          Find mentors, classmates, and collaborators across {orgName}. Describe who you&apos;re
+          Find someone in {orgName} to ask, learn from, or simply meet. Describe who you&apos;re
           looking for in plain English, or use the filters below.
         </p>
       </div>

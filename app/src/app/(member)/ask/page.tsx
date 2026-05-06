@@ -68,7 +68,7 @@ export default async function AskPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/search">Start a new ask</Link>
+          <Link href="/discover">Start a new ask</Link>
         </Button>
       </div>
 
