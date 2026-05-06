@@ -382,7 +382,7 @@ function NewAlumniSection({ members }: { members: HomeMember[] }) {
       <SectionHeader
         eyebrow="Network"
         title="New alumni in your area"
-        actionHref="/search"
+        actionHref="/discover"
         actionLabel="Open directory"
       />
       <h2 id="new-alumni" className="sr-only">
@@ -393,7 +393,7 @@ function NewAlumniSection({ members }: { members: HomeMember[] }) {
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
             <p className="text-sm text-muted-foreground">No new joiners this week.</p>
             <Button asChild size="sm" variant="outline">
-              <Link href="/search">Browse the directory</Link>
+              <Link href="/discover">Browse the directory</Link>
             </Button>
           </CardContent>
         </Card>

@@ -6,7 +6,9 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 export const MEMBER_NAV_LINKS = [
-  { href: '/search', label: 'Search', match: ['/search', '/profile'] },
+  // Discover frames the directory as exploration, not a query — matches
+  // the brand thesis that members shouldn't start at a blank search box.
+  { href: '/discover', label: 'Discover', match: ['/discover', '/profile'] },
   // /ask is the verb-driven heart of the product — your sent asks + a CTA
   // to start a new one. The composer at /ask/new and the thread at
   // /ask/thread/* are reached from this surface or from a profile.

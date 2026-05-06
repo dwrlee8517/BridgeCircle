@@ -240,7 +240,7 @@ function FriendsRail({
             ))}
           </ul>
           <Link
-            href="/search"
+            href="/discover"
             className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
           >
             <UserPlus className="size-3" />

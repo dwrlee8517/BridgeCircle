@@ -42,7 +42,7 @@ export default async function MessagesPage() {
                 Manage friends
               </Link>{' '}
               or{' '}
-              <Link href="/search" className="text-primary hover:underline">
+              <Link href="/discover" className="text-primary hover:underline">
                 browse alumni
               </Link>{' '}
               to start.

@@ -23,6 +23,14 @@ const nextConfig: NextConfig = {
         destination: '/ask/thread/:id',
         permanent: true,
       },
+      // /search → /discover rename. The directory page still does
+      // search internally (a query string ?q= still works); the URL
+      // just leads with the verb the brand prefers.
+      {
+        source: '/search',
+        destination: '/discover',
+        permanent: true,
+      },
     ]
   },
 }
