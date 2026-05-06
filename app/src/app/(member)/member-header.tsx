@@ -10,7 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import type { NotificationRow } from '@/lib/notifications/types'
 import { AccountMenu } from './account-menu'
-import { MEMBER_NAV_LINKS, MemberNav } from './member-nav'
+import { MemberNav } from './member-nav'
+import { MEMBER_NAV_LINKS } from './nav-links'
 import { NotificationsBell } from './notifications-bell'
 
 type Props = {
