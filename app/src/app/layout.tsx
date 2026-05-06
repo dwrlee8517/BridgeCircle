@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Fraunces, Geist_Mono, Manrope } from 'next/font/google'
 import './globals.css'
 
-// Body font. See docs/font-options-mockup.html for alternatives + the 3-line
+// Body font. See docs/ui/mockups/font-options.html for alternatives + the 3-line
 // swap. The variable name `--font-sans` is what shadcn / Tailwind utilities
 // resolve to; keeping that stable means future swaps only touch this import.
 const sans = Manrope({

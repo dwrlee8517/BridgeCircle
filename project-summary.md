@@ -237,5 +237,5 @@ Best short description:
 
 ## Files In This Folder
 
-- `alumni-network-investor-mvp-pitch.html`
+- `docs/presentations/investor-mvp-pitch.html`
 - `project-summary.md`
