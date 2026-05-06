@@ -70,6 +70,31 @@ describe('parseAskForm', () => {
     if (result.success) expect(result.data.helperId).toBe(HELPER_D)
   })
 
+  it('accepts an advice ask with no reason field (advice form is one-field)', () => {
+    const result = parseAskForm(
+      form({
+        helperId: HELPER_A,
+        askType: 'advice',
+        helpNeeded: validHelp,
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.reason).toBeNull()
+  })
+
+  it('accepts a mentorship ask with empty reason (now optional)', () => {
+    const result = parseAskForm(
+      form({
+        helperId: HELPER_B,
+        askType: 'mentorship',
+        reason: '',
+        helpNeeded: validHelp,
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.reason).toBeNull()
+  })
+
   it('rejects an unknown askType', () => {
     const result = parseAskForm(
       form({

@@ -81,7 +81,7 @@ export async function GET(request: Request) {
   const hasSelfDeactivated = memberships?.some((m) => m.status === 'self_deactivated') ?? false
 
   if (hasActive) {
-    const safeNext = nextParam && nextParam.startsWith('/') ? nextParam : '/'
+    const safeNext = nextParam?.startsWith('/') ? nextParam : '/'
     return NextResponse.redirect(`${origin}${safeNext}`)
   }
 

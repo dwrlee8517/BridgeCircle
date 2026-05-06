@@ -70,6 +70,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
                 : `Your request to ${otherProfile?.name}`}
             </CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline">{req.ask_type === 'advice' ? 'Advice' : 'Mentorship'}</Badge>
               <StatusBadge status={req.status as Status} />
               <span className="text-xs text-muted-foreground">
                 Sent {format(new Date(req.created_at), 'PP')}
@@ -82,9 +83,21 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Field label="Why">{req.reason ?? '—'}</Field>
-          <Field label="What help looks like">{req.help_needed ?? '—'}</Field>
-          {req.background ? <Field label="Background">{req.background}</Field> : null}
+          {/* Field shape varies by ask type:
+                advice     → only the question (help_needed) is filled.
+                mentorship → reason ("why this person") is optional,
+                             help_needed is the primary ask, background
+                             is optional context. We hide null fields
+                             instead of rendering a stray "—" line. */}
+          {req.ask_type === 'advice' ? (
+            <Field label="Their question">{req.help_needed ?? '—'}</Field>
+          ) : (
+            <>
+              {req.reason ? <Field label="Why you specifically">{req.reason}</Field> : null}
+              <Field label="What they're hoping to explore">{req.help_needed ?? '—'}</Field>
+              {req.background ? <Field label="Anything else">{req.background}</Field> : null}
+            </>
+          )}
 
           <div className="flex gap-2 pt-2">
             {isHelper && req.status === 'pending' ? (

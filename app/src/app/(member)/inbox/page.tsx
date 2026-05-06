@@ -77,13 +77,22 @@ export default async function InboxPage() {
       >
         {(incoming.data ?? []).map((r) => {
           const p = profileMap.get(r.asker_id)
+          // Advice asks leave reason null (it's a one-field form). Fall
+          // back to the question itself so the summary line is never blank.
+          const summary = r.reason ?? r.help_needed ?? ''
+          const typeLabel = r.ask_type === 'advice' ? 'Advice' : 'Mentorship'
           return (
             <Link key={r.id} href={`/mentorship/request/${r.id}`}>
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}
-                badge={<StatusBadge tone="warn">Awaiting your response</StatusBadge>}
-                summary={r.reason ?? ''}
+                badge={
+                  <div className="flex items-center gap-1.5">
+                    <StatusBadge tone="info">{typeLabel}</StatusBadge>
+                    <StatusBadge tone="warn">Awaiting your response</StatusBadge>
+                  </div>
+                }
+                summary={summary}
                 ago={r.created_at}
               />
             </Link>
@@ -131,7 +140,8 @@ export default async function InboxPage() {
       >
         {(outgoing.data ?? []).map((r) => {
           const p = profileMap.get(r.helper_id)
-          const badge =
+          const typeLabel = r.ask_type === 'advice' ? 'Advice' : 'Mentorship'
+          const statusBadge =
             r.status === 'pending' ? (
               <StatusBadge tone="warn">Pending</StatusBadge>
             ) : r.status === 'accepted' ? (
@@ -141,13 +151,19 @@ export default async function InboxPage() {
             ) : (
               <StatusBadge tone="muted">{r.status}</StatusBadge>
             )
+          const summary = r.reason ?? r.help_needed ?? ''
           return (
             <Link key={r.id} href={`/mentorship/request/${r.id}`}>
               <RequestCard
                 name={p?.name ?? 'Someone'}
                 avatarUrl={p?.avatarUrl ?? null}
-                badge={badge}
-                summary={r.reason ?? ''}
+                badge={
+                  <div className="flex items-center gap-1.5">
+                    <StatusBadge tone="info">{typeLabel}</StatusBadge>
+                    {statusBadge}
+                  </div>
+                }
+                summary={summary}
                 ago={r.responded_at ?? r.created_at}
               />
             </Link>

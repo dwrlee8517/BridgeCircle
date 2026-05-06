@@ -46,7 +46,11 @@ export type ProfileView = {
   careerHistory: CareerEntry[] | null
   educationHistory: EducationEntry[] | null
   skills: string[] | null
-  // Mentorship state on the profile owner.
+  // Helper-side state on the profile owner. Two opt-ins (advice + mentorship);
+  // each has a "raw" toggle and a "currently accepting" derived flag that
+  // also accounts for the mentor inactivity auto-pause.
+  openToAdvice: boolean
+  isOpenAsAdviceHelper: boolean
   openToMentor: boolean
   isOpenAsMentor: boolean
   mentorPaused: boolean
@@ -101,7 +105,7 @@ export async function getProfile(
 
   const { data: pref } = await supabase
     .from('helper_preferences')
-    .select('open_to_mentorship, paused_at')
+    .select('open_to_advice, open_to_mentorship, paused_at')
     .eq('organization_membership_id', membership.id)
     .maybeSingle()
 
@@ -157,6 +161,8 @@ export async function getProfile(
       ? ((base.education_history as EducationEntry[] | null) ?? null)
       : null,
     skills: showSkills ? (base.skills ?? null) : null,
+    openToAdvice: pref?.open_to_advice ?? false,
+    isOpenAsAdviceHelper: !!pref?.open_to_advice && !pref.paused_at,
     openToMentor: pref?.open_to_mentorship ?? false,
     isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
     mentorPaused: !!pref?.paused_at,

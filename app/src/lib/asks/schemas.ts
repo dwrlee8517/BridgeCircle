@@ -6,8 +6,18 @@ export type AskType = z.infer<typeof askTypeSchema>
 export const askSchema = z.object({
   helperId: z.uuid(),
   askType: askTypeSchema,
-  reason: z.string().trim().min(10, 'Tell them a bit about why (10+ chars).').max(500),
-  helpNeeded: z.string().trim().min(10, 'Be specific about what help (10+ chars).').max(500),
+  // reason is optional in the new composer for both types:
+  //   advice → not asked at all (empty)
+  //   mentorship → "Why you'd like {name} specifically" (optional but encouraged)
+  // The createAsk lib accepts null/empty here; the asks.reason column is nullable.
+  reason: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .nullable()
+    .transform((v) => (v && v.length > 0 ? v : null)),
+  helpNeeded: z.string().trim().min(10, 'Be specific (10+ chars).').max(500),
   background: z.string().trim().max(1000).optional().nullable(),
 })
 
