@@ -46,7 +46,11 @@ export default async function ImportResumePage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
       <Link href={returnTo} className="text-sm text-muted-foreground hover:underline">
-        ← Back
+        {returnTo.startsWith('/onboarding')
+          ? '← Back to onboarding'
+          : returnTo.startsWith('/profile/edit')
+            ? '← Back to edit profile'
+            : '← Back to profile'}
       </Link>
       <Card>
         <CardHeader>

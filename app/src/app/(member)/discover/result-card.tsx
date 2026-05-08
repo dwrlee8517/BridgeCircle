@@ -5,10 +5,12 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { StatusBadge } from '@/components/ui/status-badge'
+import { displayName } from '@/lib/utils'
 
 export type ResultCardProps = {
   userId: string
   name: string | null
+  preferredName: string | null
   headline: string | null
   currentEmployer: string | null
   currentTitle: string | null
@@ -39,7 +41,11 @@ export type ResultCardProps = {
 export function ResultCard(props: ResultCardProps) {
   const [expanded, setExpanded] = useState(false)
   const hasRationale = props.rationale !== null
-  const initials = (props.name ?? '?')
+  // Prefer the day-to-day display name if set; fall back to the canonical
+  // name so member-tile reads consistently across cohorts that may know
+  // the same person under different names.
+  const display = displayName(props.name, props.preferredName)
+  const initials = display
     .split(/\s+/)
     .map((s) => s[0])
     .filter(Boolean)
@@ -93,7 +99,7 @@ export function ResultCard(props: ResultCardProps) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <h3 className="bc-fraunces truncate text-lg font-semibold text-foreground">
-                {props.name}
+                {display}
               </h3>
               {props.rerankScore !== null ? (
                 <Badge variant="secondary" className="ml-auto shrink-0">

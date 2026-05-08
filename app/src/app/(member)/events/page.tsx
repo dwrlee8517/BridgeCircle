@@ -112,7 +112,6 @@ export default async function EventsPage({
         ) : (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
             <div>
-              <FilterChips />
               <div className="space-y-3">
                 {events.map((e) => (
                   <EventListItem key={e.id} event={e} view={view} active={selected?.id === e.id} />
@@ -214,37 +213,11 @@ function Hero({
   )
 }
 
-// =============================================================================
-// Filter chips — prototype shows All / Reunion / Mixer / Panel / Mentorship.
-// Only "All" routes (the schema doesn't carry an event type today). Other
-// chips are disabled for now and tagged "coming soon" via title attribute.
-// =============================================================================
-
-function FilterChips() {
-  const chips = ['All', 'Reunion', 'Mixer', 'Panel', 'Mentorship'] as const
-  return (
-    <div className="mb-4 flex flex-wrap gap-2">
-      {chips.map((label, i) => {
-        const active = i === 0
-        return (
-          <button
-            key={label}
-            type="button"
-            disabled={!active}
-            title={active ? undefined : 'Type filters coming soon'}
-            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
-              active
-                ? 'border-foreground bg-foreground text-background'
-                : 'border-border bg-card text-foreground hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border'
-            }`}
-          >
-            {label}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
+// Type filter chips (Reunion / Mixer / Panel / Mentorship) were a prototype
+// holdover; the schema doesn't carry event_type today and only "All" was
+// functional. Disabled chips with a tooltip-only "coming soon" hint were
+// invisible to keyboard and touch users — better to hide them entirely
+// until the data model supports the distinction.
 
 // =============================================================================
 // List item — date tile + status pill + title + meta.

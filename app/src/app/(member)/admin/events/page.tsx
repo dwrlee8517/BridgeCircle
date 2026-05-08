@@ -1,7 +1,9 @@
 import { format } from 'date-fns'
+import { CalendarDays } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import {
   Table,
   TableBody,
@@ -13,6 +15,7 @@ import {
 import { createClient } from '@/db/server'
 import { requireAdmin } from '@/lib/auth/session'
 import { listEvents } from '@/lib/events/listEvents'
+import { displayOrgName } from '@/lib/utils'
 import { EventForm } from './event-form'
 
 export default async function AdminEventsPage() {
@@ -33,7 +36,9 @@ export default async function AdminEventsPage() {
       </div>
     )
   }
-  const orgName = (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization'
+  const orgName = displayOrgName(
+    (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization',
+  )
 
   // Admin sees everything in the org: past, future, AND canceled (events
   // with published_at = null). Member views never see drafts/canceled — RLS
@@ -71,7 +76,13 @@ export default async function AdminEventsPage() {
         </CardHeader>
         <CardContent>
           {events.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No events yet.</p>
+            <EmptyState
+              icon={CalendarDays}
+              title="No events yet"
+              description="Use the form above to publish the first event for this organization."
+              size="inline"
+              className="border-none bg-transparent shadow-none"
+            />
           ) : (
             <Table>
               <TableHeader>

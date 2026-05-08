@@ -115,6 +115,22 @@ export async function saveHelperPreference(
 
   if (!membership) return { ok: false, error: 'no_membership' }
 
+  // Caps are optional at the form layer (the form disables the inputs when
+  // mentorship is off, and disabled inputs don't submit). Resolve undefined
+  // values to the existing row's caps so a disable→re-enable cycle preserves
+  // what the user had set, falling back to module defaults for first-save.
+  let resolvedMaxActive = input.maxActiveMentees
+  let resolvedMaxPending = input.maxPendingRequests
+  if (resolvedMaxActive === undefined || resolvedMaxPending === undefined) {
+    const { data: existing } = await supabase
+      .from('helper_preferences')
+      .select('max_active_mentees, max_pending_requests')
+      .eq('organization_membership_id', membership.id)
+      .maybeSingle()
+    resolvedMaxActive ??= existing?.max_active_mentees ?? DEFAULT_MAX_ACTIVE
+    resolvedMaxPending ??= existing?.max_pending_requests ?? DEFAULT_MAX_PENDING
+  }
+
   const { error } = await supabase.from('helper_preferences').upsert(
     {
       organization_membership_id: membership.id,
@@ -122,8 +138,8 @@ export async function saveHelperPreference(
       open_to_mentorship: input.openToMentorship,
       topics: input.topics,
       screening_prompt: input.screeningPrompt,
-      max_active_mentees: input.maxActiveMentees,
-      max_pending_requests: input.maxPendingRequests,
+      max_active_mentees: resolvedMaxActive,
+      max_pending_requests: resolvedMaxPending,
       paused_at: null,
       updated_at: new Date().toISOString(),
     },

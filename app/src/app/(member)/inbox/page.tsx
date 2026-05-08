@@ -1,8 +1,16 @@
 import { format, formatDistanceToNow } from 'date-fns'
+import {
+  Inbox as InboxIcon,
+  type LucideIcon,
+  MessageCircle,
+  MessageSquare,
+  Send,
+} from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
@@ -83,7 +91,7 @@ export default async function InboxPage() {
         <Section
           title="Friend requests"
           description="People who'd like to connect with you."
-          emptyText="No friend requests."
+          empty={{ title: 'No friend requests' }}
         >
           {friendRequests.incoming.map((r) => (
             <div key={r.requestId} className="flex items-start gap-3 rounded-lg border bg-card p-4">
@@ -130,7 +138,12 @@ export default async function InboxPage() {
       <Section
         title="Incoming asks"
         description="People who reached out to you for advice or mentorship."
-        emptyText="No pending asks."
+        empty={{
+          icon: InboxIcon,
+          title: 'No pending asks',
+          description: 'When a fellow alum reaches out, their request will land here.',
+          action: { label: 'Update what you can help with', href: '/mentorship/settings' },
+        }}
       >
         {(incoming.data ?? []).map((r) => {
           const p = profileMap.get(r.asker_id)
@@ -160,7 +173,11 @@ export default async function InboxPage() {
       <Section
         title="Active threads"
         description="Conversations you've started after an accept."
-        emptyText="No active threads yet."
+        empty={{
+          icon: MessageCircle,
+          title: 'No active threads yet',
+          description: 'Once an ask is accepted, your conversation will appear here.',
+        }}
       >
         {(threads.data ?? []).map((t) => {
           const otherId = t.helper_id === session.userId ? t.asker_id : t.helper_id
@@ -193,7 +210,12 @@ export default async function InboxPage() {
       <Section
         title="Direct messages"
         description="Conversations with friends."
-        emptyText="No conversations yet. Discover an alum and add them as a friend to start one."
+        empty={{
+          icon: MessageSquare,
+          title: 'No conversations yet',
+          description: 'Discover an alum and add them as a friend to start a thread.',
+          action: { label: 'Browse alumni', href: '/discover' },
+        }}
       >
         {dmThreads.map((t) => {
           const ts = t.lastMessageAt ?? null
@@ -252,7 +274,12 @@ export default async function InboxPage() {
       <Section
         title="Your outgoing asks"
         description="Asks you've sent — full list lives at /ask."
-        emptyText="You haven't sent any asks yet."
+        empty={{
+          icon: Send,
+          title: "You haven't sent any asks yet",
+          description: 'Search for an alum to ask for advice or mentorship.',
+          action: { label: 'Find someone to ask', href: '/ask' },
+        }}
       >
         {(outgoing.data ?? []).map((r) => {
           const p = profileMap.get(r.helper_id)
@@ -291,7 +318,7 @@ export default async function InboxPage() {
         <Section
           title="Sent friend requests"
           description="Awaiting their reply."
-          emptyText="No pending sent requests."
+          empty={{ title: 'No pending sent requests' }}
         >
           {friendRequests.outgoing.map((r) => (
             <Link
@@ -333,12 +360,17 @@ export default async function InboxPage() {
 function Section({
   title,
   description,
-  emptyText,
+  empty,
   children,
 }: {
   title: string
   description: string
-  emptyText: string
+  empty: {
+    icon?: LucideIcon
+    title: string
+    description?: string
+    action?: { label: string; href: string }
+  }
   children: React.ReactNode
 }) {
   const arr = (Array.isArray(children) ? children : [children]).filter(Boolean)
@@ -354,7 +386,21 @@ function Section({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
-        {arr.length > 0 ? arr : <p className="text-sm text-muted-foreground">{emptyText}</p>}
+        {arr.length > 0 ? (
+          arr
+        ) : (
+          // EmptyState's outer Card is flattened (no border/shadow,
+          // transparent bg) so it sits inside this Section's Card without
+          // looking card-in-card. Matches the size="inline" variant.
+          <EmptyState
+            icon={empty.icon}
+            title={empty.title}
+            description={empty.description}
+            action={empty.action}
+            size="inline"
+            className="border-none bg-transparent shadow-none"
+          />
+        )}
       </CardContent>
     </Card>
   )

@@ -21,9 +21,17 @@ export default async function AnnouncementsPage() {
   if (!membership) return null
 
   const orgName = displayOrgName((membership.organizations as { name: string } | null)?.name)
-  const announcements = await listAnnouncements(supabase, membership.organization_id, {
-    limit: 50,
-  })
+  const [announcements, { data: adminRole }] = await Promise.all([
+    listAnnouncements(supabase, membership.organization_id, { limit: 50 }),
+    supabase
+      .from('admin_role_assignments')
+      .select('role')
+      .eq('user_id', session.userId)
+      .eq('organization_id', membership.organization_id)
+      .in('role', ['super_admin', 'admin'])
+      .maybeSingle(),
+  ])
+  const isAdmin = !!adminRole
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 space-y-4">
@@ -36,7 +44,16 @@ export default async function AnnouncementsPage() {
         <EmptyState
           icon={Megaphone}
           title="No announcements yet"
-          description={`Check back soon — admins post updates from ${orgName} here.`}
+          description={
+            isAdmin
+              ? `No one has posted yet. Send the first update for ${orgName}.`
+              : `Check back soon — admins post updates from ${orgName} here.`
+          }
+          action={
+            isAdmin
+              ? { label: 'Post the first announcement', href: '/admin/announcements' }
+              : undefined
+          }
         />
       ) : (
         announcements.map((a) => (

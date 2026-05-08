@@ -304,6 +304,8 @@ export type Database = {
           linkedin_url: string | null
           major: string | null
           name: string | null
+          name_other: string | null
+          preferred_name: string | null
           privacy_settings: Json
           skills: string[] | null
           university: string | null
@@ -322,6 +324,8 @@ export type Database = {
           linkedin_url?: string | null
           major?: string | null
           name?: string | null
+          name_other?: string | null
+          preferred_name?: string | null
           privacy_settings?: Json
           skills?: string[] | null
           university?: string | null
@@ -340,6 +344,8 @@ export type Database = {
           linkedin_url?: string | null
           major?: string | null
           name?: string | null
+          name_other?: string | null
+          preferred_name?: string | null
           privacy_settings?: Json
           skills?: string[] | null
           university?: string | null
@@ -972,6 +978,7 @@ export type Database = {
           deleted_at: string | null
           id: string
           last_seen_at: string | null
+          onboarding_completed_at: string | null
         }
         Insert: {
           created_at?: string
@@ -981,6 +988,7 @@ export type Database = {
           deleted_at?: string | null
           id: string
           last_seen_at?: string | null
+          onboarding_completed_at?: string | null
         }
         Update: {
           created_at?: string
@@ -990,6 +998,7 @@ export type Database = {
           deleted_at?: string | null
           id?: string
           last_seen_at?: string | null
+          onboarding_completed_at?: string | null
         }
         Relationships: []
       }

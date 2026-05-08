@@ -37,7 +37,10 @@ export async function editProfileAction(
     return { error: 'Could not save your profile. Try again.' }
   }
 
-  redirect(`/profile/${session.userId}`)
+  // ?saved=1 lets the destination page render a "Profile saved" banner.
+  // Server-side flag (not a client toast) so it survives the redirect
+  // without needing to wire Sonner through the (member) layout.
+  redirect(`/profile/${session.userId}?saved=1`)
 }
 
 export type AvatarUploadResult = { error?: string; publicUrl?: string }

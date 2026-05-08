@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createAdminClient } from '@/db/admin'
 import { requireSession } from '@/lib/auth/session'
+import { signOut } from '../(auth)/sign-in/actions'
 import { CancelForm } from './cancel-form'
 
 /**
@@ -41,7 +42,7 @@ export default async function CancelDeletePage() {
   const overdue = dueDate.getTime() < Date.now()
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-md items-center px-4">
+    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4">
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Your account is scheduled for deletion</CardTitle>
@@ -65,6 +66,18 @@ export default async function CancelDeletePage() {
           </p>
         </CardContent>
       </Card>
+      {/* Sign-out escape hatch. Without this, a user who lands here and
+          decides not to cancel right now has no way to leave the page
+          short of closing the tab. Signing out preserves the scheduled
+          deletion but lets them step away cleanly. */}
+      <form action={signOut}>
+        <button
+          type="submit"
+          className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+        >
+          Sign out
+        </button>
+      </form>
     </div>
   )
 }

@@ -168,7 +168,7 @@ export default async function DiscoverPage({
           />
         ) : null}
 
-        <ResultsHeader resultCount={resultCount} />
+        <ResultsHeader resultCount={resultCount} hasFilter={anyFilter || useNL} />
 
         {useNL ? (
           nlHits.length === 0 ? (
@@ -186,6 +186,7 @@ export default async function DiscoverPage({
                   key={h.userId}
                   userId={h.userId}
                   name={h.name}
+                  preferredName={h.preferredName}
                   headline={h.headline}
                   currentEmployer={h.currentEmployer}
                   currentTitle={h.currentTitle}
@@ -213,6 +214,7 @@ export default async function DiscoverPage({
                     key={h.userId}
                     userId={h.userId}
                     name={h.name}
+                    preferredName={h.preferredName}
                     headline={h.headline}
                     currentEmployer={h.currentEmployer}
                     currentTitle={h.currentTitle}
@@ -280,12 +282,20 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
   )
 }
 
-function ResultsHeader({ resultCount }: { resultCount: number }) {
+function ResultsHeader({ resultCount, hasFilter }: { resultCount: number; hasFilter: boolean }) {
+  // Avoid claiming "match your filters" when no filter is set — at the
+  // base state the count is just the org's directory.
+  const suffix = hasFilter
+    ? resultCount === 1
+      ? 'alum matches your filters'
+      : 'alumni match your filters'
+    : resultCount === 1
+      ? 'alum in your circle'
+      : 'alumni in your circle'
   return (
     <div className="flex items-center justify-between">
       <p className="text-sm text-muted-foreground">
-        <strong className="text-foreground">{resultCount.toLocaleString()}</strong>{' '}
-        {resultCount === 1 ? 'alum matches' : 'alumni match'} your filters
+        <strong className="text-foreground">{resultCount.toLocaleString()}</strong> {suffix}
       </p>
     </div>
   )

@@ -4,39 +4,56 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Input } from '@/components/ui/input'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
+import { displayName } from '@/lib/utils'
+
+type RawSearchParams = Record<string, string | string[] | undefined>
 
 /**
- * The Ask landing page — sender perspective. Shows what the viewer has
- * asked for (advice + mentorship), grouped lightly by status, with a
- * primary CTA to start a new ask.
+ * The Ask landing page — sender perspective. Two jobs:
  *
- * The receiver perspective lives at /inbox and stays separate for now.
- * Step #7 of the IA reorg unifies inbox + outgoing into a single surface;
- * this page intentionally stops short of that — it's a focused
- * "what have I asked, and what came back" view that makes the verb a
- * top-nav concept without tearing up inbox at the same time.
+ *   1. Start a new ask. The "Start a new ask" card at the top is a
+ *      composer-first surface: search by keyword, see helpers inline,
+ *      pick advice or mentorship from the same row. This replaces the
+ *      old "Find someone to ask → /discover → profile → /ask/new"
+ *      round-trip. Discover stays as the rich browsing surface for
+ *      anyone who wants more.
  *
- * The "Find someone to ask" CTA routes to /discover because the asker
- * first needs to pick a helper — the composer is reached from a
- * profile, not directly. The button copy names the next step honestly
- * ("find someone") rather than promising a composer ("start a new
- * ask") that the click doesn't actually open.
+ *   2. Track open and closed asks. Same as before — outgoing list
+ *      grouped by status.
+ *
+ * The receiver perspective still lives at /inbox.
  */
-export default async function AskPage() {
+export default async function AskPage({
+  searchParams,
+}: {
+  searchParams: Promise<RawSearchParams>
+}) {
   const session = await requireSession()
   const supabase = await createClient()
+  const params = await searchParams
 
-  const { data: outgoing } = await supabase
-    .from('asks')
-    .select('id, helper_id, status, ask_type, reason, help_needed, created_at, responded_at')
-    .eq('asker_id', session.userId)
-    .order('created_at', { ascending: false })
-    .limit(50)
+  const rawQ = params.q
+  const query = (Array.isArray(rawQ) ? rawQ[0] : rawQ)?.trim() ?? ''
+  const hasQuery = query.length > 0
 
-  const helperIds = (outgoing ?? []).map((r) => r.helper_id)
+  // Run the recipient picker search and the past-asks query in parallel.
+  const [pickerHits, outgoingRes] = await Promise.all([
+    hasQuery ? findHelpers(supabase, session.userId, query) : Promise.resolve([] as SearchHit[]),
+    supabase
+      .from('asks')
+      .select('id, helper_id, status, ask_type, reason, help_needed, created_at, responded_at')
+      .eq('asker_id', session.userId)
+      .order('created_at', { ascending: false })
+      .limit(50),
+  ])
+
+  const outgoing = outgoingRes.data ?? []
+  const helperIds = outgoing.map((r) => r.helper_id)
   const profileMap = new Map<string, { name: string | null; avatarUrl: string | null }>()
   if (helperIds.length > 0) {
     const { data: profiles } = await supabase
@@ -48,40 +65,36 @@ export default async function AskPage() {
     }
   }
 
-  const all = outgoing ?? []
-  const open = all.filter((r) => r.status === 'pending' || r.status === 'accepted')
-  const closed = all.filter((r) => r.status === 'declined' || r.status === 'expired')
+  const open = outgoing.filter((r) => r.status === 'pending' || r.status === 'accepted')
+  const closed = outgoing.filter((r) => r.status === 'declined' || r.status === 'expired')
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-3 border-b pb-8">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Ask
-          </p>
-          <h1
-            className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
-            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-          >
-            Your asks
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            People you&apos;ve reached out to for advice or mentorship.
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/discover">Find someone to ask</Link>
-        </Button>
+      <div className="mb-8 border-b pb-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Ask
+        </p>
+        <h1
+          className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          Your asks
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Start a new ask, or keep tabs on the ones you&apos;ve already sent.
+        </p>
       </div>
 
-      {all.length === 0 ? (
-        <EmptyState
-          title="You haven't asked anyone yet"
-          description="Find a fellow alumnus you'd like to learn from. Quick advice or ongoing mentorship — both are first-class."
-          action={{ label: 'Find someone to ask', href: '/discover' }}
-        />
-      ) : (
+      <RecipientPicker query={query} hits={pickerHits} hasQuery={hasQuery} />
+
+      {outgoing.length === 0 ? null : (
         <>
+          <h2
+            className="bc-fraunces mt-10 mb-4 text-2xl font-bold tracking-[-0.02em]"
+            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+          >
+            Your sent asks
+          </h2>
           <Section
             title="Open"
             description="Pending or accepted — still going."
@@ -100,9 +113,213 @@ export default async function AskPage() {
           ) : null}
         </>
       )}
+
+      {outgoing.length === 0 && !hasQuery ? (
+        <div className="mt-10">
+          <EmptyState
+            title="You haven't asked anyone yet"
+            description="Search above for someone you'd like to learn from. Quick advice or ongoing mentorship — both are first-class."
+          />
+        </div>
+      ) : null}
     </div>
   )
 }
+
+// =============================================================================
+// Recipient picker — search box + inline results with per-helper ask CTAs.
+// =============================================================================
+
+function RecipientPicker({
+  query,
+  hits,
+  hasQuery,
+}: {
+  query: string
+  hits: SearchHit[]
+  hasQuery: boolean
+}) {
+  return (
+    <Card className="border-primary/20 shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
+      <CardHeader className="pb-4">
+        <CardTitle
+          className="bc-fraunces text-2xl font-bold tracking-[-0.02em]"
+          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+        >
+          Start a new ask
+        </CardTitle>
+        <CardDescription>
+          Search someone in your network to ask for advice or mentorship.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {/* Native GET form — server-rendered, no client JS needed. The page
+            re-runs on submit and renders results below. */}
+        <form action="/ask" method="get" className="flex gap-2">
+          <Input
+            name="q"
+            type="search"
+            defaultValue={query}
+            placeholder="Try a name, employer, or topic — e.g. &ldquo;Mark&rdquo; or &ldquo;finance&rdquo;"
+            className="flex-1"
+            autoComplete="off"
+          />
+          <Button type="submit">Search</Button>
+        </form>
+
+        {hasQuery ? (
+          <div className="mt-6">
+            {hits.length === 0 ? (
+              <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">
+                No one open to advice or mentorship matched &ldquo;{query}&rdquo;.{' '}
+                <Link href="/discover" className="text-primary hover:underline">
+                  Browse all alumni
+                </Link>
+                .
+              </p>
+            ) : (
+              <>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {hits.length === 1 ? '1 match' : `${hits.length} matches`}
+                </p>
+                <ul className="divide-y divide-border rounded-md border">
+                  {hits.map((h) => (
+                    <RecipientRow key={h.userId} hit={h} />
+                  ))}
+                </ul>
+              </>
+            )}
+            <p className="mt-4 text-sm text-muted-foreground">
+              Don&rsquo;t see them?{' '}
+              <Link href="/discover" className="text-primary hover:underline">
+                Browse all alumni
+              </Link>
+              .
+            </p>
+          </div>
+        ) : null}
+      </CardContent>
+    </Card>
+  )
+}
+
+function RecipientRow({ hit }: { hit: SearchHit }) {
+  const subtitle = [
+    hit.currentTitle && hit.currentEmployer
+      ? `${hit.currentTitle} · ${hit.currentEmployer}`
+      : (hit.currentTitle ?? hit.currentEmployer),
+    hit.city,
+  ]
+    .filter(Boolean)
+    .join(' — ')
+
+  return (
+    <li className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+      <Link
+        href={`/profile/${hit.userId}`}
+        className="flex min-w-0 flex-1 items-center gap-3 hover:opacity-90"
+      >
+        <Avatar className="size-10 shrink-0">
+          {hit.avatarUrl ? (
+            <AvatarImage src={hit.avatarUrl} alt={displayName(hit.name, hit.preferredName, '')} />
+          ) : null}
+          <AvatarFallback className="bg-accent font-semibold text-accent-foreground">
+            {displayName(hit.name, hit.preferredName, '?').slice(0, 1).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">
+            {displayName(hit.name, hit.preferredName)}
+            {hit.graduationYear ? (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                &rsquo;{String(hit.graduationYear).slice(-2)}
+              </span>
+            ) : null}
+          </p>
+          {subtitle ? <p className="truncate text-xs text-muted-foreground">{subtitle}</p> : null}
+        </div>
+      </Link>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        {hit.isOpenAsAdviceHelper ? (
+          <Button asChild size="sm" variant={hit.isOpenAsMentor ? 'outline' : 'default'}>
+            <Link href={`/ask/new?to=${hit.userId}&type=advice`}>Ask for advice</Link>
+          </Button>
+        ) : null}
+        {hit.isOpenAsMentor ? (
+          <Button asChild size="sm">
+            <Link href={`/ask/new?to=${hit.userId}&type=mentorship`}>Request mentorship</Link>
+          </Button>
+        ) : null}
+      </div>
+    </li>
+  )
+}
+
+// =============================================================================
+// Helper: search for people open to advice OR mentorship that match a keyword.
+// Used by the recipient picker. Keeps NL search out of /ask — keyword is enough
+// for "I have a name in mind" and avoids the LLM cost on every Ask page load.
+// =============================================================================
+
+async function findHelpers(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  viewerId: string,
+  query: string,
+): Promise<SearchHit[]> {
+  const { data: viewerMembership } = await supabase
+    .from('organization_memberships')
+    .select('id, organization_id')
+    .eq('user_id', viewerId)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (!viewerMembership) return []
+
+  const [{ data: viewerBase }, { data: viewerOrgProfile }] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select('university, major, city')
+      .eq('user_id', viewerId)
+      .maybeSingle(),
+    supabase
+      .from('organization_profiles')
+      .select('graduation_year')
+      .eq('organization_membership_id', viewerMembership.id)
+      .maybeSingle(),
+  ])
+
+  const hits = await searchAlumni(supabase, {
+    organizationId: viewerMembership.organization_id,
+    viewerId,
+    viewerUniversity: viewerBase?.university ?? null,
+    viewerMajor: viewerBase?.major ?? null,
+    viewerCity: viewerBase?.city ?? null,
+    viewerGraduationYear: viewerOrgProfile?.graduation_year ?? null,
+    filters: {
+      q: query,
+      city: undefined,
+      employer: undefined,
+      university: undefined,
+      major: undefined,
+      topic: undefined,
+      gradYearMin: undefined,
+      gradYearMax: undefined,
+      openToMentor: undefined,
+      peopleIKnow: undefined,
+    },
+    limit: 50,
+  })
+
+  // Only show people who are actually open to *some* form of helping, since
+  // the whole point of /ask is to start an ask. Filter post-search so the
+  // existing "in your network" scoring still applies.
+  return hits.filter((h) => h.isOpenAsAdviceHelper || h.isOpenAsMentor).slice(0, 6)
+}
+
+// =============================================================================
+// Past-asks list, unchanged.
+// =============================================================================
 
 function Section({
   title,

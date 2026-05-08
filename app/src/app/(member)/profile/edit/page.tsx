@@ -1,11 +1,11 @@
 import Link from 'next/link'
+import { AvatarUploader } from '@/components/avatar-uploader'
 import { ProfileForm } from '@/components/profile-form'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
 import { editProfileAction } from './actions'
-import { AvatarUploader } from './avatar-uploader'
 import { DangerZone } from './danger-zone'
 import { PrivacyForm } from './privacy-form'
 
@@ -58,6 +58,8 @@ export default async function EditProfilePage() {
             submitLabel="Save changes"
             defaults={{
               name: profile.name ?? '',
+              preferredName: profile.preferredName ?? '',
+              nameOther: profile.nameOther ?? '',
               headline: profile.headline ?? '',
               city: profile.city ?? '',
               currentEmployer: profile.currentEmployer ?? '',

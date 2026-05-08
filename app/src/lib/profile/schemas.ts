@@ -35,8 +35,27 @@ function jsonArrayPreprocessor<T>(itemSchema: z.ZodType<T>) {
   }, z.array(itemSchema).max(50))
 }
 
+// Reusable graduation-year shape — 4-digit string → number, range-checked.
+const graduationYearField = z
+  .string()
+  .min(4)
+  .max(4)
+  .regex(/^\d{4}$/, 'Graduation year must be 4 digits.')
+  .transform(Number)
+  .refine((n) => n >= 1900 && n <= 2100, 'Graduation year out of range.')
+
+// Optional URL: accepts an empty string OR a valid URL. Used for fields like
+// linkedinUrl and avatarUrl where the form may submit "" when the user
+// hasn't filled in anything.
+const optionalUrl = z
+  .union([z.url(), z.literal('')])
+  .optional()
+  .nullable()
+
 export const profileFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required.'),
+  preferredName: z.string().trim().max(120).optional().nullable(),
+  nameOther: z.string().trim().max(200).optional().nullable(),
   graduationYear: z
     .string()
     .min(4)
@@ -71,6 +90,8 @@ export type ProfileFormInput = z.infer<typeof profileFormSchema>
 export function parseProfileForm(formData: FormData) {
   return profileFormSchema.safeParse({
     name: formData.get('name'),
+    preferredName: formData.get('preferredName'),
+    nameOther: formData.get('nameOther'),
     graduationYear: formData.get('graduationYear'),
     city: formData.get('city'),
     currentEmployer: formData.get('currentEmployer'),
@@ -86,5 +107,106 @@ export function parseProfileForm(formData: FormData) {
     skills: formData.get('skills'),
     careerHistory: formData.get('careerHistory'),
     educationHistory: formData.get('educationHistory'),
+  })
+}
+
+// =============================================================================
+// Onboarding step schemas. Each one validates only the fields its step
+// touches, so a partial save can succeed without filling the rest of the
+// profile. The /onboarding page submits these one at a time; final completion
+// (step 5) sets users.onboarding_completed_at.
+//
+// Required floors per the spec:
+//   - Step 1: name + graduationYear are min(1). Everything else is optional
+//     across all steps so users can skip steps 2–4 entirely without breaking
+//     validation. This is the most permissive end of the spectrum.
+// =============================================================================
+
+// Step 1 — About you. Minimum identity to be in the directory.
+export const onboardingAboutSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required.'),
+  preferredName: z.string().trim().max(120).optional().nullable(),
+  nameOther: z.string().trim().max(200).optional().nullable(),
+  graduationYear: graduationYearField,
+})
+export type OnboardingAboutInput = z.infer<typeof onboardingAboutSchema>
+
+export function parseOnboardingAbout(formData: FormData) {
+  return onboardingAboutSchema.safeParse({
+    name: formData.get('name'),
+    preferredName: formData.get('preferredName'),
+    nameOther: formData.get('nameOther'),
+    graduationYear: formData.get('graduationYear'),
+  })
+}
+
+// Step 2 — Education. All optional; user can skip the entire step.
+export const onboardingEducationSchema = z.object({
+  university: z.string().trim().max(200).optional().nullable(),
+  major: z.string().trim().max(200).optional().nullable(),
+  educationHistory: jsonArrayPreprocessor(educationEntrySchema),
+})
+export type OnboardingEducationInput = z.infer<typeof onboardingEducationSchema>
+
+export function parseOnboardingEducation(formData: FormData) {
+  return onboardingEducationSchema.safeParse({
+    university: formData.get('university'),
+    major: formData.get('major'),
+    educationHistory: formData.get('educationHistory'),
+  })
+}
+
+// Step 3 — Where you are now. All optional.
+export const onboardingCurrentSchema = z.object({
+  currentEmployer: z.string().trim().max(200).optional().nullable(),
+  currentTitle: z.string().trim().max(200).optional().nullable(),
+  city: z.string().trim().max(120).optional().nullable(),
+  headline: z.string().trim().max(200).optional().nullable(),
+  linkedinUrl: optionalUrl,
+})
+export type OnboardingCurrentInput = z.infer<typeof onboardingCurrentSchema>
+
+export function parseOnboardingCurrent(formData: FormData) {
+  return onboardingCurrentSchema.safeParse({
+    currentEmployer: formData.get('currentEmployer'),
+    currentTitle: formData.get('currentTitle'),
+    city: formData.get('city'),
+    headline: formData.get('headline'),
+    linkedinUrl: formData.get('linkedinUrl'),
+  })
+}
+
+// Step 4 — Where you've been. Career history (and optionally skills).
+export const onboardingPastSchema = z.object({
+  careerHistory: jsonArrayPreprocessor(careerEntrySchema),
+  skills: jsonArrayPreprocessor(z.string().trim().min(1).max(80)),
+})
+export type OnboardingPastInput = z.infer<typeof onboardingPastSchema>
+
+export function parseOnboardingPast(formData: FormData) {
+  return onboardingPastSchema.safeParse({
+    careerHistory: formData.get('careerHistory'),
+    skills: formData.get('skills'),
+  })
+}
+
+// Step 5 — How you can help (mentorship + avatar). Avatar lives here per
+// the user's preference to keep step 1 light. openToMentor defaults to
+// false (unchecked) — a brand-new alumnus shouldn't be defaulted to "yes,
+// mentor me right away."
+export const onboardingHelpSchema = z.object({
+  openToMentor: z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean()),
+  mentoringTopics: z.string().trim().max(500).optional().nullable(),
+  bio: z.string().trim().max(1000).optional().nullable(),
+  avatarUrl: optionalUrl,
+})
+export type OnboardingHelpInput = z.infer<typeof onboardingHelpSchema>
+
+export function parseOnboardingHelp(formData: FormData) {
+  return onboardingHelpSchema.safeParse({
+    openToMentor: formData.get('openToMentor'),
+    mentoringTopics: formData.get('mentoringTopics'),
+    bio: formData.get('bio'),
+    avatarUrl: formData.get('avatarUrl'),
   })
 }

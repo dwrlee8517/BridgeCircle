@@ -1,6 +1,8 @@
 import { format } from 'date-fns'
+import { Mail } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import {
   Table,
   TableBody,
@@ -12,6 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createClient } from '@/db/server'
 import { requireAdmin } from '@/lib/auth/session'
+import { displayOrgName } from '@/lib/utils'
 import { CsvInviteForm } from './csv-form'
 import { InviteForm } from './invite-form'
 
@@ -28,7 +31,9 @@ export default async function AdminInvitePage() {
     .in('role', ['super_admin', 'admin'])
     .limit(1)
   const adminOrg = roles?.[0] ?? null
-  const orgName = (adminOrg?.organizations as { name: string } | null)?.name ?? 'your organization'
+  const orgName = displayOrgName(
+    (adminOrg?.organizations as { name: string } | null)?.name ?? 'your organization',
+  )
 
   const { data: invites } = adminOrg
     ? await supabase
@@ -104,7 +109,13 @@ export default async function AdminInvitePage() {
               </TableBody>
             </Table>
           ) : (
-            <p className="text-sm text-muted-foreground">No invites yet.</p>
+            <EmptyState
+              icon={Mail}
+              title="No invites yet"
+              description="Send your first invites with the form above. Recipients join as members when they redeem the link."
+              size="inline"
+              className="border-none bg-transparent shadow-none"
+            />
           )}
         </CardContent>
       </Card>

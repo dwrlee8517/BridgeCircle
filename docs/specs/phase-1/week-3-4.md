@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This document specifies what ships on top of `launch-cut.md` between weeks 3 and 4. Target go-live for the full Phase 1 demo is the alumni board meeting.
+This document specifies what ships on top of `launch-cut.md` in the second slice of Phase 1. The "weeks 3–4" framing is scope phasing, not a calendar — there is no fixed launch deadline.
 
-These features are additive. If any slips, the week-2 build still stands on its own as a working product.
+These features are additive. If any are deferred, the launch-cut build still stands on its own as a working product.
 
 ## Priority Order
 
@@ -169,13 +169,13 @@ If weeks 3–4 run long, cut in this order (reverse of priority):
 
 1. In-app notification tray (keep email-only notifications)
 2. Announcements (send the first announcement manually via Resend script)
-3. Admin analytics dashboard (share SQL screenshots at the board meeting)
+3. Admin analytics dashboard (share via SQL queries to start)
 4. Field-level privacy UI (launch defaults cover ~90% of users)
 
 Do not cut:
 
 - LinkedIn import (specifically the resume path — it's the freshness thesis)
-- NL search (it's the visible differentiator at the board meeting)
+- NL search (it's the visible differentiator vs. competitors)
 - Friendship + DM (the reconnection half of the product wedge)
 
 ## Timeline

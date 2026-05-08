@@ -9,9 +9,9 @@ It is a strict narrowing of `spec.md`. The full Phase 1 vision is unchanged — 
 ## Launch Context
 
 - pilot organizations: Chadwick School (Palos Verdes) and Chadwick International (Songdo)
-- target for full Phase 1 demo: the alumni board meeting
-- week 2 target: core mentorship loop live, seeded mentor supply, ambassadors can onboard their classes
-- single-engineer build (founder)
+- launch criterion: core mentorship loop live, seeded mentor supply, ambassadors can onboard their classes — at a quality bar that holds up to incumbents (Graduway, Hivebrite, Almabase) and the philosophical neighbor (Protopia)
+- single-engineer build (founder), no fixed calendar deadline
+- the "weeks 1–2 / weeks 3–4" headers in this doc are scope phasing, not a delivery schedule — they describe the order of work, not dates
 
 ## In Scope For Weeks 1–2
 
@@ -175,7 +175,7 @@ Before end of week 2:
 These must run alongside the build, not after:
 
 - personal outreach to recruit 20–30 mentors before launch day
-- ambassador briefing for the alumni board meeting: what to say, how to onboard their class in 5 minutes
+- ambassador briefing: what to say to fellow alumni, how to onboard their class in 5 minutes
 - invite email copy drafted and tested (subject line drives activation)
 - landing copy explaining why BridgeCircle exists specifically for Chadwick — not a generic pitch
 

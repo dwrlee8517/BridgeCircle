@@ -23,7 +23,7 @@ Write a short spec (~½ page, max 1 page) covering:
 - **Data model:** new tables / columns / RLS implications (if any)
 - **Out of scope:** what we are deliberately NOT doing in this slice
 
-If the feature is on the launch-cut path, target it for the launch demo. If it's not, ask the user whether to defer to week 3–4 or post-launch.
+If the feature is on the launch-cut path, prioritize it for launch readiness. If it's not, ask the user whether it belongs in the next slice or post-launch.
 
 ### 2. Plan
 
@@ -61,4 +61,4 @@ When all steps are done, run `/ship` to validate the full sensor stack before op
 
 ## Behavioral guardrails
 
-(See `CLAUDE.md` at repo root.) Surface assumptions before implementing. State the smallest credible cut. Push back on scope creep.
+(See `CLAUDE.md` at repo root.) Surface assumptions before implementing. Push back on scope creep — but not on polish or correctness. There is no calendar deadline; the bar is competitive quality.

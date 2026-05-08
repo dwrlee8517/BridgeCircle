@@ -12,6 +12,9 @@ type Props = {
    * "Going" button changes copy to "Join waitlist" so users know what they're
    * signing up for. */
   isFull: boolean
+  /** Match the size of any sibling buttons in the row (e.g. "Add to calendar")
+   * so the CTA cluster reads as one group. Defaults to 'default'. */
+  size?: 'default' | 'sm'
 }
 
 /**
@@ -30,7 +33,7 @@ type Props = {
  * (and we!) know when something went wrong instead of staring at an
  * unchanged button. Common cause: migration not yet applied to dev DB.
  */
-export function RsvpButtons({ eventId, current, isFull }: Props) {
+export function RsvpButtons({ eventId, current, isFull, size = 'default' }: Props) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -69,6 +72,7 @@ export function RsvpButtons({ eventId, current, isFull }: Props) {
       <div className="flex gap-2">
         <Button
           type="button"
+          size={size}
           variant={goingActive ? 'default' : 'outline'}
           onClick={() => submit('going')}
           disabled={pending}
@@ -78,6 +82,7 @@ export function RsvpButtons({ eventId, current, isFull }: Props) {
         </Button>
         <Button
           type="button"
+          size={size}
           variant={notGoingActive ? 'default' : 'outline'}
           onClick={() => submit('not_going')}
           disabled={pending}

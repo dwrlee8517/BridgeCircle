@@ -1,8 +1,11 @@
 import { format, formatDistanceToNow } from 'date-fns'
+import { Megaphone } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { listAnnouncements } from '@/lib/announcements/listAnnouncements'
 import { requireAdmin } from '@/lib/auth/session'
+import { displayOrgName } from '@/lib/utils'
 import { AnnouncementForm } from './announcement-form'
 
 export default async function AdminAnnouncementsPage() {
@@ -24,7 +27,9 @@ export default async function AdminAnnouncementsPage() {
       </div>
     )
   }
-  const orgName = (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization'
+  const orgName = displayOrgName(
+    (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization',
+  )
 
   const recent = await listAnnouncements(supabase, adminOrg.organization_id, { limit: 30 })
 
@@ -50,7 +55,13 @@ export default async function AdminAnnouncementsPage() {
         </CardHeader>
         <CardContent>
           {recent.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nothing published yet.</p>
+            <EmptyState
+              icon={Megaphone}
+              title="Nothing published yet"
+              description="The first announcement you post will land at the top of the members' /announcements page."
+              size="inline"
+              className="border-none bg-transparent shadow-none"
+            />
           ) : (
             <ul className="divide-y">
               {recent.map((a) => (

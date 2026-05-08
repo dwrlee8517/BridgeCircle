@@ -33,7 +33,7 @@ export default async function HelperSettingsPage() {
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle>Helper settings</CardTitle>
+              <CardTitle>Helper preferences</CardTitle>
               <CardDescription>
                 Choose how you&apos;d like to help — quick advice, ongoing mentorship, or both.
               </CardDescription>

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createAdminClient } from '@/db/admin'
 import { requireSession } from '@/lib/auth/session'
+import { signOut } from '../(auth)/sign-in/actions'
 import { ReactivateForm } from './reactivate-form'
 
 /**
@@ -47,7 +48,7 @@ export default async function ReactivatePage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-md items-center px-4">
+    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-4 px-4">
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Welcome back</CardTitle>
@@ -60,6 +61,15 @@ export default async function ReactivatePage() {
           <ReactivateForm />
         </CardContent>
       </Card>
+      {/* Sign-out escape hatch — see /cancel-delete for the same pattern. */}
+      <form action={signOut}>
+        <button
+          type="submit"
+          className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+        >
+          Sign out
+        </button>
+      </form>
     </div>
   )
 }
