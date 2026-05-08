@@ -43,19 +43,24 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
     if (state.ok) router.refresh()
   }, [state.ok, router])
 
-  // Sync controlled state when fresh server data lands. Only fires on
-  // defaults-change, so the user's mid-edit toggles between saves are not
-  // stomped — only post-save reconciliation runs through here. This is
-  // the documented React pattern for "sync state with props on prop
-  // change" (cf. React docs "You Might Not Need an Effect / Adjusting
-  // state when a prop changes"); the lint rule is overzealous for this
-  // specific case.
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
+  // Sync controlled state when fresh server defaults arrive (post-save
+  // revalidation). React's canonical "adjust state when a prop changes"
+  // pattern — track the previous prop value via useState, compare during
+  // render, and call setState during render when it differs. React
+  // detects setState during render, bails out, and re-runs with the new
+  // state. No useEffect, no rule suppression, no ref access in render.
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [prevAdviceDefault, setPrevAdviceDefault] = useState(defaults.openToAdvice)
+  const [prevMentorshipDefault, setPrevMentorshipDefault] = useState(defaults.openToMentorship)
+  if (
+    prevAdviceDefault !== defaults.openToAdvice ||
+    prevMentorshipDefault !== defaults.openToMentorship
+  ) {
+    setPrevAdviceDefault(defaults.openToAdvice)
+    setPrevMentorshipDefault(defaults.openToMentorship)
     setAdvice(defaults.openToAdvice)
     setMentorship(defaults.openToMentorship)
-  }, [defaults.openToAdvice, defaults.openToMentorship])
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }
 
   return (
     <form action={action} className="space-y-6">
