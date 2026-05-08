@@ -5,7 +5,7 @@ import { useActionState, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import type { AskType } from '@/lib/asks/schemas'
+import type { AskType, DraftVariant } from '@/lib/asks/schemas'
 import { type RequestFormState, submitRequest } from './actions'
 
 const initialState: RequestFormState = {}
@@ -53,7 +53,7 @@ export function RequestForm({ helperId, helperName, askType, placeholderContext 
   const [drafting, setDrafting] = useState(false)
   const [draftError, setDraftError] = useState<string | null>(null)
 
-  async function handleDraft() {
+  async function handleDraft(variant: DraftVariant | null = null) {
     setDrafting(true)
     setDraftError(null)
     try {
@@ -64,6 +64,7 @@ export function RequestForm({ helperId, helperName, askType, placeholderContext 
           helperId,
           askType,
           userText: [reason, helpNeeded, background].filter(Boolean).join('\n\n'),
+          variant,
         }),
       })
       if (!res.ok) {
@@ -163,13 +164,53 @@ export function RequestForm({ helperId, helperName, askType, placeholderContext 
           button label adapts: a fresh form gets "Help me start" (suggests
           a draft from scratch); once the user has typed anything, it
           becomes "Refine with a draft" (suggests the model will build on
-          their seed). */}
+          their seed). Once content exists, three lens-based variants
+          appear: shorter / more direct / warmer (Apple Writing Tools
+          posture — variants beat blind regenerate). */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        <Button type="button" variant="ghost" size="sm" disabled={drafting} onClick={handleDraft}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={drafting}
+          onClick={() => handleDraft()}
+        >
           {drafting ? 'Drafting…' : hasAnyContent ? 'Refine with a draft' : 'Help me start'}
         </Button>
         <span>You can edit anything before sending.</span>
       </div>
+      {helpNeeded.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+          <span>Refine:</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={drafting}
+            onClick={() => handleDraft('shorter')}
+          >
+            Shorter
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={drafting}
+            onClick={() => handleDraft('more-direct')}
+          >
+            More direct
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={drafting}
+            onClick={() => handleDraft('warmer')}
+          >
+            Warmer
+          </Button>
+        </div>
+      ) : null}
       {draftError ? <p className="text-xs text-destructive">{draftError}</p> : null}
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}

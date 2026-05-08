@@ -1,0 +1,927 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ask composer — three flow options</title>
+    <style>
+      :root {
+        --ink: #0b1220;
+        --ink-2: #475569;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --line-strong: #cbd5e1;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --sapphire: #1d4ed8;
+        --sapphire-soft: #eff6ff;
+        --warm: #b45309;
+        --warm-soft: #fffbeb;
+        --good: #047857;
+        --good-soft: #ecfdf5;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        font-size: 14px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+      header {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 32px 24px 12px;
+      }
+      header h1 {
+        font-size: 22px;
+        margin: 0 0 8px;
+        letter-spacing: -0.01em;
+      }
+      header p {
+        margin: 0;
+        color: var(--ink-2);
+        max-width: 720px;
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 8px 24px 64px;
+      }
+      section.option {
+        margin-top: 36px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 22px;
+      }
+      .option-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 4px;
+      }
+      .option-head h2 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .option-head h2 .num {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        line-height: 22px;
+        text-align: center;
+        background: var(--sapphire);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 12px;
+        margin-right: 8px;
+        vertical-align: 1px;
+      }
+      .option-head .meta {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .option-tag {
+        display: inline-block;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        margin-left: 8px;
+        vertical-align: 1px;
+      }
+      .tag-cheap { background: var(--good-soft); color: var(--good); }
+      .tag-medium { background: var(--sapphire-soft); color: var(--sapphire); }
+      .tag-bet { background: var(--warm-soft); color: var(--warm); }
+      .summary {
+        color: var(--ink-2);
+        margin: 8px 0 18px;
+        max-width: 820px;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+      .step {
+        position: relative;
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        background: #fff;
+        padding: 12px 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .step .label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+      }
+      .step .label .dot {
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        text-align: center;
+        background: var(--ink);
+        color: #fff;
+        border-radius: 50%;
+        font-size: 10px;
+      }
+      .screen {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg);
+        padding: 10px;
+        font-size: 12.5px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .screen .title {
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--ink);
+      }
+      .screen .sub {
+        font-size: 11.5px;
+        color: var(--muted);
+      }
+      .field {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 11.5px;
+        color: var(--ink-2);
+      }
+      .field.placeholder { color: #94a3b8; font-style: italic; }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .chip {
+        font-size: 10.5px;
+        padding: 3px 8px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--ink-2);
+      }
+      .chip.on {
+        background: var(--sapphire);
+        border-color: var(--sapphire);
+        color: #fff;
+      }
+      .btn {
+        display: inline-block;
+        font-size: 11.5px;
+        padding: 5px 10px;
+        border-radius: 6px;
+        background: var(--sapphire);
+        color: #fff;
+        border: 1px solid var(--sapphire);
+        align-self: flex-start;
+      }
+      .btn.ghost {
+        background: #fff;
+        color: var(--sapphire);
+      }
+      .btn.muted {
+        background: #fff;
+        color: var(--muted);
+        border-color: var(--line-strong);
+      }
+      .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+      .ai-note {
+        background: var(--sapphire-soft);
+        border-left: 3px solid var(--sapphire);
+        padding: 8px 10px;
+        font-size: 11.5px;
+        color: #1e3a8a;
+        border-radius: 0 6px 6px 0;
+      }
+      .narration {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 2px;
+        line-height: 1.5;
+      }
+      .arrow {
+        display: none;
+      }
+      @media (min-width: 980px) {
+        .flow.three { grid-template-columns: repeat(3, 1fr); }
+        .flow.four  { grid-template-columns: repeat(4, 1fr); }
+        .flow.five  { grid-template-columns: repeat(5, 1fr); }
+      }
+      .legend {
+        margin-top: 20px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--ink-2);
+      }
+      .legend h4 {
+        margin: 0 0 6px;
+        font-size: 12px;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .legend .col p { margin: 0 0 4px; }
+      .pro::before { content: "✓ "; color: var(--good); }
+      .con::before { content: "× "; color: var(--warm); }
+
+      .compare {
+        margin-top: 36px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 22px;
+      }
+      .compare h2 {
+        font-size: 18px;
+        margin: 0 0 14px;
+        letter-spacing: -0.01em;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th, td {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th { font-weight: 600; color: var(--ink-2); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+      td:first-child { color: var(--muted); width: 28%; }
+      footer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px 48px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Ask composer — three flow options</h1>
+      <p>
+        Visualizing the three improvement directions for the AI-assisted ask composer.
+        Each row is a flow: left-to-right is what the user sees over time. Sapphire boxes
+        mark moments where the AI is working.
+      </p>
+    </header>
+
+    <main>
+      <!-- ============================================================== -->
+      <!-- OPTION 1 — Patch the leaks                                      -->
+      <!-- ============================================================== -->
+      <section class="option">
+        <div class="option-head">
+          <h2>
+            <span class="num">1</span>Patch the leaks
+            <span class="option-tag tag-cheap">~1–2 days</span>
+          </h2>
+          <div class="meta">Same shape, more context, more tries</div>
+        </div>
+        <p class="summary">
+          Keep the current single-screen composer. Add an <strong>intent chip row</strong> at
+          the top, pass the helper's career history + bio to the prompt, and add a
+          <strong>regenerate</strong> control. The form barely changes — the drafts get
+          materially better because the model can finally see who the helper is.
+        </p>
+
+        <div class="flow four">
+          <!-- Step 1 -->
+          <div class="step">
+            <div class="label"><span class="dot">1</span>Land on /ask/new</div>
+            <div class="screen">
+              <div class="title">Ask Sarah for advice</div>
+              <div class="sub">She'll get an email and can reply at her pace.</div>
+              <div class="sub" style="margin-top:4px; color: var(--ink-2); font-weight:600;">What kind of help?</div>
+              <div class="chips">
+                <span class="chip">Career path</span>
+                <span class="chip">Industry intro</span>
+                <span class="chip">Decision review</span>
+                <span class="chip">School advice</span>
+                <span class="chip">Skill question</span>
+                <span class="chip">Other</span>
+              </div>
+              <div class="field placeholder">Be specific. e.g. "How did you get into product management?"</div>
+              <div class="btn-row">
+                <span class="btn muted">Help me start</span>
+              </div>
+            </div>
+            <p class="narration">New: chip row above the textarea picks the genre of ask before the AI runs.</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step">
+            <div class="label"><span class="dot">2</span>Pick intent · click Help me start</div>
+            <div class="screen">
+              <div class="chips">
+                <span class="chip">Career path</span>
+                <span class="chip on">Industry intro</span>
+                <span class="chip">Decision review</span>
+                <span class="chip">School advice</span>
+                <span class="chip">Skill question</span>
+                <span class="chip">Other</span>
+              </div>
+              <div class="field placeholder">Be specific. e.g. "How did you get into product management?"</div>
+              <div class="ai-note">
+                Drafting from your shared circle…<br />
+                <span style="color: var(--muted)">2–3s</span>
+              </div>
+            </div>
+            <p class="narration">One click. Genre is locked, AI takes over.</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step">
+            <div class="label"><span class="dot">3</span>Draft appears (now grounded in helper's career)</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi — saw you went from McKinsey to product at Stripe; I'm a 2019 alum trying
+                to make a similar jump from consulting and curious how you decided when you
+                were ready. Even 10 min of "what I'd do differently" would mean a lot.
+                Totally understand if not.
+              </div>
+              <div class="btn-row">
+                <span class="btn">Send</span>
+                <span class="btn ghost">Regenerate</span>
+                <span class="btn muted">Edit</span>
+              </div>
+            </div>
+            <p class="narration">"Regenerate" is new. Draft references real career arc, not just "we share a major."</p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step">
+            <div class="label"><span class="dot">4</span>Edit or regenerate · send</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi — I noticed you spent 5 years at McKinsey before joining Stripe. I'm a
+                2019 alum thinking about the same jump and would love 15 min on how you
+                knew it was time. No rush — totally understand if not.
+              </div>
+              <div class="btn-row">
+                <span class="btn">Send</span>
+              </div>
+            </div>
+            <p class="narration">User tweaks. Sends.</p>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="col">
+            <h4>What changes under the hood</h4>
+            <p>• Pass <code>helper.career_history</code>, <code>helper.bio</code>, <code>helper.headline</code> to the prompt</p>
+            <p>• Pass intent as a structured field (not concatenated text)</p>
+            <p>• Add regenerate endpoint behavior (fresh sample each time)</p>
+            <p>• Stop flattening the 3 textareas into one blob</p>
+          </div>
+          <div class="col">
+            <h4>Tradeoffs</h4>
+            <p class="pro">Cheapest. Drafts get noticeably better immediately.</p>
+            <p class="pro">Mostly free relative to current code.</p>
+            <p class="con">Still bolted on. AI is a button, not a workflow.</p>
+            <p class="con">A copycat ships this in a week.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- OPTION 2 — Coaching composer                                    -->
+      <!-- ============================================================== -->
+      <section class="option">
+        <div class="option-head">
+          <h2>
+            <span class="num">2</span>Coaching composer
+            <span class="option-tag tag-medium">~1 week</span>
+          </h2>
+          <div class="meta">A guided form replaces the blank canvas</div>
+        </div>
+        <p class="summary">
+          Three short steps replace the textarea-first form. The composer becomes the help.
+          The user states what they're working on, picks the kind of help, then sees what
+          the AI noticed about the helper before reading the draft. Defensible against
+          incumbents who just bolted a button on a textarea.
+        </p>
+
+        <div class="flow five">
+          <!-- Step 1 -->
+          <div class="step">
+            <div class="label"><span class="dot">1</span>What are you working on?</div>
+            <div class="screen">
+              <div class="title">Step 1 of 3</div>
+              <div class="sub">Two sentences is plenty. We'll use this to draft.</div>
+              <div class="field placeholder">"Trying to decide between staying at my consulting firm and joining a product team. Have an offer from a Series B but nervous about the jump."</div>
+              <div class="btn-row">
+                <span class="btn">Continue</span>
+              </div>
+            </div>
+            <p class="narration">Open-ended; captures real intent in the asker's voice.</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step">
+            <div class="label"><span class="dot">2</span>What kind of help?</div>
+            <div class="screen">
+              <div class="title">Step 2 of 3</div>
+              <div class="sub">Pick one. Helps Sarah know what you're hoping for.</div>
+              <div class="chips" style="flex-direction: column; align-items: flex-start;">
+                <span class="chip">A quick question</span>
+                <span class="chip on">A decision sounding board</span>
+                <span class="chip">An intro to someone</span>
+                <span class="chip">An ongoing mentor</span>
+              </div>
+              <div class="btn-row">
+                <span class="btn">Continue</span>
+                <span class="btn muted">Back</span>
+              </div>
+            </div>
+            <p class="narration">Genre + commitment level captured separately. Drives length, tone, expectations.</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step">
+            <div class="label"><span class="dot">3</span>What we noticed about Sarah</div>
+            <div class="screen">
+              <div class="title">Step 3 of 3</div>
+              <div class="sub">We'll draft a note that draws on these. Tap to remove.</div>
+              <div class="ai-note">
+                <strong>Shared signals</strong><br />
+                • She made the same consulting → product jump in 2021<br />
+                • Her bio mentions "happy to talk to people thinking about the switch"<br />
+                • You both graduated from Chadwick (she's '14, you're '19)
+              </div>
+              <div class="btn-row">
+                <span class="btn">Draft my note</span>
+                <span class="btn muted">Back</span>
+              </div>
+            </div>
+            <p class="narration">Transparency moment. User sees what the AI is using before it writes — can drop a signal that feels off.</p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step">
+            <div class="label"><span class="dot">4</span>Draft</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting-to-product jump in 2021 and noticed
+                in your bio you're open to talking with people thinking about the same.
+                I'm at that exact crossroads — Series B offer in hand, real nerves about
+                the jump. 15 min on how you knew it was time would mean a lot. No rush.
+              </div>
+              <div class="btn-row">
+                <span class="btn ghost">Shorter</span>
+                <span class="btn ghost">More direct</span>
+                <span class="btn ghost">Warmer</span>
+              </div>
+            </div>
+            <p class="narration">Variant buttons. One-click reframings, not regenerate roulette.</p>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="step">
+            <div class="label"><span class="dot">5</span>Edit · send</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting → product jump in 2021. I'm at the
+                same crossroads with a Series B offer in hand. Would 15 min on how you
+                knew it was time be possible? No rush, totally understand if not.
+              </div>
+              <div class="btn-row">
+                <span class="btn">Send</span>
+              </div>
+            </div>
+            <p class="narration">User polishes. Final send.</p>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="col">
+            <h4>What changes under the hood</h4>
+            <p>• 3-step wizard replaces the single-screen form</p>
+            <p>• Structured intent (working on / kind of help) feeds prompt directly</p>
+            <p>• Pre-draft "signals" panel shows what AI will use</p>
+            <p>• Variant API: shorter / more direct / warmer (lens-based regen)</p>
+            <p>• Send still produces the same <code>asks</code> row; data shape unchanged</p>
+          </div>
+          <div class="col">
+            <h4>Tradeoffs</h4>
+            <p class="pro">The form is the help. Aligns with "lower the barrier" thesis.</p>
+            <p class="pro">Transparency builds trust — user can see and edit signals.</p>
+            <p class="pro">Hard to copy: a competitor needs to rebuild the wizard, not paste a button.</p>
+            <p class="con">More screens = more drop-off risk on mobile.</p>
+            <p class="con">A user who just wants to fire off a quick question may resent the steps.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- OPTION 3 — Conversational composer                              -->
+      <!-- ============================================================== -->
+      <section class="option">
+        <div class="option-head">
+          <h2>
+            <span class="num">3</span>Conversational composer
+            <span class="option-tag tag-bet">~1.5–2 weeks · real bet</span>
+          </h2>
+          <div class="meta">Two-turn dialogue, then draft</div>
+        </div>
+        <p class="summary">
+          The composer is a chat. The asker types one line; the AI reads both profiles and
+          asks one focused question back; the asker answers; the AI surfaces the signals
+          and drafts. Most magical. Most ambitious. Probably needs Sonnet, not Haiku, for
+          the back-and-forth to feel intelligent.
+        </p>
+
+        <div class="flow five">
+          <!-- Step 1 -->
+          <div class="step">
+            <div class="label"><span class="dot">1</span>Open composer</div>
+            <div class="screen">
+              <div class="title">Reach out to Sarah</div>
+              <div class="sub">Tell me what you're trying to figure out — I'll help you write it.</div>
+              <div class="field placeholder">"Thinking about leaving consulting for product…"</div>
+              <div class="btn-row">
+                <span class="btn">Send</span>
+              </div>
+            </div>
+            <p class="narration">Single open prompt. No fields, no chips. Feels like texting a friend who happens to know Sarah.</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step">
+            <div class="label"><span class="dot">2</span>AI reads both profiles · asks back</div>
+            <div class="screen">
+              <div class="ai-note">
+                <strong>Quick — which would help most?</strong><br />
+                a) How Sarah decided when to make the jump<br />
+                b) What her first 6 months in product actually looked like<br />
+                c) Whether the offer you have sounds reasonable
+              </div>
+              <div class="field placeholder">Or tell me in your own words…</div>
+              <div class="btn-row">
+                <span class="btn ghost">a</span>
+                <span class="btn ghost">b</span>
+                <span class="btn ghost">c</span>
+              </div>
+            </div>
+            <p class="narration">Sonnet sees Sarah's career arc and proposes three concrete angles. The asker doesn't have to know what to ask — they pick.</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step">
+            <div class="label"><span class="dot">3</span>Asker picks · AI shows what it'll lean on</div>
+            <div class="screen">
+              <div class="ai-note">
+                <strong>Got it.</strong> I'll lean on these:<br />
+                <span class="chip on" style="margin-top:4px;">Sarah's 2021 consulting→product jump</span>
+                <span class="chip on" style="margin-top:4px;">Her bio note about the switch</span>
+                <span class="chip on" style="margin-top:4px;">Same school, 5 years apart</span>
+              </div>
+              <div class="sub">Tap any to drop. Or tell me what to add.</div>
+              <div class="btn-row">
+                <span class="btn">Draft</span>
+              </div>
+            </div>
+            <p class="narration">Same transparency moment as Option 2 — but inline, not a separate step.</p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step">
+            <div class="label"><span class="dot">4</span>Draft appears in-thread</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting-to-product jump in 2021, and your
+                bio mentioned you're happy to talk with people thinking about the switch.
+                I'm at that crossroads now and would love your read on how you knew it
+                was time. 15 min, no rush.
+              </div>
+              <div class="btn-row">
+                <span class="btn ghost">Shorter</span>
+                <span class="btn ghost">More direct</span>
+                <span class="btn ghost">Try a different angle</span>
+              </div>
+            </div>
+            <p class="narration">Variants stay available. The whole exchange lives in one scroll.</p>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="step">
+            <div class="label"><span class="dot">5</span>Edit · send</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — I saw you made the same consulting → product jump in 2021. I'm
+                weighing an offer right now and would love 15 min on how you knew it was
+                time. Totally understand if you're heads down.
+              </div>
+              <div class="btn-row">
+                <span class="btn">Send</span>
+              </div>
+            </div>
+            <p class="narration">Final send. One-line edit kept the asker's voice.</p>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="col">
+            <h4>What changes under the hood</h4>
+            <p>• Composer is a chat surface, not a form</p>
+            <p>• Two-turn loop (clarify → confirm signals → draft)</p>
+            <p>• Likely Sonnet for clarification turn; Haiku still fine for variants</p>
+            <p>• Server-side state for the conversation (in-memory or short-lived row)</p>
+            <p>• Send still creates the same <code>asks</code> row at the end</p>
+          </div>
+          <div class="col">
+            <h4>Tradeoffs</h4>
+            <p class="pro">Magical. The AI feels like a co-author, not a button.</p>
+            <p class="pro">Hardest for a copycat to ship — needs prompt + product muscle.</p>
+            <p class="pro">Handles ambiguous intent ("I dunno, just want advice") gracefully.</p>
+            <p class="con">A chat for what could be a 30-second action may feel heavy.</p>
+            <p class="con">Cost-per-draft rises (more turns, larger model).</p>
+            <p class="con">Failure modes are louder — a bad clarifying question is more memorable than a bad draft.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- OPTION 4 — RECOMMENDED HYBRID                                   -->
+      <!-- ============================================================== -->
+      <section class="option" style="border: 2px solid var(--sapphire); background: linear-gradient(180deg, #fafcff 0%, #fff 60%);">
+        <div class="option-head">
+          <h2>
+            <span class="num" style="background: var(--good);">★</span>Hybrid (recommended)
+            <span class="option-tag" style="background: var(--good-soft); color: var(--good);">Chosen 2026-05-07</span>
+          </h2>
+          <div class="meta">Coaching wizard + skip-path + signals-transparency from Option 3</div>
+        </div>
+        <p class="summary">
+          Option 2's coaching wizard for first-time / unsure users, plus a <strong>"skip the wizard"</strong>
+          affordance for return users who already know what to say, plus Option 3's
+          <strong>signals-transparency</strong> moment shown before drafting in both paths.
+          Two surfaces, one composer — same shape Gmail uses for Smart Compose vs. Help Me Write.
+          Rationale lives in <code>composer-ux-research.md</code>.
+        </p>
+
+        <h3 style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 18px 0 8px;">
+          Path A · First-time / unsure user (default)
+        </h3>
+        <div class="flow five">
+          <div class="step">
+            <div class="label"><span class="dot">1</span>What are you working on?</div>
+            <div class="screen">
+              <div class="title">Step 1 of 3</div>
+              <div class="sub">Two sentences. We'll use this to draft.</div>
+              <div class="field placeholder">"Trying to decide between staying at consulting and joining a Series B product team."</div>
+              <div class="btn-row"><span class="btn">Continue</span></div>
+              <div class="sub" style="margin-top:6px;">
+                <a href="#skip" style="color: var(--sapphire); text-decoration: underline;">I know what to say →</a>
+              </div>
+            </div>
+            <p class="narration">Wizard by default; the escape link is quiet but visible.</p>
+          </div>
+
+          <div class="step">
+            <div class="label"><span class="dot">2</span>What kind of help?</div>
+            <div class="screen">
+              <div class="title">Step 2 of 3</div>
+              <div class="chips" style="flex-direction: column; align-items: flex-start;">
+                <span class="chip">A quick question</span>
+                <span class="chip on">A decision sounding board</span>
+                <span class="chip">An intro to someone</span>
+                <span class="chip">An ongoing mentor</span>
+              </div>
+              <div class="btn-row"><span class="btn">Continue</span></div>
+            </div>
+            <p class="narration">Genre + commitment level captured separately — drives length and tone.</p>
+          </div>
+
+          <div class="step">
+            <div class="label"><span class="dot">3</span>Signals panel (transparency)</div>
+            <div class="screen">
+              <div class="title">What we noticed about Sarah</div>
+              <div class="ai-note">
+                <strong>I'll lean on these — tap to drop:</strong><br />
+                <span class="chip on" style="margin-top:4px;">Same consulting → product jump in 2021</span>
+                <span class="chip on" style="margin-top:4px;">Bio mentions "happy to talk to people thinking about the switch"</span>
+                <span class="chip on" style="margin-top:4px;">Same school, 5 years apart</span>
+              </div>
+              <div class="btn-row">
+                <span class="btn">Draft my note</span>
+                <span class="btn muted">Back</span>
+              </div>
+            </div>
+            <p class="narration">Borrowed from Option 3. Defends against the "obvious AI" failure mode — the asker chooses what to lead with.</p>
+          </div>
+
+          <div class="step">
+            <div class="label"><span class="dot">4</span>Draft + variants</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting → product jump in 2021. I'm at the
+                same crossroads and would love 15 min on how you knew it was time. No rush.
+              </div>
+              <div class="btn-row">
+                <span class="btn ghost">Shorter</span>
+                <span class="btn ghost">More direct</span>
+                <span class="btn ghost">Warmer</span>
+              </div>
+            </div>
+            <p class="narration">Apple Writing Tools posture: lens-based variants instead of regenerate roulette.</p>
+          </div>
+
+          <div class="step">
+            <div class="label"><span class="dot">5</span>Edit · send</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting → product jump in 2021. I'm weighing
+                the same call right now and would love 15 min on how you knew. Totally
+                understand if not.
+              </div>
+              <div class="btn-row"><span class="btn">Send</span></div>
+            </div>
+            <p class="narration">Asker's voice preserved; sent.</p>
+          </div>
+        </div>
+
+        <h3 id="skip" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 24px 0 8px;">
+          Path B · Return / confident user (skip)
+        </h3>
+        <div class="flow three">
+          <div class="step">
+            <div class="label"><span class="dot">1</span>Skip · plain textarea + inline coach</div>
+            <div class="screen">
+              <div class="title">Reach out to Sarah</div>
+              <div class="chips">
+                <span class="chip">Career path</span>
+                <span class="chip on">Decision review</span>
+                <span class="chip">Intro</span>
+                <span class="chip">School</span>
+                <span class="chip">Skill</span>
+              </div>
+              <div class="field placeholder">Type your note…</div>
+              <div class="ai-note" style="font-size: 11px;">
+                💡 Try mentioning what specifically you'd like Sarah's read on.
+              </div>
+              <div class="btn-row">
+                <span class="btn">Send</span>
+                <span class="btn ghost">Help me start</span>
+              </div>
+            </div>
+            <p class="narration">Lavender-style: light real-time coaching as you type. Genre chip kept (single click); no wizard steps.</p>
+          </div>
+
+          <div class="step">
+            <div class="label"><span class="dot">2</span>Optional: Help me start</div>
+            <div class="screen">
+              <div class="ai-note">
+                Drafting using Sarah's career arc + your draft so far…
+              </div>
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting → product jump in 2021. I'm weighing
+                the same and would love 15 min on how you knew. No rush.
+              </div>
+              <div class="btn-row">
+                <span class="btn ghost">Shorter</span>
+                <span class="btn ghost">Warmer</span>
+              </div>
+            </div>
+            <p class="narration">Same prompt + signals plumbing as Path A — just no wizard scaffolding around it.</p>
+          </div>
+
+          <div class="step">
+            <div class="label"><span class="dot">3</span>Send</div>
+            <div class="screen">
+              <div class="field" style="white-space: normal;">
+                Hi Sarah — saw you made the consulting → product jump in 2021. I'm weighing
+                the same call now and would love 15 min on how you knew. Totally understand if not.
+              </div>
+              <div class="btn-row"><span class="btn">Send</span></div>
+            </div>
+            <p class="narration">Two clicks total for a confident user. The escape exists for the user who'd resent the wizard.</p>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="col">
+            <h4>Why this shape</h4>
+            <p>• Lavender (sales) precedent: 20.5% reply, ~4× industry — coaching beat one-click</p>
+            <p>• Hinge / Bumble warning: AI homogenization corrodes warm-network trust</p>
+            <p>• Gmail precedent: two surfaces (Smart Compose + Help Me Write) for two intents</p>
+            <p>• Apple Writing Tools precedent: variants beat chat for known-text editing</p>
+          </div>
+          <div class="col">
+            <h4>Trade-offs accepted</h4>
+            <p class="pro">First-time askers get coached; return askers get speed.</p>
+            <p class="pro">Signals panel = brand-side defense against "obvious AI" recipient impression.</p>
+            <p class="con">More surface area than Option 1 — worth it given the rare/social/unclear-intent shape.</p>
+            <p class="con">Skip path adds a second flow to maintain — keep prompt + draft service shared.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- COMPARE                                                         -->
+      <!-- ============================================================== -->
+      <section class="compare">
+        <h2>Side-by-side</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>&nbsp;</th>
+              <th>Option 1 — Patch</th>
+              <th>Option 2 — Coaching</th>
+              <th>Option 3 — Conversational</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Build cost</td>
+              <td>1–2 days</td>
+              <td>~1 week</td>
+              <td>1.5–2 weeks</td>
+            </tr>
+            <tr>
+              <td>User screens</td>
+              <td>1 (same as today)</td>
+              <td>3 → 1 draft → send</td>
+              <td>1 chat surface</td>
+            </tr>
+            <tr>
+              <td>Intent capture</td>
+              <td>Single chip row</td>
+              <td>Free text + chip + commitment level</td>
+              <td>Open prompt → AI clarifies</td>
+            </tr>
+            <tr>
+              <td>Helper context used</td>
+              <td>Career history + bio (added)</td>
+              <td>Career history + bio + shown to user</td>
+              <td>Full profile, AI selects per turn</td>
+            </tr>
+            <tr>
+              <td>User control over draft</td>
+              <td>Regenerate, edit</td>
+              <td>Variant lenses, edit</td>
+              <td>Drop signals, variants, edit</td>
+            </tr>
+            <tr>
+              <td>Model</td>
+              <td>Haiku</td>
+              <td>Haiku</td>
+              <td>Sonnet (clarify) + Haiku (variants)</td>
+            </tr>
+            <tr>
+              <td>Cost per ask sent</td>
+              <td>~1 call</td>
+              <td>1–2 calls</td>
+              <td>3–5 calls</td>
+            </tr>
+            <tr>
+              <td>Defensibility</td>
+              <td>Low — easy to copy</td>
+              <td>Medium — workflow IP</td>
+              <td>High — prompt + UX bet</td>
+            </tr>
+            <tr>
+              <td>Failure mode</td>
+              <td>Generic draft (better than today)</td>
+              <td>Friction on quick asks</td>
+              <td>Bad clarifying question is loud</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer>
+      Mockups are illustrative — actual styling will follow the BridgeCircle design system
+      (sapphire / Manrope). Drafts shown are example outputs the prompt should produce given
+      the contextual inputs called out in each flow.
+    </footer>
+  </body>
+</html>
