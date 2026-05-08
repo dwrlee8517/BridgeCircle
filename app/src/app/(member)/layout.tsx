@@ -10,12 +10,12 @@ import { MemberHeader } from './member-header'
  *   1. session must exist (defense in depth on top of proxy.ts)
  *   2. user must have an active org_membership (otherwise sign them out —
  *      they signed in but were never invited)
- *   3. profile must be onboarded (otherwise redirect to /onboarding)
+ *   3. user must have completed onboarding (otherwise route to /onboarding)
  *
- * "Onboarded" = current_employer is set. The invite-accept flow only sets
- * `name` (from the optional CSV column), so name IS NOT NULL would let users
- * skip onboarding when the admin pre-filled their name. current_employer is
- * only ever set during the onboarding form submission.
+ * "Onboarded" = users.onboarding_completed_at is non-null. Set by step 5
+ * of the staged onboarding flow (Finish or Skip). Replaces the old
+ * `current_employer IS NOT NULL` proxy, which broke after the rebuild
+ * made employment fields skippable.
  */
 export default async function MemberLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession()
@@ -62,15 +62,24 @@ export default async function MemberLayout({ children }: { children: React.React
     )
   }
 
-  const { data: profile } = await supabase
-    .from('base_profiles')
-    .select('name, current_employer, avatar_url')
-    .eq('user_id', session.userId)
+  // Onboarding gate. Read users.onboarding_completed_at — null means the
+  // staged onboarding flow hasn't been finished (or skipped through to
+  // step 5). Sent through to /onboarding which routes to the right step.
+  const { data: onboardingRow } = await supabase
+    .from('users')
+    .select('onboarding_completed_at')
+    .eq('id', session.userId)
     .maybeSingle()
 
-  if (!profile?.current_employer) {
+  if (!onboardingRow?.onboarding_completed_at) {
     redirect('/onboarding')
   }
+
+  const { data: profile } = await supabase
+    .from('base_profiles')
+    .select('name, avatar_url')
+    .eq('user_id', session.userId)
+    .maybeSingle()
 
   const { data: adminRoles } = await supabase
     .from('admin_role_assignments')

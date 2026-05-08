@@ -9,18 +9,37 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getFriendshipState } from '@/lib/friendship/friendshipState'
 import { getProfile } from '@/lib/profile/getProfile'
+import { displayName } from '@/lib/utils'
 import { startThreadAction } from '../../messages/[id]/actions'
 import { FriendshipAction } from './friendship-action'
 
 type Params = { id: string }
+type SearchParams = { saved?: string; error?: string }
 
-export default async function ProfileDetailPage({ params }: { params: Promise<Params> }) {
+export default async function ProfileDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>
+  searchParams: Promise<SearchParams>
+}) {
   const session = await requireSession()
   const { id } = await params
+  const sp = await searchParams
   const supabase = await createClient()
   const profile = await getProfile(supabase, id, session.userId)
 
   if (!profile) notFound()
+
+  // Flash banners — driven by query params from sibling actions:
+  //   ?saved=1               → editProfileAction's success path
+  //   ?error=not_friends     → startThreadAction when DMs are gated by
+  //                            mutual friendship and the gate isn't met
+  // Banners are server-rendered (no client toast), which means they
+  // persist on hard refresh; that's acceptable since they're informational
+  // and clearing the URL is a one-click navigation.
+  const flashSaved = profile.isSelf && sp.saved === '1'
+  const flashNotFriends = sp.error === 'not_friends'
 
   const isSelf = profile.isSelf
   const isFriend = profile.isFriend
@@ -83,6 +102,19 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
         ← Back to discover
       </Link>
 
+      {flashSaved ? (
+        <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          Profile saved.
+        </div>
+      ) : null}
+      {flashNotFriends ? (
+        <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Direct messages are open to friends only. Add{' '}
+          <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first
+          to start a conversation.
+        </div>
+      ) : null}
+
       <Card className="mt-6 overflow-hidden p-0">
         <CardHeader className="relative flex-row items-start gap-5 overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#131b2e_55%,#1e293b_100%)] p-7 text-white sm:p-8">
           <div
@@ -105,10 +137,13 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
           </svg>
           <Avatar className="relative size-20 after:border-white/20">
             {profile.avatarUrl ? (
-              <AvatarImage src={profile.avatarUrl} alt={profile.name ?? ''} />
+              <AvatarImage
+                src={profile.avatarUrl}
+                alt={displayName(profile.name, profile.preferredName, '')}
+              />
             ) : null}
             <AvatarFallback className="bg-[#316bf3] text-2xl font-bold text-white">
-              {(profile.name ?? '?').slice(0, 1).toUpperCase()}
+              {displayName(profile.name, profile.preferredName, '?').slice(0, 1).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="relative flex-1 space-y-2">
@@ -117,16 +152,20 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
                 className="bc-fraunces text-3xl font-bold tracking-[-0.02em] text-white sm:text-4xl"
                 style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
               >
-                {profile.name}
+                {displayName(profile.name, profile.preferredName)}
               </CardTitle>
               {profile.graduationYear ? (
                 <span className="inline-flex h-6 items-center rounded-full bg-white/15 px-2.5 text-xs font-semibold text-white">
                   Class of &apos;{`${profile.graduationYear}`.slice(-2)}
                 </span>
               ) : null}
-              {profile.isOpenAsMentor ? (
+              {profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
                 <StatusBadge tone="open" dot>
                   Open to mentor
+                </StatusBadge>
+              ) : profile.isOpenAsMentor && profile.mentorshipAtCapacity ? (
+                <StatusBadge tone="warn" dot>
+                  Mentorship full right now
                 </StatusBadge>
               ) : profile.mentorPaused ? (
                 <StatusBadge tone="warn" dot>
@@ -134,6 +173,11 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
                 </StatusBadge>
               ) : null}
             </div>
+            {profile.nameOther ? (
+              <p className="text-xs text-slate-300/80">
+                Also known as <span className="font-medium text-slate-200">{profile.nameOther}</span>
+              </p>
+            ) : null}
             {profile.headline ? (
               <p className="max-w-2xl text-base leading-relaxed text-slate-300">
                 {profile.headline}
@@ -258,6 +302,7 @@ export default async function ProfileDetailPage({ params }: { params: Promise<Pa
                   profileUserId={profile.userId}
                   isOpenAsMentor={profile.isOpenAsMentor}
                   isOpenAsAdviceHelper={profile.isOpenAsAdviceHelper}
+                  mentorshipAtCapacity={profile.mentorshipAtCapacity}
                   mentorshipState={mentorshipState}
                   relatedRequestId={relatedRequestId}
                   relatedThreadId={relatedThreadId}
@@ -319,6 +364,7 @@ function HelperAsks({
   profileUserId,
   isOpenAsMentor,
   isOpenAsAdviceHelper,
+  mentorshipAtCapacity,
   mentorshipState,
   relatedRequestId,
   relatedThreadId,
@@ -326,6 +372,7 @@ function HelperAsks({
   profileUserId: string
   isOpenAsMentor: boolean
   isOpenAsAdviceHelper: boolean
+  mentorshipAtCapacity: boolean
   mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active'
   relatedRequestId: string | null
   relatedThreadId: string | null
@@ -360,16 +407,28 @@ function HelperAsks({
     )
   }
 
+  // Mentorship-at-capacity is a per-helper soft state. Disable the button
+  // pre-emptively rather than letting the user write a request that
+  // createAsk will just bounce with `helper_full` / `helper_at_capacity`.
+  // Advice has no caps, so it stays clickable.
+  const showMentorshipButton = isOpenAsMentor && !mentorshipAtCapacity
+  const showCapacityNotice = isOpenAsMentor && mentorshipAtCapacity
+
   return (
     <>
       {isOpenAsAdviceHelper ? (
-        <Button asChild variant={isOpenAsMentor ? 'outline' : 'default'}>
+        <Button asChild variant={showMentorshipButton ? 'outline' : 'default'}>
           <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for advice</Link>
         </Button>
       ) : null}
-      {isOpenAsMentor ? (
+      {showMentorshipButton ? (
         <Button asChild>
           <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Request mentorship</Link>
+        </Button>
+      ) : null}
+      {showCapacityNotice ? (
+        <Button variant="outline" disabled>
+          Mentorship full right now
         </Button>
       ) : null}
     </>

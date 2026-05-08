@@ -30,7 +30,13 @@ export type ProfileView = {
   organizationId: string
   organizationName: string
   // Directory fields — always visible to org-mates regardless of privacy.
+  // `name` is the canonical/legal name (verification anchor).
+  // `preferredName` overrides `name` for display when set; UI should
+  // prefer it. `nameOther` is a free-form also-known-as string for
+  // multilingual / nickname use, surfaced on the profile detail page.
   name: string | null
+  preferredName: string | null
+  nameOther: string | null
   headline: string | null
   currentEmployer: string | null
   currentTitle: string | null
@@ -54,6 +60,11 @@ export type ProfileView = {
   openToMentor: boolean
   isOpenAsMentor: boolean
   mentorPaused: boolean
+  // True when the helper's current pending or active mentee counts have hit
+  // their self-set caps. Used by the profile CTA to pre-empt a "Request
+  // mentorship" click that would just bounce off `helper_full` /
+  // `helper_at_capacity` from createAsk. Only meaningful when isOpenAsMentor.
+  mentorshipAtCapacity: boolean
   // Viewer-relative metadata. Lets the UI render a "Some sections are
   // hidden by this member's privacy settings" hint without re-deriving.
   isSelf: boolean
@@ -82,7 +93,7 @@ export async function getProfile(
   const { data: base } = await supabase
     .from('base_profiles')
     .select(
-      'user_id, name, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url, career_history, education_history, skills, privacy_settings',
+      'user_id, name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url, career_history, education_history, skills, privacy_settings',
     )
     .eq('user_id', userId)
     .maybeSingle()
@@ -105,9 +116,37 @@ export async function getProfile(
 
   const { data: pref } = await supabase
     .from('helper_preferences')
-    .select('open_to_advice, open_to_mentorship, paused_at')
+    .select(
+      'open_to_advice, open_to_mentorship, paused_at, max_pending_requests, max_active_mentees',
+    )
     .eq('organization_membership_id', membership.id)
     .maybeSingle()
+
+  // Mirror createAsk's mentorship capacity check at render time so the CTA
+  // can disable instead of letting the user write a request that will just
+  // bounce. We only run these queries when the helper is actually open as a
+  // mentor and not paused — otherwise the buttons render disabled for a
+  // different reason and the counts don't matter.
+  let mentorshipAtCapacity = false
+  if (pref?.open_to_mentorship && !pref.paused_at) {
+    const [{ count: pendingCount }, { count: activeCount }] = await Promise.all([
+      supabase
+        .from('asks')
+        .select('id', { count: 'exact', head: true })
+        .eq('helper_id', userId)
+        .eq('ask_type', 'mentorship')
+        .eq('status', 'pending'),
+      supabase
+        .from('ask_threads')
+        .select('id, asks!inner(ask_type)', { count: 'exact', head: true })
+        .eq('helper_id', userId)
+        .eq('status', 'active')
+        .eq('asks.ask_type', 'mentorship'),
+    ])
+    const pendingFull = (pendingCount ?? 0) >= pref.max_pending_requests
+    const activeFull = (activeCount ?? 0) >= pref.max_active_mentees
+    mentorshipAtCapacity = pendingFull || activeFull
+  }
 
   const orgName = (membership.organizations as { name: string } | null)?.name ?? ''
 
@@ -143,6 +182,8 @@ export async function getProfile(
     organizationId: membership.organization_id,
     organizationName: orgName,
     name: base.name,
+    preferredName: base.preferred_name,
+    nameOther: base.name_other,
     headline: base.headline,
     currentEmployer: base.current_employer,
     currentTitle: base.current_title,
@@ -166,6 +207,7 @@ export async function getProfile(
     openToMentor: pref?.open_to_mentorship ?? false,
     isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
     mentorPaused: !!pref?.paused_at,
+    mentorshipAtCapacity,
     isSelf,
     isFriend,
     privacySettings: privacy,

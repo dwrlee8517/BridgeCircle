@@ -82,7 +82,12 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
           <div className="flex flex-wrap items-center gap-2">
             {!event.isPast ? (
-              <RsvpButtons eventId={event.id} current={event.viewerRsvp} isFull={isFull} />
+              <RsvpButtons
+                eventId={event.id}
+                current={event.viewerRsvp}
+                isFull={isFull}
+                size="sm"
+              />
             ) : null}
             <Button variant="outline" size="sm" asChild>
               <a href={`/events/${event.id}/ical`} download>

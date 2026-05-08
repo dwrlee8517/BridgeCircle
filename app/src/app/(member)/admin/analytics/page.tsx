@@ -4,6 +4,7 @@ import { createClient } from '@/db/server'
 import { getDashboardMetrics } from '@/lib/analytics/getDashboardMetrics'
 import type { MetricCard } from '@/lib/analytics/types'
 import { requireAdmin } from '@/lib/auth/session'
+import { displayOrgName } from '@/lib/utils'
 
 /**
  * Admin analytics dashboard. Six aggregate cards covering signup conversion,
@@ -33,7 +34,9 @@ export default async function AdminAnalyticsPage() {
     )
   }
 
-  const orgName = (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization'
+  const orgName = displayOrgName(
+    (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization',
+  )
 
   let metrics: Awaited<ReturnType<typeof getDashboardMetrics>> | null = null
   let loadError: string | null = null
@@ -48,7 +51,7 @@ export default async function AdminAnalyticsPage() {
       <div>
         <h1 className="text-2xl font-semibold">Analytics</h1>
         <p className="text-sm text-muted-foreground">
-          A snapshot of engagement for {orgName}. Most metrics cover the last 30 days.
+          A snapshot of community health for {orgName}. Most metrics cover the last 30 days.
         </p>
       </div>
 

@@ -6,9 +6,11 @@ For Claude Code specifically, see [`CLAUDE.md`](CLAUDE.md) (behavioral guardrail
 
 ## What BridgeCircle is
 
-A verified alumni and community network focused on referrals, mentorship, recruiting, events, and local connection. First pilot: Chadwick School (Palos Verdes) and Chadwick International (Songdo). The launch demo target is the alumni board meeting.
+A verified alumni and community network focused on referrals, mentorship, recruiting, events, and local connection. First pilot: Chadwick School (Palos Verdes) and Chadwick International (Songdo).
 
 The thesis is a **member-first warm-network platform**. Do not reframe as generic "alumni management software."
+
+There is no fixed launch deadline. Optimize for product quality and competitive standing, not for hitting a calendar.
 
 ## Where things live
 
@@ -34,7 +36,7 @@ The thesis is a **member-first warm-network platform**. Do not reframe as generi
 ## Working conventions
 
 - Use `BridgeCircle` as the project name unless the user explicitly renames it.
-- Single-engineer build. Prefer the smallest credible thing that ships.
+- Single-engineer build, but no calendar deadline. Cut speculative scope and premature abstractions; do not cut polish or correctness.
 - Surface assumptions before implementing. If unclear, ask. (See [`CLAUDE.md`](CLAUDE.md).)
 - Do not introduce alternative providers, frameworks, or auth libraries without checking with the user. The Phase 1 stack is locked in [`app/CLAUDE.md`](app/CLAUDE.md).
 - Do not commit secrets. `SUPABASE_SECRET_KEY` and similar belong only in `.env`.

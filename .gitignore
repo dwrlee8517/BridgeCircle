@@ -3,3 +3,6 @@ docs/screenshots/
 
 # Personal Obsidian vault — note-taking workspace, not project state.
 .obsidian/
+
+# Local design context scratch space, not project state.
+claude-design-context/

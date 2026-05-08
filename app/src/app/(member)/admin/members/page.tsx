@@ -11,9 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Users } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { listMembers, type MembershipStatus } from '@/lib/admin/listMembers'
 import { requireAdmin } from '@/lib/auth/session'
+import { displayOrgName } from '@/lib/utils'
 import { ApprovalModeToggle } from './approval-mode-toggle'
 import { MemberRowActions } from './member-row-actions'
 
@@ -38,7 +41,7 @@ export default async function AdminMembersPage() {
   }
 
   const org = adminOrg.organizations as { name: string; requires_admin_approval: boolean } | null
-  const orgName = org?.name ?? 'your organization'
+  const orgName = displayOrgName(org?.name ?? 'your organization')
   const requiresApproval = org?.requires_admin_approval ?? false
   const members = await listMembers(supabase, adminOrg.organization_id)
 
@@ -94,9 +97,14 @@ export default async function AdminMembersPage() {
         </CardHeader>
         <CardContent>
           {members.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No members yet. Send some invites to get started.
-            </p>
+            <EmptyState
+              icon={Users}
+              title="No one's joined yet"
+              description={`${orgName} doesn't have any members yet — send your first invites.`}
+              action={{ label: 'Send invites', href: '/admin/invite' }}
+              size="inline"
+              className="border-none bg-transparent shadow-none"
+            />
           ) : (
             <div className="-mx-6 overflow-x-auto px-6">
               <Table>

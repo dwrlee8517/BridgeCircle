@@ -23,6 +23,8 @@ export type EducationEntry = {
 export type SearchHit = {
   userId: string
   name: string | null
+  preferredName: string | null
+  nameOther: string | null
   headline: string | null
   currentEmployer: string | null
   currentTitle: string | null
@@ -32,6 +34,7 @@ export type SearchHit = {
   graduationYear: number | null
   avatarUrl: string | null
   isOpenAsMentor: boolean
+  isOpenAsAdviceHelper: boolean
   mentorPaused: boolean
   mentoringTopics: string[] | null
   // Rich fields populated for the NL rerank step. The structured-search UI
@@ -100,7 +103,7 @@ export async function searchAlumni(
     supabase
       .from('base_profiles')
       .select(
-        'user_id, name, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
+        'user_id, name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
       )
       .in('user_id', userIds),
     supabase
@@ -109,7 +112,7 @@ export async function searchAlumni(
       .in('organization_membership_id', membershipIds),
     supabase
       .from('helper_preferences')
-      .select('organization_membership_id, open_to_mentorship, paused_at')
+      .select('organization_membership_id, open_to_mentorship, open_to_advice, paused_at')
       .in('organization_membership_id', membershipIds),
     // Pull viewer's friend list once so we can compute the per-candidate
     // visibility tier in JS without N extra queries.
@@ -147,6 +150,7 @@ export async function searchAlumni(
     const op = orgProfileByMembership.get(membershipId)
     const pref = prefByMembership.get(membershipId)
     const isOpenAsMentor = !!pref?.open_to_mentorship && !pref.paused_at
+    const isOpenAsAdviceHelper = !!pref?.open_to_advice && !pref.paused_at
 
     // Career and education history may match the filter via past entries
     // even when the directory field doesn't. We use the *raw* JSONB here
@@ -189,8 +193,14 @@ export async function searchAlumni(
       if (!topics.some((t) => t.includes(ci(f.topic ?? '')))) continue
     }
     if (f.q) {
+      // Name search needs to find members under any name they go by:
+      // canonical (legal) name, preferred display name, and any
+      // also-known-as / multi-language name. Important for the Chadwick
+      // US ↔ Chadwick International overlap.
       const haystack = [
         base.name,
+        base.preferred_name,
+        base.name_other,
         base.headline,
         base.current_employer,
         base.current_title,
@@ -244,6 +254,8 @@ export async function searchAlumni(
     hits.push({
       userId: base.user_id,
       name: base.name,
+      preferredName: base.preferred_name,
+      nameOther: base.name_other,
       headline: base.headline,
       currentEmployer: base.current_employer,
       currentTitle: base.current_title,
@@ -253,6 +265,7 @@ export async function searchAlumni(
       graduationYear: op?.graduation_year ?? null,
       avatarUrl: base.avatar_url,
       isOpenAsMentor,
+      isOpenAsAdviceHelper,
       mentorPaused: !!pref?.paused_at,
       mentoringTopics: showBio ? (op?.mentoring_topics ?? null) : null,
       bio: showBio ? (op?.bio ?? null) : null,

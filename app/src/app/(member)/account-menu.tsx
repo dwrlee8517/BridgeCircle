@@ -77,7 +77,7 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
         >
           <Link href="/mentorship/settings">
             <Settings className="size-4 text-[#94a3b8]" />
-            Mentor settings
+            Helper preferences
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-white/10" />

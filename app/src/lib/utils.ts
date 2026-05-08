@@ -17,3 +17,24 @@ export function displayOrgName(name: string | null | undefined): string {
   }
   return v
 }
+
+/**
+ * The name the directory should show for a member. Prefers `preferred_name`
+ * (the day-to-day name) over `name` (the canonical / legal verification
+ * anchor). Falls back to a sane default if both are missing.
+ *
+ * Pass null/undefined for either field — the function handles all
+ * combinations. Use this anywhere we'd otherwise read `base_profiles.name`
+ * directly for display.
+ */
+export function displayName(
+  name: string | null | undefined,
+  preferredName: string | null | undefined,
+  fallback: string = 'Member',
+): string {
+  const trimmedPreferred = preferredName?.trim()
+  if (trimmedPreferred && trimmedPreferred.length > 0) return trimmedPreferred
+  const trimmedName = name?.trim()
+  if (trimmedName && trimmedName.length > 0) return trimmedName
+  return fallback
+}

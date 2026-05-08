@@ -1,6 +1,6 @@
 # Phase 1 Post-Launch Backlog
 
-Not blockers for the launch demo. Revisit after launch.
+Not blockers for launch. Revisit after the product is opened to real members.
 
 ## Cost monitoring on Anthropic API
 

@@ -1,6 +1,6 @@
 # BridgeCircle
 
-A verified alumni and community network focused on referrals, mentorship, recruiting, and local connection. First pilot: Chadwick School (Palos Verdes) and Chadwick International (Songdo). The launch demo target is the alumni board meeting.
+A verified alumni and community network focused on referrals, mentorship, recruiting, and local connection. First pilot: Chadwick School (Palos Verdes) and Chadwick International (Songdo).
 
 ## Repository Layout
 

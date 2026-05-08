@@ -21,6 +21,8 @@ export type ProfileFormState = {
 
 export type ProfileFormDefaults = {
   name: string
+  preferredName: string
+  nameOther: string
   city: string
   currentEmployer: string
   currentTitle: string
@@ -62,6 +64,22 @@ export function ProfileForm({
       <Section title="Basics">
         <Field id="name" label="Full name" error={fe.name} required>
           <Input id="name" name="name" defaultValue={defaults.name} required />
+        </Field>
+        <Field id="preferredName" label="Preferred name (optional)" error={fe.preferredName}>
+          <Input
+            id="preferredName"
+            name="preferredName"
+            defaultValue={defaults.preferredName}
+            placeholder="What other alumni should call you"
+          />
+        </Field>
+        <Field id="nameOther" label="Also known as (optional)" error={fe.nameOther}>
+          <Input
+            id="nameOther"
+            name="nameOther"
+            defaultValue={defaults.nameOther}
+            placeholder="e.g. 이수민, or a nickname"
+          />
         </Field>
         <Field id="graduationYear" label="Graduation year" error={fe.graduationYear} required>
           <Input

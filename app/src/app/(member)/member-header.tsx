@@ -1,4 +1,4 @@
-import { Menu, Search, Settings } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -91,11 +91,19 @@ export function MemberHeader({
             className="hidden h-9 items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3 text-slate-300 @[1080px]:flex"
           >
             <Search className="size-4 text-slate-500" />
+            {/* suppressHydrationWarning matches the same pattern used on
+                <html>/<body> in the root layout. Form-fill / shopping-assistant
+                browser extensions (e.g. Honey, Sharkey, Grammarly) inject
+                data-* attributes onto inputs *before* React hydrates, which
+                causes a benign attribute mismatch warning on every page load.
+                The warning is suppressed at the element level — real
+                hydration bugs in surrounding code still surface. */}
             <input
               name="q"
               type="search"
-              placeholder="Search the circle..."
+              placeholder="Search the circle…"
               className="w-44 bg-transparent text-sm outline-none placeholder:text-slate-500"
+              suppressHydrationWarning
             />
           </form>
           <NotificationsBell
@@ -103,13 +111,10 @@ export function MemberHeader({
             initialUnread={unreadCount}
             viewerId={userId}
           />
-          <Link
-            href="/mentorship/settings"
-            aria-label="Mentor settings"
-            className="hidden size-9 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 sm:inline-flex"
-          >
-            <Settings className="size-4" />
-          </Link>
+          {/* Helper preferences moved into the avatar menu — having both a
+              cog icon here and the same destination in the dropdown was a
+              dual entry point, and the cog showed unconditionally even to
+              members who aren't open to helping. */}
           <AccountMenu userId={userId} name={name} avatarUrl={avatarUrl} />
         </div>
       </div>

@@ -2,9 +2,9 @@
 
 import { Camera, Loader2 } from 'lucide-react'
 import { useRef, useState, useTransition } from 'react'
+import { uploadAvatarAction } from '@/app/(member)/profile/edit/actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { uploadAvatarAction } from './actions'
 
 type Props = {
   initialAvatarUrl: string | null
@@ -12,12 +12,16 @@ type Props = {
 }
 
 /**
- * Avatar uploader for /profile/edit. Click → file picker → optimistic preview
- * (object URL) → server action does the actual upload + base_profile update.
+ * Avatar uploader. Click → file picker → optimistic preview (object URL) →
+ * server action does the actual upload + base_profile update.
  *
  * Errors come back from the server action and render as a small red note
  * below. We don't roll back the preview on failure — leaving the new image
  * visible while the user re-tries is friendlier than snapping back.
+ *
+ * Used by /profile/edit and the onboarding step-5 surface. The server
+ * action targets the signed-in user's own row, so the same action is
+ * correct in both contexts.
  */
 export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialAvatarUrl)

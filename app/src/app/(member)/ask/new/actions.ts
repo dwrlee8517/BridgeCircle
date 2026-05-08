@@ -36,7 +36,10 @@ export async function submitRequest(
     return { error: errorMessage(result.error) }
   }
 
-  redirect('/inbox')
+  // Land the asker on the just-sent ask's detail view, not the receiver's
+  // inbox. Sending an ask is a sender-side action; /inbox is a receiver
+  // surface and made the asker lose track of what they just did.
+  redirect(`/ask/${result.askId}`)
 }
 
 function errorMessage(err: string): string {

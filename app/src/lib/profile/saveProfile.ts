@@ -50,6 +50,8 @@ export async function saveProfile(
     .from('base_profiles')
     .update({
       name: input.name,
+      preferred_name: input.preferredName || null,
+      name_other: input.nameOther || null,
       headline: input.headline || null,
       current_employer: input.currentEmployer,
       current_title: input.currentTitle,

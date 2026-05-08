@@ -398,7 +398,7 @@ If the deploy succeeds but a bug shows up:
 
 These exist as concepts in the broader docs but are **not** in the current setup:
 
-- **No staging environment.** Just dev (laptop) and prod (Railway). Add a third tier only when production has real users and a regression has real cost — likely after the alumni board meeting.
+- **No staging environment.** Just dev (laptop) and prod (Railway). Add a third tier only when production has real users and a regression has real cost.
 - **CI checks on PRs are now wired** (was previously listed as out-of-scope). `.github/workflows/ci.yml` runs biome, vitest, and `next build` on every PR. `.github/workflows/e2e.yml` runs Playwright. The Supabase Preview check still validates the migration itself on a real preview branch — together this gives three layers of migration safety: schema replay (Supabase), type compatibility (build), runtime behavior (E2E).
 - **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
 - **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
@@ -406,7 +406,7 @@ These exist as concepts in the broader docs but are **not** in the current setup
 - **DMARC reporting not configured.** A `_dmarc` record exists in monitor-only mode (`p=none`) but has no `rua=` reporting address, so no daily auth reports are collected. Add a reporting mailbox + tighten the policy post-launch.
 - **No cost monitoring on Anthropic API.** Resume extraction + NL search both call Claude Haiku. Low volume during pilot but no observability today. Sentry breadcrumbs or a counter row would suffice; see `app/CLAUDE.md` post-launch backlog.
 
-These are all good upgrades to make incrementally. None are urgent for the launch demo.
+These are all good upgrades to make incrementally. None are urgent for launch.
 
 ## Quick Reference
 

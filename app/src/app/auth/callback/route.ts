@@ -72,7 +72,7 @@ export async function GET(request: Request) {
     supabase.from('organization_memberships').select('status').eq('user_id', data.user.id),
     supabase
       .from('users')
-      .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at')
+      .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at, onboarding_completed_at')
       .eq('id', data.user.id)
       .maybeSingle(),
   ])
@@ -81,6 +81,12 @@ export async function GET(request: Request) {
   const hasSelfDeactivated = memberships?.some((m) => m.status === 'self_deactivated') ?? false
 
   if (hasActive) {
+    // Onboarding gate for returning users: if their onboarding wasn't
+    // finished (e.g. they signed up via password, bailed mid-flow, then
+    // signed back in via Google later), route them to the staged flow.
+    if (!userRow?.onboarding_completed_at) {
+      return NextResponse.redirect(`${origin}/onboarding`)
+    }
     const safeNext = nextParam?.startsWith('/') ? nextParam : '/'
     return NextResponse.redirect(`${origin}${safeNext}`)
   }

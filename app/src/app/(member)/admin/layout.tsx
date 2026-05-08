@@ -53,7 +53,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Members
             </Link>
             <Link href="/admin/events" className="hover:underline">
-              Events
+              Org events
             </Link>
             <Link href="/admin/announcements" className="hover:underline">
               Announcements

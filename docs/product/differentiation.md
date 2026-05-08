@@ -131,7 +131,7 @@ Per-org pricing, not per-member. Multi-campus orgs (Chadwick + Chadwick Internat
 
 **Why public pricing is a moat:** It's a one-way door. Once we've published, we can't quietly raise without breaking the brand promise. That's a real strategic commitment, and incumbents can't follow without breaking their own margins. Graduway's enterprise sales team would have to explain why some customers pay $50K for fewer features than ours costing $12K. They won't follow.
 
-**Caveat:** For the pilot itself, don't publish pricing until the day after the alumni board demo. Keep it as a private commitment for now; publish on the marketing site once we've shipped one paid contract. This avoids signaling weakness during the first sale.
+**Caveat:** Don't publish pricing publicly until after the first paid pilot signs. Keep it as a private commitment for now; publish on the marketing site once we've shipped one paid contract. This avoids signaling weakness during the first sale.
 
 ## 5. Defensibility (Things That Compound Over Time)
 
@@ -165,7 +165,7 @@ Until December 2026, BridgeCircle has effectively one customer. Use it.
 
 - **Don't try to "scale" with cold outreach.** The unit economics of cold outreach to schools are bad even with a sales team. With a solo founder it's a waste of weeks.
 - **Do extract every possible referral from Chadwick.** Board members, parents who run other schools, alumni in K-12 admin roles, college counselors who know peer schools. One warm intro from the Chadwick development director to the next school's development director is worth a thousand cold emails.
-- **Concrete asks at the alumni board meeting:** "If this works for Chadwick, who are three other schools you'd want us to talk to?" Not later. At the meeting.
+- **Concrete asks in early stakeholder conversations:** "If this works for Chadwick, who are three other schools you'd want us to talk to?" Ask while attention is fresh, not later.
 
 ### 6.2 Content as evidence, not marketing
 
@@ -204,7 +204,7 @@ The 62% "no career value" stat applies to alumni networks broadly. We could ship
 
 **Mitigation:**
 - Pre-seed mentor supply. Personal outreach to recruit 20–30 mentors *before* launch day, so the product has answers when the first mentees ask. This is in `../specs/phase-1/launch-cut.md` already — treat it as the most important non-code work of the next 30 days.
-- Manage expectations with the alumni board. Sell "credible signal in 8 weeks" not "magic in 8 weeks." A week-2 metric of "27% of invited alumni completed a profile" is excellent for the category and won't be mistaken for failure if we frame it right.
+- Manage stakeholder expectations. Sell "credible signal in the first cohort" not "magic out of the gate." A "27% of invited alumni completed a profile" early metric is excellent for the category and won't be mistaken for failure if we frame it right.
 - Have a fallback narrative if engagement is low. "We learned that the activation cliff happens between profile completion and first request. Here's the specific UX change in the next sprint." Loss-of-momentum stories with a clear next step beat silent failure.
 
 ### Risk: Pricing transparency punishes us in deals
@@ -224,32 +224,32 @@ A school says "we'll buy you, but only if you build us a giving page." We're a s
 - The "what we don't build" list is the only check on this. Re-read it before answering any feature request from a paying customer. If the answer is yes, the doc gets updated and the rationale gets recorded. If the doc doesn't change, the answer is no.
 - A single paid customer demanding a thesis-breaking feature is worth losing. The 9 customers who would have come from the same word-of-mouth pool are worth keeping.
 
-## 8. The Alumni Board Demo As A Strategic Statement
+## 8. First Pitch As A Strategic Statement
 
-The Chadwick alumni board demo is not a feature showcase. It is the founding act of BridgeCircle's positioning.
+The first time BridgeCircle is shown to any prospective stakeholder — a school, a board, an advancement office — is not a feature showcase. It is the founding act of the product's positioning. The principles below apply to every early pitch, not a single keynote moment.
 
-### What the demo should show
+### What the pitch should show
 
-In 8 minutes:
+In ~8 minutes:
 
-1. **A real Chadwick parent or recent grad** signs up via invite, completes a 3-question profile, sends a mentorship request. Live, on stage, unscripted.
+1. **A real Chadwick parent or recent grad** signs up via invite, completes a 3-question profile, sends a mentorship request. Live, unscripted.
 2. **A real Chadwick alum mentor** receives the request, accepts, and the two start a conversation. Demonstrates the loop, not the screens.
-3. **The admin view** showing how many invites have been sent, how many activated, how many requests have been made — the kind of metric that lets the board chair know it's working without staring at a Salesforce dashboard.
+3. **The admin view** showing how many invites have been sent, how many activated, how many requests have been made — the kind of metric that lets a stakeholder know it's working without staring at a Salesforce dashboard.
 
-### What the demo should NOT show
+### What the pitch should NOT show
 
 - A feature tour. "And here's events. And here's profiles." Every minute spent on feature surface area is a minute the audience drifts.
-- A pricing slide. The board doesn't care about pricing yet.
+- A pricing slide. Stakeholders don't care about pricing yet.
 - Comparisons to Graduway by name. Punching up makes us look small. The product comparison is implicit in "this took 60 seconds; you've all used the alternatives."
-- A roadmap. The roadmap is whatever Chadwick alumni use most in the next 8 weeks. Promising features in advance creates expectations we'll regret.
+- A roadmap. The roadmap is whatever Chadwick alumni use most over the next two months. Promising features in advance creates expectations we'll regret.
 
 ### The closing line
 
 Not "any questions?" Not "what do you think?" Something like:
 
-> "Six weeks from today, the Chadwick alumni community will have had its first 100 mentorship conversations on this. We'll send the board a summary of what came of them — actual outcomes, not engagement metrics. If a single alumnus tells us this changed something for them, we'll know we built the right thing."
+> "In the first cohort, the Chadwick alumni community will have had its first 100 mentorship conversations on this. We'll share a summary of what came of them — actual outcomes, not engagement metrics. If a single alumnus tells us this changed something for them, we'll know we built the right thing."
 
-That sets the right expectation, makes the next 6 weeks measurable, and converts board members into stakeholders rather than spectators.
+That sets the right expectation, makes the early period measurable, and converts stakeholders into participants rather than spectators.
 
 ## 9. Decisions To Make In The Next 24 Hours
 

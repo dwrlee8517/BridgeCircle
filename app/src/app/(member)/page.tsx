@@ -47,16 +47,28 @@ export default async function HomePage() {
   const orgName = (membership.organizations as { name: string } | null)?.name ?? 'your network'
   const orgDisplayName = displayOrgName(orgName)
 
-  const [{ data: viewerBase }, { data: viewerOrgProfile }] = await Promise.all([
-    supabase.from('base_profiles').select('name').eq('user_id', session.userId).maybeSingle(),
-    supabase
-      .from('organization_profiles')
-      .select('graduation_year')
-      .eq('organization_membership_id', membership.id)
-      .maybeSingle(),
-  ])
+  const [{ data: viewerBase }, { data: viewerOrgProfile }, { data: viewerHelperPrefs }] =
+    await Promise.all([
+      supabase.from('base_profiles').select('name').eq('user_id', session.userId).maybeSingle(),
+      supabase
+        .from('organization_profiles')
+        .select('graduation_year')
+        .eq('organization_membership_id', membership.id)
+        .maybeSingle(),
+      // Helper preferences drive role-aware home content. A member who isn't
+      // open to advice or mentorship is in pure asker mode — they shouldn't
+      // see "Mentees waiting on you" or be invited to "Review mentor requests"
+      // because they will never have either. Paused helpers still count: their
+      // intent is to help, just not right now.
+      supabase
+        .from('helper_preferences')
+        .select('open_to_advice, open_to_mentorship')
+        .eq('organization_membership_id', membership.id)
+        .maybeSingle(),
+    ])
   const firstName = viewerBase?.name?.split(' ')[0] ?? 'there'
   const cohortYear = viewerOrgProfile?.graduation_year ?? null
+  const isHelper = !!(viewerHelperPrefs?.open_to_advice || viewerHelperPrefs?.open_to_mentorship)
 
   const feed = await getHomeFeed(supabase, membership.organization_id, session.userId)
   const featuredEvent = feed.upcomingEvents[0] ?? null
@@ -81,7 +93,9 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-12 lg:col-span-2">
-            <MenteesWaitingSection requests={feed.pendingMentorRequests} />
+            {isHelper ? (
+              <MenteesWaitingSection requests={feed.pendingMentorRequests} />
+            ) : null}
             <NewAlumniSection members={feed.recentJoiners} />
           </div>
 
@@ -120,8 +134,18 @@ function Hero({
 }) {
   const greeting = greetingForHour(new Date().getHours())
   const subline = heroSubline(pendingCount, nextEvent)
+  // Headline tracks the same activity signal as the subline so they don't
+  // contradict ("Your circle is active today" + "Quiet across the network
+  // today" was the old bug). "Active" = anything the viewer might want to
+  // act on right now: pending mentor requests, new joiners this week, or an
+  // upcoming event in the near term.
+  const isActive =
+    pendingCount > 0 || stats.newJoinersLast7d > 0 || stats.upcomingEventsTotal > 0
+  const headline = isActive
+    ? 'Your circle is active today.'
+    : 'A quiet day in the circle.'
   const statItems = [
-    { value: stats.newJoinersLast7d.toLocaleString(), label: 'Joined this week' },
+    { value: stats.newJoinersLast7d.toLocaleString(), label: 'New this week' },
     { value: stats.openMentorsTotal.toLocaleString(), label: 'Open mentors' },
     { value: stats.upcomingEventsTotal.toLocaleString(), label: 'Upcoming events' },
     {
@@ -160,18 +184,27 @@ function Hero({
         >
           {greeting}, {firstName}.
           <br />
-          <span className="text-[#b4c5ff]">Your circle is active today.</span>
+          <span className="text-[#b4c5ff]">{headline}</span>
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-[17px]">
           {subline}
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
-          <Button size="lg" asChild className="gap-2">
-            <Link href="/inbox">
-              <Handshake className="size-4" />
-              Review mentor requests
-            </Link>
-          </Button>
+          {pendingCount > 0 ? (
+            <Button size="lg" asChild className="gap-2">
+              <Link href="/inbox">
+                <Handshake className="size-4" />
+                Review mentor requests
+              </Link>
+            </Button>
+          ) : (
+            <Button size="lg" asChild className="gap-2">
+              <Link href="/ask">
+                <MessageSquare className="size-4" />
+                Find someone to ask
+              </Link>
+            </Button>
+          )}
           <Button
             size="lg"
             variant="outline"
@@ -185,23 +218,19 @@ function Hero({
           </Button>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-            marginTop: 56,
-            borderTop: '1px solid rgba(180,197,255,.18)',
-            paddingTop: 28,
-          }}
-        >
+        {/*
+          Stat tiles. Mobile (<640px): 2x2 so 85px-wide columns don't force
+          three-line label wraps. Desktop: 4-up with vertical dividers
+          between columns. Dividers are sm-only because on the 2x2 mobile
+          grid they would cut through the wrong rows.
+        */}
+        <div className="mt-14 grid grid-cols-2 gap-y-6 border-t border-[rgba(180,197,255,.18)] pt-7 sm:grid-cols-4 sm:gap-y-0">
           {statItems.map((item, index) => (
             <div
               key={item.label}
-              style={{
-                minWidth: 0,
-                borderLeft: index === 0 ? 'none' : '1px solid rgba(180,197,255,.18)',
-                padding: '0 24px',
-              }}
+              className={`min-w-0 px-4 sm:px-6 ${
+                index === 0 ? '' : 'sm:border-l sm:border-[rgba(180,197,255,.18)]'
+              }`}
             >
               <div
                 className="bc-fraunces"
@@ -319,7 +348,7 @@ function MenteesWaitingSection({ requests }: { requests: HomePendingMentorReques
               No pending mentor requests. When a mentee reaches out, they&apos;ll appear here.
             </p>
             <Button asChild size="sm" variant="outline">
-              <Link href="/mentorship/settings">Mentor settings</Link>
+              <Link href="/mentorship/settings">Update what you can help with</Link>
             </Button>
           </CardContent>
         </Card>
@@ -391,7 +420,9 @@ function NewAlumniSection({ members }: { members: HomeMember[] }) {
       {subset.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-            <p className="text-sm text-muted-foreground">No new joiners this week.</p>
+            <p className="text-sm text-muted-foreground">
+              No new alumni joined this week. The full circle is still there to explore.
+            </p>
             <Button asChild size="sm" variant="outline">
               <Link href="/discover">Browse the directory</Link>
             </Button>
@@ -438,9 +469,6 @@ function ProfileTile({ member }: { member: HomeMember }) {
         ) : null}
         {member.city ? <span className="text-xs text-muted-foreground">{member.city}</span> : null}
       </div>
-      <p className="bc-pull-quote mt-3 line-clamp-3 text-[13px] text-foreground">
-        &ldquo;Open to mentoring junior alumni in the network.&rdquo;
-      </p>
     </Link>
   )
 }
@@ -454,9 +482,11 @@ function FeaturedEventCard({ event }: { event: HomeEvent | null }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-          <p className="text-sm text-muted-foreground">No upcoming events.</p>
+          <p className="text-sm text-muted-foreground">
+            Nothing on the calendar right now.
+          </p>
           <Button asChild size="sm" variant="outline">
-            <Link href="/events">Browse all events</Link>
+            <Link href="/events">See past events</Link>
           </Button>
         </CardContent>
       </Card>
@@ -524,7 +554,9 @@ function NotificationFeed({ notifications }: { notifications: HomeNotification[]
       </div>
       {notifications.length === 0 ? (
         <div className="px-5 py-8 text-center">
-          <p className="text-sm text-muted-foreground">No activity yet.</p>
+          <p className="text-sm text-muted-foreground">
+            Nothing yet — your friend requests, asks, and messages will land here.
+          </p>
         </div>
       ) : (
         <ul>
