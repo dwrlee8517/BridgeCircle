@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/db/server'
@@ -119,6 +120,20 @@ export async function POST(req: Request) {
       hasGenre: !!parsed.data.genre,
       hasContext: !!parsed.data.context,
       signalCount: parsed.data.signals?.length ?? 0,
+    })
+    // Capture to Sentry too — these are infra failures (no API key, Anthropic
+    // down, model error). The global onRequestError handler doesn't fire here
+    // because we caught the failure and mapped it to a 503 ourselves.
+    Sentry.captureException(new Error(`draftAsk failed: ${result.error}`), {
+      extra: {
+        scope: 'asks-draft-route',
+        error: result.error,
+        detail: result.detail,
+        askType: parsed.data.askType,
+        hasGenre: !!parsed.data.genre,
+        hasContext: !!parsed.data.context,
+        signalCount: parsed.data.signals?.length ?? 0,
+      },
     })
     return NextResponse.json({ error: result.error, detail: result.detail }, { status: 503 })
   }
