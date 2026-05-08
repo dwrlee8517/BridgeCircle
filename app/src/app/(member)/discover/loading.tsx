@@ -31,6 +31,7 @@ export default function DiscoverLoading() {
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
             <Card key={i}>
               <CardContent className="space-y-3 py-5">
                 <div className="flex items-center gap-3">

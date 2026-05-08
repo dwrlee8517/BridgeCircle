@@ -214,7 +214,7 @@ export default async function DiscoverPage({
                     key={h.userId}
                     userId={h.userId}
                     name={h.name}
-                  preferredName={h.preferredName}
+                    preferredName={h.preferredName}
                     headline={h.headline}
                     currentEmployer={h.currentEmployer}
                     currentTitle={h.currentTitle}
@@ -282,13 +282,7 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
   )
 }
 
-function ResultsHeader({
-  resultCount,
-  hasFilter,
-}: {
-  resultCount: number
-  hasFilter: boolean
-}) {
+function ResultsHeader({ resultCount, hasFilter }: { resultCount: number; hasFilter: boolean }) {
   // Avoid claiming "match your filters" when no filter is set — at the
   // base state the count is just the org's directory.
   const suffix = hasFilter

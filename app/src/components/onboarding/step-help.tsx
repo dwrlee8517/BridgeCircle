@@ -99,17 +99,14 @@ export function StepHelp({ defaults, name, action }: Props) {
           <div className="space-y-1">
             <Label htmlFor="openToMentor">I&rsquo;m open to mentoring fellow alumni</Label>
             <p className="text-xs text-muted-foreground">
-              Members can ask you for advice or ongoing mentorship. You can pause or change this
-              any time from Helper preferences.
+              Members can ask you for advice or ongoing mentorship. You can pause or change this any
+              time from Helper preferences.
             </p>
           </div>
         </div>
 
         <div className={`space-y-1.5 ${openToMentor ? '' : 'opacity-50'}`}>
-          <Label
-            htmlFor="mentoringTopics"
-            className={openToMentor ? '' : 'pointer-events-none'}
-          >
+          <Label htmlFor="mentoringTopics" className={openToMentor ? '' : 'pointer-events-none'}>
             Topics you can help with
           </Label>
           <Input
@@ -136,7 +133,11 @@ export function StepHelp({ defaults, name, action }: Props) {
           onClick={onSaveClick}
           disabled={pending || !hasContent}
           className="sm:flex-1"
-          title={hasContent ? undefined : 'Add a photo, bio, or opt in to mentoring; or use Skip for now.'}
+          title={
+            hasContent
+              ? undefined
+              : 'Add a photo, bio, or opt in to mentoring; or use Skip for now.'
+          }
         >
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and finish'}
         </Button>

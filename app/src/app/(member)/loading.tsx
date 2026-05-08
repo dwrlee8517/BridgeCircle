@@ -19,6 +19,7 @@ export default function HomeLoading() {
           </div>
           <div className="mt-14 grid grid-cols-2 gap-6 border-t border-white/10 pt-7 sm:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
               <div key={i} className="space-y-2">
                 <Skeleton className="h-9 w-16 bg-white/10" />
                 <Skeleton className="h-3 w-24 bg-white/10" />
@@ -57,6 +58,7 @@ function SectionSkeleton({ rows, compact = false }: { rows: number; compact?: bo
       <Skeleton className="mt-2 h-7 w-56" />
       <div className={compact ? 'mt-4 space-y-2' : 'mt-5 space-y-4'}>
         {Array.from({ length: rows }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
           <Card key={i}>
             <CardContent className="flex items-center gap-3 py-4">
               <Skeleton className="size-10 shrink-0 rounded-full" />

@@ -93,9 +93,7 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-12 lg:col-span-2">
-            {isHelper ? (
-              <MenteesWaitingSection requests={feed.pendingMentorRequests} />
-            ) : null}
+            {isHelper ? <MenteesWaitingSection requests={feed.pendingMentorRequests} /> : null}
             <NewAlumniSection members={feed.recentJoiners} />
           </div>
 
@@ -139,11 +137,8 @@ function Hero({
   // today" was the old bug). "Active" = anything the viewer might want to
   // act on right now: pending mentor requests, new joiners this week, or an
   // upcoming event in the near term.
-  const isActive =
-    pendingCount > 0 || stats.newJoinersLast7d > 0 || stats.upcomingEventsTotal > 0
-  const headline = isActive
-    ? 'Your circle is active today.'
-    : 'A quiet day in the circle.'
+  const isActive = pendingCount > 0 || stats.newJoinersLast7d > 0 || stats.upcomingEventsTotal > 0
+  const headline = isActive ? 'Your circle is active today.' : 'A quiet day in the circle.'
   const statItems = [
     { value: stats.newJoinersLast7d.toLocaleString(), label: 'New this week' },
     { value: stats.openMentorsTotal.toLocaleString(), label: 'Open mentors' },
@@ -482,9 +477,7 @@ function FeaturedEventCard({ event }: { event: HomeEvent | null }) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-          <p className="text-sm text-muted-foreground">
-            Nothing on the calendar right now.
-          </p>
+          <p className="text-sm text-muted-foreground">Nothing on the calendar right now.</p>
           <Button asChild size="sm" variant="outline">
             <Link href="/events">See past events</Link>
           </Button>

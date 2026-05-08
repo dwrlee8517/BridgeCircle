@@ -101,8 +101,8 @@ export default async function MemberLayout({ children }: { children: React.React
     <div className="flex min-h-screen flex-col">
       <MemberHeader
         userId={session.userId}
-        name={profile.name}
-        avatarUrl={profile.avatar_url}
+        name={profile?.name ?? null}
+        avatarUrl={profile?.avatar_url ?? null}
         isAdmin={isAdmin}
         notifications={notifications}
         unreadCount={unreadResult}

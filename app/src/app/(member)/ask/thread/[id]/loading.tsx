@@ -17,10 +17,8 @@ export default function ThreadLoading() {
 
       <div className="mt-8 space-y-6">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div
-            key={i}
-            className={i % 2 === 0 ? 'flex justify-start' : 'flex justify-end'}
-          >
+          // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
+          <div key={i} className={i % 2 === 0 ? 'flex justify-start' : 'flex justify-end'}>
             <div className="max-w-[75%] space-y-2">
               <Skeleton className="h-4 w-24" />
               <Skeleton className={i % 2 === 0 ? 'h-16 w-72' : 'h-12 w-56'} />

@@ -1,6 +1,6 @@
 'use client'
 
-import { type FormEvent, useCallback, useEffect, useState } from 'react'
+import { type FormEvent, useCallback, useState } from 'react'
 
 /**
  * Track whether a step's form has *anything* the user would want saved.
@@ -60,20 +60,19 @@ export function anyHasContent(...values: Array<string | null | undefined>): bool
  * Skip flips Save-and-continue's label to "Saving…" too, which is
  * confusing and visually wrong (only one button is doing anything).
  *
- * Reset to null when `pending` returns to false so subsequent clicks
- * start clean.
+ * `submittingKind` is derived: it's whatever was last clicked while the
+ * form is pending; null otherwise. No useEffect needed — when pending
+ * flips to false, the derived value naturally becomes null even though
+ * the underlying state still holds the last click. Buttons are always
+ * disabled while pending so a stale state never gets re-displayed.
  */
 export type SubmitterKind = 'save' | 'skip'
 
 export function useSubmitterTracker(pending: boolean) {
   const [kind, setKind] = useState<SubmitterKind | null>(null)
 
-  useEffect(() => {
-    if (!pending) setKind(null)
-  }, [pending])
-
   return {
-    submittingKind: kind,
+    submittingKind: pending ? kind : null,
     onSaveClick: useCallback(() => setKind('save'), []),
     onSkipClick: useCallback(() => setKind('skip'), []),
   }

@@ -39,7 +39,12 @@ export function StepAbout({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5">
-      <Field id="name" label="Full name" hint="Your name as it should appear on your profile." error={fe.name}>
+      <Field
+        id="name"
+        label="Full name"
+        hint="Your name as it should appear on your profile."
+        error={fe.name}
+      >
         <Input id="name" name="name" defaultValue={defaults.name} required autoComplete="name" />
       </Field>
 

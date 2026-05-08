@@ -241,11 +241,7 @@ function RecipientRow({ hit }: { hit: SearchHit }) {
       </Link>
       <div className="flex shrink-0 flex-wrap gap-2">
         {hit.isOpenAsAdviceHelper ? (
-          <Button
-            asChild
-            size="sm"
-            variant={hit.isOpenAsMentor ? 'outline' : 'default'}
-          >
+          <Button asChild size="sm" variant={hit.isOpenAsMentor ? 'outline' : 'default'}>
             <Link href={`/ask/new?to=${hit.userId}&type=advice`}>Ask for advice</Link>
           </Button>
         ) : null}
@@ -300,7 +296,18 @@ async function findHelpers(
     viewerMajor: viewerBase?.major ?? null,
     viewerCity: viewerBase?.city ?? null,
     viewerGraduationYear: viewerOrgProfile?.graduation_year ?? null,
-    filters: { q: query },
+    filters: {
+      q: query,
+      city: undefined,
+      employer: undefined,
+      university: undefined,
+      major: undefined,
+      topic: undefined,
+      gradYearMin: undefined,
+      gradYearMax: undefined,
+      openToMentor: undefined,
+      peopleIKnow: undefined,
+    },
     limit: 50,
   })
 

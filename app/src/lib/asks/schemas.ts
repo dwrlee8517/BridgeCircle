@@ -54,14 +54,11 @@ const checkbox = z.preprocess((v) => v === 'on' || v === 'true' || v === true, z
 // disabled inputs don't submit. The lib falls back to the existing DB row
 // (or defaults) when undefined so the user's previous caps survive a
 // disable→re-enable cycle.
-const optionalCap = z.preprocess(
-  (v) => {
-    if (typeof v === 'string' && v.length > 0) return Number(v)
-    if (v === null || v === '' || v === undefined) return undefined
-    return v
-  },
-  z.number().int().min(1, 'Must be at least 1.').max(100, 'Keep it under 100.').optional(),
-)
+const optionalCap = z.preprocess((v) => {
+  if (typeof v === 'string' && v.length > 0) return Number(v)
+  if (v === null || v === '' || v === undefined) return undefined
+  return v
+}, z.number().int().min(1, 'Must be at least 1.').max(100, 'Keep it under 100.').optional())
 
 // Helper settings save the per-type opt-ins plus mentorship-specific limits.
 // Advice is a lighter commitment by design; we keep no caps on it for now

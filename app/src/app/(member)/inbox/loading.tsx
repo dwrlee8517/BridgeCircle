@@ -14,6 +14,7 @@ export default function InboxLoading() {
       </div>
 
       {Array.from({ length: 3 }).map((_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
         <Card key={i} className="mb-6">
           <CardHeader>
             <Skeleton className="h-7 w-44" />
@@ -21,6 +22,7 @@ export default function InboxLoading() {
           </CardHeader>
           <CardContent className="space-y-3">
             {Array.from({ length: 2 }).map((_, j) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
               <div key={j} className="flex items-start gap-3 rounded-lg border bg-card p-4">
                 <Skeleton className="size-10 shrink-0 rounded-full" />
                 <div className="flex-1 space-y-2">

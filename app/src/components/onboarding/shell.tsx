@@ -78,7 +78,14 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
 
 function ProgressDots({ step }: { step: number }) {
   return (
-    <div className="flex items-center gap-2" aria-label={`Progress: step ${step} of ${TOTAL_STEPS}`}>
+    <div
+      className="flex items-center gap-2"
+      role="progressbar"
+      aria-valuenow={step}
+      aria-valuemin={1}
+      aria-valuemax={TOTAL_STEPS}
+      aria-valuetext={`Step ${step} of ${TOTAL_STEPS}`}
+    >
       {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
         const idx = i + 1
         const isCurrent = idx === step

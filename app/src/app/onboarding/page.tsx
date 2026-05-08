@@ -9,13 +9,7 @@ import { createAdminClient } from '@/db/admin'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { displayOrgName } from '@/lib/utils'
-import {
-  aboutAction,
-  currentAction,
-  educationAction,
-  helpAction,
-  pastAction,
-} from './actions'
+import { aboutAction, currentAction, educationAction, helpAction, pastAction } from './actions'
 
 type SearchParams = { step?: string }
 
@@ -184,8 +178,7 @@ export default async function OnboardingPage({
           title="Where you are now."
           lede={
             <>
-              What you&rsquo;re doing today. Keeps you findable for referrals and local
-              connections.
+              What you&rsquo;re doing today. Keeps you findable for referrals and local connections.
             </>
           }
         >
@@ -211,8 +204,8 @@ export default async function OnboardingPage({
           lede={
             <>
               Past roles are how mentors get matched on the harder questions —{' '}
-              <em>&ldquo;someone who worked in fintech before teaching.&rdquo;</em> Drop your
-              resume to fill it in fast.
+              <em>&ldquo;someone who worked in fintech before teaching.&rdquo;</em> Drop your resume
+              to fill it in fast.
             </>
           }
         >
@@ -241,8 +234,8 @@ export default async function OnboardingPage({
           title="How you can help."
           lede={
             <>
-              Optional. If you want fellow alumni to be able to ask you questions, turn this on.
-              You can change it any time.
+              Optional. If you want fellow alumni to be able to ask you questions, turn this on. You
+              can change it any time.
             </>
           }
         >

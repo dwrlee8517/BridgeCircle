@@ -1,7 +1,9 @@
 import { format } from 'date-fns'
+import { Users } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import { StatusBadge as Pill } from '@/components/ui/status-badge'
 import {
   Table,
@@ -11,8 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Users } from 'lucide-react'
-import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { listMembers, type MembershipStatus } from '@/lib/admin/listMembers'
 import { requireAdmin } from '@/lib/auth/session'

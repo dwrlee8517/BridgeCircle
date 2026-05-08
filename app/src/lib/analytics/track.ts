@@ -20,6 +20,5 @@ export function track(event: AnalyticsEvent): void {
   if (process.env.NODE_ENV === 'production') return
   // Dev: log a single line for the funnel — easy to grep in the dev log.
   // Format mirrors what the future analytics_events row would look like.
-  // eslint-disable-next-line no-console
   console.log('[analytics]', JSON.stringify({ ...event, ts: new Date().toISOString() }))
 }

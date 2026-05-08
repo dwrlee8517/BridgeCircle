@@ -1,7 +1,9 @@
 import { format } from 'date-fns'
+import { CalendarDays } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/empty-state'
 import {
   Table,
   TableBody,
@@ -10,8 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { CalendarDays } from 'lucide-react'
-import { EmptyState } from '@/components/ui/empty-state'
 import { createClient } from '@/db/server'
 import { requireAdmin } from '@/lib/auth/session'
 import { listEvents } from '@/lib/events/listEvents'

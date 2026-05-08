@@ -110,8 +110,8 @@ export default async function ProfileDetailPage({
       {flashNotFriends ? (
         <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Direct messages are open to friends only. Add{' '}
-          <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first
-          to start a conversation.
+          <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first to
+          start a conversation.
         </div>
       ) : null}
 
@@ -175,7 +175,8 @@ export default async function ProfileDetailPage({
             </div>
             {profile.nameOther ? (
               <p className="text-xs text-slate-300/80">
-                Also known as <span className="font-medium text-slate-200">{profile.nameOther}</span>
+                Also known as{' '}
+                <span className="font-medium text-slate-200">{profile.nameOther}</span>
               </p>
             ) : null}
             {profile.headline ? (

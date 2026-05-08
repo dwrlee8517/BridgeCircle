@@ -72,7 +72,9 @@ export async function GET(request: Request) {
     supabase.from('organization_memberships').select('status').eq('user_id', data.user.id),
     supabase
       .from('users')
-      .select('delete_scheduled_for, delete_initiated_by_admin, deleted_at, onboarding_completed_at')
+      .select(
+        'delete_scheduled_for, delete_initiated_by_admin, deleted_at, onboarding_completed_at',
+      )
       .eq('id', data.user.id)
       .maybeSingle(),
   ])

@@ -26,10 +26,12 @@ type StepState = {
   skipped?: boolean
 }
 
-function fieldErrorsFromZod(issues: { path: (string | number)[]; message: string }[]) {
+function fieldErrorsFromZod(issues: { path: PropertyKey[]; message: string }[]) {
   const fieldErrors: Record<string, string> = {}
   for (const issue of issues) {
-    const path = issue.path.join('.')
+    // PropertyKey is string | number | symbol; Zod uses string/number in
+    // practice, but the type is broad. Map to string for the joined path.
+    const path = issue.path.map((p) => String(p)).join('.')
     if (!fieldErrors[path]) fieldErrors[path] = issue.message
   }
   return fieldErrors
@@ -68,10 +70,7 @@ export async function aboutAction(_prev: StepState, formData: FormData): Promise
 
 // --- Step 2: Education -------------------------------------------------
 
-export async function educationAction(
-  _prev: StepState,
-  formData: FormData,
-): Promise<StepState> {
+export async function educationAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 2 })
@@ -95,10 +94,7 @@ export async function educationAction(
 
 // --- Step 3: Current ---------------------------------------------------
 
-export async function currentAction(
-  _prev: StepState,
-  formData: FormData,
-): Promise<StepState> {
+export async function currentAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 3 })

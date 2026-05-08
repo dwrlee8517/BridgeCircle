@@ -45,12 +45,17 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
 
   // Sync controlled state when fresh server data lands. Only fires on
   // defaults-change, so the user's mid-edit toggles between saves are not
-  // stomped — only post-save reconciliation runs through here.
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: only sync on defaults change
+  // stomped — only post-save reconciliation runs through here. This is
+  // the documented React pattern for "sync state with props on prop
+  // change" (cf. React docs "You Might Not Need an Effect / Adjusting
+  // state when a prop changes"); the lint rule is overzealous for this
+  // specific case.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setAdvice(defaults.openToAdvice)
     setMentorship(defaults.openToMentorship)
   }, [defaults.openToAdvice, defaults.openToMentorship])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <form action={action} className="space-y-6">
