@@ -3,6 +3,24 @@ import { z } from 'zod'
 export const askTypeSchema = z.enum(['advice', 'mentorship'])
 export type AskType = z.infer<typeof askTypeSchema>
 
+// Draft refinement lenses surfaced as buttons next to a generated draft.
+// Lives here (not in draftAsk.ts) so the client form can import the type
+// without crossing the `'server-only'` boundary.
+export const draftVariantSchema = z.enum(['shorter', 'more-direct', 'warmer'])
+export type DraftVariant = z.infer<typeof draftVariantSchema>
+
+// Topic genre captured in the wizard's "what kind of help" step. Used
+// only to bias the draft prompt — not persisted on the asks row.
+export const askGenreSchema = z.enum([
+  'career-path',
+  'industry-intro',
+  'decision-review',
+  'school-advice',
+  'skill-question',
+  'other',
+])
+export type AskGenre = z.infer<typeof askGenreSchema>
+
 export const askSchema = z.object({
   helperId: z.uuid(),
   askType: askTypeSchema,
