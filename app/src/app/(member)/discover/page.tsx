@@ -8,8 +8,8 @@ import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
 import { displayOrgName } from '@/lib/utils'
+import { DiscoverSearchSurface } from './discover-search-surface'
 import { ResultCard } from './result-card'
-import { SearchForm } from './search-form'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
 
@@ -131,85 +131,52 @@ export default async function DiscoverPage({
       <Hero orgName={orgName} totalAlumni={totalAlumni} />
 
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-8">
-        <Card>
-          <CardContent className="pt-6">
-            <SearchForm
-              filtersOpen={filtersOpen}
-              defaults={{
-                nl: nlQuery,
-                q: filters.q ?? '',
-                city: filters.city ?? '',
-                employer: filters.employer ?? '',
-                university: filters.university ?? '',
-                major: filters.major ?? '',
-                topic: filters.topic ?? '',
-                gradYearMin: filters.gradYearMin?.toString() ?? '',
-                gradYearMax: filters.gradYearMax?.toString() ?? '',
-                openToMentor: !!filters.openToMentor,
-                peopleIKnow: !!filters.peopleIKnow,
-              }}
+        <DiscoverSearchSurface
+          filtersOpen={filtersOpen}
+          defaults={{
+            nl: nlQuery,
+            q: filters.q ?? '',
+            city: filters.city ?? '',
+            employer: filters.employer ?? '',
+            university: filters.university ?? '',
+            major: filters.major ?? '',
+            topic: filters.topic ?? '',
+            gradYearMin: filters.gradYearMin?.toString() ?? '',
+            gradYearMax: filters.gradYearMax?.toString() ?? '',
+            openToMentor: !!filters.openToMentor,
+            peopleIKnow: !!filters.peopleIKnow,
+          }}
+        >
+          {nlError ? (
+            <Card className="border-destructive/40">
+              <CardContent className="pt-6 text-sm text-destructive">{nlError}</CardContent>
+            </Card>
+          ) : null}
+
+          {useNL && nlExtracted ? (
+            <NLExtractionSummary
+              query={nlQuery}
+              extracted={nlExtracted}
+              poolSize={nlPoolSize}
+              fallback={nlFallback}
+              shownCount={nlHits.length}
             />
-          </CardContent>
-        </Card>
+          ) : null}
 
-        {nlError ? (
-          <Card className="border-destructive/40">
-            <CardContent className="pt-6 text-sm text-destructive">{nlError}</CardContent>
-          </Card>
-        ) : null}
+          <ResultsHeader resultCount={resultCount} hasFilter={anyFilter || useNL} />
 
-        {useNL && nlExtracted ? (
-          <NLExtractionSummary
-            query={nlQuery}
-            extracted={nlExtracted}
-            poolSize={nlPoolSize}
-            fallback={nlFallback}
-            shownCount={nlHits.length}
-          />
-        ) : null}
-
-        <ResultsHeader resultCount={resultCount} hasFilter={anyFilter || useNL} />
-
-        {useNL ? (
-          nlHits.length === 0 ? (
-            <EmptyResults
-              text={
-                nlPoolSize === 0
-                  ? 'No alumni matched the filters extracted from your query. Try removing constraints in the filter panel.'
-                  : 'The pool was narrowed but no candidates scored highly. Try a broader query.'
-              }
-            />
-          ) : (
-            <ResultGrid>
-              {nlHits.map((h) => (
-                <ResultCard
-                  key={h.userId}
-                  userId={h.userId}
-                  name={h.name}
-                  preferredName={h.preferredName}
-                  headline={h.headline}
-                  currentEmployer={h.currentEmployer}
-                  currentTitle={h.currentTitle}
-                  city={h.city}
-                  university={h.university}
-                  major={h.major}
-                  graduationYear={h.graduationYear}
-                  avatarUrl={h.avatarUrl}
-                  isOpenAsMentor={h.isOpenAsMentor}
-                  mentorPaused={h.mentorPaused}
-                  isFriend={friendIds.has(h.userId)}
-                  rationale={h.rationale}
-                  rerankScore={h.rerankScore}
-                  topCareerEntry={pickTopCareerEntry(h.careerHistory)}
-                />
-              ))}
-            </ResultGrid>
-          )
-        ) : (
-          <>
-            {structuredHits.length > 0 ? (
+          {useNL ? (
+            nlHits.length === 0 ? (
+              <EmptyResults
+                text={
+                  nlPoolSize === 0
+                    ? 'No alumni matched the filters extracted from your query. Try removing constraints in the filter panel.'
+                    : 'The pool was narrowed but no candidates scored highly. Try a broader query.'
+                }
+              />
+            ) : (
               <ResultGrid>
-                {structuredHits.map((h) => (
+                {nlHits.map((h) => (
                   <ResultCard
                     key={h.userId}
                     userId={h.userId}
@@ -226,31 +193,60 @@ export default async function DiscoverPage({
                     isOpenAsMentor={h.isOpenAsMentor}
                     mentorPaused={h.mentorPaused}
                     isFriend={friendIds.has(h.userId)}
-                    rationale={null}
-                    rerankScore={null}
-                    topCareerEntry={null}
+                    rationale={h.rationale}
+                    rerankScore={h.rerankScore}
+                    topCareerEntry={pickTopCareerEntry(h.careerHistory)}
                   />
                 ))}
               </ResultGrid>
-            ) : null}
-            {structuredHits.length === 0 && anyFilter ? (
-              <EmptyResults
-                text={
-                  <>
-                    No alumni matched these filters.{' '}
-                    <Link href="/discover" className="text-primary hover:underline">
-                      Clear all
-                    </Link>{' '}
-                    and try again.
-                  </>
-                }
-              />
-            ) : null}
-            {structuredHits.length === 0 && !anyFilter ? (
-              <EmptyResults text="Type a question above or open the filters to browse alumni." />
-            ) : null}
-          </>
-        )}
+            )
+          ) : (
+            <>
+              {structuredHits.length > 0 ? (
+                <ResultGrid>
+                  {structuredHits.map((h) => (
+                    <ResultCard
+                      key={h.userId}
+                      userId={h.userId}
+                      name={h.name}
+                      preferredName={h.preferredName}
+                      headline={h.headline}
+                      currentEmployer={h.currentEmployer}
+                      currentTitle={h.currentTitle}
+                      city={h.city}
+                      university={h.university}
+                      major={h.major}
+                      graduationYear={h.graduationYear}
+                      avatarUrl={h.avatarUrl}
+                      isOpenAsMentor={h.isOpenAsMentor}
+                      mentorPaused={h.mentorPaused}
+                      isFriend={friendIds.has(h.userId)}
+                      rationale={null}
+                      rerankScore={null}
+                      topCareerEntry={null}
+                    />
+                  ))}
+                </ResultGrid>
+              ) : null}
+              {structuredHits.length === 0 && anyFilter ? (
+                <EmptyResults
+                  text={
+                    <>
+                      No alumni matched these filters.{' '}
+                      <Link href="/discover" className="text-primary hover:underline">
+                        Clear all
+                      </Link>{' '}
+                      and try again.
+                    </>
+                  }
+                />
+              ) : null}
+              {structuredHits.length === 0 && !anyFilter ? (
+                <EmptyResults text="Type a question above or open the filters to browse alumni." />
+              ) : null}
+            </>
+          )}
+        </DiscoverSearchSurface>
       </div>
     </div>
   )
