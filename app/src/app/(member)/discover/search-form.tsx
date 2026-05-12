@@ -1,7 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import type { FormEvent } from 'react'
+import { type ChangeEvent, type FormEvent, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,38 +19,70 @@ export type SearchFormDefaults = {
   peopleIKnow: boolean
 }
 
-/**
- * Client form that submits to /discover with a clean query string —
- * only fields with non-empty values end up in the URL. Without this,
- * the native GET form encodes every named input as an empty param
- * ("?employer=&university=…"), which works but uglifies the URL and
- * breaks share/bookmark hygiene.
- */
-export function SearchForm({
-  defaults,
-  filtersOpen,
-}: {
+type Props = {
   defaults: SearchFormDefaults
   filtersOpen: boolean
-}) {
-  const router = useRouter()
+  /**
+   * Fired with a cleaned URLSearchParams (only non-empty, trimmed values).
+   * Parent is responsible for `router.push` so it can wrap the navigation in
+   * `useTransition` and dim the result list while the new query runs.
+   */
+  onSearch: (params: URLSearchParams) => void
+  /**
+   * Fired when the user clicks Clear. The form's DOM inputs are wiped
+   * imperatively before this fires so the form visually clears even though
+   * inputs are uncontrolled with `defaultValue`.
+   */
+  onClear: () => void
+}
+
+function buildParamsFromForm(form: HTMLFormElement): URLSearchParams {
+  const fd = new FormData(form)
+  const params = new URLSearchParams()
+  for (const [key, value] of fd.entries()) {
+    if (typeof value !== 'string') continue
+    const trimmed = value.trim()
+    if (trimmed.length === 0) continue
+    params.set(key, trimmed)
+  }
+  return params
+}
+
+export function SearchForm({ defaults, filtersOpen, onSearch, onClear }: Props) {
+  const formRef = useRef<HTMLFormElement>(null)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
-    const params = new URLSearchParams()
-    for (const [key, value] of fd.entries()) {
-      if (typeof value !== 'string') continue
-      const trimmed = value.trim()
-      if (trimmed.length === 0) continue
-      params.set(key, trimmed)
+    onSearch(buildParamsFromForm(e.currentTarget))
+  }
+
+  // Boolean filters auto-commit on toggle — there's no "partial input" to
+  // worry about. Text inputs and number ranges still require Enter / Search
+  // button because firing on every keystroke would either burn Claude API
+  // calls (NL search) or thrash the UI on partial values.
+  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const form = e.currentTarget.form
+    if (!form) return
+    onSearch(buildParamsFromForm(form))
+  }
+
+  // Inputs are uncontrolled (defaultValue / defaultChecked). React only
+  // applies those at mount, so changing the `defaults` prop after navigation
+  // does not visually reset the DOM. Wipe the inputs imperatively so Clear
+  // actually looks like it cleared.
+  const handleClearClick = () => {
+    const form = formRef.current
+    if (form) {
+      for (const input of form.querySelectorAll('input')) {
+        if (input.type === 'checkbox' || input.type === 'radio') input.checked = false
+        else input.value = ''
+      }
     }
-    const qs = params.toString()
-    router.push(qs.length > 0 ? `/discover?${qs}` : '/discover')
+    onClear()
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="nl">What kind of alumni are you looking for?</Label>
         <div className="flex gap-2">
@@ -130,6 +161,7 @@ export function SearchForm({
                 name="openToMentor"
                 value="on"
                 defaultChecked={defaults.openToMentor}
+                onChange={handleCheckboxChange}
                 className="h-4 w-4"
               />
               Only show mentors
@@ -140,12 +172,13 @@ export function SearchForm({
                 name="peopleIKnow"
                 value="on"
                 defaultChecked={defaults.peopleIKnow}
+                onChange={handleCheckboxChange}
                 className="h-4 w-4"
               />
               Only people I know
             </label>
             <div className="ml-auto">
-              <Button type="button" variant="outline" onClick={() => router.push('/discover')}>
+              <Button type="button" variant="outline" onClick={handleClearClick}>
                 Clear all
               </Button>
             </div>
