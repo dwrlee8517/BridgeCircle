@@ -1,7 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import { type ExtractedFilters, extractSearchFilters } from './extractFilters'
+import { type ExtractedFilters, extractSearchFiltersCached } from './extractFilters'
 import { type RerankCandidate, rerankCandidates } from './rerankCandidates'
 import type { FilterScope, FilterScopes, SearchFilters } from './schemas'
 import { type SearchHit, searchAlumni } from './searchAlumni'
@@ -66,7 +66,7 @@ export async function searchAlumniNL(
   supabase: SupabaseClient<Database>,
   input: NLSearchInput,
 ): Promise<NLSearchResult> {
-  const extracted = await extractSearchFilters(input.query)
+  const extracted = await extractSearchFiltersCached(input.query)
   if (!extracted.ok) {
     if (extracted.error === 'no_api_key') {
       return { ok: false, error: 'no_api_key' }
