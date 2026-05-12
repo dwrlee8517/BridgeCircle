@@ -6,7 +6,14 @@ This document explains the current BridgeCircle environment setup, how to develo
 
 ## The Two Supabase Projects
 
-BridgeCircle uses two completely independent Supabase cloud projects.
+BridgeCircle uses two Supabase cloud projects, both under the **`bridgecircle` organization (Pro plan)**. Supabase billing is per-organization, not per-project — so the Pro plan applies to both projects.
+
+| Project | Ref | Role | Created |
+|---|---|---|---|
+| `bridgecircle` | `edumxwzilfgvamzarwvo` | production | 2026-04-24 |
+| `bridgecircle-dev` | `ojpvahiuafdcynbdbmri` | development | 2026-04-26 |
+
+Both live in `us-west-1` on Postgres 17. Confirm at any time via `list_projects` / `get_organization` on the Supabase MCP.
 
 ### `bridgecircle` (production)
 
@@ -15,6 +22,7 @@ BridgeCircle uses two completely independent Supabase cloud projects.
 - Connected to **Railway** via env vars in Railway's Variables tab.
 - Google OAuth callback URL registered with Google Cloud.
 - Treated as untouchable from day-to-day development.
+- Has the **Supabase + GitHub branching integration** enabled — this is what makes the Pro plan load-bearing.
 
 ### `bridgecircle-dev` (development)
 
@@ -23,8 +31,9 @@ BridgeCircle uses two completely independent Supabase cloud projects.
 - Connected to **your laptop** via env vars in `app/.env.local`.
 - The same Google OAuth client knows about both projects' callback URLs.
 - Safe to reset, truncate, or experiment against.
+- Sits in the same Pro org as prod (so it inherits Pro features), but is otherwise runtime-isolated.
 
-The two projects share nothing at runtime. Data created in one never appears in the other. The only thing they have in common is the schema — kept identical by applying the same migration files to both.
+The two projects share nothing at runtime. Data created in one never appears in the other. The only thing they have in common is the schema — kept identical by applying the same migration files to both — and the org-level billing plan.
 
 ## What Talks To What
 
@@ -101,8 +110,9 @@ Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and 
 ### Third-party services
 
 **Supabase**
-- `bridgecircle` (production) — **Pro plan** (~$25/mo). Required for the GitHub branching integration that runs migrations on PR preview branches.
-- `bridgecircle-dev` (development) — Free plan. Used for daily local dev only.
+- Single org: `bridgecircle` (id `wvwbvvdxogbeipqrzbqs`) on the **Pro plan** (~$25/mo base + per-project compute + usage). The plan is org-level — both projects below inherit it.
+- `bridgecircle` (production, ref `edumxwzilfgvamzarwvo`) — holds real alumni data. The Pro plan is required here for the GitHub branching integration that runs migrations on PR preview branches.
+- `bridgecircle-dev` (development, ref `ojpvahiuafdcynbdbmri`) — throwaway dev data. Sits under the same Pro org (so it's no longer on Free as the original ADR 0005 assumed — see [decision 0005](../decisions/0005-hybrid-supabase-branching.md) "Current state" note). Pays second-project compute on the Pro plan; still cheaper and simpler than a persistent dev branch on the prod project.
 - Both have Google OAuth provider enabled (Auth → Providers → Google), pointing at the same Google Cloud OAuth client with two registered redirect URIs (one per project).
 - Prod has the **GitHub integration** turned on (Settings → Integrations → GitHub) with the working directory set to `app`. This is what triggers preview branches on PR + auto-deploy on merge.
 
@@ -276,9 +286,21 @@ Workflow when adding a column or table:
 
 **Do not** run `supabase db push` against prod manually anymore. The integration owns the prod side; manual pushes risk schema drift.
 
-### Order of operations is handled for you
+### Order of operations on merge — it's a race, not lockstep
 
-The branching integration takes care of the additive-vs-destructive ordering: the migration runs in lockstep with the code merge, so both go live together. The "always-superset" rule from the pre-cutover days no longer applies — you don't have to interleave code and SQL deploys by hand.
+When a PR is merged to `main`, two independent webhooks fire:
+
+- **Supabase** applies the migration to the prod project (`bridgecircle`). Usually <30s.
+- **Railway** runs `pnpm install` + `pnpm build` and swaps the container atomically. Usually 2–5 min.
+
+Supabase almost always finishes first because Railway's build is the bottleneck. That creates a **deploy window** (2–5 min) where the prod database is on the new schema while the prod app is still running the old code:
+
+- **Additive migration** (add column / table / index / nullable / NOT-NULL-with-default) — old code ignores the new schema. The window is harmless. Ship as one PR.
+- **Destructive migration** (drop, rename, tighten CHECK, add FK to existing data, change type) — old code references things that no longer exist or violates new rules. 100% of traffic on the affected path errors until Railway catches up. **Do not ship as one PR — use the expand/contract pattern.**
+
+The full discipline, including the worked rename example, lives in [`../runbooks/migration-workflow.md`](../runbooks/migration-workflow.md) "Expand/contract for destructive changes." Architectural rationale and rejected alternatives (Railway pre-deploy hook, blue-green, canary, switch platforms) are in [ADR 0008](../decisions/0008-deploy-ordering-expand-contract.md).
+
+The CI build job (`Build (validates types vs. migrations)`) catches "code in `main` doesn't match the new schema in `main`" before merge — but CI only validates the *destination state*. It cannot enforce the *transition* between old code and new schema. Expand/contract is the only thing that makes the transition safe.
 
 If a migration ever needs to be rolled back: write a forward-only "revert" migration. There is no destructive rollback in this setup.
 
@@ -402,7 +424,7 @@ These exist as concepts in the broader docs but are **not** in the current setup
 - **CI checks on PRs are now wired** (was previously listed as out-of-scope). `.github/workflows/ci.yml` runs biome, vitest, and `next build` on every PR. `.github/workflows/e2e.yml` runs Playwright. The Supabase Preview check still validates the migration itself on a real preview branch — together this gives three layers of migration safety: schema replay (Supabase), type compatibility (build), runtime behavior (E2E).
 - **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
 - **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
-- **No persistent dev branch on the prod Supabase project.** We use `bridgecircle-dev` (separate Free project) for daily development instead. Costs $0 vs. ~$10/mo for a persistent dev branch but adds the manual `pnpm dlx supabase db push` step. See `app/CLAUDE.md` post-launch backlog for the trade-off.
+- **No persistent dev branch on the prod Supabase project.** We use `bridgecircle-dev` (separate project under the same Pro org) for daily development instead. The cost rationale from ADR 0005 has shifted now that dev sits under Pro — see [decision 0005](../decisions/0005-hybrid-supabase-branching.md) "Current state" note and the post-launch backlog for the trade-off.
 - **DMARC reporting not configured.** A `_dmarc` record exists in monitor-only mode (`p=none`) but has no `rua=` reporting address, so no daily auth reports are collected. Add a reporting mailbox + tighten the policy post-launch.
 - **No cost monitoring on Anthropic API.** Resume extraction + NL search both call Claude Haiku. Low volume during pilot but no observability today. Sentry breadcrumbs or a counter row would suffice; see `app/CLAUDE.md` post-launch backlog.
 
