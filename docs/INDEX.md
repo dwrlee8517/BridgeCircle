@@ -62,6 +62,7 @@ Locked architectural decisions in MADR format.
 - [0005 — Hybrid Supabase branching](decisions/0005-hybrid-supabase-branching.md)
 - [0006 — NL search via entity extraction](decisions/0006-nl-search-entity-extraction.md)
 - [0007 — `/lib` discipline](decisions/0007-lib-discipline.md)
+- [0008 — Deploy ordering + expand/contract](decisions/0008-deploy-ordering-expand-contract.md)
 
 ## UI
 
