@@ -1,9 +1,11 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
+import { unstable_cache } from 'next/cache'
 import { z } from 'zod'
 
 const MODEL = 'claude-haiku-4-5-20251001'
 const MAX_OUTPUT_TOKENS = 512
+const CACHE_TTL_SECONDS = 60 * 60 // 1 hour
 
 /**
  * Scope tells the filter whether to match against the directory field
@@ -138,4 +140,29 @@ export async function extractSearchFilters(query: string): Promise<ExtractFilter
   }
 
   return { ok: true, filters: validated.data }
+}
+
+/**
+ * Cache-backed version of {@link extractSearchFilters}. Same NL query → same
+ * extracted filters, so the Haiku call is wasted on repeat requests (e.g.
+ * the user toggles a structured filter checkbox while keeping `?nl=` set,
+ * or two members search the same phrase within the TTL).
+ *
+ * Cache key is the lowercased+collapsed query string; the original query
+ * is passed to Haiku so any case-sensitive proper-noun signal is preserved.
+ * The TTL bounds the blast radius if the system prompt or model changes.
+ *
+ * Failure results are cached too. Trade-off: a transient Haiku outage will
+ * stick to a given query for up to {@link CACHE_TTL_SECONDS}; the alternative
+ * is hammering Haiku during an outage, which is worse. If a real failure
+ * mode emerges, the cache prefix can be bumped to invalidate everything.
+ */
+export async function extractSearchFiltersCached(query: string): Promise<ExtractFiltersResult> {
+  const cacheKey = query.trim().toLowerCase().replace(/\s+/g, ' ')
+  const cached = unstable_cache(
+    () => extractSearchFilters(query),
+    ['extractSearchFilters', 'v1', cacheKey],
+    { revalidate: CACHE_TTL_SECONDS },
+  )
+  return cached()
 }
