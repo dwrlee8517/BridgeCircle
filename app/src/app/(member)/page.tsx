@@ -194,7 +194,7 @@ function Hero({
             </Button>
           ) : (
             <Button size="lg" asChild className="gap-2">
-              <Link href="/ask">
+              <Link href="/people">
                 <MessageSquare className="size-4" />
                 Find someone to ask
               </Link>
@@ -406,8 +406,8 @@ function NewAlumniSection({ members }: { members: HomeMember[] }) {
       <SectionHeader
         eyebrow="Network"
         title="New alumni in your area"
-        actionHref="/discover"
-        actionLabel="Open directory"
+        actionHref="/people"
+        actionLabel="Open people"
       />
       <h2 id="new-alumni" className="sr-only">
         New alumni in your area
@@ -419,7 +419,7 @@ function NewAlumniSection({ members }: { members: HomeMember[] }) {
               No new alumni joined this week. The full circle is still there to explore.
             </p>
             <Button asChild size="sm" variant="outline">
-              <Link href="/discover">Browse the directory</Link>
+              <Link href="/people">Find people</Link>
             </Button>
           </CardContent>
         </Card>

@@ -8,12 +8,12 @@ import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
 import { displayOrgName } from '@/lib/utils'
-import { DiscoverSearchSurface } from './discover-search-surface'
+import { PeopleSearchSurface } from './people-search-surface'
 import { ResultCard } from './result-card'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
 
-export default async function DiscoverPage({
+export default async function PeoplePage({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>
@@ -131,7 +131,7 @@ export default async function DiscoverPage({
       <Hero orgName={orgName} totalAlumni={totalAlumni} />
 
       <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-8">
-        <DiscoverSearchSurface
+        <PeopleSearchSurface
           filtersOpen={filtersOpen}
           defaults={{
             nl: nlQuery,
@@ -191,6 +191,7 @@ export default async function DiscoverPage({
                     graduationYear={h.graduationYear}
                     avatarUrl={h.avatarUrl}
                     isOpenAsMentor={h.isOpenAsMentor}
+                    isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
                     mentorPaused={h.mentorPaused}
                     isFriend={friendIds.has(h.userId)}
                     rationale={h.rationale}
@@ -219,6 +220,7 @@ export default async function DiscoverPage({
                       graduationYear={h.graduationYear}
                       avatarUrl={h.avatarUrl}
                       isOpenAsMentor={h.isOpenAsMentor}
+                      isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
                       mentorPaused={h.mentorPaused}
                       isFriend={friendIds.has(h.userId)}
                       rationale={null}
@@ -233,7 +235,7 @@ export default async function DiscoverPage({
                   text={
                     <>
                       No alumni matched these filters.{' '}
-                      <Link href="/discover" className="text-primary hover:underline">
+                      <Link href="/people" className="text-primary hover:underline">
                         Clear all
                       </Link>{' '}
                       and try again.
@@ -246,7 +248,7 @@ export default async function DiscoverPage({
               ) : null}
             </>
           )}
-        </DiscoverSearchSurface>
+        </PeopleSearchSurface>
       </div>
     </div>
   )
@@ -257,22 +259,21 @@ export default async function DiscoverPage({
 // =============================================================================
 
 function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }) {
+  const description = `Search ${orgName} for someone to ask, learn from, or meet. Describe who you're looking for in plain English, or narrow the circle with filters.`
+
   return (
     <section className="border-b bg-[linear-gradient(180deg,#fff_0%,#fafbfd_100%)]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Discover · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
+          People · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
         </p>
         <h1
           className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
           style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
         >
-          Discover alumni
+          Find the right people
         </h1>
-        <p className="mt-3 max-w-2xl text-base text-muted-foreground">
-          Find someone in {orgName} to ask, learn from, or simply meet. Describe who you&apos;re
-          looking for in plain English, or use the filters below.
-        </p>
+        <p className="mt-3 max-w-2xl text-base text-muted-foreground">{description}</p>
       </div>
     </section>
   )

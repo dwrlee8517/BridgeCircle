@@ -15,8 +15,8 @@ The Phase 1 spec at [`../specs/phase-1/spec.md`](../specs/phase-1/spec.md) is up
 
 ## IA Principles
 
-- discovery is the center of the product — the directory is one click away, not buried under a separate "search" surface
-- the verb the brand cares about (asking) gets a dedicated nav slot rather than living inside discovery
+- people-finding is the center of the product — the directory is one click away, not buried under a separate "search" surface
+- asking starts from a person/profile context; request state after creation belongs in Inbox
 - onboarding is short and clearly tied to value
 - profile visibility and relationship state are understandable
 - friendship and asks (advice + mentorship) feel related but the gates remain distinct: DMs require mutual friendship; asks require helper acceptance
@@ -28,7 +28,7 @@ The Phase 1 spec at [`../specs/phase-1/spec.md`](../specs/phase-1/spec.md) is up
 Phase 1 breaks into four major areas:
 
 1. authentication and organization onboarding
-2. member discovery and relationship workflows
+2. member people search and relationship workflows
 3. events
 4. admin operations and analytics
 
@@ -36,12 +36,11 @@ Phase 1 breaks into four major areas:
 
 ### Member Navigation (current)
 
-Member top nav has **four** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/member-nav.tsx`:
+Member top nav has **three** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/member-nav.tsx`:
 
-1. **Discover** — alumni directory; NL search + structured filters + "People I know" toggle; result cards show a friend badge
-2. **Ask** — your sent asks (grouped open/closed) and the entry to start a new one
-3. **Inbox** — unified surface for things waiting on you or in flight: friend requests, incoming asks, active ask threads, direct messages, outgoing asks
-4. **Events** — upcoming events with RSVP
+1. **People** — alumni directory; NL search + structured filters + "People I know" toggle; result cards show friend badges and ask CTAs
+2. **Inbox** — unified request lifecycle: friend requests, incoming asks, active ask threads, direct messages, sent requests
+3. **Events** — upcoming events with RSVP
 
 Admins see a fifth slot ("Admin") that links to `/admin/invite`.
 
@@ -49,7 +48,7 @@ The mobile dropdown in `member-header.tsx` reads from the same `MEMBER_NAV_LINKS
 
 Global utilities (header right-rail):
 
-- inline search field (submits to `/discover?q=`)
+- inline search field (submits to `/people?q=`)
 - notifications bell (toast + popover, deep-links into the relevant detail surface)
 - helper settings (gear icon → `/mentorship/settings`)
 - account menu (sign out, organization switcher when multi-org)
@@ -60,9 +59,9 @@ The original Phase 1 plan was a 7–8-item nav (Search, Inbox, Messages, Friends
 
 | Was | Where it went | Why |
 |---|---|---|
-| Search | Renamed to **Discover** | Brand wanted a verb of exploration, not a query |
-| Mentorship requests | Renamed/generalized to **Ask** (advice + mentorship) | Lower the barrier to asking; advice is friction-free, mentorship keeps caps |
-| Friends | Folded into Discover (`peopleIKnow` filter + Friend badge); incoming requests moved to Inbox | Friendship is one dimension of discovery, not its own page |
+| Search / Discover | Renamed to **People** | The surface is about finding the right person, not maintaining a separate search/discovery metaphor |
+| Mentorship requests | Generalized to ask workflow routes (`/ask/new`, `/ask/[id]`, `/ask/thread/[id]`) | Lower the barrier to asking while keeping the top nav focused on People and Inbox |
+| Friends | Folded into People (`peopleIKnow` filter + Friend badge); incoming requests moved to Inbox | Friendship is one dimension of people search, not its own page |
 | Messages (list) | Folded into Inbox; conversation page `/messages/[id]` kept | DMs are inbox-style — no second list surface needed |
 | Announcements | Off top nav; surfaced as banner on Home | Low-frequency admin posts don't earn permanent real estate |
 
@@ -88,7 +87,7 @@ Because one user can belong to multiple organizations, organization context shou
 Requirements:
 
 - current organization should be shown in the header
-- switching organizations should update discovery, search, events, inbox context, and admin context
+- switching organizations should update people search, events, inbox context, and admin context
 - base profile should persist across orgs
 - org-specific profile overlays should remain scoped to the selected organization
 
@@ -205,18 +204,18 @@ Primary actions:
 - upcoming events → `/events`
 - open a profile / open the directory
 
-### 8. Discover (`/discover`)
+### 8. People (`/people`)
 
 Purpose:
 
-- the alumni directory — the single surface for finding someone in the network. Replaces the original Search + Discover split.
+- the alumni directory and canonical surface for finding someone in the network. Replaces the original Search + Discover split and the search-first Ask landing page.
 
 Main elements:
 
-- soft white-to-slate hero ("Discover · N members" eyebrow + "Discover alumni" Fraunces title)
+- soft white-to-slate hero ("People · N members" eyebrow + "Find the right people" Fraunces title)
 - natural-language search bar (one input, submits as `?nl=`)
 - collapsible Filters panel: city, employer, university, major, mentor topic, grad-year range, "Only show mentors", **"Only people I know"**
-- result cards: name + role + class year, headline pull-quote, friend badge when accepted-friend, mentor/paused badge, optional rationale panel for NL hits
+- result cards: name + role + class year, headline pull-quote, friend badge when accepted-friend, helper availability badge, profile and ask CTAs, optional rationale panel for NL hits
 
 Ranking emphasis:
 
@@ -226,7 +225,7 @@ Ranking emphasis:
 Behavior notes:
 
 - NL extraction is entity-based, not vector — `extractFilters` pulls structured fields out of the prose, then merges with form-supplied filters (form wins)
-- `/search?...` and `/friends` legacy URLs 308 here
+- `/search?...`, `/discover?...`, and `/friends` legacy URLs 308 here
 
 ### 9. Profile Detail (`/profile/[id]`)
 
@@ -260,13 +259,13 @@ Possible helper states (per type):
 
 Sent inline from the profile page via the `Add friend` button. There is no standalone composer page — the v1 UI sends with no message body; the underlying server action accepts an optional `message` field for future use.
 
-### 12. Ask Surface (`/ask`)
+### 12. Ask Workflow Routes (`/ask/*`)
 
-The verb-driven home of the product. Replaces the original Mentorship-only model with a polymorphic ask shape (`ask_type` enum: `advice` | `mentorship`).
+Ask is no longer a top-level member navigation surface. People/Profile start requests, and Inbox owns request state after creation. The underlying ask model remains polymorphic (`ask_type` enum: `advice` | `mentorship`).
 
 Sub-pages:
 
-- `/ask` — your sent asks, grouped Open / Closed, with a `Start a new ask` CTA
+- `/ask` — legacy top-level URL; redirects to `/inbox`
 - `/ask/new` — composer (per-type fields)
 - `/ask/[id]` — request detail (asker view + helper review view)
 - `/ask/thread/[id]` — post-accept conversation
@@ -312,10 +311,10 @@ Central unified surface for everything the member should pay attention to. Secti
 2. **Incoming asks** — pending advice / mentorship requests directed at the viewer; clicking opens `/ask/[id]`
 3. **Active threads** — accepted ask threads (both directions); clicking opens `/ask/thread/[id]`
 4. **Direct messages** — DM threads with friends; avatar + last-message preview + unread count + time-ago; clicking opens `/messages/[id]`
-5. **Your outgoing asks** — last 20 you've sent with status badges
+5. **Sent requests** — last 20 advice / mentorship requests you've sent with status badges
 6. **Sent friend requests** (outgoing pending) — only renders if any are awaiting reply
 
-The inbox subsumes both `/friends` (incoming requests) and `/messages` (root list) — those URLs now 308 here. `/messages/[id]` (the conversation viewer) is unchanged and is reached from inbox.
+The inbox subsumes `/friends` (incoming requests), `/messages` (root list), and top-level `/ask` — those URLs now 308 here. `/messages/[id]` (the conversation viewer) and `/ask/*` workflow routes are reached from inbox.
 
 ### 14. Direct Message Thread (`/messages/[id]`)
 
@@ -517,7 +516,7 @@ Purpose:
 Main elements:
 
 - invited to completed-profile rate
-- discovery engagement rate
+- people-search engagement rate
 - mentorship request rate
 - mentorship response rate
 - profile freshness rate
@@ -583,7 +582,7 @@ Deferred. Meetup proposals are out of Phase 1 scope.
 
 Because the MVP is web-first but should remain mobile-friendly:
 
-- discover NL search + filter panel collapse cleanly on narrow screens
+- people NL search + filter panel collapse cleanly on narrow screens
 - profile result cards stack from 3-up → 2-up → 1-up at tablet / mobile breakpoints
 - inbox sections stack vertically on mobile (no list-detail split needed; each row links to the type-specific detail page)
 - DM thread page is full-width on mobile
@@ -593,7 +592,7 @@ Because the MVP is web-first but should remain mobile-friendly:
 
 These were the original Open IA Questions. Each is now answered.
 
-1. **Should `Discover` and `Search` stay separate?** No — they merged into a single `/discover` surface (PR #52). The NL search bar lives at the top of the directory; structured filters expand below.
+1. **Should `Discover` and `Search` stay separate?** No — they merged into a single People surface. `/people` is canonical; `/search` and `/discover` redirect there. The NL search bar lives at the top of the directory; structured filters expand below.
 2. **Should `Inbox` include notifications, or should notifications live in a separate tray?** Both. The notifications popover (bell icon, header right-rail) is the realtime tray; `/inbox` is the durable, sectioned list of things still requiring action — friend requests, incoming asks, active threads, DMs, outgoing asks.
 3. **Should meetup proposal status live in Events / Inbox / both?** N/A — meetups deferred post-launch.
 4. **One combined profile editor or separate base / org editors?** Combined, for now. The `base_profile` / `organization_profile` schema split is preserved server-side for the multi-org future (when Chadwick International onboards as org #2).

@@ -1,10 +1,10 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-// Loading fallback for /discover. Matches page.tsx's hero + search-card +
+// Loading fallback for /people. Matches page.tsx's hero + search-card +
 // 3-column result grid. NL search round-trips through Haiku, so this is
 // the most-needed skeleton in the app.
-export default function DiscoverLoading() {
+export default function PeopleLoading() {
   return (
     <div>
       <section className="border-b bg-[linear-gradient(180deg,#fff_0%,#fafbfd_100%)]">

@@ -3,11 +3,15 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1'],
-  // Legacy route redirects after the /mentorship/request/* → /ask/*
-  // promotion. Permanent (308) so any stale email links and bookmarks
-  // route the user to the renamed page.
+  // Legacy route redirects. Permanent (308) so stale email links and
+  // bookmarks route users to the renamed pages.
   async redirects() {
     return [
+      {
+        source: '/ask',
+        destination: '/inbox',
+        permanent: true,
+      },
       {
         source: '/mentorship/request/new',
         destination: '/ask/new',
@@ -23,22 +27,26 @@ const nextConfig: NextConfig = {
         destination: '/ask/thread/:id',
         permanent: true,
       },
-      // /search → /discover rename. The directory page still does
-      // search internally (a query string ?q= still works); the URL
-      // just leads with the verb the brand prefers.
+      // /search and /discover now fold into /people, the canonical
+      // directory and request-start surface.
       {
         source: '/search',
-        destination: '/discover',
+        destination: '/people',
         permanent: true,
       },
-      // /friends folded into /discover (with a "People I know" filter)
+      {
+        source: '/discover',
+        destination: '/people',
+        permanent: true,
+      },
+      // /friends folded into /people (with a "People I know" filter)
       // and /inbox (where incoming requests now live). The 308 here
       // catches stale email links and bookmarks; we send root /friends
-      // to Discover with the filter pre-applied so the user lands on
+      // to People with the filter pre-applied so the user lands on
       // their friends list, the closest analog to the old page.
       {
         source: '/friends',
-        destination: '/discover?peopleIKnow=on',
+        destination: '/people?peopleIKnow=on',
         permanent: true,
       },
       // /messages list page folded into /inbox — the inbox now shows

@@ -9,20 +9,14 @@
 // pragma, lets both sides see the real array.
 
 export const MEMBER_NAV_LINKS = [
-  // Discover frames the directory as exploration, not a query — matches
-  // the brand thesis that members shouldn't start at a blank search box.
-  // /friends folded in here as a "People I know" filter; incoming friend
-  // requests live on /inbox alongside ask requests.
-  { href: '/discover', label: 'Discover', match: ['/discover', '/profile', '/friends'] },
-  // /ask is the verb-driven heart of the product — your sent asks + a CTA
-  // to start a new one. The composer at /ask/new and the thread at
-  // /ask/thread/* are reached from this surface or from a profile.
-  { href: '/ask', label: 'Ask', match: ['/ask'] },
+  // People is the canonical directory and the starting point for advice /
+  // mentorship requests. /friends folds in as a "People I know" filter;
+  // incoming friend requests live on /inbox alongside ask requests.
+  { href: '/people', label: 'People', match: ['/people', '/discover', '/profile', '/friends'] },
   // Inbox absorbs direct messages — the /messages list page redirects
-  // here, but /messages/[threadId] is still the conversation viewer
-  // (deep-linked from inbox), so we keep it in the match prefix list
-  // so the nav stays highlighted while reading a DM.
-  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages'] },
+  // here, and the top-level /ask page redirects here. Workflow ask
+  // routes stay highlighted here because request management lives in Inbox.
+  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages', '/ask'] },
   { href: '/events', label: 'Events', match: ['/events'] },
   // /announcements no longer has a top-nav slot — they're low-frequency
   // admin posts. The home page surfaces the latest one as a banner;
