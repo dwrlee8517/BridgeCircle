@@ -38,7 +38,7 @@ const STAGE_COPY: Record<Exclude<Stage, 'hidden'>, string> = {
 }
 
 /**
- * Client wrapper around /discover's interactive surface. Three jobs:
+ * Client wrapper around /people's interactive surface. Three jobs:
  *
  *  1. Hold `useTransition` state so prior results stay rendered (dimmed)
  *     while a new server query runs — instead of swapping to the loading.tsx
@@ -54,7 +54,7 @@ const STAGE_COPY: Record<Exclude<Stage, 'hidden'>, string> = {
  *     timings; structured search shows a single line. The 300ms delay keeps
  *     short structured searches silent.
  */
-export function DiscoverSearchSurface({ defaults, filtersOpen, children }: Props) {
+export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [searchKind, setSearchKind] = useState<SearchKind>('structured')
@@ -84,7 +84,7 @@ export function DiscoverSearchSurface({ defaults, filtersOpen, children }: Props
     setSearchKind((params.get('nl')?.length ?? 0) > 0 ? 'nl' : 'structured')
     const qs = params.toString()
     startTransition(() => {
-      router.push(qs.length > 0 ? `/discover?${qs}` : '/discover')
+      router.push(qs.length > 0 ? `/people?${qs}` : '/people')
     })
   }
 
@@ -92,7 +92,7 @@ export function DiscoverSearchSurface({ defaults, filtersOpen, children }: Props
     setStage('hidden')
     setSearchKind('structured')
     startTransition(() => {
-      router.push('/discover')
+      router.push('/people')
     })
   }
 

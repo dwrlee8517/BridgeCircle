@@ -9,8 +9,8 @@ import {
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { EmptyState } from '@/components/ui/empty-state'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
@@ -22,11 +22,11 @@ export default async function InboxPage() {
   const session = await requireSession()
   const supabase = await createClient()
 
-  // Inbox is the canonical "things waiting on you / things you're in"
-  // surface. Asks (incoming/outgoing/threads), friend requests
-  // (incoming/outgoing pending), and direct messages all flow through
-  // here — friendship and DMs folded in when /friends and /messages
-  // folded into /discover and /inbox respectively.
+  // Inbox is the canonical request lifecycle surface. Asks
+  // (incoming/outgoing/threads), friend requests (incoming/outgoing
+  // pending), and direct messages all flow through here — friendship and
+  // DMs folded in when /friends and /messages folded into /people and
+  // /inbox respectively.
   const [incoming, outgoing, threads, friendRequests, dmThreads] = await Promise.all([
     supabase
       .from('asks')
@@ -83,7 +83,8 @@ export default async function InboxPage() {
           Inbox
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Asks, friend requests, direct messages, and your open threads — everything in one place.
+          Requests, friend connections, direct messages, and open threads — everything that needs
+          attention after you reach out.
         </p>
       </div>
 
@@ -213,8 +214,8 @@ export default async function InboxPage() {
         empty={{
           icon: MessageSquare,
           title: 'No conversations yet',
-          description: 'Discover an alum and add them as a friend to start a thread.',
-          action: { label: 'Browse alumni', href: '/discover' },
+          description: 'Find an alum and add them as a friend to start a thread.',
+          action: { label: 'Find people', href: '/people' },
         }}
       >
         {dmThreads.map((t) => {
@@ -272,13 +273,13 @@ export default async function InboxPage() {
       </Section>
 
       <Section
-        title="Your outgoing asks"
-        description="Asks you've sent — full list lives at /ask."
+        title="Sent requests"
+        description="Advice and mentorship requests you've sent."
         empty={{
           icon: Send,
           title: "You haven't sent any asks yet",
-          description: 'Search for an alum to ask for advice or mentorship.',
-          action: { label: 'Find someone to ask', href: '/ask' },
+          description: 'Find an alum to ask for advice or mentorship.',
+          action: { label: 'Find people', href: '/people' },
         }}
       >
         {(outgoing.data ?? []).map((r) => {
@@ -375,34 +376,59 @@ function Section({
 }) {
   const arr = (Array.isArray(children) ? children : [children]).filter(Boolean)
   return (
-    <Card className="mb-6 transition-all hover:border-primary/60 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
-      <CardHeader>
+    <Card
+      size="sm"
+      className="mb-4 transition-all hover:border-primary/60 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]"
+    >
+      <CardHeader className="space-y-1 pb-0">
         <CardTitle
-          className="bc-fraunces text-2xl font-bold tracking-[-0.02em]"
+          className="bc-fraunces text-xl font-bold tracking-[-0.02em] sm:text-2xl"
           style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
         >
           {title}
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {arr.length > 0 ? (
-          arr
-        ) : (
-          // EmptyState's outer Card is flattened (no border/shadow,
-          // transparent bg) so it sits inside this Section's Card without
-          // looking card-in-card. Matches the size="inline" variant.
-          <EmptyState
-            icon={empty.icon}
-            title={empty.title}
-            description={empty.description}
-            action={empty.action}
-            size="inline"
-            className="border-none bg-transparent shadow-none"
-          />
-        )}
+      <CardContent className="space-y-2 pt-0">
+        {arr.length > 0 ? arr : <CompactEmptyState empty={empty} />}
       </CardContent>
     </Card>
+  )
+}
+
+function CompactEmptyState({
+  empty,
+}: {
+  empty: {
+    icon?: LucideIcon
+    title: string
+    description?: string
+    action?: { label: string; href: string }
+  }
+}) {
+  const Icon = empty.icon
+
+  return (
+    <div className="flex flex-col gap-2.5 rounded-lg border border-dashed bg-muted/20 p-2.5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-start gap-2.5">
+        {Icon ? (
+          <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+            <Icon className="size-3.5" />
+          </div>
+        ) : null}
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-foreground">{empty.title}</p>
+          {empty.description ? (
+            <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{empty.description}</p>
+          ) : null}
+        </div>
+      </div>
+      {empty.action ? (
+        <Button asChild size="xs" variant="outline" className="shrink-0 self-start sm:self-center">
+          <Link href={empty.action.href}>{empty.action.label}</Link>
+        </Button>
+      ) : null}
+    </div>
   )
 }
 

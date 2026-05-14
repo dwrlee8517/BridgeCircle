@@ -44,8 +44,8 @@ app/src/
 │   ├── api/              route handlers
 │   ├── (auth)/           sign in / signup / invite landing
 │   └── (member)/         authenticated app shell
-│       ├── discover/     directory + NL search (the old /search)
-│       ├── ask/          your asks + composer + thread (the old /mentorship/request)
+│       ├── people/       directory + NL search + request-start actions
+│       ├── ask/          internal ask workflow routes (new/detail/thread)
 │       ├── inbox/        asks + friend requests + DMs in one surface
 │       ├── messages/[id] DM conversation viewer (list folded into /inbox)
 │       ├── events/
@@ -144,9 +144,9 @@ Before declaring a task done:
 | Route | Purpose | Notes |
 |---|---|---|
 | `/` | Home — greeting, mentees waiting, new alumni, featured event, announcement banner, recent activity | Default after sign-in |
-| `/discover` | Alumni directory — NL search, structured filters, "People I know" toggle, friend signal on cards | Was `/search`; folded `/friends` in |
-| `/ask` | Your asks — outgoing list grouped open/closed + "Start a new ask" CTA | Composer at `/ask/new`, request detail at `/ask/[id]`, thread at `/ask/thread/[id]` |
-| `/inbox` | Unified things-waiting-on-you — friend requests, incoming asks, active threads, direct messages, outgoing | Folded in `/messages` (root) and `/friends` (incoming reqs) |
+| `/people` | Alumni directory — NL search, structured filters, "People I know" toggle, friend signal and ask CTAs on cards | Was `/discover`; folded `/friends` in |
+| `/ask` | Redirects to `/inbox`; not a member destination | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]` |
+| `/inbox` | Unified request lifecycle — friend requests, incoming asks, active threads, direct messages, sent requests | Folded in `/messages` (root), `/friends` (incoming reqs), and top-level `/ask` |
 | `/messages/[id]` | DM conversation viewer | Linked from `/inbox`; root `/messages` 308 → `/inbox` |
 | `/events`, `/events/[id]` | Events list + detail | |
 | `/announcements`, `/announcements/[id]` | Archive | Off top nav post-#55; entry via home banner + notifications |
@@ -154,9 +154,9 @@ Before declaring a task done:
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **Discover · Ask · Inbox · Events**. The `MEMBER_NAV_LINKS` in `src/app/(member)/member-nav.tsx` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Top nav (members): **People · Inbox · Events**. The `MEMBER_NAV_LINKS` in `src/app/(member)/member-nav.tsx` is the single source of truth — desktop nav and the mobile dropdown both render from it.
 
-Legacy URLs redirect (308): `/search → /discover`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/friends → /discover?peopleIKnow=on`, `/messages → /inbox`. See `next.config.ts`.
+Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/ask → /inbox`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/messages → /inbox`. See `next.config.ts`.
 
 ## Out Of Scope For Phase 1
 

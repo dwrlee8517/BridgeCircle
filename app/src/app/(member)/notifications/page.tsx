@@ -38,7 +38,7 @@ export default async function NotificationsPage() {
           icon={Bell}
           title="No notifications yet"
           description="Friend requests, mentor responses, messages, and announcements will show up here as they happen."
-          action={{ label: 'Browse the directory', href: '/discover' }}
+          action={{ label: 'Find people', href: '/people' }}
         />
       ) : (
         <Card>

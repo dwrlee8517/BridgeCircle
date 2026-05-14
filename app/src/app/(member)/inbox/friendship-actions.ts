@@ -17,7 +17,7 @@ export type FriendActionState = { ok: boolean; message: string }
  * receiverId is required; an optional message is supported but the v1
  * UI doesn't expose it.
  *
- * After Friends folded into Discover, the email's "review" link points
+ * After Friends folded into People, the email's "review" link points
  * recipients at /inbox where pending requests now live.
  */
 export async function sendFriendRequestAction(

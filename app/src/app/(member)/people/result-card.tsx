@@ -1,8 +1,10 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { displayName } from '@/lib/utils'
@@ -20,10 +22,11 @@ export type ResultCardProps = {
   graduationYear: number | null
   avatarUrl: string | null
   isOpenAsMentor: boolean
+  isOpenAsAdviceHelper: boolean
   mentorPaused: boolean
   // True when the viewer is already friends with this alum. Surfaces a
   // small "Friend" badge — replaces the standalone /friends page now that
-  // discovery folds the friend dimension in.
+  // People folds the friend dimension in.
   isFriend: boolean
   // NL-only fields. Null in structured mode.
   rationale: string | null
@@ -66,11 +69,12 @@ export function ResultCard(props: ResultCardProps) {
           {/* Photo placeholder — charcoal gradient with initials, dot grid, availability dot */}
           <div className="relative size-[72px] shrink-0 overflow-hidden rounded-[10px] bg-[linear-gradient(135deg,#1e293b_0%,#3f465c_100%)]">
             {props.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              // biome-ignore lint/performance/noImgElement: avatar URLs come from Supabase storage; Next/Image config not required here.
-              <img
+              <Image
                 src={props.avatarUrl}
                 alt=""
+                fill
+                sizes="72px"
+                unoptimized
                 className="absolute inset-0 size-full object-cover"
               />
             ) : (
@@ -131,6 +135,10 @@ export function ResultCard(props: ResultCardProps) {
                 <StatusBadge tone="open" dot>
                   Mentor
                 </StatusBadge>
+              ) : props.isOpenAsAdviceHelper ? (
+                <StatusBadge tone="open" dot>
+                  Advice
+                </StatusBadge>
               ) : props.mentorPaused ? (
                 <StatusBadge tone="warn" dot>
                   Paused
@@ -150,6 +158,23 @@ export function ResultCard(props: ResultCardProps) {
           <p className="mt-3 text-xs text-muted-foreground">{meta.join(' · ')}</p>
         ) : null}
       </Link>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {props.isOpenAsAdviceHelper ? (
+          <Button asChild size="sm" variant={props.isOpenAsMentor ? 'outline' : 'default'}>
+            <Link href={`/ask/new?to=${props.userId}&type=advice`}>Ask for advice</Link>
+          </Button>
+        ) : null}
+        {props.isOpenAsMentor ? (
+          <Button asChild size="sm">
+            <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>Request mentorship</Link>
+          </Button>
+        ) : null}
+        <Button asChild size="sm" variant="ghost">
+          <Link href={`/profile/${props.userId}`}>View profile</Link>
+        </Button>
+      </div>
+
       {hasRationale ? (
         <div className="-mx-5 -mb-5 mt-4 border-t bg-muted/40 px-5 py-2.5">
           <button
