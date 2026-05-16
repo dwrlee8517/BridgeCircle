@@ -30,16 +30,17 @@ If time runs out, cut from the bottom.
 
 ### Scope
 
-Three import paths, offered during profile setup:
+Four import paths, offered during profile setup:
 
 **A. Sign in with LinkedIn (OpenID Connect)**
 - scopes: `openid profile email`
 - fields received: name, email, headline, profile photo
 - UX: "Continue with LinkedIn" button on signup; user confirms imported fields before save
 
-**B. Paste LinkedIn URL**
+**B. Paste LinkedIn URL (link-only)**
 - free-text field stored as a display link on the profile
 - no scraping, no live fetch, no background sync
+- offered for users who don't want PDL lookup (Path D)
 
 **C. Resume upload → LLM extraction**
 - user uploads PDF or DOCX resume
@@ -48,19 +49,31 @@ Three import paths, offered during profile setup:
 - user reviews extracted fields on a confirm screen before saving
 - resume file stored in Supabase Storage private bucket with signed-URL access only
 
-This is the path that actually delivers on freshness; A and B are conveniences.
+**D. Paste LinkedIn URL → People Data Labs enrichment**
+- user pastes their own LinkedIn URL during onboarding
+- backend calls PDL Person Enrichment API; returns structured work history, education, skills, headline, summary
+- user reviews extracted fields on the same confirm screen as Path C before saving
+- 1 credit per call; cache by LinkedIn URL (90-day TTL) so re-enrichment doesn't double-charge
+- self-paste only (own URL); no batch lookups, no third-party enrichment without consent
+- consent copy shown above the URL field per the brand-voice rule
+
+Paths C and D deliver freshness; A and B are conveniences. C is the resilient fallback for profiles PDL doesn't match (sparse student LinkedIns, regional coverage gaps).
 
 ### Explicitly Not In Scope
 
-- live LinkedIn profile scraping
+- live LinkedIn profile scraping (direct browser automation against linkedin.com) — ban risk and ToS breach
 - LinkedIn work-history or education import via OAuth (scopes not granted by LinkedIn)
-- third-party enrichment APIs (Proxycurl, PDL) — reconsider post-Phase 1
+- batch enrichment of existing members without per-user consent
+- enrichment of any LinkedIn URL other than the signed-in user's own
 
 ### Files Touched
 
 - new: `app/api/linkedin/oauth/callback`
 - new: `app/api/resume/extract` (calls Claude)
-- new: `app/(onboarding)/import` with three path cards
+- new: `app/api/profile/enrich-linkedin` (calls PDL)
+- new: `app/src/lib/enrichment/pdl/` (extractor + normalizer; framework-agnostic per `/lib` discipline)
+- new: `app/(onboarding)/import` with four path cards
+- new migration: `pdl_enrichments` cache table (linkedin_url PK, payload jsonb, fetched_at)
 
 ## 2. Natural-Language Search
 

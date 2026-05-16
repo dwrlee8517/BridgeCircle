@@ -167,7 +167,7 @@ Do not build (without explicit user request):
 - mentorship scheduler or Zoom integration
 - social feed
 - saved mentor interest / passive matching
-- LinkedIn scraping or third-party enrichment APIs (Proxycurl, PDL)
+- direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach; use the PDL enrichment path on the paste-URL import flow instead
 - semantic vector search (NL search uses entity extraction → structured match)
 - per-organization or viewer-specific privacy rules
 - fundraising features

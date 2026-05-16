@@ -82,7 +82,7 @@ No admin analytics dashboard at launch. Use raw SQL against Supabase for the fir
 See `week-3-4.md`. At a glance:
 
 - friendship requests and direct messaging
-- LinkedIn OAuth and resume-upload import
+- profile import paths (LinkedIn OAuth, LinkedIn URL → PDL enrichment, resume upload)
 - natural-language search
 - field-level privacy UI (defaults still apply at launch)
 - admin analytics dashboard
