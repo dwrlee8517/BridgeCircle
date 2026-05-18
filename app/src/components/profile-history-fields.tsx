@@ -233,16 +233,24 @@ function CareerCard({
         />
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
-        <Input
-          value={entry.startDate ?? ''}
-          onChange={(e) => onChange({ startDate: e.target.value || null })}
-          placeholder="Start (YYYY or YYYY-MM)"
-        />
-        <Input
-          value={entry.endDate ?? ''}
-          onChange={(e) => onChange({ endDate: e.target.value || null })}
-          placeholder="End (blank = current)"
-        />
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Start</Label>
+          <Input
+            value={entry.startDate ?? ''}
+            onChange={(e) => onChange({ startDate: e.target.value || null })}
+            placeholder="YYYY or YYYY-MM"
+            inputMode="numeric"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">End</Label>
+          <Input
+            value={entry.endDate ?? ''}
+            onChange={(e) => onChange({ endDate: e.target.value || null })}
+            placeholder="Leave blank if current"
+            inputMode="numeric"
+          />
+        </div>
       </div>
       <Textarea
         value={entry.description ?? ''}
@@ -361,16 +369,24 @@ function EducationCard({
         />
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
-        <Input
-          value={entry.startDate ?? ''}
-          onChange={(e) => onChange({ startDate: e.target.value || null })}
-          placeholder="Start (YYYY)"
-        />
-        <Input
-          value={entry.endDate ?? ''}
-          onChange={(e) => onChange({ endDate: e.target.value || null })}
-          placeholder="End (YYYY)"
-        />
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Start year</Label>
+          <Input
+            value={entry.startDate ?? ''}
+            onChange={(e) => onChange({ startDate: e.target.value || null })}
+            placeholder="YYYY"
+            inputMode="numeric"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">End year</Label>
+          <Input
+            value={entry.endDate ?? ''}
+            onChange={(e) => onChange({ endDate: e.target.value || null })}
+            placeholder="YYYY"
+            inputMode="numeric"
+          />
+        </div>
       </div>
     </div>
   )
