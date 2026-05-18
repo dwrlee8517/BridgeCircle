@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/db/admin'
 import type { Database } from '@/db/database.types'
 import { setOpenToMentorship } from '@/lib/asks/preferences'
+import { upsertRefreshPolicy } from '@/lib/enrichment/persistSettings'
 import type {
   OnboardingAboutInput,
   OnboardingCurrentInput,
@@ -176,6 +177,15 @@ export async function saveOnboardingHelp(
 
   const prefResult = await setOpenToMentorship(supabase, membership.id, input.openToMentor)
   if (!prefResult.ok) return prefResult
+
+  // Freshness consent for the LinkedIn enrichment loop. Admin client because
+  // profile_enrichment_settings is service-role write-only — users can read
+  // their own row but the table is mutated by enrichment lib code only.
+  const admin = createAdminClient()
+  const policyResult = await upsertRefreshPolicy(admin, userId, input.freshnessPolicy)
+  if (!policyResult.ok) {
+    return { ok: false, error: 'db_error', detail: policyResult.error }
+  }
 
   return { ok: true }
 }

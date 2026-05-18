@@ -167,7 +167,7 @@ Do not build (without explicit user request):
 - mentorship scheduler or Zoom integration
 - social feed
 - saved mentor interest / passive matching
-- direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach; use the PDL enrichment path on the paste-URL import flow instead
+- direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach. The supported path is `lib/enrichment/` (LinkdAPI primary, Bright Data for the monthly sweep, PDL fallback) — see [`../docs/architecture/profile-enrichment.md`](../docs/architecture/profile-enrichment.md) for the full plan.
 - semantic vector search (NL search uses entity extraction → structured match)
 - per-organization or viewer-specific privacy rules
 - fundraising features

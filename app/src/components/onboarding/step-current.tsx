@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LinkedInImportLink } from './step-education'
 import { anyHasContent, useFormHasContent, useSubmitterTracker } from './use-form-has-content'
 
 export type StepCurrentState = {
@@ -50,6 +51,7 @@ export function StepCurrent({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5" onChange={onFormChange}>
+      <LinkedInImportLink step={3} />
       <div className="space-y-1.5">
         <Label htmlFor="currentEmployer">Current employer</Label>
         <Input

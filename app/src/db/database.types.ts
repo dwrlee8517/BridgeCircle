@@ -398,6 +398,42 @@ export type Database = {
           },
         ]
       }
+      enrichment_sweep_jobs: {
+        Row: {
+          completed_at: string | null
+          error: string | null
+          id: string
+          member_count: number
+          provider: string
+          snapshot_id: string | null
+          started_at: string
+          status: string
+          targets: Json
+        }
+        Insert: {
+          completed_at?: string | null
+          error?: string | null
+          id?: string
+          member_count: number
+          provider: string
+          snapshot_id?: string | null
+          started_at?: string
+          status?: string
+          targets?: Json
+        }
+        Update: {
+          completed_at?: string | null
+          error?: string | null
+          id?: string
+          member_count?: number
+          provider?: string
+          snapshot_id?: string | null
+          started_at?: string
+          status?: string
+          targets?: Json
+        }
+        Relationships: []
+      }
       event_rsvps: {
         Row: {
           event_id: string
@@ -891,6 +927,175 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      profile_change_proposals: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          current_snapshot: Json
+          diff: Json | null
+          expires_at: string
+          id: string
+          proposed_snapshot: Json
+          review_token: string
+          reviewed_at: string | null
+          source: string
+          source_run_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          current_snapshot: Json
+          diff?: Json | null
+          expires_at: string
+          id?: string
+          proposed_snapshot: Json
+          review_token: string
+          reviewed_at?: string | null
+          source: string
+          source_run_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          current_snapshot?: Json
+          diff?: Json | null
+          expires_at?: string
+          id?: string
+          proposed_snapshot?: Json
+          review_token?: string
+          reviewed_at?: string | null
+          source?: string
+          source_run_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_change_proposals_source_run_id_fkey'
+            columns: ['source_run_id']
+            isOneToOne: false
+            referencedRelation: 'profile_enrichment_runs'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_change_proposals_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      profile_enrichment_runs: {
+        Row: {
+          cost_units: number | null
+          created_at: string
+          error: string | null
+          fetched_at: string | null
+          fingerprint: string | null
+          id: string
+          provider: string
+          purpose: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          cost_units?: number | null
+          created_at?: string
+          error?: string | null
+          fetched_at?: string | null
+          fingerprint?: string | null
+          id?: string
+          provider: string
+          purpose: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          cost_units?: number | null
+          created_at?: string
+          error?: string | null
+          fetched_at?: string | null
+          fingerprint?: string | null
+          id?: string
+          provider?: string
+          purpose?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_enrichment_runs_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      profile_enrichment_settings: {
+        Row: {
+          consecutive_sweep_misses: number
+          consented_at: string | null
+          created_at: string
+          last_checked_at: string | null
+          last_enriched_at: string | null
+          last_profile_fingerprint: string | null
+          linkedin_url: string | null
+          linkedin_username: string | null
+          primary_provider_id: string | null
+          primary_provider_name: string | null
+          refresh_interval: string
+          refresh_policy: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          consecutive_sweep_misses?: number
+          consented_at?: string | null
+          created_at?: string
+          last_checked_at?: string | null
+          last_enriched_at?: string | null
+          last_profile_fingerprint?: string | null
+          linkedin_url?: string | null
+          linkedin_username?: string | null
+          primary_provider_id?: string | null
+          primary_provider_name?: string | null
+          refresh_interval?: string
+          refresh_policy?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          consecutive_sweep_misses?: number
+          consented_at?: string | null
+          created_at?: string
+          last_checked_at?: string | null
+          last_enriched_at?: string | null
+          last_profile_fingerprint?: string | null
+          linkedin_url?: string | null
+          linkedin_username?: string | null
+          primary_provider_id?: string | null
+          primary_provider_name?: string | null
+          refresh_interval?: string
+          refresh_policy?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_enrichment_settings_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
       }
       profile_refresh_prompts: {
         Row: {

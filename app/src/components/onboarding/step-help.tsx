@@ -17,12 +17,20 @@ export type StepHelpState = {
 
 const initialState: StepHelpState = {}
 
+export type FreshnessPolicy = 'manual_only' | 'review_before_update' | 'auto_apply_and_notify'
+
 type Props = {
   defaults: {
     avatarUrl: string
     bio: string
     openToMentor: boolean
     mentoringTopics: string
+    freshnessPolicy: FreshnessPolicy
+    /** True when the user has already imported from LinkedIn (a settings row
+     * exists). The freshness consent UI tones down when no URL is on file —
+     * the sweep can't act on it anyway, but we still record the preference
+     * so it's there if they add a URL later. */
+    hasLinkedinUrl: boolean
   }
   /** Used by AvatarUploader's fallback initial. */
   name: string
@@ -51,6 +59,7 @@ export function StepHelp({ defaults, name, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
   const [openToMentor, setOpenToMentor] = useState(defaults.openToMentor)
+  const [freshnessPolicy, setFreshnessPolicy] = useState<FreshnessPolicy>(defaults.freshnessPolicy)
   const initial =
     defaults.openToMentor ||
     anyHasContent(defaults.bio, defaults.mentoringTopics, defaults.avatarUrl)
@@ -125,6 +134,43 @@ export function StepHelp({ defaults, name, action }: Props) {
         </div>
       </div>
 
+      <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+        <div className="space-y-1">
+          <Label className="text-sm">Keep my profile fresh</Label>
+          <p className="text-xs text-muted-foreground">
+            {defaults.hasLinkedinUrl
+              ? 'How should we handle LinkedIn changes after you join?'
+              : "If you add a LinkedIn URL later, here's how we'll handle updates."}
+          </p>
+        </div>
+        {/* Hidden input mirrors the radio state so server actions receive the
+            selected value via FormData. */}
+        <input type="hidden" name="freshnessPolicy" value={freshnessPolicy} />
+        <div className="space-y-2">
+          <PolicyOption
+            value="review_before_update"
+            current={freshnessPolicy}
+            onChange={setFreshnessPolicy}
+            title="Email me proposed changes (recommended)"
+            description="Once a month we check LinkedIn for updates and email you anything that changed. You confirm before it lands on your profile."
+          />
+          <PolicyOption
+            value="auto_apply_and_notify"
+            current={freshnessPolicy}
+            onChange={setFreshnessPolicy}
+            title="Apply automatically, then email me"
+            description="High-confidence updates (new role, new title) apply without asking. We send a summary email with an Undo link."
+          />
+          <PolicyOption
+            value="manual_only"
+            current={freshnessPolicy}
+            onChange={setFreshnessPolicy}
+            title="Don't check automatically"
+            description="No emails. You can still click Update from LinkedIn on your profile any time."
+          />
+        </div>
+      </div>
+
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
@@ -154,5 +200,45 @@ export function StepHelp({ defaults, name, action }: Props) {
         </Button>
       </div>
     </form>
+  )
+}
+
+function PolicyOption({
+  value,
+  current,
+  onChange,
+  title,
+  description,
+}: {
+  value: FreshnessPolicy
+  current: FreshnessPolicy
+  onChange: (v: FreshnessPolicy) => void
+  title: string
+  description: string
+}) {
+  const selected = current === value
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(value)}
+      className={`w-full rounded-md border p-3 text-left transition ${
+        selected
+          ? 'border-foreground bg-background ring-2 ring-foreground/10'
+          : 'border-muted-foreground/20 bg-background hover:border-foreground/30'
+      }`}
+      aria-pressed={selected}
+    >
+      <div className="flex items-start gap-2.5">
+        <div
+          className={`mt-0.5 size-4 shrink-0 rounded-full border-2 ${
+            selected ? 'border-foreground bg-foreground' : 'border-muted-foreground/40'
+          }`}
+        />
+        <div className="space-y-0.5">
+          <p className="text-sm font-medium">{title}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+      </div>
+    </button>
   )
 }

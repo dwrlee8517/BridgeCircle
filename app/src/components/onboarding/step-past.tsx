@@ -9,6 +9,7 @@ import {
   SkillsField,
 } from '@/components/profile-history-fields'
 import { Button } from '@/components/ui/button'
+import { LinkedInImportLink } from './step-education'
 import { useFormHasContent, useSubmitterTracker } from './use-form-has-content'
 
 export type StepPastState = {
@@ -55,6 +56,7 @@ export function StepPast({ defaults, action, importReturnTo }: Props) {
 
   return (
     <form action={formAction} className="space-y-5" onChange={onFormChange}>
+      <LinkedInImportLink step={4} />
       {/* Resume import — primary path, big block at the top. */}
       <div className="rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-5">
         <div className="flex items-start gap-3">

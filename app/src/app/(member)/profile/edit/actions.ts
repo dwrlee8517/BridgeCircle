@@ -6,6 +6,7 @@ import { z } from 'zod'
 import type { ProfileFormState } from '@/components/profile-form'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { refreshFromLinkedIn } from '@/lib/enrichment/manualRefresh'
 import { PRIVACY_SECTIONS, privacySettingsSchema } from '@/lib/profile/privacy'
 import { savePrivacySettings } from '@/lib/profile/savePrivacySettings'
 import { saveProfile } from '@/lib/profile/saveProfile'
@@ -41,6 +42,37 @@ export async function editProfileAction(
   // Server-side flag (not a client toast) so it survives the redirect
   // without needing to wire Sonner through the (member) layout.
   redirect(`/profile/${session.userId}?saved=1`)
+}
+
+/**
+ * "Update from LinkedIn" — manual on-demand refresh.
+ *
+ * Calls the live LinkdAPI primary, falls back to PDL on failure. If the
+ * fetched profile fingerprint matches the last stored one, redirects with
+ * ?refresh=none for a "no updates found" banner. Otherwise creates a
+ * profile_change_proposals row and redirects to its review page.
+ */
+export async function refreshFromLinkedInAction(): Promise<void> {
+  const session = await requireSession()
+  const result = await refreshFromLinkedIn({ userId: session.userId })
+
+  if (!result.ok) {
+    const code =
+      result.error === 'no_settings'
+        ? 'no-url'
+        : result.error === 'all_providers_failed'
+          ? 'failed'
+          : result.error === 'quality_rejected'
+            ? 'rejected'
+            : 'error'
+    redirect(`/profile/edit?refresh=${code}`)
+  }
+
+  if (result.outcome === 'no_meaningful_change') {
+    redirect('/profile/edit?refresh=none')
+  }
+
+  redirect(`/profile/proposals/${result.proposalId}`)
 }
 
 export type AvatarUploadResult = { error?: string; publicUrl?: string }

@@ -199,6 +199,16 @@ export const onboardingHelpSchema = z.object({
   mentoringTopics: z.string().trim().max(500).optional().nullable(),
   bio: z.string().trim().max(1000).optional().nullable(),
   avatarUrl: optionalUrl,
+  /**
+   * How BridgeCircle handles ongoing LinkedIn freshness for this member.
+   * Defaulted to review_before_update per spec — emails proposed changes
+   * monthly and waits for confirmation. The other options are explicit:
+   * manual_only disables the sweep entirely; auto_apply_and_notify is opt-in
+   * silent updates. See docs/architecture/profile-enrichment.md.
+   */
+  freshnessPolicy: z
+    .enum(['manual_only', 'review_before_update', 'auto_apply_and_notify'])
+    .default('review_before_update'),
 })
 export type OnboardingHelpInput = z.infer<typeof onboardingHelpSchema>
 
@@ -208,5 +218,6 @@ export function parseOnboardingHelp(formData: FormData) {
     mentoringTopics: formData.get('mentoringTopics'),
     bio: formData.get('bio'),
     avatarUrl: formData.get('avatarUrl'),
+    freshnessPolicy: formData.get('freshnessPolicy'),
   })
 }
