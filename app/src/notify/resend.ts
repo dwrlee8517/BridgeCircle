@@ -13,6 +13,8 @@ import { MembershipDeactivatedEmail } from './emails/membership-deactivated-emai
 import { MembershipRejectedEmail } from './emails/membership-rejected-email'
 import { MentorshipAcceptedEmail } from './emails/mentorship-accepted-email'
 import { MentorshipRequestEmail } from './emails/mentorship-request-email'
+import { ProposalAppliedEmail } from './emails/proposal-applied-email'
+import { ProposalReviewEmail } from './emails/proposal-review-email'
 
 // Wrapped Resend client. Server-only: uses RESEND_API_KEY which is not exposed
 // to the browser. Importing from a 'use client' file will fail at build time.
@@ -417,6 +419,76 @@ export async function sendFriendRequestAcceptedEmail(
     from: FROM,
     to: [input.to],
     subject: `${input.accepterName} accepted your friend request`,
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+// ---------------------------------------------------------------------------
+// Profile enrichment — monthly sweep proposals
+// ---------------------------------------------------------------------------
+
+export type SendProposalReviewInput = {
+  to: string
+  recipientName: string | null
+  reviewUrl: string
+  confirmUrl: string
+  declineUrl: string
+  changeSummary: string
+}
+
+export async function sendProposalReviewEmail(
+  input: SendProposalReviewInput,
+): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    ProposalReviewEmail({
+      recipientName: input.recipientName,
+      reviewUrl: input.reviewUrl,
+      confirmUrl: input.confirmUrl,
+      declineUrl: input.declineUrl,
+      changeSummary: input.changeSummary,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: 'BridgeCircle: updates from your LinkedIn',
+    html,
+  })
+
+  if (error) return { ok: false, error: error.message }
+  if (!data?.id) return { ok: false, error: 'no id returned' }
+  return { ok: true, id: data.id }
+}
+
+export type SendProposalAppliedInput = {
+  to: string
+  recipientName: string | null
+  undoUrl: string
+  changeSummary: string
+}
+
+export async function sendProposalAppliedEmail(
+  input: SendProposalAppliedInput,
+): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
+
+  const html = await render(
+    ProposalAppliedEmail({
+      recipientName: input.recipientName,
+      undoUrl: input.undoUrl,
+      changeSummary: input.changeSummary,
+    }),
+  )
+  const { data, error } = await resend.emails.send({
+    from: FROM,
+    to: [input.to],
+    subject: 'BridgeCircle: we updated your profile from LinkedIn',
     html,
   })
 

@@ -10,7 +10,7 @@ These features are additive. If any are deferred, the launch-cut build still sta
 
 Build in this order so the riskiest and most product-important work happens first:
 
-1. LinkedIn import (OAuth + resume upload + LLM extraction)
+1. Profile import and enrichment (LinkdAPI LinkedIn URL import + resume upload + freshness consent)
 2. Natural-language search
 3. Friendship + direct messaging
 4. Field-level privacy UI
@@ -20,60 +20,100 @@ Build in this order so the riskiest and most product-important work happens firs
 
 If time runs out, cut from the bottom.
 
-## 1. LinkedIn Import
+## 1. Profile Import And Enrichment
 
 ### Goals
 
 - let users prefill profile fields with minimal typing
 - make future profile-freshness prompts one-tap instead of manual retyping
-- deliver on the "living directory" thesis without relying on scraping
+- collect explicit consent for ongoing profile freshness checks
+- deliver on the "living directory" thesis without first-party LinkedIn scraping
+
+Canonical architecture: [Profile enrichment and freshness](../../architecture/profile-enrichment.md).
 
 ### Scope
 
-Four import paths, offered during profile setup:
+Three import paths, offered during profile setup:
 
-**A. Sign in with LinkedIn (OpenID Connect)**
-- scopes: `openid profile email`
-- fields received: name, email, headline, profile photo
-- UX: "Continue with LinkedIn" button on signup; user confirms imported fields before save
+**A. Paste LinkedIn URL -> LinkdAPI enrichment (PDL fallback)**
+- primary onboarding path
+- user pastes their own LinkedIn URL during onboarding
+- backend calls LinkdAPI `GET /api/v1/profile/full`; falls back to PDL if LinkdAPI fails or returns low-quality data
+- mapped fields: work history, education, skills, headline, city, current employer, current title
+- user reviews extracted fields on the same confirm screen as resume extraction before saving
+- current assumption: 1 credit per profile pull unless LinkdAPI route-cost overrides change
+- cache by normalized LinkedIn URL, LinkedIn username, and provider record id where license terms allow
+- self-paste only; no third-party enrichment without consent
+- consent copy shown above the URL field per the brand-voice rule
 
-**B. Paste LinkedIn URL (link-only)**
-- free-text field stored as a display link on the profile
-- no scraping, no live fetch, no background sync
-- offered for users who don't want PDL lookup (Path D)
-
-**C. Resume upload → LLM extraction**
+**B. Resume upload -> LLM extraction**
 - user uploads PDF or DOCX resume
 - backend worker extracts: current employer, title, past roles, education, skills, location
 - extraction uses Claude Haiku with a strict JSON schema response (low cost, fast)
 - user reviews extracted fields on a confirm screen before saving
 - resume file stored in Supabase Storage private bucket with signed-URL access only
 
-**D. Paste LinkedIn URL → People Data Labs enrichment**
-- user pastes their own LinkedIn URL during onboarding
-- backend calls PDL Person Enrichment API; returns structured work history, education, skills, headline, summary
-- user reviews extracted fields on the same confirm screen as Path C before saving
-- 1 credit per call; cache by LinkedIn URL (90-day TTL) so re-enrichment doesn't double-charge
-- self-paste only (own URL); no batch lookups, no third-party enrichment without consent
-- consent copy shown above the URL field per the brand-voice rule
+**C. LinkedIn URL link-only**
+- free-text field stored as a display link on the profile
+- no live fetch, no background freshness checks
+- offered for users who choose `manual_only` or decline enrichment consent
 
-Paths C and D deliver freshness; A and B are conveniences. C is the resilient fallback for profiles PDL doesn't match (sparse student LinkedIns, regional coverage gaps).
+Sign in with LinkedIn can remain a future authentication convenience, but it is not the career-history import path. The available scopes do not provide full work history or education history.
+
+### Freshness Consent
+
+During onboarding, ask every member whether BridgeCircle may help keep the profile current.
+
+Options:
+
+- `review_before_update` - recommended default; BridgeCircle emails proposed changes for confirmation.
+- `auto_apply_and_notify` - explicit opt-in; high-confidence professional updates apply automatically and an email summary is sent.
+- `manual_only` - no scheduled checks; user can still click **Update from LinkedIn** later.
+
+### Scheduled Freshness
+
+Recurring checks are separate from onboarding import.
+
+- The sweep uses Bright Data's Marketplace Dataset Filter API against the LinkedIn People Profile dataset (`dataset_id = gd_l1viktl72bvl7bjuj0`) — submit member URLs, get back matched records from a pre-cleaned, normalized index. Filter call returns a `snapshot_id`; poll the Deliver Snapshot endpoint, then download.
+- LinkdAPI is the escalation path for URLs that miss in Bright Data's corpus three sweeps in a row (default ~3 months). PDL is the last resort if both fail.
+- The first pilot should cap PDL fallback at 90 successful calls per month so a noisy provider batch does not create surprise cost.
+- For a 1,000-member organization, a monthly sweep on Bright Data Filter API is about `$30/year` at list rate. Bright Data miss → LinkdAPI fallback adds ~`$10/year` at 10% miss rate. PDL fits inside its free 100-credit/month envelope.
+- Bright Data's dataset refreshes on a rolling per-record schedule averaging monthly; worst-case latency between a LinkedIn change and a sweep-triggered proposal is ~60 days. Users who need fresher data click **Update from LinkedIn** on their profile, which routes through LinkdAPI live.
 
 ### Explicitly Not In Scope
 
-- live LinkedIn profile scraping (direct browser automation against linkedin.com) — ban risk and ToS breach
+- first-party LinkedIn profile scraping or browser automation against linkedin.com
 - LinkedIn work-history or education import via OAuth (scopes not granted by LinkedIn)
 - batch enrichment of existing members without per-user consent
 - enrichment of any LinkedIn URL other than the signed-in user's own
+- contact enrichment for outreach
 
 ### Files Touched
 
-- new: `app/api/linkedin/oauth/callback`
-- new: `app/api/resume/extract` (calls Claude)
-- new: `app/api/profile/enrich-linkedin` (calls PDL)
-- new: `app/src/lib/enrichment/pdl/` (extractor + normalizer; framework-agnostic per `/lib` discipline)
-- new: `app/(onboarding)/import` with four path cards
-- new migration: `pdl_enrichments` cache table (linkedin_url PK, payload jsonb, fetched_at)
+As shipped (paths reflect the actual landed code; the original plan called these `lib/profile-enrichment/*` but the implementation lives under `lib/enrichment/`):
+
+- existing: `app/src/lib/resume/extract.ts` (Claude Haiku resume extraction — unchanged)
+- new: `app/src/lib/enrichment/types.ts` (`EnrichmentProvider` interface + tagged-union results)
+- new: `app/src/lib/enrichment/providers/{linkdapi,brightdata,pdl}.ts` (per-provider HTTP clients)
+- new: `app/src/lib/enrichment/mappers/{linkdapi,brightdata,pdl}.ts` (provider response → `ExtractedProfile`)
+- new: `app/src/lib/enrichment/fingerprint.ts` (Bright Data-shaped projection + sha256 hash)
+- new: `app/src/lib/enrichment/quality.ts` (name-similarity, drop-detection, placeholder gates)
+- new: `app/src/lib/enrichment/registry.ts` (config-flag routing of primary + fallback chain per job)
+- new: `app/src/lib/enrichment/onboardingFetch.ts` (paste-URL → ExtractedProfile)
+- new: `app/src/lib/enrichment/manualRefresh.ts` ("Update from LinkedIn" → diff → proposal-or-no-change)
+- new: `app/src/lib/enrichment/applyProposal.ts` (accept/decline + fingerprint refresh)
+- new: `app/src/lib/enrichment/sweep.ts` (monthly start + 5-min poll, processes records into proposals)
+- new: `app/src/lib/enrichment/verifyProposalToken.ts` (email-link token validator)
+- new: `app/src/lib/enrichment/persistSettings.ts` (settings upsert + freshness policy)
+- modified: `app/src/app/(member)/profile/import/page.tsx` accepts `?source=linkedin`, reuses the same confirm UI
+- new: `app/src/app/(member)/profile/import/confirm-step.tsx` (shared dual-seed review surface)
+- new: `app/src/app/(member)/profile/proposals/[id]/` (session-authed proposal review)
+- new: `app/src/app/proposals/[id]/` (root-level, token-authed; reached via email links)
+- new: `app/src/app/api/cron/enrichment-sweep-{start,poll}/route.ts` (pg_cron entry points, shared-secret auth)
+- new: `app/src/notify/emails/proposal-{review,applied}-email.tsx` + Resend wrappers
+- onboarding wire: inline "Import from LinkedIn" prompt across steps 2/3/4 + freshness consent radio on step 5
+- profile edit: **Update from LinkedIn** form button (live LinkdAPI fetch + diff)
+- migrations: `profile_enrichment_settings`, `profile_enrichment_runs`, `profile_change_proposals`, `enrichment_sweep_jobs`
 
 ## 2. Natural-Language Search
 
@@ -187,7 +227,7 @@ If weeks 3–4 run long, cut in this order (reverse of priority):
 
 Do not cut:
 
-- LinkedIn import (specifically the resume path — it's the freshness thesis)
+- profile import and enrichment (LinkdAPI onboarding import plus resume fallback are the freshness thesis)
 - NL search (it's the visible differentiator vs. competitors)
 - Friendship + DM (the reconnection half of the product wedge)
 
@@ -197,7 +237,7 @@ Do not cut:
 |---|---|---|
 | 1 | Auth, profile, admin CSV, approval queue | 5+ seeded profiles, invite → signup works |
 | 2 | Search, mentorship flow, events, inbox | core loop works end-to-end for real users |
-| 3 | LinkedIn import, NL search, friendship + DM | resume extraction works on 3 real resumes |
+| 3 | Profile import/enrichment, NL search, friendship + DM | LinkdAPI LinkedIn URL import and resume extraction both produce reviewable profiles |
 | 4 | Privacy UI, analytics, announcements, polish | full regression test the day before the demo |
 
 ## Post-Launch Backlog
@@ -207,6 +247,6 @@ Items from earlier docs that stay deferred:
 - meetup proposals + ambassador role
 - multi-org overlay UX (unlocks when Chadwick International joins as org #2)
 - saved mentor interest + passive recommendation surface
-- periodic profile-refresh prompts with cadence logic
+- advanced profile-refresh cadence tuning beyond the first monthly/quarterly policy
 - post-session mentor/mentee feedback loop
 - Discover home as a screen separate from Search
