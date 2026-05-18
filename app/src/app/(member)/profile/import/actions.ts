@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { createAdminClient } from '@/db/admin'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { fetchForOnboarding } from '@/lib/enrichment/onboardingFetch'
+import { upsertEnrichmentSettings } from '@/lib/enrichment/persistSettings'
 import { applyExtractedToProfile } from '@/lib/resume/applyToProfile'
 import { extractFromResume } from '@/lib/resume/extract'
 import {
@@ -78,6 +80,103 @@ export async function extractFromUploadAction(
   }
 
   return { profile: result.profile }
+}
+
+/**
+ * LinkedIn URL → ExtractedProfile via lib/enrichment.
+ *
+ * Walks the configured primary (LinkdAPI by default) then falls back to PDL,
+ * persisting one profile_enrichment_runs row per attempt. On success, also
+ * upserts profile_enrichment_settings so the monthly sweep has somewhere to
+ * track this user from. Returns the same ExtractState shape as the resume
+ * upload action so the confirm UI doesn't have to branch on source.
+ */
+export async function extractFromLinkedInAction(
+  _prev: ExtractState,
+  formData: FormData,
+): Promise<ExtractState> {
+  const session = await requireSession()
+  const raw = formData.get('linkedinUrl')
+
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
+    return { error: 'Paste your LinkedIn URL.' }
+  }
+
+  const url = raw.trim()
+  if (!/linkedin\.com\/in\//i.test(url) && !/^[a-z0-9-]+$/i.test(url)) {
+    return { error: "That doesn't look like a LinkedIn profile URL." }
+  }
+
+  // Pull identity fields so PDL fallback can keep trying when URL lookup
+  // misses — useful for alumni with sparse LinkedIn presence.
+  const supabase = await createClient()
+  const { data: base } = await supabase
+    .from('base_profiles')
+    .select('name')
+    .eq('user_id', session.userId)
+    .maybeSingle()
+  const email = session.email ?? null
+
+  const result = await fetchForOnboarding({
+    userId: session.userId,
+    url,
+    identity:
+      base?.name && email
+        ? { name: base.name, email, gradYear: new Date().getFullYear() }
+        : undefined,
+  })
+
+  if (!result.ok) {
+    Sentry.captureMessage('linkedin_enrichment_failed', {
+      level: 'info',
+      extra: { userId: session.userId, attempts: result.attempts },
+    })
+    return { error: linkedinErrorMessage(result.attempts) }
+  }
+
+  // Side-effect 1: write the URL onto base_profiles so subsequent onboarding
+  // steps can render it as the default. Use the user client — RLS allows it.
+  await supabase
+    .from('base_profiles')
+    .update({ linkedin_url: url, updated_at: new Date().toISOString() })
+    .eq('user_id', session.userId)
+
+  // Side-effect 2: upsert profile_enrichment_settings (service-role write —
+  // only admin client can insert here since users can read but not write
+  // their own row). Sweep targeting reads from this table.
+  const admin = createAdminClient()
+  const settingsResult = await upsertEnrichmentSettings(admin, {
+    userId: session.userId,
+    linkedinUrl: url,
+    linkedinUsername: result.linkedinUsername,
+    primaryProviderName: result.provider,
+    primaryProviderId: result.providerRecordId,
+    fingerprintHash: result.fingerprintHash,
+  })
+  if (!settingsResult.ok) {
+    // Don't block the user on a settings write — the proposal can still go
+    // through; we just log and move on.
+    Sentry.captureMessage('enrichment_settings_upsert_failed', {
+      level: 'warning',
+      extra: { userId: session.userId, error: settingsResult.error },
+    })
+  }
+
+  return { profile: result.profile }
+}
+
+function linkedinErrorMessage(attempts: Array<{ provider: string; error: string }>): string {
+  const lastErr = attempts[attempts.length - 1]?.error ?? ''
+  if (attempts.every((a) => a.error.includes('not_found'))) {
+    return "We couldn't find that LinkedIn profile. Double-check the URL is correct, or skip and fill manually."
+  }
+  if (lastErr.includes('rate_limited')) {
+    return 'LinkedIn lookup is temporarily busy. Try again in a minute, or skip and fill manually.'
+  }
+  if (lastErr.includes('no_api_key')) {
+    return 'LinkedIn import is not configured. Ask the admin.'
+  }
+  return "We couldn't import from that LinkedIn URL. Try again, or fill the fields manually."
 }
 
 export type ApplyState = {

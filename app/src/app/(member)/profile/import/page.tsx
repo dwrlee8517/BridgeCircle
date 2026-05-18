@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { type CurrentProfile, ImportFlow } from './import-flow'
+import { type CurrentProfile, ImportFlow, type ImportSource } from './import-flow'
 
-type SearchParams = { return?: string }
+type SearchParams = { return?: string; source?: string }
 
 export default async function ImportResumePage({
   searchParams,
@@ -17,12 +17,13 @@ export default async function ImportResumePage({
     typeof params.return === 'string' && params.return.startsWith('/')
       ? params.return
       : `/profile/${session.userId}`
+  const source: ImportSource = params.source === 'linkedin' ? 'linkedin' : 'resume'
 
   const supabase = await createClient()
   const { data: base } = await supabase
     .from('base_profiles')
     .select(
-      'name, headline, city, current_employer, current_title, university, major, career_history, education_history, skills',
+      'name, headline, city, current_employer, current_title, university, major, linkedin_url, career_history, education_history, skills',
     )
     .eq('user_id', session.userId)
     .maybeSingle()
@@ -35,6 +36,7 @@ export default async function ImportResumePage({
     currentTitle: base?.current_title ?? null,
     university: base?.university ?? null,
     major: base?.major ?? null,
+    linkedinUrl: base?.linkedin_url ?? null,
     // Existing arrays are passed in so the confirm step can show them
     // alongside the freshly-extracted entries — that's the only way the
     // user can untick something they've previously saved.
@@ -42,6 +44,19 @@ export default async function ImportResumePage({
     educationHistory: (base?.education_history as EducationEntryFromDb[] | null) ?? [],
     skills: base?.skills ?? [],
   }
+
+  const titleCopy =
+    source === 'linkedin'
+      ? {
+          title: 'Import from LinkedIn',
+          description:
+            'Paste your LinkedIn URL. We pull current role, career history, education, and skills, then let you review every field before saving.',
+        }
+      : {
+          title: 'Import from resume',
+          description:
+            'Upload a PDF or DOCX. We extract your career history, education, and skills, then let you review every field — including ones already on your profile — before saving.',
+        }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
@@ -54,14 +69,11 @@ export default async function ImportResumePage({
       </Link>
       <Card>
         <CardHeader>
-          <CardTitle>Import from resume</CardTitle>
-          <CardDescription>
-            Upload a PDF or DOCX. We extract your career history, education, and skills, then let
-            you review every field — including ones already on your profile — before saving.
-          </CardDescription>
+          <CardTitle>{titleCopy.title}</CardTitle>
+          <CardDescription>{titleCopy.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <ImportFlow current={current} returnTo={returnTo} />
+          <ImportFlow current={current} returnTo={returnTo} source={source} />
         </CardContent>
       </Card>
     </div>

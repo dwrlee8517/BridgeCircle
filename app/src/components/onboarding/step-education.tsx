@@ -1,5 +1,7 @@
 'use client'
 
+import { Link2 } from 'lucide-react'
+import Link from 'next/link'
 import { useActionState } from 'react'
 import {
   type EducationEntryInput,
@@ -51,6 +53,7 @@ export function StepEducation({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5" onChange={onFormChange}>
+      <LinkedInImportLink step={2} />
       <div className="space-y-1.5">
         <Label htmlFor="university">University</Label>
         <Input
@@ -105,5 +108,35 @@ export function StepEducation({ defaults, action }: Props) {
         </Button>
       </div>
     </form>
+  )
+}
+
+/**
+ * Inline LinkedIn import prompt for Steps 2/3/4. A single import fills
+ * education, current role, career history, and skills — so once a user
+ * accepts the import, the steps that follow are pre-filled.
+ *
+ * `step` controls where the user lands after the import confirm step.
+ */
+export function LinkedInImportLink({ step }: { step: 2 | 3 | 4 }) {
+  const returnTo = `/onboarding?step=${step}`
+  return (
+    <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm">
+      <div className="flex items-start gap-2">
+        <Link2 className="size-4 mt-0.5 text-sky-700" aria-hidden />
+        <div className="flex-1 space-y-1">
+          <p className="font-medium text-sky-900">Have a LinkedIn URL?</p>
+          <p className="text-xs text-sky-800">
+            Import once to pre-fill education, current role, career history, and skills.
+          </p>
+        </div>
+        <Link
+          href={`/profile/import?source=linkedin&return=${encodeURIComponent(returnTo)}`}
+          className="text-sm font-medium text-sky-900 underline underline-offset-2 hover:text-sky-700"
+        >
+          Import →
+        </Link>
+      </div>
+    </div>
   )
 }

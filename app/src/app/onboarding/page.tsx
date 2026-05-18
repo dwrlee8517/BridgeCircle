@@ -89,7 +89,7 @@ export default async function OnboardingPage({
     )
   }
 
-  const [{ data: orgProfile }, { data: pref }] = await Promise.all([
+  const [{ data: orgProfile }, { data: pref }, { data: enrichSettings }] = await Promise.all([
     supabase
       .from('organization_profiles')
       .select('graduation_year, bio, mentoring_topics')
@@ -99,6 +99,11 @@ export default async function OnboardingPage({
       .from('helper_preferences')
       .select('open_to_mentorship')
       .eq('organization_membership_id', membership.id)
+      .maybeSingle(),
+    supabase
+      .from('profile_enrichment_settings')
+      .select('refresh_policy, linkedin_url')
+      .eq('user_id', session.userId)
       .maybeSingle(),
   ])
 
@@ -245,6 +250,14 @@ export default async function OnboardingPage({
               bio: orgProfile?.bio ?? '',
               openToMentor: pref?.open_to_mentorship ?? false,
               mentoringTopics: orgProfile?.mentoring_topics?.join(', ') ?? '',
+              freshnessPolicy:
+                (enrichSettings?.refresh_policy as
+                  | 'manual_only'
+                  | 'review_before_update'
+                  | 'auto_apply_and_notify'
+                  | null
+                  | undefined) ?? 'review_before_update',
+              hasLinkedinUrl: !!(enrichSettings?.linkedin_url ?? base?.linkedin_url),
             }}
             name={base?.name ?? ''}
             action={helpAction}
