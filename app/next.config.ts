@@ -3,6 +3,19 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1'],
+  experimental: {
+    serverActions: {
+      // File uploads run through Server Actions (avatar via
+      // uploadAvatarAction, resume via extractFromUploadAction). Next.js
+      // defaults the Server Action body cap to 1 MB; both libs enforce
+      // a 5 MB file ceiling. The cap here is set slightly higher than
+      // 5 MB so multipart boundary bytes don't push a max-size file
+      // over the framework limit — that way the lib's friendly
+      // "File is too large" error fires instead of the framework's
+      // "Body exceeded" runtime error.
+      bodySizeLimit: '6mb',
+    },
+  },
   // Legacy route redirects. Permanent (308) so stale email links and
   // bookmarks route users to the renamed pages.
   async redirects() {

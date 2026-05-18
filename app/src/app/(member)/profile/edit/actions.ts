@@ -92,7 +92,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<AvatarUplo
   const result = await uploadAvatar(supabase, session.userId, file)
   if (!result.ok) {
     const messages: Record<typeof result.error, string> = {
-      too_large: 'File is too large. Please pick something under 4 MB.',
+      too_large: 'File is too large. Please pick something under 5 MB.',
       unsupported_type: 'Unsupported format. Use JPEG, PNG, WebP, or GIF.',
       upload_failed: 'Upload failed. Please try again.',
       profile_update_failed: 'Uploaded, but could not update your profile. Refresh and retry.',
