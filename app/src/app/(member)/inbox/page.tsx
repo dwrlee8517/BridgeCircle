@@ -375,10 +375,15 @@ function Section({
   children: React.ReactNode
 }) {
   const arr = (Array.isArray(children) ? children : [children]).filter(Boolean)
+  const hasContent = arr.length > 0
   return (
     <Card
       size="sm"
-      className="mb-4 transition-all hover:border-primary/60 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]"
+      className={`mb-4 transition-all ${
+        hasContent
+          ? 'hover:border-primary/60 hover:shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]'
+          : ''
+      }`}
     >
       <CardHeader className="space-y-1 pb-0">
         <CardTitle
@@ -390,7 +395,7 @@ function Section({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 pt-0">
-        {arr.length > 0 ? arr : <CompactEmptyState empty={empty} />}
+        {hasContent ? arr : <CompactEmptyState empty={empty} />}
       </CardContent>
     </Card>
   )
