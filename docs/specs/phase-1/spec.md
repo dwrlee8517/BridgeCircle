@@ -155,7 +155,7 @@ If this loop is weak, the MVP has not succeeded.
 - complex subgroup hierarchy
 - calendar scheduling for mentoring
 - Zoom integration in the first release
-- automated LinkedIn change scraping as a core dependency
+- first-party LinkedIn scraping or browser automation as a core dependency
 
 ## Required Profile Model
 
@@ -277,19 +277,28 @@ This should be framed as recommendation support, not as a fully autonomous match
 The Phase 1 refresh strategy should use:
 
 - manual profile editing
-- optional LinkedIn import and confirm
-- periodic confirm / update prompts
+- LinkdAPI-backed LinkedIn URL import during onboarding, with PDL fallback for hard-to-resolve profiles
+- **Update from LinkedIn** on the profile edit page (LinkdAPI live, PDL fallback)
+- periodic confirm / update prompts backed by profile-change proposals
+- Bright Data's Marketplace Dataset Filter API as the primary scheduled refresh provider for opted-in members
+- LinkdAPI as escalation for Bright Data dataset misses after repeated cycles; PDL as last resort
 - optional resume, CV, or screenshot-based extraction as fallback input
 
 Recommended prompt cadence:
 
-- every 6 to 12 months
+- monthly for the first pilot if diff quality and email volume stay sane
+- quarterly if users find monthly prompts too frequent
+- every 6 to 12 months for manual "still correct?" confirmations when no external change is detected
 - optionally before major alumni events or campaigns
 
 Important rule:
 
 - external profile import should support user confirmation
-- the product should not depend on unrestricted LinkedIn scraping to function
+- onboarding import uses LinkdAPI because it is structured and cheap enough for first-run profile quality; PDL covers profiles LinkdAPI cannot resolve
+- recurring freshness checks use Bright Data's pre-cleaned dataset because it is cheaper per record at sweep volume and survives any single-provider shutdown
+- LinkdAPI and PDL caps apply so a bad vendor batch cannot create surprise cost
+- the product should not depend on unrestricted or first-party LinkedIn scraping to function
+- users choose one of: `review_before_update`, `auto_apply_and_notify`, or `manual_only`
 
 ## Friendship Model
 

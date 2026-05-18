@@ -123,9 +123,11 @@ LinkedIn can help reduce onboarding friction, but it should not be treated as an
 
 Important conclusions:
 
-- Sign In with LinkedIn and light profile import are useful.
+- Pasted LinkedIn URL import is the preferred onboarding path for career and education history (current provider: LinkdAPI with PDL fallback; see `docs/architecture/profile-enrichment.md`).
+- Sign In with LinkedIn may be useful for authentication/light identity, but it is not the source for work-history sync.
 - Broader profile access is restricted.
 - The product should use "import and confirm" rather than promise fully automatic unrestricted profile syncing.
+- Ongoing freshness uses Bright Data's pre-cleaned LinkedIn dataset for monthly sweep, LinkdAPI for on-demand "Update from LinkedIn" clicks, and PDL as fallback — but only for users who consent.
 - Users should control which updates are public, private, or hidden.
 
 ## Recommended MVP

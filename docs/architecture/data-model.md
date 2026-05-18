@@ -289,23 +289,25 @@ Per the launch spec: no `meetup_proposals`, no `mentorship_response` (the respon
 
 ## What changes in week 3+
 
-Nothing in this schema needs to change. Week 3 work is:
+The launch-cut schema still stands on its own. Week 3+ schema work is additive:
 
 - Wire UI to existing `friend_requests`, `friendships`, `direct_message_threads` tables
-- Add LinkedIn OAuth columns to `base_profiles` (`linkedin_id`, `linkedin_synced_at`)
+- Add profile enrichment settings/runs/proposals for the LinkdAPI onboarding import and refresh workflow
 - Wire UI to `notifications` table for in-app tray
 - Wire UI to `profile_refresh_prompts`
 - Wire UI to `announcements`
 - Wire UI to `saved_searches`
 - Build admin analytics dashboard against existing tables (no new schema)
 
-If something in week 3 does need a schema change, we lost a bet. The point of designing the full schema on Day 1 is to make sure we did not.
+If something in week 3 requires a destructive change to the launch-cut schema, we lost a bet. Additive tables and columns are expected for richer profile enrichment.
 
 ---
 
 ## Future profile expansion
 
 Once members start importing LinkedIn profiles, uploading resumes, and adding richer professional history, `base_profiles` alone is not enough. This section sketches the additive migration path. **Nothing here ships on Day 1** — but the launch schema is shaped to accommodate it without rework.
+
+Canonical provider plan: [Profile enrichment and freshness](profile-enrichment.md). In short: LinkdAPI powers initial onboarding import and manual **Update from LinkedIn**; Bright Data's Marketplace Dataset Filter API powers the monthly sweep against a pre-cleaned LinkedIn profile index; PDL is the fallback across the board (free tier covers pilot scale). The three providers sit behind a single `EnrichmentProvider` interface so failover is a config flag, not a refactor. User-confirmed proposals remain the write gate unless the user explicitly opts into auto-apply.
 
 ### The scaling rule
 
@@ -349,9 +351,24 @@ resume_uploads
   id, base_profile_id (FK), file_path (Supabase Storage),
   parsed_text, parse_status (pending | parsed | failed), parse_error,
   uploaded_at, version
+
+profile_enrichment_settings
+  user_id (FK), linkedin_url, linkedin_username, linkdapi_urn, pdl_person_id,
+  primary_provider (linkdapi), fallback_provider (pdl),
+  refresh_policy (manual_only | review_before_update | auto_apply_and_notify),
+  refresh_interval (monthly | quarterly),
+  consented_at, last_checked_at, last_enriched_at,
+  last_profile_fingerprint,
+  updated_at, created_at
+
+profile_enrichment_runs
+  id, user_id (FK), provider (linkdapi | pdl | bright_data),
+  purpose (onboarding_import | manual_refresh | scheduled_check | fallback_verification),
+  status (succeeded | no_match | failed | skipped_cap | skipped_unchanged),
+  cost_units, fingerprint, error, fetched_at, created_at
 ```
 
-Common pattern: every row carries `source`, `confirmed_at`, `updated_at`. This is what powers freshness tracking and the proposal workflow below.
+Common pattern for professional profile rows: every row carries `source`, `confirmed_at`, `updated_at`. This is what powers freshness tracking and the proposal workflow below.
 
 The `resumes` Supabase Storage bucket is already provisioned for week 3 per [phase-1-launch-spec.md:158](../specs/phase-1/launch-cut.md). `resume_uploads` is the metadata table that points into it.
 
@@ -374,32 +391,34 @@ ALTER TABLE base_profiles
 
 ### Background updates need a proposal inbox
 
-LinkedIn sync, resume re-parse, employer-domain heuristics — none of these should silently overwrite the user's data. The product principle in [phase-1-spec.md:289](../specs/phase-1/spec.md) is explicit: external profile imports must support user confirmation.
+LinkedIn/LinkdAPI enrichment, PDL fallback checks, resume re-parse, employer-domain heuristics — none of these should silently overwrite the user's data unless the user explicitly chose `auto_apply_and_notify`. The product principle in [phase-1-spec.md:289](../specs/phase-1/spec.md) is explicit: external profile imports must support user confirmation.
 
 The schema enforcement is a proposal table:
 
 ```
 profile_change_proposals
   id
-  base_profile_id (FK)
-  source                 -- linkedin | resume | csv_import | inferred
-  source_record_id       -- e.g. resume_uploads.id, for traceability
+  user_id (FK)
+  source                 -- linkdapi | pdl | bright_data | resume | csv_import | inferred
+  source_run_id          -- profile_enrichment_runs.id or resume_uploads.id
   target_table           -- 'base_profiles' | 'work_history' | ...
   target_row_id          -- nullable when proposing to insert a new row
   target_field           -- nullable when proposing a whole new row
   current_value (jsonb)
   proposed_value (jsonb)
-  status                 -- pending | accepted | rejected | superseded
+  status                 -- pending | accepted | edited | declined | auto_applied | superseded
   proposed_at, reviewed_at, reviewed_by
 ```
 
 Lifecycle:
 
-1. Background worker parses resume / pulls LinkedIn → diffs against current profile → inserts N `pending` proposals.
-2. User sees a "review changes" panel: *"LinkedIn says your title is now Senior PM — accept?"*
-3. Accept → write to the real table → proposal `status=accepted` → audit_log row.
-4. Reject → proposal `status=rejected`; the source respects a cooldown before re-proposing the same diff.
-5. Newer parse arrives → older pending proposals get marked `superseded`.
+1. Onboarding import calls LinkdAPI, maps professional fields, and shows the review UI before first save.
+2. Background worker parses resume / checks LinkdAPI / falls back to PDL → diffs against current profile → inserts N `pending` proposals.
+3. User sees a "review changes" panel: *"LinkedIn says your title is now Senior PM — accept?"*
+4. Accept → write to the real table → proposal `status=accepted` → audit_log row.
+5. Edit → user modifies the proposed data before applying → proposal `status=edited`.
+6. Decline → proposal `status=declined`; the source respects a cooldown before re-proposing the same diff.
+7. Newer parse arrives → older pending proposals get marked `superseded`.
 
 Why this beats "just write through":
 
@@ -411,22 +430,24 @@ Why this beats "just write through":
 ### The full freshness loop (when this is wired up)
 
 ```
-profile_refresh_prompts.due_at fires (cron, every 6–12 months per org_membership)
+profile_enrichment_settings refresh interval fires (cron, monthly or quarterly)
    ↓
-email + in-app prompt: "still at Google as Senior PM in Brooklyn?"
+Bright Data Dataset Filter API returns matched records for opted-in LinkedIn URLs; writes profile_enrichment_runs
    ↓
-user clicks → either:
-   (a) "still correct"               → set *_confirmed_at = now()
-   (b) "let me update"               → form pre-fills current values
-   (c) "import from LinkedIn"        → background worker writes profile_change_proposals
-   (d) "re-parse my resume"          → ditto, source=resume
+unchanged fingerprints stop here; URLs missing from the dataset for 3+ sweeps escalate to LinkdAPI; if LinkdAPI also fails, PDL within the monthly cap
    ↓
-review pending proposals → accept/reject each diff
+profile_change_proposals inserted for meaningful diffs
+   ↓
+email + in-app prompt: "LinkedIn suggests your current role changed to Senior PM at Google"
+   ↓
+user clicks → confirm, edit, or decline
    ↓
 audit_log row for whatever happened
    ↓
-next profile_refresh_prompt scheduled for due_at + 6 months
+next profile_enrichment_settings check scheduled by refresh_interval
 ```
+
+`profile_refresh_prompts` still handles manual "is this still correct?" prompts when no external change has been detected for 6-12 months.
 
 ### Search ranking gets richer for free
 

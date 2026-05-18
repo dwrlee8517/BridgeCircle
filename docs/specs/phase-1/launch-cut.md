@@ -82,7 +82,7 @@ No admin analytics dashboard at launch. Use raw SQL against Supabase for the fir
 See `week-3-4.md`. At a glance:
 
 - friendship requests and direct messaging
-- profile import paths (LinkedIn OAuth, LinkedIn URL → PDL enrichment, resume upload)
+- profile import paths (LinkedIn URL enrichment via LinkdAPI with PDL fallback, monthly sweep via Bright Data Dataset Filter API, resume upload, link-only fallback)
 - natural-language search
 - field-level privacy UI (defaults still apply at launch)
 - admin analytics dashboard
@@ -178,4 +178,3 @@ These must run alongside the build, not after:
 - ambassador briefing: what to say to fellow alumni, how to onboard their class in 5 minutes
 - invite email copy drafted and tested (subject line drives activation)
 - landing copy explaining why BridgeCircle exists specifically for Chadwick — not a generic pitch
-
