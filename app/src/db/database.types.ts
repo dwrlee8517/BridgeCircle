@@ -1,16 +1,10 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: '14.5'
   }
   graphql_public: {
     Tables: {
@@ -44,44 +38,44 @@ export type Database = {
           granted_at: string
           granted_by: string | null
           organization_id: string
-          role: Database["public"]["Enums"]["admin_role"]
+          role: Database['public']['Enums']['admin_role']
           user_id: string
         }
         Insert: {
           granted_at?: string
           granted_by?: string | null
           organization_id: string
-          role: Database["public"]["Enums"]["admin_role"]
+          role: Database['public']['Enums']['admin_role']
           user_id: string
         }
         Update: {
           granted_at?: string
           granted_by?: string | null
           organization_id?: string
-          role?: Database["public"]["Enums"]["admin_role"]
+          role?: Database['public']['Enums']['admin_role']
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "admin_role_assignments_granted_by_fkey"
-            columns: ["granted_by"]
+            foreignKeyName: 'admin_role_assignments_granted_by_fkey'
+            columns: ['granted_by']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "admin_role_assignments_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'admin_role_assignments_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "admin_role_assignments_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'admin_role_assignments_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -115,18 +109,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "announcements_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: 'announcements_created_by_fkey'
+            columns: ['created_by']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "announcements_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'announcements_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -138,7 +132,7 @@ export type Database = {
           helper_id: string
           id: string
           last_message_at: string | null
-          status: Database["public"]["Enums"]["ask_thread_status"]
+          status: Database['public']['Enums']['ask_thread_status']
         }
         Insert: {
           ask_id: string
@@ -147,7 +141,7 @@ export type Database = {
           helper_id: string
           id?: string
           last_message_at?: string | null
-          status?: Database["public"]["Enums"]["ask_thread_status"]
+          status?: Database['public']['Enums']['ask_thread_status']
         }
         Update: {
           ask_id?: string
@@ -156,35 +150,35 @@ export type Database = {
           helper_id?: string
           id?: string
           last_message_at?: string | null
-          status?: Database["public"]["Enums"]["ask_thread_status"]
+          status?: Database['public']['Enums']['ask_thread_status']
         }
         Relationships: [
           {
-            foreignKeyName: "mentorship_threads_mentee_id_fkey"
-            columns: ["asker_id"]
+            foreignKeyName: 'mentorship_threads_mentee_id_fkey'
+            columns: ['asker_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "mentorship_threads_mentor_id_fkey"
-            columns: ["helper_id"]
+            foreignKeyName: 'mentorship_threads_mentor_id_fkey'
+            columns: ['helper_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "mentorship_threads_request_id_fkey"
-            columns: ["ask_id"]
+            foreignKeyName: 'mentorship_threads_request_id_fkey'
+            columns: ['ask_id']
             isOneToOne: false
-            referencedRelation: "asks"
-            referencedColumns: ["id"]
+            referencedRelation: 'asks'
+            referencedColumns: ['id']
           },
         ]
       }
       asks: {
         Row: {
-          ask_type: Database["public"]["Enums"]["ask_type"]
+          ask_type: Database['public']['Enums']['ask_type']
           asker_id: string
           background: string | null
           created_at: string
@@ -195,10 +189,10 @@ export type Database = {
           reason: string | null
           responded_at: string | null
           screening_answer: string | null
-          status: Database["public"]["Enums"]["ask_status"]
+          status: Database['public']['Enums']['ask_status']
         }
         Insert: {
-          ask_type?: Database["public"]["Enums"]["ask_type"]
+          ask_type?: Database['public']['Enums']['ask_type']
           asker_id: string
           background?: string | null
           created_at?: string
@@ -209,10 +203,10 @@ export type Database = {
           reason?: string | null
           responded_at?: string | null
           screening_answer?: string | null
-          status?: Database["public"]["Enums"]["ask_status"]
+          status?: Database['public']['Enums']['ask_status']
         }
         Update: {
-          ask_type?: Database["public"]["Enums"]["ask_type"]
+          ask_type?: Database['public']['Enums']['ask_type']
           asker_id?: string
           background?: string | null
           created_at?: string
@@ -223,29 +217,29 @@ export type Database = {
           reason?: string | null
           responded_at?: string | null
           screening_answer?: string | null
-          status?: Database["public"]["Enums"]["ask_status"]
+          status?: Database['public']['Enums']['ask_status']
         }
         Relationships: [
           {
-            foreignKeyName: "mentorship_requests_mentee_id_fkey"
-            columns: ["asker_id"]
+            foreignKeyName: 'mentorship_requests_mentee_id_fkey'
+            columns: ['asker_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "mentorship_requests_mentor_id_fkey"
-            columns: ["helper_id"]
+            foreignKeyName: 'mentorship_requests_mentor_id_fkey'
+            columns: ['helper_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "mentorship_requests_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'mentorship_requests_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -282,18 +276,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "audit_log_actor_id_fkey"
-            columns: ["actor_id"]
+            foreignKeyName: 'audit_log_actor_id_fkey'
+            columns: ['actor_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "audit_log_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'audit_log_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -360,11 +354,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "base_profiles_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'base_profiles_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -389,18 +383,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "direct_message_threads_user_a_id_fkey"
-            columns: ["user_a_id"]
+            foreignKeyName: 'direct_message_threads_user_a_id_fkey'
+            columns: ['user_a_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "direct_message_threads_user_b_id_fkey"
-            columns: ["user_b_id"]
+            foreignKeyName: 'direct_message_threads_user_b_id_fkey'
+            columns: ['user_b_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -444,35 +438,35 @@ export type Database = {
         Row: {
           event_id: string
           responded_at: string
-          status: Database["public"]["Enums"]["event_rsvp_status"]
+          status: Database['public']['Enums']['event_rsvp_status']
           user_id: string
         }
         Insert: {
           event_id: string
           responded_at?: string
-          status: Database["public"]["Enums"]["event_rsvp_status"]
+          status: Database['public']['Enums']['event_rsvp_status']
           user_id: string
         }
         Update: {
           event_id?: string
           responded_at?: string
-          status?: Database["public"]["Enums"]["event_rsvp_status"]
+          status?: Database['public']['Enums']['event_rsvp_status']
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "event_rsvps_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: 'event_rsvps_event_id_fkey'
+            columns: ['event_id']
             isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
+            referencedRelation: 'events'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "event_rsvps_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'event_rsvps_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -518,18 +512,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "events_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: 'events_created_by_fkey'
+            columns: ['created_by']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "events_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'events_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -541,7 +535,7 @@ export type Database = {
           receiver_id: string
           responded_at: string | null
           sender_id: string
-          status: Database["public"]["Enums"]["friend_request_status"]
+          status: Database['public']['Enums']['friend_request_status']
         }
         Insert: {
           created_at?: string
@@ -550,7 +544,7 @@ export type Database = {
           receiver_id: string
           responded_at?: string | null
           sender_id: string
-          status?: Database["public"]["Enums"]["friend_request_status"]
+          status?: Database['public']['Enums']['friend_request_status']
         }
         Update: {
           created_at?: string
@@ -559,22 +553,22 @@ export type Database = {
           receiver_id?: string
           responded_at?: string | null
           sender_id?: string
-          status?: Database["public"]["Enums"]["friend_request_status"]
+          status?: Database['public']['Enums']['friend_request_status']
         }
         Relationships: [
           {
-            foreignKeyName: "friend_requests_receiver_id_fkey"
-            columns: ["receiver_id"]
+            foreignKeyName: 'friend_requests_receiver_id_fkey'
+            columns: ['receiver_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "friend_requests_sender_id_fkey"
-            columns: ["sender_id"]
+            foreignKeyName: 'friend_requests_sender_id_fkey'
+            columns: ['sender_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -599,18 +593,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "friendships_user_a_id_fkey"
-            columns: ["user_a_id"]
+            foreignKeyName: 'friendships_user_a_id_fkey'
+            columns: ['user_a_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "friendships_user_b_id_fkey"
-            columns: ["user_b_id"]
+            foreignKeyName: 'friendships_user_b_id_fkey'
+            columns: ['user_b_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -653,11 +647,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "mentorship_preferences_organization_membership_id_fkey"
-            columns: ["organization_membership_id"]
+            foreignKeyName: 'mentorship_preferences_organization_membership_id_fkey'
+            columns: ['organization_membership_id']
             isOneToOne: true
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -673,7 +667,7 @@ export type Database = {
           id: string
           organization_id: string
           sent_by: string | null
-          status: Database["public"]["Enums"]["invite_status"]
+          status: Database['public']['Enums']['invite_status']
           token: string
         }
         Insert: {
@@ -687,7 +681,7 @@ export type Database = {
           id?: string
           organization_id: string
           sent_by?: string | null
-          status?: Database["public"]["Enums"]["invite_status"]
+          status?: Database['public']['Enums']['invite_status']
           token: string
         }
         Update: {
@@ -701,30 +695,30 @@ export type Database = {
           id?: string
           organization_id?: string
           sent_by?: string | null
-          status?: Database["public"]["Enums"]["invite_status"]
+          status?: Database['public']['Enums']['invite_status']
           token?: string
         }
         Relationships: [
           {
-            foreignKeyName: "invites_accepted_by_fkey"
-            columns: ["accepted_by"]
+            foreignKeyName: 'invites_accepted_by_fkey'
+            columns: ['accepted_by']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "invites_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'invites_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "invites_sent_by_fkey"
-            columns: ["sent_by"]
+            foreignKeyName: 'invites_sent_by_fkey'
+            columns: ['sent_by']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -736,7 +730,7 @@ export type Database = {
           read_at: string | null
           sender_id: string
           thread_id: string
-          thread_type: Database["public"]["Enums"]["message_thread_type"]
+          thread_type: Database['public']['Enums']['message_thread_type']
         }
         Insert: {
           body: string
@@ -745,7 +739,7 @@ export type Database = {
           read_at?: string | null
           sender_id: string
           thread_id: string
-          thread_type: Database["public"]["Enums"]["message_thread_type"]
+          thread_type: Database['public']['Enums']['message_thread_type']
         }
         Update: {
           body?: string
@@ -754,15 +748,15 @@ export type Database = {
           read_at?: string | null
           sender_id?: string
           thread_id?: string
-          thread_type?: Database["public"]["Enums"]["message_thread_type"]
+          thread_type?: Database['public']['Enums']['message_thread_type']
         }
         Relationships: [
           {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
+            foreignKeyName: 'messages_sender_id_fkey'
+            columns: ['sender_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -802,18 +796,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "notifications_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'notifications_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'notifications_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -825,7 +819,7 @@ export type Database = {
           id: string
           joined_at: string | null
           organization_id: string
-          status: Database["public"]["Enums"]["membership_status"]
+          status: Database['public']['Enums']['membership_status']
           user_id: string
         }
         Insert: {
@@ -835,7 +829,7 @@ export type Database = {
           id?: string
           joined_at?: string | null
           organization_id: string
-          status?: Database["public"]["Enums"]["membership_status"]
+          status?: Database['public']['Enums']['membership_status']
           user_id: string
         }
         Update: {
@@ -845,30 +839,30 @@ export type Database = {
           id?: string
           joined_at?: string | null
           organization_id?: string
-          status?: Database["public"]["Enums"]["membership_status"]
+          status?: Database['public']['Enums']['membership_status']
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "organization_memberships_approved_by_fkey"
-            columns: ["approved_by"]
+            foreignKeyName: 'organization_memberships_approved_by_fkey'
+            columns: ['approved_by']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "organization_memberships_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'organization_memberships_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "organization_memberships_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'organization_memberships_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -902,11 +896,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "organization_profiles_organization_membership_id_fkey"
-            columns: ["organization_membership_id"]
+            foreignKeyName: 'organization_profiles_organization_membership_id_fkey'
+            columns: ['organization_membership_id']
             isOneToOne: true
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -982,18 +976,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_change_proposals_source_run_id_fkey"
-            columns: ["source_run_id"]
+            foreignKeyName: 'profile_change_proposals_source_run_id_fkey'
+            columns: ['source_run_id']
             isOneToOne: false
-            referencedRelation: "profile_enrichment_runs"
-            referencedColumns: ["id"]
+            referencedRelation: 'profile_enrichment_runs'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "profile_change_proposals_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profile_change_proposals_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1036,11 +1030,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_enrichment_runs_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profile_enrichment_runs_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1095,11 +1089,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_enrichment_settings_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profile_enrichment_settings_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1127,11 +1121,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_refresh_prompts_organization_membership_id_fkey"
-            columns: ["organization_membership_id"]
+            foreignKeyName: 'profile_refresh_prompts_organization_membership_id_fkey'
+            columns: ['organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1165,18 +1159,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "saved_searches_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'saved_searches_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "saved_searches_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'saved_searches_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1222,11 +1216,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "organization_memberships_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'organization_memberships_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1238,11 +1232,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "invites_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'invites_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1255,11 +1249,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "mentorship_requests_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'mentorship_requests_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1271,11 +1265,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "organization_memberships_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'organization_memberships_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1288,11 +1282,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "events_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'events_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1307,20 +1301,15 @@ export type Database = {
       shares_org_with: { Args: { other_user_id: string }; Returns: boolean }
     }
     Enums: {
-      admin_role: "super_admin" | "admin" | "event_moderator" | "ambassador"
-      ask_status: "pending" | "accepted" | "declined" | "expired"
-      ask_thread_status: "active" | "archived"
-      ask_type: "advice" | "mentorship"
-      event_rsvp_status: "going" | "not_going" | "waitlisted"
-      friend_request_status: "pending" | "accepted" | "declined"
-      invite_status: "pending" | "accepted" | "expired" | "revoked"
-      membership_status:
-        | "pending"
-        | "active"
-        | "rejected"
-        | "revoked"
-        | "self_deactivated"
-      message_thread_type: "ask" | "direct"
+      admin_role: 'super_admin' | 'admin' | 'event_moderator' | 'ambassador'
+      ask_status: 'pending' | 'accepted' | 'declined' | 'expired'
+      ask_thread_status: 'active' | 'archived'
+      ask_type: 'advice' | 'mentorship'
+      event_rsvp_status: 'going' | 'not_going' | 'waitlisted'
+      friend_request_status: 'pending' | 'accepted' | 'declined'
+      invite_status: 'pending' | 'accepted' | 'expired' | 'revoked'
+      membership_status: 'pending' | 'active' | 'rejected' | 'revoked' | 'self_deactivated'
+      message_thread_type: 'ask' | 'direct'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1328,33 +1317,31 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1363,23 +1350,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1388,23 +1375,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1413,36 +1400,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
+    | keyof DefaultSchema['Enums']
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
@@ -1451,21 +1438,15 @@ export const Constants = {
   },
   public: {
     Enums: {
-      admin_role: ["super_admin", "admin", "event_moderator", "ambassador"],
-      ask_status: ["pending", "accepted", "declined", "expired"],
-      ask_thread_status: ["active", "archived"],
-      ask_type: ["advice", "mentorship"],
-      event_rsvp_status: ["going", "not_going", "waitlisted"],
-      friend_request_status: ["pending", "accepted", "declined"],
-      invite_status: ["pending", "accepted", "expired", "revoked"],
-      membership_status: [
-        "pending",
-        "active",
-        "rejected",
-        "revoked",
-        "self_deactivated",
-      ],
-      message_thread_type: ["ask", "direct"],
+      admin_role: ['super_admin', 'admin', 'event_moderator', 'ambassador'],
+      ask_status: ['pending', 'accepted', 'declined', 'expired'],
+      ask_thread_status: ['active', 'archived'],
+      ask_type: ['advice', 'mentorship'],
+      event_rsvp_status: ['going', 'not_going', 'waitlisted'],
+      friend_request_status: ['pending', 'accepted', 'declined'],
+      invite_status: ['pending', 'accepted', 'expired', 'revoked'],
+      membership_status: ['pending', 'active', 'rejected', 'revoked', 'self_deactivated'],
+      message_thread_type: ['ask', 'direct'],
     },
   },
 } as const
