@@ -34,6 +34,7 @@ What we're building. Feature-sliced — one folder per phase.
 How the system is shaped. Reference material — facts, not how-to.
 
 - [Data model](architecture/data-model.md) — tables, relations, RLS posture
+- [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
 - [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow

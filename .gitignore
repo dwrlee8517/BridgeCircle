@@ -6,3 +6,12 @@ docs/screenshots/
 
 # Local design context scratch space, not project state.
 claude-design-context/
+
+# Per-user agent tooling. Skills, hooks, and prompts live with the developer,
+# not in the repo. If anything in here ever needs to be shared, copy it into
+# a tracked path (e.g. app/CLAUDE.md, docs/, a /scripts/ entry) explicitly.
+.agents/
+.codex/
+
+# Local scratch space for ad-hoc provider probing (PDL/LinkdAPI/etc).
+pdl_test/

@@ -169,8 +169,9 @@ Main elements:
 
 Purpose:
 
-- support optional LinkedIn import and confirm
+- support LinkedIn URL import and confirm during onboarding (provider routing per [profile-enrichment.md](../architecture/profile-enrichment.md): LinkdAPI primary, PDL fallback)
 - allow manual enrichment
+- ask for freshness consent: review-before-update, auto-apply-and-notify, or manual-only
 - optionally support resume / screenshot upload later
 
 Main elements:
@@ -178,6 +179,7 @@ Main elements:
 - import source options
 - preview of extracted fields
 - accept / reject changes
+- edit proposed career and education entries before saving
 
 This may be part of onboarding or a secondary flow from Profile.
 
@@ -373,7 +375,8 @@ Main elements:
 
 - base profile fields (name, headline, city, current title/employer, university/major, career history, education, skills, avatar)
 - org-specific profile fields (graduation year, mentoring topics, bio)
-- LinkedIn import + AI-assisted resume extraction (Claude Haiku) on the resume upload path
+- **Update from LinkedIn** action (live import + diff flow; see [profile-enrichment.md](../architecture/profile-enrichment.md) for provider routing)
+- AI-assisted resume extraction (Claude Haiku) on the resume upload path
 - freshness prompts when the data hasn't been confirmed in N days
 - edit actions
 
