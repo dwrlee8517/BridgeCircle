@@ -3,6 +3,18 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['127.0.0.1'],
+  experimental: {
+    serverActions: {
+      // Avatar uploads run through `uploadAvatarAction`, a Server Action.
+      // Next.js defaults Server Action bodies to 1 MB, but our avatar lib
+      // (uploadAvatar.ts) enforces a 4 MB ceiling and the UI advertises
+      // "4 MB max." Raise the action limit to match so the user-facing
+      // promise holds. Also covers resume uploads (5 MB limit on the lib
+      // side — under the cap), and any future Server Action that streams
+      // file data.
+      bodySizeLimit: '5mb',
+    },
+  },
   // Legacy route redirects. Permanent (308) so stale email links and
   // bookmarks route users to the renamed pages.
   async redirects() {
