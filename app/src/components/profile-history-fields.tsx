@@ -4,6 +4,7 @@ import { Plus, X } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -200,6 +201,19 @@ function CareerCard({
   onChange: (p: Partial<CareerEntryInput>) => void
   onRemove: () => void
 }) {
+  const currentId = useId()
+  // "Currently here" is derived from endDate being null at first mount.
+  // Tracked separately so the user can uncheck (which re-enables the End
+  // input) without us auto-re-ticking on the next render — the source of
+  // truth for the wire shape is still entry.endDate.
+  const [currentlyHere, setCurrentlyHere] = useState(
+    entry.endDate === null && (entry.startDate !== null || entry.employer.trim() !== ''),
+  )
+  function toggleCurrent(next: boolean) {
+    setCurrentlyHere(next)
+    if (next) onChange({ endDate: null })
+  }
+
   return (
     <div className="rounded-md border p-3 space-y-2">
       <div className="flex items-center gap-2">
@@ -247,10 +261,21 @@ function CareerCard({
           <Input
             value={entry.endDate ?? ''}
             onChange={(e) => onChange({ endDate: e.target.value || null })}
-            placeholder="Leave blank if current"
+            placeholder={currentlyHere ? 'Present' : 'YYYY or YYYY-MM'}
+            disabled={currentlyHere}
             inputMode="numeric"
           />
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={currentId}
+          checked={currentlyHere}
+          onCheckedChange={(v) => toggleCurrent(v === true)}
+        />
+        <Label htmlFor={currentId} className="cursor-pointer text-xs text-muted-foreground">
+          I currently work here
+        </Label>
       </div>
       <Textarea
         value={entry.description ?? ''}
@@ -336,11 +361,20 @@ function EducationCard({
   onChange: (p: Partial<EducationEntryInput>) => void
   onRemove: () => void
 }) {
+  const currentId = useId()
+  const [currentlyHere, setCurrentlyHere] = useState(
+    entry.endDate === null && (entry.startDate !== null || entry.school.trim() !== ''),
+  )
+  function toggleCurrent(next: boolean) {
+    setCurrentlyHere(next)
+    if (next) onChange({ endDate: null })
+  }
+
   return (
     <div className="rounded-md border p-3 space-y-2">
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground">
-          {entry.startDate ?? '?'} – {entry.endDate ?? '?'}
+          {entry.startDate ?? '?'} – {entry.endDate ?? (currentlyHere ? 'present' : '?')}
         </span>
         <button
           type="button"
@@ -383,10 +417,21 @@ function EducationCard({
           <Input
             value={entry.endDate ?? ''}
             onChange={(e) => onChange({ endDate: e.target.value || null })}
-            placeholder="YYYY"
+            placeholder={currentlyHere ? 'Present' : 'YYYY'}
+            disabled={currentlyHere}
             inputMode="numeric"
           />
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={currentId}
+          checked={currentlyHere}
+          onCheckedChange={(v) => toggleCurrent(v === true)}
+        />
+        <Label htmlFor={currentId} className="cursor-pointer text-xs text-muted-foreground">
+          I&apos;m currently studying here
+        </Label>
       </div>
     </div>
   )
