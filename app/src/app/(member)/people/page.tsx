@@ -193,6 +193,7 @@ export default async function PeoplePage({
                     isOpenAsMentor={h.isOpenAsMentor}
                     isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
                     mentorPaused={h.mentorPaused}
+                    mentoringTopics={h.mentoringTopics}
                     isFriend={friendIds.has(h.userId)}
                     rationale={h.rationale}
                     rerankScore={h.rerankScore}
@@ -222,6 +223,7 @@ export default async function PeoplePage({
                       isOpenAsMentor={h.isOpenAsMentor}
                       isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
                       mentorPaused={h.mentorPaused}
+                      mentoringTopics={h.mentoringTopics}
                       isFriend={friendIds.has(h.userId)}
                       rationale={null}
                       rerankScore={null}

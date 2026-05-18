@@ -1,5 +1,6 @@
 'use client'
 
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -24,6 +25,7 @@ export type ResultCardProps = {
   isOpenAsMentor: boolean
   isOpenAsAdviceHelper: boolean
   mentorPaused: boolean
+  mentoringTopics: string[] | null
   // True when the viewer is already friends with this alum. Surfaces a
   // small "Friend" badge — replaces the standalone /friends page now that
   // People folds the friend dimension in.
@@ -157,6 +159,15 @@ export function ResultCard(props: ResultCardProps) {
         {meta.length > 0 ? (
           <p className="mt-3 text-xs text-muted-foreground">{meta.join(' · ')}</p>
         ) : null}
+        {props.mentoringTopics && props.mentoringTopics.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {props.mentoringTopics.slice(0, 3).map((topic) => (
+              <Badge key={topic} variant="secondary" className="bg-muted text-muted-foreground">
+                {topic}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
       </Link>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -187,7 +198,17 @@ export function ResultCard(props: ResultCardProps) {
             className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
             aria-expanded={expanded}
           >
-            {expanded ? '▼ Hide rationale' : '▶ Why this match?'}
+            {expanded ? (
+              <>
+                <ChevronDown className="size-3.5" />
+                Hide rationale
+              </>
+            ) : (
+              <>
+                <ChevronRight className="size-3.5" />
+                Why this match?
+              </>
+            )}
           </button>
           {expanded ? (
             <div className="mt-2 space-y-2 text-sm">
