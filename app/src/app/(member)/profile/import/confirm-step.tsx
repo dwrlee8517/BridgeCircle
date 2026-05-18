@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -418,6 +418,13 @@ function CareerCard({
   newBadgeLabel: string
   onChange: (patch: Partial<CareerChoice>) => void
 }) {
+  const currentId = useId()
+  const [currentlyHere, setCurrentlyHere] = useState(entry.endDate === null)
+  function toggleCurrent(next: boolean) {
+    setCurrentlyHere(next)
+    if (next) onChange({ endDate: null })
+  }
+
   return (
     <div className={`rounded-md border p-3 space-y-2 ${entry.use ? '' : 'opacity-50'}`}>
       <div className="flex items-center gap-2">
@@ -471,11 +478,22 @@ function CareerCard({
           <Input
             value={entry.endDate ?? ''}
             onChange={(e) => onChange({ endDate: e.target.value || null })}
-            disabled={!entry.use}
-            placeholder="Leave blank if current"
+            disabled={!entry.use || currentlyHere}
+            placeholder={currentlyHere ? 'Present' : 'YYYY or YYYY-MM'}
             inputMode="numeric"
           />
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={currentId}
+          checked={currentlyHere}
+          onCheckedChange={(v) => toggleCurrent(v === true)}
+          disabled={!entry.use}
+        />
+        <Label htmlFor={currentId} className="cursor-pointer text-xs text-muted-foreground">
+          I currently work here
+        </Label>
       </div>
       <Textarea
         value={entry.description ?? ''}
@@ -497,6 +515,13 @@ function EducationCard({
   newBadgeLabel: string
   onChange: (patch: Partial<EducationChoice>) => void
 }) {
+  const currentId = useId()
+  const [currentlyHere, setCurrentlyHere] = useState(entry.endDate === null)
+  function toggleCurrent(next: boolean) {
+    setCurrentlyHere(next)
+    if (next) onChange({ endDate: null })
+  }
+
   return (
     <div className={`rounded-md border p-3 space-y-2 ${entry.use ? '' : 'opacity-50'}`}>
       <div className="flex items-center gap-2">
@@ -506,7 +531,7 @@ function EducationCard({
           aria-label="Include this education"
         />
         <span className="text-xs text-muted-foreground">
-          {entry.startDate ?? '?'} – {entry.endDate ?? '?'}
+          {entry.startDate ?? '?'} – {entry.endDate ?? (currentlyHere ? 'present' : '?')}
         </span>
         <Badge
           variant={entry._origin === 'saved' ? 'outline' : 'default'}
@@ -551,11 +576,22 @@ function EducationCard({
           <Input
             value={entry.endDate ?? ''}
             onChange={(e) => onChange({ endDate: e.target.value || null })}
-            disabled={!entry.use}
-            placeholder="YYYY"
+            disabled={!entry.use || currentlyHere}
+            placeholder={currentlyHere ? 'Present' : 'YYYY'}
             inputMode="numeric"
           />
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id={currentId}
+          checked={currentlyHere}
+          onCheckedChange={(v) => toggleCurrent(v === true)}
+          disabled={!entry.use}
+        />
+        <Label htmlFor={currentId} className="cursor-pointer text-xs text-muted-foreground">
+          I&apos;m currently studying here
+        </Label>
       </div>
     </div>
   )
