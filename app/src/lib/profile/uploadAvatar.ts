@@ -4,7 +4,7 @@ import type { Database } from '@/db/database.types'
 
 const BUCKET = 'avatars'
 
-const MAX_BYTES = 4 * 1024 * 1024 // 4 MB
+const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
 
 export type UploadAvatarResult =
