@@ -9,7 +9,7 @@ app/                Next.js application (the product)
   src/              source — see app/CLAUDE.md for the /lib discipline
   supabase/         Postgres migrations
   scripts/          dev seeding + RLS verification scripts
-docs/               product specs and runbooks
+docs/               product specs, runbooks, architecture, and experience docs
 ```
 
 ## Documentation
@@ -19,6 +19,7 @@ Start here depending on what you need:
 | Goal | Read |
 | --- | --- |
 | Product thesis, MVP scope, market framing | [project-summary.md](project-summary.md) |
+| Experience docs and active design system | [docs/experience/README.md](docs/experience/README.md) |
 | What ships in Phase 1 | [docs/specs/phase-1/launch-cut.md](docs/specs/phase-1/launch-cut.md) |
 | Why the schema is shaped the way it is | [docs/architecture/data-model.md](docs/architecture/data-model.md) |
 | Where dev/prod live and how schema changes flow | [docs/architecture/environments.md](docs/architecture/environments.md) |

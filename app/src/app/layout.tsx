@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Fraunces, Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-// Body font. See docs/ui/mockups/font-options.html for alternatives.
+// Body font. See docs/experience/ui/design-system/ for the active typography direction.
 // The variable name `--font-sans` is what shadcn / Tailwind utilities resolve to.
 const sans = Inter({
   variable: '--font-sans',
