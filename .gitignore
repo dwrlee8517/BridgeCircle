@@ -1,6 +1,10 @@
 .DS_Store
 docs/screenshots/
 
+# Test artifacts from running Playwright from the repository root.
+/test-results/
+/playwright-report/
+
 # Personal Obsidian vault — note-taking workspace, not project state.
 .obsidian/
 

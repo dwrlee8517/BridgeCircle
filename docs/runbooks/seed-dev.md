@@ -23,6 +23,7 @@ The complement to `docs/environments.md`: that doc explains *why* dev and prod d
 The script targets the schema defined in `0001_init.sql` (see `docs/data-model.md`). It will not run successfully until that migration has been applied to `bridgecircle-dev`. Specifically, it writes to:
 
 - `organizations`
+- `users` (the auth-created public user row, to mark seeded users as onboarding-complete)
 - `organization_memberships`
 - `base_profiles` (identity card — name, employer, city, university, …)
 - `organization_profiles` (org-context overlay — graduation year, bio, mentoring topics, open-to-mentor)
@@ -33,7 +34,7 @@ The script targets the schema defined in `0001_init.sql` (see `docs/data-model.m
 - `event_rsvps`
 - `admin_role_assignments`
 
-It also relies on the `on_auth_user_created` trigger from `0001_init.sql`: when the script calls `auth.admin.createUser`, the trigger inserts the matching `public.users` row, and the script then layers `base_profiles` / `organization_memberships` / `organization_profiles` on top.
+It also relies on the `on_auth_user_created` trigger from `0001_init.sql`: when the script calls `auth.admin.createUser`, the trigger inserts the matching `public.users` row. The script then marks that row as onboarding-complete and layers `base_profiles` / `organization_memberships` / `organization_profiles` on top.
 
 If you run the script before the migration is applied, it fails with PostgreSQL's `relation "<name>" does not exist` error. That is the expected outcome — the script is an artifact you build toward, not a workaround for the missing schema.
 
@@ -97,6 +98,8 @@ A single fake organization (`Chadwick School (DEV)`) plus nine personas tuned to
 | Iris Incomplete | member, blank profile | profile-completion prompt rendering |
 
 Plus three mentorship requests (one in each of pending, accepted, declined states), two events (one in Palos Verdes, one in Songdo to exercise multi-region UX), and two RSVPs on the first event.
+
+All seeded personas are marked as onboarding-complete so signing in lands in the member/admin app instead of the onboarding flow. Iris still keeps intentionally sparse profile fields; use her for profile-completion prompts, not first-run onboarding-step testing.
 
 All passwords are `devseed-password-N` where N is the persona's index in the script, so you can sign in as anyone from `localhost:3000`.
 
