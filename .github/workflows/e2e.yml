@@ -49,15 +49,15 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      # `pnpm test:e2e` itself doesn't need Doppler, but Playwright's
-      # webServer config spawns `doppler run -- pnpm dev` to boot the
-      # Next.js server with bridgecircle-dev secrets. The DOPPLER_TOKEN
-      # in env authenticates that nested call.
+      # The Playwright runner itself needs Doppler secrets: the core-loop
+      # spec's beforeAll builds a Supabase admin client. The nested
+      # webServer (`doppler run -- pnpm dev`) re-resolves the same secrets
+      # for the Next.js server. DOPPLER_TOKEN authenticates both.
       - name: Run Playwright suite
         env:
           CI: 'true'
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: pnpm test:e2e
+        run: doppler run -- pnpm test:e2e
 
       - name: Upload Playwright report
         if: always()
