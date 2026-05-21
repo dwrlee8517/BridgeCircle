@@ -37,6 +37,10 @@ export type SearchHit = {
   isOpenAsAdviceHelper: boolean
   mentorPaused: boolean
   mentoringTopics: string[] | null
+  maxActiveMentees: number
+  maxPendingRequests: number
+  activeMenteeCount: number
+  pendingRequestCount: number
   // Rich fields populated for the NL rerank step. The structured-search UI
   // doesn't display them but the NL orchestrator passes them to Haiku.
   bio: string | null
@@ -99,34 +103,55 @@ export async function searchAlumni(
   const membershipIds = memberships.map((m) => m.id)
   const membershipByUser = new Map(memberships.map((m) => [m.user_id, m.id]))
 
-  const [baseRes, orgProfileRes, prefRes, friendsRes] = await Promise.all([
-    supabase
-      .from('base_profiles')
-      .select(
-        'user_id, name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
-      )
-      .in('user_id', userIds),
-    supabase
-      .from('organization_profiles')
-      .select('organization_membership_id, graduation_year, mentoring_topics, bio')
-      .in('organization_membership_id', membershipIds),
-    supabase
-      .from('helper_preferences')
-      .select('organization_membership_id, open_to_mentorship, open_to_advice, paused_at')
-      .in('organization_membership_id', membershipIds),
-    // Pull viewer's friend list once so we can compute the per-candidate
-    // visibility tier in JS without N extra queries.
-    supabase
-      .from('friendships')
-      .select('user_a_id, user_b_id')
-      .or(`user_a_id.eq.${input.viewerId},user_b_id.eq.${input.viewerId}`),
-  ])
+  const [baseRes, orgProfileRes, prefRes, friendsRes, pendingAsksRes, activeThreadsRes] =
+    await Promise.all([
+      supabase
+        .from('base_profiles')
+        .select(
+          'user_id, name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
+        )
+        .in('user_id', userIds),
+      supabase
+        .from('organization_profiles')
+        .select('organization_membership_id, graduation_year, mentoring_topics, bio')
+        .in('organization_membership_id', membershipIds),
+      supabase
+        .from('helper_preferences')
+        .select(
+          'organization_membership_id, open_to_mentorship, open_to_advice, paused_at, max_active_mentees, max_pending_requests',
+        )
+        .in('organization_membership_id', membershipIds),
+      // Pull viewer's friend list once so we can compute the per-candidate
+      // visibility tier in JS without N extra queries.
+      supabase
+        .from('friendships')
+        .select('user_a_id, user_b_id')
+        .or(`user_a_id.eq.${input.viewerId},user_b_id.eq.${input.viewerId}`),
+      // Bulk-fetch pending asks for capacity indicator
+      supabase
+        .from('asks')
+        .select('helper_id')
+        .eq('ask_type', 'mentorship')
+        .eq('status', 'pending')
+        .in('helper_id', userIds),
+      // Bulk-fetch active threads for capacity indicator
+      supabase
+        .from('ask_threads')
+        .select('helper_id, asks!inner(ask_type)')
+        .eq('status', 'active')
+        .eq('asks.ask_type', 'mentorship')
+        .in('helper_id', userIds),
+    ])
 
   if (baseRes.error) throw new Error(`searchAlumni base_profiles: ${baseRes.error.message}`)
   if (orgProfileRes.error)
     throw new Error(`searchAlumni org_profiles: ${orgProfileRes.error.message}`)
   if (prefRes.error) throw new Error(`searchAlumni helper_preferences: ${prefRes.error.message}`)
   if (friendsRes.error) throw new Error(`searchAlumni friendships: ${friendsRes.error.message}`)
+  if (pendingAsksRes.error)
+    throw new Error(`searchAlumni pending asks: ${pendingAsksRes.error.message}`)
+  if (activeThreadsRes.error)
+    throw new Error(`searchAlumni active threads: ${activeThreadsRes.error.message}`)
 
   const orgProfileByMembership = new Map(
     (orgProfileRes.data ?? []).map((p) => [p.organization_membership_id, p]),
@@ -134,6 +159,17 @@ export async function searchAlumni(
   const prefByMembership = new Map(
     (prefRes.data ?? []).map((p) => [p.organization_membership_id, p]),
   )
+  const pendingCountByHelper = new Map<string, number>()
+  for (const ask of pendingAsksRes.data ?? []) {
+    pendingCountByHelper.set(ask.helper_id, (pendingCountByHelper.get(ask.helper_id) ?? 0) + 1)
+  }
+  const activeCountByHelper = new Map<string, number>()
+  for (const t of activeThreadsRes.data ?? []) {
+    const helperId = t.helper_id
+    if (helperId) {
+      activeCountByHelper.set(helperId, (activeCountByHelper.get(helperId) ?? 0) + 1)
+    }
+  }
   const friendIds = new Set(
     (friendsRes.data ?? []).map((f) =>
       f.user_a_id === input.viewerId ? f.user_b_id : f.user_a_id,
@@ -272,6 +308,10 @@ export async function searchAlumni(
       careerHistory: showCareer ? (rawCareer.length > 0 ? rawCareer : null) : null,
       educationHistory: showEducation ? (rawEducation.length > 0 ? rawEducation : null) : null,
       skills: showSkills ? (base.skills ?? null) : null,
+      maxActiveMentees: pref?.max_active_mentees ?? 5,
+      maxPendingRequests: pref?.max_pending_requests ?? 10,
+      activeMenteeCount: activeCountByHelper.get(base.user_id) ?? 0,
+      pendingRequestCount: pendingCountByHelper.get(base.user_id) ?? 0,
       reason: reasons.slice(0, 2).join(' · ') || 'in your network',
       score,
     })

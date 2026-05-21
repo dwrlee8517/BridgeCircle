@@ -150,6 +150,11 @@ export default async function NewAskPage({
               skipHref={skipHref}
               cancelHref={cancelHref}
               signalCandidates={signalCandidates}
+              activeMenteeCount={helper.activeMenteeCount}
+              maxActiveMentees={helper.maxActiveMentees}
+              pendingRequestCount={helper.pendingRequestCount}
+              maxPendingRequests={helper.maxPendingRequests}
+              mentorshipAtCapacity={helper.mentorshipAtCapacity}
             />
           )}
         </CardContent>

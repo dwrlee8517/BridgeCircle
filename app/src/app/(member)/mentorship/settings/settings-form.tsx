@@ -3,10 +3,12 @@
 import { useRouter } from 'next/navigation'
 import { useActionState, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { CapacityIndicatorGauge } from '@/components/ui/capacity-gauge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 import { type SettingsFormState, saveMentorSettings } from './actions'
 
 const initialState: SettingsFormState = {}
@@ -33,6 +35,9 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
   // fields. Both still submit normally via their input names.
   const [advice, setAdvice] = useState(defaults.openToAdvice)
   const [mentorship, setMentorship] = useState(defaults.openToMentorship)
+  const [maxActiveMentees, setMaxActiveMentees] = useState(defaults.maxActiveMentees)
+  const [maxPendingRequests, setMaxPendingRequests] = useState(defaults.maxPendingRequests)
+  const [screeningPrompt, setScreeningPrompt] = useState(defaults.screeningPrompt)
 
   // After a successful save, force the server component to re-fetch so new
   // defaults arrive. revalidatePath() alone wasn't reliably refreshing the
@@ -44,22 +49,29 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
   }, [state.ok, router])
 
   // Sync controlled state when fresh server defaults arrive (post-save
-  // revalidation). React's canonical "adjust state when a prop changes"
-  // pattern — track the previous prop value via useState, compare during
-  // render, and call setState during render when it differs. React
-  // detects setState during render, bails out, and re-runs with the new
-  // state. No useEffect, no rule suppression, no ref access in render.
-  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  // revalidation).
   const [prevAdviceDefault, setPrevAdviceDefault] = useState(defaults.openToAdvice)
   const [prevMentorshipDefault, setPrevMentorshipDefault] = useState(defaults.openToMentorship)
+  const [prevMaxActiveDefault, setPrevMaxActiveDefault] = useState(defaults.maxActiveMentees)
+  const [prevMaxPendingDefault, setPrevMaxPendingDefault] = useState(defaults.maxPendingRequests)
+  const [prevScreeningDefault, setPrevScreeningDefault] = useState(defaults.screeningPrompt)
   if (
     prevAdviceDefault !== defaults.openToAdvice ||
-    prevMentorshipDefault !== defaults.openToMentorship
+    prevMentorshipDefault !== defaults.openToMentorship ||
+    prevMaxActiveDefault !== defaults.maxActiveMentees ||
+    prevMaxPendingDefault !== defaults.maxPendingRequests ||
+    prevScreeningDefault !== defaults.screeningPrompt
   ) {
     setPrevAdviceDefault(defaults.openToAdvice)
     setPrevMentorshipDefault(defaults.openToMentorship)
+    setPrevMaxActiveDefault(defaults.maxActiveMentees)
+    setPrevMaxPendingDefault(defaults.maxPendingRequests)
+    setPrevScreeningDefault(defaults.screeningPrompt)
     setAdvice(defaults.openToAdvice)
     setMentorship(defaults.openToMentorship)
+    setMaxActiveMentees(defaults.maxActiveMentees)
+    setMaxPendingRequests(defaults.maxPendingRequests)
+    setScreeningPrompt(defaults.screeningPrompt)
   }
 
   return (
@@ -119,76 +131,147 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
       {/* Mentorship-specific fields. They stay visible (so the user knows
           they exist) but dim and disable when mentorship is off — clearer
           than hiding because it shows the cap-as-alternative path. */}
-      <fieldset
-        disabled={!mentorship}
-        className={`space-y-6 ${!mentorship ? 'opacity-50' : ''}`}
-        aria-disabled={!mentorship}
-      >
-        <Field
-          id="topics"
-          label="Topics you can mentor on"
-          hint="Comma-separated. Helps mentees find you in search."
-          error={fe.topics}
+      <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8">
+        <fieldset
+          disabled={!mentorship}
+          className={`space-y-6 ${!mentorship ? 'opacity-50' : ''}`}
+          aria-disabled={!mentorship}
         >
-          <Input
+          <Field
             id="topics"
-            name="topics"
-            placeholder="e.g. consulting, business school, returning to Korea"
-            defaultValue={defaults.topics}
-          />
-        </Field>
+            label="Topics you can mentor on"
+            hint="Comma-separated. Helps mentees find you in search."
+            error={fe.topics}
+          >
+            <Input
+              id="topics"
+              name="topics"
+              placeholder="e.g. consulting, business school, returning to Korea"
+              defaultValue={defaults.topics}
+            />
+          </Field>
 
-        <Field
-          id="screeningPrompt"
-          label="Screening question (optional)"
-          hint="One sentence. Mentees answer before sending a request."
-          error={fe.screeningPrompt}
-        >
-          <Textarea
+          <Field
             id="screeningPrompt"
-            name="screeningPrompt"
-            rows={2}
-            maxLength={280}
-            placeholder="e.g. What specifically are you hoping to get out of this conversation?"
-            defaultValue={defaults.screeningPrompt}
-          />
-        </Field>
+            label="Screening question (optional)"
+            hint="One sentence. Mentees answer before sending a request."
+            error={fe.screeningPrompt}
+          >
+            <Textarea
+              id="screeningPrompt"
+              name="screeningPrompt"
+              rows={2}
+              maxLength={280}
+              placeholder="e.g. What specifically are you hoping to get out of this conversation?"
+              value={screeningPrompt}
+              onChange={(e) => setScreeningPrompt(e.target.value)}
+            />
+          </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            id="maxActiveMentees"
-            label="Max active mentees"
-            hint={`Currently ${activeMenteeCount} active.`}
-            error={fe.maxActiveMentees}
-          >
-            <Input
+          <div className="space-y-5">
+            <Field
               id="maxActiveMentees"
-              name="maxActiveMentees"
-              type="number"
-              min={1}
-              max={100}
-              defaultValue={defaults.maxActiveMentees}
-              required
-            />
-          </Field>
-          <Field
-            id="maxPendingRequests"
-            label="Max pending requests"
-            hint={`Currently ${pendingRequestCount} pending.`}
-            error={fe.maxPendingRequests}
-          >
-            <Input
+              label="Max active mentees"
+              hint={`Currently ${activeMenteeCount} active.`}
+              error={fe.maxActiveMentees}
+            >
+              <div className="flex items-center gap-4">
+                <input
+                  id="maxActiveMentees"
+                  name="maxActiveMentees"
+                  type="range"
+                  min={1}
+                  max={20}
+                  onChange={(e) => setMaxActiveMentees(parseInt(e.target.value, 10))}
+                  className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                  required
+                />
+                <span className="font-mono text-xs text-primary min-w-[75px] text-right font-semibold">
+                  {maxActiveMentees} {maxActiveMentees === 1 ? 'mentee' : 'mentees'}
+                </span>
+              </div>
+            </Field>
+
+            <Field
               id="maxPendingRequests"
-              name="maxPendingRequests"
-              type="number"
-              min={1}
-              max={100}
-              defaultValue={defaults.maxPendingRequests}
-              required
+              label="Max pending requests"
+              hint={`Currently ${pendingRequestCount} pending.`}
+              error={fe.maxPendingRequests}
+            >
+              <div className="flex items-center gap-4">
+                <input
+                  id="maxPendingRequests"
+                  name="maxPendingRequests"
+                  type="range"
+                  min={1}
+                  max={30}
+                  value={maxPendingRequests}
+                  onChange={(e) => setMaxPendingRequests(parseInt(e.target.value, 10))}
+                  className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
+                  required
+                />
+                <span className="font-mono text-xs text-primary min-w-[75px] text-right font-semibold">
+                  {maxPendingRequests} {maxPendingRequests === 1 ? 'request' : 'requests'}
+                </span>
+              </div>
+            </Field>
+          </div>
+        </fieldset>
+
+        {/* Live Card Preview */}
+        <div
+          className={cn(
+            'flex flex-col gap-3 justify-start lg:pt-1 transition-opacity duration-300',
+            !mentorship && 'opacity-30 select-none pointer-events-none',
+          )}
+        >
+          <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+            Live Card Preview
+          </span>
+          <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-4 shadow-sm max-w-sm">
+            <div className="flex gap-3.5 items-center">
+              <div className="relative size-11 shrink-0 overflow-hidden rounded-[8px] bg-[linear-gradient(135deg,#1e293b_0%,#3f465c_100%)] flex items-center justify-center font-heading text-base font-bold text-white">
+                PV
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-heading text-sm font-semibold text-foreground">
+                  Your Profile (Preview)
+                </h4>
+                <span className="inline-flex h-5 items-center rounded-full border border-emerald-200 dark:border-emerald-950 bg-emerald-50 dark:bg-emerald-950/30 px-2 text-[9px] font-mono font-medium text-emerald-700 dark:text-emerald-400 gap-1 mt-0.5">
+                  <span className="size-1 rounded-full bg-emerald-500" />
+                  Open to Mentor
+                </span>
+              </div>
+            </div>
+
+            <CapacityIndicatorGauge
+              activeCount={activeMenteeCount}
+              maxActive={maxActiveMentees}
+              pendingCount={pendingRequestCount}
+              maxPending={maxPendingRequests}
             />
-          </Field>
+
+            {screeningPrompt ? (
+              <div className="text-[10px] text-muted-foreground font-mono mt-1 leading-relaxed border-t border-border/40 pt-3">
+                <span className="text-[8px] uppercase tracking-wider text-muted-foreground font-bold block mb-1">
+                  Screening Question
+                </span>
+                &ldquo;{screeningPrompt}&rdquo;
+              </div>
+            ) : null}
+
+            <Button
+              type="button"
+              disabled
+              variant="outline"
+              size="sm"
+              className="mt-1 w-full text-xs"
+            >
+              Request Mentorship
+            </Button>
+          </div>
         </div>
-      </fieldset>
+      </div>
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       {state.ok ? <p className="text-sm text-emerald-600">Saved.</p> : null}

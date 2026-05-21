@@ -13,10 +13,10 @@ A high-fidelity, click-through prototype of the BridgeCircle alumni web app.
 - `Events.jsx` — Master/detail; date-tile list on the left, event hero card on the right.
 
 ## Visual rules followed
-- **Two anchors only:** Midnight `#0b1220` and Sapphire `#0051d5`. Decorative gradients are confined to hero strips and are layered over a subtle dot grid so they never read as flat marketing fills.
-- **Editorial vs functional type:** Fraunces serif for hero headlines, eyebrows, footer footers, and stat numbers. Manrope sans for everything else.
-- **Two-circle motif:** Used decoratively in hero strips and the brand mark only; never as a content frame.
-- **No emoji, no SVG icons drawn by hand.** Iconography is Material Symbols Outlined, weight 400, 18–24px.
+- **Authoritative structure and active accenting:** Deep Cobalt `#173fb3` (or Civic Blue `#4d88ff` in dark) for interactive elements and Obsidian Ink `#0c0c0b` for structure, built on a clean Platinum Bone `#fafaf9` canvas.
+- **Reading hierarchy & type scale:** Inter Tight for display headings/names, Inter for body copy, JetBrains Mono (spaced uppercase) for system metadata/counters, and Fraunces serif for wordmarks/pull-quotes.
+- **Corner treatment & borders:** All elements use a strict `--radius` of `6px` (`0.375rem`). Hairline borders are `1px` (`#dcdcd6` or `#ebebe5`), and splits are anchored with `2px` solid top borders.
+- **Iconography:** Lucide icons with consistent stroke weight (1.5px on desktop, 2px on mobile/tablet) bounded in 16px/20px squares.
 
 ## What's faked
 - Search input doesn't filter results.

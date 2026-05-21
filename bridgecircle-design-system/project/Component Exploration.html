@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BridgeCircle · Component Exploration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #ebe1cb; font-family: "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: #2a221a; }
+    .page { max-width: 980px; margin: 0 auto; padding: 56px 40px 100px; }
+    .section { padding: 56px 0; border-top: 1px solid #cdbe9c; }
+    h1 { font-family: "Inter Tight", system-ui, sans-serif; font-size: 42px; font-weight: 600; letter-spacing: -.025em; line-height: 1.04; }
+    h2 { font-family: "Inter Tight", system-ui, sans-serif; font-size: 26px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 22px; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .10em; text-transform: uppercase; color: #b84e2c; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 999px; background: #b84e2c; display: inline-block; flex-shrink: 0; }
+    .label { font-family: "JetBrains Mono", monospace; font-size: 9.5px; font-weight: 700; letter-spacing: .10em; text-transform: uppercase; color: #7a6e5e; }
+    .label.new { color: #b84e2c; }
+    .body { font-size: 13.5px; line-height: 1.65; color: #655a4a; }
+    .card { background: #fdf8eb; border: 1px solid #cdbe9c; border-radius: 16px; padding: 22px; box-shadow: 0 1px 0 rgba(255,255,255,.65) inset, 0 1px 3px rgba(42,34,26,.05); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @keyframes pulse-ring { 0%,100% { opacity:.6; transform:scale(1) } 50% { opacity:1; transform:scale(1.08) } }
+    @keyframes slide-dot { from { transform: translateX(0) } }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <div style="padding-bottom: 56px; border-bottom: 1px solid #cdbe9c;">
+    <div class="eyebrow">BridgeCircle · Design Review</div>
+    <h1 style="margin-bottom: 16px;">Component Exploration</h1>
+    <p class="body" style="max-width: 600px; font-size: 15px; color: #3d3328;">
+      Four components that currently look like every other product — with concrete, buildable alternatives rooted in BridgeCircle's specific identity.
+    </p>
+  </div>
+
+  <div id="root"></div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+// ── Tokens ──────────────────────────────────────────────────────────────
+const C = {
+  paper:'#ebe1cb', card:'#fdf8eb', cardAlt:'#fefcf3', panel:'#e2d6bb',
+  rule:'#cdbe9c', ruleS:'#d9cbb0',
+  ink:'#2a221a', ink2:'#3d3328', muted:'#655a4a', mute2:'#7a6e5e',
+  accent:'#b84e2c', ok:'#62753a', warn:'#a05a12', bad:'#9b2c1f',
+};
+const FD = '"Inter Tight", system-ui, sans-serif';
+const FB = '"Inter", system-ui, sans-serif';
+const FM = '"JetBrains Mono", monospace';
+
+// ── Shared atoms ─────────────────────────────────────────────────────────
+function Avatar({ name='', initials='', size=36 }) {
+  const seed = name.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const pairs = [[C.accent,C.ok],[C.ok,C.ink],[C.accent,C.ink]];
+  const [a,b] = pairs[seed%3];
+  return <div style={{ width:size,height:size,borderRadius:999,background:`linear-gradient(135deg,${a},${b})`,color:'#fff',display:'grid',placeItems:'center',fontFamily:FD,fontSize:Math.round(size*.36),fontWeight:600,flexShrink:0,boxShadow:'inset 0 0 0 1px rgba(255,255,255,.18)' }}>{initials}</div>;
+}
+function Tag({ children, tone='muted', dot }) {
+  const tones = {
+    muted: { bg:`rgba(42,34,26,.05)`, color:C.muted, border:`1px solid ${C.rule}` },
+    accent:{ bg:`rgba(184,78,44,.12)`, color:C.accent, border:`1px solid rgba(184,78,44,.28)` },
+    ok:    { bg:`rgba(98,117,58,.12)`, color:C.ok, border:`1px solid rgba(98,117,58,.28)` },
+    warn:  { bg:`rgba(160,90,18,.12)`, color:C.warn, border:`1px solid rgba(160,90,18,.28)` },
+  };
+  const t = tones[tone]||tones.muted;
+  return <span style={{ background:t.bg,color:t.color,border:t.border,fontFamily:FB,fontSize:11,fontWeight:700,padding:'3px 9px',borderRadius:999,display:'inline-flex',alignItems:'center',gap:5,whiteSpace:'nowrap' }}>{dot&&<span style={{width:5,height:5,borderRadius:999,background:'currentColor'}}/>}{children}</span>;
+}
+function Label({ children, isNew }) {
+  return <div style={{ fontFamily:FM,fontSize:9.5,fontWeight:700,letterSpacing:'.10em',textTransform:'uppercase',color:isNew?C.accent:C.mute2,marginBottom:10 }}>{children}</div>;
+}
+function Callout({ children }) {
+  return <div style={{ marginTop:14,padding:'12px 16px',background:`rgba(184,78,44,.07)`,border:`1px solid rgba(184,78,44,.20)`,borderRadius:10,fontFamily:FB,fontSize:12.5,color:C.ink2,lineHeight:1.6 }}>{children}</div>;
+}
+function Section({ eyebrow, title, children }) {
+  return (
+    <div style={{ padding:'56px 0',borderTop:`1px solid ${C.rule}` }}>
+      <div style={{ fontFamily:FB,fontSize:11,fontWeight:700,letterSpacing:'.10em',textTransform:'uppercase',color:C.accent,display:'flex',alignItems:'center',gap:8,marginBottom:8 }}>
+        <span style={{width:6,height:6,borderRadius:999,background:C.accent}}/>
+        {eyebrow}
+      </div>
+      <h2 style={{ fontFamily:FD,fontSize:26,fontWeight:600,letterSpacing:'-.02em',color:C.ink,marginBottom:22 }}>{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// 01 · NAV BAR
+// ══════════════════════════════════════════════════════════════
+
+function NavCurrent() {
+  return (
+    <div style={{ background:C.cardAlt,border:`1px solid ${C.rule}`,borderRadius:999,padding:'8px 12px 8px 18px',display:'grid',gridTemplateColumns:'auto 1fr auto',alignItems:'center',gap:18,boxShadow:'0 1px 0 rgba(255,255,255,.5) inset, 0 8px 28px rgba(42,34,26,.06)' }}>
+      <div style={{ display:'flex',alignItems:'center',gap:10 }}>
+        <svg width="32" height="24" viewBox="0 0 32 24"><circle cx="11" cy="12" r="9" fill={C.accent} fillOpacity=".85"/><circle cx="21" cy="12" r="9" fill={C.ok} fillOpacity=".85"/></svg>
+        <span style={{ fontFamily:FD,fontSize:18,letterSpacing:'-.02em',color:C.ink,fontWeight:600 }}>BridgeCircle</span>
+      </div>
+      <nav style={{ display:'flex',gap:4,justifyContent:'center' }}>
+        {[{id:'home',label:'Home',active:true},{id:'people',label:'People'},{id:'inbox',label:'Inbox',badge:3},{id:'events',label:'Events'}].map(it=>(
+          <button key={it.id} style={{ background:it.active?C.ink:'transparent',border:'none',cursor:'pointer',padding:'9px 16px',color:it.active?C.paper:C.muted,fontFamily:FB,fontSize:13.5,fontWeight:600,borderRadius:999,display:'inline-flex',alignItems:'center',gap:8 }}>
+            {it.label}
+            {it.badge?<span style={{ background:C.accent,color:'#fff',borderRadius:999,padding:'0 6px',minWidth:18,height:18,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700 }}>{it.badge}</span>:null}
+          </button>
+        ))}
+      </nav>
+      <button style={{ display:'inline-flex',alignItems:'center',gap:8,padding:'3px 12px 3px 3px',borderRadius:999,background:C.paper,border:`1px solid ${C.rule}`,cursor:'pointer' }}>
+        <Avatar name="Maren Holt" initials="MH" size={28}/>
+        <span style={{ fontSize:13,fontWeight:600,fontFamily:FB,color:C.ink }}>Maren</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+  );
+}
+
+// Nav A — Ambient status strip below the pill
+function NavAmbient() {
+  const [pulse, setPulse] = React.useState(true);
+  return (
+    <div style={{ display:'flex',flexDirection:'column',gap:0 }}>
+      {/* Main pill */}
+      <div style={{ background:C.cardAlt,border:`1px solid ${C.rule}`,borderRadius:'999px 999px 16px 16px',padding:'8px 12px 10px 18px',display:'grid',gridTemplateColumns:'auto 1fr auto',alignItems:'center',gap:18,boxShadow:'0 1px 0 rgba(255,255,255,.5) inset, 0 6px 20px rgba(42,34,26,.07)',position:'relative',zIndex:2 }}>
+        {/* Logo with pulse */}
+        <div style={{ display:'flex',alignItems:'center',gap:10 }}>
+          <div style={{ position:'relative' }}>
+            <svg width="32" height="24" viewBox="0 0 32 24">
+              <circle cx="11" cy="12" r="9" fill={C.accent} fillOpacity=".85"/>
+              <circle cx="21" cy="12" r="9" fill={C.ok} fillOpacity=".85"/>
+            </svg>
+            {/* Ambient pulse ring — only when activity exists */}
+            <div style={{ position:'absolute',inset:-3,borderRadius:999,border:`1.5px solid ${C.accent}`,opacity:.5,animation:'pulse-ring 2.4s ease-in-out infinite',pointerEvents:'none' }}/>
+          </div>
+          <span style={{ fontFamily:FD,fontSize:18,letterSpacing:'-.02em',color:C.ink,fontWeight:600 }}>BridgeCircle</span>
+        </div>
+        {/* Nav — active item has NO dark background, just weight + accent underline dot */}
+        <nav style={{ display:'flex',gap:4,justifyContent:'center' }}>
+          {[{id:'home',label:'Home',active:true},{id:'people',label:'People'},{id:'inbox',label:'Inbox'},{id:'events',label:'Events'}].map(it=>(
+            <div key={it.id} style={{ display:'flex',flexDirection:'column',alignItems:'center',gap:3 }}>
+              <button style={{ background:'transparent',border:'none',cursor:'pointer',padding:'8px 16px',color:it.active?C.ink:C.muted,fontFamily:FB,fontSize:13.5,fontWeight:it.active?700:600,borderRadius:999,letterSpacing:it.active?'-.01em':'0' }}>
+                {it.label}
+              </button>
+              <div style={{ width:4,height:4,borderRadius:999,background:it.active?C.accent:'transparent',transition:'background 180ms ease',marginTop:-4 }}/>
+            </div>
+          ))}
+        </nav>
+        <button style={{ display:'inline-flex',alignItems:'center',gap:8,padding:'3px 12px 3px 3px',borderRadius:999,background:C.paper,border:`1px solid ${C.rule}`,cursor:'pointer' }}>
+          <Avatar name="Maren Holt" initials="MH" size={28}/>
+          <span style={{ fontSize:13,fontWeight:600,fontFamily:FB,color:C.ink }}>Maren</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+      </div>
+      {/* Context strip — the new part */}
+      <div style={{ background:C.ink,borderRadius:'0 0 16px 16px',padding:'7px 22px',display:'flex',alignItems:'center',gap:0,marginTop:-4,boxShadow:'0 6px 16px rgba(42,34,26,.16)' }}>
+        <div style={{ display:'flex',alignItems:'center',gap:6,flex:1,flexWrap:'wrap',rowGap:0 }}>
+          {[
+            { icon:'◉', text:'2 replies waiting', color:C.accent, urgent:true },
+            { icon:'◈', text:'Spring Supper · Tue 7:30pm', color:'rgba(240,229,208,.65)' },
+            { icon:'◎', text:'Dev Patel joined \'11', color:'rgba(240,229,208,.50)' },
+          ].map((item,i)=>(
+            <React.Fragment key={i}>
+              {i>0&&<span style={{ color:'rgba(240,229,208,.20)',margin:'0 8px',fontSize:10 }}>·</span>}
+              <button style={{ background:'none',border:'none',cursor:'pointer',display:'inline-flex',alignItems:'center',gap:5,padding:'0 2px' }}>
+                <span style={{ fontSize:8,color:item.color }}>{item.icon}</span>
+                <span style={{ fontFamily:FM,fontSize:10,fontWeight:item.urgent?700:500,color:item.color,letterSpacing:'.04em' }}>{item.text}</span>
+              </button>
+            </React.Fragment>
+          ))}
+        </div>
+        <span style={{ fontFamily:FM,fontSize:9,color:'rgba(240,229,208,.30)',letterSpacing:'.06em' }}>LIVE</span>
+      </div>
+    </div>
+  );
+}
+
+// Nav B — Editorial: left-aligned, no filled active state, editorial indent
+function NavEditorial() {
+  const [active, setActive] = React.useState('home');
+  return (
+    <div style={{ background:C.cardAlt,border:`1px solid ${C.rule}`,borderRadius:20,padding:'10px 14px 10px 20px',display:'grid',gridTemplateColumns:'auto 1fr auto',alignItems:'center',gap:24,boxShadow:'0 1px 0 rgba(255,255,255,.5) inset, 0 8px 28px rgba(42,34,26,.06)' }}>
+      {/* Logo — given more room, class year shown */}
+      <div style={{ display:'flex',alignItems:'center',gap:11,borderRight:`1px solid ${C.ruleS}`,paddingRight:20 }}>
+        <svg width="36" height="27" viewBox="0 0 32 24">
+          <circle cx="11" cy="12" r="9" fill={C.accent} fillOpacity=".88"/>
+          <circle cx="21" cy="12" r="9" fill={C.ok} fillOpacity=".88"/>
+        </svg>
+        <div>
+          <div style={{ fontFamily:FD,fontSize:17,letterSpacing:'-.025em',color:C.ink,fontWeight:700,lineHeight:1.1 }}>BridgeCircle</div>
+          <div style={{ fontFamily:FM,fontSize:9,color:C.muted,letterSpacing:'.08em',marginTop:2 }}>HARTWOOD '14</div>
+        </div>
+      </div>
+      {/* Nav — left-aligned, editorial underline style */}
+      <nav style={{ display:'flex',gap:2,paddingLeft:4 }}>
+        {[
+          { id:'home',  label:'Home' },
+          { id:'people',label:'People' },
+          { id:'inbox', label:'Inbox', badge:3 },
+          { id:'events',label:'Events' },
+        ].map(it=>{
+          const on = it.id === active;
+          return (
+            <button key={it.id} onClick={()=>setActive(it.id)} style={{ background:'transparent',border:'none',cursor:'pointer',padding:'10px 14px',color:on?C.ink:C.muted,fontFamily:FB,fontSize:13.5,fontWeight:on?700:500,borderRadius:12,display:'inline-flex',flexDirection:'column',alignItems:'flex-start',gap:0,position:'relative',transition:'color 120ms ease' }}>
+              <span style={{ display:'flex',alignItems:'center',gap:8 }}>
+                {it.label}
+                {it.badge&&!on?<span style={{ background:`rgba(184,78,44,.15)`,color:C.accent,borderRadius:999,padding:'0 6px',minWidth:17,height:17,display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:10.5,fontWeight:700 }}>{it.badge}</span>:null}
+              </span>
+              {/* Accent underline — only on active */}
+              <span style={{ position:'absolute',bottom:6,left:14,right:14,height:2,background:on?C.accent:'transparent',borderRadius:999,transition:'background 160ms ease' }}/>
+            </button>
+          );
+        })}
+      </nav>
+      {/* Account — cohort year visible */}
+      <button style={{ display:'inline-flex',alignItems:'center',gap:8,padding:'5px 14px 5px 5px',borderRadius:12,background:C.paper,border:`1px solid ${C.rule}`,cursor:'pointer' }}>
+        <Avatar name="Maren Holt" initials="MH" size={30}/>
+        <div style={{ textAlign:'left' }}>
+          <div style={{ fontSize:13,fontWeight:600,fontFamily:FB,color:C.ink,lineHeight:1.2 }}>Maren Holt</div>
+          <div style={{ fontSize:10,fontFamily:FM,color:C.muted,letterSpacing:'.06em' }}>CLASS OF '14</div>
+        </div>
+      </button>
+    </div>
+  );
+}
+
+function NavSection() {
+  return (
+    <Section eyebrow="01 · Nav Bar" title="Floating nav bar — 2 directions">
+      <div style={{ display:'flex',flexDirection:'column',gap:28 }}>
+        <div>
+          <Label>Current</Label>
+          <NavCurrent/>
+          <div style={{ marginTop:10,fontFamily:FB,fontSize:12.5,color:C.mute2,lineHeight:1.6 }}>Logo | centered dark-pill tabs | avatar. Active = filled dark background. Used everywhere.</div>
+        </div>
+
+        <div>
+          <Label isNew>Option A — Ambient Status Strip</Label>
+          <NavAmbient/>
+          <Callout>
+            <strong style={{color:C.ink}}>What's new:</strong> A slim warm-dark strip lives below the pill — it's a live ticker of your personal "social temperature" (replies owed, upcoming events, new members). The logo circle pulses when activity exists. Active state drops the filled pill — a tiny 4px accent dot below the label is more refined and slides between items. The nav stops being silent chrome and becomes information.
+          </Callout>
+        </div>
+
+        <div>
+          <Label isNew>Option B — Editorial Identity</Label>
+          <NavEditorial/>
+          <Callout>
+            <strong style={{color:C.ink}}>What's new:</strong> Asymmetric layout — the logo gets more room with a cohort year underneath (HARTWOOD '14). Nav is left-aligned inside the bar, breaking the symmetric SaaS template. Active state = a 2px accent underline that slides, not a filled pill. The avatar chip becomes a two-line block showing full name + cohort class. The whole bar feels like a publication masthead, not a dashboard header. Click the tabs — it's interactive.
+          </Callout>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// 02 · MEMBER CARD
+// ══════════════════════════════════════════════════════════════
+
+function MemberCardCurrent() {
+  return (
+    <div style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:16,boxShadow:'0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(42,34,26,.04)',overflow:'hidden' }}>
+      <div style={{ padding:18 }}>
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12 }}>
+          <span style={{ fontFamily:FM,fontSize:10,letterSpacing:'.14em',color:C.mute2,textTransform:'uppercase',fontWeight:600 }}>'11 · Brooklyn</span>
+          <Tag tone="accent" dot>Open to mentor</Tag>
+        </div>
+        <div style={{ display:'flex',alignItems:'flex-start',gap:10,marginBottom:8 }}>
+          <Avatar name="Iris Okonkwo" initials="IO" size={44}/>
+          <h3 style={{ fontFamily:FD,fontSize:20,fontWeight:600,letterSpacing:'-.02em',margin:0,color:C.ink,lineHeight:1.1 }}>Iris Okonkwo</h3>
+        </div>
+        <div style={{ fontSize:13,color:C.ink2,fontWeight:500,lineHeight:1.4 }}>VP of Investments <span style={{color:C.muted,fontWeight:400}}>at</span> Common Capital</div>
+        <p style={{ fontSize:13,lineHeight:1.5,color:C.muted,margin:'10px 0 0',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden',display:'-webkit-box' }}>Climate tech and infrastructure. Advising founders on early-stage fundraising.</p>
+        <div style={{ display:'flex',gap:6,marginTop:14,flexWrap:'wrap' }}>
+          <Tag>Climate tech</Tag><Tag>VC</Tag><Tag>Fundraising</Tag>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MemberCardRelational() {
+  return (
+    <div style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:16,boxShadow:'0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(42,34,26,.04)',overflow:'hidden' }}>
+      <div style={{ padding:18 }}>
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12 }}>
+          <span style={{ fontFamily:FM,fontSize:10,letterSpacing:'.14em',color:C.mute2,textTransform:'uppercase',fontWeight:600 }}>'11 · Brooklyn</span>
+          <Tag tone="accent" dot>Open to mentor</Tag>
+        </div>
+        <div style={{ display:'flex',alignItems:'flex-start',gap:10,marginBottom:8 }}>
+          <Avatar name="Iris Okonkwo" initials="IO" size={44}/>
+          <div>
+            <h3 style={{ fontFamily:FD,fontSize:20,fontWeight:600,letterSpacing:'-.02em',margin:0,color:C.ink,lineHeight:1.1 }}>Iris Okonkwo</h3>
+            <div style={{ fontSize:13,color:C.ink2,fontWeight:500,lineHeight:1.4,marginTop:3 }}>VP of Investments <span style={{color:C.muted,fontWeight:400}}>at</span> Common Capital</div>
+          </div>
+        </div>
+        <p style={{ fontSize:13,lineHeight:1.5,color:C.muted,margin:'0 0 10px',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden',display:'-webkit-box' }}>Climate tech and infrastructure. Advising founders on early-stage fundraising.</p>
+        <div style={{ display:'flex',gap:6,flexWrap:'wrap' }}>
+          <Tag>Climate tech</Tag><Tag>VC</Tag><Tag>Fundraising</Tag>
+        </div>
+      </div>
+      {/* ── Relationship layer ── NEW */}
+      <div style={{ borderTop:`1px solid ${C.ruleS}`,background:C.panel,padding:'11px 18px',display:'flex',alignItems:'center',justifyContent:'space-between' }}>
+        <div style={{ display:'flex',alignItems:'center',gap:8 }}>
+          {/* Mutual avatar stack */}
+          <div style={{ display:'flex' }}>
+            {[['Rosa Ferrara','RF'],['Sam Aldridge','SA']].map(([n,i],idx)=>(
+              <div key={n} style={{ marginLeft:idx>0?-8:0,borderRadius:999,border:`2px solid ${C.panel}` }}>
+                <Avatar name={n} initials={i} size={22}/>
+              </div>
+            ))}
+          </div>
+          <span style={{ fontFamily:FB,fontSize:12,color:C.ink2,fontWeight:500 }}>
+            <strong style={{fontWeight:700}}>2 mutual members</strong>
+            <span style={{color:C.muted}}> · Rosa + 1</span>
+          </span>
+        </div>
+        <span style={{ fontFamily:FM,fontSize:9.5,color:C.muted,letterSpacing:'.06em' }}>MET AT SPRING SUPPER</span>
+      </div>
+    </div>
+  );
+}
+
+function MemberSection() {
+  return (
+    <Section eyebrow="02 · Member Card" title="Member card — add a relationship layer">
+      <div className="grid-2">
+        <div>
+          <Label>Current — what someone IS</Label>
+          <MemberCardCurrent/>
+        </div>
+        <div>
+          <Label isNew>Suggested — what someone IS + how you're CONNECTED</Label>
+          <MemberCardRelational/>
+        </div>
+      </div>
+      <Callout>
+        <strong style={{color:C.ink}}>What's new:</strong> A slim panel strip at the card's base shows mutual connections (with overlapping avatar stack) and a meeting context like "Met at Spring Supper." Every card now reads like a social graph node — not just a profile. The "2 mutual members" detail is the kind of thing LinkedIn buries; making it prominent is BridgeCircle's whole point.
+      </Callout>
+    </Section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// 03 · ACTIVITY FEED
+// ══════════════════════════════════════════════════════════════
+
+function FeedCurrent() {
+  const items = [
+    { name:'Dev Patel',    wi:'DP', what:'joined the network',       when:'2h' },
+    { name:'Sam Aldridge', wi:'SA', what:'updated their profile',    when:'4h' },
+    { name:'Iris Okonkwo', wi:'IO', what:'opened a mentor thread',   when:'1d' },
+    { name:'Maren Holt',   wi:'MH', what:"RSVP'd to Spring Supper",  when:'2d' },
+  ];
+  return (
+    <div style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:16,padding:18,boxShadow:'0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(42,34,26,.04)' }}>
+      <div style={{ fontFamily:FB,fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:C.muted,marginBottom:14 }}>Recent activity · 7 days</div>
+      <ul style={{ listStyle:'none',display:'flex',flexDirection:'column' }}>
+        {items.map((a,i)=>(
+          <li key={i} style={{ display:'grid',gridTemplateColumns:'auto 1fr auto',gap:10,padding:'8px 0',borderTop:i===0?'none':`1px solid ${C.ruleS}`,alignItems:'center' }}>
+            <Avatar name={a.name} initials={a.wi} size={24}/>
+            <span style={{ fontSize:12.5,color:C.ink }}>
+              <strong style={{fontWeight:600}}>{a.name.split(' ')[0]}</strong>{' '}
+              <span style={{color:C.muted}}>{a.what}</span>
+            </span>
+            <span style={{ fontSize:11,color:C.mute2,fontFamily:FM }}>{a.when}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function FeedClustered() {
+  return (
+    <div style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:16,overflow:'hidden',boxShadow:'0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(42,34,26,.04)' }}>
+      <div style={{ padding:'14px 18px 10px',fontFamily:FB,fontSize:11,fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',color:C.muted }}>Recent activity · 7 days</div>
+      {/* Cluster: Spring Supper */}
+      <div style={{ margin:'0 12px 10px',background:`rgba(184,78,44,.06)`,border:`1px solid rgba(184,78,44,.18)`,borderRadius:12,overflow:'hidden' }}>
+        <div style={{ padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center',borderBottom:`1px solid rgba(184,78,44,.12)` }}>
+          <div style={{ display:'flex',alignItems:'center',gap:8 }}>
+            <div style={{ display:'flex' }}>
+              {[['Iris Okonkwo','IO'],['Maren Holt','MH']].map(([n,i],idx)=>(
+                <div key={n} style={{ marginLeft:idx>0?-6:0 }}>
+                  <Avatar name={n} initials={i} size={22}/>
+                </div>
+              ))}
+            </div>
+            <span style={{ fontFamily:FB,fontSize:12.5,fontWeight:600,color:C.ink }}>Around Spring Supper</span>
+          </div>
+          <span style={{ fontFamily:FM,fontSize:10,color:C.muted,letterSpacing:'.06em' }}>2d</span>
+        </div>
+        <div style={{ padding:'8px 14px 10px',display:'flex',flexDirection:'column',gap:5 }}>
+          {[
+            {wi:'IO',name:'Iris',what:"RSVP'd · going"},
+            {wi:'MH',name:'Maren',what:"RSVP'd · going"},
+          ].map((a,i)=>(
+            <div key={i} style={{ display:'flex',alignItems:'center',gap:8,fontSize:12 }}>
+              <Avatar name={a.name} initials={a.wi} size={18}/>
+              <span style={{color:C.ink2}}><strong style={{fontWeight:600}}>{a.name}</strong> <span style={{color:C.muted}}>{a.what}</span></span>
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Ungrouped items */}
+      <div style={{ padding:'0 18px 14px',display:'flex',flexDirection:'column' }}>
+        {[
+          {wi:'DP',name:'Dev Patel',   what:'joined the network',    when:'2h'},
+          {wi:'SA',name:'Sam Aldridge',what:'updated their profile', when:'4h'},
+        ].map((a,i)=>(
+          <div key={i} style={{ display:'grid',gridTemplateColumns:'auto 1fr auto',gap:10,padding:'8px 0',borderTop:`1px solid ${C.ruleS}`,alignItems:'center' }}>
+            <Avatar name={a.name} initials={a.wi} size={22}/>
+            <span style={{ fontSize:12.5,color:C.ink }}>
+              <strong style={{fontWeight:600}}>{a.name.split(' ')[0]}</strong>{' '}
+              <span style={{color:C.muted}}>{a.what}</span>
+            </span>
+            <span style={{ fontSize:11,color:C.mute2,fontFamily:FM }}>{a.when}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeedSection() {
+  return (
+    <Section eyebrow="03 · Activity Feed" title="Activity feed — group by event, not by time">
+      <div className="grid-2">
+        <div><Label>Current — flat chronological list</Label><FeedCurrent/></div>
+        <div><Label isNew>Suggested — clustered by shared context</Label><FeedClustered/></div>
+      </div>
+      <Callout>
+        <strong style={{color:C.ink}}>What's new:</strong> Activities that share an event or relationship are grouped into a tinted cluster card (e.g. "Around Spring Supper"). The cluster shows a mini avatar stack and a summary, making the feed read like a narrative of relationships — not a log of actions. Standalone events fall below as normal rows. The result is a heartbeat, not an audit trail.
+      </Callout>
+    </Section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// 04 · KPI STRIP
+// ══════════════════════════════════════════════════════════════
+
+function KPICurrent() {
+  return (
+    <div style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:16,padding:'18px 28px',display:'grid',gridTemplateColumns:'repeat(4, 1fr)',boxShadow:'0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(42,34,26,.04)' }}>
+      {[
+        {label:'Members',       value:'1,284',sub:'active',   color:C.ink   },
+        {label:'Waiting on you',value:'2',    sub:'replies',  color:C.accent},
+        {label:'New this week', value:'+8',   sub:'members',  color:C.ok    },
+        {label:'Open to mentor',value:'347',  sub:'members',  color:C.ink   },
+      ].map((it,i)=>(
+        <div key={i} style={{ paddingLeft:i===0?0:22,paddingRight:i===3?0:22,borderRight:i===3?'none':`1px solid ${C.ruleS}` }}>
+          <div style={{ fontFamily:FB,fontSize:11,fontWeight:600,letterSpacing:'.08em',textTransform:'uppercase',color:C.muted,marginBottom:6 }}>{it.label}</div>
+          <div style={{ display:'flex',alignItems:'baseline',gap:5 }}>
+            <span style={{ fontFamily:FD,fontSize:28,fontWeight:600,color:it.color,letterSpacing:'-.02em',lineHeight:1 }}>{it.value}</span>
+            <span style={{ fontSize:12,color:C.muted }}>{it.sub}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function KPINarrative() {
+  return (
+    <div style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:16,overflow:'hidden',boxShadow:'0 1px 0 rgba(255,255,255,.6) inset, 0 1px 2px rgba(42,34,26,.04)' }}>
+      {/* Urgent item — full-bleed, larger */}
+      <div style={{ background:C.ink,padding:'18px 24px',display:'flex',alignItems:'center',gap:16 }}>
+        <div>
+          <div style={{ fontFamily:FM,fontSize:10,fontWeight:700,letterSpacing:'.10em',color:'rgba(240,229,208,.55)',textTransform:'uppercase',marginBottom:4 }}>Your desk right now</div>
+          <div style={{ display:'flex',alignItems:'baseline',gap:6 }}>
+            <span style={{ fontFamily:FD,fontSize:44,fontWeight:700,color:C.accent,letterSpacing:'-.03em',lineHeight:1 }}>2</span>
+            <span style={{ fontFamily:FB,fontSize:15,color:'rgba(240,229,208,.85)',fontWeight:400 }}>people waiting on your reply</span>
+          </div>
+        </div>
+        <button style={{ marginLeft:'auto',background:C.accent,color:'#fff',border:'none',borderRadius:999,padding:'9px 18px',fontFamily:FB,fontSize:13,fontWeight:600,cursor:'pointer',whiteSpace:'nowrap' }}>Open inbox →</button>
+      </div>
+      {/* Secondary stats — narrative captions */}
+      <div style={{ display:'grid',gridTemplateColumns:'repeat(3, 1fr)',padding:'16px 24px',gap:0 }}>
+        {[
+          { value:'1,284', line1:'members in your circle', line2:'94 in your Hartwood cohort', color:C.ink },
+          { value:'+8',    line1:'joined this week', line2:'3 are in your industry', color:C.ok },
+          { value:'347',   line1:'open to mentor right now', line2:'12 match your background', color:C.ink2 },
+        ].map((it,i)=>(
+          <div key={i} style={{ paddingLeft:i===0?0:20,paddingRight:i===2?0:20,borderRight:i===2?'none':`1px solid ${C.ruleS}` }}>
+            <span style={{ fontFamily:FD,fontSize:30,fontWeight:700,color:it.color,letterSpacing:'-.025em',lineHeight:1,display:'block' }}>{it.value}</span>
+            <div style={{ fontFamily:FB,fontSize:12.5,color:C.ink2,marginTop:5,lineHeight:1.4,fontWeight:500 }}>{it.line1}</div>
+            <div style={{ fontFamily:FB,fontSize:11.5,color:C.muted,marginTop:2,lineHeight:1.4 }}>{it.line2}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function KPISection() {
+  return (
+    <Section eyebrow="04 · KPI Strip" title="KPI strip — narrative, not dashboard">
+      <div style={{ display:'flex',flexDirection:'column',gap:20 }}>
+        <div><Label>Current — 4 equal columns, same size, same weight</Label><KPICurrent/></div>
+        <div><Label isNew>Suggested — urgent stat dominates, others carry context</Label><KPINarrative/></div>
+      </div>
+      <Callout>
+        <strong style={{color:C.ink}}>What's new:</strong> The most actionable number ("2 people waiting") gets an Inverse treatment at full bleed — dark card, large display type, direct CTA. It's immediately clear what needs your attention. Below it, the secondary stats gain a second line of context ("94 in your Hartwood cohort", "12 match your background") — turning dumb numbers into relevant intel. Dashboard-slop becomes a personal briefing.
+      </Callout>
+    </Section>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════
+// ROOT
+// ══════════════════════════════════════════════════════════════
+
+function App() {
+  return (
+    <div style={{ maxWidth:980,margin:'0 auto',padding:'0 40px 100px' }}>
+
+      {/* Generic list */}
+      <div style={{ padding:'56px 0',borderTop:`1px solid ${C.rule}` }}>
+        <div style={{ fontFamily:FB,fontSize:11,fontWeight:700,letterSpacing:'.10em',textTransform:'uppercase',color:C.accent,display:'flex',alignItems:'center',gap:8,marginBottom:8 }}>
+          <span style={{width:6,height:6,borderRadius:999,background:C.accent}}/>
+          00 · Diagnosis
+        </div>
+        <h2 style={{ fontFamily:FD,fontSize:26,fontWeight:600,letterSpacing:'-.02em',color:C.ink,marginBottom:18 }}>What's too familiar right now</h2>
+        <div style={{ display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:10 }}>
+          {[
+            ['Floating nav bar','Logo | centered active-pill | avatar. The exact layout of Linear, Notion, every SaaS product since 2021. The dark filled active pill is overused.'],
+            ['Member card','Avatar + name + role + interest tags = the LinkedIn card. Every AI-generated people product looks like this.'],
+            ['Activity feed','"Name did thing · 2h" flat list. The most copied UI pattern on the web. GitHub, Slack, Twitter all did it first.'],
+            ['KPI strip','4 equal-size numbers in a grid. Every SaaS dashboard since 2018. Numbers are equally weighted regardless of what actually matters to the user.'],
+          ].map(([title,desc],i)=>(
+            <div key={i} style={{ background:C.card,border:`1px solid ${C.rule}`,borderRadius:12,padding:'14px 16px',boxShadow:'0 1px 0 rgba(255,255,255,.6) inset' }}>
+              <div style={{ fontFamily:FD,fontSize:14,fontWeight:600,color:C.ink,marginBottom:5 }}>{title}</div>
+              <div style={{ fontFamily:FB,fontSize:12.5,color:C.muted,lineHeight:1.55 }}>{desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <NavSection/>
+      <MemberSection/>
+      <FeedSection/>
+      <KPISection/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

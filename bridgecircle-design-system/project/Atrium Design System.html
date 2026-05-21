@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BridgeCircle — Atrium Design System</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #ebe1cb; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    body { overflow-x: hidden; }
+    *::selection { background: rgba(184,78,44,0.88); color: #fff; }
+    html { scroll-behavior: smooth; }
+    :focus-visible { outline: 2px solid rgba(184,78,44,0.45); outline-offset: 2px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(42,34,26,0.14); border-radius: 999px; }
+    a { text-decoration: none; }
+  </style>
+</head>
+<body>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <div id="root"></div>
+
+  <script type="text/babel" src="ds-foundations.jsx"></script>
+  <script type="text/babel" src="ds-components.jsx"></script>
+  <script type="text/babel" src="ds-patterns.jsx"></script>
+  <script type="text/babel" src="ds-motion.jsx"></script>
+  <script type="text/babel" src="ds-more-components.jsx"></script>
+  <script type="text/babel" src="ds-feedback-trust.jsx"></script>
+  <script type="text/babel" src="ds-viz-conversation.jsx"></script>
+  <script type="text/babel" src="ds-editorial.jsx"></script>
+  <script type="text/babel" src="ds-achievements.jsx"></script>
+  <script type="text/babel" src="ds-atmosphere.jsx"></script>
+  <script type="text/babel" src="ds-character.jsx"></script>
+  <script type="text/babel" src="ds-motion-plus.jsx"></script>
+  <script type="text/babel" src="ds-extra-controls.jsx"></script>
+  <script type="text/babel" src="ds-extra-narrative.jsx"></script>
+  <script type="text/babel" src="ds-diverse-cards.jsx"></script>
+  <script type="text/babel" src="ds-diverse-requests.jsx"></script>
+  <script type="text/babel" src="ds-member-library.jsx"></script>
+  <script type="text/babel" src="ds-advanced-motion.jsx"></script>
+  <script type="text/babel" src="ds-icons.jsx"></script>
+  <script type="text/babel" src="ds-lamplight.jsx"></script>
+  <script type="text/babel" src="ds-command-palette.jsx"></script>
+  <script type="text/babel" src="ds-forms.jsx"></script>
+  <script type="text/babel" src="ds-system-pages.jsx"></script>
+  <script type="text/babel" src="ds-voice.jsx"></script>
+  <script type="text/babel" src="ds-data-display.jsx"></script>
+  <script type="text/babel" src="ds-notifications.jsx"></script>
+  <script type="text/babel" src="ds-photography.jsx"></script>
+  <script type="text/babel" src="ds-longform.jsx"></script>
+  <script type="text/babel" src="ds-mobile.jsx"></script>
+  <script type="text/babel" src="ds-layout.jsx"></script>
+  <script type="text/babel" src="ds-a11y.jsx"></script>
+  <script type="text/babel" src="ds-charts.jsx"></script>
+  <script type="text/babel" src="ds-emails.jsx"></script>
+  <script type="text/babel" src="ds-search-results.jsx"></script>
+  <script type="text/babel" src="ds-coachmarks.jsx"></script>
+  <script type="text/babel" src="ds-tooltips.jsx"></script>
+  <script type="text/babel" src="ds-comments.jsx"></script>
+  <script type="text/babel" src="ds-print.jsx"></script>
+  <script type="text/babel" src="ds-brand.jsx"></script>
+  <script type="text/babel" src="ds-transitions.jsx"></script>
+  <script type="text/babel" src="ds-loading.jsx"></script>
+  <script type="text/babel" src="ds-errors.jsx"></script>
+  <script type="text/babel" src="ds-density.jsx"></script>
+  <script type="text/babel" src="ds-meta.jsx"></script>
+  <script type="text/babel" src="ds-tokens-export.jsx"></script>
+  <script type="text/babel" src="ds-tier1.jsx"></script>
+  <script type="text/babel" src="ds-tier2.jsx"></script>
+  <script type="text/babel" src="ds-screens.jsx"></script>
+  <script type="text/babel" src="ds-home-blocks.jsx"></script>
+
+  <script type="text/babel">
+    ReactDOM.createRoot(document.getElementById('root')).render(<DesignSystem />);
+  </script>
+</body>
+</html>

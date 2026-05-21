@@ -25,17 +25,15 @@ There are two parallel "ask" types, both running on the same data model:
 
 ## 1. Top-Level Information Architecture
 
-Authenticated members land in an app shell with a sticky header. The header has, left to right: the BridgeCircle wordmark (linking home), the primary nav, a "Search the circle…" input that submits to `/discover` on wide viewports, a notifications bell with a popover, and an avatar account menu. On narrow viewports the nav collapses to a hamburger drop-down.
+Authenticated members land in an app shell with a sticky header. The header has, left to right: the BridgeCircle wordmark (linking home `/`), the primary nav, a "Search the circle…" input that submits to `/people` on wide viewports, a notifications bell with a popover, and an avatar account menu. On narrow viewports the nav collapses to a hamburger drop-down.
 
 Primary nav (in order, for every member):
-- **Home** (`/`) — the dashboard
-- **Discover** (`/discover`) — the alumni directory + search
-- **Ask** (`/ask`) — outgoing asks and the entry to compose a new one
-- **Inbox** (`/inbox`) — unified things-waiting-on-you
+- **People** (`/people`) — the alumni directory + search
+- **Inbox** (`/inbox`) — unified request lifecycle (friend requests, asks, direct messages)
 - **Events** (`/events`)
 - **Admin** (`/admin/...`) — appears only for admins, as the last slot before the bell
 
-Legacy URLs redirect (308) to current ones so old links keep working: `/search → /discover`, `/messages → /inbox`, `/friends → /discover?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`.
+Legacy URLs redirect (308) to current ones so old links keep working: `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/ask → /inbox`, `/messages → /inbox`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`.
 
 The account menu (avatar dropdown) contains: My profile, Edit profile, Helper preferences, and Sign out.
 
@@ -131,7 +129,7 @@ On desktop, a 3-column grid: a 2-column main rail on the left and a 1-column sid
 
 ---
 
-## 4. Discover — The Alumni Directory (`/discover`)
+## 4. People — The Alumni Directory (`/people`)
 
 The product's directory and search surface. Two search modes share one results grid.
 
@@ -239,7 +237,7 @@ Accessed from the account menu and from profile-edit. The page lets a member tun
 
 ## 6. Friendship
 
-Friendship is a separate, mutual relationship — it does not gate viewing profiles, but it does gate direct messaging. Friend signals also surface in Discover ("Only people I know" filter, friend badges on cards).
+Friendship is a separate, mutual relationship — it does not gate viewing profiles, but it does gate direct messaging. Friend signals also surface in the People directory ("Only people I know" filter, friend badges on cards).
 
 The flow:
 1. On a profile, the viewer clicks "Add friend." The action sends an outgoing friend request, optionally with a short personal message.
@@ -254,22 +252,11 @@ Either party can remove a friendship later from the other's profile. Removing a 
 
 The product's center of gravity. All asks share one data model with a type discriminator (`advice` | `mentorship`).
 
-### 7.1 Ask Landing (`/ask`)
+### 7.1 Starting Asks and Request Lifecycle
 
-Two-part page:
-
-**Start a new ask** card at the top.
-- A recipient search field: "Try a name, employer, or topic — e.g. 'Mark' or 'finance'" with a Search button.
-- Up to six matches render as rows, each with avatar, name and class year, a one-line subtitle (title · employer — city), and one or two action buttons depending on the helper's preferences:
-  - "Ask for advice" (if `open_to_advice`)
-  - "Request mentorship" (if `open_to_mentorship`)
-  Both appear if both are enabled; the mentorship button is the primary visual weight.
-- No matches: "No one open to advice or mentorship matched '{query}'. Browse all alumni." (links to `/discover`)
-
-**Past asks** below the picker.
-- Two groups: **Open** (pending or accepted) and **Closed** (declined or expired). The Closed group is omitted when empty.
-- Each row: avatar, name, type badge, status badge, relative timestamp, and a 2-line clamp of the ask text.
-- Clicking a row opens the detail at `/ask/{id}`.
+Top-level `/ask` is no longer a destination; it redirects (308) to `/inbox`. The product has moved away from a standalone search-first ask picker:
+- **Starting an ask**: A member initiates advice or mentorship requests directly from another member's profile page (`/profile/[id]`) using the context-aware CTA buttons ("Ask for advice" or "Request mentorship").
+- **Tracking request state**: Sent requests, incoming requests, and active conversation threads are all managed centrally on the **Inbox** (`/inbox`) dashboard. Outgoing pending requests appear under the "Sent requests" section in the Inbox, which shows status badges (Pending, Accepted, Declined). Clicking any sent request opens its read-only detail page at `/ask/[id]`.
 
 ### 7.2 Composing An Ask (`/ask/new?to=…&type=…`)
 
@@ -336,9 +323,9 @@ Six sections, top to bottom:
 
 **Active threads.** Conversations that began with an accepted ask. Each row shows the other party's avatar, name, your role in the thread, and a relative timestamp. Click → `/ask/thread/{id}`. Empty: "Once an ask is accepted, your conversation will appear here."
 
-**Direct messages.** Threads with friends. Each row shows avatar, name, last-message snippet (prefixed with "You:" when the viewer sent the last message), an unread count badge, and a relative timestamp. Unread rows render in heavier weight. Empty: "Discover an alum and add them as a friend to start a thread." with a link to `/discover`.
+**Direct messages.** Threads with friends. Each row shows avatar, name, last-message snippet (prefixed with "You:" when the viewer sent the last message), an unread count badge, and a relative timestamp. Unread rows render in heavier weight. Empty: "Find an alum and add them as a friend to start a thread." with a link to `/people`.
 
-**Your sent asks.** A condensed mirror of the `/ask` outbox, capped at the 20 most recent. The note "full list lives at /ask" links over to the canonical page. Empty: "You haven't sent any asks yet" with a link to start one.
+**Your sent asks.** A list of the 20 most recent advice or mentorship requests you've sent. Empty: "You haven't sent any asks yet" with a link to find people (`/people`).
 
 **Sent friend requests.** Outgoing friend requests awaiting reply. Rows mirror the incoming-requests format but without action buttons — just "View profile." This section hides itself when empty.
 
@@ -499,7 +486,7 @@ Every state transition that matters for someone else triggers both an in-app not
 
 ### 14.3 Search Visibility
 
-A member must complete onboarding step 1 to be searchable. Members with `self_deactivated` membership status are filtered out of Discover, list cards, and search. Deleted users disappear entirely.
+A member must complete onboarding step 1 to be searchable. Members with `self_deactivated` membership status are filtered out of the People directory, list cards, and search. Deleted users disappear entirely.
 
 ### 14.4 Mobile Responsiveness
 
@@ -528,7 +515,7 @@ DM threads and the notification bell subscribe to Supabase Realtime. New message
 
 Three end-to-end loops describe what BridgeCircle is actually *for*. The redesign must preserve all three.
 
-**Asker loop.** Member signs in → home shows time-aware greeting → either clicks a hero CTA or opens **Discover** → searches in natural language or filters → opens a profile or starts an ask from the search row → wizard or direct compose → submits → tracks status in **/ask** and **/inbox** → on accept, opens the thread → conversation continues until the asker has what they needed.
+**Asker loop.** Member signs in → home shows time-aware greeting → either clicks a hero CTA or opens **People** → searches in natural language or filters → opens a profile or starts an ask from the search row → wizard or direct compose → submits → tracks status in **/inbox** → on accept, opens the thread → conversation continues until the asker has what they needed.
 
 **Helper loop.** Member opts in via **Helper preferences** → receives requests in **/inbox** (also surfaced on home as "Mentees waiting on you") → reviews each ask in detail → accepts or declines → on accept, threads continue in `/ask/thread/[id]` → if the member goes idle, the system auto-pauses them and resumes when they come back.
 

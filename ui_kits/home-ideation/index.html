@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle · Home (ideation)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..900,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f7f8fb;
+        --card: #ffffff;
+        --ink: #0b1220;
+        --ink-2: #1e293b;
+        --muted: #64748b;
+        --muted-2: #94a3b8;
+        --border: #e5e7eb;
+        --primary: #0051d5;
+        --primary-2: #316bf3;
+        --lavender: #b4c5ff;
+        --lavender-soft: #eef2ff;
+        --warm: #f59e0b;
+        --good: #10b981;
+        --warn-bg: #fff7ed;
+        --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.04);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif; }
+      a { color: inherit; text-decoration: none; }
+      .fraunces { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "SOFT" 50, "WONK" 0, "opsz" 25; letter-spacing: -0.02em; }
+      .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+      .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+      /* ============== HERO ============== */
+      .hero {
+        position: relative;
+        overflow: hidden;
+        color: white;
+        background: linear-gradient(135deg, #0b1220 0%, #131b2e 50%, #1e293b 100%);
+      }
+      .hero::before {
+        content: "";
+        position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(180, 197, 255, 0.10) 1.5px, transparent 1.5px);
+        background-size: 24px 24px;
+        opacity: 0.6;
+      }
+      .hero svg.motif { position: absolute; top: -40px; right: -60px; width: 520px; height: 380px; opacity: 0.2; }
+      .hero-inner { position: relative; padding: 72px 0 80px; }
+      .hero .eyebrow { color: var(--lavender); }
+      .hero h1 { font-size: 56px; line-height: 1.05; margin: 12px 0 0; max-width: 880px; font-weight: 700; }
+      .hero h1 .accent { color: var(--lavender); }
+      .hero .subline { margin-top: 16px; max-width: 580px; font-size: 17px; line-height: 1.6; color: #cbd5e1; }
+      .hero-actions { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 12px 18px; border-radius: 10px;
+        font-size: 14px; font-weight: 600;
+        border: 1px solid transparent; cursor: pointer;
+      }
+      .btn-primary { background: white; color: var(--ink); }
+      .btn-primary:hover { background: #f1f5f9; }
+      .btn-ghost { background: rgba(255, 255, 255, 0.06); color: white; border-color: rgba(255, 255, 255, 0.18); }
+      .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+      .btn-solid { background: var(--primary); color: white; }
+      .btn-solid:hover { background: #0044b3; }
+      .btn-outline { background: white; color: var(--ink); border-color: var(--border); }
+      .btn-outline:hover { background: #f8fafc; }
+
+      .hero-stats {
+        margin-top: 56px;
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        border-top: 1px solid rgba(180, 197, 255, 0.18);
+        padding-top: 28px;
+      }
+      .stat { padding: 0 24px; border-left: 1px solid rgba(180, 197, 255, 0.18); }
+      .stat:first-child { border-left: 0; padding-left: 0; }
+      .stat-val { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; line-height: 1.2; }
+      .stat-lbl { color: var(--muted-2); font-size: 13px; margin-top: 4px; }
+
+      /* ============== LAYOUT ============== */
+      main { padding: 48px 0 96px; }
+      .stack { display: flex; flex-direction: column; gap: 32px; }
+      .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; align-items: start; }
+      .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+      .sec-head h2 { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin: 6px 0 0; letter-spacing: -0.02em; }
+      .sec-head a { font-size: 13px; font-weight: 600; color: var(--primary); }
+      .sec-head a:hover { text-decoration: underline; }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+      }
+      .card.tight { padding: 18px; }
+      .card.pad { padding: 22px; }
+
+      /* ============== ANNOUNCEMENT ============== */
+      .ann { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; background: #eef2ff; border: 1px solid #dbe3ff; border-radius: 12px; }
+      .ann-icon { width: 28px; height: 28px; border-radius: 999px; background: white; display: grid; place-items: center; color: var(--primary); border: 1px solid #dbe3ff; }
+      .ann-title { font-weight: 600; }
+      .ann-body { color: var(--muted); font-size: 14px; margin-top: 2px; }
+      .ann-meta { color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; }
+
+      /* ============== ARCHIVE CARD ============== */
+      .archive {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        color: white;
+        background:
+          radial-gradient(at 80% 20%, rgba(180, 197, 255, 0.45), transparent 55%),
+          linear-gradient(135deg, #0b1220 0%, #1a2444 50%, #2a3470 100%);
+        padding: 36px 40px;
+        min-height: 220px;
+        display: grid; grid-template-columns: 2fr 1fr; gap: 24px;
+      }
+      .archive::after {
+        content: ""; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 16px 16px; pointer-events: none;
+      }
+      .archive .eyebrow { color: var(--lavender); position: relative; }
+      .archive blockquote {
+        font-family: 'Fraunces', serif; font-style: italic;
+        font-size: 30px; line-height: 1.25; letter-spacing: -0.01em;
+        margin: 12px 0 14px; max-width: 560px; position: relative;
+      }
+      .archive cite { color: #c7d2fe; font-size: 14px; font-style: normal; position: relative; }
+      .archive .yearbook {
+        position: relative; place-self: end;
+        width: 180px; height: 180px; border-radius: 12px;
+        background: linear-gradient(160deg, #d6dffb 0%, #93a4d9 100%);
+        display: grid; place-items: center;
+        font-family: 'Fraunces', serif;
+        color: #1e293b; font-weight: 700; text-align: center;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+      }
+      .yearbook .y-year { font-size: 44px; line-height: 1; }
+      .yearbook .y-cap { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 6px; color: #475569; }
+
+      /* ============== ONE SMALL THING ============== */
+      .nudge {
+        position: relative;
+        background: linear-gradient(135deg, #fef9c3 0%, #fde68a 100%);
+        border: 1px solid #fde68a;
+        border-radius: 14px;
+        padding: 18px;
+      }
+      .nudge .eyebrow { color: #92400e; }
+      .nudge h3 { font-family: 'Fraunces', serif; font-size: 20px; margin: 6px 0 8px; line-height: 1.25; }
+      .nudge p { margin: 0 0 14px; color: #78350f; font-size: 14px; }
+      .nudge-actions { display: flex; gap: 8px; }
+
+      /* ============== PEOPLE YOU MIGHT KNOW ============== */
+      .pymk { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .pymk .person { padding: 18px; border: 1px solid var(--border); background: white; border-radius: 12px; transition: all .15s; }
+      .pymk .person:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+      .avatar {
+        width: 44px; height: 44px; border-radius: 999px;
+        display: grid; place-items: center;
+        color: white; font-weight: 600; font-size: 15px;
+        background: linear-gradient(135deg, #316bf3, #0051d5);
+      }
+      .avatar.lg { width: 56px; height: 56px; font-size: 17px; }
+      .avatar.sm { width: 28px; height: 28px; font-size: 11px; }
+      .avatar.green { background: linear-gradient(135deg, #34d399, #059669); }
+      .avatar.amber { background: linear-gradient(135deg, #fbbf24, #d97706); }
+      .avatar.rose { background: linear-gradient(135deg, #fb7185, #be123c); }
+      .person h4 { font-family: 'Fraunces', serif; font-size: 17px; margin: 12px 0 2px; }
+      .person .role { font-size: 13px; color: var(--ink-2); }
+      .person .role b { font-weight: 600; }
+      .reason-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 14px; }
+      .chip {
+        font-size: 11px; padding: 4px 8px; border-radius: 999px;
+        background: var(--lavender-soft); color: var(--primary);
+        font-weight: 600;
+      }
+      .chip.muted { background: #f1f5f9; color: var(--muted); }
+      .chip.green { background: #ecfdf5; color: var(--good); }
+
+      /* ============== CLASS OF YY ============== */
+      .cohort { padding: 24px; }
+      .cohort-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+      .cohort-head h3 { font-family: 'Fraunces', serif; font-size: 22px; margin: 4px 0 0; }
+      .cohort-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 20px; align-items: center; }
+      .breakdown { display: flex; flex-direction: column; gap: 12px; }
+      .bar-row { display: grid; grid-template-columns: 100px 1fr 36px; gap: 10px; align-items: center; font-size: 13px; }
+      .bar { height: 8px; background: #eef2ff; border-radius: 999px; overflow: hidden; }
+      .bar > i { display: block; height: 100%; background: linear-gradient(90deg, #316bf3, #0051d5); border-radius: 999px; }
+      .bar-val { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+      .cities { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+      .city-row { display: flex; justify-content: space-between; }
+      .city-row span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+      /* ============== CAREER MOVES ============== */
+      .moves { display: flex; flex-direction: column; }
+      .move { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+      .move:last-child { border-bottom: 0; }
+      .move-body { flex: 1; min-width: 0; }
+      .move-body .name { font-weight: 600; font-size: 14px; }
+      .move-body .name .year { color: var(--muted); font-weight: 500; margin-left: 4px; }
+      .move-body .arrow { font-size: 13px; color: var(--muted); margin-top: 2px; }
+      .move-body .arrow b { color: var(--ink); font-weight: 600; }
+      .move-time { font-size: 12px; color: var(--muted); white-space: nowrap; }
+      .pulse {
+        display: inline-block; width: 7px; height: 7px; border-radius: 999px;
+        background: var(--good); margin-right: 6px; vertical-align: middle;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+      }
+
+      /* ============== NEW ALUMNI ============== */
+      .alumni-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .alum { padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: white; }
+      .alum h4 { font-family: 'Fraunces', serif; font-size: 17px; margin: 0 0 4px; }
+      .alum .role { font-size: 13px; }
+      .alum .meta { display: flex; gap: 8px; margin-top: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+      .alum .meta .chip { font-size: 11px; }
+
+      /* ============== FEATURED EVENT (right col) ============== */
+      .event { overflow: hidden; }
+      .event-hero {
+        position: relative; padding: 22px; color: white;
+        background: linear-gradient(135deg, #0b1220 0%, #0051d5 100%);
+        min-height: 120px;
+      }
+      .event-hero::after {
+        content: ""; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px);
+        background-size: 16px 16px;
+      }
+      .event-hero .eyebrow { color: var(--lavender); position: relative; }
+      .event-hero h3 { position: relative; font-family: 'Fraunces', serif; font-size: 22px; margin: 8px 0 0; }
+      .event-body { padding: 18px; }
+      .event-body .row { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 8px; }
+      .event-body .row.muted { color: var(--muted); }
+      .event-body .going { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 12px 0; font-size: 13px; color: var(--muted); }
+      .avatar-stack { display: flex; }
+      .avatar-stack .avatar.sm { border: 2px solid white; margin-left: -8px; }
+      .avatar-stack .avatar.sm:first-child { margin-left: 0; }
+      .avatar-stack .more {
+        width: 28px; height: 28px; border-radius: 999px;
+        background: #f1f5f9; color: var(--muted); font-size: 11px; font-weight: 600;
+        display: grid; place-items: center; margin-left: -8px; border: 2px solid white;
+      }
+
+      /* ============== MAP ============== */
+      .map-card { padding: 0; overflow: hidden; }
+      .map-card .head { padding: 18px 18px 10px; }
+      .map-card .head .eyebrow { color: var(--muted); }
+      .map-card .head h3 { font-family: 'Fraunces', serif; font-size: 20px; margin: 4px 0 0; }
+      .map-wrap { position: relative; padding: 6px 14px 18px; }
+      .map-svg { width: 100%; height: auto; display: block; }
+      .map-legend { display: flex; justify-content: space-between; padding: 0 18px 16px; font-size: 12px; color: var(--muted); }
+      .map-legend b { color: var(--ink); }
+
+      /* ============== ACTIVITY ============== */
+      .activity { padding: 0; overflow: hidden; }
+      .activity .head { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--border); }
+      .activity .head h3 { font-size: 14px; font-weight: 600; margin: 0; }
+      .activity .head a { font-size: 12px; color: var(--primary); font-weight: 600; }
+      .activity ul { list-style: none; padding: 0; margin: 0; }
+      .activity li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 13px; }
+      .activity li:last-child { border-bottom: 0; }
+      .activity li.unread { background: rgba(0, 81, 213, 0.03); }
+      .activity .ico { width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center; flex-shrink: 0; }
+      .activity .ico.blue { background: rgba(0, 81, 213, 0.15); color: var(--primary); }
+      .activity .ico.green { background: rgba(16, 185, 129, 0.15); color: var(--good); }
+      .activity .ico.amber { background: rgba(245, 158, 11, 0.15); color: var(--warm); }
+      .activity .when { font-size: 11px; color: var(--muted); }
+      .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--primary); margin-top: 8px; }
+
+      /* ============== THANK-YOU WALL ============== */
+      .thanks { padding: 22px; }
+      .thanks .eyebrow { color: var(--good); }
+      .thanks blockquote { font-family: 'Fraunces', serif; font-size: 18px; line-height: 1.4; margin: 8px 0 12px; }
+      .thanks cite { font-size: 13px; color: var(--muted); font-style: normal; }
+      .thanks .dots { display: flex; gap: 6px; margin-top: 14px; }
+      .thanks .dots i { width: 6px; height: 6px; border-radius: 999px; background: #cbd5e1; }
+      .thanks .dots i.on { background: var(--good); }
+
+      /* small icon helper using inline SVG sprite */
+      svg.i { width: 16px; height: 16px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+      svg.i.sm { width: 14px; height: 14px; }
+
+      @media (max-width: 900px) {
+        .hero h1 { font-size: 40px; }
+        .hero-stats { grid-template-columns: repeat(2, 1fr); row-gap: 24px; }
+        .stat { border-left: 0; padding-left: 0; }
+        .grid { grid-template-columns: 1fr; }
+        .pymk, .alumni-grid { grid-template-columns: 1fr 1fr; }
+        .archive { grid-template-columns: 1fr; padding: 28px; }
+        .archive .yearbook { width: 120px; height: 120px; }
+        .archive blockquote { font-size: 24px; }
+        .cohort-grid { grid-template-columns: 1fr; }
+      }
+      @media (max-width: 560px) {
+        .pymk, .alumni-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      <svg class="motif" viewBox="0 0 520 380" aria-hidden="true">
+        <circle cx="200" cy="190" r="140" fill="none" stroke="#b4c5ff" stroke-width="1.5" />
+        <circle cx="320" cy="190" r="140" fill="none" stroke="#316bf3" stroke-width="1.5" />
+      </svg>
+      <div class="container hero-inner">
+        <p class="eyebrow">Class of '17 · Welcome back to Chadwick</p>
+        <h1 class="fraunces">
+          Good afternoon, Richard.<br />
+          <span class="accent">Your circle is active today.</span>
+        </h1>
+        <p class="subline">
+          Two mentees are waiting on your reply, and the Spring Mixer in San Francisco is 4 days out.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#">
+            <svg class="i" viewBox="0 0 24 24"><path d="M11 17h6l-2-2m2 2-2 2M13 7H7l2-2M7 7l2 2"/><circle cx="12" cy="12" r="9"/></svg>
+            Review mentor requests
+          </a>
+          <a class="btn btn-ghost" href="#">
+            <svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+            Upcoming events
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat"><div class="stat-val">14</div><div class="stat-lbl">New this week</div></div>
+          <div class="stat"><div class="stat-val">62</div><div class="stat-lbl">Open mentors</div></div>
+          <div class="stat"><div class="stat-val">3</div><div class="stat-lbl">Upcoming events</div></div>
+          <div class="stat"><div class="stat-val">Class '17</div><div class="stat-lbl">Your cohort</div></div>
+        </div>
+      </div>
+    </section>
+
+    <main class="container">
+      <div class="stack">
+
+        <!-- ================= ANNOUNCEMENT ================= -->
+        <a class="ann" href="#">
+          <span class="ann-icon">
+            <svg class="i sm" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5zM15 9a3 3 0 0 1 0 6"/></svg>
+          </span>
+          <div style="flex:1">
+            <div style="display:flex;gap:10px;align-items:baseline">
+              <span class="ann-meta">Latest announcement</span>
+              <span style="font-size:12px;color:var(--muted)">2 days ago</span>
+            </div>
+            <div class="ann-title">Class of '15 reunion details just posted</div>
+            <div class="ann-body">RSVPs open until June 1. Hotel block at the Riviera closes May 25.</div>
+          </div>
+          <svg class="i" viewBox="0 0 24 24" style="color:var(--muted);align-self:center"><path d="M9 18l6-6-6-6"/></svg>
+        </a>
+
+        <!-- ================= ARCHIVE (editorial moment) ================= -->
+        <section>
+          <div class="sec-head">
+            <div>
+              <p class="eyebrow">From the archive</p>
+              <h2>10 years ago this week</h2>
+            </div>
+            <a href="#">Browse archive →</a>
+          </div>
+          <div class="archive">
+            <div>
+              <p class="eyebrow">Yearbook · Class of '15</p>
+              <blockquote class="fraunces">
+                "We came in knowing nothing about each other and leave knowing
+                everything that mattered."
+              </blockquote>
+              <cite>— Senior page, May 2015</cite>
+            </div>
+            <div class="yearbook">
+              <div>
+                <div class="y-year">'15</div>
+                <div class="y-cap">Class Yearbook</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= MAIN GRID ================= -->
+        <div class="grid">
+
+          <!-- =========== LEFT COL =========== -->
+          <div class="stack">
+
+            <!-- People you might know -->
+            <section>
+              <div class="sec-head">
+                <div>
+                  <p class="eyebrow">Network</p>
+                  <h2>People you might know</h2>
+                </div>
+                <a href="#">Open people →</a>
+              </div>
+              <div class="pymk">
+                <div class="person">
+                  <div class="avatar lg">MR</div>
+                  <h4 class="fraunces">Maya Rivera</h4>
+                  <div class="role"><b>Product Designer</b> at Figma</div>
+                  <div class="reason-chips">
+                    <span class="chip">3 mutuals</span>
+                    <span class="chip">Class '17</span>
+                  </div>
+                  <a class="btn btn-outline" href="#" style="padding:8px 12px;font-size:13px">Send a hello</a>
+                </div>
+                <div class="person">
+                  <div class="avatar lg green">DK</div>
+                  <h4 class="fraunces">Daniel Kim</h4>
+                  <div class="role"><b>Senior PM</b> at Anthropic</div>
+                  <div class="reason-chips">
+                    <span class="chip">Both in SF</span>
+                    <span class="chip green">Open to advice</span>
+                  </div>
+                  <a class="btn btn-outline" href="#" style="padding:8px 12px;font-size:13px">Send a hello</a>
+                </div>
+                <div class="person">
+                  <div class="avatar lg amber">SP</div>
+                  <h4 class="fraunces">Sara Patel</h4>
+                  <div class="role"><b>Founding Engineer</b> at Modal</div>
+                  <div class="reason-chips">
+                    <span class="chip">Same major</span>
+                    <span class="chip muted">2 mutuals</span>
+                  </div>
+                  <a class="btn btn-outline" href="#" style="padding:8px 12px;font-size:13px">Send a hello</a>
+                </div>
+              </div>
+            </section>
+
+            <!-- Class of 'YY right now -->
+            <section>
+              <div class="sec-head">
+                <div>
+                  <p class="eyebrow">Cohort</p>
+                  <h2>Your class right now</h2>
+                </div>
+                <a href="#">See all '17s →</a>
+              </div>
+              <div class="card cohort">
+                <div class="cohort-head">
+                  <div>
+                    <p class="eyebrow">Class of '17 · 184 in the circle</p>
+                    <h3 class="fraunces">A picture of where you all landed.</h3>
+                  </div>
+                  <span class="chip green">+4 this month</span>
+                </div>
+                <div class="cohort-grid">
+                  <div class="breakdown">
+                    <div class="bar-row"><span>Tech</span><span class="bar"><i style="width:62%"></i></span><span class="bar-val">62</span></div>
+                    <div class="bar-row"><span>Finance</span><span class="bar"><i style="width:38%"></i></span><span class="bar-val">38</span></div>
+                    <div class="bar-row"><span>Medicine</span><span class="bar"><i style="width:26%"></i></span><span class="bar-val">26</span></div>
+                    <div class="bar-row"><span>Consulting</span><span class="bar"><i style="width:20%"></i></span><span class="bar-val">20</span></div>
+                    <div class="bar-row"><span>Other</span><span class="bar"><i style="width:38%"></i></span><span class="bar-val">38</span></div>
+                  </div>
+                  <div class="cities">
+                    <div class="city-row"><span>San Francisco</span><span>42</span></div>
+                    <div class="city-row"><span>New York</span><span>31</span></div>
+                    <div class="city-row"><span>Los Angeles</span><span>22</span></div>
+                    <div class="city-row"><span>Seoul</span><span>14</span></div>
+                    <div class="city-row"><span>London</span><span>9</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Career moves -->
+            <section>
+              <div class="sec-head">
+                <div>
+                  <p class="eyebrow">Movement</p>
+                  <h2>Career moves in your circle</h2>
+                </div>
+                <a href="#">View all →</a>
+              </div>
+              <div class="card moves">
+                <div class="move">
+                  <div class="avatar">DK</div>
+                  <div class="move-body">
+                    <div class="name">Daniel Kim <span class="year">· '16</span></div>
+                    <div class="arrow">Stripe → <b>Senior PM at Anthropic</b></div>
+                  </div>
+                  <div class="move-time"><span class="pulse"></span>2d ago</div>
+                </div>
+                <div class="move">
+                  <div class="avatar amber">JL</div>
+                  <div class="move-body">
+                    <div class="name">Jane Lee <span class="year">· '14</span></div>
+                    <div class="arrow">Goldman → <b>VP at Bridgewater</b></div>
+                  </div>
+                  <div class="move-time">5d ago</div>
+                </div>
+                <div class="move">
+                  <div class="avatar rose">AT</div>
+                  <div class="move-body">
+                    <div class="name">Alex Tan <span class="year">· '19</span></div>
+                    <div class="arrow">Started <b>residency at UCSF</b></div>
+                  </div>
+                  <div class="move-time">1w ago</div>
+                </div>
+              </div>
+            </section>
+
+            <!-- New alumni -->
+            <section>
+              <div class="sec-head">
+                <div>
+                  <p class="eyebrow">Network</p>
+                  <h2>New alumni in your area</h2>
+                </div>
+                <a href="#">Open people →</a>
+              </div>
+              <div class="alumni-grid">
+                <div class="alum">
+                  <h4 class="fraunces">Priya Shah</h4>
+                  <div class="role">Software Engineer at <b>Stripe</b></div>
+                  <div class="meta"><span class="chip muted">'18</span><span>San Francisco</span></div>
+                </div>
+                <div class="alum">
+                  <h4 class="fraunces">Marcus Ong</h4>
+                  <div class="role">Strategy at <b>Sequoia</b></div>
+                  <div class="meta"><span class="chip muted">'16</span><span>Menlo Park</span></div>
+                </div>
+                <div class="alum">
+                  <h4 class="fraunces">Hana Park</h4>
+                  <div class="role">Research at <b>OpenAI</b></div>
+                  <div class="meta"><span class="chip muted">'20</span><span>San Francisco</span></div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- =========== RIGHT COL =========== -->
+          <div class="stack">
+
+            <!-- One small thing today -->
+            <div class="nudge">
+              <p class="eyebrow">One small thing today</p>
+              <h3 class="fraunces">Reply to Maya's question about her job switch.</h3>
+              <p>She asked you for advice on Tuesday. A 2-line note is plenty.</p>
+              <div class="nudge-actions">
+                <a class="btn btn-solid" href="#" style="padding:8px 14px;font-size:13px">Open the thread</a>
+                <a class="btn btn-outline" href="#" style="padding:8px 14px;font-size:13px;background:transparent">Snooze</a>
+              </div>
+            </div>
+
+            <!-- Featured event with friends going -->
+            <div class="card event">
+              <div class="event-hero">
+                <p class="eyebrow">Featured event</p>
+                <h3>Spring Mixer · SF Bay</h3>
+              </div>
+              <div class="event-body">
+                <div class="row">
+                  <svg class="i" viewBox="0 0 24 24" style="color:var(--primary)"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+                  <span><b>May 23 · 6:30 PM</b></span>
+                </div>
+                <div class="row muted">
+                  <svg class="i" viewBox="0 0 24 24" style="color:var(--primary)"><path d="M12 22s7-7.58 7-13a7 7 0 1 0-14 0c0 5.42 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                  <span>The Battery · 717 Battery St</span>
+                </div>
+                <div class="going">
+                  <div class="avatar-stack">
+                    <span class="avatar sm">DK</span>
+                    <span class="avatar sm green">MR</span>
+                    <span class="avatar sm amber">SP</span>
+                    <span class="more">+9</span>
+                  </div>
+                  <span><b style="color:var(--ink)">12 going</b> · 3 friends</span>
+                </div>
+                <a class="btn btn-solid" href="#" style="width:100%;justify-content:center">RSVP</a>
+              </div>
+            </div>
+
+            <!-- Map -->
+            <div class="card map-card">
+              <div class="head">
+                <p class="eyebrow">Where the circle is</p>
+                <h3>184 classmates across 28 cities</h3>
+              </div>
+              <div class="map-wrap">
+                <svg class="map-svg" viewBox="0 0 320 160" aria-hidden="true">
+                  <!-- stylized continent shapes -->
+                  <g fill="#e2e8f0">
+                    <path d="M10 70 Q25 40 60 45 Q90 30 110 50 Q120 70 95 90 Q70 100 50 95 Q25 95 10 70 Z"/>
+                    <path d="M130 70 Q150 40 200 50 Q230 50 245 80 Q230 110 200 115 Q160 110 145 95 Q130 90 130 70 Z"/>
+                    <path d="M250 60 Q270 45 295 55 Q310 75 295 95 Q275 105 260 90 Q245 75 250 60 Z"/>
+                  </g>
+                  <!-- city dots -->
+                  <g>
+                    <circle cx="55" cy="78" r="8" fill="#316bf3" opacity="0.25"/>
+                    <circle cx="55" cy="78" r="4" fill="#0051d5"/>
+                    <circle cx="85" cy="68" r="7" fill="#316bf3" opacity="0.25"/>
+                    <circle cx="85" cy="68" r="3.5" fill="#0051d5"/>
+                    <circle cx="160" cy="65" r="5" fill="#316bf3" opacity="0.25"/>
+                    <circle cx="160" cy="65" r="2.5" fill="#0051d5"/>
+                    <circle cx="195" cy="78" r="4" fill="#316bf3" opacity="0.25"/>
+                    <circle cx="195" cy="78" r="2" fill="#0051d5"/>
+                    <circle cx="270" cy="72" r="6" fill="#316bf3" opacity="0.25"/>
+                    <circle cx="270" cy="72" r="3" fill="#0051d5"/>
+                    <!-- your city: highlighted -->
+                    <circle cx="55" cy="78" r="14" fill="none" stroke="#0051d5" stroke-width="1.2" stroke-dasharray="2 2"/>
+                    <text x="55" y="100" font-size="7" text-anchor="middle" fill="#0b1220" font-family="Inter">SF · you</text>
+                  </g>
+                </svg>
+              </div>
+              <div class="map-legend">
+                <span><b>SF Bay</b> · 42 classmates</span>
+                <span><b>Seoul</b> · 19 ↑</span>
+              </div>
+            </div>
+
+            <!-- Thank-you wall -->
+            <div class="card thanks">
+              <p class="eyebrow">Thank-you wall</p>
+              <blockquote>
+                "Daniel's intro to the design team at Figma is the only reason
+                I got the interview. I owe him a coffee for life."
+              </blockquote>
+              <cite>— Maya '17, thanking Daniel '16</cite>
+              <div class="dots">
+                <i class="on"></i><i></i><i></i><i></i>
+              </div>
+            </div>
+
+            <!-- Recent activity -->
+            <div class="card activity">
+              <div class="head">
+                <h3>Recent activity</h3>
+                <a href="#">View all</a>
+              </div>
+              <ul>
+                <li class="unread">
+                  <div class="ico blue">
+                    <svg class="i sm" viewBox="0 0 24 24"><path d="M17 11l-5-5-5 5M12 6v12"/></svg>
+                  </div>
+                  <div style="flex:1">
+                    <div style="font-weight:600">Maya Rivera requested mentorship</div>
+                    <span class="when">12 minutes ago</span>
+                  </div>
+                  <div class="dot"></div>
+                </li>
+                <li>
+                  <div class="ico green">
+                    <svg class="i sm" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M19 8v6M22 11h-6"/></svg>
+                  </div>
+                  <div style="flex:1">
+                    <div>Daniel Kim accepted your friend request</div>
+                    <span class="when">2 hours ago</span>
+                  </div>
+                </li>
+                <li>
+                  <div class="ico amber">
+                    <svg class="i sm" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/></svg>
+                  </div>
+                  <div style="flex:1">
+                    <div>Class of '15 reunion details posted</div>
+                    <span class="when">2 days ago</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
