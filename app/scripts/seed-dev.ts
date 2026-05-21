@@ -424,22 +424,133 @@ const PERSONAS: Persona[] = [
     bio: 'Profile intentionally left incomplete to test profile-completion prompts.',
     openToMentor: false,
   },
+  {
+    email: 'richard@example.com',
+    password: 'devseed-password-richard',
+    name: 'Richard Lee',
+    gradYear: 2018,
+    city: 'San Francisco, CA',
+    employer: 'Common Capital',
+    title: 'Investment Associate',
+    university: 'Stanford University',
+    major: 'Computer Science',
+    bio: 'Alumnus Class of 2018. Focused on tech investing.',
+    openToMentor: true,
+    mentorTopics: ['venture capital', 'tech careers'],
+    maxPending: 5,
+    maxActive: 3,
+  },
+  {
+    email: 'alexander@example.com',
+    password: 'devseed-password-alexander',
+    name: 'Alexander Kim',
+    gradYear: 2022,
+    city: 'Seoul, Korea',
+    employer: 'Toss',
+    title: 'Financial Analyst',
+    university: 'Yonsei University',
+    major: 'Business Administration',
+    bio: 'Recent graduate interested in fintech strategy and banking transition paths.',
+    openToMentor: false,
+  },
+  {
+    email: 'iris@example.com',
+    password: 'devseed-password-iris',
+    name: 'Iris Okonkwo',
+    gradYear: 2011,
+    city: 'Brooklyn, NY',
+    employer: 'Common Capital',
+    title: 'VP Investments',
+    university: 'Harvard University',
+    major: 'Economics',
+    bio: 'Focusing on climate tech and seed-stage infrastructure underwriting.',
+    openToMentor: true,
+    mentorTopics: ['Climate Tech', 'Fundraising'],
+    maxPending: 3,
+    maxActive: 5,
+  },
+  {
+    email: 'dev@example.com',
+    password: 'devseed-password-dev',
+    name: 'Dev Patel',
+    gradYear: 2021,
+    city: 'San Francisco, CA',
+    employer: 'Stripe',
+    title: 'Data Scientist',
+    university: 'UC Berkeley',
+    major: 'Data Science',
+    bio: 'Interested in machine learning and data engineering.',
+    openToMentor: false,
+  },
+  {
+    email: 'sarah@example.com',
+    password: 'devseed-password-sarah',
+    name: 'Sarah Lee',
+    gradYear: 2012,
+    city: 'San Francisco, CA',
+    employer: 'Airbnb',
+    title: 'Product Director',
+    university: 'Stanford University',
+    major: 'Product Design',
+    bio: 'Leading product teams in hospitality and travel space.',
+    openToMentor: false,
+  },
+  {
+    email: 'jessica@example.com',
+    password: 'devseed-password-jessica',
+    name: 'Dr. Jessica Wong',
+    gradYear: 2008,
+    city: 'Chicago, IL',
+    employer: 'Mayo Clinic',
+    title: 'Cardiologist',
+    university: 'Harvard Medical School',
+    major: 'Medicine',
+    bio: 'Cardiologist interested in helping pre-med students.',
+    openToMentor: true,
+    mentorTopics: ['medicine', 'cardiology'],
+  },
 ]
 
 const EVENTS = [
   {
     id: 'eeee0000-0000-0000-0000-000000000001',
     title: 'Spring Alumni Mixer (Palos Verdes)',
-    description: 'Casual evening drinks at the Palos Verdes campus.',
+    description: 'Casual evening drinks at the Palos Verdes campus. Join your fellow Chadwick graduates for structured advisory discussions and local mentorship matching.',
     location: 'Chadwick School Main Campus',
     startsAt: futureIso(14),
+    capacity: 50,
   },
   {
     id: 'eeee0000-0000-0000-0000-000000000002',
     title: 'Songdo Alumni Coffee',
-    description: 'Saturday morning coffee meetup for Chadwick International alumni.',
+    description: 'Saturday morning coffee meetup for Chadwick International alumni in Seoul.',
     location: 'Cafe Onion, Songdo',
     startsAt: futureIso(21),
+    capacity: 15,
+  },
+  {
+    id: 'eeee0000-0000-0000-0000-000000000003',
+    title: 'Tech & Product Roundtable',
+    description: 'Panel discussion on the future of generative AI, developer tooling, and product design featuring Chadwick alumni in SF tech.',
+    location: 'The Hartwood Library & Terrace, SF',
+    startsAt: futureIso(5),
+    capacity: 100,
+  },
+  {
+    id: 'eeee0000-0000-0000-0000-000000000004',
+    title: 'Winter Holiday Dinner',
+    description: 'Our annual end-of-year dinner celebration for local alumni.',
+    location: 'The Athenaeum, Pasadena',
+    startsAt: pastIso(30),
+    capacity: 40,
+  },
+  {
+    id: 'eeee0000-0000-0000-0000-000000000005',
+    title: 'Creative Careers Panel',
+    description: 'A moderated conversation with Chadwick alumni in media, art direction, photography, and design.',
+    location: 'Soho House, West Hollywood',
+    startsAt: pastIso(45),
+    capacity: 25,
   },
 ]
 
@@ -448,6 +559,13 @@ function futureIso(daysFromNow: number): string {
   d.setDate(d.getDate() + daysFromNow)
   return d.toISOString()
 }
+
+function pastIso(daysAgo: number): string {
+  const d = new Date()
+  d.setDate(d.getDate() - daysAgo)
+  return d.toISOString()
+}
+
 
 // ---------------------------------------------------------------------------
 // Steps
@@ -538,9 +656,10 @@ async function createUsersAndProfiles() {
     if (orgProfileError) throw orgProfileError
 
     if (p.openToMentor) {
-      const { error: prefError } = await admin.from('mentorship_preferences').insert({
+      const { error: prefError } = await admin.from('helper_preferences').insert({
         organization_membership_id: membershipId,
-        is_open: true,
+        open_to_advice: true,
+        open_to_mentorship: true,
         topics: p.mentorTopics ?? [],
         max_pending_requests: p.maxPending ?? 10,
         max_active_mentees: p.maxActive ?? 5,
@@ -575,20 +694,26 @@ async function createMentorshipScenarios() {
   const mark = idByEmail.get('mentor-mark@example.com')!
   const mei = idByEmail.get('mentor-mei@example.com')!
   const felix = idByEmail.get('mentor-fully-booked@example.com')!
+  const richard = idByEmail.get('richard@example.com')!
+  const alexander = idByEmail.get('alexander@example.com')!
+  const iris = idByEmail.get('iris@example.com')!
+  const jessica = idByEmail.get('jessica@example.com')!
 
   const requests = [
     {
       organization_id: ORG.id,
-      mentee_id: sam,
-      mentor_id: mark,
+      ask_type: 'mentorship' as const,
+      asker_id: sam,
+      helper_id: mark,
       reason: 'Trying to decide between consulting and product roles after graduation.',
       help_needed: 'Looking for a 30-min call about how to evaluate the two paths.',
       status: 'pending' as const,
     },
     {
       organization_id: ORG.id,
-      mentee_id: ria,
-      mentor_id: mei,
+      ask_type: 'mentorship' as const,
+      asker_id: ria,
+      helper_id: mei,
       reason: 'Considering a move from Stripe SF to a PM role in Korea.',
       help_needed: 'Want to talk about engineering -> PM transition and Seoul tech scene.',
       status: 'accepted' as const,
@@ -596,34 +721,399 @@ async function createMentorshipScenarios() {
     },
     {
       organization_id: ORG.id,
-      mentee_id: rohan,
-      mentor_id: felix,
+      ask_type: 'mentorship' as const,
+      asker_id: rohan,
+      helper_id: felix,
       reason: 'Curious about transitioning from PM to investment banking.',
       help_needed: 'Open to a quick chat about whether the move makes sense.',
       status: 'declined' as const,
       responded_at: new Date().toISOString(),
     },
+    {
+      organization_id: ORG.id,
+      ask_type: 'advice' as const,
+      asker_id: rohan,
+      helper_id: mark,
+      reason: 'Preparing for consulting interviews and need feedback on my resume format.',
+      help_needed: 'Looking for a quick review of my consulting resume to make sure it highlights the right things.',
+      status: 'accepted' as const,
+      responded_at: new Date().toISOString(),
+    },
+    {
+      organization_id: ORG.id,
+      ask_type: 'advice' as const,
+      asker_id: ria,
+      helper_id: mark,
+      reason: 'How do you think about MBA programs for software engineers?',
+      help_needed: 'Hoping to get advice on whether business school makes sense for tech.',
+      status: 'pending' as const,
+    },
+    {
+      organization_id: ORG.id,
+      ask_type: 'mentorship' as const,
+      asker_id: alexander,
+      helper_id: richard,
+      reason: "Hey Richard, I'm looking for a mentor to guide me through my transition from engineering to product management. I saw you made a similar move and would love to learn from your experience.",
+      help_needed: 'Career transition advice',
+      status: 'pending' as const,
+      created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      organization_id: ORG.id,
+      ask_type: 'mentorship' as const,
+      asker_id: richard,
+      helper_id: jessica,
+      reason: "Hi Dr. Wong, I'm a pre-med student at Cornell and would love to ask you a couple of questions about choosing cardiology as a specialty.",
+      help_needed: 'Pre-med guidance',
+      status: 'pending' as const,
+      created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      organization_id: ORG.id,
+      ask_type: 'advice' as const,
+      asker_id: iris,
+      helper_id: richard,
+      reason: 'Portfolio Review & Framing',
+      help_needed: 'Review my design critique slide deck outline',
+      status: 'accepted' as const,
+      created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      responded_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(),
+    },
   ]
 
   for (const r of requests) {
     const { data: req, error } = await admin
-      .from('mentorship_requests')
+      .from('asks')
       .insert(r)
-      .select('id, mentor_id, mentee_id, status')
+      .select('id, helper_id, asker_id, status, ask_type')
       .single()
     if (error) throw error
 
     if (req.status === 'accepted') {
-      const { error: threadError } = await admin.from('mentorship_threads').insert({
-        request_id: req.id,
-        mentor_id: req.mentor_id,
-        mentee_id: req.mentee_id,
-      })
+      const { data: thread, error: threadError } = await admin
+        .from('ask_threads')
+        .insert({
+          ask_id: req.id,
+          helper_id: req.helper_id,
+          asker_id: req.asker_id,
+        })
+        .select('id')
+        .single()
       if (threadError) throw threadError
+
+      // Seed messages for the accepted threads to make them look active
+      if (req.asker_id === ria && req.helper_id === mei) {
+        const riaMeiMessages = [
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: ria,
+            body: "Hi Mei! Thank you so much for accepting my request. I'd love to talk about transitioning to product roles in Seoul.",
+            created_at: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: mei,
+            body: "Hi Ria! Yes, it's a big move but super rewarding. I transitioned from photo editing at Vogue into product at Hyundai and Kakao. What questions do you have?",
+            created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: ria,
+            body: "I'm curious about the work culture differences and if it's necessary to speak fluent Korean in PM roles there.",
+            created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+            read_at: null, // unread by Mei
+          },
+        ]
+        const { error: msgErr } = await admin.from('messages').insert(riaMeiMessages)
+        if (msgErr) throw msgErr
+
+        await admin
+          .from('ask_threads')
+          .update({ last_message_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString() })
+          .eq('id', thread.id)
+      } else if (req.asker_id === rohan && req.helper_id === mark) {
+        const rohanMarkMessages = [
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: rohan,
+            body: "Hi Mark! Thanks for accepting my advice request. Here is a brief snippet of my background in tech.",
+            created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: mark,
+            body: "Hey Rohan, happy to help. Send over a link to your resume or paste the key points here and I will take a look.",
+            created_at: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
+          },
+        ]
+        const { error: msgErr } = await admin.from('messages').insert(rohanMarkMessages)
+        if (msgErr) throw msgErr
+
+        await admin
+          .from('ask_threads')
+          .update({ last_message_at: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString() })
+          .eq('id', thread.id)
+      } else if (req.asker_id === iris && req.helper_id === richard) {
+        const irisRichardMessages = [
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: iris,
+            body: "Hi Richard, hope you're doing well! I'm prepping a presentation for our design critique next week. Would you have 15 minutes to review my slide deck outline?",
+            created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: richard,
+            body: "Hi Iris! Absolutely, I'd love to help. Feel free to drop a link to the deck or upload it here.",
+            created_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 23 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: iris,
+            body: "Awesome! Here's the link. Let me know if the problem framing reads clearly.",
+            created_at: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(),
+          },
+        ]
+        const { error: msgErr } = await admin.from('messages').insert(irisRichardMessages)
+        if (msgErr) throw msgErr
+
+        await admin
+          .from('ask_threads')
+          .update({ last_message_at: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString() })
+          .eq('id', thread.id)
+      }
     }
   }
-  console.log('[seed-dev] mentorship requests: 1 pending, 1 accepted, 1 declined')
+  console.log('[seed-dev] mentorship requests: 2 pending, 2 accepted, 1 declined')
 }
+
+async function createFriendshipAndDMScenarios() {
+  const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
+  const idByEmail = new Map<string, string>()
+  for (const u of usersList?.users ?? []) {
+    if (u.email) idByEmail.set(u.email, u.id)
+  }
+
+  const sam = idByEmail.get('student-sam@example.com')!
+  const ria = idByEmail.get('recent-grad-ria@example.com')!
+  const rohan = idByEmail.get('recent-grad-rohan@example.com')!
+  const mark = idByEmail.get('mentor-mark@example.com')!
+  const mei = idByEmail.get('mentor-mei@example.com')!
+  const paula = idByEmail.get('mentor-paused@example.com')!
+  const iris = idByEmail.get('incomplete-iris@example.com')!
+  const amy = idByEmail.get('admin-amy@example.com')!
+  const richard = idByEmail.get('richard@example.com')!
+  const sarah = idByEmail.get('sarah@example.com')!
+  const dev = idByEmail.get('dev@example.com')!
+
+  // 1. Create friendships (connections)
+  const friendshipsToCreate = [
+    [mark, mei],
+    [mark, ria],
+    [mark, rohan],
+    [mark, amy],
+    [ria, sam],
+    [ria, rohan],
+    [richard, sarah],
+  ]
+
+  for (const [u1, u2] of friendshipsToCreate) {
+    const [a, b] = u1 < u2 ? [u1, u2] : [u2, u1]
+    const { error } = await admin.from('friendships').insert({
+      user_a_id: a,
+      user_b_id: b,
+    })
+    if (error) throw error
+  }
+
+  // 2. Create friend requests (pending connections)
+  const friendRequestsToCreate = [
+    {
+      sender_id: sam,
+      receiver_id: mark,
+      status: 'pending' as const,
+      message: 'Hey Mark, would love to connect and follow your consulting journey at Acme.',
+    },
+    {
+      sender_id: iris,
+      receiver_id: mark,
+      status: 'pending' as const,
+      message: 'Hello Mark! Hoping to connect and learn more about management consulting.',
+    },
+    {
+      sender_id: mark,
+      receiver_id: paula,
+      status: 'pending' as const,
+      message: "Hi Paula, let's connect and catch up when you are back in town.",
+    },
+    {
+      sender_id: rohan,
+      receiver_id: mei,
+      status: 'pending' as const,
+      message: "Hi Mei, I'm a PM in Seattle. Saw you are in product at Hyundai in Seoul. Let's connect!",
+    },
+    {
+      sender_id: dev,
+      receiver_id: richard,
+      status: 'pending' as const,
+      message: "Met at the Chadwick Alumni Dinner last week! Let's connect here.",
+    },
+  ]
+
+  const { error: frError } = await admin.from('friend_requests').insert(friendRequestsToCreate)
+  if (frError) throw frError
+
+  // 3. Create direct message threads
+  const dmThreadsToCreate = [
+    { label: 'mark-mei', users: [mark, mei] },
+    { label: 'mark-ria', users: [mark, ria] },
+    { label: 'amy-mark', users: [amy, mark] },
+    { label: 'richard-sarah', users: [richard, sarah] },
+  ]
+
+  const threadIdsMap = new Map<string, string>()
+  for (const thread of dmThreadsToCreate) {
+    const [u1, u2] = thread.users
+    const [a, b] = u1 < u2 ? [u1, u2] : [u2, u1]
+    const { data, error } = await admin
+      .from('direct_message_threads')
+      .insert({
+        user_a_id: a,
+        user_b_id: b,
+      })
+      .select('id')
+      .single()
+    if (error) throw error
+    threadIdsMap.set(thread.label, data.id)
+  }
+
+  // 4. Create messages inside direct message threads
+  const now = new Date()
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+  const eighteenHoursAgo = new Date(now.getTime() - 18 * 60 * 60 * 1000).toISOString()
+  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString()
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
+  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
+
+  const messagesToCreate = [
+    // Mark & Mei DM
+    {
+      thread_id: threadIdsMap.get('mark-mei')!,
+      thread_type: 'direct' as const,
+      sender_id: mark,
+      body: "Hey Mei! How's Songdo? I saw the pictures from Onion Cafe, looks incredible.",
+      created_at: oneDayAgo,
+      read_at: oneDayAgo,
+    },
+    {
+      thread_id: threadIdsMap.get('mark-mei')!,
+      thread_type: 'direct' as const,
+      sender_id: mei,
+      body: "Hey Mark! Onion is fantastic, very cozy. Work is busy with the infotainment launch, but we should definitely catch up.",
+      created_at: eighteenHoursAgo,
+      read_at: eighteenHoursAgo,
+    },
+    {
+      thread_id: threadIdsMap.get('mark-mei')!,
+      thread_type: 'direct' as const,
+      sender_id: mark,
+      body: "Absolutely! I will be free next Thursday evening your time. Let's do a quick call.",
+      created_at: twoHoursAgo,
+      read_at: null, // unread by Mei
+    },
+
+    // Mark & Ria DM
+    {
+      thread_id: threadIdsMap.get('mark-ria')!,
+      thread_type: 'direct' as const,
+      sender_id: ria,
+      body: "Hi Mark! Thanks for connecting. I'm a software engineer at Stripe in SF. Let me know if you are ever in the area!",
+      created_at: twoDaysAgo,
+      read_at: twoDaysAgo,
+    },
+    {
+      thread_id: threadIdsMap.get('mark-ria')!,
+      thread_type: 'direct' as const,
+      sender_id: mark,
+      body: "Hi Ria, great to meet you! I'm in SF quite often for consulting projects. Will let you know next time I visit.",
+      created_at: oneDayAgo,
+      read_at: null, // unread by Ria
+    },
+
+    // Amy & Mark DM
+    {
+      thread_id: threadIdsMap.get('amy-mark')!,
+      thread_type: 'direct' as const,
+      sender_id: amy,
+      body: "Hi Mark, did you see the announcement for the Tech & Product Roundtable?",
+      created_at: threeDaysAgo,
+      read_at: threeDaysAgo,
+    },
+    {
+      thread_id: threadIdsMap.get('amy-mark')!,
+      thread_type: 'direct' as const,
+      sender_id: mark,
+      body: "Yes Amy, looks like a great panel. I will be attending for sure.",
+      created_at: threeDaysAgo,
+      read_at: threeDaysAgo,
+    },
+
+    // Richard & Sarah DM
+    {
+      thread_id: threadIdsMap.get('richard-sarah')!,
+      thread_type: 'direct' as const,
+      sender_id: richard,
+      body: "Hey Sarah, are you attending the upcoming networking event in SF?",
+      created_at: new Date('2026-05-15T11:30:00.000Z').toISOString(),
+      read_at: new Date('2026-05-15T11:30:00.000Z').toISOString(),
+    },
+    {
+      thread_id: threadIdsMap.get('richard-sarah')!,
+      thread_type: 'direct' as const,
+      sender_id: sarah,
+      body: "Yes, I'm planning to go! We should grab coffee before it starts.",
+      created_at: new Date('2026-05-15T11:42:00.000Z').toISOString(),
+      read_at: new Date('2026-05-15T11:42:00.000Z').toISOString(),
+    },
+    {
+      thread_id: threadIdsMap.get('richard-sarah')!,
+      thread_type: 'direct' as const,
+      sender_id: richard,
+      body: "Sounds perfect, let's meet at Blue Bottle near the venue around 6 PM.",
+      created_at: new Date('2026-05-16T09:15:00.000Z').toISOString(),
+      read_at: new Date('2026-05-16T09:15:00.000Z').toISOString(),
+    },
+    {
+      thread_id: threadIdsMap.get('richard-sarah')!,
+      thread_type: 'direct' as const,
+      sender_id: sarah,
+      body: "Perfect, see you there!",
+      created_at: new Date('2026-05-16T09:20:00.000Z').toISOString(),
+      read_at: null, // unread
+    },
+  ]
+
+  const { error: msgError } = await admin.from('messages').insert(messagesToCreate)
+  if (msgError) throw msgError
+
+  console.log('[seed-dev] friendships and DM threads created with messages')
+}
+
 
 async function createEventsAndRsvps() {
   const nowIso = new Date().toISOString()
@@ -635,6 +1125,7 @@ async function createEventsAndRsvps() {
       description: e.description,
       location: e.location,
       starts_at: e.startsAt,
+      capacity: e.capacity,
       published_at: nowIso,
     })
     if (error) throw error
@@ -645,16 +1136,48 @@ async function createEventsAndRsvps() {
   for (const u of usersList?.users ?? []) {
     if (u.email) idByEmail.set(u.email, u.id)
   }
+
+  const sam = idByEmail.get('student-sam@example.com')!
   const ria = idByEmail.get('recent-grad-ria@example.com')!
   const rohan = idByEmail.get('recent-grad-rohan@example.com')!
+  const mark = idByEmail.get('mentor-mark@example.com')!
+  const mei = idByEmail.get('mentor-mei@example.com')!
+  const felix = idByEmail.get('mentor-fully-booked@example.com')!
 
-  const { error } = await admin.from('event_rsvps').insert([
+  const rsvps = [
+    // Event 1: PV Mixer
     { event_id: EVENTS[0].id, user_id: ria, status: 'going' },
     { event_id: EVENTS[0].id, user_id: rohan, status: 'going' },
-  ])
+    { event_id: EVENTS[0].id, user_id: sam, status: 'going' },
+    { event_id: EVENTS[0].id, user_id: mark, status: 'going' },
+
+    // Event 2: Songdo Coffee
+    { event_id: EVENTS[1].id, user_id: mei, status: 'going' },
+    { event_id: EVENTS[1].id, user_id: rohan, status: 'going' },
+
+    // Event 3: Tech Roundtable
+    { event_id: EVENTS[2].id, user_id: ria, status: 'going' },
+    { event_id: EVENTS[2].id, user_id: rohan, status: 'going' },
+    { event_id: EVENTS[2].id, user_id: sam, status: 'going' },
+    { event_id: EVENTS[2].id, user_id: mark, status: 'going' },
+    { event_id: EVENTS[2].id, user_id: mei, status: 'going' },
+    { event_id: EVENTS[2].id, user_id: felix, status: 'going' },
+
+    // Event 4: Holiday Dinner (Past)
+    { event_id: EVENTS[3].id, user_id: ria, status: 'going' },
+    { event_id: EVENTS[3].id, user_id: sam, status: 'going' },
+    { event_id: EVENTS[3].id, user_id: mark, status: 'going' },
+
+    // Event 5: Creative Careers (Past)
+    { event_id: EVENTS[4].id, user_id: mei, status: 'going' },
+    { event_id: EVENTS[4].id, user_id: ria, status: 'going' },
+  ]
+
+  const { error } = await admin.from('event_rsvps').insert(rsvps)
   if (error) throw error
-  console.log(`[seed-dev] events: ${EVENTS.length} created, 2 RSVPs on event #1`)
+  console.log(`[seed-dev] events: ${EVENTS.length} created with ${rsvps.length} total RSVPs`)
 }
+
 
 // ---------------------------------------------------------------------------
 // Run
@@ -669,6 +1192,7 @@ async function main() {
   await createOrg()
   await createUsersAndProfiles()
   await createMentorshipScenarios()
+  await createFriendshipAndDMScenarios()
   await createEventsAndRsvps()
   console.log('\n[seed-dev] done. log in with any email above + the password from PERSONAS.')
 }

@@ -1,6 +1,4 @@
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import type { ExtractedFilters } from '@/lib/search/extractFilters'
@@ -127,10 +125,10 @@ export default async function PeoplePage({
   const resultCount = useNL ? nlHits.length : structuredHits.length
 
   return (
-    <div>
+    <div className="bg-background min-h-full">
       <Hero orgName={orgName} totalAlumni={totalAlumni} />
 
-      <div className="mx-auto max-w-6xl space-y-6 px-4 py-10 sm:px-8">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
         <PeopleSearchSurface
           filtersOpen={filtersOpen}
           defaults={{
@@ -148,9 +146,9 @@ export default async function PeoplePage({
           }}
         >
           {nlError ? (
-            <Card className="border-destructive/40">
-              <CardContent className="pt-6 text-sm text-destructive">{nlError}</CardContent>
-            </Card>
+            <div className="rounded-[6px] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-sm">
+              {nlError}
+            </div>
           ) : null}
 
           {useNL && nlExtracted ? (
@@ -245,7 +243,7 @@ export default async function PeoplePage({
                   text={
                     <>
                       No alumni matched these filters.{' '}
-                      <Link href="/people" className="text-primary hover:underline">
+                      <Link href="/people" className="text-primary font-semibold hover:underline">
                         Clear all
                       </Link>{' '}
                       and try again.
@@ -254,7 +252,7 @@ export default async function PeoplePage({
                 />
               ) : null}
               {structuredHits.length === 0 && !anyFilter ? (
-                <EmptyResults text="Type a question above or open the filters to browse alumni." />
+                <EmptyResults text="Type a query above or adjust filters to browse alumni." />
               ) : null}
             </>
           )}
@@ -264,17 +262,34 @@ export default async function PeoplePage({
   )
 }
 
-// =============================================================================
-// Hero — soft white-to-slate gradient + Fraunces title.
-// =============================================================================
-
 function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }) {
   const description = `Search ${orgName} for someone to ask, learn from, or meet. Describe who you're looking for in plain English, or narrow the circle with filters.`
 
   return (
-    <section className="border-b bg-[linear-gradient(180deg,#fff_0%,#fafbfd_100%)]">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+    <section className="relative overflow-hidden border-b border-border bg-card">
+      {/* Background Dots */}
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(rgba(12,12,11,0.15) 1px, transparent 1px)',
+          backgroundSize: '16px 16px',
+        }}
+      />
+      {/* Decorative SVG motifs */}
+      <svg
+        aria-hidden="true"
+        role="presentation"
+        viewBox="0 0 200 200"
+        className="absolute right-0 top-1/2 -translate-y-1/2 h-[200px] w-[200px] opacity-15 pointer-events-none sm:right-10 md:right-16 lg:right-24"
+      >
+        <title>Decorative two-circle motif</title>
+        <circle cx="80" cy="100" r="60" fill="none" className="stroke-foreground" strokeWidth="1" />
+        <circle cx="130" cy="100" r="60" fill="none" className="stroke-primary" strokeWidth="1" />
+      </svg>
+
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
+        <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
           People · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
         </p>
         <h1
@@ -283,7 +298,7 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
         >
           Find the right people
         </h1>
-        <p className="mt-3 max-w-2xl text-base text-muted-foreground">{description}</p>
+        <p className="mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">{description}</p>
       </div>
     </section>
   )
@@ -291,9 +306,9 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
 
 function EmptyResults({ text }: { text: React.ReactNode }) {
   return (
-    <Card>
-      <CardContent className="py-10 text-center text-sm text-muted-foreground">{text}</CardContent>
-    </Card>
+    <div className="rounded-[6px] border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
+      {text}
+    </div>
   )
 }
 
@@ -336,36 +351,34 @@ function NLExtractionSummary({
   if (extracted.theme) chips.push({ label: 'theme', value: extracted.theme })
 
   return (
-    <Card className="bg-muted/30">
-      <CardContent className="space-y-2 py-4">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Searching for:</span>
-          <span className="font-medium">&ldquo;{query}&rdquo;</span>
+    <div className="rounded-[6px] border border-border bg-primary/[0.02] p-4 space-y-2.5 shadow-sm">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-muted-foreground">Searching for:</span>
+        <span className="font-semibold">&ldquo;{query}&rdquo;</span>
+      </div>
+      {chips.length > 0 ? (
+        <div className="flex flex-wrap gap-1.5">
+          {chips.map((c) => (
+            <span
+              key={`${c.label}-${c.value}`}
+              className="inline-flex items-center px-2 py-0.5 border border-border/80 bg-card rounded-[4px] font-mono text-[10px] text-foreground"
+            >
+              <span className="text-muted-foreground font-semibold">{c.label}:</span>
+              <span className="ml-1 font-bold">{c.value}</span>
+            </span>
+          ))}
         </div>
-        {chips.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {chips.map((c) => (
-              <Badge
-                key={`${c.label}-${c.value}`}
-                variant="outline"
-                className="text-xs font-normal"
-              >
-                <span className="text-muted-foreground">{c.label}:</span>&nbsp;{c.value}
-              </Badge>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            No structured filters extracted — ranking purely on theme.
-          </p>
-        )}
+      ) : (
         <p className="text-xs text-muted-foreground">
-          Showing {shownCount} of {poolSize} matched alumni, ranked by Claude.
-          {fallback === 'rerank_failed'
-            ? ' (Reranker hiccupped — falling back to default order.)'
-            : ''}
+          No structured filters extracted — ranking purely on theme.
         </p>
-      </CardContent>
-    </Card>
+      )}
+      <p className="font-mono text-[10px] text-muted-foreground tracking-wide">
+        Showing {shownCount} of {poolSize} matched alumni, ranked by Claude.
+        {fallback === 'rerank_failed'
+          ? ' (Reranker hiccupped — falling back to default order.)'
+          : ''}
+      </p>
+    </div>
   )
 }

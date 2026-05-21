@@ -76,8 +76,9 @@ export function RsvpButtons({ eventId, current, isFull, size = 'default' }: Prop
           variant={goingActive ? 'default' : 'outline'}
           onClick={() => submit('going')}
           disabled={pending}
+          className="rounded-[6px] border-border/60"
         >
-          {goingActive ? <Check className="size-3.5" /> : null}
+          {goingActive ? <Check className="size-3.5" strokeWidth={1.5} /> : null}
           {goingLabel}
         </Button>
         <Button
@@ -86,8 +87,9 @@ export function RsvpButtons({ eventId, current, isFull, size = 'default' }: Prop
           variant={notGoingActive ? 'default' : 'outline'}
           onClick={() => submit('not_going')}
           disabled={pending}
+          className="rounded-[6px] border-border/60"
         >
-          {notGoingActive ? <X className="size-3.5" /> : null}
+          {notGoingActive ? <X className="size-3.5" strokeWidth={1.5} /> : null}
           Not going
         </Button>
       </div>

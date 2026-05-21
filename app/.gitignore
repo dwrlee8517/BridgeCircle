@@ -49,3 +49,7 @@ next-env.d.ts
 
 # Claude Code personal overrides (settings.json is team-shared and tracked)
 .claude/settings.local.json
+
+# Local design system symlink for browser previews
+/public/design-system
+

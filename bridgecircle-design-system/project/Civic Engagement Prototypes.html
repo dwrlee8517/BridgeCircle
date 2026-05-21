@@ -1,0 +1,2054 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BridgeCircle — Civic Engagement Prototypes</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* CSS Variables for theme management */
+    :root {
+      /* Daylight Mode variables (Platinum Bone & Obsidian Ink) */
+      --bg-bone: #fafaf9;
+      --bg-canvas: #fafaf9;
+      --bg-surface: #ffffff;
+      --bg-panel: #f4f3ee;
+      --text-ink: #0c0c0b;
+      --text-secondary: #262521;
+      --text-muted: #4d4d4a;
+      --border-color: #dcdcd6;
+      --border-color-soft: #ebebe5;
+      --accent-color: #2563eb;
+      --accent-color-hover: #1d4ed8;
+      --accent-rgb: 37, 99, 235;
+      --badge-green: #e6f4ea;
+      --text-green: #137333;
+      --badge-amber: #fef3c7;
+      --text-amber: #b45309;
+      --badge-red: #fde8e8;
+      --text-red: #c53030;
+      
+      --radius-default: 6px;
+      --radius-sm: 4px;
+      --radius-full: 999px;
+      --shadow-sm: 0 1px 2px rgba(12,12,11,0.05);
+      --shadow-md: 0 4px 12px rgba(12,12,11,0.06);
+      --shadow-lg: 0 12px 28px rgba(12,12,11,0.12);
+    }
+
+    .night-theme {
+      /* Lamplight Mode (Obsidian Ink & Charcoal) */
+      --bg-bone: #0c0c0b;
+      --bg-canvas: #0c0c0b;
+      --bg-surface: #141416;
+      --bg-panel: #1c1c1f;
+      --text-ink: #fafaf9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #8a8a84;
+      --border-color: #1e293b;
+      --border-color-soft: #1e293b;
+      --accent-color: #4d88ff;
+      --accent-color-hover: #7ea8ff;
+      --accent-rgb: 77, 136, 255;
+      --badge-green: rgba(16, 185, 129, 0.15);
+      --text-green: #34d399;
+      --badge-amber: rgba(245, 158, 11, 0.15);
+      --text-amber: #fbbf24;
+      --badge-red: rgba(239, 68, 68, 0.15);
+      --text-red: #fca5a5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg-bone); font-family: 'Inter', sans-serif; color: var(--text-ink); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; transition: background-color 0.2s ease, color 0.2s ease; }
+    body { overflow-x: hidden; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(12, 12, 11, 0.15); border-radius: 999px; }
+    .night-theme ::-webkit-scrollbar-thumb { background: rgba(250, 250, 249, 0.15); }
+
+    /* Custom CSS animations */
+    @keyframes slide-in {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slide-in-right {
+      from { transform: translateX(120%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes bc-pulse {
+      0% { transform: scale(0.85); opacity: 0.5; }
+      50% { transform: scale(1.15); opacity: 1; }
+      100% { transform: scale(0.85); opacity: 0.5; }
+    }
+    .bc-pulse-anim {
+      animation: bc-pulse 1.8s infinite ease-in-out;
+    }
+    .toast-notification {
+      animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .modal-anim {
+      animation: slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Georgia Font class override for editorial headers */
+    .font-editorial {
+      font-family: 'Georgia', 'Times New Roman', serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+    }
+    .font-sans-tight {
+      font-family: 'Inter Tight', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React and Babel Standalone CDNs -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <!-- Prototype scripts in React / JSX -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // === MOCK DATA CONSTANTS ===
+    const CO_ATTENDEES_MOCK = [
+      { id: '1', name: 'Hana Park', year: 20, role: 'Software Engineer', company: 'OpenAI', avatar: 'HP', isCohort: true, isTech: true, isDesign: false },
+      { id: '2', name: 'Marcus Ong', year: 16, role: 'Strategy', company: 'Sequoia', avatar: 'MO', isCohort: false, isTech: true, isDesign: false },
+      { id: '3', name: 'Sarah Jenkins', year: 18, role: 'Software Engineer', company: 'Stripe', avatar: 'SJ', isCohort: true, isTech: true, isDesign: false },
+      { id: '4', name: 'Alex Chen', year: 19, role: 'Product Designer', company: 'Airbnb', avatar: 'AC', isCohort: false, isTech: false, isDesign: true },
+    ];
+
+    const QUEUED_ASKS_MOCK = [
+      { id: 'q1', category: 'Career Transition', question: "I want to transition from Software Engineering into Product Management. I'd love to chat about how to frame my engineering accomplishments to PM recruiters.", isPrivate: true, expiresDays: 29, createdAt: '2026-05-20' }
+    ];
+
+    const MATCHES_MOCK = [
+      { id: 'm1', name: 'Priya Shah', year: 15, role: 'Senior PM', company: 'Google', avatar: 'PS', score: 98, reason: "Priya offers 'Engineering-to-PM transition guidance' and has 2 open active mentee slots.", location: 'San Francisco, CA', school: 'Chadwick PV', topics: ['PM Transition', 'Google Culture', 'Resume Prep'] },
+      { id: 'm2', name: 'David Kim', year: 17, role: 'Lead PM', company: 'Meta', avatar: 'DK', score: 92, reason: "David is hosting Office Hours on Friday for PM interview prep.", location: 'New York, NY', school: 'Chadwick International', topics: ['Interview Loops', 'Product Design', 'Tech Strategy'] }
+    ];
+
+    const MENTEES_MOCK = [
+      { id: 't1', name: 'Daniel Kim', year: 19, role: 'Software Engineer', company: 'Amazon', question: "Looking to switch from engineering to PM. How should I write my bullets on my resume?", score: 95 }
+    ];
+
+    const SPOTLIGHTS_MOCK = [
+      { id: 's1', askerName: 'Daniel Kim', askerYear: 19, helperName: 'Priya Shah', helperYear: 15, note: "Priya's advice on how to structure my product roadmap presentation was the exact reason I passed my Meta loop! Highly recommend booking slots with her.", date: '2 days ago' },
+      { id: 's2', askerName: 'Hana Park', askerYear: 20, helperName: 'Marcus Ong', helperYear: 16, note: "Marcus gave me the most honest resume critique I've ever had. Completely changed how I talk about my school projects.", date: '1 week ago' }
+    ];
+
+    const OFFICE_HOURS_MOCK = [
+      { id: 'o1', hostName: 'Priya Shah', hostYear: 15, role: 'Senior PM', company: 'Google', avatar: 'PS', date: 'Friday, May 22', slots: [
+        { time: '2:00 PM', isBooked: false, bookerName: '', notes: '' },
+        { time: '2:20 PM', isBooked: true, bookerName: 'Sarah Jenkins \'18', notes: 'Discuss Stripe interview loops and PM transition resume points.' },
+        { time: '2:40 PM', isBooked: false, bookerName: '', notes: '' }
+      ]}
+    ];
+
+    // === GLOBAL TOAST NOTIFICATION PROVIDER ===
+    function ToastContainer({ toasts, removeToast }) {
+      return (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}>
+          {toasts.map(t => (
+            <div key={t.id} className="toast-notification font-mono" style={{
+              background: '#0c0c0b',
+              color: '#fafaf9',
+              padding: '12px 18px',
+              borderRadius: 'var(--radius-default)',
+              fontSize: '11px',
+              border: '1px solid #dcdcd633',
+              boxShadow: 'var(--shadow-lg)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              minWidth: '240px'
+            }}>
+              <span>{t.message}</span>
+              <button 
+                onClick={() => removeToast(t.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#fafaf980',
+                  cursor: 'pointer',
+                  fontSize: '11px',
+                  padding: 0
+                }}
+              >
+                [×]
+              </button>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // === SVG ICON HELPERS ===
+    const Icons = {
+      Event: () => <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+      Ask: () => <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+      Sparkles: () => <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>,
+      Spotlight: () => <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15.4 12.8-2.6 2c-.3.2-.8.2-1.1 0l-2.6-2c-.4-.3-.3-.9.2-1.1L12 11l2.7.7c.5.2.6.8.2 1.1Z"/><path d="m12 2-1 4.5 1 2.5 1-2.5-1-4.5Z"/></svg>,
+      OfficeHours: () => <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+      Plus: () => <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+      Close: () => <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+      Check: () => <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+      Email: () => <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+      MapPin: () => <svg viewBox="0 0 24 24" width="11" height="11" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>,
+      Info: () => <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    };
+
+    // === MAIN APP COMPONENT ===
+    function App() {
+      const [themeMode, setThemeMode] = useState('light');
+      const [activeTab, setActiveTab] = useState('events');
+      const [toasts, setToasts] = useState([]);
+      
+      // Global toast helper
+      const addToast = (message, type = 'info') => {
+        const id = Date.now().toString();
+        setToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => removeToast(id), 3500);
+      };
+      
+      const removeToast = (id) => {
+        setToasts(prev => prev.filter(t => t.id !== id));
+      };
+
+      // Handle body class for theme toggling
+      useEffect(() => {
+        const body = document.body;
+        if (themeMode === 'night') {
+          body.classList.add('night-theme');
+        } else {
+          body.classList.remove('night-theme');
+        }
+      }, [themeMode]);
+
+      return (
+        <div style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+          {/* Top Header Navigation */}
+          <header style={{
+            background: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-color)',
+            padding: '16px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            zIndex: 100
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span className="font-editorial" style={{ fontSize: '20px', fontWeight: 'bold', letterSpacing: '-0.02em' }}>
+                BridgeCircle
+              </span>
+              <span className="font-mono" style={{
+                fontSize: '9px',
+                background: 'var(--bg-panel)',
+                padding: '4px 10px',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color-soft)',
+                color: 'var(--text-muted)'
+              }}>
+                PILOT INTERACTION SANDBOX
+              </span>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', background: 'var(--bg-panel)', padding: '2px', borderRadius: 'var(--radius-default)', border: '1px solid var(--border-color-soft)' }}>
+                <button 
+                  onClick={() => setThemeMode('light')}
+                  style={{
+                    background: themeMode === 'light' ? 'var(--bg-surface)' : 'transparent',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '6px 14px',
+                    fontSize: '10px',
+                    fontFamily: 'JetBrains Mono',
+                    cursor: 'pointer',
+                    fontWeight: themeMode === 'light' ? '600' : '400',
+                    color: themeMode === 'light' ? 'var(--text-ink)' : 'var(--text-muted)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  DAY
+                </button>
+                <button 
+                  onClick={() => setThemeMode('night')}
+                  style={{
+                    background: themeMode === 'night' ? 'var(--bg-surface)' : 'transparent',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '6px 14px',
+                    fontSize: '10px',
+                    fontFamily: 'JetBrains Mono',
+                    cursor: 'pointer',
+                    fontWeight: themeMode === 'night' ? '600' : '400',
+                    color: themeMode === 'night' ? 'var(--text-ink)' : 'var(--text-muted)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  LAMPLIGHT
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Core Content Layout */}
+          <div style={{ display: 'flex', flex: 1 }}>
+            {/* Sidebar Navigation */}
+            <nav style={{
+              width: '240px',
+              background: 'var(--bg-surface)',
+              borderRight: '1px solid var(--border-color)',
+              padding: '28px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '6px',
+              flexShrink: 0
+            }}>
+              <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', paddingLeft: '8px', marginBottom: '8px', letterSpacing: '0.1em' }}>
+                UX MODULES
+              </span>
+              
+              <button 
+                onClick={() => setActiveTab('events')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: activeTab === 'events' ? 'var(--bg-panel)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-default)',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: activeTab === 'events' ? '600' : '400',
+                  color: activeTab === 'events' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <Icons.Event />
+                <span>1. Event Suggestions</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('queued-asks')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: activeTab === 'queued-asks' ? 'var(--bg-panel)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-default)',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: activeTab === 'queued-asks' ? '600' : '400',
+                  color: activeTab === 'queued-asks' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <Icons.Ask />
+                <span>2. Queued Asks & AI</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('spotlights')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: activeTab === 'spotlights' ? 'var(--bg-panel)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-default)',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: activeTab === 'spotlights' ? '600' : '400',
+                  color: activeTab === 'spotlights' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <Icons.Spotlight />
+                <span>3. Thank You Spotlights</span>
+              </button>
+
+              <button 
+                onClick={() => setActiveTab('office-hours')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  width: '100%',
+                  padding: '12px 14px',
+                  background: activeTab === 'office-hours' ? 'var(--bg-panel)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-default)',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: activeTab === 'office-hours' ? '600' : '400',
+                  color: activeTab === 'office-hours' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'background 0.15s ease'
+                }}
+              >
+                <Icons.OfficeHours />
+                <span>4. Office Hours</span>
+              </button>
+
+              <div style={{ marginTop: 'auto', padding: '16px', background: 'var(--bg-panel)', border: '1px solid var(--border-color-soft)', borderRadius: 'var(--radius-default)', fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                <span style={{ fontWeight: 600, display: 'block', marginBottom: '6px', color: 'var(--text-ink)' }}>Civic Guidelines:</span>
+                • High contrast typography<br />
+                • Crisp 6px borders & rules<br />
+                • Monospace specifications
+              </div>
+            </nav>
+
+            {/* Main Content Workspace */}
+            <main style={{
+              flex: 1,
+              padding: '48px 40px',
+              maxWidth: '1200px',
+              margin: '0 auto',
+              width: '100%',
+              overflowY: 'auto'
+            }}>
+              {activeTab === 'events' && <EventSuggestionsModule addToast={addToast} themeMode={themeMode} />}
+              {activeTab === 'queued-asks' && <QueuedAsksModule addToast={addToast} themeMode={themeMode} />}
+              {activeTab === 'spotlights' && <SpotlightsModule addToast={addToast} themeMode={themeMode} />}
+              {activeTab === 'office-hours' && <OfficeHoursModule addToast={addToast} themeMode={themeMode} />}
+            </main>
+          </div>
+
+          <ToastContainer toasts={toasts} removeToast={removeToast} />
+        </div>
+      );
+    }
+
+    // ==========================================
+    // === MODULE 1: EVENT-BASED SUGGESTIONS ===
+    // ==========================================
+    function EventSuggestionsModule({ addToast, themeMode }) {
+      const [attendees, setAttendees] = useState(CO_ATTENDEES_MOCK);
+      const [sentIds, setSentIds] = useState([]);
+      const [isWidgetDismissed, setIsWidgetDismissed] = useState(false);
+      const [emailViewSize, setEmailViewSize] = useState('desktop'); // 'desktop' | 'mobile'
+      const [isPopupAlertVisible, setIsPopupAlertVisible] = useState(false);
+
+      const handleAddFriend = (id, name) => {
+        setSentIds(prev => [...prev, id]);
+        addToast(`Friend request sent to ${name}`, 'success');
+      };
+
+      const handleDismissRow = (id) => {
+        setAttendees(prev => prev.filter(a => a.id !== id));
+      };
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          <div>
+            <h1 className="font-editorial" style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '-0.015em' }}>
+              Event-Based Friend Suggestions
+            </h1>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+              Suggests warm connections based on shared event attendance. Solves the login frequency issue with scheduled post-event emails and persistent dashboard recaps.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {/* Section A: Dashboard Widget */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '24px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color-soft)', paddingBottom: '14px', marginBottom: '20px' }}>
+                  <div>
+                    <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.1em' }}>
+                      POST-EVENT RECAP
+                    </span>
+                    <h2 className="font-sans-tight" style={{ fontSize: '15px', fontWeight: 'bold', margin: '4px 0 0 0', letterSpacing: '-0.01em' }}>
+                      PV Tech Gathering Connections
+                    </h2>
+                  </div>
+                  <button 
+                    onClick={() => { setIsWidgetDismissed(true); addToast("Dashboard widget dismissed"); }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center' }}
+                    title="Dismiss widget"
+                  >
+                    <Icons.Close />
+                  </button>
+                </div>
+
+                {isWidgetDismissed ? (
+                  <div style={{ textAlign: 'center', padding: '36px 0', color: 'var(--text-muted)', fontSize: '13px' }}>
+                    Widget dismissed. <button onClick={() => { setIsWidgetDismissed(false); setAttendees(CO_ATTENDEES_MOCK); }} style={{ color: 'var(--accent-color)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', fontWeight: '600' }}>Restore</button>
+                  </div>
+                ) : attendees.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '36px 0', color: 'var(--text-muted)', fontSize: '13px' }}>
+                    All suggestions addressed!
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <p style={{ margin: '0', fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      We found {attendees.length} Chadwick alumni who also attended. Connect with people you spoke to:
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {attendees.map(a => {
+                        const isSent = sentIds.includes(a.id);
+                        return (
+                          <div key={a.id} style={{
+                            display: 'grid',
+                            gridTemplateColumns: '44px 1fr auto',
+                            gap: '16px',
+                            alignItems: 'center',
+                            background: 'var(--bg-panel)',
+                            padding: '14px 16px',
+                            borderRadius: 'var(--radius-default)',
+                            border: '1px solid var(--border-color-soft)'
+                          }}>
+                            {/* Avatar */}
+                            <div style={{
+                              width: '44px',
+                              height: '44px',
+                              borderRadius: 'var(--radius-default)',
+                              background: 'var(--bg-surface)',
+                              color: 'var(--text-ink)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '13.5px',
+                              fontWeight: '600',
+                              fontFamily: 'JetBrains Mono',
+                              border: '1px solid var(--border-color)'
+                            }}>
+                              {a.avatar}
+                            </div>
+
+                            {/* Info */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '13.5px', fontWeight: 'bold' }}>{a.name} &apos;{a.year}</span>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                  {a.isCohort && <span className="font-mono" style={{ fontSize: '8px', background: 'var(--badge-green)', color: 'var(--text-green)', padding: '1px 5px', borderRadius: '2px', fontWeight: 600 }}>COHORT</span>}
+                                  {a.isTech && <span className="font-mono" style={{ fontSize: '8px', background: 'var(--badge-amber)', color: 'var(--text-amber)', padding: '1px 5px', borderRadius: '2px', fontWeight: 600 }}>TECH</span>}
+                                </div>
+                              </div>
+                              <span style={{ fontSize: '11.5px', color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                                {a.role} at {a.company}
+                              </span>
+                            </div>
+
+                            {/* Actions */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <button
+                                onClick={() => !isSent && handleAddFriend(a.id, a.name)}
+                                style={{
+                                  background: isSent ? 'var(--bg-surface)' : 'var(--accent-color)',
+                                  color: isSent ? 'var(--text-muted)' : '#ffffff',
+                                  border: isSent ? '1px solid var(--border-color)' : 'none',
+                                  borderRadius: 'var(--radius-sm)',
+                                  padding: '6px 14px',
+                                  fontSize: '11px',
+                                  fontFamily: 'JetBrains Mono',
+                                  fontWeight: '600',
+                                  cursor: isSent ? 'default' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  transition: 'background 0.15s ease'
+                                }}
+                              >
+                                {isSent ? <Icons.Check /> : null}
+                                <span>{isSent ? 'SENT' : 'CONNECT'}</span>
+                              </button>
+
+                              <button
+                                onClick={() => handleDismissRow(a.id)}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px', display: 'flex', alignItems: 'center' }}
+                                title="Dismiss suggestion"
+                              >
+                                <Icons.Close />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Section B: In-app pop-up trigger simulation */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <div style={{ paddingRight: '16px' }}>
+                  <h3 className="font-sans-tight" style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 4px 0' }}>
+                    Simulate Login Popup Alert
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                    Trigger the dialogue window that prompts users on their first login after attending an event.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsPopupAlertVisible(true)}
+                  style={{
+                    background: 'var(--text-ink)',
+                    color: 'var(--bg-bone)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '10px 18px',
+                    fontSize: '11px',
+                    fontFamily: 'JetBrains Mono',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  TRIGGER POPUP
+                </button>
+              </div>
+            </div>
+
+            {/* Email Recap Simulator */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold' }}>
+                  EMAIL DIGEST SIMULATOR
+                </span>
+                
+                <div style={{ display: 'flex', background: 'var(--bg-panel)', padding: '2px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color-soft)' }}>
+                  <button 
+                    onClick={() => setEmailViewSize('desktop')}
+                    style={{
+                      background: emailViewSize === 'desktop' ? 'var(--bg-surface)' : 'transparent',
+                      border: 'none',
+                      borderRadius: 'var(--radius-xs)',
+                      padding: '4px 10px',
+                      fontSize: '9px',
+                      fontFamily: 'JetBrains Mono',
+                      cursor: 'pointer',
+                      color: 'var(--text-ink)',
+                      fontWeight: '600'
+                    }}
+                  >
+                    DESKTOP
+                  </button>
+                  <button 
+                    onClick={() => setEmailViewSize('mobile')}
+                    style={{
+                      background: emailViewSize === 'mobile' ? 'var(--bg-surface)' : 'transparent',
+                      border: 'none',
+                      borderRadius: 'var(--radius-xs)',
+                      padding: '4px 10px',
+                      fontSize: '9px',
+                      fontFamily: 'JetBrains Mono',
+                      cursor: 'pointer',
+                      color: 'var(--text-ink)',
+                      fontWeight: '600'
+                    }}
+                  >
+                    MOBILE
+                  </button>
+                </div>
+              </div>
+
+              {/* Email Envelope Container */}
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid #dcdcd6',
+                borderRadius: 'var(--radius-default)',
+                width: emailViewSize === 'desktop' ? '100%' : '320px',
+                margin: '0 auto',
+                boxShadow: 'var(--shadow-md)',
+                color: '#0c0c0b',
+                transition: 'width 0.25s ease'
+              }}>
+                {/* Email Client Header */}
+                <div style={{ background: '#f4f3ee', padding: '12px 16px', borderBottom: '1px solid #dcdcd6', borderTopLeftRadius: '5px', borderTopRightRadius: '5px', fontSize: '11px', fontFamily: 'JetBrains Mono', color: '#4d4d4a', lineHeight: '1.5' }}>
+                  <div><span style={{ fontWeight: 'bold', color: '#0c0c0b' }}>From:</span> community@bridgecircle.com</div>
+                  <div style={{ marginTop: '2px' }}><span style={{ fontWeight: 'bold', color: '#0c0c0b' }}>To:</span> richard.lee@chadwickalumni.org</div>
+                  <div style={{ marginTop: '2px' }}><span style={{ fontWeight: 'bold', color: '#0c0c0b' }}>Subject:</span> Connect with alumni you met at PV Tech Gathering</div>
+                </div>
+
+                {/* Email Content Body */}
+                <div style={{ padding: '28px 20px', background: '#fafaf9' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '24px', borderBottom: '2px solid #0c0c0b', paddingBottom: '10px' }}>
+                    <span className="font-editorial" style={{ fontSize: '20px', fontWeight: 'bold', letterSpacing: '-0.02em' }}>
+                      BridgeCircle
+                    </span>
+                  </div>
+
+                  <p style={{ margin: '0 0 16px 0', fontSize: '13px', lineHeight: '1.5' }}>
+                    Hi Richard,<br />
+                    We hope you enjoyed the <strong>PV Tech Gathering</strong> last night in Palos Verdes!
+                  </p>
+
+                  <p style={{ margin: '0 0 14px 0', fontSize: '12px', color: '#4d4d4a', lineHeight: '1.5' }}>
+                    Here are a few Chadwick alumni co-attendees from your industry or cohort years. Click to connect:
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '28px' }}>
+                    {CO_ATTENDEES_MOCK.slice(0, 3).map(a => (
+                      <div key={a.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px',
+                        border: '1px solid #dcdcd6',
+                        background: '#ffffff',
+                        borderRadius: '4px'
+                      }}>
+                        <div style={{ minWidth: 0, paddingRight: '12px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', display: 'block' }}>{a.name} &apos;{a.year}</span>
+                          <span style={{ fontSize: '11px', color: '#4d4d4a', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{a.role} at {a.company}</span>
+                        </div>
+                        <a 
+                          href="#" 
+                          onClick={(e) => { e.preventDefault(); addToast(`Connecting with ${a.name} via email link`); }}
+                          style={{
+                            background: '#2563eb',
+                            color: '#ffffff',
+                            padding: '6px 12px',
+                            borderRadius: '3px',
+                            fontSize: '10px',
+                            fontFamily: 'JetBrains Mono',
+                            fontWeight: '600'
+                          }}
+                        >
+                          CONNECT
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+
+                  <hr style={{ border: 'none', borderTop: '1px solid #dcdcd6', margin: '20px 0' }} />
+
+                  <div style={{ textAlign: 'center', fontSize: '10px', color: '#888880', lineHeight: '1.5' }}>
+                    You received this connection summary because you checked into PV Tech Gathering.<br />
+                    To disable event connections, <a href="#" style={{ color: '#2563eb', textDecoration: 'underline' }}>Update Preferences</a>.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dialog popup simulation modal */}
+          {isPopupAlertVisible && (
+            <div style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              background: 'rgba(12,12,11,0.65)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              padding: '16px'
+            }}>
+              <div className="modal-anim" style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                width: '100%',
+                maxWidth: '480px',
+                boxShadow: 'var(--shadow-lg)',
+                overflow: 'hidden'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-panel)', padding: '16px 20px', borderBottom: '1px solid var(--border-color)' }}>
+                  <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold' }}>WELCOME BACK</span>
+                  <button 
+                    onClick={() => setIsPopupAlertVisible(false)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-ink)', padding: '2px', display: 'flex' }}
+                  >
+                    <Icons.Close />
+                  </button>
+                </div>
+                
+                <div style={{ padding: '24px 20px' }}>
+                  <h3 className="font-sans-tight" style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 12px 0' }}>
+                    Who did you meet at PV Tech Gathering?
+                  </h3>
+                  <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                    Connect with fellow Chadwick alumni you interacted with last night to keep the conversations going:
+                  </p>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+                    {attendees.slice(0, 3).map(a => {
+                      const isSent = sentIds.includes(a.id);
+                      return (
+                        <div key={a.id} style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr auto',
+                          alignItems: 'center',
+                          padding: '12px 14px',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: 'var(--radius-default)',
+                          background: 'var(--bg-panel)'
+                        }}>
+                          <div>
+                            <span style={{ fontSize: '13px', fontWeight: 'bold', display: 'block' }}>{a.name} &apos;{a.year}</span>
+                            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{a.role} at {a.company}</span>
+                          </div>
+                          <button
+                            onClick={() => !isSent && handleAddFriend(a.id, a.name)}
+                            style={{
+                              background: isSent ? 'var(--bg-surface)' : 'var(--accent-color)',
+                              color: isSent ? 'var(--text-muted)' : '#ffffff',
+                              border: isSent ? '1px solid var(--border-color)' : 'none',
+                              borderRadius: 'var(--radius-sm)',
+                              padding: '6px 12px',
+                              fontSize: '10.5px',
+                              fontFamily: 'JetBrains Mono',
+                              fontWeight: '600',
+                              cursor: isSent ? 'default' : 'pointer'
+                            }}
+                          >
+                            {isSent ? 'SENT' : 'CONNECT'}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <button 
+                      onClick={() => setIsPopupAlertVisible(false)}
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border-color)',
+                        color: 'var(--text-ink)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '10px 18px',
+                        fontSize: '11px',
+                        fontFamily: 'JetBrains Mono',
+                        cursor: 'pointer',
+                        fontWeight: '600'
+                      }}
+                    >
+                      CLOSE
+                    </button>
+                    <button 
+                      onClick={() => { setIsPopupAlertVisible(false); addToast("Marked all event connections as checked"); }}
+                      style={{
+                        background: 'var(--text-ink)',
+                        color: 'var(--bg-bone)',
+                        border: 'none',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '10px 18px',
+                        fontSize: '11px',
+                        fontFamily: 'JetBrains Mono',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      DISMISS ALL
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ===============================================
+    // === MODULE 2: QUEUED ASKS & AI MATCHMAKING ===
+    // ===============================================
+    function QueuedAsksModule({ addToast, themeMode }) {
+      const [subTab, setSubTab] = useState('asker'); // 'asker' | 'helper'
+      const [asks, setAsks] = useState(QUEUED_ASKS_MOCK);
+      const [questionText, setQuestionText] = useState('');
+      const [category, setCategory] = useState('Career Transition');
+      const [deckIndex, setDeckIndex] = useState(0);
+      const [sentMatchIds, setSentMatchIds] = useState([]);
+      const [helperTopics, setHelperTopics] = useState("Resume review, PM transitions, Engineering mock interviews");
+
+      const handleAddAsk = (e) => {
+        e.preventDefault();
+        if (!questionText.trim()) return;
+        const newAsk = {
+          id: Date.now().toString(),
+          category,
+          question: questionText.trim(),
+          isPrivate: true,
+          expiresDays: 30,
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        setAsks(prev => [newAsk, ...prev]);
+        setQuestionText('');
+        addToast("Question queued privately for AI matchmaking!", "success");
+      };
+
+      const handleRenewAsk = (id) => {
+        setAsks(prev => prev.map(a => a.id === id ? { ...a, expiresDays: 30 } : a));
+        addToast("Queued question active duration renewed to 30 days");
+      };
+
+      const handleArchiveAsk = (id) => {
+        setAsks(prev => prev.filter(a => a.id !== id));
+        addToast("Question archived and removed from matchmaking queue");
+      };
+
+      const handleConnectMatch = (matchId, name) => {
+        setSentMatchIds(prev => [...prev, matchId]);
+        addToast(`Queued question shared and connection requested with ${name}`, 'success');
+      };
+
+      const handlePassMatch = () => {
+        if (deckIndex < MATCHES_MOCK.length - 1) {
+          setDeckIndex(prev => prev + 1);
+        } else {
+          setDeckIndex(0);
+        }
+      };
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          {/* Header & Description */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <h1 className="font-editorial" style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '-0.015em' }}>
+                Queued Asks & AI Matching
+              </h1>
+              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5', maxWidth: '800px' }}>
+                Enables members to queue questions privately to avoid public exposure. AI matches them in both directions (askers to helpers, and helpers to askers) for low-friction, high-intent connections.
+              </p>
+            </div>
+
+            {/* Workspace Toggle tabs */}
+            <div style={{ display: 'flex', background: 'var(--bg-panel)', padding: '3px', borderRadius: 'var(--radius-default)', border: '1px solid var(--border-color-soft)' }}>
+              <button 
+                onClick={() => setSubTab('asker')}
+                style={{
+                  background: subTab === 'asker' ? 'var(--bg-surface)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '8px 16px',
+                  fontSize: '11px',
+                  fontFamily: 'JetBrains Mono',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  color: subTab === 'asker' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                ASKER WORKSPACE
+              </button>
+              <button 
+                onClick={() => setSubTab('helper')}
+                style={{
+                  background: subTab === 'helper' ? 'var(--bg-surface)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '8px 16px',
+                  fontSize: '11px',
+                  fontFamily: 'JetBrains Mono',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  color: subTab === 'helper' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                HELPER WORKSPACE
+              </button>
+            </div>
+          </div>
+
+          {/* Asker Mode */}
+          {subTab === 'asker' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                {/* Form to queue asks */}
+                <div style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-default)',
+                  padding: '24px',
+                  boxShadow: 'var(--shadow-sm)'
+                }}>
+                  <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                    01 // QUEUE A PRIVATE QUESTION
+                  </span>
+                  
+                  <form onSubmit={handleAddAsk} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <div style={{ flex: 1 }}>
+                        <label className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>CATEGORY</label>
+                        <select 
+                          value={category} 
+                          onChange={(e) => setCategory(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            background: 'var(--bg-panel)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '13px',
+                            color: 'var(--text-ink)',
+                            outline: 'none'
+                          }}
+                        >
+                          <option>Career Transition</option>
+                          <option>Mock Interview</option>
+                          <option>Resume Advice</option>
+                          <option>General Mentorship</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>VISIBILITY</label>
+                        <div className="font-mono" style={{
+                          padding: '10px 12px',
+                          background: 'var(--bg-panel)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: 'var(--radius-sm)',
+                          fontSize: '11px',
+                          color: 'var(--text-green)',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }}></span>
+                          PRIVATE AI QUEUE
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>WHAT DO YOU NEED HELP WITH?</label>
+                      <textarea 
+                        value={questionText}
+                        onChange={(e) => setQuestionText(e.target.value)}
+                        placeholder="Detail your question or advice request. AI will parse this to match you with alumni offering specific help."
+                        rows="3"
+                        style={{
+                          width: '100%',
+                          padding: '12px 14px',
+                          background: 'var(--bg-surface)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: 'var(--radius-sm)',
+                          fontSize: '13px',
+                          color: 'var(--text-ink)',
+                          outline: 'none',
+                          resize: 'none',
+                          lineHeight: '1.5'
+                        }}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      style={{
+                        background: 'var(--text-ink)',
+                        color: 'var(--bg-bone)',
+                        border: 'none',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '10px 20px',
+                        fontSize: '11px',
+                        fontFamily: 'JetBrains Mono',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        alignSelf: 'flex-end',
+                        transition: 'opacity 0.15s ease'
+                      }}
+                    >
+                      QUEUE PRIVATELY
+                    </button>
+                  </form>
+                </div>
+
+                {/* Registry of active queued asks */}
+                <div style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: 'var(--radius-default)',
+                  padding: '24px',
+                  boxShadow: 'var(--shadow-sm)'
+                }}>
+                  <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                    02 // ACTIVE QUEUED QUESTIONS
+                  </span>
+
+                  {asks.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)', fontSize: '13px' }}>
+                      No active queued questions.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {asks.map(a => (
+                        <div key={a.id} style={{
+                          border: '1px solid var(--border-color)',
+                          borderRadius: 'var(--radius-default)',
+                          padding: '16px',
+                          background: 'var(--bg-panel)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span className="font-mono" style={{ fontSize: '9.5px', background: 'var(--bg-surface)', border: '1px solid var(--border-color-soft)', padding: '3px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
+                              {a.category.toUpperCase()}
+                            </span>
+                            <span className="font-mono text-amber" style={{ fontSize: '9.5px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <span style={{ display: 'inline-block', width: '5px', height: '5px', borderRadius: '50%', background: '#f59e0b' }} className="bc-pulse-anim"></span>
+                              ACTIVE: EXPIRES IN {a.expiresDays}D
+                            </span>
+                          </div>
+                          <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5', fontStyle: 'italic', color: 'var(--text-secondary)' }}>
+                            &ldquo;{a.question}&rdquo;
+                          </p>
+                          <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid var(--border-color-soft)', paddingTop: '12px', marginTop: '4px' }}>
+                            <button
+                              onClick={() => handleRenewAsk(a.id)}
+                              style={{
+                                background: 'var(--bg-surface)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: 'var(--radius-sm)',
+                                padding: '6px 12px',
+                                fontSize: '10px',
+                                fontFamily: 'JetBrains Mono',
+                                color: 'var(--text-ink)',
+                                cursor: 'pointer',
+                                fontWeight: '600'
+                              }}
+                            >
+                              RENEW TIMER (30D)
+                            </button>
+                            <button
+                              onClick={() => handleArchiveAsk(a.id)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--text-red)',
+                                fontSize: '10px',
+                                fontFamily: 'JetBrains Mono',
+                                cursor: 'pointer',
+                                fontWeight: '600'
+                              }}
+                            >
+                              [ ARCHIVE ]
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* AI Suggested Matches & Connection Deck */}
+              <div>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '12px' }}>
+                  AI MATCH CONNECTION DECK
+                </span>
+                
+                {(() => {
+                  const m = MATCHES_MOCK[deckIndex];
+                  const isSent = sentMatchIds.includes(m.id);
+                  return (
+                    <div style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-default)',
+                      boxShadow: 'var(--shadow-md)',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      <div style={{ height: '4px', background: 'var(--accent-color)' }}></div>
+                      
+                      <div style={{ padding: '24px' }}>
+                        {/* Header info */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                            <div style={{
+                              width: '44px', height: '44px', background: 'var(--bg-panel)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontFamily: 'JetBrains Mono', fontSize: '14px', fontWeight: 'bold',
+                              borderRadius: 'var(--radius-default)', border: '1px solid var(--border-color-soft)'
+                            }}>
+                              {m.avatar}
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '14px', fontWeight: 'bold', display: 'block' }}>{m.name} &apos;{m.year}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{m.role} at {m.company}</span>
+                            </div>
+                          </div>
+
+                          <div className="font-mono text-green" style={{
+                            fontSize: '11px', fontWeight: 'bold', background: 'var(--badge-green)',
+                            padding: '4px 10px', borderRadius: '4px', border: '1px solid var(--border-color-soft)'
+                          }}>
+                            {m.score}% MATCH
+                          </div>
+                        </div>
+
+                        {/* Location / school details */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '16px', borderBottom: '1px solid var(--border-color-soft)', paddingBottom: '14px' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Icons.MapPin /> {m.location}</span>
+                          <span>•</span>
+                          <span>{m.school}</span>
+                        </div>
+
+                        {/* AI matching explanation */}
+                        <div style={{
+                          background: 'var(--bg-panel)',
+                          border: '1px solid var(--border-color-soft)',
+                          borderRadius: 'var(--radius-default)',
+                          padding: '14px',
+                          marginBottom: '20px',
+                          fontSize: '12px',
+                          lineHeight: '1.5'
+                        }}>
+                          <span className="font-mono text-muted" style={{ fontSize: '8px', fontWeight: 'bold', display: 'block', marginBottom: '6px' }}>AI MATCH RATIONALE</span>
+                          &ldquo;{m.reason}&rdquo;
+                        </div>
+
+                        {/* Help topics tags */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '24px' }}>
+                          {m.topics.map(t => (
+                            <span key={t} className="font-mono" style={{ fontSize: '9px', border: '1px solid var(--border-color)', padding: '3px 8px', borderRadius: '3px', color: 'var(--text-secondary)', background: 'var(--bg-panel)' }}>
+                              #{t.toUpperCase()}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Deck controls */}
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button
+                            onClick={handlePassMatch}
+                            style={{
+                              flex: 1,
+                              background: 'none',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: 'var(--radius-sm)',
+                              padding: '10px',
+                              fontSize: '11px',
+                              fontFamily: 'JetBrains Mono',
+                              color: 'var(--text-ink)',
+                              cursor: 'pointer',
+                              fontWeight: '600'
+                            }}
+                          >
+                            PASS
+                          </button>
+                          
+                          <button
+                            onClick={() => !isSent && handleConnectMatch(m.id, m.name)}
+                            style={{
+                              flex: 2,
+                              background: isSent ? 'var(--bg-panel)' : 'var(--accent-color)',
+                              color: isSent ? 'var(--text-muted)' : '#ffffff',
+                              border: isSent ? '1px solid var(--border-color)' : 'none',
+                              borderRadius: 'var(--radius-sm)',
+                              padding: '10px',
+                              fontSize: '11px',
+                              fontFamily: 'JetBrains Mono',
+                              fontWeight: '600',
+                              cursor: isSent ? 'default' : 'pointer',
+                              transition: 'background 0.15s ease'
+                            }}
+                          >
+                            {isSent ? 'SHARED' : 'SHARE QUESTION'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* Helper Mode */}
+          {subTab === 'helper' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px', alignItems: 'start' }}>
+              {/* Helper Settings Panel */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '24px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                  HELPER PREFERENCES
+                </span>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div>
+                    <label className="font-mono text-muted" style={{ fontSize: '9px', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>YOUR HELP TOPICS</label>
+                    <input 
+                      type="text" 
+                      value={helperTopics}
+                      onChange={(e) => setHelperTopics(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        background: 'var(--bg-panel)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '13px',
+                        color: 'var(--text-ink)',
+                        outline: 'none'
+                      }}
+                    />
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '6px', lineHeight: '1.4' }}>
+                      List areas you want to offer guidance on. AI uses this to parse queued questions from askers.
+                    </span>
+                  </div>
+
+                  <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '16px', marginTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold' }}>CAPACITY INDICATOR</span>
+                      <span className="font-mono text-green" style={{ fontSize: '9px', fontWeight: 'bold' }}>ACTIVE SETTING: 2/5 SLOTS</span>
+                    </div>
+                    <div style={{ height: '6px', background: 'var(--border-color-soft)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{ width: '40%', height: '100%', background: '#10b981' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* suggested Mentees list */}
+              <div>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '12px' }}>
+                  AI SUGGESTED MENTEES ({MENTEES_MOCK.length})
+                </span>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {MENTEES_MOCK.map(men => (
+                    <div key={men.id} style={{
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-default)',
+                      padding: '20px',
+                      boxShadow: 'var(--shadow-sm)'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '13.5px', fontWeight: 'bold' }}>{men.name} &apos;{men.year}</span>
+                        <span className="font-mono text-green" style={{ fontSize: '10.5px', fontWeight: 'bold', background: 'var(--badge-green)', padding: '2px 6px', borderRadius: '4px' }}>
+                          {men.score}% MATCH
+                        </span>
+                      </div>
+                      <p style={{ margin: '0 0 16px 0', fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: '1.5', fontStyle: 'italic' }}>
+                        &ldquo;{men.question}&rdquo;
+                      </p>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid var(--border-color-soft)', paddingTop: '12px' }}>
+                        <button
+                          onClick={() => addToast(`Chat invitation sent to ${men.name}`, 'success')}
+                          style={{
+                            background: 'var(--text-ink)',
+                            color: 'var(--bg-bone)',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '8px 16px',
+                            fontSize: '11px',
+                            fontFamily: 'JetBrains Mono',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          OFFER 20-MIN CHAT
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ===================================
+    // === MODULE 3: THANK YOU SPOTLIGHT ===
+    // ===================================
+    function SpotlightsModule({ addToast, themeMode }) {
+      const [spotlights, setSpotlights] = useState(SPOTLIGHTS_MOCK);
+      const [appreciationText, setAppreciationText] = useState('');
+      const [allowSpotlight, setAllowSpotlight] = useState(true);
+      const [spotlightIndex, setSpotlightIndex] = useState(0);
+
+      const handleAddSpotlight = (e) => {
+        e.preventDefault();
+        if (!appreciationText.trim()) return;
+        const newSpot = {
+          id: Date.now().toString(),
+          askerName: 'Richard Lee',
+          askerYear: 18,
+          helperName: 'Priya Shah',
+          helperYear: 15,
+          note: appreciationText.trim(),
+          date: 'Just now'
+        };
+        
+        if (allowSpotlight) {
+          setSpotlights(prev => [newSpot, ...prev]);
+          addToast("Thank you note sent! It will be spotlighted once Priya approves.", "success");
+        } else {
+          addToast("Thank you note delivered privately to Priya Shah.", "info");
+        }
+        
+        setAppreciationText('');
+      };
+
+      const handleNextSpotlight = () => {
+        setSpotlightIndex(prev => (prev < spotlights.length - 1 ? prev + 1 : 0));
+      };
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          <div>
+            <h1 className="font-editorial" style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '-0.015em' }}>
+              Thank You Spotlights
+            </h1>
+            <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5' }}>
+              Encourages positive loops in the community. Mentees can submit appreciation cards. Publicly spotlighting them is protected by a double opt-in consent flow to protect privacy.
+            </p>
+          </div>
+
+          {/* Editorial Community Spotlight Carousel */}
+          <div style={{
+            background: 'var(--bg-surface)',
+            borderTop: '2px solid var(--text-ink)',
+            borderBottom: '2px solid var(--text-ink)',
+            padding: '36px 24px',
+            textAlign: 'center',
+            position: 'relative'
+          }}>
+            <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+              THE CHADWICK GRATITUDE SPOTLIGHT
+            </span>
+
+            {spotlights.length === 0 ? (
+              <p style={{ fontStyle: 'italic', margin: '16px 0', fontSize: '14px' }}>No public spotlights active.</p>
+            ) : (
+              <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 32px' }}>
+                <p className="font-editorial text-secondary" style={{
+                  fontSize: '18px',
+                  lineHeight: '1.65',
+                  fontStyle: 'italic',
+                  margin: '0 0 16px 0'
+                }}>
+                  &ldquo;{spotlights[spotlightIndex].note}&rdquo;
+                </p>
+                <span className="font-mono" style={{ fontSize: '10.5px', color: 'var(--text-muted)' }}>
+                  — Written by {spotlights[spotlightIndex].askerName} &apos;{spotlights[spotlightIndex].askerYear} to {spotlights[spotlightIndex].helperName} &apos;{spotlights[spotlightIndex].helperYear} ({spotlights[spotlightIndex].date})
+                </span>
+              </div>
+            )}
+
+            {spotlights.length > 1 && (
+              <button
+                onClick={handleNextSpotlight}
+                style={{
+                  position: 'absolute',
+                  right: '24px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-ink)',
+                  fontWeight: 'bold',
+                  boxShadow: 'var(--shadow-sm)'
+                }}
+                title="Next spotlight"
+              >
+                &rarr;
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+            {/* Session Completion Form */}
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-default)',
+              padding: '24px',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                01 // SUBMIT AN APPRECIATION
+              </span>
+
+              <form onSubmit={handleAddSpotlight} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <span style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+                    How did Priya Shah &apos;15 help you in this thread?
+                  </span>
+                  <textarea
+                    value={appreciationText}
+                    onChange={(e) => setAppreciationText(e.target.value)}
+                    placeholder="Write a brief thank-you card to express how their mentorship or advice helped you."
+                    rows="3"
+                    style={{
+                      width: '100%',
+                      padding: '12px 14px',
+                      background: 'var(--bg-surface)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '13px',
+                      color: 'var(--text-ink)',
+                      outline: 'none',
+                      resize: 'none',
+                      lineHeight: '1.5'
+                    }}
+                  />
+                </div>
+
+                {/* Double Opt-In Toggle */}
+                <div style={{
+                  background: 'var(--bg-panel)',
+                  padding: '14px 16px',
+                  borderRadius: 'var(--radius-default)',
+                  border: '1px solid var(--border-color-soft)',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px'
+                }}>
+                  <input
+                    type="checkbox"
+                    id="allowSpotlightCheck"
+                    checked={allowSpotlight}
+                    onChange={(e) => setAllowSpotlight(e.target.checked)}
+                    style={{ marginTop: '4px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="allowSpotlightCheck" style={{ fontSize: '12px', cursor: 'pointer', lineHeight: '1.5' }}>
+                    <strong style={{ display: 'block', marginBottom: '2px' }}>Publish on Community Gratitude Wall</strong>
+                    <span style={{ color: 'var(--text-muted)' }}>
+                      Allows other Chadwick members to see your note. Priya must also review and consent before it displays on public boards.
+                    </span>
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  style={{
+                    background: 'var(--text-ink)',
+                    color: 'var(--bg-bone)',
+                    border: 'none',
+                    borderRadius: 'var(--radius-sm)',
+                    padding: '10px 20px',
+                    fontSize: '11px',
+                    fontFamily: 'JetBrains Mono',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    alignSelf: 'flex-end',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  SEND GRATITUDE
+                </button>
+              </form>
+            </div>
+
+            {/* Profile Integration Preview */}
+            <div style={{
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-default)',
+              padding: '24px',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                02 // PROFILE ACCREDITATION
+              </span>
+
+              <div style={{
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '16px',
+                background: 'var(--bg-panel)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{ width: '36px', height: '36px', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '12.5px', fontFamily: 'JetBrains Mono' }}>
+                    PS
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', display: 'block' }}>Priya Shah &apos;15</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Senior PM at Google</span>
+                  </div>
+                </div>
+
+                {/* Spotlight Badge */}
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--badge-amber)', color: 'var(--text-amber)', fontSize: '9px', fontFamily: 'JetBrains Mono', fontWeight: 'bold', padding: '4px 10px', borderRadius: '4px', border: '1px solid var(--border-color-soft)' }}>
+                  <Icons.Spotlight />
+                  <span>2 GRATITUDE SPOTLIGHTS</span>
+                </div>
+
+                <p style={{ margin: '12px 0 0 0', fontSize: '11.5px', color: 'var(--text-muted)', lineHeight: '1.45' }}>
+                  Approved spotlights render directly on verified profiles as peer-vouched credentials of helpfulness in the alumni cohort.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ====================================
+    // === MODULE 4: OFFICE HOURS SLOTS ===
+    // ====================================
+    function OfficeHoursModule({ addToast, themeMode }) {
+      const [subTab, setSubTab] = useState('attendee'); // 'host' | 'attendee'
+      const [slots, setSlots] = useState([
+        { id: 's1', time: '2:00 PM', isBooked: false, bookerName: '', notes: '' },
+        { id: 's2', time: '2:20 PM', isBooked: true, bookerName: 'Sarah Jenkins \'18', notes: 'Stripe interview prep loops.' },
+        { id: 's3', time: '2:40 PM', isBooked: false, bookerName: '', notes: '' }
+      ]);
+      const [bookingSlotId, setBookingSlotId] = useState(null);
+      const [bookingNotes, setBookingNotes] = useState('');
+      const [newSlotTime, setNewSlotTime] = useState('3:00 PM');
+      const [showEmailConfirm, setShowEmailConfirm] = useState(false);
+
+      const handleAddSlot = () => {
+        const newSlot = {
+          id: Date.now().toString(),
+          time: newSlotTime,
+          isBooked: false,
+          bookerName: '',
+          notes: ''
+        };
+        setSlots(prev => [...prev, newSlot]);
+        addToast(`Office hours slot scheduled at ${newSlotTime}`, 'success');
+      };
+
+      const handleBookSlot = (e) => {
+        e.preventDefault();
+        setSlots(prev => prev.map(s => s.id === bookingSlotId ? {
+          ...s,
+          isBooked: true,
+          bookerName: 'Richard Lee \'18',
+          notes: bookingNotes.trim()
+        } : s));
+        addToast("Office Hours slot claimed successfully!", 'success');
+        setBookingSlotId(null);
+        setBookingNotes('');
+        setShowEmailConfirm(true);
+      };
+
+      const handleCancelBooking = (id) => {
+        setSlots(prev => prev.map(s => s.id === id ? { ...s, isBooked: false, bookerName: '', notes: '' } : s));
+        addToast("Office Hours booking cancelled");
+      };
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <h1 className="font-editorial" style={{ fontSize: '28px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '-0.015em' }}>
+                Office Hours (Micro-Mentorship)
+              </h1>
+              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.5', maxWidth: '800px' }}>
+                Allows busy alumni to host low-commitment, single-session coffee chats. Mentees can view and claim open slots with a single click, providing discussion questions beforehand.
+              </p>
+            </div>
+
+            {/* Sub-tab view toggler */}
+            <div style={{ display: 'flex', background: 'var(--bg-panel)', padding: '3px', borderRadius: 'var(--radius-default)', border: '1px solid var(--border-color-soft)' }}>
+              <button 
+                onClick={() => setSubTab('attendee')}
+                style={{
+                  background: subTab === 'attendee' ? 'var(--bg-surface)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '8px 16px',
+                  fontSize: '11px',
+                  fontFamily: 'JetBrains Mono',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  color: subTab === 'attendee' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                BOOK OFFICE HOURS
+              </button>
+              <button 
+                onClick={() => setSubTab('host')}
+                style={{
+                  background: subTab === 'host' ? 'var(--bg-surface)' : 'transparent',
+                  border: 'none',
+                  borderRadius: 'var(--radius-sm)',
+                  padding: '8px 16px',
+                  fontSize: '11px',
+                  fontFamily: 'JetBrains Mono',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  color: subTab === 'host' ? 'var(--text-ink)' : 'var(--text-muted)',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                HOST SETTINGS
+              </button>
+            </div>
+          </div>
+
+          {/* Attendee Booking view */}
+          {subTab === 'attendee' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+              {/* Slot browser */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '24px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                  AVAILABLE SLOTS
+                </span>
+
+                <div style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--radius-default)', padding: '16px', background: 'var(--bg-panel)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                    <div style={{ width: '36px', height: '36px', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '13px', fontFamily: 'JetBrains Mono' }}>
+                      PS
+                    </div>
+                    <div>
+                      <span style={{ fontSize: '13.5px', fontWeight: 'bold', display: 'block' }}>Priya Shah &apos;15</span>
+                      <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>Friday Coffee Chats (May 22)</span>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {slots.map(s => {
+                      if (s.isBooked) return null;
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={() => setBookingSlotId(s.id)}
+                          style={{
+                            width: '100%',
+                            background: bookingSlotId === s.id ? 'var(--text-ink)' : 'var(--bg-surface)',
+                            color: bookingSlotId === s.id ? 'var(--bg-bone)' : 'var(--text-ink)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '10px 14px',
+                            fontSize: '11.5px',
+                            fontFamily: 'JetBrains Mono',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontWeight: '600',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span>{s.time}</span>
+                          <span>[ BOOK SLOT ]</span>
+                        </button>
+                      );
+                    })}
+                    {slots.filter(s => !s.isBooked).length === 0 && (
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', padding: '12px 0' }}>
+                        No open slots remaining for Friday.
+                      </div>
+                    )}
+                  </div>
+
+                  {bookingSlotId && (
+                    <form onSubmit={handleBookSlot} style={{ borderTop: '1px dashed var(--border-color)', marginTop: '16px', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <label className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold' }}>DISCUSSION TOPIC / QUESTIONS</label>
+                      <input
+                        type="text"
+                        value={bookingNotes}
+                        onChange={(e) => setBookingNotes(e.target.value)}
+                        placeholder="e.g. Ask about transitioning to PM at Google, mock resume review."
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          background: 'var(--bg-surface)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: 'var(--radius-sm)',
+                          fontSize: '12px',
+                          outline: 'none',
+                          color: 'var(--text-ink)'
+                        }}
+                      />
+                      <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => setBookingSlotId(null)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '6px 14px',
+                            fontSize: '10.5px',
+                            fontFamily: 'JetBrains Mono',
+                            cursor: 'pointer',
+                            color: 'var(--text-ink)',
+                            fontWeight: '600'
+                          }}
+                        >
+                          CANCEL
+                        </button>
+                        <button
+                          type="submit"
+                          style={{
+                            background: 'var(--accent-color)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '6px 14px',
+                            fontSize: '10.5px',
+                            fontFamily: 'JetBrains Mono',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          CONFIRM
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+
+              {/* Email Confirmation simulator window */}
+              <div>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>
+                  BOOKING CONFIRMATION EMAIL
+                </span>
+
+                {showEmailConfirm ? (
+                  <div style={{
+                    background: '#ffffff',
+                    border: '1px solid #dcdcd6',
+                    borderRadius: 'var(--radius-default)',
+                    boxShadow: 'var(--shadow-md)',
+                    color: '#0c0c0b',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f4f3ee', padding: '12px 16px', borderBottom: '1px solid #dcdcd6', fontSize: '11px', fontFamily: 'JetBrains Mono', color: '#4d4d4a', lineHeight: '1.5' }}>
+                      <div><span style={{ fontWeight: 'bold', color: '#0c0c0b' }}>Subject:</span> Confirmed: Office Hours Session Booked</div>
+                      <button onClick={() => setShowEmailConfirm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0c0c0b', fontSize: '11px', display: 'flex' }}>[×]</button>
+                    </div>
+
+                    <div style={{ padding: '24px 20px', background: '#fafaf9' }}>
+                      <span className="font-editorial" style={{ fontSize: '18px', fontWeight: 'bold', display: 'block', marginBottom: '12px' }}>
+                        Confirmed Session Invitation
+                      </span>
+
+                      <div style={{ border: '1px solid #dcdcd6', background: '#ffffff', padding: '14px', borderRadius: '4px', display: 'grid', gridTemplateColumns: '80px 1fr', gap: '16px', fontSize: '12px' }}>
+                        <div style={{ textAlign: 'center', background: '#f4f3ee', padding: '12px 6px', borderRadius: '4px', border: '1px solid #dcdcd6' }}>
+                          <span className="font-mono" style={{ fontSize: '9px', color: '#4d4d4a', display: 'block', textTransform: 'uppercase' }}>FRI</span>
+                          <span style={{ fontSize: '24px', fontWeight: 'bold', display: 'block', color: '#0c0c0b', lineHeight: 1, margin: '2px 0' }}>22</span>
+                          <span className="font-mono" style={{ fontSize: '9px', color: '#4d4d4a', display: 'block', textTransform: 'uppercase' }}>MAY</span>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '13px', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>
+                            Coffee Chat: Priya Shah & Richard Lee
+                          </span>
+                          <span style={{ color: '#4d4d4a', display: 'block', marginBottom: '2px' }}>
+                            Time: 3:00 PM - 3:20 PM PDT
+                          </span>
+                          <span style={{ color: '#4d4d4a', display: 'block' }}>
+                            Link: <a href="#" style={{ color: '#2563eb', textDecoration: 'underline' }}>meet.google.com/abc-defg-hij</a>
+                          </span>
+                        </div>
+                      </div>
+
+                      <p style={{ margin: '14px 0 0 0', fontSize: '11px', color: '#4d4d4a', lineHeight: '1.4' }}>
+                        A calendar invite (.ics) has been dispatched to your registered alumni inbox.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ border: '1px dashed var(--border-color)', borderRadius: 'var(--radius-default)', padding: '36px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                    Select an open slot to claim and preview booking verification details.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Host Settings view */}
+          {subTab === 'host' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px', alignItems: 'start' }}>
+              {/* Host Workspace (Slot scheduling) */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '24px',
+                boxShadow: 'var(--shadow-sm)'
+              }}>
+                <span className="font-mono text-muted" style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.15em', display: 'block', marginBottom: '16px' }}>
+                  HOST AVAILABILITY SETUP
+                </span>
+
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', marginBottom: '24px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label className="font-mono text-muted" style={{ fontSize: '9px', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>START TIME</label>
+                    <select
+                      value={newSlotTime}
+                      onChange={(e) => setNewSlotTime(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        background: 'var(--bg-panel)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: 'var(--radius-sm)',
+                        fontSize: '13px',
+                        color: 'var(--text-ink)'
+                      }}
+                    >
+                      <option>3:00 PM</option>
+                      <option>3:20 PM</option>
+                      <option>3:40 PM</option>
+                      <option>4:00 PM</option>
+                    </select>
+                  </div>
+                  
+                  <button
+                    onClick={handleAddSlot}
+                    style={{
+                      background: 'var(--text-ink)',
+                      color: 'var(--bg-bone)',
+                      border: 'none',
+                      borderRadius: 'var(--radius-sm)',
+                      padding: '11px 18px',
+                      fontSize: '11px',
+                      fontFamily: 'JetBrains Mono',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      transition: 'opacity 0.15s ease'
+                    }}
+                  >
+                    <Icons.Plus />
+                    ADD SLOT
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <span className="font-mono text-muted" style={{ fontSize: '8.5px', fontWeight: 'bold', display: 'block' }}>
+                    YOUR ACTIVE SLOTS (FRIDAY, MAY 22)
+                  </span>
+
+                  {slots.map(s => (
+                    <div key={s.id} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px 14px',
+                      border: '1px solid var(--border-color-soft)',
+                      borderRadius: 'var(--radius-default)',
+                      background: s.isBooked ? 'var(--badge-amber)' : 'var(--bg-canvas)'
+                    }}>
+                      <div>
+                        <span className="font-mono" style={{ fontSize: '12px', fontWeight: 'bold', marginRight: '8px', color: 'var(--text-ink)' }}>{s.time}</span>
+                        {s.isBooked ? (
+                          <span style={{ fontSize: '11.5px', color: 'var(--text-amber)', fontWeight: '600' }}>
+                            Claimed by {s.bookerName}
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '11.5px', color: 'var(--text-muted)' }}>[ Open slot ]</span>
+                        )}
+                        {s.notes && (
+                          <div style={{ fontSize: '11px', fontStyle: 'italic', marginTop: '6px', color: 'var(--text-muted)', borderLeft: '2px solid var(--border-color)', paddingLeft: '8px' }}>
+                            Topic: &ldquo;{s.notes}&rdquo;
+                          </div>
+                        )}
+                      </div>
+
+                      {s.isBooked && (
+                        <button
+                          onClick={() => handleCancelBooking(s.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--text-red)',
+                            fontSize: '10.5px',
+                            fontFamily: 'JetBrains Mono',
+                            cursor: 'pointer',
+                            fontWeight: '600'
+                          }}
+                        >
+                          [ CANCEL ]
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Host Quick Guide */}
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px dashed var(--border-color)',
+                borderRadius: 'var(--radius-default)',
+                padding: '24px',
+                color: 'var(--text-muted)'
+              }}>
+                <h3 className="font-sans-tight" style={{ fontSize: '14px', fontWeight: 'bold', margin: '0 0 8px 0', color: 'var(--text-ink)' }}>
+                  Host Best Practices
+                </h3>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '12.5px', lineHeight: '1.6' }}>
+                  <li>Offer 20-minute chunks to keep discussions focused and lightweight.</li>
+                  <li>Link your Google Meet or Zoom coordinates to automate dispatching calendar invites.</li>
+                  <li>Cancel slots at least 24 hours in advance to keep warm-network connections friendly.</li>
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const container = document.getElementById('root');
+    const root = ReactDOM.createRoot(container);
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ import { requireSession } from '@/lib/auth/session'
 
 export type MessageFormState = {
   error?: string
+  ok?: boolean
 }
 
 export async function sendMessageAction(
@@ -30,5 +31,5 @@ export async function sendMessageAction(
   }
 
   revalidatePath(`/ask/thread/${parsed.data.threadId}`)
-  return {}
+  return { ok: true }
 }

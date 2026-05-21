@@ -1,5 +1,4 @@
 import { Menu, Search } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import {
   DropdownMenu,
@@ -32,7 +31,7 @@ export function MemberHeader({
   unreadCount,
 }: Props) {
   return (
-    <header className="sticky top-0 z-50 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">
+    <header className="sticky top-0 z-50 border-b border-border bg-card text-foreground">
       {/* @container makes child @[...]:utility classes responsive to the
           header's own width rather than the viewport's. The threshold
           (820px) was calibrated to where wordmark + 7 nav buttons + bell +
@@ -43,7 +42,7 @@ export function MemberHeader({
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Open navigation"
-            className="rounded-lg p-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
+            className="rounded-[6px] p-2 text-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
           >
             <Menu className="size-5" />
           </DropdownMenuTrigger>
@@ -64,21 +63,13 @@ export function MemberHeader({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Link href="/" className="flex items-center gap-2" aria-label="BridgeCircle home">
-          <Image
-            src="/brand/mark-light.svg"
-            alt=""
-            width={30}
-            height={30}
-            className="rounded-md"
-            priority
-          />
-          <span
-            className="bc-fraunces text-[22px] font-bold leading-none tracking-[-0.025em]"
-            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-          >
-            <span className="text-white">Bridge</span>
-            <span className="text-primary">Circle</span>
+        <Link href="/" className="flex items-center gap-2.5" aria-label="BridgeCircle home">
+          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" className="shrink-0">
+            <circle cx="11" cy="14" r="9" fill="none" stroke="currentColor" strokeWidth="1.4" />
+            <circle cx="17" cy="14" r="9" fill="none" stroke="var(--primary)" strokeWidth="1.4" />
+          </svg>
+          <span className="bc-fraunces text-lg font-bold leading-none tracking-[-0.02em] text-foreground">
+            BridgeCircle
           </span>
         </Link>
 
@@ -88,9 +79,9 @@ export function MemberHeader({
         <div className="ml-auto flex items-center gap-2">
           <form
             action="/people"
-            className="hidden h-9 items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent/50 px-3 text-sidebar-foreground @[1080px]:flex"
+            className="hidden h-9 items-center gap-2 rounded-[6px] border border-border bg-background px-3 text-foreground transition-all focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/10 @[1080px]:flex"
           >
-            <Search className="size-4 text-muted-foreground/60" />
+            <Search className="size-4 text-muted-foreground" />
             {/* suppressHydrationWarning matches the same pattern used on
                 <html>/<body> in the root layout. Form-fill / shopping-assistant
                 browser extensions (e.g. Honey, Sharkey, Grammarly) inject
@@ -102,7 +93,7 @@ export function MemberHeader({
               name="q"
               type="search"
               placeholder="Search the circle…"
-              className="w-44 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+              className="w-44 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50 text-foreground"
               suppressHydrationWarning
             />
           </form>

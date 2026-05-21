@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { createContext, useContext, useEffect, useState, useTransition } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { SearchForm, type SearchFormDefaults } from './search-form'
 
 export type Density = 'comfortable' | 'compact'
@@ -79,25 +79,22 @@ export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) 
 
   return (
     <DensityContext.Provider value={{ density, setDensity }}>
-      <Card>
-        <CardContent className="pt-6">
-          <SearchForm
-            defaults={defaults}
-            filtersOpen={filtersOpen}
-            onSearch={handleSearch}
-            onClear={handleClear}
-          />
-        </CardContent>
-      </Card>
-      <StatusBanner stage={visibleStage} />
-      <div
-        className={`space-y-6 transition-opacity duration-150 ${
-          isPending ? 'pointer-events-none opacity-60' : ''
-        }`}
-        aria-busy={isPending}
+      <SearchForm
+        defaults={defaults}
+        filtersOpen={filtersOpen}
+        onSearch={handleSearch}
+        onClear={handleClear}
       >
-        {children}
-      </div>
+        <StatusBanner stage={visibleStage} />
+        <div
+          className={`space-y-6 transition-opacity duration-150 ${
+            isPending ? 'pointer-events-none opacity-60' : ''
+          }`}
+          aria-busy={isPending}
+        >
+          {children}
+        </div>
+      </SearchForm>
     </DensityContext.Provider>
   )
 }
@@ -108,7 +105,7 @@ function StatusBanner({ stage }: { stage: Stage }) {
     <div
       role="status"
       aria-live="polite"
-      className="flex items-center gap-2.5 rounded-lg bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground"
+      className="flex items-center gap-2.5 rounded-[6px] bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground"
     >
       <span
         className="inline-block size-2 shrink-0 animate-pulse rounded-full bg-primary"
@@ -140,28 +137,30 @@ export function ResultsHeader({
       <p className="text-sm text-muted-foreground">
         <strong className="text-foreground">{resultCount.toLocaleString()}</strong> {suffix}
       </p>
-      <div className="flex items-center gap-1 select-none">
+      <div className="flex items-center gap-1 select-none bg-muted/40 p-0.5 rounded-[6px] border border-border/60">
         <button
           type="button"
           onClick={() => setDensity('comfortable')}
-          className={`font-mono text-[10px] px-2 py-0.5 transition-all ${
+          className={cn(
+            'font-mono text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-[4px] transition-all cursor-pointer',
             density === 'comfortable'
-              ? 'font-semibold text-primary underline'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
+              ? 'bg-card text-primary font-bold shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
         >
-          [ GRID ]
+          Grid
         </button>
         <button
           type="button"
           onClick={() => setDensity('compact')}
-          className={`font-mono text-[10px] px-2 py-0.5 transition-all ${
+          className={cn(
+            'font-mono text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-[4px] transition-all cursor-pointer',
             density === 'compact'
-              ? 'font-semibold text-primary underline'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
+              ? 'bg-card text-primary font-bold shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
         >
-          [ LIST ]
+          List
         </button>
       </div>
     </div>
@@ -173,5 +172,5 @@ export function ResultGrid({ children }: { children: React.ReactNode }) {
   if (density === 'compact') {
     return <div className="flex flex-col gap-2.5">{children}</div>
   }
-  return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
+  return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">{children}</div>
 }

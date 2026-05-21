@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -8,9 +9,16 @@ import { type MessageFormState, sendMessageAction } from './actions'
 const initialState: MessageFormState = {}
 
 export function MessageForm({ threadId }: { threadId: string }) {
+  const router = useRouter()
   const [state, action, pending] = useActionState(sendMessageAction, initialState)
   const formRef = useRef<HTMLFormElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (state.ok) {
+      router.refresh()
+    }
+  }, [state.ok, router])
 
   useEffect(() => {
     if (!pending && !state.error && formRef.current) {
