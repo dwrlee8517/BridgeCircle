@@ -18,18 +18,29 @@ import { cn } from '@/lib/utils'
  *   - "muted"   → grey (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'inline-flex h-5 w-fit shrink-0 items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap',
+  'inline-flex w-fit shrink-0 items-center rounded-full whitespace-nowrap',
   {
     variants: {
       tone: {
-        open: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
-        warn: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300',
-        alert: 'bg-destructive/10 text-destructive',
-        info: 'bg-primary/10 text-primary',
-        muted: 'bg-muted text-muted-foreground',
+        open: 'bg-accent-sage/10 text-accent-sage border border-accent-sage/20',
+        warn: 'bg-accent-ochre/10 text-accent-ochre border border-accent-ochre/20',
+        alert: 'bg-accent-rust/10 text-accent-rust border border-accent-rust/20',
+        info: 'bg-primary/10 text-primary border border-primary/20',
+        muted: 'bg-muted text-muted-foreground border border-border/30',
+        sage: 'bg-accent-sage/10 text-accent-sage border border-accent-sage/20',
+        ochre: 'bg-accent-ochre/10 text-accent-ochre border border-accent-ochre/20',
+        rust: 'bg-accent-rust/10 text-accent-rust border border-accent-rust/20',
+        plum: 'bg-accent-plum/10 text-accent-plum border border-accent-plum/20',
+      },
+      size: {
+        sm: 'h-4 px-1.5 text-[9px] font-semibold gap-1',
+        md: 'h-5 px-2 py-0.5 text-xs font-medium gap-1.5',
       },
     },
-    defaultVariants: { tone: 'muted' },
+    defaultVariants: {
+      tone: 'muted',
+      size: 'md',
+    },
   },
 )
 
@@ -41,16 +52,17 @@ export type StatusBadgeProps = React.ComponentProps<'span'> &
 
 export function StatusBadge({
   tone,
+  size = 'md',
   dot = false,
   className,
   children,
   ...props
 }: StatusBadgeProps) {
   return (
-    <span className={cn(statusBadgeVariants({ tone }), className)} {...props}>
+    <span className={cn(statusBadgeVariants({ tone, size }), className)} {...props}>
       {dot ? (
         <span
-          className={cn('inline-block size-1.5 rounded-full', dotClass(tone ?? 'muted'))}
+          className={cn('shrink-0 size-1.5 rounded-full', dotClass(tone ?? 'muted'))}
           aria-hidden
         />
       ) : null}
@@ -62,11 +74,16 @@ export function StatusBadge({
 function dotClass(tone: NonNullable<StatusBadgeProps['tone']>) {
   switch (tone) {
     case 'open':
-      return 'bg-emerald-500'
+    case 'sage':
+      return 'bg-accent-sage'
     case 'warn':
-      return 'bg-amber-500'
+    case 'ochre':
+      return 'bg-accent-ochre'
     case 'alert':
-      return 'bg-destructive'
+    case 'rust':
+      return 'bg-accent-rust'
+    case 'plum':
+      return 'bg-accent-plum'
     case 'info':
       return 'bg-primary'
     case 'muted':

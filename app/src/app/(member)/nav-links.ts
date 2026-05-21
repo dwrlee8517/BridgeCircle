@@ -9,6 +9,7 @@
 // pragma, lets both sides see the real array.
 
 export const MEMBER_NAV_LINKS = [
+  { href: '/', label: 'Home', match: ['/'] },
   // People is the canonical directory and the starting point for advice /
   // mentorship requests. /friends folds in as a "People I know" filter;
   // incoming friend requests live on /inbox alongside ask requests.

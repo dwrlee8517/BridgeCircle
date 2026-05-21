@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 import { signOut } from '../(auth)/sign-in/actions'
 
 type Props = {
@@ -18,18 +19,38 @@ type Props = {
   avatarUrl: string | null
 }
 
+function getStableBgColor(name: string | null) {
+  if (!name) return 'bg-[#4d4d4a] text-white'
+  const colors = [
+    'bg-[#b9472a] text-white', // Terracotta / Rust
+    'bg-[#3b6e51] text-white', // Sage
+    'bg-[#722f37] text-white', // Wine / Plum
+    'bg-[#c8761a] text-white', // Ochre
+    'bg-[#173fb3] text-white', // Deep Cobalt
+    'bg-[#4d4d4a] text-white', // Charcoal / Slate
+  ]
+  let sum = 0
+  for (let i = 0; i < name.length; i++) {
+    sum += name.charCodeAt(i)
+  }
+  return colors[sum % colors.length]
+}
+
 export function AccountMenu({ userId, name, avatarUrl }: Props) {
   const initial = (name ?? '?').slice(0, 1).toUpperCase()
+  const fallbackColorClass = getStableBgColor(name)
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Account menu"
-        className="flex cursor-pointer items-center rounded-full p-1 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20"
+        className="flex cursor-pointer items-center rounded-[6px] p-0.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Avatar className="size-8 after:border-slate-700">
-          {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
-          <AvatarFallback className="bg-[#316bf3] font-semibold text-white">
+        <Avatar className="size-8 rounded-[6px] after:rounded-[6px]">
+          {avatarUrl ? (
+            <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-[6px]" />
+          ) : null}
+          <AvatarFallback className={cn('font-semibold rounded-[6px]', fallbackColorClass)}>
             {initial}
           </AvatarFallback>
         </Avatar>
@@ -38,56 +59,58 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-64 border-[rgba(180,197,255,.22)] bg-[#0b1220] p-1.5 text-slate-200 shadow-2xl ring-0"
+        className="w-64 border border-border bg-popover p-1.5 text-popover-foreground shadow-md rounded-[6px]"
       >
-        <div className="flex items-center gap-3 px-3 py-3">
-          <Avatar className="size-9 after:border-slate-700">
-            {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
-            <AvatarFallback className="bg-[#316bf3] font-semibold text-white">
+        <div className="flex items-center gap-3 px-3 py-2.5">
+          <Avatar className="size-9 rounded-[6px] after:rounded-[6px]">
+            {avatarUrl ? (
+              <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-[6px]" />
+            ) : null}
+            <AvatarFallback className={cn('font-semibold rounded-[6px]', fallbackColorClass)}>
               {initial}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">{name ?? 'Account'}</p>
-            <p className="text-xs text-[#94a3b8]">Member account</p>
+            <p className="truncate text-sm font-semibold text-foreground">{name ?? 'Account'}</p>
+            <p className="text-xs text-muted-foreground">Member account</p>
           </div>
         </div>
-        <DropdownMenuSeparator className="bg-white/10" />
+        <DropdownMenuSeparator className="my-1.5" />
         <DropdownMenuItem
           asChild
-          className="cursor-pointer gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-200 focus:bg-white/10 focus:text-white"
+          className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
           <Link href={`/profile/${userId}`}>
-            <UserRound className="size-4 text-[#94a3b8]" />
+            <UserRound className="size-4 text-muted-foreground" />
             My profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           asChild
-          className="cursor-pointer gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-200 focus:bg-white/10 focus:text-white"
+          className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
           <Link href="/profile/edit">
-            <UserRound className="size-4 text-[#94a3b8]" />
+            <UserRound className="size-4 text-muted-foreground" />
             Edit profile
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           asChild
-          className="cursor-pointer gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-200 focus:bg-white/10 focus:text-white"
+          className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
           <Link href="/mentorship/settings">
-            <Settings className="size-4 text-[#94a3b8]" />
+            <Settings className="size-4 text-muted-foreground" />
             Helper preferences
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="bg-white/10" />
+        <DropdownMenuSeparator className="my-1.5" />
         <form action={signOut}>
           <DropdownMenuItem
             asChild
-            className="cursor-pointer gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 focus:bg-white/10 focus:text-white"
+            className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
           >
             <button type="submit" className="w-full text-left">
-              <LogOut className="size-4 text-[#94a3b8]" />
+              <LogOut className="size-4 text-muted-foreground" />
               Sign out
             </button>
           </DropdownMenuItem>

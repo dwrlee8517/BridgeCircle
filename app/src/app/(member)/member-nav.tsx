@@ -15,29 +15,37 @@ export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
     : MEMBER_NAV_LINKS
 
   return (
-    <nav className="hidden items-center gap-7 text-sm @[900px]:flex">
-      {links.map((link) => {
-        const active = link.match.some(
-          (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-        )
+    <nav className="hidden h-full items-stretch gap-[28px] text-[13px] @[900px]:flex">
+      {links.map((link, idx) => {
+        const active = link.match.some((prefix) => {
+          if (prefix === '/') {
+            return pathname === '/' || pathname.startsWith('/announcements')
+          }
+          return pathname === prefix || pathname.startsWith(`${prefix}/`)
+        })
+        const indexStr = String(idx + 1).padStart(2, '0')
         return (
           <Link
             key={link.href}
             href={link.href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'relative py-2 font-medium text-slate-300 transition-colors hover:text-white',
-              active && 'font-semibold text-[#b4c5ff]',
+              'relative flex h-full items-center text-[13px] font-medium tracking-tight transition-colors',
+              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            {link.label}
             <span
-              aria-hidden
               className={cn(
-                'absolute inset-x-0 -bottom-3 h-0.5 rounded-full bg-[#316bf3] opacity-0 transition-opacity',
-                active && 'opacity-100',
+                'font-mono text-[9.5px] tracking-wider font-bold mr-1.5 uppercase transition-colors',
+                active ? 'text-primary dark:text-foreground' : 'text-muted-foreground/60',
               )}
-            />
+            >
+              {indexStr}
+            </span>
+            <span>{link.label}</span>
+            {active && (
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary dark:bg-foreground" />
+            )}
           </Link>
         )
       })}

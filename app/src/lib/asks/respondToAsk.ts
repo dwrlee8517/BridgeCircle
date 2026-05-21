@@ -58,14 +58,17 @@ export async function respondToAsk(
     if (existing) return { ok: true, threadId: existing.id }
     const recovered = await createThread(admin, ask)
     if (!recovered.ok) return recovered
-    await sendAcceptedEmail(
+    // Send email asynchronously in the background so it doesn't block the request.
+    sendAcceptedEmail(
       supabase,
       appOrigin,
       recovered.threadId,
       ask.helper_id,
       ask.asker_id,
       ask.ask_type as 'advice' | 'mentorship',
-    )
+    ).catch((err) => {
+      console.error('Error sending accepted email:', err)
+    })
     return { ok: true, threadId: recovered.threadId }
   }
   if (ask.status === 'declined') {
@@ -87,14 +90,17 @@ export async function respondToAsk(
     const result = await createThread(admin, ask)
     if (!result.ok) return result
     threadId = result.threadId
-    await sendAcceptedEmail(
+    // Send email asynchronously in the background so it doesn't block the request.
+    sendAcceptedEmail(
       supabase,
       appOrigin,
       threadId,
       ask.helper_id,
       ask.asker_id,
       ask.ask_type as 'advice' | 'mentorship',
-    )
+    ).catch((err) => {
+      console.error('Error sending accepted email:', err)
+    })
   }
 
   await supabase.from('audit_log').insert({

@@ -37,6 +37,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-accent-ochre: var(--accent-ochre);
+  --color-accent-rust: var(--accent-rust);
+  --color-accent-sage: var(--accent-sage);
+  --color-accent-plum: var(--accent-plum);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -128,6 +132,12 @@
   --sidebar-border: oklch(0.22 0.002 90);
   --sidebar-ring: oklch(0.42 0.22 265);
 
+  /* Unique Editorial Accent Colors */
+  --accent-ochre: oklch(0.58 0.16 70); /* Warm Ochre #c8761a */
+  --accent-rust: oklch(0.48 0.18 35); /* Editorial Terracotta #b9472a */
+  --accent-sage: oklch(0.48 0.08 150); /* Lichen / Sage #3b6e51 */
+  --accent-plum: oklch(0.38 0.12 355); /* Deep Wine / Plum #722f37 */
+
   /* Spacing Grid Scale variables */
   --space-1: 0.25rem; /* 4px */
   --space-2: 0.5rem; /* 8px */
@@ -201,6 +211,12 @@
   --sidebar-accent-foreground: oklch(0.985 0.002 90);
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.55 0.2 265);
+
+  /* Unique Editorial Accent Colors for Dark Mode (Slightly lighter OKLCH L-values) */
+  --accent-ochre: oklch(0.68 0.16 70); /* Warm Ochre */
+  --accent-rust: oklch(0.58 0.18 35); /* Terracotta */
+  --accent-sage: oklch(0.58 0.08 150); /* Sage */
+  --accent-plum: oklch(0.48 0.12 355); /* Plum */
 }
 
 @layer base {
@@ -285,4 +301,15 @@
   font-style: italic;
   line-height: 1.5;
   color: var(--foreground);
+}
+
+/* Mentor status badge hover indicator & tooltip */
+.mentor-status-badge:hover .mentor-indicator-default {
+  display: none;
+}
+.mentor-status-badge:hover .mentor-indicator-hover {
+  display: block;
+}
+.mentor-status-badge:hover .mentor-tooltip {
+  opacity: 1;
 }

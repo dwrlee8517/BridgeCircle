@@ -177,7 +177,12 @@ export async function createAsk(
     },
   })
 
-  await sendAskEmail(supabase, appOrigin, created.id, input.helperId, askerId, input.askType)
+  // Send email asynchronously in the background so it doesn't block the request.
+  sendAskEmail(supabase, appOrigin, created.id, input.helperId, askerId, input.askType).catch(
+    (err) => {
+      console.error('Error sending ask email:', err)
+    },
+  )
 
   return { ok: true, askId: created.id }
 }

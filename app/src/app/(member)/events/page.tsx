@@ -128,24 +128,34 @@ function Hero({
   isAdmin: boolean
 }) {
   return (
-    <section className="border-b bg-card">
-      <div className="mx-auto flex max-w-6xl items-end justify-between gap-4 px-4 py-12 sm:px-8 sm:py-14">
+    <section className="border-b border-border bg-card relative overflow-hidden">
+      {/* Subtle overlapping double-circle watermark */}
+      <svg
+        aria-hidden="true"
+        role="presentation"
+        viewBox="0 0 200 200"
+        className="absolute -top-10 right-[-40px] h-[200px] w-[200px] pointer-events-none stroke-foreground/5 dark:stroke-foreground/10 fill-none"
+      >
+        <title>Decorative double-circle motif</title>
+        <circle cx="80" cy="100" r="60" strokeWidth="1.5" />
+        <circle cx="130" cy="100" r="60" strokeWidth="1.5" />
+      </svg>
+
+      <div className="relative mx-auto flex max-w-6xl items-end justify-between gap-4 px-4 py-12 sm:px-8 sm:py-14">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Events · {totalUpcoming} upcoming
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+            {'03 // Events · '}
+            {totalUpcoming} upcoming
           </p>
-          <h1
-            className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
-            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-          >
+          <h1 className="font-heading mt-2.5 text-4xl font-semibold tracking-[-0.035em] text-foreground sm:text-[44px] leading-[1.08]">
             What&apos;s happening across the circle.
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">Gatherings for {orgName}.</p>
+          <p className="mt-2 text-[13px] text-muted-foreground">Gatherings for {orgName}.</p>
         </div>
         {isAdmin ? (
-          <Button asChild size="lg" className="shrink-0">
+          <Button asChild size="lg" className="shrink-0 rounded-[6px]">
             <Link href="/admin/events">
-              <Plus className="size-4" />
+              <Plus className="size-4" strokeWidth={1.5} />
               Create event
             </Link>
           </Button>
@@ -169,14 +179,14 @@ function TabLink({
   return (
     <Link
       href={href}
-      className={`-mb-px border-b-2 px-3 py-1.5 text-sm transition-colors ${
+      className={`-mb-px border-b-2 px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors rounded-t-[6px] ${
         active
-          ? 'border-foreground font-medium'
-          : 'border-transparent text-muted-foreground hover:text-foreground'
+          ? 'border-primary text-foreground font-semibold bg-secondary/30'
+          : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/10'
       }`}
     >
       {children}
-      <span className="ml-1.5 text-xs text-muted-foreground">({count})</span>
+      <span className="ml-1.5 text-muted-foreground font-medium">[{count}]</span>
     </Link>
   )
 }

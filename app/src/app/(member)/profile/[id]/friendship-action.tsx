@@ -26,7 +26,7 @@ export function FriendshipAction({
 
   if (state === 'friends') {
     return (
-      <Button variant="outline" disabled>
+      <Button variant="outline" disabled className="w-full">
         Friends ✓
       </Button>
     )
@@ -38,7 +38,7 @@ export function FriendshipAction({
 
   if (state === 'pending_incoming') {
     return (
-      <Button asChild>
+      <Button asChild className="w-full">
         <Link href="/inbox">Accept their request</Link>
       </Button>
     )
@@ -51,10 +51,10 @@ export function FriendshipAction({
   }
 
   return (
-    <div className="space-y-1">
-      <form action={dispatch}>
+    <div className="space-y-1 w-full">
+      <form action={dispatch} className="w-full">
         <input type="hidden" name="receiverId" value={profileUserId} />
-        <Button type="submit" variant="outline" disabled={pending}>
+        <Button type="submit" variant="outline" disabled={pending} className="w-full">
           {pending ? 'Sending…' : 'Add friend'}
         </Button>
       </form>
@@ -71,11 +71,11 @@ export function FriendshipAction({
  */
 function PendingOutgoingState() {
   return (
-    <div className="space-y-1">
-      <Button variant="outline" disabled>
+    <div className="space-y-1 w-full">
+      <Button variant="outline" disabled className="w-full">
         Request sent
       </Button>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-muted-foreground text-center">
         Awaiting their reply — track in your{' '}
         <Link href="/inbox" className="underline hover:text-foreground">
           inbox

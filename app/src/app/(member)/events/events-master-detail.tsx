@@ -1,16 +1,13 @@
 'use client'
 
 import { format } from 'date-fns'
-import { Calendar, ChevronRight, Clock, MapPin, Share2, UserCheck } from 'lucide-react'
-import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { StatusBadge } from '@/components/ui/status-badge'
+import { Calendar } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
 import type { EventAttendee } from '@/lib/events/attendeePreviewHelpers'
 import type { EventRow } from '@/lib/events/listEvents'
-import { RsvpQuickButton } from './rsvp-quick-button'
+import { rsvpAction } from './actions'
+import { getEventMetadata, getEventStableColor } from './metadata'
 
 type Props = {
   events: EventRow[]
@@ -19,285 +16,154 @@ type Props = {
   initialSelectedId: string | null
 }
 
-const NARROW_VIEWPORT_QUERY = '(max-width: 1023px)'
+const STACK_PALETTE = [
+  { bg: 'bg-primary/10 border-primary/20', text: 'text-primary' }, // Cobalt
+  { bg: 'bg-accent-ochre/10 border-accent-ochre/20', text: 'text-accent-ochre' }, // Ochre
+  { bg: 'bg-accent-sage/10 border-accent-sage/20', text: 'text-accent-sage' }, // Sage
+  { bg: 'bg-accent-plum/10 border-accent-plum/20', text: 'text-accent-plum' }, // Plum
+  { bg: 'bg-accent-rust/10 border-accent-rust/20', text: 'text-accent-rust' }, // Rust
+] as const
 
-/**
- * Master–detail surface for the events list. Holds `selectedId` in local
- * state so a click only re-renders the right panel — no server round trip,
- * no full RSC payload, no DB queries.
- *
- * Renders the right-panel detail directly from `events[selectedId]` and
- * `attendeesByEvent[selectedId]`, both passed in pre-loaded from the server
- * component. Keeps the URL in sync via `window.history.replaceState` so
- * deep-link / share URLs still work — we deliberately avoid `router.replace`
- * here because it would trigger a hidden RSC refetch on every card click,
- * which is exactly the server cost we're trying to eliminate.
- *
- * Replaces the prior `?selected=` + Server-Component-re-render flow that
- * cost ~6 DB queries and a full RSC round trip per card click.
- */
-export function EventsMasterDetail({ events, attendeesByEvent, view, initialSelectedId }: Props) {
-  const [selectedId, setSelectedId] = useState<string | null>(() => {
-    if (initialSelectedId && events.some((e) => e.id === initialSelectedId)) {
-      return initialSelectedId
-    }
-    return events[0]?.id ?? null
-  })
-  const isFirstRender = useRef(true)
+export function EventsMasterDetail({ events, attendeesByEvent, view }: Props) {
+  return (
+    <div className="space-y-12 animate-slideup">
+      {/* Cover Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {events.map((e, idx) => {
+          const dateObj = new Date(e.startsAt)
+          const accent = getEventStableColor(e.title)
+          const meta = getEventMetadata(e.title)
+          const attendees = attendeesByEvent[e.id] ?? []
+          const displayIndex = String(idx + 1).padStart(2, '0')
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
-    if (!selectedId) return
-    const params = new URLSearchParams()
-    if (view === 'past') params.set('view', 'past')
-    params.set('selected', selectedId)
-    window.history.replaceState(null, '', `/events?${params.toString()}`)
-  }, [selectedId, view])
+          return (
+            <EventCard
+              key={e.id}
+              event={e}
+              displayIndex={displayIndex}
+              accent={accent}
+              meta={meta}
+              dateObj={dateObj}
+              attendees={attendees}
+              view={view}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
-  const selected = events.find((e) => e.id === selectedId) ?? null
-  const attendees = selected ? (attendeesByEvent[selected.id] ?? []) : []
+function EventCard({
+  event: e,
+  displayIndex,
+  accent,
+  meta,
+  dateObj,
+  attendees,
+  view,
+}: {
+  event: EventRow
+  displayIndex: string
+  accent: ReturnType<typeof getEventStableColor>
+  meta: ReturnType<typeof getEventMetadata>
+  dateObj: Date
+  attendees: EventAttendee[]
+  view: 'upcoming' | 'past'
+}) {
+  const router = useRouter()
 
-  function handleSelect(id: string) {
-    setSelectedId(id)
-    // On narrow viewports the detail panel sits below the list — scroll it
-    // into view so the click feels like "show me that one." On wide
-    // viewports the detail is already visible alongside, so skip.
-    if (typeof window !== 'undefined' && window.matchMedia(NARROW_VIEWPORT_QUERY).matches) {
-      requestAnimationFrame(() => {
-        document
-          .getElementById('event-detail')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      })
-    }
+  function handleCardClick() {
+    router.push(`/events/${e.id}`)
   }
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
-      <div>
-        <div className="space-y-3">
-          {events.map((e) => (
-            <EventListItem
-              key={e.id}
-              event={e}
-              active={selectedId === e.id}
-              onSelect={() => handleSelect(e.id)}
-            />
-          ))}
-        </div>
-      </div>
-      <div>
-        {selected ? (
-          <div className="lg:sticky lg:top-24">
-            <FeaturedEventDetail
-              event={selected}
-              attendees={attendees}
-              viewIsPast={view === 'past'}
-            />
-          </div>
-        ) : null}
-      </div>
-    </div>
-  )
-}
-
-function EventListItem({
-  event: e,
-  active,
-  onSelect,
-}: {
-  event: EventRow
-  active: boolean
-  onSelect: () => void
-}) {
-  const start = new Date(e.startsAt)
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={active}
-      className={`block w-full rounded-xl border p-5 text-left transition-all ${
-        active
-          ? 'border-primary bg-card shadow-md'
-          : 'border-transparent hover:border-border hover:bg-card hover:shadow-sm'
-      }`}
+    // biome-ignore lint/a11y/useKeyWithClickEvents: card navigation is handled programmatically
+    // biome-ignore lint/a11y/noStaticElementInteractions: standard card navigation pattern
+    <div
+      onClick={handleCardClick}
+      className="bg-card rounded-[6px] border border-border/40 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer h-full"
+      style={{ borderTop: `4px solid ${accent.hex}` }}
     >
-      <div className="flex gap-4">
-        <DateTile startsAt={e.startsAt} />
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center gap-2">
-            <StatusBadge tone="info">Event</StatusBadge>
-          </div>
-          <h3 className="truncate text-base font-semibold text-foreground">{e.title}</h3>
-          <p className="mt-1 truncate text-[13px] text-muted-foreground">
-            {format(start, 'h:mm a')}
-            {e.location ? ` · ${e.location}` : ''}
-          </p>
-          <p className="mt-1.5 text-xs text-muted-foreground">{e.goingCount} attending</p>
-        </div>
-      </div>
-    </button>
-  )
-}
-
-function DateTile({ startsAt }: { startsAt: string }) {
-  const start = new Date(startsAt)
-  return (
-    <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg bg-[#0b1220] text-center text-white">
-      <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#b4c5ff]">
-        {format(start, 'MMM')}
-      </span>
-      <span className="bc-fraunces mt-0.5 text-2xl font-bold leading-none tracking-[-0.02em]">
-        {format(start, 'd')}
-      </span>
-    </div>
-  )
-}
-
-function FeaturedEventDetail({
-  event: e,
-  attendees,
-  viewIsPast,
-}: {
-  event: EventRow
-  attendees: EventAttendee[]
-  viewIsPast: boolean
-}) {
-  const start = new Date(e.startsAt)
-  return (
-    <Card id="event-detail" className="scroll-mt-24 overflow-hidden p-0">
-      <div className="relative overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#003ea8_60%,#0051d5_100%)] p-8 text-white">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-60"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-          }}
-        />
-        <svg
-          aria-hidden="true"
-          role="presentation"
-          viewBox="0 0 200 200"
-          className="absolute -top-10 right-[-40px] h-[200px] w-[200px] opacity-25"
-        >
-          <title>Decorative two-circle motif</title>
-          <circle cx="80" cy="100" r="60" fill="none" stroke="#b4c5ff" strokeWidth="1.5" />
-          <circle cx="130" cy="100" r="60" fill="none" stroke="#fff" strokeWidth="1.5" />
-        </svg>
-        <div className="relative">
-          <span className="inline-flex h-6 items-center rounded-full bg-white/15 px-2.5 text-xs font-semibold text-white">
-            Featured
-          </span>
-          <h2
-            className="bc-fraunces mt-3 text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl"
-            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
+      {/* Upper Section */}
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <span
+            className="font-serif text-3xl font-bold opacity-15 group-hover:opacity-100 transition-opacity"
+            style={{ color: accent.hex }}
           >
-            {e.title}
-          </h2>
-          {e.description ? (
-            <p className="mt-3 max-w-lg text-sm leading-relaxed text-slate-300">
-              {e.description.length > 220 ? `${e.description.slice(0, 220)}…` : e.description}
-            </p>
-          ) : null}
+            {displayIndex}
+          </span>
+          <span className="font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">
+            {meta.category}
+          </span>
         </div>
-      </div>
-      <div className="space-y-4 p-7">
-        <DetailRow icon="date" label="Date" value={format(start, 'EEE, MMM d, yyyy')} />
-        <DetailRow icon="time" label="Time" value={format(start, 'h:mm a')} />
-        {e.location ? <DetailRow icon="location" label="Location" value={e.location} /> : null}
-        <DetailRow
-          icon="attending"
-          label="Attending"
-          value={`${e.goingCount}${e.capacity ? ` / ${e.capacity}` : ''} alumni`}
-          last
-        />
 
-        {attendees.length > 0 || e.waitlistCount > 0 ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-            <AttendeeStack
-              attendees={attendees}
-              goingCount={e.goingCount}
-              waitlistCount={e.waitlistCount}
-            />
+        <h4 className="font-serif text-xl font-bold tracking-tight text-foreground leading-snug group-hover:underline">
+          {e.title}
+        </h4>
+
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+          <Calendar className="size-3.5" />
+          <span>{format(dateObj, 'EEE, MMM d · h:mm a')}</span>
+        </div>
+
+        <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed font-sans">
+          {meta.tagline || e.description}
+        </p>
+
+        {/* Preparations Checklists */}
+        <div className="pt-4 border-t border-dashed border-border/40">
+          <span className="font-mono text-[8px] font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+            Required Preparations
+          </span>
+          <div className="space-y-1.5">
+            {meta.preparations.slice(0, 2).map((item, pi) => (
+              /* biome-ignore lint/suspicious/noArrayIndexKey: static list from db */
+              <div key={pi} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                <span
+                  className="size-1 rounded-full shrink-0"
+                  style={{ backgroundColor: accent.hex }}
+                />
+                <span className="truncate">{item}</span>
+              </div>
+            ))}
           </div>
-        ) : null}
-
-        <div className="flex items-stretch gap-2 border-t pt-4">
-          {viewIsPast ? null : (
-            <RsvpQuickButton
-              eventId={e.id}
-              current={e.viewerRsvp}
-              isFull={e.capacity !== null && e.goingCount >= e.capacity}
-              className="flex-1"
-            />
-          )}
-          <Button asChild variant="outline" size="lg" className={viewIsPast ? 'flex-1' : ''}>
-            <Link href={`/events/${e.id}`}>
-              View event details
-              <ChevronRight className="size-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="icon-lg" aria-label="Share event">
-            <Link href={`/events/${e.id}`}>
-              <Share2 className="size-4" />
-            </Link>
-          </Button>
         </div>
       </div>
-    </Card>
-  )
-}
 
-const STACK_PALETTE = [
-  { bg: '#dbe1ff', fg: '#00174b' },
-  { bg: '#fef3c7', fg: '#78350f' },
-  { bg: '#d1fae5', fg: '#064e3b' },
-  { bg: '#ffdad6', fg: '#7f1d1d' },
-  { bg: '#dbe1ff', fg: '#00174b' },
-] as const
-
-function AttendeeStack({
-  attendees,
-  goingCount,
-  waitlistCount,
-}: {
-  attendees: EventAttendee[]
-  goingCount: number
-  waitlistCount: number
-}) {
-  const namesLine = formatAttendeesLine(attendees, goingCount)
-  return (
-    <div className="flex flex-wrap items-center gap-3">
-      {attendees.length > 0 ? (
-        <div className="flex">
-          {attendees.map((a, idx) => {
-            const palette = STACK_PALETTE[idx % STACK_PALETTE.length]
-            return (
-              <span
-                key={a.userId}
-                className="inline-flex size-8 items-center justify-center rounded-full text-xs font-semibold ring-2 ring-card"
-                style={{
-                  background: palette.bg,
-                  color: palette.fg,
-                  marginLeft: idx === 0 ? 0 : -8,
-                }}
-                title={a.name ?? undefined}
-              >
-                {initialsFor(a.name)}
-              </span>
-            )
-          })}
+      {/* Lower Section */}
+      <div className="p-6 bg-secondary/20 dark:bg-secondary/10 border-t border-border/40 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {attendees.length > 0 ? (
+            <div className="flex -space-x-1.5">
+              {attendees.slice(0, 3).map((a, aIdx) => {
+                const palette = STACK_PALETTE[aIdx % STACK_PALETTE.length] || STACK_PALETTE[0]
+                return (
+                  <span
+                    key={a.userId}
+                    className={`inline-flex size-6 items-center justify-center rounded-[4px] text-[8px] font-mono font-bold border border-background ring-1 ring-background/10 ${palette.bg} ${palette.text}`}
+                    title={a.name ?? undefined}
+                  >
+                    {initialsFor(a.name)}
+                  </span>
+                )
+              })}
+            </div>
+          ) : null}
+          <span className="text-[10px] text-muted-foreground font-medium">
+            {e.goingCount} attending
+          </span>
         </div>
-      ) : null}
-      {namesLine ? <span className="text-sm text-muted-foreground">{namesLine}</span> : null}
-      {waitlistCount > 0 ? (
-        <Badge variant="outline" className="text-[11px]">
-          {waitlistCount} on waitlist
-        </Badge>
-      ) : null}
+
+        {view === 'upcoming' ? (
+          <ConceptBInlineRsvpButton eventId={e.id} current={e.viewerRsvp} accentHex={accent.hex} />
+        ) : (
+          <span className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border border-border/40 px-2.5 py-1 rounded-[6px] text-muted-foreground">
+            Ended
+          </span>
+        )}
+      </div>
     </div>
   )
 }
@@ -310,54 +176,51 @@ function initialsFor(name: string | null): string {
   return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase()
 }
 
-function formatAttendeesLine(attendees: EventAttendee[], goingCount: number): string | null {
-  if (goingCount === 0) return null
-  const firstNames = attendees
-    .map((a) => a.name?.split(/\s+/)[0])
-    .filter((n): n is string => !!n)
-    .slice(0, 2)
-  if (firstNames.length === 0) {
-    return `${goingCount} ${goingCount === 1 ? 'alum' : 'alumni'} attending`
-  }
-  const others = Math.max(0, goingCount - firstNames.length)
-  if (others === 0) {
-    return `${firstNames.join(' and ')} attending`
-  }
-  return `${firstNames.join(', ')}, and ${others} ${others === 1 ? 'other' : 'others'} attending`
+type InlineRsvpProps = {
+  eventId: string
+  current: 'going' | 'not_going' | 'waitlisted' | null
+  accentHex: string
 }
 
-function DetailRow({
-  icon,
-  label,
-  value,
-  last,
-}: {
-  icon: 'date' | 'time' | 'location' | 'attending'
-  label: string
-  value: string
-  last?: boolean
-}) {
-  const Icon = (() => {
-    switch (icon) {
-      case 'date':
-        return Calendar
-      case 'time':
-        return Clock
-      case 'location':
-        return MapPin
-      case 'attending':
-        return UserCheck
-    }
-  })()
+function ConceptBInlineRsvpButton({ eventId, current, accentHex }: InlineRsvpProps) {
+  const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+
+  const isGoing = current === 'going' || current === 'waitlisted'
+
+  function submit(ev: React.MouseEvent) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    const fd = new FormData()
+    fd.set('eventId', eventId)
+    fd.set('status', isGoing ? 'not_going' : 'going')
+    setError(null)
+    startTransition(async () => {
+      const result = await rsvpAction(fd)
+      if (!result.ok) setError(result.error)
+    })
+  }
+
   return (
-    <div className={`flex items-start gap-3.5 ${last ? '' : 'border-b pb-4'}`}>
-      <Icon className="mt-0.5 size-5 text-primary" />
-      <div>
-        <div className="text-[11px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
-          {label}
-        </div>
-        <div className="mt-0.5 text-[15px] font-medium text-foreground">{value}</div>
-      </div>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={submit}
+        disabled={pending}
+        className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border px-2.5 py-1 rounded-[6px] transition-all cursor-pointer disabled:opacity-50 hover:bg-muted/10"
+        style={{
+          borderColor: isGoing ? '#22c55e' : accentHex,
+          color: isGoing ? '#22c55e' : accentHex,
+          backgroundColor: isGoing ? 'rgba(34, 197, 94, 0.05)' : 'transparent',
+        }}
+      >
+        {pending ? '...' : isGoing ? '✓ Going' : 'Register'}
+      </button>
+      {error ? (
+        <span className="absolute bottom-[-16px] right-0 text-[8px] text-destructive whitespace-nowrap truncate max-w-[120px]">
+          {error}
+        </span>
+      ) : null}
     </div>
   )
 }

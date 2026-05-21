@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nextjs'
 import { type NextRequest, NextResponse } from 'next/server'
 import { pollSweep } from '@/lib/enrichment/sweep'
 
@@ -17,10 +18,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
-  const result = await pollSweep()
-  if (!result.ok) {
-    return NextResponse.json({ ok: false, error: result.error }, { status: 502 })
-  }
+  try {
+    const result = await pollSweep()
+    if (!result.ok) {
+      Sentry.captureException(new Error(`enrichment-sweep-poll failed: ${result.error}`))
+      return NextResponse.json({ ok: false, error: result.error }, { status: 502 })
+    }
 
-  return NextResponse.json(result)
+    return NextResponse.json(result)
+  } catch (error) {
+    Sentry.captureException(error)
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : String(error) },
+      { status: 500 },
+    )
+  }
 }
