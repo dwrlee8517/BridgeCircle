@@ -1,6 +1,6 @@
 # BridgeCircle — Functions And User Experience
 
-This document describes every function and user workflow in BridgeCircle. It pairs with `DESIGN.md` for redesign work: the design file describes how things should look; this file describes what they do and how a user moves through them. Workflows must remain as described; visual treatment is open.
+This document describes every function and user workflow in BridgeCircle. It pairs with [`docs/experience/`](docs/experience/) for redesign work: this file describes what the product does and how a user moves through it; the experience docs describe active UX interpretation, screen-level guidance, and visual treatment. Workflows must remain as described; visual treatment is open.
 
 ---
 
@@ -100,11 +100,13 @@ Two recovery flows handle users who try to sign in to an account that isn't full
 
 ## 3. Member Home (`/`)
 
-The first screen after sign-in. A dashboard that adapts based on the member's helper status, organization activity, and the time of day.
+The first screen after sign-in. A Civic Editorial action surface that adapts based on the member's helper status, organization activity, and the time of day.
+
+This section defines behavior and content priority. Visual execution belongs to [`docs/experience/screens/phase-1-screen-map.md`](docs/experience/screens/phase-1-screen-map.md) and the active design system in [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/).
 
 ### 3.1 Hero Band
 
-A dark, decorative band carrying the editorial voice:
+An editorial action band carrying the product voice:
 - Time-aware greeting: "Good morning / afternoon / evening, {firstName}."
 - A dynamic activity line below the greeting that shifts to a brand-accent color: "Your circle is active today." when there are pending mentor requests, new joiners this week, or upcoming events; otherwise "A quiet day in the circle."
 - A one-sentence subline that combines the live signals into natural language: "3 mentees are waiting on your reply, and the Spring Mixer is in 2 days." Falls back to "Quiet across the network today. A good moment to refresh your profile or send an intro." when nothing is happening.
@@ -123,7 +125,7 @@ On desktop, a 3-column grid: a 2-column main rail on the left and a 1-column sid
 
 **New alumni in your area** *(left)*. The three most recent joiners as profile tiles. Each tile shows the editorial-style name, current title + employer, graduation year pill, and city. Tiles link to `/profile/{id}`. Empty state offers a "Browse the directory" link.
 
-**Featured event** *(right top)*. The next upcoming event in a card. Its header is a dark-to-sapphire gradient with a dot pattern and "Featured event" eyebrow. Body: date/time, location, attendance count ("N / capacity attending"), and a "View event" button. Empty state: "Nothing on the calendar right now. See past events."
+**Featured event** *(right top)*. The next upcoming event in a Civic Editorial card with a clear metadata header and "Featured event" eyebrow. Body: date/time, location, attendance count ("N / capacity attending"), and a "View event" button. Empty state: "Nothing on the calendar right now. See past events."
 
 **Recent activity** *(right bottom)*. A list of up to four recent notifications, each as a row with a circle-icon avatar tinted to the notification type, a one-line label, and a relative timestamp. Unread rows have a soft accent background and a small dot. Clicking a row navigates to its target. Footer link: "View all" → `/notifications`.
 

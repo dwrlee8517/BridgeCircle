@@ -148,6 +148,32 @@ Guiding principle:
 
 > Every suggestion should help someone feel seen, not sorted.
 
+## Visual Brand Standard
+
+The active visual expression is the Civic Editorial system in [`../experience/ui/design-system/`](../experience/ui/design-system/).
+
+Warmth in BridgeCircle should come from language, context, helpful defaults, and respectful pacing. It should not become soft, bubbly, decorative, or generic SaaS. The interface should feel like a trusted civic record of a living community: precise, legible, structured, and personal.
+
+Use these visual principles when translating brand into UI:
+
+- **Editorial trust over dashboard gloss.** Prefer clear hierarchy, strong rules, readable cards, and purposeful metadata over gradients, oversized rounded containers, or decorative chrome.
+- **Civic warmth over coziness.** The palette can be warm in tone, but the system should stay crisp: Platinum Bone surfaces, Obsidian Ink structure, and Cobalt action states.
+- **Member-first density.** Screens should expose enough context to make a good decision without feeling like an admin portal.
+- **Quiet intelligence.** AI and matching should appear as helpful explanations and draft support, not as spectacle.
+- **Human proof.** Profiles, requests, events, and emails should foreground real names, shared context, capacity, and next actions.
+
+Visual treatment should avoid:
+
+- generic blurple SaaS dashboards
+- bubbly community-app styling
+- heavy gradients or glow effects
+- social-feed patterns that imply performance or posting
+- CRM-like tables as the default member experience
+
+The short visual thesis:
+
+> Structured enough to trust. Warm enough to ask.
+
 ## Differentiation
 
 AI matching alone is not enough differentiation. Competitors already claim AI matching, smart matchmaking, personalized engagement, and automation.
@@ -788,4 +814,3 @@ The long-term differentiation is not just AI or alumni software. It is the combi
 That is the BridgeCircle story:
 
 > Belong to your circle. Build bridges when they matter.
-

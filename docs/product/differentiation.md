@@ -72,16 +72,16 @@ The competitive research surfaced four axes (cost, UX, engagement, simplicity). 
 
 ### 4.1 Member-first home (UX axis)
 
-**Commitment:** the logged-in home page leads with one verb: *ask*. Not browse, not check, not scroll.
+**Commitment:** the logged-in home page leads with one job: helping the member ask, respond, or connect. Not browse, not check, not scroll.
 
-**Concrete shape:**
-- Top of the page: a single text input + filters, prompted "Who do you want to talk to, and why?"
-- Below it: 3–5 suggested mentors, each with one-line "why this person matches you" reasoning.
-- Below that: existing thread / inbox state if any (1 line per thread).
-- Recent events as a thin third tier; profile-completion nudges only when blocking.
-- No newsfeed. No event calendar carousel. No fundraising banner.
+**Concrete shape under the Civic Editorial system:**
+- The first viewport should present an editorial action surface: greeting, live community signal, and a primary next action that defaults to "Find someone to ask" unless the member has pending requests to review.
+- Suggested people, pending asks, and active threads should sit above passive browsing content. Each item needs a short "why this matters" reason and a clear next action.
+- Events and announcements can appear on home, but they are supporting civic signals, not the main object of the page.
+- Profile-completion nudges should appear only when they unlock a better first action.
+- No newsfeed. No fundraising banner. No configurable portal dashboard.
 
-**State of the build:** `src/lib/home/getHomeFeed.ts` exists. Audit it against the criteria above — if it leads with anything other than the ask surface, that's a bug, not a feature. Treat the home layout as a **design contract**, not a flexible canvas.
+**Design contract:** the page may use the richer Civic home/dashboard structure in [`../experience/ui/design-system/`](../experience/ui/design-system/), but the hierarchy is not flexible: the member's next useful relationship action comes first. Treat a home page that leads with passive content as a bug.
 
 **Why this beats incumbents:** Graduway opens to a portal. Hivebrite opens to a configurable dashboard. Almabase opens to a directory. None of them open to a question. Members see "what should I do here?" instead of "I have a job to do, and the product is helping me do it."
 

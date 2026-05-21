@@ -35,6 +35,14 @@ The strongest wedge is not the profile directory itself. It is:
 - getting useful responses
 - returning because the network continues to create value
 
+## Experience And Design Thesis
+
+The active experience direction is Civic Editorial: a high-trust, member-first interface that feels structured, legible, and personal.
+
+BridgeCircle should not feel like a generic SaaS dashboard, a donor CRM, or a social feed. The product should express warmth through human context, clear next actions, respectful microcopy, and visible trust signals. The visual system should stay crisp and editorial: strong hierarchy, readable cards, restrained color, and enough density for members to make good decisions quickly.
+
+Canonical experience docs live in `docs/experience/`; the active visual source of truth is `docs/experience/ui/design-system/`.
+
 ## Main User Groups
 
 ### Emerging members
@@ -236,6 +244,10 @@ Metrics that matter most:
 Best short description:
 
 `BridgeCircle is a verified warm-network platform that turns shared affiliation into mentoring, hiring, events, and long-term community engagement.`
+
+Experience shorthand:
+
+`Structured enough to trust. Warm enough to ask.`
 
 ## Files In This Folder
 

@@ -16,9 +16,9 @@ There is no fixed launch deadline. Optimize for product quality and competitive 
 
 - `app/` — Next.js 16 application. See [`app/CLAUDE.md`](app/CLAUDE.md) for the full stack, conventions, and commands.
 - `docs/` — specs, architecture, runbooks, decisions. **Start at [`docs/INDEX.md`](docs/INDEX.md).**
+- `docs/experience/` — current UX, UI, and screen-level guidance. The active visual system is [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/).
 - `project-summary.md` — top-level product framing and positioning.
 - `README.md` — public-facing overview, kept concise.
-- `ui_kits/` — design exploration assets.
 
 ## Source of truth
 
@@ -28,6 +28,8 @@ There is no fixed launch deadline. Optimize for product quality and competitive 
 | Phase 1 spec (full) | [`docs/specs/phase-1/spec.md`](docs/specs/phase-1/spec.md) |
 | Phase 1 launch cut | [`docs/specs/phase-1/launch-cut.md`](docs/specs/phase-1/launch-cut.md) |
 | Architecture | [`docs/architecture/`](docs/architecture/) |
+| Experience docs | [`docs/experience/`](docs/experience/) |
+| Active UI design system | [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/) |
 | Operational runbooks | [`docs/runbooks/`](docs/runbooks/) |
 | Locked decisions | [`docs/decisions/`](docs/decisions/) |
 | Behavioral rules | [`CLAUDE.md`](CLAUDE.md) |

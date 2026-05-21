@@ -67,11 +67,13 @@ Locked architectural decisions in MADR format.
 
 ## UI
 
-Design exploration and visual reference.
+UX, UI, screen-level decisions, and active visual references.
 
-- [Current UX review](ui/current-ux-review.md)
-- [Mockups](ui/mockups/) — analytics, font options, theme options
-- [Screenshots](ui/screenshots/) — current-state captures
+- [Experience index](experience/README.md) — trust hierarchy for current UX, UI, and screen guidance
+- [UX](experience/ux/) — active UX interpretation and links to canonical behavior docs
+- [Civic Editorial design system](experience/ui/design-system/) — active visual source of truth
+- [Screen map](experience/screens/phase-1-screen-map.md) — screen-level bridge between behavior and UI
+- [Explorations](experience/explorations/) — experimental workspace, not canonical unless promoted
 
 ## Presentations
 
