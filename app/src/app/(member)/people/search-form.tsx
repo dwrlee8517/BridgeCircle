@@ -1,8 +1,7 @@
 'use client'
 
-import { ChevronDown, SlidersHorizontal, X } from 'lucide-react'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { type ChangeEvent, type FormEvent, useRef } from 'react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -50,29 +49,28 @@ function buildParamsFromForm(form: HTMLFormElement): URLSearchParams {
   return params
 }
 
+export type ActiveFilterItem = {
+  key: keyof SearchFormDefaults
+  label: string
+  value: string
+}
+
 export function SearchForm({ defaults, filtersOpen, onSearch, onClear }: Props) {
   const formRef = useRef<HTMLFormElement>(null)
   const activeFilters = buildActiveFilters(defaults)
+  const activeRefinements = activeFilters.filter((f) => f.key !== 'nl')
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     onSearch(buildParamsFromForm(e.currentTarget))
   }
 
-  // Boolean filters auto-commit on toggle — there's no "partial input" to
-  // worry about. Text inputs and number ranges still require Enter / Search
-  // button because firing on every keystroke would either burn Claude API
-  // calls (NL search) or thrash the UI on partial values.
   const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     const form = e.currentTarget.form
     if (!form) return
     onSearch(buildParamsFromForm(form))
   }
 
-  // Inputs are uncontrolled (defaultValue / defaultChecked). React only
-  // applies those at mount, so changing the `defaults` prop after navigation
-  // does not visually reset the DOM. Wipe the inputs imperatively so Clear
-  // actually looks like it cleared.
   const handleClearClick = () => {
     const form = formRef.current
     if (form) {
@@ -82,6 +80,27 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear }: Props) 
       }
     }
     onClear()
+  }
+
+  const handleRemoveFilter = (key: keyof SearchFormDefaults) => {
+    const form = formRef.current
+    if (!form) return
+    const input = form.querySelector(`[name="${key}"]`) as HTMLInputElement | null
+    if (input) {
+      if (input.type === 'checkbox' || input.type === 'radio') {
+        input.checked = false
+      } else {
+        input.value = ''
+      }
+    }
+    // Handle dual graduation year fields
+    if (key === 'gradYearMin' || key === 'gradYearMax') {
+      const minInput = form.querySelector('[name="gradYearMin"]') as HTMLInputElement | null
+      const maxInput = form.querySelector('[name="gradYearMax"]') as HTMLInputElement | null
+      if (key === 'gradYearMin' && minInput) minInput.value = ''
+      if (key === 'gradYearMax' && maxInput) maxInput.value = ''
+    }
+    onSearch(buildParamsFromForm(form))
   }
 
   return (
@@ -103,6 +122,12 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear }: Props) 
         </p>
       </div>
 
+      <ActiveFilterTray
+        activeFilters={activeFilters}
+        onRemove={handleRemoveFilter}
+        onClearAll={handleClearClick}
+      />
+
       <details open={filtersOpen} className="group rounded-lg border bg-muted/20 p-3">
         <summary className="flex cursor-pointer list-none items-center gap-3 select-none [&::-webkit-details-marker]:hidden">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-card text-primary">
@@ -111,33 +136,13 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear }: Props) 
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-semibold">Filters</span>
             <span className="block truncate text-xs text-muted-foreground">
-              {activeFilters.length > 0
-                ? `${activeFilters.length} active refinement${activeFilters.length === 1 ? '' : 's'}`
+              {activeRefinements.length > 0
+                ? `${activeRefinements.length} active refinement${activeRefinements.length === 1 ? '' : 's'}`
                 : 'Refine by place, school, work, cohort, or relationship'}
             </span>
           </span>
           <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
         </summary>
-
-        {activeFilters.length > 0 ? (
-          <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t pt-3">
-            {activeFilters.map((filter) => (
-              <Badge key={filter} variant="secondary">
-                {filter}
-              </Badge>
-            ))}
-            <Button
-              type="button"
-              variant="ghost"
-              size="xs"
-              onClick={handleClearClick}
-              className="ml-auto gap-1"
-            >
-              <X className="size-3" />
-              Clear
-            </Button>
-          </div>
-        ) : null}
 
         <div className="mt-4 grid gap-4 border-t pt-4 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -226,19 +231,68 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear }: Props) 
   )
 }
 
-function buildActiveFilters(defaults: SearchFormDefaults): string[] {
-  const filters = [
-    defaults.city ? `City: ${defaults.city}` : null,
-    defaults.employer ? `Employer: ${defaults.employer}` : null,
-    defaults.university ? `School: ${defaults.university}` : null,
-    defaults.major ? `Major: ${defaults.major}` : null,
-    defaults.topic ? `Topic: ${defaults.topic}` : null,
+function ActiveFilterTray({
+  activeFilters,
+  onRemove,
+  onClearAll,
+}: {
+  activeFilters: ActiveFilterItem[]
+  onRemove: (key: keyof SearchFormDefaults) => void
+  onClearAll: () => void
+}) {
+  if (activeFilters.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted/20 p-2.5">
+      <span className="font-mono text-[9px] font-bold text-muted-foreground uppercase tracking-wider mr-1 select-none">
+        ACTIVE FILTERS:
+      </span>
+      {activeFilters.map((filter) => (
+        <div
+          key={filter.key}
+          className="flex items-center gap-1.5 rounded border border-border bg-background px-2 py-0.5 font-mono text-[10px] text-foreground shadow-sm"
+        >
+          <span className="text-muted-foreground font-medium">{filter.label}:</span>
+          <span className="font-bold">{filter.value}</span>
+          <button
+            type="button"
+            onClick={() => onRemove(filter.key)}
+            className="text-primary hover:underline font-bold px-0.5 transition-colors text-xs"
+            aria-label={`Remove filter: ${filter.label}`}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={onClearAll}
+        className="font-mono text-[10px] font-semibold text-primary hover:underline uppercase tracking-wider ml-auto px-1.5 transition-all"
+      >
+        Clear All
+      </button>
+    </div>
+  )
+}
+
+function buildActiveFilters(defaults: SearchFormDefaults): ActiveFilterItem[] {
+  const filters: (ActiveFilterItem | null)[] = [
+    defaults.nl ? { key: 'nl', label: 'QUERY', value: `"${defaults.nl}"` } : null,
+    defaults.city ? { key: 'city', label: 'LOCATION', value: defaults.city } : null,
+    defaults.employer ? { key: 'employer', label: 'EMPLOYER', value: defaults.employer } : null,
+    defaults.university ? { key: 'university', label: 'SCHOOL', value: defaults.university } : null,
+    defaults.major ? { key: 'major', label: 'MAJOR', value: defaults.major } : null,
+    defaults.topic ? { key: 'topic', label: 'TOPIC', value: defaults.topic } : null,
     defaults.gradYearMin || defaults.gradYearMax
-      ? `Years: ${defaults.gradYearMin || 'any'}-${defaults.gradYearMax || 'any'}`
+      ? {
+          key: 'gradYearMin',
+          label: 'CLASS',
+          value: `${defaults.gradYearMin || 'any'}–${defaults.gradYearMax || 'any'}`,
+        }
       : null,
-    defaults.q ? `Keyword: ${defaults.q}` : null,
-    defaults.openToMentor ? 'Mentors only' : null,
-    defaults.peopleIKnow ? 'People I know' : null,
+    defaults.q ? { key: 'q', label: 'KEYWORD', value: defaults.q } : null,
+    defaults.openToMentor ? { key: 'openToMentor', label: 'MENTOR', value: 'YES' } : null,
+    defaults.peopleIKnow ? { key: 'peopleIKnow', label: 'MY CIRCLE', value: 'YES' } : null,
   ]
-  return filters.filter((filter): filter is string => filter !== null)
+  return filters.filter((filter): filter is ActiveFilterItem => filter !== null)
 }

@@ -1,9 +1,21 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState, useTransition } from 'react'
+import { createContext, useContext, useEffect, useState, useTransition } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { SearchForm, type SearchFormDefaults } from './search-form'
+
+export type Density = 'comfortable' | 'compact'
+
+export const DensityContext = createContext<{
+  density: Density
+  setDensity: (density: Density) => void
+}>({
+  density: 'comfortable',
+  setDensity: () => {},
+})
+
+export const useDensity = () => useContext(DensityContext)
 
 type Props = {
   defaults: SearchFormDefaults
@@ -14,18 +26,6 @@ type Props = {
 type SearchKind = 'nl' | 'structured'
 type Stage = 'hidden' | 'reading' | 'looking' | 'careers' | 'structured'
 
-// Scripted-stage timings, calibrated to typical server timings. Real progress
-// callbacks would need streaming from the server; the timing variance is
-// small enough (~1–3s total for NL) that scripted reads as accurate.
-//
-//   0–300ms:    hidden (avoid flashing the indicator on fast structured queries)
-//   300–1000:   "Reading your search…"             (covers Haiku extract)
-//   1000–1400:  "Looking through your circle…"     (covers pool query)
-//   1400ms+:    "Reading career histories…"        (covers Haiku rerank)
-//
-// On a cache hit (post-extract-cache PR, ~900ms total) the user typically
-// only sees the first stage — which still reads honestly as "I'm working on
-// what you typed."
 const INDICATOR_DELAY_MS = 300
 const STAGE_LOOKING_MS = 1000
 const STAGE_CAREERS_MS = 1400
@@ -37,34 +37,13 @@ const STAGE_COPY: Record<Exclude<Stage, 'hidden'>, string> = {
   structured: 'Updating results…',
 }
 
-/**
- * Client wrapper around /people's interactive surface. Three jobs:
- *
- *  1. Hold `useTransition` state so prior results stay rendered (dimmed)
- *     while a new server query runs — instead of swapping to the loading.tsx
- *     skeleton. Tighter UX when re-searching with adjusted filters.
- *
- *  2. Own the `router.push` so the SearchForm's commit callbacks (search /
- *     clear) flow through `startTransition`. The form fires `onSearch` on
- *     submit AND on checkbox toggle; this surface decides what the
- *     navigation looks like.
- *
- *  3. Show a scripted status banner during the pending transition. NL
- *     search cycles through stages (extract → pool → rerank) on calibrated
- *     timings; structured search shows a single line. The 300ms delay keeps
- *     short structured searches silent.
- */
 export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [searchKind, setSearchKind] = useState<SearchKind>('structured')
   const [stage, setStage] = useState<Stage>('hidden')
+  const [density, setDensity] = useState<Density>('comfortable')
 
-  // Schedule the staged status copy via timers. The effect deliberately does
-  // NOT call setState synchronously in its body — `stage` is reset to 'hidden'
-  // at the event-handler boundary (handleSearch / handleClear) before the
-  // transition starts. When `isPending` flips back to false, the render-time
-  // gate below hides the banner without needing a synchronous reset here.
   useEffect(() => {
     if (!isPending) return
     const timers: ReturnType<typeof setTimeout>[] = []
@@ -99,7 +78,7 @@ export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) 
   const visibleStage: Stage = isPending ? stage : 'hidden'
 
   return (
-    <>
+    <DensityContext.Provider value={{ density, setDensity }}>
       <Card>
         <CardContent className="pt-6">
           <SearchForm
@@ -119,7 +98,7 @@ export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) 
       >
         {children}
       </div>
-    </>
+    </DensityContext.Provider>
   )
 }
 
@@ -138,4 +117,61 @@ function StatusBanner({ stage }: { stage: Stage }) {
       <span>{STAGE_COPY[stage]}</span>
     </div>
   )
+}
+
+export function ResultsHeader({
+  resultCount,
+  hasFilter,
+}: {
+  resultCount: number
+  hasFilter: boolean
+}) {
+  const { density, setDensity } = useDensity()
+  const suffix = hasFilter
+    ? resultCount === 1
+      ? 'alum matches your filters'
+      : 'alumni match your filters'
+    : resultCount === 1
+      ? 'alum in your circle'
+      : 'alumni in your circle'
+
+  return (
+    <div className="flex items-center justify-between border-b pb-3 border-border">
+      <p className="text-sm text-muted-foreground">
+        <strong className="text-foreground">{resultCount.toLocaleString()}</strong> {suffix}
+      </p>
+      <div className="flex items-center gap-1 select-none">
+        <button
+          type="button"
+          onClick={() => setDensity('comfortable')}
+          className={`font-mono text-[10px] px-2 py-0.5 transition-all ${
+            density === 'comfortable'
+              ? 'font-semibold text-primary underline'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          [ GRID ]
+        </button>
+        <button
+          type="button"
+          onClick={() => setDensity('compact')}
+          className={`font-mono text-[10px] px-2 py-0.5 transition-all ${
+            density === 'compact'
+              ? 'font-semibold text-primary underline'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          [ LIST ]
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function ResultGrid({ children }: { children: React.ReactNode }) {
+  const { density } = useDensity()
+  if (density === 'compact') {
+    return <div className="flex flex-col gap-2.5">{children}</div>
+  }
+  return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
 }

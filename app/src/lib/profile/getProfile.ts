@@ -65,6 +65,10 @@ export type ProfileView = {
   // mentorship" click that would just bounce off `helper_full` /
   // `helper_at_capacity` from createAsk. Only meaningful when isOpenAsMentor.
   mentorshipAtCapacity: boolean
+  activeMenteeCount: number
+  maxActiveMentees: number
+  pendingRequestCount: number
+  maxPendingRequests: number
   // Viewer-relative metadata. Lets the UI render a "Some sections are
   // hidden by this member's privacy settings" hint without re-deriving.
   isSelf: boolean
@@ -128,6 +132,8 @@ export async function getProfile(
   // mentor and not paused — otherwise the buttons render disabled for a
   // different reason and the counts don't matter.
   let mentorshipAtCapacity = false
+  let activeMenteeCount = 0
+  let pendingRequestCount = 0
   if (pref?.open_to_mentorship && !pref.paused_at) {
     const [{ count: pendingCount }, { count: activeCount }] = await Promise.all([
       supabase
@@ -143,8 +149,10 @@ export async function getProfile(
         .eq('status', 'active')
         .eq('asks.ask_type', 'mentorship'),
     ])
-    const pendingFull = (pendingCount ?? 0) >= pref.max_pending_requests
-    const activeFull = (activeCount ?? 0) >= pref.max_active_mentees
+    pendingRequestCount = pendingCount ?? 0
+    activeMenteeCount = activeCount ?? 0
+    const pendingFull = pendingRequestCount >= pref.max_pending_requests
+    const activeFull = activeMenteeCount >= pref.max_active_mentees
     mentorshipAtCapacity = pendingFull || activeFull
   }
 
@@ -208,6 +216,10 @@ export async function getProfile(
     isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
     mentorPaused: !!pref?.paused_at,
     mentorshipAtCapacity,
+    activeMenteeCount,
+    maxActiveMentees: pref?.max_active_mentees ?? 5,
+    pendingRequestCount,
+    maxPendingRequests: pref?.max_pending_requests ?? 10,
     isSelf,
     isFriend,
     privacySettings: privacy,

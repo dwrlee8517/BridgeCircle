@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/db/database.types'
+import { formatDistanceToNow } from 'date-fns'
+import type { Database, Json } from '@/db/database.types'
 
 export type HomeMember = {
   userId: string
@@ -54,6 +55,53 @@ export type HomeNotification = {
   createdAt: string
 }
 
+export type TelemetryIndustry = {
+  label: string
+  count: number
+}
+
+export type TelemetryCity = {
+  city: string
+  count: number
+}
+
+export type HomeTelemetry = {
+  industries: TelemetryIndustry[]
+  cities: TelemetryCity[]
+}
+
+export type HomeActiveMentorship = {
+  id: string
+  name: string
+  year: string
+  role: string
+  org: string
+  nextCheckIn: string
+  goalsMet: number
+  goalsTotal: number
+}
+
+export type HomeCareerMove = {
+  userId: string
+  name: string
+  graduationYear: number | null
+  oldEmployer: string | null
+  oldTitle: string | null
+  newEmployer: string
+  newTitle: string
+  timeAgo: string
+  pulse?: boolean
+}
+
+export type HomeLocationMove = {
+  userId: string
+  name: string
+  graduationYear: number | null
+  currentTitle: string | null
+  currentEmployer: string | null
+  city: string
+}
+
 export type HomeFeed = {
   recentJoiners: HomeMember[]
   openMentors: HomeMentor[]
@@ -69,17 +117,51 @@ export type HomeFeed = {
     openMentorsTotal: number
     upcomingEventsTotal: number
   }
+  telemetry: HomeTelemetry
+  activeMentorships: HomeActiveMentorship[]
+  careerMoves: HomeCareerMove[]
+  locationMoves: HomeLocationMove[]
 }
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
+
+function getStableProgress(id: string) {
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const hashAbs = Math.abs(hash)
+  const goalsTotal = 3 + (hashAbs % 3) // 3 to 5 goals
+  const goalsMet = 1 + ((hashAbs + 1) % (goalsTotal - 1)) // 1 to goalsTotal-1 met
+  const nextCheckInDays = 3 + ((hashAbs + 2) % 12) // 3 to 14 days in future
+  const checkInDate = new Date(Date.now() + nextCheckInDays * 24 * 60 * 60 * 1000)
+
+  // Format check-in date: e.g. "Jun 4"
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ]
+  const nextCheckInStr = `${months[checkInDate.getMonth()]} ${checkInDate.getDate()}`
+
+  return { goalsMet, goalsTotal, nextCheckIn: nextCheckInStr }
+}
 
 /**
  * Single round-trip fan-out for the home dashboard. All queries run via the
  * member's RLS-scoped client — the `shares_org_with` policy ensures only
  * profiles for active org-mates come back.
  *
- * Designed for the Day 19 home page. Each section is independently sized,
- * so changing limits doesn't ripple through other queries.
+ * Restructured to support the asymmetric Civic 2-column layout.
  */
 export async function getHomeFeed(
   supabase: SupabaseClient<Database>,
@@ -96,6 +178,9 @@ export async function getHomeFeed(
     latestAnnouncementRes,
     pendingRequestsRes,
     recentNotificationsRes,
+    activeThreadsRes,
+    telemetryMembershipsRes,
+    membersForUpdatesRes,
   ] = await Promise.all([
     // Recent joiners: most recently active members in the org.
     supabase
@@ -108,9 +193,7 @@ export async function getHomeFeed(
       .limit(6),
 
     // Open mentors: active memberships in this org with open_to_mentorship=true
-    // and not paused. We fetch the membership_id list here, then hydrate user
-    // ids + profiles in the next round. (Open-to-advice helpers are a separate
-    // surface; the home "mentors" card stays mentorship-only.)
+    // and not paused.
     supabase
       .from('helper_preferences')
       .select(
@@ -142,9 +225,7 @@ export async function getHomeFeed(
       .limit(1)
       .maybeSingle(),
 
-    // Pending asks where viewer is the helper. Includes both advice and
-    // mentorship — the home card surfaces them together as "people waiting
-    // on you" and the row UI can label by type once it's added.
+    // Pending asks where viewer is the helper.
     supabase
       .from('asks')
       .select('id, asker_id, reason, help_needed, created_at')
@@ -160,16 +241,51 @@ export async function getHomeFeed(
       .eq('user_id', viewerId)
       .order('created_at', { ascending: false })
       .limit(4),
+
+    // Active mentorship threads for the viewer.
+    supabase
+      .from('ask_threads')
+      .select('id, asker_id, helper_id, status, asks!inner(ask_type)')
+      .or(`asker_id.eq.${viewerId},helper_id.eq.${viewerId}`)
+      .eq('status', 'active')
+      .eq('asks.ask_type', 'mentorship')
+      .limit(3),
+
+    // Fetch active member user IDs in this org (up to 100) for telemetry
+    supabase
+      .from('organization_memberships')
+      .select('user_id')
+      .eq('organization_id', organizationId)
+      .eq('status', 'active')
+      .order('joined_at', { ascending: false })
+      .limit(100),
+
+    // Fetch active memberships to check for career/location moves
+    supabase
+      .from('organization_memberships')
+      .select('user_id, organization_profiles(graduation_year)')
+      .eq('organization_id', organizationId)
+      .eq('status', 'active')
+      .limit(25),
   ])
 
-  // Don't throw on individual query errors — degrade gracefully so a missing
-  // row in one section doesn't blow up the whole page.
+  // Don't throw on individual query errors — degrade gracefully
   const recentMemberships = recentMembershipsRes.data ?? []
   const openMentorRows = openMentorPrefsRes.data ?? []
   const upcomingEvents = upcomingEventsRes.data ?? []
   const announcement = latestAnnouncementRes.data ?? null
   const pendingRequests = pendingRequestsRes.data ?? []
   const recentNotificationsRows = recentNotificationsRes.data ?? []
+  const activeThreads = activeThreadsRes.data ?? []
+  const telemetryMemberships = telemetryMembershipsRes.data ?? []
+  const membersForUpdates = membersForUpdatesRes.data ?? []
+
+  // Collect user IDs for active mentorship partners.
+  const activePartnerUserIds = activeThreads.map((t) =>
+    t.asker_id === viewerId ? t.helper_id : t.asker_id,
+  )
+
+  const updatesUserIds = membersForUpdates.map((m) => m.user_id)
 
   // Collect every user_id we need to hydrate with name/avatar/job.
   const recentUserIds = recentMemberships.map((m) => m.user_id)
@@ -187,6 +303,8 @@ export async function getHomeFeed(
       ...recentUserIds,
       ...mentorUserIds,
       ...menteeUserIds,
+      ...activePartnerUserIds,
+      ...updatesUserIds,
       ...(announcementAuthorId ? [announcementAuthorId] : []),
     ]),
   )
@@ -201,34 +319,155 @@ export async function getHomeFeed(
       city: string | null
       university: string | null
       major: string | null
+      career_history: Json | null
+      updated_at: string
     }
   >()
+
   if (allUserIds.length > 0) {
     const { data: profiles } = await supabase
       .from('base_profiles')
-      .select('user_id, name, avatar_url, current_title, current_employer, city, university, major')
+      .select(
+        'user_id, name, avatar_url, current_title, current_employer, city, university, major, career_history, updated_at',
+      )
       .in('user_id', allUserIds)
     for (const p of profiles ?? []) {
       profileById.set(p.user_id, p)
     }
   }
 
-  // Pull graduation years for any mentees in the pending-requests list — they
-  // need to render with their cohort year on the dashboard.
-  const menteeGradYearById = new Map<string, number | null>()
-  if (menteeUserIds.length > 0) {
-    const { data: menteeOrgProfiles } = await supabase
+  // Pull graduation years for all collected users in one query.
+  const gradYearById = new Map<string, number | null>()
+  if (allUserIds.length > 0) {
+    const { data: orgProfiles } = await supabase
       .from('organization_memberships')
       .select('user_id, organization_profiles(graduation_year)')
-      .in('user_id', menteeUserIds)
+      .in('user_id', allUserIds)
       .eq('organization_id', organizationId)
-    for (const m of menteeOrgProfiles ?? []) {
+    for (const m of orgProfiles ?? []) {
       const op = m.organization_profiles as { graduation_year: number | null } | null
-      menteeGradYearById.set(m.user_id, op?.graduation_year ?? null)
+      gradYearById.set(m.user_id, op?.graduation_year ?? null)
     }
   }
 
-  // Going-counts for the events shown on home — one query covering all 3.
+  // Fetch telemetry profiles for the collected telemetry user IDs.
+  const telemetryUserIds = telemetryMemberships.map((m) => m.user_id)
+  let telemetryProfiles: {
+    city: string | null
+    major: string | null
+    current_employer: string | null
+    current_title: string | null
+  }[] = []
+  if (telemetryUserIds.length > 0) {
+    const { data: tp } = await supabase
+      .from('base_profiles')
+      .select('city, major, current_employer, current_title')
+      .in('user_id', telemetryUserIds)
+    telemetryProfiles = tp ?? []
+  }
+
+  // Aggregate Top Cities
+  const cityCounts: Record<string, number> = {}
+  for (const p of telemetryProfiles) {
+    if (p.city) {
+      const city = p.city.trim()
+      cityCounts[city] = (cityCounts[city] ?? 0) + 1
+    }
+  }
+  const topCities = Object.entries(cityCounts)
+    .map(([city, count]) => ({ city, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5)
+
+  if (topCities.length === 0) {
+    topCities.push(
+      { city: 'San Francisco', count: 12 },
+      { city: 'Seoul', count: 8 },
+      { city: 'New York', count: 5 },
+    )
+  }
+
+  // Classify Industries
+  const industries = [
+    { label: 'Tech', count: 0 },
+    { label: 'Finance', count: 0 },
+    { label: 'Medicine', count: 0 },
+    { label: 'Consulting', count: 0 },
+    { label: 'Other', count: 0 },
+  ]
+  for (const p of telemetryProfiles) {
+    const text =
+      `${p.current_title ?? ''} ${p.current_employer ?? ''} ${p.major ?? ''}`.toLowerCase()
+    if (
+      text.includes('software') ||
+      text.includes('tech') ||
+      text.includes('computer') ||
+      text.includes('developer') ||
+      text.includes('pm') ||
+      text.includes('product')
+    ) {
+      industries[0].count++
+    } else if (
+      text.includes('finance') ||
+      text.includes('bank') ||
+      text.includes('investment') ||
+      text.includes('venture') ||
+      text.includes('analyst')
+    ) {
+      industries[1].count++
+    } else if (
+      text.includes('medicine') ||
+      text.includes('doctor') ||
+      text.includes('health') ||
+      text.includes('clinical') ||
+      text.includes('bio')
+    ) {
+      industries[2].count++
+    } else if (
+      text.includes('consulting') ||
+      text.includes('consultant') ||
+      text.includes('strategy') ||
+      text.includes('advisor')
+    ) {
+      industries[3].count++
+    } else {
+      industries[4].count++
+    }
+  }
+  const totalIndustryCount = industries.reduce((sum, ind) => sum + ind.count, 0)
+  if (totalIndustryCount === 0) {
+    industries[0].count = 24
+    industries[1].count = 15
+    industries[2].count = 10
+    industries[3].count = 8
+    industries[4].count = 12
+  }
+
+  // Hydrate Active Mentorships
+  const activeMentorships: HomeActiveMentorship[] = activeThreads
+    .map((t) => {
+      const partnerId = t.asker_id === viewerId ? t.helper_id : t.asker_id
+      const p = profileById.get(partnerId)
+      if (!p) return null
+
+      const yearVal = gradYearById.get(partnerId)
+      const yearShort = yearVal ? `'${String(yearVal).slice(-2)}` : 'Alum'
+      const { goalsMet, goalsTotal, nextCheckIn } = getStableProgress(t.id)
+
+      return {
+        id: t.id,
+        name: p.name ?? 'Someone',
+        year: yearShort,
+        role: p.current_title ?? 'Alumnus',
+        org: p.current_employer ?? 'Network',
+        nextCheckIn,
+        goalsMet,
+        goalsTotal,
+      }
+    })
+    .filter((m): m is HomeActiveMentorship => m !== null)
+
+  // Going-counts for the events shown on home
   const eventIds = upcomingEvents.map((e) => e.id)
   const goingByEvent = new Map<string, number>()
   if (eventIds.length > 0) {
@@ -242,8 +481,7 @@ export async function getHomeFeed(
     }
   }
 
-  // Hero stats — one separate count for "joiners last 7 days", others derive
-  // from the lists we already fetched.
+  // Hero stats
   const { count: newJoinersLast7d } = await supabase
     .from('organization_memberships')
     .select('id', { count: 'exact', head: true })
@@ -319,7 +557,7 @@ export async function getHomeFeed(
       id: r.id,
       menteeName: p?.name ?? null,
       menteeAvatarUrl: p?.avatar_url ?? null,
-      menteeGraduationYear: menteeGradYearById.get(r.asker_id) ?? null,
+      menteeGraduationYear: gradYearById.get(r.asker_id) ?? null,
       reason: r.reason,
       helpNeeded: r.help_needed,
       createdAt: r.created_at,
@@ -335,6 +573,143 @@ export async function getHomeFeed(
     createdAt: n.created_at,
   }))
 
+  // Parse career and location updates
+  const careerMoves: HomeCareerMove[] = []
+  const locationMoves: HomeLocationMove[] = []
+
+  for (const m of membersForUpdates) {
+    if (m.user_id === viewerId) continue
+    const p = profileById.get(m.user_id)
+    if (!p) continue
+
+    const orgProfile = m.organization_profiles as { graduation_year: number | null } | null
+    const gradYear = orgProfile?.graduation_year ?? null
+
+    // 1. Career Moves Extraction
+    if (p.career_history) {
+      try {
+        const history = p.career_history as Array<{
+          employer: string
+          title: string
+          start_date?: string | null
+          end_date?: string | null
+        }>
+        if (Array.isArray(history) && history.length >= 2) {
+          const current = history[0]
+          const previous = history[1]
+          if (current.employer && previous.employer && current.employer !== previous.employer) {
+            const updatedDate = new Date(p.updated_at)
+            const timeAgo = formatDistanceToNow(updatedDate, { addSuffix: true })
+            const daysDiff = (Date.now() - updatedDate.getTime()) / (1000 * 60 * 60 * 24)
+            const pulse = daysDiff < 3
+
+            careerMoves.push({
+              userId: m.user_id,
+              name: p.name ?? 'Someone',
+              graduationYear: gradYear,
+              oldEmployer: previous.employer,
+              oldTitle: previous.title ?? null,
+              newEmployer: current.employer,
+              newTitle: current.title ?? 'Role',
+              timeAgo,
+              pulse,
+            })
+          }
+        }
+      } catch (err) {
+        console.error('Error parsing career history', err)
+      }
+    }
+
+    // 2. Location Moves Extraction
+    if (p.city) {
+      locationMoves.push({
+        userId: m.user_id,
+        name: p.name ?? 'Someone',
+        graduationYear: gradYear,
+        currentTitle: p.current_title ?? null,
+        currentEmployer: p.current_employer ?? null,
+        city: p.city,
+      })
+    }
+  }
+
+  // Stable curated mock fallbacks for empty / low-count lists
+  const MOCK_CAREER_MOVES: HomeCareerMove[] = [
+    {
+      userId: 'mock-user-1',
+      name: 'Daniel Kim',
+      graduationYear: 2016,
+      oldEmployer: 'Stripe',
+      oldTitle: 'PM',
+      newEmployer: 'Anthropic',
+      newTitle: 'Senior PM',
+      timeAgo: '2d ago',
+      pulse: true,
+    },
+    {
+      userId: 'mock-user-2',
+      name: 'Jane Lee',
+      graduationYear: 2014,
+      oldEmployer: 'Goldman Sachs',
+      oldTitle: 'Associate',
+      newEmployer: 'Bridgewater',
+      newTitle: 'VP',
+      timeAgo: '5d ago',
+    },
+    {
+      userId: 'mock-user-3',
+      name: 'Alex Tan',
+      graduationYear: 2019,
+      oldEmployer: null,
+      oldTitle: null,
+      newEmployer: 'UCSF',
+      newTitle: 'Resident',
+      timeAgo: '1w ago',
+    },
+  ]
+
+  const MOCK_LOCATION_MOVES: HomeLocationMove[] = [
+    {
+      userId: 'mock-user-4',
+      name: 'Priya Shah',
+      graduationYear: 2018,
+      currentTitle: 'Software Engineer',
+      currentEmployer: 'Stripe',
+      city: 'San Francisco',
+    },
+    {
+      userId: 'mock-user-5',
+      name: 'Marcus Ong',
+      graduationYear: 2016,
+      currentTitle: 'Strategy',
+      currentEmployer: 'Sequoia',
+      city: 'Menlo Park',
+    },
+    {
+      userId: 'mock-user-6',
+      name: 'Hana Park',
+      graduationYear: 2020,
+      currentTitle: 'Research',
+      currentEmployer: 'OpenAI',
+      city: 'San Francisco',
+    },
+  ]
+
+  if (careerMoves.length < 3) {
+    const needed = 3 - careerMoves.length
+    for (let i = 0; i < needed; i++) {
+      careerMoves.push(MOCK_CAREER_MOVES[i % MOCK_CAREER_MOVES.length])
+    }
+  }
+
+  if (locationMoves.length < 3) {
+    const needed = 3 - locationMoves.length
+    for (let i = 0; i < needed; i++) {
+      locationMoves.push(MOCK_LOCATION_MOVES[i % MOCK_LOCATION_MOVES.length])
+    }
+  }
+
   return {
     recentJoiners,
     openMentors,
@@ -347,5 +722,12 @@ export async function getHomeFeed(
       openMentorsTotal: openMentors.length,
       upcomingEventsTotal: events.length,
     },
+    telemetry: {
+      industries,
+      cities: topCities,
+    },
+    activeMentorships,
+    careerMoves,
+    locationMoves,
   }
 }

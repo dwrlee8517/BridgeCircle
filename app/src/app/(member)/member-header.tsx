@@ -32,7 +32,7 @@ export function MemberHeader({
   unreadCount,
 }: Props) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1e293b] bg-[#0b1220] text-slate-300">
+    <header className="sticky top-0 z-50 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">
       {/* @container makes child @[...]:utility classes responsive to the
           header's own width rather than the viewport's. The threshold
           (820px) was calibrated to where wordmark + 7 nav buttons + bell +
@@ -43,7 +43,7 @@ export function MemberHeader({
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Open navigation"
-            className="rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
+            className="rounded-lg p-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
           >
             <Menu className="size-5" />
           </DropdownMenuTrigger>
@@ -78,7 +78,7 @@ export function MemberHeader({
             style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
           >
             <span className="text-white">Bridge</span>
-            <span className="text-[#b4c5ff]">Circle</span>
+            <span className="text-primary">Circle</span>
           </span>
         </Link>
 
@@ -88,9 +88,9 @@ export function MemberHeader({
         <div className="ml-auto flex items-center gap-2">
           <form
             action="/people"
-            className="hidden h-9 items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3 text-slate-300 @[1080px]:flex"
+            className="hidden h-9 items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent/50 px-3 text-sidebar-foreground @[1080px]:flex"
           >
-            <Search className="size-4 text-slate-500" />
+            <Search className="size-4 text-muted-foreground/60" />
             {/* suppressHydrationWarning matches the same pattern used on
                 <html>/<body> in the root layout. Form-fill / shopping-assistant
                 browser extensions (e.g. Honey, Sharkey, Grammarly) inject
@@ -102,7 +102,7 @@ export function MemberHeader({
               name="q"
               type="search"
               placeholder="Search the circle…"
-              className="w-44 bg-transparent text-sm outline-none placeholder:text-slate-500"
+              className="w-44 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
               suppressHydrationWarning
             />
           </form>

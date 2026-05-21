@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BridgeCircle · Navigation Layout Comparison</title>
+  <!-- CDNs aligned with subresource integrity checks -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Google Fonts for Editorial Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --radius: 6px;
+      --transition-speed: 0.25s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      font-weight: inherit;
+    }
+
+    /* Core Utility Scrollbar for print-journal neatness */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8a8a8450;
+      border-radius: 3px;
+    }
+
+    /* Animation tags */
+    .fade-enter {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    .fade-enter-active {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const ACCENTS = [
+      { name: 'Electric Sky', hex: '#2563eb' },
+      { name: 'Civic Blue', hex: '#4d88ff' },
+      { name: 'Forest Green', hex: '#165e34' },
+      { name: 'Prussian Blue', hex: '#005b82' }
+    ];
+
+    const MOCK_DATA = {
+      user: {
+        firstName: 'Richard',
+        lastName: 'Lee',
+        cohort: "'07",
+        orgName: 'Chadwick Alumni Council'
+      },
+      announcement: {
+        title: 'Supper Club Seoul: Fintech & AI Roundtable scheduling options',
+        publishedAt: '2h ago'
+      },
+      stats: {
+        newJoiners: 8,
+        openMentors: 34,
+        upcomingEvents: 3
+      },
+      pendingRequests: [
+        { id: 1, name: 'Sujin Park', class: "'12 · Product Design", text: 'Seeking advice on shifting from agency to corporate product design teams.' },
+        { id: 2, name: 'Taehyun Kim', class: "'18 · Software Dev", text: 'Looking for a referral or interview preparation mentorship for fintech.' }
+      ],
+      gatherings: [
+        { id: 1, title: 'Supper Club Seoul: Fintech & Venture', host: 'Richard Lee', date: 'May 28', time: '7:30 PM', spotsFilled: 12, totalSpots: 15, daysLeft: 8 },
+        { id: 2, title: 'Songdo Tech & Product Dinner', host: 'Maren Holt', date: 'June 4', time: '6:30 PM', spotsFilled: 8, totalSpots: 20, daysLeft: 15 }
+      ],
+      joiners: [
+        { name: 'Iris Okonkwo', year: "'14", role: 'Data Scientist', org: 'Toss Seoul' },
+        { name: 'Dev Patel', year: "'11", role: 'Founding Engineer', org: 'Veloce AI' },
+        { name: 'Sarah Lee', year: "'09", role: 'Investment Principal', org: 'Kakao Ventures' }
+      ]
+    };
+
+    function Icon({ name, size = 16, color = 'currentColor', strokeWidth = 2, style }) {
+      const icons = {
+        people: <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />,
+        calendar: <><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
+        inbox: <><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></>,
+        bell: <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
+        search: <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>,
+        sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></>,
+        moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+        layout: <><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18M3 9h18" /></>
+      };
+      const path = icons[name] || <circle cx="12" cy="12" r="10" />;
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{ width: `${size}px`, height: `${size}px`, flexShrink: 0, ...style }}>
+          {path}
+        </svg>
+      );
+    }
+
+    function NavigationPreviewApp() {
+      const [layoutMode, setLayoutMode] = useState('header'); // header | sidebar
+      const [themeMode, setThemeMode] = useState('light'); // light | lamplight
+      const [activeAccent, setActiveAccent] = useState(ACCENTS[0]);
+      const [activeTab, setActiveTab] = useState('People');
+
+      useEffect(() => {
+        document.documentElement.style.setProperty('--accent-color', activeAccent.hex);
+        document.documentElement.style.setProperty('--card-background', themeMode === 'light' ? '#ffffff' : '#141416');
+        document.documentElement.style.setProperty('--page-background', themeMode === 'light' ? '#fafaf9' : '#0c0c0b');
+        document.documentElement.style.setProperty('--text-color', themeMode === 'light' ? '#0c0c0b' : '#fafaf9');
+        document.documentElement.style.setProperty('--rule-color', themeMode === 'light' ? '#dcdcd6' : '#2d2d30');
+      }, [activeAccent, themeMode]);
+
+      const isLight = themeMode === 'light';
+      const bgColor = isLight ? '#fafaf9' : '#0c0c0b';
+      const cardColor = isLight ? '#ffffff' : '#141416';
+      const textColor = isLight ? '#0c0c0b' : '#fafaf9';
+      const ruleColor = isLight ? '#dcdcd6' : '#2d2d30';
+      const subInk = isLight ? '#262521' : '#ebebe5';
+      const mutedText = '#71717a';
+
+      // Reusable Dashboard components inside the wrapper
+      const renderDashboardContent = () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Greeting Strip */}
+          <div style={{
+            background: cardColor,
+            border: `1px solid ${ruleColor}`,
+            borderRadius: '6px',
+            padding: '28px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: isLight ? '0 1px 3px rgba(12,12,11,0.02)' : 'none'
+          }}>
+            {/* Circle line art overlay */}
+            <svg width="240" height="150" viewBox="0 0 240 150" fill="none" style={{ position: 'absolute', right: '-20px', top: '-20px', opacity: isLight ? 0.15 : 0.08, pointerEvents: 'none' }}>
+              <circle cx="100" cy="75" r="55" stroke={activeAccent.hex} strokeWidth="1.2" />
+              <circle cx="150" cy="75" r="55" stroke={activeAccent.hex} strokeWidth="1.2" />
+            </svg>
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ fontFamily: 'JetBrains Mono', fontSize: '10px', fontWeight: 600, color: mutedText, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                Class of &apos;07 · Member Atrium · Edition 48
+              </div>
+              <h2 style={{ fontFamily: 'Inter Tight', fontSize: '28px', fontWeight: 600, margin: '8px 0 6px', letterSpacing: '-0.02em', color: textColor }}>
+                Welcome back, {MOCK_DATA.user.firstName}.
+              </h2>
+              <p style={{ margin: 0, fontSize: '13px', color: mutedText, maxWidth: '580px', lineHeight: 1.55 }}>
+                The professional circle has grown by <strong style={{ color: textColor }}>{MOCK_DATA.stats.newJoiners} members</strong> recently. Refresh your craft focus topics, or review what&apos;s waiting on the desk below.
+              </p>
+            </div>
+          </div>
+
+          {/* Two-Tier KPI Desk Block */}
+          <div style={{
+            border: `1px solid ${ruleColor}`,
+            borderRadius: '6px',
+            overflow: 'hidden',
+            boxShadow: isLight ? '0 1px 3px rgba(12,12,11,0.02)' : 'none'
+          }}>
+            {/* Upper Action Banner */}
+            <div style={{
+              background: '#0c0c0b',
+              padding: '16px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div>
+                <div style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 700, color: '#8a8a84', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
+                  On your desk
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontFamily: 'Inter Tight', fontSize: '32px', fontWeight: 'bold', color: activeAccent.hex, tracking: '-0.02em', lineHeight: 1 }}>
+                    {MOCK_DATA.pendingRequests.length}
+                  </span>
+                  <span style={{ fontSize: '13px', color: '#fafaf9', fontWeight: 500 }}>
+                    advice requests are pending your response
+                  </span>
+                </div>
+              </div>
+              <button style={{
+                background: activeAccent.hex,
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '8px 14px',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'opacity 0.2s',
+                outline: 'none'
+              }} onMouseOver={e => e.currentTarget.style.opacity = 0.9} onMouseOut={e => e.currentTarget.style.opacity = 1}>
+                Resolve Items →
+              </button>
+            </div>
+
+            {/* Lower Stat Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              background: cardColor,
+              borderTop: `1px solid ${ruleColor}`
+            }}>
+              <div style={{ padding: '18px 24px', borderRight: `1px solid ${ruleColor}` }}>
+                <span style={{ fontFamily: 'Inter Tight', fontSize: '20px', fontWeight: 'bold', color: textColor, display: 'block' }}>
+                  +{MOCK_DATA.stats.newJoiners}
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: textColor, display: 'block', marginTop: '2px' }}>joined this week</span>
+                <p style={{ margin: '2px 0 0', fontSize: '11px', color: mutedText, lineHeight: 1.4 }}>Vouched alumni directory update.</p>
+              </div>
+              <div style={{ padding: '18px 24px', borderRight: `1px solid ${ruleColor}` }}>
+                <span style={{ fontFamily: 'Inter Tight', fontSize: '20px', fontWeight: 'bold', color: textColor, display: 'block' }}>
+                  {MOCK_DATA.stats.openMentors}
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: textColor, display: 'block', marginTop: '2px' }}>active mentors</span>
+                <p style={{ margin: '2px 0 0', fontSize: '11px', color: mutedText, lineHeight: 1.4 }}>Alumni directory members on duty.</p>
+              </div>
+              <div style={{ padding: '18px 24px' }}>
+                <span style={{ fontFamily: 'Inter Tight', fontSize: '20px', fontWeight: 'bold', color: textColor, display: 'block' }}>
+                  {MOCK_DATA.stats.upcomingEvents}
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: textColor, display: 'block', marginTop: '2px' }}>gatherings scheduled</span>
+                <p style={{ margin: '2px 0 0', fontSize: '11px', color: mutedText, lineHeight: 1.4 }}>Forums and regional roundtable tables.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Three Rails Layout */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '24px'
+          }}>
+            {/* Rail 1: Desk */}
+            <div>
+              <div style={{ borderTop: `2px solid ${textColor}`, paddingTop: '12px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <h3 style={{ fontFamily: 'Inter Tight', fontSize: '15px', fontWeight: 600, margin: 0, color: textColor }}>On your desk</h3>
+                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 'bold', color: activeAccent.hex, background: `${activeAccent.hex}14`, padding: '2px 6px', borderRadius: '4px' }}>
+                    {MOCK_DATA.pendingRequests.length} pending
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {MOCK_DATA.pendingRequests.map(req => (
+                  <div key={req.id} style={{
+                    background: cardColor,
+                    border: `1px solid ${ruleColor}`,
+                    borderRadius: '6px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '4px', background: `${activeAccent.hex}14`, border: `1px solid ${activeAccent.hex}33`, color: activeAccent.hex, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'JetBrains Mono', fontSize: '11px', fontWeight: 'bold' }}>
+                        {req.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: textColor }}>{req.name}</h4>
+                        <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', color: mutedText }}>{req.class}</span>
+                      </div>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '11px', color: subInk, lineHeight: 1.4, fontStyle: 'italic', borderLeft: `2px solid ${activeAccent.hex}33`, paddingLeft: '8px' }}>
+                      &ldquo;{req.text}&rdquo;
+                    </p>
+                    <div style={{ display: 'flex', gap: '6px', borderTop: `1px solid ${isLight ? '#fafaf9' : '#1c1c1f'}`, paddingTop: '8px' }}>
+                      <button style={{ background: activeAccent.hex, color: '#ffffff', border: 'none', borderRadius: '4px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Reply</button>
+                      <button style={{ background: 'transparent', color: mutedText, border: 'none', borderRadius: '4px', padding: '6px 8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>View Profile</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Rail 2: Events */}
+            <div>
+              <div style={{ borderTop: `2px solid ${textColor}`, paddingTop: '12px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <h3 style={{ fontFamily: 'Inter Tight', fontSize: '15px', fontWeight: 600, margin: 0, color: textColor }}>On your calendar</h3>
+                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 'bold', color: activeAccent.hex, background: `${activeAccent.hex}14`, padding: '2px 6px', borderRadius: '4px' }}>
+                    {MOCK_DATA.stats.upcomingEvents} active
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{
+                  background: cardColor,
+                  border: `1px solid ${ruleColor}`,
+                  borderRadius: '6px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{ background: isLight ? '#fafaf9' : '#1c1c1f', borderBottom: `1px solid ${ruleColor}`, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 'bold', color: activeAccent.hex, textTransform: 'uppercase' }}>Featured supper</span>
+                    <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 'bold', color: '#fafaf9', background: '#0c0c0b', padding: '1px 5px', borderRadius: '2px' }}>
+                      T-{MOCK_DATA.gatherings[0].daysLeft}d
+                    </span>
+                  </div>
+                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 600, color: textColor }}>{MOCK_DATA.gatherings[0].title}</h4>
+                      <p style={{ margin: 0, fontSize: '11px', color: mutedText }}>{MOCK_DATA.gatherings[0].date} · {MOCK_DATA.gatherings[0].time} · Hosted by {MOCK_DATA.gatherings[0].host}</p>
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: mutedText, marginBottom: '4px' }}>
+                        <span>Capacity ({MOCK_DATA.gatherings[0].spotsFilled}/{MOCK_DATA.gatherings[0].totalSpots} slots)</span>
+                        <span style={{ fontWeight: 600 }}>{(MOCK_DATA.gatherings[0].spotsFilled/MOCK_DATA.gatherings[0].totalSpots)*100}% Vouched</span>
+                      </div>
+                      <div style={{ background: isLight ? '#fafaf9' : '#1c1c1f', height: '5px', borderRadius: '999px', overflow: 'hidden' }}>
+                        <div style={{ background: activeAccent.hex, height: '100%', width: `${(MOCK_DATA.gatherings[0].spotsFilled/MOCK_DATA.gatherings[0].totalSpots)*100}%` }} />
+                      </div>
+                    </div>
+                    <button style={{ background: '#0c0c0b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '8px 12px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', textAlign: 'center', width: '100%' }}>Reserve seat</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rail 3: Directory Activity */}
+            <div>
+              <div style={{ borderTop: `2px solid ${textColor}`, paddingTop: '12px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <h3 style={{ fontFamily: 'Inter Tight', fontSize: '15px', fontWeight: 600, margin: 0, color: textColor }}>On the wire</h3>
+                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 'bold', color: activeAccent.hex, background: `${activeAccent.hex}14`, padding: '2px 6px', borderRadius: '4px' }}>
+                    +{MOCK_DATA.stats.newJoiners} new
+                  </span>
+                </div>
+              </div>
+
+              <div style={{
+                background: cardColor,
+                border: `1px solid ${ruleColor}`,
+                borderRadius: '6px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                <h4 style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', textTransform: 'uppercase', color: mutedText, margin: '0 0 4px', letterSpacing: '0.08em', fontWeight: 600 }}>Recently Joined Alumni</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {MOCK_DATA.joiners.map((joiner, index) => (
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: index < 2 ? '10px' : '0', borderBottom: index < 2 ? `1px solid ${isLight ? '#fafaf9' : '#1c1c1f'}` : 'none' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '4px', background: isLight ? '#fafaf9' : '#1c1c1f', border: `1px solid ${ruleColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'JetBrains Mono', fontSize: '10px', fontWeight: 'bold', color: activeAccent.hex }}>
+                        {joiner.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: textColor }}>{joiner.name}</span>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', color: mutedText }}>{joiner.year}</span>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '10px', color: mutedText, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {joiner.role} at <strong style={{ color: textColor }}>{joiner.org}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+      return (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          minHeight: '100vh', 
+          background: bgColor, 
+          color: textColor, 
+          fontFamily: 'Inter, sans-serif',
+          transition: 'background 0.2s ease, color 0.2s ease'
+        }}>
+          {/* PERSISTENT FLOATING CONTROL PANEL */}
+          <div style={{
+            position: 'sticky',
+            top: '12px',
+            zIndex: 9999,
+            display: 'flex',
+            justifyContent: 'center',
+            padding: '0 24px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              background: 'rgba(12, 12, 11, 0.92)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid #2d2d30',
+              borderRadius: '999px',
+              padding: '6px 16px',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.4)',
+              color: '#fafaf9',
+              fontSize: '11px',
+              fontFamily: 'JetBrains Mono',
+              fontWeight: 500
+            }}>
+              {/* Layout Switcher */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #2d2d30', paddingRight: '16px' }}>
+                <span style={{ color: '#8a8a84', textTransform: 'uppercase' }}>Layout:</span>
+                <button 
+                  onClick={() => setLayoutMode('header')}
+                  style={{
+                    background: layoutMode === 'header' ? activeAccent.hex : 'transparent',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '999px',
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    fontSize: '10px',
+                    fontWeight: 600
+                  }}
+                >
+                  Top Header (Option A)
+                </button>
+                <button 
+                  onClick={() => setLayoutMode('sidebar')}
+                  style={{
+                    background: layoutMode === 'sidebar' ? activeAccent.hex : 'transparent',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '999px',
+                    padding: '4px 10px',
+                    cursor: 'pointer',
+                    fontSize: '10px',
+                    fontWeight: 600
+                  }}
+                >
+                  Side Rail (Option C)
+                </button>
+              </div>
+
+              {/* Theme Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderRight: '1px solid #2d2d30', paddingRight: '16px' }}>
+                <span style={{ color: '#8a8a84', textTransform: 'uppercase' }}>Theme:</span>
+                <button 
+                  onClick={() => setThemeMode(isLight ? 'lamplight' : 'light')}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Icon name={isLight ? 'moon' : 'sun'} size={12} color="#fff" />
+                  <span>{isLight ? 'Lamplight' : 'Daylight'}</span>
+                </button>
+              </div>
+
+              {/* Accents list */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#8a8a84', textTransform: 'uppercase' }}>Accent:</span>
+                {ACCENTS.map(acc => (
+                  <button
+                    key={acc.hex}
+                    onClick={() => setActiveAccent(acc)}
+                    style={{
+                      width: '12px',
+                      height: '12px',
+                      borderRadius: '50%',
+                      background: acc.hex,
+                      border: activeAccent.hex === acc.hex ? '2px solid #fff' : 'none',
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                    title={acc.name}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* DYNAMIC CANVAS AREA */}
+          <div style={{ 
+            display: 'flex', 
+            flex: 1, 
+            flexDirection: layoutMode === 'header' ? 'column' : 'row',
+            marginTop: '-16px' // counter sticky offset slightly
+          }}>
+            {/* OPTION A: STICKY TOP HEADER */}
+            {layoutMode === 'header' && (
+              <header style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 999,
+                width: '100%',
+                height: '72px',
+                background: cardColor,
+                borderBottom: `1px solid ${ruleColor}`,
+                padding: '0 32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'background 0.2s, border-color 0.2s'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <svg width="24" height="24" viewBox="0 0 200 200">
+                    <circle cx="85" cy="100" r="48" fill={activeAccent.hex} fillOpacity="0.88" />
+                    <circle cx="115" cy="100" r="48" fill={textColor} fillOpacity="0.88" />
+                  </svg>
+                  <span style={{ fontFamily: 'Inter Tight', fontSize: '18px', fontWeight: 700, letterSpacing: '-0.02em', color: textColor }}>
+                    Bridge<span style={{ color: activeAccent.hex }}>Circle</span>
+                  </span>
+                </div>
+
+                <nav style={{ display: 'flex', gap: '32px', height: '100%' }}>
+                  {['People', 'Inbox', 'Events'].map(tab => {
+                    const isActive = activeTab === tab;
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: isActive ? textColor : mutedText,
+                          fontWeight: isActive ? 600 : 500,
+                          fontSize: '13px',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          height: '100%',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        {tab}
+                        {isActive && (
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', background: isLight ? activeAccent.hex : '#fafaf9' }} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: isLight ? '#fafaf9' : '#1c1c1f', border: `1px solid ${ruleColor}`, borderRadius: '999px', padding: '6px 12px', width: '160px' }}>
+                    <Icon name="search" size={13} color={mutedText} />
+                    <span style={{ color: mutedText, fontSize: '11px' }}>Search directory...</span>
+                  </div>
+                  <div style={{ position: 'relative', color: textColor }}>
+                    <Icon name="bell" size={16} />
+                    <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: activeAccent.hex, color: '#fff', fontFamily: 'JetBrains Mono', fontSize: '8px', fontWeight: 700, width: '12px', height: '12px', borderRadius: '50%', display: 'grid', placeItems: 'center' }}>2</span>
+                  </div>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '4px', background: `linear-gradient(135deg, ${activeAccent.hex}, ${textColor})`, display: 'grid', placeItems: 'center', fontFamily: 'JetBrains Mono', fontSize: '10px', fontWeight: 700, color: '#fff' }}>
+                    RL
+                  </div>
+                </div>
+              </header>
+            )}
+
+            {/* OPTION C: LEFT SIDE GUTTER */}
+            {layoutMode === 'sidebar' && (
+              <aside style={{
+                position: 'sticky',
+                top: 0,
+                height: '100vh',
+                width: '240px',
+                background: cardColor,
+                borderRight: `1px solid ${ruleColor}`,
+                padding: '32px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transition: 'background 0.2s, border-color 0.2s'
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <svg width="24" height="24" viewBox="0 0 200 200">
+                      <circle cx="85" cy="100" r="48" fill={activeAccent.hex} fillOpacity="0.88" />
+                      <circle cx="115" cy="100" r="48" fill={textColor} fillOpacity="0.88" />
+                    </svg>
+                    <span style={{ fontFamily: 'Inter Tight', fontSize: '18px', fontWeight: 700, letterSpacing: '-0.02em', color: textColor }}>
+                      Bridge<span style={{ color: activeAccent.hex }}>Circle</span>
+                    </span>
+                  </div>
+
+                  <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {[
+                      { label: 'People', num: '01' },
+                      { label: 'Inbox', num: '02' },
+                      { label: 'Events', num: '03' }
+                    ].map(item => {
+                      const isActive = activeTab === item.label;
+                      return (
+                        <button
+                          key={item.label}
+                          onClick={() => setActiveTab(item.label)}
+                          style={{
+                            background: isActive ? (isLight ? '#fafaf9' : '#1c1c1f') : 'transparent',
+                            border: 'none',
+                            padding: '10px 12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            width: '100%',
+                            textAlign: 'left',
+                            borderRadius: '4px',
+                            color: isActive ? textColor : mutedText,
+                            cursor: 'pointer',
+                            position: 'relative',
+                            outline: 'none'
+                          }}
+                        >
+                          {isActive && (
+                            <div style={{ position: 'absolute', left: 0, top: '10px', bottom: '10px', width: '2px', background: activeAccent.hex }} />
+                          )}
+                          <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 600, color: isActive ? activeAccent.hex : '#a1a1aa' }}>
+                            {item.num} //
+                          </span>
+                          <span style={{ fontSize: '13px', fontWeight: isActive ? 600 : 500 }}>
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
+
+                {/* Bottom Profile card */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderTop: `1px solid ${ruleColor}`, paddingTop: '20px' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '4px', background: `linear-gradient(135deg, ${activeAccent.hex}, ${textColor})`, display: 'grid', placeItems: 'center', fontFamily: 'JetBrains Mono', fontSize: '11px', fontWeight: 700, color: '#fff' }}>
+                    RL
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Richard Lee</span>
+                    <span style={{ fontFamily: 'JetBrains Mono', fontSize: '8px', color: mutedText }}>{MOCK_DATA.user.cohort} · Chadwick</span>
+                  </div>
+                </div>
+              </aside>
+            )}
+
+            {/* DASHBOARD PAGE CONTAINER */}
+            <main style={{ 
+              flex: 1, 
+              padding: '40px 32px 80px',
+              maxWidth: layoutMode === 'header' ? '1200px' : 'calc(100vw - 240px)',
+              width: '100%',
+              margin: layoutMode === 'header' ? '0 auto' : '0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px'
+            }}>
+              {/* Rolling System Announcement Banner */}
+              <div style={{
+                background: `${activeAccent.hex}08`,
+                border: `1px solid ${ruleColor}`,
+                borderRadius: '6px',
+                padding: '10px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '12px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+                  <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 'bold', color: activeAccent.hex, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Announcement</span>
+                  <span style={{ color: ruleColor }}>·</span>
+                  <span style={{ color: textColor, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {MOCK_DATA.announcement.title}
+                  </span>
+                </div>
+                <span style={{ fontSize: '10px', color: mutedText, shrink: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {MOCK_DATA.announcement.publishedAt} →
+                </span>
+              </div>
+
+              {renderDashboardContent()}
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<NavigationPreviewApp />);
+  </script>
+</body>
+</html>

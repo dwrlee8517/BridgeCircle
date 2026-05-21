@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle · Inbox (ideation)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..900,0..100,0..1&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f7f8fb;
+        --card: #ffffff;
+        --ink: #0b1220;
+        --ink-2: #1e293b;
+        --muted: #64748b;
+        --muted-2: #94a3b8;
+        --border: #e5e7eb;
+        --border-2: #eef0f5;
+        --primary: #0051d5;
+        --primary-2: #316bf3;
+        --primary-soft: #eaf0ff;
+        --lavender: #b4c5ff;
+        --lavender-soft: #eef2ff;
+        --warm: #f59e0b;
+        --warm-soft: #fffbeb;
+        --good: #10b981;
+        --good-soft: #ecfdf5;
+        --rose: #f43f5e;
+        --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.04);
+        --shadow-lg: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px rgba(15, 23, 42, 0.08);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif; -webkit-font-smoothing: antialiased; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
+      .fraunces { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "SOFT" 50, "WONK" 0, "opsz" 25; letter-spacing: -0.02em; }
+      .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+      .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+      svg.i { width: 16px; height: 16px; stroke-width: 2; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+      svg.i.sm { width: 14px; height: 14px; }
+      svg.i.lg { width: 20px; height: 20px; }
+
+      /* ============== TOP NAV ============== */
+      .topnav { background: white; border-bottom: 1px solid var(--border); padding: 14px 0; }
+      .topnav-inner { display: flex; align-items: center; gap: 32px; }
+      .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+      .brand .logo { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #0b1220, #316bf3); position: relative; }
+      .brand .logo::after { content: ""; position: absolute; inset: 6px; border: 1.5px solid var(--lavender); border-radius: 999px; clip-path: inset(0 50% 0 0); }
+      .nav-links { display: flex; gap: 4px; }
+      .nav-links a { padding: 8px 14px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); position: relative; }
+      .nav-links a.active { background: var(--ink); color: white; }
+      .nav-links a:not(.active):hover { background: #f1f5f9; color: var(--ink); }
+      .nav-links a .badge { position: absolute; top: 4px; right: 6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--rose); color: white; font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+      .topnav-spacer { flex: 1; }
+      .nav-avatar { width: 32px; height: 32px; border-radius: 999px; background: linear-gradient(135deg, #316bf3, #0051d5); display: grid; place-items: center; color: white; font-weight: 600; font-size: 12px; }
+
+      /* ============== HERO ============== */
+      .hero {
+        position: relative; overflow: hidden; color: white;
+        background: linear-gradient(135deg, #0b1220 0%, #131b2e 55%, #1e293b 100%);
+      }
+      .hero::before {
+        content: ""; position: absolute; inset: 0;
+        background-image: radial-gradient(rgba(180, 197, 255, 0.10) 1.5px, transparent 1.5px);
+        background-size: 24px 24px; opacity: 0.55;
+      }
+      .hero::after {
+        content: ""; position: absolute; right: -180px; top: -140px;
+        width: 360px; height: 360px; border-radius: 999px;
+        background: radial-gradient(closest-side, rgba(244, 63, 94, 0.18), transparent 70%);
+        pointer-events: none;
+      }
+      .hero-inner { position: relative; padding: 56px 0 16px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 56px; align-items: start; }
+      .hero .eyebrow { color: var(--lavender); }
+      .hero h1 {
+        font-family: 'Fraunces', serif; font-weight: 700; letter-spacing: -0.025em;
+        font-size: 44px; line-height: 1.05; margin: 8px 0 0; max-width: 620px;
+      }
+      .hero h1 .accent { color: var(--lavender); font-style: italic; }
+      .hero .sub { margin-top: 14px; max-width: 520px; font-size: 15px; line-height: 1.6; color: #cbd5e1; }
+      .hero .sub b { color: white; font-weight: 600; }
+
+      .hero-search {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(180, 197, 255, 0.25);
+        border-radius: 12px;
+        padding: 13px 16px;
+        display: flex; align-items: center; gap: 12px;
+        backdrop-filter: blur(8px);
+        margin-top: 28px;
+      }
+      .hero-search:focus-within { border-color: var(--lavender); background: rgba(255,255,255,0.10); }
+      .hero-search svg { color: var(--lavender); }
+      .hero-search input { flex: 1; background: transparent; border: 0; outline: none; color: white; font-size: 14px; font-family: inherit; }
+      .hero-search input::placeholder { color: rgba(203, 213, 225, 0.6); }
+      .hero-search .kbd { display: inline-flex; padding: 3px 7px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); font-size: 11px; font-weight: 600; color: #cbd5e1; }
+      .hero-help { margin-top: 14px; font-size: 12px; color: var(--muted-2); }
+      .hero-help kbd { background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; font-family: inherit; font-size: 11px; color: #e2e8f0; }
+
+      /* ============== TRIAGE PULSE ============== */
+      .pulse {
+        position: relative; z-index: 1;
+        margin-top: 36px; margin-bottom: 56px;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      }
+      .pulse-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(180, 197, 255, 0.20);
+        border-radius: 14px; padding: 22px 22px 20px;
+        backdrop-filter: blur(8px); cursor: pointer;
+        transition: all 0.15s;
+      }
+      .pulse-card:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(180,197,255,0.40); }
+      .pulse-card.active {
+        background: rgba(244, 63, 94, 0.10);
+        border-color: rgba(244, 63, 94, 0.40);
+      }
+      .pulse-card .label { font-size: 12px; color: var(--lavender); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+      .pulse-card .label .live { width: 6px; height: 6px; border-radius: 999px; background: var(--rose); box-shadow: 0 0 0 4px rgba(244,63,94,0.18); }
+      .pulse-card .num { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 700; color: white; line-height: 1.1; margin-top: 10px; }
+      .pulse-card .hint { font-size: 13px; color: var(--muted-2); margin-top: 6px; }
+      .pulse-card.active .label { color: #fda4af; }
+      .pulse-card.active .label .live { background: var(--rose); }
+
+      /* ============== TABS ============== */
+      .tabs-bar { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 0 rgba(15,23,42,0.02); }
+      .tabs-inner { display: flex; align-items: center; gap: 4px; padding: 0; overflow-x: auto; min-height: 60px; }
+      .tab {
+        padding: 18px 4px; margin-right: 28px;
+        font-size: 14px; font-weight: 500; color: var(--muted);
+        cursor: pointer; border-bottom: 2px solid transparent;
+        white-space: nowrap; display: inline-flex; align-items: center; gap: 8px;
+        position: relative;
+      }
+      .tab:hover { color: var(--ink); }
+      .tab.on { color: var(--ink); border-color: var(--ink); font-weight: 600; }
+      .tab .count {
+        font-size: 11px; padding: 2px 7px; border-radius: 999px;
+        background: #f1f5f9; color: var(--muted); font-weight: 600;
+      }
+      .tab.on .count { background: var(--ink); color: white; }
+      .tab .dot { width: 6px; height: 6px; border-radius: 999px; background: var(--rose); }
+      .tabs-right { margin-left: auto; display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+      .tabs-right .sort {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 7px 11px; border-radius: 8px; border: 1px solid var(--border); background: white;
+        font-size: 13px; color: var(--ink-2); font-weight: 500; cursor: pointer;
+      }
+      .tabs-right .sort:hover { border-color: var(--ink); }
+
+      /* ============== LAYOUT ============== */
+      main { padding: 36px 0 96px; }
+      .layout { display: grid; grid-template-columns: 1fr 420px; gap: 40px; align-items: start; }
+
+      /* ============== LIST GROUPS ============== */
+      .group { margin-bottom: 44px; }
+      .group:last-child { margin-bottom: 0; }
+      .group-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; padding: 0 4px; }
+      .group-head .left { display: flex; align-items: baseline; gap: 10px; }
+      .group-head h2 {
+        font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700;
+        margin: 0; letter-spacing: -0.02em;
+      }
+      .group-head .meta-count { font-size: 13px; color: var(--muted); }
+      .group-head .action { font-size: 12px; color: var(--muted); font-weight: 500; cursor: pointer; }
+      .group-head .action:hover { color: var(--ink); }
+
+      /* Needs-reply group has a colored stripe */
+      .group.urgent .group-head h2::before {
+        content: ""; display: inline-block; width: 6px; height: 22px;
+        background: var(--rose); border-radius: 3px; margin-right: 10px;
+        vertical-align: -4px;
+      }
+
+      .list { background: white; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+      .row {
+        display: grid; grid-template-columns: 44px 1fr auto; gap: 18px;
+        align-items: start; padding: 20px 24px;
+        border-bottom: 1px solid var(--border-2);
+        cursor: pointer; transition: background 0.1s;
+        position: relative;
+      }
+      .row .avatar { margin-top: 2px; }
+      .row:last-child { border-bottom: 0; }
+      .row:hover { background: #fafbff; }
+      .row.unread { background: rgba(0, 81, 213, 0.025); }
+      .row.unread::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary);
+      }
+      .row.selected {
+        background: var(--lavender-soft);
+      }
+      .row.selected::before {
+        content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--primary);
+      }
+
+      .row-id { display: flex; flex-direction: column; min-width: 0; }
+      .row-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .row-top .name {
+        font-size: 14px; font-weight: 600; color: var(--ink);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .row.unread .row-top .name { font-weight: 700; }
+      .row-top .year { font-size: 11px; padding: 2px 6px; border-radius: 999px; background: #f1f5f9; color: var(--muted); font-weight: 600; }
+      .row-type {
+        font-size: 10px; padding: 2px 7px; border-radius: 999px;
+        font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      }
+      .row-type.friend { background: var(--good-soft); color: #047857; }
+      .row-type.mentor { background: var(--lavender-soft); color: var(--primary); }
+      .row-type.advice { background: #f0f9ff; color: #0369a1; }
+      .row-type.thread { background: #f5f3ff; color: #6d28d9; }
+      .row-type.dm { background: #f1f5f9; color: var(--muted); }
+      .row-type.sent { background: var(--warm-soft); color: #b45309; }
+
+      .row-excerpt {
+        margin-top: 6px;
+        font-size: 13px; color: var(--muted); line-height: 1.5;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        max-width: 600px;
+      }
+      .row.unread .row-excerpt { color: var(--ink-2); }
+
+      .row-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; padding-top: 2px; }
+      .row-time { font-size: 12px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+      .row-status {
+        font-size: 11px; padding: 3px 8px; border-radius: 999px;
+        font-weight: 600; white-space: nowrap;
+      }
+      .row-status.unread { background: var(--primary); color: white; }
+      .row-status.replied { background: #f1f5f9; color: var(--muted); }
+      .row-status.waiting { background: var(--warm-soft); color: #b45309; }
+      .row-status.threading { background: #f5f3ff; color: #6d28d9; }
+      .row-status.new-msgs { background: var(--good); color: white; }
+
+      /* Inline quick actions visible on hover */
+      .row-actions { display: none; align-items: center; gap: 8px; margin-top: 14px; }
+      .row:hover .row-actions { display: flex; }
+      .row.selected .row-actions { display: flex; }
+      .row-actions .mini {
+        font-size: 12px; padding: 6px 12px; border-radius: 6px;
+        border: 1px solid var(--border); background: white;
+        color: var(--ink-2); font-weight: 500;
+      }
+      .row-actions .mini:hover { border-color: var(--ink); }
+      .row-actions .mini.primary { background: var(--ink); color: white; border-color: var(--ink); }
+
+      /* ============== AVATARS ============== */
+      .avatar {
+        width: 44px; height: 44px; border-radius: 999px;
+        display: grid; place-items: center;
+        color: white; font-weight: 600; font-size: 15px;
+        background: linear-gradient(135deg, #316bf3, #0051d5);
+        flex-shrink: 0; position: relative;
+      }
+      .avatar.lg { width: 64px; height: 64px; font-size: 20px; }
+      .avatar.sm { width: 24px; height: 24px; font-size: 10px; }
+      .avatar.xs { width: 18px; height: 18px; font-size: 9px; }
+      .avatar.green { background: linear-gradient(135deg, #34d399, #059669); }
+      .avatar.amber { background: linear-gradient(135deg, #fbbf24, #d97706); }
+      .avatar.rose { background: linear-gradient(135deg, #fb7185, #be123c); }
+      .avatar.violet { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+      .avatar.teal { background: linear-gradient(135deg, #5eead4, #0d9488); }
+      .avatar.slate { background: linear-gradient(135deg, #94a3b8, #475569); }
+
+      /* ============== DETAIL PANE ============== */
+      .detail { position: sticky; top: 80px; }
+      .detail-card {
+        background: white; border: 1px solid var(--border);
+        border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg);
+      }
+      .detail-head {
+        position: relative; padding: 22px 26px 22px;
+        background: linear-gradient(135deg, #fafbff 0%, #eef2ff 100%);
+        border-bottom: 1px solid var(--border-2);
+      }
+      .detail-head .badge {
+        display: inline-block; margin-bottom: 16px;
+        font-size: 10px; padding: 5px 10px; border-radius: 999px;
+        background: var(--good); color: white; font-weight: 700;
+        letter-spacing: 0.05em; text-transform: uppercase;
+      }
+      .detail-head .who { display: flex; gap: 16px; align-items: center; }
+      .detail-head .info { min-width: 0; flex: 1; }
+      .detail-head h3 {
+        font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700;
+        margin: 0 0 4px; letter-spacing: -0.02em; line-height: 1.2;
+      }
+      .detail-head .role { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+      .detail-head .role b { font-weight: 600; }
+      .detail-head .meta { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
+      .detail-head .meta svg { color: var(--muted-2); }
+
+      .detail-body { padding: 0; }
+      .detail-section { padding: 22px 26px; border-bottom: 1px solid var(--border-2); }
+      .detail-section:last-child { border-bottom: 0; }
+      .detail-section .eyebrow { color: var(--muted); margin-bottom: 12px; }
+      .detail-section h4 {
+        font-family: 'Fraunces', serif; font-size: 15px; font-weight: 600;
+        margin: 0 0 6px; letter-spacing: -0.01em;
+      }
+      .detail-section p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+
+      /* Message blockquote */
+      .message {
+        position: relative; padding: 16px 18px 16px 20px;
+        background: #fafbff; border-radius: 10px;
+        border-left: 3px solid var(--primary);
+        font-size: 14px; line-height: 1.6; color: var(--ink-2);
+      }
+
+      /* Warm context */
+      .warm-context {
+        display: flex; align-items: center; gap: 14px;
+        padding: 14px 16px; background: var(--good-soft);
+        border: 1px solid #a7f3d0; border-radius: 10px;
+      }
+      .warm-context .avatars { display: flex; }
+      .warm-context .avatars .avatar.sm { border: 2px solid var(--good-soft); margin-left: -8px; }
+      .warm-context .avatars .avatar.sm:first-child { margin-left: 0; }
+      .warm-context .text { font-size: 13px; color: #065f46; line-height: 1.4; }
+      .warm-context .text b { font-weight: 600; }
+
+      /* Stat row */
+      .signals { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chip {
+        font-size: 11px; padding: 4px 9px; border-radius: 999px;
+        font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
+      }
+      .chip.lavender { background: var(--lavender-soft); color: var(--primary); }
+      .chip.green { background: var(--good-soft); color: #047857; }
+      .chip.amber { background: var(--warm-soft); color: #b45309; }
+      .chip.slate { background: #f1f5f9; color: var(--muted); }
+      .chip .live-dot { width: 5px; height: 5px; border-radius: 999px; background: currentColor; }
+
+      /* Action buttons */
+      .detail-actions {
+        padding: 20px 26px;
+        background: #fafbff;
+        border-top: 1px solid var(--border-2);
+        display: flex; gap: 12px;
+      }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 11px 18px; border-radius: 10px; cursor: pointer;
+        font-size: 14px; font-weight: 600; border: 1px solid transparent;
+        white-space: nowrap;
+      }
+      .btn-solid { background: var(--ink); color: white; flex: 1; }
+      .btn-solid:hover { background: #1a2444; }
+      .btn-good { background: var(--good); color: white; flex: 1; }
+      .btn-good:hover { background: #047857; }
+      .btn-outline { background: white; color: var(--ink); border-color: var(--border); }
+      .btn-outline:hover { border-color: var(--ink); }
+      .btn-ghost { background: transparent; color: var(--muted); }
+      .btn-ghost:hover { background: #f1f5f9; color: var(--ink); }
+
+      /* Helper subnote */
+      .helper-note {
+        padding: 16px 26px;
+        background: #fffbeb;
+        border-top: 1px solid #fde68a;
+        font-size: 12px; line-height: 1.55; color: #78350f;
+        display: flex; gap: 12px; align-items: flex-start;
+      }
+      .helper-note svg { color: var(--warm); flex-shrink: 0; margin-top: 2px; }
+
+      /* ============== KEYBOARD HINTS FOOTER ============== */
+      .kbd-help {
+        margin-top: 18px;
+        font-size: 12px; color: var(--muted);
+        display: flex; gap: 18px; flex-wrap: wrap;
+      }
+      .kbd-help b { color: var(--ink); }
+      .kbd-help kbd {
+        background: white; border: 1px solid var(--border);
+        padding: 2px 6px; border-radius: 4px; font-family: inherit;
+        font-size: 11px; font-weight: 600;
+      }
+
+      /* ============== RESPONSIVE ============== */
+      @media (max-width: 1120px) {
+        .layout { grid-template-columns: 1fr; }
+        .detail { position: static; }
+        .pulse { grid-template-columns: repeat(2, 1fr); }
+        .hero-inner { grid-template-columns: 1fr; gap: 24px; }
+      }
+      @media (max-width: 640px) {
+        .hero h1 { font-size: 32px; }
+        .pulse { grid-template-columns: 1fr 1fr; }
+        .tab { margin-right: 16px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= TOP NAV ================= -->
+    <header class="topnav">
+      <div class="container topnav-inner">
+        <div class="brand">
+          <div class="logo"></div>
+          <span>BridgeCircle</span>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="people.html">People</a>
+          <a href="#" class="active">Inbox<span class="badge">3</span></a>
+          <a href="#">Events</a>
+        </nav>
+        <div class="topnav-spacer"></div>
+        <div class="nav-avatar">RL</div>
+      </div>
+    </header>
+
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div>
+            <p class="eyebrow">Your inbox</p>
+            <h1>
+              Three people are<br />
+              <span class="accent">waiting on you.</span>
+            </h1>
+            <p class="sub">
+              Maya asked for mentorship two days ago. Sara wants to connect.
+              Daniel sent a quick advice question this morning. The rest of
+              the week is calm.
+            </p>
+          </div>
+
+          <div>
+            <div class="hero-search">
+              <svg class="i lg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input placeholder="Search names, threads, or messages" />
+              <span class="kbd">/</span>
+            </div>
+            <div class="hero-help">
+              <kbd>J</kbd> <kbd>K</kbd> to navigate · <kbd>E</kbd> archive · <kbd>R</kbd> reply
+            </div>
+          </div>
+        </div>
+
+        <!-- Triage pulse -->
+        <div class="pulse">
+          <div class="pulse-card active">
+            <div class="label"><span class="live"></span>Needs your reply</div>
+            <div class="num">3</div>
+            <div class="hint">2 asks, 1 friend request</div>
+          </div>
+          <div class="pulse-card">
+            <div class="label">Threads in progress</div>
+            <div class="num">5</div>
+            <div class="hint">Last activity 4h ago</div>
+          </div>
+          <div class="pulse-card">
+            <div class="label">Awaiting their reply</div>
+            <div class="num">4</div>
+            <div class="hint">Oldest 9 days out</div>
+          </div>
+          <div class="pulse-card">
+            <div class="label">Recently closed</div>
+            <div class="num">12</div>
+            <div class="hint">This month</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TABS ================= -->
+    <div class="tabs-bar">
+      <div class="container tabs-inner">
+        <span class="tab on">All <span class="count">24</span></span>
+        <span class="tab">
+          <span class="dot"></span>
+          Friend requests <span class="count">2</span>
+        </span>
+        <span class="tab">
+          <span class="dot"></span>
+          Asks <span class="count">3</span>
+        </span>
+        <span class="tab">Threads <span class="count">5</span></span>
+        <span class="tab">Direct messages <span class="count">2</span></span>
+        <span class="tab">Sent <span class="count">4</span></span>
+        <span class="tab">Archive</span>
+
+        <div class="tabs-right">
+          <button class="sort">
+            <svg class="i sm" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+            Sort: Needs reply first
+            <svg class="i sm" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MAIN ================= -->
+    <main class="container">
+      <div class="layout">
+
+        <!-- ===================== LIST ===================== -->
+        <section>
+
+          <!-- ===== GROUP: NEEDS YOUR REPLY ===== -->
+          <div class="group urgent">
+            <div class="group-head">
+              <div class="left">
+                <h2>Needs your reply</h2>
+                <span class="meta-count">3 items · oldest 2 days</span>
+              </div>
+              <span class="action">Mark all read</span>
+            </div>
+            <div class="list">
+
+              <!-- SELECTED: friend request -->
+              <article class="row selected">
+                <div class="avatar amber">SP</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type friend">Friend request</span>
+                    <span class="name">Sara Patel</span>
+                    <span class="year">'17</span>
+                  </div>
+                  <div class="row-excerpt">"Hey Richard — saw we both know Daniel. I'm starting at Modal and would love to swap notes on engineering culture."</div>
+                  <div class="row-actions">
+                    <button class="mini primary">Accept</button>
+                    <button class="mini">Decline</button>
+                    <button class="mini">View profile</button>
+                  </div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">12 min ago</span>
+                  <span class="row-status unread">Unread</span>
+                </div>
+              </article>
+
+              <!-- mentor request -->
+              <article class="row unread">
+                <div class="avatar">MR</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type mentor">Mentor request</span>
+                    <span class="name">Maya Rivera</span>
+                    <span class="year">'14</span>
+                  </div>
+                  <div class="row-excerpt">"I'm thinking about leaving Figma for a founder role. Could really use 30 min with someone who's done it..."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">2 days</span>
+                  <span class="row-status unread">Unread</span>
+                </div>
+              </article>
+
+              <!-- advice ask -->
+              <article class="row">
+                <div class="avatar green">DK</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type advice">Advice ask</span>
+                    <span class="name">Daniel Kim</span>
+                    <span class="year">'16</span>
+                  </div>
+                  <div class="row-excerpt">"Quick one — which of the Anthropic teams ships the most? I'm choosing between three offers."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">9:14 AM</span>
+                  <span class="row-status threading">Quick reply</span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- ===== GROUP: THREADS IN PROGRESS ===== -->
+          <div class="group">
+            <div class="group-head">
+              <div class="left">
+                <h2>Threads in progress</h2>
+                <span class="meta-count">5 active</span>
+              </div>
+              <span class="action">View all →</span>
+            </div>
+            <div class="list">
+              <article class="row">
+                <div class="avatar violet">HP</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type thread">Mentorship · session 3</span>
+                    <span class="name">Hana Park</span>
+                    <span class="year">'20</span>
+                  </div>
+                  <div class="row-excerpt">"Tried the research framing you suggested — got pulled into a brainstorm with Karim's team. Quick recap..."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">4 hours</span>
+                  <span class="row-status new-msgs">3 new</span>
+                </div>
+              </article>
+
+              <article class="row">
+                <div class="avatar rose">JL</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type thread">Mentorship · session 1</span>
+                    <span class="name">Jane Lee</span>
+                    <span class="year">'14</span>
+                  </div>
+                  <div class="row-excerpt">"Sent you the deck — would love your eye on slides 7 and 12 before Tuesday."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">Yesterday</span>
+                  <span class="row-status threading">In progress</span>
+                </div>
+              </article>
+
+              <article class="row">
+                <div class="avatar">MO</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type dm">Direct message</span>
+                    <span class="name">Marcus Ong</span>
+                    <span class="year">'16</span>
+                  </div>
+                  <div class="row-excerpt">"Coffee Thursday still on? Battery, 8am?"</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">Mon</span>
+                  <span class="row-status replied">Replied</span>
+                </div>
+              </article>
+
+              <article class="row">
+                <div class="avatar teal">AT</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type thread">Advice · resolved</span>
+                    <span class="name">Alex Tan</span>
+                    <span class="year">'19</span>
+                  </div>
+                  <div class="row-excerpt">"Thanks for the residency notes — UCSF is offering. Going to accept tomorrow."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">3 days</span>
+                  <span class="row-status replied">Resolved</span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <!-- ===== GROUP: AWAITING THEIR REPLY ===== -->
+          <div class="group">
+            <div class="group-head">
+              <div class="left">
+                <h2>Awaiting their reply</h2>
+                <span class="meta-count">4 sent · 1 stale</span>
+              </div>
+              <span class="action">Nudge stale</span>
+            </div>
+            <div class="list">
+              <article class="row">
+                <div class="avatar slate">EB</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type sent">You asked for mentorship</span>
+                    <span class="name">Eli Brand</span>
+                    <span class="year">'08</span>
+                  </div>
+                  <div class="row-excerpt">"Hi Eli — I've been thinking about pivoting from product to investing..."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">9 days</span>
+                  <span class="row-status waiting">Stale · nudge?</span>
+                </div>
+              </article>
+
+              <article class="row">
+                <div class="avatar amber">LK</div>
+                <div class="row-id">
+                  <div class="row-top">
+                    <span class="row-type sent">You sent a friend request</span>
+                    <span class="name">Lena Kowalski</span>
+                    <span class="year">'15</span>
+                  </div>
+                  <div class="row-excerpt">"Met you at the SF mixer — would love to keep in touch."</div>
+                </div>
+                <div class="row-right">
+                  <span class="row-time">4 days</span>
+                  <span class="row-status waiting">Pending</span>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="kbd-help">
+            <span><b>Tips:</b></span>
+            <span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span>
+            <span><kbd>Enter</kbd> open</span>
+            <span><kbd>A</kbd> accept</span>
+            <span><kbd>E</kbd> archive</span>
+            <span><kbd>S</kbd> star</span>
+          </div>
+        </section>
+
+        <!-- ===================== DETAIL PANE ===================== -->
+        <aside class="detail">
+          <div class="detail-card">
+
+            <div class="detail-head">
+              <span class="badge">Friend request · Unread</span>
+              <div class="who">
+                <div class="avatar lg amber">SP</div>
+                <div class="info">
+                  <h3>Sara Patel</h3>
+                  <div class="role"><b>Founding Engineer</b> at Modal</div>
+                  <div class="meta">
+                    <span style="display:inline-flex;align-items:center;gap:4px">
+                      <svg class="i sm" viewBox="0 0 24 24"><path d="M12 22s7-7.58 7-13a7 7 0 1 0-14 0c0 5.42 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                      San Francisco
+                    </span>
+                    <span aria-hidden="true">·</span>
+                    <span>Class of '17</span>
+                    <span aria-hidden="true">·</span>
+                    <span>MIT</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-body">
+
+              <!-- Why it came through -->
+              <div class="detail-section">
+                <p class="eyebrow">Why it came through</p>
+                <div class="warm-context">
+                  <div class="avatars">
+                    <span class="avatar sm green">DK</span>
+                    <span class="avatar sm">MR</span>
+                    <span class="avatar sm rose">PS</span>
+                  </div>
+                  <div class="text">
+                    You both know <b>Daniel '16</b>, <b>Maya '14</b>, and <b>Priya '18</b>. Sara joined BridgeCircle 2 weeks ago.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Her message -->
+              <div class="detail-section">
+                <p class="eyebrow">Her note</p>
+                <div class="message">
+                  Hey Richard — saw we both know Daniel. I'm starting at Modal next month
+                  and would love to swap notes on engineering culture in mid-stage infra
+                  companies. Coffee anytime in SF.
+                </div>
+              </div>
+
+              <!-- Signals -->
+              <div class="detail-section">
+                <p class="eyebrow">Signals</p>
+                <div class="signals">
+                  <span class="chip lavender">3 mutuals</span>
+                  <span class="chip slate">Same major · CS</span>
+                  <span class="chip slate">Same city · SF</span>
+                  <span class="chip green"><span class="live-dot"></span>Open to advice</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Helper subnote -->
+            <div class="helper-note">
+              <svg class="i sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+              <span>
+                <b>Heads up:</b> Accepting opens direct messages between you and Sara.
+                Declining is silent — she won't be notified.
+              </span>
+            </div>
+
+            <div class="detail-actions">
+              <button class="btn btn-good">
+                <svg class="i sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+                Accept
+              </button>
+              <button class="btn btn-outline">Decline</button>
+              <button class="btn btn-ghost" title="View profile">
+                <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </body>
+</html>

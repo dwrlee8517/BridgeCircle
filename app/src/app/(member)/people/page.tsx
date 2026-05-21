@@ -8,7 +8,7 @@ import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
 import { displayOrgName } from '@/lib/utils'
-import { PeopleSearchSurface } from './people-search-surface'
+import { PeopleSearchSurface, ResultGrid, ResultsHeader } from './people-search-surface'
 import { ResultCard } from './result-card'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
@@ -198,6 +198,10 @@ export default async function PeoplePage({
                     rationale={h.rationale}
                     rerankScore={h.rerankScore}
                     topCareerEntry={pickTopCareerEntry(h.careerHistory)}
+                    maxActiveMentees={h.maxActiveMentees}
+                    maxPendingRequests={h.maxPendingRequests}
+                    activeMenteeCount={h.activeMenteeCount}
+                    pendingRequestCount={h.pendingRequestCount}
                   />
                 ))}
               </ResultGrid>
@@ -228,6 +232,10 @@ export default async function PeoplePage({
                       rationale={null}
                       rerankScore={null}
                       topCareerEntry={null}
+                      maxActiveMentees={h.maxActiveMentees}
+                      maxPendingRequests={h.maxPendingRequests}
+                      activeMenteeCount={h.activeMenteeCount}
+                      pendingRequestCount={h.pendingRequestCount}
                     />
                   ))}
                 </ResultGrid>
@@ -279,29 +287,6 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
       </div>
     </section>
   )
-}
-
-function ResultsHeader({ resultCount, hasFilter }: { resultCount: number; hasFilter: boolean }) {
-  // Avoid claiming "match your filters" when no filter is set — at the
-  // base state the count is just the org's directory.
-  const suffix = hasFilter
-    ? resultCount === 1
-      ? 'alum matches your filters'
-      : 'alumni match your filters'
-    : resultCount === 1
-      ? 'alum in your circle'
-      : 'alumni in your circle'
-  return (
-    <div className="flex items-center justify-between">
-      <p className="text-sm text-muted-foreground">
-        <strong className="text-foreground">{resultCount.toLocaleString()}</strong> {suffix}
-      </p>
-    </div>
-  )
-}
-
-function ResultGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
 }
 
 function EmptyResults({ text }: { text: React.ReactNode }) {
