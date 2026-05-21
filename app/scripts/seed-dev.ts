@@ -618,6 +618,12 @@ async function createUsersAndProfiles() {
     if (error) throw error
     const userId = data.user.id
 
+    const { error: userUpdateError } = await admin
+      .from('users')
+      .update({ onboarding_completed_at: new Date().toISOString() })
+      .eq('id', userId)
+    if (userUpdateError) throw userUpdateError
+
     const { error: baseProfileError } = await admin.from('base_profiles').insert({
       user_id: userId,
       name: p.name,
