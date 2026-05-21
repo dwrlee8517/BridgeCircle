@@ -157,7 +157,8 @@ test.describe("Core User Loop", () => {
 
     // Phase 5: Inbox, Accept request & send chat message
     await page.goto("/inbox");
-    await page.locator("a", { hasText: "Student Sam" }).first().click();
+    await page.locator("button", { hasText: "Student Sam" }).first().click();
+    await page.getByRole("link", { name: /reply & accept/i }).click();
     await page.waitForURL(/\/ask\/[a-f0-9-]+/);
 
     // Accept request
