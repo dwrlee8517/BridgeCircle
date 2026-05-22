@@ -302,32 +302,16 @@ export function InboxContainer({
               const initials = getInitials(item.title)
               const avatarBg = getAvatarColor(item.title)
 
-              // Status badge colors
-              let badgeBg = ''
-              let badgeText = ''
-              if (item.badgeTone === 'warn') {
-                badgeBg = 'bg-accent-ochre/10'
-                badgeText = 'text-accent-ochre'
-              } else if (item.badgeTone === 'info' || item.badgeTone === 'open') {
-                badgeBg = 'bg-primary/10'
-                badgeText = 'text-primary'
-              } else if (item.badgeTone === 'alert') {
-                badgeBg = 'bg-destructive/10'
-                badgeText = 'text-destructive'
-              } else {
-                badgeBg = 'bg-muted/60 dark:bg-muted/30'
-                badgeText = 'text-muted-foreground'
-              }
-
               return (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => handleSelectItem(item.id)}
-                  className={`w-full text-left p-2.5 rounded-[6px] transition-all flex items-start gap-2.5 cursor-pointer relative ${
+                  aria-pressed={isSelected}
+                  className={`bc-motion-surface w-full text-left p-2.5 rounded-[6px] flex items-start gap-2.5 cursor-pointer relative ${
                     isSelected
-                      ? 'bg-card border border-border shadow-sm'
-                      : 'border border-transparent bg-transparent hover:bg-muted/10'
+                      ? 'bg-primary-tint border border-state-info/25 shadow-sm'
+                      : 'border border-transparent bg-transparent hover:bg-surface-subtle/70'
                   }`}
                 >
                   {/* Initials Circle Avatar */}
@@ -337,7 +321,7 @@ export function InboxContainer({
                   >
                     {initials}
                     {item.unread && (
-                      <div className="absolute top-[-1px] right-[-1px] size-2 rounded-full bg-accent-ochre border-[1.5px] border-background" />
+                      <div className="bc-state-unread-dot absolute top-[-1px] right-[-1px] size-2 rounded-full border-[1.5px] border-background" />
                     )}
                   </div>
 
@@ -355,13 +339,11 @@ export function InboxContainer({
 
                     {/* Badges Row */}
                     <div className="flex gap-1 mt-0.5 mb-1 flex-wrap">
-                      <span
-                        className={`text-[8.5px] font-mono px-1 py-0.5 rounded-[3px] font-semibold uppercase tracking-wider ${badgeBg} ${badgeText}`}
-                      >
+                      <StatusBadge tone={item.badgeTone} size="sm">
                         {item.badge}
-                      </span>
+                      </StatusBadge>
                       {item.cohort && (
-                        <span className="text-[8.5px] font-mono bg-muted/60 text-muted-foreground px-1 py-0.5 rounded-[3px] font-semibold">
+                        <span className="inline-flex h-5 items-center rounded-[3px] bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-semibold text-state-muted">
                           Class of &apos;{String(item.cohort).slice(-2)}
                         </span>
                       )}
@@ -517,10 +499,7 @@ function AskDetail({ ask, isOutgoing = false }: { ask: AskData; isOutgoing?: boo
       )}
 
       <div className="pt-4 border-t border-border/60">
-        <Button
-          asChild
-          className="rounded-[6px] text-xs h-9 px-4 bg-primary hover:bg-primary-hover text-primary-foreground"
-        >
+        <Button asChild size="sm">
           <Link href={`/ask/${ask.id}`}>{isOutgoing ? 'View Status' : 'Reply & Accept'}</Link>
         </Button>
       </div>

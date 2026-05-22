@@ -34,6 +34,11 @@ Use the Civic home/dashboard patterns, but preserve this priority order:
 
 Avoid passive portal composition. Home can show events and announcements, but it should not lead with browsing, fundraising, or a generic activity feed.
 
+Implementation note: the first viewport should be a relationship-focus surface,
+not a configurable dashboard. Supporting decks can sit below the fold, but the
+opening question should resolve to either "Who needs me?" or "Who can help me?"
+with the corresponding people/request list visible.
+
 ## People
 
 Route: `/people`

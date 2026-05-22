@@ -1,4 +1,6 @@
 /* eslint-disable */
+// HISTORICAL PROTOTYPE ONLY. Do not copy these Atrium token exports into
+// production. Use ../tokens.md, ../components.md, and app/src/app/globals.css.
 // Atrium Design System — Token Export & Code (§53)
 
 function TokenExportSection() {

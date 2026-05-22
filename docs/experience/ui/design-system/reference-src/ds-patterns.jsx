@@ -1,4 +1,6 @@
 /* eslint-disable */
+// HISTORICAL PROTOTYPE ONLY. Do not copy these Atrium patterns into production.
+// Use ../components.md, ../tokens.md, and the live app primitives.
 // Atrium Design System — Navigation, Card patterns, page layout, root component
 
 // ─── NAV ALTERNATIVE COMPONENTS ───────────────────────────────────────────

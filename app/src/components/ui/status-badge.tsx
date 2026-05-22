@@ -1,36 +1,37 @@
 import { cva, type VariantProps } from 'class-variance-authority'
+import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
  * Semantic status pill for member / mentorship / membership states.
  *
  * Why a separate component instead of using Badge variants directly:
- * shadcn's Badge uses primary/secondary/destructive — fine for "is this an
+ * shadcn's Badge uses primary/secondary/destructive - fine for "is this an
  * action?" but it can't tell mentor-availability apart from request-status.
  * StatusBadge owns the semantic mapping in one place so every page renders
  * the same color for the same state.
  *
  * Tone guide:
- *   - "open"    → green (mentor accepting)
- *   - "warn"    → amber (paused, pending, stale)
- *   - "alert"   → red (revoked, declined, error)
- *   - "info"    → blurple (active, accepted, neutral-positive)
- *   - "muted"   → grey (no signal, deactivated)
+ *   - "open"    -> success (mentor accepting)
+ *   - "warn"    -> warning (paused, pending, stale)
+ *   - "alert"   -> danger (revoked, declined, error)
+ *   - "info"    -> info (active, accepted, neutral-positive)
+ *   - "muted"   -> muted (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'inline-flex w-fit shrink-0 items-center rounded-lg whitespace-nowrap',
+  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-lg whitespace-nowrap',
   {
     variants: {
       tone: {
-        open: 'bg-accent-sage/10 text-accent-sage border border-accent-sage/20',
-        warn: 'bg-accent-ochre/10 text-accent-ochre border border-accent-ochre/20',
-        alert: 'bg-accent-rust/10 text-accent-rust border border-accent-rust/20',
-        info: 'bg-primary/10 text-primary border border-primary/20',
-        muted: 'bg-muted text-muted-foreground border border-border/30',
-        sage: 'bg-accent-sage/10 text-accent-sage border border-accent-sage/20',
-        ochre: 'bg-accent-ochre/10 text-accent-ochre border border-accent-ochre/20',
-        rust: 'bg-accent-rust/10 text-accent-rust border border-accent-rust/20',
-        plum: 'bg-accent-plum/10 text-accent-plum border border-accent-plum/20',
+        open: 'bg-success-tint text-state-success-foreground border border-state-success/20',
+        warn: 'bg-warning-tint text-state-warning-foreground border border-state-warning/25',
+        alert: 'bg-danger-tint text-state-danger-foreground border border-state-danger/20',
+        info: 'bg-primary-tint text-state-info-foreground border border-state-info/20',
+        muted: 'bg-surface-subtle text-state-muted border border-border/30',
+        sage: 'bg-success-tint text-state-success-foreground border border-state-success/20',
+        ochre: 'bg-warning-tint text-state-warning-foreground border border-state-warning/25',
+        rust: 'bg-danger-tint text-state-danger-foreground border border-request-declined/20',
+        plum: 'bg-plum-tint text-state-categorized-foreground border border-state-categorized/20',
       },
       size: {
         sm: 'h-5 px-2 text-[10px] font-semibold gap-1',
@@ -75,18 +76,58 @@ function dotClass(tone: NonNullable<StatusBadgeProps['tone']>) {
   switch (tone) {
     case 'open':
     case 'sage':
-      return 'bg-accent-sage'
+      return 'bg-state-success'
     case 'warn':
     case 'ochre':
-      return 'bg-accent-ochre'
+      return 'bg-state-warning'
     case 'alert':
+      return 'bg-state-danger'
     case 'rust':
-      return 'bg-accent-rust'
+      return 'bg-request-declined'
     case 'plum':
-      return 'bg-accent-plum'
+      return 'bg-state-categorized'
     case 'info':
-      return 'bg-primary'
+      return 'bg-state-info'
     case 'muted':
-      return 'bg-muted-foreground'
+      return 'bg-state-muted'
   }
+}
+
+const lifecycleStatus = {
+  pending: { tone: 'warn', label: 'pending', dot: true },
+  accepted: { tone: 'info', label: 'accepted', dot: true },
+  active: { tone: 'info', label: 'active', dot: true },
+  completed: { tone: 'open', label: 'completed', dot: true },
+  declined: { tone: 'alert', label: 'declined', dot: true },
+  revoked: { tone: 'alert', label: 'revoked', dot: true },
+  expired: { tone: 'muted', label: 'expired', dot: false },
+  paused: { tone: 'warn', label: 'paused', dot: true },
+  unread: { tone: 'warn', label: 'unread', dot: true },
+  disabled: { tone: 'muted', label: 'disabled', dot: false },
+  error: { tone: 'alert', label: 'error', dot: true },
+} satisfies Record<
+  string,
+  { tone: NonNullable<StatusBadgeProps['tone']>; label: string; dot: boolean }
+>
+
+export type LifecycleStatus = keyof typeof lifecycleStatus
+
+export type LifecycleStatusBadgeProps = Omit<StatusBadgeProps, 'tone' | 'children'> & {
+  status: LifecycleStatus
+  children?: React.ReactNode
+}
+
+export function LifecycleStatusBadge({
+  status,
+  dot,
+  children,
+  ...props
+}: LifecycleStatusBadgeProps) {
+  const config = lifecycleStatus[status]
+
+  return (
+    <StatusBadge tone={config.tone} dot={dot ?? config.dot} {...props}>
+      {children ?? config.label}
+    </StatusBadge>
+  )
 }

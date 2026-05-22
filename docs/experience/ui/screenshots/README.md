@@ -5,10 +5,13 @@ Current screenshot set for the Civic Editorial implementation.
 Generated: 2026-05-22.
 
 Environment:
-- App: `http://127.0.0.1:3000`
+- App: `http://localhost:3000`
 - Viewports: desktop `1440x1000`, mobile `390x844`
 - Authenticated account: seeded admin member `admin-amy@example.com`
-- Browser path: Codex Browser was unavailable in this session, so screenshots were captured with Playwright.
+- Browser path: the in-app browser was used to verify the user's current view.
+  Canonical captures were regenerated with Playwright because the in-app
+  browser viewport override did not map one-to-one to CSS pixels in this
+  session.
 
 Coverage:
 
@@ -25,5 +28,10 @@ Coverage:
 QA notes:
 - Every captured route returned HTTP 200.
 - No Next.js error overlay was present.
-- No browser console warnings or errors were recorded during capture.
+- No browser console warnings or errors were recorded during the authenticated
+  route check.
 - The admin route redirects from `/admin` to `/admin/invite`; screenshots use the redirected invite screen.
+- The `/profile/me` route redirects to the signed-in member's canonical profile
+  URL before capture.
+- Next.js dev overlay UI is hidden during capture so screenshots show product UI
+  only.

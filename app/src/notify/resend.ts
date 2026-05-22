@@ -1,4 +1,5 @@
 import { render } from '@react-email/components'
+import type * as React from 'react'
 import { Resend } from 'resend'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
 import { AnnouncementEmail } from './emails/announcement-email'
@@ -37,23 +38,38 @@ export type SendInviteInput = {
 
 export type NotifyResult = { ok: true; id: string } | { ok: false; error: string }
 
-export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyResult> {
-  if (!resend) {
-    return { ok: false, error: 'RESEND_API_KEY not configured' }
-  }
+async function sendRenderedEmail({
+  to,
+  subject,
+  email,
+}: {
+  to: string
+  subject: string
+  email: React.ReactNode
+}): Promise<NotifyResult> {
+  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
 
-  const html = await render(InviteEmail(input))
+  const [html, text] = await Promise.all([render(email), render(email, { plainText: true })])
 
   const { data, error } = await resend.emails.send({
     from: FROM,
-    to: [input.to],
-    subject: `You're invited to join ${input.schoolName} on BridgeCircle`,
+    to: [to],
+    subject,
     html,
+    text,
   })
 
   if (error) return { ok: false, error: error.message }
   if (!data?.id) return { ok: false, error: 'no id returned' }
   return { ok: true, id: data.id }
+}
+
+export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyResult> {
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `You're invited to join ${input.schoolName} on BridgeCircle`,
+    email: InviteEmail(input),
+  })
 }
 
 export type SendMentorshipRequestInput = {
@@ -68,25 +84,17 @@ export type SendMentorshipRequestInput = {
 export async function sendMentorshipRequestEmail(
   input: SendMentorshipRequestInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
   const askType = input.askType ?? 'mentorship'
   const subject =
     askType === 'advice'
       ? `${input.menteeName} asked you for advice`
       : `${input.menteeName} sent you a mentorship request`
 
-  const html = await render(MentorshipRequestEmail(input))
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
+  return sendRenderedEmail({
+    to: input.to,
     subject,
-    html,
+    email: MentorshipRequestEmail(input),
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendMentorshipAcceptedInput = {
@@ -99,25 +107,17 @@ export type SendMentorshipAcceptedInput = {
 export async function sendMentorshipAcceptedEmail(
   input: SendMentorshipAcceptedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
   const askType = input.askType ?? 'mentorship'
   const subject =
     askType === 'advice'
       ? `${input.mentorName} replied to your advice request`
       : `${input.mentorName} accepted your mentorship request`
 
-  const html = await render(MentorshipAcceptedEmail(input))
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
+  return sendRenderedEmail({
+    to: input.to,
     subject,
-    html,
+    email: MentorshipAcceptedEmail(input),
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendEventRsvpConfirmationInput = {
@@ -131,19 +131,11 @@ export type SendEventRsvpConfirmationInput = {
 export async function sendEventRsvpConfirmationEmail(
   input: SendEventRsvpConfirmationInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(EventRsvpConfirmationEmail(input))
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
+  return sendRenderedEmail({
+    to: input.to,
     subject: `You're going to ${input.eventTitle}`,
-    html,
+    email: EventRsvpConfirmationEmail(input),
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendFriendRequestInput = {
@@ -154,25 +146,15 @@ export type SendFriendRequestInput = {
 }
 
 export async function sendFriendRequestEmail(input: SendFriendRequestInput): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    FriendRequestEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `${input.senderName} sent you a friend request`,
+    email: FriendRequestEmail({
       senderName: input.senderName,
       reviewUrl: input.reviewUrl,
       message: input.message,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `${input.senderName} sent you a friend request`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendMembershipApprovedInput = {
@@ -185,25 +167,15 @@ export type SendMembershipApprovedInput = {
 export async function sendMembershipApprovedEmail(
   input: SendMembershipApprovedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    MembershipApprovedEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `You're approved — welcome to ${input.orgName} on BridgeCircle`,
+    email: MembershipApprovedEmail({
       recipientName: input.recipientName,
       orgName: input.orgName,
       signInUrl: input.signInUrl,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `You're approved — welcome to ${input.orgName} on BridgeCircle`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendMembershipRejectedInput = {
@@ -215,24 +187,14 @@ export type SendMembershipRejectedInput = {
 export async function sendMembershipRejectedEmail(
   input: SendMembershipRejectedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    MembershipRejectedEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `Update on your ${input.orgName} BridgeCircle membership`,
+    email: MembershipRejectedEmail({
       recipientName: input.recipientName,
       orgName: input.orgName,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `Update on your ${input.orgName} BridgeCircle membership`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendMembershipDeactivatedInput = {
@@ -245,25 +207,15 @@ export type SendMembershipDeactivatedInput = {
 export async function sendMembershipDeactivatedEmail(
   input: SendMembershipDeactivatedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    MembershipDeactivatedEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `Your ${input.orgName} BridgeCircle access has been deactivated`,
+    email: MembershipDeactivatedEmail({
       recipientName: input.recipientName,
       orgName: input.orgName,
       reason: input.reason,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `Your ${input.orgName} BridgeCircle access has been deactivated`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendAccountDeleteScheduledInput = {
@@ -276,25 +228,15 @@ export type SendAccountDeleteScheduledInput = {
 export async function sendAccountDeleteScheduledEmail(
   input: SendAccountDeleteScheduledInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    AccountDeleteScheduledEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: 'Your BridgeCircle account has been deactivated',
+    email: AccountDeleteScheduledEmail({
       recipientName: input.recipientName,
       reason: input.reason,
       scheduledFor: input.scheduledFor,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: 'Your BridgeCircle account has been deactivated',
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendEventCanceledInput = {
@@ -307,27 +249,17 @@ export type SendEventCanceledInput = {
 }
 
 export async function sendEventCanceledEmail(input: SendEventCanceledInput): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    EventCanceledEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `${input.eventTitle} has been canceled`,
+    email: EventCanceledEmail({
       recipientName: input.recipientName,
       eventTitle: input.eventTitle,
       eventStartsAt: input.eventStartsAt,
       eventLocation: input.eventLocation,
       reason: input.reason,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `${input.eventTitle} has been canceled`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendEventWaitlistPromotedInput = {
@@ -342,27 +274,17 @@ export type SendEventWaitlistPromotedInput = {
 export async function sendEventWaitlistPromotedEmail(
   input: SendEventWaitlistPromotedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    EventWaitlistPromotedEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `A spot opened up for ${input.eventTitle}`,
+    email: EventWaitlistPromotedEmail({
       recipientName: input.recipientName,
       eventTitle: input.eventTitle,
       eventStartsAt: input.eventStartsAt,
       eventLocation: input.eventLocation,
       eventUrl: input.eventUrl,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `A spot opened up for ${input.eventTitle}`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendAnnouncementInput = {
@@ -375,27 +297,17 @@ export type SendAnnouncementInput = {
 }
 
 export async function sendAnnouncementEmail(input: SendAnnouncementInput): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    AnnouncementEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `${input.orgName}: ${input.title}`,
+    email: AnnouncementEmail({
       recipientName: input.recipientName,
       orgName: input.orgName,
       title: input.title,
       body: input.body,
       announcementsUrl: input.announcementsUrl,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `${input.orgName}: ${input.title}`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendFriendRequestAcceptedInput = {
@@ -407,24 +319,14 @@ export type SendFriendRequestAcceptedInput = {
 export async function sendFriendRequestAcceptedEmail(
   input: SendFriendRequestAcceptedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    FriendRequestAcceptedEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `${input.accepterName} accepted your friend request`,
+    email: FriendRequestAcceptedEmail({
       accepterName: input.accepterName,
       profileUrl: input.profileUrl,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: `${input.accepterName} accepted your friend request`,
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 // ---------------------------------------------------------------------------
@@ -443,27 +345,17 @@ export type SendProposalReviewInput = {
 export async function sendProposalReviewEmail(
   input: SendProposalReviewInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    ProposalReviewEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: 'BridgeCircle: updates from your LinkedIn',
+    email: ProposalReviewEmail({
       recipientName: input.recipientName,
       reviewUrl: input.reviewUrl,
       confirmUrl: input.confirmUrl,
       declineUrl: input.declineUrl,
       changeSummary: input.changeSummary,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: 'BridgeCircle: updates from your LinkedIn',
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
 
 export type SendProposalAppliedInput = {
@@ -476,23 +368,13 @@ export type SendProposalAppliedInput = {
 export async function sendProposalAppliedEmail(
   input: SendProposalAppliedInput,
 ): Promise<NotifyResult> {
-  if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
-
-  const html = await render(
-    ProposalAppliedEmail({
+  return sendRenderedEmail({
+    to: input.to,
+    subject: 'BridgeCircle: we updated your profile from LinkedIn',
+    email: ProposalAppliedEmail({
       recipientName: input.recipientName,
       undoUrl: input.undoUrl,
       changeSummary: input.changeSummary,
     }),
-  )
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [input.to],
-    subject: 'BridgeCircle: we updated your profile from LinkedIn',
-    html,
   })
-
-  if (error) return { ok: false, error: error.message }
-  if (!data?.id) return { ok: false, error: 'no id returned' }
-  return { ok: true, id: data.id }
 }
