@@ -14,7 +14,7 @@ import { RsvpButtons } from '../rsvp-buttons'
 type Params = { id: string }
 
 const STACK_PALETTE = [
-  { bg: 'bg-primary/10 border-primary/20', text: 'text-primary' }, // Cobalt
+  { bg: 'bg-primary/10 border-primary/20', text: 'text-primary' }, // Electric Sky
   { bg: 'bg-accent-ochre/10 border-accent-ochre/20', text: 'text-accent-ochre' }, // Ochre
   { bg: 'bg-accent-sage/10 border-accent-sage/20', text: 'text-accent-sage' }, // Sage
   { bg: 'bg-accent-plum/10 border-accent-plum/20', text: 'text-accent-plum' }, // Plum

@@ -216,12 +216,12 @@ export default async function ProfileDetailPage({
       </Link>
 
       {flashSaved ? (
-        <div className="mb-6 rounded-[6px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <div className="mb-6 rounded-[6px] border border-accent-sage/25 bg-accent-sage/10 px-4 py-3 text-sm text-foreground">
           Profile saved.
         </div>
       ) : null}
       {flashNotFriends ? (
-        <div className="mb-6 rounded-[6px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mb-6 rounded-[6px] border border-accent-ochre/25 bg-accent-ochre/10 px-4 py-3 text-sm text-foreground">
           Direct messages are open to friends only. Add{' '}
           <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first to
           start a conversation.
@@ -293,7 +293,7 @@ export default async function ProfileDetailPage({
                   alt={displayName(profile.name, profile.preferredName, '')}
                 />
               ) : null}
-              <AvatarFallback className="bg-primary text-2xl font-bold text-white">
+              <AvatarFallback className="bg-primary text-2xl font-bold text-primary-foreground">
                 {displayName(profile.name, profile.preferredName, '?').slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>

@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils'
  *   - "muted"   → grey (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'inline-flex w-fit shrink-0 items-center rounded-full whitespace-nowrap',
+  'inline-flex w-fit shrink-0 items-center rounded-lg whitespace-nowrap',
   {
     variants: {
       tone: {
@@ -33,8 +33,8 @@ const statusBadgeVariants = cva(
         plum: 'bg-accent-plum/10 text-accent-plum border border-accent-plum/20',
       },
       size: {
-        sm: 'h-4 px-1.5 text-[9px] font-semibold gap-1',
-        md: 'h-5 px-2 py-0.5 text-xs font-medium gap-1.5',
+        sm: 'h-5 px-2 text-[10px] font-semibold gap-1',
+        md: 'h-6 px-2.5 py-0.5 text-xs font-medium gap-1.5',
       },
     },
     defaultVariants: {

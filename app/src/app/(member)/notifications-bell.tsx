@@ -133,7 +133,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
             variant="ghost"
             size="icon-sm"
             aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-            className="relative text-slate-300 hover:bg-slate-800 hover:text-white"
+            className="relative text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             <Bell className="h-4 w-4" />
             {unread > 0 ? (

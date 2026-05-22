@@ -121,18 +121,18 @@ export function StepEducation({ defaults, action }: Props) {
 export function LinkedInImportLink({ step }: { step: 2 | 3 | 4 }) {
   const returnTo = `/onboarding?step=${step}`
   return (
-    <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm">
+    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
       <div className="flex items-start gap-2">
-        <Link2 className="size-4 mt-0.5 text-sky-700" aria-hidden />
+        <Link2 className="size-4 mt-0.5 text-primary" aria-hidden />
         <div className="flex-1 space-y-1">
-          <p className="font-medium text-sky-900">Have a LinkedIn URL?</p>
-          <p className="text-xs text-sky-800">
+          <p className="font-medium text-foreground">Have a LinkedIn URL?</p>
+          <p className="text-xs text-muted-foreground">
             Import once to pre-fill education, current role, career history, and skills.
           </p>
         </div>
         <Link
           href={`/profile/import?source=linkedin&return=${encodeURIComponent(returnTo)}`}
-          className="text-sm font-medium text-sky-900 underline underline-offset-2 hover:text-sky-700"
+          className="text-sm font-medium text-primary underline underline-offset-2 hover:text-primary-hover"
         >
           Import →
         </Link>

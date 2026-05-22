@@ -306,14 +306,14 @@ export function InboxContainer({
               let badgeBg = ''
               let badgeText = ''
               if (item.badgeTone === 'warn') {
-                badgeBg = 'bg-[#fef3c7] dark:bg-[#78350f]'
-                badgeText = 'text-[#d97706] dark:text-[#fcd34d]'
+                badgeBg = 'bg-accent-ochre/10'
+                badgeText = 'text-accent-ochre'
               } else if (item.badgeTone === 'info' || item.badgeTone === 'open') {
-                badgeBg = 'bg-[#e0f2fe] dark:bg-[#0369a1]'
-                badgeText = 'text-[#0284c7] dark:text-[#bae6fd]'
+                badgeBg = 'bg-primary/10'
+                badgeText = 'text-primary'
               } else if (item.badgeTone === 'alert') {
-                badgeBg = 'bg-[#fee2e2] dark:bg-[#7f1d1d]'
-                badgeText = 'text-[#ef4444] dark:text-[#fca5a5]'
+                badgeBg = 'bg-destructive/10'
+                badgeText = 'text-destructive'
               } else {
                 badgeBg = 'bg-muted/60 dark:bg-muted/30'
                 badgeText = 'text-muted-foreground'
@@ -332,12 +332,12 @@ export function InboxContainer({
                 >
                   {/* Initials Circle Avatar */}
                   <div
-                    className="size-8 rounded-full flex shrink-0 items-center justify-center text-white text-[11px] font-bold font-sans relative select-none"
+                    className="size-8 rounded-full flex shrink-0 items-center justify-center text-background text-[11px] font-bold font-sans relative select-none"
                     style={{ backgroundColor: avatarBg }}
                   >
                     {initials}
                     {item.unread && (
-                      <div className="absolute top-[-1px] right-[-1px] size-2 rounded-full bg-[#f59e0b] border-[1.5px] border-background" />
+                      <div className="absolute top-[-1px] right-[-1px] size-2 rounded-full bg-accent-ochre border-[1.5px] border-background" />
                     )}
                   </div>
 
@@ -519,7 +519,7 @@ function AskDetail({ ask, isOutgoing = false }: { ask: AskData; isOutgoing?: boo
       <div className="pt-4 border-t border-border/60">
         <Button
           asChild
-          className="rounded-[6px] text-xs h-9 px-4 bg-primary hover:bg-primary/90 text-white"
+          className="rounded-[6px] text-xs h-9 px-4 bg-primary hover:bg-primary-hover text-primary-foreground"
         >
           <Link href={`/ask/${ask.id}`}>{isOutgoing ? 'View Status' : 'Reply & Accept'}</Link>
         </Button>
@@ -665,9 +665,9 @@ function StatusSetter({
                 key={p}
                 type="button"
                 onClick={() => onSetStatus(active ? null : p)}
-                className={`text-[12.5px] font-semibold px-3 py-[6px] rounded-full border transition-all cursor-pointer ${
+                className={`text-[12.5px] font-semibold px-3 py-[6px] rounded-[6px] border transition-all cursor-pointer ${
                   active
-                    ? 'bg-primary border-primary text-white shadow-sm font-semibold'
+                    ? 'bg-primary border-primary text-primary-foreground shadow-sm font-semibold'
                     : 'bg-muted/30 hover:bg-muted/50 border-border text-foreground'
                 }`}
               >
@@ -689,7 +689,7 @@ function StatusSetter({
               }
             }}
             placeholder="…or write your own (Enter to set)"
-            className="flex-1 text-[13px] px-4 py-[9px] bg-muted/30 border border-border rounded-full focus-visible:outline-none focus-visible:border-primary text-foreground"
+            className="flex-1 text-[13px] px-4 py-[9px] bg-muted/30 border border-border rounded-[6px] focus-visible:outline-none focus-visible:border-primary text-foreground"
           />
           <Button
             size="sm"
@@ -700,7 +700,7 @@ function StatusSetter({
                 setDraft('')
               }
             }}
-            className="rounded-full text-xs h-[38px] px-4 bg-primary hover:bg-primary/90 text-white"
+            className="rounded-[6px] text-xs h-[38px] px-4 bg-primary hover:bg-primary-hover text-primary-foreground"
           >
             Set
           </Button>
@@ -1106,7 +1106,7 @@ function InlineConversation({
                       className={`px-[14px] py-[10px] text-[13.5px] whitespace-pre-wrap break-words leading-[1.45] ${
                         isMe
                           ? 'bg-primary text-primary-foreground rounded-[16px_16px_4px_16px] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]'
-                          : 'bg-[#f3f3f2] dark:bg-muted/20 border border-border/40 text-foreground rounded-[16px_16px_16px_4px]'
+                          : 'bg-muted/50 dark:bg-muted/20 border border-border/40 text-foreground rounded-[16px_16px_16px_4px]'
                       }`}
                     >
                       {m.body}
@@ -1240,10 +1240,10 @@ function InlineConversation({
             <Button
               type="submit"
               disabled={pending}
-              className="h-[38px] rounded-[6px] px-4 bg-primary hover:bg-primary/90 text-white flex items-center justify-center shrink-0 font-medium text-xs"
+              className="h-[38px] rounded-[6px] px-4 bg-primary hover:bg-primary-hover text-primary-foreground flex items-center justify-center shrink-0 font-medium text-xs"
             >
               {pending ? (
-                <span className="size-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span className="size-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
               ) : (
                 'Send →'
               )}
@@ -1276,23 +1276,21 @@ function formatGroupedDate(iso: string): string {
 
 function getAvatarColor(name: string): string {
   const normalized = name.toLowerCase().trim()
-  if (normalized.includes('alexander')) return '#fbbf24' // Yellow
-  if (normalized.includes('iris')) return '#10b981' // Green
-  if (normalized.includes('dev')) return '#3b82f6' // Blue
-  if (normalized.includes('sarah')) return '#ec4899' // Pink
-  if (normalized.includes('jessica')) return '#8b5cf6' // Purple
-  if (normalized.includes('richard')) return '#6366f1' // Indigo
+  if (normalized.includes('alexander')) return 'var(--accent-ochre)'
+  if (normalized.includes('iris')) return 'var(--accent-sage)'
+  if (normalized.includes('dev')) return 'var(--primary)'
+  if (normalized.includes('sarah')) return 'var(--accent-rust)'
+  if (normalized.includes('jessica')) return 'var(--accent-plum)'
+  if (normalized.includes('richard')) return 'var(--primary)'
 
   // Deterministic fallback color based on hash
   const colors = [
-    '#3b82f6',
-    '#10b981',
-    '#fbbf24',
-    '#ec4899',
-    '#8b5cf6',
-    '#ef4444',
-    '#6366f1',
-    '#14b8a6',
+    'var(--primary)',
+    'var(--accent-sage)',
+    'var(--accent-ochre)',
+    'var(--accent-rust)',
+    'var(--accent-plum)',
+    'var(--destructive)',
   ]
   let hash = 0
   for (let i = 0; i < name.length; i++) {

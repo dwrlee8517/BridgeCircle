@@ -7,22 +7,22 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function HomeLoading() {
   return (
     <div>
-      <section className="relative overflow-hidden bg-[linear-gradient(135deg,#0b1220_0%,#131b2e_50%,#1e293b_100%)] text-white">
+      <section className="relative overflow-hidden bg-surface-midnight text-surface-midnight-foreground">
         <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-8 sm:py-20">
-          <Skeleton className="h-3 w-56 bg-white/10" />
-          <Skeleton className="mt-3 h-12 w-[28rem] max-w-full bg-white/10" />
-          <Skeleton className="mt-2 h-12 w-[20rem] max-w-full bg-white/10" />
-          <Skeleton className="mt-5 h-5 w-72 max-w-full bg-white/10" />
+          <Skeleton className="h-3 w-56 bg-surface-midnight-foreground/10" />
+          <Skeleton className="mt-3 h-12 w-[28rem] max-w-full bg-surface-midnight-foreground/10" />
+          <Skeleton className="mt-2 h-12 w-[20rem] max-w-full bg-surface-midnight-foreground/10" />
+          <Skeleton className="mt-5 h-5 w-72 max-w-full bg-surface-midnight-foreground/10" />
           <div className="mt-7 flex gap-3">
-            <Skeleton className="h-11 w-44 bg-white/10" />
-            <Skeleton className="h-11 w-44 bg-white/10" />
+            <Skeleton className="h-11 w-44 bg-surface-midnight-foreground/10" />
+            <Skeleton className="h-11 w-44 bg-surface-midnight-foreground/10" />
           </div>
-          <div className="mt-14 grid grid-cols-2 gap-6 border-t border-white/10 pt-7 sm:grid-cols-4">
+          <div className="mt-14 grid grid-cols-2 gap-6 border-t border-surface-midnight-foreground/10 pt-7 sm:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
               <div key={i} className="space-y-2">
-                <Skeleton className="h-9 w-16 bg-white/10" />
-                <Skeleton className="h-3 w-24 bg-white/10" />
+                <Skeleton className="h-9 w-16 bg-surface-midnight-foreground/10" />
+                <Skeleton className="h-3 w-24 bg-surface-midnight-foreground/10" />
               </div>
             ))}
           </div>

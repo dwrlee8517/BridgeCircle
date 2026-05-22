@@ -105,7 +105,7 @@ export function PrivacyForm({ initial }: { initial: PrivacySettings }) {
           {pending ? 'Saving…' : 'Save privacy'}
         </Button>
         {state ? (
-          <span className={`text-xs ${state.ok ? 'text-emerald-600' : 'text-destructive'}`}>
+          <span className={`text-xs ${state.ok ? 'text-accent-sage' : 'text-destructive'}`}>
             {state.message}
           </span>
         ) : null}

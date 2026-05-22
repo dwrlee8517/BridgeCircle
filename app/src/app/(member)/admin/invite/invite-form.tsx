@@ -43,9 +43,7 @@ export function InviteForm() {
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       {state.success ? (
-        <p className="text-sm text-green-700 dark:text-green-400">
-          Invite sent to {state.emailJustSent}.
-        </p>
+        <p className="text-sm text-accent-sage">Invite sent to {state.emailJustSent}.</p>
       ) : null}
 
       <Button type="submit" disabled={pending}>

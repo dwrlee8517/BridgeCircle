@@ -233,6 +233,6 @@ function DeletionBadge({
 
 function CompletionCell({ percent }: { percent: number }) {
   const tone =
-    percent >= 80 ? 'text-emerald-600' : percent >= 50 ? 'text-amber-600' : 'text-destructive'
+    percent >= 80 ? 'text-accent-sage' : percent >= 50 ? 'text-accent-ochre' : 'text-destructive'
   return <span className={tone}>{percent}%</span>
 }

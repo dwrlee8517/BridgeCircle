@@ -42,7 +42,7 @@ export function FriendRequestActions({ requestId }: { requestId: string }) {
         </form>
       </div>
       {message ? (
-        <p className={`text-xs ${ok ? 'text-emerald-600' : 'text-destructive'}`}>{message}</p>
+        <p className={`text-xs ${ok ? 'text-accent-sage' : 'text-destructive'}`}>{message}</p>
       ) : null}
     </div>
   )

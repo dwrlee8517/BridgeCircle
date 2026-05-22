@@ -112,7 +112,7 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
         </Card>
 
         {isMentorship ? (
-          <div className="rounded-xl border border-border overflow-hidden bg-card shadow-sm lg:h-full lg:sticky lg:top-8">
+          <div className="rounded-[6px] border border-border overflow-hidden bg-card shadow-sm lg:h-full lg:sticky lg:top-8">
             <MentorshipGoalTracker threadId={thread.id} />
           </div>
         ) : null}

@@ -20,14 +20,14 @@ type Props = {
 }
 
 function getStableBgColor(name: string | null) {
-  if (!name) return 'bg-[#4d4d4a] text-white'
+  if (!name) return 'bg-muted-foreground text-background'
   const colors = [
-    'bg-[#b9472a] text-white', // Terracotta / Rust
-    'bg-[#3b6e51] text-white', // Sage
-    'bg-[#722f37] text-white', // Wine / Plum
-    'bg-[#c8761a] text-white', // Ochre
-    'bg-[#173fb3] text-white', // Deep Cobalt
-    'bg-[#4d4d4a] text-white', // Charcoal / Slate
+    'bg-accent-rust text-background',
+    'bg-accent-sage text-background',
+    'bg-accent-plum text-background',
+    'bg-accent-ochre text-background',
+    'bg-primary text-primary-foreground',
+    'bg-muted-foreground text-background',
   ]
   let sum = 0
   for (let i = 0; i < name.length; i++) {

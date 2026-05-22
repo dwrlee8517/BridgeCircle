@@ -283,7 +283,7 @@ export default function DashboardClient({
       <div className="fixed bottom-6 right-6 z-40">
         <Button
           onClick={() => setIsCustomizing(true)}
-          className="rounded-full shadow-lg border border-border bg-card text-foreground hover:bg-muted font-sans font-medium text-xs px-4 h-10 gap-2 cursor-pointer transition active:scale-95"
+          className="rounded-[6px] shadow-lg border border-border bg-card text-foreground hover:bg-muted font-sans font-medium text-xs px-4 h-10 gap-2 cursor-pointer transition active:scale-95"
         >
           <Settings2 className="size-3.5 text-primary" />
           Customize Layout
@@ -311,7 +311,7 @@ export default function DashboardClient({
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsCustomizing(false)}
-                className="rounded-full size-8 shrink-0 hover:bg-muted"
+                className="rounded-[6px] size-8 shrink-0 hover:bg-muted"
               >
                 <X className="size-4" />
               </Button>
@@ -508,10 +508,10 @@ function MidnightHero({
   const cohortText = cohortYear ? `Class of '${`${cohortYear}`.slice(-2)}` : null
 
   return (
-    <section className="relative overflow-hidden bg-linear-to-br from-[#0b1220] via-[#131b2e] to-[#1e293b] text-white py-12 px-6 sm:px-8 border-b border-border/20">
+    <section className="relative overflow-hidden bg-surface-midnight text-surface-midnight-foreground py-12 px-6 sm:px-8 border-b border-border/20">
       {/* Editorial wire motif SVG */}
       <svg
-        className="absolute top-[-40px] right-[-60px] w-[520px] h-[380px] opacity-15 pointer-events-none stroke-white"
+        className="absolute top-[-40px] right-[-60px] w-[520px] h-[380px] opacity-15 pointer-events-none stroke-primary-on-dark"
         viewBox="0 0 520 380"
         aria-hidden="true"
       >
@@ -521,19 +521,19 @@ function MidnightHero({
       </svg>
 
       <div className="mx-auto max-w-6xl relative">
-        <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between border-b border-white/10 pb-4">
-          <p className="font-mono text-[10px] font-semibold tracking-[0.18em] uppercase text-[#b4c5ff]">
+        <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between border-b border-surface-midnight-foreground/15 pb-4">
+          <p className="font-mono text-[10px] font-semibold tracking-[0.18em] uppercase text-primary-on-dark">
             {cohortText ? `${cohortText} · ` : ''}Welcome back to {orgDisplayName}
           </p>
-          <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-[#94a3b8] flex items-center gap-2 mt-1 md:mt-0">
+          <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-surface-midnight-muted flex items-center gap-2 mt-1 md:mt-0">
             <span>{format(new Date(), 'EEE d MMM yyyy')}</span>
-            <span className="text-primary">●</span>
+            <span className="text-primary-on-dark">●</span>
             <span>Edition 142</span>
-            <span className="text-primary">●</span>
+            <span className="text-primary-on-dark">●</span>
             <button
               type="button"
               onClick={onCustomizeClick}
-              className="text-[#b4c5ff] hover:text-white cursor-pointer hover:underline underline-offset-2 transition-colors focus:outline-hidden"
+              className="text-primary-on-dark hover:text-surface-midnight-foreground cursor-pointer hover:underline underline-offset-2 transition-colors focus:outline-hidden"
             >
               [Customize Layout]
             </button>
@@ -542,11 +542,11 @@ function MidnightHero({
 
         <div className="mt-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
-            <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight leading-[1.1] text-white">
+            <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight leading-[1.1] text-surface-midnight-foreground">
               Good afternoon, {firstName}.<br />
-              <span className="text-[#b4c5ff]">Your circle is active today.</span>
+              <span className="text-primary-on-dark">Your circle is active today.</span>
             </h1>
-            <p className="text-sm text-slate-300 max-w-xl leading-relaxed">
+            <p className="text-sm text-surface-midnight-muted max-w-xl leading-relaxed">
               {pendingRequestsCount > 0
                 ? `${pendingRequestsCount} pending mentorship requests need your attention, and new career updates have been posted.`
                 : `Your professional circle has grown by ${stats.newJoinersLast7d} members this week. Refresh your advice focus or explore upcoming events.`}
@@ -556,7 +556,7 @@ function MidnightHero({
           <div className="flex flex-wrap gap-3 shrink-0">
             <Button
               asChild
-              className="rounded-[6px] text-xs font-semibold px-4 h-9 bg-white text-slate-900 hover:bg-slate-100 cursor-pointer transition"
+              className="rounded-[6px] text-xs font-semibold px-4 h-9 bg-surface-midnight-foreground text-surface-midnight hover:bg-surface-midnight-foreground/90 cursor-pointer transition"
             >
               <Link href="/inbox" className="flex items-center gap-1.5">
                 <Handshake className="size-3.5" />
@@ -566,7 +566,7 @@ function MidnightHero({
             <Button
               asChild
               variant="outline"
-              className="rounded-[6px] text-xs font-semibold px-4 h-9 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white cursor-pointer transition"
+              className="rounded-[6px] text-xs font-semibold px-4 h-9 border-surface-midnight-foreground/25 bg-surface-midnight-foreground/5 text-surface-midnight-foreground hover:bg-surface-midnight-foreground/10 hover:text-surface-midnight-foreground cursor-pointer transition"
             >
               <Link href="/events" className="flex items-center gap-1.5">
                 <CalendarDays className="size-3.5" />
@@ -577,36 +577,36 @@ function MidnightHero({
         </div>
 
         {/* Hero metrics strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/10 mt-12 pt-6">
-          <div className="border-l border-white/10 pl-4 first:border-l-0 first:pl-0">
-            <div className="font-serif text-3xl font-bold leading-none text-white">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-surface-midnight-foreground/15 mt-12 pt-6">
+          <div className="border-l border-surface-midnight-foreground/15 pl-4 first:border-l-0 first:pl-0">
+            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
               {stats.newJoinersLast7d}
             </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-slate-400 mt-1.5">
+            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
               New this week
             </div>
           </div>
-          <div className="border-l border-white/10 pl-4">
-            <div className="font-serif text-3xl font-bold leading-none text-white">
+          <div className="border-l border-surface-midnight-foreground/15 pl-4">
+            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
               {stats.openMentorsTotal}
             </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-slate-400 mt-1.5">
+            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
               Open Mentors
             </div>
           </div>
-          <div className="border-l border-white/10 pl-4">
-            <div className="font-serif text-3xl font-bold leading-none text-white">
+          <div className="border-l border-surface-midnight-foreground/15 pl-4">
+            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
               {stats.upcomingEventsTotal}
             </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-slate-400 mt-1.5">
+            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
               Gatherings
             </div>
           </div>
-          <div className="border-l border-white/10 pl-4">
-            <div className="font-serif text-3xl font-bold leading-none text-white">
+          <div className="border-l border-surface-midnight-foreground/15 pl-4">
+            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
               Class &apos;{`${cohortYear ?? new Date().getFullYear()}`.slice(-2)}
             </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-slate-400 mt-1.5">
+            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
               Your Cohort
             </div>
           </div>
@@ -749,7 +749,7 @@ function CircleTelemetry({
         <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           Telemetry · Cohort stats
         </span>
-        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">
+        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-accent-sage">
           [Active members]
         </span>
       </div>
@@ -847,14 +847,12 @@ function ActionNudge({
   }
 
   const tagColor =
-    type === 'request'
-      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300'
-      : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300'
+    type === 'request' ? 'bg-accent-ochre/10 text-accent-ochre' : 'bg-primary/10 text-primary'
 
   return (
-    <Card className="relative overflow-hidden rounded-[6px] border border-amber-200 dark:border-amber-950/50 bg-linear-to-br from-amber-50/70 to-orange-50/40 dark:from-amber-950/10 dark:to-orange-950/5 p-5 shadow-xs">
+    <Card className="relative overflow-hidden rounded-[6px] border border-accent-ochre/25 bg-accent-ochre/10 p-5 shadow-xs">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-amber-800 dark:text-amber-400">
+        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-accent-ochre">
           One small thing today
         </span>
         <span
@@ -864,16 +862,14 @@ function ActionNudge({
         </span>
       </div>
 
-      <h3 className="font-serif text-lg font-semibold text-amber-950 dark:text-amber-100 mt-2.5">
-        {heading}
-      </h3>
-      <p className="text-xs text-amber-800 dark:text-amber-300/80 mt-1 leading-relaxed">{body}</p>
+      <h3 className="font-serif text-lg font-semibold text-foreground mt-2.5">{heading}</h3>
+      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{body}</p>
 
-      <div className="flex gap-2.5 mt-4 pt-3.5 border-t border-amber-200/50 dark:border-amber-900/30">
+      <div className="flex gap-2.5 mt-4 pt-3.5 border-t border-accent-ochre/25">
         <Button
           asChild
           size="sm"
-          className="rounded-[6px] text-xs font-semibold h-8 px-4 bg-amber-800 text-white hover:bg-amber-900 border-none cursor-pointer transition active:translate-y-[0.5px]"
+          className="rounded-[6px] text-xs font-semibold h-8 px-4 bg-accent-ochre text-foreground hover:bg-accent-ochre/90 border-none cursor-pointer transition active:translate-y-[0.5px]"
         >
           <Link href={buttonHref}>{buttonLabel}</Link>
         </Button>
@@ -936,7 +932,7 @@ function CalendarSection({
 
       <Card className="overflow-hidden rounded-[6px] border border-border transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-xs">
         {/* Colorful gradient headers */}
-        <div className="relative border-b border-border bg-linear-to-r from-primary/5 via-primary/10 to-transparent p-4">
+        <div className="relative border-b border-border bg-primary/5 p-4">
           <div className="flex justify-between items-center">
             <span className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-primary">
               Featured Gathering
@@ -967,13 +963,13 @@ function CalendarSection({
           <div className="going flex items-center justify-between pt-3 border-t border-border/40">
             {/* Generate attendee stacks dynamically based on count */}
             <div className="flex -space-x-1.5 overflow-hidden">
-              <span className="size-6 rounded-full border border-card bg-emerald-700 text-white font-mono text-[9px] flex items-center justify-center font-bold">
+              <span className="size-6 rounded-full border border-card bg-accent-sage text-background font-mono text-[9px] flex items-center justify-center font-bold">
                 DK
               </span>
-              <span className="size-6 rounded-full border border-card bg-amber-700 text-white font-mono text-[9px] flex items-center justify-center font-bold">
+              <span className="size-6 rounded-full border border-card bg-accent-ochre text-background font-mono text-[9px] flex items-center justify-center font-bold">
                 MR
               </span>
-              <span className="size-6 rounded-full border border-card bg-indigo-700 text-white font-mono text-[9px] flex items-center justify-center font-bold">
+              <span className="size-6 rounded-full border border-card bg-accent-plum text-background font-mono text-[9px] flex items-center justify-center font-bold">
                 SP
               </span>
               {featured.goingCount > 3 && (
@@ -1200,7 +1196,7 @@ function ThankYouWall() {
   return (
     <Card className="rounded-[6px] border border-border p-5 bg-card relative shadow-xs min-h-[160px] flex flex-col justify-between">
       <div>
-        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-emerald-600 dark:text-emerald-400">
+        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-accent-sage">
           Thank-you wall
         </span>
         <blockquote className="font-serif text-sm leading-[1.55] italic text-foreground mt-2">
@@ -1222,7 +1218,7 @@ function ThankYouWall() {
               onClick={() => setIndex(THANK_YOU_STORIES.indexOf(story))}
               className={`size-1.5 rounded-full cursor-pointer focus:outline-hidden transition-all ${
                 THANK_YOU_STORIES.indexOf(story) === index
-                  ? 'bg-emerald-600 w-3'
+                  ? 'bg-accent-sage w-3'
                   : 'bg-muted-foreground/30'
               }`}
             />
@@ -1384,14 +1380,14 @@ function iconForType(type: string): { Icon: typeof Handshake; tone: string } {
       return { Icon: Handshake, tone: 'var(--primary)' }
     case 'friend_request_received':
     case 'friend_request_accepted':
-      return { Icon: UserPlus, tone: '#165e34' }
+      return { Icon: UserPlus, tone: 'var(--accent-sage)' }
     case 'direct_message':
     case 'ask_message':
       return { Icon: MessageSquare, tone: 'var(--primary)' }
     case 'announcement':
-      return { Icon: Megaphone, tone: '#b25e00' }
+      return { Icon: Megaphone, tone: 'var(--accent-ochre)' }
     case 'event_canceled':
-      return { Icon: CalendarX, tone: '#9b2c1f' }
+      return { Icon: CalendarX, tone: 'var(--destructive)' }
     default:
       return { Icon: Handshake, tone: 'var(--primary)' }
   }
