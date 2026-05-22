@@ -24,6 +24,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import type {
   HomeActiveMentorship,
   HomeEvent,
@@ -254,17 +255,38 @@ export default function DashboardClient({
         isLoaded ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      {/* Editorial Midnight Hero Header */}
-      <MidnightHero
+      <RelationshipFocus
         firstName={firstName}
         cohortYear={cohortYear}
         orgDisplayName={orgDisplayName}
-        stats={feed.stats}
-        pendingRequestsCount={feed.pendingMentorRequests.length}
-        onCustomizeClick={() => setIsCustomizing(true)}
+        feed={feed}
+        viewerCity={viewerCity}
+        isHelper={isHelper}
+        featuredEvent={featuredEvent}
       />
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 relative">
+        <div className="mb-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+              Supporting context
+            </h2>
+            <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+              Events, network movement, and activity logs sit below the relationship work.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsCustomizing(true)}
+            className="w-fit rounded-[6px] text-xs"
+          >
+            <Settings2 className="size-3.5" />
+            Customize sections
+          </Button>
+        </div>
+
         {/* Dynamic Columns Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-[65fr_35fr] items-start">
           {/* Left Rail */}
@@ -277,17 +299,6 @@ export default function DashboardClient({
             {rightCol.filter((d) => d.visible).map((d) => renderDeck(d.id))}
           </div>
         </div>
-      </div>
-
-      {/* Floating Layout Customize triggers */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <Button
-          onClick={() => setIsCustomizing(true)}
-          className="rounded-[6px] shadow-lg border border-border bg-card text-foreground hover:bg-muted font-sans font-medium text-xs px-4 h-10 gap-2 cursor-pointer transition active:scale-95"
-        >
-          <Settings2 className="size-3.5 text-primary" />
-          Customize Layout
-        </Button>
       </div>
 
       {/* Glassmorphic Customizer Drawer */}
@@ -484,135 +495,300 @@ function LayoutItemCard({
 }
 
 // =============================================================================
-// MidnightHero Banner (Premium editorial header deck)
+// RelationshipFocus - action-first home header
 // =============================================================================
-function MidnightHero({
+function RelationshipFocus({
   firstName,
   cohortYear,
   orgDisplayName,
-  stats,
-  pendingRequestsCount,
-  onCustomizeClick,
+  feed,
+  viewerCity,
+  isHelper,
+  featuredEvent,
 }: {
   firstName: string
   cohortYear: number | null
   orgDisplayName: string
-  stats: {
-    newJoinersLast7d: number
-    openMentorsTotal: number
-    upcomingEventsTotal: number
-  }
-  pendingRequestsCount: number
-  onCustomizeClick: () => void
+  feed: HomeFeed
+  viewerCity: string | null
+  isHelper: boolean
+  featuredEvent: HomeEvent | null
 }) {
   const cohortText = cohortYear ? `Class of '${`${cohortYear}`.slice(-2)}` : null
+  const pendingRequests = feed.pendingMentorRequests
+  const showNeedsMe = isHelper && pendingRequests.length > 0
+  const focusTitle = showNeedsMe ? 'Who needs me?' : 'Who can help me?'
+  const focusBody = showNeedsMe
+    ? `${pendingRequests.length} request${pendingRequests.length === 1 ? '' : 's'} need a reply. Start with the person waiting on you.`
+    : feed.openMentors.length > 0
+      ? `${feed.openMentors.length} open mentor${feed.openMentors.length === 1 ? '' : 's'} can help with career questions right now.`
+      : `No open mentors are surfaced yet. Start with new ${orgDisplayName} members or update your profile so others can find you.`
+  const primaryHref = showNeedsMe ? '/inbox' : '/people'
+  const primaryLabel = showNeedsMe ? 'Open inbox' : 'Find someone to ask'
+  const secondaryHref = showNeedsMe
+    ? '/people'
+    : featuredEvent
+      ? `/events/${featuredEvent.id}`
+      : '/profile/edit'
+  const secondaryLabel = showNeedsMe
+    ? 'Find someone to ask'
+    : featuredEvent
+      ? 'See next event'
+      : 'Update profile'
 
   return (
-    <section className="relative overflow-hidden bg-surface-midnight text-surface-midnight-foreground py-12 px-6 sm:px-8 border-b border-border/20">
-      {/* Editorial wire motif SVG */}
-      <svg
-        className="absolute top-[-40px] right-[-60px] w-[520px] h-[380px] opacity-15 pointer-events-none stroke-primary-on-dark"
-        viewBox="0 0 520 380"
-        aria-hidden="true"
-      >
-        <title>Symmetric wireframe circles</title>
-        <circle cx="200" cy="190" r="140" fill="none" strokeWidth="1.5" />
-        <circle cx="320" cy="190" r="140" fill="none" strokeWidth="1.5" />
-      </svg>
-
-      <div className="mx-auto max-w-6xl relative">
-        <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between border-b border-surface-midnight-foreground/15 pb-4">
-          <p className="font-mono text-[10px] font-semibold tracking-[0.18em] uppercase text-primary-on-dark">
+    <section className="border-b border-border bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 md:py-10">
+        <div className="mb-6 flex flex-col gap-1 border-b border-border pb-4 md:flex-row md:items-center md:justify-between">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
             {cohortText ? `${cohortText} · ` : ''}Welcome back to {orgDisplayName}
           </p>
-          <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-surface-midnight-muted flex items-center gap-2 mt-1 md:mt-0">
-            <span>{format(new Date(), 'EEE d MMM yyyy')}</span>
-            <span className="text-primary-on-dark">●</span>
-            <span>Edition 142</span>
-            <span className="text-primary-on-dark">●</span>
-            <button
-              type="button"
-              onClick={onCustomizeClick}
-              className="text-primary-on-dark hover:text-surface-midnight-foreground cursor-pointer hover:underline underline-offset-2 transition-colors focus:outline-hidden"
-            >
-              [Customize Layout]
-            </button>
-          </div>
+          <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
+            {viewerCity ? `Local view: ${viewerCity}` : 'Member-first home'}
+          </p>
         </div>
 
-        <div className="mt-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-3">
-            <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight leading-[1.1] text-surface-midnight-foreground">
-              Good afternoon, {firstName}.<br />
-              <span className="text-primary-on-dark">Your circle is active today.</span>
-            </h1>
-            <p className="text-sm text-surface-midnight-muted max-w-xl leading-relaxed">
-              {pendingRequestsCount > 0
-                ? `${pendingRequestsCount} pending mentorship requests need your attention, and new career updates have been posted.`
-                : `Your professional circle has grown by ${stats.newJoinersLast7d} members this week. Refresh your advice focus or explore upcoming events.`}
-            </p>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.82fr)] lg:items-stretch">
+          <div className="flex flex-col justify-between gap-6">
+            <div className="space-y-4">
+              <p className="text-sm font-medium text-muted-foreground">Hi {firstName}.</p>
+              <h1 className="font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl">
+                {focusTitle}
+              </h1>
+              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
+                {focusBody}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg" className="rounded-[6px]">
+                <Link href={primaryHref}>
+                  {showNeedsMe ? (
+                    <MessageSquare className="size-4" />
+                  ) : (
+                    <Handshake className="size-4" />
+                  )}
+                  {primaryLabel}
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="rounded-[6px]">
+                <Link href={secondaryHref}>
+                  {showNeedsMe ? (
+                    <Handshake className="size-4" />
+                  ) : (
+                    <CalendarDays className="size-4" />
+                  )}
+                  {secondaryLabel}
+                </Link>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
+              <HomeFocusStat value={pendingRequests.length} label="Needs you" />
+              <HomeFocusStat value={feed.stats.openMentorsTotal} label="Can help" />
+              <HomeFocusStat value={feed.activeMentorships.length} label="In progress" />
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-3 shrink-0">
-            <Button
-              asChild
-              className="rounded-[6px] text-xs font-semibold px-4 h-9 bg-surface-midnight-foreground text-surface-midnight hover:bg-surface-midnight-foreground/90 cursor-pointer transition"
-            >
-              <Link href="/inbox" className="flex items-center gap-1.5">
-                <Handshake className="size-3.5" />
-                Review Requests
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-[6px] text-xs font-semibold px-4 h-9 border-surface-midnight-foreground/25 bg-surface-midnight-foreground/5 text-surface-midnight-foreground hover:bg-surface-midnight-foreground/10 hover:text-surface-midnight-foreground cursor-pointer transition"
-            >
-              <Link href="/events" className="flex items-center gap-1.5">
-                <CalendarDays className="size-3.5" />
-                Upcoming Events
-              </Link>
-            </Button>
-          </div>
-        </div>
+          <Card className="overflow-hidden rounded-[6px] border-border bg-surface-card">
+            <div className="border-b border-border bg-surface-panel/60 px-5 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-heading text-base font-semibold text-foreground">
+                    {showNeedsMe ? 'Needs a reply' : 'Available help'}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {showNeedsMe
+                      ? 'Start with the oldest unanswered relationship action.'
+                      : 'People open to mentoring or useful new connections.'}
+                  </p>
+                </div>
+                <StatusBadge tone={showNeedsMe ? 'warn' : 'info'} size="sm" dot>
+                  {showNeedsMe ? 'Pending' : 'Open'}
+                </StatusBadge>
+              </div>
+            </div>
 
-        {/* Hero metrics strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-surface-midnight-foreground/15 mt-12 pt-6">
-          <div className="border-l border-surface-midnight-foreground/15 pl-4 first:border-l-0 first:pl-0">
-            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
-              {stats.newJoinersLast7d}
+            <div className="divide-y divide-border/60">
+              {showNeedsMe ? (
+                pendingRequests
+                  .slice(0, 3)
+                  .map((request) => <RelationshipRequestRow key={request.id} request={request} />)
+              ) : feed.openMentors.length > 0 ? (
+                feed.openMentors
+                  .slice(0, 3)
+                  .map((mentor) => <RelationshipMentorRow key={mentor.userId} mentor={mentor} />)
+              ) : feed.recentJoiners.length > 0 ? (
+                feed.recentJoiners
+                  .slice(0, 3)
+                  .map((member) => <RelationshipJoinerRow key={member.userId} member={member} />)
+              ) : (
+                <div className="px-5 py-8 text-center">
+                  <p className="text-sm font-medium text-foreground">
+                    No relationship prompts yet.
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Complete your profile so classmates know when to reach out.
+                  </p>
+                  <Button asChild size="sm" variant="outline" className="mt-4 rounded-[6px]">
+                    <Link href="/profile/edit">Update profile</Link>
+                  </Button>
+                </div>
+              )}
             </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
-              New this week
+
+            <div className="border-t border-border bg-surface-subtle/40 px-5 py-3">
+              <Link
+                href={showNeedsMe ? '/inbox' : '/people'}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-link hover:text-link-hover"
+              >
+                {showNeedsMe ? 'Review all requests' : 'Browse people'}
+                <ArrowRight className="size-3.5" />
+              </Link>
             </div>
-          </div>
-          <div className="border-l border-surface-midnight-foreground/15 pl-4">
-            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
-              {stats.openMentorsTotal}
-            </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
-              Open Mentors
-            </div>
-          </div>
-          <div className="border-l border-surface-midnight-foreground/15 pl-4">
-            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
-              {stats.upcomingEventsTotal}
-            </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
-              Gatherings
-            </div>
-          </div>
-          <div className="border-l border-surface-midnight-foreground/15 pl-4">
-            <div className="font-serif text-3xl font-bold leading-none text-surface-midnight-foreground">
-              Class &apos;{`${cohortYear ?? new Date().getFullYear()}`.slice(-2)}
-            </div>
-            <div className="font-mono text-[9px] uppercase tracking-wider text-surface-midnight-muted mt-1.5">
-              Your Cohort
-            </div>
-          </div>
+          </Card>
         </div>
       </div>
     </section>
+  )
+}
+
+function HomeFocusStat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="font-serif text-2xl font-semibold leading-none text-foreground">{value}</div>
+      <div className="mt-1 truncate font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        {label}
+      </div>
+    </div>
+  )
+}
+
+function RelationshipRequestRow({ request }: { request: HomePendingMentorRequest }) {
+  const summary = request.reason ?? request.helpNeeded ?? 'Review what they are asking for.'
+  const year = request.menteeGraduationYear
+    ? ` '${String(request.menteeGraduationYear).slice(-2)}`
+    : ''
+
+  return (
+    <Link
+      href={`/ask/${request.id}`}
+      className="group flex items-start gap-3 px-5 py-4 transition-colors hover:bg-surface-subtle/50"
+    >
+      <InitialsMark name={request.menteeName} tone="warning" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-3">
+          <p className="truncate text-sm font-semibold text-foreground">
+            {request.menteeName ?? 'Someone'}
+            {year}
+          </p>
+          <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+            {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
+          </span>
+        </div>
+        <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{summary}</p>
+        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-link group-hover:text-link-hover">
+          Review request
+          <ArrowRight className="size-3" />
+        </span>
+      </div>
+    </Link>
+  )
+}
+
+function RelationshipMentorRow({ mentor }: { mentor: HomeFeed['openMentors'][number] }) {
+  const role = [mentor.currentTitle, mentor.currentEmployer].filter(Boolean).join(' at ')
+  const year = mentor.graduationYear ? ` '${String(mentor.graduationYear).slice(-2)}` : ''
+
+  return (
+    <Link
+      href={`/profile/${mentor.userId}`}
+      className="group flex items-start gap-3 px-5 py-4 transition-colors hover:bg-surface-subtle/50"
+    >
+      <InitialsMark name={mentor.name} tone="success" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-3">
+          <p className="truncate text-sm font-semibold text-foreground">
+            {mentor.name ?? 'Open mentor'}
+            {year}
+          </p>
+          <StatusBadge tone="open" size="sm">
+            Mentor
+          </StatusBadge>
+        </div>
+        <p className="mt-1 truncate text-xs text-muted-foreground">
+          {role || mentor.city || 'Open to helping classmates'}
+        </p>
+        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-link group-hover:text-link-hover">
+          View profile
+          <ArrowRight className="size-3" />
+        </span>
+      </div>
+    </Link>
+  )
+}
+
+function RelationshipJoinerRow({ member }: { member: HomeMember }) {
+  const role = [member.currentTitle, member.currentEmployer].filter(Boolean).join(' at ')
+  const year = member.graduationYear ? ` '${String(member.graduationYear).slice(-2)}` : ''
+
+  return (
+    <Link
+      href={`/profile/${member.userId}`}
+      className="group flex items-start gap-3 px-5 py-4 transition-colors hover:bg-surface-subtle/50"
+    >
+      <InitialsMark name={member.name} tone="info" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-3">
+          <p className="truncate text-sm font-semibold text-foreground">
+            {member.name ?? 'New member'}
+            {year}
+          </p>
+          <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+            New
+          </span>
+        </div>
+        <p className="mt-1 truncate text-xs text-muted-foreground">
+          {role || member.city || 'Recently joined the circle'}
+        </p>
+        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-link group-hover:text-link-hover">
+          Welcome them
+          <ArrowRight className="size-3" />
+        </span>
+      </div>
+    </Link>
+  )
+}
+
+function InitialsMark({
+  name,
+  tone,
+}: {
+  name: string | null
+  tone: 'warning' | 'success' | 'info'
+}) {
+  const initials =
+    name
+      ?.split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase() || '?'
+  const toneClass =
+    tone === 'warning'
+      ? 'bg-warning-tint text-state-warning-foreground'
+      : tone === 'success'
+        ? 'bg-success-tint text-state-success-foreground'
+        : 'bg-primary-tint text-state-info-foreground'
+
+  return (
+    <span
+      className={`flex size-10 shrink-0 items-center justify-center rounded-[6px] border border-border/60 font-mono text-[11px] font-bold ${toneClass}`}
+      aria-hidden
+    >
+      {initials}
+    </span>
   )
 }
 
@@ -821,7 +997,7 @@ function ActionNudge({
   let heading = 'Update your advice settings'
   let body = 'Let classmates know what topics you are open to mentoring on.'
   let buttonLabel = 'Configure Settings'
-  let buttonHref = '/profile/me'
+  let buttonHref = '/mentorship/settings'
 
   if (isHelper && requests.length > 0) {
     const firstRequest = requests[0]
@@ -837,7 +1013,7 @@ function ActionNudge({
     heading = 'Complete your city location'
     body = 'Adding your current city helps classmates find you in their local areas.'
     buttonLabel = 'Update Profile'
-    buttonHref = '/profile/me'
+    buttonHref = '/profile/edit'
   } else if (featuredEvent && featuredEvent.goingCount < 5) {
     type = 'rsvp'
     heading = `RSVP to ${featuredEvent.title}`
@@ -1460,7 +1636,7 @@ function QuickActions({
     { label: 'Find a Mentor', count: `${stats.openMentorsTotal} open`, href: '/people' },
     { label: 'Browse the Network', count: '1,200+ members', href: '/people' },
     { label: 'Upcoming Gatherings', count: `${stats.upcomingEventsTotal} active`, href: '/events' },
-    { label: 'Your Profile settings', count: 'Update', href: '/profile/me' },
+    { label: 'Your Profile settings', count: 'Update', href: '/profile/edit' },
   ]
 
   return (

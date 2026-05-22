@@ -31,6 +31,9 @@ Acceptance criteria:
 Verification:
 - Token values are documented.
 - `globals.css` exposes the matching Tailwind theme variables.
+- 2026-05-22: Expanded the token contract with semantic role aliases, tint
+  tokens, contrast pairings, motion tokens, density rules, and email-safe
+  tokens. `globals.css` exposes matching role and tint aliases.
 
 ## Track 2 - Shared Primitives
 
@@ -53,6 +56,20 @@ Acceptance criteria:
 Verification:
 - TypeScript compiles.
 - Existing screens render without visual breakage.
+- 2026-05-22: Added a component variant/state contract and began moving shared
+  primitives from base hue tokens toward semantic role, tint, focus, and motion
+  tokens.
+- 2026-05-22: Added product component specs for Person Card, Request Card,
+  Profile Header, Event Card, Inbox Thread Row, Empty State, Form Section,
+  Admin Table, Notification, and Email Template patterns.
+- 2026-05-22: Formalized motion and lifecycle states in
+  `states-and-motion.md`, added a reduced-motion CSS contract, moved skeletons
+  to a tokenized loading pulse, and introduced `LifecycleStatusBadge` for common
+  pending/accepted/declined/paused states.
+- 2026-05-22: Promoted lifecycle emails into Civic Editorial with a shared
+  `CivicEmail` frame, shared CTA/footer/typography helpers, visible fallback
+  links for action emails, and Resend delivery that sends both HTML and plain
+  text.
 
 ## Track 3 - Design-System Documentation Split
 
@@ -73,6 +90,9 @@ Acceptance criteria:
 
 Verification:
 - README points to the active token contract.
+- 2026-05-22: Added a production component usage guide and a `reference-src`
+  README that explicitly quarantines Atrium-era token exports and copyable
+  prototype snippets.
 
 ## Track 4 - Home/Auth Visual Drift
 
@@ -96,6 +116,10 @@ Acceptance criteria:
 Verification:
 - Browser review at desktop and mobile widths.
 - 2026-05-22: Auth layout, member loading state, and member dashboard hero/callouts have been moved off raw gradients and onto documented tokens. The expressive hero canvas now uses the documented `surface-midnight` token rather than pure Obsidian. Auth and authenticated member home are covered in the current screenshot set.
+- 2026-05-22: Home now opens with a relationship-focus surface that answers
+  either "Who needs me?" or "Who can help me?" before dashboard decks. Layout
+  customization was demoted into supporting context instead of floating over the
+  first viewport.
 
 ## Track 5 - Screen Consistency Pass
 
@@ -142,3 +166,8 @@ Acceptance criteria:
 Verification:
 - `docs/experience/ui/screenshots/README.md` is updated during closure.
 - 2026-05-22: Desktop and mobile screenshots were captured for auth, home, people, inbox, events, profile, and admin invite.
+- 2026-05-22: Reopened the screenshot review after the user's in-app browser
+  showed the newer relationship-first Home while the stored Home screenshots
+  still showed the older dark dashboard. Regenerated the canonical screenshot
+  set, fixed the broken `/profile/me` self-profile route, and logged the route
+  findings in [`screen-visual-qa-2026-05-22.md`](screen-visual-qa-2026-05-22.md).

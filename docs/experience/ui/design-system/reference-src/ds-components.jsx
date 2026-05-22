@@ -1,4 +1,6 @@
 /* eslint-disable */
+// HISTORICAL PROTOTYPE ONLY. Do not copy these Atrium primitives into
+// production. Use ../components.md and app/src/components/ui/.
 // Atrium Design System — Standalone primitives + component showcase sections
 
 // ─── STANDALONE PRIMITIVES ─────────────────────────────────────────────────

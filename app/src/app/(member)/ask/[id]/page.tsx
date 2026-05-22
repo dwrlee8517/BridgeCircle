@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { type LifecycleStatus, LifecycleStatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { acceptAction, declineAction } from './actions'
@@ -75,7 +76,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
             </CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline">{req.ask_type === 'advice' ? 'Advice' : 'Mentorship'}</Badge>
-              <StatusBadge status={req.status as Status} />
+              <LifecycleStatusBadge status={req.status as RequestLifecycleStatus} />
               <span className="text-xs text-muted-foreground">
                 Sent {format(new Date(req.created_at), 'PP')}
                 {req.responded_at ? ` · responded ${format(new Date(req.responded_at), 'PP')}` : ''}
@@ -137,17 +138,10 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
   )
 }
 
-type Status = 'pending' | 'accepted' | 'declined' | 'expired'
-
-function StatusBadge({ status }: { status: Status }) {
-  const variant = {
-    pending: 'secondary',
-    accepted: 'default',
-    declined: 'outline',
-    expired: 'outline',
-  } as const
-  return <Badge variant={variant[status]}>{status}</Badge>
-}
+type RequestLifecycleStatus = Extract<
+  LifecycleStatus,
+  'pending' | 'accepted' | 'declined' | 'expired'
+>
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

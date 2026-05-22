@@ -1,14 +1,11 @@
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from '@react-email/components'
+  CivicButton,
+  CivicButtonRow,
+  CivicEmail,
+  CivicHeading,
+  CivicPlainLink,
+  CivicText,
+} from './civic-email'
 
 type Props = {
   accepterName: string
@@ -17,48 +14,19 @@ type Props = {
 
 export function FriendRequestAcceptedEmail({ accepterName, profileUrl }: Props) {
   return (
-    <Html>
-      <Head />
-      <Preview>{`${accepterName} accepted your friend request`}</Preview>
-      <Body style={body}>
-        <Container style={container}>
-          <Heading style={heading}>You&apos;re now connected</Heading>
-          <Text style={paragraph}>
-            <strong>{accepterName}</strong> accepted your friend request on BridgeCircle. You can
-            now message them directly.
-          </Text>
-          <Section style={buttonSection}>
-            <Button style={button} href={profileUrl}>
-              View their profile
-            </Button>
-          </Section>
-        </Container>
-      </Body>
-    </Html>
+    <CivicEmail
+      preview={`${accepterName} accepted your friend request`}
+      footer="You received this because your BridgeCircle connection request was accepted. You can now message this member directly."
+    >
+      <CivicHeading>You are now connected</CivicHeading>
+      <CivicText>
+        <strong>{accepterName}</strong> accepted your friend request on BridgeCircle.
+      </CivicText>
+      <CivicText>You can now message them directly from their profile or your inbox.</CivicText>
+      <CivicButtonRow>
+        <CivicButton href={profileUrl}>View their profile</CivicButton>
+      </CivicButtonRow>
+      <CivicPlainLink href={profileUrl} />
+    </CivicEmail>
   )
-}
-
-const body = {
-  backgroundColor: '#f6f6f6',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-}
-const container = {
-  backgroundColor: '#ffffff',
-  margin: '40px auto',
-  padding: '32px',
-  maxWidth: '560px',
-  borderRadius: '8px',
-}
-const heading = { fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 16px' }
-const paragraph = { fontSize: '16px', lineHeight: '24px', color: '#333', margin: '0 0 12px' }
-const buttonSection = { margin: '24px 0' }
-const button = {
-  backgroundColor: '#111',
-  color: '#fff',
-  padding: '12px 24px',
-  borderRadius: '6px',
-  fontSize: '15px',
-  fontWeight: '500',
-  textDecoration: 'none',
-  display: 'inline-block',
 }

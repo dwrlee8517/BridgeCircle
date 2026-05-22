@@ -42,7 +42,7 @@ export function EmptyState({
         {Icon ? (
           <div
             className={cn(
-              'flex items-center justify-center rounded-full bg-accent text-accent-foreground',
+              'flex items-center justify-center rounded-full bg-primary-tint text-action-primary',
               size === 'default' ? 'size-12' : 'size-10',
             )}
           >

@@ -1,14 +1,12 @@
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from '@react-email/components'
+  CivicButton,
+  CivicButtonRow,
+  CivicCallout,
+  CivicEmail,
+  CivicHeading,
+  CivicPlainLink,
+  CivicText,
+} from './civic-email'
 
 type Props = {
   eventTitle: string
@@ -33,52 +31,22 @@ export function EventRsvpConfirmationEmail({
   })
 
   return (
-    <Html>
-      <Head />
-      <Preview>{`You're going to ${eventTitle}`}</Preview>
-      <Body style={body}>
-        <Container style={container}>
-          <Heading style={heading}>You&apos;re going 🎟️</Heading>
-          <Text style={paragraph}>
-            <strong>{eventTitle}</strong>
-          </Text>
-          <Text style={paragraph}>{when}</Text>
-          {eventLocation ? <Text style={paragraph}>{eventLocation}</Text> : null}
-          <Text style={paragraph}>
-            We won&apos;t email reminders, so add it to your calendar now if you want a nudge later.
-          </Text>
-          <Section style={buttonSection}>
-            <Button style={button} href={eventUrl}>
-              View event
-            </Button>
-          </Section>
-        </Container>
-      </Body>
-    </Html>
+    <CivicEmail
+      preview={`You're going to ${eventTitle}`}
+      footer="You received this because you RSVP'd to a BridgeCircle event. We do not send event reminders, so add it to your calendar if you want a nudge later."
+    >
+      <CivicHeading>You are going</CivicHeading>
+      <CivicText>
+        <strong>{eventTitle}</strong>
+      </CivicText>
+      <CivicCallout>
+        {when}
+        {eventLocation ? `\n${eventLocation}` : ''}
+      </CivicCallout>
+      <CivicButtonRow>
+        <CivicButton href={eventUrl}>View event</CivicButton>
+      </CivicButtonRow>
+      <CivicPlainLink href={eventUrl} />
+    </CivicEmail>
   )
-}
-
-const body = {
-  backgroundColor: '#f6f6f6',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-}
-const container = {
-  backgroundColor: '#ffffff',
-  margin: '40px auto',
-  padding: '32px',
-  maxWidth: '560px',
-  borderRadius: '8px',
-}
-const heading = { fontSize: '22px', fontWeight: '600', color: '#111', margin: '0 0 16px' }
-const paragraph = { fontSize: '16px', lineHeight: '24px', color: '#333', margin: '0 0 12px' }
-const buttonSection = { margin: '24px 0' }
-const button = {
-  backgroundColor: '#111',
-  color: '#fff',
-  padding: '12px 24px',
-  borderRadius: '6px',
-  fontSize: '15px',
-  fontWeight: '500',
-  textDecoration: 'none',
-  display: 'inline-block',
 }

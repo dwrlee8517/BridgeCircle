@@ -1,4 +1,6 @@
 /* eslint-disable */
+// HISTORICAL PROTOTYPE ONLY. Do not copy these Atrium tokens into production.
+// Use ../tokens.md, ../components.md, and app/src/app/globals.css.
 // Atrium Design System — Foundation tokens + section components
 
 // ─── RAW TOKENS ────────────────────────────────────────────────────────────

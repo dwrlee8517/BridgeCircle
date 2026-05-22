@@ -28,6 +28,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -41,6 +42,48 @@
   --color-surface-midnight: var(--surface-midnight);
   --color-surface-midnight-foreground: var(--surface-midnight-foreground);
   --color-surface-midnight-muted: var(--surface-midnight-muted);
+  --color-surface-page: var(--surface-page);
+  --color-surface-card: var(--surface-card);
+  --color-surface-panel: var(--surface-panel);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-editorial: var(--surface-editorial);
+  --color-surface-editorial-foreground: var(--surface-editorial-foreground);
+  --color-surface-editorial-muted: var(--surface-editorial-muted);
+  --color-action-primary: var(--action-primary);
+  --color-action-primary-hover: var(--action-primary-hover);
+  --color-action-on-primary: var(--action-on-primary);
+  --color-action-on-editorial: var(--action-on-editorial);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --color-focus-ring: var(--focus-ring);
+  --color-state-info: var(--state-info);
+  --color-state-info-foreground: var(--state-info-foreground);
+  --color-state-success: var(--state-success);
+  --color-state-success-foreground: var(--state-success-foreground);
+  --color-state-warning: var(--state-warning);
+  --color-state-warning-foreground: var(--state-warning-foreground);
+  --color-state-danger: var(--state-danger);
+  --color-state-danger-foreground: var(--state-danger-foreground);
+  --color-state-categorized: var(--state-categorized);
+  --color-state-categorized-foreground: var(--state-categorized-foreground);
+  --color-state-muted: var(--state-muted);
+  --color-match-signal: var(--match-signal);
+  --color-mentor-open: var(--mentor-open);
+  --color-mentor-paused: var(--mentor-paused);
+  --color-request-attention: var(--request-attention);
+  --color-request-declined: var(--request-declined);
+  --color-verification: var(--verification);
+  --color-event-featured: var(--event-featured);
+  --color-admin-operational: var(--admin-operational);
+  --color-primary-tint: var(--primary-tint);
+  --color-primary-tint-strong: var(--primary-tint-strong);
+  --color-success-tint: var(--success-tint);
+  --color-warning-tint: var(--warning-tint);
+  --color-danger-tint: var(--danger-tint);
+  --color-plum-tint: var(--plum-tint);
+  --color-editorial-rule: var(--editorial-rule);
+  --color-editorial-rule-strong: var(--editorial-rule-strong);
+  --color-focus-ring-muted: var(--focus-ring-muted);
   --color-accent-ochre: var(--accent-ochre);
   --color-accent-rust: var(--accent-rust);
   --color-accent-sage: var(--accent-sage);
@@ -86,6 +129,15 @@
   --line-height-mono-sm: var(--line-height-mono-sm);
   --line-height-mono-xs: var(--line-height-mono-xs);
 
+  /* Motion */
+  --duration-instant: var(--motion-instant);
+  --duration-fast: var(--motion-fast);
+  --duration-base: var(--motion-base);
+  --duration-medium: var(--motion-medium);
+  --duration-slow: var(--motion-slow);
+  --ease-standard: var(--ease-standard);
+  --ease-emphasized: var(--ease-emphasized);
+
   /* Z-Index Stack */
   --z-index-base: var(--z-base);
   --z-index-card-hover: var(--z-card-hover);
@@ -121,6 +173,7 @@
   --accent: #ebebe5;
   --accent-foreground: #2563eb;
   --destructive: #9b2c1f;
+  --destructive-foreground: #ffffff;
   --border: #dcdcd6;
   --input: #dcdcd6;
   --ring: #2563eb;
@@ -144,6 +197,67 @@
   --accent-rust: #b9472a;
   --accent-sage: #3b6e51;
   --accent-plum: #722f37;
+
+  /* Semantic role aliases */
+  --surface-page: var(--background);
+  --surface-card: var(--card);
+  --surface-panel: var(--secondary);
+  --surface-subtle: var(--muted);
+  --surface-editorial: var(--surface-midnight);
+  --surface-editorial-foreground: var(--surface-midnight-foreground);
+  --surface-editorial-muted: var(--surface-midnight-muted);
+
+  --action-primary: var(--primary);
+  --action-primary-hover: var(--primary-hover);
+  --action-on-primary: var(--primary-foreground);
+  --action-on-editorial: var(--primary-on-dark);
+  --link: var(--primary);
+  --link-hover: var(--primary-hover);
+  --focus-ring: var(--ring);
+
+  --state-info: var(--primary);
+  --state-info-foreground: var(--primary);
+  --state-success: var(--accent-sage);
+  --state-success-foreground: var(--accent-sage);
+  --state-warning: var(--accent-ochre);
+  --state-warning-foreground: var(--foreground);
+  --state-danger: var(--destructive);
+  --state-danger-foreground: var(--destructive);
+  --state-categorized: var(--accent-plum);
+  --state-categorized-foreground: var(--accent-plum);
+  --state-muted: var(--muted-foreground);
+
+  --match-signal: var(--primary);
+  --mentor-open: var(--accent-sage);
+  --mentor-paused: var(--accent-ochre);
+  --request-attention: var(--accent-ochre);
+  --request-declined: var(--accent-rust);
+  --verification: var(--accent-sage);
+  --event-featured: var(--primary);
+  --admin-operational: var(--foreground);
+
+  /* Tints and interaction colors */
+  --primary-tint: rgb(37 99 235 / 10%);
+  --primary-tint-strong: rgb(37 99 235 / 16%);
+  --success-tint: rgb(59 110 81 / 10%);
+  --warning-tint: rgb(200 118 26 / 12%);
+  --danger-tint: rgb(155 44 31 / 10%);
+  --plum-tint: rgb(114 47 55 / 10%);
+  --editorial-rule: rgb(250 250 249 / 16%);
+  --editorial-rule-strong: rgb(250 250 249 / 28%);
+  --focus-ring-muted: rgb(37 99 235 / 10%);
+
+  /* Motion and density tokens */
+  --motion-instant: 0ms;
+  --motion-fast: 100ms;
+  --motion-base: 150ms;
+  --motion-medium: 200ms;
+  --motion-slow: 300ms;
+  --ease-standard: ease-out;
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --density-compact: 0.875;
+  --density-default: 1;
+  --density-roomy: 1.125;
 
   /* Spacing Grid Scale variables */
   --space-1: 0.25rem; /* 4px */
@@ -206,6 +320,7 @@
   --accent: #2b2b29;
   --accent-foreground: #93c5fd;
   --destructive: #c44a39;
+  --destructive-foreground: #fafaf9;
   --border: rgb(250 250 249 / 12%);
   --input: rgb(250 250 249 / 15%);
   --ring: #93c5fd;
@@ -228,6 +343,19 @@
   --accent-rust: #d05f43;
   --accent-sage: #70a982;
   --accent-plum: #9a5761;
+
+  --state-warning-foreground: var(--accent-ochre);
+  --state-danger-foreground: #fecaca;
+  --state-categorized-foreground: var(--foreground);
+  --primary-tint: rgb(147 197 253 / 14%);
+  --primary-tint-strong: rgb(147 197 253 / 22%);
+  --success-tint: rgb(112 169 130 / 16%);
+  --warning-tint: rgb(221 161 80 / 16%);
+  --danger-tint: rgb(208 95 67 / 16%);
+  --plum-tint: rgb(154 87 97 / 16%);
+  --editorial-rule: rgb(250 250 249 / 16%);
+  --editorial-rule-strong: rgb(250 250 249 / 28%);
+  --focus-ring-muted: rgb(147 197 253 / 14%);
 }
 
 @layer base {
@@ -258,8 +386,8 @@
     padding: var(--space-2) var(--space-3);
     font-size: var(--font-size-body-md);
     transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
+      border-color var(--motion-base) var(--ease-standard),
+      box-shadow var(--motion-base) var(--ease-standard);
   }
   input[type="text"]:focus,
   input[type="email"]:focus,
@@ -271,8 +399,10 @@
   select:focus,
   textarea:focus {
     outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 1px var(--primary);
+    border-color: var(--focus-ring);
+    box-shadow:
+      0 0 0 1px var(--focus-ring),
+      0 0 0 4px var(--focus-ring-muted);
   }
   input::placeholder,
   textarea::placeholder {
@@ -282,7 +412,7 @@
   input:disabled,
   select:disabled,
   textarea:disabled {
-    opacity: 0.4;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 
@@ -296,6 +426,53 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+@keyframes bc-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.56;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.bc-motion-control {
+  transition-duration: var(--motion-base);
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-timing-function: var(--ease-standard);
+}
+
+.bc-motion-surface {
+  transition-duration: var(--motion-base);
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-timing-function: var(--ease-standard);
+}
+
+.bc-loading-pulse {
+  animation: bc-loading-pulse 1.4s var(--ease-standard) infinite;
+}
+
+.bc-state-selected {
+  background-color: var(--primary-tint);
+  border-color: color-mix(in srgb, var(--state-info) 25%, transparent);
+}
+
+.bc-state-unread-dot {
+  background-color: var(--request-attention);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-delay: 0ms;
+    transition-duration: 0ms;
   }
 }
 
