@@ -92,6 +92,7 @@ export function NetworkMotif({
   return (
     <div className="relative min-h-[280px] overflow-hidden rounded-[8px] border border-border bg-surface-midnight p-5 text-surface-midnight-foreground shadow-[0_24px_70px_rgb(8_17_38/0.24)]">
       <svg className="absolute inset-0 size-full opacity-70" viewBox="0 0 520 320" aria-hidden>
+        <title>Relationship map motif</title>
         <defs>
           <linearGradient id="networkLine" x1="0" x2="1" y1="0" y2="1">
             <stop offset="0%" stopColor="rgb(147 197 253 / .72)" />
@@ -99,12 +100,33 @@ export function NetworkMotif({
             <stop offset="100%" stopColor="rgb(221 161 80 / .58)" />
           </linearGradient>
         </defs>
-        <path d="M72 226 C142 92 232 84 312 158 S430 244 478 92" fill="none" stroke="url(#networkLine)" strokeWidth="1.6" />
-        <path d="M62 86 C150 138 212 232 318 198 S414 124 466 222" fill="none" stroke="rgb(250 250 249 / .16)" strokeWidth="1" />
+        <path
+          d="M72 226 C142 92 232 84 312 158 S430 244 478 92"
+          fill="none"
+          stroke="url(#networkLine)"
+          strokeWidth="1.6"
+        />
+        <path
+          d="M62 86 C150 138 212 232 318 198 S414 124 466 222"
+          fill="none"
+          stroke="rgb(250 250 249 / .16)"
+          strokeWidth="1"
+        />
         {[72, 156, 252, 336, 448].map((cx, idx) => (
           <g key={cx}>
-            <circle cx={cx} cy={[226, 124, 184, 154, 96][idx]} r="8" fill="rgb(250 250 249 / .94)" />
-            <circle cx={cx} cy={[226, 124, 184, 154, 96][idx]} r="18" fill="none" stroke="rgb(250 250 249 / .14)" />
+            <circle
+              cx={cx}
+              cy={[226, 124, 184, 154, 96][idx]}
+              r="8"
+              fill="rgb(250 250 249 / .94)"
+            />
+            <circle
+              cx={cx}
+              cy={[226, 124, 184, 154, 96][idx]}
+              r="18"
+              fill="none"
+              stroke="rgb(250 250 249 / .14)"
+            />
           </g>
         ))}
       </svg>
@@ -151,7 +173,11 @@ export function MatchBriefCard({
 }) {
   const display = displayName(person.name, person.preferredName ?? null)
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
-  const askType = person.isOpenAsAdviceHelper ? 'advice' : person.isOpenAsMentor ? 'mentorship' : null
+  const askType = person.isOpenAsAdviceHelper
+    ? 'advice'
+    : person.isOpenAsMentor
+      ? 'mentorship'
+      : null
   const matchReason =
     reason ??
     person.rationale ??
@@ -160,14 +186,22 @@ export function MatchBriefCard({
   const suggestedAsk = buildSuggestedAsk(query, person)
 
   return (
-    <Card className={cn('group overflow-hidden rounded-[8px] border-border bg-card p-0 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/35 hover:shadow-md', compact && 'rounded-[6px]')}>
+    <Card
+      className={cn(
+        'group overflow-hidden rounded-[8px] border-border bg-card p-0 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/35 hover:shadow-md',
+        compact && 'rounded-[6px]',
+      )}
+    >
       <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_190px]">
         <div className="p-5">
           <div className="flex items-start gap-3.5">
             <PersonAvatar person={person} />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Link href={`/profile/${person.userId}`} className="font-serif text-lg font-semibold leading-tight text-foreground hover:text-primary">
+                <Link
+                  href={`/profile/${person.userId}`}
+                  className="font-serif text-lg font-semibold leading-tight text-foreground hover:text-primary"
+                >
                   {display}
                 </Link>
                 {person.graduationYear ? (
@@ -380,7 +414,14 @@ function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
   return (
     <div className={cn('relative size-12 shrink-0 overflow-hidden rounded-[8px]', bg)}>
       {person.avatarUrl ? (
-        <Image src={person.avatarUrl} alt="" fill sizes="48px" unoptimized className="object-cover" />
+        <Image
+          src={person.avatarUrl}
+          alt=""
+          fill
+          sizes="48px"
+          unoptimized
+          className="object-cover"
+        />
       ) : (
         <span className="flex size-full items-center justify-center font-serif text-base font-semibold text-background">
           {initials}
@@ -410,7 +451,8 @@ function buildDefaultReason(person: HelpNetworkPerson, query?: string) {
   if (person.currentTitle && person.currentEmployer) {
     return `Their path as ${person.currentTitle} at ${person.currentEmployer} may be useful context.`
   }
-  if (person.city) return `They are connected to ${person.city}, which may make the conversation more practical.`
+  if (person.city)
+    return `They are connected to ${person.city}, which may make the conversation more practical.`
   if (query) return 'Their profile has signals that match what you asked for.'
   return null
 }

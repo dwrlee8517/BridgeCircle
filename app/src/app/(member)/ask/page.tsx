@@ -10,10 +10,10 @@ import { displayOrgName } from '@/lib/utils'
 import {
   AskBar,
   FreshnessReviewCard,
+  type HelpNetworkPerson,
   MatchBriefCard,
   NetworkMotif,
   PromptChips,
-  type HelpNetworkPerson,
 } from '../help-network-ui'
 
 type SearchParams = { q?: string }
@@ -40,11 +40,7 @@ const EMPTY_FILTERS: SearchFilters = {
   peopleIKnow: undefined,
 }
 
-export default async function AskPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>
-}) {
+export default async function AskPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const session = await requireSession()
   const params = await searchParams
   const query = params.q?.trim() ?? ''
@@ -60,35 +56,40 @@ export default async function AskPage({
 
   if (!viewerMembership) return null
 
-  const [{ data: viewerBase }, { data: viewerOrgProfile }, totalAlumniRes, pendingHelpRes, eventRes] =
-    await Promise.all([
-      supabase
-        .from('base_profiles')
-        .select('university, major, city')
-        .eq('user_id', session.userId)
-        .maybeSingle(),
-      supabase
-        .from('organization_profiles')
-        .select('graduation_year')
-        .eq('organization_membership_id', viewerMembership.id)
-        .maybeSingle(),
-      supabase
-        .from('organization_memberships')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', viewerMembership.organization_id)
-        .eq('status', 'active'),
-      supabase
-        .from('asks')
-        .select('id', { count: 'exact', head: true })
-        .eq('helper_id', session.userId)
-        .eq('status', 'pending'),
-      supabase
-        .from('events')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', viewerMembership.organization_id)
-        .gte('starts_at', new Date().toISOString())
-        .not('published_at', 'is', null),
-    ])
+  const [
+    { data: viewerBase },
+    { data: viewerOrgProfile },
+    totalAlumniRes,
+    pendingHelpRes,
+    eventRes,
+  ] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select('university, major, city')
+      .eq('user_id', session.userId)
+      .maybeSingle(),
+    supabase
+      .from('organization_profiles')
+      .select('graduation_year')
+      .eq('organization_membership_id', viewerMembership.id)
+      .maybeSingle(),
+    supabase
+      .from('organization_memberships')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', viewerMembership.organization_id)
+      .eq('status', 'active'),
+    supabase
+      .from('asks')
+      .select('id', { count: 'exact', head: true })
+      .eq('helper_id', session.userId)
+      .eq('status', 'pending'),
+    supabase
+      .from('events')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', viewerMembership.organization_id)
+      .gte('starts_at', new Date().toISOString())
+      .not('published_at', 'is', null),
+  ])
 
   const orgName = displayOrgName((viewerMembership.organizations as { name: string } | null)?.name)
   const totalAlumni = totalAlumniRes.count ?? 0
@@ -125,7 +126,13 @@ export default async function AskPage({
         result.error === 'no_api_key'
           ? 'Natural-language matching is not configured in this environment. Showing open helpers instead.'
           : 'The matcher could not read that question. Showing open helpers instead.'
-      const fallback = await openHelperFallback(supabase, viewerMembership.organization_id, session.userId, viewerBase, viewerOrgProfile)
+      const fallback = await openHelperFallback(
+        supabase,
+        viewerMembership.organization_id,
+        session.userId,
+        viewerBase,
+        viewerOrgProfile,
+      )
       hits = fallback.map((hit) => ({ person: toPerson(hit), reason: hit.reason }))
     }
   } else {

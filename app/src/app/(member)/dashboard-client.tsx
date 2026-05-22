@@ -6,12 +6,12 @@ import type { HomeEvent, HomeFeed } from '@/lib/home/getHomeFeed'
 import {
   AskBar,
   FreshnessReviewCard,
+  type HelpNetworkPerson,
   HelpOpportunityCard,
   MatchBriefCard,
   NetworkMotif,
   PromptChips,
   SchoolPulseCard,
-  type HelpNetworkPerson,
 } from './help-network-ui'
 
 const PROMPTS = [
@@ -149,7 +149,11 @@ export default function DashboardClient({
                           ? `Class of ${request.menteeGraduationYear}`
                           : 'School circle request'
                       }
-                      body={request.reason ?? request.helpNeeded ?? 'Review their ask and reply if you can help.'}
+                      body={
+                        request.reason ??
+                        request.helpNeeded ??
+                        'Review their ask and reply if you can help.'
+                      }
                       href={`/ask/${request.id}`}
                       cta="Review request"
                       tone="ochre"
@@ -162,14 +166,22 @@ export default function DashboardClient({
                     <HelpOpportunityCard
                       key={member.userId}
                       title={`${member.name ?? 'A new member'} joined the circle`}
-                      subtitle={member.graduationYear ? `Class of ${member.graduationYear}` : 'New member'}
-                      body={buildJoinerHelpCopy(member.currentTitle, member.currentEmployer, member.city)}
+                      subtitle={
+                        member.graduationYear ? `Class of ${member.graduationYear}` : 'New member'
+                      }
+                      body={buildJoinerHelpCopy(
+                        member.currentTitle,
+                        member.currentEmployer,
+                        member.city,
+                      )}
                       href={`/profile/${member.userId}`}
                       cta="See where you can help"
                     />
                   ))}
                   <HelpOpportunityCard
-                    title={isHelper ? 'Keep your helper settings current' : 'Make yourself available'}
+                    title={
+                      isHelper ? 'Keep your helper settings current' : 'Make yourself available'
+                    }
                     subtitle={viewerCity ? `Visible in ${viewerCity}` : 'Availability matters'}
                     body="Choose quick advice, ongoing mentorship, and the topics where classmates should find you."
                     href="/mentorship/settings"
@@ -327,13 +339,10 @@ function toPerson(member: HomeFeed['openMentors'][number]): HelpNetworkPerson {
   }
 }
 
-function buildJoinerHelpCopy(
-  title: string | null,
-  employer: string | null,
-  city: string | null,
-) {
+function buildJoinerHelpCopy(title: string | null, employer: string | null, city: string | null) {
   const role = [title, employer].filter(Boolean).join(' at ')
-  if (role) return `${role}. A quick welcome or context from your path can make the network feel alive.`
+  if (role)
+    return `${role}. A quick welcome or context from your path can make the network feel alive.`
   if (city) return `Based in ${city}. Local context is often the easiest first way to help.`
   return 'A quick welcome or useful pointer can make the network feel alive.'
 }

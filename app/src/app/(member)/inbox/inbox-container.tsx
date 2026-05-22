@@ -156,7 +156,11 @@ export function InboxContainer({
     return items.filter((item) => {
       // Tab filter
       if (activeTab === 'needs_reply') {
-        if (!item.unread && item.type !== 'incoming_ask' && item.type !== 'friend_request_incoming') {
+        if (
+          !item.unread &&
+          item.type !== 'incoming_ask' &&
+          item.type !== 'friend_request_incoming'
+        ) {
           return false
         }
       } else if (activeTab === 'helping') {
@@ -249,65 +253,67 @@ export function InboxContainer({
 
         {/* Filter Tabs */}
         <div className="flex flex-wrap px-1.5 py-1.5 border-b border-border gap-1 shrink-0 select-none">
-          {(['needs_reply', 'helping', 'getting_help', 'connections', 'archived'] as const).map((tab) => {
-            const isActive = activeTab === tab
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => {
-                  setActiveTab(tab)
-                  // Find items for this tab to select the first one
-                  const tabItems = items.filter((item) => {
-                    if (tab === 'needs_reply') {
-                      if (
-                        !item.unread &&
-                        item.type !== 'incoming_ask' &&
-                        item.type !== 'friend_request_incoming'
-                      ) {
+          {(['needs_reply', 'helping', 'getting_help', 'connections', 'archived'] as const).map(
+            (tab) => {
+              const isActive = activeTab === tab
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(tab)
+                    // Find items for this tab to select the first one
+                    const tabItems = items.filter((item) => {
+                      if (tab === 'needs_reply') {
+                        if (
+                          !item.unread &&
+                          item.type !== 'incoming_ask' &&
+                          item.type !== 'friend_request_incoming'
+                        ) {
+                          return false
+                        }
+                      } else if (tab === 'helping') {
+                        if (!isHelpingItem(item, currentUser.userId)) return false
+                      } else if (tab === 'getting_help') {
+                        if (!isGettingHelpItem(item, currentUser.userId)) return false
+                      } else if (tab === 'connections') {
+                        if (
+                          item.type !== 'dm_thread' &&
+                          item.type !== 'friend_request_incoming' &&
+                          item.type !== 'friend_request_outgoing'
+                        ) {
+                          return false
+                        }
+                      } else if (tab === 'archived') {
                         return false
                       }
-                    } else if (tab === 'helping') {
-                      if (!isHelpingItem(item, currentUser.userId)) return false
-                    } else if (tab === 'getting_help') {
-                      if (!isGettingHelpItem(item, currentUser.userId)) return false
-                    } else if (tab === 'connections') {
-                      if (
-                        item.type !== 'dm_thread' &&
-                        item.type !== 'friend_request_incoming' &&
-                        item.type !== 'friend_request_outgoing'
-                      ) {
-                        return false
+
+                      if (searchQuery.trim() !== '') {
+                        const query = searchQuery.toLowerCase()
+                        const titleMatch = item.title.toLowerCase().includes(query)
+                        const subtitleMatch = item.subtitle.toLowerCase().includes(query)
+                        return titleMatch || subtitleMatch
                       }
-                    } else if (tab === 'archived') {
-                      return false
-                    }
 
-                    if (searchQuery.trim() !== '') {
-                      const query = searchQuery.toLowerCase()
-                      const titleMatch = item.title.toLowerCase().includes(query)
-                      const subtitleMatch = item.subtitle.toLowerCase().includes(query)
-                      return titleMatch || subtitleMatch
+                      return true
+                    })
+                    if (tabItems.length > 0) {
+                      setSelectedItemId(tabItems[0].id)
+                    } else {
+                      setSelectedItemId(null)
                     }
-
-                    return true
-                  })
-                  if (tabItems.length > 0) {
-                    setSelectedItemId(tabItems[0].id)
-                  } else {
-                    setSelectedItemId(null)
-                  }
-                }}
-                className={`bg-transparent border-none py-1.5 px-2 text-[10.5px] font-sans cursor-pointer whitespace-nowrap transition-all border-b-2 outline-none ${
-                  isActive
-                    ? 'border-primary text-primary font-semibold'
-                    : 'border-transparent text-muted-foreground font-medium hover:text-foreground'
-                }`}
-              >
-                {tabLabel(tab)}
-              </button>
-            )
-          })}
+                  }}
+                  className={`bg-transparent border-none py-1.5 px-2 text-[10.5px] font-sans cursor-pointer whitespace-nowrap transition-all border-b-2 outline-none ${
+                    isActive
+                      ? 'border-primary text-primary font-semibold'
+                      : 'border-transparent text-muted-foreground font-medium hover:text-foreground'
+                  }`}
+                >
+                  {tabLabel(tab)}
+                </button>
+              )
+            },
+          )}
         </div>
 
         {/* List of items */}
@@ -315,7 +321,9 @@ export function InboxContainer({
           {filteredItems.length === 0 ? (
             <div className="p-8 text-center flex flex-col items-center justify-center h-full">
               <InboxIcon className="size-6 text-muted-foreground/60 mb-2" />
-              <p className="text-xs font-semibold text-foreground">Nothing in {tabLabel(activeTab)}</p>
+              <p className="text-xs font-semibold text-foreground">
+                Nothing in {tabLabel(activeTab)}
+              </p>
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Ask, help, and connection threads will appear here.
               </p>

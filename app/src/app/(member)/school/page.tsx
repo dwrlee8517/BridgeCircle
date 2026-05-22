@@ -136,7 +136,9 @@ export default async function SchoolPage() {
                     <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       <span>{event.goingCount} going</span>
                       {event.location ? <span>· {event.location}</span> : null}
-                      {event.viewerRsvp ? <span>· You are {event.viewerRsvp.replace('_', ' ')}</span> : null}
+                      {event.viewerRsvp ? (
+                        <span>· You are {event.viewerRsvp.replace('_', ' ')}</span>
+                      ) : null}
                     </div>
                     <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-link group-hover:text-link-hover">
                       View event
@@ -193,8 +195,8 @@ export default async function SchoolPage() {
                   {featuredEvent.title}
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {featuredEvent.goingCount} people are going. RSVP, then use People to find who
-                  you may want to meet before the event.
+                  {featuredEvent.goingCount} people are going. RSVP, then use People to find who you
+                  may want to meet before the event.
                 </p>
                 <Button asChild className="mt-5 rounded-[6px]">
                   <Link href={`/events/${featuredEvent.id}`}>Open event</Link>

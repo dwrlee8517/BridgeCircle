@@ -5,11 +5,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { getHelperPreference } from '@/lib/asks/preferences'
 import { requireSession } from '@/lib/auth/session'
-import {
-  FreshnessReviewCard,
-  HelpOpportunityCard,
-  NetworkMotif,
-} from '../help-network-ui'
+import { FreshnessReviewCard, HelpOpportunityCard, NetworkMotif } from '../help-network-ui'
 
 export default async function HelpPage() {
   const session = await requireSession()
@@ -54,7 +50,15 @@ export default async function HelpPage() {
   const joinerUserIds = (recentJoinersRes.data ?? []).map((member) => member.user_id)
   const userIds = [...new Set([...askUserIds, ...joinerUserIds])]
 
-  const profileMap = new Map<string, { name: string | null; currentTitle: string | null; currentEmployer: string | null; city: string | null }>()
+  const profileMap = new Map<
+    string,
+    {
+      name: string | null
+      currentTitle: string | null
+      currentEmployer: string | null
+      city: string | null
+    }
+  >()
   if (userIds.length > 0) {
     const { data: profiles } = await supabase
       .from('base_profiles')
@@ -97,10 +101,14 @@ export default async function HelpPage() {
                 {isOpen ? 'Available to help' : 'Not open yet'}
               </StatusBadge>
               {prefs?.openToAdvice ? (
-                <StatusBadge tone="info" size="sm">Quick advice</StatusBadge>
+                <StatusBadge tone="info" size="sm">
+                  Quick advice
+                </StatusBadge>
               ) : null}
               {prefs?.openToMentorship ? (
-                <StatusBadge tone="info" size="sm">Mentorship</StatusBadge>
+                <StatusBadge tone="info" size="sm">
+                  Mentorship
+                </StatusBadge>
               ) : null}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -156,7 +164,9 @@ export default async function HelpPage() {
                       key={ask.id}
                       title={`${profile?.name ?? 'Someone'} asked for ${ask.ask_type === 'advice' ? 'advice' : 'mentorship'}`}
                       subtitle={buildProfileSubtitle(profile)}
-                      body={ask.reason ?? ask.help_needed ?? 'Review the ask and reply if you can help.'}
+                      body={
+                        ask.reason ?? ask.help_needed ?? 'Review the ask and reply if you can help.'
+                      }
                       href={`/ask/${ask.id}`}
                       cta="Review request"
                       tone="ochre"
@@ -247,7 +257,9 @@ function buildHelpFit(
 ) {
   if (!profile) return 'A quick welcome or useful pointer can make the network feel alive.'
   const role = [profile.currentTitle, profile.currentEmployer].filter(Boolean).join(' at ')
-  if (role) return `${role}. Your experience may help them understand a path, company, or next step.`
-  if (profile.city) return `They are connected to ${profile.city}. Local context is often the easiest help to give.`
+  if (role)
+    return `${role}. Your experience may help them understand a path, company, or next step.`
+  if (profile.city)
+    return `They are connected to ${profile.city}. Local context is often the easiest help to give.`
   return 'A quick welcome or useful pointer can make the network feel alive.'
 }
