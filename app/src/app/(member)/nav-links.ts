@@ -9,16 +9,17 @@
 // pragma, lets both sides see the real array.
 
 export const MEMBER_NAV_LINKS = [
-  { href: '/', label: 'Home', match: ['/'] },
-  // People is the canonical directory and the starting point for advice /
-  // mentorship requests. /friends folds in as a "People I know" filter;
-  // incoming friend requests live on /inbox alongside ask requests.
+  { href: '/ask', label: 'Ask', match: ['/', '/ask'] },
+  // Help is the supply-side surface for alumni who want to give useful,
+  // lightweight help without committing every interaction to mentorship.
+  { href: '/help', label: 'Help', match: ['/help'] },
+  // People remains the broad exploration surface, but the product center
+  // is the question-driven Ask / Help loop.
   { href: '/people', label: 'People', match: ['/people', '/discover', '/profile', '/friends'] },
+  { href: '/school', label: 'School', match: ['/school', '/events', '/announcements'] },
   // Inbox absorbs direct messages — the /messages list page redirects
-  // here, and the top-level /ask page redirects here. Workflow ask
-  // routes stay highlighted here because request management lives in Inbox.
-  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages', '/ask'] },
-  { href: '/events', label: 'Events', match: ['/events'] },
+  // here. Request management lives in Inbox after an ask has been sent.
+  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages'] },
   // /announcements no longer has a top-nav slot — they're low-frequency
   // admin posts. The home page surfaces the latest one as a banner;
   // notifications and admin emails deep-link into /announcements when

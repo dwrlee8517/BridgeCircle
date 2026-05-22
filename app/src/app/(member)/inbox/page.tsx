@@ -89,7 +89,7 @@ export default async function InboxPage() {
       type: 'incoming_ask',
       title: p?.name ?? 'Someone',
       avatarUrl: p?.avatarUrl ?? null,
-      badge: 'ASK',
+      badge: r.ask_type === 'advice' ? 'ADVICE' : 'MENTOR',
       badgeTone: 'warn',
       subtitle: r.reason ?? r.help_needed ?? 'Awaiting response',
       date: r.created_at,
@@ -111,7 +111,7 @@ export default async function InboxPage() {
       avatarUrl: p?.avatarUrl ?? null,
       badge: statusText,
       badgeTone: tone as InboxItem['badgeTone'],
-      subtitle: r.reason ?? r.help_needed ?? 'Sent request',
+      subtitle: r.reason ?? r.help_needed ?? 'Waiting for help',
       date: r.created_at,
       cohort: cohortMap.get(r.helper_id) ?? null,
       originalData: r,
@@ -128,7 +128,10 @@ export default async function InboxPage() {
       avatarUrl: p?.avatarUrl ?? null,
       badge: 'ACTIVE',
       badgeTone: 'info',
-      subtitle: 'Active discussion thread',
+      subtitle:
+        t.helper_id === session.userId
+          ? 'You are helping in this thread'
+          : 'You are getting help in this thread',
       date: t.last_message_at ?? t.created_at,
       cohort: cohortMap.get(otherId) ?? null,
       originalData: { ...t, viewerUserId: session.userId },

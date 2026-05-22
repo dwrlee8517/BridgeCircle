@@ -263,7 +263,7 @@ export default async function PeoplePage({
 }
 
 function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }) {
-  const description = `Search ${orgName} for someone to ask, learn from, or meet. Describe who you're looking for in plain English, or narrow the circle with filters.`
+  const description = `Explore ${orgName} when you want to browse the wider circle. For precise help, describe the question in plain English and BridgeCircle will explain why each person fits.`
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-card">
@@ -296,7 +296,7 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
           className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
           style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
         >
-          Find the right people
+          Explore the school circle.
         </h1>
         <p className="mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">{description}</p>
       </div>

@@ -1,0 +1,1731 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BridgeCircle - Civic State and Motion Gallery</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #fafaf9;
+      --foreground: #0c0c0b;
+      --card: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-on-dark: #93c5fd;
+      --surface-midnight: #081126;
+      --surface-midnight-foreground: #fafaf9;
+      --surface-midnight-muted: rgb(250 250 249 / 68%);
+      --secondary: #f4f3ee;
+      --muted: #ebebe5;
+      --muted-foreground: #4d4d4a;
+      --border: #dcdcd6;
+      --destructive: #9b2c1f;
+      --accent-ochre: #c8761a;
+      --accent-rust: #b9472a;
+      --accent-sage: #3b6e51;
+      --accent-plum: #722f37;
+      --primary-tint: rgb(37 99 235 / 10%);
+      --primary-tint-strong: rgb(37 99 235 / 16%);
+      --success-tint: rgb(59 110 81 / 10%);
+      --warning-tint: rgb(200 118 26 / 12%);
+      --danger-tint: rgb(155 44 31 / 10%);
+      --plum-tint: rgb(114 47 55 / 10%);
+      --editorial-rule: rgb(250 250 249 / 16%);
+      --editorial-rule-strong: rgb(250 250 249 / 28%);
+      --focus-ring-muted: rgb(37 99 235 / 10%);
+      --radius: 6px;
+      --shadow-soft: 0 18px 50px rgb(12 12 11 / 8%);
+      --motion-fast: 100ms;
+      --motion-base: 150ms;
+      --motion-medium: 200ms;
+      --motion-slow: 300ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+      --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--foreground);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 16px clamp(20px, 5vw, 56px);
+      border-bottom: 1px solid var(--border);
+      background: rgb(250 250 249 / 94%);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--foreground);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 38px;
+      height: 24px;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      top: 2px;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--foreground);
+      border-radius: 999px;
+      content: "";
+    }
+
+    .brand-mark::before {
+      left: 4px;
+    }
+
+    .brand-mark::after {
+      left: 15px;
+      border-color: var(--primary);
+    }
+
+    .brand-text {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .icon-button,
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--foreground);
+      cursor: pointer;
+      transition:
+        border-color var(--motion-base) var(--ease-standard),
+        background-color var(--motion-base) var(--ease-standard),
+        color var(--motion-base) var(--ease-standard),
+        transform var(--motion-base) var(--ease-standard);
+    }
+
+    .icon-button {
+      width: 38px;
+      padding: 0;
+    }
+
+    .button {
+      gap: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .button:hover,
+    .icon-button:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .button-primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
+    .button-primary:hover {
+      border-color: var(--primary-hover);
+      background: var(--primary-hover);
+      color: white;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: clamp(28px, 6vw, 72px);
+      align-items: end;
+      padding: clamp(44px, 8vw, 88px) clamp(20px, 5vw, 56px) clamp(32px, 7vw, 72px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--primary);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin-bottom: 20px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(48px, 7.4vw, 104px);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 740px;
+      margin-bottom: 0;
+      color: var(--muted-foreground);
+      font-size: clamp(18px, 2.1vw, 24px);
+      line-height: 1.45;
+    }
+
+    .contract-panel {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .contract-panel h2 {
+      margin-bottom: 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      line-height: 1.08;
+    }
+
+    .contract-panel p {
+      margin-bottom: 18px;
+      color: var(--muted-foreground);
+    }
+
+    .contract-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .contract-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .contract-list strong {
+      color: var(--foreground);
+      font-weight: 800;
+    }
+
+    .nav-strip {
+      display: flex;
+      gap: 8px;
+      padding: 14px clamp(20px, 5vw, 56px);
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border);
+      background: var(--secondary);
+    }
+
+    .nav-strip a {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--foreground);
+      font-size: 12px;
+      font-weight: 800;
+      text-decoration: none;
+      transition:
+        border-color var(--motion-base) var(--ease-standard),
+        color var(--motion-base) var(--ease-standard),
+        background-color var(--motion-base) var(--ease-standard);
+    }
+
+    .nav-strip a:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .section {
+      padding: clamp(40px, 7vw, 76px) clamp(20px, 5vw, 56px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      display: grid;
+      grid-template-columns: minmax(0, 0.78fr) minmax(260px, 0.42fr);
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 28px;
+    }
+
+    .section-header h2 {
+      margin-bottom: 12px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 4.8vw, 64px);
+      line-height: 0.98;
+    }
+
+    .section-header p {
+      margin-bottom: 0;
+      color: var(--muted-foreground);
+      font-size: 17px;
+    }
+
+    .section-note {
+      padding: 16px;
+      border-left: 3px solid var(--primary);
+      background: var(--primary-tint);
+      color: var(--foreground);
+      font-size: 14px;
+    }
+
+    .state-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .state-card {
+      display: flex;
+      min-height: 410px;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      overflow: hidden;
+    }
+
+    .state-card-header {
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .state-card-header h3 {
+      margin-bottom: 6px;
+      font-size: 20px;
+      line-height: 1.15;
+    }
+
+    .state-card-header p {
+      margin-bottom: 0;
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .state-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .token-pill,
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 25px;
+      padding: 3px 9px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--secondary);
+      color: var(--foreground);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .status-badge {
+      font-family: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .status-badge::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+      content: "";
+    }
+
+    .badge-info {
+      border-color: rgb(37 99 235 / 28%);
+      background: var(--primary-tint);
+      color: var(--primary);
+    }
+
+    .badge-open {
+      border-color: rgb(59 110 81 / 28%);
+      background: var(--success-tint);
+      color: var(--accent-sage);
+    }
+
+    .badge-warn {
+      border-color: rgb(200 118 26 / 32%);
+      background: var(--warning-tint);
+      color: var(--foreground);
+    }
+
+    .badge-alert {
+      border-color: rgb(155 44 31 / 28%);
+      background: var(--danger-tint);
+      color: var(--destructive);
+    }
+
+    .badge-muted {
+      border-color: var(--border);
+      background: var(--secondary);
+      color: var(--muted-foreground);
+    }
+
+    .state-demo {
+      display: grid;
+      min-height: 186px;
+      align-content: center;
+      gap: 12px;
+      padding: 20px 18px;
+      background: linear-gradient(180deg, #fff, var(--background));
+    }
+
+    .state-rules {
+      display: grid;
+      gap: 10px;
+      margin-top: auto;
+      padding: 16px 18px 18px;
+      border-top: 1px solid var(--border);
+      background: var(--background);
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .state-rules strong {
+      color: var(--foreground);
+    }
+
+    .sample-row {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      transition:
+        border-color var(--motion-base) var(--ease-standard),
+        background-color var(--motion-base) var(--ease-standard),
+        transform var(--motion-base) var(--ease-standard),
+        box-shadow var(--motion-base) var(--ease-standard);
+    }
+
+    .sample-row h4 {
+      margin: 0 0 2px;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .sample-row p {
+      margin: 0;
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .avatar {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid rgb(59 110 81 / 24%);
+      border-radius: var(--radius);
+      background: rgb(59 110 81 / 8%);
+      color: var(--accent-sage);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .skeleton-line,
+    .skeleton-avatar,
+    .skeleton-button {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: var(--muted);
+    }
+
+    .skeleton-avatar {
+      width: 42px;
+      height: 42px;
+    }
+
+    .skeleton-line {
+      height: 11px;
+    }
+
+    .skeleton-line.short {
+      width: 62%;
+    }
+
+    .skeleton-line.long {
+      width: 92%;
+    }
+
+    .skeleton-button {
+      width: 78px;
+      height: 28px;
+    }
+
+    .skeleton-line::after,
+    .skeleton-avatar::after,
+    .skeleton-button::after {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgb(255 255 255 / 52%), transparent);
+      transform: translateX(-110%);
+      animation: shimmer 1.2s var(--ease-standard) infinite;
+      content: "";
+    }
+
+    .empty-demo {
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      text-align: center;
+    }
+
+    .empty-mark {
+      position: relative;
+      width: 78px;
+      height: 52px;
+    }
+
+    .empty-mark::before,
+    .empty-mark::after {
+      position: absolute;
+      top: 6px;
+      width: 40px;
+      height: 40px;
+      border: 2px solid var(--primary);
+      border-radius: 999px;
+      content: "";
+    }
+
+    .empty-mark::before {
+      left: 10px;
+      opacity: 0.42;
+    }
+
+    .empty-mark::after {
+      right: 10px;
+    }
+
+    .empty-demo h4 {
+      margin-bottom: 2px;
+      font-size: 16px;
+    }
+
+    .empty-demo p {
+      max-width: 260px;
+      margin-bottom: 6px;
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .input {
+      min-height: 38px;
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--foreground);
+      padding: 8px 10px;
+      outline: none;
+      transition:
+        border-color var(--motion-base) var(--ease-standard),
+        box-shadow var(--motion-base) var(--ease-standard);
+    }
+
+    .input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--focus-ring-muted);
+    }
+
+    .input[disabled],
+    .button[disabled] {
+      cursor: not-allowed;
+      color: var(--muted-foreground);
+      opacity: 0.72;
+    }
+
+    .input[aria-invalid="true"] {
+      border-color: var(--destructive);
+      background: var(--danger-tint);
+    }
+
+    .error-text {
+      color: var(--destructive);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .alert {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid rgb(155 44 31 / 28%);
+      border-radius: var(--radius);
+      background: var(--danger-tint);
+      color: var(--destructive);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .simulated-hover {
+      border-color: var(--primary);
+      background: var(--primary-tint);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgb(12 12 11 / 8%);
+    }
+
+    .sample-row:hover {
+      border-color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .selected-row {
+      border-color: rgb(37 99 235 / 34%);
+      background: var(--primary-tint-strong);
+    }
+
+    .unread-row h4 {
+      font-weight: 900;
+    }
+
+    .unread-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--accent-ochre);
+      box-shadow: 0 0 0 4px var(--warning-tint);
+    }
+
+    .request-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .compact-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      padding: 6px 10px;
+      color: var(--foreground);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .compact-button.primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
+    .compact-button.danger {
+      border-color: rgb(155 44 31 / 28%);
+      background: var(--danger-tint);
+      color: var(--destructive);
+    }
+
+    .mobile-frame {
+      width: min(100%, 310px);
+      margin: 0 auto;
+      border: 1px solid var(--foreground);
+      border-radius: 28px;
+      background: var(--foreground);
+      padding: 10px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mobile-screen {
+      overflow: hidden;
+      border-radius: 20px;
+      background: var(--background);
+    }
+
+    .mobile-top {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .mobile-body {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .mobile-body .button {
+      width: 100%;
+    }
+
+    .editorial-demo {
+      display: grid;
+      gap: 18px;
+      padding: 22px;
+      border-radius: var(--radius);
+      background: var(--surface-midnight);
+      color: var(--surface-midnight-foreground);
+    }
+
+    .editorial-demo h4 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 30px;
+      line-height: 1.05;
+    }
+
+    .editorial-demo p {
+      margin: 0;
+      color: var(--surface-midnight-muted);
+    }
+
+    .editorial-rule {
+      height: 1px;
+      background: var(--editorial-rule);
+    }
+
+    .editorial-link {
+      color: var(--primary-on-dark);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .lifecycle-board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .lifecycle-item {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+    }
+
+    .lifecycle-item code {
+      color: var(--muted-foreground);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .motion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .motion-card {
+      position: relative;
+      min-height: 230px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      overflow: hidden;
+    }
+
+    .motion-card h3 {
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .motion-card p {
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .motion-sample {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .surface-hover-demo {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition:
+        border-color var(--motion-base) var(--ease-standard),
+        background-color var(--motion-base) var(--ease-standard),
+        transform var(--motion-base) var(--ease-standard),
+        box-shadow var(--motion-base) var(--ease-standard);
+    }
+
+    .surface-hover-demo:hover,
+    .surface-hover-demo.is-preview {
+      border-color: rgb(37 99 235 / 34%);
+      background: var(--primary-tint);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgb(12 12 11 / 8%);
+    }
+
+    .overlay-preview {
+      width: min(100%, 340px);
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow-soft);
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .replay .overlay-preview {
+      animation: overlayIn var(--motion-medium) var(--ease-emphasized) forwards;
+    }
+
+    .replay .error-text.motion-error {
+      animation: errorReveal var(--motion-fast) var(--ease-standard) forwards;
+    }
+
+    .progress-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--muted);
+    }
+
+    .progress-fill {
+      width: 76%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--primary);
+      transition:
+        width var(--motion-slow) var(--ease-emphasized),
+        background-color var(--motion-base) var(--ease-standard);
+    }
+
+    .rule-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    .rule-table th,
+    .rule-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    .rule-table th {
+      background: var(--secondary);
+      color: var(--foreground);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .rule-table td {
+      color: var(--muted-foreground);
+    }
+
+    .rule-table strong,
+    .rule-table code {
+      color: var(--foreground);
+    }
+
+    .qa-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .qa-list li {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card);
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    .qa-list strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--foreground);
+      font-size: 14px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 28px clamp(20px, 5vw, 56px);
+      color: var(--muted-foreground);
+      font-size: 13px;
+    }
+
+    @keyframes shimmer {
+      to {
+        transform: translateX(110%);
+      }
+    }
+
+    @keyframes overlayIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes errorReveal {
+      from {
+        opacity: 0;
+        transform: translateY(-3px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    :root[data-motion="reduced"] *,
+    :root[data-motion="reduced"] *::before,
+    :root[data-motion="reduced"] *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0ms !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0ms !important;
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .section-header {
+        grid-template-columns: 1fr;
+      }
+
+      .state-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .lifecycle-board,
+      .qa-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topbar-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .button {
+        min-height: 42px;
+      }
+
+      .state-grid,
+      .motion-grid,
+      .lifecycle-board,
+      .qa-list {
+        grid-template-columns: 1fr;
+      }
+
+      .state-card {
+        min-height: auto;
+      }
+
+      .sample-row {
+        grid-template-columns: 42px minmax(0, 1fr);
+      }
+
+      .sample-row > :last-child {
+        grid-column: 2;
+        justify-self: start;
+      }
+
+      .footer {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body class="replay">
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="Civic%20Design%20System.html">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">BridgeCircle</span>
+      </a>
+      <div class="topbar-actions">
+        <button class="button" type="button" data-replay>Replay motion</button>
+        <button class="button" type="button" data-reduce aria-pressed="false">Reduce motion</button>
+        <a class="button button-primary" href="states-and-motion.md">Open contract</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="top">
+        <div>
+          <p class="eyebrow">Civic Editorial state system</p>
+          <h1>States that explain what a member can do next.</h1>
+          <p class="lead">This gallery visualizes the formal BridgeCircle state and motion contract: lifecycle badges, interaction states, loading behavior, empty surfaces, errors, mobile fallbacks, and editorial dark surfaces.</p>
+        </div>
+        <aside class="contract-panel" aria-label="Contract summary">
+          <h2>Production rule</h2>
+          <p>State styling must carry product meaning. Use role tokens first, preserve layout, and keep the next relationship action visible.</p>
+          <ul class="contract-list">
+            <li><strong>Source</strong><span>states-and-motion.md</span></li>
+            <li><strong>Tokens</strong><span>role, tint, motion</span></li>
+            <li><strong>Radius</strong><span>6px editorial corners</span></li>
+            <li><strong>Motion</strong><span>fast, useful, reducible</span></li>
+          </ul>
+        </aside>
+      </section>
+
+      <nav class="nav-strip" aria-label="Gallery sections">
+        <a href="#core-states">Core states</a>
+        <a href="#lifecycle">Lifecycle badges</a>
+        <a href="#motion">Motion recipes</a>
+        <a href="#surface-rules">Surface rules</a>
+        <a href="#qa">QA checklist</a>
+      </nav>
+
+      <section class="section" id="core-states">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">01 / core state model</p>
+            <h2>Every state should remove ambiguity.</h2>
+          </div>
+          <p class="section-note">The visual treatment is intentionally calm. BridgeCircle should feel like a trusted warm-network tool, not a gamified notification product. State changes should clarify ownership and next action.</p>
+        </div>
+
+        <div class="state-grid">
+          <article class="state-card" id="loading">
+            <div class="state-card-header">
+              <h3>Loading</h3>
+              <p>Data or an action is in progress.</p>
+              <div class="state-meta">
+                <span class="token-pill">surface-subtle</span>
+                <span class="token-pill">motion-slow</span>
+              </div>
+            </div>
+            <div class="state-demo" aria-label="Loading state example">
+              <div class="sample-row" aria-hidden="true">
+                <span class="skeleton-avatar"></span>
+                <span>
+                  <span class="skeleton-line long"></span>
+                  <span class="skeleton-line short" style="margin-top: 8px;"></span>
+                </span>
+                <span class="skeleton-button"></span>
+              </div>
+              <div class="sample-row" aria-hidden="true">
+                <span class="skeleton-avatar"></span>
+                <span>
+                  <span class="skeleton-line long"></span>
+                  <span class="skeleton-line short" style="margin-top: 8px;"></span>
+                </span>
+                <span class="skeleton-button"></span>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> preserve the final footprint.</span>
+              <span><strong>Failure mode:</strong> skeletons that reflow into different rows.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="empty">
+            <div class="state-card-header">
+              <h3>Empty</h3>
+              <p>No relevant objects exist or match filters.</p>
+              <div class="state-meta">
+                <span class="token-pill">EmptyState</span>
+                <span class="token-pill">surface-card</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="empty-demo">
+                <span class="empty-mark" aria-hidden="true"></span>
+                <div>
+                  <h4>No open requests</h4>
+                  <p>When a classmate needs your help, the request will appear here.</p>
+                </div>
+                <a class="button" href="#pending">Review pending examples</a>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> name the state and show a useful action.</span>
+              <span><strong>Failure mode:</strong> decorative blankness with no next step.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="disabled">
+            <div class="state-card-header">
+              <h3>Disabled</h3>
+              <p>An action is unavailable.</p>
+              <div class="state-meta">
+                <span class="token-pill">state-muted</span>
+                <span class="token-pill">readable copy</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="form-stack">
+                <div class="field">
+                  <label for="disabled-request">Mentor request</label>
+                  <input class="input" id="disabled-request" value="Already requested this week" disabled>
+                </div>
+                <button class="button" type="button" disabled>Send request</button>
+                <p style="margin: 0; color: var(--muted-foreground); font-size: 13px;">Try again after Mark responds or your weekly request window resets.</p>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> explain why when it is not obvious.</span>
+              <span><strong>Failure mode:</strong> low-contrast disabled copy.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="error">
+            <div class="state-card-header">
+              <h3>Error</h3>
+              <p>Something failed or is invalid.</p>
+              <div class="state-meta">
+                <span class="token-pill">state-danger</span>
+                <span class="token-pill">danger-tint</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="form-stack">
+                <div class="field">
+                  <label for="error-message">Message</label>
+                  <textarea class="input" id="error-message" aria-invalid="true" rows="3">Can we talk?</textarea>
+                  <span class="error-text">Add context so the mentor can decide.</span>
+                </div>
+                <div class="alert" role="alert">
+                  <span aria-hidden="true">!</span>
+                  <span>Request could not be sent. Keep the draft and try again.</span>
+                </div>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> field errors stay beside fields.</span>
+              <span><strong>Failure mode:</strong> route-level error with no recovery.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="hover">
+            <div class="state-card-header">
+              <h3>Hover</h3>
+              <p>Pointer is exploring an interactive element.</p>
+              <div class="state-meta">
+                <span class="token-pill">motion-base</span>
+                <span class="token-pill">color + border</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row simulated-hover">
+                <span class="avatar">SL</span>
+                <span>
+                  <h4>Sarah Lee '16</h4>
+                  <p>Product designer, portfolio reviews</p>
+                </span>
+                <span class="compact-button">View</span>
+              </div>
+              <p style="margin: 0; color: var(--muted-foreground); font-size: 13px;">This row is locked in its hover preview. The live hover on other rows should not change height.</p>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> never make hover the only affordance.</span>
+              <span><strong>Failure mode:</strong> layout shift or decorative lift.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="selected">
+            <div class="state-card-header">
+              <h3>Selected</h3>
+              <p>An object is the active selection.</p>
+              <div class="state-meta">
+                <span class="token-pill">primary-tint</span>
+                <span class="token-pill">aria-selected</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row selected-row" aria-selected="true">
+                <span class="avatar">MR</span>
+                <span>
+                  <h4>Mentorship thread</h4>
+                  <p>Active selection, no movement</p>
+                </span>
+                <span class="status-badge badge-info">Active</span>
+              </div>
+              <div class="sample-row">
+                <span class="avatar">IO</span>
+                <span>
+                  <h4>Intro follow-up</h4>
+                  <p>Available row remains stable</p>
+                </span>
+                <span class="status-badge badge-muted">Open</span>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> selected state changes color only.</span>
+              <span><strong>Failure mode:</strong> active row jumps or expands.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="unread">
+            <div class="state-card-header">
+              <h3>Unread</h3>
+              <p>Member has not seen new activity.</p>
+              <div class="state-meta">
+                <span class="token-pill">request-attention</span>
+                <span class="token-pill">dot + weight</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row unread-row">
+                <span class="unread-dot" aria-label="Unread"></span>
+                <span>
+                  <h4>Mei Mentor replied</h4>
+                  <p>Can chat Thursday after 3 pm.</p>
+                </span>
+                <span style="color: var(--muted-foreground); font-size: 12px;">2h</span>
+              </div>
+              <div class="sample-row">
+                <span></span>
+                <span>
+                  <h4>Event reminder</h4>
+                  <p>Office Hours starts tomorrow.</p>
+                </span>
+                <span style="color: var(--muted-foreground); font-size: 12px;">1d</span>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> dot plus stronger text weight.</span>
+              <span><strong>Failure mode:</strong> color alone or tiny mono label.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="pending">
+            <div class="state-card-header">
+              <h3>Pending</h3>
+              <p>Waiting for a member, admin, or system decision.</p>
+              <div class="state-meta">
+                <span class="token-pill">state-warning</span>
+                <span class="token-pill">warning-tint</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row" style="background: var(--warning-tint); border-color: rgb(200 118 26 / 32%);">
+                <span class="avatar">JR</span>
+                <span>
+                  <h4>Jordan requested advice</h4>
+                  <p>Your decision is needed before Friday.</p>
+                  <span class="request-actions">
+                    <span class="compact-button primary">Accept</span>
+                    <span class="compact-button">Decline</span>
+                  </span>
+                </span>
+                <span class="status-badge badge-warn">Pending</span>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> make the next owner clear.</span>
+              <span><strong>Failure mode:</strong> pending state with no action path.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="accepted">
+            <div class="state-card-header">
+              <h3>Accepted</h3>
+              <p>Request, RSVP, or membership succeeded.</p>
+              <div class="state-meta">
+                <span class="token-pill">state-info</span>
+                <span class="token-pill">state-success</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row" style="background: var(--success-tint); border-color: rgb(59 110 81 / 28%);">
+                <span class="avatar">MM</span>
+                <span>
+                  <h4>Request accepted</h4>
+                  <p>The conversation is open. Send a specific follow-up.</p>
+                </span>
+                <span class="status-badge badge-open">Accepted</span>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> calm confirmation over celebration.</span>
+              <span><strong>Failure mode:</strong> confetti for routine acceptance.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="declined">
+            <div class="state-card-header">
+              <h3>Declined</h3>
+              <p>Request was rejected, revoked, or no longer available.</p>
+              <div class="state-meta">
+                <span class="token-pill">state-danger</span>
+                <span class="token-pill">routine calm</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row">
+                <span class="avatar">AK</span>
+                <span>
+                  <h4>Request declined</h4>
+                  <p>Alex is not available for this request.</p>
+                </span>
+                <span class="status-badge badge-alert">Declined</span>
+              </div>
+              <p style="margin: 0; color: var(--muted-foreground); font-size: 13px;">Use stronger destructive treatment only when attention is still needed.</p>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> do not over-alarm routine declines.</span>
+              <span><strong>Failure mode:</strong> destructive styling for every no.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="paused">
+            <div class="state-card-header">
+              <h3>Paused</h3>
+              <p>Member, account, or capacity is intentionally inactive.</p>
+              <div class="state-meta">
+                <span class="token-pill">mentor-paused</span>
+                <span class="token-pill">warning-tint</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="sample-row" style="background: var(--warning-tint);">
+                <span class="avatar">FA</span>
+                <span>
+                  <h4>Felix Atcapacity '10</h4>
+                  <p>Mentoring paused by member until June.</p>
+                </span>
+                <span class="status-badge badge-warn">Paused</span>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> state why and who set the pause.</span>
+              <span><strong>Failure mode:</strong> hidden paused state on profile.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="mobile">
+            <div class="state-card-header">
+              <h3>Mobile</h3>
+              <p>Hover is unavailable and detail may become a new view.</p>
+              <div class="state-meta">
+                <span class="token-pill">same tokens</span>
+                <span class="token-pill">action first</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="mobile-frame" aria-label="Mobile state preview">
+                <div class="mobile-screen">
+                  <div class="mobile-top">Profile</div>
+                  <div class="mobile-body">
+                    <span class="status-badge badge-open">Open to help</span>
+                    <h4 style="margin: 0;">Mark Mentor '08</h4>
+                    <a class="button button-primary" href="#mobile">Ask Mark</a>
+                    <p style="margin: 0; color: var(--muted-foreground); font-size: 13px;">Senior partner. Career switch guidance, consulting interviews, and warm intros.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> keep primary action reachable.</span>
+              <span><strong>Failure mode:</strong> bury action below biography.</span>
+            </div>
+          </article>
+
+          <article class="state-card" id="editorial">
+            <div class="state-card-header">
+              <h3>Dark/editorial</h3>
+              <p>Expressive entry surface, not dense workflow UI.</p>
+              <div class="state-meta">
+                <span class="token-pill">surface-editorial</span>
+                <span class="token-pill">action-on-editorial</span>
+              </div>
+            </div>
+            <div class="state-demo">
+              <div class="editorial-demo">
+                <span class="token-pill" style="width: max-content; border-color: var(--editorial-rule-strong); background: transparent; color: var(--primary-on-dark);">Midnight surface</span>
+                <h4>Local Chadwick circle</h4>
+                <p>Use Midnight for entry and editorial moments, not ordinary tables, rows, or forms.</p>
+                <div class="editorial-rule"></div>
+                <a class="editorial-link" href="#editorial">Find a mentor</a>
+              </div>
+            </div>
+            <div class="state-rules">
+              <span><strong>Behavior:</strong> use primary-on-dark for blue accents.</span>
+              <span><strong>Failure mode:</strong> ordinary primary text on Midnight.</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="lifecycle">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">02 / lifecycle badges</p>
+            <h2>One mapping for product lifecycle language.</h2>
+          </div>
+          <p class="section-note">Use these mappings through StatusBadge or LifecycleStatusBadge instead of route-local hue maps. Badges can support state, but they should not be the only state signal when action is needed.</p>
+        </div>
+
+        <div class="lifecycle-board">
+          <div class="lifecycle-item">
+            <span class="status-badge badge-warn">Pending</span>
+            <code>pending -> warn, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-info">Accepted</span>
+            <code>accepted -> info, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-info">Active</span>
+            <code>active -> info, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-open">Completed</span>
+            <code>completed -> open, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-alert">Declined</span>
+            <code>declined -> alert, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-alert">Revoked</span>
+            <code>revoked -> alert, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-muted" style="gap: 0;">Expired</span>
+            <code>expired -> muted, no dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-warn">Paused</span>
+            <code>paused -> warn, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-warn">Unread</span>
+            <code>unread -> warn, dot + weight</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-muted" style="gap: 0;">Disabled</span>
+            <code>disabled -> muted, no dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-alert">Error</span>
+            <code>error -> alert, dot</code>
+          </div>
+          <div class="lifecycle-item">
+            <span class="status-badge badge-open">Open</span>
+            <code>mentor-open -> sage</code>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="motion">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">03 / motion recipes</p>
+            <h2>Motion should clarify state, not decorate it.</h2>
+          </div>
+          <p class="section-note">The controls in the top bar replay and reduce these previews. Production motion should stay short, avoid layout movement, and respect reduced-motion preferences.</p>
+        </div>
+
+        <div class="motion-grid">
+          <article class="motion-card">
+            <h3>Control hover</h3>
+            <p><strong>motion-base</strong>, color/background/border/opacity only.</p>
+            <div class="motion-sample">
+              <button class="button button-primary" type="button">Find someone to ask</button>
+              <button class="button" type="button">Secondary action</button>
+            </div>
+          </article>
+
+          <article class="motion-card">
+            <h3>Selection change</h3>
+            <p><strong>motion-fast</strong>, no row height or text wrapping animation.</p>
+            <div class="motion-sample">
+              <div class="sample-row selected-row">
+                <span class="avatar">IO</span>
+                <span>
+                  <h4>Iris Okonkwo</h4>
+                  <p>Selected table or inbox row</p>
+                </span>
+                <span class="status-badge badge-info">Active</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="motion-card">
+            <h3>Interactive surface hover</h3>
+            <p><strong>motion-base</strong>, 1px lift only for clickable cards.</p>
+            <div class="motion-sample">
+              <div class="surface-hover-demo is-preview">
+                <strong>Clickable person card</strong>
+                <p style="margin: 4px 0 0;">Border, tint, and 1px lift are enough.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="motion-card">
+            <h3>Overlay enter</h3>
+            <p><strong>motion-medium</strong>, opacity and transform only.</p>
+            <div class="motion-sample">
+              <div class="overlay-preview">
+                <strong>Confirm mentorship request?</strong>
+                <p style="margin: 6px 0 0;">This preview uses a short rise and fade.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="motion-card">
+            <h3>Loading pulse</h3>
+            <p><strong>motion-slow</strong>, repeated opacity shimmer for skeletons only.</p>
+            <div class="motion-sample">
+              <div class="sample-row" aria-hidden="true">
+                <span class="skeleton-avatar"></span>
+                <span>
+                  <span class="skeleton-line long"></span>
+                  <span class="skeleton-line short" style="margin-top: 8px;"></span>
+                </span>
+                <span class="skeleton-button"></span>
+              </div>
+            </div>
+          </article>
+
+          <article class="motion-card">
+            <h3>Error reveal</h3>
+            <p><strong>motion-fast</strong>, reveal recovery copy without delaying the action.</p>
+            <div class="motion-sample">
+              <div class="field">
+                <label for="motion-error">Intro note</label>
+                <input class="input" id="motion-error" aria-invalid="true" value="Hi">
+                <span class="error-text motion-error">Add a specific ask before sending.</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="surface-rules">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">04 / surface rules</p>
+            <h2>Apply states differently by product surface.</h2>
+          </div>
+          <p class="section-note">These are the recurring BridgeCircle patterns where state treatment will either help or damage the experience.</p>
+        </div>
+
+        <table class="rule-table">
+          <thead>
+            <tr>
+              <th>Surface</th>
+              <th>Required state behavior</th>
+              <th>What to inspect</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Person cards</strong></td>
+              <td>Hover, focus, selected, paused, and full mentor states preserve height.</td>
+              <td>Primary action is visible without browsing.</td>
+            </tr>
+            <tr>
+              <td><strong>Request cards</strong></td>
+              <td>Incoming pending requests show an obvious primary action. Outgoing pending is quieter.</td>
+              <td>Owner of the next action is clear.</td>
+            </tr>
+            <tr>
+              <td><strong>Inbox rows</strong></td>
+              <td>Unread uses dot plus weight. Selected uses primary tint without movement.</td>
+              <td>Read/unread and selected can coexist.</td>
+            </tr>
+            <tr>
+              <td><strong>Event RSVP</strong></td>
+              <td>Going, waitlisted, not-going, and pending preserve button footprints.</td>
+              <td>RSVP state does not shift surrounding copy.</td>
+            </tr>
+            <tr>
+              <td><strong>Admin tables</strong></td>
+              <td>Selected and bulk rows use primary tint. Revoked rows stay visible with muted text.</td>
+              <td>Dense state still meets contrast expectations.</td>
+            </tr>
+            <tr>
+              <td><strong>Forms</strong></td>
+              <td>Disabled and pending buttons preserve width. Errors stay attached to fields.</td>
+              <td>Mobile form errors remain adjacent to the field.</td>
+            </tr>
+            <tr>
+              <td><strong>Notifications</strong></td>
+              <td>Unread uses dot plus weight. Action-needed uses warning tint.</td>
+              <td>No arbitrary accent colors for notification categories.</td>
+            </tr>
+            <tr>
+              <td><strong>Email</strong></td>
+              <td>No app motion. State comes from copy, one CTA, and email-safe tokens.</td>
+              <td>Plain-text fallback preserves the action.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="qa">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">05 / QA checklist</p>
+            <h2>Use this when reviewing real screens.</h2>
+          </div>
+          <p class="section-note">A screen passes only when state, hierarchy, action clarity, accessibility, and responsive behavior agree with the same contract.</p>
+        </div>
+
+        <ul class="qa-list">
+          <li><strong>Token compliance</strong>States use role and tint tokens, not route-local hue maps.</li>
+          <li><strong>Action clarity</strong>The next member action is visible where a decision is needed.</li>
+          <li><strong>Layout stability</strong>Loading, disabled, selected, pending, and RSVP states do not shift the surface.</li>
+          <li><strong>Mobile readability</strong>Primary actions appear before long bios, descriptions, or event notes.</li>
+          <li><strong>Accessibility</strong>State is not color alone; focus-visible and reduced motion are respected.</li>
+          <li><strong>Editorial restraint</strong>Dark/editorial treatment is reserved for entry moments, not dense workflows.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>BridgeCircle Civic Editorial state and motion gallery.</span>
+      <a href="#top">Back to top</a>
+    </footer>
+  </div>
+
+  <script>
+    const replayButton = document.querySelector("[data-replay]");
+    const reduceButton = document.querySelector("[data-reduce]");
+
+    replayButton.addEventListener("click", () => {
+      document.body.classList.remove("replay");
+      window.requestAnimationFrame(() => {
+        document.body.classList.add("replay");
+      });
+    });
+
+    reduceButton.addEventListener("click", () => {
+      const isReduced = document.documentElement.dataset.motion === "reduced";
+      document.documentElement.dataset.motion = isReduced ? "" : "reduced";
+      reduceButton.setAttribute("aria-pressed", String(!isReduced));
+      reduceButton.textContent = isReduced ? "Reduce motion" : "Motion reduced";
+    });
+  </script>
+</body>
+</html>

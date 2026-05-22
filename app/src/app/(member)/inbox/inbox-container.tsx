@@ -80,7 +80,7 @@ export type InboxItem = {
   originalData: unknown
 }
 
-type TabType = 'all' | 'requests' | 'threads' | 'dms' | 'sent'
+type TabType = 'needs_reply' | 'helping' | 'getting_help' | 'connections' | 'archived'
 
 interface CurrentUser {
   name: string | null
@@ -95,7 +95,7 @@ export function InboxContainer({
   items: InboxItem[]
   currentUser: CurrentUser
 }) {
-  const [activeTab, setActiveTab] = useState<TabType>('all')
+  const [activeTab, setActiveTab] = useState<TabType>('needs_reply')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [showDetail, setShowDetail] = useState(false)
@@ -155,14 +155,24 @@ export function InboxContainer({
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       // Tab filter
-      if (activeTab === 'requests') {
-        if (item.type !== 'incoming_ask' && item.type !== 'friend_request_incoming') return false
-      } else if (activeTab === 'threads') {
-        if (item.type !== 'active_thread') return false
-      } else if (activeTab === 'dms') {
-        if (item.type !== 'dm_thread') return false
-      } else if (activeTab === 'sent') {
-        if (item.type !== 'outgoing_ask' && item.type !== 'friend_request_outgoing') return false
+      if (activeTab === 'needs_reply') {
+        if (!item.unread && item.type !== 'incoming_ask' && item.type !== 'friend_request_incoming') {
+          return false
+        }
+      } else if (activeTab === 'helping') {
+        if (!isHelpingItem(item, currentUser.userId)) return false
+      } else if (activeTab === 'getting_help') {
+        if (!isGettingHelpItem(item, currentUser.userId)) return false
+      } else if (activeTab === 'connections') {
+        if (
+          item.type !== 'dm_thread' &&
+          item.type !== 'friend_request_incoming' &&
+          item.type !== 'friend_request_outgoing'
+        ) {
+          return false
+        }
+      } else if (activeTab === 'archived') {
+        return false
       }
 
       // Search query filter
@@ -175,7 +185,7 @@ export function InboxContainer({
 
       return true
     })
-  }, [items, activeTab, searchQuery])
+  }, [items, activeTab, searchQuery, currentUser.userId])
 
   // Select first item if current selection is no longer in filtered list (e.g. due to search)
   useEffect(() => {
@@ -238,8 +248,8 @@ export function InboxContainer({
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex px-1.5 border-b border-border gap-0.5 overflow-x-auto shrink-0 select-none no-scrollbar">
-          {(['all', 'requests', 'threads', 'dms', 'sent'] as const).map((tab) => {
+        <div className="flex flex-wrap px-1.5 py-1.5 border-b border-border gap-1 shrink-0 select-none">
+          {(['needs_reply', 'helping', 'getting_help', 'connections', 'archived'] as const).map((tab) => {
             const isActive = activeTab === tab
             return (
               <button
@@ -249,16 +259,28 @@ export function InboxContainer({
                   setActiveTab(tab)
                   // Find items for this tab to select the first one
                   const tabItems = items.filter((item) => {
-                    if (tab === 'requests') {
-                      if (item.type !== 'incoming_ask' && item.type !== 'friend_request_incoming')
+                    if (tab === 'needs_reply') {
+                      if (
+                        !item.unread &&
+                        item.type !== 'incoming_ask' &&
+                        item.type !== 'friend_request_incoming'
+                      ) {
                         return false
-                    } else if (tab === 'threads') {
-                      if (item.type !== 'active_thread') return false
-                    } else if (tab === 'dms') {
-                      if (item.type !== 'dm_thread') return false
-                    } else if (tab === 'sent') {
-                      if (item.type !== 'outgoing_ask' && item.type !== 'friend_request_outgoing')
+                      }
+                    } else if (tab === 'helping') {
+                      if (!isHelpingItem(item, currentUser.userId)) return false
+                    } else if (tab === 'getting_help') {
+                      if (!isGettingHelpItem(item, currentUser.userId)) return false
+                    } else if (tab === 'connections') {
+                      if (
+                        item.type !== 'dm_thread' &&
+                        item.type !== 'friend_request_incoming' &&
+                        item.type !== 'friend_request_outgoing'
+                      ) {
                         return false
+                      }
+                    } else if (tab === 'archived') {
+                      return false
                     }
 
                     if (searchQuery.trim() !== '') {
@@ -276,13 +298,13 @@ export function InboxContainer({
                     setSelectedItemId(null)
                   }
                 }}
-                className={`bg-transparent border-none py-2 px-3 text-[11px] font-sans cursor-pointer whitespace-nowrap transition-all border-b-2 capitalize outline-none ${
+                className={`bg-transparent border-none py-1.5 px-2 text-[10.5px] font-sans cursor-pointer whitespace-nowrap transition-all border-b-2 outline-none ${
                   isActive
                     ? 'border-primary text-primary font-semibold'
                     : 'border-transparent text-muted-foreground font-medium hover:text-foreground'
                 }`}
               >
-                {tab === 'dms' ? 'DMs' : tab}
+                {tabLabel(tab)}
               </button>
             )
           })}
@@ -293,7 +315,10 @@ export function InboxContainer({
           {filteredItems.length === 0 ? (
             <div className="p-8 text-center flex flex-col items-center justify-center h-full">
               <InboxIcon className="size-6 text-muted-foreground/60 mb-2" />
-              <p className="text-xs font-semibold text-foreground">No conversations</p>
+              <p className="text-xs font-semibold text-foreground">Nothing in {tabLabel(activeTab)}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Ask, help, and connection threads will appear here.
+              </p>
             </div>
           ) : (
             filteredItems.map((item) => {
@@ -393,7 +418,7 @@ export function InboxContainer({
                   </Avatar>
                   <div className="min-w-0">
                     <h2 className="text-[15px] font-semibold text-foreground leading-tight truncate">
-                      {activeItem.title}
+                      {roleHeader(activeItem, currentUser.userId)}
                     </h2>
                     <p className="text-[12px] text-muted-foreground mt-0.5 truncate">
                       {activeItem.subtitle} · {format(new Date(activeItem.date), 'MMM d, yyyy')}
@@ -468,6 +493,48 @@ export function InboxContainer({
       </div>
     </div>
   )
+}
+
+function tabLabel(tab: TabType) {
+  switch (tab) {
+    case 'needs_reply':
+      return 'Needs reply'
+    case 'helping':
+      return "I'm helping"
+    case 'getting_help':
+      return "I'm getting help"
+    case 'connections':
+      return 'Connections'
+    case 'archived':
+      return 'Archived'
+  }
+}
+
+function isHelpingItem(item: InboxItem, viewerId: string) {
+  if (item.type === 'incoming_ask') return true
+  if (item.type !== 'active_thread') return false
+  const thread = item.originalData as ThreadData
+  return thread.helper_id === viewerId
+}
+
+function isGettingHelpItem(item: InboxItem, viewerId: string) {
+  if (item.type === 'outgoing_ask') return true
+  if (item.type !== 'active_thread') return false
+  const thread = item.originalData as ThreadData
+  return thread.asker_id === viewerId
+}
+
+function roleHeader(item: InboxItem, viewerId: string) {
+  if (item.type === 'incoming_ask') return `You're helping ${item.title}`
+  if (item.type === 'outgoing_ask') return `${item.title} is helping you`
+  if (item.type === 'active_thread') {
+    return isHelpingItem(item, viewerId)
+      ? `You're helping ${item.title}`
+      : `${item.title} is helping you`
+  }
+  if (item.type === 'dm_thread') return `Connection with ${item.title}`
+  if (item.type === 'friend_request_incoming') return `${item.title} wants to connect`
+  return `You asked ${item.title} to connect`
 }
 
 /* Detail Renderers */

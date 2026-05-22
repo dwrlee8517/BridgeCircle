@@ -10,6 +10,7 @@ import { requireSession } from '@/lib/auth/session'
 import { getFriendshipState } from '@/lib/friendship/friendshipState'
 import { getProfile } from '@/lib/profile/getProfile'
 import { cn, displayName } from '@/lib/utils'
+import { FreshnessReviewCard } from '../../help-network-ui'
 import { startThreadAction } from '../../messages/[id]/actions'
 import { FriendshipAction } from './friendship-action'
 
@@ -624,6 +625,8 @@ export default async function ProfileDetailPage({
               )}
             </div>
           </Card>
+
+          {isSelf ? <FreshnessReviewCard /> : null}
 
           {/* Verification Details */}
           <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">

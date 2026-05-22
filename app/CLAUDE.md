@@ -143,10 +143,12 @@ Before declaring a task done:
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/` | Home — greeting, mentees waiting, new alumni, featured event, announcement banner, recent activity | Default after sign-in |
-| `/people` | Alumni directory — NL search, structured filters, "People I know" toggle, friend signal and ask CTAs on cards | Was `/discover`; folded `/friends` in |
-| `/ask` | Redirects to `/inbox`; not a member destination | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]` |
-| `/inbox` | Unified request lifecycle — friend requests, incoming asks, active threads, direct messages, sent requests | Folded in `/messages` (root), `/friends` (incoming reqs), and top-level `/ask` |
+| `/` | Ask-first Home — natural-language ask prompt, people who can help, people you could help, School pulse | Default after sign-in |
+| `/ask` | Primary question-driven matching surface — NL question → explained people matches → guided ask composer | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]` |
+| `/help` | Supply-side helper surface — requests needing reply, likely people the viewer could help, availability CTA | |
+| `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
+| `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
+| `/inbox` | Unified request lifecycle — needs reply, helping, getting help, connections, direct messages | Folded in `/messages` (root), `/friends` (incoming reqs) |
 | `/messages/[id]` | DM conversation viewer | Linked from `/inbox`; root `/messages` 308 → `/inbox` |
 | `/events`, `/events/[id]` | Events list + detail | |
 | `/announcements`, `/announcements/[id]` | Archive | Off top nav post-#55; entry via home banner + notifications |
@@ -154,7 +156,7 @@ Before declaring a task done:
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **People · Inbox · Events**. The `MEMBER_NAV_LINKS` in `src/app/(member)/member-nav.tsx` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Top nav (members): **Ask · Help · People · School · Inbox**. The `MEMBER_NAV_LINKS` in `src/app/(member)/member-nav.tsx` is the single source of truth — desktop nav and the mobile dropdown both render from it.
 
 Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/ask → /inbox`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/messages → /inbox`. See `next.config.ts`.
 
