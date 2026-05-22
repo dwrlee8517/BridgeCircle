@@ -94,8 +94,17 @@ export default async function PeoplePage({
     } else {
       nlError =
         result.error === 'no_api_key'
-          ? 'NL search is not configured. Use the filters below.'
-          : `Could not understand the query (${result.detail ?? 'unknown error'}). Use the filters below.`
+          ? 'Natural-language search is not configured. Showing keyword results instead.'
+          : `Could not understand the query (${result.detail ?? 'unknown error'}). Showing keyword results instead.`
+      structuredHits = await searchAlumni(supabase, {
+        organizationId: viewerMembership.organization_id,
+        viewerId: session.userId,
+        viewerUniversity: viewerBase?.university ?? null,
+        viewerMajor: viewerBase?.major ?? null,
+        viewerCity: viewerBase?.city ?? null,
+        viewerGraduationYear: viewerOrgProfile?.graduation_year ?? null,
+        filters: { ...filters, q: filters.q ?? nlQuery },
+      })
     }
   } else {
     structuredHits = await searchAlumni(supabase, {
@@ -121,8 +130,10 @@ export default async function PeoplePage({
     filters.openToMentor ||
     filters.peopleIKnow
   )
+  const showNaturalLanguageResults = useNL && !nlError
+  const hasActiveSearch = anyFilter || useNL
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
-  const resultCount = useNL ? nlHits.length : structuredHits.length
+  const resultCount = showNaturalLanguageResults ? nlHits.length : structuredHits.length
 
   return (
     <div className="bg-background min-h-full">
@@ -161,9 +172,9 @@ export default async function PeoplePage({
             />
           ) : null}
 
-          <ResultsHeader resultCount={resultCount} hasFilter={anyFilter || useNL} />
+          <ResultsHeader resultCount={resultCount} hasFilter={hasActiveSearch} />
 
-          {useNL ? (
+          {showNaturalLanguageResults ? (
             nlHits.length === 0 ? (
               <EmptyResults
                 text={
@@ -238,7 +249,7 @@ export default async function PeoplePage({
                   ))}
                 </ResultGrid>
               ) : null}
-              {structuredHits.length === 0 && anyFilter ? (
+              {structuredHits.length === 0 && hasActiveSearch ? (
                 <EmptyResults
                   text={
                     <>
@@ -251,7 +262,7 @@ export default async function PeoplePage({
                   }
                 />
               ) : null}
-              {structuredHits.length === 0 && !anyFilter ? (
+              {structuredHits.length === 0 && !hasActiveSearch ? (
                 <EmptyResults text="Type a query above or adjust filters to browse alumni." />
               ) : null}
             </>

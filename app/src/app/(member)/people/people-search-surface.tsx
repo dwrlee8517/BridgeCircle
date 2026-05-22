@@ -87,9 +87,7 @@ export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) 
       >
         <StatusBanner stage={visibleStage} />
         <div
-          className={`space-y-6 transition-opacity duration-150 ${
-            isPending ? 'pointer-events-none opacity-60' : ''
-          }`}
+          className={`space-y-6 transition-opacity duration-150 ${isPending ? 'opacity-60' : ''}`}
           aria-busy={isPending}
         >
           {children}

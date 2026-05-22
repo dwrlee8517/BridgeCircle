@@ -146,7 +146,12 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
             <X className="size-4" />
           </button>
         )}
-        <Button type="submit" size="sm" className="rounded-full px-5 h-8">
+        <Button
+          type="submit"
+          size="sm"
+          className="rounded-full px-5 h-8"
+          aria-label="Search people"
+        >
           Find people
         </Button>
       </div>
