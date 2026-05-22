@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
+import { FreshnessReviewCard } from '../../help-network-ui'
 import { editProfileAction, refreshFromLinkedInAction } from './actions'
 import { DangerZone } from './danger-zone'
 import { PrivacyForm } from './privacy-form'
@@ -54,6 +55,7 @@ export default async function EditProfilePage({
           {refreshBanner.message}
         </div>
       ) : null}
+      <FreshnessReviewCard />
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between gap-3">

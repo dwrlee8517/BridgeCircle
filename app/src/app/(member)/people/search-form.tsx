@@ -132,7 +132,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
         <input
           id="nl"
           name="nl"
-          placeholder="e.g. someone who can mentor me on a photography career in the US"
+          placeholder="Describe who could help, e.g. product after consulting, Seoul alumni, college advice"
           defaultValue={defaults.nl}
           className="flex-1 bg-transparent border-none p-0 h-9 text-sm focus:outline-none focus:ring-0 placeholder:text-muted-foreground/50 text-foreground"
         />
@@ -146,8 +146,13 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
             <X className="size-4" />
           </button>
         )}
-        <Button type="submit" size="sm" className="rounded-full px-5 h-8">
-          Search
+        <Button
+          type="submit"
+          size="sm"
+          className="rounded-full px-5 h-8"
+          aria-label="Search people"
+        >
+          Find people
         </Button>
       </div>
 
@@ -213,7 +218,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
                     onChange={handleCheckboxChange}
                     className="h-4 w-4 rounded-[3px] accent-primary border-border cursor-pointer"
                   />
-                  Only show mentors
+                  Open to mentorship
                 </label>
                 <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
                   <input

@@ -19,7 +19,7 @@ export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
       {links.map((link, idx) => {
         const active = link.match.some((prefix) => {
           if (prefix === '/') {
-            return pathname === '/' || pathname.startsWith('/announcements')
+            return pathname === '/'
           }
           return pathname === prefix || pathname.startsWith(`${prefix}/`)
         })

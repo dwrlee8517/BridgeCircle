@@ -21,11 +21,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/ask',
-        destination: '/inbox',
-        permanent: true,
-      },
-      {
         source: '/mentorship/request/new',
         destination: '/ask/new',
         permanent: true,

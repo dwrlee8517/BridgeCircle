@@ -4,6 +4,8 @@ This is the production state and motion contract for BridgeCircle. Use it with
 [`tokens.md`](tokens.md), [`components.md`](components.md), and the live CSS
 contract in `app/src/app/globals.css`.
 
+Visual reference: [`state-motion-gallery.html`](state-motion-gallery.html).
+
 State styling must explain product meaning. Do not create one-off color maps in
 routes for lifecycle states that already exist here.
 

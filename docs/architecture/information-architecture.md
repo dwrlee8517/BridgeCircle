@@ -15,8 +15,9 @@ The Phase 1 spec at [`../specs/phase-1/spec.md`](../specs/phase-1/spec.md) is up
 
 ## IA Principles
 
-- people-finding is the center of the product — the directory is one click away, not buried under a separate "search" surface
-- asking starts from a person/profile context; request state after creation belongs in Inbox
+- question-driven help is the center of the product — members should start with what they are trying to figure out
+- people-finding supports asking and helping; the directory is exploration, not the only product center
+- request state after creation belongs in Inbox
 - onboarding is short and clearly tied to value
 - profile visibility and relationship state are understandable
 - friendship and asks (advice + mentorship) feel related but the gates remain distinct: DMs require mutual friendship; asks require helper acceptance
@@ -25,24 +26,27 @@ The Phase 1 spec at [`../specs/phase-1/spec.md`](../specs/phase-1/spec.md) is up
 
 ## Product Areas
 
-Phase 1 breaks into four major areas:
+Phase 1 breaks into five major areas:
 
 1. authentication and organization onboarding
-2. member people search and relationship workflows
-3. events
-4. admin operations and analytics
+2. member ask and help workflows
+3. member people exploration
+4. school pulse: events and announcements
+5. admin operations and analytics
 
 ## Top-Level Navigation
 
 ### Member Navigation (current)
 
-Member top nav has **three** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/member-nav.tsx`:
+Member top nav has **five** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/member-nav.tsx`:
 
-1. **People** — alumni directory; NL search + structured filters + "People I know" toggle; result cards show friend badges and ask CTAs
-2. **Inbox** — unified request lifecycle: friend requests, incoming asks, active ask threads, direct messages, sent requests
-3. **Events** — upcoming events with RSVP
+1. **Ask** — natural-language question → explained people matches → guided ask composer
+2. **Help** — supply-side surface for requests needing reply and people the viewer could help
+3. **People** — alumni exploration; NL search + structured filters + "People I know" toggle; result cards are match briefs
+4. **School** — events and announcements in one member-facing pulse hub
+5. **Inbox** — unified request lifecycle: needs reply, helping, getting help, connections, direct messages
 
-Admins see a fifth slot ("Admin") that links to `/admin/invite`.
+Admins see an additional slot ("Admin") that links to `/admin/invite`.
 
 The mobile dropdown in `member-header.tsx` reads from the same `MEMBER_NAV_LINKS` array, so desktop and mobile cannot drift.
 
@@ -55,15 +59,16 @@ Global utilities (header right-rail):
 
 ### How we got here (post-launch IA reorg)
 
-The original Phase 1 plan was a 7–8-item nav (Search, Inbox, Messages, Friends, Events, Announcements, plus Profile). Over six PRs (#48–#55) we collapsed it to four. The folds:
+The original Phase 1 plan was a 7–8-item nav (Search, Inbox, Messages, Friends, Events, Announcements, plus Profile). The current IA keeps member nav focused on the two-sided help loop:
 
 | Was | Where it went | Why |
 |---|---|---|
-| Search / Discover | Renamed to **People** | The surface is about finding the right person, not maintaining a separate search/discovery metaphor |
-| Mentorship requests | Generalized to ask workflow routes (`/ask/new`, `/ask/[id]`, `/ask/thread/[id]`) | Lower the barrier to asking while keeping the top nav focused on People and Inbox |
+| Search / Discover | **People** | Exploration remains one click away, but Ask is the primary intent surface |
+| Mentorship requests | **Ask** + workflow routes (`/ask/new`, `/ask/[id]`, `/ask/thread/[id]`) | Lower the barrier to asking from a natural-language question |
+| Helper supply | **Help** | Older alumni need a natural place to give help without browsing everything |
 | Friends | Folded into People (`peopleIKnow` filter + Friend badge); incoming requests moved to Inbox | Friendship is one dimension of people search, not its own page |
 | Messages (list) | Folded into Inbox; conversation page `/messages/[id]` kept | DMs are inbox-style — no second list surface needed |
-| Announcements | Off top nav; surfaced as banner on Home | Low-frequency admin posts don't earn permanent real estate |
+| Events + Announcements | **School** | School connection needs one calm place instead of separate member nav items |
 
 All of the deprecated URLs return `308` redirects via `app/next.config.ts`.
 
@@ -189,35 +194,36 @@ This may be part of onboarding or a secondary flow from Profile.
 
 Purpose:
 
-- greet the member and make the network feel alive immediately
+- make the help-network promise obvious immediately: ask your school circle, help where your experience matters
 
 Main elements:
 
-- midnight hero with greeting + cohort year + 4-stat strip (joined-this-week, open mentors, upcoming events, your cohort)
-- announcement banner (latest only; whole card links to `/announcements`)
-- mentees waiting on you (pending mentorship requests directed at the viewer)
-- new alumni in your area (3-up tile grid)
-- featured event card
-- recent activity feed (last 4 notifications)
+- large natural-language ask bar
+- prompt chips for common help intents
+- relationship-map motif with counts for helpers, pending requests, and school events
+- people who can help you
+- people you could help
+- School pulse: next event + latest announcement
+- profile freshness CTA
 
 Primary actions:
 
-- review mentor requests → `/inbox`
-- upcoming events → `/events`
-- open a profile / open the directory
+- ask a question → `/ask?q=...`
+- review help requests → `/help` or `/inbox`
+- open School pulse → `/school`
 
 ### 8. People (`/people`)
 
 Purpose:
 
-- the alumni directory and canonical surface for finding someone in the network. Replaces the original Search + Discover split and the search-first Ask landing page.
+- broad alumni exploration. Ask is the primary question-driven matching surface; People remains the directory/search workspace.
 
 Main elements:
 
-- soft white-to-slate hero ("People · N members" eyebrow + "Find the right people" Fraunces title)
+- editorial hero ("Explore the school circle")
 - natural-language search bar (one input, submits as `?nl=`)
-- collapsible Filters panel: city, employer, university, major, mentor topic, grad-year range, "Only show mentors", **"Only people I know"**
-- result cards: name + role + class year, headline pull-quote, friend badge when accepted-friend, helper availability badge, profile and ask CTAs, optional rationale panel for NL hits
+- collapsible Filters panel: city, employer, university, major, mentor topic, grad-year range, "Open to mentorship", **"Only people I know"**
+- match-brief result cards: name + role + class year, helper availability, why match, profile and ask CTAs, optional rationale panel for NL hits
 
 Ranking emphasis:
 
@@ -261,19 +267,30 @@ Possible helper states (per type):
 
 Sent inline from the profile page via the `Add friend` button. There is no standalone composer page — the v1 UI sends with no message body; the underlying server action accepts an optional `message` field for future use.
 
-### 12. Ask Workflow Routes (`/ask/*`)
+### 12. Ask Surface And Workflow Routes (`/ask/*`)
 
-Ask is no longer a top-level member navigation surface. People/Profile start requests, and Inbox owns request state after creation. The underlying ask model remains polymorphic (`ask_type` enum: `advice` | `mentorship`).
+Ask is now the primary top-level member surface. The user starts with a natural-language question, sees explained people matches, and then enters the guided composer for a specific helper. Inbox owns request state after creation. The underlying ask model remains polymorphic (`ask_type` enum: `advice` | `mentorship`).
 
 Sub-pages:
 
-- `/ask` — legacy top-level URL; redirects to `/inbox`
+- `/ask` — question-driven matching surface
 - `/ask/new` — composer (per-type fields)
 - `/ask/[id]` — request detail (asker view + helper review view)
 - `/ask/thread/[id]` — post-accept conversation
 - Legacy `/mentorship/request/*` and `/mentorship/thread/*` 308 here.
 
-#### 12a. Ask Composer (`/ask/new`)
+### 12a. Help Surface (`/help`)
+
+Supply-side surface for alumni who want to help without treating every interaction as formal mentorship.
+
+Main elements:
+
+- requests needing the viewer's reply
+- people the viewer could plausibly help
+- helper availability settings CTA
+- profile freshness CTA because accurate profiles improve routing
+
+#### 12b. Ask Composer (`/ask/new`)
 
 Type-aware. Helper preferences gate which type can be sent (and to whom).
 
@@ -292,11 +309,11 @@ Type-aware. Helper preferences gate which type can be sent (and to whom).
 
 Both forms enforce the helper's `helper_preferences` opt-in (per-type) and mentorship caps server-side.
 
-#### 12b. Ask Review (`/ask/[id]`)
+#### 12c. Ask Review (`/ask/[id]`)
 
 Helper-facing when `helper_id == viewer`. Shows requester summary + the rendered fields for the ask type, with Accept / Decline / leave-pending controls. Mentorship caps + paused state surface here.
 
-#### 12c. Ask Thread (`/ask/thread/[id]`)
+#### 12d. Ask Thread (`/ask/thread/[id]`)
 
 Post-accept conversation, gated by acceptance state. Shared shape across types — the only difference is the role label ("Mentor / Mentee" for mentorship asks; "Helper / Asker" for advice asks).
 
@@ -307,16 +324,15 @@ Constraints:
 
 ### 13. Inbox (`/inbox`)
 
-Central unified surface for everything the member should pay attention to. Sections, in render order:
+Central unified surface for everything the member should pay attention to. The durable buckets are:
 
-1. **Friend requests** (incoming) — only renders if there are pending requests; accept / decline inline
-2. **Incoming asks** — pending advice / mentorship requests directed at the viewer; clicking opens `/ask/[id]`
-3. **Active threads** — accepted ask threads (both directions); clicking opens `/ask/thread/[id]`
-4. **Direct messages** — DM threads with friends; avatar + last-message preview + unread count + time-ago; clicking opens `/messages/[id]`
-5. **Sent requests** — last 20 advice / mentorship requests you've sent with status badges
-6. **Sent friend requests** (outgoing pending) — only renders if any are awaiting reply
+1. **Needs reply** — incoming asks, incoming friend requests, and unread conversations
+2. **I'm helping** — pending and active asks where the viewer is the helper
+3. **I'm getting help** — sent and active asks where the viewer is the asker
+4. **Connections** — friend requests and direct messages
+5. **Archived** — reserved for closed/completed conversations
 
-The inbox subsumes `/friends` (incoming requests), `/messages` (root list), and top-level `/ask` — those URLs now 308 here. `/messages/[id]` (the conversation viewer) and `/ask/*` workflow routes are reached from inbox.
+The inbox subsumes `/friends` (incoming requests) and `/messages` (root list). `/messages/[id]` (the conversation viewer) and `/ask/*` workflow routes are reached from inbox.
 
 ### 14. Direct Message Thread (`/messages/[id]`)
 

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import { FreshnessReviewCard } from '../../help-network-ui'
 import { type CurrentProfile, ImportFlow, type ImportSource } from './import-flow'
 
 type SearchParams = { return?: string; source?: string }
@@ -18,6 +19,7 @@ export default async function ImportResumePage({
       ? params.return
       : `/profile/${session.userId}`
   const source: ImportSource = params.source === 'linkedin' ? 'linkedin' : 'resume'
+  const isOnboardingReturn = returnTo.startsWith('/onboarding')
 
   const supabase = await createClient()
   const { data: base } = await supabase
@@ -67,6 +69,7 @@ export default async function ImportResumePage({
             ? '← Back to edit profile'
             : '← Back to profile'}
       </Link>
+      {!isOnboardingReturn ? <FreshnessReviewCard /> : null}
       <Card>
         <CardHeader>
           <CardTitle>{titleCopy.title}</CardTitle>

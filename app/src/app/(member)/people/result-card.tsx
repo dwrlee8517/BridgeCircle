@@ -236,7 +236,7 @@ export function ResultCard(props: ResultCardProps) {
                 <DialogContent className="max-w-md border-border rounded-[6px] sm:rounded-[6px] font-sans bg-card">
                   <DialogHeader className="border-b pb-3 border-border">
                     <span className="font-mono text-[9px] uppercase tracking-wider text-primary font-bold">
-                      Claude Re-Rank Match Analysis
+                      Match brief
                     </span>
                     <DialogTitle className="bc-fraunces text-xl font-bold mt-1">
                       Why {display} is a Match
@@ -436,16 +436,22 @@ export function ResultCard(props: ResultCardProps) {
             </div>
           </div>
 
-          <p
-            className={cn(
-              'bc-pull-quote mt-3 text-[12px] leading-normal italic',
-              props.headline ? 'text-foreground' : 'text-muted-foreground/50',
-            )}
-          >
-            {props.headline
-              ? `\u201c${props.headline}\u201d`
-              : '\u201cNo personal bio shared.\u201d'}
-          </p>
+          {props.headline || props.rationale ? (
+            <div className="mt-3 space-y-1.5">
+              {hasRationale ? (
+                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-primary">
+                  Match brief
+                </p>
+              ) : null}
+              <p className="bc-pull-quote text-[12px] leading-normal italic text-foreground">
+                &ldquo;{props.rationale ?? props.headline}&rdquo;
+              </p>
+            </div>
+          ) : (
+            <p className="mt-3 rounded-[6px] border border-border bg-surface-subtle/35 p-3 text-[12px] leading-relaxed text-muted-foreground">
+              Add a specific question to see why this person may be useful.
+            </p>
+          )}
 
           <div className="mt-2.5 flex flex-wrap gap-1">
             {props.mentoringTopics && props.mentoringTopics.length > 0 ? (
@@ -463,7 +469,7 @@ export function ResultCard(props: ResultCardProps) {
                 variant="secondary"
                 className="bg-muted/40 text-muted-foreground/40 text-[9px] px-2 py-0.5 rounded-[4px] font-mono border border-border/20 italic"
               >
-                No topics listed
+                Ask from profile context
               </Badge>
             )}
           </div>
@@ -513,7 +519,7 @@ export function ResultCard(props: ResultCardProps) {
               <DialogContent className="max-w-md border-border rounded-[6px] sm:rounded-[6px] font-sans bg-card">
                 <DialogHeader className="border-b pb-3 border-border">
                   <span className="font-mono text-[9px] uppercase tracking-wider text-primary font-bold">
-                    Claude Re-Rank Match Analysis
+                    Match brief
                   </span>
                   <DialogTitle className="bc-fraunces text-xl font-bold mt-1">
                     Why {display} is a Match
