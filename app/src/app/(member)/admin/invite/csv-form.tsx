@@ -82,7 +82,7 @@ export function CsvInviteForm() {
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm">
                   <span className="font-medium">{fileName}</span> —{' '}
-                  <span className="text-emerald-600">{valid.length} valid</span>
+                  <span className="text-accent-sage">{valid.length} valid</span>
                   {invalid.length > 0 ? (
                     <>
                       , <span className="text-destructive">{invalid.length} skipped</span>
@@ -145,7 +145,7 @@ export function CsvInviteForm() {
       ) : (
         <div className="space-y-3 rounded-md border p-4">
           <p className="text-sm">
-            <span className="text-emerald-600 font-medium">{result.sent} sent</span>
+            <span className="text-accent-sage font-medium">{result.sent} sent</span>
             {result.duplicate > 0 ? (
               <>
                 {' · '}

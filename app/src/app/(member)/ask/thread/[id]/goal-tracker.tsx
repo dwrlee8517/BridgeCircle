@@ -142,7 +142,7 @@ export function MentorshipGoalTracker({ threadId }: { threadId: string }) {
                 <button
                   type="button"
                   onClick={() => deleteGoal(g.id)}
-                  className="text-destructive hover:text-red-500 opacity-0 group-hover/item:opacity-100 transition-opacity p-0.5 shrink-0"
+                  className="text-destructive hover:text-destructive/80 opacity-0 group-hover/item:opacity-100 transition-opacity p-0.5 shrink-0"
                   aria-label="Delete goal"
                 >
                   <X className="size-3" />

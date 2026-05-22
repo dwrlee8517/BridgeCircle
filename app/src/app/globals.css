@@ -37,6 +37,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-on-dark: var(--primary-on-dark);
+  --color-surface-midnight: var(--surface-midnight);
+  --color-surface-midnight-foreground: var(--surface-midnight-foreground);
+  --color-surface-midnight-muted: var(--surface-midnight-muted);
   --color-accent-ochre: var(--accent-ochre);
   --color-accent-rust: var(--accent-rust);
   --color-accent-sage: var(--accent-sage);
@@ -93,50 +97,53 @@
   --z-index-toast-notification: var(--z-toast-notification);
 }
 
-/* Civic Editorial theme — Cobalt & Obsidian on Platinum Bone.
-   Imported from the BridgeCircle Design System.
-   Deep Cobalt #173fb3 actions on Obsidian #0c0c0b structure on Platinum Bone #fafaf9 page. */
+/* Civic Editorial theme — Electric Sky & Midnight on Platinum Bone.
+   Keep this in sync with docs/experience/ui/design-system/tokens.md. */
 :root {
   /* Page surface — Platinum Bone (#fafaf9) so cards on white still have contrast */
-  --background: oklch(0.985 0.002 90);
-  --foreground: oklch(0.12 0.002 90); /* Obsidian Ink #0c0c0b */
-  --card: oklch(1 0 0); /* white cards over bone page */
-  --card-foreground: oklch(0.12 0.002 90);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.12 0.002 90);
-  --primary: oklch(0.42 0.22 265); /* Deep Cobalt #173fb3 */
-  --primary-hover: oklch(0.35 0.2 265); /* Darker cobalt for hover */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.004 90); /* Panel / Muted Card #f4f3ee */
-  --secondary-foreground: oklch(0.12 0.002 90);
-  --muted: oklch(0.93 0.004 90); /* Soft Rule / divider #ebebe5 */
-  --muted-foreground: oklch(0.43 0.004 90); /* Slate Grey #4d4d4a */
-  --accent: oklch(0.93 0.004 90);
-  --accent-foreground: oklch(0.42 0.22 265);
-  --destructive: oklch(0.45 0.2 25); /* Crimson Red #9b2c1f */
-  --border: oklch(0.88 0.004 90); /* Crisp Rule #dcdcd6 */
-  --input: oklch(0.88 0.004 90);
-  --ring: oklch(0.42 0.22 265);
-  --chart-1: oklch(0.42 0.22 265); /* cobalt */
-  --chart-2: oklch(0.45 0.15 140); /* forest green */
-  --chart-3: oklch(0.55 0.15 70); /* amber */
-  --chart-4: oklch(0.45 0.2 25); /* crimson red */
-  --chart-5: oklch(0.12 0.002 90); /* obsidian ink */
+  --background: #fafaf9;
+  --foreground: #0c0c0b;
+  --card: #ffffff;
+  --card-foreground: #0c0c0b;
+  --popover: #ffffff;
+  --popover-foreground: #0c0c0b;
+  --primary: #2563eb; /* Electric Sky */
+  --primary-hover: #1d4ed8;
+  --primary-on-dark: #93c5fd;
+  --primary-foreground: #ffffff;
+  --surface-midnight: #081126;
+  --surface-midnight-foreground: #fafaf9;
+  --surface-midnight-muted: rgb(250 250 249 / 68%);
+  --secondary: #f4f3ee;
+  --secondary-foreground: #0c0c0b;
+  --muted: #ebebe5;
+  --muted-foreground: #4d4d4a;
+  --accent: #ebebe5;
+  --accent-foreground: #2563eb;
+  --destructive: #9b2c1f;
+  --border: #dcdcd6;
+  --input: #dcdcd6;
+  --ring: #2563eb;
+  --chart-1: #2563eb; /* Electric Sky */
+  --chart-2: #3b6e51;
+  --chart-3: #c8761a;
+  --chart-4: #9b2c1f;
+  --chart-5: #0c0c0b;
   --radius: 0.375rem; /* 6px sharp corners */
-  --sidebar: oklch(0.12 0.002 90); /* obsidian black nav surface #0c0c0b */
-  --sidebar-foreground: oklch(0.96 0.004 90); /* platinum bone nav text */
-  --sidebar-primary: oklch(0.42 0.22 265);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.22 0.002 90); /* dark grey hover */
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.22 0.002 90);
-  --sidebar-ring: oklch(0.42 0.22 265);
+  --sidebar: #0c0c0b;
+  --sidebar-foreground: #fafaf9;
+  --sidebar-primary: #2563eb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #222221;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #222221;
+  --sidebar-ring: #2563eb;
 
   /* Unique Editorial Accent Colors */
-  --accent-ochre: oklch(0.58 0.16 70); /* Warm Ochre #c8761a */
-  --accent-rust: oklch(0.48 0.18 35); /* Editorial Terracotta #b9472a */
-  --accent-sage: oklch(0.48 0.08 150); /* Lichen / Sage #3b6e51 */
-  --accent-plum: oklch(0.38 0.12 355); /* Deep Wine / Plum #722f37 */
+  --accent-ochre: #c8761a;
+  --accent-rust: #b9472a;
+  --accent-sage: #3b6e51;
+  --accent-plum: #722f37;
 
   /* Spacing Grid Scale variables */
   --space-1: 0.25rem; /* 4px */
@@ -179,44 +186,48 @@
 }
 
 .dark {
-  --background: oklch(0.12 0.002 90); /* Obsidian Ink #0c0c0b */
-  --foreground: oklch(0.985 0.002 90); /* Platinum Bone #fafaf9 */
-  --card: oklch(0.16 0.004 90); /* Muted card #1e1e1d */
-  --card-foreground: oklch(0.985 0.002 90);
-  --popover: oklch(0.16 0.004 90);
-  --popover-foreground: oklch(0.985 0.002 90);
-  --primary: oklch(0.55 0.2 265); /* Lifted Cobalt on dark */
-  --primary-hover: oklch(0.6 0.2 265); /* Lighter cobalt for dark hover */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.2 0.004 90);
-  --secondary-foreground: oklch(0.985 0.002 90);
-  --muted: oklch(0.2 0.004 90);
-  --muted-foreground: oklch(0.7 0.004 90);
-  --accent: oklch(0.2 0.004 90);
-  --accent-foreground: oklch(0.55 0.2 265);
-  --destructive: oklch(0.5 0.2 25);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.55 0.2 265);
-  --chart-1: oklch(0.55 0.2 265);
-  --chart-2: oklch(0.55 0.15 140);
-  --chart-3: oklch(0.65 0.15 70);
-  --chart-4: oklch(0.55 0.2 25);
-  --chart-5: oklch(0.985 0.002 90);
-  --sidebar: oklch(0.16 0.004 90);
-  --sidebar-foreground: oklch(0.985 0.002 90);
-  --sidebar-primary: oklch(0.55 0.2 265);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.2 0.004 90);
-  --sidebar-accent-foreground: oklch(0.985 0.002 90);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.55 0.2 265);
+  --background: #0c0c0b;
+  --foreground: #fafaf9;
+  --card: #1e1e1d;
+  --card-foreground: #fafaf9;
+  --popover: #1e1e1d;
+  --popover-foreground: #fafaf9;
+  --primary: #93c5fd; /* Electric Sky on dark */
+  --primary-hover: #bfdbfe;
+  --primary-on-dark: #93c5fd;
+  --primary-foreground: #0c0c0b;
+  --surface-midnight: #081126;
+  --surface-midnight-foreground: #fafaf9;
+  --surface-midnight-muted: rgb(250 250 249 / 68%);
+  --secondary: #2b2b29;
+  --secondary-foreground: #fafaf9;
+  --muted: #2b2b29;
+  --muted-foreground: #b0b0aa;
+  --accent: #2b2b29;
+  --accent-foreground: #93c5fd;
+  --destructive: #c44a39;
+  --border: rgb(250 250 249 / 12%);
+  --input: rgb(250 250 249 / 15%);
+  --ring: #93c5fd;
+  --chart-1: #93c5fd;
+  --chart-2: #70a982;
+  --chart-3: #dda150;
+  --chart-4: #c44a39;
+  --chart-5: #fafaf9;
+  --sidebar: #1e1e1d;
+  --sidebar-foreground: #fafaf9;
+  --sidebar-primary: #93c5fd;
+  --sidebar-primary-foreground: #0c0c0b;
+  --sidebar-accent: #2b2b29;
+  --sidebar-accent-foreground: #fafaf9;
+  --sidebar-border: rgb(250 250 249 / 12%);
+  --sidebar-ring: #93c5fd;
 
   /* Unique Editorial Accent Colors for Dark Mode (Slightly lighter OKLCH L-values) */
-  --accent-ochre: oklch(0.68 0.16 70); /* Warm Ochre */
-  --accent-rust: oklch(0.58 0.18 35); /* Terracotta */
-  --accent-sage: oklch(0.58 0.08 150); /* Sage */
-  --accent-plum: oklch(0.48 0.12 355); /* Plum */
+  --accent-ochre: #dda150;
+  --accent-rust: #d05f43;
+  --accent-sage: #70a982;
+  --accent-plum: #9a5761;
 }
 
 @layer base {
@@ -281,6 +292,10 @@
   [role="button"]:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }
 

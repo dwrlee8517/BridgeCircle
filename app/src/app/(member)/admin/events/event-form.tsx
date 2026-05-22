@@ -119,7 +119,7 @@ export function EventForm({
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       {state.ok ? (
-        <p className="text-sm text-emerald-600">
+        <p className="text-sm text-accent-sage">
           {preserveOnSuccess ? 'Saved.' : 'Event published.'}
         </p>
       ) : null}

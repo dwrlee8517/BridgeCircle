@@ -43,7 +43,7 @@ export default async function HelperSettingsPage() {
         </CardHeader>
         <CardContent>
           {pref.pausedAt ? (
-            <p className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+            <p className="mb-4 rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-3 text-xs text-foreground">
               You were auto-paused after 14 days without responding to a request. Saving any change
               here will lift the pause.
             </p>

@@ -58,7 +58,7 @@ export function AnnouncementForm() {
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       {state.ok ? (
-        <p className="text-sm text-emerald-600">
+        <p className="text-sm text-accent-sage">
           Announcement published.
           {state.emailsAttempted
             ? ` Emailed ${state.emailsSent} of ${state.emailsAttempted} member${state.emailsAttempted === 1 ? '' : 's'}.`

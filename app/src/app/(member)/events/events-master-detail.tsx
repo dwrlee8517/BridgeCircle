@@ -17,7 +17,7 @@ type Props = {
 }
 
 const STACK_PALETTE = [
-  { bg: 'bg-primary/10 border-primary/20', text: 'text-primary' }, // Cobalt
+  { bg: 'bg-primary/10 border-primary/20', text: 'text-primary' }, // Electric Sky
   { bg: 'bg-accent-ochre/10 border-accent-ochre/20', text: 'text-accent-ochre' }, // Ochre
   { bg: 'bg-accent-sage/10 border-accent-sage/20', text: 'text-accent-sage' }, // Sage
   { bg: 'bg-accent-plum/10 border-accent-plum/20', text: 'text-accent-plum' }, // Plum
@@ -209,8 +209,8 @@ function ConceptBInlineRsvpButton({ eventId, current, accentHex }: InlineRsvpPro
         disabled={pending}
         className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border px-2.5 py-1 rounded-[6px] transition-all cursor-pointer disabled:opacity-50 hover:bg-muted/10"
         style={{
-          borderColor: isGoing ? '#22c55e' : accentHex,
-          color: isGoing ? '#22c55e' : accentHex,
+          borderColor: isGoing ? 'var(--accent-sage)' : accentHex,
+          color: isGoing ? 'var(--accent-sage)' : accentHex,
           backgroundColor: isGoing ? 'rgba(34, 197, 94, 0.05)' : 'transparent',
         }}
       >

@@ -7,6 +7,7 @@ import { CapacityIndicatorGauge } from '@/components/ui/capacity-gauge'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { type SettingsFormState, saveMentorSettings } from './actions'
@@ -117,7 +118,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
             it light, and ends on a soft "want to keep it on?" without
             blocking the user. Brand voice rule: warm, not pressuring. */}
         {!mentorship ? (
-          <div className="rounded-md border border-amber-200 bg-amber-50/60 p-3 text-xs text-amber-900">
+          <div className="rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-3 text-xs text-foreground">
             <p>
               Younger alumni often search specifically for someone open to ongoing mentorship —
               it&apos;s where the most lasting connections come from. If the worry is time, you can
@@ -228,19 +229,18 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
           <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
             Live Card Preview
           </span>
-          <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-4 shadow-sm max-w-sm">
+          <div className="rounded-[6px] border border-border bg-card p-5 flex flex-col gap-4 shadow-sm max-w-sm">
             <div className="flex gap-3.5 items-center">
-              <div className="relative size-11 shrink-0 overflow-hidden rounded-[8px] bg-[linear-gradient(135deg,#1e293b_0%,#3f465c_100%)] flex items-center justify-center font-heading text-base font-bold text-white">
+              <div className="relative size-11 shrink-0 overflow-hidden rounded-[6px] bg-foreground text-background flex items-center justify-center font-heading text-base font-bold">
                 PV
               </div>
               <div className="min-w-0">
                 <h4 className="font-heading text-sm font-semibold text-foreground">
                   Your Profile (Preview)
                 </h4>
-                <span className="inline-flex h-5 items-center rounded-full border border-emerald-200 dark:border-emerald-950 bg-emerald-50 dark:bg-emerald-950/30 px-2 text-[9px] font-mono font-medium text-emerald-700 dark:text-emerald-400 gap-1 mt-0.5">
-                  <span className="size-1 rounded-full bg-emerald-500" />
+                <StatusBadge tone="open" dot size="sm" className="mt-0.5">
                   Open to Mentor
-                </span>
+                </StatusBadge>
               </div>
             </div>
 
@@ -274,7 +274,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
       </div>
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-      {state.ok ? <p className="text-sm text-emerald-600">Saved.</p> : null}
+      {state.ok ? <p className="text-sm text-accent-sage">Saved.</p> : null}
 
       <Button type="submit" disabled={pending} className="w-full sm:w-auto">
         {pending ? 'Saving…' : 'Save settings'}

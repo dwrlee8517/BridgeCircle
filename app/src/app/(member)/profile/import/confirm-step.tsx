@@ -223,7 +223,7 @@ export function ConfirmStep({
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       {headerBanner ? (
-        <div className="rounded-md border bg-emerald-50 p-3 text-sm text-emerald-900">
+        <div className="rounded-md border border-accent-sage/25 bg-accent-sage/10 p-3 text-sm text-foreground">
           {headerBanner}
         </div>
       ) : null}
@@ -299,7 +299,7 @@ export function ConfirmStep({
               onClick={() =>
                 setSkills((arr) => arr.map((x, i) => (i === idx ? { ...x, use: !x.use } : x)))
               }
-              className={`rounded-full border px-2.5 py-0.5 text-xs ${
+              className={`rounded-[6px] border px-2.5 py-0.5 text-xs ${
                 s.use
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-muted-foreground/30 text-muted-foreground line-through'

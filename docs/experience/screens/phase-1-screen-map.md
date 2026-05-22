@@ -13,7 +13,7 @@ This file bridges product behavior and the Civic Editorial design system. Produc
 
 ## Cross-Screen Rules
 
-- Use Civic Editorial hierarchy: clear top rules, sharp 6px radii, readable card density, Obsidian/Cobalt action states, and restrained metadata.
+- Use Civic Editorial hierarchy: clear top rules, sharp 6px radii, readable card density, Obsidian/Electric Sky action states, and restrained metadata.
 - Do not introduce generic SaaS gradients, social-feed mechanics, bubbly community styling, or CRM tables as the default member experience.
 - Every member screen should make the next useful relationship action visible without requiring browsing.
 - Admin screens can be denser, but should still use the same token system and plain operational language.

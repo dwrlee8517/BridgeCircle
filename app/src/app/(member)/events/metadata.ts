@@ -45,8 +45,8 @@ export function getEventStableColor(title: string): AccentColor {
   }
   if (normalizedTitle.includes('roundtable') || normalizedTitle.includes('tech')) {
     return {
-      name: 'Cobalt',
-      hex: '#173fb3',
+      name: 'Electric Sky',
+      hex: '#2563eb',
       bg: 'bg-primary',
       text: 'text-primary',
       border: 'border-primary',
@@ -85,10 +85,10 @@ export function getEventStableColor(title: string): AccentColor {
     }
   }
 
-  // Fallback: Cobalt
+  // Fallback: Electric Sky
   return {
-    name: 'Cobalt',
-    hex: '#173fb3',
+    name: 'Electric Sky',
+    hex: '#2563eb',
     bg: 'bg-primary',
     text: 'text-primary',
     border: 'border-primary',

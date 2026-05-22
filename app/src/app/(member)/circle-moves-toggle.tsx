@@ -17,10 +17,10 @@ function getInitials(name: string | null): string {
 }
 
 const AVATAR_COLORS = [
-  'bg-emerald-50 text-emerald-800 border-emerald-200/60 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-800/30',
-  'bg-blue-50 text-blue-800 border-blue-200/60 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-800/30',
-  'bg-indigo-50 text-indigo-800 border-indigo-200/60 dark:bg-indigo-950/20 dark:text-indigo-400 dark:border-indigo-800/30',
-  'bg-amber-50 text-amber-800 border-amber-200/60 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800/30',
+  'border-accent-sage/30 bg-accent-sage/10 text-accent-sage',
+  'border-primary/30 bg-primary/10 text-primary',
+  'border-accent-plum/30 bg-accent-plum/10 text-accent-plum',
+  'border-accent-ochre/30 bg-accent-ochre/10 text-accent-ochre',
 ]
 
 function getAvatarBg(name: string | null): string {
@@ -125,8 +125,8 @@ export default function CircleMovesToggle({
                   <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
                     {m.pulse && (
                       <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-sage opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-sage" />
                       </span>
                     )}
                     <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-wider">

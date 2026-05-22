@@ -47,14 +47,14 @@ export type ResultCardProps = {
 }
 
 function getStableBgColor(name: string | null) {
-  if (!name) return 'bg-[#4d4d4a] text-white'
+  if (!name) return 'bg-muted-foreground text-background'
   const colors = [
-    'bg-[#b9472a] text-white', // Terracotta / Rust
-    'bg-[#3b6e51] text-white', // Sage
-    'bg-[#722f37] text-white', // Wine / Plum
-    'bg-[#c8761a] text-white', // Ochre
-    'bg-[#173fb3] text-white', // Deep Cobalt
-    'bg-[#4d4d4a] text-white', // Charcoal / Slate
+    'bg-accent-rust text-background',
+    'bg-accent-sage text-background',
+    'bg-accent-plum text-background',
+    'bg-accent-ochre text-background',
+    'bg-primary text-primary-foreground',
+    'bg-muted-foreground text-background',
   ]
   let sum = 0
   for (let i = 0; i < name.length; i++) {
@@ -87,8 +87,8 @@ export function ResultCard(props: ResultCardProps) {
   const activeRatio = maxActive > 0 ? activeCount / maxActive : 0
 
   const getCapacityColorClass = (ratio: number) => {
-    if (ratio <= 0.5) return 'bg-emerald-500'
-    if (ratio <= 0.85) return 'bg-orange-500'
+    if (ratio <= 0.5) return 'bg-accent-sage'
+    if (ratio <= 0.85) return 'bg-accent-ochre'
     return 'bg-destructive'
   }
   const capacityColorClass = getCapacityColorClass(activeRatio)
@@ -129,7 +129,7 @@ export function ResultCard(props: ResultCardProps) {
                       backgroundSize: '6px 6px',
                     }}
                   />
-                  <span className="bc-fraunces relative flex size-full items-center justify-center text-xs font-bold text-white">
+                  <span className="bc-fraunces relative flex size-full items-center justify-center text-xs font-bold text-background">
                     {initials}
                   </span>
                 </>
@@ -138,7 +138,7 @@ export function ResultCard(props: ResultCardProps) {
                 <span
                   aria-hidden
                   className={cn(
-                    'absolute right-0.5 bottom-0.5 size-2 rounded-full ring-1 ring-white',
+                    'absolute right-0.5 bottom-0.5 size-2 rounded-full ring-1 ring-background',
                     capacityColorClass,
                   )}
                 />
@@ -180,7 +180,7 @@ export function ResultCard(props: ResultCardProps) {
                       aria-hidden
                     />
                     Mentor
-                    <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-zinc-950 text-zinc-100 dark:bg-zinc-900 dark:text-zinc-100 text-[10px] font-mono rounded border border-zinc-800 px-2 py-1 shadow-md whitespace-nowrap z-50">
+                    <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-foreground text-background text-[10px] font-mono rounded-[6px] border border-border px-2 py-1 shadow-md whitespace-nowrap z-50">
                       Capacity: {activeCount}/{maxActive} active ({pendingCount} pending)
                     </span>
                   </StatusBadge>
@@ -337,7 +337,7 @@ export function ResultCard(props: ResultCardProps) {
                       backgroundSize: '8px 8px',
                     }}
                   />
-                  <span className="bc-fraunces relative flex size-full items-center justify-center text-lg font-bold text-white">
+                  <span className="bc-fraunces relative flex size-full items-center justify-center text-lg font-bold text-background">
                     {initials}
                   </span>
                 </>
@@ -346,7 +346,7 @@ export function ResultCard(props: ResultCardProps) {
                 <span
                   aria-hidden
                   className={cn(
-                    'absolute right-0.5 bottom-0.5 size-2.5 rounded-full ring-1 ring-white',
+                    'absolute right-0.5 bottom-0.5 size-2.5 rounded-full ring-1 ring-background',
                     capacityColorClass,
                   )}
                 />
@@ -394,7 +394,7 @@ export function ResultCard(props: ResultCardProps) {
                         aria-hidden
                       />
                       Mentor
-                      <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-zinc-950 text-zinc-100 dark:bg-zinc-900 dark:text-zinc-100 text-[10px] font-mono rounded border border-zinc-800 px-2 py-1 shadow-md whitespace-nowrap z-50">
+                      <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-foreground text-background text-[10px] font-mono rounded-[6px] border border-border px-2 py-1 shadow-md whitespace-nowrap z-50">
                         Capacity: {activeCount}/{maxActive} active ({pendingCount} pending)
                       </span>
                     </StatusBadge>

@@ -84,9 +84,9 @@ export default async function AdminAnalyticsPage() {
 function MetricCardView({ card }: { card: MetricCard }) {
   const subClass =
     card.tone === 'up'
-      ? 'text-green-700'
+      ? 'text-accent-sage'
       : card.tone === 'down'
-        ? 'text-red-700'
+        ? 'text-destructive'
         : 'text-muted-foreground'
   return (
     <Card title={card.tooltip}>

@@ -207,7 +207,7 @@ function MessageBubble({
         </div>
       ) : null}
       <div
-        className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm whitespace-pre-wrap break-words ${
+        className={`max-w-[75%] rounded-lg px-3.5 py-2 text-sm whitespace-pre-wrap break-words ${
           isViewer
             ? 'bg-primary text-primary-foreground rounded-br-sm'
             : 'bg-muted text-foreground rounded-bl-sm'

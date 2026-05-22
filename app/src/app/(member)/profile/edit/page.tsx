@@ -47,8 +47,8 @@ export default async function EditProfilePage({
         <div
           className={`rounded-md border px-3 py-2 text-sm ${
             refreshBanner.tone === 'ok'
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-              : 'border-amber-200 bg-amber-50 text-amber-900'
+              ? 'border-accent-sage/25 bg-accent-sage/10 text-foreground'
+              : 'border-accent-ochre/25 bg-accent-ochre/10 text-foreground'
           }`}
         >
           {refreshBanner.message}
