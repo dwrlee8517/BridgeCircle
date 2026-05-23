@@ -37,10 +37,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-on-dark">
             Verified Alumni Network
           </p>
-          <h1
-            className="bc-fraunces mt-3 text-5xl font-bold leading-[1.05] tracking-[-0.025em]"
-            style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-          >
+          <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-[-0.025em]">
             Build from a circle you already trust.
           </h1>
           <p className="mt-4 text-base leading-relaxed text-surface-midnight-muted">

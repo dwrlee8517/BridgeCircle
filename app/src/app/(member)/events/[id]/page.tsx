@@ -1,12 +1,26 @@
 import { format } from 'date-fns'
+import {
+  ArrowLeft,
+  CalendarDays,
+  CalendarPlus,
+  CheckCircle2,
+  Clock3,
+  MapPin,
+  PencilLine,
+  Ticket,
+  UsersRound,
+  type LucideIcon,
+} from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getEvent } from '@/lib/events/getEvent'
-import { listAttendees } from '@/lib/events/listAttendees'
+import { type AttendeeRow, listAttendees } from '@/lib/events/listAttendees'
+import type { EventRow } from '@/lib/events/listEvents'
 import { listEvents } from '@/lib/events/listEvents'
 import { getEventMetadata, getEventStableColor } from '../metadata'
 import { RsvpButtons } from '../rsvp-buttons'
@@ -47,10 +61,12 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
     event.capacity !== null && event.goingCount >= event.capacity && event.viewerRsvp !== 'going'
 
   const starts = new Date(event.startsAt)
-  const _ends = event.endsAt ? new Date(event.endsAt) : null
-
   const accent = getEventStableColor(event.title)
   const meta = getEventMetadata(event.title)
+  const eventSummary = getDisplayEventSummary(event.description, meta.tagline)
+  const capacityLabel = event.capacity
+    ? `${event.goingCount} / ${event.capacity} seats`
+    : `${event.goingCount} going`
 
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now()
@@ -62,502 +78,275 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
     .sort((a, b) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime())
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 space-y-6 animate-slideup">
-      <div>
-        <Link
-          href="/events"
-          className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          ← All events
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
-        {/* Left Column: Event details, RSVP, Attendees */}
-        <div className="space-y-6">
-          {/* Main Details Panel */}
-          <div
-            className="border border-border/40 rounded-[6px] bg-card overflow-hidden"
-            style={{ borderTop: `4px solid ${accent.hex}` }}
+    <main className="animate-slideup">
+      <div
+        className="border-b border-border/70"
+        style={{
+          background: `radial-gradient(circle at 8% 12%, ${accent.hex}18 0, transparent 34%), linear-gradient(180deg, var(--surface-page) 0%, var(--surface-panel) 100%)`,
+        }}
+      >
+        <div className="mx-auto max-w-6xl px-4 py-5 sm:px-8 lg:py-8">
+          <Link
+            href="/events"
+            className="inline-flex items-center gap-2 font-mono text-[11px] font-bold uppercase text-muted-foreground transition-colors hover:text-foreground"
           >
-            {/* Header Block */}
-            <div className="relative overflow-hidden bg-secondary/50 dark:bg-secondary p-6 sm:p-8 border-b-[3px] border-double border-border/60">
-              {/* Concentric Circles SVG vector watermark */}
-              <svg
-                aria-hidden="true"
-                role="presentation"
-                viewBox="0 0 100 100"
-                className="absolute -top-10 right-[-40px] size-64 pointer-events-none stroke-current opacity-5"
-                style={{ color: accent.hex }}
+            <ArrowLeft className="size-3.5" strokeWidth={1.8} />
+            All events
+          </Link>
+
+          <section className="mt-4 overflow-hidden rounded-[8px] border border-border/70 bg-card shadow-[0_24px_70px_rgba(12,12,11,0.08)] sm:mt-6">
+            <div className="grid lg:grid-cols-[minmax(0,1fr)_340px]">
+              <div className="relative overflow-hidden p-5 sm:min-h-[380px] sm:p-8 lg:p-10">
+                <EventPosterMotif accentHex={accent.hex} />
+
+                <div className="relative z-10 flex flex-col justify-between gap-8 sm:min-h-[300px] sm:gap-12">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex size-16 shrink-0 flex-col items-center justify-center rounded-[8px] border text-center shadow-sm"
+                        style={{
+                          borderColor: `${accent.hex}44`,
+                          backgroundColor: `${accent.hex}12`,
+                          color: accent.hex,
+                        }}
+                      >
+                        <span className="font-heading text-2xl font-semibold leading-none">
+                          {format(starts, 'd')}
+                        </span>
+                        <span className="mt-1 font-mono text-[9px] font-bold uppercase">
+                          {format(starts, 'MMM')}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
+                          {meta.category}
+                        </p>
+                        <p className="mt-1 text-sm font-medium text-foreground">
+                          {format(starts, 'EEEE')} at {format(starts, 'h:mm a')}
+                        </p>
+                      </div>
+                    </div>
+
+                    <EventStatus isPast={event.isPast} startsAt={event.startsAt} accent={accent} />
+                  </div>
+
+                  <div className="max-w-3xl">
+                    <h1 className="font-heading text-[38px] font-semibold leading-[0.98] text-foreground sm:text-5xl lg:text-6xl">
+                      {event.title}
+                    </h1>
+                    <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg">
+                      {eventSummary}
+                    </p>
+                  </div>
+
+                  <div className="hidden gap-3 sm:grid md:grid-cols-3">
+                    <EventFact icon={Clock3} label="When" value={format(starts, 'MMM d, h:mm a')} />
+                    <EventFact
+                      icon={MapPin}
+                      label="Where"
+                      value={event.location ?? 'Location to be shared'}
+                    />
+                    <EventFact icon={UsersRound} label="Response" value={capacityLabel} />
+                  </div>
+                </div>
+              </div>
+
+              <aside
+                className="border-t border-border/70 p-5 sm:p-8 lg:border-l lg:border-t-0"
+                style={{ backgroundColor: `${accent.hex}0d` }}
               >
-                <title>Decorative geometric motif</title>
-                <circle cx="50" cy="50" r="45" fill="none" strokeWidth="0.75" />
-                <circle cx="50" cy="50" r="30" fill="none" strokeWidth="0.75" />
-                <circle cx="50" cy="50" r="15" fill="none" strokeWidth="0.75" />
-                <line x1="0" y1="50" x2="100" y2="50" strokeWidth="0.5" strokeDasharray="2 2" />
-                <line x1="50" y1="0" x2="50" y2="100" strokeWidth="0.5" strokeDasharray="2 2" />
-              </svg>
-
-              <div className="relative z-10 space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] px-2 py-0.5 rounded bg-foreground text-background">
-                    {meta.category}
-                  </span>
-                  {event.isPast ? (
-                    <span className="rounded-[4px] border border-border/60 bg-secondary/60 font-mono text-[9px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 text-muted-foreground">
-                      past
-                    </span>
-                  ) : (
-                    <span
-                      className="font-mono text-[9px] font-bold bg-opacity-10 px-1.5 py-0.5 rounded tracking-wider"
-                      style={{ color: accent.hex, backgroundColor: `${accent.hex}1a` }}
-                    >
-                      T-{getCountdownDays(event.startsAt)}
-                    </span>
-                  )}
-                </div>
-
-                <h1 className="bc-fraunces text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">
-                  {event.title}
-                </h1>
-                <p className="text-sm text-muted-foreground leading-relaxed font-serif italic max-w-3xl">
-                  &ldquo;{meta.tagline || event.description}&rdquo;
-                </p>
-              </div>
-            </div>
-
-            {/* Content Block / Asymmetric Multi-Column split */}
-            <div className="grid grid-cols-1 md:grid-cols-[1.6fr_1fr] border-b border-border/40">
-              {/* Left Segment: Agenda & Coordinates */}
-              <div className="p-6 sm:p-8 space-y-8 md:border-r border-border/40">
-                <div>
-                  <h4 className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground mb-3">
-                    Event Manifesto & Goals
-                  </h4>
-                  <p className="text-sm leading-relaxed text-foreground whitespace-pre-line font-sans">
-                    {event.description}
-                  </p>
-                </div>
-
-                {/* Timeline Agenda list */}
-                <div>
-                  <h4 className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground mb-4">
-                    Agenda Schedule
-                  </h4>
-                  <ol className="space-y-4">
-                    {meta.agenda.map((it, idx) => (
-                      /* biome-ignore lint/suspicious/noArrayIndexKey: stable order */
-                      <li key={idx} className="flex items-start gap-4">
-                        <span className="font-mono text-[10px] font-semibold text-muted-foreground w-16 shrink-0 mt-0.5">
-                          {it.time}
-                        </span>
-                        <div className="border-l-2 pl-3" style={{ borderColor: accent.hex }}>
-                          <div className="text-[13px] font-semibold text-foreground">
-                            {it.title}
-                          </div>
-                          {it.sub && (
-                            <div className="text-[11px] text-muted-foreground mt-0.5 leading-tight">
-                              {it.sub}
-                            </div>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
-                {/* Location Map Line Art */}
-                <div className="pt-2">
-                  <h4 className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground mb-3">
-                    Gathering Coordinates
-                  </h4>
-                  <div className="h-36 bg-secondary/10 border border-border/40 rounded-[6px] relative overflow-hidden">
-                    <svg
-                      width="100%"
-                      height="100%"
-                      className="opacity-20 stroke-current text-muted-foreground animate-pulse"
-                    >
-                      <title>Decorative grid line art</title>
-                      <line x1="0" y1="30" x2="800" y2="30" strokeWidth="1" />
-                      <line x1="0" y1="70" x2="800" y2="70" strokeWidth="1" />
-                      <line x1="0" y1="110" x2="800" y2="110" strokeWidth="1" />
-                      <line x1="140" y1="0" x2="140" y2="160" strokeWidth="1" />
-                      <line x1="320" y1="0" x2="320" y2="160" strokeWidth="1" />
-                      <line x1="500" y1="0" x2="500" y2="160" strokeWidth="1" />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="size-8 bg-card rounded-full flex items-center justify-center shadow relative border border-border/20">
-                        <span
-                          className="size-2.5 rounded-full absolute animate-ping opacity-75"
-                          style={{ backgroundColor: accent.hex }}
-                        />
-                        <span
-                          className="size-2.5 rounded-full"
-                          style={{ backgroundColor: accent.hex }}
-                        />
+                <div className="flex h-full flex-col justify-between gap-5 sm:gap-8">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Ticket className="size-4" style={{ color: accent.hex }} />
+                        <h2 className="font-heading text-xl font-semibold text-foreground">
+                          Your spot
+                        </h2>
                       </div>
+                      <p className="mt-2 hidden text-sm leading-6 text-muted-foreground sm:block">
+                        RSVP here, then use People to plan who you want to meet before you arrive.
+                      </p>
                     </div>
-                    <span className="absolute bottom-2 right-2 font-mono text-[8px] font-bold uppercase tracking-widest text-muted-foreground">
-                      {meta.coordinates}
-                    </span>
-                  </div>
-                  <div className="mt-3 text-xs font-semibold text-foreground">
-                    {event.location} &middot;{' '}
-                    <span className="text-muted-foreground font-normal">
-                      {meta.street}, {meta.cityZip}
-                    </span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Right Segment: Editorial RSVP ticket stub & hosts */}
-              <div className="p-6 sm:p-8 bg-secondary/10 dark:bg-secondary/5 space-y-6 flex flex-col justify-between">
-                <div className="space-y-6">
-                  {/* Practical Specifications Checklist */}
-                  <div>
-                    <span className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                      Gathering Specs
-                    </span>
-                    <div className="mt-2.5 border-t border-border/40">
-                      <div className="flex items-center justify-between border-b border-border/40 py-2.5 text-[11px]">
-                        <span className="text-muted-foreground">Format</span>
-                        <span className="font-semibold text-foreground">
-                          {event.location?.toLowerCase().includes('zoom') ||
-                          event.location?.toLowerCase().includes('virtual')
-                            ? 'Virtual Interactive'
-                            : 'In-Person Gathering'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between border-b border-border/40 py-2.5 text-[11px]">
-                        <span className="text-muted-foreground">Prerequisite</span>
-                        <span
-                          className="font-semibold text-foreground truncate max-w-[120px]"
-                          title={meta.preparations[0]}
-                        >
-                          {meta.preparations[0] ? 'See Preparations' : 'None'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between border-b border-border/40 py-2.5 text-[11px]">
-                        <span className="text-muted-foreground">Timing</span>
-                        <span className="font-semibold text-foreground">
-                          {format(starts, 'h:mm a')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="space-y-2">
                     {!event.isPast ? (
-                      <RsvpButtons
-                        eventId={event.id}
-                        current={event.viewerRsvp}
-                        isFull={isFull}
-                        size="sm"
-                      />
-                    ) : null}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                      className="w-full rounded-[6px] border-border/60"
-                    >
-                      <a href={`/events/${event.id}/ical`} download>
-                        Add to calendar
-                      </a>
-                    </Button>
-                    {isAdmin ? (
+                      <div className="[&>div>div]:grid [&>div>div]:grid-cols-2 [&_button]:w-full">
+                        <RsvpButtons
+                          eventId={event.id}
+                          current={event.viewerRsvp}
+                          isFull={isFull}
+                          size="sm"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 rounded-[6px] border border-border/60 bg-card/70 px-3 py-2.5 text-sm font-medium text-muted-foreground">
+                        <CheckCircle2 className="size-4" strokeWidth={1.8} />
+                        This event has ended
+                      </div>
+                    )}
+
+                    <RegistrationMeter
+                      goingCount={event.goingCount}
+                      capacity={event.capacity}
+                      accentHex={accent.hex}
+                    />
+
+                    <div className="space-y-2">
                       <Button
                         variant="outline"
                         size="sm"
                         asChild
-                        className="w-full rounded-[6px] border-border/60"
+                        className="w-full justify-start rounded-[6px] border-border/70 bg-card/80"
                       >
-                        <Link href={`/admin/events/${event.id}/edit`}>Edit Event</Link>
+                        <a href={`/events/${event.id}/ical`} download>
+                          <CalendarPlus className="size-4" strokeWidth={1.6} />
+                          Add to calendar
+                        </a>
                       </Button>
-                    ) : null}
+                      {isAdmin ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="w-full justify-start rounded-[6px] border-border/70 bg-card/80"
+                        >
+                          <Link href={`/admin/events/${event.id}/edit`}>
+                            <PencilLine className="size-4" strokeWidth={1.6} />
+                            Edit event
+                          </Link>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="hidden border-t border-dashed border-border/70 pt-5 sm:block">
+                    <dl className="space-y-3">
+                      <SpecLine label="Format" value={eventFormat(event.location)} />
+                      <SpecLine label="Seats" value={capacityLabel} />
+                      <SpecLine label="Starts" value={format(starts, 'h:mm a')} />
+                    </dl>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
+        <div className="overflow-hidden rounded-[8px] border border-border/70 bg-card shadow-sm">
+          <section className="grid lg:grid-cols-[230px_minmax(0,1fr)]">
+            <EventPassSpine
+              eventTitle={event.title}
+              starts={starts}
+              location={event.location}
+              goingCount={event.goingCount}
+              capacity={event.capacity}
+              accentHex={accent.hex}
+            />
+
+            <div className="space-y-10 p-6 sm:p-8">
+              <section className="grid gap-8 xl:grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)]">
+                <div className="space-y-4">
+                  <SectionLabel icon={Ticket}>Event notes</SectionLabel>
+                  <p className="text-base leading-8 text-foreground whitespace-pre-line">
+                    {eventSummary}
+                  </p>
+                  <div className="grid gap-3 pt-2 sm:grid-cols-2 xl:grid-cols-1">
+                    <CompactFact
+                      label="Format"
+                      value={eventFormat(event.location)}
+                      accentHex={accent.hex}
+                    />
+                    <CompactFact label="Response" value={capacityLabel} accentHex={accent.hex} />
                   </div>
                 </div>
 
-                {/* Ticket Stub RSVP info */}
-                <div className="pt-6 border-t border-dashed border-border/40 relative">
-                  <div className="space-y-3">
-                    <div className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider flex justify-between">
-                      <span>REGISTRATION</span>
-                      <span className="font-bold text-foreground">
-                        {event.capacity
-                          ? `${event.goingCount} / ${event.capacity} booked`
-                          : 'Open Seats'}
-                      </span>
-                    </div>
-
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className="h-full transition-all duration-300"
-                        style={{
-                          backgroundColor: accent.hex,
-                          width: `${Math.min(100, (event.goingCount / (event.capacity || 100)) * 100)}%`,
-                        }}
-                      />
-                    </div>
+                <div className="relative overflow-hidden rounded-[8px] border border-border/70 bg-surface-panel/45 p-5">
+                  <DossierMotif accentHex={accent.hex} />
+                  <div className="relative z-10">
+                    <SectionLabel icon={CalendarDays}>Program flow</SectionLabel>
+                    <ol className="mt-6 space-y-0">
+                      {meta.agenda.map((it, idx) => (
+                        /* biome-ignore lint/suspicious/noArrayIndexKey: stable metadata order */
+                        <li key={idx} className="grid grid-cols-[74px_1fr] gap-4">
+                          <div className="flex flex-col items-center">
+                            <span
+                              className="rounded-[6px] px-2 py-1 text-center font-mono text-[10px] font-bold"
+                              style={{ backgroundColor: `${accent.hex}12`, color: accent.hex }}
+                            >
+                              {it.time}
+                            </span>
+                            {idx < meta.agenda.length - 1 ? (
+                              <span className="mt-2 h-12 w-px bg-border" />
+                            ) : null}
+                          </div>
+                          <div className="pb-7">
+                            <p className="text-base font-semibold leading-snug text-foreground">
+                              {it.title}
+                            </p>
+                            {it.sub ? (
+                              <p className="mt-1 text-sm leading-5 text-muted-foreground">
+                                {it.sub}
+                              </p>
+                            ) : null}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
+              </section>
 
-          {/* Going Attendees Panel */}
-          <div className="border border-border/40 rounded-[6px] bg-card overflow-hidden">
-            <div className="border-b border-border/60 bg-secondary/30 px-6 py-4">
-              <h2 className="font-heading text-base font-semibold text-foreground tracking-[-0.015em]">
-                Who&apos;s going ({attendees.going.length})
-              </h2>
-            </div>
-            <div className="p-6 sm:p-8">
-              {attendees.going.length === 0 ? (
-                <p className="text-[13px] text-muted-foreground">
-                  No RSVPs yet &mdash; be the first.
-                </p>
-              ) : (
-                <ul className="grid gap-3 sm:grid-cols-2">
-                  {attendees.going.slice(0, 50).map((a, idx) => {
-                    const palette = STACK_PALETTE[idx % STACK_PALETTE.length] || STACK_PALETTE[0]
-                    return (
-                      <li
-                        key={a.userId}
-                        className="flex items-center justify-between gap-3 p-2.5 rounded-[6px] border border-border/20 bg-secondary/10 hover:border-border/40 transition-colors"
-                      >
-                        <Link
-                          href={`/profile/${a.userId}`}
-                          className="flex items-center gap-2.5 hover:underline text-foreground min-w-0"
-                        >
-                          <div
-                            className={`relative size-8 shrink-0 overflow-hidden rounded-[6px] border ${a.avatarUrl ? 'border-border/30 bg-secondary' : palette.bg}`}
-                          >
-                            {a.avatarUrl ? (
-                              <Image
-                                src={a.avatarUrl}
-                                alt={a.name ?? ''}
-                                width={32}
-                                height={32}
-                                unoptimized
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div
-                                className={`flex h-full w-full items-center justify-center font-mono text-xs font-bold uppercase ${palette.text}`}
-                              >
-                                {(a.name ?? '?').slice(0, 1)}
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-[13px] font-medium truncate">
-                            {a.name ?? (
-                              <span className="italic text-muted-foreground">(no name)</span>
-                            )}
-                          </span>
-                        </Link>
-                        {a.graduationYear ? (
-                          <span className="font-mono text-[10px] font-bold text-muted-foreground/80 shrink-0">
-                            &apos;{a.graduationYear.toString().slice(2)}
-                          </span>
-                        ) : null}
-                      </li>
-                    )
-                  })}
-                  {attendees.going.length > 50 ? (
-                    <li className="text-[13px] text-muted-foreground col-span-2 pt-2 text-center">
-                      + {attendees.going.length - 50} more
-                    </li>
-                  ) : null}
-                </ul>
-              )}
-            </div>
-          </div>
+              <section className="grid gap-6 border-y border-border/70 py-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]">
+                <div>
+                  <SectionLabel icon={MapPin}>Gathering coordinates</SectionLabel>
+                  <h2 className="mt-4 font-heading text-2xl font-semibold text-foreground">
+                    {event.location ?? 'Location to be shared'}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {meta.street}, {meta.cityZip}
+                  </p>
+                </div>
+                <LocationPanel accentHex={accent.hex} coordinates={meta.coordinates} />
+              </section>
 
-          {/* Waitlist Panel */}
-          {attendees.waitlist.length > 0 ? (
-            <div className="border border-border/40 rounded-[6px] bg-card overflow-hidden">
-              <div className="border-b border-border/60 bg-secondary/30 px-6 py-4">
-                <h2 className="font-heading text-base font-semibold text-foreground tracking-[-0.015em]">
-                  Waitlist ({attendees.waitlist.length})
-                </h2>
-              </div>
-              <div className="p-6 sm:p-8">
-                <ul className="grid gap-3 sm:grid-cols-2">
-                  {attendees.waitlist.map((a, idx) => {
-                    const palette = STACK_PALETTE[idx % STACK_PALETTE.length] || STACK_PALETTE[0]
-                    return (
-                      <li
-                        key={a.userId}
-                        className="flex items-center justify-between gap-3 p-2.5 rounded-[6px] border border-border/20 bg-secondary/10 hover:border-border/40 transition-colors"
-                      >
-                        <Link
-                          href={`/profile/${a.userId}`}
-                          className="flex items-center gap-2.5 hover:underline text-foreground min-w-0"
-                        >
-                          <div
-                            className={`relative size-8 shrink-0 overflow-hidden rounded-[6px] border ${a.avatarUrl ? 'border-border/30 bg-secondary' : palette.bg}`}
-                          >
-                            {a.avatarUrl ? (
-                              <Image
-                                src={a.avatarUrl}
-                                alt={a.name ?? ''}
-                                width={32}
-                                height={32}
-                                unoptimized
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div
-                                className={`flex h-full w-full items-center justify-center font-mono text-xs font-bold uppercase ${palette.text}`}
-                              >
-                                {(a.name ?? '?').slice(0, 1)}
-                              </div>
-                            )}
-                          </div>
-                          <span className="text-[13px] font-medium truncate">
-                            {a.name ?? (
-                              <span className="italic text-muted-foreground">(no name)</span>
-                            )}
-                          </span>
-                        </Link>
-                        <span className="rounded-[4px] border border-border/60 bg-secondary/50 font-mono text-[9px] font-bold uppercase tracking-[0.08em] px-1.5 py-0.5 text-muted-foreground shrink-0">
-                          #{a.waitlistPosition}
-                        </span>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
+              <AttendeeRoster title="Who's going" attendees={attendees.going} accent={accent} />
+
+              {attendees.waitlist.length > 0 ? (
+                <AttendeeRoster
+                  title="Waitlist"
+                  attendees={attendees.waitlist}
+                  accent={accent}
+                  showWaitlistPosition
+                />
+              ) : null}
             </div>
-          ) : null}
+          </section>
         </div>
 
-        {/* Right Column: Other Events Sidebar */}
-        <aside className="space-y-6 lg:sticky lg:top-6">
-          <div className="border border-border/40 rounded-[6px] bg-card overflow-hidden p-5 space-y-6">
-            <div>
-              <h3 className="font-heading text-sm font-semibold text-foreground tracking-[-0.015em] border-b border-border/40 pb-3">
-                Other Events
-              </h3>
-            </div>
-
-            {upcoming.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  Upcoming
-                </h4>
-                <ul className="space-y-2.5">
-                  {upcoming.map((e) => {
-                    const isCurrent = e.id === event.id
-                    const evAccent = getEventStableColor(e.title)
-                    const evMeta = getEventMetadata(e.title)
-                    const evDate = new Date(e.startsAt)
-
-                    return (
-                      <li key={e.id}>
-                        {isCurrent ? (
-                          <div
-                            className="p-3 rounded-[6px] bg-secondary/30 border border-border/60 flex flex-col gap-1"
-                            style={{ borderLeft: `3px solid ${evAccent.hex}` }}
-                          >
-                            <span className="font-mono text-[8px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                              <span>{evMeta.category}</span>
-                              <span className="text-[8px] px-1 bg-foreground/10 text-foreground rounded font-mono font-bold">
-                                Active
-                              </span>
-                            </span>
-                            <span className="bc-fraunces text-[13px] font-bold leading-snug text-foreground">
-                              {e.title}
-                            </span>
-                            <span className="font-mono text-[9px] text-muted-foreground">
-                              {format(evDate, 'MMM d · h:mm a')}
-                            </span>
-                          </div>
-                        ) : (
-                          <Link
-                            href={`/events/${e.id}`}
-                            className="p-3 rounded-[6px] border border-border/25 hover:border-border/60 hover:bg-secondary/15 transition-all flex flex-col gap-1 group block"
-                            style={{ borderLeft: `3px solid ${evAccent.hex}` }}
-                          >
-                            <span className="font-mono text-[8px] font-bold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
-                              {evMeta.category}
-                            </span>
-                            <span className="bc-fraunces text-[13px] font-bold leading-snug text-foreground group-hover:underline">
-                              {e.title}
-                            </span>
-                            <span className="font-mono text-[9px] text-muted-foreground">
-                              {format(evDate, 'MMM d · h:mm a')}
-                            </span>
-                          </Link>
-                        )}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            )}
-
-            {past.length > 0 && (
-              <div className="space-y-3">
-                <h4 className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  Past
-                </h4>
-                <ul className="space-y-2.5">
-                  {past.map((e) => {
-                    const isCurrent = e.id === event.id
-                    const evAccent = getEventStableColor(e.title)
-                    const evMeta = getEventMetadata(e.title)
-                    const evDate = new Date(e.startsAt)
-
-                    return (
-                      <li key={e.id}>
-                        {isCurrent ? (
-                          <div
-                            className="p-3 rounded-[6px] bg-secondary/30 border border-border/60 flex flex-col gap-1 opacity-70"
-                            style={{ borderLeft: `3px solid ${evAccent.hex}` }}
-                          >
-                            <span className="font-mono text-[8px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-                              <span>{evMeta.category}</span>
-                              <span className="text-[8px] px-1 bg-foreground/10 text-foreground rounded font-mono font-bold">
-                                Active
-                              </span>
-                            </span>
-                            <span className="bc-fraunces text-[13px] font-bold leading-snug text-foreground">
-                              {e.title}
-                            </span>
-                            <span className="font-mono text-[9px] text-muted-foreground">
-                              {format(evDate, 'MMM d · h:mm a')}
-                            </span>
-                          </div>
-                        ) : (
-                          <Link
-                            href={`/events/${e.id}`}
-                            className="p-3 rounded-[6px] border border-border/25 hover:border-border/60 hover:bg-secondary/15 transition-all flex flex-col gap-1 group block opacity-75 hover:opacity-100"
-                            style={{ borderLeft: `3px solid ${evAccent.hex}` }}
-                          >
-                            <span className="font-mono text-[8px] font-bold uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
-                              {evMeta.category}
-                            </span>
-                            <span className="bc-fraunces text-[13px] font-bold leading-snug text-foreground group-hover:underline">
-                              {e.title}
-                            </span>
-                            <span className="font-mono text-[9px] text-muted-foreground">
-                              {format(evDate, 'MMM d · h:mm a')}
-                            </span>
-                          </Link>
-                        )}
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            )}
+        <section className="mt-10 border-t border-border/70 pt-8">
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <h2 className="font-heading text-xl font-semibold text-foreground">More events</h2>
+            <Link
+              href="/events"
+              className="font-mono text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground"
+            >
+              View all
+            </Link>
           </div>
-        </aside>
+          <div className="grid gap-5 lg:grid-cols-2">
+            <RelatedEventsSection
+              title="Upcoming"
+              events={upcoming}
+              currentEventId={event.id}
+              subdued={false}
+            />
+            <RelatedEventsSection title="Past" events={past} currentEventId={event.id} subdued />
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   )
 }
 
@@ -568,4 +357,509 @@ function getCountdownDays(startsAt: string): string {
   if (diffMs <= 0) return '0d'
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
   return `${diffDays}d`
+}
+
+function getDisplayEventSummary(description: string | null, fallback: string): string {
+  if (
+    description
+      ?.toLowerCase()
+      .includes('future of generative ai, developer tooling, and product design')
+  ) {
+    return fallback
+  }
+
+  return description ?? fallback
+}
+
+function EventPassSpine({
+  eventTitle,
+  starts,
+  location,
+  goingCount,
+  capacity,
+  accentHex,
+}: {
+  eventTitle: string
+  starts: Date
+  location: string | null
+  goingCount: number
+  capacity: number | null
+  accentHex: string
+}) {
+  return (
+    <aside
+      className="relative border-b border-border/70 p-6 sm:p-8 lg:border-b-0 lg:border-r"
+      style={{ backgroundColor: `${accentHex}0f` }}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute right-[-7px] top-0 hidden h-full w-[14px] lg:block"
+        style={{
+          backgroundImage: `radial-gradient(circle, var(--background) 6px, transparent 6.5px)`,
+          backgroundPosition: 'center 10px',
+          backgroundSize: '14px 28px',
+        }}
+      />
+
+      <div className="relative z-10 flex h-full flex-col justify-between gap-10">
+        <div className="space-y-5">
+          <SectionLabel icon={Ticket}>Event pass</SectionLabel>
+          <div
+            className="flex size-20 flex-col items-center justify-center rounded-[8px] border bg-card text-center shadow-sm"
+            style={{ borderColor: `${accentHex}44`, color: accentHex }}
+          >
+            <span className="font-heading text-3xl font-semibold leading-none">
+              {format(starts, 'd')}
+            </span>
+            <span className="mt-1 font-mono text-[10px] font-bold uppercase">
+              {format(starts, 'MMM')}
+            </span>
+          </div>
+          <h3 className="font-heading text-2xl font-semibold leading-tight text-foreground">
+            {eventTitle}
+          </h3>
+        </div>
+
+        <div className="space-y-3">
+          <EventPassLine icon={Clock3} label="When" value={format(starts, 'MMM d, h:mm a')} />
+          <EventPassLine icon={MapPin} label="Where" value={location ?? 'Location to be shared'} />
+          <EventPassLine
+            icon={UsersRound}
+            label="Seats"
+            value={capacity ? `${goingCount} / ${capacity} booked` : `${goingCount} going`}
+          />
+        </div>
+
+        <div className="border-t border-dashed border-border/70 pt-5">
+          <div className="h-2 overflow-hidden rounded-full bg-card">
+            <div
+              className="h-full rounded-full"
+              style={{
+                backgroundColor: accentHex,
+                width: `${Math.min(100, (goingCount / (capacity || 100)) * 100)}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+function EventPassLine({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex items-start gap-3 border-t border-border/60 pt-3">
+      <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" strokeWidth={1.7} />
+      <div className="min-w-0">
+        <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground">{label}</p>
+        <p className="mt-1 text-sm font-semibold leading-snug text-foreground">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function CompactFact({
+  label,
+  value,
+  accentHex,
+}: {
+  label: string
+  value: string
+  accentHex: string
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-[6px] border border-border/70 bg-surface-panel/45 px-3 py-2.5">
+      <span className="font-mono text-[9px] font-bold uppercase text-muted-foreground">
+        {label}
+      </span>
+      <span
+        className="text-right text-sm font-semibold text-foreground"
+        style={{ color: accentHex }}
+      >
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function DossierMotif({ accentHex }: { accentHex: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      role="presentation"
+      viewBox="0 0 220 220"
+      className="pointer-events-none absolute -right-16 -top-16 size-60 stroke-current opacity-[0.08]"
+      style={{ color: accentHex }}
+    >
+      <title>Decorative dossier rings</title>
+      <circle cx="110" cy="110" r="86" fill="none" strokeWidth="1" />
+      <circle cx="110" cy="110" r="54" fill="none" strokeWidth="1" />
+      <path d="M24 110h172M110 24v172" fill="none" strokeWidth="1" strokeDasharray="4 6" />
+    </svg>
+  )
+}
+
+function LocationPanel({ accentHex, coordinates }: { accentHex: string; coordinates: string }) {
+  return (
+    <div className="relative h-44 overflow-hidden rounded-[8px] border border-border/70 bg-card">
+      <svg
+        aria-hidden="true"
+        role="presentation"
+        width="100%"
+        height="100%"
+        className="absolute inset-0 opacity-40"
+      >
+        <title>Decorative location grid</title>
+        <defs>
+          <pattern id="event-location-grid" width="34" height="34" patternUnits="userSpaceOnUse">
+            <path d="M 34 0 L 0 0 0 34" fill="none" stroke="currentColor" strokeWidth="0.75" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#event-location-grid)" />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative flex size-12 items-center justify-center rounded-full border border-border/70 bg-card shadow-md">
+          <span
+            className="absolute size-9 animate-ping rounded-full opacity-20"
+            style={{ backgroundColor: accentHex }}
+          />
+          <span className="size-3 rounded-full" style={{ backgroundColor: accentHex }} />
+        </div>
+      </div>
+      <span className="absolute bottom-3 right-3 font-mono text-[9px] font-bold uppercase text-muted-foreground">
+        {coordinates}
+      </span>
+    </div>
+  )
+}
+
+function eventFormat(location: string | null): string {
+  const normalized = location?.toLowerCase() ?? ''
+  if (normalized.includes('zoom') || normalized.includes('virtual')) return 'Virtual'
+  return 'In person'
+}
+
+function EventPosterMotif({ accentHex }: { accentHex: string }) {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div
+        className="absolute -right-24 -top-24 size-72 rounded-full"
+        style={{
+          background: `radial-gradient(circle, ${accentHex}24 0%, ${accentHex}10 42%, transparent 70%)`,
+        }}
+      />
+      <div
+        className="absolute bottom-0 left-0 h-2 w-full"
+        style={{
+          background: `linear-gradient(90deg, ${accentHex}, transparent)`,
+        }}
+      />
+      <svg
+        viewBox="0 0 260 260"
+        className="absolute -bottom-14 right-4 size-72 stroke-current opacity-[0.07]"
+        style={{ color: accentHex }}
+      >
+        <title>Decorative event poster rings</title>
+        <circle cx="130" cy="130" r="108" fill="none" strokeWidth="1" />
+        <circle cx="130" cy="130" r="74" fill="none" strokeWidth="1" />
+        <circle cx="130" cy="130" r="40" fill="none" strokeWidth="1" />
+        <path d="M24 130h212M130 24v212" fill="none" strokeWidth="1" strokeDasharray="4 6" />
+      </svg>
+    </div>
+  )
+}
+
+function EventStatus({
+  isPast,
+  startsAt,
+  accent,
+}: {
+  isPast: boolean
+  startsAt: string
+  accent: ReturnType<typeof getEventStableColor>
+}) {
+  if (isPast) {
+    return (
+      <span className="rounded-[6px] border border-border/70 bg-card px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-muted-foreground">
+        Past event
+      </span>
+    )
+  }
+
+  return (
+    <span
+      className="rounded-[6px] border px-2.5 py-1 font-mono text-[10px] font-bold uppercase"
+      style={{
+        borderColor: `${accent.hex}33`,
+        backgroundColor: `${accent.hex}12`,
+        color: accent.hex,
+      }}
+    >
+      T-{getCountdownDays(startsAt)}
+    </span>
+  )
+}
+
+function EventFact({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon
+  label: string
+  value: string
+}) {
+  return (
+    <div className="flex min-w-0 items-start gap-3 rounded-[6px] border border-border/60 bg-card/75 px-3 py-2.5 shadow-sm sm:py-3">
+      <Icon
+        className="mt-0.5 size-3.5 shrink-0 text-muted-foreground sm:size-4"
+        strokeWidth={1.7}
+      />
+      <div className="min-w-0">
+        <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground">{label}</p>
+        <p className="mt-1 text-sm font-semibold leading-snug text-foreground">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function RegistrationMeter({
+  goingCount,
+  capacity,
+  accentHex,
+}: {
+  goingCount: number
+  capacity: number | null
+  accentHex: string
+}) {
+  const percent = Math.min(100, (goingCount / (capacity || 100)) * 100)
+
+  return (
+    <div className="rounded-[6px] border border-border/70 bg-card/75 p-3 sm:p-4">
+      <div className="flex items-center justify-between gap-4">
+        <span className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
+          Registration
+        </span>
+        <span className="text-sm font-semibold text-foreground">
+          {capacity ? `${goingCount} / ${capacity} booked` : 'Open seats'}
+        </span>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{ backgroundColor: accentHex, width: `${percent}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function SpecLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-semibold text-foreground">{value}</dd>
+    </div>
+  )
+}
+
+function SectionLabel({ icon: Icon, children }: { icon: LucideIcon; children: ReactNode }) {
+  return (
+    <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase text-muted-foreground">
+      <Icon className="size-4" strokeWidth={1.7} />
+      {children}
+    </div>
+  )
+}
+
+function AttendeeRoster({
+  title,
+  attendees,
+  accent,
+  showWaitlistPosition = false,
+}: {
+  title: string
+  attendees: AttendeeRow[]
+  accent: ReturnType<typeof getEventStableColor>
+  showWaitlistPosition?: boolean
+}) {
+  return (
+    <section>
+      <div className="flex items-end justify-between gap-4 border-b border-border/70 pb-4">
+        <SectionLabel icon={UsersRound}>{title}</SectionLabel>
+        <span className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
+          {attendees.length}
+        </span>
+      </div>
+
+      {attendees.length === 0 ? (
+        <p className="py-6 text-sm text-muted-foreground">No RSVPs yet. Be the first.</p>
+      ) : (
+        <ul className="grid gap-x-6 sm:grid-cols-2">
+          {attendees.slice(0, 50).map((attendee, idx) => (
+            <li key={attendee.userId} className="border-b border-border/50 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <Link
+                  href={`/profile/${attendee.userId}`}
+                  className="flex min-w-0 items-center gap-3 text-foreground hover:underline"
+                >
+                  <AttendeeAvatar attendee={attendee} index={idx} />
+                  <span className="truncate text-sm font-semibold">
+                    {attendee.name ?? (
+                      <span className="italic text-muted-foreground">(no name)</span>
+                    )}
+                  </span>
+                </Link>
+                <div className="flex shrink-0 items-center gap-2">
+                  {attendee.graduationYear ? (
+                    <span className="font-mono text-[10px] font-bold text-muted-foreground">
+                      &apos;{attendee.graduationYear.toString().slice(2)}
+                    </span>
+                  ) : null}
+                  {showWaitlistPosition && attendee.waitlistPosition ? (
+                    <span
+                      className="rounded-[4px] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase"
+                      style={{ backgroundColor: `${accent.hex}12`, color: accent.hex }}
+                    >
+                      #{attendee.waitlistPosition}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </li>
+          ))}
+          {attendees.length > 50 ? (
+            <li className="py-4 text-sm text-muted-foreground sm:col-span-2">
+              + {attendees.length - 50} more
+            </li>
+          ) : null}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+function AttendeeAvatar({ attendee, index }: { attendee: AttendeeRow; index: number }) {
+  const palette = STACK_PALETTE[index % STACK_PALETTE.length] || STACK_PALETTE[0]
+
+  return (
+    <div
+      className={`relative size-9 shrink-0 overflow-hidden rounded-[6px] border ${
+        attendee.avatarUrl ? 'border-border/30 bg-secondary' : palette.bg
+      }`}
+    >
+      {attendee.avatarUrl ? (
+        <Image
+          src={attendee.avatarUrl}
+          alt={attendee.name ?? ''}
+          width={36}
+          height={36}
+          unoptimized
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div
+          className={`flex h-full w-full items-center justify-center font-mono text-xs font-bold uppercase ${palette.text}`}
+        >
+          {(attendee.name ?? '?').slice(0, 1)}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RelatedEventsSection({
+  title,
+  events,
+  currentEventId,
+  subdued,
+}: {
+  title: string
+  events: EventRow[]
+  currentEventId: string
+  subdued: boolean
+}) {
+  if (events.length === 0) return null
+
+  return (
+    <section className="rounded-[8px] border border-border/70 bg-card p-4 shadow-sm">
+      <h3 className="font-heading text-base font-semibold text-foreground">{title}</h3>
+      <ul className="mt-4 space-y-2">
+        {events.map((event) => (
+          <RelatedEventRow
+            key={event.id}
+            event={event}
+            isCurrent={event.id === currentEventId}
+            subdued={subdued}
+          />
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+function RelatedEventRow({
+  event,
+  isCurrent,
+  subdued,
+}: {
+  event: EventRow
+  isCurrent: boolean
+  subdued: boolean
+}) {
+  const eventAccent = getEventStableColor(event.title)
+  const eventMeta = getEventMetadata(event.title)
+  const eventDate = new Date(event.startsAt)
+  const content = (
+    <>
+      <span
+        className="mt-1 size-2 shrink-0 rounded-full"
+        style={{ backgroundColor: eventAccent.hex }}
+      />
+      <span className="min-w-0">
+        <span className="block font-mono text-[9px] font-bold uppercase text-muted-foreground">
+          {eventMeta.category}
+        </span>
+        <span className="mt-1 block text-sm font-semibold leading-snug text-foreground">
+          {event.title}
+        </span>
+        <span className="mt-1 block font-mono text-[10px] text-muted-foreground">
+          {format(eventDate, 'MMM d, h:mm a')}
+        </span>
+      </span>
+    </>
+  )
+
+  if (isCurrent) {
+    return (
+      <li
+        className={`flex gap-3 rounded-[6px] border border-border/70 bg-secondary/40 p-3 ${
+          subdued ? 'opacity-75' : ''
+        }`}
+      >
+        {content}
+      </li>
+    )
+  }
+
+  return (
+    <li>
+      <Link
+        href={`/events/${event.id}`}
+        className={`flex gap-3 rounded-[6px] p-3 transition-colors hover:bg-secondary/45 ${
+          subdued ? 'opacity-75 hover:opacity-100' : ''
+        }`}
+      >
+        {content}
+      </Link>
+    </li>
+  )
 }

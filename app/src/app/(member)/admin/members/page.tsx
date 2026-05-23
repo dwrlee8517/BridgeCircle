@@ -232,7 +232,16 @@ function DeletionBadge({
 }
 
 function CompletionCell({ percent }: { percent: number }) {
-  const tone =
-    percent >= 80 ? 'text-accent-sage' : percent >= 50 ? 'text-accent-ochre' : 'text-destructive'
-  return <span className={tone}>{percent}%</span>
+  // Synthesis P0-3: ochre at 3.32:1 is unsafe for body text. Mid-range %
+  // uses state-warning-foreground (resolves to foreground) with an ochre
+  // dot signal, keeping the meaning visible without the unreadable color.
+  if (percent >= 80) return <span className="text-accent-sage font-semibold">{percent}%</span>
+  if (percent >= 50)
+    return (
+      <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+        <span aria-hidden className="size-1.5 rounded-full bg-state-warning" />
+        {percent}%
+      </span>
+    )
+  return <span className="text-destructive font-semibold">{percent}%</span>
 }

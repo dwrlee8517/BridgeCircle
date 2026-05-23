@@ -41,13 +41,14 @@ export default async function AnnouncementsPage() {
       </div>
 
       {announcements.length === 0 ? (
+        /* Synthesis P3: empty state carries brand voice. */
         <EmptyState
           icon={Megaphone}
-          title="No announcements yet"
+          title="A quiet board today."
           description={
             isAdmin
-              ? `No one has posted yet. Send the first update for ${orgName}.`
-              : `Check back soon — admins post updates from ${orgName} here.`
+              ? `Nothing has been posted yet. When ${orgName} needs to share something with everyone, this is where it lives.`
+              : `Admins post the things ${orgName} wants every member to see here. Quieter than a feed, by design.`
           }
           action={
             isAdmin

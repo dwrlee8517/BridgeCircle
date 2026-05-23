@@ -1,11 +1,12 @@
-import { ArrowRight, HandHelping, Settings2 } from 'lucide-react'
+import { ArrowRight, HandHelping, Inbox, Settings2, UserCheck } from 'lucide-react'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { getHelperPreference } from '@/lib/asks/preferences'
 import { requireSession } from '@/lib/auth/session'
-import { FreshnessReviewCard, HelpOpportunityCard, NetworkMotif } from '../help-network-ui'
+import { FreshnessReviewCard, HelpOpportunityCard } from '../help-network-ui'
 
 export default async function HelpPage() {
   const session = await requireSession()
@@ -21,7 +22,9 @@ export default async function HelpPage() {
 
   if (!membership) return null
 
-  const [prefs, incomingRes, recentJoinersRes, eventCountRes] = await Promise.all([
+  // Synthesis P2-7: dropped the upcoming-events count query — it only fed
+  // the removed NetworkMotif.
+  const [prefs, incomingRes, recentJoinersRes] = await Promise.all([
     getHelperPreference(supabase, session.userId),
     supabase
       .from('asks')
@@ -38,12 +41,6 @@ export default async function HelpPage() {
       .neq('user_id', session.userId)
       .order('joined_at', { ascending: false })
       .limit(6),
-    supabase
-      .from('events')
-      .select('id', { count: 'exact', head: true })
-      .eq('organization_id', membership.organization_id)
-      .gte('starts_at', new Date().toISOString())
-      .not('published_at', 'is', null),
   ])
 
   const askUserIds = (incomingRes.data ?? []).map((ask) => ask.asker_id)
@@ -77,21 +74,23 @@ export default async function HelpPage() {
   const incoming = incomingRes.data ?? []
   const recentJoiners = recentJoinersRes.data ?? []
   const isOpen = !!(prefs?.openToAdvice || prefs?.openToMentorship)
-  const helperCount = (prefs?.openToAdvice ? 1 : 0) + (prefs?.openToMentorship ? 1 : 0)
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-background">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:py-12">
-          <div className="space-y-6">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+      {/* Synthesis P2-7: removed NetworkMotif. Help is task-mode supply-side
+          work; lead with the action, not a repeat of the Home identity moment.
+          Synthesis P1-6: demoted hero from text-5xl/6xl to text-3xl/4xl. */}
+      <section className="bc-page-band border-b border-border">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:py-8">
+          <div className="space-y-5">
+            <p className="bc-section-kicker">
               Help · Offer help where your experience fits
             </p>
-            <div className="max-w-4xl space-y-4">
-              <h1 className="font-serif text-5xl font-semibold leading-[0.98] tracking-tight text-foreground sm:text-6xl">
+            <div className="max-w-2xl space-y-2">
+              <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground">
                 Your experience can shorten someone else’s path.
               </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              <p className="text-base leading-relaxed text-muted-foreground">
                 Help does not have to mean a formal mentorship. Reply to a quick ask, make a useful
                 suggestion, or keep your availability clear so the right people find you.
               </p>
@@ -126,21 +125,26 @@ export default async function HelpPage() {
               </Button>
             </div>
           </div>
-
-          <NetworkMotif
-            helperCount={helperCount}
-            requestCount={incoming.length}
-            eventCount={eventCountRes.count ?? 0}
-          />
+          <div className="self-end rounded-[8px] border border-border bg-card p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+              Helper state
+            </p>
+            <div className="mt-5 grid gap-3">
+              <HelpMetric icon={<Inbox className="size-4" />} value={incoming.length} label="Needs reply" />
+              <HelpMetric icon={<UserCheck className="size-4" />} value={recentJoiners.length} label="Possible fits" />
+              <HelpMetric icon={<Settings2 className="size-4" />} value={isOpen ? 'On' : 'Off'} label="Availability" />
+            </div>
+          </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 lg:py-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-5">
-            <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="font-serif text-2xl font-semibold leading-tight text-foreground">
+                <p className="bc-section-kicker mb-3">Priority queue</p>
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
                   Needs your reply
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -175,8 +179,8 @@ export default async function HelpPage() {
                 })}
               </div>
             ) : (
-              <div className="rounded-[8px] border border-dashed border-border bg-card p-8">
-                <p className="font-serif text-2xl font-semibold text-foreground">
+              <div className="bc-action-rail rounded-[8px] border border-primary/10 p-8">
+                <p className="font-heading text-2xl font-semibold text-foreground">
                   No one is waiting on you right now.
                 </p>
                 <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -191,14 +195,15 @@ export default async function HelpPage() {
 
             <div className="space-y-4 border-t border-border pt-5">
               <div>
-                <h2 className="font-serif text-2xl font-semibold leading-tight text-foreground">
+                <p className="bc-section-kicker mb-3">Likely fit</p>
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
                   People you could help
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                   Lightweight prompts based on recent joins and visible profile signals.
                 </p>
               </div>
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-3">
                 {recentJoiners.slice(0, 3).map((member) => {
                   const profile = profileMap.get(member.user_id)
                   const profileObj = Array.isArray(member.organization_profiles)
@@ -225,8 +230,10 @@ export default async function HelpPage() {
 
           <aside className="space-y-5">
             <FreshnessReviewCard />
-            <div className="rounded-[8px] border border-border bg-card p-5 shadow-sm">
-              <p className="font-serif text-lg font-semibold text-foreground">How helping works</p>
+            <div className="bc-action-rail rounded-[8px] border border-primary/10 p-5">
+              <p className="font-heading text-lg font-semibold text-foreground">
+                How helping works
+              </p>
               <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
                 <p>1. Keep your help topics and availability clear.</p>
                 <p>2. BridgeCircle routes relevant asks to you.</p>
@@ -237,6 +244,30 @@ export default async function HelpPage() {
         </div>
       </section>
     </main>
+  )
+}
+
+function HelpMetric({
+  icon,
+  value,
+  label,
+}: {
+  icon: ReactNode
+  value: number | string
+  label: string
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-[6px] border border-border bg-surface-panel/45 p-3">
+      <div className="flex size-8 items-center justify-center rounded-[6px] bg-primary/[0.08] text-primary">
+        {icon}
+      </div>
+      <div>
+        <p className="font-heading text-xl font-semibold leading-none text-foreground">{value}</p>
+        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+          {label}
+        </p>
+      </div>
+    </div>
   )
 }
 

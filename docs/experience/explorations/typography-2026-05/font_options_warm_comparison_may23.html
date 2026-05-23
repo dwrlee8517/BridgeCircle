@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Warm Credible Font Page Mockups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;family=Lato:wght@400;700;900&amp;family=Libre+Franklin:wght@400;500;600;700;800;900&amp;family=Source+Sans+3:wght@400;500;600;700;800;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #fafaf9;
+        --card: #ffffff;
+        --ink: #0c0c0b;
+        --muted: #4d4d4a;
+        --rule: #dcdcd6;
+        --panel: #f4f3ee;
+        --blue: #2563eb;
+        --blue-hover: #1d4ed8;
+        --midnight: #081126;
+        --sage: #3b6e51;
+        --ochre: #c8761a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Source Sans 3", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .page {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+
+      .intro {
+        display: grid;
+        gap: 16px;
+        padding: 24px 0 30px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .kicker,
+      .meta,
+      .font-label,
+      .nav,
+      .button,
+      .metric-label,
+      .tag,
+      .table th,
+      .option-note {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .kicker,
+      .meta {
+        color: var(--blue);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      h1 {
+        max-width: 860px;
+        margin: 0;
+        font-size: clamp(38px, 6vw, 68px);
+        line-height: 0.98;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .intro p {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.65;
+      }
+
+      .mockup {
+        --display: "Source Sans 3";
+        --body: "Source Sans 3";
+        --mono: "JetBrains Mono";
+        overflow: hidden;
+        margin-top: 28px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--card);
+        font-family: var(--body), system-ui, sans-serif;
+      }
+
+      .mockup.source {
+        --display: "Source Sans 3";
+        --body: "Source Sans 3";
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup.libre {
+        --display: "Libre Franklin";
+        --body: "Source Sans 3";
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup.instrument {
+        --display: "Instrument Sans";
+        --body: "Instrument Sans";
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup.lato {
+        --display: Lato;
+        --body: Lato;
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup.aptos {
+        --display: Aptos, "Aptos Display";
+        --body: Aptos;
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup * {
+        font-family: var(--body), system-ui, sans-serif;
+      }
+
+      .mockup-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--panel);
+      }
+
+      .recommended .mockup-header {
+        background: #eef5ef;
+      }
+
+      .font-title {
+        margin: 0;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 24px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .font-label,
+      .option-note {
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.5;
+        text-align: right;
+      }
+
+      .site {
+        min-height: 820px;
+        background: var(--card);
+      }
+
+      .site-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px 28px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .mark {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        place-items: center;
+        border-radius: 6px;
+        background: var(--blue);
+        color: white;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .nav {
+        display: flex;
+        gap: 18px;
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+        gap: 28px;
+        padding: 56px 28px 44px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .hero-copy {
+        display: grid;
+        align-content: center;
+        gap: 18px;
+      }
+
+      .hero h2 {
+        max-width: 680px;
+        margin: 0;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: clamp(44px, 6vw, 76px);
+        line-height: 0.94;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .hero p {
+        max-width: 610px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.62;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 38px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 14px;
+        border: 1px solid var(--blue);
+        border-radius: 6px;
+        background: var(--blue);
+        color: white;
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .button.secondary {
+        background: transparent;
+        color: var(--blue);
+      }
+
+      .network-panel {
+        display: grid;
+        gap: 12px;
+        align-content: start;
+        padding: 18px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: #fbfbfa;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .member-row {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 0;
+        border-top: 1px solid var(--rule);
+      }
+
+      .avatar {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--panel);
+        color: var(--blue);
+        font-weight: 800;
+      }
+
+      .row-title {
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .row-meta,
+      .row-note {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .tag {
+        width: fit-content;
+        padding: 5px 7px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        color: var(--sage);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 9px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        padding: 18px 28px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--panel);
+      }
+
+      .metric {
+        padding: 14px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--card);
+      }
+
+      .metric-value {
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .metric-label {
+        margin-top: 7px;
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 0.92fr 1.08fr;
+        gap: 18px;
+        padding: 28px;
+      }
+
+      .section {
+        padding: 18px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: #fbfbfa;
+      }
+
+      .section h3 {
+        margin: 0 0 14px;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 24px;
+        line-height: 1.05;
+        font-weight: 850;
+        letter-spacing: 0;
+      }
+
+      .ask-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .ask {
+        display: grid;
+        gap: 6px;
+        padding-top: 12px;
+        border-top: 1px solid var(--rule);
+      }
+
+      .ask:first-of-type {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+
+      .table th {
+        padding: 0 0 10px;
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 9px;
+        font-weight: 700;
+        text-align: left;
+      }
+
+      .table td {
+        padding: 12px 0;
+        border-top: 1px solid var(--rule);
+        vertical-align: top;
+      }
+
+      .verdict {
+        margin: 0 18px 18px;
+        padding: 12px;
+        border-left: 3px solid var(--blue);
+        border-radius: 0 6px 6px 0;
+        background: #f2f5ff;
+        color: #18254f;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .recommended .verdict {
+        border-left-color: var(--sage);
+        background: #edf7f0;
+        color: #123d2b;
+      }
+
+      @media (max-width: 900px) {
+        .mockup-header,
+        .site-nav,
+        .hero,
+        .content {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          display: grid;
+        }
+
+        .site-nav {
+          display: grid;
+        }
+
+        .font-label,
+        .option-note {
+          text-align: left;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          padding: 24px 14px 44px;
+        }
+
+        .hero,
+        .content,
+        .metrics,
+        .site-nav {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+
+        .nav {
+          flex-wrap: wrap;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .member-row {
+          grid-template-columns: 40px minmax(0, 1fr);
+        }
+
+        .member-row .tag {
+          grid-column: 2;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="kicker">BridgeCircle Typography Test</div>
+        <h1 id="page-title">Warm credible font systems for BridgeCircle</h1>
+        <p>
+          Each mockup uses the same page structure, color theme, buttons, cards, borders, and sample product content.
+          These options bias toward warmth and member trust while preserving the credibility needed for verification,
+          referrals, mentorship, and recruiting.
+        </p>
+        <div class="meta">Updated May 23, 2026</div>
+      </section>
+
+      <article class="mockup source recommended">
+        <header class="mockup-header">
+          <div>
+            <h2 class="font-title">1. Source Sans 3</h2>
+            <div class="option-note">Best overall: warm but verified</div>
+          </div>
+          <div class="font-label">Display: Source Sans 3<br />Body: Source Sans 3<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="site">
+          <nav class="site-nav" aria-label="Source Sans 3 mock navigation">
+            <div class="brand"><span class="mark">B</span>BridgeCircle</div>
+            <div class="nav"><span>Members</span><span>Referrals</span><span>Mentors</span><span>Events</span></div>
+            <span class="button">Join network</span>
+          </nav>
+          <section class="hero">
+            <div class="hero-copy">
+              <h2>Find the alumni who can open the right door.</h2>
+              <p>
+                A verified warm-network platform for referrals, mentorship, recruiting, events, and local connection
+                across the Chadwick community.
+              </p>
+              <div class="actions">
+                <span class="button">Explore members</span>
+                <span class="button secondary">Request an intro</span>
+              </div>
+            </div>
+            <div class="network-panel">
+              <h3 class="panel-title">Recommended paths</h3>
+              <div class="member-row">
+                <div class="avatar">MC</div>
+                <div>
+                  <div class="row-title">Mina Cho, Product Lead</div>
+                  <div class="row-meta">Chadwick '09 · Healthcare AI · 2 warm paths</div>
+                </div>
+                <div class="tag">Strong fit</div>
+              </div>
+              <div class="member-row">
+                <div class="avatar">DK</div>
+                <div>
+                  <div class="row-title">Daniel Kim, Founder</div>
+                  <div class="row-meta">CI '12 · Climate fintech · Seoul circle</div>
+                </div>
+                <div class="tag">Local</div>
+              </div>
+              <div class="member-row">
+                <div class="avatar">SP</div>
+                <div>
+                  <div class="row-title">Sarah Park, Talent Partner</div>
+                  <div class="row-meta">Chadwick '06 · Design hiring · mentor available</div>
+                </div>
+                <div class="tag">Hiring</div>
+              </div>
+            </div>
+          </section>
+          <section class="metrics">
+            <div class="metric"><div class="metric-value">842</div><div class="metric-label">Verified members</div></div>
+            <div class="metric"><div class="metric-value">126</div><div class="metric-label">Warm paths</div></div>
+            <div class="metric"><div class="metric-value">38</div><div class="metric-label">Open asks</div></div>
+            <div class="metric"><div class="metric-value">14</div><div class="metric-label">Local circles</div></div>
+          </section>
+          <section class="content">
+            <div class="section">
+              <h3>Open asks this week</h3>
+              <div class="ask-list">
+                <div class="ask">
+                  <div class="row-title">Intro to a healthtech product leader</div>
+                  <div class="row-note">For a Chadwick founder validating hospital workflows.</div>
+                </div>
+                <div class="ask">
+                  <div class="row-title">Mentor call for a junior designer</div>
+                  <div class="row-note">Portfolio review before summer internship interviews.</div>
+                </div>
+                <div class="ask">
+                  <div class="row-title">Seoul dinner host</div>
+                  <div class="row-note">Small group for new graduates relocating after university.</div>
+                </div>
+              </div>
+            </div>
+            <div class="section">
+              <h3>Verified member activity</h3>
+              <table class="table">
+                <thead><tr><th>Signal</th><th>Member</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Referral accepted</td><td>Grace Lee introduced Sarah to a Stripe hiring manager.</td><td>Complete</td></tr>
+                  <tr><td>Mentor slot opened</td><td>Three product strategy calls available next week.</td><td>Open</td></tr>
+                  <tr><td>New circle</td><td>Bay Area alumni added a monthly founder breakfast.</td><td>Live</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div class="verdict">Source Sans 3 is the strongest warm-credible candidate: human, highly readable, and still serious enough for a verified member network.</div>
+      </article>
+
+      <article class="mockup libre recommended">
+        <header class="mockup-header">
+          <div>
+            <h2 class="font-title">2. Libre Franklin + Source Sans 3</h2>
+            <div class="option-note">Best civic warmth: alumni institution</div>
+          </div>
+          <div class="font-label">Display: Libre Franklin<br />Body: Source Sans 3<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="site">
+          <nav class="site-nav" aria-label="Libre Franklin mock navigation">
+            <div class="brand"><span class="mark">B</span>BridgeCircle</div>
+            <div class="nav"><span>Members</span><span>Referrals</span><span>Mentors</span><span>Events</span></div>
+            <span class="button">Join network</span>
+          </nav>
+          <section class="hero">
+            <div class="hero-copy">
+              <h2>Find the alumni who can open the right door.</h2>
+              <p>
+                A verified warm-network platform for referrals, mentorship, recruiting, events, and local connection
+                across the Chadwick community.
+              </p>
+              <div class="actions">
+                <span class="button">Explore members</span>
+                <span class="button secondary">Request an intro</span>
+              </div>
+            </div>
+            <div class="network-panel">
+              <h3 class="panel-title">Recommended paths</h3>
+              <div class="member-row"><div class="avatar">MC</div><div><div class="row-title">Mina Cho, Product Lead</div><div class="row-meta">Chadwick '09 · Healthcare AI · 2 warm paths</div></div><div class="tag">Strong fit</div></div>
+              <div class="member-row"><div class="avatar">DK</div><div><div class="row-title">Daniel Kim, Founder</div><div class="row-meta">CI '12 · Climate fintech · Seoul circle</div></div><div class="tag">Local</div></div>
+              <div class="member-row"><div class="avatar">SP</div><div><div class="row-title">Sarah Park, Talent Partner</div><div class="row-meta">Chadwick '06 · Design hiring · mentor available</div></div><div class="tag">Hiring</div></div>
+            </div>
+          </section>
+          <section class="metrics">
+            <div class="metric"><div class="metric-value">842</div><div class="metric-label">Verified members</div></div>
+            <div class="metric"><div class="metric-value">126</div><div class="metric-label">Warm paths</div></div>
+            <div class="metric"><div class="metric-value">38</div><div class="metric-label">Open asks</div></div>
+            <div class="metric"><div class="metric-value">14</div><div class="metric-label">Local circles</div></div>
+          </section>
+          <section class="content">
+            <div class="section">
+              <h3>Open asks this week</h3>
+              <div class="ask-list">
+                <div class="ask"><div class="row-title">Intro to a healthtech product leader</div><div class="row-note">For a Chadwick founder validating hospital workflows.</div></div>
+                <div class="ask"><div class="row-title">Mentor call for a junior designer</div><div class="row-note">Portfolio review before summer internship interviews.</div></div>
+                <div class="ask"><div class="row-title">Seoul dinner host</div><div class="row-note">Small group for new graduates relocating after university.</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <h3>Verified member activity</h3>
+              <table class="table">
+                <thead><tr><th>Signal</th><th>Member</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Referral accepted</td><td>Grace Lee introduced Sarah to a Stripe hiring manager.</td><td>Complete</td></tr>
+                  <tr><td>Mentor slot opened</td><td>Three product strategy calls available next week.</td><td>Open</td></tr>
+                  <tr><td>New circle</td><td>Bay Area alumni added a monthly founder breakfast.</td><td>Live</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div class="verdict">Libre Franklin + Source Sans 3 keeps the institutional signal but softens it: credible, alumni-adjacent, and less bureaucratic than Public Sans.</div>
+      </article>
+
+      <article class="mockup instrument recommended">
+        <header class="mockup-header">
+          <div>
+            <h2 class="font-title">3. Instrument Sans</h2>
+            <div class="option-note">Best modern warmth: polished member network</div>
+          </div>
+          <div class="font-label">Display: Instrument Sans<br />Body: Instrument Sans<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="site">
+          <nav class="site-nav" aria-label="Instrument Sans mock navigation">
+            <div class="brand"><span class="mark">B</span>BridgeCircle</div>
+            <div class="nav"><span>Members</span><span>Referrals</span><span>Mentors</span><span>Events</span></div>
+            <span class="button">Join network</span>
+          </nav>
+          <section class="hero">
+            <div class="hero-copy">
+              <h2>Find the alumni who can open the right door.</h2>
+              <p>
+                A verified warm-network platform for referrals, mentorship, recruiting, events, and local connection
+                across the Chadwick community.
+              </p>
+              <div class="actions">
+                <span class="button">Explore members</span>
+                <span class="button secondary">Request an intro</span>
+              </div>
+            </div>
+            <div class="network-panel">
+              <h3 class="panel-title">Recommended paths</h3>
+              <div class="member-row"><div class="avatar">MC</div><div><div class="row-title">Mina Cho, Product Lead</div><div class="row-meta">Chadwick '09 · Healthcare AI · 2 warm paths</div></div><div class="tag">Strong fit</div></div>
+              <div class="member-row"><div class="avatar">DK</div><div><div class="row-title">Daniel Kim, Founder</div><div class="row-meta">CI '12 · Climate fintech · Seoul circle</div></div><div class="tag">Local</div></div>
+              <div class="member-row"><div class="avatar">SP</div><div><div class="row-title">Sarah Park, Talent Partner</div><div class="row-meta">Chadwick '06 · Design hiring · mentor available</div></div><div class="tag">Hiring</div></div>
+            </div>
+          </section>
+          <section class="metrics">
+            <div class="metric"><div class="metric-value">842</div><div class="metric-label">Verified members</div></div>
+            <div class="metric"><div class="metric-value">126</div><div class="metric-label">Warm paths</div></div>
+            <div class="metric"><div class="metric-value">38</div><div class="metric-label">Open asks</div></div>
+            <div class="metric"><div class="metric-value">14</div><div class="metric-label">Local circles</div></div>
+          </section>
+          <section class="content">
+            <div class="section">
+              <h3>Open asks this week</h3>
+              <div class="ask-list">
+                <div class="ask"><div class="row-title">Intro to a healthtech product leader</div><div class="row-note">For a Chadwick founder validating hospital workflows.</div></div>
+                <div class="ask"><div class="row-title">Mentor call for a junior designer</div><div class="row-note">Portfolio review before summer internship interviews.</div></div>
+                <div class="ask"><div class="row-title">Seoul dinner host</div><div class="row-note">Small group for new graduates relocating after university.</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <h3>Verified member activity</h3>
+              <table class="table">
+                <thead><tr><th>Signal</th><th>Member</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Referral accepted</td><td>Grace Lee introduced Sarah to a Stripe hiring manager.</td><td>Complete</td></tr>
+                  <tr><td>Mentor slot opened</td><td>Three product strategy calls available next week.</td><td>Open</td></tr>
+                  <tr><td>New circle</td><td>Bay Area alumni added a monthly founder breakfast.</td><td>Live</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div class="verdict">Instrument Sans feels the most contemporary and product-native: warmer than Geist or Public Sans without drifting into playful SaaS.</div>
+      </article>
+
+      <article class="mockup lato">
+        <header class="mockup-header">
+          <div>
+            <h2 class="font-title">4. Lato</h2>
+            <div class="option-note">Warm backup: approachable professional</div>
+          </div>
+          <div class="font-label">Display: Lato<br />Body: Lato<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="site">
+          <nav class="site-nav" aria-label="Lato mock navigation">
+            <div class="brand"><span class="mark">B</span>BridgeCircle</div>
+            <div class="nav"><span>Members</span><span>Referrals</span><span>Mentors</span><span>Events</span></div>
+            <span class="button">Join network</span>
+          </nav>
+          <section class="hero">
+            <div class="hero-copy">
+              <h2>Find the alumni who can open the right door.</h2>
+              <p>
+                A verified warm-network platform for referrals, mentorship, recruiting, events, and local connection
+                across the Chadwick community.
+              </p>
+              <div class="actions">
+                <span class="button">Explore members</span>
+                <span class="button secondary">Request an intro</span>
+              </div>
+            </div>
+            <div class="network-panel">
+              <h3 class="panel-title">Recommended paths</h3>
+              <div class="member-row"><div class="avatar">MC</div><div><div class="row-title">Mina Cho, Product Lead</div><div class="row-meta">Chadwick '09 · Healthcare AI · 2 warm paths</div></div><div class="tag">Strong fit</div></div>
+              <div class="member-row"><div class="avatar">DK</div><div><div class="row-title">Daniel Kim, Founder</div><div class="row-meta">CI '12 · Climate fintech · Seoul circle</div></div><div class="tag">Local</div></div>
+              <div class="member-row"><div class="avatar">SP</div><div><div class="row-title">Sarah Park, Talent Partner</div><div class="row-meta">Chadwick '06 · Design hiring · mentor available</div></div><div class="tag">Hiring</div></div>
+            </div>
+          </section>
+          <section class="metrics">
+            <div class="metric"><div class="metric-value">842</div><div class="metric-label">Verified members</div></div>
+            <div class="metric"><div class="metric-value">126</div><div class="metric-label">Warm paths</div></div>
+            <div class="metric"><div class="metric-value">38</div><div class="metric-label">Open asks</div></div>
+            <div class="metric"><div class="metric-value">14</div><div class="metric-label">Local circles</div></div>
+          </section>
+          <section class="content">
+            <div class="section">
+              <h3>Open asks this week</h3>
+              <div class="ask-list">
+                <div class="ask"><div class="row-title">Intro to a healthtech product leader</div><div class="row-note">For a Chadwick founder validating hospital workflows.</div></div>
+                <div class="ask"><div class="row-title">Mentor call for a junior designer</div><div class="row-note">Portfolio review before summer internship interviews.</div></div>
+                <div class="ask"><div class="row-title">Seoul dinner host</div><div class="row-note">Small group for new graduates relocating after university.</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <h3>Verified member activity</h3>
+              <table class="table">
+                <thead><tr><th>Signal</th><th>Member</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Referral accepted</td><td>Grace Lee introduced Sarah to a Stripe hiring manager.</td><td>Complete</td></tr>
+                  <tr><td>Mentor slot opened</td><td>Three product strategy calls available next week.</td><td>Open</td></tr>
+                  <tr><td>New circle</td><td>Bay Area alumni added a monthly founder breakfast.</td><td>Live</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div class="verdict">Lato is friendly and readable, but it is the riskiest of this set: warmth is clear, while distinctiveness and premium credibility are weaker.</div>
+      </article>
+
+      <article class="mockup aptos">
+        <header class="mockup-header">
+          <div>
+            <h2 class="font-title">5. Aptos</h2>
+            <div class="option-note">System-font check: familiar professional warmth</div>
+          </div>
+          <div class="font-label">Display: Aptos<br />Body: Aptos<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="site">
+          <nav class="site-nav" aria-label="Aptos mock navigation">
+            <div class="brand"><span class="mark">B</span>BridgeCircle</div>
+            <div class="nav"><span>Members</span><span>Referrals</span><span>Mentors</span><span>Events</span></div>
+            <span class="button">Join network</span>
+          </nav>
+          <section class="hero">
+            <div class="hero-copy">
+              <h2>Find the alumni who can open the right door.</h2>
+              <p>
+                A verified warm-network platform for referrals, mentorship, recruiting, events, and local connection
+                across the Chadwick community.
+              </p>
+              <div class="actions">
+                <span class="button">Explore members</span>
+                <span class="button secondary">Request an intro</span>
+              </div>
+            </div>
+            <div class="network-panel">
+              <h3 class="panel-title">Recommended paths</h3>
+              <div class="member-row"><div class="avatar">MC</div><div><div class="row-title">Mina Cho, Product Lead</div><div class="row-meta">Chadwick '09 · Healthcare AI · 2 warm paths</div></div><div class="tag">Strong fit</div></div>
+              <div class="member-row"><div class="avatar">DK</div><div><div class="row-title">Daniel Kim, Founder</div><div class="row-meta">CI '12 · Climate fintech · Seoul circle</div></div><div class="tag">Local</div></div>
+              <div class="member-row"><div class="avatar">SP</div><div><div class="row-title">Sarah Park, Talent Partner</div><div class="row-meta">Chadwick '06 · Design hiring · mentor available</div></div><div class="tag">Hiring</div></div>
+            </div>
+          </section>
+          <section class="metrics">
+            <div class="metric"><div class="metric-value">842</div><div class="metric-label">Verified members</div></div>
+            <div class="metric"><div class="metric-value">126</div><div class="metric-label">Warm paths</div></div>
+            <div class="metric"><div class="metric-value">38</div><div class="metric-label">Open asks</div></div>
+            <div class="metric"><div class="metric-value">14</div><div class="metric-label">Local circles</div></div>
+          </section>
+          <section class="content">
+            <div class="section">
+              <h3>Open asks this week</h3>
+              <div class="ask-list">
+                <div class="ask"><div class="row-title">Intro to a healthtech product leader</div><div class="row-note">For a Chadwick founder validating hospital workflows.</div></div>
+                <div class="ask"><div class="row-title">Mentor call for a junior designer</div><div class="row-note">Portfolio review before summer internship interviews.</div></div>
+                <div class="ask"><div class="row-title">Seoul dinner host</div><div class="row-note">Small group for new graduates relocating after university.</div></div>
+              </div>
+            </div>
+            <div class="section">
+              <h3>Verified member activity</h3>
+              <table class="table">
+                <thead><tr><th>Signal</th><th>Member</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Referral accepted</td><td>Grace Lee introduced Sarah to a Stripe hiring manager.</td><td>Complete</td></tr>
+                  <tr><td>Mentor slot opened</td><td>Three product strategy calls available next week.</td><td>Open</td></tr>
+                  <tr><td>New circle</td><td>Bay Area alumni added a monthly founder breakfast.</td><td>Live</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+        <div class="verdict">Aptos is a useful system-font sanity check: professional and approachable, but less distinctive and only accurate on machines where Aptos is installed.</div>
+      </article>
+    </main>
+  </body>
+</html>

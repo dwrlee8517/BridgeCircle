@@ -277,7 +277,7 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
   const description = `Explore ${orgName} when you want to browse the wider circle. For precise help, describe the question in plain English and BridgeCircle will explain why each person fits.`
 
   return (
-    <section className="relative overflow-hidden border-b border-border bg-card">
+    <section className="bc-page-band relative overflow-hidden border-b border-border">
       {/* Background Dots */}
       <div
         aria-hidden
@@ -299,17 +299,16 @@ function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }
         <circle cx="130" cy="100" r="60" fill="none" className="stroke-primary" strokeWidth="1" />
       </svg>
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
-        <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-7 sm:px-8 sm:py-9">
+        <p className="bc-section-kicker">
           People · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
         </p>
-        <h1
-          className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
-          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-        >
-          Explore the school circle.
+        <h1 className="font-heading mt-3 max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+          Compare the circle by fit, not just profile.
         </h1>
-        <p className="mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">{description}</p>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
+          {description}
+        </p>
       </div>
     </section>
   )

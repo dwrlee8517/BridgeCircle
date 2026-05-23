@@ -1,37 +1,45 @@
 # Screenshots
 
-Current screenshot set for the Civic Editorial implementation.
+Current clean screenshot capture:
 
-Generated: 2026-05-22.
+`output/playwright/fresh-screenshots-2026-05-24-clean/`
+
+Manifest:
+
+`output/playwright/fresh-screenshots-2026-05-24-clean/manifest.json`
+
+Generated: 2026-05-24.
 
 Environment:
-- App: `http://localhost:3000`
-- Viewports: desktop `1440x1000`, mobile `390x844`
+
+- App: `http://localhost:3001`
+- Viewports: desktop `1440x1000`, tablet `900x1000`, mobile `390x844`
 - Authenticated account: seeded admin member `admin-amy@example.com`
-- Browser path: the in-app browser was used to verify the user's current view.
-  Canonical captures were regenerated with Playwright because the in-app
-  browser viewport override did not map one-to-one to CSS pixels in this
-  session.
+- Capture method: Playwright Chromium with full-page screenshots and dev overlay
+  hidden.
 
-Coverage:
+Current member-nav coverage:
 
-| Surface | Desktop | Mobile |
-|---|---|---|
-| Auth sign-in | `auth-sign-in-desktop.png` | `auth-sign-in-mobile.png` |
-| Home | `home-desktop.png` | `home-mobile.png` |
-| People | `people-desktop.png` | `people-mobile.png` |
-| Inbox | `inbox-desktop.png` | `inbox-mobile.png` |
-| Events | `events-desktop.png` | `events-mobile.png` |
-| Profile | `profile-desktop.png` | `profile-mobile.png` |
-| Admin invite | `admin-desktop.png` | `admin-mobile.png` |
+| Surface | Desktop | Mobile | Tablet |
+|---|---|---|---|
+| Home | `desktop-home.png` | `mobile-home.png` | `tablet-home.png` |
+| Ask | `desktop-ask.png` | `mobile-ask.png` | - |
+| Help | `desktop-help.png` | `mobile-help.png` | - |
+| People | `desktop-people.png` | `mobile-people.png` | `tablet-people.png` |
+| School | `desktop-school.png` | `mobile-school.png` | - |
+| Inbox | `desktop-inbox.png` | `mobile-inbox.png` | `tablet-inbox.png` |
 
-QA notes:
-- Every captured route returned HTTP 200.
-- No Next.js error overlay was present.
-- No browser console warnings or errors were recorded during the authenticated
-  route check.
-- The admin route redirects from `/admin` to `/admin/invite`; screenshots use the redirected invite screen.
-- The `/profile/me` route redirects to the signed-in member's canonical profile
-  URL before capture.
-- Next.js dev overlay UI is hidden during capture so screenshots show product UI
-  only.
+Interaction coverage includes:
+
+- desktop account menu
+- desktop and mobile notification popovers
+- mobile navigation menu
+- People mentorship filter
+- Inbox request and DM tabs
+
+Supporting-route coverage includes auth, ask composer, event detail, profile,
+profile edit/import, helper settings, and admin surfaces. These are supporting
+screens, not the core member navigation.
+
+The previous May 22 screenshot set has been archived under
+[`../../_archive/screenshots-2026-05-22/`](../../_archive/screenshots-2026-05-22/).

@@ -46,21 +46,12 @@ export type ResultCardProps = {
   pendingRequestCount?: number
 }
 
-function getStableBgColor(name: string | null) {
-  if (!name) return 'bg-muted-foreground text-background'
-  const colors = [
-    'bg-accent-rust text-background',
-    'bg-accent-sage text-background',
-    'bg-accent-plum text-background',
-    'bg-accent-ochre text-background',
-    'bg-primary text-primary-foreground',
-    'bg-muted-foreground text-background',
-  ]
-  let sum = 0
-  for (let i = 0; i < name.length; i++) {
-    sum += name.charCodeAt(i)
-  }
-  return colors[sum % colors.length]
+// Synthesis P3: avatar fallback uses one muted token across the board.
+// Randomized accent colors looked arbitrary — viewers searched for meaning
+// in the color and found none, and three adjacent cards could pull the
+// same hue. Photos remain the differentiator when present.
+function getStableBgColor(_name: string | null) {
+  return 'bg-surface-subtle text-muted-foreground'
 }
 
 export function ResultCard(props: ResultCardProps) {
@@ -95,12 +86,12 @@ export function ResultCard(props: ResultCardProps) {
 
   if (density === 'compact') {
     return (
-      <Card className="group p-3.5 rounded-[6px] border border-border bg-card transition-all hover:border-foreground hover:-translate-y-[1px] hover:shadow-sm duration-150 overflow-visible">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0 w-full">
+      <Card className="group bc-decision-row p-3.5 transition-all hover:border-foreground/35 hover:-translate-y-[1px] hover:shadow-sm duration-150 overflow-visible">
+        <div className="flex flex-col gap-3 min-w-0 w-full lg:flex-row lg:items-center lg:justify-between">
           {/* Left section: Avatar & Name/Cohort */}
           <Link
             href={`/profile/${props.userId}`}
-            className="flex items-center gap-3.5 min-w-0 sm:w-[240px] shrink-0"
+            className="flex items-center gap-3.5 min-w-0 lg:w-[260px] shrink-0"
           >
             {/* Photo placeholder (smaller, 36px) */}
             <div
@@ -219,10 +210,27 @@ export function ResultCard(props: ResultCardProps) {
                 No location listed
               </p>
             )}
+            <div className="mt-2 flex flex-wrap gap-1">
+              {props.mentoringTopics && props.mentoringTopics.length > 0 ? (
+                props.mentoringTopics.slice(0, 3).map((topic) => (
+                  <Badge
+                    key={topic}
+                    variant="secondary"
+                    className="rounded-[4px] border border-border/40 bg-muted text-[9px] text-muted-foreground"
+                  >
+                    {topic}
+                  </Badge>
+                ))
+              ) : props.rationale ? (
+                <span className="rounded-[4px] border border-primary/15 bg-primary/[0.04] px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  Match evidence available
+                </span>
+              ) : null}
+            </div>
           </Link>
 
           {/* Right section: Match Badge, Actions */}
-          <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-center">
+          <div className="flex items-center gap-2.5 shrink-0 self-end lg:self-center">
             {hasRationale && (
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
@@ -230,15 +238,15 @@ export function ResultCard(props: ResultCardProps) {
                     type="button"
                     className="font-mono text-[9px] font-bold text-primary hover:text-primary-hover bg-primary/[0.04] hover:bg-primary/[0.08] rounded-[4px] px-2 py-1 border border-primary/20 shrink-0 cursor-pointer"
                   >
-                    {props.rerankScore !== null ? `${props.rerankScore}% MATCH` : 'WHY MATCH'}
+                    {props.rerankScore !== null ? `${props.rerankScore}% FIT` : 'FIT REASON'}
                   </button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md border-border rounded-[6px] sm:rounded-[6px] font-sans bg-card">
                   <DialogHeader className="border-b pb-3 border-border">
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-primary font-bold">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
                       Match brief
                     </span>
-                    <DialogTitle className="bc-fraunces text-xl font-bold mt-1">
+                    <DialogTitle className="font-heading text-xl font-bold mt-1">
                       Why {display} is a Match
                     </DialogTitle>
                   </DialogHeader>
@@ -273,25 +281,25 @@ export function ResultCard(props: ResultCardProps) {
             )}
 
             <div className="flex items-center gap-1.5">
-              {props.isOpenAsMentor ? (
-                <Button asChild size="sm" className="h-7 text-xs px-3.5 rounded-[4px]">
-                  <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>Mentor</Link>
+              {props.isOpenAsAdviceHelper ? (
+                <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-[4px]">
+                  <Link href={`/ask/new?to=${props.userId}&type=advice`}>Ask</Link>
                 </Button>
-              ) : props.isOpenAsAdviceHelper ? (
+              ) : props.isOpenAsMentor ? (
                 <Button
                   asChild
                   size="sm"
                   variant="outline"
-                  className="h-7 text-xs px-3.5 rounded-[4px]"
+                  className="h-8 text-xs px-3.5 rounded-[4px]"
                 >
-                  <Link href={`/ask/new?to=${props.userId}&type=advice`}>Advice</Link>
+                  <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>Mentor</Link>
                 </Button>
               ) : (
                 <Button
                   asChild
                   size="sm"
                   variant="ghost"
-                  className="h-7 text-xs px-3 rounded-[4px]"
+                  className="h-8 text-xs px-3 rounded-[4px]"
                 >
                   <Link href={`/profile/${props.userId}`}>View</Link>
                 </Button>
@@ -436,10 +444,13 @@ export function ResultCard(props: ResultCardProps) {
             </div>
           </div>
 
+          {/* Synthesis P1-5: the generic "Add a specific question..." fallback
+              rendered on every card by default and trained the eye to skip it.
+              Show match-brief copy only when we actually have rationale/headline. */}
           {props.headline || props.rationale ? (
             <div className="mt-3 space-y-1.5">
               {hasRationale ? (
-                <p className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-primary">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
                   Match brief
                 </p>
               ) : null}
@@ -447,11 +458,7 @@ export function ResultCard(props: ResultCardProps) {
                 &ldquo;{props.rationale ?? props.headline}&rdquo;
               </p>
             </div>
-          ) : (
-            <p className="mt-3 rounded-[6px] border border-border bg-surface-subtle/35 p-3 text-[12px] leading-relaxed text-muted-foreground">
-              Add a specific question to see why this person may be useful.
-            </p>
-          )}
+          ) : null}
 
           <div className="mt-2.5 flex flex-wrap gap-1">
             {props.mentoringTopics && props.mentoringTopics.length > 0 ? (
@@ -476,26 +483,59 @@ export function ResultCard(props: ResultCardProps) {
         </div>
       </Link>
 
+      {/* Synthesis P1-5: one primary action per card, chosen by helper signal.
+          - open_to_advice (with or without mentorship) → Ask for advice is
+            the filled primary; mentorship demotes to outline.
+          - only mentorship → Request mentorship stays primary.
+          - neither → View profile becomes the single outline action.
+          Personalize the label with the first name so the action reads like
+          a warm introduction, not a database operation. */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-dashed border-border/80">
         <div className="flex flex-wrap items-center gap-1.5">
           {props.isOpenAsAdviceHelper ? (
+            <>
+              <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-[6px]">
+                <Link href={`/ask/new?to=${props.userId}&type=advice`}>
+                  Ask {display.split(/\s+/)[0]} for advice
+                </Link>
+              </Button>
+              {props.isOpenAsMentor ? (
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs px-3 rounded-[6px]"
+                >
+                  <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>
+                    Request mentorship
+                  </Link>
+                </Button>
+              ) : null}
+            </>
+          ) : props.isOpenAsMentor ? (
+            <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-[6px]">
+              <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>
+                Request mentorship from {display.split(/\s+/)[0]}
+              </Link>
+            </Button>
+          ) : (
             <Button
               asChild
               size="sm"
-              variant={props.isOpenAsMentor ? 'outline' : 'default'}
-              className="h-7 text-[11px] px-3.5 rounded-[4px]"
+              variant="outline"
+              className="h-8 text-xs px-3.5 rounded-[6px]"
             >
-              <Link href={`/ask/new?to=${props.userId}&type=advice`}>Ask for Advice</Link>
+              <Link href={`/profile/${props.userId}`}>View profile</Link>
             </Button>
-          ) : null}
-          {props.isOpenAsMentor ? (
-            <Button asChild size="sm" className="h-7 text-[11px] px-3.5 rounded-[4px]">
-              <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>Request Mentorship</Link>
-            </Button>
-          ) : null}
-          <Button asChild size="sm" variant="ghost" className="h-7 text-[11px] px-3 rounded-[4px]">
-            <Link href={`/profile/${props.userId}`}>View profile</Link>
-          </Button>
+          )}
+          {(props.isOpenAsAdviceHelper || props.isOpenAsMentor) && (
+            <Link
+              href={`/profile/${props.userId}`}
+              className="text-xs font-medium text-muted-foreground hover:text-foreground px-2 py-1.5"
+            >
+              View profile
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -521,7 +561,7 @@ export function ResultCard(props: ResultCardProps) {
                   <span className="font-mono text-[9px] uppercase tracking-wider text-primary font-bold">
                     Match brief
                   </span>
-                  <DialogTitle className="bc-fraunces text-xl font-bold mt-1">
+                  <DialogTitle className="font-heading text-xl font-bold mt-1">
                     Why {display} is a Match
                   </DialogTitle>
                 </DialogHeader>

@@ -1,13 +1,14 @@
-import { format, formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow } from 'date-fns'
 import { ArrowRight, CalendarDays, Megaphone, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { EventTime } from '@/components/ui/event-time'
 import { createClient } from '@/db/server'
 import { listAnnouncements } from '@/lib/announcements/listAnnouncements'
 import { requireSession } from '@/lib/auth/session'
 import { listEvents } from '@/lib/events/listEvents'
 import { displayOrgName } from '@/lib/utils'
-import { NetworkMotif, SchoolPulseCard } from '../help-network-ui'
+import { SchoolPulseCard } from '../help-network-ui'
 
 export default async function SchoolPage() {
   const session = await requireSession()
@@ -24,7 +25,9 @@ export default async function SchoolPage() {
   if (!membership) return null
 
   const orgName = displayOrgName((membership.organizations as { name: string } | null)?.name)
-  const [events, announcements, { data: adminRole }, memberCountRes] = await Promise.all([
+  // Synthesis P2-7: dropped active-membership count query — it only fed
+  // the removed NetworkMotif.
+  const [events, announcements, { data: adminRole }] = await Promise.all([
     listEvents(supabase, membership.organization_id, session.userId, { includePast: false }),
     listAnnouncements(supabase, membership.organization_id, { limit: 5 }),
     supabase
@@ -35,11 +38,6 @@ export default async function SchoolPage() {
       .in('role', ['super_admin', 'admin'])
       .limit(1)
       .maybeSingle(),
-    supabase
-      .from('organization_memberships')
-      .select('id', { count: 'exact', head: true })
-      .eq('organization_id', membership.organization_id)
-      .eq('status', 'active'),
   ])
 
   const isAdmin = !!adminRole
@@ -48,17 +46,19 @@ export default async function SchoolPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-background">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:py-12">
-          <div className="space-y-6">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+      {/* Synthesis P2-7: removed NetworkMotif. School is a content-led hub;
+          let events and announcements own the page. P1-6: demoted hero. */}
+      <section className="bc-page-band border-b border-border">
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8 lg:py-8">
+          <div className="space-y-5">
+            <p className="bc-section-kicker">
               School pulse · {orgName}
             </p>
-            <div className="max-w-4xl space-y-4">
-              <h1 className="font-serif text-5xl font-semibold leading-[0.98] tracking-tight text-foreground sm:text-6xl">
+            <div className="max-w-2xl space-y-2">
+              <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground">
                 Feel connected to what is happening around the school.
               </h1>
-              <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              <p className="text-base leading-relaxed text-muted-foreground">
                 Events, announcements, and community updates sit in one place so the network feels
                 current without becoming a noisy feed.
               </p>
@@ -76,8 +76,9 @@ export default async function SchoolPage() {
                   Read announcements
                 </Link>
               </Button>
+              {/* Synthesis: admin actions stay quieter than member actions */}
               {isAdmin ? (
-                <Button asChild size="lg" variant="outline" className="rounded-[6px]">
+                <Button asChild size="sm" variant="ghost" className="self-center rounded-[6px]">
                   <Link href="/admin/events">
                     <Plus className="size-4" />
                     Create event
@@ -86,20 +87,16 @@ export default async function SchoolPage() {
               ) : null}
             </div>
           </div>
-          <NetworkMotif
-            helperCount={memberCountRes.count ?? 0}
-            requestCount={announcements.length}
-            eventCount={events.length}
-          />
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 lg:py-10">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-6">
-            <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="font-serif text-2xl font-semibold leading-tight text-foreground">
+                <p className="bc-section-kicker mb-3">Calendar signal</p>
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
                   Upcoming events
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -116,32 +113,38 @@ export default async function SchoolPage() {
             </div>
 
             {events.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="relative space-y-3">
+                <div className="bc-timeline-line absolute bottom-4 left-[17px] top-4 hidden w-px sm:block" />
                 {events.slice(0, 4).map((event) => (
                   <Link
                     key={event.id}
                     href={`/events/${event.id}`}
-                    className="group rounded-[8px] border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
+                    className="group relative flex gap-4 rounded-[8px] border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
                   >
-                    <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                      {format(new Date(event.startsAt), 'EEE, MMM d · h:mm a')}
-                    </p>
-                    <h3 className="mt-3 font-serif text-2xl font-semibold leading-tight text-foreground">
-                      {event.title}
-                    </h3>
-                    <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-                      {event.description ??
-                        'A school gathering for your circle. See details, RSVP, and find who else is going.'}
-                    </p>
-                    <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <span>{event.goingCount} going</span>
-                      {event.location ? <span>· {event.location}</span> : null}
-                      {event.viewerRsvp ? (
-                        <span>· You are {event.viewerRsvp.replace('_', ' ')}</span>
-                      ) : null}
+                    <div className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary-tint text-primary">
+                      <CalendarDays className="size-4" />
                     </div>
-                    <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-link group-hover:text-link-hover">
-                      View event
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                        <EventTime iso={event.startsAt} />
+                      </p>
+                      <h3 className="mt-2 font-heading text-2xl font-semibold leading-tight text-foreground">
+                        {event.title}
+                      </h3>
+                      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                        {event.description ??
+                          'A school gathering for your circle. See details, RSVP, and find who else is going.'}
+                      </p>
+                      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span>{event.goingCount} going</span>
+                        {event.location ? <span>· {event.location}</span> : null}
+                        {event.viewerRsvp ? (
+                          <span>· You are {event.viewerRsvp.replace('_', ' ')}</span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <span className="hidden items-center gap-1.5 self-center text-sm font-semibold text-link group-hover:text-link-hover sm:inline-flex">
+                      View
                       <ArrowRight className="size-4" />
                     </span>
                   </Link>
@@ -160,7 +163,8 @@ export default async function SchoolPage() {
           <aside className="space-y-6">
             <div className="space-y-4 border-t border-border pt-5">
               <div>
-                <h2 className="font-serif text-2xl font-semibold leading-tight text-foreground">
+                <p className="bc-section-kicker mb-3">Official pulse</p>
+                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
                   Announcements
                 </h2>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -191,7 +195,7 @@ export default async function SchoolPage() {
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
                   Next gathering
                 </p>
-                <p className="mt-2 font-serif text-xl font-semibold leading-tight text-foreground">
+                <p className="mt-2 font-heading text-xl font-semibold leading-tight text-foreground">
                   {featuredEvent.title}
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -223,7 +227,7 @@ function EmptySchoolState({
 }) {
   return (
     <div className="rounded-[8px] border border-dashed border-border bg-card p-6">
-      <p className="font-serif text-xl font-semibold text-foreground">{title}</p>
+      <p className="font-heading text-xl font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
       <Button asChild size="sm" variant="outline" className="mt-4 rounded-[6px]">
         <Link href={href}>{cta}</Link>

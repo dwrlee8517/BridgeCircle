@@ -209,6 +209,24 @@ export function InboxContainer({
     return items.find((item) => item.id === selectedItemId) || null
   }, [items, selectedItemId])
 
+  const lifecycleCounts = useMemo(
+    () => ({
+      needsReply: items.filter(
+        (item) =>
+          item.unread || item.type === 'incoming_ask' || item.type === 'friend_request_incoming',
+      ).length,
+      helping: items.filter((item) => isHelpingItem(item, currentUser.userId)).length,
+      gettingHelp: items.filter((item) => isGettingHelpItem(item, currentUser.userId)).length,
+      connections: items.filter(
+        (item) =>
+          item.type === 'dm_thread' ||
+          item.type === 'friend_request_incoming' ||
+          item.type === 'friend_request_outgoing',
+      ).length,
+    }),
+    [items, currentUser.userId],
+  )
+
   const handleSelectItem = (id: string) => {
     setSelectedItemId(id)
     setShowDetail(true)
@@ -219,13 +237,25 @@ export function InboxContainer({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] bg-card overflow-hidden w-full h-full">
+    <div className="grid grid-cols-1 overflow-hidden bg-background w-full h-full md:grid-cols-[392px_1fr]">
       {/* Left Column: Thread Lists */}
       <div
-        className={`flex flex-col border-r border-border bg-secondary/35 ${
+        className={`flex flex-col border-r border-border bg-surface-panel/55 ${
           showDetail ? 'hidden md:flex' : 'flex'
         }`}
       >
+        <div className="border-b border-border bg-card px-4 py-4">
+          <p className="bc-section-kicker">Relationship queue</p>
+          <h1 className="mt-2 font-heading text-2xl font-semibold leading-tight text-foreground">
+            Inbox
+          </h1>
+          <div className="mt-4 grid grid-cols-4 gap-1.5">
+            <LifecycleStat value={lifecycleCounts.needsReply} label="Reply" tone="warn" />
+            <LifecycleStat value={lifecycleCounts.helping} label="Helping" tone="open" />
+            <LifecycleStat value={lifecycleCounts.gettingHelp} label="Helped" tone="info" />
+            <LifecycleStat value={lifecycleCounts.connections} label="People" tone="muted" />
+          </div>
+        </div>
         {/* Search Input */}
         <div className="p-3 pb-1.5 shrink-0">
           <div className="relative flex items-center">
@@ -319,14 +349,31 @@ export function InboxContainer({
         {/* List of items */}
         <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
           {filteredItems.length === 0 ? (
-            <div className="p-8 text-center flex flex-col items-center justify-center h-full">
-              <InboxIcon className="size-6 text-muted-foreground/60 mb-2" />
-              <p className="text-xs font-semibold text-foreground">
-                Nothing in {tabLabel(activeTab)}
+            // Synthesis P3: empty state should name the state and offer a
+            // credible next step. Lean into brand voice — this is deliberately
+            // a quieter network than a social feed.
+            <div className="m-2 flex min-h-[280px] flex-col justify-center rounded-[8px] border border-dashed border-border bg-card p-8 text-center">
+              <InboxIcon className="mx-auto mb-3 size-7 text-muted-foreground/60" />
+              <p className="font-heading text-xl font-semibold leading-tight text-foreground">
+                {emptyTitle(activeTab)}
               </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Ask, help, and connection threads will appear here.
+              <p className="mx-auto mt-2 max-w-[260px] text-sm leading-relaxed text-muted-foreground">
+                {emptyBody(activeTab)}
               </p>
+              <div className="mt-4 flex justify-center gap-3">
+                <Link
+                  href="/people"
+                  className="text-xs font-semibold text-link hover:text-link-hover"
+                >
+                  Find people →
+                </Link>
+                <Link
+                  href="/mentorship/settings"
+                  className="text-xs font-semibold text-link hover:text-link-hover"
+                >
+                  Update availability →
+                </Link>
+              </div>
             </div>
           ) : (
             filteredItems.map((item) => {
@@ -487,8 +534,11 @@ export function InboxContainer({
             )}
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-6 bg-muted/5">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-4xl mx-auto h-full items-start">
+          <div className="flex-1 overflow-y-auto bg-background p-6">
+            <div className="mx-auto max-w-5xl">
+              <InboxCommandCenter counts={lifecycleCounts} />
+            </div>
+            <div className="mx-auto mt-5 grid max-w-5xl grid-cols-1 gap-5 lg:grid-cols-2">
               <StatusSetter
                 currentUser={currentUser}
                 status={status}
@@ -501,6 +551,91 @@ export function InboxContainer({
       </div>
     </div>
   )
+}
+
+function LifecycleStat({
+  value,
+  label,
+  tone,
+}: {
+  value: number
+  label: string
+  tone: 'warn' | 'open' | 'info' | 'muted'
+}) {
+  const toneClass =
+    tone === 'warn'
+      ? 'bg-warning-tint text-state-warning-foreground'
+      : tone === 'open'
+        ? 'bg-success-tint text-state-success-foreground'
+        : tone === 'info'
+          ? 'bg-primary-tint text-primary'
+          : 'bg-muted text-muted-foreground'
+  return (
+    <div className={`rounded-[6px] px-2 py-2 text-center ${toneClass}`}>
+      <p className="font-heading text-lg font-semibold leading-none">{value}</p>
+      <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.08em]">{label}</p>
+    </div>
+  )
+}
+
+function InboxCommandCenter({
+  counts,
+}: {
+  counts: { needsReply: number; helping: number; gettingHelp: number; connections: number }
+}) {
+  return (
+    <div className="bc-action-rail rounded-[8px] border border-primary/10 p-6 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+        Inbox command center
+      </p>
+      <div className="mt-3 grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div>
+          <h2 className="font-heading text-3xl font-semibold leading-tight text-foreground">
+            Relationship work is organized by state.
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Start with replies, then active help, then connection follow-ups. When nothing is
+            selected, use this space to keep availability and relationship signals current.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <CommandMetric value={counts.needsReply} label="Needs reply" />
+          <CommandMetric value={counts.helping} label="Helping" />
+          <CommandMetric value={counts.gettingHelp} label="Getting help" />
+          <CommandMetric value={counts.connections} label="Connections" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CommandMetric({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="rounded-[6px] border border-border bg-card p-3">
+      <p className="font-heading text-2xl font-semibold leading-none text-foreground">{value}</p>
+      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+        {label}
+      </p>
+    </div>
+  )
+}
+
+function emptyTitle(tab: TabType) {
+  if (tab === 'needs_reply') return 'Nothing needs a reply.'
+  if (tab === 'helping') return 'No active helping threads.'
+  if (tab === 'getting_help') return 'No one is helping you yet.'
+  if (tab === 'connections') return 'No connection threads yet.'
+  return 'Archive is quiet.'
+}
+
+function emptyBody(tab: TabType) {
+  if (tab === 'needs_reply') {
+    return "Look around People or set what you're open to so the right requests find you."
+  }
+  if (tab === 'helping') return 'Open Help to make your availability and topics easier to match.'
+  if (tab === 'getting_help') return 'Ask a specific question and BridgeCircle will route it.'
+  if (tab === 'connections') return 'Start from People when you want a warmer direct thread.'
+  return 'Completed or closed relationship threads will live here later.'
 }
 
 function tabLabel(tab: TabType) {
@@ -668,7 +803,7 @@ function StatusSetter({
   ]
 
   return (
-    <div className="bg-card border border-border rounded-[18px] p-[22px_24px] shadow-sm flex flex-col">
+    <div className="flex flex-col rounded-[8px] border border-border bg-card p-[22px_24px] shadow-sm">
       <div className="flex items-center gap-3.5 mb-[18px]">
         <Avatar className="size-12 border border-border/50 rounded-[6px] after:rounded-[6px]">
           {currentUser.avatarUrl ? (
@@ -902,7 +1037,7 @@ function ReactionShowcase() {
   ]
 
   return (
-    <div className="bg-card border border-border rounded-[18px] p-[20px_22px_22px] shadow-sm flex flex-col">
+    <div className="flex flex-col rounded-[8px] border border-border bg-card p-[20px_22px_22px] shadow-sm">
       <p className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-4">
         Warm reactions — no emoji, just intent
       </p>

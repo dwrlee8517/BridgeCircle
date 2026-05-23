@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
  *   - "muted"   -> muted (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-lg whitespace-nowrap',
+  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-[4px] whitespace-nowrap',
   {
     variants: {
       tone: {
@@ -34,8 +34,8 @@ const statusBadgeVariants = cva(
         plum: 'bg-plum-tint text-state-categorized-foreground border border-state-categorized/20',
       },
       size: {
-        sm: 'h-5 px-2 text-[10px] font-semibold gap-1',
-        md: 'h-6 px-2.5 py-0.5 text-xs font-medium gap-1.5',
+        sm: 'h-4 px-1.5 text-[9px] font-semibold gap-0.5',
+        md: 'h-5 px-2 py-0.5 text-[11px] font-medium gap-1',
       },
     },
     defaultVariants: {
@@ -63,7 +63,11 @@ export function StatusBadge({
     <span className={cn(statusBadgeVariants({ tone, size }), className)} {...props}>
       {dot ? (
         <span
-          className={cn('shrink-0 size-1.5 rounded-full', dotClass(tone ?? 'muted'))}
+          className={cn(
+            'shrink-0 rounded-full',
+            size === 'sm' ? 'size-1' : 'size-1.5',
+            dotClass(tone ?? 'muted'),
+          )}
           aria-hidden
         />
       ) : null}

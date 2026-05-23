@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle — Uncommon font pairings · May 24</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Eczar:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400;1,7..72,600&family=Inter:wght@400;500;600;700&family=Vollkorn:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Commissioner:wght@400;500;600;700&family=Faustina:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafaf9;
+        --card: #ffffff;
+        --fg: #0c0c0b;
+        --muted: #4d4d4a;
+        --border: #dcdcd6;
+        --primary: #2563eb;
+        --primary-tint: rgb(37 99 235 / 10%);
+        --success-tint: rgb(59 110 81 / 10%);
+        --sage: #3b6e51;
+        --rust: #b9472a;
+
+        --serif: 'Eczar', Georgia, serif;
+        --sans: 'Public Sans', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+
+      .top h1 {
+        font-family: var(--serif);
+        font-size: 40px;
+        line-height: 1.1;
+        font-weight: 600;
+        margin: 0 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .top p {
+        max-width: 56ch;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--muted);
+        margin: 0;
+      }
+      .top .meta {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 12px;
+      }
+
+      .slop {
+        margin: 40px 0;
+        padding: 24px;
+        background: rgb(155 44 31 / 0.05);
+        border: 1px solid rgb(155 44 31 / 0.18);
+        border-radius: 6px;
+      }
+      .slop h2 {
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 1.25;
+        font-weight: 600;
+        margin: 0 0 8px;
+        color: var(--rust);
+      }
+      .slop p, .slop ul {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--fg);
+        margin: 0 0 10px;
+      }
+      .slop ul { padding-left: 20px; }
+      .slop li { margin-bottom: 4px; }
+      .slop code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        background: var(--card);
+        padding: 1px 6px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+      }
+
+      .option { margin: 56px 0; }
+      .option header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .option header h2 {
+        font-family: var(--serif);
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .option .kicker {
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .pair-line {
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--muted);
+        margin: -4px 0 0;
+      }
+      .pair-line code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        background: var(--primary-tint);
+        color: var(--primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .preview {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 32px;
+        margin: 16px 0;
+      }
+      .mock { display: grid; gap: 24px; }
+
+      .wordmark {
+        font-family: var(--serif);
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .hero-kicker {
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+      .hero-h1 {
+        font-family: var(--serif);
+        font-size: 36px;
+        line-height: 1.1;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        margin: 6px 0 0;
+        max-width: 24ch;
+      }
+      .hero-sub {
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--muted);
+        margin: 10px 0 0;
+        max-width: 50ch;
+      }
+
+      .askbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px 14px;
+        box-shadow: 0 18px 60px rgb(12 12 11 / 0.06);
+      }
+      .askbar .icon {
+        width: 36px; height: 36px; border-radius: 6px;
+        background: var(--primary); color: #fff;
+        display: grid; place-items: center;
+        font-family: var(--sans); font-weight: 700;
+      }
+      .askbar input {
+        flex: 1; border: none; outline: none; background: transparent;
+        font-family: var(--sans); font-size: 16px; color: var(--fg);
+      }
+      .btn {
+        background: var(--primary); color: #fff; border: none; border-radius: 6px;
+        padding: 10px 16px; font-family: var(--sans); font-size: 14px; font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-outline {
+        background: transparent; color: var(--fg); border: 1px solid var(--border);
+      }
+
+      .person {
+        display: grid; grid-template-columns: 56px 1fr auto;
+        gap: 16px;
+        background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+        padding: 20px; align-items: start;
+      }
+      .avatar {
+        width: 56px; height: 56px; border-radius: 6px; background: #ebebe5;
+        display: grid; place-items: center;
+        font-family: var(--serif); font-weight: 700; font-size: 20px; color: var(--muted);
+      }
+      .person-name {
+        font-family: var(--serif); font-size: 20px; font-weight: 600;
+        line-height: 1.2; letter-spacing: -0.005em;
+      }
+      .person-meta {
+        font-family: var(--sans); font-size: 14px; color: var(--muted);
+        line-height: 1.5; margin: 4px 0 0;
+      }
+      .pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 6px; height: 22px;
+        padding: 0 8px; border-radius: 8px;
+        font-family: var(--sans); font-size: 11px; font-weight: 600;
+      }
+      .pill .dot { width: 6px; height: 6px; border-radius: 999px; }
+      .pill.verified { border: 1px solid rgb(12 12 11 / 0.2); background: var(--card); color: var(--fg); }
+      .pill.open { background: var(--success-tint); color: var(--sage); border: 1px solid rgb(59 110 81 / 0.2); }
+      .pill.open .dot { background: var(--sage); }
+      .why-label {
+        font-family: var(--sans); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary);
+      }
+      .why-body {
+        font-family: var(--sans); font-size: 13.5px; line-height: 1.55;
+        color: var(--fg); margin: 4px 0 0;
+      }
+      .person-side { display: flex; flex-direction: column; gap: 8px; }
+      .person-body {
+        margin-top: 12px; padding: 12px;
+        background: rgb(235 235 229 / 0.35);
+        border: 1px solid var(--border); border-radius: 6px;
+      }
+      .pq {
+        font-family: var(--serif); font-style: italic; font-size: 17px;
+        line-height: 1.55; border-left: 3px solid var(--primary); padding-left: 14px;
+        color: var(--fg); margin: 0; max-width: 60ch;
+      }
+
+      .critique {
+        margin-top: 12px; padding: 16px 18px;
+        background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+        font-family: var(--sans); font-size: 13.5px; line-height: 1.6; color: var(--fg);
+      }
+      .critique .pros, .critique .cons, .critique .why-distinct { display: block; margin-top: 6px; }
+      .critique .pros::before { content: 'Pros — '; font-weight: 600; color: var(--sage); }
+      .critique .cons::before { content: 'Watch-outs — '; font-weight: 600; color: #c8761a; }
+      .critique .why-distinct::before { content: 'Why it dodges the slop — '; font-weight: 600; color: var(--primary); }
+
+      .rec {
+        background: linear-gradient(180deg, #081126 0%, #0a1832 100%);
+        color: #fafaf9; border-radius: 6px;
+        padding: 24px 28px; margin: 32px 0;
+      }
+      .rec h3 {
+        margin: 0; font-family: var(--serif); font-size: 22px;
+        font-weight: 600; letter-spacing: -0.005em;
+      }
+      .rec p {
+        margin: 8px 0 0; font-family: var(--sans);
+        font-size: 14px; line-height: 1.6;
+        color: rgb(250 250 249 / 0.78); max-width: 60ch;
+      }
+
+      .impl {
+        margin-top: 24px; background: #0c0c0b; color: #fafaf9; border-radius: 6px;
+        padding: 20px 22px; font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px; line-height: 1.6; overflow: auto; white-space: pre;
+      }
+      .impl b { color: #93c5fd; font-weight: 500; }
+      .impl em { color: rgb(250 250 249 / 0.5); font-style: normal; }
+
+      /* Per-option font variable overrides. */
+      .opt-eczar     { --serif: 'Eczar', Georgia, serif;            --sans: 'Public Sans', system-ui, sans-serif; }
+      .opt-literata  { --serif: 'Literata', Georgia, serif;          --sans: 'Inter', system-ui, sans-serif; }
+      .opt-literata .hero-h1,
+      .opt-literata .wordmark,
+      .opt-literata .person-name { font-variation-settings: 'opsz' 36; }
+      .opt-vollkorn  { --serif: 'Vollkorn', Georgia, serif;          --sans: 'Commissioner', system-ui, sans-serif; }
+      .opt-faustina  { --serif: 'Faustina', Georgia, serif;          --sans: 'IBM Plex Sans', system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top">
+        <span class="meta">Font exploration · May 24 · Claude · distinctive set</span>
+        <h1>Type that doesn't sound like every other AI-generated SaaS.</h1>
+        <p>
+          The previous exploration covered safe, well-paired choices (Newsreader, Source Serif,
+          Spectral). They're <em>good</em> — but they're showing up everywhere AI tools recommend
+          fonts. This file is for the case where you want the page to look like someone with
+          taste picked it, not a model that suggested the same five families it suggests to every
+          startup.
+        </p>
+      </div>
+
+      <div class="slop">
+        <h2>Fonts I'd avoid because every AI template is using them</h2>
+        <p>
+          These are competent fonts. The problem isn't quality — it's that they've collapsed into
+          a visual vocabulary you've seen on every YC landing page, every Vercel template, every
+          Cursor demo. Picking one signals "default" rather than "considered."
+        </p>
+        <ul>
+          <li><b>Sans defaults:</b> <code>Inter</code>, <code>Geist</code>, <code>DM Sans</code>, <code>Plus Jakarta Sans</code>, <code>Manrope</code>, <code>Outfit</code>, <code>Cabinet Grotesk</code>, <code>Satoshi</code></li>
+          <li><b>Display serifs:</b> <code>Fraunces</code> (current), <code>Playfair Display</code>, <code>DM Serif Display</code>, <code>Cormorant Garamond</code>, <code>Instrument Serif</code></li>
+          <li><b>Borderline (mainstream but not slop yet):</b> <code>Newsreader</code>, <code>Source Serif</code>, <code>IBM Plex Sans</code> (use these and you're still in good company, but they're trending toward the list above)</li>
+        </ul>
+        <p>The four pairs below are deliberately off this map. All are free on Google Fonts.</p>
+      </div>
+
+      <!-- ============================ ECZAR + PUBLIC SANS ============================ -->
+      <section class="option opt-eczar">
+        <header>
+          <div>
+            <span class="kicker">Pair 1 · Recommended</span>
+            <h2>Eczar &nbsp;·&nbsp; Public Sans</h2>
+            <p class="pair-line">
+              Serif: <code>Eczar</code> (Indian Type Foundry) &nbsp;·&nbsp;
+              Sans: <code>Public Sans</code> (US Web Design System)
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="why-distinct">
+            Eczar was designed at the Indian Type Foundry by Vaibhav Singh as a scholarly serif
+            for both Devanagari and Latin. It almost never appears in tech-startup defaults because
+            most template authors don't go past Google's "popular" tab. Public Sans is the US Web
+            Design System's workhorse — used by Federal agency sites, almost never by SaaS.
+          </span>
+          <span class="pros">
+            High x-height (very readable at small UI sizes), generous spacing, and an unusually
+            considered italic. Public Sans pairs naturally with serifs because it was drawn with
+            institutional contexts in mind. Together they read as <b>scholarly + civic</b>, which
+            is closer to "private school alumni network" than anything on the slop list.
+          </span>
+          <span class="cons">
+            Eczar's letterforms are a little narrower than Fraunces, so long names can wrap sooner.
+            Public Sans is less geometrically tidy than Inter at small sizes — the difference is
+            small but noticeable in dense admin tables.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ LITERATA + INTER ============================ -->
+      <section class="option opt-literata">
+        <header>
+          <div>
+            <span class="kicker">Pair 2</span>
+            <h2>Literata &nbsp;·&nbsp; Inter</h2>
+            <p class="pair-line">
+              Serif: <code>Literata</code> (Type Together, for Google Play Books) &nbsp;·&nbsp;
+              Sans: <code>Inter</code> (kept, with reluctance — see note)
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="why-distinct">
+            Literata was commissioned for Google Play Books by Type Together — it's purpose-built
+            for sustained on-screen reading and has an optical-size axis that few free serifs
+            have. Despite being on Google Fonts since 2018, it's almost never the suggestion
+            because the obvious editorial serif slot is taken by Playfair/Fraunces in the
+            template-author mind. Italics are exceptional — closer to a Klim or Commercial Type
+            italic than anything else free.
+          </span>
+          <span class="pros">
+            The italic pull-quote actually looks like an editorial pull-quote, not a calligraphy
+            sample. Optical size means the wordmark can be set at <code>opsz 36</code> while
+            captions get the right adjustments at smaller sizes. Inter staying means zero
+            disruption to the existing label rhythm.
+          </span>
+          <span class="cons">
+            Inter is on the slop list. If you adopt Literata, consider rotating Inter out within
+            6 months to dodge the "Vercel template" feeling — see Pair 4 for the natural
+            replacement.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ VOLLKORN + COMMISSIONER ============================ -->
+      <section class="option opt-vollkorn">
+        <header>
+          <div>
+            <span class="kicker">Pair 3</span>
+            <h2>Vollkorn &nbsp;·&nbsp; Commissioner</h2>
+            <p class="pair-line">
+              Serif: <code>Vollkorn</code> (FontFont, by Friedrich Althausen) &nbsp;·&nbsp;
+              Sans: <code>Commissioner</code> (Kostas Bartsokas, variable)
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="why-distinct">
+            <b>Vollkorn</b> means "wholegrain" in German — Althausen drew it as an everyday body
+            serif, not a display face. It's been in Google Fonts since 2005 but you won't see it
+            in AI templates because templates reach for showier serifs. <b>Commissioner</b> was
+            drawn for institutional/civic communication; it's variable, has wide weight range,
+            and reads warmer than IBM Plex Sans without falling into Inter-default territory.
+          </span>
+          <span class="pros">
+            This is the most "warm institution" of the pairings — closer to how a thoughtful
+            university or a Scandinavian public-service site would read. Both fonts have
+            excellent diacritics, which matters for the Chadwick International (Songdo) member
+            base.
+          </span>
+          <span class="cons">
+            Vollkorn at small sizes can feel slightly bookish where you wanted brisk. The
+            pair leans more "civic warm" than "private prep school" — depends which side of
+            Chadwick's voice you want to lead with.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ FAUSTINA + IBM PLEX SANS ============================ -->
+      <section class="option opt-faustina">
+        <header>
+          <div>
+            <span class="kicker">Pair 4</span>
+            <h2>Faustina &nbsp;·&nbsp; IBM Plex Sans</h2>
+            <p class="pair-line">
+              Serif: <code>Faustina</code> (Omnibus Type, Argentina) &nbsp;·&nbsp;
+              Sans: <code>IBM Plex Sans</code> (IBM, by Mike Abbink)
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="why-distinct">
+            Faustina is from a small Argentinian foundry (Omnibus Type, by Alfonso García
+            Martínez) and is almost invisible in US tech — most template authors don't browse
+            past the English-language foundries. IBM Plex Sans is on the borderline of mainstream
+            but has more institutional character than Inter; pairing it with a non-American
+            serif keeps the combination distinctive.
+          </span>
+          <span class="pros">
+            Faustina has slightly Latin-American editorial warmth (think the magazine work of
+            Eduardo Manso) — confident headlines without the formality of Caslon. Plex Sans
+            holds together for UI labels and admin tables.
+          </span>
+          <span class="cons">
+            Plex Sans is one tier closer to the slop list than Public Sans or Commissioner. If
+            you go this route, consider whether Plex's IBM associations are a feature
+            (institutional credibility) or a tax (corporate-tech feel).
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ REC ============================ -->
+      <div class="rec">
+        <h3>Recommendation: Pair 1 — Eczar + Public Sans</h3>
+        <p>
+          It's the strongest "considered" signal in the set. Eczar is genuinely uncommon in tech
+          but is high quality and screen-tested; Public Sans is the most credible non-Inter sans
+          for a network that wants to read as institutional. Both have generous x-heights, both
+          age well, both are free. If you want a single-step move that puts BridgeCircle in
+          visual company with the US Web Design System and academic publishing — and notably
+          <em>not</em> with every Vercel template — this is the pick.
+        </p>
+        <p style="margin-top:12px;">
+          If Eczar reads too academic for the prep-school audience, <b>Pair 3 (Vollkorn +
+          Commissioner)</b> is the warmer "civic + considered" alternative.
+        </p>
+      </div>
+
+      <div class="impl">
+<em>// app_claude/src/app/layout.tsx — swap Fraunces + Inter for Eczar + Public Sans.</em>
+<em>// --font-serif and --font-sans variable names stay the same, so every</em>
+<em>// existing class (.bc-fraunces, font-serif utility, .bc-pull-quote) and</em>
+<em>// every Tailwind body utility updates without touching call sites.</em>
+
+<b>import</b> { Eczar, Public_Sans, Inter_Tight, JetBrains_Mono } <b>from</b> 'next/font/google'
+
+<b>const</b> sans = Public_Sans({
+  variable: '--font-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
+
+<b>const</b> serif = Eczar({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
+
+<em>// Optional follow-up: rename the .bc-fraunces helper class to .bc-display</em>
+<em>// (~12 call sites, all in app_claude/src/app/(member)/) so the name reflects</em>
+<em>// the new family.</em>
+      </div>
+    </main>
+  </body>
+</html>

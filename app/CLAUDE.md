@@ -156,9 +156,9 @@ Before declaring a task done:
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **Ask · Help · People · School · Inbox**. The `MEMBER_NAV_LINKS` in `src/app/(member)/member-nav.tsx` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Top nav (members): **Ask · Help · People · School · Inbox**. The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
 
-Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/ask → /inbox`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/messages → /inbox`. See `next.config.ts`.
+Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
 
 ## Out Of Scope For Phase 1
 

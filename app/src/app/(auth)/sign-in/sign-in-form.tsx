@@ -24,10 +24,7 @@ export function SignInForm({
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           BridgeCircle
         </p>
-        <CardTitle
-          className="bc-fraunces text-3xl font-bold tracking-[-0.02em]"
-          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-        >
+        <CardTitle className="font-heading text-3xl font-bold tracking-[-0.02em]">
           Welcome back
         </CardTitle>
         <CardDescription className="text-base">

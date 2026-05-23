@@ -35,16 +35,10 @@ export function AskBar({
   compact?: boolean
 }) {
   return (
-    <form
-      action={action}
-      className={cn(
-        'relative overflow-hidden rounded-[8px] border border-foreground/12 bg-card shadow-[0_18px_60px_rgb(12_12_11/0.08)]',
-        compact ? 'p-2' : 'p-3 sm:p-4',
-      )}
-    >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <form action={action} className={cn('bc-command-surface', compact ? 'p-2' : 'p-3 sm:p-4')}>
+      <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-[6px] bg-primary text-primary-foreground">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-primary text-primary-foreground">
             <CircleHelp className="size-5" />
           </div>
           <input
@@ -52,7 +46,7 @@ export function AskBar({
             name="q"
             defaultValue={defaultValue}
             placeholder="What are you trying to figure out?"
-            className="h-12 min-w-0 flex-1 border-none bg-transparent px-0 text-base font-medium text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-none focus:shadow-none focus:ring-0 sm:text-lg"
+            className="h-14 min-w-0 flex-1 border-none bg-transparent px-0 text-base font-medium text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-none focus:shadow-none focus:ring-0 sm:text-lg"
           />
         </div>
         <Button type="submit" size={compact ? 'default' : 'lg'} className="rounded-[6px]">
@@ -132,10 +126,10 @@ export function NetworkMotif({
       </svg>
       <div className="relative flex h-full min-h-[240px] flex-col justify-between">
         <div>
-          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-primary-on-dark">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary-on-dark">
             Live school circle
           </p>
-          <h2 className="mt-2 max-w-sm font-serif text-3xl font-semibold leading-tight">
+          <h2 className="mt-2 max-w-sm font-heading text-3xl font-semibold leading-tight">
             A trusted map of people who can help, and people you can help.
           </h2>
         </div>
@@ -152,8 +146,8 @@ export function NetworkMotif({
 function NetworkStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="rounded-[6px] border border-editorial-rule bg-white/[0.06] p-3">
-      <div className="font-serif text-2xl font-semibold leading-none">{value}</div>
-      <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-surface-midnight-muted">
+      <div className="font-heading text-2xl font-semibold leading-none">{value}</div>
+      <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.10em] text-surface-midnight-muted">
         {label}
       </div>
     </div>
@@ -164,12 +158,14 @@ export function MatchBriefCard({
   person,
   query,
   reason,
-  compact = false,
+  compact: _compact = false,
+  variant = 'card',
 }: {
   person: HelpNetworkPerson
   query?: string
   reason?: string | null
   compact?: boolean
+  variant?: 'card' | 'list-row'
 }) {
   const display = displayName(person.name, person.preferredName ?? null)
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
@@ -183,92 +179,132 @@ export function MatchBriefCard({
     person.rationale ??
     buildDefaultReason(person, query) ??
     'They are part of your trusted school circle.'
-  const suggestedAsk = buildSuggestedAsk(query, person)
-
-  return (
-    <Card
-      className={cn(
-        'group overflow-hidden rounded-[8px] border-border bg-card p-0 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/35 hover:shadow-md',
-        compact && 'rounded-[6px]',
-      )}
-    >
-      <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_190px]">
-        <div className="p-5">
-          <div className="flex items-start gap-3.5">
-            <PersonAvatar person={person} />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <Link
-                  href={`/profile/${person.userId}`}
-                  className="font-serif text-lg font-semibold leading-tight text-foreground hover:text-primary"
-                >
-                  {display}
-                </Link>
-                {person.graduationYear ? (
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                    &apos;{String(person.graduationYear).slice(-2)}
-                  </span>
-                ) : null}
-                <AvailabilityBadges person={person} />
-              </div>
-              <p className="mt-1 truncate text-sm text-muted-foreground">
-                {role || person.city || person.university || 'School circle member'}
-              </p>
+  // Synthesis P1-5: drop "Suggested first ask" when there's no query — the
+  // templated copy makes the card feel auto-generated when shown on the home
+  // feed without context. Keep it on /ask results, where the user typed a
+  // question worth echoing back.
+  const showSuggestedAsk = Boolean(query?.trim())
+  const suggestedAsk = showSuggestedAsk ? buildSuggestedAsk(query, person) : null
+  const askLabel = askType === 'advice' ? 'Ask for advice' : 'Request mentorship'
+  const isListRow = variant === 'list-row'
+  const content = (
+    <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_244px]">
+      <div className="relative overflow-hidden p-4 sm:p-5">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgb(37_99_235/0.025),transparent_42%),radial-gradient(circle_at_100%_100%,rgb(59_110_81/0.025),transparent_32%)]" />
+        <div className="relative flex items-start gap-3.5">
+          <PersonAvatar person={person} />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <Link
+                href={`/profile/${person.userId}`}
+                className="font-heading text-lg font-semibold leading-tight text-foreground hover:text-primary"
+              >
+                {display}
+              </Link>
+              {person.graduationYear ? (
+                <span className="text-xs font-semibold text-muted-foreground">
+                  &apos;{String(person.graduationYear).slice(-2)}
+                </span>
+              ) : null}
+              <AvailabilityBadges person={person} />
             </div>
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {role || person.city || person.university || 'School circle member'}
+            </p>
           </div>
+        </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
-            <div className="rounded-[6px] border border-border bg-surface-subtle/35 p-3">
-              <p className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-primary">
-                Why this match
-              </p>
-              <p className="mt-1.5 text-sm leading-relaxed text-foreground">{matchReason}</p>
-            </div>
-            <div className="rounded-[6px] border border-border bg-card p-3">
-              <p className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <div
+          className={cn(
+            'relative mt-3 grid gap-3',
+            showSuggestedAsk && 'sm:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]',
+          )}
+        >
+          <div
+            className={cn(
+              'bg-primary/[0.04] p-3',
+              isListRow ? '' : 'rounded-[6px] border border-primary/18 bg-card shadow-sm',
+            )}
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
+              Why this match
+            </p>
+            <p className="mt-1.5 text-sm leading-relaxed text-foreground">{matchReason}</p>
+          </div>
+          {showSuggestedAsk && suggestedAsk ? (
+            <div
+              className={cn(
+                'bg-accent-sage/[0.04] p-3',
+                isListRow ? '' : 'rounded-[6px] border border-accent-sage/18 bg-card shadow-sm',
+              )}
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Suggested first ask
               </p>
               <p className="mt-1.5 text-sm leading-relaxed text-foreground">{suggestedAsk}</p>
             </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col justify-between border-t border-border bg-surface-panel/55 p-5 md:border-l md:border-t-0">
-          <div className="space-y-3">
-            {person.matchScore !== null && person.matchScore !== undefined ? (
-              <div>
-                <div className="font-serif text-3xl font-semibold leading-none text-foreground">
-                  {person.matchScore}%
-                </div>
-                <p className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-                  Match signal
-                </p>
-              </div>
-            ) : (
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Start with a lightweight ask. They can respond at their own pace.
-              </p>
-            )}
-          </div>
-          <div className="mt-5 flex flex-col gap-2">
-            {askType ? (
-              <Button asChild className="rounded-[6px]">
-                <Link href={`/ask/new?to=${person.userId}&type=${askType}`}>
-                  Ask {firstName(display)}
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-            ) : (
-              <Button asChild variant="outline" className="rounded-[6px]">
-                <Link href={`/profile/${person.userId}`}>View profile</Link>
-              </Button>
-            )}
-            <Button asChild variant="ghost" className="rounded-[6px]">
-              <Link href={`/profile/${person.userId}`}>View profile</Link>
-            </Button>
-          </div>
+          ) : null}
         </div>
       </div>
+
+      <div className="flex flex-col justify-center border-t border-border bg-surface-panel/60 p-4 md:border-l md:border-t-0">
+        {person.matchScore !== null && person.matchScore !== undefined ? (
+          <div className="mb-3 flex items-center justify-between border-b border-border/70 pb-2.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Match signal
+            </p>
+            <p className="font-heading text-2xl font-semibold leading-none text-foreground">
+              {person.matchScore}%
+            </p>
+          </div>
+        ) : null}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-primary">
+          Next step
+        </p>
+        <p className="mt-1 text-sm font-semibold leading-snug text-foreground">
+          {askType ? 'Start a focused ask' : 'Review their background'}
+        </p>
+        <div className="mt-3 flex flex-col gap-1.5">
+          {askType ? (
+            <Button asChild size="sm" className="w-full rounded-[6px]">
+              <Link href={`/ask/new?to=${person.userId}&type=${askType}`}>
+                {askLabel}
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline" size="sm" className="w-full rounded-[6px]">
+              <Link href={`/profile/${person.userId}`}>View profile</Link>
+            </Button>
+          )}
+          {askType ? (
+            <Link
+              href={`/profile/${person.userId}`}
+              className="text-center text-xs font-medium text-muted-foreground hover:text-foreground"
+            >
+              View profile
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
+
+  if (isListRow) {
+    return (
+      <article className="group border-b border-border/80 bg-card transition-colors last:border-b-0 hover:bg-surface-panel/45">
+        {content}
+      </article>
+    )
+  }
+
+  return (
+    <Card
+      className={cn(
+        'group bc-motion-surface overflow-hidden rounded-[8px] border border-border bg-card p-0 shadow-[0_12px_34px_rgb(12_12_11/0.08)] transition-all hover:-translate-y-0.5 hover:border-primary/28 hover:shadow-[0_18px_46px_rgb(12_12_11/0.12)]',
+      )}
+    >
+      {content}
     </Card>
   )
 }
@@ -288,9 +324,12 @@ export function HelpOpportunityCard({
   cta: string
   tone?: 'sage' | 'ochre' | 'plum'
 }) {
+  // P0-3: ochre fails WCAG (3.32:1) for text — the colored icon chip is
+  // background fill + the icon glyph, not body text. We keep the chip but
+  // strip text-colored ochre/plum on copy below.
   const toneClass =
     tone === 'ochre'
-      ? 'bg-warning-tint text-accent-ochre'
+      ? 'bg-warning-tint text-foreground'
       : tone === 'plum'
         ? 'bg-plum-tint text-accent-plum'
         : 'bg-success-tint text-accent-sage'
@@ -298,18 +337,22 @@ export function HelpOpportunityCard({
   return (
     <Link
       href={href}
-      className="group block rounded-[8px] border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
+      className="group flex gap-4 rounded-[6px] border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
     >
-      <div className={cn('mb-4 flex size-9 items-center justify-center rounded-[6px]', toneClass)}>
+      <div
+        className={cn('flex size-9 shrink-0 items-center justify-center rounded-[6px]', toneClass)}
+      >
         <Check className="size-4" />
       </div>
-      <p className="font-serif text-lg font-semibold leading-tight text-foreground">{title}</p>
-      <p className="mt-1 text-xs font-medium text-muted-foreground">{subtitle}</p>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-link group-hover:text-link-hover">
-        {cta}
-        <ArrowRight className="size-4" />
-      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-heading text-lg font-semibold leading-tight text-foreground">{title}</p>
+        <p className="mt-1 text-xs font-medium text-muted-foreground">{subtitle}</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+        <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-link group-hover:text-link-hover">
+          {cta}
+          <ArrowRight className="size-4" />
+        </span>
+      </div>
     </Link>
   )
 }
@@ -322,7 +365,10 @@ export function SchoolPulseCard({
   kind,
 }: {
   title: string
-  meta: string
+  // P0-2 / P1-6: meta is a node so callers can pass <EventTime> for client-
+  // timezone formatting instead of a server-formatted string. Plain strings
+  // still work.
+  meta: React.ReactNode
   body: string
   href: string
   kind: 'event' | 'announcement'
@@ -330,16 +376,16 @@ export function SchoolPulseCard({
   return (
     <Link
       href={href}
-      className="group flex gap-4 rounded-[8px] border border-border bg-card p-4 shadow-sm transition-all hover:border-foreground/30 hover:shadow-md"
+      className="group flex gap-4 rounded-[6px] border border-border bg-card p-4 shadow-sm transition-all hover:border-foreground/30 hover:shadow-md"
     >
       <div className="flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-primary/[0.08] text-primary">
         {kind === 'event' ? <CalendarDays className="size-5" /> : <Sparkles className="size-5" />}
       </div>
       <div className="min-w-0">
-        <p className="font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {meta}
         </p>
-        <p className="mt-1 font-serif text-base font-semibold leading-tight text-foreground">
+        <p className="mt-1 font-heading text-base font-semibold leading-tight text-foreground">
           {title}
         </p>
         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
@@ -348,15 +394,26 @@ export function SchoolPulseCard({
   )
 }
 
-export function FreshnessReviewCard() {
+// P3 cleanup: gate on actual staleness. The card used to render on every
+// home visit. Now the caller passes a daysSinceLastReview signal; we hide
+// the card if the profile was reviewed in the last 30 days. Default 999
+// preserves the old "always show" behavior if a caller forgets to pass it.
+export function FreshnessReviewCard({
+  daysSinceLastReview = 999,
+  staleAfterDays = 30,
+}: {
+  daysSinceLastReview?: number
+  staleAfterDays?: number
+} = {}) {
+  if (daysSinceLastReview < staleAfterDays) return null
   return (
-    <Card className="rounded-[8px] border-border bg-card p-5 shadow-sm">
+    <Card className="rounded-[6px] border-border bg-card p-5 shadow-sm">
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-[6px] bg-primary/[0.08] text-primary">
           <Sparkles className="size-5" />
         </div>
         <div>
-          <p className="font-serif text-lg font-semibold leading-tight text-foreground">
+          <p className="font-heading text-lg font-semibold leading-tight text-foreground">
             Keep your profile current so the right people can find you.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -409,10 +466,13 @@ function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
     .slice(0, 2)
     .join('')
     .toUpperCase()
-  const bg = avatarColor(display)
 
+  // P3 cleanup: randomized accent-color avatars looked arbitrary — viewers
+  // searched for meaning in the color and found none, and three adjacent
+  // cards could pull the same rust hue. One muted surface across the board
+  // keeps the visual rhythm calm and lets photos do the differentiation.
   return (
-    <div className={cn('relative size-12 shrink-0 overflow-hidden rounded-[8px]', bg)}>
+    <div className="relative size-12 shrink-0 overflow-hidden rounded-[6px] bg-surface-subtle">
       {person.avatarUrl ? (
         <Image
           src={person.avatarUrl}
@@ -423,25 +483,12 @@ function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
           className="object-cover"
         />
       ) : (
-        <span className="flex size-full items-center justify-center font-serif text-base font-semibold text-background">
+        <span className="flex size-full items-center justify-center font-heading text-base font-semibold text-muted-foreground">
           {initials}
         </span>
       )}
     </div>
   )
-}
-
-function avatarColor(name: string) {
-  const colors = [
-    'bg-accent-rust',
-    'bg-accent-sage',
-    'bg-accent-plum',
-    'bg-accent-ochre',
-    'bg-primary',
-  ]
-  let sum = 0
-  for (let i = 0; i < name.length; i++) sum += name.charCodeAt(i)
-  return colors[sum % colors.length]
 }
 
 function buildDefaultReason(person: HelpNetworkPerson, query?: string) {
@@ -465,8 +512,4 @@ function buildSuggestedAsk(query: string | undefined, person: HelpNetworkPerson)
     return `Could I ask for your perspective on ${person.mentoringTopics[0]}?`
   }
   return 'Could I ask for your perspective based on your path?'
-}
-
-function firstName(name: string) {
-  return name.split(/\s+/)[0] ?? name
 }

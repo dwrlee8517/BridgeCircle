@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle — Font explorations · May 24</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Source+Sans+3:wght@400;500;600;700&family=Spectral:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafaf9;
+        --card: #ffffff;
+        --fg: #0c0c0b;
+        --muted: #4d4d4a;
+        --border: #dcdcd6;
+        --primary: #2563eb;
+        --primary-tint: rgb(37 99 235 / 10%);
+        --success-tint: rgb(59 110 81 / 10%);
+        --sage: #3b6e51;
+
+        /* default font tokens, overridden per .option block */
+        --display: 'Inter Tight', system-ui, sans-serif;
+        --serif: 'Fraunces', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 56px 24px 96px;
+      }
+      .top h1 {
+        font-family: var(--serif);
+        font-size: 40px;
+        line-height: 1.1;
+        font-weight: 600;
+        margin: 0 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .top p {
+        max-width: 56ch;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--muted);
+        margin: 0;
+      }
+      .top .meta {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 12px;
+      }
+
+      .brief {
+        margin: 40px 0 24px;
+        padding: 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+      .brief h2 {
+        font-family: var(--serif);
+        font-size: 22px;
+        line-height: 1.25;
+        font-weight: 600;
+        margin: 0 0 12px;
+      }
+      .brief ul {
+        margin: 0;
+        padding: 0 0 0 18px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--fg);
+      }
+      .brief li {
+        margin-bottom: 6px;
+      }
+      .brief li b {
+        font-weight: 600;
+      }
+
+      .option {
+        margin: 48px 0;
+      }
+      .option header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+      .option header h2 {
+        font-family: var(--serif);
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .option header .kicker {
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .pair-line {
+        font-family: var(--sans);
+        font-size: 13px;
+        color: var(--muted);
+        margin: -4px 0 0;
+      }
+      .pair-line code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        background: var(--primary-tint);
+        color: var(--primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .preview {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 32px;
+        margin: 16px 0;
+      }
+
+      /* The mock UI we render inside each preview, scoped to use the option's
+         font variables (set on the .option element). */
+      .mock {
+        display: grid;
+        gap: 24px;
+      }
+      .wordmark {
+        font-family: var(--serif);
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .hero-kicker {
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+      .hero-h1 {
+        font-family: var(--serif);
+        font-size: 36px;
+        line-height: 1.1;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        margin: 6px 0 0;
+        max-width: 24ch;
+      }
+      .hero-sub {
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--muted);
+        margin: 10px 0 0;
+        max-width: 50ch;
+      }
+      .askbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px 14px;
+        box-shadow: 0 18px 60px rgb(12 12 11 / 0.06);
+      }
+      .askbar .icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        background: var(--primary);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-family: var(--sans);
+        font-weight: 700;
+      }
+      .askbar input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: var(--sans);
+        font-size: 16px;
+        color: var(--fg);
+      }
+      .askbar input::placeholder {
+        color: rgb(77 77 74 / 0.6);
+      }
+      .btn {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 16px;
+        font-family: var(--sans);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-outline {
+        background: transparent;
+        color: var(--fg);
+        border: 1px solid var(--border);
+      }
+
+      .person {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        gap: 16px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 20px;
+        align-items: start;
+      }
+      .avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 6px;
+        background: #ebebe5;
+        display: grid;
+        place-items: center;
+        font-family: var(--serif);
+        font-weight: 700;
+        font-size: 20px;
+        color: var(--muted);
+      }
+      .person-name {
+        font-family: var(--serif);
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.005em;
+      }
+      .person-meta {
+        font-family: var(--sans);
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 4px 0 0;
+      }
+      .pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 10px 0 0;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 22px;
+        padding: 0 8px;
+        border-radius: 8px;
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .pill .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+      }
+      .pill.verified {
+        border: 1px solid rgb(12 12 11 / 0.2);
+        background: var(--card);
+        color: var(--fg);
+      }
+      .pill.open {
+        background: var(--success-tint);
+        color: var(--sage);
+        border: 1px solid rgb(59 110 81 / 0.2);
+      }
+      .pill.open .dot {
+        background: var(--sage);
+      }
+      .why-label {
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+      .why-body {
+        font-family: var(--sans);
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--fg);
+        margin: 4px 0 0;
+      }
+      .person-side {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .person-body {
+        margin-top: 12px;
+        padding: 12px;
+        background: rgb(235 235 229 / 0.35);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+
+      .pq {
+        font-family: var(--serif);
+        font-style: italic;
+        font-size: 17px;
+        line-height: 1.55;
+        border-left: 3px solid var(--primary);
+        padding-left: 14px;
+        color: var(--fg);
+        margin: 0;
+        max-width: 60ch;
+      }
+
+      .critique {
+        margin-top: 12px;
+        padding: 16px 18px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: var(--sans);
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: var(--fg);
+      }
+      .critique b {
+        font-weight: 600;
+      }
+      .critique .pros,
+      .critique .cons {
+        display: block;
+      }
+      .critique .pros::before {
+        content: 'Pros — ';
+        font-weight: 600;
+        color: var(--sage);
+      }
+      .critique .cons::before {
+        content: 'Watch-outs — ';
+        font-weight: 600;
+        color: #c8761a;
+      }
+
+      .rec-banner {
+        background: linear-gradient(180deg, #081126 0%, #0a1832 100%);
+        color: #fafaf9;
+        border-radius: 6px;
+        padding: 24px 28px;
+        margin: 24px 0;
+      }
+      .rec-banner h3 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+      }
+      .rec-banner p {
+        margin: 8px 0 0;
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.6;
+        color: rgb(250 250 249 / 0.78);
+        max-width: 60ch;
+      }
+
+      .impl {
+        margin-top: 32px;
+        background: #0c0c0b;
+        color: #fafaf9;
+        border-radius: 6px;
+        padding: 20px 22px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        line-height: 1.6;
+        overflow: auto;
+      }
+      .impl b {
+        color: #93c5fd;
+        font-weight: 500;
+      }
+      .impl em {
+        color: rgb(250 250 249 / 0.5);
+        font-style: normal;
+      }
+
+      .side {
+        margin-top: 64px;
+        padding: 24px;
+        background: rgb(37 99 235 / 0.04);
+        border: 1px solid rgb(37 99 235 / 0.16);
+        border-radius: 6px;
+      }
+      .side h3 {
+        font-family: var(--serif);
+        font-size: 20px;
+        margin: 0 0 8px;
+        font-weight: 600;
+      }
+      .side p {
+        font-family: var(--sans);
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--fg);
+        margin: 0 0 12px;
+        max-width: 60ch;
+      }
+      .side .demo {
+        font-family: 'Fraunces', Georgia, serif;
+        font-variation-settings:
+          'SOFT' 0,
+          'WONK' 0,
+          'opsz' 30;
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+      }
+
+      /* Font assignments per option. The display + serif vars feed every
+         mock element inside .option. */
+      .opt-current {
+        --serif: 'Fraunces', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+      }
+      .opt-current .hero-h1,
+      .opt-current .wordmark,
+      .opt-current .person-name {
+        font-variation-settings:
+          'SOFT' 50,
+          'WONK' 0,
+          'opsz' 25;
+      }
+      .opt-newsreader {
+        --serif: 'Newsreader', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+      }
+      .opt-newsreader .hero-h1,
+      .opt-newsreader .wordmark,
+      .opt-newsreader .person-name {
+        font-variation-settings: 'opsz' 36;
+      }
+      .opt-source {
+        --serif: 'Source Serif 4', Georgia, serif;
+        --sans: 'Source Sans 3', system-ui, sans-serif;
+      }
+      .opt-source .hero-h1,
+      .opt-source .wordmark,
+      .opt-source .person-name {
+        font-variation-settings: 'opsz' 36;
+      }
+      .opt-spectral {
+        --serif: 'Spectral', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+      }
+      .opt-caslon {
+        --serif: 'Libre Caslon Text', Georgia, serif;
+        --sans: 'Inter', system-ui, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top">
+        <span class="meta">Font exploration · May 24 · Claude</span>
+        <h1>Type that sounds like BridgeCircle.</h1>
+        <p>
+          The current display face (Fraunces) leans playful and retro — its WONK axis adds curl that
+          can read as "fashion magazine" rather than "trusted alumni network." This document compares
+          the current pairing with four free alternatives, rendered on the actual UI moments
+          (headline, AskBar, person card, status pills, pull-quote) so the difference is visible in
+          context, not in isolation.
+        </p>
+      </div>
+
+      <div class="brief">
+        <h2>What the brand should sound like in type</h2>
+        <ul>
+          <li><b>Considered, not trendy.</b> Choose a face that will still feel right in 5 years.</li>
+          <li>
+            <b>Institutional warmth.</b> Closer to a school's alumni magazine than to a chat app.
+            Readers expect care.
+          </li>
+          <li>
+            <b>Readable across generations.</b> The pilot includes Class of '05 (and earlier)
+            members — high x-height + restrained contrast helps.
+          </li>
+          <li>
+            <b>Civic, durable.</b> Avoid faces with strong stylistic signature (excessive curl,
+            quirk axes, display-only quirks).
+          </li>
+          <li><b>One serif, one sans.</b> Mono stays as JetBrains Mono — it's already restrained.</li>
+        </ul>
+      </div>
+
+      <!-- ============================ CURRENT ============================ -->
+      <section class="option opt-current">
+        <header>
+          <div>
+            <span class="kicker">Current</span>
+            <h2>Fraunces &nbsp;·&nbsp; Inter</h2>
+            <p class="pair-line">
+              Display + serif: <code>Fraunces</code> with SOFT, WONK, opsz axes &nbsp;·&nbsp; Sans:
+              <code>Inter</code>
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+
+            <blockquote class="pq">
+              "Cardiologist interested in helping pre-med students."
+            </blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="pros">High personality, distinctive on the wordmark and pull-quotes. The optical-size axis means headlines and captions can come from the same family.</span>
+          <span class="cons">WONK adds intentional asymmetry that reads "editorial flourish" rather than "institutional trust." On repeated names in the directory the curl accumulates. Body italic (used on pull-quotes) is the most calligraphic part of the family — sometimes the most playful surface in the app.</span>
+        </div>
+      </section>
+
+      <!-- ============================ NEWSREADER ============================ -->
+      <section class="option opt-newsreader">
+        <header>
+          <div>
+            <span class="kicker">Option A · Recommended</span>
+            <h2>Newsreader &nbsp;·&nbsp; Inter</h2>
+            <p class="pair-line">
+              Display + serif: <code>Newsreader</code> (Production Type, on Google Fonts) &nbsp;·&nbsp;
+              Sans: <code>Inter</code> (unchanged)
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="pros">
+            <b>Purpose-built for editorial reading on screens.</b> Has an optical-size axis so the
+            wordmark, headlines, and small captions can all come from the same family at the right
+            optical scale. Warmer than Source Serif, more restrained than Fraunces. Italics are
+            considered, not calligraphic. Free, hosted on Google Fonts.
+          </span>
+          <span class="cons">
+            Less distinctive than Fraunces — the editorial feel comes from typography choices
+            (italic pull-quotes, generous leading), not the wordmark itself. The wordmark may
+            benefit from a tightened weight (700) and slightly tighter letter-spacing.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ SOURCE SERIF 4 ============================ -->
+      <section class="option opt-source">
+        <header>
+          <div>
+            <span class="kicker">Option B</span>
+            <h2>Source Serif 4 &nbsp;·&nbsp; Source Sans 3</h2>
+            <p class="pair-line">
+              Display + serif: <code>Source Serif 4</code> (Adobe) &nbsp;·&nbsp; Sans:
+              <code>Source Sans 3</code> (replaces Inter)
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="pros">
+            <b>Institutional and considered.</b> Adobe's Source family was designed for long-form
+            reading; Serif 4 has a wide spacing and a slightly higher x-height than Newsreader,
+            which makes UI labels and dense rows easier to scan. The pair is naturally tuned.
+          </span>
+          <span class="cons">
+            Replacing Inter with Source Sans changes every label in the app. Source Sans is a touch
+            warmer and more humanist than Inter — pleasant, but it shifts the voice slightly toward
+            "civic government" (FCC, HHS use it). If that's the read you want, this is the strongest
+            pick.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ SPECTRAL ============================ -->
+      <section class="option opt-spectral">
+        <header>
+          <div>
+            <span class="kicker">Option C</span>
+            <h2>Spectral &nbsp;·&nbsp; Inter</h2>
+            <p class="pair-line">
+              Display + serif: <code>Spectral</code> (Production Type) &nbsp;·&nbsp; Sans:
+              <code>Inter</code>
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="pros">
+            Designed for screen reading, slightly more modern than Newsreader — tighter apertures,
+            slightly higher contrast. Pull-quotes feel literary without veering retro.
+          </span>
+          <span class="cons">
+            The higher contrast can read as "magazine layout" rather than "alumni network." Stronger
+            personality than Newsreader, which is a feature on the wordmark but a tax on long lists
+            of names.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ LIBRE CASLON TEXT ============================ -->
+      <section class="option opt-caslon">
+        <header>
+          <div>
+            <span class="kicker">Option D</span>
+            <h2>Libre Caslon Text &nbsp;·&nbsp; Inter</h2>
+            <p class="pair-line">
+              Display + serif: <code>Libre Caslon Text</code> &nbsp;·&nbsp; Sans:
+              <code>Inter</code>
+            </p>
+          </div>
+        </header>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <span class="pros">
+            <b>The most "prep-school"</b> of the options — Caslon is the canonical English serif,
+            used by The New Yorker variants and many institutional brands. Reads as durable, almost
+            historical, in a way the others do not.
+          </span>
+          <span class="cons">
+            Only two weights (400, 700) and no optical-size axis. Tight x-height makes small UI
+            labels feel a bit thin. Lovely on the wordmark and headlines; can fight you on captions.
+          </span>
+        </div>
+      </section>
+
+      <!-- ============================ REC ============================ -->
+      <div class="rec-banner">
+        <h3>Recommendation: Option A — Newsreader + Inter</h3>
+        <p>
+          It moves the brand off the playful WONK of Fraunces without losing the editorial feel.
+          Optical-size axis means one family covers wordmark through caption. Inter stays, so every
+          existing label and button keeps its rhythm. It's the smallest change that solves the
+          stated problem (too curly) while leaving the door open to a more institutional shift
+          (Option B) if the Chadwick brand wants a more civic voice.
+        </p>
+      </div>
+
+      <!-- ============================ IMPL ============================ -->
+      <div class="impl">
+<em>// app_claude/src/app/layout.tsx</em>
+<em>// Swap the Fraunces import for Newsreader. The variable name --font-serif</em>
+<em>// stays the same so every consumer (.bc-fraunces, font-serif Tailwind</em>
+<em>// utilities, .bc-pull-quote) updates without touching call sites.</em>
+
+<b>import</b> { Inter, Inter_Tight, Newsreader, JetBrains_Mono } <b>from</b> 'next/font/google'
+
+<b>const</b> serif = Newsreader({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  axes: ['opsz'],
+  style: ['normal', 'italic'],
+  weight: ['400', '500', '600', '700'],
+})
+
+<em>// Then in globals.css the .bc-fraunces helper class can be renamed to</em>
+<em>// .bc-display (a rename across ~12 call sites — small, safe, optional).</em>
+      </div>
+
+      <!-- ============================ SIDEBAR ============================ -->
+      <div class="side">
+        <h3>Sidebar: if you don't want to switch fonts at all</h3>
+        <p>
+          The cheapest move is to tame Fraunces itself. The curl comes mostly from
+          <code>WONK=1</code> (its quirk axis). Forcing <code>WONK=0</code> and
+          <code>SOFT=0</code> at all sizes gives you a much more sober Fraunces. The wordmark below
+          uses <code>'WONK' 0, 'SOFT' 0, 'opsz' 30</code> — Fraunces, but grown up:
+        </p>
+        <div class="demo">BridgeCircle</div>
+        <p style="margin-top:14px;">
+          This won't fully solve "the italic pull-quotes feel calligraphic" — Fraunces italic stays
+          warm-quirky regardless of axes. But for the wordmark and h1 headlines, locking the WONK
+          axis to 0 is a one-line change to <code>app_claude/src/components/.../bc-fraunces</code>
+          CSS class.
+        </p>
+      </div>
+    </main>
+  </body>
+</html>

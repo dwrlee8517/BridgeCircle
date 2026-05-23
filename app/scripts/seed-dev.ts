@@ -531,7 +531,8 @@ const EVENTS = [
   {
     id: 'eeee0000-0000-0000-0000-000000000003',
     title: 'Tech & Product Roundtable',
-    description: 'Panel discussion on the future of generative AI, developer tooling, and product design featuring Chadwick alumni in SF tech.',
+    description:
+      'A focused roundtable for alumni working across product, engineering, and design.',
     location: 'The Hartwood Library & Terrace, SF',
     startsAt: futureIso(5),
     capacity: 100,

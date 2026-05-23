@@ -157,6 +157,64 @@ Known limits:
 
 ## Typography
 
+### Type system
+
+Three families, **no serif**. The Civic Editorial voice comes from
+spacing, hierarchy, and Electric Sky accents — not from a serif accent
+face.
+
+| Variable | Tailwind | Family | Role |
+|---|---|---|---|
+| `--font-sans` | `font-sans` | Inter | Body, labels, UI, buttons |
+| `--font-display` | `font-heading` | Inter Tight | Hero h1s, section h2s, wordmark, profile names, card titles, stat numbers |
+| `--font-mono` | `font-mono` | JetBrains Mono | System metadata, dates, technical details |
+
+Implementation lives in `app/src/app/layout.tsx` (via `next/font/google`).
+
+A brief IBM Plex full-system swap was tried and reverted on 2026-05-24
+because Plex replaced Inter Tight on hero h1s, changing surfaces that
+weren't meant to change. The exploration is preserved in
+[`../../explorations/typography-2026-05/font_explorations_may24_companies_claude.html`](../../explorations/typography-2026-05/font_explorations_may24_companies_claude.html)
+for future reference, but is not the current direction.
+
+The helper class `.bc-fraunces` (defined in `app/src/app/globals.css`) is
+a legacy name from when an editorial serif was used — it now resolves to
+Inter Tight (the display family). Rename to `.bc-display` in a follow-up
+pass when convenient; the current ~10 call sites work without changes.
+
+The pull-quote treatment `.bc-pull-quote` (sapphire left rule + italic)
+uses italic Inter rather than an italic serif. The editorial moment
+comes from the left rule and italic style, not from a serif family.
+
+### Role contract
+
+| Role | Family | Class | Example |
+|---|---|---|---|
+| Wordmark | Display sans | `bc-fraunces` (legacy class) or `font-heading` | "BridgeCircle" in header, auth screen, onboarding shell, 404 |
+| Profile-card name | Display sans | `bc-fraunces` or `font-heading` | The member's display name on MatchBriefCard, ResultCard, profile detail h1 |
+| Avatar initials fallback | Display sans | `font-heading` | Two-letter initials when no avatar photo is uploaded |
+| Pull-quote | Sans italic | `.bc-pull-quote` | Profile bio quote with the sapphire left rule |
+| Hero / display title | Display sans | `font-heading` | Hero h1 on every page (`text-3xl/4xl/5xl`) |
+| Section h2 | Display sans | `font-heading` | "People who can help you", "Upcoming events", "Needs your reply" |
+| Card title | Display sans | `font-heading` | `SchoolPulseCard.title`, `HelpOpportunityCard.title`, `FreshnessReviewCard.title`, empty-state titles |
+| Stat number | Display sans | `font-heading` | NetworkStat value, match-score percent, capacity numbers |
+| Body paragraph | Sans | `font-sans` (default) | Descriptions, lede paragraphs, hero subtitles |
+| UI label / button text | Sans | `font-sans` (default) | Form labels, button labels, status pills |
+| Eyebrow / kicker | Sans | (none, just sentence-case caption) | "Class of 2005 · Chadwick School" page kicker |
+| System metadata | Mono | `font-mono` | Dates, IDs, technical details. Sparingly. |
+
+Production rules:
+
+- No serif font anywhere in the system. If a surface wants editorial
+  weight, use Inter Tight at a generous size with tight letter-spacing.
+- Italic is reserved for the pull-quote treatment. Body italic is
+  acceptable in long-form announcement bodies; avoid it in short cards.
+- Mono is for metadata that benefits from a fixed-width skeleton (dates,
+  counts, technical IDs). Do not use mono for decorative kickers when a
+  caption-sentence-case label would carry the same orientation.
+
+### Size scale
+
 | Token | Size | Role |
 |---|---:|---|
 | `display-lg` | `36px` | Page-level display moments |
