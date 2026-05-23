@@ -5,7 +5,6 @@ import type { ExtractedFilters } from '@/lib/search/extractFilters'
 import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
-import { displayOrgName } from '@/lib/utils'
 import { PeopleSearchSurface, ResultGrid, ResultsHeader } from './people-search-surface'
 import { ResultCard } from './result-card'
 
@@ -37,31 +36,23 @@ export default async function PeoplePage({
     return null
   }
 
-  const [{ data: viewerBase }, { data: viewerOrgProfile }, totalAlumniRes, friendsRes] =
-    await Promise.all([
-      supabase
-        .from('base_profiles')
-        .select('university, major, city')
-        .eq('user_id', session.userId)
-        .maybeSingle(),
-      supabase
-        .from('organization_profiles')
-        .select('graduation_year')
-        .eq('organization_membership_id', viewerMembership.id)
-        .maybeSingle(),
-      supabase
-        .from('organization_memberships')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', viewerMembership.organization_id)
-        .eq('status', 'active'),
-      supabase
-        .from('friendships')
-        .select('user_a_id, user_b_id')
-        .or(`user_a_id.eq.${session.userId},user_b_id.eq.${session.userId}`),
-    ])
+  const [{ data: viewerBase }, { data: viewerOrgProfile }, friendsRes] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select('university, major, city')
+      .eq('user_id', session.userId)
+      .maybeSingle(),
+    supabase
+      .from('organization_profiles')
+      .select('graduation_year')
+      .eq('organization_membership_id', viewerMembership.id)
+      .maybeSingle(),
+    supabase
+      .from('friendships')
+      .select('user_a_id, user_b_id')
+      .or(`user_a_id.eq.${session.userId},user_b_id.eq.${session.userId}`),
+  ])
 
-  const orgName = displayOrgName((viewerMembership.organizations as { name: string } | null)?.name)
-  const totalAlumni = totalAlumniRes.count ?? 0
   const friendIds = new Set(
     (friendsRes.data ?? []).map((f) =>
       f.user_a_id === session.userId ? f.user_b_id : f.user_a_id,
@@ -137,8 +128,6 @@ export default async function PeoplePage({
 
   return (
     <div className="bg-background min-h-full">
-      <Hero orgName={orgName} totalAlumni={totalAlumni} />
-
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
         <PeopleSearchSurface
           filtersOpen={filtersOpen}
@@ -270,47 +259,6 @@ export default async function PeoplePage({
         </PeopleSearchSurface>
       </div>
     </div>
-  )
-}
-
-function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }) {
-  const description = `Explore ${orgName} when you want to browse the wider circle. For precise help, describe the question in plain English and BridgeCircle will explain why each person fits.`
-
-  return (
-    <section className="bc-page-band relative overflow-hidden border-b border-border">
-      {/* Background Dots */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(12,12,11,0.15) 1px, transparent 1px)',
-          backgroundSize: '16px 16px',
-        }}
-      />
-      {/* Decorative SVG motifs */}
-      <svg
-        aria-hidden="true"
-        role="presentation"
-        viewBox="0 0 200 200"
-        className="absolute right-0 top-1/2 -translate-y-1/2 h-[200px] w-[200px] opacity-15 pointer-events-none sm:right-10 md:right-16 lg:right-24"
-      >
-        <title>Decorative two-circle motif</title>
-        <circle cx="80" cy="100" r="60" fill="none" className="stroke-foreground" strokeWidth="1" />
-        <circle cx="130" cy="100" r="60" fill="none" className="stroke-primary" strokeWidth="1" />
-      </svg>
-
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-7 sm:px-8 sm:py-9">
-        <p className="bc-section-kicker">
-          People · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
-        </p>
-        <h1 className="font-heading mt-3 max-w-3xl text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
-          Compare the circle by fit, not just profile.
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground md:text-base">
-          {description}
-        </p>
-      </div>
-    </section>
   )
 }
 
