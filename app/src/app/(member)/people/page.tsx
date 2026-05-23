@@ -10,6 +10,8 @@ import { ResultCard } from './result-card'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
 
+const PAGE_SIZE = 10
+
 export default async function PeoplePage({
   searchParams,
 }: {
@@ -23,6 +25,7 @@ export default async function PeoplePage({
   const rawNl = params.nl
   const nlQuery = (Array.isArray(rawNl) ? rawNl[0] : rawNl)?.trim() ?? ''
   const useNL = nlQuery.length > 0
+  const requestedPage = Number.parseInt(singleParam(params.page) ?? '1', 10)
 
   const { data: viewerMembership } = await supabase
     .from('organization_memberships')
@@ -125,6 +128,13 @@ export default async function PeoplePage({
   const hasActiveSearch = anyFilter || useNL
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
   const resultCount = showNaturalLanguageResults ? nlHits.length : structuredHits.length
+  const totalPages = Math.max(1, Math.ceil(resultCount / PAGE_SIZE))
+  const currentPage = Number.isFinite(requestedPage)
+    ? Math.min(Math.max(requestedPage, 1), totalPages)
+    : 1
+  const pageStart = (currentPage - 1) * PAGE_SIZE
+  const pagedNlHits = nlHits.slice(pageStart, pageStart + PAGE_SIZE)
+  const pagedStructuredHits = structuredHits.slice(pageStart, pageStart + PAGE_SIZE)
 
   return (
     <div className="bg-background min-h-full">
@@ -173,42 +183,9 @@ export default async function PeoplePage({
                 }
               />
             ) : (
-              <ResultGrid>
-                {nlHits.map((h) => (
-                  <ResultCard
-                    key={h.userId}
-                    userId={h.userId}
-                    name={h.name}
-                    preferredName={h.preferredName}
-                    headline={h.headline}
-                    currentEmployer={h.currentEmployer}
-                    currentTitle={h.currentTitle}
-                    city={h.city}
-                    university={h.university}
-                    major={h.major}
-                    graduationYear={h.graduationYear}
-                    avatarUrl={h.avatarUrl}
-                    isOpenAsMentor={h.isOpenAsMentor}
-                    isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
-                    mentorPaused={h.mentorPaused}
-                    mentoringTopics={h.mentoringTopics}
-                    isFriend={friendIds.has(h.userId)}
-                    rationale={h.rationale}
-                    rerankScore={h.rerankScore}
-                    topCareerEntry={pickTopCareerEntry(h.careerHistory)}
-                    maxActiveMentees={h.maxActiveMentees}
-                    maxPendingRequests={h.maxPendingRequests}
-                    activeMenteeCount={h.activeMenteeCount}
-                    pendingRequestCount={h.pendingRequestCount}
-                  />
-                ))}
-              </ResultGrid>
-            )
-          ) : (
-            <>
-              {structuredHits.length > 0 ? (
+              <>
                 <ResultGrid>
-                  {structuredHits.map((h) => (
+                  {pagedNlHits.map((h) => (
                     <ResultCard
                       key={h.userId}
                       userId={h.userId}
@@ -227,9 +204,9 @@ export default async function PeoplePage({
                       mentorPaused={h.mentorPaused}
                       mentoringTopics={h.mentoringTopics}
                       isFriend={friendIds.has(h.userId)}
-                      rationale={null}
-                      rerankScore={null}
-                      topCareerEntry={null}
+                      rationale={h.rationale}
+                      rerankScore={h.rerankScore}
+                      topCareerEntry={pickTopCareerEntry(h.careerHistory)}
                       maxActiveMentees={h.maxActiveMentees}
                       maxPendingRequests={h.maxPendingRequests}
                       activeMenteeCount={h.activeMenteeCount}
@@ -237,6 +214,55 @@ export default async function PeoplePage({
                     />
                   ))}
                 </ResultGrid>
+                <PeoplePagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalResults={resultCount}
+                  params={params}
+                />
+              </>
+            )
+          ) : (
+            <>
+              {structuredHits.length > 0 ? (
+                <>
+                  <ResultGrid>
+                    {pagedStructuredHits.map((h) => (
+                      <ResultCard
+                        key={h.userId}
+                        userId={h.userId}
+                        name={h.name}
+                        preferredName={h.preferredName}
+                        headline={h.headline}
+                        currentEmployer={h.currentEmployer}
+                        currentTitle={h.currentTitle}
+                        city={h.city}
+                        university={h.university}
+                        major={h.major}
+                        graduationYear={h.graduationYear}
+                        avatarUrl={h.avatarUrl}
+                        isOpenAsMentor={h.isOpenAsMentor}
+                        isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
+                        mentorPaused={h.mentorPaused}
+                        mentoringTopics={h.mentoringTopics}
+                        isFriend={friendIds.has(h.userId)}
+                        rationale={null}
+                        rerankScore={null}
+                        topCareerEntry={null}
+                        maxActiveMentees={h.maxActiveMentees}
+                        maxPendingRequests={h.maxPendingRequests}
+                        activeMenteeCount={h.activeMenteeCount}
+                        pendingRequestCount={h.pendingRequestCount}
+                      />
+                    ))}
+                  </ResultGrid>
+                  <PeoplePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalResults={resultCount}
+                    params={params}
+                  />
+                </>
               ) : null}
               {structuredHits.length === 0 && hasActiveSearch ? (
                 <EmptyResults
@@ -268,6 +294,69 @@ function EmptyResults({ text }: { text: React.ReactNode }) {
       {text}
     </div>
   )
+}
+
+function PeoplePagination({
+  currentPage,
+  totalPages,
+  totalResults,
+  params,
+}: {
+  currentPage: number
+  totalPages: number
+  totalResults: number
+  params: RawSearchParams
+}) {
+  if (totalPages <= 1) return null
+
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1)
+  const start = (currentPage - 1) * PAGE_SIZE + 1
+  const end = Math.min(currentPage * PAGE_SIZE, totalResults)
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-xs font-medium text-muted-foreground">
+        Showing {start}-{end} of {totalResults}
+      </p>
+      <nav aria-label="People result pages" className="flex items-center gap-1.5">
+        {pageNumbers.map((page) => {
+          const isCurrent = page === currentPage
+          return (
+            <Link
+              key={page}
+              href={peoplePageHref(params, page)}
+              aria-current={isCurrent ? 'page' : undefined}
+              className={
+                isCurrent
+                  ? 'flex size-8 items-center justify-center rounded-[6px] bg-primary text-sm font-semibold text-primary-foreground'
+                  : 'flex size-8 items-center justify-center rounded-[6px] border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
+              }
+            >
+              {page}
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
+  )
+}
+
+function peoplePageHref(params: RawSearchParams, page: number) {
+  const next = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (key === 'page' || value === undefined) continue
+    const values = Array.isArray(value) ? value : [value]
+    for (const item of values) {
+      if (item.trim().length > 0) next.append(key, item)
+    }
+  }
+  if (page > 1) next.set('page', String(page))
+  const search = next.toString()
+  return search ? `/people?${search}` : '/people'
+}
+
+function singleParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
 }
 
 function pickTopCareerEntry(
