@@ -5,11 +5,11 @@ import {
   CalendarPlus,
   CheckCircle2,
   Clock3,
+  type LucideIcon,
   MapPin,
   PencilLine,
   Ticket,
   UsersRound,
-  type LucideIcon,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'

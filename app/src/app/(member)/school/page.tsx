@@ -51,9 +51,7 @@ export default async function SchoolPage() {
       <section className="bc-page-band border-b border-border">
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8 lg:py-8">
           <div className="space-y-5">
-            <p className="bc-section-kicker">
-              School pulse · {orgName}
-            </p>
+            <p className="bc-section-kicker">School pulse · {orgName}</p>
             <div className="max-w-2xl space-y-2">
               <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground">
                 Feel connected to what is happening around the school.
