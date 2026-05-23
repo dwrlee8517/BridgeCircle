@@ -241,16 +241,17 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
             ) : null}
 
             {hits.length > 0 ? (
-              <div className="overflow-hidden border-y border-border bg-card shadow-[0_14px_42px_rgb(12_12_11/0.07)] sm:rounded-[8px] sm:border">
-                {pagedHits.map(({ person, reason }) => (
-                  <MatchBriefCard
-                    key={person.userId}
-                    person={person}
-                    query={query}
-                    reason={reason}
-                    variant="list-row"
-                  />
-                ))}
+              <div className="space-y-3">
+                <div className="space-y-3">
+                  {pagedHits.map(({ person, reason }) => (
+                    <MatchBriefCard
+                      key={person.userId}
+                      person={person}
+                      query={query}
+                      reason={reason}
+                    />
+                  ))}
+                </div>
                 <PaginationFooter
                   currentPage={currentPage}
                   totalPages={totalPages}
@@ -334,7 +335,7 @@ function PaginationFooter({
   const end = Math.min(currentPage * PAGE_SIZE, totalResults)
 
   return (
-    <div className="flex flex-col gap-3 border-t border-border bg-surface-panel/65 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div className="flex flex-col gap-3 rounded-[8px] border border-border bg-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <p className="text-xs font-medium text-muted-foreground">
         Showing {start}-{end} of {Math.min(totalResults, PAGE_SIZE * MAX_RESULT_PAGES)}
       </p>
