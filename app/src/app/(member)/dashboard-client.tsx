@@ -1,7 +1,7 @@
-import { format } from 'date-fns'
-import { ArrowRight, HandHelping, Inbox, School } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { EventTime } from '@/components/ui/event-time'
 import type { HomeEvent, HomeFeed } from '@/lib/home/getHomeFeed'
 import {
   AskBar,
@@ -47,49 +47,27 @@ export default function DashboardClient({
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="border-b border-border bg-background">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:py-12">
-          <div className="flex min-w-0 flex-col justify-between gap-8">
-            <div className="space-y-5">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+      <section className="bc-page-band border-b border-border">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:py-10">
+          <div className="flex min-w-0 flex-col justify-between gap-6">
+            <div className="space-y-3">
+              <p className="bc-section-kicker">
                 {cohortYear ? `Class of ${cohortYear} · ` : ''}
                 {orgDisplayName}
               </p>
-              <div className="max-w-4xl space-y-4">
-                <h1 className="font-serif text-5xl font-semibold leading-[0.98] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-                  Ask your school circle.
+              <div className="max-w-2xl space-y-2">
+                <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+                  Hi {firstName}. Who do you want to ask?
                 </h1>
-                <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                  Hi {firstName}. Find someone who has been there, or offer help where your
-                  experience matters.
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Find someone who has been there, or offer help where your experience matters.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <AskBar />
               <PromptChips prompts={PROMPTS} />
-            </div>
-
-            <div className="grid gap-3 border-t border-border pt-5 sm:grid-cols-3">
-              <HomeSignal
-                icon={Inbox}
-                value={feed.pendingMentorRequests.length}
-                label="Need your reply"
-                href="/help"
-              />
-              <HomeSignal
-                icon={HandHelping}
-                value={feed.stats.openMentorsTotal}
-                label="Open helpers"
-                href="/people"
-              />
-              <HomeSignal
-                icon={School}
-                value={feed.stats.upcomingEventsTotal}
-                label="School pulse"
-                href="/school"
-              />
             </div>
           </div>
 
@@ -105,6 +83,7 @@ export default function DashboardClient({
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.7fr)]">
           <div className="space-y-8">
             <SectionHeader
+              kicker="Relationship path"
               title="People who can help you"
               body="Start from your question. These are open helpers and mentors from your trusted school circle."
               href="/ask"
@@ -129,6 +108,7 @@ export default function DashboardClient({
           <div className="space-y-8">
             <div className="space-y-4">
               <SectionHeader
+                kicker="Offer help"
                 title="People you could help"
                 body={
                   isHelper
@@ -194,6 +174,7 @@ export default function DashboardClient({
 
             <div className="space-y-4">
               <SectionHeader
+                kicker="School signal"
                 title="School pulse"
                 body="Events and announcements stay close to the relationship work."
                 href="/school"
@@ -229,49 +210,26 @@ export default function DashboardClient({
   )
 }
 
-function HomeSignal({
-  icon: Icon,
-  value,
-  label,
-  href,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  value: number
-  label: string
-  href: string
-}) {
-  return (
-    <Link
-      href={href}
-      className="group rounded-[8px] border border-border bg-card p-4 transition-all hover:border-foreground/30 hover:shadow-sm"
-    >
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <Icon className="size-4 text-primary" />
-        <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-      </div>
-      <div className="font-serif text-3xl font-semibold leading-none text-foreground">{value}</div>
-      <div className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
-        {label}
-      </div>
-    </Link>
-  )
-}
-
 function SectionHeader({
   title,
   body,
   href,
   cta,
+  kicker,
 }: {
   title: string
   body: string
   href: string
   cta: string
+  kicker: string
 }) {
   return (
     <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h2 className="font-serif text-2xl font-semibold leading-tight text-foreground">{title}</h2>
+        <p className="bc-section-kicker mb-3">{kicker}</p>
+        <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
+          {title}
+        </h2>
         <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">{body}</p>
       </div>
       <Button asChild variant="outline" size="sm" className="w-fit rounded-[6px]">
@@ -296,8 +254,8 @@ function EmptyPanel({
   cta: string
 }) {
   return (
-    <div className="rounded-[8px] border border-dashed border-border bg-card p-6">
-      <p className="font-serif text-lg font-semibold text-foreground">{title}</p>
+    <div className="rounded-[6px] border border-dashed border-border bg-card p-6">
+      <p className="font-heading text-lg font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
       <Button asChild size="sm" variant="outline" className="mt-4 rounded-[6px]">
         <Link href={href}>{cta}</Link>
@@ -310,7 +268,11 @@ function HomeEventPulse({ event }: { event: HomeEvent }) {
   return (
     <SchoolPulseCard
       title={event.title}
-      meta={`${format(new Date(event.startsAt), 'MMM d')} · ${event.goingCount} going`}
+      meta={
+        <>
+          <EventTime iso={event.startsAt} pattern="MMM d" /> · {event.goingCount} going
+        </>
+      }
       body={
         event.location
           ? `A school gathering at ${event.location}. See who is going and decide if it belongs on your calendar.`

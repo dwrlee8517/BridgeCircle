@@ -11,4 +11,7 @@ Start with:
 
 The active visual source of truth is the Civic Editorial system in [`design-system/`](design-system/). Start with [`design-system/tokens.md`](design-system/tokens.md), then use the interactive HTML reference for visual patterns.
 
-Current mockups and screenshots should be regenerated after the Civic implementation pass. Older option explorations and screenshots are archived and should not be used for current design or build iteration.
+The current clean screenshot capture is
+`output/playwright/fresh-screenshots-2026-05-24-clean/`. Older option
+explorations and screenshots are archived and should not be used for current
+design or build iteration.

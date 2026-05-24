@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle App Font Mockups</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&amp;family=Geist+Mono:wght@500;700&amp;family=IBM+Plex+Mono:wght@500;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@500;700&amp;family=Manrope:wght@400;500;600;700;800&amp;family=Public+Sans:wght@400;500;600;700;800;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #fafaf9;
+        --card: #ffffff;
+        --ink: #0c0c0b;
+        --muted: #4d4d4a;
+        --rule: #dcdcd6;
+        --panel: #f4f3ee;
+        --subtle: #ebebe5;
+        --blue: #2563eb;
+        --blue-hover: #1d4ed8;
+        --midnight: #081126;
+        --midnight-muted: rgb(250 250 249 / 68%);
+        --sage: #3b6e51;
+        --ochre: #c8761a;
+        --rust: #b9472a;
+        --plum: #722f37;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .page {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+
+      .intro {
+        display: grid;
+        gap: 16px;
+        padding: 24px 0 30px;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .kicker,
+      .meta,
+      .font-label,
+      .option-note,
+      .app-nav,
+      .eyebrow,
+      .chip,
+      .status,
+      .label,
+      .button {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .kicker,
+      .meta {
+        color: var(--blue);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      h1 {
+        max-width: 900px;
+        margin: 0;
+        font-size: clamp(38px, 6vw, 68px);
+        line-height: 0.98;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .intro p {
+        max-width: 780px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.65;
+      }
+
+      .mockup {
+        --display: Geist;
+        --body: Geist;
+        --mono: "Geist Mono";
+        overflow: hidden;
+        margin-top: 28px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--card);
+        font-family: var(--body), system-ui, sans-serif;
+      }
+
+      .mockup.public {
+        --display: "Public Sans";
+        --body: Inter;
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup.manrope {
+        --display: Manrope;
+        --body: Inter;
+        --mono: "JetBrains Mono";
+      }
+
+      .mockup.plex {
+        --display: "IBM Plex Sans";
+        --body: "IBM Plex Sans";
+        --mono: "IBM Plex Mono";
+      }
+
+      .mockup * {
+        font-family: var(--body), system-ui, sans-serif;
+      }
+
+      .mockup-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--panel);
+      }
+
+      .recommended .mockup-header {
+        background: #eef5ef;
+      }
+
+      .font-title {
+        margin: 0;
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 24px;
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .font-label,
+      .option-note {
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.5;
+      }
+
+      .font-label {
+        text-align: right;
+      }
+
+      .app {
+        min-height: 980px;
+        background: var(--paper);
+      }
+
+      .member-header {
+        display: flex;
+        min-height: 72px;
+        align-items: center;
+        gap: 16px;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--rule);
+        background: var(--card);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .brand-mark {
+        position: relative;
+        width: 28px;
+        height: 28px;
+        color: var(--ink);
+      }
+
+      .brand-mark::before,
+      .brand-mark::after {
+        position: absolute;
+        top: 5px;
+        width: 18px;
+        height: 18px;
+        border: 1.4px solid currentColor;
+        border-radius: 50%;
+        content: "";
+      }
+
+      .brand-mark::before {
+        left: 1px;
+      }
+
+      .brand-mark::after {
+        right: 1px;
+        border-color: var(--blue);
+      }
+
+      .app-nav {
+        display: flex;
+        gap: 4px;
+        margin-left: 16px;
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .app-nav span {
+        padding: 8px 10px;
+        border-radius: 6px;
+      }
+
+      .app-nav .active {
+        background: var(--panel);
+        color: var(--ink);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+      }
+
+      .search {
+        display: flex;
+        width: 210px;
+        height: 36px;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--paper);
+        color: rgb(77 77 74 / 55%);
+        font-size: 13px;
+      }
+
+      .icon-button,
+      .avatar {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--card);
+        color: var(--ink);
+        font-weight: 800;
+      }
+
+      .announcement {
+        border-bottom: 1px solid var(--rule);
+        background: rgb(37 99 235 / 3%);
+      }
+
+      .announcement-inner {
+        display: flex;
+        max-width: 1280px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0 auto;
+        padding: 10px 32px;
+        font-size: 12px;
+      }
+
+      .announcement strong {
+        color: var(--blue);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .home-hero {
+        border-bottom: 1px solid var(--rule);
+        background: var(--paper);
+      }
+
+      .hero-inner {
+        display: grid;
+        max-width: 1280px;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 32px;
+        margin: 0 auto;
+        padding: 40px 32px;
+      }
+
+      .hero-left {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 32px;
+      }
+
+      .eyebrow {
+        margin: 0 0 18px;
+        color: var(--blue);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+      }
+
+      .app h2,
+      .app h3,
+      .app h4,
+      .person-name,
+      .network-title,
+      .stat-value {
+        font-family: var(--display), system-ui, sans-serif;
+        letter-spacing: 0;
+      }
+
+      .hero-title {
+        max-width: 760px;
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(38px, 5vw, 54px);
+        line-height: 1.02;
+        font-weight: 750;
+      }
+
+      .hero-copy {
+        max-width: 680px;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .ask-bar {
+        overflow: hidden;
+        padding: 16px;
+        border: 1px solid rgb(12 12 11 / 12%);
+        border-radius: 6px;
+        background: var(--card);
+        box-shadow: 0 18px 60px rgb(12 12 11 / 8%);
+      }
+
+      .ask-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .ask-icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 6px;
+        background: var(--blue);
+        color: white;
+        font-weight: 800;
+      }
+
+      .ask-input {
+        min-width: 0;
+        flex: 1;
+        color: rgb(77 77 74 / 60%);
+        font-size: 18px;
+        font-weight: 500;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 38px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 14px;
+        border: 1px solid var(--blue);
+        border-radius: 6px;
+        background: var(--blue);
+        color: white;
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .button.outline {
+        background: transparent;
+        color: var(--blue);
+      }
+
+      .button.ghost {
+        border-color: transparent;
+        background: transparent;
+        color: var(--blue);
+      }
+
+      .prompt-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 12px;
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+        background: var(--card);
+        color: var(--muted);
+        font-family: var(--body), system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .network-motif {
+        position: relative;
+        min-height: 240px;
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--midnight);
+        color: var(--paper);
+        box-shadow: 0 24px 70px rgb(8 17 38 / 20%);
+      }
+
+      .network-lines {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.72;
+      }
+
+      .network-content {
+        position: relative;
+        display: flex;
+        min-height: 240px;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .network-title {
+        max-width: 310px;
+        margin: 8px 0 0;
+        font-size: 25px;
+        line-height: 1.12;
+        font-weight: 750;
+      }
+
+      .network-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .network-stat {
+        padding: 12px;
+        border: 1px solid rgb(250 250 249 / 16%);
+        border-radius: 6px;
+        background: rgb(255 255 255 / 6%);
+      }
+
+      .stat-value {
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 750;
+      }
+
+      .stat-label {
+        margin-top: 6px;
+        color: var(--midnight-muted);
+        font-size: 11px;
+        font-weight: 650;
+      }
+
+      .dashboard {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 40px 32px;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.7fr);
+        gap: 32px;
+      }
+
+      .column {
+        display: grid;
+        align-content: start;
+        gap: 32px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        padding-top: 20px;
+        border-top: 1px solid var(--rule);
+      }
+
+      .section-head h3 {
+        margin: 0;
+        font-size: 25px;
+        line-height: 1.08;
+        font-weight: 750;
+      }
+
+      .section-head p {
+        max-width: 620px;
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .side-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .card {
+        overflow: hidden;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--card);
+        box-shadow: 0 1px 2px rgb(12 12 11 / 5%);
+      }
+
+      .match-card {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 190px;
+      }
+
+      .match-main {
+        padding: 20px;
+      }
+
+      .person-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+      }
+
+      .person-avatar {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 6px;
+        background: var(--sage);
+        color: var(--paper);
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 16px;
+        font-weight: 800;
+      }
+
+      .person-avatar.rust {
+        background: var(--rust);
+      }
+
+      .person-avatar.plum {
+        background: var(--plum);
+      }
+
+      .person-name {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
+        font-size: 19px;
+        line-height: 1.15;
+        font-weight: 750;
+      }
+
+      .year {
+        color: var(--muted);
+        font-family: var(--mono), ui-monospace, monospace;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+      }
+
+      .person-role {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 7px;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--blue);
+        font-family: var(--body), system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .status::before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        content: "";
+      }
+
+      .reason-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .reason-box {
+        padding: 12px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: rgb(235 235 229 / 35%);
+      }
+
+      .reason-box.white {
+        background: var(--card);
+      }
+
+      .label {
+        margin: 0;
+        color: var(--blue);
+        font-family: var(--body), system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .reason-box p:last-child {
+        margin: 7px 0 0;
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .signal-rail {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 20px;
+        border-left: 1px solid var(--rule);
+        background: rgb(244 243 238 / 55%);
+      }
+
+      .signal-rail p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .rail-actions {
+        display: grid;
+        gap: 8px;
+      }
+
+      .opportunity,
+      .pulse-card,
+      .fresh-card {
+        display: block;
+        padding: 20px;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        background: var(--card);
+        box-shadow: 0 1px 2px rgb(12 12 11 / 5%);
+      }
+
+      .tone-icon {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 6px;
+        background: rgb(59 110 81 / 10%);
+        color: var(--sage);
+        font-weight: 900;
+      }
+
+      .tone-icon.ochre {
+        background: rgb(200 118 26 / 12%);
+        color: var(--ochre);
+      }
+
+      .tone-icon.plum {
+        background: rgb(114 47 55 / 10%);
+        color: var(--plum);
+      }
+
+      .card-title {
+        margin: 14px 0 0;
+        color: var(--ink);
+        font-family: var(--display), system-ui, sans-serif;
+        font-size: 18px;
+        line-height: 1.18;
+        font-weight: 750;
+      }
+
+      .card-subtitle {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .card-body {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .text-link {
+        display: inline-flex;
+        margin-top: 16px;
+        color: var(--blue);
+        font-size: 14px;
+        font-weight: 750;
+      }
+
+      .pulse-card {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+      }
+
+      .pulse-icon {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 6px;
+        background: rgb(37 99 235 / 8%);
+        color: var(--blue);
+        font-weight: 900;
+      }
+
+      .pulse-card .card-title {
+        margin-top: 4px;
+        font-size: 16px;
+      }
+
+      .fresh-card {
+        display: flex;
+        gap: 14px;
+      }
+
+      .fresh-card .card-title {
+        margin-top: 0;
+      }
+
+      .fresh-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .verdict {
+        margin: 0 18px 18px;
+        padding: 12px;
+        border-left: 3px solid var(--blue);
+        border-radius: 0 6px 6px 0;
+        background: #f2f5ff;
+        color: #18254f;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.45;
+      }
+
+      .recommended .verdict {
+        border-left-color: var(--sage);
+        background: #edf7f0;
+        color: #123d2b;
+      }
+
+      @media (max-width: 980px) {
+        .mockup-header,
+        .hero-inner,
+        .dashboard-grid,
+        .match-card {
+          grid-template-columns: 1fr;
+        }
+
+        .font-label {
+          text-align: left;
+        }
+
+        .signal-rail {
+          border-top: 1px solid var(--rule);
+          border-left: 0;
+        }
+
+        .app-nav,
+        .search {
+          display: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 24px 14px 44px;
+        }
+
+        .member-header,
+        .hero-inner,
+        .dashboard,
+        .announcement-inner {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+
+        .ask-row,
+        .section-head,
+        .reason-grid,
+        .fresh-card {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .network-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .header-actions .icon-button {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="intro" aria-labelledby="page-title">
+        <div class="kicker">BridgeCircle Typography Test</div>
+        <h1 id="page-title">Top 4 fonts applied to the actual app_gpt home dashboard</h1>
+        <p>
+          These static mockups replicate the current member home surface from <code>app_gpt</code>:
+          member header, announcement strip, ask-first hero, prompt chips, network motif, helper
+          cards, school pulse, and freshness card. The layout and color theme stay fixed so the
+          font personality is the main variable.
+        </p>
+        <div class="meta">Updated May 23, 2026</div>
+      </section>
+
+      <article class="mockup geist recommended">
+        <header class="mockup-header">
+          <div>
+            <h2 class="font-title">1. Geist System</h2>
+            <div class="option-note">Best overall: modern product network</div>
+          </div>
+          <div class="font-label">Display: Geist<br />Body: Geist<br />Mono: Geist Mono</div>
+        </header>
+        <div class="app">
+          <div class="member-header">
+            <div class="brand"><span class="brand-mark"></span>BridgeCircle</div>
+            <div class="app-nav">
+              <span class="active">Home</span><span>People</span><span>Ask</span><span>Help</span><span>Events</span><span>School</span>
+            </div>
+            <div class="header-actions">
+              <div class="search">Search the circle...</div><div class="icon-button">3</div><div class="avatar">RL</div>
+            </div>
+          </div>
+          <div class="announcement">
+            <div class="announcement-inner"><span><strong>Announcement</strong> · Spring alumni mixer invitations are open</span><span>2 days ago -></span></div>
+          </div>
+          <section class="home-hero">
+            <div class="hero-inner">
+              <div class="hero-left">
+                <div>
+                  <p class="eyebrow">Class of 2008 · Chadwick</p>
+                  <h2 class="hero-title">Ask your school circle.</h2>
+                  <p class="hero-copy">Hi Richard. Find someone who has been there, or offer help where your experience matters.</p>
+                </div>
+                <div>
+                  <div class="ask-bar"><div class="ask-row"><div class="ask-icon">?</div><div class="ask-input">What are you trying to figure out?</div><span class="button">Find people -></span></div></div>
+                  <div class="prompt-chips"><span class="chip">I want to move from consulting into product</span><span class="chip">I need college advice from someone who studied in the US</span><span class="chip">I am moving to Seoul and want to meet alumni nearby</span><span class="chip">Can someone review my resume or portfolio?</span></div>
+                </div>
+              </div>
+              <div class="network-motif">
+                <svg class="network-lines" viewBox="0 0 520 320" aria-hidden="true"><path d="M72 226 C142 92 232 84 312 158 S430 244 478 92" fill="none" stroke="rgb(147 197 253 / .72)" stroke-width="1.6"/><path d="M62 86 C150 138 212 232 318 198 S414 124 466 222" fill="none" stroke="rgb(250 250 249 / .16)" stroke-width="1"/><circle cx="72" cy="226" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="156" cy="124" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="252" cy="184" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="336" cy="154" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="448" cy="96" r="8" fill="rgb(250 250 249 / .94)"/></svg>
+                <div class="network-content">
+                  <div><p class="eyebrow">Live school circle</p><h3 class="network-title">A trusted map of people who can help, and people you can help.</h3></div>
+                  <div class="network-stats"><div class="network-stat"><div class="stat-value">48</div><div class="stat-label">Open helpers</div></div><div class="network-stat"><div class="stat-value">7</div><div class="stat-label">Need reply</div></div><div class="network-stat"><div class="stat-value">3</div><div class="stat-label">School events</div></div></div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="dashboard">
+            <div class="dashboard-grid">
+              <div class="column">
+                <div class="section-head"><div><h3>People who can help you</h3><p>Start from your question. These are open helpers and mentors from your trusted school circle.</p></div><span class="button outline">Ask a question -></span></div>
+                <div class="stack"><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar">MC</div><div><div class="person-name">Mina Cho <span class="year">'09</span></div><div class="person-role">Product Lead at Halcyon Health</div><div class="badges"><span class="status">Quick advice</span><span class="status">Mentorship</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>Their path as Product Lead at Halcyon Health may be useful context.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask how you would think about moving from consulting into product?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Mina -></span><span class="button ghost">View profile</span></div></div></div><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar rust">DK</div><div><div class="person-name">Daniel Kim <span class="year">'12</span></div><div class="person-role">Founder at Greenledger · Seoul</div><div class="badges"><span class="status">Quick advice</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>They are connected to Seoul, which may make the conversation more practical.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask for your perspective based on your path?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Daniel -></span><span class="button ghost">View profile</span></div></div></div></div>
+              </div>
+              <div class="column"><div><div class="section-head"><div><h3>People you could help</h3><p>Requests and likely fits where your experience can be useful.</p></div><span class="button outline">Open Help -></span></div><div class="side-stack" style="margin-top:16px"><div class="opportunity"><div class="tone-icon ochre">✓</div><p class="card-title">Someone is asking for help</p><p class="card-subtitle">Class of 2021</p><p class="card-body">Review their ask and reply if you can help.</p><span class="text-link">Review request -></span></div><div class="opportunity"><div class="tone-icon plum">✓</div><p class="card-title">Keep your helper settings current</p><p class="card-subtitle">Visible in Seoul</p><p class="card-body">Choose quick advice, ongoing mentorship, and the topics where classmates should find you.</p><span class="text-link">Update availability -></span></div></div></div><div><div class="section-head"><div><h3>School pulse</h3><p>Events and announcements stay close to the relationship work.</p></div><span class="button outline">Open School -></span></div><div class="side-stack" style="margin-top:16px"><div class="pulse-card"><div class="pulse-icon">□</div><div><p class="card-subtitle">May 30 · 18 going</p><p class="card-title">Seoul alumni coffee meetup</p><p class="card-body">A school gathering at Anthracite Hannam. See who is going and decide if it belongs on your calendar.</p></div></div></div></div><div class="fresh-card"><div class="tone-icon">✦</div><div><p class="card-title">Keep your profile current so the right people can find you.</p><p class="card-body">Review imported changes, add missing topics, or confirm everything still looks right.</p><div class="fresh-actions"><span class="button">Review updates</span><span class="button outline">Edit profile</span></div></div></div></div>
+            </div>
+          </section>
+        </div>
+        <div class="verdict">Geist still reads as the most balanced on the real dashboard: direct, current, and strong across dense cards and hero text.</div>
+      </article>
+
+      <article class="mockup public recommended">
+        <header class="mockup-header">
+          <div><h2 class="font-title">2. Public Sans + Inter</h2><div class="option-note">Best for trust: civic infrastructure</div></div>
+          <div class="font-label">Display: Public Sans<br />Body: Inter<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="app">
+          <div class="member-header"><div class="brand"><span class="brand-mark"></span>BridgeCircle</div><div class="app-nav"><span class="active">Home</span><span>People</span><span>Ask</span><span>Help</span><span>Events</span><span>School</span></div><div class="header-actions"><div class="search">Search the circle...</div><div class="icon-button">3</div><div class="avatar">RL</div></div></div>
+          <div class="announcement"><div class="announcement-inner"><span><strong>Announcement</strong> · Spring alumni mixer invitations are open</span><span>2 days ago -></span></div></div>
+          <section class="home-hero"><div class="hero-inner"><div class="hero-left"><div><p class="eyebrow">Class of 2008 · Chadwick</p><h2 class="hero-title">Ask your school circle.</h2><p class="hero-copy">Hi Richard. Find someone who has been there, or offer help where your experience matters.</p></div><div><div class="ask-bar"><div class="ask-row"><div class="ask-icon">?</div><div class="ask-input">What are you trying to figure out?</div><span class="button">Find people -></span></div></div><div class="prompt-chips"><span class="chip">I want to move from consulting into product</span><span class="chip">I need college advice from someone who studied in the US</span><span class="chip">I am moving to Seoul and want to meet alumni nearby</span><span class="chip">Can someone review my resume or portfolio?</span></div></div></div><div class="network-motif"><svg class="network-lines" viewBox="0 0 520 320" aria-hidden="true"><path d="M72 226 C142 92 232 84 312 158 S430 244 478 92" fill="none" stroke="rgb(147 197 253 / .72)" stroke-width="1.6"/><path d="M62 86 C150 138 212 232 318 198 S414 124 466 222" fill="none" stroke="rgb(250 250 249 / .16)" stroke-width="1"/><circle cx="72" cy="226" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="156" cy="124" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="252" cy="184" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="336" cy="154" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="448" cy="96" r="8" fill="rgb(250 250 249 / .94)"/></svg><div class="network-content"><div><p class="eyebrow">Live school circle</p><h3 class="network-title">A trusted map of people who can help, and people you can help.</h3></div><div class="network-stats"><div class="network-stat"><div class="stat-value">48</div><div class="stat-label">Open helpers</div></div><div class="network-stat"><div class="stat-value">7</div><div class="stat-label">Need reply</div></div><div class="network-stat"><div class="stat-value">3</div><div class="stat-label">School events</div></div></div></div></div></div></section>
+          <section class="dashboard"><div class="dashboard-grid"><div class="column"><div class="section-head"><div><h3>People who can help you</h3><p>Start from your question. These are open helpers and mentors from your trusted school circle.</p></div><span class="button outline">Ask a question -></span></div><div class="stack"><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar">MC</div><div><div class="person-name">Mina Cho <span class="year">'09</span></div><div class="person-role">Product Lead at Halcyon Health</div><div class="badges"><span class="status">Quick advice</span><span class="status">Mentorship</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>Their path as Product Lead at Halcyon Health may be useful context.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask how you would think about moving from consulting into product?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Mina -></span><span class="button ghost">View profile</span></div></div></div><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar rust">DK</div><div><div class="person-name">Daniel Kim <span class="year">'12</span></div><div class="person-role">Founder at Greenledger · Seoul</div><div class="badges"><span class="status">Quick advice</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>They are connected to Seoul, which may make the conversation more practical.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask for your perspective based on your path?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Daniel -></span><span class="button ghost">View profile</span></div></div></div></div></div><div class="column"><div><div class="section-head"><div><h3>People you could help</h3><p>Requests and likely fits where your experience can be useful.</p></div><span class="button outline">Open Help -></span></div><div class="side-stack" style="margin-top:16px"><div class="opportunity"><div class="tone-icon ochre">✓</div><p class="card-title">Someone is asking for help</p><p class="card-subtitle">Class of 2021</p><p class="card-body">Review their ask and reply if you can help.</p><span class="text-link">Review request -></span></div><div class="opportunity"><div class="tone-icon plum">✓</div><p class="card-title">Keep your helper settings current</p><p class="card-subtitle">Visible in Seoul</p><p class="card-body">Choose quick advice, ongoing mentorship, and the topics where classmates should find you.</p><span class="text-link">Update availability -></span></div></div></div><div><div class="section-head"><div><h3>School pulse</h3><p>Events and announcements stay close to the relationship work.</p></div><span class="button outline">Open School -></span></div><div class="side-stack" style="margin-top:16px"><div class="pulse-card"><div class="pulse-icon">□</div><div><p class="card-subtitle">May 30 · 18 going</p><p class="card-title">Seoul alumni coffee meetup</p><p class="card-body">A school gathering at Anthracite Hannam. See who is going and decide if it belongs on your calendar.</p></div></div></div></div><div class="fresh-card"><div class="tone-icon">✦</div><div><p class="card-title">Keep your profile current so the right people can find you.</p><p class="card-body">Review imported changes, add missing topics, or confirm everything still looks right.</p><div class="fresh-actions"><span class="button">Review updates</span><span class="button outline">Edit profile</span></div></div></div></div></div></section>
+        </div>
+        <div class="verdict">Public Sans + Inter feels the most institutionally trustworthy, especially in labels, cards, and verification-heavy areas.</div>
+      </article>
+
+      <article class="mockup manrope recommended">
+        <header class="mockup-header">
+          <div><h2 class="font-title">3. Manrope + Inter</h2><div class="option-note">Best for presence: confident community SaaS</div></div>
+          <div class="font-label">Display: Manrope<br />Body: Inter<br />Mono: JetBrains Mono</div>
+        </header>
+        <div class="app">
+          <div class="member-header"><div class="brand"><span class="brand-mark"></span>BridgeCircle</div><div class="app-nav"><span class="active">Home</span><span>People</span><span>Ask</span><span>Help</span><span>Events</span><span>School</span></div><div class="header-actions"><div class="search">Search the circle...</div><div class="icon-button">3</div><div class="avatar">RL</div></div></div>
+          <div class="announcement"><div class="announcement-inner"><span><strong>Announcement</strong> · Spring alumni mixer invitations are open</span><span>2 days ago -></span></div></div>
+          <section class="home-hero"><div class="hero-inner"><div class="hero-left"><div><p class="eyebrow">Class of 2008 · Chadwick</p><h2 class="hero-title">Ask your school circle.</h2><p class="hero-copy">Hi Richard. Find someone who has been there, or offer help where your experience matters.</p></div><div><div class="ask-bar"><div class="ask-row"><div class="ask-icon">?</div><div class="ask-input">What are you trying to figure out?</div><span class="button">Find people -></span></div></div><div class="prompt-chips"><span class="chip">I want to move from consulting into product</span><span class="chip">I need college advice from someone who studied in the US</span><span class="chip">I am moving to Seoul and want to meet alumni nearby</span><span class="chip">Can someone review my resume or portfolio?</span></div></div></div><div class="network-motif"><svg class="network-lines" viewBox="0 0 520 320" aria-hidden="true"><path d="M72 226 C142 92 232 84 312 158 S430 244 478 92" fill="none" stroke="rgb(147 197 253 / .72)" stroke-width="1.6"/><path d="M62 86 C150 138 212 232 318 198 S414 124 466 222" fill="none" stroke="rgb(250 250 249 / .16)" stroke-width="1"/><circle cx="72" cy="226" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="156" cy="124" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="252" cy="184" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="336" cy="154" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="448" cy="96" r="8" fill="rgb(250 250 249 / .94)"/></svg><div class="network-content"><div><p class="eyebrow">Live school circle</p><h3 class="network-title">A trusted map of people who can help, and people you can help.</h3></div><div class="network-stats"><div class="network-stat"><div class="stat-value">48</div><div class="stat-label">Open helpers</div></div><div class="network-stat"><div class="stat-value">7</div><div class="stat-label">Need reply</div></div><div class="network-stat"><div class="stat-value">3</div><div class="stat-label">School events</div></div></div></div></div></div></section>
+          <section class="dashboard"><div class="dashboard-grid"><div class="column"><div class="section-head"><div><h3>People who can help you</h3><p>Start from your question. These are open helpers and mentors from your trusted school circle.</p></div><span class="button outline">Ask a question -></span></div><div class="stack"><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar">MC</div><div><div class="person-name">Mina Cho <span class="year">'09</span></div><div class="person-role">Product Lead at Halcyon Health</div><div class="badges"><span class="status">Quick advice</span><span class="status">Mentorship</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>Their path as Product Lead at Halcyon Health may be useful context.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask how you would think about moving from consulting into product?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Mina -></span><span class="button ghost">View profile</span></div></div></div><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar rust">DK</div><div><div class="person-name">Daniel Kim <span class="year">'12</span></div><div class="person-role">Founder at Greenledger · Seoul</div><div class="badges"><span class="status">Quick advice</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>They are connected to Seoul, which may make the conversation more practical.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask for your perspective based on your path?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Daniel -></span><span class="button ghost">View profile</span></div></div></div></div></div><div class="column"><div><div class="section-head"><div><h3>People you could help</h3><p>Requests and likely fits where your experience can be useful.</p></div><span class="button outline">Open Help -></span></div><div class="side-stack" style="margin-top:16px"><div class="opportunity"><div class="tone-icon ochre">✓</div><p class="card-title">Someone is asking for help</p><p class="card-subtitle">Class of 2021</p><p class="card-body">Review their ask and reply if you can help.</p><span class="text-link">Review request -></span></div><div class="opportunity"><div class="tone-icon plum">✓</div><p class="card-title">Keep your helper settings current</p><p class="card-subtitle">Visible in Seoul</p><p class="card-body">Choose quick advice, ongoing mentorship, and the topics where classmates should find you.</p><span class="text-link">Update availability -></span></div></div></div><div><div class="section-head"><div><h3>School pulse</h3><p>Events and announcements stay close to the relationship work.</p></div><span class="button outline">Open School -></span></div><div class="side-stack" style="margin-top:16px"><div class="pulse-card"><div class="pulse-icon">□</div><div><p class="card-subtitle">May 30 · 18 going</p><p class="card-title">Seoul alumni coffee meetup</p><p class="card-body">A school gathering at Anthracite Hannam. See who is going and decide if it belongs on your calendar.</p></div></div></div></div><div class="fresh-card"><div class="tone-icon">✦</div><div><p class="card-title">Keep your profile current so the right people can find you.</p><p class="card-body">Review imported changes, add missing topics, or confirm everything still looks right.</p><div class="fresh-actions"><span class="button">Review updates</span><span class="button outline">Edit profile</span></div></div></div></div></div></section>
+        </div>
+        <div class="verdict">Manrope + Inter gives the dashboard more presence, especially in the hero and section titles, without going decorative.</div>
+      </article>
+
+      <article class="mockup plex">
+        <header class="mockup-header">
+          <div><h2 class="font-title">4. IBM Plex Sans</h2><div class="option-note">Best institutional alternative</div></div>
+          <div class="font-label">Display: IBM Plex Sans<br />Body: IBM Plex Sans<br />Mono: IBM Plex Mono</div>
+        </header>
+        <div class="app">
+          <div class="member-header"><div class="brand"><span class="brand-mark"></span>BridgeCircle</div><div class="app-nav"><span class="active">Home</span><span>People</span><span>Ask</span><span>Help</span><span>Events</span><span>School</span></div><div class="header-actions"><div class="search">Search the circle...</div><div class="icon-button">3</div><div class="avatar">RL</div></div></div>
+          <div class="announcement"><div class="announcement-inner"><span><strong>Announcement</strong> · Spring alumni mixer invitations are open</span><span>2 days ago -></span></div></div>
+          <section class="home-hero"><div class="hero-inner"><div class="hero-left"><div><p class="eyebrow">Class of 2008 · Chadwick</p><h2 class="hero-title">Ask your school circle.</h2><p class="hero-copy">Hi Richard. Find someone who has been there, or offer help where your experience matters.</p></div><div><div class="ask-bar"><div class="ask-row"><div class="ask-icon">?</div><div class="ask-input">What are you trying to figure out?</div><span class="button">Find people -></span></div></div><div class="prompt-chips"><span class="chip">I want to move from consulting into product</span><span class="chip">I need college advice from someone who studied in the US</span><span class="chip">I am moving to Seoul and want to meet alumni nearby</span><span class="chip">Can someone review my resume or portfolio?</span></div></div></div><div class="network-motif"><svg class="network-lines" viewBox="0 0 520 320" aria-hidden="true"><path d="M72 226 C142 92 232 84 312 158 S430 244 478 92" fill="none" stroke="rgb(147 197 253 / .72)" stroke-width="1.6"/><path d="M62 86 C150 138 212 232 318 198 S414 124 466 222" fill="none" stroke="rgb(250 250 249 / .16)" stroke-width="1"/><circle cx="72" cy="226" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="156" cy="124" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="252" cy="184" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="336" cy="154" r="8" fill="rgb(250 250 249 / .94)"/><circle cx="448" cy="96" r="8" fill="rgb(250 250 249 / .94)"/></svg><div class="network-content"><div><p class="eyebrow">Live school circle</p><h3 class="network-title">A trusted map of people who can help, and people you can help.</h3></div><div class="network-stats"><div class="network-stat"><div class="stat-value">48</div><div class="stat-label">Open helpers</div></div><div class="network-stat"><div class="stat-value">7</div><div class="stat-label">Need reply</div></div><div class="network-stat"><div class="stat-value">3</div><div class="stat-label">School events</div></div></div></div></div></div></section>
+          <section class="dashboard"><div class="dashboard-grid"><div class="column"><div class="section-head"><div><h3>People who can help you</h3><p>Start from your question. These are open helpers and mentors from your trusted school circle.</p></div><span class="button outline">Ask a question -></span></div><div class="stack"><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar">MC</div><div><div class="person-name">Mina Cho <span class="year">'09</span></div><div class="person-role">Product Lead at Halcyon Health</div><div class="badges"><span class="status">Quick advice</span><span class="status">Mentorship</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>Their path as Product Lead at Halcyon Health may be useful context.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask how you would think about moving from consulting into product?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Mina -></span><span class="button ghost">View profile</span></div></div></div><div class="card match-card"><div class="match-main"><div class="person-row"><div class="person-avatar rust">DK</div><div><div class="person-name">Daniel Kim <span class="year">'12</span></div><div class="person-role">Founder at Greenledger · Seoul</div><div class="badges"><span class="status">Quick advice</span></div></div></div><div class="reason-grid"><div class="reason-box"><p class="label">Why this match</p><p>They are connected to Seoul, which may make the conversation more practical.</p></div><div class="reason-box white"><p class="label">Suggested first ask</p><p>Could I ask for your perspective based on your path?</p></div></div></div><div class="signal-rail"><p>Start with a lightweight ask. They can respond at their own pace.</p><div class="rail-actions"><span class="button">Ask Daniel -></span><span class="button ghost">View profile</span></div></div></div></div></div><div class="column"><div><div class="section-head"><div><h3>People you could help</h3><p>Requests and likely fits where your experience can be useful.</p></div><span class="button outline">Open Help -></span></div><div class="side-stack" style="margin-top:16px"><div class="opportunity"><div class="tone-icon ochre">✓</div><p class="card-title">Someone is asking for help</p><p class="card-subtitle">Class of 2021</p><p class="card-body">Review their ask and reply if you can help.</p><span class="text-link">Review request -></span></div><div class="opportunity"><div class="tone-icon plum">✓</div><p class="card-title">Keep your helper settings current</p><p class="card-subtitle">Visible in Seoul</p><p class="card-body">Choose quick advice, ongoing mentorship, and the topics where classmates should find you.</p><span class="text-link">Update availability -></span></div></div></div><div><div class="section-head"><div><h3>School pulse</h3><p>Events and announcements stay close to the relationship work.</p></div><span class="button outline">Open School -></span></div><div class="side-stack" style="margin-top:16px"><div class="pulse-card"><div class="pulse-icon">□</div><div><p class="card-subtitle">May 30 · 18 going</p><p class="card-title">Seoul alumni coffee meetup</p><p class="card-body">A school gathering at Anthracite Hannam. See who is going and decide if it belongs on your calendar.</p></div></div></div></div><div class="fresh-card"><div class="tone-icon">✦</div><div><p class="card-title">Keep your profile current so the right people can find you.</p><p class="card-body">Review imported changes, add missing topics, or confirm everything still looks right.</p><div class="fresh-actions"><span class="button">Review updates</span><span class="button outline">Edit profile</span></div></div></div></div></div></section>
+        </div>
+        <div class="verdict">IBM Plex Sans feels credible and mature on the app dashboard, but it leans more institutional and less warm than the first three.</div>
+      </article>
+    </main>
+  </body>
+</html>

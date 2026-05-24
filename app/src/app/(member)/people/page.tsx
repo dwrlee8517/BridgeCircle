@@ -5,11 +5,12 @@ import type { ExtractedFilters } from '@/lib/search/extractFilters'
 import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
-import { displayOrgName } from '@/lib/utils'
 import { PeopleSearchSurface, ResultGrid, ResultsHeader } from './people-search-surface'
 import { ResultCard } from './result-card'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
+
+const PAGE_SIZE = 10
 
 export default async function PeoplePage({
   searchParams,
@@ -24,6 +25,7 @@ export default async function PeoplePage({
   const rawNl = params.nl
   const nlQuery = (Array.isArray(rawNl) ? rawNl[0] : rawNl)?.trim() ?? ''
   const useNL = nlQuery.length > 0
+  const requestedPage = Number.parseInt(singleParam(params.page) ?? '1', 10)
 
   const { data: viewerMembership } = await supabase
     .from('organization_memberships')
@@ -37,31 +39,23 @@ export default async function PeoplePage({
     return null
   }
 
-  const [{ data: viewerBase }, { data: viewerOrgProfile }, totalAlumniRes, friendsRes] =
-    await Promise.all([
-      supabase
-        .from('base_profiles')
-        .select('university, major, city')
-        .eq('user_id', session.userId)
-        .maybeSingle(),
-      supabase
-        .from('organization_profiles')
-        .select('graduation_year')
-        .eq('organization_membership_id', viewerMembership.id)
-        .maybeSingle(),
-      supabase
-        .from('organization_memberships')
-        .select('id', { count: 'exact', head: true })
-        .eq('organization_id', viewerMembership.organization_id)
-        .eq('status', 'active'),
-      supabase
-        .from('friendships')
-        .select('user_a_id, user_b_id')
-        .or(`user_a_id.eq.${session.userId},user_b_id.eq.${session.userId}`),
-    ])
+  const [{ data: viewerBase }, { data: viewerOrgProfile }, friendsRes] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select('university, major, city')
+      .eq('user_id', session.userId)
+      .maybeSingle(),
+    supabase
+      .from('organization_profiles')
+      .select('graduation_year')
+      .eq('organization_membership_id', viewerMembership.id)
+      .maybeSingle(),
+    supabase
+      .from('friendships')
+      .select('user_a_id, user_b_id')
+      .or(`user_a_id.eq.${session.userId},user_b_id.eq.${session.userId}`),
+  ])
 
-  const orgName = displayOrgName((viewerMembership.organizations as { name: string } | null)?.name)
-  const totalAlumni = totalAlumniRes.count ?? 0
   const friendIds = new Set(
     (friendsRes.data ?? []).map((f) =>
       f.user_a_id === session.userId ? f.user_b_id : f.user_a_id,
@@ -134,11 +128,16 @@ export default async function PeoplePage({
   const hasActiveSearch = anyFilter || useNL
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
   const resultCount = showNaturalLanguageResults ? nlHits.length : structuredHits.length
+  const totalPages = Math.max(1, Math.ceil(resultCount / PAGE_SIZE))
+  const currentPage = Number.isFinite(requestedPage)
+    ? Math.min(Math.max(requestedPage, 1), totalPages)
+    : 1
+  const pageStart = (currentPage - 1) * PAGE_SIZE
+  const pagedNlHits = nlHits.slice(pageStart, pageStart + PAGE_SIZE)
+  const pagedStructuredHits = structuredHits.slice(pageStart, pageStart + PAGE_SIZE)
 
   return (
     <div className="bg-background min-h-full">
-      <Hero orgName={orgName} totalAlumni={totalAlumni} />
-
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
         <PeopleSearchSurface
           filtersOpen={filtersOpen}
@@ -184,42 +183,9 @@ export default async function PeoplePage({
                 }
               />
             ) : (
-              <ResultGrid>
-                {nlHits.map((h) => (
-                  <ResultCard
-                    key={h.userId}
-                    userId={h.userId}
-                    name={h.name}
-                    preferredName={h.preferredName}
-                    headline={h.headline}
-                    currentEmployer={h.currentEmployer}
-                    currentTitle={h.currentTitle}
-                    city={h.city}
-                    university={h.university}
-                    major={h.major}
-                    graduationYear={h.graduationYear}
-                    avatarUrl={h.avatarUrl}
-                    isOpenAsMentor={h.isOpenAsMentor}
-                    isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
-                    mentorPaused={h.mentorPaused}
-                    mentoringTopics={h.mentoringTopics}
-                    isFriend={friendIds.has(h.userId)}
-                    rationale={h.rationale}
-                    rerankScore={h.rerankScore}
-                    topCareerEntry={pickTopCareerEntry(h.careerHistory)}
-                    maxActiveMentees={h.maxActiveMentees}
-                    maxPendingRequests={h.maxPendingRequests}
-                    activeMenteeCount={h.activeMenteeCount}
-                    pendingRequestCount={h.pendingRequestCount}
-                  />
-                ))}
-              </ResultGrid>
-            )
-          ) : (
-            <>
-              {structuredHits.length > 0 ? (
+              <>
                 <ResultGrid>
-                  {structuredHits.map((h) => (
+                  {pagedNlHits.map((h) => (
                     <ResultCard
                       key={h.userId}
                       userId={h.userId}
@@ -238,9 +204,9 @@ export default async function PeoplePage({
                       mentorPaused={h.mentorPaused}
                       mentoringTopics={h.mentoringTopics}
                       isFriend={friendIds.has(h.userId)}
-                      rationale={null}
-                      rerankScore={null}
-                      topCareerEntry={null}
+                      rationale={h.rationale}
+                      rerankScore={h.rerankScore}
+                      topCareerEntry={pickTopCareerEntry(h.careerHistory)}
                       maxActiveMentees={h.maxActiveMentees}
                       maxPendingRequests={h.maxPendingRequests}
                       activeMenteeCount={h.activeMenteeCount}
@@ -248,6 +214,55 @@ export default async function PeoplePage({
                     />
                   ))}
                 </ResultGrid>
+                <PeoplePagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalResults={resultCount}
+                  params={params}
+                />
+              </>
+            )
+          ) : (
+            <>
+              {structuredHits.length > 0 ? (
+                <>
+                  <ResultGrid>
+                    {pagedStructuredHits.map((h) => (
+                      <ResultCard
+                        key={h.userId}
+                        userId={h.userId}
+                        name={h.name}
+                        preferredName={h.preferredName}
+                        headline={h.headline}
+                        currentEmployer={h.currentEmployer}
+                        currentTitle={h.currentTitle}
+                        city={h.city}
+                        university={h.university}
+                        major={h.major}
+                        graduationYear={h.graduationYear}
+                        avatarUrl={h.avatarUrl}
+                        isOpenAsMentor={h.isOpenAsMentor}
+                        isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
+                        mentorPaused={h.mentorPaused}
+                        mentoringTopics={h.mentoringTopics}
+                        isFriend={friendIds.has(h.userId)}
+                        rationale={null}
+                        rerankScore={null}
+                        topCareerEntry={null}
+                        maxActiveMentees={h.maxActiveMentees}
+                        maxPendingRequests={h.maxPendingRequests}
+                        activeMenteeCount={h.activeMenteeCount}
+                        pendingRequestCount={h.pendingRequestCount}
+                      />
+                    ))}
+                  </ResultGrid>
+                  <PeoplePagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalResults={resultCount}
+                    params={params}
+                  />
+                </>
               ) : null}
               {structuredHits.length === 0 && hasActiveSearch ? (
                 <EmptyResults
@@ -273,54 +288,75 @@ export default async function PeoplePage({
   )
 }
 
-function Hero({ orgName, totalAlumni }: { orgName: string; totalAlumni: number }) {
-  const description = `Explore ${orgName} when you want to browse the wider circle. For precise help, describe the question in plain English and BridgeCircle will explain why each person fits.`
-
-  return (
-    <section className="relative overflow-hidden border-b border-border bg-card">
-      {/* Background Dots */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(rgba(12,12,11,0.15) 1px, transparent 1px)',
-          backgroundSize: '16px 16px',
-        }}
-      />
-      {/* Decorative SVG motifs */}
-      <svg
-        aria-hidden="true"
-        role="presentation"
-        viewBox="0 0 200 200"
-        className="absolute right-0 top-1/2 -translate-y-1/2 h-[200px] w-[200px] opacity-15 pointer-events-none sm:right-10 md:right-16 lg:right-24"
-      >
-        <title>Decorative two-circle motif</title>
-        <circle cx="80" cy="100" r="60" fill="none" className="stroke-foreground" strokeWidth="1" />
-        <circle cx="130" cy="100" r="60" fill="none" className="stroke-primary" strokeWidth="1" />
-      </svg>
-
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
-        <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
-          People · {totalAlumni.toLocaleString()} {totalAlumni === 1 ? 'member' : 'members'}
-        </p>
-        <h1
-          className="bc-fraunces mt-2 text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-[44px]"
-          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-        >
-          Explore the school circle.
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm md:text-base text-muted-foreground">{description}</p>
-      </div>
-    </section>
-  )
-}
-
 function EmptyResults({ text }: { text: React.ReactNode }) {
   return (
     <div className="rounded-[6px] border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
       {text}
     </div>
   )
+}
+
+function PeoplePagination({
+  currentPage,
+  totalPages,
+  totalResults,
+  params,
+}: {
+  currentPage: number
+  totalPages: number
+  totalResults: number
+  params: RawSearchParams
+}) {
+  if (totalPages <= 1) return null
+
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1)
+  const start = (currentPage - 1) * PAGE_SIZE + 1
+  const end = Math.min(currentPage * PAGE_SIZE, totalResults)
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-xs font-medium text-muted-foreground">
+        Showing {start}-{end} of {totalResults}
+      </p>
+      <nav aria-label="People result pages" className="flex items-center gap-1.5">
+        {pageNumbers.map((page) => {
+          const isCurrent = page === currentPage
+          return (
+            <Link
+              key={page}
+              href={peoplePageHref(params, page)}
+              aria-current={isCurrent ? 'page' : undefined}
+              className={
+                isCurrent
+                  ? 'flex size-8 items-center justify-center rounded-[6px] bg-primary text-sm font-semibold text-primary-foreground'
+                  : 'flex size-8 items-center justify-center rounded-[6px] border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
+              }
+            >
+              {page}
+            </Link>
+          )
+        })}
+      </nav>
+    </div>
+  )
+}
+
+function peoplePageHref(params: RawSearchParams, page: number) {
+  const next = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (key === 'page' || value === undefined) continue
+    const values = Array.isArray(value) ? value : [value]
+    for (const item of values) {
+      if (item.trim().length > 0) next.append(key, item)
+    }
+  }
+  if (page > 1) next.set('page', String(page))
+  const search = next.toString()
+  return search ? `/people?${search}` : '/people'
+}
+
+function singleParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
 }
 
 function pickTopCareerEntry(

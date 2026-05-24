@@ -6,12 +6,15 @@ This is the home for current BridgeCircle UX, UI, screen-level decisions, and de
 
 Use this order when docs or artifacts disagree:
 
-1. Product behavior: [`../specs/`](../specs/) and [`../architecture/`](../architecture/)
-2. Active UX interpretation: [`ux/`](ux/)
-3. Active UI system: [`ui/design-system/`](ui/design-system/)
-4. Screen-level bridge: [`screens/`](screens/)
-5. Experimental workbench: [`explorations/`](explorations/) only when explicitly requested or promoted
-6. Live implementation: [`../../app/src/app/globals.css`](../../app/src/app/globals.css) and [`../../app/src/components/ui/`](../../app/src/components/ui/)
+1. Live implementation for current rendered behavior:
+   [`../../app/src/`](../../app/src/)
+2. Product behavior: [`../specs/`](../specs/) and
+   [`../architecture/`](../architecture/)
+3. Active UX interpretation: [`ux/`](ux/)
+4. Active UI system: [`ui/design-system/`](ui/design-system/)
+5. Screen-level bridge: [`screens/`](screens/)
+6. Experimental workbench: [`explorations/`](explorations/) only when
+   explicitly requested or promoted
 
 ## Working rule
 

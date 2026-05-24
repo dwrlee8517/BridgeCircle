@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001'
+
 /**
  * BridgeCircle e2e config.
  *
@@ -20,7 +22,7 @@ export default defineConfig({
   // as an artifact for trace inspection. Locally we keep the simpler "list".
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+    baseURL,
     trace: 'on-first-retry',
   },
   projects: [
@@ -31,7 +33,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'doppler run -- pnpm dev',
-    url: 'http://localhost:3000',
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

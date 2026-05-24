@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle — Type systems from companies with great UI · May 24</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@400;500&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Public+Sans:wght@400;500;600;700&family=Mona+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Hubot+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&family=Vollkorn:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafaf9;
+        --card: #ffffff;
+        --fg: #0c0c0b;
+        --muted: #4d4d4a;
+        --border: #dcdcd6;
+        --primary: #2563eb;
+        --primary-tint: rgb(37 99 235 / 10%);
+        --success-tint: rgb(59 110 81 / 10%);
+        --sage: #3b6e51;
+
+        /* defaults — overridden per .option */
+        --serif: 'IBM Plex Serif', Georgia, serif;
+        --sans: 'IBM Plex Sans', system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      main { max-width: 1100px; margin: 0 auto; padding: 56px 24px 96px; }
+
+      .top h1 {
+        font-family: var(--serif);
+        font-size: 40px;
+        line-height: 1.1;
+        font-weight: 600;
+        margin: 0 0 12px;
+        letter-spacing: -0.01em;
+      }
+      .top p {
+        max-width: 56ch;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--muted);
+        margin: 0 0 14px;
+      }
+      .top .meta {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+        margin-bottom: 12px;
+      }
+
+      .brief {
+        margin: 32px 0 40px;
+        padding: 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+      .brief h2 {
+        font-family: var(--serif);
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 12px;
+      }
+      .brief table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+      }
+      .brief th, .brief td {
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      .brief th {
+        font-weight: 600;
+        background: rgb(235 235 229 / 0.5);
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .brief td:first-child { font-weight: 600; width: 24%; }
+      .brief code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        background: var(--primary-tint);
+        color: var(--primary);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      .option { margin: 64px 0; }
+      .option header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      .option header h2 {
+        font-family: var(--serif);
+        font-size: 30px;
+        line-height: 1.15;
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .option header .kicker {
+        font-family: var(--sans);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .lineage {
+        font-family: var(--sans);
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--muted);
+        max-width: 70ch;
+        margin: 4px 0 14px;
+      }
+      .lineage b { color: var(--fg); font-weight: 600; }
+      .lineage code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        background: var(--primary-tint);
+        color: var(--primary);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+
+      .preview {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 32px;
+        margin: 8px 0;
+      }
+      .mock { display: grid; gap: 24px; }
+
+      .wordmark {
+        font-family: var(--serif);
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .hero-kicker {
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+      .hero-h1 {
+        font-family: var(--serif);
+        font-size: 36px;
+        line-height: 1.1;
+        font-weight: 600;
+        letter-spacing: -0.005em;
+        margin: 6px 0 0;
+        max-width: 24ch;
+      }
+      .hero-sub {
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--muted);
+        margin: 10px 0 0;
+        max-width: 50ch;
+      }
+
+      .askbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px 14px;
+        box-shadow: 0 18px 60px rgb(12 12 11 / 0.06);
+      }
+      .askbar .icon {
+        width: 36px; height: 36px; border-radius: 6px;
+        background: var(--primary); color: #fff;
+        display: grid; place-items: center;
+        font-family: var(--sans); font-weight: 700;
+      }
+      .askbar input {
+        flex: 1; border: none; outline: none; background: transparent;
+        font-family: var(--sans); font-size: 16px; color: var(--fg);
+      }
+      .btn {
+        background: var(--primary); color: #fff; border: none; border-radius: 6px;
+        padding: 10px 16px; font-family: var(--sans); font-size: 14px; font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-outline {
+        background: transparent; color: var(--fg); border: 1px solid var(--border);
+      }
+
+      .person {
+        display: grid; grid-template-columns: 56px 1fr auto;
+        gap: 16px;
+        background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+        padding: 20px; align-items: start;
+      }
+      .avatar {
+        width: 56px; height: 56px; border-radius: 6px; background: #ebebe5;
+        display: grid; place-items: center;
+        font-family: var(--serif); font-weight: 700; font-size: 20px; color: var(--muted);
+      }
+      .person-name {
+        font-family: var(--serif); font-size: 20px; font-weight: 600;
+        line-height: 1.2; letter-spacing: -0.005em;
+      }
+      .person-meta {
+        font-family: var(--sans); font-size: 14px; color: var(--muted);
+        line-height: 1.5; margin: 4px 0 0;
+      }
+      .pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 6px; height: 22px;
+        padding: 0 8px; border-radius: 8px;
+        font-family: var(--sans); font-size: 11px; font-weight: 600;
+      }
+      .pill .dot { width: 6px; height: 6px; border-radius: 999px; }
+      .pill.verified { border: 1px solid rgb(12 12 11 / 0.2); background: var(--card); color: var(--fg); }
+      .pill.open { background: var(--success-tint); color: var(--sage); border: 1px solid rgb(59 110 81 / 0.2); }
+      .pill.open .dot { background: var(--sage); }
+      .why-label {
+        font-family: var(--sans); font-size: 11px; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary);
+      }
+      .why-body {
+        font-family: var(--sans); font-size: 13.5px; line-height: 1.55;
+        color: var(--fg); margin: 4px 0 0;
+      }
+      .person-side { display: flex; flex-direction: column; gap: 8px; }
+      .person-body {
+        margin-top: 12px; padding: 12px;
+        background: rgb(235 235 229 / 0.35);
+        border: 1px solid var(--border); border-radius: 6px;
+      }
+      .pq {
+        font-family: var(--serif); font-style: italic; font-size: 17px;
+        line-height: 1.55; border-left: 3px solid var(--primary); padding-left: 14px;
+        color: var(--fg); margin: 0; max-width: 60ch;
+      }
+
+      .critique {
+        margin-top: 16px; padding: 16px 18px;
+        background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+        font-family: var(--sans); font-size: 13.5px; line-height: 1.6; color: var(--fg);
+      }
+      .critique > div + div { margin-top: 6px; }
+      .critique .what::before { content: 'What this company does right — '; font-weight: 600; color: var(--sage); }
+      .critique .map::before { content: 'How it maps to BridgeCircle — '; font-weight: 600; color: var(--primary); }
+      .critique .cost::before { content: 'Cost & availability — '; font-weight: 600; color: #c8761a; }
+
+      .rec {
+        background: linear-gradient(180deg, #081126 0%, #0a1832 100%);
+        color: #fafaf9; border-radius: 6px;
+        padding: 24px 28px; margin: 32px 0;
+      }
+      .rec h3 {
+        margin: 0; font-family: var(--serif); font-size: 22px;
+        font-weight: 600; letter-spacing: -0.005em;
+      }
+      .rec p {
+        margin: 8px 0 0; font-family: var(--sans);
+        font-size: 14px; line-height: 1.6;
+        color: rgb(250 250 249 / 0.78); max-width: 60ch;
+      }
+      .rec b { color: #93c5fd; font-weight: 600; }
+
+      .impl {
+        margin-top: 24px; background: #0c0c0b; color: #fafaf9; border-radius: 6px;
+        padding: 20px 22px; font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px; line-height: 1.6; overflow: auto; white-space: pre;
+      }
+      .impl b { color: #93c5fd; font-weight: 500; }
+      .impl em { color: rgb(250 250 249 / 0.5); font-style: normal; }
+
+      /* Per-option font assignments. */
+      .opt-ibm        { --serif: 'IBM Plex Serif', Georgia, serif;   --sans: 'IBM Plex Sans', system-ui, sans-serif; }
+      .opt-newyorker  { --serif: 'Libre Caslon Text', Georgia, serif; --sans: 'Public Sans', system-ui, sans-serif; }
+      .opt-github     { --serif: 'Mona Sans', system-ui, sans-serif;  --sans: 'Mona Sans', system-ui, sans-serif; }
+      .opt-github .hero-h1,
+      .opt-github .wordmark,
+      .opt-github .person-name { font-family: 'Hubot Sans', system-ui, sans-serif; font-weight: 700; }
+      .opt-stripe     { --serif: 'Vollkorn', Georgia, serif;          --sans: 'Inter', system-ui, sans-serif; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="top">
+        <span class="meta">Font exploration · May 24 · Claude · companies with great UI</span>
+        <h1>What if BridgeCircle borrowed a type system, not a font?</h1>
+        <p>
+          The earlier files looked at fonts on their own. This one looks at type as a system —
+          serif + sans + mono treated as one designed family, the way a few well-known companies
+          handle it. Four examples, each rendered on the actual BridgeCircle UI moments. Where
+          the company's fonts are paid, I've shown the closest free approximation and noted
+          what's lost.
+        </p>
+      </div>
+
+      <div class="brief">
+        <h2>How to read the four options against BridgeCircle's brand</h2>
+        <table>
+          <tr>
+            <th>Brand attribute</th>
+            <th>Best match</th>
+            <th>Why</th>
+          </tr>
+          <tr>
+            <td>Verified, institutional</td>
+            <td>IBM Plex</td>
+            <td>Designed as a corporate system; reads as serious without coldness.</td>
+          </tr>
+          <tr>
+            <td>Alumni magazine heritage</td>
+            <td>The New Yorker (Caslon)</td>
+            <td>The canonical American editorial serif; what prep-school print uses.</td>
+          </tr>
+          <tr>
+            <td>Considered modern product</td>
+            <td>GitHub (Mona + Hubot)</td>
+            <td>Recent, less imitated than Geist/Inter; carries craft signal.</td>
+          </tr>
+          <tr>
+            <td>Premium, calm</td>
+            <td>Stripe (Söhne + Tiempos)</td>
+            <td>The gold standard for "this brand pays attention" — but it's paid.</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- ============================ IBM PLEX ============================ -->
+      <section class="option opt-ibm">
+        <header>
+          <div>
+            <span class="kicker">System 1 · Recommended</span>
+            <h2>IBM &nbsp;·&nbsp; IBM Plex Serif + Sans + Mono</h2>
+          </div>
+        </header>
+        <p class="lineage">
+          Commissioned by IBM in <b>2017</b>, designed by Mike Abbink with Bold Monday. Released
+          under the SIL Open Font License — IBM's gift to the design community. Now used by
+          <b>IBM</b>, <b>Wikipedia</b>, <b>MIT Media Lab</b>, and many universities and civic
+          institutions. The three families (<code>Plex Sans</code>, <code>Plex Serif</code>,
+          <code>Plex Mono</code>) were drawn together — they share proportions, x-height, and
+          spacing so they read as one voice.
+        </p>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <div class="what">
+            IBM treats type as part of identity, not decoration. Plex was drawn to feel
+            "engineered yet humanist" — corporate without coldness. Mike Abbink famously said
+            "the goal was a face that fits a software engineer and a research scientist
+            equally." It now spans <b>over 130 languages</b>, including high-quality
+            Korean (Hangul) — meaningful for the Chadwick International campus in Songdo.
+          </div>
+          <div class="map">
+            BridgeCircle is closer to MIT or Wikipedia (verified-network, institutional trust)
+            than to a tech-startup product. Plex Serif on the wordmark + headlines, Plex Sans
+            for UI labels, Plex Mono for the existing tracked uppercase moments — replaces
+            three current fonts (Fraunces, Inter, JetBrains Mono) with one designed system.
+            The "Civic Editorial" voice resolves cleanly into "Plex Editorial."
+          </div>
+          <div class="cost">
+            <b>Free</b> on Google Fonts. Production-ready. All three families.
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ THE NEW YORKER ============================ -->
+      <section class="option opt-newyorker">
+        <header>
+          <div>
+            <span class="kicker">System 2</span>
+            <h2>The New Yorker &nbsp;·&nbsp; Caslon + Neutraface</h2>
+          </div>
+        </header>
+        <p class="lineage">
+          The New Yorker has used variants of <b>Caslon</b> (originally William Caslon, 1722)
+          for over 100 years — currently <code>Adobe Caslon Pro</code> for body and
+          <code>Caslon Pro Italic</code> for the unmistakable pull-quotes and "Goings On" copy.
+          Pairs with <code>Neutraface 2</code> (House Industries) for sans deco accents and
+          NYer-style headlines. Other Caslon users: most Ivy League print, much of the U.S.
+          legal-academic world, and almost every prep-school alumni magazine.
+        </p>
+        <p class="lineage" style="margin-top: -8px;">
+          Below is rendered in <code>Libre Caslon Text</code> + <code>Public Sans</code>, the
+          closest free approximation. (True Adobe Caslon Pro would have more weights and a
+          finer italic, but the silhouette is the same.)
+        </p>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <div class="what">
+            The New Yorker uses type to assert continuity. Caslon was the default of the
+            American Revolution (the Declaration of Independence is set in it). Reading
+            something set in Caslon signals "this institution intends to be around in 50 years."
+            That's the exact signal a verified alumni network is selling.
+          </div>
+          <div class="map">
+            If Chadwick's brand leans on "the school's institutional weight" — founded 1935,
+            alumni magazine voice, prep-school heritage — this is the strongest editorial
+            choice in any of the three explorations. The pull-quote on the profile card
+            ("Cardiologist interested in helping pre-med students.") is exactly where Caslon
+            italic earns its keep.
+          </div>
+          <div class="cost">
+            Adobe Caslon Pro requires <b>Adobe Fonts subscription</b> (Creative Cloud). For
+            self-hosted free use, <code>Libre Caslon Text</code> on Google Fonts is the closest
+            substitute — only 400/700 weights, italic at 400. Acceptable for production if
+            you're willing to live without semibold; tight if you need a real weight ladder.
+            Neutraface 2 is paid (House Industries); <code>Public Sans</code> is the cleanest
+            free substitute.
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ GITHUB ============================ -->
+      <section class="option opt-github">
+        <header>
+          <div>
+            <span class="kicker">System 3</span>
+            <h2>GitHub &nbsp;·&nbsp; Mona Sans + Hubot Sans</h2>
+          </div>
+        </header>
+        <p class="lineage">
+          GitHub commissioned <b>Mona Sans</b> (Degarism Studio, 2022) and <b>Hubot Sans</b>
+          (2023) as their identity system. Both are <b>variable fonts</b> — one file covers
+          weight + width axes — and both are SIL-licensed. Used across github.com, the GitHub
+          Universe brand, and GitHub's product documentation. Mona is the workhorse; Hubot is
+          the "weirder cousin" reserved for headlines and the wordmark. Together they're
+          deliberately not Inter — GitHub explicitly wanted a face that wasn't generic
+          sans-tech.
+        </p>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <div class="what">
+            GitHub made type a craft moment. Hubot's wider, slightly square letterforms feel
+            engineered without being soulless — they read as "we drew our own thing because
+            it mattered to us." That signal — craft applied to the boring parts — is exactly
+            what GitHub wants to project to developers. It's the antithesis of pulling Inter
+            from a CDN.
+          </div>
+          <div class="map">
+            Notice the headline above — no serif at all. This is the most modern of the four
+            options. If BridgeCircle wants to lean away from "editorial heritage" and toward
+            "considered modern tooling," this is the move. The lack of a serif removes one of
+            the brand's current characters (the Fraunces pull-quote), which may or may not be
+            what you want.
+          </div>
+          <div class="cost">
+            <b>Free</b> on Google Fonts. Both variable. Best loaded with the <code>opsz</code>
+            and <code>wdth</code> axes via <code>next/font/google</code>. No serif means
+            <code>.bc-pull-quote</code> needs to be rebuilt as a sans treatment (italic +
+            heavier rule) — small refactor.
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ STRIPE ============================ -->
+      <section class="option opt-stripe">
+        <header>
+          <div>
+            <span class="kicker">System 4</span>
+            <h2>Stripe &nbsp;·&nbsp; Söhne + Tiempos</h2>
+          </div>
+        </header>
+        <p class="lineage">
+          Stripe set the modern "premium fintech" type standard. Their stack: <code>Söhne</code>
+          (Klim Type Foundry, 2019) for sans, occasionally paired with <code>Tiempos
+          Headline</code> (also Klim) for editorial pages. Both designed by Kris Sowersby in
+          New Zealand. Now imitated by half of Series A SaaS — but used directly only by
+          companies with a Klim license, which is part of the signal. Other Klim users:
+          <b>Substack</b>, <b>Medium</b> Pro, <b>Linear</b> for marketing, <b>OpenAI</b> for
+          some surfaces.
+        </p>
+        <p class="lineage" style="margin-top: -8px;">
+          Below is rendered with <code>Inter + Vollkorn</code> as the closest free
+          approximation. The fidelity to Söhne is poor (Inter is rounder and chunkier than
+          Söhne); Vollkorn approximates Tiempos's warmth but not its high contrast.
+        </p>
+        <div class="preview">
+          <div class="mock">
+            <div class="wordmark">BridgeCircle</div>
+            <div>
+              <div class="hero-kicker">Class of 2005 · Chadwick School</div>
+              <h3 class="hero-h1">Hi Amy. Who do you want to ask?</h3>
+              <p class="hero-sub">
+                Find someone who has been there, or offer help where your experience matters.
+              </p>
+            </div>
+            <div class="askbar">
+              <div class="icon">?</div>
+              <input placeholder="What are you trying to figure out?" />
+              <button class="btn">Find people</button>
+            </div>
+            <div class="person">
+              <div class="avatar">JW</div>
+              <div>
+                <div class="person-name">Dr. Jessica Wong</div>
+                <p class="person-meta">Cardiologist at Mayo Clinic · Chicago, IL</p>
+                <div class="pills">
+                  <span class="pill verified">✓ Verified '08</span>
+                  <span class="pill open"><span class="dot"></span> Open to mentor</span>
+                  <span class="pill open"><span class="dot"></span> Open to advice</span>
+                </div>
+                <div class="person-body">
+                  <div class="why-label">Why this match</div>
+                  <p class="why-body">
+                    She helps with pre-med students and mid-career transitions in healthcare,
+                    which fits your question about clinical paths after consulting.
+                  </p>
+                </div>
+              </div>
+              <div class="person-side">
+                <button class="btn">Ask Jessica for advice</button>
+                <button class="btn btn-outline">View profile</button>
+              </div>
+            </div>
+            <blockquote class="pq">"Cardiologist interested in helping pre-med students."</blockquote>
+          </div>
+        </div>
+        <div class="critique">
+          <div class="what">
+            Stripe's typography reads as "calm authority." Söhne is restrained — no quirks,
+            no warmth pretending to be charm — and Tiempos italic is the most photographed
+            italic in tech. The brand's confidence is partly because Stripe paid for fonts
+            other people don't have, and that exclusivity translates into "the brand is taking
+            itself seriously."
+          </div>
+          <div class="map">
+            BridgeCircle's brand voice (Civic Editorial, considered) is more aligned with
+            Stripe than with GitHub or IBM in tone. But the cost of the actual Klim license
+            for a small alumni-network product is hard to justify; and the free approximation
+            doesn't capture what makes it special. Listed here for inspiration, not as a
+            practical pick.
+          </div>
+          <div class="cost">
+            <b>Söhne + Tiempos: paid</b>, licensed per-domain from Klim Type Foundry, ~$1,800
+            for a small business pack. If the brand justifies it later, this is the upgrade
+            path. For now: pick a free system, ship, revisit if revenue arrives.
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ REC ============================ -->
+      <div class="rec">
+        <h3>Recommendation: System 1 — IBM Plex (Serif + Sans + Mono)</h3>
+        <p>
+          Of the four, only Plex is both <b>free</b> and <b>designed as a system</b>. It
+          replaces all three of BridgeCircle's current fonts (Fraunces, Inter, JetBrains
+          Mono) with one designed family — one voice across wordmark, headline, body, label,
+          mono, and code. Multi-script coverage matters for Chadwick International (Songdo).
+          And the company association (IBM, MIT, Wikipedia) puts the brand in institutional
+          company without the "AI template" feeling.
+        </p>
+        <p style="margin-top: 12px;">
+          If the brand decides it wants to lean harder into prep-school heritage, layer
+          <b>Libre Caslon Text</b> on top of Plex for the wordmark and pull-quotes only —
+          two-family system with Plex as the workhorse. Best of both signals.
+        </p>
+      </div>
+
+      <div class="impl">
+<em>// app_claude/src/app/layout.tsx — adopt IBM Plex as a full system.</em>
+<em>// Three current fonts (Fraunces, Inter, JetBrains Mono) become one family.</em>
+
+<b>import</b> { IBM_Plex_Sans, IBM_Plex_Serif, IBM_Plex_Mono, Inter_Tight } <b>from</b> 'next/font/google'
+
+<b>const</b> sans = IBM_Plex_Sans({
+  variable: '--font-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+})
+
+<b>const</b> serif = IBM_Plex_Serif({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+})
+
+<b>const</b> mono = IBM_Plex_Mono({
+  variable: '--font-mono',
+  subsets: ['latin'],
+  weight: ['400', '500'],
+})
+
+<em>// --font-display can keep Inter_Tight or also point to Plex Sans 700.</em>
+<em>// The .bc-fraunces helper class rename to .bc-display is the only cleanup.</em>
+      </div>
+    </main>
+  </body>
+</html>

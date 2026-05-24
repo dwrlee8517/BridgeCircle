@@ -62,10 +62,7 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {eyebrow}
         </p>
-        <h1
-          className="bc-fraunces mt-2 text-3xl font-bold tracking-[-0.025em] text-foreground sm:text-4xl"
-          style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-        >
+        <h1 className="font-heading mt-2 text-3xl font-bold tracking-[-0.025em] text-foreground sm:text-4xl">
           {title}
         </h1>
         <div className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{lede}</div>

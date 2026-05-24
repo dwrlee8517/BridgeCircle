@@ -93,7 +93,7 @@ export function MemberHeader({
               name="q"
               type="search"
               placeholder="Search the circle…"
-              className="w-44 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50 text-foreground"
+              className="h-full w-44 border-none bg-transparent p-0 text-sm text-foreground shadow-none outline-none placeholder:text-muted-foreground/50 focus:border-none focus:shadow-none focus:ring-0"
               suppressHydrationWarning
             />
           </form>

@@ -1,28 +1,32 @@
 import type { Metadata, Viewport } from 'next'
-import { Fraunces, Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google'
+import { Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-// Body font. See docs/experience/ui/design-system/ for the active typography direction.
-// The variable name `--font-sans` is what shadcn / Tailwind utilities resolve to.
+// Type system: Inter Tight (display) + Inter (body) + JetBrains Mono (meta).
+// Three sans/mono families, no serif. Matches the Civic Editorial spec
+// documented in docs/experience/ui/design-system/tokens.md.
+//
+// The IBM Plex full-system swap (2026-05-24 morning) was reverted the
+// same day because it replaced Inter Tight on hero h1s, changing
+// surfaces the user never intended to change. See
+// docs/font_explorations_may24_companies_claude.html for the considered
+// alternatives that document the reasoning.
+
+// Body font. The variable name `--font-sans` is what shadcn / Tailwind
+// utilities resolve to.
 const sans = Inter({
   variable: '--font-sans',
   subsets: ['latin'],
 })
 
-// Display heading font for modern editorial look.
+// Display heading font for the modern editorial look — used via the
+// `font-heading` Tailwind utility on hero h1s and section h2s.
 const display = Inter_Tight({
   variable: '--font-display',
   subsets: ['latin'],
 })
 
-// Editorial serif voice — wordmark, profile-card names, footer microcopy.
-const serif = Fraunces({
-  variable: '--font-serif',
-  subsets: ['latin'],
-  axes: ['SOFT', 'WONK', 'opsz'],
-})
-
-// Monospace font for system metadata, dates, and technical details.
+// Monospace for system metadata, dates, and technical details.
 const mono = JetBrains_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
@@ -48,7 +52,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${display.variable} ${serif.variable} ${mono.variable} h-full antialiased`}
+      className={`${sans.variable} ${display.variable} ${mono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>

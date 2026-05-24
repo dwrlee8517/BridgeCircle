@@ -4,6 +4,7 @@ docs/screenshots/
 # Test artifacts from running Playwright from the repository root.
 /test-results/
 /playwright-report/
+/output/
 
 # Personal Obsidian vault — note-taking workspace, not project state.
 .obsidian/

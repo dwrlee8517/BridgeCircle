@@ -151,22 +151,21 @@ export function getEventMetadata(title: string): EventMetadata {
   if (normalizedTitle.includes('roundtable') || normalizedTitle.includes('tech')) {
     return {
       category: 'TECH & PRODUCT',
-      tagline:
-        'Future of generative AI, developer tooling, and product design with Chadwick SF tech leaders.',
+      tagline: 'A focused roundtable for alumni working across product, engineering, and design.',
       preparations: [
-        'Prerequisite: Share one project repo or product mockup',
-        'Suggested: Read the AI agent integration guide beforehand',
+        'Bring one current project, team challenge, or hiring question',
+        'Use People before the event to find two alumni you want to meet',
       ],
       agenda: [
-        { time: '6:30 PM', title: 'Check-in & Hardware Mockups Exhibition', sub: 'Foyer area' },
+        { time: '6:30 PM', title: 'Arrival and introductions', sub: 'Foyer area' },
         {
           time: '7:00 PM',
-          title: 'Modulated Panel: "Scaling Local Agents on Edge"',
+          title: 'Roundtable discussion',
           sub: 'Hartwood Library main stage',
         },
         {
           time: '8:00 PM',
-          title: 'Drinks Reception & Library Breakouts',
+          title: 'Small-group follow-ups',
           sub: 'Terrace garden networking',
         },
       ],

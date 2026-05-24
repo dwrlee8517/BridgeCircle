@@ -42,7 +42,7 @@ export function PeopleSearchSurface({ defaults, filtersOpen, children }: Props) 
   const [isPending, startTransition] = useTransition()
   const [searchKind, setSearchKind] = useState<SearchKind>('structured')
   const [stage, setStage] = useState<Stage>('hidden')
-  const [density, setDensity] = useState<Density>('comfortable')
+  const [density, setDensity] = useState<Density>('compact')
 
   useEffect(() => {
     if (!isPending) return
@@ -146,7 +146,7 @@ export function ResultsHeader({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          Grid
+          Cards
         </button>
         <button
           type="button"
@@ -158,7 +158,7 @@ export function ResultsHeader({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          List
+          Rows
         </button>
       </div>
     </div>
@@ -168,7 +168,7 @@ export function ResultsHeader({
 export function ResultGrid({ children }: { children: React.ReactNode }) {
   const { density } = useDensity()
   if (density === 'compact') {
-    return <div className="flex flex-col gap-2.5">{children}</div>
+    return <div className="flex flex-col gap-3">{children}</div>
   }
   return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">{children}</div>
 }

@@ -258,12 +258,26 @@ export default async function ProfileDetailPage({
         </svg>
 
         <div className="relative z-10 space-y-4">
-          {/* Top Badges */}
+          {/* Top Badges
+              Synthesis P3: Verified is a category (identity), not a state
+              (availability). Render it as an outlined check pill, distinct
+              from the green-dot "Open to ..." availability pills. */}
           <div className="flex flex-wrap gap-2">
             {profile.graduationYear ? (
-              <StatusBadge tone="sage" dot>
+              <span className="inline-flex h-6 items-center gap-1.5 rounded-lg border border-foreground/20 bg-card px-2 text-xs font-semibold text-foreground">
+                <svg aria-hidden width="12" height="12" viewBox="0 0 12 12" className="shrink-0">
+                  <title>Verified</title>
+                  <path
+                    d="M2.5 6.2 L5 8.7 L9.5 3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 Verified &apos;{`${profile.graduationYear}`.slice(-2)}
-              </StatusBadge>
+              </span>
             ) : null}
             {profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
               <StatusBadge tone="open" dot>
@@ -285,8 +299,12 @@ export default async function ProfileDetailPage({
             ) : null}
           </div>
 
-          {/* Avatar and Name details */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+          {/* Avatar and Name details
+              Synthesis P2-8: pull the primary relationship action into the
+              header card so identity, trust, and the next step share a
+              single visual field. The right-rail Actions card (below) still
+              exists as a destination for secondary moves. */}
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
             <Avatar className="size-20 shrink-0 border border-border">
               {profile.avatarUrl ? (
                 <AvatarImage
@@ -299,10 +317,7 @@ export default async function ProfileDetailPage({
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 space-y-1">
-              <h1
-                className="bc-fraunces text-3xl font-bold tracking-[-0.02em] text-foreground sm:text-4xl"
-                style={{ fontVariationSettings: '"SOFT" 50, "WONK" 0, "opsz" 25' }}
-              >
+              <h1 className="bc-fraunces text-3xl font-bold tracking-[-0.02em] text-foreground sm:text-4xl">
                 {displayName(profile.name, profile.preferredName)}
               </h1>
               <div className="text-sm md:text-base text-muted-foreground font-sans">
@@ -335,6 +350,38 @@ export default async function ProfileDetailPage({
                 </p>
               ) : null}
             </div>
+
+            {/* Synthesis P2-8: primary action lives in the header.
+                Chosen by helper signal so one CTA is unmistakable. */}
+            <div className="flex flex-col gap-2 sm:w-auto sm:shrink-0 sm:items-stretch sm:min-w-[180px]">
+              {isSelf ? (
+                <Button asChild className="rounded-[6px]">
+                  <Link href="/profile/edit">Edit profile</Link>
+                </Button>
+              ) : profile.isOpenAsAdviceHelper ? (
+                <Button asChild className="rounded-[6px]">
+                  <Link href={`/ask/new?to=${profile.userId}&type=advice`}>
+                    Ask {displayName(profile.name, profile.preferredName).split(/\s+/)[0]} for
+                    advice
+                  </Link>
+                </Button>
+              ) : profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
+                <Button asChild className="rounded-[6px]">
+                  <Link href={`/ask/new?to=${profile.userId}&type=mentorship`}>
+                    Request mentorship
+                  </Link>
+                </Button>
+              ) : isFriend ? (
+                <form action={startThreadAction}>
+                  <input type="hidden" name="receiverId" value={profile.userId} />
+                  <Button type="submit" className="rounded-[6px] w-full">
+                    Message
+                  </Button>
+                </form>
+              ) : friendshipActionKind === 'none' ? (
+                <FriendshipAction profileUserId={profile.userId} state={friendshipActionKind} />
+              ) : null}
+            </div>
           </div>
         </div>
       </Card>
@@ -347,7 +394,7 @@ export default async function ProfileDetailPage({
           {profile.bio ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   In their own words
                 </span>
               </div>
@@ -360,12 +407,12 @@ export default async function ProfileDetailPage({
           {/* Career History */}
           {careerHistory.length > 0 ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-6 flex justify-between items-baseline">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              {/* Synthesis P1-6: dropped the "CHRONOLOGICAL RAIL" decorative
+                  kicker — it added noise without orienting the user. Section
+                  label uses caption sentence case. */}
+              <div className="border-t-2 border-foreground pt-4 mb-6">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Career
-                </span>
-                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60 hidden sm:inline">
-                  CHRONOLOGICAL RAIL
                 </span>
               </div>
               <ol className="list-none p-0 m-0">
@@ -387,7 +434,7 @@ export default async function ProfileDetailPage({
                       </div>
                       {/* Body */}
                       <div className="min-w-0 pt-0.5 space-y-1">
-                        <h4 className="bc-fraunces text-base md:text-lg font-bold leading-tight text-foreground">
+                        <h4 className="font-heading text-base md:text-lg font-bold leading-tight text-foreground">
                           {c.title}
                         </h4>
                         <div className="text-xs md:text-sm text-muted-foreground">
@@ -410,7 +457,7 @@ export default async function ProfileDetailPage({
           {educationHistory.length > 0 ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-6">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Education
                 </span>
               </div>
@@ -439,7 +486,7 @@ export default async function ProfileDetailPage({
                       </div>
                       {/* Body */}
                       <div className="min-w-0 pt-0.5 space-y-1">
-                        <h4 className="bc-fraunces text-base md:text-lg font-bold leading-tight text-foreground">
+                        <h4 className="font-heading text-base md:text-lg font-bold leading-tight text-foreground">
                           {e.school}
                         </h4>
                         {[e.degree, e.field].filter(Boolean).length > 0 ? (
@@ -458,7 +505,7 @@ export default async function ProfileDetailPage({
           {/* Open To Grids */}
           <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
             <div className="border-t-2 border-foreground pt-4 mb-4">
-              <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Open to
               </span>
             </div>
@@ -527,7 +574,7 @@ export default async function ProfileDetailPage({
           {profile.mentoringTopics && profile.mentoringTopics.length > 0 ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Mentoring Topics
                 </span>
               </div>
@@ -548,7 +595,7 @@ export default async function ProfileDetailPage({
           {profile.skills && profile.skills.length > 0 ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Skills & Expertise
                 </span>
               </div>
@@ -569,7 +616,7 @@ export default async function ProfileDetailPage({
           {profile.linkedinUrl ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Links
                 </span>
               </div>
@@ -592,7 +639,7 @@ export default async function ProfileDetailPage({
           {/* Actions panel */}
           <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">
             <div className="border-t-2 border-foreground pt-4 mb-4">
-              <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Actions
               </span>
             </div>
@@ -631,7 +678,7 @@ export default async function ProfileDetailPage({
           {/* Verification Details */}
           <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">
             <div className="border-t-2 border-foreground pt-4 mb-4">
-              <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Verification
               </span>
             </div>
@@ -665,7 +712,7 @@ export default async function ProfileDetailPage({
                 </svg>
               </div>
               <div>
-                <h4 className="bc-fraunces text-[15px] font-bold text-foreground leading-tight">
+                <h4 className="font-heading text-[15px] font-bold text-foreground leading-tight">
                   Verified Member
                 </h4>
                 <p className="text-[11px] text-muted-foreground">Registered & verified identity</p>
@@ -705,7 +752,7 @@ export default async function ProfileDetailPage({
           {!isSelf ? (
             <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   You share
                 </span>
               </div>

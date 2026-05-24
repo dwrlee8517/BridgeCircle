@@ -89,7 +89,7 @@ function EventCard({
       <div className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <span
-            className="font-serif text-3xl font-bold opacity-15 group-hover:opacity-100 transition-opacity"
+            className="font-heading text-3xl font-bold opacity-15 group-hover:opacity-100 transition-opacity"
             style={{ color: accent.hex }}
           >
             {displayIndex}
@@ -99,7 +99,7 @@ function EventCard({
           </span>
         </div>
 
-        <h4 className="font-serif text-xl font-bold tracking-tight text-foreground leading-snug group-hover:underline">
+        <h4 className="font-heading text-xl font-bold tracking-tight text-foreground leading-snug group-hover:underline">
           {e.title}
         </h4>
 
