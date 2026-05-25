@@ -51,7 +51,7 @@ export function RsvpQuickButton({ eventId, current, isFull, className }: Props) 
         variant={isGoing ? 'secondary' : 'default'}
         onClick={submit}
         disabled={pending}
-        className="w-full rounded-[6px]"
+        className="w-full rounded-lg"
       >
         {isGoing ? <Check className="size-4" strokeWidth={1.5} /> : null}
         {label}

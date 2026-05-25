@@ -267,7 +267,7 @@ export function InboxContainer({
               placeholder="Search inbox..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-8 py-1.5 rounded-[6px] border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary focus:ring-0 font-sans"
+              className="w-full pl-8 pr-8 py-1.5 rounded-lg border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary focus:ring-0 font-sans"
             />
             {searchQuery && (
               <button
@@ -352,7 +352,7 @@ export function InboxContainer({
             // Synthesis P3: empty state should name the state and offer a
             // credible next step. Lean into brand voice — this is deliberately
             // a quieter network than a social feed.
-            <div className="m-2 flex min-h-[280px] flex-col justify-center rounded-[8px] border border-dashed border-border bg-card p-8 text-center">
+            <div className="m-2 flex min-h-[280px] flex-col justify-center rounded-xl border border-dashed border-border bg-card p-8 text-center">
               <InboxIcon className="mx-auto mb-3 size-7 text-muted-foreground/60" />
               <p className="font-heading text-xl font-semibold leading-tight text-foreground">
                 {emptyTitle(activeTab)}
@@ -388,7 +388,7 @@ export function InboxContainer({
                   type="button"
                   onClick={() => handleSelectItem(item.id)}
                   aria-pressed={isSelected}
-                  className={`bc-motion-surface w-full text-left p-2.5 rounded-[6px] flex items-start gap-2.5 cursor-pointer relative ${
+                  className={`bc-motion-surface w-full text-left p-2.5 rounded-lg flex items-start gap-2.5 cursor-pointer relative ${
                     isSelected
                       ? 'bg-primary-tint border border-state-info/25 shadow-sm'
                       : 'border border-transparent bg-transparent hover:bg-surface-subtle/70'
@@ -459,15 +459,15 @@ export function InboxContainer({
               </Button>
               <div className="flex items-center justify-between flex-1 min-w-0">
                 <div className="flex items-center gap-3 min-w-0">
-                  <Avatar className="size-10 border border-border/50 rounded-[6px] after:rounded-[6px] shrink-0">
+                  <Avatar className="size-10 border border-border/50 rounded-lg after:rounded-lg shrink-0">
                     {activeItem.avatarUrl ? (
                       <AvatarImage
                         src={activeItem.avatarUrl}
                         alt={activeItem.title}
-                        className="rounded-[6px]"
+                        className="rounded-lg"
                       />
                     ) : null}
-                    <AvatarFallback className="bg-accent font-semibold text-accent-foreground text-sm rounded-[6px]">
+                    <AvatarFallback className="bg-accent font-semibold text-accent-foreground text-sm rounded-lg">
                       {activeItem.title.slice(0, 1).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -571,7 +571,7 @@ function LifecycleStat({
           ? 'bg-primary-tint text-primary'
           : 'bg-muted text-muted-foreground'
   return (
-    <div className={`rounded-[6px] px-2 py-2 text-center ${toneClass}`}>
+    <div className={`rounded-lg px-2 py-2 text-center ${toneClass}`}>
       <p className="font-heading text-lg font-semibold leading-none">{value}</p>
       <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.08em]">{label}</p>
     </div>
@@ -584,7 +584,7 @@ function InboxCommandCenter({
   counts: { needsReply: number; helping: number; gettingHelp: number; connections: number }
 }) {
   return (
-    <div className="bc-action-rail rounded-[8px] border border-primary/10 p-6 shadow-sm">
+    <div className="bc-action-rail rounded-xl border border-primary/10 p-6 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
         Inbox command center
       </p>
@@ -611,7 +611,7 @@ function InboxCommandCenter({
 
 function CommandMetric({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-[6px] border border-border bg-card p-3">
+    <div className="rounded-lg border border-border bg-card p-3">
       <p className="font-heading text-2xl font-semibold leading-none text-foreground">{value}</p>
       <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
         {label}
@@ -695,7 +695,7 @@ function AskDetail({ ask, isOutgoing = false }: { ask: AskData; isOutgoing?: boo
         <h3 className="font-heading text-lg font-semibold text-foreground">{typeLabel}</h3>
       </div>
 
-      <div className="bc-pull-quote text-sm text-foreground/90 italic p-4 bg-muted/10 rounded-[6px] border-l-[3px] border-l-primary">
+      <div className="bc-pull-quote text-sm text-foreground/90 italic p-4 bg-muted/10 rounded-lg border-l-[3px] border-l-primary">
         &ldquo;{summary}&rdquo;
       </div>
 
@@ -735,7 +735,7 @@ function FriendRequestDetail({
         </h3>
       </div>
 
-      <div className="space-y-3.5 bg-muted/10 p-4 rounded-[6px] border border-border/50 text-xs">
+      <div className="space-y-3.5 bg-muted/10 p-4 rounded-lg border border-border/50 text-xs">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Member</span>
           <Link
@@ -768,7 +768,7 @@ function FriendRequestDetail({
 
       <div className="pt-4 border-t border-border/60">
         {isOutgoing ? (
-          <Button asChild variant="outline" className="rounded-[6px] text-xs h-9 px-4">
+          <Button asChild variant="outline" className="rounded-lg text-xs h-9 px-4">
             <Link href={`/profile/${request.otherUserId}`}>View Profile</Link>
           </Button>
         ) : (
@@ -803,17 +803,17 @@ function StatusSetter({
   ]
 
   return (
-    <div className="flex flex-col rounded-[8px] border border-border bg-card p-[22px_24px] shadow-sm">
+    <div className="flex flex-col rounded-xl border border-border bg-card p-[22px_24px] shadow-sm">
       <div className="flex items-center gap-3.5 mb-[18px]">
-        <Avatar className="size-12 border border-border/50 rounded-[6px] after:rounded-[6px]">
+        <Avatar className="size-12 border border-border/50 rounded-lg after:rounded-lg">
           {currentUser.avatarUrl ? (
             <AvatarImage
               src={currentUser.avatarUrl}
               alt={currentUser.name ?? ''}
-              className="rounded-[6px]"
+              className="rounded-lg"
             />
           ) : null}
-          <AvatarFallback className="bg-accent text-accent-foreground font-semibold text-sm rounded-[6px]">
+          <AvatarFallback className="bg-accent text-accent-foreground font-semibold text-sm rounded-lg">
             {(currentUser.name ?? '?').slice(0, 1).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -854,7 +854,7 @@ function StatusSetter({
                 key={p}
                 type="button"
                 onClick={() => onSetStatus(active ? null : p)}
-                className={`text-[12.5px] font-semibold px-3 py-[6px] rounded-[6px] border transition-all cursor-pointer ${
+                className={`text-[12.5px] font-semibold px-3 py-[6px] rounded-lg border transition-all cursor-pointer ${
                   active
                     ? 'bg-primary border-primary text-primary-foreground shadow-sm font-semibold'
                     : 'bg-muted/30 hover:bg-muted/50 border-border text-foreground'
@@ -878,7 +878,7 @@ function StatusSetter({
               }
             }}
             placeholder="…or write your own (Enter to set)"
-            className="flex-1 text-[13px] px-4 py-[9px] bg-muted/30 border border-border rounded-[6px] focus-visible:outline-none focus-visible:border-primary text-foreground"
+            className="flex-1 text-[13px] px-4 py-[9px] bg-muted/30 border border-border rounded-lg focus-visible:outline-none focus-visible:border-primary text-foreground"
           />
           <Button
             size="sm"
@@ -889,7 +889,7 @@ function StatusSetter({
                 setDraft('')
               }
             }}
-            className="rounded-[6px] text-xs h-[38px] px-4 bg-primary hover:bg-primary-hover text-primary-foreground"
+            className="rounded-lg text-xs h-[38px] px-4 bg-primary hover:bg-primary-hover text-primary-foreground"
           >
             Set
           </Button>
@@ -1037,7 +1037,7 @@ function ReactionShowcase() {
   ]
 
   return (
-    <div className="flex flex-col rounded-[8px] border border-border bg-card p-[20px_22px_22px] shadow-sm">
+    <div className="flex flex-col rounded-xl border border-border bg-card p-[20px_22px_22px] shadow-sm">
       <p className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-4">
         Warm reactions — no emoji, just intent
       </p>
@@ -1279,11 +1279,11 @@ function InlineConversation({
                   className={`flex items-end gap-2 max-w-[78%] group relative my-3.5 ${isMe ? 'ml-auto' : 'mr-auto'}`}
                 >
                   {!isMe && (
-                    <Avatar className="size-6 border border-border/50 rounded-[6px] after:rounded-[6px] shrink-0">
+                    <Avatar className="size-6 border border-border/50 rounded-lg after:rounded-lg shrink-0">
                       {avatarUrl ? (
-                        <AvatarImage src={avatarUrl} alt={title} className="rounded-[6px]" />
+                        <AvatarImage src={avatarUrl} alt={title} className="rounded-lg" />
                       ) : null}
-                      <AvatarFallback className="bg-accent font-bold text-[9px] text-accent-foreground rounded-[6px]">
+                      <AvatarFallback className="bg-accent font-bold text-[9px] text-accent-foreground rounded-lg">
                         {title.slice(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -1326,15 +1326,15 @@ function InlineConversation({
                   </div>
 
                   {isMe && (
-                    <Avatar className="size-6 border border-border/50 rounded-[6px] after:rounded-[6px] shrink-0">
+                    <Avatar className="size-6 border border-border/50 rounded-lg after:rounded-lg shrink-0">
                       {viewerAvatarUrl ? (
                         <AvatarImage
                           src={viewerAvatarUrl}
                           alt={viewerName ?? 'You'}
-                          className="rounded-[6px]"
+                          className="rounded-lg"
                         />
                       ) : null}
-                      <AvatarFallback className="bg-accent font-bold text-[9px] text-accent-foreground rounded-[6px]">
+                      <AvatarFallback className="bg-accent font-bold text-[9px] text-accent-foreground rounded-lg">
                         {(viewerName ?? 'You').slice(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -1418,7 +1418,7 @@ function InlineConversation({
               maxLength={4000}
               required
               disabled={pending}
-              className="flex-1 resize-none rounded-[6px] border border-border bg-muted/30 px-3 py-2 text-[13px] focus-visible:outline-none focus-visible:border-primary text-foreground min-h-[38px] max-h-[120px]"
+              className="flex-1 resize-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-[13px] focus-visible:outline-none focus-visible:border-primary text-foreground min-h-[38px] max-h-[120px]"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
@@ -1429,7 +1429,7 @@ function InlineConversation({
             <Button
               type="submit"
               disabled={pending}
-              className="h-[38px] rounded-[6px] px-4 bg-primary hover:bg-primary-hover text-primary-foreground flex items-center justify-center shrink-0 font-medium text-xs"
+              className="h-[38px] rounded-lg px-4 bg-primary hover:bg-primary-hover text-primary-foreground flex items-center justify-center shrink-0 font-medium text-xs"
             >
               {pending ? (
                 <span className="size-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />

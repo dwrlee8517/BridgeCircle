@@ -58,7 +58,7 @@ export function StepPast({ defaults, action, importReturnTo }: Props) {
     <form action={formAction} className="space-y-5" onChange={onFormChange}>
       <LinkedInImportLink step={4} />
       {/* Resume import — primary path, big block at the top. */}
-      <div className="rounded-[6px] border-2 border-dashed border-primary/30 bg-primary/5 p-5">
+      <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-5">
         <div className="flex items-start gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Upload className="size-5" aria-hidden />

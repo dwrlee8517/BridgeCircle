@@ -217,12 +217,12 @@ export default async function ProfileDetailPage({
       </Link>
 
       {flashSaved ? (
-        <div className="mb-6 rounded-[6px] border border-accent-sage/25 bg-accent-sage/10 px-4 py-3 text-sm text-foreground">
+        <div className="mb-6 rounded-lg border border-accent-sage/25 bg-accent-sage/10 px-4 py-3 text-sm text-foreground">
           Profile saved.
         </div>
       ) : null}
       {flashNotFriends ? (
-        <div className="mb-6 rounded-[6px] border border-accent-ochre/25 bg-accent-ochre/10 px-4 py-3 text-sm text-foreground">
+        <div className="mb-6 rounded-lg border border-accent-ochre/25 bg-accent-ochre/10 px-4 py-3 text-sm text-foreground">
           Direct messages are open to friends only. Add{' '}
           <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first to
           start a conversation.
@@ -230,7 +230,7 @@ export default async function ProfileDetailPage({
       ) : null}
 
       {/* Hero Card */}
-      <Card className="overflow-hidden bg-card border border-border rounded-[6px] relative p-6 md:p-8 shadow-none mb-6">
+      <Card className="overflow-hidden bg-card border border-border rounded-lg relative p-6 md:p-8 shadow-none mb-6">
         <div
           aria-hidden
           className="absolute inset-0 opacity-10 pointer-events-none"
@@ -355,18 +355,18 @@ export default async function ProfileDetailPage({
                 Chosen by helper signal so one CTA is unmistakable. */}
             <div className="flex flex-col gap-2 sm:w-auto sm:shrink-0 sm:items-stretch sm:min-w-[180px]">
               {isSelf ? (
-                <Button asChild className="rounded-[6px]">
+                <Button asChild className="rounded-lg">
                   <Link href="/profile/edit">Edit profile</Link>
                 </Button>
               ) : profile.isOpenAsAdviceHelper ? (
-                <Button asChild className="rounded-[6px]">
+                <Button asChild className="rounded-lg">
                   <Link href={`/ask/new?to=${profile.userId}&type=advice`}>
                     Ask {displayName(profile.name, profile.preferredName).split(/\s+/)[0]} for
                     advice
                   </Link>
                 </Button>
               ) : profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
-                <Button asChild className="rounded-[6px]">
+                <Button asChild className="rounded-lg">
                   <Link href={`/ask/new?to=${profile.userId}&type=mentorship`}>
                     Request mentorship
                   </Link>
@@ -374,7 +374,7 @@ export default async function ProfileDetailPage({
               ) : isFriend ? (
                 <form action={startThreadAction}>
                   <input type="hidden" name="receiverId" value={profile.userId} />
-                  <Button type="submit" className="rounded-[6px] w-full">
+                  <Button type="submit" className="rounded-lg w-full">
                     Message
                   </Button>
                 </form>
@@ -392,7 +392,7 @@ export default async function ProfileDetailPage({
         <div className="space-y-6">
           {/* Bio */}
           {profile.bio ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   In their own words
@@ -406,7 +406,7 @@ export default async function ProfileDetailPage({
 
           {/* Career History */}
           {careerHistory.length > 0 ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
               {/* Synthesis P1-6: dropped the "CHRONOLOGICAL RAIL" decorative
                   kicker — it added noise without orienting the user. Section
                   label uses caption sentence case. */}
@@ -455,7 +455,7 @@ export default async function ProfileDetailPage({
 
           {/* Education History */}
           {educationHistory.length > 0 ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-6">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Education
@@ -503,7 +503,7 @@ export default async function ProfileDetailPage({
           ) : null}
 
           {/* Open To Grids */}
-          <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+          <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
             <div className="border-t-2 border-foreground pt-4 mb-4">
               <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Open to
@@ -513,7 +513,7 @@ export default async function ProfileDetailPage({
               {/* Mentorship box */}
               <div
                 className={cn(
-                  'p-4 rounded-[4px] border transition-colors',
+                  'p-4 rounded-md border transition-colors',
                   profile.isOpenAsMentor
                     ? 'border-border bg-card text-foreground'
                     : 'border-border/50 bg-muted/30 text-muted-foreground opacity-75',
@@ -546,7 +546,7 @@ export default async function ProfileDetailPage({
               {/* Advice box */}
               <div
                 className={cn(
-                  'p-4 rounded-[4px] border transition-colors',
+                  'p-4 rounded-md border transition-colors',
                   profile.isOpenAsAdviceHelper
                     ? 'border-border bg-card text-foreground'
                     : 'border-border/50 bg-muted/30 text-muted-foreground opacity-75',
@@ -572,7 +572,7 @@ export default async function ProfileDetailPage({
 
           {/* Mentoring Topics */}
           {profile.mentoringTopics && profile.mentoringTopics.length > 0 ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Mentoring Topics
@@ -593,7 +593,7 @@ export default async function ProfileDetailPage({
 
           {/* Skills */}
           {profile.skills && profile.skills.length > 0 ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Skills & Expertise
@@ -614,7 +614,7 @@ export default async function ProfileDetailPage({
 
           {/* Links */}
           {profile.linkedinUrl ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Links
@@ -637,7 +637,7 @@ export default async function ProfileDetailPage({
         {/* Right Column: Actions sidebar */}
         <aside className="space-y-6">
           {/* Actions panel */}
-          <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">
+          <Card className="rounded-lg border border-border bg-card p-6 shadow-none">
             <div className="border-t-2 border-foreground pt-4 mb-4">
               <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Actions
@@ -676,7 +676,7 @@ export default async function ProfileDetailPage({
           {isSelf ? <FreshnessReviewCard /> : null}
 
           {/* Verification Details */}
-          <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">
+          <Card className="rounded-lg border border-border bg-card p-6 shadow-none">
             <div className="border-t-2 border-foreground pt-4 mb-4">
               <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Verification
@@ -750,7 +750,7 @@ export default async function ProfileDetailPage({
 
           {/* You share card (Mutual Connections + event RSVPs) */}
           {!isSelf ? (
-            <Card className="rounded-[6px] border border-border bg-card p-6 shadow-none">
+            <Card className="rounded-lg border border-border bg-card p-6 shadow-none">
               <div className="border-t-2 border-foreground pt-4 mb-4">
                 <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   You share

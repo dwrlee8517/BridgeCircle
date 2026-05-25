@@ -232,7 +232,7 @@ function SectionHeader({
         </h2>
         <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">{body}</p>
       </div>
-      <Button asChild variant="outline" size="sm" className="w-fit rounded-[6px]">
+      <Button asChild variant="outline" size="sm" className="w-fit rounded-lg">
         <Link href={href}>
           {cta}
           <ArrowRight className="size-4" />
@@ -254,10 +254,10 @@ function EmptyPanel({
   cta: string
 }) {
   return (
-    <div className="rounded-[6px] border border-dashed border-border bg-card p-6">
+    <div className="rounded-lg border border-dashed border-border bg-card p-6">
       <p className="font-heading text-lg font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <Button asChild size="sm" variant="outline" className="mt-4 rounded-[6px]">
+      <Button asChild size="sm" variant="outline" className="mt-4 rounded-lg">
         <Link href={href}>{cta}</Link>
       </Button>
     </div>

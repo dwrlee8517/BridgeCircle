@@ -1,5 +1,18 @@
 import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { extendTailwindMerge } from 'tailwind-merge'
+
+// Teach tailwind-merge about Civic Editorial's custom theme tokens so that
+// e.g. `cn('shadow-none', 'shadow-card-hover')` collapses to just
+// `shadow-card-hover`. Without this, custom utilities aren't recognized as
+// part of the shadow conflict group and both classes survive — the earlier
+// one wins by CSS order, silently defeating the consumer override.
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      shadow: ['shadow-card', 'shadow-card-hover', 'shadow-hero'],
+    },
+  },
+})
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

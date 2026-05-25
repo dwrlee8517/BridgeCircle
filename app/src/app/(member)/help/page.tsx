@@ -109,13 +109,13 @@ export default async function HelpPage() {
               ) : null}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="rounded-[6px]">
+              <Button asChild size="lg" className="rounded-lg">
                 <Link href="/inbox">
                   <HandHelping className="size-4" />
                   Review requests
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-[6px]">
+              <Button asChild size="lg" variant="outline" className="rounded-lg">
                 <Link href="/mentorship/settings">
                   <Settings2 className="size-4" />
                   Set availability
@@ -123,7 +123,7 @@ export default async function HelpPage() {
               </Button>
             </div>
           </div>
-          <div className="self-end rounded-[8px] border border-border bg-card p-5 shadow-sm">
+          <div className="self-end rounded-xl border border-border bg-card p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
               Helper state
             </p>
@@ -161,7 +161,7 @@ export default async function HelpPage() {
                   These are people who already chose you. Start here before browsing.
                 </p>
               </div>
-              <Button asChild size="sm" variant="outline" className="w-fit rounded-[6px]">
+              <Button asChild size="sm" variant="outline" className="w-fit rounded-lg">
                 <Link href="/inbox">
                   Open Inbox
                   <ArrowRight className="size-4" />
@@ -189,7 +189,7 @@ export default async function HelpPage() {
                 })}
               </div>
             ) : (
-              <div className="bc-action-rail rounded-[8px] border border-primary/10 p-8">
+              <div className="bc-action-rail rounded-xl border border-primary/10 p-8">
                 <p className="font-heading text-2xl font-semibold text-foreground">
                   No one is waiting on you right now.
                 </p>
@@ -197,7 +197,7 @@ export default async function HelpPage() {
                   Keep your helper settings current. BridgeCircle will route relevant people to you
                   when your background fits their question.
                 </p>
-                <Button asChild className="mt-5 rounded-[6px]">
+                <Button asChild className="mt-5 rounded-lg">
                   <Link href="/mentorship/settings">Update availability</Link>
                 </Button>
               </div>
@@ -240,7 +240,7 @@ export default async function HelpPage() {
 
           <aside className="space-y-5">
             <FreshnessReviewCard />
-            <div className="bc-action-rail rounded-[8px] border border-primary/10 p-5">
+            <div className="bc-action-rail rounded-xl border border-primary/10 p-5">
               <p className="font-heading text-lg font-semibold text-foreground">
                 How helping works
               </p>
@@ -267,8 +267,8 @@ function HelpMetric({
   label: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-[6px] border border-border bg-surface-panel/45 p-3">
-      <div className="flex size-8 items-center justify-center rounded-[6px] bg-primary/[0.08] text-primary">
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-panel/45 p-3">
+      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/[0.08] text-primary">
         {icon}
       </div>
       <div>

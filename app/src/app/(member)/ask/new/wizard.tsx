@@ -314,7 +314,7 @@ export function Wizard({
               onClick={() => setStep('context')}
               disabled={currentAskType === 'mentorship' && mentorshipAtCapacity}
             >
-              Continue
+              Add your context
             </Button>
             <Button type="button" variant="outline" asChild>
               <Link href={cancelHref}>Cancel</Link>
@@ -350,7 +350,7 @@ export function Wizard({
                 onClick={() => setStep('genre')}
                 disabled={context.trim().length < 5}
               >
-                Continue
+                Pick a topic
               </Button>
               <Button type="button" variant="outline" onClick={() => setStep('path')}>
                 Back
@@ -397,7 +397,7 @@ export function Wizard({
           </div>
           <div className="flex gap-2 pt-2">
             <Button type="button" onClick={goAfterGenre} disabled={!genre}>
-              Continue
+              {hasSignals ? 'Pick signals' : 'Draft my note'}
             </Button>
             <Button type="button" variant="outline" onClick={() => setStep('context')}>
               Back

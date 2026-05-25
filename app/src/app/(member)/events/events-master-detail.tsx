@@ -82,7 +82,7 @@ function EventCard({
     // biome-ignore lint/a11y/noStaticElementInteractions: standard card navigation pattern
     <div
       onClick={handleCardClick}
-      className="bg-card rounded-[6px] border border-border/40 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer h-full"
+      className="bg-card rounded-lg border border-border/40 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer h-full"
       style={{ borderTop: `4px solid ${accent.hex}` }}
     >
       {/* Upper Section */}
@@ -142,7 +142,7 @@ function EventCard({
                 return (
                   <span
                     key={a.userId}
-                    className={`inline-flex size-6 items-center justify-center rounded-[4px] text-[8px] font-mono font-bold border border-background ring-1 ring-background/10 ${palette.bg} ${palette.text}`}
+                    className={`inline-flex size-6 items-center justify-center rounded-md text-[8px] font-mono font-bold border border-background ring-1 ring-background/10 ${palette.bg} ${palette.text}`}
                     title={a.name ?? undefined}
                   >
                     {initialsFor(a.name)}
@@ -159,7 +159,7 @@ function EventCard({
         {view === 'upcoming' ? (
           <ConceptBInlineRsvpButton eventId={e.id} current={e.viewerRsvp} accentHex={accent.hex} />
         ) : (
-          <span className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border border-border/40 px-2.5 py-1 rounded-[6px] text-muted-foreground">
+          <span className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border border-border/40 px-2.5 py-1 rounded-lg text-muted-foreground">
             Ended
           </span>
         )}
@@ -207,7 +207,7 @@ function ConceptBInlineRsvpButton({ eventId, current, accentHex }: InlineRsvpPro
         type="button"
         onClick={submit}
         disabled={pending}
-        className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border px-2.5 py-1 rounded-[6px] transition-all cursor-pointer disabled:opacity-50 hover:bg-muted/10"
+        className="font-mono text-[9px] font-bold uppercase tracking-[0.08em] border px-2.5 py-1 rounded-lg transition-all cursor-pointer disabled:opacity-50 hover:bg-muted/10"
         style={{
           borderColor: isGoing ? 'var(--accent-sage)' : accentHex,
           color: isGoing ? 'var(--accent-sage)' : accentHex,

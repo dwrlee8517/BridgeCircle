@@ -67,7 +67,7 @@ export default function CircleMovesToggle({
           </button>
         </div>
 
-        <span className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-[4px] inline-flex items-center gap-1.5 shrink-0">
+        <span className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 shrink-0">
           <span className="size-1 rounded-full bg-current" />
           Circle updates
         </span>
@@ -80,7 +80,7 @@ export default function CircleMovesToggle({
       </p>
 
       {/* Main card */}
-      <Card className="rounded-[6px] border border-border p-5 bg-card">
+      <Card className="rounded-lg border border-border p-5 bg-card">
         {activeTab === 'career' ? (
           <div className="divide-y divide-border/30">
             {careerMoves.map((m) => {
@@ -90,9 +90,9 @@ export default function CircleMovesToggle({
               const isMock = m.userId.startsWith('mock-')
 
               const content = (
-                <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-start py-3.5 px-3 -mx-3 transition rounded-[6px] hover:bg-muted/5 dark:hover:bg-muted/10">
+                <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-start py-3.5 px-3 -mx-3 transition rounded-lg hover:bg-muted/5 dark:hover:bg-muted/10">
                   <div
-                    className={`size-10 rounded-[6px] border flex items-center justify-center text-[11px] font-mono font-bold shrink-0 ${avatarBg}`}
+                    className={`size-10 rounded-lg border flex items-center justify-center text-[11px] font-mono font-bold shrink-0 ${avatarBg}`}
                   >
                     {initials}
                   </div>
@@ -160,9 +160,9 @@ export default function CircleMovesToggle({
               const isMock = m.userId.startsWith('mock-')
 
               const content = (
-                <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-start py-3.5 px-3 -mx-3 transition rounded-[6px] hover:bg-muted/5 dark:hover:bg-muted/10">
+                <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-start py-3.5 px-3 -mx-3 transition rounded-lg hover:bg-muted/5 dark:hover:bg-muted/10">
                   <div
-                    className={`size-10 rounded-[6px] border flex items-center justify-center text-[11px] font-mono font-bold shrink-0 ${avatarBg}`}
+                    className={`size-10 rounded-lg border flex items-center justify-center text-[11px] font-mono font-bold shrink-0 ${avatarBg}`}
                   >
                     {initials}
                   </div>
@@ -200,7 +200,7 @@ export default function CircleMovesToggle({
                   </div>
 
                   <div className="shrink-0 pt-0.5">
-                    <div className="flex items-center gap-1 font-mono text-[9px] text-muted-foreground bg-muted/65 px-2.5 py-0.5 rounded-[4px] border border-border/40">
+                    <div className="flex items-center gap-1 font-mono text-[9px] text-muted-foreground bg-muted/65 px-2.5 py-0.5 rounded-md border border-border/40">
                       <MapPin className="size-3 text-muted-foreground/75 shrink-0 mr-1" />
                       <span className="truncate max-w-[100px] sm:max-w-none">{m.city}</span>
                     </div>

@@ -17,8 +17,8 @@ Do not copy component code, token exports, or raw colors from them into the app.
 - Keep 6px editorial corners by default. Use full circles only for avatars,
   dots, radio controls, notification counters, progress bars, and search
   capsules.
-- Important labels must be at least caption/body scale. `mono-xs` is only for
-  decorative or redundant metadata.
+- Important labels must be at least caption/body scale. The smallest allowed
+  size in the scale is `mono-sm` (10.5px); the 9px `mono-xs` token was removed.
 - Cards are decision surfaces. Do not use cards as page section wrappers or
   stack cards inside cards unless the inner item is a repeated row/list item.
 - Member screens must expose the next relationship action without requiring
@@ -398,7 +398,9 @@ Responsive rules:
 
 Do not:
 
-- Use tiny text below `caption` for decision-critical values.
+- Use text below `mono-sm` (10.5px) anywhere; the 9px `mono-xs` token was
+  removed because the "don't use it for important meaning" rule was easier to
+  break than to enforce.
 - Put destructive actions in the same visual weight as neutral row actions.
 
 ### Notification

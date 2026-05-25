@@ -19,7 +19,7 @@ export function SignInForm({
   const [state, action, pending] = useActionState(signInWithPassword, initialState)
 
   return (
-    <Card className="text-base shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
+    <Card className="text-base shadow-card-hover">
       <CardHeader className="pt-7 pb-2">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           BridgeCircle

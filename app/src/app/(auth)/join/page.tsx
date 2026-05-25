@@ -23,7 +23,7 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
   }
 
   return (
-    <Card className="shadow-[0_4px_20px_-4px_rgba(19,27,46,0.06)]">
+    <Card className="shadow-card-hover">
       <CardContent className="pt-6">
         <JoinForm
           token={token}

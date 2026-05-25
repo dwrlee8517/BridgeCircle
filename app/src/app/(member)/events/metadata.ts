@@ -239,7 +239,7 @@ export function getEventMetadata(title: string): EventMetadata {
   // Fallback
   return {
     category: 'GATHERING',
-    tagline: 'An exclusive community event for BridgeCircle members.',
+    tagline: 'A community gathering for BridgeCircle members.',
     preparations: [
       'Bring your community profile on the BridgeCircle mobile app',
       'Arrive 10 minutes prior to start time',
