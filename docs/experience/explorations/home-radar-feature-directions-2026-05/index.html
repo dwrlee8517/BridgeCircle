@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Home Radar Feature Directions</title>
+    <style>
+      :root {
+        --ink: #101827;
+        --muted: #596273;
+        --line: rgb(16 24 39 / 0.14);
+        --paper: #fffdfa;
+        --blue: #2463eb;
+        --sky: #a9ccff;
+        --sage: #3f765f;
+        --mint: #dff0e6;
+        --ochre: #c4771d;
+        --peach: #ffd7bd;
+        --plum: #7b416d;
+        --lavender: #e3dcff;
+        --night: #101827;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 4%, rgb(36 99 235 / 0.12), transparent 24rem),
+          radial-gradient(circle at 92% 6%, rgb(196 119 29 / 0.13), transparent 26rem),
+          linear-gradient(180deg, #f7f5ef, #ebe7dc);
+      }
+
+      .wrap {
+        width: min(1480px, 100%);
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 430px;
+        gap: 28px;
+        align-items: end;
+        padding: 12px 0 26px;
+      }
+
+      .note {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 820;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      .note::before {
+        width: 34px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--blue);
+        content: "";
+      }
+
+      .intro h1 {
+        max-width: 960px;
+        margin: 0;
+        font-size: clamp(42px, 6vw, 86px);
+        line-height: 0.94;
+        letter-spacing: -0.065em;
+      }
+
+      .intro p {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .direction {
+        overflow: hidden;
+        margin-bottom: 34px;
+        border: 1px solid rgb(16 24 39 / 0.13);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 24px 90px rgb(16 24 39 / 0.13);
+      }
+
+      .label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 14px 22px;
+        border-bottom: 1px solid rgb(16 24 39 / 0.11);
+        background: rgb(255 253 250 / 0.78);
+      }
+
+      .label strong {
+        font-size: 14px;
+      }
+
+      .label span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .label-meta {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .space-toggle {
+        display: inline-flex;
+        gap: 3px;
+        padding: 3px;
+        border: 1px solid rgb(16 24 39 / 0.12);
+        border-radius: 8px;
+        background: rgb(255 255 255 / 0.56);
+      }
+
+      .space-radio {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .space-toggle label {
+        min-height: 28px;
+        padding: 0 9px;
+        border: 0;
+        border-radius: 6px;
+        color: rgb(16 24 39 / 0.62);
+        background: transparent;
+        font: inherit;
+        font-size: 11px;
+        font-weight: 780;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .home-a:has(#space-quiet:checked) .space-toggle label[for="space-quiet"],
+      .home-a:has(#space-pulse:checked) .space-toggle label[for="space-pulse"],
+      .home-a:has(#space-path:checked) .space-toggle label[for="space-path"] {
+        color: white;
+        background: var(--night);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        height: 62px;
+        padding: 0 30px;
+        border-bottom: 1px solid rgb(16 24 39 / 0.11);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-right: 8px;
+        font-weight: 820;
+        letter-spacing: -0.045em;
+      }
+
+      .mark {
+        position: relative;
+        width: 26px;
+        height: 18px;
+      }
+
+      .mark::before,
+      .mark::after {
+        position: absolute;
+        top: 1px;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--blue);
+        border-radius: 999px;
+        content: "";
+      }
+
+      .mark::before {
+        left: 0;
+      }
+
+      .mark::after {
+        right: 0;
+        border-color: currentColor;
+      }
+
+      .nav a {
+        color: rgb(16 24 39 / 0.82);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 620;
+      }
+
+      .nav a.active {
+        color: var(--blue);
+      }
+
+      .spacer {
+        flex: 1;
+      }
+
+      .search {
+        width: 226px;
+        padding: 10px 13px;
+        border: 1px solid rgb(16 24 39 / 0.12);
+        border-radius: 8px;
+        color: rgb(16 24 39 / 0.38);
+        background: rgb(255 255 255 / 0.7);
+        font-size: 13px;
+      }
+
+      .avatar {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 8px;
+        color: white;
+        background: #b5472d;
+        font-size: 14px;
+        font-weight: 820;
+      }
+
+      .kicker {
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 840;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .hero-title {
+        margin: 22px 0 0;
+        font-size: clamp(46px, 5.8vw, 82px);
+        line-height: 0.92;
+        letter-spacing: -0.078em;
+      }
+
+      .lead {
+        max-width: 590px;
+        margin: 20px 0 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.52;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .btn,
+      .btn-lite {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .btn {
+        color: white;
+        background: var(--night);
+      }
+
+      .btn-lite {
+        border: 1px solid rgb(16 24 39 / 0.14);
+        color: var(--ink);
+        background: rgb(255 255 255 / 0.62);
+      }
+
+      .space-treatment {
+        display: none;
+        max-width: 500px;
+        margin-top: 38px;
+      }
+
+      .home-a:has(#space-pulse:checked) .space-treatment-pulse,
+      .home-a:has(#space-path:checked) .space-treatment-path {
+        display: block;
+      }
+
+      .pulse-label,
+      .path-label {
+        margin-bottom: 12px;
+        color: var(--blue);
+        font-size: 11px;
+        font-weight: 840;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .pulse-line {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .pulse-line span {
+        min-height: 78px;
+        padding: 16px 15px 14px 0;
+        border-right: 1px solid var(--line);
+      }
+
+      .pulse-line span:last-child {
+        border-right: 0;
+      }
+
+      .pulse-line strong {
+        display: block;
+        font-size: 25px;
+        letter-spacing: -0.05em;
+      }
+
+      .pulse-line em {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+        font-style: normal;
+        line-height: 1.35;
+      }
+
+      .path-line {
+        display: grid;
+        gap: 0;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .path-step {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr);
+        gap: 12px;
+        min-height: 54px;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .path-step:last-child {
+        border-bottom: 0;
+      }
+
+      .path-step em {
+        color: var(--blue);
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+      }
+
+      .path-step strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .path-step span {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .home-a {
+        min-height: 760px;
+        background:
+          radial-gradient(circle at 45% 32%, rgb(36 99 235 / 0.15), transparent 22rem),
+          radial-gradient(circle at 78% 28%, rgb(124 65 109 / 0.13), transparent 20rem),
+          linear-gradient(180deg, #f4f7ff, #fff8ed 74%);
+      }
+
+      .radar-layout {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 0.88fr) minmax(540px, 1.12fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        min-height: 698px;
+        padding: 42px 36px 0;
+      }
+
+      .radar-copy {
+        position: relative;
+        z-index: 4;
+      }
+
+      .feature-list {
+        margin-top: 34px;
+        border-top: 1px solid var(--line);
+      }
+
+      .home-a .feature-list {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        margin-top: 18px;
+        border-top: 1px solid var(--line);
+      }
+
+      .feature-row {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        min-height: 66px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .home-a .feature-row {
+        grid-template-columns: 1fr;
+        align-content: start;
+        gap: 7px;
+        min-height: 122px;
+        padding: 18px 18px 16px;
+        border-right: 1px solid var(--line);
+        border-bottom: 0;
+      }
+
+      .home-a .feature-row:last-child {
+        border-right: 0;
+      }
+
+      .feature-row em {
+        color: var(--blue);
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 840;
+        letter-spacing: 0.12em;
+      }
+
+      .feature-row strong {
+        font-size: 15px;
+      }
+
+      .feature-row span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .home-a .feature-row span {
+        max-width: 18ch;
+        line-height: 1.42;
+      }
+
+      .radar-stage {
+        position: relative;
+        min-height: 610px;
+      }
+
+      .radar-disc {
+        position: absolute;
+        top: 22px;
+        right: 22px;
+        width: min(560px, 94%);
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle, rgb(36 99 235 / 0.16) 0 10%, transparent 10.5%),
+          repeating-radial-gradient(circle, transparent 0 80px, rgb(16 24 39 / 0.11) 81px 82px),
+          conic-gradient(from 25deg, rgb(36 99 235 / 0.2), rgb(124 65 109 / 0.08), transparent 45%);
+        animation: radarspin 18s linear infinite;
+      }
+
+      .radar-disc::after {
+        content: none;
+      }
+
+      @keyframes radarspin {
+        to {
+          rotate: 360deg;
+        }
+      }
+
+      .signal {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        min-width: 112px;
+        min-height: 48px;
+        padding: 0 15px;
+        border: 1px solid rgb(16 24 39 / 0.13);
+        border-radius: 999px;
+        background: rgb(255 255 255 / 0.74);
+        box-shadow: 0 16px 46px rgb(16 24 39 / 0.1);
+        font-weight: 840;
+      }
+
+      .signal.one {
+        top: 126px;
+        right: 386px;
+      }
+
+      .signal.two {
+        top: 218px;
+        right: 88px;
+      }
+
+      .signal.three {
+        right: 300px;
+        bottom: 184px;
+      }
+
+      .signal.four {
+        right: 42px;
+        bottom: 238px;
+      }
+
+      .signal.five {
+        top: 312px;
+        right: 420px;
+      }
+
+      .feature-rail {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        border-top: 1px solid var(--line);
+      }
+
+      .feature-rail div {
+        min-height: 112px;
+        padding: 17px;
+        border-right: 1px solid var(--line);
+      }
+
+      .feature-rail div:last-child {
+        border-right: 0;
+      }
+
+      .feature-rail strong {
+        display: block;
+        font-size: 16px;
+      }
+
+      .feature-rail span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .home-b {
+        min-height: 760px;
+        color: #f9fbff;
+        background:
+          radial-gradient(circle at 18% 18%, rgb(98 161 255 / 0.2), transparent 26rem),
+          radial-gradient(circle at 75% 22%, rgb(75 211 159 / 0.16), transparent 24rem),
+          linear-gradient(135deg, #071121, #101827 48%, #0c241c);
+      }
+
+      .home-b .nav {
+        color: white;
+        border-color: rgb(255 255 255 / 0.12);
+      }
+
+      .home-b .nav a {
+        color: rgb(249 251 255 / 0.72);
+      }
+
+      .home-b .nav a.active,
+      .home-b .kicker {
+        color: var(--sky);
+      }
+
+      .home-b .search {
+        border-color: rgb(255 255 255 / 0.13);
+        color: rgb(249 251 255 / 0.45);
+        background: rgb(255 255 255 / 0.08);
+      }
+
+      .orbit-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(560px, 1.18fr);
+        min-height: 698px;
+        padding: 42px 36px 0;
+      }
+
+      .home-b .hero-title {
+        color: white;
+      }
+
+      .home-b .lead {
+        color: rgb(249 251 255 / 0.66);
+      }
+
+      .home-b .btn {
+        color: #071121;
+        background: var(--sky);
+      }
+
+      .home-b .btn-lite {
+        color: white;
+        border-color: rgb(255 255 255 / 0.17);
+        background: rgb(255 255 255 / 0.08);
+      }
+
+      .orbit-map {
+        position: relative;
+        min-height: 610px;
+      }
+
+      .orbit-ring {
+        position: absolute;
+        inset: 46px 24px 108px;
+        border: 1px solid rgb(255 255 255 / 0.13);
+        border-radius: 999px;
+      }
+
+      .orbit-ring.two {
+        inset: 120px 118px 182px;
+        border-color: rgb(156 199 255 / 0.18);
+      }
+
+      .orbit-ring.three {
+        inset: 184px 196px 246px;
+        border-color: rgb(223 240 230 / 0.18);
+      }
+
+      .orbit-sweep {
+        position: absolute;
+        inset: 46px 24px 108px;
+        border-radius: 999px;
+        background: conic-gradient(from 0deg, transparent, rgb(156 199 255 / 0.22), transparent 23%);
+        animation: radarspin 16s linear infinite;
+      }
+
+      .orbit-feature {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 96px;
+        height: 96px;
+        border: 1px solid rgb(255 255 255 / 0.14);
+        border-radius: 999px;
+        color: white;
+        background: rgb(255 255 255 / 0.08);
+        box-shadow: 0 20px 60px rgb(0 0 0 / 0.18);
+        text-align: center;
+        font-size: 13px;
+        font-weight: 820;
+      }
+
+      .orbit-feature.main {
+        top: 238px;
+        left: 50%;
+        width: 118px;
+        height: 118px;
+        transform: translateX(-50%);
+        background: var(--blue);
+      }
+
+      .orbit-feature.f1 {
+        top: 92px;
+        left: 68px;
+      }
+
+      .orbit-feature.f2 {
+        top: 78px;
+        right: 78px;
+      }
+
+      .orbit-feature.f3 {
+        right: 42px;
+        bottom: 162px;
+      }
+
+      .orbit-feature.f4 {
+        left: 84px;
+        bottom: 132px;
+      }
+
+      .orbit-feature.f5 {
+        top: 292px;
+        left: 28px;
+      }
+
+      .home-b .feature-row {
+        border-color: rgb(255 255 255 / 0.13);
+      }
+
+      .home-b .feature-row span {
+        color: rgb(249 251 255 / 0.56);
+      }
+
+      .home-c {
+        min-height: 760px;
+        background:
+          radial-gradient(circle at 20% 18%, rgb(255 215 189 / 0.72), transparent 22rem),
+          radial-gradient(circle at 74% 24%, rgb(223 240 230 / 0.9), transparent 26rem),
+          linear-gradient(120deg, #fff6ec, #f3fbf7 54%, #f4f7ff);
+      }
+
+      .bloom-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(560px, 1.1fr);
+        min-height: 698px;
+        padding: 42px 36px 0;
+      }
+
+      .bloom-art {
+        position: relative;
+        min-height: 610px;
+      }
+
+      .petal {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 146px;
+        height: 86px;
+        border: 1px solid rgb(16 24 39 / 0.1);
+        border-radius: 34px;
+        background: rgb(255 255 255 / 0.52);
+        box-shadow: 0 18px 52px rgb(16 24 39 / 0.08);
+        font-weight: 840;
+        text-align: center;
+        transform-origin: center;
+        animation: bloom 5.5s ease-in-out infinite;
+      }
+
+      .petal span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .petal.one {
+        top: 50px;
+        left: 250px;
+        background: #eaf1ff;
+      }
+
+      .petal.two {
+        top: 184px;
+        right: 20px;
+        background: #e4f1e8;
+        animation-delay: -1s;
+      }
+
+      .petal.three {
+        right: 94px;
+        bottom: 126px;
+        background: #ffe5cf;
+        animation-delay: -2s;
+      }
+
+      .petal.four {
+        bottom: 126px;
+        left: 40px;
+        background: #ece7ff;
+        animation-delay: -3s;
+      }
+
+      .petal.center {
+        top: 294px;
+        left: 302px;
+        width: 108px;
+        height: 108px;
+        border-radius: 999px;
+        color: white;
+        background: var(--blue);
+        transform-origin: center;
+        animation: none;
+      }
+
+      @keyframes bloom {
+        50% {
+          translate: 0 -10px;
+          rotate: 2deg;
+        }
+      }
+
+      .bloom-lines {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .bloom-lines path {
+        fill: none;
+        stroke: rgb(16 24 39 / 0.16);
+        stroke-width: 1.5;
+        stroke-dasharray: 7 12;
+        animation: pathmove 20s linear infinite;
+      }
+
+      @keyframes pathmove {
+        to {
+          stroke-dashoffset: -220;
+        }
+      }
+
+      .home-c .feature-rail {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .home-d {
+        min-height: 760px;
+        color: #172033;
+        background:
+          linear-gradient(90deg, rgb(255 253 250 / 0.96), rgb(245 248 255 / 0.86)),
+          radial-gradient(circle at 92% 18%, rgb(36 99 235 / 0.16), transparent 22rem);
+      }
+
+      .beam-layout {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 0.78fr) minmax(590px, 1.22fr);
+        min-height: 698px;
+        padding: 42px 36px 0;
+      }
+
+      .beam-stage {
+        position: relative;
+        overflow: hidden;
+        min-height: 610px;
+      }
+
+      .beam {
+        position: absolute;
+        inset: 78px 0 auto 40px;
+        height: 420px;
+        background:
+          linear-gradient(90deg, transparent, rgb(36 99 235 / 0.12), transparent),
+          linear-gradient(165deg, transparent 0 32%, rgb(36 99 235 / 0.28) 33% 40%, transparent 41%),
+          linear-gradient(25deg, transparent 0 38%, rgb(196 119 29 / 0.22) 39% 45%, transparent 46%);
+        filter: blur(0.2px);
+        animation: beamShift 8s ease-in-out infinite;
+        opacity: 0.62;
+      }
+
+      @keyframes beamShift {
+        50% {
+          transform: translateX(28px) skewX(-4deg);
+        }
+      }
+
+      .beam-line {
+        position: absolute;
+        right: 0;
+        left: 0;
+        display: grid;
+        grid-template-columns: 118px 1fr auto;
+        gap: 16px;
+        align-items: center;
+        min-height: 92px;
+        border-top: 1px solid rgb(16 24 39 / 0.13);
+        z-index: 2;
+      }
+
+      .beam-line:last-child {
+        border-bottom: 1px solid rgb(16 24 39 / 0.13);
+      }
+
+      .beam-line.one {
+        top: 88px;
+      }
+
+      .beam-line.two {
+        top: 180px;
+      }
+
+      .beam-line.three {
+        top: 272px;
+      }
+
+      .beam-line.four {
+        top: 364px;
+      }
+
+      .beam-line.five {
+        top: 456px;
+      }
+
+      .beam-line em {
+        color: var(--blue);
+        font-style: normal;
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .beam-line strong {
+        display: block;
+        font-size: 21px;
+        letter-spacing: -0.04em;
+      }
+
+      .beam-line span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .beam-line b {
+        min-width: 82px;
+        color: var(--muted);
+        font-size: 12px;
+        text-align: right;
+      }
+
+      @media (max-width: 980px) {
+        .intro,
+        .radar-layout,
+        .orbit-layout,
+        .bloom-layout,
+        .beam-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .search,
+        .nav a:nth-of-type(n + 4) {
+          display: none;
+        }
+
+        .radar-stage,
+        .orbit-map,
+        .bloom-art,
+        .beam-stage {
+          min-height: 500px;
+        }
+
+        .feature-rail {
+          position: relative;
+          grid-template-columns: 1fr 1fr;
+          margin-top: 28px;
+        }
+
+        .radar-disc {
+          right: 0;
+          width: min(460px, 100%);
+        }
+
+        .orbit-feature {
+          width: 94px;
+          height: 94px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="intro">
+        <div>
+          <div class="note">Radar-led Home experiments</div>
+          <h1>Home as a feature map, not another search page.</h1>
+        </div>
+        <p>
+          Four new directions based on the radar idea: each Home page introduces the product's main
+          feature areas without requiring personalized node placement. Mentoring, school events,
+          local alumni, advice, and helping others are visible from the first viewport.
+        </p>
+      </header>
+
+      <main>
+        <section class="direction home-a">
+          <input class="space-radio" type="radio" name="space-treatment" id="space-quiet" />
+          <input class="space-radio" type="radio" name="space-treatment" id="space-pulse" checked />
+          <input class="space-radio" type="radio" name="space-treatment" id="space-path" />
+          <div class="label">
+            <strong>Direction E: Feature Radar</strong>
+            <div class="label-meta">
+              <span>Closest to the version you liked: clean, modern, light, product-map first.</span>
+              <div class="space-toggle" role="group" aria-label="Feature Radar empty space treatment">
+                <label for="space-quiet">Quiet</label>
+                <label for="space-pulse">Pulse</label>
+                <label for="space-path">Path</label>
+              </div>
+            </div>
+          </div>
+          <nav class="nav">
+            <div class="brand"><span class="mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="radar-layout">
+            <section class="radar-copy">
+              <div class="kicker">Trusted circles, real support</div>
+              <h2 class="hero-title">See where your circle can help.</h2>
+              <p class="lead">
+                Start from the map: find mentoring, notice school moments, meet local alumni,
+                get advice, and see where you can help others.
+              </p>
+              <div class="actions">
+                <a class="btn" href="#">Find a path -></a>
+                <a class="btn-lite" href="#">Explore the circle</a>
+              </div>
+              <div class="space-treatment space-treatment-pulse">
+                <div class="pulse-label">Today in the circle</div>
+                <div class="pulse-line">
+                  <span><strong>3</strong><em>mentors open this month</em></span>
+                  <span><strong>2</strong><em>school events nearby</em></span>
+                  <span><strong>5</strong><em>ways to help others</em></span>
+                </div>
+              </div>
+              <div class="space-treatment space-treatment-path">
+                <div class="path-label">Start with one path</div>
+                <div class="path-line">
+                  <div class="path-step"><em>01</em><div><strong>Get advice</strong><span>Ask a focused question.</span></div></div>
+                  <div class="path-step"><em>02</em><div><strong>Meet someone nearby</strong><span>Use place and school context.</span></div></div>
+                  <div class="path-step"><em>03</em><div><strong>Help others</strong><span>Respond when your experience fits.</span></div></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="radar-stage" aria-label="Feature radar illustration">
+              <div class="radar-disc"></div>
+              <div class="signal one">Mentoring</div>
+              <div class="signal two">School events</div>
+              <div class="signal three">Local alumni</div>
+              <div class="signal four">Get advice</div>
+              <div class="signal five">Help others</div>
+            </section>
+
+            <div class="feature-list radar-feature-strip">
+              <div class="feature-row"><em>01</em><strong>Mentoring</strong><span>Build an ongoing relationship.</span></div>
+              <div class="feature-row"><em>02</em><strong>School events</strong><span>Use gatherings to meet with context.</span></div>
+              <div class="feature-row"><em>03</em><strong>Local alumni</strong><span>Find nearby people with shared history.</span></div>
+              <div class="feature-row"><em>04</em><strong>Get advice</strong><span>Ask a focused question when you need help.</span></div>
+              <div class="feature-row"><em>05</em><strong>Help others</strong><span>Respond where your experience fits.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="direction home-b">
+          <div class="label">
+            <strong>Direction F: Night Orbit</strong>
+            <span>More premium SaaS, stronger contrast, still feature-led instead of personalized.</span>
+          </div>
+          <nav class="nav">
+            <div class="brand"><span class="mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="orbit-layout">
+            <section>
+              <div class="kicker">Warm-network operating system</div>
+              <h2 class="hero-title">Everything your circle can do, in one orbit.</h2>
+              <p class="lead">
+                This version makes Home feel like the product control surface: clear feature zones,
+                strong polish, and a visual system that does not depend on custom user data.
+              </p>
+              <div class="actions">
+                <a class="btn" href="#">View active zones</a>
+                <a class="btn-lite" href="#">Open Ask</a>
+              </div>
+              <div class="feature-list">
+                <div class="feature-row"><em>ASK</em><strong>Question-led matching</strong><span>Mentorship and advice</span></div>
+                <div class="feature-row"><em>GO</em><strong>Local alumni discovery</strong><span>City, school, career</span></div>
+                <div class="feature-row"><em>MEET</em><strong>Events and warm intros</strong><span>School moments with context</span></div>
+              </div>
+            </section>
+            <section class="orbit-map" aria-label="Orbit feature diagram">
+              <div class="orbit-sweep"></div>
+              <div class="orbit-ring"></div>
+              <div class="orbit-ring two"></div>
+              <div class="orbit-ring three"></div>
+              <div class="orbit-feature main">Home</div>
+              <div class="orbit-feature f1">Mentoring</div>
+              <div class="orbit-feature f2">People</div>
+              <div class="orbit-feature f3">Events</div>
+              <div class="orbit-feature f4">Help</div>
+              <div class="orbit-feature f5">Inbox</div>
+            </section>
+          </div>
+        </section>
+
+        <section class="direction home-c">
+          <div class="label">
+            <strong>Direction G: Pastel Bloom</strong>
+            <span>Softest option: friendly, warm, less technical, still animated and feature-based.</span>
+          </div>
+          <nav class="nav">
+            <div class="brand"><span class="mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="bloom-layout">
+            <section>
+              <div class="kicker">What opens from the circle</div>
+              <h2 class="hero-title">Mentors, nearby alumni, and school moments grow from one place.</h2>
+              <p class="lead">
+                A warmer home page that introduces features without feeling like enterprise
+                software. Better if you want approachable and alumni-friendly.
+              </p>
+              <div class="actions">
+                <a class="btn" href="#">Find your first path -></a>
+                <a class="btn-lite" href="#">See what is new</a>
+              </div>
+            </section>
+            <section class="bloom-art" aria-label="Pastel feature bloom illustration">
+              <svg class="bloom-lines" viewBox="0 0 700 620" role="img">
+                <path d="M330 330 C240 170 160 142 128 120" />
+                <path d="M338 330 C464 184 540 188 602 240" />
+                <path d="M344 346 C488 392 514 452 492 504" />
+                <path d="M320 352 C196 416 142 462 128 520" />
+              </svg>
+              <div class="petal one">Mentoring<br /><span>Ask for advice</span></div>
+              <div class="petal two">Local alumni<br /><span>Find nearby people</span></div>
+              <div class="petal three">Events<br /><span>Meet through school</span></div>
+              <div class="petal four">Help<br /><span>Give back easily</span></div>
+              <div class="petal center">Home</div>
+              <div class="feature-rail">
+                <div><strong>Ask</strong><span>Start with a question.</span></div>
+                <div><strong>People</strong><span>Browse trusted profiles.</span></div>
+                <div><strong>Events</strong><span>Join school moments.</span></div>
+                <div><strong>Help</strong><span>Contribute back.</span></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="direction home-d">
+          <div class="label">
+            <strong>Direction H: Signal Beams</strong>
+            <span>Most structured: feature introduction as clean beams and rows, not cards.</span>
+          </div>
+          <nav class="nav">
+            <div class="brand"><span class="mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="beam-layout">
+            <section>
+              <div class="kicker">Feature signal</div>
+              <h2 class="hero-title">A home page that teaches the product by showing the paths.</h2>
+              <p class="lead">
+                A more information-dense but still visual approach. Each beam represents a core
+                feature surface and gives the user a clear entry point.
+              </p>
+              <div class="actions">
+                <a class="btn" href="#">Follow a path -></a>
+                <a class="btn-lite" href="#">Customize Home</a>
+              </div>
+            </section>
+            <section class="beam-stage" aria-label="Feature beam diagram">
+              <div class="beam"></div>
+              <div class="beam-line one"><em>Mentor</em><div><strong>Ask alumni who have lived the path</strong><span>Advice and ongoing mentorship</span></div><b>Start in Ask</b></div>
+              <div class="beam-line two"><em>Local</em><div><strong>Find nearby alumni with shared context</strong><span>City, school, career overlap</span></div><b>Open People</b></div>
+              <div class="beam-line three"><em>Events</em><div><strong>Use school moments to create warm intros</strong><span>Upcoming and past event context</span></div><b>Open School</b></div>
+              <div class="beam-line four"><em>Help</em><div><strong>See where your experience can help</strong><span>Requests, joiners, and profile gaps</span></div><b>Open Help</b></div>
+              <div class="beam-line five"><em>Inbox</em><div><strong>Keep conversations moving</strong><span>Replies and accepted requests</span></div><b>Open Inbox</b></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

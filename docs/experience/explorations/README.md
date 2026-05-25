@@ -14,5 +14,4 @@ Promotion path:
 Current subfolders:
 
 - `civic/` - Civic design experiments not yet promoted into the active design system.
-- `atrium/` - older Atrium direction kept for reference only.
-- `legacy-ui-kits/` - older UI kit explorations kept for reference only.
+- `home-ask-separation-2026-05/`, `home-radar-feature-directions-2026-05/`, `home-visual-directions-2026-05/`, `typography-2026-05/` - active exploration workspaces from May 2026.

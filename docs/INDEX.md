@@ -4,30 +4,42 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 
 ## Start here
 
-- [Build plan](product/build-plan.md) — phase sequencing
+- [Brand & product strategy](product/brand-strategy.md) — positioning and north star
+- [Voice guidelines](product/voice-guidelines.md) — voice and copy rules
+- [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
 - [Phase 1 launch cut](specs/phase-1/launch-cut.md) — what ships in the launch cut
 - [Phase 1 launch checklist](specs/phase-1/launch-checklist.md) — readiness criteria
 
 ## Product
 
-Positioning, market, roadmap.
+Positioning, voice, market, roadmap.
 
-- [Market analysis](product/market-analysis.md) — alumni engagement landscape
 - [Brand & product strategy](product/brand-strategy.md)
-- [Competitive research](product/competitive-research.md)
+- [Voice guidelines](product/voice-guidelines.md)
+- [Feature roadmap](product/feature-roadmap.md)
 - [Differentiation](product/differentiation.md)
-- [Build plan](product/build-plan.md)
+- [Competitive research](product/competitive-research.md)
+- [Market analysis](product/market-analysis.md) — alumni engagement landscape
+
+Superseded product docs live under [`_archive/`](_archive/) — see [`_archive/README.md`](_archive/README.md) for what was superseded by what.
 
 ## Specs
 
 What we're building. Feature-sliced — one folder per phase.
 
-- [Phase 1 — full spec](specs/phase-1/spec.md)
-- [Phase 1 — launch cut](specs/phase-1/launch-cut.md) (week 1–2 narrowed scope)
-- [Phase 1 — week 3–4 additive features](specs/phase-1/week-3-4.md)
-- [Phase 1 — user flows](specs/phase-1/user-flows.md)
-- [Phase 1 — launch checklist](specs/phase-1/launch-checklist.md)
-- [Phase 1 — post-launch backlog](specs/phase-1/post-launch-backlog.md)
+**Phase 1 (active build):**
+
+- [Full spec](specs/phase-1/spec.md)
+- [Launch cut](specs/phase-1/launch-cut.md) — week 1–2 narrowed scope
+- [Week 3–4 additive features](specs/phase-1/week-3-4.md)
+- [User flows](specs/phase-1/user-flows.md)
+- [Launch checklist](specs/phase-1/launch-checklist.md)
+- [Post-launch backlog](specs/phase-1/post-launch-backlog.md)
+
+**Phase 2 drafts:**
+
+- [Events — conditional RSVP ("I'll go if…")](specs/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
+- [Ask mediator ("Let BridgeCircle ask for you")](specs/ask-mediator.md) — extends the ask wizard with a mediated send option
 
 ## Architecture
 
@@ -78,5 +90,6 @@ UX, UI, screen-level decisions, and active visual references.
 
 ## Presentations
 
-- [/lib pattern slides](presentations/lib-pattern-slides.html)
 - [Investor MVP pitch](presentations/investor-mvp-pitch.html)
+- [/lib pattern slides](presentations/lib-pattern-slides.html)
+- [Composer flows](presentations/composer-flows.html) — three AI-composer options explored during the composer direction decision
