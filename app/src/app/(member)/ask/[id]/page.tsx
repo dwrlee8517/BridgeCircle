@@ -109,7 +109,9 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
               <>
                 <form action={acceptAction}>
                   <input type="hidden" name="requestId" value={req.id} />
-                  <Button type="submit">Accept</Button>
+                  <Button type="submit" variant="cta">
+                    Accept
+                  </Button>
                 </form>
                 <form action={declineAction}>
                   <input type="hidden" name="requestId" value={req.id} />

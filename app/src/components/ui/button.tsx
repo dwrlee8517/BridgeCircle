@@ -10,6 +10,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-action-primary text-action-on-primary hover:bg-action-primary-hover',
+        // CTA — the single highest-stakes action per surface (Send request, RSVP, Accept).
+        // Amber. In density-pro (admin), --cta auto-reverts to primary blue via the CSS
+        // variable cascade — no code change needed. See globals.css § Density modes.
+        cta: 'bg-cta text-cta-foreground hover:bg-cta-hover',
         outline:
           'border-border bg-surface-card text-foreground hover:bg-surface-subtle hover:text-foreground aria-expanded:bg-surface-subtle aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
         secondary:

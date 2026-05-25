@@ -1,0 +1,78 @@
+/*
+ * Warm variant — token overrides
+ * ------------------------------
+ * Scope: anything inside <html class="theme-warm"> picks these up.
+ * Inherits everything else from the production Civic Editorial system.
+ *
+ * Source of truth for the experiment in docs/experience/explorations/warm-2026-05/.
+ * Do not import into the app.
+ */
+
+.theme-warm {
+  /* ---- Shape ---- */
+  --radius: 0.625rem; /* 10px (was 6px) — community/Soft UI Evolution band */
+
+  /* ---- Modular 1.25 type scale (Major Third) anchored at body 16px ---- */
+  --font-size-display-lg: 2.5rem;     /* 40px (was 36) */
+  --font-size-display-md: 2rem;       /* 32px (was 28) */
+  --font-size-h1: 1.6rem;             /* 25.6px (was 20) — a real h1 */
+  --font-size-body-lg: 1.0625rem;     /* 17px (was 15) */
+  --font-size-body-md: 1rem;          /* 16px (was 13) — meets mobile-readability heuristic */
+  --font-size-caption: 0.8125rem;     /* 13px (was 11) */
+
+  --line-height-display-lg: 1.05;
+  --line-height-display-md: 1.15;
+  --line-height-h1: 1.25;
+  --line-height-body-lg: 1.55;
+  --line-height-body-md: 1.55;
+  --line-height-caption: 1.45;
+
+  /* ---- CTA-contrast color (the headline change) ---- */
+  --cta: #f59e0b;            /* Amber 500 — true complement to Electric Sky */
+  --cta-hover: #d97706;      /* Amber 600 */
+  --cta-foreground: #0c0c0b; /* Obsidian — 8.2:1 on amber, AAA */
+
+  /* ---- Accent palette collapse ---- */
+  /* Plum folds into muted — semantic role "categorized" is rarely load-bearing */
+  --accent-plum: var(--muted-foreground);
+  /* Ochre stays only as a state-warning color; CTA work moves to amber */
+  /* Rust stays as state-danger; sage stays as state-success */
+
+  /* ---- Shadow scale, slightly more present for community lift ---- */
+  --shadow-card: 0 1px 2px rgb(12 12 11 / 0.04);
+  --shadow-card-hover: 0 6px 16px -4px rgb(12 12 11 / 0.10);
+  --shadow-hero: 0 16px 40px -10px rgb(12 12 11 / 0.14);
+}
+
+/*
+ * Micro-delight on interactive cards (lib: community products universally use 1.02 hover scale)
+ * Scoped to elements that opt-in via data-warm-lift, so we don't lift every card.
+ */
+.theme-warm [data-warm-lift] {
+  transition:
+    transform 200ms ease-out,
+    box-shadow 200ms ease-out,
+    border-color 200ms ease-out;
+}
+.theme-warm [data-warm-lift]:hover {
+  transform: translateY(-2px) scale(1.005);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/*
+ * Amber CTA button — opt-in via data-cta="true"
+ * In Civic this would render as the normal primary; in Warm it gets the amber treatment.
+ */
+.theme-warm [data-cta="true"] {
+  background-color: var(--cta);
+  color: var(--cta-foreground);
+}
+.theme-warm [data-cta="true"]:hover {
+  background-color: var(--cta-hover);
+}
+
+/* Section gap for the larger community-product breathing room */
+.theme-warm [data-warm-section] {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}

@@ -21,9 +21,12 @@ For component usage, use [`components.md`](components.md).
 | `background` | `#fafaf9` | Platinum Bone page canvas |
 | `foreground` | `#0c0c0b` | Obsidian text and structure |
 | `card` | `#ffffff` | Raised card and popover surface |
-| `primary` | `#2563eb` | Electric Sky primary actions, links, active states |
+| `primary` | `#2563eb` | Electric Sky — links, navigation, secondary positive actions |
 | `primary-hover` | `#1d4ed8` | Hover and pressed primary states |
 | `primary-on-dark` | `#93c5fd` | Electric Sky accent on Midnight/dark editorial surfaces |
+| `cta` | `#f59e0b` | Amber — single highest-stakes action per surface (Send request, RSVP, Accept) |
+| `cta-hover` | `#d97706` | Amber hover state |
+| `cta-foreground` | `#0c0c0b` | Text on amber (Obsidian — 8.2:1 contrast, AAA) |
 | `surface-midnight` | `#081126` | Midnight blue editorial canvas for heroes and entry moments |
 | `surface-midnight-foreground` | `#fafaf9` | Text and controls on Midnight surfaces |
 | `surface-midnight-muted` | `rgb(250 250 249 / 68%)` | Secondary copy and metadata on Midnight surfaces |
@@ -61,13 +64,18 @@ only when maintaining an existing primitive API.
 
 | Token | Maps To | Use |
 |---|---|---|
-| `action-primary` | `primary` | Main action, active control, selected object |
+| `action-primary` | `primary` | Secondary positive actions, navigation buttons, link-as-button |
 | `action-primary-hover` | `primary-hover` | Hover and pressed primary action |
 | `action-on-primary` | `primary-foreground` | Text or icon on primary fill |
 | `action-on-editorial` | `primary-on-dark` | Electric Sky accent on Midnight editorial surfaces |
+| `cta` | `cta` (amber) | The single highest-stakes action per surface — Send, RSVP, Accept, Ask for advice |
+| `cta-hover` | `cta-hover` | CTA hover state |
+| `cta-foreground` | `cta-foreground` | Text/icon on amber CTA fill |
 | `link` | `primary` | Inline links and low-emphasis navigation links |
 | `link-hover` | `primary-hover` | Hovered inline links |
 | `focus-ring` | `ring` | Focus border and focus halo source color |
+
+CTA rule: at most one amber CTA per local decision area. If two compete, the product decision is unresolved. In `density-pro` (operator surfaces), `cta` reverts to `primary` because admin contexts have many equal-weight actions and amber would over-claim attention.
 
 ### State Roles
 
@@ -217,21 +225,23 @@ Production rules:
 
 | Token | Size | Role |
 |---|---:|---|
-| `display-lg` | `36px` | Page-level display moments |
-| `display-md` | `28px` | Section and hero subheads |
-| `h1` | `20px` | Compact page and panel headings |
-| `body-lg` | `15px` | Lead or editorial body copy |
-| `body-md` | `13px` | Dense UI body and labels |
-| `caption` | `11px` | Secondary labels and short metadata |
-| `mono-sm` | `10.5px` | Compact uppercase metadata |
+| `display-lg` | `40px` | Page-level display moments |
+| `display-md` | `32px` | Section and hero subheads |
+| `h1` | `25.6px` | Real page-level h1 |
+| `body-lg` | `17px` | Lead or editorial body copy |
+| `body-md` | `16px` | Default body — meets mobile-readability minimum |
+| `caption` | `13px` | Secondary labels and short metadata |
+| `mono-sm` | `12px` | Compact uppercase metadata |
 
-Production rule: do not introduce sizes below `mono-sm` (10.5px). The previous `mono-xs` (9px) token was removed because the rule "do not depend on it alone" was easier to break than to enforce. If a surface seems to need 9px, it almost certainly needs a tighter layout instead.
+The scale uses a **1.25 modular ratio (Major Third)** anchored at body 16px. The above values are for the default density. `density-cozy` compresses to body 14px / h1 22px for list-of-cards member surfaces; `density-pro` compresses further to body 14px / h1 20px for operator surfaces (see § Density modes).
+
+Production rule: do not introduce sizes below `mono-sm` (12px). The previous `mono-xs` (9px) token was removed because the rule "do not depend on it alone" was easier to break than to enforce.
 
 ## Shape And Spacing
 
 | Token | Value | Role |
 |---|---:|---|
-| `radius` | `6px` | Default card, input, button, panel, and badge radius |
+| `radius` | `10px` | Default card, input, button, panel, and badge radius — community-warm Soft UI Evolution band |
 | `space-1` | `4px` | Icon gaps, dense separators |
 | `space-2` | `8px` | Compact control padding |
 | `space-3` | `12px` | Small card padding |
@@ -297,24 +307,76 @@ Production rules:
 - Do not stack `shadow-hero` on nested elements. If two surfaces both want
   hero lift, the page hierarchy is wrong.
 
-## Density
+## Density modes
 
-Density tokens are multipliers for component spacing decisions, not global page
-scales. Use density to make a known workflow more efficient without changing
-the visual identity.
+Density is an orthogonal axis to theme. Surfaces declare a density via an
+HTML/wrapper class. The class overrides type sizes, padding, shadow weight,
+and (in pro mode) the CTA color. Radius, color palette, font family, and
+focus styles never flip with density — those are brand identity.
+
+| Class | Body | h1 | Use |
+|---|---:|---:|---|
+| (no class — default) | 16px | 25.6px | Single hero surfaces — onboarding, auth, profile detail header |
+| `.density-cozy` | 14px | 22px | List-of-cards member surfaces — home, ask results, inbox, people |
+| `.density-pro` | 14px | 20px | Operator surfaces — admin tables, analytics, ambassador dash |
+
+### What changes with density
+
+| Token | default | cozy | pro |
+|---|---:|---:|---:|
+| `--font-size-body-md` | `1rem` (16px) | `0.875rem` (14px) | `0.875rem` (14px) |
+| `--font-size-h1` | `1.6rem` (25.6px) | `1.375rem` (22px) | `1.25rem` (20px) |
+| `--font-size-caption` | `0.8125rem` (13px) | `0.75rem` (12px) | `0.75rem` (12px) |
+| Shadow weight | full scale | slightly lighter | hairline only |
+| `--cta` color | amber | amber (kept) | reverts to primary blue |
+
+### What does NOT change with density
+
+- `--radius` (always 10px)
+- Color palette (always Electric Sky + brand neutrals)
+- Font family (always Inter / Inter Tight)
+- Focus styles (always the same focus ring)
+
+### Surface assignment
+
+| Surface | Density | Why |
+|---|---|---|
+| Onboarding, auth, sign-in | default | New reader needs confidence; single focus |
+| Profile detail header (single person) | default | Identity moment, single focus |
+| **Home (list of match cards)** | **cozy** | Scanning 3-5 cards, not focusing on one |
+| **Ask results, People search** | **cozy** | Same — list of match cards |
+| **Inbox, message threads** | **cozy** | Repeated rows, each row is a relationship |
+| Mentor settings, profile editor | default | Decisions matter, user-controlled |
+| **Admin members table** | **pro** | Operator workflow, scan-dense |
+| **Admin analytics, ambassador dash** | **pro** | Operator workflow, scan-dense |
+
+### Implementation
+
+Density is applied via a wrapper class on the route's layout or page:
+
+```tsx
+// app/src/app/(member)/page.tsx (home)
+return <div className="density-cozy">{children}</div>
+
+// app/src/app/(member)/admin/layout.tsx
+return <div className="density-pro">{children}</div>
+```
+
+The class can be applied at any level — `<html>`, route layout, or single
+component — because density tokens are CSS custom properties that inherit
+through the cascade.
+
+### Density multipliers (legacy)
+
+The previous `--density-compact / -default / -roomy` numeric multipliers are
+preserved for components that read them directly, but new code should prefer
+the `.density-cozy` and `.density-pro` classes above.
 
 | Token | Value | Use |
 |---|---:|---|
-| `density-compact` | `0.875` | Admin tables, repeated inbox rows, dense filter bars |
-| `density-default` | `1` | Member-facing default density |
-| `density-roomy` | `1.125` | Onboarding, auth, explanation-heavy editorial moments |
-
-Density rules:
-
-- Member decision screens use `density-default` unless the repeated object is
-  clearly scannable.
-- Admin screens may use `density-compact`, but text cannot drop below caption
-  for meaningful labels.
+| `density-compact` | `0.875` | Legacy — admin tables, dense filter bars |
+| `density-default` | `1` | Legacy — member-facing default |
+| `density-roomy` | `1.125` | Legacy — onboarding, auth, explanation moments |
 
 ## Email-Safe Tokens
 
@@ -328,10 +390,12 @@ should inline these stable values instead of using `var(...)`.
 | `email-foreground` | `#0c0c0b` | Primary copy |
 | `email-muted` | `#4d4d4a` | Secondary copy |
 | `email-border` | `#dcdcd6` | Dividers and container borders |
-| `email-primary` | `#2563eb` | Links and primary CTA |
+| `email-primary` | `#2563eb` | Links and secondary positive CTA in email body |
 | `email-primary-hover` | `#1d4ed8` | Webmail hover where supported |
+| `email-cta` | `#f59e0b` | Amber CTA — the single highest-stakes action per email (Accept invitation, RSVP) |
+| `email-cta-foreground` | `#0c0c0b` | Text on amber CTA |
 | `email-destructive` | `#9b2c1f` | Error or destructive copy |
-| `email-radius` | `6px` | Buttons and containers |
+| `email-radius` | `10px` | Buttons and containers (matches app `--radius`) |
 | `email-font-family` | `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif` | Email typography |
 
 ## Screen-Level Rules

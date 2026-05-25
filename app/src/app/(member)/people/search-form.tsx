@@ -148,6 +148,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
         )}
         <Button
           type="submit"
+          variant="cta"
           size="sm"
           className="rounded-full px-5 h-8"
           aria-label="Search people"

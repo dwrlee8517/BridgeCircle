@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-warm">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask results — Warm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="../tokens-warm.css">
+<style>
+  .ask-header { background: color-mix(in srgb, var(--secondary) 50%, transparent); border-bottom: 1px solid var(--border); padding: 2.5rem 0 3rem; }
+  .results-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 1.75rem; padding-top: 2rem; }
+  .ask-bar { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 0.75rem 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-card-hover); }
+  .ask-bar .icon { width: 44px; height: 44px; border-radius: var(--radius); background: var(--primary); color: var(--primary-foreground); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ask-bar input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.0625rem; font-weight: 500; color: var(--foreground); }
+
+  .match-card { display: grid; grid-template-columns: minmax(0, 1fr) 260px; }
+  .match-main { padding: 1.25rem 1.5rem; }
+  .match-side { background: color-mix(in srgb, var(--secondary) 60%, transparent); padding: 1.25rem; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+  .match-side .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); }
+  .match-band { font-family: 'Inter Tight', sans-serif; font-size: 1.125rem; font-weight: 600; line-height: 1.2; margin-top: 0.35rem; }
+  .match-band.strong { color: var(--accent-sage); }
+  .match-band.good { color: var(--primary); }
+  .reason-box { background: rgb(37 99 235 / 0.04); border: 1px solid rgb(37 99 235 / 0.18); border-radius: var(--radius); padding: 0.75rem 0.875rem; margin-top: 1rem; }
+  .reason-box .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); }
+  .reason-box p { font-size: var(--font-size-body-md); margin-top: 0.35rem; }
+  .suggested-box { background: rgb(59 110 81 / 0.04); border: 1px solid rgb(59 110 81 / 0.18); border-radius: var(--radius); padding: 0.75rem 0.875rem; margin-top: 0.875rem; }
+  .suggested-box .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); }
+  .suggested-box p { font-size: var(--font-size-body-md); margin-top: 0.35rem; font-style: italic; }
+
+  .workflow-step { display: flex; gap: 0.75rem; padding: 0.625rem 0; }
+  .workflow-step .num { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-tint); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .side-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-card); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <span class="wordmark">BridgeCircle</span>
+  <nav>
+    <a href="#" class="active">Ask</a>
+    <a href="#">Help</a>
+    <a href="#">People</a>
+    <a href="#">School</a>
+    <a href="#">Inbox</a>
+  </nav>
+  <div class="right">
+    <span class="t-caption">Chadwick School</span>
+    <span class="avatar avatar-sm">MP</span>
+  </div>
+</header>
+
+<section class="ask-header">
+  <div class="container">
+    <p class="bc-section-kicker">Ask · Chadwick School</p>
+    <h1 class="t-display-md mt-3" style="max-width: 38ch;">Rank the right people for this ask.</h1>
+    <p class="t-body-lg muted mt-2" style="max-width: 60ch;">BridgeCircle returned 3 people based on your question. Each card shows why and the suggested first ask.</p>
+    <div style="max-width: 760px; margin-top: 1.75rem;">
+      <form class="ask-bar">
+        <span class="icon">?</span>
+        <input type="search" value="I want to move from consulting into product design" />
+        <button type="submit" class="btn btn-cta">Find people →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container">
+    <div class="results-grid">
+
+      <div class="stack gap-4">
+
+        <!-- Iris -->
+        <article class="card card-interactive" data-warm-lift>
+          <div class="match-card">
+            <div class="match-main">
+              <div class="row gap-3">
+                <span class="avatar">IC</span>
+                <div style="min-width:0; flex:1;">
+                  <div class="row gap-2" style="flex-wrap: wrap;">
+                    <a href="#" class="t-h1">Iris Chen</a>
+                    <span class="t-caption" style="font-weight: 600;">'18</span>
+                    <span class="badge badge-success"><span class="dot"></span>Quick advice</span>
+                    <span class="badge badge-info"><span class="dot"></span>Mentorship</span>
+                  </div>
+                  <p class="t-body muted mt-1">Senior Product Designer at Figma · San Francisco, CA</p>
+                </div>
+              </div>
+              <div class="reason-box">
+                <span class="label">Why this match</span>
+                <p>Iris led the Config event team at Figma and writes about moving from IC into program work — directly relevant to your question.</p>
+              </div>
+              <div class="suggested-box">
+                <span class="label">Suggested first ask</span>
+                <p>"Could I ask how you'd think about moving from consulting into product design at a place like Figma?"</p>
+              </div>
+            </div>
+            <aside class="match-side">
+              <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                <span class="label">Match signal</span>
+                <div class="match-band strong">Strong fit</div>
+              </div>
+              <span class="label" style="margin-top: 0.875rem;">Next step</span>
+              <p class="t-body strong" style="margin-top: 0.35rem; line-height: 1.3;">Start a focused ask</p>
+              <div class="stack gap-2 mt-3">
+                <a href="#" class="btn btn-cta btn-sm btn-block">Ask for advice →</a>
+                <a href="#" class="t-caption" style="text-align:center;">View profile</a>
+              </div>
+            </aside>
+          </div>
+        </article>
+
+        <!-- James -->
+        <article class="card card-interactive" data-warm-lift>
+          <div class="match-card">
+            <div class="match-main">
+              <div class="row gap-3">
+                <span class="avatar">JL</span>
+                <div style="min-width:0; flex:1;">
+                  <div class="row gap-2" style="flex-wrap: wrap;">
+                    <a href="#" class="t-h1">James Lee</a>
+                    <span class="t-caption" style="font-weight: 600;">'15</span>
+                    <span class="badge badge-success"><span class="dot"></span>Quick advice</span>
+                  </div>
+                  <p class="t-body muted mt-1">Group PM at Coupang · Seoul</p>
+                </div>
+              </div>
+              <div class="reason-box">
+                <span class="label">Why this match</span>
+                <p>James moved from BCG to product at Coupang in 2019 and has written about that transition.</p>
+              </div>
+              <div class="suggested-box">
+                <span class="label">Suggested first ask</span>
+                <p>"What surprised you about product after consulting? Would you make the same call?"</p>
+              </div>
+            </div>
+            <aside class="match-side">
+              <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                <span class="label">Match signal</span>
+                <div class="match-band good">Good fit</div>
+              </div>
+              <span class="label" style="margin-top: 0.875rem;">Next step</span>
+              <p class="t-body strong" style="margin-top: 0.35rem; line-height: 1.3;">Start a focused ask</p>
+              <div class="stack gap-2 mt-3">
+                <a href="#" class="btn btn-cta btn-sm btn-block">Ask for advice →</a>
+                <a href="#" class="t-caption" style="text-align:center;">View profile</a>
+              </div>
+            </aside>
+          </div>
+        </article>
+
+        <!-- Aanya -->
+        <article class="card card-interactive" data-warm-lift>
+          <div class="match-card">
+            <div class="match-main">
+              <div class="row gap-3">
+                <span class="avatar">AS</span>
+                <div style="min-width:0; flex:1;">
+                  <div class="row gap-2" style="flex-wrap: wrap;">
+                    <a href="#" class="t-h1">Aanya Sharma</a>
+                    <span class="t-caption" style="font-weight: 600;">'20</span>
+                    <span class="badge badge-success"><span class="dot"></span>Quick advice</span>
+                  </div>
+                  <p class="t-body muted mt-1">Product Designer at Patreon · Brooklyn, NY</p>
+                </div>
+              </div>
+              <div class="reason-box">
+                <span class="label">Why this match</span>
+                <p>Aanya is in Brooklyn and is open to coffee chats about design careers.</p>
+              </div>
+            </div>
+            <aside class="match-side">
+              <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                <span class="label">Match signal</span>
+                <div class="match-band good">Good fit</div>
+              </div>
+              <span class="label" style="margin-top: 0.875rem;">Next step</span>
+              <p class="t-body strong" style="margin-top: 0.35rem; line-height: 1.3;">Start a focused ask</p>
+              <div class="stack gap-2 mt-3">
+                <a href="#" class="btn btn-cta btn-sm btn-block">Ask for advice →</a>
+                <a href="#" class="t-caption" style="text-align:center;">View profile</a>
+              </div>
+            </aside>
+          </div>
+        </article>
+
+      </div>
+
+      <aside>
+        <div class="side-card">
+          <p class="t-eyebrow">Ask workflow</p>
+          <div class="mt-2">
+            <div class="workflow-step">
+              <span class="num">1</span>
+              <div>
+                <p class="t-body strong">Interpret need</p>
+                <p class="t-caption">Your question becomes a focused brief.</p>
+              </div>
+            </div>
+            <div class="workflow-step">
+              <span class="num">2</span>
+              <div>
+                <p class="t-body strong">Rank candidates</p>
+                <p class="t-caption">Match against open helpers by topic and path.</p>
+              </div>
+            </div>
+            <div class="workflow-step">
+              <span class="num">3</span>
+              <div>
+                <p class="t-body strong">Send a draft</p>
+                <p class="t-caption">Edit the suggested first ask before sending.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card mt-4">
+          <p class="t-eyebrow">Not seeing the right person?</p>
+          <p class="t-body mt-2">Try rephrasing the question — mention the industry, city, or career stage.</p>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

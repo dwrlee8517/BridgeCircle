@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-warm">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — Warm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="../tokens-warm.css">
+<style>
+  .profile-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 2.25rem; padding: 2.5rem 0; }
+  .profile-header { display: flex; gap: 1.5rem; align-items: flex-start; }
+  .profile-actions { display: flex; flex-direction: column; gap: 0.625rem; min-width: 220px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem 1.75rem; margin-top: 1.25rem; }
+  .info-row .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); }
+  .info-row .value { font-size: var(--font-size-body-md); margin-top: 0.2rem; }
+  .topic-pill { display: inline-block; padding: 0.375rem 0.75rem; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-size: var(--font-size-caption); font-weight: 500; }
+  .pull-quote { border-left: 3px solid var(--primary); padding: 0.25rem 0 0.25rem 1rem; font-style: italic; line-height: 1.55; margin-top: 1.25rem; color: var(--foreground); font-size: var(--font-size-body-lg); }
+  .capacity-bar { height: 8px; background: var(--muted); border-radius: 999px; overflow: hidden; margin-top: 0.5rem; }
+  .capacity-bar .fill { height: 100%; background: var(--accent-sage); width: 50%; }
+  .side-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-card); }
+  .education-row { display: flex; justify-content: space-between; padding: 0.625rem 0; border-bottom: 1px solid var(--border); }
+  .education-row:last-child { border-bottom: 0; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <span class="wordmark">BridgeCircle</span>
+  <nav>
+    <a href="#">Ask</a>
+    <a href="#">Help</a>
+    <a href="#" class="active">People</a>
+    <a href="#">School</a>
+    <a href="#">Inbox</a>
+  </nav>
+  <div class="right">
+    <span class="t-caption">Chadwick School</span>
+    <span class="avatar avatar-sm">MP</span>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <div style="padding-top: 1.5rem;">
+      <a href="#" class="t-meta">← Back to people</a>
+    </div>
+
+    <div class="card card-interactive" data-warm-lift style="margin-top: 1rem; padding: 1.75rem;">
+      <div class="profile-header">
+        <span class="avatar avatar-xl">IC</span>
+        <div style="flex: 1; min-width: 0;">
+          <div class="row gap-2" style="flex-wrap: wrap;">
+            <h1 class="t-display-md">Iris Chen</h1>
+            <span class="t-body muted strong">'18</span>
+            <span class="badge badge-success"><span class="dot"></span>Quick advice</span>
+            <span class="badge badge-info"><span class="dot"></span>Mentorship</span>
+          </div>
+          <p class="t-body-lg muted mt-1">Senior Product Designer at Figma · San Francisco, CA</p>
+          <p class="pull-quote">Designer interested in how teams move from individual craft to durable systems.</p>
+        </div>
+        <div class="profile-actions">
+          <a href="#" class="btn btn-cta">Ask for advice →</a>
+          <a href="#" class="btn btn-outline">Request mentorship</a>
+          <a href="#" class="btn btn-ghost btn-sm">Send a message</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-grid">
+
+      <div>
+        <div class="card card-pad-lg">
+          <p class="t-eyebrow">About</p>
+          <p class="t-body mt-2">I joined Figma in 2020 after three years at a small product studio. These days I lead the Config event-product crew. Happy to chat with current students or recent grads about portfolios, the first product job, or the IC-to-lead jump.</p>
+
+          <div class="info-grid">
+            <div class="info-row">
+              <p class="label">Current role</p>
+              <p class="value">Senior Product Designer · Figma</p>
+            </div>
+            <div class="info-row">
+              <p class="label">City</p>
+              <p class="value">San Francisco, CA</p>
+            </div>
+            <div class="info-row">
+              <p class="label">Class</p>
+              <p class="value">Chadwick School, '18</p>
+            </div>
+            <div class="info-row">
+              <p class="label">University</p>
+              <p class="value">RISD, BFA Graphic Design '22</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-pad-lg mt-4">
+          <p class="t-eyebrow">Open to help with</p>
+          <div class="row gap-2 mt-3" style="flex-wrap: wrap;">
+            <span class="topic-pill">Product design</span>
+            <span class="topic-pill">Design systems</span>
+            <span class="topic-pill">Events</span>
+            <span class="topic-pill">Career mentoring</span>
+            <span class="topic-pill">Portfolio reviews</span>
+          </div>
+        </div>
+
+        <div class="card card-pad-lg mt-4">
+          <p class="t-eyebrow">Education</p>
+          <div class="mt-2">
+            <div class="education-row">
+              <div>
+                <p class="t-body strong">RISD</p>
+                <p class="t-caption">BFA Graphic Design</p>
+              </div>
+              <p class="t-meta">2018–2022</p>
+            </div>
+            <div class="education-row">
+              <div>
+                <p class="t-body strong">Chadwick School</p>
+                <p class="t-caption">Class of 2018</p>
+              </div>
+              <p class="t-meta">2014–2018</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="side-card">
+          <p class="t-eyebrow">Mentor capacity</p>
+          <div class="row" style="justify-content: space-between; margin-top: 0.5rem;">
+            <span class="t-body strong">2 of 4 active mentees</span>
+            <span class="badge badge-success"><span class="dot"></span>Open</span>
+          </div>
+          <div class="capacity-bar"><div class="fill"></div></div>
+          <p class="t-caption mt-2">Iris is open to a new mentee this month.</p>
+        </div>
+
+        <div class="side-card mt-4">
+          <p class="t-eyebrow">Trust signals</p>
+          <ul class="stack gap-2 mt-2" style="font-size: var(--font-size-body-md);">
+            <li class="row gap-2"><span class="badge badge-info">✓</span> Verified Chadwick '18</li>
+            <li class="row gap-2"><span class="badge badge-info">✓</span> 3 mutual classmates</li>
+            <li class="row gap-2"><span class="badge badge-info">✓</span> Has helped 7 alumni this year</li>
+          </ul>
+        </div>
+
+        <div class="side-card mt-4">
+          <p class="t-eyebrow">Suggested first ask</p>
+          <p class="t-body mt-2" style="font-style: italic;">"Hi Iris — I'm trying to move from consulting into product design. Could I ask how you'd think about that move at a place like Figma?"</p>
+          <a href="#" class="btn btn-cta btn-sm btn-block mt-3">Start with this →</a>
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

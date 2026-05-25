@@ -489,7 +489,7 @@ export function ResultCard(props: ResultCardProps) {
         <div className="flex flex-wrap items-center gap-1.5">
           {props.isOpenAsAdviceHelper ? (
             <>
-              <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-lg">
+              <Button asChild variant="cta" size="sm" className="h-8 text-xs px-3.5 rounded-lg">
                 <Link href={`/ask/new?to=${props.userId}&type=advice`}>
                   Ask {display.split(/\s+/)[0]} for advice
                 </Link>
@@ -503,7 +503,7 @@ export function ResultCard(props: ResultCardProps) {
               ) : null}
             </>
           ) : props.isOpenAsMentor ? (
-            <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-lg">
+            <Button asChild variant="cta" size="sm" className="h-8 text-xs px-3.5 rounded-lg">
               <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>
                 Request mentorship from {display.split(/\s+/)[0]}
               </Link>

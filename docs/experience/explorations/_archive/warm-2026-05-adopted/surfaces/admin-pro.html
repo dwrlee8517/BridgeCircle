@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-warm density-pro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin members — Warm Pro (compact density)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared.css">
+<link rel="stylesheet" href="../tokens-warm.css">
+<link rel="stylesheet" href="../tokens-density-pro.css">
+<style>
+  .admin-page { padding: 2rem 0; }
+  .admin-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .filter-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; padding: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow-card); }
+  .filter-bar input[type="search"], .filter-bar select { border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem 0.75rem; font: inherit; font-size: var(--font-size-body-md); background: var(--card); color: var(--foreground); outline: none; }
+  .filter-bar input[type="search"] { min-width: 240px; }
+  .filter-bar input:focus, .filter-bar select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15); }
+
+  .summary-bar { display: flex; gap: 1.5rem; padding: 1rem 1.25rem; background: var(--primary-tint); border-radius: var(--radius); margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .summary-bar .stat { display: flex; flex-direction: column; gap: 0.125rem; }
+  .summary-bar .v { font-family: 'Inter Tight', sans-serif; font-size: 1.25rem; font-weight: 600; color: var(--primary); }
+  .summary-bar .l { font-size: var(--font-size-caption); color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+  .table-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card); }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 0.875rem 1rem; font-size: var(--font-size-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted-foreground); background: color-mix(in srgb, var(--secondary) 50%, var(--card)); border-bottom: 1px solid var(--border); }
+  td { padding: 1rem; vertical-align: middle; border-bottom: 1px solid var(--border); font-size: var(--font-size-body-md); }
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: color-mix(in srgb, var(--secondary) 30%, transparent); }
+  .name-cell { display: flex; align-items: center; gap: 0.75rem; }
+  .name-cell .name { font-weight: 600; }
+  .name-cell .email { font-size: var(--font-size-caption); color: var(--muted-foreground); }
+  .actions-cell { display: flex; gap: 0.375rem; justify-content: flex-end; }
+  .badge.role { background: var(--plum-tint); color: var(--accent-plum); border-color: rgb(114 47 55 / 0.2); }
+
+  /* density-pro page-local overrides — compress table further */
+  .density-pro .admin-page { padding: 1.25rem 0; }
+  .density-pro .admin-header { margin-bottom: 1rem; }
+  .density-pro .summary-bar { padding: 0.625rem 1rem; gap: 1.25rem; margin-bottom: 0.875rem; }
+  .density-pro .summary-bar .v { font-size: 1.0625rem; }
+  .density-pro .summary-bar .l { font-size: 10px; }
+  .density-pro .filter-bar { padding: 0.625rem; gap: 0.5rem; margin-bottom: 0.875rem; }
+  .density-pro .filter-bar input[type="search"], .density-pro .filter-bar select { padding: 0.35rem 0.5rem; font-size: var(--font-size-caption); }
+  .density-pro .filter-bar input[type="search"] { min-width: 200px; }
+  .density-pro th { padding: 0.5rem 0.75rem; font-size: 10px; }
+  .density-pro td { padding: 0.5rem 0.75rem; font-size: var(--font-size-body-md); }
+  .density-pro .name-cell { gap: 0.5rem; }
+  .density-pro .name-cell .email { font-size: 11px; }
+  .density-pro .actions-cell { gap: 0.25rem; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <span class="wordmark">BridgeCircle</span>
+  <nav>
+    <a href="#">Ask</a>
+    <a href="#">Help</a>
+    <a href="#">People</a>
+    <a href="#">School</a>
+    <a href="#">Inbox</a>
+    <a href="#" class="active">Admin</a>
+  </nav>
+  <div class="right">
+    <span class="t-caption">Chadwick School</span>
+    <span class="avatar avatar-sm">MP</span>
+  </div>
+</header>
+
+<main class="admin-page">
+  <div class="container">
+
+    <div class="admin-header">
+      <div>
+        <p class="bc-section-kicker">Admin · Members</p>
+        <h1 class="t-display-md mt-2">Member directory</h1>
+        <p class="t-body-lg muted mt-2">248 verified members. Approve invites, edit roles, deactivate or restore accounts.</p>
+      </div>
+      <button class="btn btn-cta">Invite members →</button>
+    </div>
+
+    <div class="summary-bar">
+      <div class="stat"><span class="v">248</span><span class="l">Total members</span></div>
+      <div class="stat"><span class="v">12</span><span class="l">Pending invites</span></div>
+      <div class="stat"><span class="v">31</span><span class="l">Open mentors</span></div>
+      <div class="stat"><span class="v">3</span><span class="l">Admins</span></div>
+      <div class="stat"><span class="v">5</span><span class="l">Deactivated</span></div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="search" placeholder="Search by name, email, or city…" />
+      <select><option>All classes</option><option>2015</option><option>2018</option><option>2020</option><option>2022</option></select>
+      <select><option>All cities</option><option>San Francisco</option><option>Brooklyn</option><option>Seoul</option><option>Los Angeles</option></select>
+      <select><option>All statuses</option><option>Active</option><option>Pending</option><option>Deactivated</option></select>
+      <button class="btn btn-ghost btn-sm">Reset</button>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 30%;">Member</th>
+            <th>Class</th>
+            <th>Role</th>
+            <th>City</th>
+            <th>Mentor status</th>
+            <th>Last active</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">IC</span><div><div class="name">Iris Chen</div><div class="email">iris.chen@example.com</div></div></div></td>
+            <td>'18</td>
+            <td><span class="badge badge-muted">Member</span></td>
+            <td>San Francisco, CA</td>
+            <td><span class="badge badge-success"><span class="dot"></span>Open</span></td>
+            <td><span class="t-meta">2 hrs ago</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">JL</span><div><div class="name">James Lee</div><div class="email">james.lee@example.com</div></div></div></td>
+            <td>'15</td>
+            <td><span class="badge role">Admin</span></td>
+            <td>Seoul</td>
+            <td><span class="badge badge-muted">Off</span></td>
+            <td><span class="t-meta">Today</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">AS</span><div><div class="name">Aanya Sharma</div><div class="email">aanya.s@example.com</div></div></div></td>
+            <td>'20</td>
+            <td><span class="badge badge-muted">Member</span></td>
+            <td>Brooklyn, NY</td>
+            <td><span class="badge badge-success"><span class="dot"></span>Open</span></td>
+            <td><span class="t-meta">Yesterday</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">MP</span><div><div class="name">Maren Park</div><div class="email">maren@example.com</div></div></div></td>
+            <td>'22</td>
+            <td><span class="badge badge-muted">Member</span></td>
+            <td>Brooklyn, NY</td>
+            <td><span class="badge badge-muted">Off</span></td>
+            <td><span class="t-meta">3 hrs ago</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">DK</span><div><div class="name">David Kim</div><div class="email">david.kim@example.com</div></div></div></td>
+            <td>'19</td>
+            <td><span class="badge role">Ambassador</span></td>
+            <td>Los Angeles, CA</td>
+            <td><span class="badge badge-warn"><span class="dot"></span>Paused</span></td>
+            <td><span class="t-meta">Last week</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">SO</span><div><div class="name">Sarah Okafor</div><div class="email">sarah.o@example.com</div></div></div></td>
+            <td>'17</td>
+            <td><span class="badge badge-muted">Member</span></td>
+            <td>London</td>
+            <td><span class="badge badge-success"><span class="dot"></span>Open</span></td>
+            <td><span class="t-meta">2 days ago</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">TN</span><div><div class="name">Tomás Núñez</div><div class="email">tomas.n@example.com</div></div></div></td>
+            <td>'21</td>
+            <td><span class="badge badge-info"><span class="dot"></span>Pending</span></td>
+            <td>Mexico City</td>
+            <td>—</td>
+            <td><span class="t-meta">—</span></td>
+            <td class="actions-cell"><button class="btn btn-cta btn-sm">Approve</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+          <tr>
+            <td><div class="name-cell"><span class="avatar avatar-sm">RL</span><div><div class="name">Richard Lee</div><div class="email">richard@example.com</div></div></div></td>
+            <td>'16</td>
+            <td><span class="badge role">Admin</span></td>
+            <td>Palo Alto, CA</td>
+            <td><span class="badge badge-success"><span class="dot"></span>Open</span></td>
+            <td><span class="t-meta">5 min ago</span></td>
+            <td class="actions-cell"><button class="btn btn-outline btn-sm">Edit</button><button class="btn btn-ghost btn-sm">⋯</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-4 row gap-2" style="justify-content: space-between;">
+      <p class="t-caption">Showing 8 of 248 members</p>
+      <div class="row gap-2">
+        <button class="btn btn-outline btn-sm">← Previous</button>
+        <button class="btn btn-outline btn-sm">Next →</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

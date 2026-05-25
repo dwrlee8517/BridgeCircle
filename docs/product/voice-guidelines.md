@@ -489,7 +489,7 @@ What this gets right:
 
 - **Wordmark.** Fraunces (serif), display weight, slight negative tracking. "BridgeCircle" is one continuous word — never break it, never insert a space.
 - **Pairing fonts.** Inter / Inter Tight for UI body and labels.
-- **Color anchors.** Platinum Bone surfaces, Obsidian Ink structure, Cobalt action states. Full system in [`docs/experience/ui/design-system/`](../experience/ui/design-system/).
+- **Color anchors.** Platinum Bone surfaces, Obsidian Ink structure, Electric Sky links and navigation, Amber for the single highest-stakes CTA per surface. Full system in [`docs/experience/ui/design-system/`](../experience/ui/design-system/).
 - **Brand assets directory.** _TBD — the `brand-assets/` folder does not yet exist._ When created, it should contain: wordmark lockups (light/dark, with and without tagline), symbol mark, color tokens, min-size and clear-space specs, social cards. Until then, do not recreate the wordmark in pure Inter.
 
 ## 15. Voice in the wild

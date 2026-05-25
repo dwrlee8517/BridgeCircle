@@ -30,7 +30,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <>
+    // density-pro: operator surfaces — admin tables, analytics, ambassador dash.
+    // CTA buttons (variant="cta") auto-revert to primary blue in this scope.
+    // See docs/experience/ui/design-system/tokens.md § Density modes.
+    <div className="density-pro">
       <div className="border-b bg-muted/30">
         <div className="mx-auto flex max-w-5xl items-center gap-4 overflow-x-auto px-4 py-2 text-sm">
           <span className="shrink-0 font-medium text-muted-foreground">Admin</span>
@@ -65,6 +68,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </div>
       {children}
-    </>
+    </div>
   )
 }

@@ -359,14 +359,14 @@ export default async function ProfileDetailPage({
                   <Link href="/profile/edit">Edit profile</Link>
                 </Button>
               ) : profile.isOpenAsAdviceHelper ? (
-                <Button asChild className="rounded-lg">
+                <Button asChild variant="cta" className="rounded-lg">
                   <Link href={`/ask/new?to=${profile.userId}&type=advice`}>
                     Ask {displayName(profile.name, profile.preferredName).split(/\s+/)[0]} for
                     advice
                   </Link>
                 </Button>
               ) : profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
-                <Button asChild className="rounded-lg">
+                <Button asChild variant="cta" className="rounded-lg">
                   <Link href={`/ask/new?to=${profile.userId}&type=mentorship`}>
                     Request mentorship
                   </Link>
@@ -374,7 +374,7 @@ export default async function ProfileDetailPage({
               ) : isFriend ? (
                 <form action={startThreadAction}>
                   <input type="hidden" name="receiverId" value={profile.userId} />
-                  <Button type="submit" className="rounded-lg w-full">
+                  <Button type="submit" variant="cta" className="rounded-lg w-full">
                     Message
                   </Button>
                 </form>
@@ -906,12 +906,14 @@ function HelperAsks({
   return (
     <>
       {isOpenAsAdviceHelper ? (
-        <Button asChild variant={showMentorshipButton ? 'outline' : 'default'} className="w-full">
+        // CTA amber when this is the only ask path; outline when mentorship competes
+        // for primary position (mentorship is the higher-stakes ask in that case).
+        <Button asChild variant={showMentorshipButton ? 'outline' : 'cta'} className="w-full">
           <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for advice</Link>
         </Button>
       ) : null}
       {showMentorshipButton ? (
-        <Button asChild className="w-full">
+        <Button asChild variant="cta" className="w-full">
           <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Request mentorship</Link>
         </Button>
       ) : null}
