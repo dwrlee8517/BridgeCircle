@@ -14,7 +14,7 @@ We don't yet know if BridgeCircle gets repeat engagement (the open question that
 
 Phase 1 is **web-first only**. Responsive layouts (mobile browsers welcome). No React Native, no Expo, no Flutter, no PWA install prompts at launch.
 
-Native mobile is gated on repeat-engagement signals (see `docs/product/build-plan.md` Phase 7 criteria) — typically 30%+ of active mentees returning ≥2x/week and friction logs that point at mobile use cases (e.g. "I wanted to reply to a mentor request from my phone").
+Native mobile is gated on repeat-engagement signals — typically 30%+ of active mentees returning ≥2x/week and friction logs that point at mobile use cases (e.g. "I wanted to reply to a mentor request from my phone"). Phase sequencing lives in [`../product/feature-roadmap.md`](../product/feature-roadmap.md).
 
 ## Consequences
 

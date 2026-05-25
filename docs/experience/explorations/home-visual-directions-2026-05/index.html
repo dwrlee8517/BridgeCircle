@@ -1,0 +1,1121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Home Visual Directions</title>
+    <style>
+      :root {
+        --ink: #111827;
+        --muted: #5d6575;
+        --line: rgb(20 24 32 / 0.14);
+        --paper: #fffdfa;
+        --blue: #2463eb;
+        --sky: #9cc7ff;
+        --sage: #3e7058;
+        --sage-soft: #dcebe3;
+        --ochre: #c87518;
+        --peach: #f6cfb7;
+        --plum: #7c3e69;
+        --night: #101827;
+        --radius: 10px;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 8% 0%, rgb(36 99 235 / 0.12), transparent 24rem),
+          radial-gradient(circle at 100% 10%, rgb(200 117 24 / 0.12), transparent 26rem),
+          linear-gradient(180deg, #f8f7f2, #ece9df);
+      }
+
+      .wrap {
+        width: min(1480px, 100%);
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 420px;
+        gap: 28px;
+        align-items: end;
+        padding: 12px 0 26px;
+      }
+
+      .intro h1 {
+        margin: 0;
+        max-width: 900px;
+        font-size: clamp(42px, 6vw, 86px);
+        line-height: 0.94;
+        letter-spacing: -0.065em;
+      }
+
+      .intro p {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .board-note {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      .board-note::before {
+        width: 34px;
+        height: 2px;
+        border-radius: 999px;
+        background: var(--blue);
+        content: "";
+      }
+
+      .direction {
+        overflow: hidden;
+        margin-bottom: 34px;
+        border: 1px solid rgb(20 24 32 / 0.13);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 24px 90px rgb(20 24 32 / 0.12);
+      }
+
+      .direction-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 14px 22px;
+        border-bottom: 1px solid rgb(20 24 32 / 0.11);
+        background: rgb(255 253 250 / 0.78);
+      }
+
+      .direction-label strong {
+        font-size: 14px;
+        letter-spacing: -0.02em;
+      }
+
+      .direction-label span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .app-nav {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        height: 62px;
+        padding: 0 30px;
+        border-bottom: 1px solid rgb(20 24 32 / 0.11);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-right: 8px;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+      }
+
+      .brand-mark {
+        position: relative;
+        width: 26px;
+        height: 18px;
+      }
+
+      .brand-mark::before,
+      .brand-mark::after {
+        position: absolute;
+        top: 1px;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--blue);
+        border-radius: 999px;
+        content: "";
+      }
+
+      .brand-mark::before {
+        left: 0;
+      }
+
+      .brand-mark::after {
+        right: 0;
+        border-color: currentColor;
+      }
+
+      .app-nav a {
+        color: rgb(17 24 39 / 0.82);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 620;
+      }
+
+      .app-nav a.active {
+        color: var(--blue);
+      }
+
+      .nav-spacer {
+        flex: 1;
+      }
+
+      .search {
+        width: 225px;
+        padding: 10px 13px;
+        border: 1px solid rgb(20 24 32 / 0.12);
+        border-radius: 8px;
+        color: rgb(17 24 39 / 0.38);
+        background: rgb(255 255 255 / 0.7);
+        font-size: 13px;
+      }
+
+      .avatar {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 8px;
+        color: white;
+        background: #b5472d;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .kicker {
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 830;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .btn,
+      .btn-lite {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 790;
+        text-decoration: none;
+      }
+
+      .btn {
+        color: white;
+        background: var(--night);
+      }
+
+      .btn-lite {
+        border: 1px solid rgb(20 24 32 / 0.14);
+        color: var(--ink);
+        background: rgb(255 255 255 / 0.62);
+      }
+
+      .hero-a {
+        position: relative;
+        min-height: 720px;
+        background:
+          radial-gradient(circle at 12% 18%, rgb(36 99 235 / 0.12), transparent 26rem),
+          radial-gradient(circle at 78% 42%, rgb(61 112 88 / 0.14), transparent 30rem),
+          linear-gradient(180deg, #fffefb, #f5f2eb);
+      }
+
+      .hero-a::before {
+        position: absolute;
+        inset: 62px 0 0;
+        pointer-events: none;
+        content: "";
+        background-image:
+          linear-gradient(rgb(20 24 32 / 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgb(20 24 32 / 0.045) 1px, transparent 1px);
+        background-size: 52px 52px;
+        mask-image: radial-gradient(circle at 55% 42%, black, transparent 72%);
+      }
+
+      .atlas-layout {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(440px, 1.1fr);
+        gap: 24px;
+        min-height: 658px;
+        padding: 42px 36px 0;
+      }
+
+      .atlas-copy {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .atlas-copy h2,
+      .campus-copy h2,
+      .ops-copy h2,
+      .radar-copy h2 {
+        margin: 24px 0 0;
+        font-size: clamp(52px, 6.5vw, 94px);
+        line-height: 0.9;
+        letter-spacing: -0.078em;
+      }
+
+      .atlas-copy p,
+      .campus-copy p,
+      .ops-copy p,
+      .radar-copy p {
+        max-width: 570px;
+        margin: 20px 0 0;
+        color: #4e5969;
+        font-size: 17px;
+        line-height: 1.52;
+      }
+
+      .action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .attention-rail {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+      }
+
+      .attention-item {
+        display: grid;
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        gap: 14px;
+        align-items: center;
+        min-height: 78px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .attention-item em {
+        color: var(--blue);
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 850;
+        letter-spacing: 0.14em;
+      }
+
+      .attention-item strong {
+        display: block;
+        font-size: 16px;
+        letter-spacing: -0.025em;
+      }
+
+      .attention-item span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .attention-item b {
+        font-size: 22px;
+        letter-spacing: -0.04em;
+      }
+
+      .atlas-art {
+        position: relative;
+        min-height: 560px;
+      }
+
+      .atlas-art svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+
+      .atlas-art path {
+        fill: none;
+        stroke-linecap: round;
+      }
+
+      .path-blue {
+        stroke: rgb(36 99 235 / 0.3);
+        stroke-width: 2;
+        stroke-dasharray: 8 14;
+        animation: pathmove 18s linear infinite;
+      }
+
+      .path-sage {
+        stroke: rgb(61 112 88 / 0.34);
+        stroke-width: 2;
+        stroke-dasharray: 5 13;
+        animation: pathmove 23s linear infinite reverse;
+      }
+
+      .path-ochre {
+        stroke: rgb(200 117 24 / 0.28);
+        stroke-width: 1.5;
+        stroke-dasharray: 9 17;
+        animation: pathmove 28s linear infinite;
+      }
+
+      @keyframes pathmove {
+        to {
+          stroke-dashoffset: -260;
+        }
+      }
+
+      .atlas-node {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 58px;
+        height: 58px;
+        border: 1px solid rgb(17 24 39 / 0.13);
+        border-radius: 999px;
+        background: rgb(255 253 250 / 0.8);
+        box-shadow: 0 18px 52px rgb(20 24 32 / 0.12);
+        font-weight: 850;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .atlas-node.big {
+        width: 84px;
+        height: 84px;
+        border-radius: 18px;
+        color: white;
+        background: var(--blue);
+      }
+
+      .atlas-node.sage {
+        background: var(--sage-soft);
+      }
+
+      .atlas-node.peach {
+        background: #ffe3cc;
+      }
+
+      .atlas-node.one {
+        top: 80px;
+        left: 78px;
+      }
+
+      .atlas-node.two {
+        top: 178px;
+        right: 82px;
+        animation-delay: -1.3s;
+      }
+
+      .atlas-node.three {
+        top: 320px;
+        left: 198px;
+        animation-delay: -2.7s;
+      }
+
+      .atlas-node.four {
+        right: 36px;
+        bottom: 88px;
+        animation-delay: -3.4s;
+      }
+
+      .atlas-node.center {
+        top: 240px;
+        left: 45%;
+        transform: translateX(-50%);
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          translate: 0 0;
+        }
+        50% {
+          translate: 0 -12px;
+        }
+      }
+
+      .metric-rail {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid var(--line);
+      }
+
+      .metric-rail div {
+        min-height: 106px;
+        padding: 18px;
+        border-right: 1px solid var(--line);
+      }
+
+      .metric-rail div:last-child {
+        border-right: 0;
+      }
+
+      .metric-rail b {
+        display: block;
+        font-size: 40px;
+        line-height: 0.92;
+        letter-spacing: -0.055em;
+      }
+
+      .metric-rail span {
+        display: block;
+        margin-top: 9px;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 820;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .hero-b {
+        min-height: 740px;
+        color: #18202d;
+        background:
+          linear-gradient(120deg, rgb(255 231 214 / 0.95), rgb(245 248 232 / 0.78) 46%, rgb(224 239 255 / 0.92)),
+          #fff8ef;
+      }
+
+      .campus-layout {
+        display: grid;
+        grid-template-columns: minmax(420px, 0.85fr) minmax(0, 1.15fr);
+        gap: 34px;
+        min-height: 676px;
+        padding: 42px 36px 0;
+      }
+
+      .campus-copy h2 {
+        max-width: 650px;
+      }
+
+      .campus-art {
+        position: relative;
+        min-height: 580px;
+      }
+
+      .sun {
+        position: absolute;
+        top: 22px;
+        right: 68px;
+        width: 170px;
+        height: 170px;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle, #fff5c9 0 28%, #f8bd63 29% 52%, rgb(248 189 99 / 0) 53%);
+        animation: breathe 5s ease-in-out infinite;
+      }
+
+      @keyframes breathe {
+        50% {
+          scale: 1.06;
+          opacity: 0.78;
+        }
+      }
+
+      .campus-illustration {
+        position: absolute;
+        right: 0;
+        bottom: 104px;
+        left: 12px;
+        min-height: 380px;
+      }
+
+      .campus-illustration svg {
+        width: 100%;
+        height: 380px;
+      }
+
+      .campus-line {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border-top: 1px solid rgb(24 32 45 / 0.14);
+      }
+
+      .campus-line div {
+        min-height: 96px;
+        padding: 18px 20px;
+        border-right: 1px solid rgb(24 32 45 / 0.12);
+      }
+
+      .campus-line div:last-child {
+        border-right: 0;
+      }
+
+      .campus-line strong {
+        display: block;
+        font-size: 18px;
+      }
+
+      .campus-line span {
+        color: #687083;
+        font-size: 13px;
+      }
+
+      .home-list {
+        margin-top: 34px;
+        border-top: 1px solid rgb(24 32 45 / 0.14);
+      }
+
+      .home-list div {
+        display: grid;
+        grid-template-columns: 34px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        min-height: 64px;
+        border-bottom: 1px solid rgb(24 32 45 / 0.12);
+      }
+
+      .home-list strong {
+        font-size: 15px;
+      }
+
+      .home-list span,
+      .home-list b {
+        color: #677085;
+        font-size: 13px;
+      }
+
+      .hero-c {
+        min-height: 735px;
+        color: #f7faf9;
+        background:
+          radial-gradient(circle at 20% 18%, rgb(89 192 154 / 0.18), transparent 24rem),
+          radial-gradient(circle at 78% 8%, rgb(114 158 255 / 0.22), transparent 26rem),
+          linear-gradient(135deg, #07111f, #13291f 52%, #0e1725);
+      }
+
+      .hero-c .app-nav {
+        color: white;
+        border-color: rgb(255 255 255 / 0.12);
+      }
+
+      .hero-c .app-nav a {
+        color: rgb(255 255 255 / 0.74);
+      }
+
+      .hero-c .app-nav a.active {
+        color: #9cc7ff;
+      }
+
+      .hero-c .search {
+        border-color: rgb(255 255 255 / 0.12);
+        color: rgb(255 255 255 / 0.46);
+        background: rgb(255 255 255 / 0.08);
+      }
+
+      .ops-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(460px, 1.08fr);
+        gap: 40px;
+        min-height: 673px;
+        padding: 42px 36px 0;
+      }
+
+      .ops-copy p,
+      .ops-copy .kicker {
+        color: rgb(247 250 249 / 0.68);
+      }
+
+      .ops-copy h2 {
+        color: white;
+      }
+
+      .ops-board {
+        border-left: 1px solid rgb(255 255 255 / 0.14);
+      }
+
+      .ops-row {
+        display: grid;
+        grid-template-columns: 92px 1fr auto;
+        gap: 18px;
+        align-items: center;
+        min-height: 120px;
+        padding: 0 0 0 28px;
+        border-bottom: 1px solid rgb(255 255 255 / 0.13);
+      }
+
+      .ops-row:first-child {
+        border-top: 1px solid rgb(255 255 255 / 0.13);
+      }
+
+      .ops-row b {
+        color: #9cc7ff;
+        font-size: 12px;
+        letter-spacing: 0.15em;
+      }
+
+      .ops-row strong {
+        display: block;
+        color: white;
+        font-size: 22px;
+        letter-spacing: -0.04em;
+      }
+
+      .ops-row span {
+        color: rgb(247 250 249 / 0.62);
+        font-size: 13px;
+      }
+
+      .ops-row i {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #9cc7ff;
+        box-shadow: 0 0 0 8px rgb(156 199 255 / 0.12);
+        animation: pulse 2.2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        50% {
+          box-shadow: 0 0 0 18px rgb(156 199 255 / 0);
+        }
+      }
+
+      .ops-quick {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        margin-top: 34px;
+        background: rgb(255 255 255 / 0.13);
+      }
+
+      .ops-quick div {
+        min-height: 100px;
+        padding: 17px;
+        background: rgb(255 255 255 / 0.065);
+      }
+
+      .ops-quick b {
+        display: block;
+        color: white;
+        font-size: 36px;
+        letter-spacing: -0.05em;
+      }
+
+      .ops-quick span {
+        color: rgb(247 250 249 / 0.58);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .hero-d {
+        min-height: 735px;
+        color: #1d2030;
+        background:
+          radial-gradient(circle at 48% 38%, rgb(36 99 235 / 0.16), transparent 20rem),
+          radial-gradient(circle at 62% 44%, rgb(124 62 105 / 0.14), transparent 20rem),
+          linear-gradient(180deg, #f4f7ff, #fff7ec 72%);
+      }
+
+      .radar-layout {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 0.84fr) minmax(500px, 1.16fr);
+        min-height: 673px;
+        padding: 42px 36px 0;
+      }
+
+      .radar-stage {
+        position: relative;
+      }
+
+      .radar {
+        position: absolute;
+        top: 14px;
+        right: 34px;
+        width: min(560px, 100%);
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle, rgb(36 99 235 / 0.1) 0 12%, transparent 13%),
+          repeating-radial-gradient(circle, transparent 0 82px, rgb(20 24 32 / 0.1) 83px 84px),
+          conic-gradient(from 30deg, rgb(36 99 235 / 0.22), rgb(124 62 105 / 0.08), transparent 42%);
+        animation: radarspin 18s linear infinite;
+      }
+
+      @keyframes radarspin {
+        to {
+          rotate: 360deg;
+        }
+      }
+
+      .radar-label {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        min-width: 84px;
+        min-height: 46px;
+        padding: 0 13px;
+        border: 1px solid rgb(20 24 32 / 0.13);
+        border-radius: 999px;
+        background: rgb(255 255 255 / 0.72);
+        box-shadow: 0 16px 46px rgb(20 24 32 / 0.1);
+        font-weight: 830;
+      }
+
+      .radar-label.one {
+        top: 132px;
+        right: 372px;
+      }
+
+      .radar-label.two {
+        top: 250px;
+        right: 90px;
+      }
+
+      .radar-label.three {
+        right: 290px;
+        bottom: 140px;
+      }
+
+      .radar-copy {
+        position: relative;
+        z-index: 2;
+      }
+
+      .radar-feed {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 36px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-top: 1px solid rgb(20 24 32 / 0.13);
+      }
+
+      .radar-feed div {
+        min-height: 112px;
+        padding: 18px;
+        border-right: 1px solid rgb(20 24 32 / 0.12);
+      }
+
+      .radar-feed div:last-child {
+        border-right: 0;
+      }
+
+      .radar-feed strong {
+        display: block;
+        font-size: 17px;
+      }
+
+      .radar-feed span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 980px) {
+        .intro,
+        .atlas-layout,
+        .campus-layout,
+        .ops-layout,
+        .radar-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .search,
+        .app-nav a:nth-of-type(n + 4) {
+          display: none;
+        }
+
+        .atlas-art,
+        .campus-art,
+        .radar-stage {
+          min-height: 430px;
+        }
+
+        .metric-rail,
+        .campus-line,
+        .radar-feed {
+          position: relative;
+          left: auto;
+          margin-top: 28px;
+        }
+
+        .radar {
+          right: 0;
+          width: min(420px, 100%);
+        }
+
+        .ops-row {
+          grid-template-columns: 54px 1fr auto;
+          padding-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="intro">
+        <div>
+          <div class="board-note">Home page experiment board</div>
+          <h1>Four distinct ways Home can stop feeling like Ask.</h1>
+        </div>
+        <p>
+          These are intentionally different first-viewport concepts for the signed-in Home page.
+          They avoid default card layouts and use generated SVG-style artwork, motion, rails, rows,
+          and stronger color systems to test what BridgeCircle could feel like.
+        </p>
+      </header>
+
+      <main>
+        <section class="direction hero-a">
+          <div class="direction-label">
+            <strong>Direction A: Signal Atlas</strong>
+            <span>Best if Home should feel like a living map of the circle.</span>
+          </div>
+          <nav class="app-nav">
+            <div class="brand"><span class="brand-mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="nav-spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="atlas-layout">
+            <section class="atlas-copy">
+              <div class="kicker">Today in Chadwick School</div>
+              <h2>Good morning, Amy. Your circle is moving.</h2>
+              <p>
+                A calm command center that shows what changed, where help is needed, and which
+                school signals deserve attention.
+              </p>
+              <div class="action-row">
+                <a class="btn" href="#">Review today -></a>
+                <a class="btn-lite" href="#">Ask a question</a>
+              </div>
+
+              <div class="attention-rail">
+                <article class="attention-item">
+                  <em>01</em>
+                  <div><strong>Student Sam needs a first reply</strong><span>Software mentorship ask</span></div>
+                  <b>5d</b>
+                </article>
+                <article class="attention-item">
+                  <em>02</em>
+                  <div><strong>Jessica can help a pre-med student</strong><span>Strong overlap in medicine</span></div>
+                  <b>92%</b>
+                </article>
+                <article class="attention-item">
+                  <em>03</em>
+                  <div><strong>SF salon has warm-intro paths</strong><span>Product, design, and AI overlap</span></div>
+                  <b>12</b>
+                </article>
+              </div>
+            </section>
+
+            <section class="atlas-art" aria-label="Animated network map">
+              <svg viewBox="0 0 600 540" role="img">
+                <path class="path-blue" d="M44 120 C170 20 272 360 438 136 S574 178 526 420" />
+                <path class="path-sage" d="M78 384 C174 248 268 282 346 322 S448 430 560 232" />
+                <path class="path-ochre" d="M104 230 C210 164 292 126 398 226 S490 358 568 342" />
+              </svg>
+              <div class="atlas-node one sage">SS</div>
+              <div class="atlas-node two peach">SF</div>
+              <div class="atlas-node three">JW</div>
+              <div class="atlas-node four sage">IO</div>
+              <div class="atlas-node center big">A</div>
+              <div class="metric-rail">
+                <div><b>2</b><span>Needs action</span></div>
+                <div><b>6</b><span>Open helpers</span></div>
+                <div><b>3</b><span>School events</span></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="direction hero-b">
+          <div class="direction-label">
+            <strong>Direction B: Campus Morning</strong>
+            <span>Best if Home should feel warm, school-specific, and less software-like.</span>
+          </div>
+          <nav class="app-nav">
+            <div class="brand"><span class="brand-mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="nav-spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="campus-layout">
+            <section class="campus-copy">
+              <div class="kicker">School pulse</div>
+              <h2>The circle has new doors open today.</h2>
+              <p>
+                A softer, more human Home page that leans into campus memory and member momentum
+                instead of a generic dashboard.
+              </p>
+              <div class="home-list">
+                <div><span>01</span><strong>Mark Mentor replied to a career ask</strong><b>2h ago</b></div>
+                <div><span>02</span><strong>Ria joined the SF alumni salon</strong><b>New RSVP</b></div>
+                <div><span>03</span><strong>Two helpers opened mentorship availability</strong><b>New supply</b></div>
+              </div>
+            </section>
+
+            <section class="campus-art" aria-label="Generated campus landscape illustration">
+              <div class="sun"></div>
+              <div class="campus-illustration">
+                <svg viewBox="0 0 760 420" role="img">
+                  <defs>
+                    <linearGradient id="hill" x1="0" x2="1">
+                      <stop offset="0" stop-color="#cfe3d4" />
+                      <stop offset="1" stop-color="#f4d4b7" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M0 302 C140 220 260 290 390 238 C520 186 620 226 760 156 L760 420 L0 420 Z" fill="url(#hill)" opacity=".86" />
+                  <path d="M72 292 L172 206 L272 292 Z" fill="#fff8ec" stroke="#172033" stroke-opacity=".18" />
+                  <path d="M128 246 H216 V292 H128 Z" fill="#e9f1ff" stroke="#172033" stroke-opacity=".12" />
+                  <path d="M452 258 L546 178 L642 258 Z" fill="#fff5e5" stroke="#172033" stroke-opacity=".18" />
+                  <path d="M502 218 H594 V258 H502 Z" fill="#e4efe8" stroke="#172033" stroke-opacity=".12" />
+                  <circle cx="340" cy="252" r="28" fill="#2463eb" opacity=".86" />
+                  <circle cx="386" cy="214" r="18" fill="#3e7058" opacity=".82" />
+                  <circle cx="432" cy="268" r="22" fill="#c87518" opacity=".7" />
+                  <path d="M206 330 C310 286 410 352 552 278" fill="none" stroke="#2463eb" stroke-width="3" stroke-dasharray="8 14" opacity=".46" />
+                </svg>
+              </div>
+              <div class="campus-line">
+                <div><strong>People nearby</strong><span>Four alumni are active around Seoul and SF.</span></div>
+                <div><strong>School moments</strong><span>Three events can turn into warm intros.</span></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="direction hero-c">
+          <div class="direction-label">
+            <strong>Direction C: Member Ops Center</strong>
+            <span>Best if Home should feel fast, serious, and action-first.</span>
+          </div>
+          <nav class="app-nav">
+            <div class="brand"><span class="brand-mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="nav-spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="ops-layout">
+            <section class="ops-copy">
+              <div class="kicker">Attention queue</div>
+              <h2>What needs a human touch next?</h2>
+              <p>
+                This direction treats Home as the operating surface for a warm network. Less
+                welcoming hero, more mission control.
+              </p>
+              <div class="action-row">
+                <a class="btn" href="#" style="background: #9cc7ff; color: #07111f">Start with replies</a>
+                <a class="btn-lite" href="#" style="color: white; border-color: rgb(255 255 255 / .2); background: rgb(255 255 255 / .08)">Open school pulse</a>
+              </div>
+              <div class="ops-quick">
+                <div><b>0</b><span>Overdue</span></div>
+                <div><b>2</b><span>High impact</span></div>
+                <div><b>7</b><span>Warm paths</span></div>
+              </div>
+            </section>
+
+            <section class="ops-board">
+              <article class="ops-row">
+                <b>NOW</b>
+                <div><strong>Sam's mentorship ask is ready for review</strong><span>Suggested helper: Mark Mentor</span></div>
+                <i></i>
+              </article>
+              <article class="ops-row">
+                <b>NEXT</b>
+                <div><strong>Welcome Iris before the profile goes stale</strong><span>Missing city, topics, and current role</span></div>
+                <i></i>
+              </article>
+              <article class="ops-row">
+                <b>WATCH</b>
+                <div><strong>AI salon can create three strong intros</strong><span>Design, developer tools, and product overlap</span></div>
+                <i></i>
+              </article>
+              <article class="ops-row">
+                <b>QUIET</b>
+                <div><strong>No admin approvals need attention</strong><span>The circle is clean for now</span></div>
+                <i></i>
+              </article>
+            </section>
+          </div>
+        </section>
+
+        <section class="direction hero-d">
+          <div class="direction-label">
+            <strong>Direction D: Community Radar</strong>
+            <span>Best if Home should feel playful, modern, and more visually ownable.</span>
+          </div>
+          <nav class="app-nav">
+            <div class="brand"><span class="brand-mark"></span>BridgeCircle</div>
+            <a class="active" href="#">Home</a>
+            <a href="#">Ask</a>
+            <a href="#">Help</a>
+            <a href="#">People</a>
+            <a href="#">School</a>
+            <a href="#">Inbox</a>
+            <div class="nav-spacer"></div>
+            <div class="search">Search the circle...</div>
+            <div class="avatar">A</div>
+          </nav>
+
+          <div class="radar-layout">
+            <section class="radar-copy">
+              <div class="kicker">Live radar</div>
+              <h2>Find the moments where the circle can close.</h2>
+              <p>
+                A bolder product identity: Home is not a dashboard, it is a radar for potential
+                help, replies, nearby alumni, and school moments.
+              </p>
+              <div class="action-row">
+                <a class="btn" href="#">View strongest signal -></a>
+                <a class="btn-lite" href="#">Tune radar</a>
+              </div>
+            </section>
+            <section class="radar-stage">
+              <div class="radar" aria-hidden="true"></div>
+              <div class="radar-label one">Mentor fit</div>
+              <div class="radar-label two">Event path</div>
+              <div class="radar-label three">Local alumni</div>
+              <div class="radar-feed">
+                <div><strong>Mentor fit</strong><span>Jessica and Sam share medicine path context.</span></div>
+                <div><strong>Event path</strong><span>SF salon is becoming an intro opportunity.</span></div>
+                <div><strong>Local alumni</strong><span>Four Seoul alumni are newly active.</span></div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
