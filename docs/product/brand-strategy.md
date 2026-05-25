@@ -155,7 +155,7 @@ Warmth in BridgeCircle should come from language, context, helpful defaults, and
 **Visual principles:**
 
 - **Editorial trust over dashboard gloss.** Clear hierarchy, strong rules, readable cards, purposeful metadata. No gradients, oversized rounded containers, or decorative chrome.
-- **Civic warmth over coziness.** Warm palette, crisp system: Platinum Bone surfaces, Obsidian Ink structure, Cobalt action states.
+- **Civic warmth over coziness.** Warm palette, crisp system: Platinum Bone surfaces, Obsidian Ink structure, Electric Sky links and navigation, Amber CTAs for the single highest-stakes action per surface.
 - **Member-first density.** Enough context to make a good decision without feeling like an admin portal.
 - **Quiet intelligence.** AI and matching appear as helpful explanations and draft support, not spectacle.
 - **Human proof.** Profiles, requests, events, emails foreground real names, shared context, capacity, and next actions.

@@ -1,0 +1,97 @@
+{
+  "viewer": {
+    "name": "Maren Park",
+    "preferredName": "Maren",
+    "year": 2022,
+    "city": "Brooklyn, NY",
+    "currentTitle": "Designer",
+    "currentEmployer": "Independent studio"
+  },
+  "orgName": "Chadwick School",
+  "stats": {
+    "totalAlumni": 248,
+    "openHelpers": 31,
+    "pendingHelp": 4,
+    "upcomingEvents": 3
+  },
+  "askQuery": "I want to move from consulting into product design",
+  "matches": [
+    {
+      "userId": "iris-chen",
+      "name": "Iris Chen",
+      "year": 2018,
+      "city": "San Francisco, CA",
+      "title": "Senior Product Designer",
+      "employer": "Figma",
+      "rationale": "Iris led the Config event team at Figma and writes about moving from IC into program work — directly relevant to your question.",
+      "matchScore": 87,
+      "matchBand": "Strong fit",
+      "isMentor": true,
+      "isAdvice": true,
+      "topics": ["product design", "career moves", "design systems"]
+    },
+    {
+      "userId": "james-lee",
+      "name": "James Lee",
+      "year": 2015,
+      "city": "Seoul",
+      "title": "Group PM",
+      "employer": "Coupang",
+      "rationale": "James moved from BCG to product at Coupang in 2019 and has written about that transition.",
+      "matchScore": 72,
+      "matchBand": "Good fit",
+      "isMentor": false,
+      "isAdvice": true,
+      "topics": ["consulting to product", "Korea tech"]
+    },
+    {
+      "userId": "aanya-sharma",
+      "name": "Aanya Sharma",
+      "year": 2020,
+      "city": "Brooklyn, NY",
+      "title": "Product Designer",
+      "employer": "Patreon",
+      "rationale": "Aanya is in Brooklyn and is open to coffee chats about design careers.",
+      "matchScore": 64,
+      "matchBand": "Good fit",
+      "isMentor": false,
+      "isAdvice": true,
+      "topics": ["product design", "early career"]
+    }
+  ],
+  "profile": {
+    "userId": "iris-chen",
+    "name": "Iris Chen",
+    "preferredName": "Iris",
+    "year": 2018,
+    "city": "San Francisco, CA",
+    "currentTitle": "Senior Product Designer",
+    "currentEmployer": "Figma",
+    "headline": "Designer interested in how teams move from individual craft to durable systems.",
+    "bio": "I joined Figma in 2020 after three years at a small product studio. These days I lead the Config event-product crew. Happy to chat with current students or recent grads about portfolios, the first product job, or the IC-to-lead jump.",
+    "education": [
+      { "school": "Chadwick School", "detail": "Class of 2018" },
+      { "school": "Rhode Island School of Design", "detail": "BFA Graphic Design, 2022" }
+    ],
+    "topics": ["product design", "design systems", "events", "career mentoring"],
+    "isMentor": true,
+    "isAdvice": true,
+    "mentorCapacity": { "active": 2, "max": 4 }
+  },
+  "events": [
+    {
+      "title": "Bay Area alumni mixer",
+      "when": "Thu, June 6, 6:30pm PT",
+      "where": "Mission District, SF",
+      "going": 14,
+      "capacity": 30
+    },
+    {
+      "title": "Songdo campus reunion",
+      "when": "Sat, June 22, 2:00pm KST",
+      "where": "Chadwick International",
+      "going": 47,
+      "capacity": 80
+    }
+  ]
+}

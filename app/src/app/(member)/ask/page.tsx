@@ -158,7 +158,8 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
   const pagedHits = hits.slice(pageStart, pageStart + PAGE_SIZE)
 
   return (
-    <main className="min-h-screen bg-background">
+    // density-cozy: list-of-match-cards member surface. See docs/experience/ui/design-system/tokens.md § Density modes.
+    <main className="density-cozy min-h-screen bg-background">
       <section className="relative overflow-hidden border-b border-border bg-surface-panel/35">
         <AskSignalMotif />
         <div className="relative mx-auto grid max-w-6xl gap-7 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:py-10">

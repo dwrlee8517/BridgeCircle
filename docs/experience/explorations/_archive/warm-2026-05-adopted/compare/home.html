@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Home — Civic vs Warm vs Cozy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; height: 100vh; display: grid; grid-template-rows: 44px 1fr; }
+  .topbar { display: flex; align-items: center; gap: 1rem; padding: 0 1rem; background: #0c0c0b; color: #fafaf9; font-size: 13px; }
+  .topbar h1 { font-size: 13px; font-weight: 600; }
+  .topbar .spacer { flex: 1; }
+  .topbar a { color: #93c5fd; text-decoration: none; font-size: 12px; }
+  .topbar a:hover { text-decoration: underline; }
+  .frames { display: grid; grid-template-columns: 1fr 1fr 1fr; height: 100%; min-height: 0; }
+  .frame-wrap { position: relative; height: 100%; }
+  .frame-wrap iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+  .frame-wrap + .frame-wrap { border-left: 1px solid #dcdcd6; }
+  .label { position: absolute; top: 8px; left: 8px; padding: 4px 10px; background: rgba(0,0,0,0.78); color: white; font: 600 11px/1.2 'JetBrains Mono', monospace; letter-spacing: 0.05em; border-radius: 4px; text-transform: uppercase; z-index: 10; pointer-events: none; }
+  .label.warm { background: rgba(245, 158, 11, 0.92); color: #0c0c0b; }
+  .label.cozy { background: rgba(180, 83, 9, 0.92); }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Home — Civic · Warm (default) · Warm Cozy</h1>
+    <span class="spacer"></span>
+    <a href="../README.md">← README</a>
+    <a href="./ask.html">Ask →</a>
+    <a href="./profile.html">Profile →</a>
+    <a href="./admin.html">Admin →</a>
+  </div>
+  <div class="frames">
+    <div class="frame-wrap">
+      <span class="label">Civic (current)</span>
+      <iframe src="../surfaces/home-civic.html" title="Civic"></iframe>
+    </div>
+    <div class="frame-wrap">
+      <span class="label warm">Warm (default density)</span>
+      <iframe src="../surfaces/home-warm.html" title="Warm"></iframe>
+    </div>
+    <div class="frame-wrap">
+      <span class="label cozy">Warm + density-cozy</span>
+      <iframe src="../surfaces/home-cozy.html" title="Warm Cozy"></iframe>
+    </div>
+  </div>
+</body>
+</html>

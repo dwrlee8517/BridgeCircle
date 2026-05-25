@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-warm">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Warm Design System — BridgeCircle (exploration)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./shared.css">
+<link rel="stylesheet" href="./tokens-warm.css">
+<style>
+  /* Showcase page chrome */
+  body { background: #f7f6f1; }
+  .ds-header { background: var(--surface-midnight); color: var(--surface-midnight-foreground); padding: 4rem 2rem; }
+  .ds-header .container { max-width: 1100px; }
+  .ds-eyebrow { color: var(--primary-on-dark); font-size: var(--font-size-caption); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+  .ds-header h1 { font-family: 'Inter Tight', sans-serif; font-size: 3rem; line-height: 1.05; font-weight: 600; letter-spacing: -0.02em; margin-top: 1rem; max-width: 22ch; }
+  .ds-header p { color: var(--surface-midnight-muted); font-size: var(--font-size-body-lg); max-width: 60ch; margin-top: 1.25rem; line-height: 1.6; }
+
+  .ds-section { padding: 4rem 0; border-bottom: 1px solid var(--border); background: var(--background); }
+  .ds-section .container { max-width: 1100px; }
+  .ds-section h2 { font-family: 'Inter Tight', sans-serif; font-size: var(--font-size-display-md); font-weight: 600; letter-spacing: -0.015em; }
+  .ds-section .ds-lede { font-size: var(--font-size-body-lg); color: var(--muted-foreground); margin-top: 0.625rem; max-width: 60ch; line-height: 1.6; }
+  .ds-section .ds-block { margin-top: 2.5rem; }
+  .ds-section h3 { font-family: 'Inter Tight', sans-serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; }
+
+  /* Token grids */
+  .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+  .swatch { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-card); }
+  .swatch .chip { height: 80px; }
+  .swatch .meta { padding: 0.75rem 0.875rem; }
+  .swatch .name { font-family: 'Inter Tight', sans-serif; font-weight: 600; font-size: var(--font-size-body-md); }
+  .swatch .hex { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-top: 0.125rem; }
+  .swatch .use { font-size: var(--font-size-caption); color: var(--muted-foreground); margin-top: 0.25rem; }
+
+  /* Type scale */
+  .type-row { display: grid; grid-template-columns: 140px 1fr 100px; gap: 1.25rem; align-items: baseline; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+  .type-row:last-child { border-bottom: 0; }
+  .type-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; }
+  .type-size { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-foreground); }
+
+  /* Radius/shadow showcase */
+  .shape-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .shape-tile { background: var(--card); border: 1px solid var(--border); padding: 1.5rem; text-align: center; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .shape-tile .name { font-family: 'Inter Tight', sans-serif; font-weight: 600; }
+  .shape-tile .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-top: 0.5rem; }
+
+  /* Component demos */
+  .demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .demo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+  .demo-card .label { font-size: var(--font-size-caption); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); margin-bottom: 1rem; }
+  .demo-stack { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+
+  /* Delta callout */
+  .delta { background: rgb(245 158 11 / 0.08); border: 1px solid rgb(245 158 11 / 0.3); border-left: 4px solid #f59e0b; padding: 1rem 1.25rem; border-radius: var(--radius); margin-top: 1rem; }
+  .delta .label { color: #b45309; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .delta p { font-size: var(--font-size-body-md); margin-top: 0.25rem; line-height: 1.5; }
+
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .toc h3 { margin-bottom: 0.75rem; }
+  .toc ol { list-style: decimal inside; }
+  .toc li { padding: 0.25rem 0; }
+  .toc a { color: var(--primary); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .footer { padding: 3rem 2rem; background: var(--surface-midnight); color: var(--surface-midnight-muted); font-size: var(--font-size-caption); text-align: center; }
+  .footer a { color: var(--primary-on-dark); }
+</style>
+</head>
+<body>
+
+<header class="ds-header">
+  <div class="container">
+    <p class="ds-eyebrow">Exploration · May 2026</p>
+    <h1>Warm — a softer take on Civic Editorial</h1>
+    <p>This is an alternate visual direction for BridgeCircle, derived from a universal-priority UI/UX evaluation. It keeps Electric Sky as primary and Inter as the family, but introduces a contrasting amber CTA, larger radius, a modular type scale anchored at 16px, and a collapsed accent palette. Use it for the A/B comparison in <code>compare/</code>; do not adopt without testing.</p>
+  </div>
+</header>
+
+<section class="ds-section">
+  <div class="container">
+    <div class="toc">
+      <h3>On this page</h3>
+      <ol>
+        <li><a href="#deltas">What's different from Civic</a></li>
+        <li><a href="#color">Color</a></li>
+        <li><a href="#type">Typography</a></li>
+        <li><a href="#shape">Shape &amp; shadow</a></li>
+        <li><a href="#buttons">Buttons</a></li>
+        <li><a href="#badges">Status badges</a></li>
+        <li><a href="#cards">Cards</a></li>
+        <li><a href="#density">Density modes</a></li>
+        <li><a href="#hero">Midnight hero</a></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="deltas">
+  <div class="container">
+    <h2>What's different from Civic</h2>
+    <p class="ds-lede">The warm variant is one CSS class (<code>.theme-warm</code>) overriding production tokens. Everything else inherits from <code>app/src/app/globals.css</code>.</p>
+
+    <table style="width: 100%; margin-top: 2rem; border-collapse: collapse; font-size: var(--font-size-body-md);">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+          <th style="padding: 0.5rem 0.875rem;">Token</th>
+          <th style="padding: 0.5rem 0.875rem;">Civic</th>
+          <th style="padding: 0.5rem 0.875rem;">Warm</th>
+          <th style="padding: 0.5rem 0.875rem;">Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.625rem 0.875rem;"><code>--radius</code></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">6px</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">10px</span></td>
+          <td style="padding: 0.625rem 0.875rem;">Soft UI Evolution band (lib)</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.625rem 0.875rem;"><code>--font-size-body-md</code></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">13px</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">16px</span></td>
+          <td style="padding: 0.625rem 0.875rem;">Mobile-readability minimum</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.625rem 0.875rem;"><code>--font-size-h1</code></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">20px</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">25.6px</span></td>
+          <td style="padding: 0.625rem 0.875rem;">A real page-level h1</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.625rem 0.875rem;"><code>--cta</code></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">= primary (#2563eb)</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">#F59E0B (amber)</span></td>
+          <td style="padding: 0.625rem 0.875rem;">Contrasting CTA per library</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.625rem 0.875rem;">Type scale</td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">ad-hoc</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">1.25 modular</span></td>
+          <td style="padding: 0.625rem 0.875rem;">Predictable hierarchy</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 0.625rem 0.875rem;">Accents</td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">ochre/rust/sage/plum (4)</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">amber + sage (2)</span></td>
+          <td style="padding: 0.625rem 0.875rem;">SaaS/community uses 1-2</td>
+        </tr>
+        <tr>
+          <td style="padding: 0.625rem 0.875rem;">Card hover</td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">border lift only</span></td>
+          <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">scale(1.005) + shadow</span></td>
+          <td style="padding: 0.625rem 0.875rem;">Community micro-delight</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="delta">
+      <p class="label">Note</p>
+      <p>Primary color (Electric Sky), text (Obsidian), background (Platinum Bone), and font family (Inter / Inter Tight) are <strong>unchanged</strong>. The experiment isolates shape and CTA-color decisions from brand-identity decisions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="color">
+  <div class="container">
+    <h2>Color</h2>
+    <p class="ds-lede">Two foundational colors (Electric Sky + Amber CTA), one structural color (Obsidian on Platinum Bone), and two semantic accents (Sage = open, Rust = declined). Plum and Ochre, which carried weaker semantic load in Civic, fold into muted and amber respectively.</p>
+
+    <div class="ds-block">
+      <h3>Foundations</h3>
+      <div class="color-grid">
+        <div class="swatch"><div class="chip" style="background:#2563eb"></div><div class="meta"><p class="name">Electric Sky</p><p class="hex">#2563EB</p><p class="use">Primary — links, navigation, info</p></div></div>
+        <div class="swatch"><div class="chip" style="background:#f59e0b"></div><div class="meta"><p class="name">Amber CTA</p><p class="hex">#F59E0B</p><p class="use">The single highest-stakes action per surface</p></div></div>
+        <div class="swatch"><div class="chip" style="background:#fafaf9; border-bottom:1px solid var(--border);"></div><div class="meta"><p class="name">Platinum Bone</p><p class="hex">#FAFAF9</p><p class="use">Page canvas</p></div></div>
+        <div class="swatch"><div class="chip" style="background:#0c0c0b"></div><div class="meta"><p class="name">Obsidian</p><p class="hex">#0C0C0B</p><p class="use">Body text and structure</p></div></div>
+        <div class="swatch"><div class="chip" style="background:#081126"></div><div class="meta"><p class="name">Midnight</p><p class="hex">#081126</p><p class="use">Hero / editorial surfaces</p></div></div>
+      </div>
+    </div>
+
+    <div class="ds-block">
+      <h3>Semantic accents (2)</h3>
+      <div class="color-grid">
+        <div class="swatch"><div class="chip" style="background:#3b6e51"></div><div class="meta"><p class="name">Sage</p><p class="hex">#3B6E51</p><p class="use">Open, available, accepted</p></div></div>
+        <div class="swatch"><div class="chip" style="background:#b9472a"></div><div class="meta"><p class="name">Rust</p><p class="hex">#B9472A</p><p class="use">Declined, destructive</p></div></div>
+      </div>
+      <div class="delta">
+        <p class="label">Collapsed from Civic</p>
+        <p>Civic had four accents (ochre, rust, sage, plum). <strong>Ochre</strong> rolls into the new amber CTA. <strong>Plum</strong> rolls into muted-foreground. The system goes from 4 accents to 2, with the amber doing the work plum and ochre used to do.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="type">
+  <div class="container">
+    <h2>Typography</h2>
+    <p class="ds-lede">Inter family throughout. The scale moves to a 1.25 modular ratio anchored at body 16px, giving a predictable hierarchy from page heroes down to metadata.</p>
+
+    <div class="ds-block">
+      <h3>Scale</h3>
+      <div>
+        <div class="type-row">
+          <span class="type-meta">display-lg</span>
+          <span class="t-display-lg">A community that knows your name.</span>
+          <span class="type-size">40px / 1.05</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">display-md</span>
+          <span class="t-display-md">A community that knows your name.</span>
+          <span class="type-size">32px / 1.15</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">h1</span>
+          <span class="t-h1">A community that knows your name.</span>
+          <span class="type-size">25.6px / 1.25</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">body-lg</span>
+          <span class="t-body-lg">The quick brown fox jumps over the lazy dog. 17 readable pixels of body copy.</span>
+          <span class="type-size">17px / 1.55</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">body-md (default)</span>
+          <span class="t-body">The quick brown fox jumps over the lazy dog. 16 readable pixels of body copy.</span>
+          <span class="type-size">16px / 1.55</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">caption</span>
+          <span class="t-caption">Metadata at 13px — comfortably readable, no longer dense.</span>
+          <span class="type-size">13px / 1.45</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">eyebrow</span>
+          <span class="t-eyebrow">EYEBROW · KICKER</span>
+          <span class="type-size">13px / 700</span>
+        </div>
+        <div class="type-row">
+          <span class="type-meta">meta (mono)</span>
+          <span class="t-meta">THU, JUNE 6 · SAN FRANCISCO</span>
+          <span class="type-size">13px mono</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="delta">
+      <p class="label">vs Civic</p>
+      <p>Civic body is 13px, h1 is 20px, caption is 11px. The warm variant moves body up by 3px (the largest single change), h1 by ~6px, and caption by 2px. Smaller surfaces (dense admin tables) may still want the original Civic scale — this larger scale is for member-facing surfaces.</p>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="shape">
+  <div class="container">
+    <h2>Shape &amp; shadow</h2>
+    <p class="ds-lede">Larger radius (10px) signals "community" rather than "enterprise dashboard." Shadows are slightly more present than Civic to give cards real lift on the brighter page.</p>
+
+    <div class="ds-block">
+      <h3>Radius</h3>
+      <div class="shape-row">
+        <div class="shape-tile" style="border-radius: var(--radius);">
+          <p class="name">Default</p>
+          <p class="meta">10px (var(--radius))</p>
+        </div>
+        <div class="shape-tile" style="border-radius: 999px;">
+          <p class="name">Pill</p>
+          <p class="meta">999px (chips, badges)</p>
+        </div>
+        <div class="shape-tile" style="border-radius: 50%; aspect-ratio: 1; width: 140px; height: 140px; margin: 0 auto;">
+          <p class="name">Circle</p>
+          <p class="meta">avatars, dots</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-block">
+      <h3>Shadow</h3>
+      <div class="shape-row">
+        <div class="shape-tile" style="box-shadow: var(--shadow-card); background: white;">
+          <p class="name">shadow-card</p>
+          <p class="meta">hairline · quiet rows</p>
+        </div>
+        <div class="shape-tile" style="box-shadow: var(--shadow-card-hover); background: white;">
+          <p class="name">shadow-card-hover</p>
+          <p class="meta">interactive cards, auth</p>
+        </div>
+        <div class="shape-tile" style="box-shadow: var(--shadow-hero); background: white;">
+          <p class="name">shadow-hero</p>
+          <p class="meta">hero/feature surfaces</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="buttons">
+  <div class="container">
+    <h2>Buttons</h2>
+    <p class="ds-lede">The headline change: a true CTA color separate from primary. CTA-amber goes on the single highest-stakes action per surface (Send request, RSVP, Accept). Primary blue still covers links and navigation.</p>
+
+    <div class="ds-block">
+      <div class="demo-grid">
+        <div class="demo-card">
+          <p class="label">CTA (amber)</p>
+          <div class="demo-stack">
+            <button class="btn btn-cta btn-lg">Send request</button>
+            <button class="btn btn-cta">Ask for advice</button>
+            <button class="btn btn-cta btn-sm">RSVP</button>
+          </div>
+          <p class="t-caption mt-3">For the single best-next action per local decision area. Never two on one card.</p>
+        </div>
+        <div class="demo-card">
+          <p class="label">Primary (blue)</p>
+          <div class="demo-stack">
+            <button class="btn btn-primary btn-lg">View profile</button>
+            <button class="btn btn-primary">Open thread</button>
+            <button class="btn btn-primary btn-sm">Edit</button>
+          </div>
+          <p class="t-caption mt-3">For navigation, secondary positive actions, link-as-button.</p>
+        </div>
+        <div class="demo-card">
+          <p class="label">Outline</p>
+          <div class="demo-stack">
+            <button class="btn btn-outline btn-lg">View profile</button>
+            <button class="btn btn-outline">Save for later</button>
+            <button class="btn btn-outline btn-sm">Cancel</button>
+          </div>
+        </div>
+        <div class="demo-card">
+          <p class="label">Ghost</p>
+          <div class="demo-stack">
+            <button class="btn btn-ghost btn-lg">Skip for now</button>
+            <button class="btn btn-ghost">Dismiss</button>
+            <button class="btn btn-ghost btn-sm">More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="badges">
+  <div class="container">
+    <h2>Status badges</h2>
+    <p class="ds-lede">Color + dot + label — never color alone. Three primary tones cover open / info / paused, plus a muted fallback.</p>
+
+    <div class="ds-block">
+      <div class="demo-card">
+        <p class="label">Tones</p>
+        <div class="demo-stack">
+          <span class="badge badge-success"><span class="dot"></span>Quick advice</span>
+          <span class="badge badge-success"><span class="dot"></span>Open to mentor</span>
+          <span class="badge badge-info"><span class="dot"></span>Mentorship</span>
+          <span class="badge badge-info"><span class="dot"></span>Active</span>
+          <span class="badge badge-warn"><span class="dot"></span>Paused</span>
+          <span class="badge badge-warn"><span class="dot"></span>Pending reply</span>
+          <span class="badge badge-muted">Expired</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="cards">
+  <div class="container">
+    <h2>Cards</h2>
+    <p class="ds-lede">Cards are decision surfaces. In warm, interactive cards lift 2px and gain shadow on hover (vs Civic's border-only lift) — signals "you can click this" without breaking the editorial calm.</p>
+
+    <div class="ds-block">
+      <div class="demo-grid">
+
+        <div class="card card-pad-lg card-interactive" data-warm-lift>
+          <p class="t-eyebrow">Interactive card</p>
+          <p class="t-body strong mt-2">Hover me — I lift 2px and pick up shadow.</p>
+          <p class="t-caption mt-2">Use for any card the member can click into.</p>
+        </div>
+
+        <div class="card card-pad-lg">
+          <p class="t-eyebrow">Static card</p>
+          <p class="t-body strong mt-2">I'm a decision surface but not directly clickable.</p>
+          <p class="t-caption mt-2">No hover lift — the action is inside me.</p>
+          <div class="mt-3">
+            <button class="btn btn-cta btn-sm">The action</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="density">
+  <div class="container">
+    <h2>Density modes</h2>
+    <p class="ds-lede">Theme and density are orthogonal axes. A surface combines a theme (<code>theme-warm</code>) with a density (<code>default</code> or <code>density-pro</code>). The theme carries brand identity; the density carries surface job.</p>
+
+    <div class="ds-block">
+      <h3>The two-axis model</h3>
+      <table style="width: 100%; margin-top: 1rem; border-collapse: collapse; font-size: var(--font-size-body-md);">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+            <th style="padding: 0.5rem 0.875rem;">Axis</th>
+            <th style="padding: 0.5rem 0.875rem;">Controls</th>
+            <th style="padding: 0.5rem 0.875rem;">Values</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;"><strong>Theme</strong> (brand)</td>
+            <td style="padding: 0.625rem 0.875rem;">Radius, palette, font family, CTA color</td>
+            <td style="padding: 0.625rem 0.875rem;"><code>civic</code> · <code>theme-warm</code></td>
+          </tr>
+          <tr>
+            <td style="padding: 0.625rem 0.875rem;"><strong>Density</strong> (job)</td>
+            <td style="padding: 0.625rem 0.875rem;">Type sizes, padding, shadow weight, avatar size</td>
+            <td style="padding: 0.625rem 0.875rem;"><code>default</code> · <code>density-cozy</code> · <code>density-pro</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="delta" style="margin-top: 1.5rem;">
+        <p class="label">Why orthogonal</p>
+        <p>Mixing brand identity across pages (different radius, different color) fragments the product. Mixing density across pages (same radius, smaller type) signals "this surface is doing different work" while keeping the brand anchor. LinkedIn, Notion, and Linear all do this — feed/page/issue surfaces are roomy, admin tables are dense, but the visual identity is constant.</p>
+      </div>
+    </div>
+
+    <div class="ds-block">
+      <h3>What changes across the three modes</h3>
+      <table style="width: 100%; margin-top: 1rem; border-collapse: collapse; font-size: var(--font-size-body-md);">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+            <th style="padding: 0.5rem 0.875rem;">Token</th>
+            <th style="padding: 0.5rem 0.875rem;">Warm default</th>
+            <th style="padding: 0.5rem 0.875rem;">Warm cozy</th>
+            <th style="padding: 0.5rem 0.875rem;">Warm pro</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;"><code>--font-size-body-md</code></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">16px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">14px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">14px</span></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;"><code>--font-size-h1</code></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">25.6px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">22px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">20px</span></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;"><code>--font-size-caption</code></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">13px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">12px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">12px</span></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;">Card padding</td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">1.25–1.5rem</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">1–1.25rem</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">0.875–1rem</span></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;">Shadow weight</td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">card / hover / hero</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">slightly lighter</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">hairline only</span></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;">Avatar default</td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">48px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">40px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">32px</span></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.625rem 0.875rem;">Card hover</td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">−2px + scale</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;">−1px</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">background tint only</span></td>
+          </tr>
+          <tr style="background: rgb(245 158 11 / 0.06);">
+            <td style="padding: 0.625rem 0.875rem;"><strong>CTA color</strong></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta">amber #F59E0B</span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: #b45309;"><strong>amber (kept)</strong></span></td>
+            <td style="padding: 0.625rem 0.875rem;"><span class="t-meta" style="color: var(--primary);">primary blue</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="delta" style="margin-top: 1.5rem;">
+        <p class="label">Cozy keeps amber; pro drops it</p>
+        <p>Cozy and pro share font sizes, but cozy is for <em>member-facing</em> list surfaces (home with several match cards) and pro is for <em>operator</em> surfaces (admin tables). Member surfaces keep the amber CTA + warm hover lift because that's the brand promise to the member. Operator surfaces drop both: they have many equal-weight actions per row (Edit, Deactivate, Approve, Promote) and amber would over-claim.</p>
+      </div>
+    </div>
+
+    <div class="ds-block">
+      <h3>What stays consistent across density</h3>
+      <p>Brand identity tokens never flip with density. They flip only with theme.</p>
+      <ul style="margin-top: 0.75rem; padding-left: 1.25rem; line-height: 1.8;">
+        <li><code>--radius</code> — 10px in warm regardless of density</li>
+        <li>Color palette — same blue, same accents</li>
+        <li>Font family — Inter / Inter Tight</li>
+        <li>Focus styles — same focus ring everywhere</li>
+      </ul>
+    </div>
+
+    <div class="ds-block">
+      <h3>Surface assignment</h3>
+      <table style="width: 100%; margin-top: 1rem; border-collapse: collapse; font-size: var(--font-size-body-md);">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+            <th style="padding: 0.5rem 0.875rem;">Surface</th>
+            <th style="padding: 0.5rem 0.875rem;">Density</th>
+            <th style="padding: 0.5rem 0.875rem;">Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.625rem 0.875rem;">Onboarding, auth, sign-in</td><td style="padding: 0.625rem 0.875rem;">default (roomy)</td><td style="padding: 0.625rem 0.875rem;">New reader needs confidence</td></tr>
+          <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.625rem 0.875rem;">Profile detail header (single person)</td><td style="padding: 0.625rem 0.875rem;">default</td><td style="padding: 0.625rem 0.875rem;">Identity moment, single focus</td></tr>
+          <tr style="border-bottom: 1px solid var(--border); background: rgb(245 158 11 / 0.06);"><td style="padding: 0.625rem 0.875rem;"><strong>Home (list of match cards)</strong></td><td style="padding: 0.625rem 0.875rem;"><strong>cozy</strong></td><td style="padding: 0.625rem 0.875rem;">Scanning 3-5 cards, not focusing on one</td></tr>
+          <tr style="border-bottom: 1px solid var(--border); background: rgb(245 158 11 / 0.06);"><td style="padding: 0.625rem 0.875rem;"><strong>Ask results, People search</strong></td><td style="padding: 0.625rem 0.875rem;"><strong>cozy</strong></td><td style="padding: 0.625rem 0.875rem;">Same — list of match cards</td></tr>
+          <tr style="border-bottom: 1px solid var(--border); background: rgb(245 158 11 / 0.06);"><td style="padding: 0.625rem 0.875rem;"><strong>Inbox, message threads</strong></td><td style="padding: 0.625rem 0.875rem;"><strong>cozy</strong></td><td style="padding: 0.625rem 0.875rem;">Repeated rows, member-facing</td></tr>
+          <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.625rem 0.875rem;">Mentor settings, profile editor</td><td style="padding: 0.625rem 0.875rem;">default</td><td style="padding: 0.625rem 0.875rem;">Decisions matter, user-controlled</td></tr>
+          <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.625rem 0.875rem;"><strong>Admin members table</strong></td><td style="padding: 0.625rem 0.875rem;"><strong>density-pro</strong></td><td style="padding: 0.625rem 0.875rem;">Operator workflow, scan-dense</td></tr>
+          <tr><td style="padding: 0.625rem 0.875rem;"><strong>Admin analytics, ambassador dash</strong></td><td style="padding: 0.625rem 0.875rem;"><strong>density-pro</strong></td><td style="padding: 0.625rem 0.875rem;">Operator workflow, scan-dense</td></tr>
+        </tbody>
+      </table>
+
+      <div class="delta" style="margin-top: 1.5rem;">
+        <p class="label">About older alums</p>
+        <p>Pro density is for <strong>operator</strong> workflow, not "professional vibe in general." Member-facing surfaces used by older alums (45+) stay at default density even when they're serious content — declining near-vision after 40 means larger type matters more, not less.</p>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <p class="t-body">Live demonstrations:</p>
+        <ul style="margin-top: 0.5rem; padding-left: 1.25rem; line-height: 1.8;">
+          <li><a href="./compare/home.html" style="color: var(--primary); text-decoration: underline;">Home — civic · warm · cozy →</a> (3-way: default vs cozy density)</li>
+          <li><a href="./compare/admin.html" style="color: var(--primary); text-decoration: underline;">Admin members — warm default vs warm pro →</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================== -->
+<section class="ds-section" id="hero">
+  <div class="container">
+    <h2>Midnight hero</h2>
+    <p class="ds-lede">The Midnight surface for hero/auth moments is unchanged from Civic. It still uses <code>--primary-on-dark</code> (#93C5FD) for accents on the dark canvas. Only the radius and lift differ.</p>
+
+    <div class="ds-block">
+      <div class="midnight">
+        <p class="t-eyebrow">Live school circle</p>
+        <h3 style="font-family: 'Inter Tight', sans-serif; font-size: 1.5rem; font-weight: 600; line-height: 1.3; margin-top: 0.5rem; max-width: 32ch;">A trusted map of people who can help, and people you can help.</h3>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-value">31</div><div class="stat-label">Open helpers</div></div>
+          <div class="stat"><div class="stat-value">4</div><div class="stat-label">Need reply</div></div>
+          <div class="stat"><div class="stat-value">3</div><div class="stat-label">Events</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>Warm variant exploration · May 2026 · BridgeCircle</p>
+  <p style="margin-top:0.5rem;"><a href="./README.md">README</a> · <a href="./compare/home.html">Compare</a> · <a href="../../ui/design-system/Civic%20Design%20System.html">Civic system (current)</a></p>
+</footer>
+
+</body>
+</html>

@@ -205,7 +205,8 @@ export default async function InboxPage() {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-72px)] overflow-hidden bg-background">
+    // density-cozy: list of inbox rows. See docs/experience/ui/design-system/tokens.md § Density modes.
+    <div className="density-cozy w-full h-[calc(100vh-72px)] overflow-hidden bg-background">
       <InboxContainer items={items} currentUser={currentUser} />
     </div>
   )

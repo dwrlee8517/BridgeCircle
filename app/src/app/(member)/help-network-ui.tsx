@@ -49,7 +49,12 @@ export function AskBar({
             className="h-14 min-w-0 flex-1 border-none bg-transparent px-0 text-base font-medium text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-none focus:shadow-none focus:ring-0 sm:text-lg"
           />
         </div>
-        <Button type="submit" size={compact ? 'default' : 'lg'} className="rounded-lg">
+        <Button
+          type="submit"
+          variant="cta"
+          size={compact ? 'default' : 'lg'}
+          className="rounded-lg"
+        >
           Find people
           <ArrowRight className="size-4" />
         </Button>
@@ -271,7 +276,7 @@ export function MatchBriefCard({
         </p>
         <div className="mt-3 flex flex-col gap-1.5">
           {askType ? (
-            <Button asChild size="sm" className="w-full rounded-lg">
+            <Button asChild variant="cta" size="sm" className="w-full rounded-lg">
               <Link href={`/ask/new?to=${person.userId}&type=${askType}`}>
                 {askLabel}
                 <ArrowRight className="size-4" />

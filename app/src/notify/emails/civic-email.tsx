@@ -20,8 +20,14 @@ export const emailTokens = {
   muted: '#4d4d4a',
   border: '#dcdcd6',
   primary: '#2563eb',
+  // CTA — amber, mirrors the app `--cta` token. Use CivicButton variant="cta"
+  // for the single highest-stakes action per email (Accept invitation, RSVP,
+  // Open the ask). Keep variant="primary" (blue) for links and secondary
+  // positive actions like "View profile" or "Open thread."
+  cta: '#f59e0b',
+  ctaForeground: '#0c0c0b',
   destructive: '#9b2c1f',
-  radius: '6px',
+  radius: '10px',
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 } as const
 
@@ -76,13 +82,16 @@ export function CivicButton({
 }: {
   href: string
   children: React.ReactNode
-  variant?: 'primary' | 'secondary'
+  variant?: 'cta' | 'primary' | 'secondary'
 }) {
+  const style =
+    variant === 'cta'
+      ? emailStyles.ctaButton
+      : variant === 'primary'
+        ? emailStyles.primaryButton
+        : emailStyles.secondaryButton
   return (
-    <Button
-      style={variant === 'primary' ? emailStyles.primaryButton : emailStyles.secondaryButton}
-      href={href}
-    >
+    <Button style={style} href={href}>
       {children}
     </Button>
   )
@@ -202,6 +211,17 @@ export const emailStyles = {
     backgroundColor: emailTokens.primary,
     borderRadius: emailTokens.radius,
     color: '#ffffff',
+    display: 'inline-block',
+    fontSize: '15px',
+    fontWeight: '650',
+    lineHeight: '20px',
+    padding: '12px 20px',
+    textDecoration: 'none',
+  },
+  ctaButton: {
+    backgroundColor: emailTokens.cta,
+    borderRadius: emailTokens.radius,
+    color: emailTokens.ctaForeground,
     display: 'inline-block',
     fontSize: '15px',
     fontWeight: '650',

@@ -137,7 +137,8 @@ export default async function PeoplePage({
   const pagedStructuredHits = structuredHits.slice(pageStart, pageStart + PAGE_SIZE)
 
   return (
-    <div className="bg-background min-h-full">
+    // density-cozy: list of person result cards. See docs/experience/ui/design-system/tokens.md § Density modes.
+    <div className="density-cozy bg-background min-h-full">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
         <PeopleSearchSurface
           filtersOpen={filtersOpen}

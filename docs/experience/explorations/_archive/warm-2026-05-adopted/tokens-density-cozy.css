@@ -1,0 +1,77 @@
+/*
+ * Density: COZY
+ * -------------
+ * Middle density between default and pro. For list-heavy member surfaces
+ * (home with several match cards, ask results, inbox threads) where the
+ * reader is scanning multiple items rather than focusing on one.
+ *
+ * Compose with any theme:
+ *   <html class="theme-warm density-cozy">    ← recommended: list-of-cards surfaces
+ *   <html class="density-cozy">               ← civic identity, cozy density
+ *
+ * Key difference vs density-pro:
+ *   - Amber CTA STAYS (brand identity for member surfaces preserved)
+ *   - Card hover lift stays (warm vibe preserved)
+ *   - Avatars only slightly shrink (member identity still visible)
+ *   - Type compresses ~1.15x rather than 1.25x — readable, just tighter
+ *
+ * Rationale: when you're scanning 3-5 cards, each card doesn't need
+ * single-hero treatment. But the surface is still member-facing, so the
+ * brand should still feel warm and the next-action should still be obvious.
+ * That's LinkedIn feed posts vs Sales Navigator tables.
+ */
+
+.density-cozy {
+  /* ---- Type compresses ~1.15x (between warm 1.25 and pro 1.2) ---- */
+  --font-size-display-lg: 2.125rem;   /* 34px (vs warm 40) */
+  --font-size-display-md: 1.75rem;    /* 28px (vs warm 32) */
+  --font-size-h1: 1.375rem;           /* 22px (vs warm 25.6) */
+  --font-size-body-lg: 0.9375rem;     /* 15px (vs warm 17) */
+  --font-size-body-md: 0.875rem;      /* 14px (vs warm 16) */
+  --font-size-caption: 0.75rem;       /* 12px (vs warm 13) */
+
+  --line-height-display-lg: 1.08;
+  --line-height-display-md: 1.18;
+  --line-height-h1: 1.28;
+  --line-height-body-lg: 1.5;
+  --line-height-body-md: 1.5;
+  --line-height-caption: 1.4;
+
+  /* ---- Shadow slightly lighter ---- */
+  --shadow-card: 0 1px 2px rgb(12 12 11 / 0.03);
+  --shadow-card-hover: 0 3px 10px -3px rgb(12 12 11 / 0.07);
+  --shadow-hero: 0 8px 24px -8px rgb(12 12 11 / 0.10);
+
+  /* CTA color UNCHANGED — amber stays, this is brand */
+  /* Radius UNCHANGED — 10px from theme-warm */
+  /* Font family UNCHANGED — Inter */
+}
+
+/* Container + card padding tightens, but not as aggressively as pro */
+.density-cozy .container { padding: 0 1.75rem; }
+.density-cozy .card-pad { padding: 1rem 1.125rem; }
+.density-cozy .card-pad-lg { padding: 1.25rem; }
+.density-cozy .section { padding: 2rem 0; }
+
+/* Buttons keep their proportions but with smaller font */
+.density-cozy .btn { padding: 0.5rem 0.875rem; font-size: var(--font-size-body-md); }
+.density-cozy .btn-sm { padding: 0.35rem 0.7rem; font-size: var(--font-size-caption); }
+.density-cozy .btn-lg { padding: 0.75rem 1.125rem; font-size: var(--font-size-body-lg); }
+
+/* Header tightens a touch */
+.density-cozy .app-header { padding: 0.625rem 1.75rem; }
+
+/* Cards keep their warm hover lift, just slightly less travel */
+.density-cozy [data-warm-lift]:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Avatars compress to "list item" size — 40px is the LinkedIn-feed-post sweet spot */
+.density-cozy .avatar { width: 40px; height: 40px; font-size: 14px; }
+.density-cozy .avatar-sm { width: 28px; height: 28px; font-size: 11px; }
+.density-cozy .avatar-lg { width: 72px; height: 72px; font-size: 22px; }
+.density-cozy .avatar-xl { width: 96px; height: 96px; font-size: 28px; }
+
+/* Badges keep their warmth but smaller */
+.density-cozy .badge { padding: 0.125rem 0.45rem; font-size: 11px; }

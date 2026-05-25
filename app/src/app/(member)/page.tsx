@@ -56,7 +56,9 @@ export default async function HomePage() {
   const feed = await getHomeFeed(supabase, membership.organization_id, session.userId)
 
   return (
-    <div className="min-h-screen bg-background">
+    // density-cozy: list-of-cards member surface. See
+    // docs/experience/ui/design-system/tokens.md § Density modes.
+    <div className="density-cozy min-h-screen bg-background">
       {/* Low-profile announcements strip at the very top */}
       {feed.latestAnnouncement ? (
         <AnnouncementBanner announcement={feed.latestAnnouncement} />

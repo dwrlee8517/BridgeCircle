@@ -550,7 +550,7 @@ export function Wizard({
           {formState.error ? <p className="text-sm text-destructive">{formState.error}</p> : null}
 
           <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={pending || drafting}>
+            <Button type="submit" variant="cta" disabled={pending || drafting}>
               {pending ? 'Sending…' : currentAskType === 'advice' ? 'Send' : 'Send request'}
             </Button>
             <Button

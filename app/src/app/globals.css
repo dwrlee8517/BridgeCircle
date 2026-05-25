@@ -38,6 +38,9 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-primary-on-dark: var(--primary-on-dark);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-foreground: var(--cta-foreground);
   --color-surface-midnight: var(--surface-midnight);
   --color-surface-midnight-foreground: var(--surface-midnight-foreground);
   --color-surface-midnight-muted: var(--surface-midnight-muted);
@@ -165,6 +168,12 @@
   --primary-hover: #1d4ed8;
   --primary-on-dark: #93c5fd;
   --primary-foreground: #ffffff;
+  /* CTA — Amber #F59E0B. Reserved for the single highest-stakes action per
+     surface (Send request, RSVP, Ask for advice). Primary blue still owns
+     links and navigation. See docs/experience/ui/design-system/tokens.md. */
+  --cta: #f59e0b;
+  --cta-hover: #d97706;
+  --cta-foreground: #0c0c0b;
   --surface-midnight: #081126;
   --surface-midnight-foreground: #fafaf9;
   --surface-midnight-muted: rgb(250 250 249 / 68%);
@@ -184,7 +193,7 @@
   --chart-3: #c8761a;
   --chart-4: #9b2c1f;
   --chart-5: #0c0c0b;
-  --radius: 0.375rem; /* 6px sharp corners */
+  --radius: 0.625rem; /* 10px — community-warm middle (Soft UI Evolution band) */
   --sidebar: #0c0c0b;
   --sidebar-foreground: #fafaf9;
   --sidebar-primary: #2563eb;
@@ -275,22 +284,24 @@
   --space-8: 2rem; /* 32px */
   --space-12: 3rem; /* 48px */
 
-  /* Typographic size scale variables */
-  --font-size-display-lg: 2.25rem; /* 36px */
-  --font-size-display-md: 1.75rem; /* 28px */
-  --font-size-h1: 1.25rem; /* 20px */
-  --font-size-body-lg: 0.9375rem; /* 15px */
-  --font-size-body-md: 0.8125rem; /* 13px */
-  --font-size-caption: 0.6875rem; /* 11px */
-  --font-size-mono-sm: 0.656rem; /* 10.5px */
+  /* Typographic size scale — 1.25 modular (Major Third) anchored at body 16px.
+     density-cozy and density-pro override these for surface-specific tightening.
+     See docs/experience/ui/design-system/tokens.md § Density modes. */
+  --font-size-display-lg: 2.5rem; /* 40px */
+  --font-size-display-md: 2rem; /* 32px */
+  --font-size-h1: 1.6rem; /* 25.6px — real h1 */
+  --font-size-body-lg: 1.0625rem; /* 17px */
+  --font-size-body-md: 1rem; /* 16px — meets mobile-readability minimum */
+  --font-size-caption: 0.8125rem; /* 13px */
+  --font-size-mono-sm: 0.75rem; /* 12px */
 
   /* Line height variables */
-  --line-height-display-lg: 1.02;
-  --line-height-display-md: 1.1;
-  --line-height-h1: 1.2;
+  --line-height-display-lg: 1.05;
+  --line-height-display-md: 1.15;
+  --line-height-h1: 1.25;
   --line-height-body-lg: 1.55;
   --line-height-body-md: 1.55;
-  --line-height-caption: 1.4;
+  --line-height-caption: 1.45;
   --line-height-mono-sm: 1.4;
 
   /* Z-Index Stack variables */
@@ -315,6 +326,10 @@
   --primary-hover: #bfdbfe;
   --primary-on-dark: #93c5fd;
   --primary-foreground: #0c0c0b;
+  /* CTA on dark — slightly lighter amber for the 4.5:1 contrast target */
+  --cta: #fbbf24;
+  --cta-hover: #f59e0b;
+  --cta-foreground: #0c0c0b;
   --surface-midnight: #081126;
   --surface-midnight-foreground: #fafaf9;
   --surface-midnight-muted: rgb(250 250 249 / 68%);
@@ -608,4 +623,72 @@
 }
 .mentor-status-badge:hover .mentor-tooltip {
   opacity: 1;
+}
+
+/* ============================================================
+ * Density modes — orthogonal to theme
+ * ============================================================
+ * Apply `.density-cozy` to list-of-cards member surfaces (home, ask
+ * results, people, inbox). Apply `.density-pro` to operator surfaces
+ * (admin tables, analytics). Default density (no class) is for single
+ * hero surfaces (onboarding, auth, profile detail header).
+ *
+ * What varies: type sizes, padding, shadow weight, avatar size, CTA
+ * over-claim.
+ * What does NOT vary: radius, color palette, font family, focus styles.
+ *
+ * See docs/experience/ui/design-system/density.md for the full surface
+ * assignment matrix.
+ */
+
+/* ---- DENSITY: COZY ---- */
+/* Middle density for member-facing list-of-cards surfaces. Amber CTA + warm
+ * hover lift kept; type compresses ~1.15x; cards tighten. */
+.density-cozy {
+  --font-size-display-lg: 2.125rem; /* 34px */
+  --font-size-display-md: 1.75rem; /* 28px */
+  --font-size-h1: 1.375rem; /* 22px */
+  --font-size-body-lg: 0.9375rem; /* 15px */
+  --font-size-body-md: 0.875rem; /* 14px */
+  --font-size-caption: 0.75rem; /* 12px */
+
+  --line-height-display-lg: 1.08;
+  --line-height-display-md: 1.18;
+  --line-height-h1: 1.28;
+  --line-height-body-lg: 1.5;
+  --line-height-body-md: 1.5;
+  --line-height-caption: 1.4;
+
+  --shadow-card: 0 1px 2px rgb(12 12 11 / 0.03);
+  --shadow-card-hover: 0 3px 10px -3px rgb(12 12 11 / 0.07);
+  --shadow-hero: 0 8px 24px -8px rgb(12 12 11 / 0.1);
+}
+
+/* ---- DENSITY: PRO ---- */
+/* Operator density for admin tables, analytics, ambassador dashboards.
+ * Tightens further; CTA reverts to primary blue (admin surfaces have many
+ * equal-weight actions; an amber button would over-claim). */
+.density-pro {
+  --font-size-display-lg: 1.875rem; /* 30px */
+  --font-size-display-md: 1.5rem; /* 24px */
+  --font-size-h1: 1.25rem; /* 20px */
+  --font-size-body-lg: 0.9375rem; /* 15px */
+  --font-size-body-md: 0.875rem; /* 14px */
+  --font-size-caption: 0.75rem; /* 12px */
+
+  --line-height-display-lg: 1.1;
+  --line-height-display-md: 1.2;
+  --line-height-h1: 1.3;
+  --line-height-body-lg: 1.45;
+  --line-height-body-md: 1.45;
+  --line-height-caption: 1.4;
+
+  --shadow-card: 0 1px 0 rgb(12 12 11 / 0.04);
+  --shadow-card-hover: 0 2px 6px -1px rgb(12 12 11 / 0.06);
+  --shadow-hero: 0 4px 12px -3px rgb(12 12 11 / 0.08);
+
+  /* Operator override: amber CTA reverts to primary blue */
+  --cta: var(--primary);
+  --cta-hover: var(--primary-hover);
+  --cta-foreground: var(--primary-foreground);
 }

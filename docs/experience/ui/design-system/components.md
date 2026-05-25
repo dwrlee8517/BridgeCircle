@@ -30,7 +30,7 @@ Do not copy component code, token exports, or raw colors from them into the app.
 
 | Primitive | Use For | Production Notes |
 |---|---|---|
-| `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. Primary action uses Electric Sky by default. Use `asChild` for links. |
+| `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. **CTA actions (the single best-next per surface) use `variant="cta"` — amber fill.** Primary blue covers navigation, secondary positive actions, and link-as-button. Use `asChild` for links. |
 | `Card` | Repeated decision surfaces, modals, compact panels | Default radius and border should be enough. Avoid decorative shadows unless the screen pattern requires lift. |
 | `Input`, `Textarea`, `Select` | Forms and filters | Prefer shared primitives over raw fields. Raw search inputs are acceptable only when the shell needs custom layout. |
 | `Badge` | Topics, tags, compact labels | Use for non-status labels. Keep topic labels readable and avoid making critical state depend on tiny mono text. |
@@ -78,14 +78,20 @@ State rules:
 
 | Action Level | Component Treatment | Use |
 |---|---|---|
-| Primary | `Button` `variant="default"` | The one next best action in the local context |
+| **CTA** | `Button` `variant="cta"` | The **single** highest-stakes action per surface — Send request, RSVP, Accept, Ask for advice. Amber. |
+| Primary | `Button` `variant="default"` | Secondary positive actions, navigation buttons, link-as-button. Electric Sky blue. |
 | Secondary | `Button` `variant="secondary"` or `outline` | Useful alternative action |
 | Tertiary | `Button` `variant="ghost"` or `link` | Navigation, disclosure, or low-risk secondary movement |
 | Destructive | `Button` `variant="destructive"` | Delete, revoke, cancel, decline, destructive account actions |
 | Status-only | `StatusBadge` | Communicates state but does not invite action |
 
-Every screen should have at most one visually dominant primary action per local
-decision area. If two actions compete, the product decision is unresolved.
+Every screen should have at most one CTA per local decision area. If two amber
+CTAs compete, the product decision is unresolved.
+
+In `density-pro` (admin/operator surfaces), `variant="cta"` automatically
+reverts to primary blue because admin contexts have many equal-weight actions
+and amber would over-claim. No code change required — the CSS variable cascade
+handles it.
 
 ## Product Component Specs
 

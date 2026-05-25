@@ -48,7 +48,8 @@ export function RsvpQuickButton({ eventId, current, isFull, className }: Props) 
       <Button
         type="button"
         size="lg"
-        variant={isGoing ? 'secondary' : 'default'}
+        // CTA amber when RSVP is the next action; secondary once the user is going.
+        variant={isGoing ? 'secondary' : 'cta'}
         onClick={submit}
         disabled={pending}
         className="w-full rounded-lg"
