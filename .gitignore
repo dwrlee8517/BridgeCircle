@@ -17,6 +17,10 @@ claude-design-context/
 # a tracked path (e.g. app/CLAUDE.md, docs/, a /scripts/ entry) explicitly.
 .agents/
 .codex/
+# Claude Code per-user installs: skills (plugin packages), local-only settings.
+# Shared Claude config (settings.json, launch.json, agents/, commands/) stays tracked.
+.claude/skills/
+.claude/settings.local.json
 
 # Local scratch space for ad-hoc provider probing (PDL/LinkdAPI/etc).
 pdl_test/
