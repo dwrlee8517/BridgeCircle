@@ -19,7 +19,8 @@ Read these before writing code. They override anything in this file if they disa
 Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 
 **Specs:**
-- `../docs/product/build-plan.md` — phase sequencing, web-first decision, mobile decision criteria
+- `../docs/product/feature-roadmap.md` — phase sequencing and pricing
+- `../docs/decisions/0002-web-first-defer-native.md` — web-first decision and mobile gating criteria
 - `../docs/specs/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
 - `../docs/specs/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
 - `../docs/specs/phase-1/week-3-4.md` — week 3–4 additive features
@@ -130,7 +131,7 @@ Before declaring a task done:
 
 ## Working Conventions
 
-- Web-first; mobile responsiveness yes, native mobile no until repeat-engagement signals appear (see `../docs/product/build-plan.md` Phase 7 criteria)
+- Web-first; mobile responsiveness yes, native mobile no until repeat-engagement signals appear (see `../docs/decisions/0002-web-first-defer-native.md`)
 - Single-engineer build — prefer the smallest credible thing that ships, not the most general one
 - Friendship, asks (advice + mentorship), and direct messages are separate tracks at the data layer. They share a unified surface on /inbox but the gates differ: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
 - Asks are polymorphic (one `asks` table, `ask_type` enum: `advice` | `mentorship`). Helper opt-in is a per-type checkbox on `helper_preferences` (`open_to_advice`, `open_to_mentorship`). Mentorship still has the cap + paused-at fields; advice is intentionally lower-friction.

@@ -1,68 +1,23 @@
+@AGENTS.md
+
 # CLAUDE.md
 
-Behavioral guidelines for working in this repo. Merge with project-specific context as needed.
+Claude-Code-specific habits for this repo. Project framing comes from the `@AGENTS.md` import above; stack and `/lib` discipline live in [`app/CLAUDE.md`](app/CLAUDE.md) — read it before touching anything under [`app/`](app/).
 
-For project context see [`app/CLAUDE.md`](app/CLAUDE.md) (Next.js + Supabase app) and [`docs/`](docs/) (specs, architecture, decisions). Product framing lives in [`AGENTS.md`](AGENTS.md) and [`project-summary.md`](project-summary.md).
+## Habits worth keeping
 
-**Tradeoff:** these guidelines bias toward caution over speed. For trivial edits, use judgment.
+These supplement the harness defaults (which already enforce surgical edits, no speculative abstractions, and surfacing assumptions). The items below are the project-specific reinforcements that matter most.
 
-## 1. Think Before Coding
+**Goal-driven execution.** Convert vague tasks into verifiable goals before coding:
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+- "Fix the bug" → write a test that reproduces it, then make it pass.
+- "Add validation" → write tests for the invalid inputs, then make them pass.
+- "Refactor X" → confirm the test suite passes before and after.
 
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them — don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+For multi-step work, sketch the plan as `step → verification`, then loop until each verification passes.
 
-## 2. Simplicity First
+**Brand voice on every user-facing string.** Before writing product copy, emails, AI drafts, microcopy, or marketing text, read [`docs/product/brand-strategy.md`](docs/product/brand-strategy.md) and [`docs/product/voice-guidelines.md`](docs/product/voice-guidelines.md). No generic SaaS jargon, no hype, no "powerful AI-powered platform."
 
-**Minimum code that solves the problem. Nothing speculative.**
+**Two-sided buffer framing.** Any peer-to-peer feature (asks, declines, RSVPs, mediated sends) must reduce psychological friction on **both** sides — initiator and responder. Symmetric barrier reduction is the brand mechanism, not a nice-to-have.
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it — don't delete it.
-
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+**When code and docs disagree, code wins** — but fix the docs in the same change and flag the drift.
