@@ -17,6 +17,7 @@ claude-design-context/
 # a tracked path (e.g. app/CLAUDE.md, docs/, a /scripts/ entry) explicitly.
 .agents/
 .codex/
+.claude/
 
 # Local scratch space for ad-hoc provider probing (PDL/LinkdAPI/etc).
 pdl_test/
