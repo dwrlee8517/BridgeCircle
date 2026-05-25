@@ -44,13 +44,13 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Account menu"
-        className="flex cursor-pointer items-center rounded-[6px] p-0.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex cursor-pointer items-center rounded-lg p-0.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Avatar className="size-8 rounded-[6px] after:rounded-[6px]">
+        <Avatar className="size-8 rounded-lg after:rounded-lg">
           {avatarUrl ? (
-            <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-[6px]" />
+            <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-lg" />
           ) : null}
-          <AvatarFallback className={cn('font-semibold rounded-[6px]', fallbackColorClass)}>
+          <AvatarFallback className={cn('font-semibold rounded-lg', fallbackColorClass)}>
             {initial}
           </AvatarFallback>
         </Avatar>
@@ -59,14 +59,14 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-64 border border-border bg-popover p-1.5 text-popover-foreground shadow-md rounded-[6px]"
+        className="w-64 border border-border bg-popover p-1.5 text-popover-foreground shadow-md rounded-lg"
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
-          <Avatar className="size-9 rounded-[6px] after:rounded-[6px]">
+          <Avatar className="size-9 rounded-lg after:rounded-lg">
             {avatarUrl ? (
-              <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-[6px]" />
+              <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-lg" />
             ) : null}
-            <AvatarFallback className={cn('font-semibold rounded-[6px]', fallbackColorClass)}>
+            <AvatarFallback className={cn('font-semibold rounded-lg', fallbackColorClass)}>
               {initial}
             </AvatarFallback>
           </Avatar>
@@ -78,7 +78,7 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
         <DropdownMenuSeparator className="my-1.5" />
         <DropdownMenuItem
           asChild
-          className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
+          className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
           <Link href={`/profile/${userId}`}>
             <UserRound className="size-4 text-muted-foreground" />
@@ -87,7 +87,7 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
         </DropdownMenuItem>
         <DropdownMenuItem
           asChild
-          className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
+          className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
           <Link href="/profile/edit">
             <UserRound className="size-4 text-muted-foreground" />
@@ -96,7 +96,7 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
         </DropdownMenuItem>
         <DropdownMenuItem
           asChild
-          className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
+          className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
           <Link href="/mentorship/settings">
             <Settings className="size-4 text-muted-foreground" />
@@ -107,7 +107,7 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
         <form action={signOut}>
           <DropdownMenuItem
             asChild
-            className="cursor-pointer gap-2.5 rounded-[6px] px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
+            className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
           >
             <button type="submit" className="w-full text-left">
               <LogOut className="size-4 text-muted-foreground" />

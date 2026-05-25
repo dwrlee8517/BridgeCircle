@@ -229,9 +229,9 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
           <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
             Live Card Preview
           </span>
-          <div className="rounded-[6px] border border-border bg-card p-5 flex flex-col gap-4 shadow-sm max-w-sm">
+          <div className="rounded-lg border border-border bg-card p-5 flex flex-col gap-4 shadow-sm max-w-sm">
             <div className="flex gap-3.5 items-center">
-              <div className="relative size-11 shrink-0 overflow-hidden rounded-[6px] bg-foreground text-background flex items-center justify-center font-heading text-base font-bold">
+              <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-foreground text-background flex items-center justify-center font-heading text-base font-bold">
                 PV
               </div>
               <div className="min-w-0">

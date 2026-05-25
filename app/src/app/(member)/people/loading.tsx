@@ -56,7 +56,7 @@ export default function PeopleLoading() {
             <div className="flex justify-between items-baseline mb-2">
               <Skeleton className="h-4 w-24" />
             </div>
-            <div className="border border-border bg-card rounded-[6px] p-4 space-y-6 shadow-sm">
+            <div className="border border-border bg-card rounded-lg p-4 space-y-6 shadow-sm">
               {/* Group 1 Skeleton */}
               <div className="space-y-2 pb-3 border-b border-border/60">
                 <Skeleton className="h-3.5 w-20 mb-3" />
@@ -100,10 +100,10 @@ export default function PeopleLoading() {
                 <div
                   // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
                   key={i}
-                  className="p-4 border border-border bg-card rounded-[6px] space-y-4 shadow-sm"
+                  className="p-4 border border-border bg-card rounded-lg space-y-4 shadow-sm"
                 >
                   <div className="flex gap-3">
-                    <Skeleton className="size-[52px] rounded-[6px] shrink-0" />
+                    <Skeleton className="size-[52px] rounded-lg shrink-0" />
                     <div className="flex-1 space-y-2 min-w-0">
                       <Skeleton className="h-4 w-2/3" />
                       <Skeleton className="h-3 w-1/2" />

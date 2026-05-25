@@ -116,7 +116,6 @@
   --font-size-body-md: var(--font-size-body-md);
   --font-size-caption: var(--font-size-caption);
   --font-size-mono-sm: var(--font-size-mono-sm);
-  --font-size-mono-xs: var(--font-size-mono-xs);
 
   /* Line Heights */
   --line-height-display-lg: var(--line-height-display-lg);
@@ -126,7 +125,6 @@
   --line-height-body-md: var(--line-height-body-md);
   --line-height-caption: var(--line-height-caption);
   --line-height-mono-sm: var(--line-height-mono-sm);
-  --line-height-mono-xs: var(--line-height-mono-xs);
 
   /* Motion */
   --duration-instant: var(--motion-instant);
@@ -136,6 +134,11 @@
   --duration-slow: var(--motion-slow);
   --ease-standard: var(--ease-standard);
   --ease-emphasized: var(--ease-emphasized);
+
+  /* Shadow scale — editorial lift, not dashboard gloss */
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-hero: var(--shadow-hero);
 
   /* Z-Index Stack */
   --z-index-base: var(--z-base);
@@ -258,6 +261,11 @@
   --density-default: 1;
   --density-roomy: 1.125;
 
+  /* Shadow scale — keep editorial; subtle lift, no dashboard gloss */
+  --shadow-card: 0 1px 0 rgb(12 12 11 / 0.03);
+  --shadow-card-hover: 0 4px 12px -2px rgb(12 12 11 / 0.06);
+  --shadow-hero: 0 12px 34px -8px rgb(12 12 11 / 0.1);
+
   /* Spacing Grid Scale variables */
   --space-1: 0.25rem; /* 4px */
   --space-2: 0.5rem; /* 8px */
@@ -275,7 +283,6 @@
   --font-size-body-md: 0.8125rem; /* 13px */
   --font-size-caption: 0.6875rem; /* 11px */
   --font-size-mono-sm: 0.656rem; /* 10.5px */
-  --font-size-mono-xs: 0.5625rem; /* 9px */
 
   /* Line height variables */
   --line-height-display-lg: 1.02;
@@ -285,7 +292,6 @@
   --line-height-body-md: 1.55;
   --line-height-caption: 1.4;
   --line-height-mono-sm: 1.4;
-  --line-height-mono-xs: 1.4;
 
   /* Z-Index Stack variables */
   --z-base: 0;
@@ -355,6 +361,11 @@
   --editorial-rule: rgb(250 250 249 / 16%);
   --editorial-rule-strong: rgb(250 250 249 / 28%);
   --focus-ring-muted: rgb(147 197 253 / 14%);
+
+  /* Shadow scale — slightly stronger on dark to remain visible */
+  --shadow-card: 0 1px 0 rgb(0 0 0 / 0.25);
+  --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.35);
+  --shadow-hero: 0 12px 34px -8px rgb(0 0 0 / 0.45);
 }
 
 @layer base {
@@ -435,15 +446,6 @@
   }
   50% {
     opacity: 1;
-  }
-}
-
-@keyframes bc-command-edge {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 220% 50%;
   }
 }
 
@@ -547,30 +549,6 @@
     linear-gradient(180deg, rgb(37 99 235 / 0.025) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: linear-gradient(90deg, black, transparent 72%);
-}
-
-.bc-command-surface::after {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  padding: 1px;
-  border-radius: inherit;
-  pointer-events: none;
-  content: "";
-  background: linear-gradient(
-    90deg,
-    var(--primary),
-    var(--accent-sage),
-    var(--accent-ochre),
-    var(--accent-plum),
-    var(--primary)
-  );
-  background-size: 220% 100%;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  animation: bc-command-edge 5.5s linear infinite;
 }
 
 .bc-command-surface:focus-within {

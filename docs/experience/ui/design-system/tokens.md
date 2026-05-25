@@ -224,9 +224,8 @@ Production rules:
 | `body-md` | `13px` | Dense UI body and labels |
 | `caption` | `11px` | Secondary labels and short metadata |
 | `mono-sm` | `10.5px` | Compact uppercase metadata |
-| `mono-xs` | `9px` | Decorative or redundant metadata only |
 
-Production rule: important meaning should not depend on `mono-xs` alone. Use larger body/caption text when the information affects a decision.
+Production rule: do not introduce sizes below `mono-sm` (10.5px). The previous `mono-xs` (9px) token was removed because the rule "do not depend on it alone" was easier to break than to enforce. If a surface seems to need 9px, it almost certainly needs a tighter layout instead.
 
 ## Shape And Spacing
 
@@ -277,6 +276,27 @@ Motion rules:
   non-essential transitions and animations under `prefers-reduced-motion:
   reduce`.
 
+## Shadow
+
+Three-step editorial scale. Shadows should suggest paper, not dashboard gloss.
+The scale stays subtle on purpose: lift comes from the border + 1-2px hover
+translate, not from a heavy drop shadow.
+
+| Token | Value | Use |
+|---|---|---|
+| `shadow-card` | `0 1px 0 rgb(12 12 11 / 0.03)` | Hairline on quiet rows and inline cards. Often equivalent to "no shadow." |
+| `shadow-card-hover` | `0 4px 12px -2px rgb(12 12 11 / 0.06)` | Default lift on interactive cards and auth/sign-in surfaces. |
+| `shadow-hero` | `0 12px 34px -8px rgb(12 12 11 / 0.10)` | Reserved for hero/feature surfaces and interactive-card hover. One per surface. |
+
+Production rules:
+
+- Arbitrary `shadow-[…]` literals are not allowed. If a surface needs a value
+  outside the scale, extend the scale instead.
+- Dark mode raises the alpha but keeps the same token names; the live CSS
+  contract handles this in `.dark`.
+- Do not stack `shadow-hero` on nested elements. If two surfaces both want
+  hero lift, the page hierarchy is wrong.
+
 ## Density
 
 Density tokens are multipliers for component spacing decisions, not global page
@@ -295,7 +315,6 @@ Density rules:
   clearly scannable.
 - Admin screens may use `density-compact`, but text cannot drop below caption
   for meaningful labels.
-- Do not combine compact density with `mono-xs` for required information.
 
 ## Email-Safe Tokens
 

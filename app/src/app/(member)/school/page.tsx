@@ -62,13 +62,13 @@ export default async function SchoolPage() {
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="rounded-[6px]">
+              <Button asChild size="lg" className="rounded-lg">
                 <Link href="/events">
                   <CalendarDays className="size-4" />
                   View events
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-[6px]">
+              <Button asChild size="lg" variant="outline" className="rounded-lg">
                 <Link href="/announcements">
                   <Megaphone className="size-4" />
                   Read announcements
@@ -76,7 +76,7 @@ export default async function SchoolPage() {
               </Button>
               {/* Synthesis: admin actions stay quieter than member actions */}
               {isAdmin ? (
-                <Button asChild size="sm" variant="ghost" className="self-center rounded-[6px]">
+                <Button asChild size="sm" variant="ghost" className="self-center rounded-lg">
                   <Link href="/admin/events">
                     <Plus className="size-4" />
                     Create event
@@ -102,7 +102,7 @@ export default async function SchoolPage() {
                   meet.
                 </p>
               </div>
-              <Button asChild size="sm" variant="outline" className="w-fit rounded-[6px]">
+              <Button asChild size="sm" variant="outline" className="w-fit rounded-lg">
                 <Link href="/events">
                   Events archive
                   <ArrowRight className="size-4" />
@@ -117,7 +117,7 @@ export default async function SchoolPage() {
                   <Link
                     key={event.id}
                     href={`/events/${event.id}`}
-                    className="group relative flex gap-4 rounded-[8px] border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
+                    className="group relative flex gap-4 rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
                   >
                     <div className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary-tint text-primary">
                       <CalendarDays className="size-4" />
@@ -189,7 +189,7 @@ export default async function SchoolPage() {
             </div>
 
             {featuredEvent ? (
-              <div className="rounded-[8px] border border-border bg-card p-5 shadow-sm">
+              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
                   Next gathering
                 </p>
@@ -200,7 +200,7 @@ export default async function SchoolPage() {
                   {featuredEvent.goingCount} people are going. RSVP, then use People to find who you
                   may want to meet before the event.
                 </p>
-                <Button asChild className="mt-5 rounded-[6px]">
+                <Button asChild className="mt-5 rounded-lg">
                   <Link href={`/events/${featuredEvent.id}`}>Open event</Link>
                 </Button>
               </div>
@@ -224,10 +224,10 @@ function EmptySchoolState({
   cta: string
 }) {
   return (
-    <div className="rounded-[8px] border border-dashed border-border bg-card p-6">
+    <div className="rounded-xl border border-dashed border-border bg-card p-6">
       <p className="font-heading text-xl font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <Button asChild size="sm" variant="outline" className="mt-4 rounded-[6px]">
+      <Button asChild size="sm" variant="outline" className="mt-4 rounded-lg">
         <Link href={href}>{cta}</Link>
       </Button>
     </div>

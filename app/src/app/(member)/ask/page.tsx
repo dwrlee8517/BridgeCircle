@@ -181,7 +181,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
             </div>
           </div>
 
-          <div className="relative self-end overflow-hidden rounded-[8px] border border-border/80 bg-card/88 p-5 shadow-[0_24px_70px_rgb(12_12_11/0.10)] backdrop-blur">
+          <div className="relative self-end overflow-hidden rounded-xl border border-border/80 bg-card/88 p-5 shadow-hero backdrop-blur">
             <div
               aria-hidden="true"
               className="absolute inset-x-0 top-0 h-1"
@@ -235,7 +235,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
             </div>
 
             {status ? (
-              <div className="mb-5 rounded-[8px] border border-border bg-warning-tint px-4 py-3 text-sm text-foreground">
+              <div className="mb-5 rounded-xl border border-border bg-warning-tint px-4 py-3 text-sm text-foreground">
                 {status}
               </div>
             ) : null}
@@ -260,7 +260,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
                 />
               </div>
             ) : (
-              <div className="rounded-[8px] border border-dashed border-border bg-card p-10 text-center">
+              <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
                 <Search className="mx-auto size-8 text-muted-foreground" />
                 <h2 className="mt-4 font-heading text-2xl font-semibold text-foreground">
                   No matches surfaced yet.
@@ -269,7 +269,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
                   Try a broader question, or explore People while the network gets seeded with more
                   helper profiles.
                 </p>
-                <Button asChild className="mt-5 rounded-[6px]">
+                <Button asChild className="mt-5 rounded-lg">
                   <Link href="/people">Open People</Link>
                 </Button>
               </div>
@@ -335,7 +335,7 @@ function PaginationFooter({
   const end = Math.min(currentPage * PAGE_SIZE, totalResults)
 
   return (
-    <div className="flex flex-col gap-3 rounded-[8px] border border-border bg-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <p className="text-xs font-medium text-muted-foreground">
         Showing {start}-{end} of {Math.min(totalResults, PAGE_SIZE * MAX_RESULT_PAGES)}
       </p>
@@ -349,8 +349,8 @@ function PaginationFooter({
               aria-current={isCurrent ? 'page' : undefined}
               className={
                 isCurrent
-                  ? 'flex size-8 items-center justify-center rounded-[6px] bg-primary text-sm font-semibold text-primary-foreground'
-                  : 'flex size-8 items-center justify-center rounded-[6px] border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
+                  ? 'flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground'
+                  : 'flex size-8 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
               }
             >
               {page}
@@ -388,7 +388,7 @@ function WorkflowStep({
 
   return (
     <div className="flex items-center gap-3">
-      <div className={`flex size-8 items-center justify-center rounded-[6px] border ${toneClass}`}>
+      <div className={`flex size-8 items-center justify-center rounded-lg border ${toneClass}`}>
         {icon}
       </div>
       <p className="text-sm font-semibold">{title}</p>
@@ -413,7 +413,7 @@ function WorkflowMetric({
         : { borderColor: 'rgb(37 99 235 / 0.22)', backgroundColor: 'rgb(37 99 235 / 0.08)' }
 
   return (
-    <div className="rounded-[6px] border p-2" style={style}>
+    <div className="rounded-lg border p-2" style={style}>
       <p className="font-heading text-xl font-semibold leading-none">{value}</p>
       <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
         {label}

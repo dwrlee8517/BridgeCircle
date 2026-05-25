@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
  *   - "muted"   -> muted (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-[4px] whitespace-nowrap',
+  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-md whitespace-nowrap',
   {
     variants: {
       tone: {

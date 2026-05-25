@@ -96,7 +96,7 @@ export function ResultCard(props: ResultCardProps) {
             {/* Photo placeholder (smaller, 36px) */}
             <div
               className={cn(
-                'relative size-9 shrink-0 overflow-hidden rounded-[6px] shadow-sm',
+                'relative size-9 shrink-0 overflow-hidden rounded-lg shadow-sm',
                 props.avatarUrl ? '' : avatarColorClass,
               )}
             >
@@ -171,7 +171,7 @@ export function ResultCard(props: ResultCardProps) {
                       aria-hidden
                     />
                     Mentor
-                    <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-foreground text-background text-[10px] font-mono rounded-[6px] border border-border px-2 py-1 shadow-md whitespace-nowrap z-50">
+                    <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-foreground text-background text-[10px] font-mono rounded-lg border border-border px-2 py-1 shadow-md whitespace-nowrap z-50">
                       Capacity: {activeCount}/{maxActive} active ({pendingCount} pending)
                     </span>
                   </StatusBadge>
@@ -216,13 +216,13 @@ export function ResultCard(props: ResultCardProps) {
                   <Badge
                     key={topic}
                     variant="secondary"
-                    className="rounded-[4px] border border-border/40 bg-muted text-[9px] text-muted-foreground"
+                    className="rounded-md border border-border/40 bg-muted text-[9px] text-muted-foreground"
                   >
                     {topic}
                   </Badge>
                 ))
               ) : props.rationale ? (
-                <span className="rounded-[4px] border border-primary/15 bg-primary/[0.04] px-2 py-0.5 text-[10px] font-semibold text-primary">
+                <span className="rounded-md border border-primary/15 bg-primary/[0.04] px-2 py-0.5 text-[10px] font-semibold text-primary">
                   Match evidence available
                 </span>
               ) : null}
@@ -236,12 +236,12 @@ export function ResultCard(props: ResultCardProps) {
                 <DialogTrigger asChild>
                   <button
                     type="button"
-                    className="font-mono text-[9px] font-bold text-primary hover:text-primary-hover bg-primary/[0.04] hover:bg-primary/[0.08] rounded-[4px] px-2 py-1 border border-primary/20 shrink-0 cursor-pointer"
+                    className="font-mono text-[9px] font-bold text-primary hover:text-primary-hover bg-primary/[0.04] hover:bg-primary/[0.08] rounded-md px-2 py-1 border border-primary/20 shrink-0 cursor-pointer"
                   >
                     {props.rerankScore !== null ? `${props.rerankScore}% FIT` : 'FIT REASON'}
                   </button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md border-border rounded-[6px] sm:rounded-[6px] font-sans bg-card">
+                <DialogContent className="max-w-md border-border rounded-lg sm:rounded-lg font-sans bg-card">
                   <DialogHeader className="border-b pb-3 border-border">
                     <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
                       Match brief
@@ -282,7 +282,7 @@ export function ResultCard(props: ResultCardProps) {
 
             <div className="flex items-center gap-1.5">
               {props.isOpenAsAdviceHelper ? (
-                <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-[4px]">
+                <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-md">
                   <Link href={`/ask/new?to=${props.userId}&type=advice`}>Ask</Link>
                 </Button>
               ) : props.isOpenAsMentor ? (
@@ -290,17 +290,12 @@ export function ResultCard(props: ResultCardProps) {
                   asChild
                   size="sm"
                   variant="outline"
-                  className="h-8 text-xs px-3.5 rounded-[4px]"
+                  className="h-8 text-xs px-3.5 rounded-md"
                 >
                   <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>Mentor</Link>
                 </Button>
               ) : (
-                <Button
-                  asChild
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 text-xs px-3 rounded-[4px]"
-                >
+                <Button asChild size="sm" variant="ghost" className="h-8 text-xs px-3 rounded-md">
                   <Link href={`/profile/${props.userId}`}>View</Link>
                 </Button>
               )}
@@ -313,7 +308,7 @@ export function ResultCard(props: ResultCardProps) {
 
   // Default / Comfortable density card layout (V4 High-Density Inline Columns)
   return (
-    <Card className="group h-full flex flex-col p-5 rounded-[6px] border border-border bg-card transition-all hover:border-foreground hover:-translate-y-[1px] hover:shadow-sm duration-150 overflow-visible">
+    <Card className="group h-full flex flex-col p-5 rounded-lg border border-border bg-card transition-all hover:border-foreground hover:-translate-y-[1px] hover:shadow-sm duration-150 overflow-visible">
       <Link href={`/profile/${props.userId}`} className="flex-1 flex flex-col">
         {/* Top-aligned Content Container */}
         <div className="flex-1">
@@ -321,7 +316,7 @@ export function ResultCard(props: ResultCardProps) {
             {/* Photo placeholder */}
             <div
               className={cn(
-                'relative size-[52px] shrink-0 overflow-hidden rounded-[6px] shadow-sm',
+                'relative size-[52px] shrink-0 overflow-hidden rounded-lg shadow-sm',
                 props.avatarUrl ? '' : avatarColorClass,
               )}
             >
@@ -402,7 +397,7 @@ export function ResultCard(props: ResultCardProps) {
                         aria-hidden
                       />
                       Mentor
-                      <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-foreground text-background text-[10px] font-mono rounded-[6px] border border-border px-2 py-1 shadow-md whitespace-nowrap z-50">
+                      <span className="mentor-tooltip pointer-events-none absolute bottom-full left-0 mb-1.5 opacity-0 transition-opacity duration-150 bg-foreground text-background text-[10px] font-mono rounded-lg border border-border px-2 py-1 shadow-md whitespace-nowrap z-50">
                         Capacity: {activeCount}/{maxActive} active ({pendingCount} pending)
                       </span>
                     </StatusBadge>
@@ -466,7 +461,7 @@ export function ResultCard(props: ResultCardProps) {
                 <Badge
                   key={topic}
                   variant="secondary"
-                  className="bg-muted text-muted-foreground text-[9px] px-2 py-0.5 rounded-[4px] font-mono border border-border/40"
+                  className="bg-muted text-muted-foreground text-[9px] px-2 py-0.5 rounded-md font-mono border border-border/40"
                 >
                   {topic}
                 </Badge>
@@ -474,7 +469,7 @@ export function ResultCard(props: ResultCardProps) {
             ) : (
               <Badge
                 variant="secondary"
-                className="bg-muted/40 text-muted-foreground/40 text-[9px] px-2 py-0.5 rounded-[4px] font-mono border border-border/20 italic"
+                className="bg-muted/40 text-muted-foreground/40 text-[9px] px-2 py-0.5 rounded-md font-mono border border-border/20 italic"
               >
                 Ask from profile context
               </Badge>
@@ -494,18 +489,13 @@ export function ResultCard(props: ResultCardProps) {
         <div className="flex flex-wrap items-center gap-1.5">
           {props.isOpenAsAdviceHelper ? (
             <>
-              <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-[6px]">
+              <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-lg">
                 <Link href={`/ask/new?to=${props.userId}&type=advice`}>
                   Ask {display.split(/\s+/)[0]} for advice
                 </Link>
               </Button>
               {props.isOpenAsMentor ? (
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  className="h-8 text-xs px-3 rounded-[6px]"
-                >
+                <Button asChild size="sm" variant="outline" className="h-8 text-xs px-3 rounded-lg">
                   <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>
                     Request mentorship
                   </Link>
@@ -513,18 +503,13 @@ export function ResultCard(props: ResultCardProps) {
               ) : null}
             </>
           ) : props.isOpenAsMentor ? (
-            <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-[6px]">
+            <Button asChild size="sm" className="h-8 text-xs px-3.5 rounded-lg">
               <Link href={`/ask/new?to=${props.userId}&type=mentorship`}>
                 Request mentorship from {display.split(/\s+/)[0]}
               </Link>
             </Button>
           ) : (
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="h-8 text-xs px-3.5 rounded-[6px]"
-            >
+            <Button asChild size="sm" variant="outline" className="h-8 text-xs px-3.5 rounded-lg">
               <Link href={`/profile/${props.userId}`}>View profile</Link>
             </Button>
           )}
@@ -540,7 +525,7 @@ export function ResultCard(props: ResultCardProps) {
 
         <div className="flex items-center gap-2">
           {props.rerankScore !== null ? (
-            <span className="shrink-0 font-mono text-[9px] px-1.5 py-0.5 border border-primary/20 bg-primary/5 text-primary font-bold rounded-[4px]">
+            <span className="shrink-0 font-mono text-[9px] px-1.5 py-0.5 border border-primary/20 bg-primary/5 text-primary font-bold rounded-md">
               {props.rerankScore}% Match
             </span>
           ) : null}
@@ -550,13 +535,13 @@ export function ResultCard(props: ResultCardProps) {
               <DialogTrigger asChild>
                 <button
                   type="button"
-                  className="flex items-center gap-0.5 text-[9px] font-mono font-bold text-primary hover:text-primary-hover bg-primary/[0.03] hover:bg-primary/[0.06] rounded-[4px] px-2 py-1 border border-primary/10 cursor-pointer"
+                  className="flex items-center gap-0.5 text-[9px] font-mono font-bold text-primary hover:text-primary-hover bg-primary/[0.03] hover:bg-primary/[0.06] rounded-md px-2 py-1 border border-primary/10 cursor-pointer"
                 >
                   <ChevronRight className="size-3" />
                   Why match?
                 </button>
               </DialogTrigger>
-              <DialogContent className="max-w-md border-border rounded-[6px] sm:rounded-[6px] font-sans bg-card">
+              <DialogContent className="max-w-md border-border rounded-lg sm:rounded-lg font-sans bg-card">
                 <DialogHeader className="border-b pb-3 border-border">
                   <span className="font-mono text-[9px] uppercase tracking-wider text-primary font-bold">
                     Match brief

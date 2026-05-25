@@ -160,7 +160,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
       <button
         type="button"
         onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-        className="md:hidden flex items-center justify-between w-full border border-border bg-card rounded-[6px] px-4 py-2.5 text-sm font-semibold text-foreground"
+        className="md:hidden flex items-center justify-between w-full border border-border bg-card rounded-lg px-4 py-2.5 text-sm font-semibold text-foreground"
       >
         <span className="flex items-center gap-2">
           <SlidersHorizontal className="size-4 text-primary" />
@@ -184,7 +184,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
         {/* Left: Accordion Facets */}
         <aside
           className={cn(
-            'md:block space-y-4 border border-border md:border-none p-4 md:p-0 rounded-[6px] bg-card md:bg-transparent shadow-sm md:shadow-none',
+            'md:block space-y-4 border border-border md:border-none p-4 md:p-0 rounded-lg bg-card md:bg-transparent shadow-sm md:shadow-none',
             mobileFiltersOpen ? 'block' : 'hidden',
           )}
         >
@@ -201,7 +201,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
             )}
           </div>
 
-          <div className="border border-border bg-card rounded-[6px] p-4 space-y-4 shadow-sm">
+          <div className="border border-border bg-card rounded-lg p-4 space-y-4 shadow-sm">
             {/* Group 1: Availability & Connection */}
             <FacetGroup
               label="Availability"

@@ -103,7 +103,7 @@ function StatusBanner({ stage }: { stage: Stage }) {
     <div
       role="status"
       aria-live="polite"
-      className="flex items-center gap-2.5 rounded-[6px] bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground"
+      className="flex items-center gap-2.5 rounded-lg bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground"
     >
       <span
         className="inline-block size-2 shrink-0 animate-pulse rounded-full bg-primary"
@@ -135,12 +135,12 @@ export function ResultsHeader({
       <p className="text-sm text-muted-foreground">
         <strong className="text-foreground">{resultCount.toLocaleString()}</strong> {suffix}
       </p>
-      <div className="flex items-center gap-1 select-none bg-muted/40 p-0.5 rounded-[6px] border border-border/60">
+      <div className="flex items-center gap-1 select-none bg-muted/40 p-0.5 rounded-lg border border-border/60">
         <button
           type="button"
           onClick={() => setDensity('comfortable')}
           className={cn(
-            'font-mono text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-[4px] transition-all cursor-pointer',
+            'font-mono text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md transition-all cursor-pointer',
             density === 'comfortable'
               ? 'bg-card text-primary font-bold shadow-sm'
               : 'text-muted-foreground hover:text-foreground',
@@ -152,7 +152,7 @@ export function ResultsHeader({
           type="button"
           onClick={() => setDensity('compact')}
           className={cn(
-            'font-mono text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-[4px] transition-all cursor-pointer',
+            'font-mono text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md transition-all cursor-pointer',
             density === 'compact'
               ? 'bg-card text-primary font-bold shadow-sm'
               : 'text-muted-foreground hover:text-foreground',

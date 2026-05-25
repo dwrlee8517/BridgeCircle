@@ -38,7 +38,7 @@ export function AskBar({
     <form action={action} className={cn('bc-command-surface', compact ? 'p-2' : 'p-3 sm:p-4')}>
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-primary text-primary-foreground">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <CircleHelp className="size-5" />
           </div>
           <input
@@ -49,7 +49,7 @@ export function AskBar({
             className="h-14 min-w-0 flex-1 border-none bg-transparent px-0 text-base font-medium text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-none focus:shadow-none focus:ring-0 sm:text-lg"
           />
         </div>
-        <Button type="submit" size={compact ? 'default' : 'lg'} className="rounded-[6px]">
+        <Button type="submit" size={compact ? 'default' : 'lg'} className="rounded-lg">
           Find people
           <ArrowRight className="size-4" />
         </Button>
@@ -84,7 +84,7 @@ export function NetworkMotif({
   eventCount: number
 }) {
   return (
-    <div className="relative min-h-[280px] overflow-hidden rounded-[8px] border border-border bg-surface-midnight p-5 text-surface-midnight-foreground shadow-[0_24px_70px_rgb(8_17_38/0.24)]">
+    <div className="relative min-h-[280px] overflow-hidden rounded-xl border border-border bg-surface-midnight p-5 text-surface-midnight-foreground shadow-hero">
       <svg className="absolute inset-0 size-full opacity-70" viewBox="0 0 520 320" aria-hidden>
         <title>Relationship map motif</title>
         <defs>
@@ -145,7 +145,7 @@ export function NetworkMotif({
 
 function NetworkStat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-[6px] border border-editorial-rule bg-white/[0.06] p-3">
+    <div className="rounded-lg border border-editorial-rule bg-white/[0.06] p-3">
       <div className="font-heading text-2xl font-semibold leading-none">{value}</div>
       <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.10em] text-surface-midnight-muted">
         {label}
@@ -223,7 +223,7 @@ export function MatchBriefCard({
           <div
             className={cn(
               'bg-primary/[0.04] p-3',
-              isListRow ? '' : 'rounded-[6px] border border-primary/18 bg-card shadow-sm',
+              isListRow ? '' : 'rounded-lg border border-primary/18 bg-card shadow-sm',
             )}
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-primary">
@@ -235,7 +235,7 @@ export function MatchBriefCard({
             <div
               className={cn(
                 'bg-accent-sage/[0.04] p-3',
-                isListRow ? '' : 'rounded-[6px] border border-accent-sage/18 bg-card shadow-sm',
+                isListRow ? '' : 'rounded-lg border border-accent-sage/18 bg-card shadow-sm',
               )}
             >
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -249,12 +249,17 @@ export function MatchBriefCard({
 
       <div className="flex flex-col justify-center border-t border-border bg-surface-panel/60 p-4 md:border-l md:border-t-0">
         {person.matchScore !== null && person.matchScore !== undefined ? (
-          <div className="mb-3 flex items-center justify-between border-b border-border/70 pb-2.5">
+          <div className="mb-3 border-b border-border/70 pb-2.5">
             <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               Match signal
             </p>
-            <p className="font-heading text-2xl font-semibold leading-none text-foreground">
-              {person.matchScore}%
+            <p
+              className={cn(
+                'mt-1 font-heading text-base font-semibold leading-tight',
+                matchBandClass(person.matchScore),
+              )}
+            >
+              {matchBandLabel(person.matchScore)}
             </p>
           </div>
         ) : null}
@@ -266,14 +271,14 @@ export function MatchBriefCard({
         </p>
         <div className="mt-3 flex flex-col gap-1.5">
           {askType ? (
-            <Button asChild size="sm" className="w-full rounded-[6px]">
+            <Button asChild size="sm" className="w-full rounded-lg">
               <Link href={`/ask/new?to=${person.userId}&type=${askType}`}>
                 {askLabel}
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
           ) : (
-            <Button asChild variant="outline" size="sm" className="w-full rounded-[6px]">
+            <Button asChild variant="outline" size="sm" className="w-full rounded-lg">
               <Link href={`/profile/${person.userId}`}>View profile</Link>
             </Button>
           )}
@@ -301,7 +306,7 @@ export function MatchBriefCard({
   return (
     <Card
       className={cn(
-        'group bc-motion-surface overflow-hidden rounded-[8px] border border-border bg-card p-0 shadow-[0_12px_34px_rgb(12_12_11/0.08)] transition-all hover:-translate-y-0.5 hover:border-primary/28 hover:shadow-[0_18px_46px_rgb(12_12_11/0.12)]',
+        'group bc-motion-surface overflow-hidden rounded-xl border border-border bg-card p-0 shadow-card-hover transition-all hover:-translate-y-0.5 hover:border-primary/28 hover:shadow-hero',
       )}
     >
       {content}
@@ -337,11 +342,9 @@ export function HelpOpportunityCard({
   return (
     <Link
       href={href}
-      className="group flex gap-4 rounded-[6px] border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
+      className="group flex gap-4 rounded-lg border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
     >
-      <div
-        className={cn('flex size-9 shrink-0 items-center justify-center rounded-[6px]', toneClass)}
-      >
+      <div className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg', toneClass)}>
         <Check className="size-4" />
       </div>
       <div className="min-w-0 flex-1">
@@ -376,9 +379,9 @@ export function SchoolPulseCard({
   return (
     <Link
       href={href}
-      className="group flex gap-4 rounded-[6px] border border-border bg-card p-4 shadow-sm transition-all hover:border-foreground/30 hover:shadow-md"
+      className="group flex gap-4 rounded-lg border border-border bg-card p-4 shadow-sm transition-all hover:border-foreground/30 hover:shadow-md"
     >
-      <div className="flex size-11 shrink-0 items-center justify-center rounded-[6px] bg-primary/[0.08] text-primary">
+      <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/[0.08] text-primary">
         {kind === 'event' ? <CalendarDays className="size-5" /> : <Sparkles className="size-5" />}
       </div>
       <div className="min-w-0">
@@ -407,9 +410,9 @@ export function FreshnessReviewCard({
 } = {}) {
   if (daysSinceLastReview < staleAfterDays) return null
   return (
-    <Card className="rounded-[6px] border-border bg-card p-5 shadow-sm">
+    <Card className="rounded-lg border-border bg-card p-5 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-[6px] bg-primary/[0.08] text-primary">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/[0.08] text-primary">
           <Sparkles className="size-5" />
         </div>
         <div>
@@ -420,10 +423,10 @@ export function FreshnessReviewCard({
             Review imported changes, add missing topics, or confirm everything still looks right.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm" className="rounded-[6px]">
+            <Button asChild size="sm" className="rounded-lg">
               <Link href="/profile/import">Review updates</Link>
             </Button>
-            <Button asChild size="sm" variant="outline" className="rounded-[6px]">
+            <Button asChild size="sm" variant="outline" className="rounded-lg">
               <Link href="/profile/edit">Edit profile</Link>
             </Button>
           </div>
@@ -472,7 +475,7 @@ function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
   // cards could pull the same rust hue. One muted surface across the board
   // keeps the visual rhythm calm and lets photos do the differentiation.
   return (
-    <div className="relative size-12 shrink-0 overflow-hidden rounded-[6px] bg-surface-subtle">
+    <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-surface-subtle">
       {person.avatarUrl ? (
         <Image
           src={person.avatarUrl}
@@ -502,6 +505,23 @@ function buildDefaultReason(person: HelpNetworkPerson, query?: string) {
     return `They are connected to ${person.city}, which may make the conversation more practical.`
   if (query) return 'Their profile has signals that match what you asked for.'
   return null
+}
+
+// Match scores come from the LLM reranker (0-100). Surfacing the raw
+// percentage made the card read like "AI-matched: 94% compatibility" —
+// the algorithmic spectacle voice §5.5 explicitly bans. Bands match the
+// reranker's own mental model (90+ strong / 60-89 partial / <60 weak),
+// nudged down slightly so the boundaries don't feel arbitrary.
+function matchBandLabel(score: number): string {
+  if (score >= 85) return 'Strong fit'
+  if (score >= 65) return 'Good fit'
+  return 'Worth exploring'
+}
+
+function matchBandClass(score: number): string {
+  if (score >= 85) return 'text-state-success-foreground'
+  if (score >= 65) return 'text-state-info-foreground'
+  return 'text-muted-foreground'
 }
 
 function buildSuggestedAsk(query: string | undefined, person: HelpNetworkPerson) {

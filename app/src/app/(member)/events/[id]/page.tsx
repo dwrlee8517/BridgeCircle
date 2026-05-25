@@ -94,7 +94,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             All events
           </Link>
 
-          <section className="mt-4 overflow-hidden rounded-[8px] border border-border/70 bg-card shadow-[0_24px_70px_rgba(12,12,11,0.08)] sm:mt-6">
+          <section className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-card shadow-hero sm:mt-6">
             <div className="grid lg:grid-cols-[minmax(0,1fr)_340px]">
               <div className="relative overflow-hidden p-5 sm:min-h-[380px] sm:p-8 lg:p-10">
                 <EventPosterMotif accentHex={accent.hex} />
@@ -103,7 +103,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div
-                        className="flex size-16 shrink-0 flex-col items-center justify-center rounded-[8px] border text-center shadow-sm"
+                        className="flex size-16 shrink-0 flex-col items-center justify-center rounded-xl border text-center shadow-sm"
                         style={{
                           borderColor: `${accent.hex}44`,
                           backgroundColor: `${accent.hex}12`,
@@ -179,7 +179,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                         />
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 rounded-[6px] border border-border/60 bg-card/70 px-3 py-2.5 text-sm font-medium text-muted-foreground">
+                      <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card/70 px-3 py-2.5 text-sm font-medium text-muted-foreground">
                         <CheckCircle2 className="size-4" strokeWidth={1.8} />
                         This event has ended
                       </div>
@@ -196,7 +196,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                         variant="outline"
                         size="sm"
                         asChild
-                        className="w-full justify-start rounded-[6px] border-border/70 bg-card/80"
+                        className="w-full justify-start rounded-lg border-border/70 bg-card/80"
                       >
                         <a href={`/events/${event.id}/ical`} download>
                           <CalendarPlus className="size-4" strokeWidth={1.6} />
@@ -208,7 +208,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                           variant="outline"
                           size="sm"
                           asChild
-                          className="w-full justify-start rounded-[6px] border-border/70 bg-card/80"
+                          className="w-full justify-start rounded-lg border-border/70 bg-card/80"
                         >
                           <Link href={`/admin/events/${event.id}/edit`}>
                             <PencilLine className="size-4" strokeWidth={1.6} />
@@ -234,7 +234,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
-        <div className="overflow-hidden rounded-[8px] border border-border/70 bg-card shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
           <section className="grid lg:grid-cols-[230px_minmax(0,1fr)]">
             <EventPassSpine
               eventTitle={event.title}
@@ -262,7 +262,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   </div>
                 </div>
 
-                <div className="relative overflow-hidden rounded-[8px] border border-border/70 bg-surface-panel/45 p-5">
+                <div className="relative overflow-hidden rounded-xl border border-border/70 bg-surface-panel/45 p-5">
                   <DossierMotif accentHex={accent.hex} />
                   <div className="relative z-10">
                     <SectionLabel icon={CalendarDays}>Program flow</SectionLabel>
@@ -272,7 +272,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                         <li key={idx} className="grid grid-cols-[74px_1fr] gap-4">
                           <div className="flex flex-col items-center">
                             <span
-                              className="rounded-[6px] px-2 py-1 text-center font-mono text-[10px] font-bold"
+                              className="rounded-lg px-2 py-1 text-center font-mono text-[10px] font-bold"
                               style={{ backgroundColor: `${accent.hex}12`, color: accent.hex }}
                             >
                               {it.time}
@@ -405,7 +405,7 @@ function EventPassSpine({
         <div className="space-y-5">
           <SectionLabel icon={Ticket}>Event pass</SectionLabel>
           <div
-            className="flex size-20 flex-col items-center justify-center rounded-[8px] border bg-card text-center shadow-sm"
+            className="flex size-20 flex-col items-center justify-center rounded-xl border bg-card text-center shadow-sm"
             style={{ borderColor: `${accentHex}44`, color: accentHex }}
           >
             <span className="font-heading text-3xl font-semibold leading-none">
@@ -476,7 +476,7 @@ function CompactFact({
   accentHex: string
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-[6px] border border-border/70 bg-surface-panel/45 px-3 py-2.5">
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border/70 bg-surface-panel/45 px-3 py-2.5">
       <span className="font-mono text-[9px] font-bold uppercase text-muted-foreground">
         {label}
       </span>
@@ -509,7 +509,7 @@ function DossierMotif({ accentHex }: { accentHex: string }) {
 
 function LocationPanel({ accentHex, coordinates }: { accentHex: string; coordinates: string }) {
   return (
-    <div className="relative h-44 overflow-hidden rounded-[8px] border border-border/70 bg-card">
+    <div className="relative h-44 overflow-hidden rounded-xl border border-border/70 bg-card">
       <svg
         aria-hidden="true"
         role="presentation"
@@ -588,7 +588,7 @@ function EventStatus({
 }) {
   if (isPast) {
     return (
-      <span className="rounded-[6px] border border-border/70 bg-card px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-muted-foreground">
+      <span className="rounded-lg border border-border/70 bg-card px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-muted-foreground">
         Past event
       </span>
     )
@@ -596,7 +596,7 @@ function EventStatus({
 
   return (
     <span
-      className="rounded-[6px] border px-2.5 py-1 font-mono text-[10px] font-bold uppercase"
+      className="rounded-lg border px-2.5 py-1 font-mono text-[10px] font-bold uppercase"
       style={{
         borderColor: `${accent.hex}33`,
         backgroundColor: `${accent.hex}12`,
@@ -618,7 +618,7 @@ function EventFact({
   value: string
 }) {
   return (
-    <div className="flex min-w-0 items-start gap-3 rounded-[6px] border border-border/60 bg-card/75 px-3 py-2.5 shadow-sm sm:py-3">
+    <div className="flex min-w-0 items-start gap-3 rounded-lg border border-border/60 bg-card/75 px-3 py-2.5 shadow-sm sm:py-3">
       <Icon
         className="mt-0.5 size-3.5 shrink-0 text-muted-foreground sm:size-4"
         strokeWidth={1.7}
@@ -643,7 +643,7 @@ function RegistrationMeter({
   const percent = Math.min(100, (goingCount / (capacity || 100)) * 100)
 
   return (
-    <div className="rounded-[6px] border border-border/70 bg-card/75 p-3 sm:p-4">
+    <div className="rounded-lg border border-border/70 bg-card/75 p-3 sm:p-4">
       <div className="flex items-center justify-between gap-4">
         <span className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
           Registration
@@ -726,7 +726,7 @@ function AttendeeRoster({
                   ) : null}
                   {showWaitlistPosition && attendee.waitlistPosition ? (
                     <span
-                      className="rounded-[4px] px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase"
+                      className="rounded-md px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase"
                       style={{ backgroundColor: `${accent.hex}12`, color: accent.hex }}
                     >
                       #{attendee.waitlistPosition}
@@ -752,7 +752,7 @@ function AttendeeAvatar({ attendee, index }: { attendee: AttendeeRow; index: num
 
   return (
     <div
-      className={`relative size-9 shrink-0 overflow-hidden rounded-[6px] border ${
+      className={`relative size-9 shrink-0 overflow-hidden rounded-lg border ${
         attendee.avatarUrl ? 'border-border/30 bg-secondary' : palette.bg
       }`}
     >
@@ -790,7 +790,7 @@ function RelatedEventsSection({
   if (events.length === 0) return null
 
   return (
-    <section className="rounded-[8px] border border-border/70 bg-card p-4 shadow-sm">
+    <section className="rounded-xl border border-border/70 bg-card p-4 shadow-sm">
       <h3 className="font-heading text-base font-semibold text-foreground">{title}</h3>
       <ul className="mt-4 space-y-2">
         {events.map((event) => (
@@ -841,7 +841,7 @@ function RelatedEventRow({
   if (isCurrent) {
     return (
       <li
-        className={`flex gap-3 rounded-[6px] border border-border/70 bg-secondary/40 p-3 ${
+        className={`flex gap-3 rounded-lg border border-border/70 bg-secondary/40 p-3 ${
           subdued ? 'opacity-75' : ''
         }`}
       >
@@ -854,7 +854,7 @@ function RelatedEventRow({
     <li>
       <Link
         href={`/events/${event.id}`}
-        className={`flex gap-3 rounded-[6px] p-3 transition-colors hover:bg-secondary/45 ${
+        className={`flex gap-3 rounded-lg p-3 transition-colors hover:bg-secondary/45 ${
           subdued ? 'opacity-75 hover:opacity-100' : ''
         }`}
       >

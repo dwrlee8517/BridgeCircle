@@ -42,7 +42,7 @@ export function MemberHeader({
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Open navigation"
-            className="rounded-[6px] p-2 text-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
+            className="rounded-lg p-2 text-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
           >
             <Menu className="size-5" />
           </DropdownMenuTrigger>
@@ -79,7 +79,7 @@ export function MemberHeader({
         <div className="ml-auto flex items-center gap-2">
           <form
             action="/people"
-            className="hidden h-9 items-center gap-2 rounded-[6px] border border-border bg-background px-3 text-foreground transition-all focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/10 @[1080px]:flex"
+            className="hidden h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-foreground transition-all focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/10 @[1080px]:flex"
           >
             <Search className="size-4 text-muted-foreground" />
             {/* suppressHydrationWarning matches the same pattern used on

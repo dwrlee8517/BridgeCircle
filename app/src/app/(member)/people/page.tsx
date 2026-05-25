@@ -156,7 +156,7 @@ export default async function PeoplePage({
           }}
         >
           {nlError ? (
-            <div className="rounded-[6px] border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-sm">
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-sm">
               {nlError}
             </div>
           ) : null}
@@ -290,7 +290,7 @@ export default async function PeoplePage({
 
 function EmptyResults({ text }: { text: React.ReactNode }) {
   return (
-    <div className="rounded-[6px] border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
+    <div className="rounded-lg border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
       {text}
     </div>
   )
@@ -328,8 +328,8 @@ function PeoplePagination({
               aria-current={isCurrent ? 'page' : undefined}
               className={
                 isCurrent
-                  ? 'flex size-8 items-center justify-center rounded-[6px] bg-primary text-sm font-semibold text-primary-foreground'
-                  : 'flex size-8 items-center justify-center rounded-[6px] border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
+                  ? 'flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground'
+                  : 'flex size-8 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
               }
             >
               {page}
@@ -398,7 +398,7 @@ function NLExtractionSummary({
   if (extracted.theme) chips.push({ label: 'theme', value: extracted.theme })
 
   return (
-    <div className="rounded-[6px] border border-border bg-primary/[0.02] p-4 space-y-2.5 shadow-sm">
+    <div className="rounded-lg border border-border bg-primary/[0.02] p-4 space-y-2.5 shadow-sm">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Searching for:</span>
         <span className="font-semibold">&ldquo;{query}&rdquo;</span>
@@ -408,7 +408,7 @@ function NLExtractionSummary({
           {chips.map((c) => (
             <span
               key={`${c.label}-${c.value}`}
-              className="inline-flex items-center px-2 py-0.5 border border-border/80 bg-card rounded-[4px] font-mono text-[10px] text-foreground"
+              className="inline-flex items-center px-2 py-0.5 border border-border/80 bg-card rounded-md font-mono text-[10px] text-foreground"
             >
               <span className="text-muted-foreground font-semibold">{c.label}:</span>
               <span className="ml-1 font-bold">{c.value}</span>

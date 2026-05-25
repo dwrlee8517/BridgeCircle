@@ -153,7 +153,7 @@ function Hero({
           <p className="mt-2 text-[13px] text-muted-foreground">Gatherings for {orgName}.</p>
         </div>
         {isAdmin ? (
-          <Button asChild size="lg" className="shrink-0 rounded-[6px]">
+          <Button asChild size="lg" className="shrink-0 rounded-lg">
             <Link href="/admin/events">
               <Plus className="size-4" strokeWidth={1.5} />
               Create event

@@ -299,7 +299,7 @@ export function ConfirmStep({
               onClick={() =>
                 setSkills((arr) => arr.map((x, i) => (i === idx ? { ...x, use: !x.use } : x)))
               }
-              className={`rounded-[6px] border px-2.5 py-0.5 text-xs ${
+              className={`rounded-lg border px-2.5 py-0.5 text-xs ${
                 s.use
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-muted-foreground/30 text-muted-foreground line-through'
