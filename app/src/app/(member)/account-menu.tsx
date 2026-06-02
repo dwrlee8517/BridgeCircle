@@ -44,13 +44,13 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Account menu"
-        className="flex cursor-pointer items-center rounded-lg p-0.5 text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex cursor-pointer items-center rounded-md p-0.5 text-foreground transition-colors hover:bg-secondary focus-visible:border-focus-ring focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
       >
-        <Avatar className="size-8 rounded-lg after:rounded-lg">
+        <Avatar className="size-8 rounded-md after:rounded-md">
           {avatarUrl ? (
-            <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-lg" />
+            <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-md" />
           ) : null}
-          <AvatarFallback className={cn('font-semibold rounded-lg', fallbackColorClass)}>
+          <AvatarFallback className={cn('rounded-md font-semibold', fallbackColorClass)}>
             {initial}
           </AvatarFallback>
         </Avatar>
@@ -59,14 +59,14 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-64 border border-border bg-popover p-1.5 text-popover-foreground shadow-md rounded-lg"
+        className="w-64 rounded-md border border-border bg-popover p-1.5 text-popover-foreground shadow-card-hover"
       >
         <div className="flex items-center gap-3 px-3 py-2.5">
-          <Avatar className="size-9 rounded-lg after:rounded-lg">
+          <Avatar className="size-9 rounded-md after:rounded-md">
             {avatarUrl ? (
-              <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-lg" />
+              <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-md" />
             ) : null}
-            <AvatarFallback className={cn('font-semibold rounded-lg', fallbackColorClass)}>
+            <AvatarFallback className={cn('rounded-md font-semibold', fallbackColorClass)}>
               {initial}
             </AvatarFallback>
           </Avatar>

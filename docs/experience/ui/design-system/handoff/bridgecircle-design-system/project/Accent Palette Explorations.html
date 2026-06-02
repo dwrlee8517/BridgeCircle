@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BridgeCircle — Accent Palette Explorations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f0eee9; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const INK = '#0c0c0b', MUTED = '#4d4d4a', HAIR = '#dcdcd6', BONE = '#fafaf9', PANEL = '#f4f3ee';
+
+// Constants across all directions — these stay fixed so the cool pair is the variable.
+const SKY = '#2563eb';
+
+// hex -> rgba string
+function tint(hex, a) {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── Accent directions ───────────────────────────────────────────────────
+// roles: success (was sage) · taxonomy (was plum) · ochre · rust · amber(CTA)
+const DIRECTIONS = [
+  {
+    id: 'current',
+    name: 'Current · Sage & Plum',
+    note: 'The baseline. Sage and plum are both dark, desaturated cool tones — they read muddy next to the vivid Sky and Amber, and plum collapses toward near-black at badge size.',
+    success: '#3b6e51', taxonomy: '#722f37', ochre: '#a16207', rust: '#b9472a', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Sage', h: '#3b6e51' }, { n: 'Plum', h: '#722f37' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Rust', h: '#b9472a' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'tealviolet',
+    name: 'A · Teal & Violet',
+    note: 'Biggest lift. Success becomes a fresh Teal; taxonomy becomes a true Violet — a genuine new hue that reads "category" and sits opposite the warm ochre/rust. The wheel now spans Sky → Teal → Violet → Amber → Rust. Recommended.',
+    recommended: true,
+    success: '#0d8a6e', taxonomy: '#6d49a6', ochre: '#a16207', rust: '#c9452b', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Teal', h: '#0d8a6e' }, { n: 'Violet', h: '#6d49a6' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Terracotta', h: '#c9452b' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'jewel',
+    name: 'B · Jewel Earth',
+    note: 'Safest. Keeps the same warm/cool structure and editorial mood — just turns the chroma up. Sage → a livelier Emerald; plum → a Berry that keeps its lights on. No new hues to govern.',
+    success: '#1f7a52', taxonomy: '#a8385f', ochre: '#a16207', rust: '#d83a28', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Emerald', h: '#1f7a52' }, { n: 'Berry', h: '#a8385f' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Vermilion', h: '#d83a28' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'coolforward',
+    name: 'C · Cool-forward',
+    note: 'Rebalances the cool pair toward jewel tones while keeping Amber as the CTA. Pine Teal for success, Indigo-violet for taxonomy — bluer and more electric than A, so the accents feel of-a-piece with the Sky primary.',
+    success: '#0f766e', taxonomy: '#5b53c6', ochre: '#a16207', rust: '#c4314b', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Pine', h: '#0f766e' }, { n: 'Indigo', h: '#5b53c6' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Crimson', h: '#c4314b' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'tealmagenta',
+    name: 'D · Teal & Magenta',
+    note: 'Where it starts getting loud. Success stays Teal; taxonomy jumps to a vivid Magenta. High-energy and unmistakably modern — topics will pop off the page. Watch that Magenta stays a taxonomy color and never creeps into status.',
+    success: '#0d8a6e', taxonomy: '#c0398a', ochre: '#a16207', rust: '#dc2626', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Teal', h: '#0d8a6e' }, { n: 'Magenta', h: '#c0398a' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Scarlet', h: '#dc2626' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'emeraldgrape',
+    name: 'E · Emerald & Grape',
+    note: 'Bright jewels. A saturated Emerald success and a true electric Grape violet. Most vivid cool pair here — feels energetic and premium, but pushes furthest from the muted "editorial" mood, so it leans more product than publication.',
+    success: '#15a05f', taxonomy: '#7c3aed', ochre: '#a16207', rust: '#c4314b', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Emerald', h: '#15a05f' }, { n: 'Grape', h: '#7c3aed' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Crimson', h: '#c4314b' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'aquaraspberry',
+    name: 'F · Aqua & Raspberry',
+    note: 'The brightest. Aqua-teal success and a hot Raspberry taxonomy — fresh, playful, almost beauty-brand. Maximum energy; needs the most discipline to keep from tipping into candy, but if BridgeCircle wants to feel young this is the swing.',
+    success: '#0f9d8f', taxonomy: '#d4356b', ochre: '#a16207', rust: '#dc2626', amber: '#f59e0b',
+    sw: [
+      { n: 'Sky', h: SKY }, { n: 'Aqua', h: '#0f9d8f' }, { n: 'Raspberry', h: '#d4356b' },
+      { n: 'Ochre', h: '#a16207' }, { n: 'Scarlet', h: '#dc2626' }, { n: 'Amber', h: '#f59e0b' },
+    ],
+  },
+];
+
+// ── Primitives ──────────────────────────────────────────────────────────
+function Kicker({ children, color = SKY }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 10,
+      letterSpacing: '0.12em', textTransform: 'uppercase', color,
+    }}>
+      <span style={{ width: 20, height: 2, borderRadius: 9, background: color }} />
+      {children}
+    </div>
+  );
+}
+
+// Tinted status badge
+function Badge({ color, dot, children }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      height: 24, padding: '0 10px', borderRadius: 999,
+      fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11.5,
+      color, background: tint(color, 0.10),
+      border: `1px solid ${tint(color, 0.26)}`, whiteSpace: 'nowrap',
+    }}>
+      {dot && <span style={{ width: 6, height: 6, borderRadius: 999, background: color }} />}
+      {children}
+    </span>
+  );
+}
+
+// Topic taxonomy chip
+function TopicChip({ color, children }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center',
+      height: 26, padding: '0 11px', borderRadius: 7,
+      fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: 11.5,
+      color, background: tint(color, 0.09),
+      border: `1px solid ${tint(color, 0.22)}`, whiteSpace: 'nowrap',
+    }}>{children}</span>
+  );
+}
+
+function SolidBtn({ bg, fg, children, big }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      height: big ? 38 : 30, padding: big ? '0 16px' : '0 13px',
+      borderRadius: 8, fontFamily: "'Inter', sans-serif", fontWeight: 600,
+      fontSize: big ? 13.5 : 12, whiteSpace: 'nowrap',
+      background: bg, color: fg, border: `1px solid ${bg}`,
+    }}>{children}</span>
+  );
+}
+
+function GroupLabel({ children }) {
+  return (
+    <div style={{
+      fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 500,
+      letterSpacing: '0.06em', textTransform: 'uppercase', color: '#9a968c',
+      marginBottom: 9,
+    }}>{children}</div>
+  );
+}
+
+function Swatches({ items }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+      {items.map((sw, i) => (
+        <div key={i} style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '4px 9px 4px 4px', borderRadius: 999,
+          background: '#fff', border: '1px solid #e3e0d6',
+        }}>
+          <span style={{ width: 16, height: 16, borderRadius: 5, background: sw.h, border: '1px solid rgba(12,12,11,0.10)' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: MUTED }}>{sw.n}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── One direction artboard ──────────────────────────────────────────────
+function DirectionCard({ d }) {
+  return (
+    <div style={{ width: '100%', background: BONE, border: '1px solid #dcdcd6', borderRadius: 14, overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ padding: '18px 18px 16px', borderBottom: '1px solid #ebebe5', background: '#fff', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <h2 style={{ fontFamily: "'Inter Tight', sans-serif", fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', color: INK, margin: 0 }}>{d.name}</h2>
+          {d.recommended && (
+            <span style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: '#0d8a6e', background: 'rgba(13,138,110,0.12)',
+              border: '1px solid rgba(13,138,110,0.28)', borderRadius: 4, padding: '2px 7px',
+            }}>Recommended</span>
+          )}
+        </div>
+        <p style={{ fontSize: 11.5, lineHeight: 1.5, color: MUTED, margin: 0 }}>{d.note}</p>
+        <Swatches items={d.sw} />
+      </div>
+
+      {/* In-context surfaces */}
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Taxonomy — the plum role */}
+        <div>
+          <GroupLabel>Taxonomy · topics &amp; content type</GroupLabel>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <TopicChip color={d.taxonomy}>Career switch</TopicChip>
+            <TopicChip color={d.taxonomy}>Fundraising</TopicChip>
+            <TopicChip color={d.taxonomy}>Design craft</TopicChip>
+            <TopicChip color={d.taxonomy}>Management</TopicChip>
+          </div>
+        </div>
+
+        {/* Status — sage / ochre / rust roles together */}
+        <div>
+          <GroupLabel>Status signals</GroupLabel>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            <Badge color={d.success} dot>Open to mentor</Badge>
+            <Badge color={d.ochre} dot>Paused</Badge>
+            <Badge color={d.rust} dot>Declined</Badge>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 7 }}>
+            <Badge color={d.success}>✓ Verified mentor</Badge>
+            <Badge color={d.success}>Completed</Badge>
+          </div>
+        </div>
+
+        {/* A real row using success as the "offer" action */}
+        <div>
+          <GroupLabel>Help request · offer action</GroupLabel>
+          <div style={{
+            background: '#fff', border: '1px solid #ebebe5', borderRadius: 10,
+            padding: '12px 13px', boxShadow: '0 1px 0 rgba(12,12,11,0.03)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{
+                width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+                background: '#e9e7df', border: '1px solid #dcdcd6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Inter Tight', sans-serif", fontWeight: 600, fontSize: 12, color: '#6b675e',
+              }}>DC</span>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontFamily: "'Inter Tight', sans-serif", fontSize: 13, fontWeight: 600, color: INK }}>Dani Cruz</div>
+                <div style={{ fontSize: 11, color: MUTED }}>Asked for advice · 2h ago</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 11, justifyContent: 'flex-end' }}>
+              <SolidBtn bg="transparent" fg={MUTED}>Pass</SolidBtn>
+              <SolidBtn bg={d.success} fg="#fff">Offer help</SolidBtn>
+            </div>
+          </div>
+        </div>
+
+        {/* Commit / CTA — the amber role */}
+        <div>
+          <GroupLabel>Commit · the one CTA</GroupLabel>
+          <div style={{
+            background: 'linear-gradient(135deg, #fff, #fafaf9)',
+            border: '1px solid rgba(37,99,235,0.18)', borderRadius: 10,
+            padding: '12px 13px', display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <div style={{
+              flex: 1, height: 38, borderRadius: 8, background: '#fff',
+              border: '1px solid #dcdcd6', display: 'flex', alignItems: 'center',
+              padding: '0 12px', fontSize: 12, color: '#9a968c',
+            }}>What do you need help with?</div>
+            <SolidBtn bg={d.amber} fg="#0c0c0b" big>Send ask →</SolidBtn>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ── Rust alternatives ───────────────────────────────────────────────────
+// The declined / destructive role. Current rust is muted; these step up the
+// chroma toward a clearer "stop."
+const RUSTS = [
+  { id: 'rust', name: 'Current · Rust', hex: '#b9472a', note: 'Muted brick. Editorial, but soft for a "no."' },
+  { id: 'terracotta', name: 'Terracotta', hex: '#c9452b', note: 'A half-step hotter — same family, a touch more alarm.' },
+  { id: 'vermilion', name: 'Vermilion', hex: '#d83a28', note: 'Pronounced orange-red. Reads decisively as declined while staying warm.' },
+  { id: 'scarlet', name: 'Scarlet', hex: '#dc2626', note: 'Clean true red. Maximum "stop" — least editorial, most universal.' },
+  { id: 'crimson', name: 'Crimson', hex: '#c4314b', note: 'Red with a pink lean — cooler, pairs nicely if taxonomy goes violet/magenta.' },
+];
+
+function RustCard({ r }) {
+  return (
+    <div style={{ width: '100%', background: BONE, border: '1px solid #dcdcd6', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ padding: '14px 15px 13px', borderBottom: '1px solid #ebebe5', background: '#fff', display: 'flex', flexDirection: 'column', gap: 9 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+          <span style={{ width: 22, height: 22, borderRadius: 6, background: r.hex, border: '1px solid rgba(12,12,11,0.10)' }} />
+          <h2 style={{ fontFamily: "'Inter Tight', sans-serif", fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', color: INK, margin: 0 }}>{r.name}</h2>
+          <span style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: MUTED }}>{r.hex}</span>
+        </div>
+        <p style={{ fontSize: 11, lineHeight: 1.5, color: MUTED, margin: 0 }}>{r.note}</p>
+      </div>
+      <div style={{ padding: 15, display: 'flex', flexDirection: 'column', gap: 13 }}>
+        <div>
+          <GroupLabel>Status badge</GroupLabel>
+          <Badge color={r.hex} dot>Declined</Badge>
+        </div>
+        <div>
+          <GroupLabel>Destructive action</GroupLabel>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <SolidBtn bg="transparent" fg={MUTED}>Cancel</SolidBtn>
+            <SolidBtn bg={r.hex} fg="#fff">Decline request</SolidBtn>
+          </div>
+        </div>
+        <div>
+          <GroupLabel>Inline link</GroupLabel>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12.5, fontWeight: 600, color: r.hex }}>Remove from circle</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="accents"
+        title="Accent palette directions"
+        subtitle="Same five surfaces under each direction. Ochre & amber are held constant; the declined red is now tuned per theme — warm Terracotta/Vermilion for the earthy sets, cool Crimson for the violet/indigo themes, true Scarlet to separate from the hot pink taxonomies."
+      >
+        {DIRECTIONS.map(d => (
+          <DCArtboard key={d.id} id={d.id} label={d.name} width={360} height={660}>
+            <DirectionCard d={d} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+      <DCSection
+        id="rusts"
+        title="Rust alternatives"
+        subtitle="The declined / destructive color, stepped up from muted brick toward a clearer stop. Shown on the badge, the destructive button, and an inline link."
+      >
+        {RUSTS.map(r => (
+          <DCArtboard key={r.id} id={r.id} label={r.name} width={280} height={340}>
+            <RustCard r={r} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -46,6 +46,16 @@ export type HomePendingMentorRequest = {
   createdAt: string
 }
 
+/** The viewer's own recent outgoing asks — powers the "Your asks" hero rail. */
+export type HomeRecentAsk = {
+  id: string
+  summary: string
+  /** asks.status: 'pending' | 'accepted' | 'declined' | 'expired' */
+  status: string
+  createdAt: string
+  respondedAt: string | null
+}
+
 export type HomeNotification = {
   id: string
   type: string
@@ -109,6 +119,8 @@ export type HomeFeed = {
   latestAnnouncement: HomeAnnouncement | null
   /** Mentees who've requested mentorship from the viewer and are awaiting reply. */
   pendingMentorRequests: HomePendingMentorRequest[]
+  /** The viewer's own recent outgoing asks — for the "Your asks" hero rail. */
+  myRecentAsks: HomeRecentAsk[]
   /** Latest 4 notifications, used for the dashboard activity feed. */
   recentNotifications: HomeNotification[]
   /** Counts for the hero strip — "3 alumni joined this week", etc. */
@@ -564,6 +576,21 @@ export async function getHomeFeed(
     }
   })
 
+  // Viewer's own recent outgoing asks for the "Your asks" hero rail.
+  const { data: myAskRows } = await supabase
+    .from('asks')
+    .select('id, reason, help_needed, status, created_at, responded_at')
+    .eq('asker_id', viewerId)
+    .order('created_at', { ascending: false })
+    .limit(3)
+  const myRecentAsks: HomeRecentAsk[] = (myAskRows ?? []).map((a) => ({
+    id: a.id,
+    summary: a.reason ?? a.help_needed ?? 'Your ask',
+    status: a.status,
+    createdAt: a.created_at,
+    respondedAt: a.responded_at,
+  }))
+
   const recentNotifications: HomeNotification[] = recentNotificationsRows.map((n) => ({
     id: n.id,
     type: n.type,
@@ -716,6 +743,7 @@ export async function getHomeFeed(
     upcomingEvents: events,
     latestAnnouncement,
     pendingMentorRequests,
+    myRecentAsks,
     recentNotifications,
     stats: {
       newJoinersLast7d: newJoinersLast7d ?? 0,

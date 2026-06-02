@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Help — final design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; color: #0c0c0b; }
+  body { background: #f0eee9; }
+  input, textarea, button { font-family: inherit; color: inherit; }
+  .bc-kicker { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#2563eb; }
+  .bc-kicker::before { content:''; display:block; width:1.75rem; height:2px; border-radius:999px; background:#2563eb; }
+  .bc-mono { font-family:'JetBrains Mono', monospace; }
+  #root { height: 100%; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background:#dcdcd6; border-radius:3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="help-primitives.jsx"></script>
+<script type="text/babel" src="help-ai-variants.jsx"></script>
+<script type="text/babel" src="help-page-final.jsx"></script>
+<script type="text/babel">
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <DesignCanvas>
+      <DCSection id="help-final"
+                 title="Help page — proposed design"
+                 subtitle="Keeps the existing hero exactly. Below the hero: the chosen direction G — a Featured AI pick (advice or mentorship match) sitting first, then the user-created subjects with their own AI-ranked feeds.">
+        <DCArtboard id="help-page" label="/help · member view" width={1280} height={1480}>
+          <HelpPageFinal />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+</script>
+</body>
+</html>

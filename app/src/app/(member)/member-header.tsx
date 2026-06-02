@@ -1,4 +1,4 @@
-import { Menu, Search } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import Link from 'next/link'
 import {
   DropdownMenu,
@@ -42,7 +42,7 @@ export function MemberHeader({
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label="Open navigation"
-            className="rounded-lg p-2 text-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 @[900px]:hidden"
+            className="rounded-lg p-2 text-foreground hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 max-md:hidden @[900px]:hidden"
           >
             <Menu className="size-5" />
           </DropdownMenuTrigger>
@@ -77,26 +77,6 @@ export function MemberHeader({
         <MemberNav isAdmin={isAdmin} />
 
         <div className="ml-auto flex items-center gap-2">
-          <form
-            action="/people"
-            className="hidden h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-foreground transition-all focus-within:border-ring focus-within:ring-4 focus-within:ring-ring/10 @[1080px]:flex"
-          >
-            <Search className="size-4 text-muted-foreground" />
-            {/* suppressHydrationWarning matches the same pattern used on
-                <html>/<body> in the root layout. Form-fill / shopping-assistant
-                browser extensions (e.g. Honey, Sharkey, Grammarly) inject
-                data-* attributes onto inputs *before* React hydrates, which
-                causes a benign attribute mismatch warning on every page load.
-                The warning is suppressed at the element level — real
-                hydration bugs in surrounding code still surface. */}
-            <input
-              name="q"
-              type="search"
-              placeholder="Search the circle…"
-              className="h-full w-44 border-none bg-transparent p-0 text-sm text-foreground shadow-none outline-none placeholder:text-muted-foreground/50 focus:border-none focus:shadow-none focus:ring-0"
-              suppressHydrationWarning
-            />
-          </form>
           <NotificationsBell
             initial={notifications}
             initialUnread={unreadCount}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .swatch{border-radius:10px;overflow:hidden;border:1px solid rgba(12,12,11,.08)}
+  .swatch-color{height:56px;display:flex;align-items:center;padding:0 12px;gap:8px}
+  .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .swatch-info{padding:9px 11px;background:#fff}
+  .name{font-size:11px;font-weight:700;color:#0c0c0b}
+  .hex{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4d4d4a;margin-top:2px}
+  .role{font-size:9.5px;color:#4d4d4a;margin-top:3px;line-height:1.35}
+  .section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
+  .section-label::before{content:'';display:block;width:20px;height:2px;background:#2563eb;border-radius:99px}
+  .badge{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;border:1px solid transparent}
+  .badge-row{display:flex;flex-wrap:wrap;gap:6px;padding:12px}
+</style>
+</head>
+<body>
+<div class="section-label">Accent editorial</div>
+<div class="grid">
+  <div class="swatch">
+    <div class="swatch-color" style="background:#3b6e51"><span class="dot" style="background:#fff"></span><span style="font-size:10px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace">Sage</span></div>
+    <div class="swatch-info"><div class="name">Sage</div><div class="hex">#3b6e51</div><div class="role">Success, mentor open, completed</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#a16207"><span class="dot" style="background:#fff"></span><span style="font-size:10px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace">Ochre</span></div>
+    <div class="swatch-info"><div class="name">Ochre</div><div class="hex">#a16207</div><div class="role">Warning, paused, attention (borders/fills only)</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#9b2c1f"><span class="dot" style="background:#fff"></span><span style="font-size:10px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace">Danger</span></div>
+    <div class="swatch-info"><div class="name">Danger/Error</div><div class="hex">#9b2c1f</div><div class="role">Destructive, declined, revoked, error</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:#722f37"><span class="dot" style="background:#fff"></span><span style="font-size:10px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace">Plum</span></div>
+    <div class="swatch-info"><div class="name">Plum</div><div class="hex">#722f37</div><div class="role">Secondary taxonomy — topics, content type</div></div>
+  </div>
+</div>
+
+<div class="section-label">State badges in context</div>
+<div style="background:#fff;border:1px solid #dcdcd6;border-radius:10px" class="badge-row">
+  <span class="badge" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span class="dot" style="background:#3b6e51;width:6px;height:6px"></span>Mentor open</span>
+  <span class="badge" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span class="dot" style="background:#a16207;width:6px;height:6px"></span>Paused</span>
+  <span class="badge" style="background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)"><span class="dot" style="background:#9b2c1f;width:6px;height:6px"></span>Declined</span>
+  <span class="badge" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)"><span class="dot" style="background:#2563eb;width:6px;height:6px"></span>Active</span>
+  <span class="badge" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span class="dot" style="background:#a16207;width:6px;height:6px"></span>Pending</span>
+  <span class="badge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.08)">Expired</span>
+  <span class="badge" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span class="dot" style="background:#3b6e51;width:6px;height:6px"></span>Completed</span>
+  <span class="badge" style="background:rgb(114 47 55/.10);color:#722f37;border-color:rgba(114,47,55,.2)">Categorized</span>
+  <span class="badge" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)">Friend</span>
+  <span class="badge" style="background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)"><span class="dot" style="background:#9b2c1f;width:6px;height:6px"></span>Error</span>
+</div>
+
+<div class="section-label">Tint fills</div>
+<div class="grid">
+  <div class="swatch">
+    <div class="swatch-color" style="background:rgb(37 99 235/.10)"></div>
+    <div class="swatch-info"><div class="name">Primary Tint</div><div class="hex">primary / 10%</div><div class="role">Selection, info badge fill</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:rgb(59 110 81/.10)"></div>
+    <div class="swatch-info"><div class="name">Success Tint</div><div class="hex">sage / 10%</div><div class="role">Open/completed badge fill</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:rgb(161 98 7/.12)"></div>
+    <div class="swatch-info"><div class="name">Warning Tint</div><div class="hex">ochre / 12%</div><div class="role">Paused/pending badge fill</div></div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-color" style="background:rgb(155 44 31/.10)"></div>
+    <div class="swatch-info"><div class="name">Danger Tint</div><div class="hex">danger / 10%</div><div class="role">Declined/error badge fill</div></div>
+  </div>
+</div>
+</body>
+</html>

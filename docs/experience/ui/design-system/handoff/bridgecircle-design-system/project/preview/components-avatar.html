@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+  .section-label::before{content:'';display:block;width:20px;height:2px;background:#2563eb;border-radius:99px}
+  .row{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:16px;align-items:flex-end}
+  .avatar-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .av-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:#4d4d4a}
+  .av{border-radius:50%;background:#ebebe5;display:flex;align-items:center;justify-content:center;font-family:'Inter Tight',sans-serif;font-weight:700;color:#4d4d4a;overflow:hidden;position:relative;flex-shrink:0}
+  .av-sq{border-radius:10px}
+  .av-xs{width:24px;height:24px;font-size:9px}
+  .av-sm{width:32px;height:32px;font-size:12px}
+  .av-md{width:40px;height:40px;font-size:15px}
+  .av-lg{width:52px;height:52px;font-size:18px}
+  .av-xl{width:80px;height:80px;font-size:28px}
+  .dot{position:absolute;bottom:2px;right:2px;border:2px solid #fafaf9;border-radius:50%}
+</style>
+</head>
+<body>
+<div class="section-label">Avatar — circular (photo-first, initials fallback)</div>
+<div class="row">
+  <div class="avatar-item">
+    <div class="av av-xs">JK</div>
+    <div class="av-label">24px · xs</div>
+  </div>
+  <div class="avatar-item">
+    <div class="av av-sm">AW</div>
+    <div class="av-label">32px · sm</div>
+  </div>
+  <div class="avatar-item">
+    <div class="av av-md">MR<span class="dot" style="width:10px;height:10px;background:#3b6e51"></span></div>
+    <div class="av-label">40px · default</div>
+  </div>
+  <div class="avatar-item">
+    <div class="av av-lg">DL</div>
+    <div class="av-label">52px · lg</div>
+  </div>
+  <div class="avatar-item">
+    <div class="av av-xl">SC</div>
+    <div class="av-label">80px · xl (profile header)</div>
+  </div>
+</div>
+
+<div class="section-label">Square avatars (border-radius 10px) — used in inbox, cards</div>
+<div class="row">
+  <div class="avatar-item">
+    <div class="av av-sq av-sm">JK<span class="dot" style="width:8px;height:8px;background:#3b6e51"></span></div>
+    <div class="av-label">32px open</div>
+  </div>
+  <div class="avatar-item">
+    <div class="av av-sq av-md">AW<span class="dot" style="width:10px;height:10px;background:#a16207"></span></div>
+    <div class="av-label">40px paused</div>
+  </div>
+  <div class="avatar-item">
+    <div class="av av-sq av-lg">MR</div>
+    <div class="av-label">52px no status</div>
+  </div>
+</div>
+
+<div class="section-label">Capacity dot — mentor fill state</div>
+<div class="row" style="align-items:center">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="av av-md" style="position:relative">JK<span class="dot" style="width:10px;height:10px;background:#3b6e51"></span></div>
+    <div>
+      <div style="font-size:12px;font-weight:600">Open</div>
+      <div style="font-size:10px;color:#4d4d4a;font-family:'JetBrains Mono',monospace">1/5 active</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="av av-md" style="position:relative;background:#ebebe5">MR<span class="dot" style="width:10px;height:10px;background:#a16207"></span></div>
+    <div>
+      <div style="font-size:12px;font-weight:600">Nearly full</div>
+      <div style="font-size:10px;color:#4d4d4a;font-family:'JetBrains Mono',monospace">4/5 active</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="av av-md" style="position:relative;background:#ebebe5">SC<span class="dot" style="width:10px;height:10px;background:#9b2c1f"></span></div>
+    <div>
+      <div style="font-size:12px;font-weight:600">Full</div>
+      <div style="font-size:10px;color:#4d4d4a;font-family:'JetBrains Mono',monospace">5/5 active</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

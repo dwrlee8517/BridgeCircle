@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BridgeCircle — Color Audit</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{background:var(--color-background);color:var(--color-foreground);font-family:var(--font-sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .page{max-width:1240px;margin:0 auto;padding:64px 56px 120px}
+
+  /* --- Masthead --- */
+  .masthead{border-bottom:1px solid var(--color-border);padding-bottom:32px;margin-bottom:48px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:end}
+  .masthead h1{font-family:var(--font-display);font-size:44px;font-weight:600;letter-spacing:-0.02em;line-height:1.05;color:var(--color-foreground);max-width:24ch}
+  .masthead .lede{font-size:17px;line-height:1.55;color:var(--color-muted-foreground);max-width:46ch;margin-top:16px}
+  .masthead .meta{font-family:var(--font-mono);font-size:11px;letter-spacing:0.04em;color:var(--color-muted-foreground);text-align:right;line-height:1.7}
+  .masthead .meta b{color:var(--color-foreground);font-weight:500}
+
+  /* --- Section chrome --- */
+  section{margin-top:80px}
+  .sec-head{display:grid;grid-template-columns:1fr 2fr;gap:48px;align-items:start;margin-bottom:32px}
+  .sec-head h2{font-family:var(--font-display);font-size:28px;font-weight:600;letter-spacing:-0.02em;line-height:1.15}
+  .sec-head .sec-body{font-size:16px;line-height:1.6;color:var(--color-muted-foreground)}
+  .sec-head .sec-body p+p{margin-top:10px}
+  .num{font-family:var(--font-mono);font-size:11px;color:var(--color-primary);letter-spacing:0.1em;font-weight:700;display:block;margin-bottom:10px}
+
+  /* --- Hue wheel --- */
+  .wheel-wrap{display:grid;grid-template-columns:520px 1fr;gap:48px;align-items:start;background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;padding:36px}
+  .wheel{position:relative;width:460px;height:460px;margin:0 auto}
+  .wheel-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 90deg,
+    #ff3b3b 0deg, #ff7a18 30deg, #ffb800 60deg, #c8e000 90deg, #45c247 120deg,
+    #1bb799 150deg, #21a4e0 180deg, #2563eb 210deg, #6a4cf0 240deg, #a73fce 270deg,
+    #e0339a 300deg, #ff3b6f 330deg, #ff3b3b 360deg);
+    opacity:0.16;mask:radial-gradient(circle, transparent 36%, black 38%, black 88%, transparent 90%);-webkit-mask:radial-gradient(circle, transparent 36%, black 38%, black 88%, transparent 90%)}
+  .wheel-rule{position:absolute;inset:0;border-radius:50%;border:1px dashed var(--color-border)}
+  .wheel-rule.inner{inset:36%}
+  .wheel-axis{position:absolute;top:50%;left:0;right:0;height:1px;background:var(--color-border)}
+  .wheel-axis.v{top:0;bottom:0;left:50%;right:auto;width:1px;height:100%}
+  .wheel-label{position:absolute;font-family:var(--font-mono);font-size:10px;color:var(--color-muted-foreground);letter-spacing:0.06em}
+  .wheel-label.n{top:-4px;left:50%;transform:translateX(-50%)}
+  .wheel-label.e{right:-4px;top:50%;transform:translateY(-50%) translateX(100%);padding-left:6px}
+  .wheel-label.s{bottom:-4px;left:50%;transform:translateX(-50%)}
+  .wheel-label.w{left:-4px;top:50%;transform:translateY(-50%) translateX(-100%);padding-right:6px}
+
+  .dot{position:absolute;width:18px;height:18px;border-radius:50%;border:2px solid var(--color-background);box-shadow:0 0 0 1px rgb(12 12 11 / 0.18);transform:translate(-50%,-50%);z-index:2}
+  .dot-label{position:absolute;font-family:var(--font-sans);font-size:11px;font-weight:600;color:var(--color-foreground);white-space:nowrap;transform:translate(-50%,-50%);background:var(--color-card);padding:2px 6px;border:1px solid var(--color-border);border-radius:99px;z-index:3}
+  .dot-label .h{font-family:var(--font-mono);font-weight:400;color:var(--color-muted-foreground);margin-left:4px;font-size:10px}
+
+  /* concentric arc highlighting overlap */
+  .arc{position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid transparent;clip-path:polygon(50% 50%, 100% 50%, 100% 30%, 60% 25%);opacity:0}
+  .overlap-band{position:absolute;border-radius:50%;mask:radial-gradient(circle, transparent 35%, black 37%, black 89%, transparent 91%);-webkit-mask:radial-gradient(circle, transparent 35%, black 37%, black 89%, transparent 91%);inset:0;background:conic-gradient(from 90deg, transparent 30deg, rgb(229 57 53 / 0.18) 36deg, rgb(229 57 53 / 0.18) 70deg, transparent 76deg);pointer-events:none}
+
+  .wheel-legend{display:flex;flex-direction:column;gap:14px}
+  .leg-title{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-primary);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .leg-title::before{content:'';width:24px;height:2px;border-radius:99px;background:var(--color-primary)}
+  .find{border-left:3px solid var(--color-accent-rust);padding:14px 16px;background:color-mix(in srgb, var(--color-accent-rust) 4%, var(--color-card))}
+  .find.ok{border-left-color:var(--color-accent-sage);background:color-mix(in srgb, var(--color-accent-sage) 4%, var(--color-card))}
+  .find.note{border-left-color:var(--color-primary);background:color-mix(in srgb, var(--color-primary) 4%, var(--color-card))}
+  .find h4{font-family:var(--font-display);font-size:15px;font-weight:600;margin-bottom:4px}
+  .find p{font-size:14px;line-height:1.5;color:var(--color-muted-foreground)}
+
+  /* --- Lightness/Chroma matrix --- */
+  .matrix{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;padding:28px 32px 32px}
+  .matrix-grid{position:relative;width:100%;height:340px;border-left:1px solid var(--color-border);border-bottom:1px solid var(--color-border);margin:24px 0 12px}
+  .matrix-grid::before,.matrix-grid::after{content:'';position:absolute;background:var(--color-border)}
+  .matrix-grid::before{left:0;right:0;top:50%;height:1px;border-top:1px dashed var(--color-border);background:transparent}
+  .matrix-grid::after{top:0;bottom:0;left:50%;width:1px;border-left:1px dashed var(--color-border);background:transparent}
+  .axis-y,.axis-x{font-family:var(--font-mono);font-size:10px;color:var(--color-muted-foreground);letter-spacing:0.06em;position:absolute}
+  .axis-y.top{top:-4px;left:-72px}
+  .axis-y.bot{bottom:-4px;left:-72px}
+  .axis-y.lbl{left:-72px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--color-foreground)}
+  .axis-x.left{left:0;bottom:-22px}
+  .axis-x.right{right:0;bottom:-22px}
+  .axis-x.lbl{left:50%;bottom:-22px;transform:translateX(-50%);font-weight:700;color:var(--color-foreground)}
+  .mdot{position:absolute;width:22px;height:22px;border-radius:50%;border:2px solid var(--color-card);box-shadow:0 0 0 1px rgb(12 12 11 / 0.2);transform:translate(-50%,50%)}
+  .mdot-label{position:absolute;font-size:11px;font-weight:500;color:var(--color-foreground);background:var(--color-card);padding:2px 6px;border:1px solid var(--color-border);border-radius:6px;white-space:nowrap;transform:translate(-50%,-130%)}
+
+  /* --- Coverage matrix --- */
+  .coverage{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
+  .cov-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;padding:24px}
+  .cov-card h3{font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:4px}
+  .cov-card .sub{font-size:13px;color:var(--color-muted-foreground);margin-bottom:18px}
+  .cov-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--color-border)}
+  .cov-row:first-of-type{border-top:0}
+  .cov-row .role{font-size:14px}
+  .cov-pair{display:flex;align-items:center;gap:8px}
+  .cov-chip{width:18px;height:18px;border-radius:99px;border:1px solid rgb(12 12 11 / 0.1)}
+  .cov-chip.empty{background:repeating-linear-gradient(45deg, var(--color-muted) 0 4px, transparent 4px 8px);border-style:dashed}
+  .cov-tag{font-family:var(--font-mono);font-size:10px;color:var(--color-muted-foreground);letter-spacing:0.04em}
+  .cov-tag.miss{color:var(--color-accent-rust)}
+
+  /* --- Recommendation cards --- */
+  .recs{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:24px}
+  .rec{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px}
+  .rec.pick{border:1px solid color-mix(in srgb, var(--color-primary) 38%, transparent);box-shadow:0 0 0 4px rgb(37 99 235 / 0.06)}
+  .rec .badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--color-muted-foreground);text-transform:uppercase;font-weight:700}
+  .rec.pick .badge{color:var(--color-primary)}
+  .rec h3{font-family:var(--font-display);font-size:20px;font-weight:600;line-height:1.2;letter-spacing:-0.01em}
+  .rec p{font-size:14px;line-height:1.55;color:var(--color-muted-foreground)}
+  .rec .palette{display:flex;gap:6px;margin-top:4px}
+  .rec .palette span{flex:1;height:38px;border-radius:8px;border:1px solid rgb(12 12 11 / 0.06)}
+  .rec ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:auto}
+  .rec li{font-size:13px;line-height:1.4;color:var(--color-muted-foreground);padding-left:18px;position:relative}
+  .rec li::before{content:'';position:absolute;left:0;top:8px;width:8px;height:1px;background:var(--color-muted-foreground)}
+  .rec li.pro::before{background:var(--color-accent-sage);height:2px;top:7px}
+  .rec li.con::before{background:var(--color-accent-rust);height:2px;top:7px}
+
+  /* --- Comparison row: amber vs ochre at small sizes --- */
+  .small-test{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}
+  .test-card{background:var(--color-card);border:1px solid var(--color-border);border-radius:14px;padding:28px}
+  .test-card h4{font-family:var(--font-display);font-size:15px;font-weight:600;margin-bottom:14px}
+  .test-row{display:flex;align-items:center;gap:14px;padding:10px 0;border-top:1px solid var(--color-border);font-size:13px}
+  .test-row:first-of-type{border-top:0}
+  .test-row .dot-tiny{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .test-row .bar-tiny{width:32px;height:4px;border-radius:99px;flex-shrink:0}
+  .test-row .pill-tiny{font-family:var(--font-mono);font-size:10px;padding:3px 8px;border-radius:99px;letter-spacing:0.04em;font-weight:700}
+  .test-row .lbl{font-size:13px;color:var(--color-muted-foreground);flex:1}
+  .test-row .hex{font-family:var(--font-mono);font-size:11px;color:var(--color-muted-foreground)}
+
+  /* --- Final verdict --- */
+  .verdict{background:var(--color-surface-midnight);color:var(--color-surface-midnight-foreground);border-radius:14px;padding:48px 52px;margin-top:80px;display:grid;grid-template-columns:auto 1fr;gap:48px;align-items:start}
+  .verdict .kick{font-family:var(--font-sans);font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-primary-on-dark);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .verdict .kick::before{content:'';width:28px;height:2px;background:var(--color-primary-on-dark);border-radius:99px}
+  .verdict h2{font-family:var(--font-display);font-size:34px;font-weight:600;line-height:1.1;letter-spacing:-0.02em;margin-bottom:20px;max-width:18ch}
+  .verdict p{font-size:16px;line-height:1.6;color:var(--color-surface-midnight-muted);max-width:54ch}
+  .verdict p+p{margin-top:12px}
+  .verdict .side{display:flex;flex-direction:column;gap:14px;min-width:280px}
+  .v-row{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--color-editorial-rule)}
+  .v-row:first-child{border-top:0}
+  .v-row .swatch-pair{display:flex;gap:4px}
+  .v-row .swatch-pair span{width:22px;height:22px;border-radius:6px;border:1px solid var(--color-editorial-rule)}
+  .v-row .v-lbl{font-family:var(--font-mono);font-size:11px;letter-spacing:0.04em;color:var(--color-surface-midnight-muted)}
+  .v-row .v-lbl b{display:block;font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--color-surface-midnight-foreground);margin-bottom:2px;letter-spacing:0}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header class="masthead">
+    <div>
+      <div class="bc-section-kicker" style="margin-bottom:18px">Brand color audit · v1</div>
+      <h1>Should the palette have more spectrum?</h1>
+      <p class="lede">A short answer: <b style="color:var(--color-foreground)">not really — but two existing colors are doing the same job</b>. The system is intentionally restrained, and that restraint is working. The actual problem is overlap between Amber and Ochre, not absence of hue.</p>
+    </div>
+    <div class="meta">
+      <b>BridgeCircle</b><br>
+      Civic Editorial · 11 hues<br>
+      Reviewed 26 May 2026<br>
+      Status&nbsp;·&nbsp;<span style="color:var(--color-accent-ochre)">needs decision</span>
+    </div>
+  </header>
+
+  <!-- ========== 01 — HUE WHEEL ========== -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <span class="num">01 / Spectrum coverage</span>
+        <h2>Where the palette sits on the hue wheel.</h2>
+      </div>
+      <div class="sec-body">
+        <p>The 6 chromatic colors plotted by hue (angle) and chroma (distance from center). Blue anchors the brand on the cool side; the warm side carries four accents plus the Amber CTA. There is no green-blue, teal, violet, or magenta in the system.</p>
+        <p>This isn't a flaw — restrained palettes win editorial pages — but the warm cluster is crowded.</p>
+      </div>
+    </div>
+
+    <div class="wheel-wrap">
+      <div class="wheel">
+        <div class="wheel-ring"></div>
+        <div class="wheel-rule"></div>
+        <div class="wheel-rule inner"></div>
+        <div class="wheel-axis"></div>
+        <div class="wheel-axis v"></div>
+        <span class="wheel-label n">90° · Yellow</span>
+        <span class="wheel-label e">0° · Red</span>
+        <span class="wheel-label s">270° · Magenta</span>
+        <span class="wheel-label w">180° · Cyan</span>
+
+        <!--
+          Dot positions: convert hue → angle on wheel (with 0° = right = red),
+          chroma → radial offset. Wheel center: 230,230. Outer ring radius 200.
+          Hue increases counter-clockwise. Use trigonometry inline as positions.
+          Electric Sky 264° → angle 264, chroma 0.22 (far)
+          Amber 70°, chroma 0.16
+          Ochre 56°, chroma 0.14
+          Rust 34°, chroma 0.16
+          Plum 16°, chroma 0.10
+          Sage 155°, chroma 0.08
+        -->
+        <span class="dot" style="background:#2563eb;left:calc(50% + 200px * 0.916 * -0.105);top:calc(50% - 200px * 0.916 * -0.994);"></span>
+        <span class="dot-label" style="left:calc(50% + 200px * 0.916 * -0.105 + 0px);top:calc(50% - 200px * 0.916 * -0.994 - 26px);">Electric Sky<span class="h">264°</span></span>
+
+        <span class="dot" style="background:#f59e0b;left:calc(50% + 200px * 0.667 * 0.342);top:calc(50% - 200px * 0.667 * 0.940);"></span>
+        <span class="dot-label" style="left:calc(50% + 200px * 0.667 * 0.342 + 0px);top:calc(50% - 200px * 0.667 * 0.940 - 26px);">Amber<span class="h">70°</span></span>
+
+        <span class="dot" style="background:#c8761a;left:calc(50% + 200px * 0.583 * 0.559);top:calc(50% - 200px * 0.583 * 0.829);"></span>
+        <span class="dot-label" style="left:calc(50% + 200px * 0.583 * 0.559 + 56px);top:calc(50% - 200px * 0.583 * 0.829 - 4px);">Ochre<span class="h">56°</span></span>
+
+        <span class="dot" style="background:#b9472a;left:calc(50% + 200px * 0.667 * 0.829);top:calc(50% - 200px * 0.667 * 0.559);"></span>
+        <span class="dot-label" style="left:calc(50% + 200px * 0.667 * 0.829 + 52px);top:calc(50% - 200px * 0.667 * 0.559 + 0px);">Rust<span class="h">34°</span></span>
+
+        <span class="dot" style="background:#722f37;left:calc(50% + 200px * 0.417 * 0.961);top:calc(50% - 200px * 0.417 * 0.276);"></span>
+        <span class="dot-label" style="left:calc(50% + 200px * 0.417 * 0.961 + 40px);top:calc(50% - 200px * 0.417 * 0.276 + 12px);">Plum<span class="h">16°</span></span>
+
+        <span class="dot" style="background:#3b6e51;left:calc(50% + 200px * 0.333 * -0.906);top:calc(50% - 200px * 0.333 * 0.423);"></span>
+        <span class="dot-label" style="left:calc(50% + 200px * 0.333 * -0.906 - 24px);top:calc(50% - 200px * 0.333 * 0.423 - 22px);">Sage<span class="h">155°</span></span>
+      </div>
+
+      <div class="wheel-legend">
+        <div class="leg-title">Reading the chart</div>
+        <p style="font-size:13px;line-height:1.55;color:var(--color-muted-foreground);margin-bottom:8px">Distance from center = how saturated the color is. Angle = its hue. Two dots near each other = visually similar at small sizes.</p>
+
+        <div class="find">
+          <h4>Amber (70°) and Ochre (56°) are 14° apart.</h4>
+          <p>That's inside the perceptual confusion threshold for small UI elements (dots, badges, 12px text). A user can't reliably tell a "highest-stakes CTA" from a "warning / paused state" by color alone.</p>
+        </div>
+        <div class="find">
+          <h4>Rust and Plum are both warm reds.</h4>
+          <p>Rust (34°, c=0.16) is doing destructive. Plum (16°, c=0.10) is doing taxonomy. They occupy nearby hues with different chromas — only the chroma carries the meaning, which is a fragile signal.</p>
+        </div>
+        <div class="find ok">
+          <h4>Cool side is clean.</h4>
+          <p>Electric Sky and Sage are the only cool colors, ~110° apart. No overlap risk; Sage is the only green and unambiguously means success.</p>
+        </div>
+        <div class="find note">
+          <h4>Empty quadrants: cyan, violet, magenta.</h4>
+          <p>This is fine. Civic Editorial doesn't need them, and adding any would dilute "color = meaning." Keep them out.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 02 — SMALL SIZE TEST ========== -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <span class="num">02 / The overlap, at the size users see it</span>
+        <h2>At 8 px, Amber and Ochre read as one color.</h2>
+      </div>
+      <div class="sec-body">
+        <p>Status dots, progress bars, and badge pills are the sizes where the system relies most on color to carry meaning. Below, the two warm colors next to each other at their actual UI scale.</p>
+        <p>The fix isn't a wider palette — it's pushing Ochre further from Amber, or collapsing one of them.</p>
+      </div>
+    </div>
+
+    <div class="small-test">
+      <div class="test-card">
+        <h4>Status dot · 8 px</h4>
+        <div class="test-row">
+          <span class="dot-tiny" style="background:#f59e0b"></span>
+          <span class="lbl">Amber — CTA (highest-stakes action)</span>
+          <span class="hex">#f59e0b · 70°</span>
+        </div>
+        <div class="test-row">
+          <span class="dot-tiny" style="background:#c8761a"></span>
+          <span class="lbl">Ochre — warning, mentor paused, attention</span>
+          <span class="hex">#c8761a · 56°</span>
+        </div>
+        <div class="test-row">
+          <span class="dot-tiny" style="background:#b9472a"></span>
+          <span class="lbl">Rust — declined, destructive</span>
+          <span class="hex">#b9472a · 34°</span>
+        </div>
+        <div class="test-row">
+          <span class="dot-tiny" style="background:#722f37"></span>
+          <span class="lbl">Plum — taxonomy</span>
+          <span class="hex">#722f37 · 16°</span>
+        </div>
+      </div>
+
+      <div class="test-card">
+        <h4>Pill badge · 10 px mono</h4>
+        <div class="test-row">
+          <span class="pill-tiny" style="background:rgb(245 158 11 / 0.14);color:#9a6500">PENDING</span>
+          <span class="lbl">Amber tint — CTA-adjacent pill</span>
+          <span class="hex">#f59e0b @ 14%</span>
+        </div>
+        <div class="test-row">
+          <span class="pill-tiny" style="background:rgb(200 118 26 / 0.12);color:#9a6500">PAUSED</span>
+          <span class="lbl">Ochre tint — warning pill</span>
+          <span class="hex">#c8761a @ 12%</span>
+        </div>
+        <div class="test-row">
+          <span class="pill-tiny" style="background:rgb(185 71 42 / 0.10);color:#8a3520">DECLINED</span>
+          <span class="lbl">Rust tint — destructive</span>
+          <span class="hex">#b9472a @ 10%</span>
+        </div>
+        <div class="test-row">
+          <span class="pill-tiny" style="background:rgb(114 47 55 / 0.10);color:#5a2530">CAREER</span>
+          <span class="lbl">Plum tint — topic taxonomy</span>
+          <span class="hex">#722f37 @ 10%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 03 — COVERAGE MATRIX ========== -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <span class="num">03 / Coverage check</span>
+        <h2>Does every UI role have a color it can use?</h2>
+      </div>
+      <div class="sec-body">
+        <p>Rather than asking "do we have enough hues," ask "is there a job that has no color." The honest read across BridgeCircle's product surfaces:</p>
+      </div>
+    </div>
+
+    <div class="coverage">
+      <div class="cov-card">
+        <h3>Roles with a clear owner</h3>
+        <div class="sub">These map 1-to-1 from semantic intent to hue. Working as designed.</div>
+        <div class="cov-row"><span class="role">Primary action / nav / link</span><span class="cov-pair"><span class="cov-chip" style="background:#2563eb"></span><span class="cov-tag">Electric Sky</span></span></div>
+        <div class="cov-row"><span class="role">Highest-stakes CTA</span><span class="cov-pair"><span class="cov-chip" style="background:#f59e0b"></span><span class="cov-tag">Amber</span></span></div>
+        <div class="cov-row"><span class="role">Success / completed / open</span><span class="cov-pair"><span class="cov-chip" style="background:#3b6e51"></span><span class="cov-tag">Sage</span></span></div>
+        <div class="cov-row"><span class="role">Destructive / declined</span><span class="cov-pair"><span class="cov-chip" style="background:#b9472a"></span><span class="cov-tag">Rust</span></span></div>
+        <div class="cov-row"><span class="role">Editorial hero / auth</span><span class="cov-pair"><span class="cov-chip" style="background:#081126"></span><span class="cov-tag">Midnight</span></span></div>
+        <div class="cov-row"><span class="role">Primary text / structure</span><span class="cov-pair"><span class="cov-chip" style="background:#0c0c0b"></span><span class="cov-tag">Obsidian</span></span></div>
+      </div>
+
+      <div class="cov-card">
+        <h3>Roles with friction</h3>
+        <div class="sub">Either two colors claim the same job, or one color stretches across two jobs.</div>
+        <div class="cov-row"><span class="role">Warning / attention</span><span class="cov-pair"><span class="cov-chip" style="background:#c8761a"></span><span class="cov-tag miss">Ochre — collides with Amber</span></span></div>
+        <div class="cov-row"><span class="role">Topic / content taxonomy</span><span class="cov-pair"><span class="cov-chip" style="background:#722f37"></span><span class="cov-tag miss">Plum — only one tag color, no system</span></span></div>
+        <div class="cov-row"><span class="role">Informational neutral</span><span class="cov-pair"><span class="cov-chip empty"></span><span class="cov-tag miss">No token — falls back to primary</span></span></div>
+        <div class="cov-row"><span class="role">Verified / trust signal</span><span class="cov-pair"><span class="cov-chip" style="background:#3b6e51"></span><span class="cov-tag miss">Sage doubles as success — overload</span></span></div>
+        <div class="cov-row"><span class="role">AI / match signal</span><span class="cov-pair"><span class="cov-chip" style="background:#2563eb"></span><span class="cov-tag miss">Primary doubles — Sparkles icon only</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 04 — RECOMMENDATIONS ========== -->
+  <section>
+    <div class="sec-head">
+      <div>
+        <span class="num">04 / Three paths forward</span>
+        <h2>Pick by appetite for change.</h2>
+      </div>
+      <div class="sec-body">
+        <p>Listed cheapest to most invasive. The recommended option is the middle one — it fixes the real problem (Amber/Ochre collision) without diluting the editorial restraint.</p>
+      </div>
+    </div>
+
+    <div class="recs">
+      <!-- Option A: hold -->
+      <div class="rec">
+        <span class="badge">Option A · hold</span>
+        <h3>Keep the palette exactly as-is.</h3>
+        <div class="palette">
+          <span style="background:#2563eb"></span>
+          <span style="background:#f59e0b"></span>
+          <span style="background:#c8761a"></span>
+          <span style="background:#b9472a"></span>
+          <span style="background:#3b6e51"></span>
+          <span style="background:#722f37"></span>
+        </div>
+        <p>Accept the Amber/Ochre overlap as a known limitation. Disambiguate with iconography, position, and copy instead of color.</p>
+        <ul>
+          <li class="pro">Zero token migration cost.</li>
+          <li class="pro">Editorial restraint stays absolute.</li>
+          <li class="con">Status dots and tint pills remain ambiguous at 8–12 px.</li>
+          <li class="con">Future "I need another color" requests will keep arriving.</li>
+        </ul>
+      </div>
+
+      <!-- Option B: PICK -->
+      <div class="rec pick">
+        <span class="badge">Option B · recommended</span>
+        <h3>Re-tune Ochre. Replace with a deeper amber.</h3>
+        <div class="palette">
+          <span style="background:#2563eb"></span>
+          <span style="background:#f59e0b"></span>
+          <span style="background:#a16207" title="new Ochre"></span>
+          <span style="background:#b9472a"></span>
+          <span style="background:#3b6e51"></span>
+          <span style="background:#722f37"></span>
+        </div>
+        <p>Pull Ochre to <span style="font-family:var(--font-mono);color:var(--color-foreground)">#a16207</span> — same hue family, but ~10 points darker. Now it can't be confused with Amber CTA in a dot or pill. No new hues introduced.</p>
+        <ul>
+          <li class="pro">Resolves the only real collision in the system.</li>
+          <li class="pro">"Warning" reads darker and more serious — closer to the editorial register.</li>
+          <li class="pro">Tints still work; one token swap.</li>
+          <li class="con">Existing screenshots and email templates will need a regen.</li>
+        </ul>
+      </div>
+
+      <!-- Option C: expand -->
+      <div class="rec">
+        <span class="badge">Option C · expand</span>
+        <h3>Add one cool neutral for info / AI.</h3>
+        <div class="palette">
+          <span style="background:#2563eb"></span>
+          <span style="background:#f59e0b"></span>
+          <span style="background:#c8761a"></span>
+          <span style="background:#b9472a"></span>
+          <span style="background:#3b6e51"></span>
+          <span style="background:#722f37"></span>
+          <span style="background:#5b6373" title="new Slate"></span>
+        </div>
+        <p>Introduce a single desaturated slate <span style="font-family:var(--font-mono);color:var(--color-foreground)">#5b6373</span> for AI / match / informational signals — frees Primary to mean "interactive" only.</p>
+        <ul>
+          <li class="pro">Disentangles "AI signal" from "primary action."</li>
+          <li class="pro">Slate is restrained — doesn't compete with editorial tone.</li>
+          <li class="con">Real cost: new tints, badge variant, dark-mode pair.</li>
+          <li class="con">Pressure to keep expanding ("we now have 7, why not 8") — needs strict governance.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== VERDICT ========== -->
+  <aside class="verdict">
+    <div>
+      <div class="kick">Verdict</div>
+      <h2>You don't need more hue. You need to space out the warm ones.</h2>
+      <p>The palette already does what Civic Editorial asks of it: blue carries interaction, amber carries the single decisive moment, sage carries trust, midnight carries gravity. Adding a violet or a teal would soften that, not strengthen it.</p>
+      <p>The genuine fault line is the warm cluster between 16° and 70°. Amber and Ochre were specified at almost the same hue; the meanings they carry (CTA vs warning) are too close for users to discriminate at the sizes the UI uses them. Fix that, and the system is done.</p>
+    </div>
+    <div class="side">
+      <div class="v-row">
+        <div class="swatch-pair"><span style="background:#f59e0b"></span><span style="background:#c8761a"></span></div>
+        <div class="v-lbl"><b>Today</b>Amber 70° · Ochre 56° — Δ14°</div>
+      </div>
+      <div class="v-row">
+        <div class="swatch-pair"><span style="background:#f59e0b"></span><span style="background:#a16207"></span></div>
+        <div class="v-lbl"><b>Proposed</b>Amber 70° · Ochre 50° darker — discriminable at 8 px</div>
+      </div>
+      <div class="v-row">
+        <div class="swatch-pair"><span style="background:#2563eb"></span><span style="background:#3b6e51"></span></div>
+        <div class="v-lbl"><b>Already good</b>Cool side stays as designed</div>
+      </div>
+    </div>
+  </aside>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Help — Direction Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; color: #0c0c0b; }
+  body { background: #f0eee9; }
+  input, textarea, button { font-family: inherit; color: inherit; }
+  .bc-kicker { display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#2563eb; }
+  .bc-kicker::before { content:''; display:block; width:1.6rem; height:2px; border-radius:999px; background:#2563eb; }
+  .bc-kicker--muted { color: #4d4d4a; }
+  .bc-kicker--muted::before { background: #4d4d4a; }
+  .bc-kicker--ochre { color: #a16207; }
+  .bc-kicker--ochre::before { background: #a16207; }
+  .bc-chip { font-family:'JetBrains Mono', monospace; font-size:10px; font-weight:500; padding:3px 8px; border-radius:4px; background:rgba(37,99,235,0.08); color:#2563eb; border:1px solid rgba(37,99,235,0.18); white-space:nowrap; }
+  .bc-mono { font-family:'JetBrains Mono', monospace; }
+  .bc-heading { font-family: 'Inter Tight', sans-serif; letter-spacing:-0.01em; }
+  #root { height: 100%; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background:#dcdcd6; border-radius:3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="help-primitives.jsx"></script>
+<script type="text/babel" src="help-variants.jsx"></script>
+<script type="text/babel" src="help-ai-variants.jsx"></script>
+<script type="text/babel">
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <DesignCanvas>
+      <DCSection id="help-ai"
+                 title="AI-suggested helping — find people in your subjects"
+                 subtitle="Help reframed as a discovery surface. AI surfaces who needs you based on the subjects you've said you can help with. Four distinct mental models.">
+        <DCArtboard id="F" label="F · Daily editorial brief" width={1040} height={760}>
+          <VariantF />
+        </DCArtboard>
+        <DCArtboard id="G" label="G · Subjects as channels" width={1040} height={760}>
+          <VariantG />
+        </DCArtboard>
+        <DCArtboard id="H" label="H · Constellation map" width={1040} height={760}>
+          <VariantH />
+        </DCArtboard>
+        <DCArtboard id="I" label="I · Open questions stream" width={1040} height={760}>
+          <VariantI />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="help-directions"
+                 title="Earlier directions — reply queue framing"
+                 subtitle="Reference: the original five takes, focused on managing the incoming reply queue.">
+        <DCArtboard id="A" label="A · Inbox-zero ritual" width={1040} height={760}>
+          <VariantA />
+        </DCArtboard>
+        <DCArtboard id="B" label="B · Two-mode switch" width={1040} height={760}>
+          <VariantB />
+        </DCArtboard>
+        <DCArtboard id="C" label="C · Calm helper dashboard" width={1040} height={760}>
+          <VariantC />
+        </DCArtboard>
+        <DCArtboard id="D" label="D · Who should I help next?" width={1040} height={760}>
+          <VariantD />
+        </DCArtboard>
+        <DCArtboard id="E" label="E · 15-minute help session" width={1040} height={760}>
+          <VariantE />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+</script>
+</body>
+</html>

@@ -1,39 +1,66 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-// Loading fallback for /inbox. Inbox runs five parallel queries on every
-// load (incoming asks, outgoing asks, threads, friend requests, DM
-// threads) so the network wait is real even on warm caches.
 export default function InboxLoading() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
-      <div className="mb-8 border-b pb-8">
-        <Skeleton className="h-3 w-16" />
-        <Skeleton className="mt-2 h-10 w-32" />
-        <Skeleton className="mt-3 h-4 w-full max-w-xl" />
-      </div>
+    <main className="density-cozy min-h-[calc(100vh-72px)] bg-background md:h-[calc(100vh-72px)] md:overflow-hidden">
+      <header className="border-b border-border bg-card px-4 md:px-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-stretch md:gap-6">
+          <div className="flex items-center pt-3 md:py-0">
+            <Skeleton className="h-7 w-24" />
+          </div>
+          <div className="flex flex-wrap items-end gap-1 md:flex-nowrap md:gap-0">
+            {['priority', 'all', 'advice', 'mentorship'].map((id) => (
+              <Skeleton key={id} className="h-10 w-28 rounded-t-sm" />
+            ))}
+          </div>
+        </div>
+      </header>
 
-      {Array.from({ length: 3 }).map((_, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
-        <Card key={i} className="mb-6">
-          <CardHeader>
-            <Skeleton className="h-7 w-44" />
-            <Skeleton className="mt-2 h-3 w-72" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {Array.from({ length: 2 }).map((_, j) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton, never reordered
-              <div key={j} className="flex items-start gap-3 rounded-lg border bg-card p-4">
-                <Skeleton className="size-10 shrink-0 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-1/3" />
-                  <Skeleton className="h-3 w-2/3" />
+      <div className="grid md:h-[calc(100%-41px)] md:grid-cols-[360px_minmax(0,1fr)]">
+        <section className="border-r border-border bg-card">
+          <div className="border-b border-border bg-surface-panel/45 p-3">
+            <Skeleton className="h-9 w-full rounded-md" />
+            <div className="mt-3 flex justify-between">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+          <div className="space-y-1.5 p-1.5">
+            {Array.from({ length: 7 }).map((_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
+              <div key={index} className="rounded-md p-3">
+                <div className="flex gap-3">
+                  <Skeleton className="size-10 rounded-md" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+          </div>
+        </section>
+
+        <section className="hidden bg-card p-6 md:block">
+          <div className="mx-auto max-w-3xl space-y-5">
+            <div className="flex items-start gap-4">
+              <Skeleton className="size-12 rounded-md" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-6 w-56" />
+                <Skeleton className="h-4 w-80 max-w-full" />
+              </div>
+            </div>
+            <Skeleton className="h-28 w-full rounded-md" />
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-2/3 rounded-md" />
+              <Skeleton className="ml-auto h-16 w-2/3 rounded-md" />
+              <Skeleton className="h-14 w-1/2 rounded-md" />
+            </div>
+            <Skeleton className="h-24 w-full rounded-md" />
+          </div>
+        </section>
+      </div>
+    </main>
   )
 }

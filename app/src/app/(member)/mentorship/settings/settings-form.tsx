@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils'
 import { type SettingsFormState, saveMentorSettings } from './actions'
 
 const initialState: SettingsFormState = {}
+const ACTIVE_MENTEE_OPTIONS = [1, 2, 3, 5, 10, 20] as const
+const PENDING_REQUEST_OPTIONS = [1, 3, 5, 10, 20, 30] as const
 
 type Props = {
   defaults: {
@@ -32,276 +34,268 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
   const [state, action, pending] = useActionState(saveMentorSettings, initialState)
   const fe = state.fieldErrors ?? {}
 
-  // Client-side state drives the conditional caveat + dim of mentorship-only
-  // fields. Both still submit normally via their input names.
   const [advice, setAdvice] = useState(defaults.openToAdvice)
   const [mentorship, setMentorship] = useState(defaults.openToMentorship)
   const [maxActiveMentees, setMaxActiveMentees] = useState(defaults.maxActiveMentees)
   const [maxPendingRequests, setMaxPendingRequests] = useState(defaults.maxPendingRequests)
   const [screeningPrompt, setScreeningPrompt] = useState(defaults.screeningPrompt)
 
-  // After a successful save, force the server component to re-fetch so new
-  // defaults arrive. revalidatePath() alone wasn't reliably refreshing the
-  // page in dev — the form would show "Saved." but the checkbox visually
-  // reverted to the pre-toggle state until the user navigated away and back.
-  // router.refresh() explicitly invalidates the route's RSC cache.
   useEffect(() => {
     if (state.ok) router.refresh()
   }, [state.ok, router])
 
-  // Sync controlled state when fresh server defaults arrive (post-save
-  // revalidation).
-  const [prevAdviceDefault, setPrevAdviceDefault] = useState(defaults.openToAdvice)
-  const [prevMentorshipDefault, setPrevMentorshipDefault] = useState(defaults.openToMentorship)
-  const [prevMaxActiveDefault, setPrevMaxActiveDefault] = useState(defaults.maxActiveMentees)
-  const [prevMaxPendingDefault, setPrevMaxPendingDefault] = useState(defaults.maxPendingRequests)
-  const [prevScreeningDefault, setPrevScreeningDefault] = useState(defaults.screeningPrompt)
-  if (
-    prevAdviceDefault !== defaults.openToAdvice ||
-    prevMentorshipDefault !== defaults.openToMentorship ||
-    prevMaxActiveDefault !== defaults.maxActiveMentees ||
-    prevMaxPendingDefault !== defaults.maxPendingRequests ||
-    prevScreeningDefault !== defaults.screeningPrompt
-  ) {
-    setPrevAdviceDefault(defaults.openToAdvice)
-    setPrevMentorshipDefault(defaults.openToMentorship)
-    setPrevMaxActiveDefault(defaults.maxActiveMentees)
-    setPrevMaxPendingDefault(defaults.maxPendingRequests)
-    setPrevScreeningDefault(defaults.screeningPrompt)
-    setAdvice(defaults.openToAdvice)
-    setMentorship(defaults.openToMentorship)
-    setMaxActiveMentees(defaults.maxActiveMentees)
-    setMaxPendingRequests(defaults.maxPendingRequests)
-    setScreeningPrompt(defaults.screeningPrompt)
-  }
-
   return (
-    <form action={action} className="space-y-6">
-      <div className="space-y-3">
-        <div className="flex items-start gap-3 rounded-md border p-4">
-          <Checkbox
-            id="openToAdvice"
-            name="openToAdvice"
-            checked={advice}
-            onCheckedChange={(v) => setAdvice(v === true)}
-          />
-          <div className="space-y-1">
-            <Label htmlFor="openToAdvice" className="text-base">
-              Open to one-off advice
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Members can ask you a single question. Lower commitment, no caps.
-            </p>
-          </div>
-        </div>
+    <form action={action} className="space-y-5">
+      <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
+        <SettingRow
+          title="One-off advice"
+          description="Members can ask you a single question. Lower commitment, no caps."
+          control={
+            <Checkbox
+              id="openToAdvice"
+              name="openToAdvice"
+              checked={advice}
+              onCheckedChange={(value) => setAdvice(value === true)}
+              aria-label="Open to one-off advice"
+            />
+          }
+        />
 
-        <div className="flex items-start gap-3 rounded-md border p-4">
-          <Checkbox
-            id="openToMentorship"
-            name="openToMentorship"
-            checked={mentorship}
-            onCheckedChange={(v) => setMentorship(v === true)}
-          />
-          <div className="space-y-1">
-            <Label htmlFor="openToMentorship" className="text-base">
-              Open to ongoing mentorship
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              Members can request you as a mentor for an ongoing relationship. Subject to the caps
-              below.
-            </p>
-          </div>
-        </div>
+        <SettingRow
+          title="Ongoing mentorship"
+          description="Members can request a longer-running relationship, bounded by the caps below."
+          control={
+            <Checkbox
+              id="openToMentorship"
+              name="openToMentorship"
+              checked={mentorship}
+              onCheckedChange={(value) => setMentorship(value === true)}
+              aria-label="Open to ongoing mentorship"
+            />
+          }
+        />
 
-        {/* Friendly caveat shown inline when mentorship is unchecked. Names
-            the value to younger alumni, points at the caps as a way to keep
-            it light, and ends on a soft "want to keep it on?" without
-            blocking the user. Brand voice rule: warm, not pressuring. */}
         {!mentorship ? (
-          <div className="rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-3 text-xs text-foreground">
-            <p>
-              Younger alumni often search specifically for someone open to ongoing mentorship —
-              it&apos;s where the most lasting connections come from. If the worry is time, you can
-              set the caps below as low as one active mentee and one pending request. Want to keep
-              it on?
-            </p>
+          <div className="border-b border-border bg-warning-tint px-5 py-4 text-sm leading-6 text-foreground">
+            Younger alumni often search specifically for ongoing mentorship. If time is the worry,
+            keep mentorship on and set the caps as low as one active mentee and one pending request.
           </div>
         ) : null}
+
+        <SettingRow
+          title="Mentoring topics"
+          description="Comma-separated topics help mentees find you in search."
+          disabled={!mentorship}
+          control={
+            <div className="w-full min-w-0 sm:max-w-md">
+              <Input
+                id="topics"
+                name="topics"
+                placeholder="consulting, business school, returning to Korea"
+                defaultValue={defaults.topics}
+                disabled={!mentorship}
+                aria-invalid={!!fe.topics}
+              />
+              <FieldError error={fe.topics} />
+            </div>
+          }
+        />
+
+        <SettingRow
+          title="Screening question"
+          description="Optional. Mentees answer this before sending a request."
+          disabled={!mentorship}
+          align="start"
+          control={
+            <div className="w-full min-w-0 sm:max-w-md">
+              <Textarea
+                id="screeningPrompt"
+                name="screeningPrompt"
+                rows={2}
+                maxLength={280}
+                placeholder="What specifically are you hoping to get out of this conversation?"
+                value={screeningPrompt}
+                onChange={(event) => setScreeningPrompt(event.target.value)}
+                disabled={!mentorship}
+                aria-invalid={!!fe.screeningPrompt}
+              />
+              <FieldError error={fe.screeningPrompt} />
+            </div>
+          }
+        />
+
+        <SettingRow
+          title="Active mentee capacity"
+          description={`Currently ${activeMenteeCount} active.`}
+          disabled={!mentorship}
+          control={
+            <CapacityChoices
+              name="maxActiveMentees"
+              value={maxActiveMentees}
+              options={withCurrent(ACTIVE_MENTEE_OPTIONS, maxActiveMentees)}
+              unit="mentees"
+              disabled={!mentorship}
+              onChange={setMaxActiveMentees}
+            />
+          }
+        />
+
+        <SettingRow
+          title="Pending request cap"
+          description={`Currently ${pendingRequestCount} pending.`}
+          disabled={!mentorship}
+          control={
+            <CapacityChoices
+              name="maxPendingRequests"
+              value={maxPendingRequests}
+              options={withCurrent(PENDING_REQUEST_OPTIONS, maxPendingRequests)}
+              unit="requests"
+              disabled={!mentorship}
+              onChange={setMaxPendingRequests}
+            />
+          }
+        />
       </div>
 
-      {/* Mentorship-specific fields. They stay visible (so the user knows
-          they exist) but dim and disable when mentorship is off — clearer
-          than hiding because it shows the cap-as-alternative path. */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8">
-        <fieldset
-          disabled={!mentorship}
-          className={`space-y-6 ${!mentorship ? 'opacity-50' : ''}`}
-          aria-disabled={!mentorship}
-        >
-          <Field
-            id="topics"
-            label="Topics you can mentor on"
-            hint="Comma-separated. Helps mentees find you in search."
-            error={fe.topics}
-          >
-            <Input
-              id="topics"
-              name="topics"
-              placeholder="e.g. consulting, business school, returning to Korea"
-              defaultValue={defaults.topics}
-            />
-          </Field>
-
-          <Field
-            id="screeningPrompt"
-            label="Screening question (optional)"
-            hint="One sentence. Mentees answer before sending a request."
-            error={fe.screeningPrompt}
-          >
-            <Textarea
-              id="screeningPrompt"
-              name="screeningPrompt"
-              rows={2}
-              maxLength={280}
-              placeholder="e.g. What specifically are you hoping to get out of this conversation?"
-              value={screeningPrompt}
-              onChange={(e) => setScreeningPrompt(e.target.value)}
-            />
-          </Field>
-
-          <div className="space-y-5">
-            <Field
-              id="maxActiveMentees"
-              label="Max active mentees"
-              hint={`Currently ${activeMenteeCount} active.`}
-              error={fe.maxActiveMentees}
-            >
-              <div className="flex items-center gap-4">
-                <input
-                  id="maxActiveMentees"
-                  name="maxActiveMentees"
-                  type="range"
-                  min={1}
-                  max={20}
-                  onChange={(e) => setMaxActiveMentees(parseInt(e.target.value, 10))}
-                  className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
-                  required
-                />
-                <span className="font-mono text-xs text-primary min-w-[75px] text-right font-semibold">
-                  {maxActiveMentees} {maxActiveMentees === 1 ? 'mentee' : 'mentees'}
-                </span>
-              </div>
-            </Field>
-
-            <Field
-              id="maxPendingRequests"
-              label="Max pending requests"
-              hint={`Currently ${pendingRequestCount} pending.`}
-              error={fe.maxPendingRequests}
-            >
-              <div className="flex items-center gap-4">
-                <input
-                  id="maxPendingRequests"
-                  name="maxPendingRequests"
-                  type="range"
-                  min={1}
-                  max={30}
-                  value={maxPendingRequests}
-                  onChange={(e) => setMaxPendingRequests(parseInt(e.target.value, 10))}
-                  className="flex-1 accent-primary h-1.5 bg-muted rounded-lg appearance-none cursor-pointer"
-                  required
-                />
-                <span className="font-mono text-xs text-primary min-w-[75px] text-right font-semibold">
-                  {maxPendingRequests} {maxPendingRequests === 1 ? 'request' : 'requests'}
-                </span>
-              </div>
-            </Field>
-          </div>
-        </fieldset>
-
-        {/* Live Card Preview */}
-        <div
-          className={cn(
-            'flex flex-col gap-3 justify-start lg:pt-1 transition-opacity duration-300',
-            !mentorship && 'opacity-30 select-none pointer-events-none',
-          )}
-        >
-          <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
-            Live Card Preview
-          </span>
-          <div className="rounded-lg border border-border bg-card p-5 flex flex-col gap-4 shadow-sm max-w-sm">
-            <div className="flex gap-3.5 items-center">
-              <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-foreground text-background flex items-center justify-center font-heading text-base font-bold">
-                PV
-              </div>
-              <div className="min-w-0">
-                <h4 className="font-heading text-sm font-semibold text-foreground">
-                  Your Profile (Preview)
-                </h4>
-                <StatusBadge tone="open" dot size="sm" className="mt-0.5">
-                  Open to Mentor
-                </StatusBadge>
-              </div>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="rounded-lg border border-border bg-card p-5 shadow-card">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Current availability
+              </p>
+              <h2 className="mt-1 font-heading text-lg font-semibold text-foreground">
+                Your helper card
+              </h2>
             </div>
-
+            <StatusBadge tone={mentorship || advice ? 'open' : 'muted'} dot>
+              {mentorship || advice ? 'Visible' : 'Off'}
+            </StatusBadge>
+          </div>
+          <div className="mt-5">
             <CapacityIndicatorGauge
               activeCount={activeMenteeCount}
               maxActive={maxActiveMentees}
               pendingCount={pendingRequestCount}
               maxPending={maxPendingRequests}
             />
-
-            {screeningPrompt ? (
-              <div className="text-[10px] text-muted-foreground font-mono mt-1 leading-relaxed border-t border-border/40 pt-3">
-                <span className="text-[8px] uppercase tracking-wider text-muted-foreground font-bold block mb-1">
-                  Screening Question
-                </span>
-                &ldquo;{screeningPrompt}&rdquo;
-              </div>
-            ) : null}
-
-            <Button
-              type="button"
-              disabled
-              variant="outline"
-              size="sm"
-              className="mt-1 w-full text-xs"
-            >
-              Request Mentorship
-            </Button>
           </div>
+          {screeningPrompt ? (
+            <div className="mt-4 border-t border-border pt-4">
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Screening question
+              </p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                &ldquo;{screeningPrompt}&rdquo;
+              </p>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="flex flex-col justify-end gap-3">
+          {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+          {state.ok ? <p className="text-sm text-accent-sage">Saved.</p> : null}
+          <Button type="submit" variant="cta" disabled={pending} className="w-full">
+            {pending ? 'Saving...' : 'Save settings'}
+          </Button>
         </div>
       </div>
-
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-      {state.ok ? <p className="text-sm text-accent-sage">Saved.</p> : null}
-
-      <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-        {pending ? 'Saving…' : 'Save settings'}
-      </Button>
     </form>
   )
 }
 
-function Field({
-  id,
-  label,
-  hint,
-  error,
-  children,
+function SettingRow({
+  title,
+  description,
+  control,
+  disabled = false,
+  align = 'center',
 }: {
-  id: string
-  label: string
-  hint?: string
-  error?: string
-  children: React.ReactNode
+  title: string
+  description: string
+  control: React.ReactNode
+  disabled?: boolean
+  align?: 'center' | 'start'
 }) {
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {hint && !error ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+    <div
+      className={cn(
+        'grid gap-4 border-b border-border px-5 py-5 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(220px,auto)]',
+        align === 'start' ? 'sm:items-start' : 'sm:items-center',
+        disabled && 'bg-surface-panel/45 text-muted-foreground',
+      )}
+    >
+      <div>
+        <Label className="text-base font-semibold text-foreground">{title}</Label>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
+      </div>
+      <div className="flex justify-start sm:justify-end">{control}</div>
     </div>
   )
+}
+
+function CapacityChoices({
+  name,
+  value,
+  options,
+  unit,
+  disabled,
+  onChange,
+}: {
+  name: string
+  value: number
+  options: number[]
+  unit: string
+  disabled: boolean
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="w-full sm:w-auto">
+      <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={unit}>
+        {options.map((option) => {
+          const active = option === value
+          return (
+            <label
+              key={option}
+              className={cn(
+                'bc-motion-control inline-flex h-9 cursor-pointer items-center rounded-sm border px-3 font-mono text-xs font-semibold has-disabled:cursor-not-allowed has-disabled:opacity-45',
+                active
+                  ? 'border-primary bg-primary-tint text-primary'
+                  : 'border-border bg-card text-muted-foreground hover:bg-surface-subtle hover:text-foreground',
+              )}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={option}
+                checked={active}
+                disabled={disabled}
+                onChange={() => onChange(option)}
+                className="sr-only"
+              />
+              <span
+                className={cn(
+                  'inline-flex items-center',
+                  active ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                {option}
+              </span>
+            </label>
+          )
+        })}
+      </div>
+      <p className="mt-2 text-right text-xs text-muted-foreground">
+        {value} {value === 1 ? unit.replace(/s$/, '') : unit}
+      </p>
+    </div>
+  )
+}
+
+function FieldError({ error }: { error?: string }) {
+  return error ? <p className="mt-1.5 text-xs text-destructive">{error}</p> : null
+}
+
+function withCurrent(options: readonly number[], current: number): number[] {
+  return Array.from(new Set([...options, current])).sort((a, b) => a - b)
 }

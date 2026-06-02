@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&family=Inter:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .demo{background:#fff;border:1px solid #dcdcd6;border-radius:10px;padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+  .row{display:flex;align-items:flex-start;gap:16px}
+  .meta{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4d4d4a;white-space:nowrap;min-width:110px;padding-top:2px}
+
+  .bc-section-kicker{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2563eb}
+  .bc-section-kicker::before{content:'';display:block;width:1.75rem;height:2px;border-radius:99px;background:#2563eb}
+
+  .bc-pull-quote{border-left:3px solid #2563eb;padding-left:12px;font-style:italic;line-height:1.5;color:#0c0c0b}
+
+  hr{border:none;border-top:1px solid #dcdcd6}
+</style>
+</head>
+<body>
+<div class="demo">
+  <div class="row">
+    <div class="meta">kicker</div>
+    <div class="bc-section-kicker">Relationship path · Class of '24</div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="meta">pull-quote</div>
+    <p class="bc-pull-quote" style="font-size:14px">"Strong match — spent 5 years in consulting before pivoting to PM at Google. Can speak directly to the transition path you're asking about."</p>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="meta">italic body</div>
+    <p style="font-style:italic;font-size:15px;line-height:1.55;color:#4d4d4a">Open to coffee in Brooklyn. Heads down on a launch, but available for a 30-min call about product transitions.</p>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="meta">mono metadata</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.02em;color:#4d4d4a;display:flex;gap:16px;flex-wrap:wrap">
+      <span>MATCH BRIEF</span>
+      <span>82% FIT</span>
+      <span>'26</span>
+      <span>3d ago</span>
+      <span>PENDING</span>
+      <span>CLASS OF '20</span>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="meta">wordmark</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="11" cy="14" r="9" stroke="#0c0c0b" stroke-width="1.4"/>
+        <circle cx="17" cy="14" r="9" stroke="#2563eb" stroke-width="1.4"/>
+      </svg>
+      <span style="font-family:'Inter Tight',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.02em">BridgeCircle</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

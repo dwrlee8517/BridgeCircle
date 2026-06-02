@@ -81,6 +81,23 @@ export default async function InboxPage() {
     }
   }
 
+  const unreadAskThreadIds = new Set<string>()
+  const activeThreadIds = (threads.data ?? []).map((thread) => thread.id)
+  if (activeThreadIds.length > 0) {
+    const { data: unreadAskMessages } = await supabase
+      .from('messages')
+      .select('thread_id, sender_id')
+      .eq('thread_type', 'ask')
+      .in('thread_id', activeThreadIds)
+      .is('read_at', null)
+
+    for (const message of unreadAskMessages ?? []) {
+      if (message.sender_id !== session.userId) {
+        unreadAskThreadIds.add(message.thread_id)
+      }
+    }
+  }
+
   // Construct InboxItem arrays
   const incomingAsks: InboxItem[] = (incoming.data ?? []).map((r) => {
     const p = profileMap.get(r.asker_id)
@@ -133,6 +150,7 @@ export default async function InboxPage() {
           ? 'You are helping in this thread'
           : 'You are getting help in this thread',
       date: t.last_message_at ?? t.created_at,
+      unread: unreadAskThreadIds.has(t.id),
       cohort: cohortMap.get(otherId) ?? null,
       originalData: { ...t, viewerUserId: session.userId },
     }
@@ -206,7 +224,7 @@ export default async function InboxPage() {
 
   return (
     // density-cozy: list of inbox rows. See docs/experience/ui/design-system/tokens.md § Density modes.
-    <div className="density-cozy w-full h-[calc(100vh-72px)] overflow-hidden bg-background">
+    <div className="density-cozy min-h-[calc(100vh-72px)] w-full bg-background md:h-[calc(100vh-72px)] md:overflow-hidden">
       <InboxContainer items={items} currentUser={currentUser} />
     </div>
   )

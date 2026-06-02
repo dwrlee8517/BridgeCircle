@@ -43,21 +43,32 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
   const isMentorship = thread.ask?.askType === 'mentorship' && thread.status === 'active'
 
   return (
-    <div className={`mx-auto px-4 py-8 space-y-4 ${isMentorship ? 'max-w-5xl' : 'max-w-2xl'}`}>
-      <Link href={backHref} className="text-sm text-muted-foreground hover:underline">
+    <div
+      className={`density-cozy mx-auto space-y-4 px-4 py-8 sm:px-8 ${
+        isMentorship ? 'max-w-6xl' : 'max-w-3xl'
+      }`}
+    >
+      <Link
+        href={backHref}
+        className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
+      >
         ← {backLabel}
       </Link>
 
       <div
-        className={`grid grid-cols-1 ${isMentorship ? 'lg:grid-cols-[1fr_300px]' : ''} gap-6 items-start`}
+        className={`grid grid-cols-1 items-start gap-6 ${
+          isMentorship ? 'lg:grid-cols-[minmax(0,1fr)_320px]' : ''
+        }`}
       >
-        <Card className="h-full">
-          <CardHeader className="flex-row items-start gap-4 space-y-0">
-            <Avatar className="size-12">
+        <Card className="h-full border-border bg-card shadow-card">
+          <CardHeader className="flex-row items-start gap-4 space-y-0 border-b border-border pb-5">
+            <Avatar className="size-12 rounded-md after:rounded-md">
               {other.avatarUrl ? (
-                <AvatarImage src={other.avatarUrl} alt={other.name ?? ''} />
+                <AvatarImage src={other.avatarUrl} alt={other.name ?? ''} className="rounded-md" />
               ) : null}
-              <AvatarFallback>{(other.name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
+              <AvatarFallback className="rounded-md">
+                {(other.name ?? '?').slice(0, 1).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg">{other.name ?? 'Thread'}</CardTitle>
@@ -69,21 +80,21 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
               </CardDescription>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-5">
             {thread.ask ? (
-              <div className="space-y-2 rounded-md border bg-muted/40 p-3 mb-4">
-                <p className="text-xs font-medium uppercase text-muted-foreground tracking-wide">
+              <div className="bc-pull-quote mb-5 space-y-3 rounded-r-md bg-primary-tint/55 py-3 pr-4">
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-primary">
                   Original ask
                 </p>
                 {thread.ask.reason ? (
-                  <p className="text-sm whitespace-pre-line">
-                    <span className="text-muted-foreground">Why: </span>
+                  <p className="whitespace-pre-line text-sm leading-6 text-foreground">
+                    <span className="font-semibold text-muted-foreground">Why: </span>
                     {thread.ask.reason}
                   </p>
                 ) : null}
                 {thread.ask.helpNeeded ? (
-                  <p className="text-sm whitespace-pre-line">
-                    <span className="text-muted-foreground">Help: </span>
+                  <p className="whitespace-pre-line text-base leading-7 text-foreground">
+                    <span className="font-semibold text-muted-foreground">Help: </span>
                     {thread.ask.helpNeeded}
                   </p>
                 ) : null}
@@ -105,14 +116,14 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
               )}
             </div>
 
-            <div className="border-t mt-5 pt-4">
+            <div className="mt-5 border-t border-border pt-4">
               <MessageForm threadId={thread.id} />
             </div>
           </CardContent>
         </Card>
 
         {isMentorship ? (
-          <div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm lg:h-full lg:sticky lg:top-8">
+          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card lg:sticky lg:top-24">
             <MentorshipGoalTracker threadId={thread.id} />
           </div>
         ) : null}
@@ -132,13 +143,17 @@ function MessageRow({
 }) {
   return (
     <div className={`flex gap-2 ${self ? 'flex-row-reverse' : ''}`}>
-      <Avatar className="size-8 shrink-0">
-        {sender.avatarUrl ? <AvatarImage src={sender.avatarUrl} alt={sender.name ?? ''} /> : null}
-        <AvatarFallback>{(sender.name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
+      <Avatar className="size-8 shrink-0 rounded-md after:rounded-md">
+        {sender.avatarUrl ? (
+          <AvatarImage src={sender.avatarUrl} alt={sender.name ?? ''} className="rounded-md" />
+        ) : null}
+        <AvatarFallback className="rounded-md">
+          {(sender.name ?? '?').slice(0, 1).toUpperCase()}
+        </AvatarFallback>
       </Avatar>
-      <div className={`max-w-[80%] ${self ? 'items-end' : 'items-start'} flex flex-col`}>
+      <div className={`max-w-[72%] ${self ? 'items-end' : 'items-start'} flex flex-col`}>
         <div
-          className={`rounded-lg px-3 py-2 text-sm whitespace-pre-line ${
+          className={`rounded-md px-3.5 py-2 text-sm leading-relaxed whitespace-pre-line ${
             self ? 'bg-primary text-primary-foreground' : 'bg-muted'
           }`}
         >

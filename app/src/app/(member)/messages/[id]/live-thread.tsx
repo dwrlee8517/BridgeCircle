@@ -3,6 +3,7 @@
 import { format, isToday, isYesterday } from 'date-fns'
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/db/client'
 import type { ThreadMessage } from '@/lib/dm/getThread'
 import { type SendMessageState, sendMessageAction } from './actions'
@@ -126,8 +127,8 @@ export function LiveThread({
   const lastSubmittedBody = useRef('')
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)] min-h-[400px]">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-1 py-2 space-y-3">
+    <div className="flex min-h-[400px] flex-col md:h-[calc(100vh-12rem)]">
+      <div ref={scrollRef} className="space-y-3 px-1 py-2 md:min-h-0 md:flex-1 md:overflow-y-auto">
         {messages.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-8">No messages yet. Say hi!</p>
         ) : (
@@ -156,17 +157,17 @@ export function LiveThread({
             lastSubmittedBody.current = body
             dispatch(fd)
           }}
-          className="flex items-end gap-2 border-t pt-3 mt-2"
+          className="mt-2 flex items-end gap-2 border-t pt-3"
         >
           <input type="hidden" name="threadId" value={threadId} />
-          <textarea
+          <Textarea
             name="body"
             placeholder="Type a message…"
             rows={2}
             maxLength={4000}
             required
             disabled={pending}
-            className="flex-1 resize-none rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="min-h-10 flex-1 resize-none bg-card text-sm"
             onKeyDown={(e) => {
               // Cmd/Ctrl+Enter submits.
               if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -180,7 +181,7 @@ export function LiveThread({
           </Button>
         </form>
       ) : (
-        <div className="border-t pt-3 mt-2 text-sm text-muted-foreground text-center">
+        <div className="mt-2 border-t pt-3 text-center text-sm text-muted-foreground">
           You can&apos;t send messages to this person right now.
         </div>
       )}
@@ -202,12 +203,12 @@ function MessageBubble({
   return (
     <div className={`flex flex-col ${isViewer ? 'items-end' : 'items-start'}`}>
       {showTimestamp ? (
-        <div className="text-[10px] text-muted-foreground mb-1 px-1">
+        <div className="mb-1 px-1 font-mono text-xs text-muted-foreground">
           {formatStamp(message.createdAt)}
         </div>
       ) : null}
       <div
-        className={`max-w-[75%] rounded-lg px-3.5 py-2 text-sm whitespace-pre-wrap break-words ${
+        className={`max-w-[72%] rounded-md px-3.5 py-2 text-sm whitespace-pre-wrap break-words ${
           isViewer
             ? 'bg-primary text-primary-foreground rounded-br-sm'
             : 'bg-muted text-foreground rounded-bl-sm'

@@ -1,14 +1,18 @@
 import { formatDistanceToNow } from 'date-fns'
-import { ArrowRight, CalendarDays, Megaphone, Plus } from 'lucide-react'
+import { ArrowRight, Pin } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { EventTime } from '@/components/ui/event-time'
 import { createClient } from '@/db/server'
-import { listAnnouncements } from '@/lib/announcements/listAnnouncements'
+import { type AnnouncementRow, listAnnouncements } from '@/lib/announcements/listAnnouncements'
 import { requireSession } from '@/lib/auth/session'
+import type { EventAttendee } from '@/lib/events/attendeePreviewHelpers'
+import { listAttendeePreviewsByEvent } from '@/lib/events/listAttendeePreviewsByEvent'
 import { listEvents } from '@/lib/events/listEvents'
 import { displayOrgName } from '@/lib/utils'
-import { SchoolPulseCard } from '../help-network-ui'
+import { SchoolEventsMasterDetail } from './school-events-master-detail'
+import { SchoolHubSections } from './school-hub-sections'
+
+const ATTENDEE_PREVIEW_LIMIT = 5
 
 export default async function SchoolPage() {
   const session = await requireSession()
@@ -41,174 +45,199 @@ export default async function SchoolPage() {
   ])
 
   const isAdmin = !!adminRole
-  const featuredEvent = events[0] ?? null
   const latestAnnouncement = announcements[0] ?? null
+  const otherAnnouncements = announcements.slice(1)
+  const attendeesMap = await listAttendeePreviewsByEvent(
+    supabase,
+    events.map((event) => event.id),
+    ATTENDEE_PREVIEW_LIMIT,
+  )
+  const attendeesByEvent: Record<string, EventAttendee[]> = {}
+  for (const [eventId, attendees] of attendeesMap) attendeesByEvent[eventId] = attendees
 
   return (
-    <main className="min-h-screen bg-background">
-      {/* Synthesis P2-7: removed NetworkMotif. School is a content-led hub;
-          let events and announcements own the page. P1-6: demoted hero. */}
-      <section className="bc-page-band border-b border-border">
-        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-8 lg:py-8">
-          <div className="space-y-5">
-            <p className="bc-section-kicker">School pulse · {orgName}</p>
-            <div className="max-w-2xl space-y-2">
-              <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground">
-                Feel connected to what is happening around the school.
-              </h1>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                Events, announcements, and community updates sit in one place so the network feels
-                current without becoming a noisy feed.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="rounded-lg">
-                <Link href="/events">
-                  <CalendarDays className="size-4" />
-                  View events
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-lg">
-                <Link href="/announcements">
-                  <Megaphone className="size-4" />
-                  Read announcements
-                </Link>
-              </Button>
-              {/* Synthesis: admin actions stay quieter than member actions */}
-              {isAdmin ? (
-                <Button asChild size="sm" variant="ghost" className="self-center rounded-lg">
-                  <Link href="/admin/events">
-                    <Plus className="size-4" />
-                    Create event
-                  </Link>
-                </Button>
-              ) : null}
-            </div>
-          </div>
+    <main className="min-h-full bg-background pb-16">
+      <section className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-6">
+        <div className="mb-5">
+          <p className="bc-section-kicker mb-3">{orgName}</p>
+          <h1 className="font-heading text-[28px] font-semibold leading-tight text-foreground sm:text-[34px]">
+            School circle
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Events, announcements, and timely updates from the verified school community.
+          </p>
         </div>
-      </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 lg:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="space-y-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="bc-section-kicker mb-3">Calendar signal</p>
-                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
-                  Upcoming events
-                </h2>
-                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                  School gatherings become more useful when they connect to people you may want to
-                  meet.
-                </p>
-              </div>
-              <Button asChild size="sm" variant="outline" className="w-fit rounded-lg">
-                <Link href="/events">
-                  Events archive
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-            </div>
+        {latestAnnouncement ? <PinnedAnnouncementBanner announcement={latestAnnouncement} /> : null}
 
-            {events.length > 0 ? (
-              <div className="relative space-y-3">
-                <div className="bc-timeline-line absolute bottom-4 left-[17px] top-4 hidden w-px sm:block" />
-                {events.slice(0, 4).map((event) => (
-                  <Link
-                    key={event.id}
-                    href={`/events/${event.id}`}
-                    className="group relative flex gap-4 rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-foreground/30 hover:shadow-md"
-                  >
-                    <div className="relative z-10 flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary-tint text-primary">
-                      <CalendarDays className="size-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-                        <EventTime iso={event.startsAt} />
-                      </p>
-                      <h3 className="mt-2 font-heading text-2xl font-semibold leading-tight text-foreground">
-                        {event.title}
-                      </h3>
-                      <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                        {event.description ??
-                          'A school gathering for your circle. See details, RSVP, and find who else is going.'}
-                      </p>
-                      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                        <span>{event.goingCount} going</span>
-                        {event.location ? <span>· {event.location}</span> : null}
-                        {event.viewerRsvp ? (
-                          <span>· You are {event.viewerRsvp.replace('_', ' ')}</span>
-                        ) : null}
-                      </div>
-                    </div>
-                    <span className="hidden items-center gap-1.5 self-center text-sm font-semibold text-link group-hover:text-link-hover sm:inline-flex">
-                      View
-                      <ArrowRight className="size-4" />
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <EmptySchoolState
-                title="No upcoming events yet"
-                body="When admins publish dinners, panels, campus visits, or local gatherings, they will appear here."
-                href={isAdmin ? '/admin/events' : '/events'}
-                cta={isAdmin ? 'Create event' : 'Open events'}
-              />
-            )}
-          </div>
-
-          <aside className="space-y-6">
-            <div className="space-y-4 border-t border-border pt-5">
-              <div>
-                <p className="bc-section-kicker mb-3">Official pulse</p>
-                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
-                  Announcements
-                </h2>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  The latest official updates from the school circle.
-                </p>
-              </div>
-
-              {latestAnnouncement ? (
-                <SchoolPulseCard
-                  title={latestAnnouncement.title}
-                  meta={`Posted ${formatDistanceToNow(new Date(latestAnnouncement.publishedAt), { addSuffix: true })}`}
-                  body={latestAnnouncement.body ?? 'Latest update from your school circle.'}
-                  href="/announcements"
-                  kind="announcement"
-                />
-              ) : (
-                <EmptySchoolState
-                  title="No announcements yet"
-                  body="Updates from admins will appear here."
-                  href={isAdmin ? '/admin/announcements' : '/announcements'}
-                  cta={isAdmin ? 'Post announcement' : 'Open archive'}
-                />
-              )}
-            </div>
-
-            {featuredEvent ? (
-              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
-                  Next gathering
-                </p>
-                <p className="mt-2 font-heading text-xl font-semibold leading-tight text-foreground">
-                  {featuredEvent.title}
-                </p>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {featuredEvent.goingCount} people are going. RSVP, then use People to find who you
-                  may want to meet before the event.
-                </p>
-                <Button asChild className="mt-5 rounded-lg">
-                  <Link href={`/events/${featuredEvent.id}`}>Open event</Link>
-                </Button>
-              </div>
-            ) : null}
-          </aside>
-        </div>
+        <SchoolHubSections
+          eventCount={events.length}
+          announcementCount={otherAnnouncements.length}
+          events={
+            <SchoolEventsSection
+              events={events}
+              attendeesByEvent={attendeesByEvent}
+              orgName={orgName}
+              isAdmin={isAdmin}
+            />
+          }
+          announcements={
+            <SchoolAnnouncementsSection
+              latestAnnouncement={latestAnnouncement}
+              otherAnnouncements={otherAnnouncements}
+              orgName={orgName}
+              isAdmin={isAdmin}
+            />
+          }
+        />
       </section>
     </main>
+  )
+}
+
+function SchoolEventsSection({
+  events,
+  attendeesByEvent,
+  orgName,
+  isAdmin,
+}: {
+  events: Awaited<ReturnType<typeof listEvents>>
+  attendeesByEvent: Record<string, EventAttendee[]>
+  orgName: string
+  isAdmin: boolean
+}) {
+  if (events.length > 0) {
+    return (
+      <SchoolEventsMasterDetail
+        events={events}
+        attendeesByEvent={attendeesByEvent}
+        orgName={orgName}
+      />
+    )
+  }
+
+  return (
+    <div>
+      <div className="mb-3 border-t border-border pt-5">
+        <p className="bc-section-kicker mb-3">Upcoming · 0 events</p>
+        <h2 className="font-heading text-[22px] font-semibold leading-tight text-foreground">
+          On the calendar
+        </h2>
+      </div>
+      <EmptySchoolState
+        title="No upcoming events yet"
+        body="When admins publish dinners, panels, campus visits, or local gatherings, they will appear here."
+        href={isAdmin ? '/admin/events' : '/events'}
+        cta={isAdmin ? 'Create event' : 'Open events'}
+      />
+    </div>
+  )
+}
+
+function SchoolAnnouncementsSection({
+  latestAnnouncement,
+  otherAnnouncements,
+  orgName,
+  isAdmin,
+}: {
+  latestAnnouncement: AnnouncementRow | null
+  otherAnnouncements: AnnouncementRow[]
+  orgName: string
+  isAdmin: boolean
+}) {
+  return (
+    <aside className="space-y-4 lg:sticky lg:top-24 lg:h-fit">
+      <div className="border-t border-border pt-5">
+        <p className="bc-section-kicker mb-3">Announcements · {otherAnnouncements.length}</p>
+        <h2 className="font-heading text-lg font-semibold leading-tight text-foreground">
+          From the office
+        </h2>
+      </div>
+
+      {otherAnnouncements.length > 0 ? (
+        <div className="overflow-hidden rounded-md border border-border bg-card shadow-card">
+          {otherAnnouncements.map((announcement, index) => (
+            <Link
+              key={announcement.id}
+              href="/announcements"
+              className={
+                index === 0
+                  ? 'block p-4 transition-colors hover:bg-surface-panel/55'
+                  : 'block border-t border-border p-4 transition-colors hover:bg-surface-panel/55'
+              }
+            >
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
+                Announcement
+              </p>
+              <h3 className="mt-1 font-heading text-sm font-semibold leading-snug text-foreground">
+                {announcement.title}
+              </h3>
+              <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+                {announcement.body ?? 'Latest update from your school circle.'}
+              </p>
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">
+                  {announcement.authorName ?? orgName}
+                </span>
+                <span className="font-mono text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(announcement.publishedAt), {
+                    addSuffix: true,
+                  })}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : latestAnnouncement ? (
+        <div className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
+          No other announcements right now.
+        </div>
+      ) : (
+        <EmptySchoolState
+          title="No announcements yet"
+          body="Updates from admins will appear here."
+          href={isAdmin ? '/admin/announcements' : '/announcements'}
+          cta={isAdmin ? 'Post announcement' : 'Open archive'}
+        />
+      )}
+
+      <div className="text-center">
+        <Button asChild size="sm" variant="ghost" className="rounded-lg text-muted-foreground">
+          <Link href="/announcements">
+            See all announcements
+            <ArrowRight className="size-3.5" strokeWidth={1.6} />
+          </Link>
+        </Button>
+      </div>
+    </aside>
+  )
+}
+
+function PinnedAnnouncementBanner({ announcement }: { announcement: AnnouncementRow }) {
+  return (
+    <Link
+      href="/announcements"
+      className="mb-5 flex flex-col gap-2 rounded-md border border-border px-4 py-3 transition-colors hover:bg-primary-tint/60 sm:flex-row sm:items-center sm:gap-3"
+      style={{
+        borderLeft: '3px solid var(--primary)',
+        background: 'color-mix(in srgb, var(--primary) 5%, var(--card))',
+      }}
+    >
+      <span className="flex items-center gap-3">
+        <Pin className="size-3.5 shrink-0 text-primary" strokeWidth={1.8} />
+        <span className="shrink-0 font-mono text-xs font-bold uppercase tracking-[0.10em] text-primary">
+          Pinned · Announcement
+        </span>
+        <span className="hidden shrink-0 text-border sm:inline">·</span>
+      </span>
+      <span className="min-w-0 flex-1 font-heading text-sm font-semibold leading-snug text-foreground sm:truncate">
+        {announcement.title}
+      </span>
+      <span className="shrink-0 font-mono text-xs text-muted-foreground sm:ml-auto">
+        {formatDistanceToNow(new Date(announcement.publishedAt), { addSuffix: true })}
+      </span>
+      <ArrowRight className="hidden size-4 shrink-0 text-primary sm:block" />
+    </Link>
   )
 }
 
@@ -224,7 +253,7 @@ function EmptySchoolState({
   cta: string
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-6">
+    <div className="rounded-lg border border-dashed border-border bg-card p-6">
       <p className="font-heading text-xl font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
       <Button asChild size="sm" variant="outline" className="mt-4 rounded-lg">

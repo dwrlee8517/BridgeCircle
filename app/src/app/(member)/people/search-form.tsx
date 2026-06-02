@@ -1,10 +1,9 @@
 'use client'
 
-import { ChevronDown, Search, SlidersHorizontal, X } from 'lucide-react'
-import { type ChangeEvent, type FormEvent, type ReactNode, useRef, useState } from 'react'
+import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { type FormEvent, type InputHTMLAttributes, type ReactNode, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
 export type SearchFormDefaults = {
@@ -24,6 +23,8 @@ export type SearchFormDefaults = {
 type Props = {
   defaults: SearchFormDefaults
   filtersOpen: boolean
+  resultCount: number
+  openCount: number
   /**
    * Fired with a cleaned URLSearchParams (only non-empty, trimmed values).
    * Parent is responsible for `router.push` so it can wrap the navigation in
@@ -39,6 +40,29 @@ type Props = {
   children?: ReactNode
 }
 
+export type ActiveFilterItem = {
+  key: keyof SearchFormDefaults
+  label: string
+  value: string
+}
+
+const TOPIC_FILTERS = [
+  { label: 'Career transitions', count: 12 },
+  { label: 'Product management', count: 18 },
+  { label: 'VC & Startups', count: 9 },
+  { label: 'Founders', count: 14 },
+  { label: 'Engineering leadership', count: 11 },
+]
+
+const COHORT_FILTERS = [
+  { label: "Class '00-'09", min: '2000', max: '2009', count: 42 },
+  { label: "Class '10-'19", min: '2010', max: '2019', count: 86 },
+  { label: "Class '20-'24", min: '2020', max: '2024', count: 73 },
+]
+
+const COMPANY_FILTERS = ['Common Capital', 'Mayo Clinic', 'Airbnb']
+const LOCATION_FILTERS = ['San Francisco, CA', 'New York, NY', 'Seoul, South Korea']
+
 function buildParamsFromForm(form: HTMLFormElement): URLSearchParams {
   const fd = new FormData(form)
   const params = new URLSearchParams()
@@ -51,31 +75,49 @@ function buildParamsFromForm(form: HTMLFormElement): URLSearchParams {
   return params
 }
 
-export type ActiveFilterItem = {
-  key: keyof SearchFormDefaults
-  label: string
-  value: string
-}
-
-export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children }: Props) {
+export function SearchForm({
+  defaults,
+  filtersOpen,
+  resultCount,
+  openCount,
+  onSearch,
+  onClear,
+  children,
+}: Props) {
   const formRef = useRef<HTMLFormElement>(null)
   const activeFilters = buildActiveFilters(defaults)
   const activeRefinements = activeFilters.filter((f) => f.key !== 'nl')
-
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(filtersOpen)
-  const [availExpanded, setAvailExpanded] = useState(true)
-  const [locationExpanded, setLocationExpanded] = useState(true)
-  const [eduExpanded, setEduExpanded] = useState(true)
-  const [keywordExpanded, setKeywordExpanded] = useState(true)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     onSearch(buildParamsFromForm(e.currentTarget))
   }
 
-  const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const form = e.currentTarget.form
-    if (!form) return
+  const setFieldValue = (key: keyof SearchFormDefaults, value: string) => {
+    const form = formRef.current
+    const input = form?.querySelector(`[name="${key}"]`) as HTMLInputElement | null
+    if (!form || !input) return
+    input.value = input.value === value ? '' : value
+    onSearch(buildParamsFromForm(form))
+  }
+
+  const setCohort = (min: string, max: string) => {
+    const form = formRef.current
+    const minInput = form?.querySelector('[name="gradYearMin"]') as HTMLInputElement | null
+    const maxInput = form?.querySelector('[name="gradYearMax"]') as HTMLInputElement | null
+    if (!form || !minInput || !maxInput) return
+    const isActive = minInput.value === min && maxInput.value === max
+    minInput.value = isActive ? '' : min
+    maxInput.value = isActive ? '' : max
+    onSearch(buildParamsFromForm(form))
+  }
+
+  const toggleFlag = (key: 'openToMentor' | 'peopleIKnow') => {
+    const form = formRef.current
+    const input = form?.querySelector(`[name="${key}"]`) as HTMLInputElement | null
+    if (!form || !input) return
+    input.value = input.value === 'on' ? '' : 'on'
     onSearch(buildParamsFromForm(form))
   }
 
@@ -83,8 +125,7 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
     const form = formRef.current
     if (form) {
       for (const input of form.querySelectorAll('input')) {
-        if (input.type === 'checkbox' || input.type === 'radio') input.checked = false
-        else input.value = ''
+        input.value = ''
       }
     }
     onClear()
@@ -92,284 +133,259 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
 
   const handleClearNL = () => {
     const form = formRef.current
-    if (form) {
-      const nlInput = form.querySelector('[name="nl"]') as HTMLInputElement | null
-      if (nlInput) {
-        nlInput.value = ''
-      }
-      onSearch(buildParamsFromForm(form))
-    }
+    if (!form) return
+    const nlInput = form.querySelector('[name="nl"]') as HTMLInputElement | null
+    if (nlInput) nlInput.value = ''
+    onSearch(buildParamsFromForm(form))
   }
 
   const handleRemoveFilter = (key: keyof SearchFormDefaults) => {
     const form = formRef.current
     if (!form) return
     const input = form.querySelector(`[name="${key}"]`) as HTMLInputElement | null
-    if (input) {
-      if (input.type === 'checkbox' || input.type === 'radio') {
-        input.checked = false
-      } else {
-        input.value = ''
-      }
-    }
-    // Handle dual graduation year fields
+    if (input) input.value = ''
     if (key === 'gradYearMin' || key === 'gradYearMax') {
       const minInput = form.querySelector('[name="gradYearMin"]') as HTMLInputElement | null
       const maxInput = form.querySelector('[name="gradYearMax"]') as HTMLInputElement | null
-      if (key === 'gradYearMin' && minInput) minInput.value = ''
-      if (key === 'gradYearMax' && maxInput) maxInput.value = ''
+      if (minInput) minInput.value = ''
+      if (maxInput) maxInput.value = ''
     }
     onSearch(buildParamsFromForm(form))
   }
 
+  const cohortActive = (min: string, max: string) =>
+    defaults.gradYearMin === min && defaults.gradYearMax === max
+
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
-      {/* 1. Search Input Capsule */}
-      <div className="relative flex items-center bg-card border border-border rounded-full p-1 pl-5 shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/40 transition-all">
-        <span className="text-muted-foreground/60 mr-2.5 shrink-0">
-          <Search className="size-4" />
-        </span>
-        <input
-          id="nl"
-          name="nl"
-          placeholder="Describe who could help, e.g. product after consulting, Seoul alumni, college advice"
-          defaultValue={defaults.nl}
-          className="flex-1 bg-transparent border-none p-0 h-9 text-sm focus:outline-none focus:ring-0 placeholder:text-muted-foreground/50 text-foreground"
-        />
-        {defaults.nl && (
-          <button
-            type="button"
-            onClick={handleClearNL}
-            className="text-muted-foreground hover:text-foreground p-1 mr-1 transition-colors cursor-pointer"
-            aria-label="Clear search query"
-          >
-            <X className="size-4" />
-          </button>
-        )}
-        <Button
-          type="submit"
-          variant="cta"
-          size="sm"
-          className="rounded-full px-5 h-8"
-          aria-label="Search people"
-        >
-          Find people
-        </Button>
-      </div>
+    <form ref={formRef} onSubmit={handleSubmit} className="min-h-full">
+      <input type="hidden" name="openToMentor" defaultValue={defaults.openToMentor ? 'on' : ''} />
+      <input type="hidden" name="peopleIKnow" defaultValue={defaults.peopleIKnow ? 'on' : ''} />
 
-      {/* 2. Mobile Filters Trigger */}
-      <button
-        type="button"
-        onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-        className="md:hidden flex items-center justify-between w-full border border-border bg-card rounded-lg px-4 py-2.5 text-sm font-semibold text-foreground"
-      >
-        <span className="flex items-center gap-2">
-          <SlidersHorizontal className="size-4 text-primary" />
-          <span>Filters</span>
-          {activeRefinements.length > 0 && (
-            <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">
-              {activeRefinements.length}
+      <div className="border-b border-border bg-background">
+        <div className="mx-auto max-w-[1400px] px-4 pt-4 sm:px-8">
+          <p className="bc-section-kicker">People search</p>
+          <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="font-heading text-[22px] font-semibold leading-tight text-foreground">
+                Find someone in your circle
+              </h1>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Search by role, company, school, or the question you are trying to answer.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-4 py-3 sm:px-8">
+          <div className="relative flex min-w-[min(320px,100%)] flex-1 items-center rounded-full border border-border bg-card py-1 pr-1 pl-4 transition-colors focus-within:border-focus-ring focus-within:ring-4 focus-within:ring-focus-ring-muted">
+            <span className="mr-2 shrink-0 text-muted-foreground">
+              <Search className="size-3.5" />
             </span>
-          )}
-        </span>
-        <ChevronDown
-          className={cn(
-            'size-4 text-muted-foreground transition-transform duration-200',
-            mobileFiltersOpen && 'rotate-180',
-          )}
-        />
-      </button>
-
-      {/* 3. 2-Column layout */}
-      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 items-start">
-        {/* Left: Accordion Facets */}
-        <aside
-          className={cn(
-            'md:block space-y-4 border border-border md:border-none p-4 md:p-0 rounded-lg bg-card md:bg-transparent shadow-sm md:shadow-none',
-            mobileFiltersOpen ? 'block' : 'hidden',
-          )}
-        >
-          <div className="flex justify-between items-baseline mb-2">
-            <span className="font-heading font-bold text-sm text-foreground">Refine results</span>
-            {activeRefinements.length > 0 && (
+            <input
+              id="nl"
+              name="nl"
+              placeholder="Search the network..."
+              aria-label="Search the network by name, role, company, school, or question"
+              defaultValue={defaults.nl}
+              className="h-8 flex-1 border-none bg-transparent p-0 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
+            />
+            {defaults.nl ? (
               <button
                 type="button"
-                onClick={handleClearClick}
-                className="text-primary hover:underline font-mono text-[10px] font-bold cursor-pointer"
+                onClick={handleClearNL}
+                className="mr-1 p-1 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Clear search query"
               >
-                Clear all
+                <X className="size-4" />
               </button>
-            )}
+            ) : null}
+            <Button
+              type="submit"
+              variant="default"
+              size="sm"
+              className="h-8 rounded-full px-4"
+              aria-label="Search people"
+            >
+              Search
+            </Button>
           </div>
 
-          <div className="border border-border bg-card rounded-lg p-4 space-y-4 shadow-sm">
-            {/* Group 1: Availability & Connection */}
-            <FacetGroup
-              label="Availability"
-              expanded={availExpanded}
-              onToggle={() => setAvailExpanded(!availExpanded)}
-            >
-              <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    name="openToMentor"
-                    value="on"
-                    defaultChecked={defaults.openToMentor}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 rounded-[3px] accent-primary border-border cursor-pointer"
-                  />
-                  Open to mentorship
-                </label>
-                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    name="peopleIKnow"
-                    value="on"
-                    defaultChecked={defaults.peopleIKnow}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 rounded-[3px] accent-primary border-border cursor-pointer"
-                  />
-                  Only people I know
-                </label>
-              </div>
-              <div className="space-y-1">
-                <Label
-                  htmlFor="topic"
-                  className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                >
-                  Mentor topic
-                </Label>
-                <Input
-                  id="topic"
-                  name="topic"
-                  placeholder="consulting, product, …"
-                  defaultValue={defaults.topic}
-                  className="h-8 text-xs px-2.5"
-                />
-              </div>
-            </FacetGroup>
+          <span className="shrink-0 font-mono text-xs uppercase tracking-[0.05em] text-muted-foreground">
+            {resultCount.toLocaleString()} results · {openCount.toLocaleString()} open
+          </span>
 
-            {/* Group 2: Location & Career */}
-            <FacetGroup
-              label="Location & Career"
-              expanded={locationExpanded}
-              onToggle={() => setLocationExpanded(!locationExpanded)}
-            >
-              <div className="space-y-1">
-                <Label
-                  htmlFor="city"
-                  className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                >
-                  City
-                </Label>
-                <Input
-                  id="city"
-                  name="city"
-                  defaultValue={defaults.city}
-                  className="h-8 text-xs px-2.5"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label
-                  htmlFor="employer"
-                  className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                >
-                  Employer
-                </Label>
-                <Input
-                  id="employer"
-                  name="employer"
-                  defaultValue={defaults.employer}
-                  className="h-8 text-xs px-2.5"
-                />
-              </div>
-            </FacetGroup>
+          <button
+            type="button"
+            onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            className="ml-auto inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground md:hidden"
+            aria-expanded={mobileFiltersOpen}
+          >
+            <SlidersHorizontal className="size-3.5 text-primary" />
+            Filters
+            {activeRefinements.length > 0 ? (
+              <span className="flex min-h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1.5 font-mono text-xs font-bold text-primary-foreground">
+                {activeRefinements.length}
+              </span>
+            ) : null}
+          </button>
+        </div>
+      </div>
 
-            {/* Group 3: Education */}
-            <FacetGroup
-              label="Education"
-              expanded={eduExpanded}
-              onToggle={() => setEduExpanded(!eduExpanded)}
-            >
-              <div className="space-y-1">
-                <Label
-                  htmlFor="university"
-                  className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 items-start gap-0 px-4 py-4 sm:px-8 md:grid-cols-[260px_minmax(0,1fr)] md:gap-8 md:py-6 md:pb-16">
+        <aside
+          className={cn(
+            'max-h-[calc(100dvh-22rem)] overflow-y-auto overscroll-contain rounded-md border border-border bg-card p-4 shadow-card md:sticky md:top-24 md:block md:max-h-[calc(100vh-8rem)] md:p-5',
+            mobileFiltersOpen ? 'mb-4 block' : 'hidden',
+          )}
+        >
+          <div className="mb-5 flex items-center justify-between">
+            <span className="font-heading text-[15px] font-semibold text-foreground">Filters</span>
+            <div className="flex items-center gap-3">
+              {activeRefinements.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={handleClearClick}
+                  className="text-xs font-semibold text-primary hover:underline"
                 >
-                  University
-                </Label>
-                <Input
-                  id="university"
-                  name="university"
-                  defaultValue={defaults.university}
-                  className="h-8 text-xs px-2.5"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label
-                  htmlFor="major"
-                  className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                >
-                  Major
-                </Label>
-                <Input
-                  id="major"
-                  name="major"
-                  defaultValue={defaults.major}
-                  className="h-8 text-xs px-2.5"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  Graduation Year
-                </Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    id="gradYearMin"
-                    name="gradYearMin"
-                    placeholder="Min"
-                    inputMode="numeric"
-                    pattern="\d{4}"
-                    defaultValue={defaults.gradYearMin}
-                    className="h-8 text-xs px-2"
-                  />
-                  <Input
-                    id="gradYearMax"
-                    name="gradYearMax"
-                    placeholder="Max"
-                    inputMode="numeric"
-                    pattern="\d{4}"
-                    defaultValue={defaults.gradYearMax}
-                    className="h-8 text-xs px-2"
-                  />
-                </div>
-              </div>
-            </FacetGroup>
+                  Clear all
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(false)}
+                className="text-muted-foreground hover:text-foreground md:hidden"
+                aria-label="Close filters"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          </div>
 
-            {/* Group 4: Keyword */}
-            <FacetGroup
-              label="Keyword"
-              expanded={keywordExpanded}
-              onToggle={() => setKeywordExpanded(!keywordExpanded)}
-            >
-              <div className="space-y-1">
-                <Label
-                  htmlFor="q"
-                  className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"
-                >
-                  Matches name, bio, work
-                </Label>
-                <Input id="q" name="q" defaultValue={defaults.q} className="h-8 text-xs px-2.5" />
+          <div className="flex flex-col gap-4">
+            <FilterSection label="Availability">
+              <FilterRow
+                label="Open as mentor"
+                count={openCount}
+                active={defaults.openToMentor}
+                dotClassName="bg-accent-sage"
+                onClick={() => toggleFlag('openToMentor')}
+              />
+              <FilterRow
+                label="People I know"
+                active={defaults.peopleIKnow}
+                dotClassName="bg-primary"
+                onClick={() => toggleFlag('peopleIKnow')}
+              />
+            </FilterSection>
+
+            <FilterSection label="Career">
+              <FilterInput
+                name="topic"
+                label="Topic"
+                placeholder="product, fundraising"
+                defaultValue={defaults.topic}
+              />
+              <div className="flex flex-col gap-0.5">
+                {TOPIC_FILTERS.slice(0, 4).map((topic) => (
+                  <FilterRow
+                    key={topic.label}
+                    label={topic.label}
+                    count={topic.count}
+                    active={defaults.topic === topic.label}
+                    onClick={() => setFieldValue('topic', topic.label)}
+                  />
+                ))}
               </div>
-            </FacetGroup>
+              <FilterInput
+                name="employer"
+                label="Company"
+                placeholder="Common Capital"
+                defaultValue={defaults.employer}
+              />
+              <InlineSuggestions
+                values={COMPANY_FILTERS}
+                activeValue={defaults.employer}
+                onSelect={(value) => setFieldValue('employer', value)}
+              />
+              <FilterInput
+                name="q"
+                label="Role / keyword"
+                placeholder="founder, cardiology, data"
+                defaultValue={defaults.q}
+              />
+            </FilterSection>
+
+            <FilterSection label="Location">
+              <FilterInput
+                name="city"
+                label="City"
+                placeholder="San Francisco, CA"
+                defaultValue={defaults.city}
+              />
+              <InlineSuggestions
+                values={LOCATION_FILTERS}
+                activeValue={defaults.city}
+                onSelect={(value) => setFieldValue('city', value)}
+              />
+            </FilterSection>
+
+            <FilterSection label="Education">
+              <FilterInput
+                name="university"
+                label="School"
+                placeholder="Harvard, Stanford"
+                defaultValue={defaults.university}
+              />
+              <FilterInput
+                name="major"
+                label="Major"
+                placeholder="computer science"
+                defaultValue={defaults.major}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <FilterInput
+                  name="gradYearMin"
+                  label="From"
+                  placeholder="2010"
+                  defaultValue={defaults.gradYearMin}
+                  inputMode="numeric"
+                />
+                <FilterInput
+                  name="gradYearMax"
+                  label="To"
+                  placeholder="2024"
+                  defaultValue={defaults.gradYearMax}
+                  inputMode="numeric"
+                />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                {COHORT_FILTERS.map((cohort) => (
+                  <FilterRow
+                    key={cohort.label}
+                    label={cohort.label}
+                    count={cohort.count}
+                    active={cohortActive(cohort.min, cohort.max)}
+                    onClick={() => setCohort(cohort.min, cohort.max)}
+                  />
+                ))}
+              </div>
+            </FilterSection>
+
+            <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-2 grid grid-cols-1 gap-2 border-t border-border bg-card px-4 py-3 md:static md:mx-0 md:mb-0 md:border-t-0 md:bg-transparent md:p-0">
+              <Button type="submit" variant="default" size="sm" className="w-full rounded-lg">
+                Apply filters
+              </Button>
+              <Button type="button" variant="outline" size="sm" className="w-full rounded-lg">
+                Save this search
+              </Button>
+            </div>
           </div>
         </aside>
 
-        {/* Right: Results / Active filters */}
-        <div className="space-y-6 min-w-0">
-          <ActiveFilterTray
+        <div className="min-w-0 space-y-4">
+          <ActiveQueryLine
             activeFilters={activeFilters}
+            resultCount={resultCount}
             onRemove={handleRemoveFilter}
             onClearAll={handleClearClick}
           />
@@ -380,101 +396,202 @@ export function SearchForm({ defaults, filtersOpen, onSearch, onClear, children 
   )
 }
 
-function FacetGroup({
-  label,
-  expanded,
-  onToggle,
-  children,
-}: {
-  label: string
-  expanded: boolean
-  onToggle: () => void
-  children: React.ReactNode
-}) {
+function FilterSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="border-b border-border/60 pb-3 mb-3 last:border-b-0 last:pb-0 last:mb-0">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex items-center justify-between w-full py-1 text-left select-none group/btn cursor-pointer"
-      >
-        <span className="font-mono text-[10px] font-bold text-muted-foreground uppercase tracking-wider group-hover/btn:text-foreground transition-colors">
-          {label}
-        </span>
-        <ChevronDown
-          className={cn(
-            'size-3.5 text-muted-foreground/75 transition-transform duration-200',
-            expanded && 'rotate-180',
-          )}
-        />
-      </button>
-      {expanded && <div className="mt-2.5 space-y-2.5">{children}</div>}
+    <div>
+      <p className="mb-2.5 font-mono text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="flex flex-col gap-0.5">{children}</div>
     </div>
   )
 }
 
-function ActiveFilterTray({
+function FilterInput({
+  name,
+  label,
+  placeholder,
+  defaultValue,
+  inputMode,
+}: {
+  name: keyof SearchFormDefaults
+  label: string
+  placeholder: string
+  defaultValue: string
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode']
+}) {
+  const id = `people-filter-${name}`
+  return (
+    <label htmlFor={id} className="block space-y-1.5">
+      <span className="text-xs font-semibold text-muted-foreground">{label}</span>
+      <Input
+        id={id}
+        name={name}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        inputMode={inputMode}
+        aria-label={label}
+        className="h-8 rounded-lg px-2.5 text-xs"
+      />
+    </label>
+  )
+}
+
+function InlineSuggestions({
+  values,
+  activeValue,
+  onSelect,
+}: {
+  values: string[]
+  activeValue: string
+  onSelect: (value: string) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-1">
+      {values.map((value) => (
+        <button
+          key={value}
+          type="button"
+          onClick={() => onSelect(value)}
+          aria-pressed={activeValue === value}
+          className={cn(
+            'rounded-md border px-2 py-0.5 text-xs font-medium transition-colors',
+            activeValue === value
+              ? 'border-primary/30 bg-primary-tint text-primary'
+              : 'border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground',
+          )}
+        >
+          {value}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function FilterRow({
+  label,
+  count,
+  active = false,
+  muted = false,
+  dotClassName,
+  onClick,
+}: {
+  label: string
+  count?: number
+  active?: boolean
+  muted?: boolean
+  dotClassName?: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        'flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-[13px] font-medium transition-colors',
+        active
+          ? 'bg-primary-tint text-primary'
+          : muted
+            ? 'text-muted-foreground hover:bg-surface-subtle'
+            : 'text-foreground hover:bg-surface-subtle',
+      )}
+    >
+      <span className="inline-flex min-w-0 items-center gap-2">
+        {dotClassName ? (
+          <span className={cn('size-1.5 shrink-0 rounded-full', dotClassName)} aria-hidden />
+        ) : null}
+        <span className="truncate">{label}</span>
+      </span>
+      {count != null ? (
+        <span className="ml-2 shrink-0 font-mono text-xs text-muted-foreground">{count}</span>
+      ) : null}
+    </button>
+  )
+}
+
+function ActiveQueryLine({
   activeFilters,
+  resultCount,
   onRemove,
   onClearAll,
 }: {
   activeFilters: ActiveFilterItem[]
+  resultCount: number
   onRemove: (key: keyof SearchFormDefaults) => void
   onClearAll: () => void
 }) {
   if (activeFilters.length === 0) return null
 
+  const query = activeFilters.find((filter) => filter.key === 'nl')
+  const refinements = activeFilters.filter((filter) => filter.key !== 'nl')
+
   return (
-    <div className="flex flex-wrap items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.04] px-5 py-1.5">
-      <span className="font-mono text-[9px] font-bold text-primary uppercase tracking-wider mr-2 select-none">
-        Active
-      </span>
-      {activeFilters.map((filter) => (
-        <div
-          key={filter.key}
-          className="inline-flex items-center gap-1 px-3 py-0.5 bg-card border border-primary/25 rounded-full font-mono text-[10px] text-foreground hover:border-primary/50 transition-colors shadow-none"
-        >
-          <span className="text-muted-foreground font-medium">{filter.label}:</span>
-          <span className="font-bold">{filter.value}</span>
+    <div className="border-b border-border pb-4">
+      <div className="flex flex-wrap items-center gap-3">
+        {query ? (
+          <>
+            <span className="font-heading text-[15px] font-medium text-muted-foreground">
+              You asked
+            </span>
+            <span className="font-heading text-[19px] font-medium italic text-foreground">
+              {query.value}
+            </span>
+          </>
+        ) : (
+          <span className="font-heading text-[15px] font-medium text-muted-foreground">
+            Refined by
+          </span>
+        )}
+
+        {refinements.map((filter) => (
           <button
+            key={filter.key}
             type="button"
             onClick={() => onRemove(filter.key)}
-            className="ml-1 text-primary hover:text-primary-hover font-bold px-0.5 transition-colors text-xs cursor-pointer select-none"
+            className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium text-foreground hover:border-primary/40"
             aria-label={`Remove filter: ${filter.label}`}
           >
-            ×
+            <span className="text-muted-foreground">{filter.label}:</span>
+            <span>{filter.value}</span>
+            <X className="size-3 text-primary" />
           </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={onClearAll}
-        className="font-mono text-[10px] font-bold text-primary hover:underline uppercase tracking-wider ml-auto px-2 select-none cursor-pointer"
-      >
-        Clear All
-      </button>
+        ))}
+
+        <button
+          type="button"
+          onClick={onClearAll}
+          className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+        >
+          Clear
+        </button>
+        <div className="min-w-3 flex-1" />
+        <span className="font-mono text-xs text-muted-foreground">
+          {resultCount.toLocaleString()} results · sorted by match
+        </span>
+      </div>
     </div>
   )
 }
 
 function buildActiveFilters(defaults: SearchFormDefaults): ActiveFilterItem[] {
   const filters: (ActiveFilterItem | null)[] = [
-    defaults.nl ? { key: 'nl', label: 'QUERY', value: `"${defaults.nl}"` } : null,
-    defaults.city ? { key: 'city', label: 'LOCATION', value: defaults.city } : null,
-    defaults.employer ? { key: 'employer', label: 'EMPLOYER', value: defaults.employer } : null,
-    defaults.university ? { key: 'university', label: 'SCHOOL', value: defaults.university } : null,
-    defaults.major ? { key: 'major', label: 'MAJOR', value: defaults.major } : null,
-    defaults.topic ? { key: 'topic', label: 'TOPIC', value: defaults.topic } : null,
+    defaults.nl ? { key: 'nl', label: 'query', value: `"${defaults.nl}"` } : null,
+    defaults.city ? { key: 'city', label: 'location', value: defaults.city } : null,
+    defaults.employer ? { key: 'employer', label: 'employer', value: defaults.employer } : null,
+    defaults.university ? { key: 'university', label: 'school', value: defaults.university } : null,
+    defaults.major ? { key: 'major', label: 'major', value: defaults.major } : null,
+    defaults.topic ? { key: 'topic', label: 'topic', value: defaults.topic } : null,
     defaults.gradYearMin || defaults.gradYearMax
       ? {
           key: 'gradYearMin',
-          label: 'CLASS',
-          value: `${defaults.gradYearMin || 'any'}–${defaults.gradYearMax || 'any'}`,
+          label: 'class',
+          value: `${defaults.gradYearMin || 'any'}-${defaults.gradYearMax || 'any'}`,
         }
       : null,
-    defaults.q ? { key: 'q', label: 'KEYWORD', value: defaults.q } : null,
-    defaults.openToMentor ? { key: 'openToMentor', label: 'MENTOR', value: 'YES' } : null,
-    defaults.peopleIKnow ? { key: 'peopleIKnow', label: 'MY CIRCLE', value: 'YES' } : null,
+    defaults.q ? { key: 'q', label: 'keyword', value: defaults.q } : null,
+    defaults.openToMentor ? { key: 'openToMentor', label: 'mentor', value: 'yes' } : null,
+    defaults.peopleIKnow ? { key: 'peopleIKnow', label: 'my circle', value: 'yes' } : null,
   ]
   return filters.filter((filter): filter is ActiveFilterItem => filter !== null)
 }

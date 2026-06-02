@@ -5,6 +5,7 @@ import { requireSession } from '@/lib/auth/session'
 import { listNotifications } from '@/lib/notifications/listNotifications'
 import { unreadCount } from '@/lib/notifications/unreadCount'
 import { MemberHeader } from './member-header'
+import { MemberTabBar } from './member-tab-bar'
 
 /**
  * Routes reachable mid-onboarding. The onboarding flow itself lives at
@@ -117,7 +118,7 @@ export default async function MemberLayout({ children }: { children: React.React
   ])
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-[100dvh] flex-col overflow-hidden md:h-auto md:min-h-screen md:overflow-visible">
       <MemberHeader
         userId={session.userId}
         name={profile?.name ?? null}
@@ -126,7 +127,11 @@ export default async function MemberLayout({ children }: { children: React.React
         notifications={notifications}
         unreadCount={unreadResult}
       />
-      <main className="flex-1">{children}</main>
+      {/* Mobile main owns scroll while the bottom tab bar stays anchored. */}
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(60px+env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch] md:overflow-visible md:pb-0">
+        {children}
+      </main>
+      <MemberTabBar />
     </div>
   )
 }

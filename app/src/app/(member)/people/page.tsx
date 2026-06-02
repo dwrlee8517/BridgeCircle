@@ -1,11 +1,11 @@
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import type { ExtractedFilters } from '@/lib/search/extractFilters'
 import { parseSearchParams } from '@/lib/search/schemas'
 import { type SearchHit, searchAlumni } from '@/lib/search/searchAlumni'
 import { type NLSearchHit, searchAlumniNL } from '@/lib/search/searchAlumniNL'
-import { PeopleSearchSurface, ResultGrid, ResultsHeader } from './people-search-surface'
+import { PeopleSearchSurface, ResultGrid } from './people-search-surface'
 import { ResultCard } from './result-card'
 
 type RawSearchParams = Record<string, string | string[] | undefined>
@@ -65,9 +65,7 @@ export default async function PeoplePage({
   let nlHits: NLSearchHit[] = []
   let structuredHits: SearchHit[] = []
   let nlPoolSize = 0
-  let nlFallback: 'rerank_failed' | 'no_pool' | null = null
   let nlError: string | null = null
-  let nlExtracted: ExtractedFilters | null = null
 
   if (useNL) {
     const result = await searchAlumniNL(supabase, {
@@ -83,8 +81,6 @@ export default async function PeoplePage({
     if (result.ok) {
       nlHits = result.hits
       nlPoolSize = result.poolSize
-      nlFallback = result.llmFallback
-      nlExtracted = result.filters
     } else {
       nlError =
         result.error === 'no_api_key'
@@ -128,6 +124,10 @@ export default async function PeoplePage({
   const hasActiveSearch = anyFilter || useNL
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
   const resultCount = showNaturalLanguageResults ? nlHits.length : structuredHits.length
+  const activeHits = showNaturalLanguageResults ? nlHits : structuredHits
+  const openCount = activeHits.filter(
+    (hit) => hit.isOpenAsMentor || hit.isOpenAsAdviceHelper,
+  ).length
   const totalPages = Math.max(1, Math.ceil(resultCount / PAGE_SIZE))
   const currentPage = Number.isFinite(requestedPage)
     ? Math.min(Math.max(requestedPage, 1), totalPages)
@@ -137,56 +137,87 @@ export default async function PeoplePage({
   const pagedStructuredHits = structuredHits.slice(pageStart, pageStart + PAGE_SIZE)
 
   return (
-    // density-cozy: list of person result cards. See docs/experience/ui/design-system/tokens.md § Density modes.
-    <div className="density-cozy bg-background min-h-full">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
-        <PeopleSearchSurface
-          filtersOpen={filtersOpen}
-          defaults={{
-            nl: nlQuery,
-            q: filters.q ?? '',
-            city: filters.city ?? '',
-            employer: filters.employer ?? '',
-            university: filters.university ?? '',
-            major: filters.major ?? '',
-            topic: filters.topic ?? '',
-            gradYearMin: filters.gradYearMin?.toString() ?? '',
-            gradYearMax: filters.gradYearMax?.toString() ?? '',
-            openToMentor: !!filters.openToMentor,
-            peopleIKnow: !!filters.peopleIKnow,
-          }}
-        >
-          {nlError ? (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-sm">
-              {nlError}
-            </div>
-          ) : null}
+    <div className="density-cozy min-h-full bg-background">
+      <PeopleSearchSurface
+        filtersOpen={filtersOpen}
+        resultCount={resultCount}
+        openCount={openCount}
+        defaults={{
+          nl: nlQuery,
+          q: filters.q ?? '',
+          city: filters.city ?? '',
+          employer: filters.employer ?? '',
+          university: filters.university ?? '',
+          major: filters.major ?? '',
+          topic: filters.topic ?? '',
+          gradYearMin: filters.gradYearMin?.toString() ?? '',
+          gradYearMax: filters.gradYearMax?.toString() ?? '',
+          openToMentor: !!filters.openToMentor,
+          peopleIKnow: !!filters.peopleIKnow,
+        }}
+      >
+        {nlError ? (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-card">
+            {nlError}
+          </div>
+        ) : null}
 
-          {useNL && nlExtracted ? (
-            <NLExtractionSummary
-              query={nlQuery}
-              extracted={nlExtracted}
-              poolSize={nlPoolSize}
-              fallback={nlFallback}
-              shownCount={nlHits.length}
+        {showNaturalLanguageResults ? (
+          nlHits.length === 0 ? (
+            <EmptyResults
+              text={
+                nlPoolSize === 0
+                  ? 'No alumni matched the filters extracted from your query. Try removing constraints in the filter panel.'
+                  : 'The pool was narrowed but no candidates scored highly. Try a broader query.'
+              }
             />
-          ) : null}
-
-          <ResultsHeader resultCount={resultCount} hasFilter={hasActiveSearch} />
-
-          {showNaturalLanguageResults ? (
-            nlHits.length === 0 ? (
-              <EmptyResults
-                text={
-                  nlPoolSize === 0
-                    ? 'No alumni matched the filters extracted from your query. Try removing constraints in the filter panel.'
-                    : 'The pool was narrowed but no candidates scored highly. Try a broader query.'
-                }
+          ) : (
+            <>
+              <ResultGrid>
+                {pagedNlHits.map((h) => (
+                  <ResultCard
+                    key={h.userId}
+                    userId={h.userId}
+                    name={h.name}
+                    preferredName={h.preferredName}
+                    headline={h.headline}
+                    currentEmployer={h.currentEmployer}
+                    currentTitle={h.currentTitle}
+                    city={h.city}
+                    university={h.university}
+                    major={h.major}
+                    graduationYear={h.graduationYear}
+                    avatarUrl={h.avatarUrl}
+                    isOpenAsMentor={h.isOpenAsMentor}
+                    isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
+                    mentorPaused={h.mentorPaused}
+                    mentoringTopics={h.mentoringTopics}
+                    isFriend={friendIds.has(h.userId)}
+                    rationale={h.rationale}
+                    rerankScore={h.rerankScore}
+                    topCareerEntry={pickTopCareerEntry(h.careerHistory)}
+                    maxActiveMentees={h.maxActiveMentees}
+                    maxPendingRequests={h.maxPendingRequests}
+                    activeMenteeCount={h.activeMenteeCount}
+                    pendingRequestCount={h.pendingRequestCount}
+                  />
+                ))}
+              </ResultGrid>
+              <PeoplePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalResults={resultCount}
+                params={params}
               />
-            ) : (
+              <PeopleFeedbackStrip />
+            </>
+          )
+        ) : (
+          <>
+            {structuredHits.length > 0 ? (
               <>
                 <ResultGrid>
-                  {pagedNlHits.map((h) => (
+                  {pagedStructuredHits.map((h) => (
                     <ResultCard
                       key={h.userId}
                       userId={h.userId}
@@ -205,9 +236,9 @@ export default async function PeoplePage({
                       mentorPaused={h.mentorPaused}
                       mentoringTopics={h.mentoringTopics}
                       isFriend={friendIds.has(h.userId)}
-                      rationale={h.rationale}
-                      rerankScore={h.rerankScore}
-                      topCareerEntry={pickTopCareerEntry(h.careerHistory)}
+                      rationale={null}
+                      rerankScore={null}
+                      topCareerEntry={null}
                       maxActiveMentees={h.maxActiveMentees}
                       maxPendingRequests={h.maxPendingRequests}
                       activeMenteeCount={h.activeMenteeCount}
@@ -221,78 +252,65 @@ export default async function PeoplePage({
                   totalResults={resultCount}
                   params={params}
                 />
+                <PeopleFeedbackStrip />
               </>
-            )
-          ) : (
-            <>
-              {structuredHits.length > 0 ? (
-                <>
-                  <ResultGrid>
-                    {pagedStructuredHits.map((h) => (
-                      <ResultCard
-                        key={h.userId}
-                        userId={h.userId}
-                        name={h.name}
-                        preferredName={h.preferredName}
-                        headline={h.headline}
-                        currentEmployer={h.currentEmployer}
-                        currentTitle={h.currentTitle}
-                        city={h.city}
-                        university={h.university}
-                        major={h.major}
-                        graduationYear={h.graduationYear}
-                        avatarUrl={h.avatarUrl}
-                        isOpenAsMentor={h.isOpenAsMentor}
-                        isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
-                        mentorPaused={h.mentorPaused}
-                        mentoringTopics={h.mentoringTopics}
-                        isFriend={friendIds.has(h.userId)}
-                        rationale={null}
-                        rerankScore={null}
-                        topCareerEntry={null}
-                        maxActiveMentees={h.maxActiveMentees}
-                        maxPendingRequests={h.maxPendingRequests}
-                        activeMenteeCount={h.activeMenteeCount}
-                        pendingRequestCount={h.pendingRequestCount}
-                      />
-                    ))}
-                  </ResultGrid>
-                  <PeoplePagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    totalResults={resultCount}
-                    params={params}
-                  />
-                </>
-              ) : null}
-              {structuredHits.length === 0 && hasActiveSearch ? (
-                <EmptyResults
-                  text={
-                    <>
-                      No alumni matched these filters.{' '}
-                      <Link href="/people" className="text-primary font-semibold hover:underline">
-                        Clear all
-                      </Link>{' '}
-                      and try again.
-                    </>
-                  }
-                />
-              ) : null}
-              {structuredHits.length === 0 && !hasActiveSearch ? (
-                <EmptyResults text="Type a query above or adjust filters to browse alumni." />
-              ) : null}
-            </>
-          )}
-        </PeopleSearchSurface>
-      </div>
+            ) : null}
+            {structuredHits.length === 0 && hasActiveSearch ? (
+              <EmptyResults
+                text={
+                  <>
+                    No alumni matched these filters.{' '}
+                    <Link href="/people" className="text-primary font-semibold hover:underline">
+                      Clear all
+                    </Link>{' '}
+                    and try again.
+                  </>
+                }
+              />
+            ) : null}
+            {structuredHits.length === 0 && !hasActiveSearch ? (
+              <EmptyResults text="Type a query above or adjust filters to browse alumni." />
+            ) : null}
+          </>
+        )}
+      </PeopleSearchSurface>
     </div>
   )
 }
 
 function EmptyResults({ text }: { text: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-sm">
+    <div className="rounded-md border border-border bg-card p-10 text-center text-sm text-muted-foreground shadow-card">
       {text}
+    </div>
+  )
+}
+
+function PeopleFeedbackStrip() {
+  return (
+    <div className="mt-6 flex flex-col gap-3 rounded-md border border-dashed border-border bg-card px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <div>
+        <p className="text-[13px] font-semibold text-foreground">Are these the right people?</p>
+        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+          Tell us why a result felt off and we&apos;ll improve your matches.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        <Button type="button" variant="outline" size="sm" className="rounded-lg">
+          Off-target
+        </Button>
+        <Button type="button" variant="outline" size="sm" className="rounded-lg">
+          Helpful
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="hidden rounded-lg text-muted-foreground sm:inline-flex"
+        >
+          Skip
+        </Button>
+      </div>
     </div>
   )
 }
@@ -368,65 +386,4 @@ function pickTopCareerEntry(
   if (!e) return null
   const dates = [e.start_date, e.end_date ?? 'present'].filter(Boolean).join('–')
   return { employer: e.employer, title: e.title, dates }
-}
-
-function NLExtractionSummary({
-  query,
-  extracted,
-  poolSize,
-  fallback,
-  shownCount,
-}: {
-  query: string
-  extracted: ExtractedFilters
-  poolSize: number
-  fallback: 'rerank_failed' | 'no_pool' | null
-  shownCount: number
-}) {
-  const chips: Array<{ label: string; value: string }> = []
-  if (extracted.mentorOpen === true) chips.push({ label: 'open to mentor', value: 'yes' })
-  if (extracted.country) chips.push({ label: 'country', value: extracted.country })
-  if (extracted.city) chips.push({ label: 'city', value: extracted.city })
-  if (extracted.university) chips.push({ label: 'school', value: extracted.university })
-  if (extracted.major) chips.push({ label: 'major', value: extracted.major })
-  if (extracted.employer) chips.push({ label: 'employer', value: extracted.employer })
-  if (extracted.gradYearMin || extracted.gradYearMax) {
-    chips.push({
-      label: 'grad year',
-      value: `${extracted.gradYearMin ?? '…'}–${extracted.gradYearMax ?? '…'}`,
-    })
-  }
-  if (extracted.theme) chips.push({ label: 'theme', value: extracted.theme })
-
-  return (
-    <div className="rounded-lg border border-border bg-primary/[0.02] p-4 space-y-2.5 shadow-sm">
-      <div className="flex flex-wrap items-center gap-2 text-sm">
-        <span className="text-muted-foreground">Searching for:</span>
-        <span className="font-semibold">&ldquo;{query}&rdquo;</span>
-      </div>
-      {chips.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {chips.map((c) => (
-            <span
-              key={`${c.label}-${c.value}`}
-              className="inline-flex items-center px-2 py-0.5 border border-border/80 bg-card rounded-md font-mono text-[10px] text-foreground"
-            >
-              <span className="text-muted-foreground font-semibold">{c.label}:</span>
-              <span className="ml-1 font-bold">{c.value}</span>
-            </span>
-          ))}
-        </div>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          No structured filters extracted — ranking purely on theme.
-        </p>
-      )}
-      <p className="font-mono text-[10px] text-muted-foreground tracking-wide">
-        Showing {shownCount} of {poolSize} matched alumni, ranked by Claude.
-        {fallback === 'rerank_failed'
-          ? ' (Reranker hiccupped — falling back to default order.)'
-          : ''}
-      </p>
-    </div>
-  )
 }

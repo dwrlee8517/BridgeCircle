@@ -184,7 +184,7 @@ export function Wizard({
   return (
     <div className="space-y-6">
       {/* High-Contrast Monospace Steps Progress Bar */}
-      <div className="flex border border-border bg-muted/20 rounded-md p-2 justify-between text-[9px] font-mono tracking-tight uppercase select-none overflow-x-auto whitespace-nowrap scrollbar-none">
+      <div className="flex border border-border bg-muted/20 rounded-md p-2 justify-between text-xs font-mono tracking-tight uppercase select-none overflow-x-auto whitespace-nowrap scrollbar-none">
         {steps.map((s, idx) => {
           const isActive = s.id === step
           const isCompleted = currentStepIndex > idx
@@ -192,7 +192,7 @@ export function Wizard({
             <div key={s.id} className="flex items-center gap-1.5 shrink-0">
               <span
                 className={cn(
-                  'size-4 rounded-full border flex items-center justify-center text-[8px]',
+                  'size-5 rounded-full border flex items-center justify-center text-xs',
                   isActive
                     ? 'border-primary bg-primary text-primary-foreground font-bold'
                     : isCompleted
@@ -228,7 +228,7 @@ export function Wizard({
               type="button"
               onClick={() => setCurrentAskType('advice')}
               className={cn(
-                'border rounded-lg p-4 text-left transition-all w-full flex flex-col gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary',
+                'border rounded-lg p-4 text-left transition-colors w-full flex flex-col gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary',
                 currentAskType === 'advice'
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
                   : 'border-border hover:bg-accent',
@@ -236,7 +236,7 @@ export function Wizard({
             >
               <div className="flex justify-between w-full items-baseline">
                 <span className="font-semibold text-sm text-foreground">Ask for Quick Advice</span>
-                <span className="font-mono text-[9px] uppercase tracking-wider text-primary">
+                <span className="font-mono text-xs uppercase tracking-wider text-primary">
                   Advice Path
                 </span>
               </div>
@@ -256,7 +256,7 @@ export function Wizard({
                 }
               }}
               className={cn(
-                'border rounded-lg p-4 text-left transition-all w-full flex flex-col gap-2.5 relative text-left',
+                'border rounded-lg p-4 text-left transition-colors w-full flex flex-col gap-2.5 relative text-left',
                 !mentorshipAtCapacity
                   ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary'
                   : 'opacity-75 cursor-not-allowed',
@@ -271,7 +271,7 @@ export function Wizard({
                 </span>
                 <span
                   className={cn(
-                    'font-mono text-[9px] uppercase tracking-wider',
+                    'font-mono text-xs uppercase tracking-wider',
                     mentorshipAtCapacity ? 'text-destructive font-bold' : 'text-primary',
                   )}
                 >
@@ -285,7 +285,7 @@ export function Wizard({
 
               {/* Bandwidth Capacity Details */}
               <div className="border-t border-border pt-3 mt-1.5 w-full space-y-2">
-                <span className="text-[9px] font-mono text-muted-foreground uppercase font-bold tracking-wider block">
+                <span className="text-xs font-mono text-muted-foreground uppercase font-bold tracking-wider block">
                   Bandwidth Capacity
                 </span>
                 <CapacityIndicatorGauge
@@ -297,7 +297,7 @@ export function Wizard({
                   className="bg-background/80"
                 />
                 {mentorshipAtCapacity && (
-                  <div className="flex gap-1.5 items-center text-destructive text-[10px] font-mono font-bold mt-2 bg-destructive/10 p-2 rounded border border-destructive/20">
+                  <div className="flex gap-1.5 items-center text-destructive text-xs font-mono font-bold mt-2 bg-destructive/10 p-2 rounded border border-destructive/20">
                     <AlertCircle className="size-3.5 shrink-0" />
                     <span>
                       Warning: Mentor is at full capacity. Requesting mentorship is disabled.

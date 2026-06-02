@@ -83,7 +83,7 @@ UX, UI, screen-level decisions, and active visual references.
 
 - [Experience index](experience/README.md) — trust hierarchy for current UX, UI, and screen guidance
 - [UX](experience/ux/) — active UX interpretation and links to canonical behavior docs
-- [Civic Editorial design system](experience/ui/design-system/) — active visual source of truth
+- [Civic Editorial design system](experience/ui/design-system/) — active UI system; the handoff bundle inside it is the intended UI/UX source of truth
 - [Current member UI quality plan](experience/audits/current-member-ui-quality-plan.md) — active UI alignment checklist for Home, Ask, Help, People, School, and Inbox
 - [Screen map](experience/screens/phase-1-screen-map.md) — screen-level bridge between behavior and UI
 - [Explorations](experience/explorations/) — experimental workspace, not canonical unless promoted

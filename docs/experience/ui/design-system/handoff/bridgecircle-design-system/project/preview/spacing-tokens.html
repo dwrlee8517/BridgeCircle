@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  .token{background:#fff;border:1px solid #dcdcd6;border-radius:10px;padding:14px}
+  .bar{border-radius:5px;background:#2563eb;margin-bottom:10px}
+  .label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#4d4d4a;font-weight:700}
+  .val{font-family:'JetBrains Mono',monospace;font-size:10px;color:#2563eb;margin-top:2px}
+  .desc{font-size:10px;color:#4d4d4a;margin-top:3px}
+
+  .shadows{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .shadow-card{background:#fff;border:1px solid #dcdcd6;border-radius:10px;padding:16px}
+  .shadow-name{font-size:11px;font-weight:700;margin-bottom:4px}
+  .shadow-val{font-family:'JetBrains Mono',monospace;font-size:9px;color:#4d4d4a;line-height:1.5}
+  .shadow-use{font-size:10px;color:#4d4d4a;margin-top:6px}
+
+  .section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+  .section-label::before{content:'';display:block;width:20px;height:2px;background:#2563eb;border-radius:99px}
+  .radii{display:flex;gap:12px;align-items:flex-end;background:#fff;border:1px solid #dcdcd6;border-radius:10px;padding:16px}
+  .r-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .r-box{background:#2563eb;width:48px;height:48px}
+  .r-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4d4d4a;text-align:center}
+</style>
+</head>
+<body>
+<div class="section-label">Spacing scale — 4px base unit</div>
+<div class="grid">
+  <div class="token"><div class="bar" style="height:4px"></div><div class="label">space-1 / xs</div><div class="val">4px</div></div>
+  <div class="token"><div class="bar" style="height:8px"></div><div class="label">space-2 / sm</div><div class="val">8px</div></div>
+  <div class="token"><div class="bar" style="height:12px"></div><div class="label">space-3</div><div class="val">12px</div></div>
+  <div class="token"><div class="bar" style="height:16px"></div><div class="label">space-4 / md</div><div class="val">16px</div></div>
+  <div class="token"><div class="bar" style="height:24px"></div><div class="label">space-6 / lg</div><div class="val">24px · card padding</div></div>
+  <div class="token"><div class="bar" style="height:32px"></div><div class="label">space-8 / xl</div><div class="val">32px · section gap</div></div>
+  <div class="token"><div class="bar" style="height:48px"></div><div class="label">space-12 / 2xl</div><div class="val">48px</div></div>
+</div>
+
+<div class="section-label" style="margin-top:16px">Border radius</div>
+<div class="radii">
+  <div class="r-item"><div class="r-box" style="border-radius:0px"></div><div class="r-label">none<br>0px</div></div>
+  <div class="r-item"><div class="r-box" style="border-radius:6px"></div><div class="r-label">sm<br>6px</div></div>
+  <div class="r-item"><div class="r-box" style="border-radius:10px"></div><div class="r-label">md (default)<br>10px</div></div>
+  <div class="r-item"><div class="r-box" style="border-radius:14px"></div><div class="r-label">lg<br>14px</div></div>
+  <div class="r-item"><div class="r-box" style="border-radius:9999px;width:48px;height:48px"></div><div class="r-label">full<br>avatars, dots</div></div>
+</div>
+
+<div class="section-label" style="margin-top:16px">Elevation — shadow scale</div>
+<div class="shadows">
+  <div class="shadow-card" style="box-shadow:0 1px 0 rgb(12 12 11/.03)">
+    <div class="shadow-name">Hairline</div>
+    <div class="shadow-val">0 1px 0 rgb(12 12 11 / .03)</div>
+    <div class="shadow-use">Quiet rows, inline cards</div>
+  </div>
+  <div class="shadow-card" style="box-shadow:0 4px 12px -2px rgb(12 12 11/.06)">
+    <div class="shadow-name">Lift</div>
+    <div class="shadow-val">0 4px 12px -2px rgb(12 12 11 / .06)</div>
+    <div class="shadow-use">Interactive cards, auth surfaces</div>
+  </div>
+  <div class="shadow-card" style="box-shadow:0 12px 34px -8px rgb(12 12 11/.10)">
+    <div class="shadow-name">Hero</div>
+    <div class="shadow-val">0 12px 34px -8px rgb(12 12 11 / .10)</div>
+    <div class="shadow-use">Hero/feature — one per surface</div>
+  </div>
+</div>
+</body>
+</html>

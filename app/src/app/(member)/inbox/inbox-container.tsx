@@ -1,14 +1,27 @@
 'use client'
 
 import { format, isToday, isYesterday } from 'date-fns'
-import { ArrowLeft, ChevronRight, Inbox as InboxIcon, Search, Smile, X } from 'lucide-react'
+import {
+  Archive,
+  ArrowLeft,
+  ChevronRight,
+  Inbox as InboxIcon,
+  MessageSquare,
+  Send,
+  Smile,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useActionState, useEffect, useMemo, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
+import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/db/client'
-import { unifiedSendMessageAction } from './actions'
+import {
+  acceptAskFromInboxAction,
+  declineAskFromInboxAction,
+  unifiedSendMessageAction,
+} from './actions'
 import { FriendRequestActions } from './friend-request-actions'
 
 export type AskData = {
@@ -80,7 +93,95 @@ export type InboxItem = {
   originalData: unknown
 }
 
-type TabType = 'needs_reply' | 'helping' | 'getting_help' | 'connections' | 'archived'
+type InboxArea = 'conversations' | 'requests' | 'history'
+type ConversationView = 'needs_response' | 'helping' | 'getting_help' | 'direct'
+type RequestView = 'received' | 'sent'
+type HistoryView = 'archived'
+type InboxView = ConversationView | RequestView | HistoryView
+type InboxSection = 'advice' | 'mentorship' | 'connections'
+
+const PRIMARY_AREAS = [
+  {
+    id: 'conversations',
+    label: 'Conversations',
+    description: 'Accepted help and direct messages',
+  },
+  {
+    id: 'requests',
+    label: 'Requests',
+    description: 'Accept, decline, or check sent status',
+  },
+  {
+    id: 'history',
+    label: 'History',
+    description: 'Closed and archived threads',
+  },
+] as const satisfies ReadonlyArray<{
+  id: InboxArea
+  label: string
+  description: string
+}>
+
+const CONVERSATION_VIEWS = [
+  {
+    id: 'needs_response',
+    label: 'Needs response',
+    description: 'Unread active threads',
+    tone: 'warn',
+  },
+  {
+    id: 'helping',
+    label: 'Helping others',
+    description: 'Advice and mentorship you give',
+    tone: 'open',
+  },
+  {
+    id: 'getting_help',
+    label: 'Getting help',
+    description: 'Advice and mentorship you receive',
+    tone: 'info',
+  },
+  {
+    id: 'direct',
+    label: 'Direct messages',
+    description: 'Friend-to-friend threads',
+    tone: 'muted',
+  },
+] as const satisfies ReadonlyArray<{
+  id: ConversationView
+  label: string
+  description: string
+  tone: 'warn' | 'open' | 'info' | 'muted'
+}>
+
+const REQUEST_VIEWS = [
+  {
+    id: 'received',
+    label: 'Received',
+    description: 'Requests that need accept or decline',
+    tone: 'warn',
+  },
+  {
+    id: 'sent',
+    label: 'Sent',
+    description: 'Pending and declined requests you sent',
+    tone: 'muted',
+  },
+] as const satisfies ReadonlyArray<{
+  id: RequestView
+  label: string
+  description: string
+  tone: 'warn' | 'muted'
+}>
+
+const HISTORY_VIEWS = [
+  { id: 'archived', label: 'Archived', description: 'Closed help relationships', tone: 'muted' },
+] as const satisfies ReadonlyArray<{
+  id: HistoryView
+  label: string
+  description: string
+  tone: 'muted'
+}>
 
 interface CurrentUser {
   name: string | null
@@ -95,49 +196,30 @@ export function InboxContainer({
   items: InboxItem[]
   currentUser: CurrentUser
 }) {
-  const [activeTab, setActiveTab] = useState<TabType>('needs_reply')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [activeArea, setActiveArea] = useState<InboxArea>('conversations')
+  const [conversationView, setConversationView] = useState<ConversationView>(() =>
+    initialConversationView(items, currentUser.userId),
+  )
+  const [requestView, setRequestView] = useState<RequestView>('received')
+  const [historyView, setHistoryView] = useState<HistoryView>('archived')
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [showDetail, setShowDetail] = useState(false)
-  const [status, setStatus] = useState<string | null>(null)
   const [reactionsMap, setReactionsMap] = useState<Record<string, string[]>>({})
 
-  // Load status and reactions from localStorage on mount
   useEffect(() => {
-    const storedStatus = localStorage.getItem('bridgecircle_user_status')
-    const storedExpiry = localStorage.getItem('bridgecircle_user_status_expiry')
-    if (storedStatus && storedExpiry) {
-      if (Date.now() < Number(storedExpiry)) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setStatus(storedStatus)
-      } else {
-        localStorage.removeItem('bridgecircle_user_status')
-        localStorage.removeItem('bridgecircle_user_status_expiry')
+    const frame = window.requestAnimationFrame(() => {
+      const storedReactions = localStorage.getItem('bridgecircle_reactions')
+      if (storedReactions) {
+        try {
+          setReactionsMap(JSON.parse(storedReactions))
+        } catch (e) {
+          console.error('Failed to parse reactions from localStorage:', e)
+        }
       }
-    }
+    })
 
-    const storedReactions = localStorage.getItem('bridgecircle_reactions')
-    if (storedReactions) {
-      try {
-        setReactionsMap(JSON.parse(storedReactions))
-      } catch (e) {
-        console.error('Failed to parse reactions from localStorage:', e)
-      }
-    }
+    return () => window.cancelAnimationFrame(frame)
   }, [])
-
-  const handleSetStatus = (newStatus: string | null) => {
-    if (newStatus) {
-      const expiry = Date.now() + 14 * 24 * 60 * 60 * 1000 // 14 days
-      localStorage.setItem('bridgecircle_user_status', newStatus)
-      localStorage.setItem('bridgecircle_user_status_expiry', String(expiry))
-      setStatus(newStatus)
-    } else {
-      localStorage.removeItem('bridgecircle_user_status')
-      localStorage.removeItem('bridgecircle_user_status_expiry')
-      setStatus(null)
-    }
-  }
 
   const toggleReaction = (messageId: string, reaction: string) => {
     setReactionsMap((prev) => {
@@ -151,81 +233,55 @@ export function InboxContainer({
     })
   }
 
-  // Filter items based on active tab and search query
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      // Tab filter
-      if (activeTab === 'needs_reply') {
-        if (
-          !item.unread &&
-          item.type !== 'incoming_ask' &&
-          item.type !== 'friend_request_incoming'
-        ) {
-          return false
-        }
-      } else if (activeTab === 'helping') {
-        if (!isHelpingItem(item, currentUser.userId)) return false
-      } else if (activeTab === 'getting_help') {
-        if (!isGettingHelpItem(item, currentUser.userId)) return false
-      } else if (activeTab === 'connections') {
-        if (
-          item.type !== 'dm_thread' &&
-          item.type !== 'friend_request_incoming' &&
-          item.type !== 'friend_request_outgoing'
-        ) {
-          return false
-        }
-      } else if (activeTab === 'archived') {
-        return false
-      }
-
-      // Search query filter
-      if (searchQuery.trim() !== '') {
-        const query = searchQuery.toLowerCase()
-        const titleMatch = item.title.toLowerCase().includes(query)
-        const subtitleMatch = item.subtitle.toLowerCase().includes(query)
-        return titleMatch || subtitleMatch
-      }
-
-      return true
-    })
-  }, [items, activeTab, searchQuery, currentUser.userId])
-
-  // Select first item if current selection is no longer in filtered list (e.g. due to search)
-  useEffect(() => {
-    if (filteredItems.length > 0) {
-      const exists = filteredItems.some((i) => i.id === selectedItemId)
-      if (!exists) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSelectedItemId(filteredItems[0].id)
-      }
-    } else {
-      setSelectedItemId(null)
-    }
-  }, [filteredItems, selectedItemId])
-
-  // Get active item details
-  const activeItem = useMemo(() => {
-    return items.find((item) => item.id === selectedItemId) || null
-  }, [items, selectedItemId])
-
-  const lifecycleCounts = useMemo(
+  const primaryCounts = useMemo(
     () => ({
-      needsReply: items.filter(
-        (item) =>
-          item.unread || item.type === 'incoming_ask' || item.type === 'friend_request_incoming',
+      conversations: items.filter(isConversationItem).length,
+      requests: items.filter(isRequestItem).length,
+      history: items.filter(isHistoryItem).length,
+    }),
+    [items],
+  )
+
+  const conversationCounts = useMemo(
+    () => ({
+      needs_response: items.filter(isConversationNeedsResponseItem).length,
+      helping: items.filter(
+        (item) => isActiveAskThread(item) && isHelpingItem(item, currentUser.userId),
       ).length,
-      helping: items.filter((item) => isHelpingItem(item, currentUser.userId)).length,
-      gettingHelp: items.filter((item) => isGettingHelpItem(item, currentUser.userId)).length,
-      connections: items.filter(
-        (item) =>
-          item.type === 'dm_thread' ||
-          item.type === 'friend_request_incoming' ||
-          item.type === 'friend_request_outgoing',
+      getting_help: items.filter(
+        (item) => isActiveAskThread(item) && !isHelpingItem(item, currentUser.userId),
       ).length,
+      direct: items.filter((item) => item.type === 'dm_thread').length,
     }),
     [items, currentUser.userId],
   )
+
+  const requestCounts = useMemo(
+    () => ({
+      received: items.filter(isReceivedRequestItem).length,
+      sent: items.filter(isSentRequestItem).length,
+    }),
+    [items],
+  )
+
+  const historyCounts = useMemo(
+    () => ({
+      archived: items.filter(isHistoryItem).length,
+    }),
+    [items],
+  )
+
+  const activeView = activeInboxView(activeArea, conversationView, requestView, historyView)
+  const activeViewMeta = viewMeta(activeArea, activeView)
+
+  const filteredItems = useMemo(
+    () => filterItemsForView(items, activeArea, activeView, currentUser.userId),
+    [items, activeArea, activeView, currentUser.userId],
+  )
+
+  const activeItem = useMemo(() => {
+    return filteredItems.find((item) => item.id === selectedItemId) ?? filteredItems[0] ?? null
+  }, [filteredItems, selectedItemId])
 
   const handleSelectItem = (id: string) => {
     setSelectedItemId(id)
@@ -236,420 +292,925 @@ export function InboxContainer({
     setShowDetail(false)
   }
 
+  const handleAreaChange = (area: InboxArea) => {
+    setActiveArea(area)
+    setSelectedItemId(null)
+    setShowDetail(false)
+  }
+
+  const handleViewChange = (view: InboxView) => {
+    if (activeArea === 'conversations') {
+      setConversationView(view as ConversationView)
+    } else if (activeArea === 'requests') {
+      setRequestView(view as RequestView)
+    } else {
+      setHistoryView(view as HistoryView)
+    }
+    setSelectedItemId(null)
+    setShowDetail(false)
+  }
+
   return (
-    <div className="grid grid-cols-1 overflow-hidden bg-background w-full h-full md:grid-cols-[392px_1fr]">
-      {/* Left Column: Thread Lists */}
-      <div
-        className={`flex flex-col border-r border-border bg-surface-panel/55 ${
-          showDetail ? 'hidden md:flex' : 'flex'
-        }`}
-      >
-        <div className="border-b border-border bg-card px-4 py-4">
-          <p className="bc-section-kicker">Relationship queue</p>
-          <h1 className="mt-2 font-heading text-2xl font-semibold leading-tight text-foreground">
-            Inbox
-          </h1>
-          <div className="mt-4 grid grid-cols-4 gap-1.5">
-            <LifecycleStat value={lifecycleCounts.needsReply} label="Reply" tone="warn" />
-            <LifecycleStat value={lifecycleCounts.helping} label="Helping" tone="open" />
-            <LifecycleStat value={lifecycleCounts.gettingHelp} label="Helped" tone="info" />
-            <LifecycleStat value={lifecycleCounts.connections} label="People" tone="muted" />
+    <div className="flex min-h-full flex-col bg-background md:h-full md:min-h-0 md:overflow-hidden">
+      <header className="shrink-0 border-b border-border bg-card px-4 md:px-6">
+        <div className="flex min-h-16 flex-col justify-center py-3 md:py-0">
+          <div>
+            <h1 className="font-heading text-[22px] font-semibold leading-tight text-foreground">
+              Inbox
+            </h1>
+            <p className="mt-0.5 text-sm leading-tight text-muted-foreground">
+              Conversations first, requests clearly separated.
+            </p>
           </div>
         </div>
-        {/* Search Input */}
-        <div className="p-3 pb-1.5 shrink-0">
-          <div className="relative flex items-center">
-            <div className="absolute left-2.5 flex items-center pointer-events-none">
-              <Search className="size-3.5 text-muted-foreground" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search inbox..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-8 py-1.5 rounded-lg border border-border bg-background text-xs text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-primary focus:ring-0 font-sans"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 bg-transparent border-none text-muted-foreground hover:text-foreground cursor-pointer flex items-center p-0"
-              >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
+      </header>
 
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap px-1.5 py-1.5 border-b border-border gap-1 shrink-0 select-none">
-          {(['needs_reply', 'helping', 'getting_help', 'connections', 'archived'] as const).map(
-            (tab) => {
-              const isActive = activeTab === tab
-              return (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => {
-                    setActiveTab(tab)
-                    // Find items for this tab to select the first one
-                    const tabItems = items.filter((item) => {
-                      if (tab === 'needs_reply') {
-                        if (
-                          !item.unread &&
-                          item.type !== 'incoming_ask' &&
-                          item.type !== 'friend_request_incoming'
-                        ) {
-                          return false
-                        }
-                      } else if (tab === 'helping') {
-                        if (!isHelpingItem(item, currentUser.userId)) return false
-                      } else if (tab === 'getting_help') {
-                        if (!isGettingHelpItem(item, currentUser.userId)) return false
-                      } else if (tab === 'connections') {
-                        if (
-                          item.type !== 'dm_thread' &&
-                          item.type !== 'friend_request_incoming' &&
-                          item.type !== 'friend_request_outgoing'
-                        ) {
-                          return false
-                        }
-                      } else if (tab === 'archived') {
-                        return false
-                      }
+      <div className="grid flex-1 grid-cols-1 md:min-h-0 md:overflow-hidden md:grid-cols-[272px_360px_minmax(0,1fr)]">
+        <InboxSidebar
+          activeArea={activeArea}
+          activeView={activeView}
+          primaryCounts={primaryCounts}
+          conversationCounts={conversationCounts}
+          requestCounts={requestCounts}
+          historyCounts={historyCounts}
+          onAreaChange={handleAreaChange}
+          onViewChange={handleViewChange}
+        />
 
-                      if (searchQuery.trim() !== '') {
-                        const query = searchQuery.toLowerCase()
-                        const titleMatch = item.title.toLowerCase().includes(query)
-                        const subtitleMatch = item.subtitle.toLowerCase().includes(query)
-                        return titleMatch || subtitleMatch
-                      }
+        <section
+          className={`min-h-0 flex-col border-r border-border bg-card ${
+            showDetail ? 'hidden md:flex' : 'flex'
+          }`}
+        >
+          <MobileInboxNav
+            activeArea={activeArea}
+            activeView={activeView}
+            primaryCounts={primaryCounts}
+            conversationCounts={conversationCounts}
+            requestCounts={requestCounts}
+            historyCounts={historyCounts}
+            onAreaChange={handleAreaChange}
+            onViewChange={handleViewChange}
+          />
+          <InboxListHeader
+            activeArea={activeArea}
+            activeView={activeView}
+            activeViewMeta={activeViewMeta}
+            count={filteredItems.length}
+          />
 
-                      return true
-                    })
-                    if (tabItems.length > 0) {
-                      setSelectedItemId(tabItems[0].id)
-                    } else {
-                      setSelectedItemId(null)
-                    }
-                  }}
-                  className={`bg-transparent border-none py-1.5 px-2 text-[10.5px] font-sans cursor-pointer whitespace-nowrap transition-all border-b-2 outline-none ${
-                    isActive
-                      ? 'border-primary text-primary font-semibold'
-                      : 'border-transparent text-muted-foreground font-medium hover:text-foreground'
-                  }`}
-                >
-                  {tabLabel(tab)}
-                </button>
-              )
-            },
-          )}
-        </div>
-
-        {/* List of items */}
-        <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
-          {filteredItems.length === 0 ? (
-            // Synthesis P3: empty state should name the state and offer a
-            // credible next step. Lean into brand voice — this is deliberately
-            // a quieter network than a social feed.
-            <div className="m-2 flex min-h-[280px] flex-col justify-center rounded-xl border border-dashed border-border bg-card p-8 text-center">
-              <InboxIcon className="mx-auto mb-3 size-7 text-muted-foreground/60" />
-              <p className="font-heading text-xl font-semibold leading-tight text-foreground">
-                {emptyTitle(activeTab)}
-              </p>
-              <p className="mx-auto mt-2 max-w-[260px] text-sm leading-relaxed text-muted-foreground">
-                {emptyBody(activeTab)}
-              </p>
-              <div className="mt-4 flex justify-center gap-3">
-                <Link
-                  href="/people"
-                  className="text-xs font-semibold text-link hover:text-link-hover"
-                >
-                  Find people →
-                </Link>
-                <Link
-                  href="/mentorship/settings"
-                  className="text-xs font-semibold text-link hover:text-link-hover"
-                >
-                  Update availability →
-                </Link>
-              </div>
-            </div>
-          ) : (
-            filteredItems.map((item) => {
-              const isSelected = item.id === selectedItemId
-              const formattedDate = formatInboxDate(item.date)
-              const initials = getInitials(item.title)
-              const avatarBg = getAvatarColor(item.title)
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleSelectItem(item.id)}
-                  aria-pressed={isSelected}
-                  className={`bc-motion-surface w-full text-left p-2.5 rounded-lg flex items-start gap-2.5 cursor-pointer relative ${
-                    isSelected
-                      ? 'bg-primary-tint border border-state-info/25 shadow-sm'
-                      : 'border border-transparent bg-transparent hover:bg-surface-subtle/70'
-                  }`}
-                >
-                  {/* Initials Circle Avatar */}
-                  <div
-                    className="size-8 rounded-full flex shrink-0 items-center justify-center text-background text-[11px] font-bold font-sans relative select-none"
-                    style={{ backgroundColor: avatarBg }}
-                  >
-                    {initials}
-                    {item.unread && (
-                      <div className="bc-state-unread-dot absolute top-[-1px] right-[-1px] size-2 rounded-full border-[1.5px] border-background" />
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-1">
-                      <span
-                        className={`text-xs text-foreground truncate ${item.unread || isSelected ? 'font-semibold' : 'font-medium'}`}
-                      >
-                        {item.title}
-                      </span>
-                      <span className="font-mono text-[9px] text-muted-foreground shrink-0">
-                        {formattedDate}
-                      </span>
-                    </div>
-
-                    {/* Badges Row */}
-                    <div className="flex gap-1 mt-0.5 mb-1 flex-wrap">
-                      <StatusBadge tone={item.badgeTone} size="sm">
-                        {item.badge}
-                      </StatusBadge>
-                      {item.cohort && (
-                        <span className="inline-flex h-5 items-center rounded-[3px] bg-surface-subtle px-1.5 py-0.5 font-mono text-[10px] font-semibold text-state-muted">
-                          Class of &apos;{String(item.cohort).slice(-2)}
-                        </span>
-                      )}
-                    </div>
-
-                    <p
-                      className={`text-[11.5px] truncate font-sans leading-normal ${isSelected ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
-                    >
-                      {item.subtitle}
-                    </p>
-                  </div>
-                  <ChevronRight className="size-3 text-muted-foreground/60 shrink-0 self-center md:hidden" />
-                </button>
-              )
-            })
-          )}
-        </div>
-      </div>
-
-      {/* Right Column: Details Panel */}
-      <div className={`flex flex-col bg-card ${showDetail ? 'flex' : 'hidden md:flex'}`}>
-        {activeItem ? (
-          <div className="flex flex-col h-full">
-            {/* Header / Back navigation on mobile */}
-            <div className="flex items-center gap-3 border-b border-border/40 px-6 py-4 bg-card shrink-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleBackToList}
-                className="md:hidden size-8 -ml-2 shrink-0"
-              >
-                <ArrowLeft className="size-4" />
-              </Button>
-              <div className="flex items-center justify-between flex-1 min-w-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Avatar className="size-10 border border-border/50 rounded-lg after:rounded-lg shrink-0">
-                    {activeItem.avatarUrl ? (
-                      <AvatarImage
-                        src={activeItem.avatarUrl}
-                        alt={activeItem.title}
-                        className="rounded-lg"
-                      />
-                    ) : null}
-                    <AvatarFallback className="bg-accent font-semibold text-accent-foreground text-sm rounded-lg">
-                      {activeItem.title.slice(0, 1).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <h2 className="text-[15px] font-semibold text-foreground leading-tight truncate">
-                      {roleHeader(activeItem, currentUser.userId)}
-                    </h2>
-                    <p className="text-[12px] text-muted-foreground mt-0.5 truncate">
-                      {activeItem.subtitle} · {format(new Date(activeItem.date), 'MMM d, yyyy')}
-                    </p>
-                  </div>
-                </div>
-                <div className="shrink-0 ml-4">
-                  <StatusBadge tone={activeItem.badgeTone}>{activeItem.badge}</StatusBadge>
-                </div>
-              </div>
-            </div>
-
-            {/* Content Details */}
-            {activeItem.type === 'dm_thread' ? (
-              <InlineConversation
-                threadId={activeItem.id}
-                threadType="direct"
-                title={activeItem.title}
-                avatarUrl={activeItem.avatarUrl}
-                viewerId={currentUser.userId}
-                viewerName={currentUser.name}
-                viewerAvatarUrl={currentUser.avatarUrl}
-                composerEnabled={(activeItem.originalData as DmData).isStillFriends}
-                reactionsMap={reactionsMap}
-                toggleReaction={toggleReaction}
-              />
-            ) : activeItem.type === 'active_thread' ? (
-              <InlineConversation
-                threadId={activeItem.id}
-                threadType="ask"
-                title={activeItem.title}
-                avatarUrl={activeItem.avatarUrl}
-                viewerId={currentUser.userId}
-                viewerName={currentUser.name}
-                viewerAvatarUrl={currentUser.avatarUrl}
-                composerEnabled={(activeItem.originalData as ThreadData).status === 'active'}
-                reactionsMap={reactionsMap}
-                toggleReaction={toggleReaction}
+          <div className="flex-1 p-1.5 md:min-h-0 md:overflow-y-auto">
+            {filteredItems.length === 0 ? (
+              <InboxListEmpty
+                area={activeArea}
+                view={activeView}
+                conversationCounts={conversationCounts}
+                onViewChange={handleViewChange}
               />
             ) : (
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {activeItem.type === 'incoming_ask' && (
-                  <AskDetail ask={activeItem.originalData as AskData} />
-                )}
-                {activeItem.type === 'outgoing_ask' && (
-                  <AskDetail ask={activeItem.originalData as AskData} isOutgoing />
-                )}
-                {activeItem.type === 'friend_request_incoming' && (
-                  <FriendRequestDetail request={activeItem.originalData as FriendRequestData} />
-                )}
-                {activeItem.type === 'friend_request_outgoing' && (
-                  <FriendRequestDetail
-                    request={activeItem.originalData as FriendRequestData}
-                    isOutgoing
+              <div className="flex flex-col gap-0.5">
+                {filteredItems.map((item) => (
+                  <InboxRow
+                    key={item.id}
+                    item={item}
+                    viewerId={currentUser.userId}
+                    isSelected={item.id === activeItem?.id}
+                    onClick={() => handleSelectItem(item.id)}
                   />
-                )}
+                ))}
               </div>
             )}
           </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto bg-background p-6">
-            <div className="mx-auto max-w-5xl">
-              <InboxCommandCenter counts={lifecycleCounts} />
-            </div>
-            <div className="mx-auto mt-5 grid max-w-5xl grid-cols-1 gap-5 lg:grid-cols-2">
-              <StatusSetter
-                currentUser={currentUser}
-                status={status}
-                onSetStatus={handleSetStatus}
-              />
-              <ReactionShowcase />
-            </div>
-          </div>
-        )}
+        </section>
+
+        <section className={`min-h-0 flex-col bg-card ${showDetail ? 'flex' : 'hidden md:flex'}`}>
+          {activeItem ? (
+            <InboxDetailPane
+              item={activeItem}
+              currentUser={currentUser}
+              onBack={handleBackToList}
+              backLabel={
+                activeArea === 'requests'
+                  ? 'Requests'
+                  : activeArea === 'history'
+                    ? 'History'
+                    : 'Conversations'
+              }
+              reactionsMap={reactionsMap}
+              toggleReaction={toggleReaction}
+            />
+          ) : (
+            <EmptyDetail />
+          )}
+        </section>
       </div>
     </div>
   )
 }
 
-function LifecycleStat({
-  value,
-  label,
-  tone,
+function InboxSidebar({
+  activeArea,
+  activeView,
+  primaryCounts,
+  conversationCounts,
+  requestCounts,
+  historyCounts,
+  onAreaChange,
+  onViewChange,
 }: {
-  value: number
-  label: string
-  tone: 'warn' | 'open' | 'info' | 'muted'
+  activeArea: InboxArea
+  activeView: InboxView
+  primaryCounts: Record<InboxArea, number>
+  conversationCounts: Record<ConversationView, number>
+  requestCounts: Record<RequestView, number>
+  historyCounts: Record<HistoryView, number>
+  onAreaChange: (area: InboxArea) => void
+  onViewChange: (view: InboxView) => void
 }) {
-  const toneClass =
-    tone === 'warn'
-      ? 'bg-warning-tint text-state-warning-foreground'
-      : tone === 'open'
-        ? 'bg-success-tint text-state-success-foreground'
-        : tone === 'info'
-          ? 'bg-primary-tint text-primary'
-          : 'bg-muted text-muted-foreground'
   return (
-    <div className={`rounded-lg px-2 py-2 text-center ${toneClass}`}>
-      <p className="font-heading text-lg font-semibold leading-none">{value}</p>
-      <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.08em]">{label}</p>
+    <aside className="hidden min-h-0 flex-col border-r border-border bg-surface-panel/45 md:flex">
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Inbox sections">
+        {PRIMARY_AREAS.map((area) => {
+          const isActive = activeArea === area.id
+
+          return (
+            <div key={area.id}>
+              <button
+                type="button"
+                onClick={() => onAreaChange(area.id)}
+                className={`bc-motion-control flex w-full items-start gap-3 rounded-md border px-3 py-3 text-left ${
+                  isActive
+                    ? 'border-primary/25 bg-primary-tint text-foreground shadow-card'
+                    : 'border-transparent text-muted-foreground hover:border-border hover:bg-card hover:text-foreground'
+                }`}
+                aria-pressed={isActive}
+              >
+                <span
+                  className={`mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md border ${
+                    isActive
+                      ? 'border-primary/25 bg-card text-primary'
+                      : 'border-border bg-card text-muted-foreground'
+                  }`}
+                  aria-hidden
+                >
+                  <AreaIcon area={area.id} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="font-heading text-sm font-semibold leading-tight">
+                      {area.label}
+                    </span>
+                    <CountPill count={primaryCounts[area.id]} active={isActive} />
+                  </span>
+                  <span className="mt-1 block text-xs leading-snug text-muted-foreground">
+                    {area.description}
+                  </span>
+                </span>
+              </button>
+
+              {isActive ? (
+                <div className="ml-11 mt-1 flex flex-col gap-1">
+                  {viewsForArea(area.id).map((view) => {
+                    const viewActive = activeView === view.id
+                    return (
+                      <button
+                        key={view.id}
+                        type="button"
+                        onClick={() => onViewChange(view.id)}
+                        className={`bc-motion-control flex w-full items-center justify-between gap-2 rounded-sm px-2.5 py-2 text-left text-xs font-semibold ${
+                          viewActive
+                            ? viewActiveClass(view.tone)
+                            : 'text-muted-foreground hover:bg-card hover:text-foreground'
+                        }`}
+                        aria-pressed={viewActive}
+                      >
+                        <span className="min-w-0 truncate">{view.label}</span>
+                        <span className="font-mono text-xs">
+                          {countForView(view.id, conversationCounts, requestCounts, historyCounts)}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : null}
+            </div>
+          )
+        })}
+      </nav>
+    </aside>
+  )
+}
+
+function MobileInboxNav({
+  activeArea,
+  activeView,
+  primaryCounts,
+  conversationCounts,
+  requestCounts,
+  historyCounts,
+  onAreaChange,
+  onViewChange,
+}: {
+  activeArea: InboxArea
+  activeView: InboxView
+  primaryCounts: Record<InboxArea, number>
+  conversationCounts: Record<ConversationView, number>
+  requestCounts: Record<RequestView, number>
+  historyCounts: Record<HistoryView, number>
+  onAreaChange: (area: InboxArea) => void
+  onViewChange: (view: InboxView) => void
+}) {
+  return (
+    <div className="shrink-0 border-b border-border bg-surface-panel/45 p-3 md:hidden">
+      <div className="grid grid-cols-3 gap-1 rounded-md border border-border bg-card p-1">
+        {PRIMARY_AREAS.map((area) => {
+          const isActive = activeArea === area.id
+          return (
+            <button
+              key={area.id}
+              type="button"
+              onClick={() => onAreaChange(area.id)}
+              className={`bc-motion-control inline-flex h-9 min-w-0 items-center justify-center gap-1.5 rounded-sm px-1.5 text-xs font-semibold ${
+                isActive
+                  ? 'bg-foreground text-background'
+                  : 'text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
+              }`}
+              aria-pressed={isActive}
+            >
+              <span className="min-w-0 truncate">{area.label}</span>
+              {primaryCounts[area.id] > 0 ? (
+                <span
+                  className={`font-mono text-[10px] ${
+                    isActive ? 'text-background/75' : 'text-muted-foreground'
+                  }`}
+                >
+                  {primaryCounts[area.id]}
+                </span>
+              ) : null}
+            </button>
+          )
+        })}
+      </div>
+      <div className="mt-2 flex gap-1 overflow-x-auto pb-0.5">
+        {viewsForArea(activeArea).map((view) => {
+          const isActive = activeView === view.id
+          return (
+            <button
+              key={view.id}
+              type="button"
+              onClick={() => onViewChange(view.id)}
+              className={`bc-motion-control inline-flex h-8 shrink-0 items-center gap-1.5 rounded-sm border px-2.5 text-xs font-semibold ${
+                isActive
+                  ? `${viewActiveClass(view.tone)} border-transparent`
+                  : 'border-border bg-card text-muted-foreground hover:bg-surface-subtle hover:text-foreground'
+              }`}
+              aria-pressed={isActive}
+            >
+              <span>{view.label}</span>
+              <span className="font-mono text-[10px]">
+                {countForView(view.id, conversationCounts, requestCounts, historyCounts)}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
-function InboxCommandCenter({
-  counts,
+function InboxListHeader({
+  activeArea,
+  activeView,
+  activeViewMeta,
+  count,
 }: {
-  counts: { needsReply: number; helping: number; gettingHelp: number; connections: number }
+  activeArea: InboxArea
+  activeView: InboxView
+  activeViewMeta: InboxViewMeta
+  count: number
 }) {
   return (
-    <div className="bc-action-rail rounded-xl border border-primary/10 p-6 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-        Inbox command center
-      </p>
-      <div className="mt-3 grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div>
-          <h2 className="font-heading text-3xl font-semibold leading-tight text-foreground">
-            Relationship work is organized by state.
+    <div className="shrink-0 border-b border-border bg-card p-3">
+      <p className="bc-section-kicker">{areaLabel(activeArea)}</p>
+      <div className="mt-1 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="font-heading text-lg font-semibold leading-tight text-foreground">
+            {activeViewMeta.label}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Start with replies, then active help, then connection follow-ups. When nothing is
-            selected, use this space to keep availability and relationship signals current.
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            {activeViewMeta.description}
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <CommandMetric value={counts.needsReply} label="Needs reply" />
-          <CommandMetric value={counts.helping} label="Helping" />
-          <CommandMetric value={counts.gettingHelp} label="Getting help" />
-          <CommandMetric value={counts.connections} label="Connections" />
-        </div>
+        <p className="shrink-0 whitespace-nowrap font-mono text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          {listCountLabel(activeArea, activeView, count)}
+        </p>
       </div>
     </div>
   )
 }
 
-function CommandMetric({ value, label }: { value: number; label: string }) {
+function InboxRow({
+  item,
+  viewerId,
+  isSelected,
+  onClick,
+}: {
+  item: InboxItem
+  viewerId: string
+  isSelected: boolean
+  onClick: () => void
+}) {
+  const section = getItemSection(item)
+  const sectionLabel = rowContextLabel(item, viewerId)
+  const color = sectionColor(section)
+
   return (
-    <div className="rounded-lg border border-border bg-card p-3">
-      <p className="font-heading text-2xl font-semibold leading-none text-foreground">{value}</p>
-      <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-        {label}
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={isSelected}
+      className={`bc-motion-surface w-full rounded-md border px-3 py-2.5 text-left ${
+        isSelected
+          ? 'border-state-info/25 bg-primary-tint shadow-card'
+          : 'border-transparent bg-transparent hover:bg-surface-subtle/70'
+      }
+      `}
+    >
+      <div className="flex items-start gap-3">
+        <div className="relative shrink-0">
+          <Avatar className="size-[34px]">
+            {item.avatarUrl ? <AvatarImage src={item.avatarUrl} alt={item.title} /> : null}
+            <AvatarFallback
+              className="font-heading text-xs font-semibold text-white"
+              style={{ backgroundColor: getAvatarColor(item.title) }}
+            >
+              {getInitials(item.title)}
+            </AvatarFallback>
+          </Avatar>
+          {item.unread ? (
+            <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full border-[1.5px] border-background bg-request-attention" />
+          ) : null}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={`truncate text-[13px] text-foreground ${
+                item.unread || isSelected ? 'font-semibold' : 'font-medium'
+              }`}
+            >
+              {item.title}
+            </span>
+            <span className="shrink-0 font-mono text-xs text-muted-foreground">
+              {formatInboxDate(item.date)}
+            </span>
+          </div>
+
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <span
+              className="size-1.5 rounded-full"
+              style={{ backgroundColor: color }}
+              aria-hidden
+            />
+            <span
+              className="font-sans text-xs font-semibold uppercase tracking-[0.08em]"
+              style={{ color }}
+            >
+              {sectionLabel}
+            </span>
+            <StatusBadge tone={item.badgeTone} size="sm">
+              {item.badge}
+            </StatusBadge>
+            {item.cohort ? (
+              <span className="font-mono text-xs text-muted-foreground">
+                &apos;{String(item.cohort).slice(-2)}
+              </span>
+            ) : null}
+          </div>
+
+          <p
+            className={`mt-1 truncate text-xs leading-normal ${
+              isSelected ? 'font-medium text-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            {item.subtitle}
+          </p>
+        </div>
+        <ChevronRight className="mt-3 size-3.5 shrink-0 text-muted-foreground/60 md:hidden" />
+      </div>
+    </button>
+  )
+}
+
+function InboxListEmpty({
+  area,
+  view,
+  conversationCounts,
+  onViewChange,
+}: {
+  area: InboxArea
+  view: InboxView
+  conversationCounts: Record<ConversationView, number>
+  onViewChange: (view: InboxView) => void
+}) {
+  const suggestedView =
+    area === 'conversations' && view === 'needs_response'
+      ? firstNonEmptyConversationView(conversationCounts, false)
+      : null
+
+  return (
+    <div className="m-2 flex min-h-[260px] flex-col justify-center rounded-md border border-dashed border-border bg-card p-8 text-center">
+      <InboxIcon className="mx-auto mb-3 size-7 text-muted-foreground/60" />
+      <p className="font-heading text-lg font-semibold leading-tight text-foreground">
+        {emptyTitle(area, view)}
       </p>
+      <p className="mx-auto mt-2 max-w-[260px] text-sm leading-relaxed text-muted-foreground">
+        {emptyBody(area, view)}
+      </p>
+      {suggestedView ? (
+        <button
+          type="button"
+          onClick={() => onViewChange(suggestedView)}
+          className="mx-auto mt-4 text-sm font-semibold text-link hover:text-link-hover"
+        >
+          View {viewMeta('conversations', suggestedView).label.toLowerCase()}
+        </button>
+      ) : (
+        <div className="mt-4 flex justify-center gap-3">
+          <Link href="/people" className="text-sm font-semibold text-link hover:text-link-hover">
+            Find people
+          </Link>
+          <Link
+            href="/mentorship/settings"
+            className="text-sm font-semibold text-link hover:text-link-hover"
+          >
+            Availability
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
 
-function emptyTitle(tab: TabType) {
-  if (tab === 'needs_reply') return 'Nothing needs a reply.'
-  if (tab === 'helping') return 'No active helping threads.'
-  if (tab === 'getting_help') return 'No one is helping you yet.'
-  if (tab === 'connections') return 'No connection threads yet.'
-  return 'Archive is quiet.'
+function EmptyDetail() {
+  return (
+    <div className="flex flex-1 items-center justify-center bg-card p-8 text-center">
+      <div>
+        <p className="font-heading text-lg font-semibold text-foreground">Select a thread.</p>
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+          Choose a conversation or request to see the details.
+        </p>
+      </div>
+    </div>
+  )
 }
 
-function emptyBody(tab: TabType) {
-  if (tab === 'needs_reply') {
-    return "Look around People or set what you're open to so the right requests find you."
+function InboxDetailPane({
+  item,
+  currentUser,
+  onBack,
+  backLabel,
+  reactionsMap,
+  toggleReaction,
+}: {
+  item: InboxItem
+  currentUser: CurrentUser
+  onBack: () => void
+  backLabel: string
+  reactionsMap: Record<string, string[]>
+  toggleReaction: (messageId: string, reaction: string) => void
+}) {
+  const isConversation = item.type === 'dm_thread' || item.type === 'active_thread'
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      <MobileDetailBack onBack={onBack} label={backLabel} />
+
+      {isConversation ? (
+        <>
+          <DetailSummary item={item} currentUser={currentUser} compact />
+          <InlineConversation
+            threadId={item.id}
+            threadType={item.type === 'dm_thread' ? 'direct' : 'ask'}
+            title={item.title}
+            avatarUrl={item.avatarUrl}
+            viewerId={currentUser.userId}
+            viewerName={currentUser.name}
+            viewerAvatarUrl={currentUser.avatarUrl}
+            composerEnabled={
+              item.type === 'dm_thread'
+                ? (item.originalData as DmData).isStillFriends
+                : (item.originalData as ThreadData).status === 'active'
+            }
+            reactionsMap={reactionsMap}
+            toggleReaction={toggleReaction}
+          />
+        </>
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto p-5 md:p-6">
+          <div className="mx-auto max-w-3xl space-y-6">
+            <DetailSummary item={item} currentUser={currentUser} />
+            <DetailActionSummary item={item} currentUser={currentUser} />
+            {item.type === 'incoming_ask' ? (
+              <AskDetail ask={item.originalData as AskData} cohort={item.cohort} />
+            ) : null}
+            {item.type === 'outgoing_ask' ? (
+              <AskDetail ask={item.originalData as AskData} cohort={item.cohort} isOutgoing />
+            ) : null}
+            {item.type === 'friend_request_incoming' ? (
+              <FriendRequestDetail request={item.originalData as FriendRequestData} />
+            ) : null}
+            {item.type === 'friend_request_outgoing' ? (
+              <FriendRequestDetail request={item.originalData as FriendRequestData} isOutgoing />
+            ) : null}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DetailActionSummary({ item, currentUser }: { item: InboxItem; currentUser: CurrentUser }) {
+  const summary = detailActionCopy(item, currentUser.userId)
+  const section = getItemSection(item)
+
+  return (
+    <section
+      className="rounded-md border border-border bg-surface-panel/55 p-4"
+      style={{
+        borderLeftColor: sectionColor(section),
+        borderLeftWidth: 3,
+      }}
+    >
+      <p className="font-mono text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
+        {summary.kicker}
+      </p>
+      <h3 className="mt-2 font-heading text-xl font-semibold leading-tight tracking-normal text-foreground">
+        {summary.title}
+      </h3>
+      <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        {summary.body}
+      </p>
+    </section>
+  )
+}
+
+function MobileDetailBack({ onBack, label }: { onBack: () => void; label: string }) {
+  return (
+    <div className="flex items-center border-b border-border bg-card px-2 py-2 md:hidden">
+      <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
+        <ArrowLeft className="size-4" />
+        {label}
+      </Button>
+    </div>
+  )
+}
+
+function DetailSummary({
+  item,
+  currentUser,
+  compact = false,
+}: {
+  item: InboxItem
+  currentUser: CurrentUser
+  compact?: boolean
+}) {
+  const square = item.type === 'incoming_ask' || item.type === 'outgoing_ask'
+
+  return (
+    <div
+      className={`flex shrink-0 items-start gap-3 border-b border-border/60 bg-card ${
+        compact ? 'px-5 py-3.5' : 'border-b-0 px-0 py-0'
+      }`}
+    >
+      <Avatar
+        className={`${compact ? 'size-9' : 'size-12'} ${
+          square ? 'rounded-md after:rounded-md' : ''
+        }`}
+      >
+        {item.avatarUrl ? (
+          <AvatarImage
+            src={item.avatarUrl}
+            alt={item.title}
+            className={square ? 'rounded-md' : ''}
+          />
+        ) : null}
+        <AvatarFallback
+          className={`font-heading font-semibold text-white ${square ? 'rounded-md' : ''}`}
+          style={{ backgroundColor: getAvatarColor(item.title) }}
+        >
+          {getInitials(item.title)}
+        </AvatarFallback>
+      </Avatar>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2
+            className={`font-heading font-semibold leading-tight text-foreground ${
+              compact ? 'text-base' : 'text-lg'
+            }`}
+          >
+            {item.title}
+          </h2>
+          <StatusBadge tone={item.badgeTone} dot={item.unread}>
+            {item.badge}
+          </StatusBadge>
+        </div>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          {detailMeta(item, currentUser.userId)}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+type InboxViewMeta = {
+  id: InboxView
+  label: string
+  description: string
+  tone: 'warn' | 'open' | 'info' | 'muted'
+}
+
+function AreaIcon({ area }: { area: InboxArea }) {
+  if (area === 'conversations') return <MessageSquare className="size-4" />
+  if (area === 'requests') return <Send className="size-4" />
+  return <Archive className="size-4" />
+}
+
+function CountPill({ count, active }: { count: number; active: boolean }) {
+  if (count <= 0) return null
+
+  return (
+    <span
+      className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 font-mono text-xs font-semibold ${
+        active ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground'
+      }`}
+    >
+      {count}
+    </span>
+  )
+}
+
+function viewsForArea(area: InboxArea): readonly InboxViewMeta[] {
+  if (area === 'conversations') return CONVERSATION_VIEWS
+  if (area === 'requests') return REQUEST_VIEWS
+  return HISTORY_VIEWS
+}
+
+function initialConversationView(items: InboxItem[], viewerId: string): ConversationView {
+  const counts = conversationCountsForItems(items, viewerId)
+  return firstNonEmptyConversationView(counts, true) ?? 'needs_response'
+}
+
+function conversationCountsForItems(
+  items: InboxItem[],
+  viewerId: string,
+): Record<ConversationView, number> {
+  return {
+    needs_response: items.filter(isConversationNeedsResponseItem).length,
+    helping: items.filter((item) => isActiveAskThread(item) && isHelpingItem(item, viewerId))
+      .length,
+    getting_help: items.filter((item) => isActiveAskThread(item) && !isHelpingItem(item, viewerId))
+      .length,
+    direct: items.filter((item) => item.type === 'dm_thread').length,
   }
-  if (tab === 'helping') return 'Open Help to make your availability and topics easier to match.'
-  if (tab === 'getting_help') return 'Ask a specific question and BridgeCircle will route it.'
-  if (tab === 'connections') return 'Start from People when you want a warmer direct thread.'
-  return 'Completed or closed relationship threads will live here later.'
 }
 
-function tabLabel(tab: TabType) {
-  switch (tab) {
-    case 'needs_reply':
-      return 'Needs reply'
-    case 'helping':
-      return "I'm helping"
-    case 'getting_help':
-      return "I'm getting help"
-    case 'connections':
-      return 'Connections'
-    case 'archived':
-      return 'Archived'
+function firstNonEmptyConversationView(
+  counts: Record<ConversationView, number>,
+  includeNeedsResponse: boolean,
+): ConversationView | null {
+  const order: ConversationView[] = includeNeedsResponse
+    ? ['needs_response', 'helping', 'getting_help', 'direct']
+    : ['helping', 'getting_help', 'direct', 'needs_response']
+
+  return order.find((view) => counts[view] > 0) ?? null
+}
+
+function activeInboxView(
+  area: InboxArea,
+  conversationView: ConversationView,
+  requestView: RequestView,
+  historyView: HistoryView,
+): InboxView {
+  if (area === 'conversations') return conversationView
+  if (area === 'requests') return requestView
+  return historyView
+}
+
+function viewMeta(area: InboxArea, view: InboxView): InboxViewMeta {
+  return viewsForArea(area).find((option) => option.id === view) ?? viewsForArea(area)[0]
+}
+
+function countForView(
+  view: InboxView,
+  conversationCounts: Record<ConversationView, number>,
+  requestCounts: Record<RequestView, number>,
+  historyCounts: Record<HistoryView, number>,
+) {
+  if (
+    view === 'needs_response' ||
+    view === 'helping' ||
+    view === 'getting_help' ||
+    view === 'direct'
+  ) {
+    return conversationCounts[view]
+  }
+  if (view === 'received' || view === 'sent') {
+    return requestCounts[view]
+  }
+  return historyCounts[view]
+}
+
+function viewActiveClass(tone: InboxViewMeta['tone']) {
+  if (tone === 'warn') return 'bg-warning-tint text-state-warning-foreground'
+  if (tone === 'open') return 'bg-success-tint text-action-offer'
+  if (tone === 'info') return 'bg-primary-tint text-primary'
+  return 'bg-surface-subtle text-foreground'
+}
+
+function areaLabel(area: InboxArea) {
+  if (area === 'conversations') return 'Conversations'
+  if (area === 'requests') return 'Requests'
+  return 'History'
+}
+
+function emptyTitle(area: InboxArea, view: InboxView) {
+  if (area === 'conversations' && view === 'needs_response')
+    return 'No conversations need a response.'
+  if (area === 'conversations') return 'No conversations here yet.'
+  if (area === 'requests' && view === 'received') return 'No received requests.'
+  if (area === 'requests') return 'No sent requests to track.'
+  return 'Nothing archived yet.'
+}
+
+function emptyBody(area: InboxArea, view: InboxView) {
+  if (area === 'conversations' && view === 'needs_response') {
+    return 'Nothing urgent needs a reply. Active advice, mentorship, and direct conversations are still available in the other conversation views.'
+  }
+  if (area === 'conversations')
+    return 'Accepted help relationships and direct messages collect here.'
+  if (area === 'requests' && view === 'received') {
+    return 'Advice, mentorship, and connection requests you receive will appear here.'
+  }
+  if (area === 'requests') return 'Pending and declined requests you sent will appear here.'
+  return 'Closed threads will appear here once archiving is available.'
+}
+
+function listCountLabel(area: InboxArea, view: InboxView, count: number) {
+  if (area === 'requests' && view === 'received') {
+    return `${count} ${count === 1 ? 'request' : 'requests'}`
+  }
+  if (area === 'requests' && view === 'sent') return `${count} sent`
+  if (area === 'history') return `${count} archived`
+  return `${count} ${count === 1 ? 'thread' : 'threads'}`
+}
+
+function filterItemsForView(
+  items: InboxItem[],
+  area: InboxArea,
+  view: InboxView,
+  viewerId: string,
+) {
+  if (area === 'conversations') {
+    if (view === 'needs_response') return items.filter(isConversationNeedsResponseItem)
+    if (view === 'helping') {
+      return items.filter((item) => isActiveAskThread(item) && isHelpingItem(item, viewerId))
+    }
+    if (view === 'getting_help') {
+      return items.filter((item) => isActiveAskThread(item) && !isHelpingItem(item, viewerId))
+    }
+    return items.filter((item) => item.type === 'dm_thread')
+  }
+
+  if (area === 'requests') {
+    if (view === 'received') return items.filter(isReceivedRequestItem)
+    return items.filter(isSentRequestItem)
+  }
+
+  return items.filter(isHistoryItem)
+}
+
+function isRequestItem(item: InboxItem) {
+  return isReceivedRequestItem(item) || isSentRequestItem(item)
+}
+
+function isReceivedRequestItem(item: InboxItem) {
+  return item.type === 'incoming_ask' || item.type === 'friend_request_incoming'
+}
+
+function isSentRequestItem(item: InboxItem) {
+  if (item.type === 'outgoing_ask') {
+    return (item.originalData as AskData).status !== 'accepted'
+  }
+  return item.type === 'friend_request_outgoing'
+}
+
+function isHistoryItem(item: InboxItem) {
+  if (item.type === 'active_thread') {
+    return (item.originalData as ThreadData).status !== 'active'
+  }
+  return false
+}
+
+function isActiveAskThread(item: InboxItem) {
+  return item.type === 'active_thread' && (item.originalData as ThreadData).status === 'active'
+}
+
+function isConversationNeedsResponseItem(item: InboxItem) {
+  return isConversationItem(item) && item.unread === true
+}
+
+function isConversationItem(item: InboxItem) {
+  return item.type === 'active_thread' || item.type === 'dm_thread'
+}
+
+function getItemSection(item: InboxItem): InboxSection {
+  if (
+    item.type === 'dm_thread' ||
+    item.type === 'friend_request_incoming' ||
+    item.type === 'friend_request_outgoing'
+  ) {
+    return 'connections'
+  }
+
+  if (item.type === 'active_thread') {
+    const askType = (item.originalData as ThreadData).asks?.ask_type
+    return askType === 'mentorship' ? 'mentorship' : 'advice'
+  }
+
+  const ask = item.originalData as AskData
+  return ask.ask_type === 'mentorship' ? 'mentorship' : 'advice'
+}
+
+function sectionColor(section: InboxSection) {
+  if (section === 'mentorship') return 'var(--action-offer)'
+  if (section === 'connections') return 'var(--accent-plum)'
+  return 'var(--primary)'
+}
+
+function detailMeta(item: InboxItem, viewerId: string) {
+  const cohort = item.cohort ? `Class of '${String(item.cohort).slice(-2)}` : null
+  const date = format(new Date(item.date), 'MMM d, yyyy')
+  if (item.type === 'dm_thread') {
+    return [roleHeader(item, viewerId), cohort, date].filter(Boolean).join(' · ')
+  }
+  if (item.type === 'friend_request_incoming' || item.type === 'friend_request_outgoing') {
+    const request = item.originalData as FriendRequestData
+    const role = [request.currentTitle, request.currentEmployer].filter(Boolean).join(' at ')
+    return [role || roleHeader(item, viewerId), cohort, date].filter(Boolean).join(' · ')
+  }
+  return [roleHeader(item, viewerId), cohort, date].filter(Boolean).join(' · ')
+}
+
+function detailActionCopy(item: InboxItem, viewerId: string) {
+  if (item.type === 'incoming_ask') {
+    const ask = item.originalData as AskData
+    return {
+      kicker: 'Needs your reply',
+      title:
+        ask.ask_type === 'mentorship'
+          ? `${item.title} asked for mentorship`
+          : `${item.title} asked for advice`,
+      body: 'Accept with a short reply to open the thread, or decline if you are not the right fit.',
+    }
+  }
+
+  if (item.type === 'friend_request_incoming') {
+    return {
+      kicker: 'Needs your response',
+      title: `${item.title} wants to connect`,
+      body: 'Accept to open a direct relationship thread, or decline if this connection is not useful right now.',
+    }
+  }
+
+  if (item.type === 'outgoing_ask') {
+    return {
+      kicker: 'Waiting on them',
+      title: `${item.title} has your ask`,
+      body: 'This is the request you sent. Keep it here until they respond or the ask expires.',
+    }
+  }
+
+  if (item.type === 'friend_request_outgoing') {
+    return {
+      kicker: 'Waiting on them',
+      title: `${item.title} has your connection request`,
+      body: 'You have already reached out. This will move to conversations when they accept.',
+    }
+  }
+
+  if (item.type === 'active_thread') {
+    return {
+      kicker: isHelpingItem(item, viewerId) ? 'You are helping' : 'You are getting help',
+      title: `Active thread with ${item.title}`,
+      body: 'Keep the conversation moving with a focused reply when there is a useful next step.',
+    }
+  }
+
+  return {
+    kicker: 'Conversation',
+    title: `Direct thread with ${item.title}`,
+    body: 'This is a warm network conversation. Reply when the relationship needs a next step.',
   }
 }
 
@@ -658,13 +1219,6 @@ function isHelpingItem(item: InboxItem, viewerId: string) {
   if (item.type !== 'active_thread') return false
   const thread = item.originalData as ThreadData
   return thread.helper_id === viewerId
-}
-
-function isGettingHelpItem(item: InboxItem, viewerId: string) {
-  if (item.type === 'outgoing_ask') return true
-  if (item.type !== 'active_thread') return false
-  const thread = item.originalData as ThreadData
-  return thread.asker_id === viewerId
 }
 
 function roleHeader(item: InboxItem, viewerId: string) {
@@ -680,40 +1234,141 @@ function roleHeader(item: InboxItem, viewerId: string) {
   return `You asked ${item.title} to connect`
 }
 
+function rowContextLabel(item: InboxItem, viewerId: string) {
+  const section = getItemSection(item)
+  const sectionName =
+    section === 'connections' ? 'Connection' : section === 'mentorship' ? 'Mentorship' : 'Advice'
+
+  if (item.type === 'active_thread') {
+    return isHelpingItem(item, viewerId)
+      ? `${sectionName} · helping`
+      : `${sectionName} · getting help`
+  }
+
+  if (item.type === 'dm_thread') return 'Direct message'
+  if (item.type === 'incoming_ask') return `${sectionName} request`
+  if (item.type === 'outgoing_ask') return `${sectionName} sent`
+  if (item.type === 'friend_request_incoming') return 'Connection request'
+  return 'Connection sent'
+}
+
 /* Detail Renderers */
 
-function AskDetail({ ask, isOutgoing = false }: { ask: AskData; isOutgoing?: boolean }) {
-  const summary = ask.reason ?? ask.help_needed ?? ''
-  const typeLabel = ask.ask_type === 'advice' ? 'Advice Request' : 'Mentorship Request'
+function AskDetail({
+  ask,
+  cohort,
+  isOutgoing = false,
+}: {
+  ask: AskData
+  cohort?: number | null
+  isOutgoing?: boolean
+}) {
+  const primaryAsk = ask.reason ?? ask.help_needed ?? ''
+  const detail = ask.help_needed && ask.help_needed !== primaryAsk ? ask.help_needed : null
+  const typeLabel = ask.ask_type === 'advice' ? 'Advice request' : 'Mentorship request'
+  const acceptFormId = `accept-ask-${ask.id}`
 
   return (
     <div className="space-y-5">
-      <div className="space-y-1.5">
-        <h4 className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {isOutgoing ? 'Request Sent' : 'Request Received'}
-        </h4>
-        <h3 className="font-heading text-lg font-semibold text-foreground">{typeLabel}</h3>
-      </div>
+      <section className="space-y-2">
+        <p className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {isOutgoing ? 'Your ask' : 'Their ask'}
+        </p>
+        <div className="border-l-[3px] border-l-primary pl-3 text-sm italic leading-relaxed text-foreground">
+          &ldquo;{primaryAsk || typeLabel}&rdquo;
+        </div>
+      </section>
 
-      <div className="bc-pull-quote text-sm text-foreground/90 italic p-4 bg-muted/10 rounded-lg border-l-[3px] border-l-primary">
-        &ldquo;{summary}&rdquo;
-      </div>
+      {detail ? (
+        <section className="space-y-1.5">
+          <p className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            What they need
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{detail}</p>
+        </section>
+      ) : null}
 
-      {ask.help_needed && ask.reason && (
-        <div className="space-y-3 pt-2">
-          <h5 className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-            Help Needed Details
-          </h5>
-          <p className="text-xs text-muted-foreground leading-relaxed">{ask.help_needed}</p>
+      {isOutgoing ? (
+        <div className="border-t border-border pt-4">
+          <Button asChild variant="outline">
+            <Link href={`/ask/${ask.id}`}>View status</Link>
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-3 border-t border-border pt-4">
+          <AskReplyContext ask={ask} cohort={cohort} primaryAsk={primaryAsk || typeLabel} />
+          <form id={acceptFormId} action={acceptAskFromInboxAction} className="space-y-3">
+            <input type="hidden" name="requestId" value={ask.id} />
+            <div className="space-y-2">
+              <label
+                htmlFor={`ask-reply-${ask.id}`}
+                className="text-sm font-semibold text-foreground"
+              >
+                Reply (optional)
+              </label>
+              <Textarea
+                id={`ask-reply-${ask.id}`}
+                name="body"
+                rows={4}
+                placeholder="A few sentences is plenty..."
+                className="min-h-[108px] resize-none"
+              />
+            </div>
+          </form>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" form={acceptFormId} variant="offer">
+              Accept & reply
+            </Button>
+            <AskDeclineButton requestId={ask.id} />
+          </div>
         </div>
       )}
-
-      <div className="pt-4 border-t border-border/60">
-        <Button asChild size="sm">
-          <Link href={`/ask/${ask.id}`}>{isOutgoing ? 'View Status' : 'Reply & Accept'}</Link>
-        </Button>
-      </div>
     </div>
+  )
+}
+
+function AskReplyContext({
+  ask,
+  cohort,
+  primaryAsk,
+}: {
+  ask: AskData
+  cohort?: number | null
+  primaryAsk: string
+}) {
+  const typeLabel = ask.ask_type === 'advice' ? 'Advice' : 'Mentorship'
+  const cohortLabel = cohort ? `Class of '${String(cohort).slice(-2)}` : null
+
+  return (
+    <div className="rounded-md border border-border bg-surface-panel/55 p-3">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <StatusBadge tone={ask.ask_type === 'mentorship' ? 'open' : 'info'} size="sm">
+          {typeLabel}
+        </StatusBadge>
+        {cohortLabel ? (
+          <span className="rounded-sm border border-border bg-card px-2 py-0.5 font-mono text-xs text-muted-foreground">
+            {cohortLabel}
+          </span>
+        ) : null}
+      </div>
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+        Accepting will open the conversation. Reply to the ask they sent:
+      </p>
+      <p className="mt-1 line-clamp-2 text-sm font-medium leading-relaxed text-foreground">
+        &ldquo;{primaryAsk}&rdquo;
+      </p>
+    </div>
+  )
+}
+
+function AskDeclineButton({ requestId }: { requestId: string }) {
+  return (
+    <form action={declineAskFromInboxAction}>
+      <input type="hidden" name="requestId" value={requestId} />
+      <Button type="submit" variant="outline">
+        Decline
+      </Button>
+    </form>
   )
 }
 
@@ -727,7 +1382,7 @@ function FriendRequestDetail({
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
-        <h4 className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {isOutgoing ? 'Sent Connection Request' : 'Incoming Connection Request'}
         </h4>
         <h3 className="font-heading text-lg font-semibold text-foreground">
@@ -735,45 +1390,24 @@ function FriendRequestDetail({
         </h3>
       </div>
 
-      <div className="space-y-3.5 bg-muted/10 p-4 rounded-lg border border-border/50 text-xs">
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Member</span>
-          <Link
-            href={`/profile/${request.otherUserId}`}
-            className="font-semibold text-foreground hover:text-primary hover:underline"
-          >
-            {request.name}
-          </Link>
-        </div>
-        {[request.currentTitle, request.currentEmployer].filter(Boolean).length > 0 && (
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Title</span>
-            <span className="font-medium text-foreground">
-              {[request.currentTitle, request.currentEmployer].filter(Boolean).join(' at ')}
-            </span>
-          </div>
-        )}
-      </div>
-
       {request.message && (
         <div className="space-y-2">
-          <h5 className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <h5 className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             Personal Note
           </h5>
-          <p className="text-xs italic text-muted-foreground leading-relaxed border-l-2 pl-3">
+          <p className="border-l-[3px] border-l-primary pl-3 text-sm italic leading-relaxed text-foreground">
             &ldquo;{request.message}&rdquo;
           </p>
         </div>
       )}
 
-      <div className="pt-4 border-t border-border/60">
+      <div className="border-t border-border pt-4">
         {isOutgoing ? (
-          <Button asChild variant="outline" className="rounded-lg text-xs h-9 px-4">
+          <Button asChild variant="outline">
             <Link href={`/profile/${request.otherUserId}`}>View Profile</Link>
           </Button>
         ) : (
           <div className="space-y-2">
-            <p className="text-[11px] text-muted-foreground mb-1">Respond to connection:</p>
             <FriendRequestActions requestId={request.requestId} />
           </div>
         )}
@@ -782,127 +1416,7 @@ function FriendRequestDetail({
   )
 }
 
-/* Status & Reaction Components */
-
-function StatusSetter({
-  currentUser,
-  status,
-  onSetStatus,
-}: {
-  currentUser: CurrentUser
-  status: string | null
-  onSetStatus: (status: string | null) => void
-}) {
-  const [draft, setDraft] = useState('')
-  const presets = [
-    'Open to coffee in Brooklyn',
-    'Heads down on a launch',
-    'Looking to advise climate founders',
-    'Hiring on my product team',
-    'Quiet until next week',
-  ]
-
-  return (
-    <div className="flex flex-col rounded-xl border border-border bg-card p-[22px_24px] shadow-sm">
-      <div className="flex items-center gap-3.5 mb-[18px]">
-        <Avatar className="size-12 border border-border/50 rounded-lg after:rounded-lg">
-          {currentUser.avatarUrl ? (
-            <AvatarImage
-              src={currentUser.avatarUrl}
-              alt={currentUser.name ?? ''}
-              className="rounded-lg"
-            />
-          ) : null}
-          <AvatarFallback className="bg-accent text-accent-foreground font-semibold text-sm rounded-lg">
-            {(currentUser.name ?? '?').slice(0, 1).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="text-[16px] font-semibold text-foreground truncate">
-            {currentUser.name ?? 'Member'}
-          </div>
-          <div className="text-[12.5px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
-            {status ? (
-              <>
-                <span className="size-2 rounded-full bg-primary shrink-0" />
-                <span className="text-foreground font-medium truncate max-w-[200px]">{status}</span>
-                <button
-                  type="button"
-                  onClick={() => onSetStatus(null)}
-                  className="text-muted-foreground hover:text-foreground text-[14px] leading-none ml-1 cursor-pointer font-mono"
-                  title="Clear status"
-                >
-                  ×
-                </button>
-              </>
-            ) : (
-              'No status'
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1">
-        <p className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-2.5">
-          Set a status
-        </p>
-        <div className="flex flex-wrap gap-1.5 mb-3.5">
-          {presets.map((p) => {
-            const active = status === p
-            return (
-              <button
-                key={p}
-                type="button"
-                onClick={() => onSetStatus(active ? null : p)}
-                className={`text-[12.5px] font-semibold px-3 py-[6px] rounded-lg border transition-all cursor-pointer ${
-                  active
-                    ? 'bg-primary border-primary text-primary-foreground shadow-sm font-semibold'
-                    : 'bg-muted/30 hover:bg-muted/50 border-border text-foreground'
-                }`}
-              >
-                {p}
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="flex gap-2 mb-4">
-          <input
-            type="text"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && draft.trim()) {
-                onSetStatus(draft)
-                setDraft('')
-              }
-            }}
-            placeholder="…or write your own (Enter to set)"
-            className="flex-1 text-[13px] px-4 py-[9px] bg-muted/30 border border-border rounded-lg focus-visible:outline-none focus-visible:border-primary text-foreground"
-          />
-          <Button
-            size="sm"
-            disabled={!draft.trim()}
-            onClick={() => {
-              if (draft.trim()) {
-                onSetStatus(draft)
-                setDraft('')
-              }
-            }}
-            className="rounded-lg text-xs h-[38px] px-4 bg-primary hover:bg-primary-hover text-primary-foreground"
-          >
-            Set
-          </Button>
-        </div>
-      </div>
-
-      <p className="text-[12.5px] text-muted-foreground leading-[1.55] mt-4 font-sans">
-        Status auto-expires after 14 days. Surfaces alongside your name in the directory and member
-        cards — a gentle signal of what you&apos;re open to right now.
-      </p>
-    </div>
-  )
-}
+/* Reaction Components */
 
 function ReactionIcon({
   kind,
@@ -1011,55 +1525,19 @@ function ReactionPill({
   mini?: boolean
   onClick?: () => void
 }) {
-  const iconSize = mini ? 11 : 13
+  const iconSize = mini ? 12 : 14
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className={`inline-flex items-center rounded-full bg-primary/10 border border-primary/20 text-primary hover:bg-primary/15 transition-colors font-sans font-semibold leading-none ${
-        mini ? 'py-[3px] px-2 text-[10.5px] gap-1' : 'py-[5px] px-2.5 text-[11.5px] gap-[6px]'
+      className={`inline-flex items-center rounded-full border border-primary/20 bg-primary/10 font-sans font-semibold leading-none text-primary transition-colors hover:bg-primary/15 ${
+        mini ? 'gap-1 px-2 py-1 text-xs' : 'gap-1.5 px-2.5 py-1.5 text-xs'
       }`}
     >
       <ReactionIcon kind={kind} width={iconSize} height={iconSize} />
       {label && <span>{label}</span>}
     </button>
-  )
-}
-
-function ReactionShowcase() {
-  const reactions = [
-    { kind: 'wave', label: 'Wave back', desc: 'Acknowledge without writing yet.' },
-    { kind: 'read', label: 'Mark read', desc: 'No reply expected — read receipt.' },
-    { kind: 'mutual', label: 'Mutual', desc: "You're aligned. Move forward." },
-    { kind: 'thanks', label: 'Appreciate', desc: 'Thanks the sender quietly.' },
-    { kind: 'later', label: 'Bookmark', desc: 'Reply later — pin to your desk.' },
-  ]
-
-  return (
-    <div className="flex flex-col rounded-xl border border-border bg-card p-[20px_22px_22px] shadow-sm">
-      <p className="font-sans text-[11.5px] font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-4">
-        Warm reactions — no emoji, just intent
-      </p>
-
-      <div className="space-y-3.5 flex-1">
-        {reactions.map((r) => (
-          <div key={r.kind} className="flex items-center gap-3">
-            <div className="shrink-0">
-              <ReactionPill kind={r.kind} label={r.label} />
-            </div>
-            <p className="text-[12.5px] text-muted-foreground leading-[1.4] font-sans flex-1">
-              {r.desc}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-[18px] p-[12px_14px] bg-muted/30 dark:bg-muted/10 rounded-[12px] text-xs text-muted-foreground leading-[1.5] font-sans">
-        Reactions don&apos;t ping. They settle next to a message and persist; the recipient sees
-        them on next visit.
-      </p>
-    </div>
   )
 }
 
@@ -1235,11 +1713,10 @@ function InlineConversation({
   ]
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      {/* Scrollable conversation pane */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-muted/5">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto bg-background/55 px-4 py-4">
         {loading && messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60 space-y-3">
+          <div className="flex h-full flex-col items-center justify-center space-y-3 text-muted-foreground/60">
             <svg
               aria-hidden="true"
               width="80"
@@ -1250,14 +1727,12 @@ function InlineConversation({
               <circle cx="75" cy="65" r="55" fill="none" strokeWidth="1.8" />
               <circle cx="125" cy="65" r="55" fill="none" strokeWidth="1.8" />
             </svg>
-            <p className="text-[11px] font-mono tracking-wider uppercase">Loading conversation…</p>
+            <p className="font-mono text-xs uppercase tracking-[0.08em]">Loading conversation...</p>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-muted-foreground/60">
+          <div className="flex h-full flex-col items-center justify-center text-muted-foreground/60">
             <p className="text-xs font-semibold text-foreground">No messages yet</p>
-            <p className="text-[11px] text-muted-foreground mt-1">
-              Say hello to start the discussion.
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">Say hello to start the discussion.</p>
           </div>
         ) : (
           messages.map((m, idx) => {
@@ -1268,50 +1743,48 @@ function InlineConversation({
             return (
               <div key={m.id} className="w-full">
                 {showTimestamp && (
-                  <div className="w-full flex justify-center my-3">
-                    <span className="font-mono text-[9.5px] font-bold text-muted-foreground/60 tracking-wider uppercase bg-muted/20 px-2 py-0.5 rounded">
+                  <div className="my-3 flex w-full justify-center">
+                    <span className="rounded-sm bg-surface-subtle/60 px-2 py-0.5 font-mono text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
                       {formatGroupedDate(m.createdAt)}
                     </span>
                   </div>
                 )}
 
                 <div
-                  className={`flex items-end gap-2 max-w-[78%] group relative my-3.5 ${isMe ? 'ml-auto' : 'mr-auto'}`}
+                  className={`group relative my-3.5 flex max-w-[78%] items-end gap-2 ${isMe ? 'ml-auto' : 'mr-auto'}`}
                 >
                   {!isMe && (
-                    <Avatar className="size-6 border border-border/50 rounded-lg after:rounded-lg shrink-0">
-                      {avatarUrl ? (
-                        <AvatarImage src={avatarUrl} alt={title} className="rounded-lg" />
-                      ) : null}
-                      <AvatarFallback className="bg-accent font-bold text-[9px] text-accent-foreground rounded-lg">
+                    <Avatar className="size-7 shrink-0">
+                      {avatarUrl ? <AvatarImage src={avatarUrl} alt={title} /> : null}
+                      <AvatarFallback
+                        className="font-heading text-xs font-semibold text-white"
+                        style={{ backgroundColor: getAvatarColor(title) }}
+                      >
                         {title.slice(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   )}
 
-                  <div className="flex-1 flex flex-col min-w-0">
-                    {/* Message Bubble */}
+                  <div className="flex min-w-0 flex-1 flex-col">
                     <div
-                      className={`px-[14px] py-[10px] text-[13.5px] whitespace-pre-wrap break-words leading-[1.45] ${
+                      className={`whitespace-pre-wrap break-words px-3.5 py-2.5 text-sm leading-relaxed ${
                         isMe
-                          ? 'bg-primary text-primary-foreground rounded-[16px_16px_4px_16px] shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]'
-                          : 'bg-muted/50 dark:bg-muted/20 border border-border/40 text-foreground rounded-[16px_16px_16px_4px]'
+                          ? 'rounded-[12px_12px_4px_12px] bg-primary text-primary-foreground'
+                          : 'rounded-[12px_12px_12px_4px] border border-border/60 bg-card text-foreground'
                       }`}
                     >
                       {m.body}
                     </div>
 
-                    {/* Individual Timestamp below bubble */}
                     <div
-                      className={`font-mono text-[9.5px] text-muted-foreground/80 mt-1 tracking-wider ${isMe ? 'text-right' : 'text-left'}`}
+                      className={`mt-1 font-mono text-xs text-muted-foreground/80 ${isMe ? 'text-right' : 'text-left'}`}
                     >
                       {format(new Date(m.createdAt), 'h:mm a')}
                     </div>
 
-                    {/* Reaction Pills Under Bubble */}
                     {msgReactions.length > 0 && (
                       <div
-                        className={`flex flex-wrap gap-1.5 mt-1.5 ${isMe ? 'justify-end' : 'justify-start'}`}
+                        className={`mt-1.5 flex flex-wrap gap-1.5 ${isMe ? 'justify-end' : 'justify-start'}`}
                       >
                         {msgReactions.map((r) => (
                           <ReactionPill
@@ -1326,40 +1799,44 @@ function InlineConversation({
                   </div>
 
                   {isMe && (
-                    <Avatar className="size-6 border border-border/50 rounded-lg after:rounded-lg shrink-0">
+                    <Avatar className="size-7 shrink-0">
                       {viewerAvatarUrl ? (
-                        <AvatarImage
-                          src={viewerAvatarUrl}
-                          alt={viewerName ?? 'You'}
-                          className="rounded-lg"
-                        />
+                        <AvatarImage src={viewerAvatarUrl} alt={viewerName ?? 'You'} />
                       ) : null}
-                      <AvatarFallback className="bg-accent font-bold text-[9px] text-accent-foreground rounded-lg">
+                      <AvatarFallback
+                        className="font-heading text-xs font-semibold text-white"
+                        style={{ backgroundColor: getAvatarColor(viewerName ?? 'You') }}
+                      >
                         {(viewerName ?? 'You').slice(0, 1).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   )}
 
-                  {/* Hover Reaction trigger button */}
                   <div
-                    className={`absolute top-1/2 -translate-y-1/2 ${isMe ? 'right-full mr-2' : 'left-full ml-2'} opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10`}
+                    className={`absolute top-1/2 z-10 flex -translate-y-1/2 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 ${isMe ? 'right-full mr-2' : 'left-full ml-2'}`}
                   >
                     <button
                       type="button"
                       onClick={() => handleTogglePicker(m.id)}
-                      className="p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground rounded-full bg-card border border-border shadow-sm transition-colors cursor-pointer"
-                      title="Add reaction"
+                      className="cursor-pointer rounded-full border border-border bg-card p-1.5 text-muted-foreground shadow-card transition-colors hover:bg-surface-subtle hover:text-foreground focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
+                      aria-label="Add reaction"
                     >
                       <Smile className="size-3.5" />
                     </button>
                   </div>
 
-                  {/* Reaction Overlay Picker */}
                   {activePickerId === m.id && (
                     <div
+                      role="toolbar"
+                      aria-label="Message reactions"
+                      onKeyDown={(event) => {
+                        if (event.key === 'Escape') {
+                          setActivePickerId(null)
+                        }
+                      }}
                       className={`absolute bottom-full mb-2 ${
                         isMe ? 'right-0' : 'left-0'
-                      } flex items-center bg-card border border-border shadow-md rounded-full p-1 z-20 gap-1.5 whitespace-nowrap animate-in fade-in slide-in-from-bottom-2 duration-100`}
+                      } z-20 flex animate-in items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card p-1 shadow-card-hover fade-in slide-in-from-bottom-2 duration-medium ease-emphasized`}
                     >
                       {reactionOptions.map((opt) => {
                         const active = msgReactions.includes(opt.kind)
@@ -1371,12 +1848,14 @@ function InlineConversation({
                               toggleReaction(m.id, opt.kind)
                               setActivePickerId(null)
                             }}
-                            className={`p-1 hover:bg-muted rounded-full transition-colors cursor-pointer ${
+                            className={`cursor-pointer rounded-full p-1 transition-colors hover:bg-surface-subtle ${
                               active
-                                ? 'text-primary bg-primary/10'
+                                ? 'bg-primary/10 text-primary'
                                 : 'text-muted-foreground hover:text-primary'
                             }`}
-                            title={opt.label}
+                            aria-label={
+                              active ? `Remove ${opt.label} reaction` : `Add ${opt.label} reaction`
+                            }
                           >
                             <ReactionIcon
                               kind={opt.kind}
@@ -1396,8 +1875,7 @@ function InlineConversation({
         )}
       </div>
 
-      {/* Composer Input Area */}
-      <div className="border-t border-border/40 px-4 py-3 bg-card shrink-0">
+      <div className="shrink-0 border-t border-border bg-card px-4 py-3">
         {composerEnabled ? (
           <form
             key={formKey}
@@ -1411,14 +1889,14 @@ function InlineConversation({
           >
             <input type="hidden" name="threadId" value={threadId} />
             <input type="hidden" name="threadType" value={threadType} />
-            <textarea
+            <Textarea
               name="body"
-              placeholder="Write a reply…"
+              placeholder="Write a reply..."
               rows={1}
               maxLength={4000}
               required
               disabled={pending}
-              className="flex-1 resize-none rounded-lg border border-border bg-muted/30 px-3 py-2 text-[13px] focus-visible:outline-none focus-visible:border-primary text-foreground min-h-[38px] max-h-[120px]"
+              className="max-h-[120px] min-h-10 flex-1 resize-none bg-card text-sm"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
@@ -1426,15 +1904,17 @@ function InlineConversation({
                 }
               }}
             />
-            <Button
-              type="submit"
-              disabled={pending}
-              className="h-[38px] rounded-lg px-4 bg-primary hover:bg-primary-hover text-primary-foreground flex items-center justify-center shrink-0 font-medium text-xs"
-            >
+            <Button type="submit" disabled={pending} size="default" className="shrink-0">
               {pending ? (
-                <span className="size-3.5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                <>
+                  <span
+                    className="size-3.5 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin"
+                    aria-hidden
+                  />
+                  <span className="sr-only">Sending</span>
+                </>
               ) : (
-                'Send →'
+                'Send'
               )}
             </Button>
           </form>
@@ -1444,7 +1924,7 @@ function InlineConversation({
           </div>
         )}
         {state && !state.ok && (
-          <p className="mt-1.5 text-[10px] text-destructive text-left">{state.error}</p>
+          <p className="mt-1.5 text-left text-xs text-destructive">{state.error}</p>
         )}
       </div>
     </div>
@@ -1464,29 +1944,15 @@ function formatGroupedDate(iso: string): string {
 }
 
 function getAvatarColor(name: string): string {
-  const normalized = name.toLowerCase().trim()
-  if (normalized.includes('alexander')) return 'var(--accent-ochre)'
-  if (normalized.includes('iris')) return 'var(--accent-sage)'
-  if (normalized.includes('dev')) return 'var(--primary)'
-  if (normalized.includes('sarah')) return 'var(--accent-rust)'
-  if (normalized.includes('jessica')) return 'var(--accent-plum)'
-  if (normalized.includes('richard')) return 'var(--primary)'
-
-  // Deterministic fallback color based on hash
-  const colors = [
+  const palette = [
     'var(--primary)',
-    'var(--accent-sage)',
+    'var(--action-offer)',
     'var(--accent-ochre)',
-    'var(--accent-rust)',
     'var(--accent-plum)',
-    'var(--destructive)',
+    'var(--muted-foreground)',
   ]
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const index = Math.abs(hash) % colors.length
-  return colors[index]
+  const seed = Array.from(name).reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  return palette[seed % palette.length]
 }
 
 function formatInboxDate(dateStr: string | null | undefined): string {

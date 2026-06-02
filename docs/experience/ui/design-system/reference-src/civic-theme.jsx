@@ -19,7 +19,7 @@ const CIVIC_PALETTE = {
 };
 
 const ACCENT_OPTIONS = {
-	amber: "#c8761a", // signal amber (default)
+	amber: "#a16207", // signal ochre (default)
 	ink: "#0c0c0b", // monochrome — accent = ink
 	electricSky: "#2563eb", // primary brand blue
 	civicBlue: "#4d88ff", // vibrant accent blue

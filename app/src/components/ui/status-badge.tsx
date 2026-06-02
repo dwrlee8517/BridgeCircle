@@ -19,23 +19,23 @@ import { cn } from '@/lib/utils'
  *   - "muted"   -> muted (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-md whitespace-nowrap',
+  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-full whitespace-nowrap',
   {
     variants: {
       tone: {
-        open: 'bg-success-tint text-state-success-foreground border border-state-success/20',
-        warn: 'bg-warning-tint text-state-warning-foreground border border-state-warning/25',
-        alert: 'bg-danger-tint text-state-danger-foreground border border-state-danger/20',
-        info: 'bg-primary-tint text-state-info-foreground border border-state-info/20',
-        muted: 'bg-surface-subtle text-state-muted border border-border/30',
-        sage: 'bg-success-tint text-state-success-foreground border border-state-success/20',
-        ochre: 'bg-warning-tint text-state-warning-foreground border border-state-warning/25',
-        rust: 'bg-danger-tint text-state-danger-foreground border border-request-declined/20',
-        plum: 'bg-plum-tint text-state-categorized-foreground border border-state-categorized/20',
+        open: 'bg-success-tint text-state-success-foreground',
+        warn: 'bg-warning-tint text-state-warning-foreground',
+        alert: 'bg-danger-tint text-state-danger-foreground',
+        info: 'bg-primary-tint text-state-info-foreground',
+        muted: 'bg-surface-subtle text-state-muted',
+        sage: 'bg-success-tint text-state-success-foreground',
+        ochre: 'bg-warning-tint text-state-warning-foreground',
+        rust: 'bg-danger-tint text-state-danger-foreground',
+        plum: 'bg-plum-tint text-state-categorized-foreground',
       },
       size: {
-        sm: 'h-4 px-1.5 text-[9px] font-semibold gap-0.5',
-        md: 'h-5 px-2 py-0.5 text-[11px] font-medium gap-1',
+        sm: 'min-h-5 px-2 py-0.5 text-xs font-medium gap-1',
+        md: 'min-h-6 px-2 py-0.5 text-[13px] font-normal gap-1',
       },
     },
     defaultVariants: {

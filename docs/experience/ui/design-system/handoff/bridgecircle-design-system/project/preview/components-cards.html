@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+  .section-label::before{content:'';display:block;width:20px;height:2px;background:#2563eb;border-radius:99px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+
+  .card{background:#fff;border:1px solid #dcdcd6;border-radius:10px;padding:20px;box-shadow:0 1px 0 rgb(12 12 11/.03)}
+  .card-hover{box-shadow:0 4px 12px -2px rgb(12 12 11/.06);transform:translateY(-1px);border-color:#0c0c0b}
+  .card-editorial{background:#081126;color:#fafaf9;border-color:#081126}
+
+  .badge{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:600;border:1px solid transparent}
+  .pull-quote{border-left:3px solid #2563eb;padding-left:10px;font-style:italic;line-height:1.5;font-size:13px}
+
+  .avatar{width:44px;height:44px;border-radius:8px;background:#ebebe5;display:flex;align-items:center;justify-content:center;font-family:'Inter Tight',sans-serif;font-weight:700;font-size:16px;color:#4d4d4a;flex-shrink:0;position:relative}
+  .status-dot{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#3b6e51;border:2px solid #fff}
+  .btn-cta{background:#f59e0b;color:#0c0c0b;border:none;border-radius:8px;padding:0 12px;height:32px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+  .btn-outline{background:#fff;color:#0c0c0b;border:1px solid #dcdcd6;border-radius:8px;padding:0 12px;height:32px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+</style>
+</head>
+<body>
+<div class="section-label">Decision surface — Person Card</div>
+<div class="grid">
+  <!-- Comfortable density card -->
+  <div class="card">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="avatar">JK<div class="status-dot"></div></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span style="font-family:'Inter Tight',sans-serif;font-size:15px;font-weight:600">Jamie Kim</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#4d4d4a">'20</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <span class="badge" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span style="width:5px;height:5px;border-radius:50%;background:#3b6e51"></span>Mentor</span>
+          <span class="badge" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)">Friend</span>
+        </div>
+        <p style="margin-top:6px;font-size:12px;color:#0c0c0b">Product Manager <span style="color:#4d4d4a;font-family:'JetBrains Mono',monospace;font-size:10px">·</span> <strong style="font-size:12px">Stripe</strong></p>
+        <p style="font-size:11px;color:#4d4d4a;margin-top:2px">Brooklyn, NY · Cornell '20</p>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <p style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#2563eb">Match brief</p>
+      <p class="pull-quote" style="margin-top:6px">"Spent 5 years in consulting before pivoting to PM at Stripe. Can speak directly to the transition you're asking about."</p>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #dcdcd6;display:flex;justify-content:space-between;align-items:center">
+      <button class="btn-cta">Ask Jamie for advice</button>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#2563eb;border:1px solid rgba(37,99,235,.2);background:rgb(37 99 235/.04);border-radius:4px;padding:2px 6px">82% Match</span>
+    </div>
+  </div>
+
+  <!-- Editorial Midnight card -->
+  <div class="card card-editorial">
+    <p style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#93c5fd">Live school circle</p>
+    <h2 style="font-family:'Inter Tight',sans-serif;font-size:22px;font-weight:600;line-height:1.25;margin-top:8px;max-width:260px">A trusted map of people who can help, and people you can help.</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px">
+      <div style="border:1px solid rgb(250 250 249/.16);border-radius:8px;background:rgba(255,255,255,.06);padding:10px">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:24px;font-weight:600">24</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:rgb(250 250 249/.6);margin-top:4px">Open helpers</div>
+      </div>
+      <div style="border:1px solid rgb(250 250 249/.16);border-radius:8px;background:rgba(255,255,255,.06);padding:10px">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:24px;font-weight:600">7</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:rgb(250 250 249/.6);margin-top:4px">Need reply</div>
+      </div>
+      <div style="border:1px solid rgb(250 250 249/.16);border-radius:8px;background:rgba(255,255,255,.06);padding:10px">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:24px;font-weight:600">3</div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:rgb(250 250 249/.6);margin-top:4px">School events</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section-label">Empty state</div>
+<div class="card" style="text-align:center;padding:28px">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4d4d4a" stroke-width="1.5" style="margin:0 auto 10px;display:block;opacity:.6"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+  <p style="font-family:'Inter Tight',sans-serif;font-size:18px;font-weight:600">Nothing needs a reply.</p>
+  <p style="font-size:13px;color:#4d4d4a;margin-top:6px;line-height:1.5;max-width:260px;margin-left:auto;margin-right:auto">Look around People or set what you're open to so the right requests find you.</p>
+  <div style="margin-top:14px;display:flex;justify-content:center;gap:12px">
+    <a href="#" style="font-size:12px;font-weight:600;color:#2563eb;text-decoration:none">Find people →</a>
+    <a href="#" style="font-size:12px;font-weight:600;color:#2563eb;text-decoration:none">Update availability →</a>
+  </div>
+</div>
+</body>
+</html>
