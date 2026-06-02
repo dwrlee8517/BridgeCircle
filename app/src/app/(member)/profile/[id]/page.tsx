@@ -207,64 +207,37 @@ export default async function ProfileDetailPage({
   const educationHistory = profile.educationHistory || []
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 md:py-12">
+    <div className="density-cozy mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
       {/* Breadcrumb */}
       <Link
         href="/people"
-        className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 transition-colors mb-6"
+        className="mb-6 inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground"
       >
         ← People
       </Link>
 
       {flashSaved ? (
-        <div className="mb-6 rounded-lg border border-accent-sage/25 bg-accent-sage/10 px-4 py-3 text-sm text-foreground">
+        <div className="mb-6 rounded-md border border-accent-sage/25 bg-accent-sage/10 px-4 py-3 text-sm text-foreground">
           Profile saved.
         </div>
       ) : null}
       {flashNotFriends ? (
-        <div className="mb-6 rounded-lg border border-accent-ochre/25 bg-accent-ochre/10 px-4 py-3 text-sm text-foreground">
+        <div className="mb-6 rounded-md border border-accent-ochre/25 bg-accent-ochre/10 px-4 py-3 text-sm text-foreground">
           Direct messages are open to friends only. Add{' '}
           <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first to
           start a conversation.
         </div>
       ) : null}
 
-      {/* Hero Card */}
-      <Card className="overflow-hidden bg-card border border-border rounded-lg relative p-6 md:p-8 shadow-none mb-6">
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(12,12,11,0.15) 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-          }}
-        />
-        <svg
-          aria-hidden="true"
-          role="presentation"
-          viewBox="0 0 200 200"
-          className="absolute -right-10 -top-10 h-[200px] w-[200px] opacity-15 pointer-events-none"
-        >
-          <title>Decorative two-circle motif</title>
-          <circle
-            cx="80"
-            cy="100"
-            r="60"
-            fill="none"
-            className="stroke-foreground"
-            strokeWidth="1"
-          />
-          <circle cx="130" cy="100" r="60" fill="none" className="stroke-primary" strokeWidth="1" />
-        </svg>
-
-        <div className="relative z-10 space-y-4">
+      <Card className="mb-6 border-border bg-card p-6 shadow-card md:p-8">
+        <div className="space-y-4">
           {/* Top Badges
               Synthesis P3: Verified is a category (identity), not a state
               (availability). Render it as an outlined check pill, distinct
               from the green-dot "Open to ..." availability pills. */}
           <div className="flex flex-wrap gap-2">
             {profile.graduationYear ? (
-              <span className="inline-flex h-6 items-center gap-1.5 rounded-lg border border-foreground/20 bg-card px-2 text-xs font-semibold text-foreground">
+              <span className="inline-flex h-6 items-center gap-1.5 rounded-sm border border-foreground/20 bg-card px-2 text-xs font-semibold text-foreground">
                 <svg aria-hidden width="12" height="12" viewBox="0 0 12 12" className="shrink-0">
                   <title>Verified</title>
                   <path
@@ -304,15 +277,16 @@ export default async function ProfileDetailPage({
               header card so identity, trust, and the next step share a
               single visual field. The right-rail Actions card (below) still
               exists as a destination for secondary moves. */}
-          <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
-            <Avatar className="size-20 shrink-0 border border-border">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+            <Avatar className="size-20 shrink-0 rounded-md border border-border after:rounded-md">
               {profile.avatarUrl ? (
                 <AvatarImage
                   src={profile.avatarUrl}
                   alt={displayName(profile.name, profile.preferredName, '')}
+                  className="rounded-md"
                 />
               ) : null}
-              <AvatarFallback className="bg-primary text-2xl font-bold text-primary-foreground">
+              <AvatarFallback className="rounded-md bg-primary text-2xl font-bold text-primary-foreground">
                 {displayName(profile.name, profile.preferredName, '?').slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -350,51 +324,19 @@ export default async function ProfileDetailPage({
                 </p>
               ) : null}
             </div>
-
-            {/* Synthesis P2-8: primary action lives in the header.
-                Chosen by helper signal so one CTA is unmistakable. */}
-            <div className="flex flex-col gap-2 sm:w-auto sm:shrink-0 sm:items-stretch sm:min-w-[180px]">
-              {isSelf ? (
-                <Button asChild className="rounded-lg">
-                  <Link href="/profile/edit">Edit profile</Link>
-                </Button>
-              ) : profile.isOpenAsAdviceHelper ? (
-                <Button asChild variant="cta" className="rounded-lg">
-                  <Link href={`/ask/new?to=${profile.userId}&type=advice`}>
-                    Ask {displayName(profile.name, profile.preferredName).split(/\s+/)[0]} for
-                    advice
-                  </Link>
-                </Button>
-              ) : profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
-                <Button asChild variant="cta" className="rounded-lg">
-                  <Link href={`/ask/new?to=${profile.userId}&type=mentorship`}>
-                    Request mentorship
-                  </Link>
-                </Button>
-              ) : isFriend ? (
-                <form action={startThreadAction}>
-                  <input type="hidden" name="receiverId" value={profile.userId} />
-                  <Button type="submit" variant="cta" className="rounded-lg w-full">
-                    Message
-                  </Button>
-                </form>
-              ) : friendshipActionKind === 'none' ? (
-                <FriendshipAction profileUserId={profile.userId} state={friendshipActionKind} />
-              ) : null}
-            </div>
           </div>
         </div>
       </Card>
 
       {/* Main Grid: 2 columns on desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_336px] gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_336px]">
         {/* Left Column: timelines, bios, details */}
         <div className="space-y-6">
           {/* Bio */}
           {profile.bio ? (
-            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
+              <div className="mb-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   In their own words
                 </span>
               </div>
@@ -406,12 +348,12 @@ export default async function ProfileDetailPage({
 
           {/* Career History */}
           {careerHistory.length > 0 ? (
-            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
+            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               {/* Synthesis P1-6: dropped the "CHRONOLOGICAL RAIL" decorative
                   kicker — it added noise without orienting the user. Section
                   label uses caption sentence case. */}
-              <div className="border-t-2 border-foreground pt-4 mb-6">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <div className="mb-6">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Career
                 </span>
               </div>
@@ -424,7 +366,7 @@ export default async function ProfileDetailPage({
                       className="grid grid-cols-[80px_20px_1fr] md:grid-cols-[100px_24px_1fr] gap-2 md:gap-4 pb-6 last:pb-0"
                     >
                       {/* Date */}
-                      <div className="font-mono text-[11px] tracking-wider text-muted-foreground font-semibold pt-1">
+                      <div className="font-mono text-xs tracking-wider text-muted-foreground font-semibold pt-1">
                         {c.start_date ?? '?'} – {c.end_date ?? 'present'}
                       </div>
                       {/* Rail */}
@@ -455,9 +397,9 @@ export default async function ProfileDetailPage({
 
           {/* Education History */}
           {educationHistory.length > 0 ? (
-            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-6">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
+              <div className="mb-6">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Education
                 </span>
               </div>
@@ -470,7 +412,7 @@ export default async function ProfileDetailPage({
                       className="grid grid-cols-[80px_20px_1fr] md:grid-cols-[100px_24px_1fr] gap-2 md:gap-4 pb-6 last:pb-0"
                     >
                       {/* Date */}
-                      <div className="font-mono text-[11px] tracking-wider text-muted-foreground font-semibold pt-1">
+                      <div className="font-mono text-xs tracking-wider text-muted-foreground font-semibold pt-1">
                         {e.start_date || e.end_date ? (
                           <span>
                             {e.start_date ?? '?'} – {e.end_date ?? '?'}
@@ -503,9 +445,9 @@ export default async function ProfileDetailPage({
           ) : null}
 
           {/* Open To Grids */}
-          <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
-            <div className="border-t-2 border-foreground pt-4 mb-4">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
+            <div className="mb-4">
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Open to
               </span>
             </div>
@@ -572,9 +514,9 @@ export default async function ProfileDetailPage({
 
           {/* Mentoring Topics */}
           {profile.mentoringTopics && profile.mentoringTopics.length > 0 ? (
-            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
+              <div className="mb-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Mentoring Topics
                 </span>
               </div>
@@ -582,7 +524,7 @@ export default async function ProfileDetailPage({
                 {profile.mentoringTopics.map((topic) => (
                   <span
                     key={topic}
-                    className="font-mono text-[10px] uppercase tracking-wider text-foreground border border-border bg-card px-2.5 py-1 rounded-[2px]"
+                    className="font-mono text-xs uppercase tracking-wider text-foreground border border-border bg-card px-2.5 py-1 rounded-sm"
                   >
                     {topic}
                   </span>
@@ -593,9 +535,9 @@ export default async function ProfileDetailPage({
 
           {/* Skills */}
           {profile.skills && profile.skills.length > 0 ? (
-            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
+              <div className="mb-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Skills & Expertise
                 </span>
               </div>
@@ -603,7 +545,7 @@ export default async function ProfileDetailPage({
                 {profile.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground border border-border/80 bg-muted/20 px-2 py-0.5 rounded-[2px]"
+                    className="font-mono text-xs uppercase tracking-wider text-muted-foreground border border-border/80 bg-muted/20 px-2 py-0.5 rounded-sm"
                   >
                     {skill}
                   </span>
@@ -614,9 +556,9 @@ export default async function ProfileDetailPage({
 
           {/* Links */}
           {profile.linkedinUrl ? (
-            <Card className="rounded-lg border border-border bg-card p-6 md:p-8 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
+              <div className="mb-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Links
                 </span>
               </div>
@@ -635,11 +577,11 @@ export default async function ProfileDetailPage({
         </div>
 
         {/* Right Column: Actions sidebar */}
-        <aside className="space-y-6">
+        <aside className="space-y-6 md:sticky md:top-24 md:self-start">
           {/* Actions panel */}
-          <Card className="rounded-lg border border-border bg-card p-6 shadow-none">
-            <div className="border-t-2 border-foreground pt-4 mb-4">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <Card className="rounded-md border border-border bg-card p-6 shadow-card">
+            <div className="mb-4">
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Actions
               </span>
             </div>
@@ -676,9 +618,9 @@ export default async function ProfileDetailPage({
           {isSelf ? <FreshnessReviewCard /> : null}
 
           {/* Verification Details */}
-          <Card className="rounded-lg border border-border bg-card p-6 shadow-none">
-            <div className="border-t-2 border-foreground pt-4 mb-4">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <Card className="rounded-md border border-border bg-card p-6 shadow-card">
+            <div className="mb-4">
+              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Verification
               </span>
             </div>
@@ -715,7 +657,7 @@ export default async function ProfileDetailPage({
                 <h4 className="font-heading text-[15px] font-bold text-foreground leading-tight">
                   Verified Member
                 </h4>
-                <p className="text-[11px] text-muted-foreground">Registered & verified identity</p>
+                <p className="text-xs text-muted-foreground">Registered & verified identity</p>
               </div>
             </div>
 
@@ -750,9 +692,9 @@ export default async function ProfileDetailPage({
 
           {/* You share card (Mutual Connections + event RSVPs) */}
           {!isSelf ? (
-            <Card className="rounded-lg border border-border bg-card p-6 shadow-none">
-              <div className="border-t-2 border-foreground pt-4 mb-4">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <Card className="rounded-md border border-border bg-card p-6 shadow-card">
+              <div className="mb-4">
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   You share
                 </span>
               </div>
@@ -808,7 +750,7 @@ export default async function ProfileDetailPage({
                       >
                         <Avatar className="size-[30px] border border-border">
                           {p.avatarUrl ? <AvatarImage src={p.avatarUrl} alt="" /> : null}
-                          <AvatarFallback className="bg-primary/10 text-[10px] font-bold text-primary">
+                          <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
                             {initials}
                           </AvatarFallback>
                         </Avatar>
@@ -838,13 +780,13 @@ function NumberedField({
 }) {
   return (
     <div className="grid grid-cols-[28px_1fr_auto] gap-3 py-2.5 border-b border-border/40 last:border-b-0 items-baseline">
-      <span className="font-mono text-[10px] text-muted-foreground/60">
+      <span className="font-mono text-xs text-muted-foreground/60">
         {String(n).padStart(2, '0')}
       </span>
       <span className="text-xs md:text-sm text-muted-foreground">{label}</span>
       <div className="text-right">
         <div className="text-xs md:text-sm font-semibold text-foreground">{value}</div>
-        {sub ? <div className="text-[10px] text-muted-foreground/60 mt-0.5">{sub}</div> : null}
+        {sub ? <div className="text-xs text-muted-foreground/60 mt-0.5">{sub}</div> : null}
       </div>
     </div>
   )
@@ -872,7 +814,7 @@ function HelperAsks({
 }) {
   if (mentorshipState === 'active' && relatedThreadId) {
     return (
-      <Button asChild className="w-full">
+      <Button asChild variant="offer" className="w-full">
         <Link href={`/ask/thread/${relatedThreadId}`}>Open mentorship thread</Link>
       </Button>
     )
@@ -886,7 +828,7 @@ function HelperAsks({
   }
   if (mentorshipState === 'pending_incoming' && relatedRequestId) {
     return (
-      <Button asChild className="w-full">
+      <Button asChild variant="offer" className="w-full">
         <Link href={`/ask/${relatedRequestId}`}>Review their request</Link>
       </Button>
     )
@@ -906,14 +848,12 @@ function HelperAsks({
   return (
     <>
       {isOpenAsAdviceHelper ? (
-        // CTA amber when this is the only ask path; outline when mentorship competes
-        // for primary position (mentorship is the higher-stakes ask in that case).
-        <Button asChild variant={showMentorshipButton ? 'outline' : 'cta'} className="w-full">
+        <Button asChild variant="cta" className="w-full">
           <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for advice</Link>
         </Button>
       ) : null}
       {showMentorshipButton ? (
-        <Button asChild variant="cta" className="w-full">
+        <Button asChild variant={isOpenAsAdviceHelper ? 'outline' : 'cta'} className="w-full">
           <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Request mentorship</Link>
         </Button>
       ) : null}

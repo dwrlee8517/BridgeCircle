@@ -34,9 +34,12 @@ export default async function AnnouncementsPage() {
   const isAdmin = !!adminRole
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Announcements</h1>
+    <div className="density-cozy mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-8">
+      <div className="space-y-2">
+        <p className="bc-section-kicker">From the office</p>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          Announcements
+        </h1>
         <p className="text-sm text-muted-foreground">News and updates from {orgName}.</p>
       </div>
 
@@ -60,10 +63,14 @@ export default async function AnnouncementsPage() {
         announcements.map((a) => (
           <Card key={a.id}>
             <CardHeader>
+              <span className="inline-flex w-fit items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-primary">
+                <Megaphone className="size-3.5" />
+                Announcement
+              </span>
               <div className="flex items-baseline justify-between gap-3">
                 <CardTitle className="text-lg">{a.title}</CardTitle>
                 <span
-                  className="shrink-0 text-xs text-muted-foreground"
+                  className="shrink-0 font-mono text-xs text-muted-foreground"
                   title={format(new Date(a.publishedAt), 'PPpp')}
                 >
                   {formatDistanceToNow(new Date(a.publishedAt), { addSuffix: true })}

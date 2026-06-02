@@ -1,0 +1,2729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BridgeCircle — App UI Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; }
+  body { background: #fafaf9; color: #0c0c0b; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #dcdcd6; border-radius: 3px; }
+  input, textarea, select, button { font-family: inherit; }
+  /* Announcement banner */
+  .bc-announcement { display: flex; align-items: center; justify-content: space-between; padding: 8px 32px; border-bottom: 1px solid #dcdcd6; background: rgba(37,99,235,0.03); font-size: 12px; cursor: pointer; transition: background 150ms; }
+  .bc-announcement:hover { background: rgba(37,99,235,0.06); }
+  /* Section kicker */
+  .bc-section-kicker { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #2563eb; }
+  .bc-section-kicker::before { content: ''; display: block; width: 1.75rem; height: 2px; border-radius: 999px; background: #2563eb; }
+  /* Page band */
+  .bc-page-band { background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,0)), radial-gradient(circle at 12% 0%, rgba(37,99,235,.07), transparent 32%), #fafaf9; }
+  /* Action rail */
+  .bc-action-rail { border-left: 3px solid #2563eb; background: color-mix(in srgb, #2563eb 5%, #fff); }
+  /* Pull quote */
+  .bc-pull-quote { border-left: 3px solid #2563eb; padding-left: 10px; font-style: italic; line-height: 1.5; }
+  /* Person card hover-lift (interaction echoes the production ResultCard) */
+  .bc-person-card--lift:hover { transform: translateY(-1px); border-color: #0c0c0b !important; box-shadow: 0 4px 12px -2px rgba(12,12,11,0.06) !important; }
+  #root { height: 100%; display: flex; flex-direction: column; }
+
+  /* ─── Responsive helpers ─────────────────────────────────────────────── */
+  .bc-mobile-only { display: none; }
+  .bc-mobile-tabbar { display: none; }
+
+  /* ─── Stripe color theme ──────────────────────────────────────────────────
+     Layered on top of the BridgeCircle palette by attribute selectors.
+     NOTE: browsers normalize inline-style hex colors to rgb(...) form, so the
+     selectors below must match against rgb()/rgba() — NOT the hex source.
+     Brand: #635BFF (Stripe purple)  ·  Bg: #F6F9FC  ·  Border: #E3E8EE */
+  body.theme-stripe { background: #F6F9FC !important; }
+  body.theme-stripe .bc-section-kicker            { color: #635BFF; }
+  body.theme-stripe .bc-section-kicker::before    { background: #635BFF; }
+  body.theme-stripe .bc-page-band {
+    background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,0)),
+                radial-gradient(circle at 12% 0%, rgba(99,91,255,.07), transparent 32%),
+                #F6F9FC;
+  }
+  body.theme-stripe .bc-action-rail   { border-left-color: #635BFF; background: color-mix(in srgb, #635BFF 5%, #fff); }
+  body.theme-stripe .bc-pull-quote    { border-left-color: #635BFF; }
+
+  /* Primary brand #2563eb → #635BFF.  In the DOM this serializes as
+     rgb(37, 99, 235) (with the canonical comma+space). */
+  body.theme-stripe [style*="color: rgb(37, 99, 235)"]              { color: #635BFF !important; }
+  body.theme-stripe [style*="background: rgb(37, 99, 235)"],
+  body.theme-stripe [style*="background-color: rgb(37, 99, 235)"]   { background-color: #635BFF !important; }
+  body.theme-stripe [style*="border-color: rgb(37, 99, 235)"],
+  body.theme-stripe [style*="solid rgb(37, 99, 235)"]               { border-color: #635BFF !important; }
+  /* SVG attributes are NOT normalized — match as written. */
+  body.theme-stripe [stroke="#2563eb"]   { stroke: #635BFF !important; }
+  body.theme-stripe [fill="#2563eb"]     { fill: #635BFF !important; }
+
+  /* Translucent brand rgba(37,99,235,X) — back the tint with purple. */
+  body.theme-stripe [style*="background: rgba(37, 99, 235"],
+  body.theme-stripe [style*="background-color: rgba(37, 99, 235"]   { background-color: rgba(99,91,255,0.10) !important; }
+  body.theme-stripe [style*="solid rgba(37, 99, 235"]               { border-color: rgba(99,91,255,0.28) !important; }
+
+  /* Page surfaces: warm bone (#fafaf9 / #f4f3ee) → Stripe's cool pale. */
+  body.theme-stripe [style*="background: rgb(250, 250, 249)"],
+  body.theme-stripe [style*="background-color: rgb(250, 250, 249)"] { background-color: #F6F9FC !important; }
+  body.theme-stripe [style*="background: rgb(244, 243, 238)"],
+  body.theme-stripe [style*="background-color: rgb(244, 243, 238)"] { background-color: #F7FAFC !important; }
+
+  /* Hairline borders (#dcdcd6 / #ebebe5) shift cool. */
+  body.theme-stripe [style*="solid rgb(220, 220, 214)"]             { border-color: #E3E8EE !important; }
+  body.theme-stripe [style*="solid rgb(235, 235, 229)"]             { border-color: #EFF3F7 !important; }
+
+  /* ─── Apple color theme ────────────────────────────────────────────────────
+     Brand: #0071e3 (system blue)  ·  Bg: #f5f5f7  ·  Border: #d2d2d7 */
+  body.theme-apple { background: #f5f5f7 !important; }
+  body.theme-apple .bc-section-kicker            { color: #0071e3; }
+  body.theme-apple .bc-section-kicker::before    { background: #0071e3; }
+  body.theme-apple .bc-page-band {
+    background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,0)),
+                radial-gradient(circle at 12% 0%, rgba(0,113,227,.07), transparent 32%),
+                #f5f5f7;
+  }
+  body.theme-apple .bc-action-rail   { border-left-color: #0071e3; background: color-mix(in srgb, #0071e3 5%, #fff); }
+  body.theme-apple .bc-pull-quote    { border-left-color: #0071e3; }
+
+  body.theme-apple [style*="color: rgb(37, 99, 235)"]              { color: #0071e3 !important; }
+  body.theme-apple [style*="background: rgb(37, 99, 235)"],
+  body.theme-apple [style*="background-color: rgb(37, 99, 235)"]   { background-color: #0071e3 !important; }
+  body.theme-apple [style*="border-color: rgb(37, 99, 235)"],
+  body.theme-apple [style*="solid rgb(37, 99, 235)"]               { border-color: #0071e3 !important; }
+  body.theme-apple [stroke="#2563eb"]   { stroke: #0071e3 !important; }
+  body.theme-apple [fill="#2563eb"]     { fill: #0071e3 !important; }
+
+  body.theme-apple [style*="background: rgba(37, 99, 235"],
+  body.theme-apple [style*="background-color: rgba(37, 99, 235"]   { background-color: rgba(0,113,227,0.10) !important; }
+  body.theme-apple [style*="solid rgba(37, 99, 235"]               { border-color: rgba(0,113,227,0.28) !important; }
+
+  body.theme-apple [style*="background: rgb(250, 250, 249)"],
+  body.theme-apple [style*="background-color: rgb(250, 250, 249)"] { background-color: #f5f5f7 !important; }
+  body.theme-apple [style*="background: rgb(244, 243, 238)"],
+  body.theme-apple [style*="background-color: rgb(244, 243, 238)"] { background-color: #fbfbfd !important; }
+
+  body.theme-apple [style*="solid rgb(220, 220, 214)"]             { border-color: #d2d2d7 !important; }
+  body.theme-apple [style*="solid rgb(235, 235, 229)"]             { border-color: #e5e5ea !important; }
+
+  /* ─── Spotify color theme ──────────────────────────────────────────────────
+     (Renamed → Instagram. Kept here as dead block in case anything still
+     references theme-spotify; no body should ever carry that class now.) */
+
+  /* ─── Instagram color theme ───────────────────────────────────────────────
+     Brand: #E1306C (Instagram magenta)  ·  Gradient: orange → red → purple
+     Bg: #fafafa  ·  Border: #dbdbdb  ·  Cards stay pure white */
+  body.theme-instagram { background: #fafafa !important; }
+  body.theme-instagram .bc-section-kicker            { color: #E1306C; }
+  body.theme-instagram .bc-section-kicker::before    {
+    background: linear-gradient(90deg, #FCB045, #FD1D1D 60%, #833AB4);
+  }
+  body.theme-instagram .bc-page-band {
+    background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,0)),
+                radial-gradient(circle at 12% 0%, rgba(225,48,108,.08), transparent 32%),
+                radial-gradient(circle at 88% 100%, rgba(252,176,69,.07), transparent 38%),
+                #fafafa;
+  }
+  body.theme-instagram .bc-action-rail {
+    border-left: 3px solid transparent;
+    border-image: linear-gradient(180deg, #FCB045, #FD1D1D 55%, #833AB4) 1;
+    background: color-mix(in srgb, #E1306C 5%, #fff);
+  }
+  body.theme-instagram .bc-pull-quote { border-left-color: #E1306C; }
+  body.theme-instagram .bc-announcement { background: rgba(225,48,108,0.04) !important; }
+  body.theme-instagram .bc-announcement:hover { background: rgba(225,48,108,0.07) !important; }
+
+  body.theme-instagram [style*="color: rgb(37, 99, 235)"]              { color: #E1306C !important; }
+  body.theme-instagram [style*="background: rgb(37, 99, 235)"],
+  body.theme-instagram [style*="background-color: rgb(37, 99, 235)"]   { background-color: #E1306C !important; }
+  body.theme-instagram [style*="border-color: rgb(37, 99, 235)"],
+  body.theme-instagram [style*="solid rgb(37, 99, 235)"]               { border-color: #E1306C !important; }
+  body.theme-instagram [stroke="#2563eb"]   { stroke: #E1306C !important; }
+  body.theme-instagram [fill="#2563eb"]     { fill: #E1306C !important; }
+
+  body.theme-instagram [style*="background: rgba(37, 99, 235"],
+  body.theme-instagram [style*="background-color: rgba(37, 99, 235"]   { background-color: rgba(225,48,108,0.10) !important; }
+  body.theme-instagram [style*="solid rgba(37, 99, 235"]               { border-color: rgba(225,48,108,0.28) !important; }
+
+  body.theme-instagram [style*="background: rgb(250, 250, 249)"],
+  body.theme-instagram [style*="background-color: rgb(250, 250, 249)"] { background-color: #fafafa !important; }
+  body.theme-instagram [style*="background: rgb(244, 243, 238)"],
+  body.theme-instagram [style*="background-color: rgb(244, 243, 238)"] { background-color: #f5f5f5 !important; }
+  /* Subtle gray surface (#ebebe5) → cool gray */
+  body.theme-instagram [style*="background: rgb(235, 235, 229)"],
+  body.theme-instagram [style*="background-color: rgb(235, 235, 229)"] { background-color: #efefef !important; }
+
+  body.theme-instagram [style*="solid rgb(220, 220, 214)"]             { border-color: #dbdbdb !important; }
+  body.theme-instagram [style*="solid rgb(235, 235, 229)"]             { border-color: #efefef !important; }
+
+  /* ─── Per-theme .bc-announcement (uses class-defined rgba, not inline) ──── */
+  body.theme-stripe   .bc-announcement       { background: rgba(99,91,255,0.04) !important; }
+  body.theme-stripe   .bc-announcement:hover { background: rgba(99,91,255,0.07) !important; }
+  body.theme-apple    .bc-announcement       { background: rgba(0,113,227,0.04) !important; }
+  body.theme-apple    .bc-announcement:hover { background: rgba(0,113,227,0.07) !important; }
+
+  /* ─── Per-theme extra surface polish ──────────────────────────────────────
+     Subtle bone surface (#ebebe5) used as bg in places → match each theme. */
+  body.theme-stripe [style*="background: rgb(235, 235, 229)"],
+  body.theme-stripe [style*="background-color: rgb(235, 235, 229)"]    { background-color: #EFF3F7 !important; }
+  body.theme-apple  [style*="background: rgb(235, 235, 229)"],
+  body.theme-apple  [style*="background-color: rgb(235, 235, 229)"]    { background-color: #e8e8ed !important; }
+
+  /* ─── Mobile (≤ 760px) ───────────────────────────────────────────────── */
+  @media (max-width: 760px) {
+    /* Stack every multi-column grid — minmax(0,1fr) lets cols shrink below content min */
+    [style*="1fr 400px"],
+    [style*="1fr 360px"],
+    [style*="1fr 320px"],
+    [style*="1fr 280px"],
+    [style*="1fr) 280px"],     /* matches "minmax(0,1fr) 280px" */
+    [style*="1fr auto"],
+    [style*="260px 1fr"],
+    [style*="300px 1fr"],
+    [style*="360px 1fr"],
+    [style*="380px 1fr"],
+    [style*="392px 1fr"],
+    [style*="200px 320px 1fr"],
+    [style*="repeat(2, 1fr)"],
+    [style*="repeat(3, 1fr)"] {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+    /* Person card: auto 1fr auto — fold the right-side actions under content */
+    [style*="grid-template-columns: auto 1fr auto"][style*="gap: 20px"] {
+      grid-template-columns: auto minmax(0, 1fr) !important;
+      gap: 14px !important;
+      padding: 14px 14px !important;
+    }
+    [style*="grid-template-columns: auto 1fr auto"][style*="gap: 20px"] > :nth-child(3) {
+      grid-column: 1 / -1 !important;
+    }
+    /* Prompt chips & similar long-text buttons wrap to fit */
+    .bc-pill-row > *, button[style*="border-radius: 9999px"] {
+      max-width: 100% !important;
+      white-space: normal !important;
+      text-align: left;
+    }
+    /* Page wrappers fill viewport */
+    [style*="max-width: 1280px"],
+    [style*="max-width: 1080px"],
+    [style*="max-width: 900px"],
+    [style*="max-width: 760px"],
+    [style*="max-width: 640px"],
+    [style*="max-width: 440px"] {
+      max-width: 100% !important;
+    }
+    /* Page-level paddings */
+    [style*="padding: 32px"]              { padding: 18px 16px !important; }
+    [style*="padding: 40px 32px"]         { padding: 22px 16px !important; }
+    [style*="padding: 32px 32px 48px"]    { padding: 18px 16px 32px !important; }
+    [style*="padding: 24px 32px 20px"]    { padding: 16px 16px 14px !important; }
+    [style*="padding: 14px 32px"]         { padding: 12px 16px !important; }
+    [style*="padding: 80px 32px"]         { padding: 40px 16px !important; }
+    /* Hero / announcement bar */
+    [style*="padding: 8px 32px"]          { padding: 8px 16px !important; }
+    /* Big headings shrink */
+    [style*="font-size: 36px"] { font-size: 26px !important; line-height: 1.18 !important; }
+    [style*="font-size: 32px"] { font-size: 22px !important; line-height: 1.2 !important; }
+    [style*="font-size: 28px"] { font-size: 21px !important; line-height: 1.22 !important; }
+    [style*="font-size: 22px"] { font-size: 18px !important; }
+    /* Drop sticky asides */
+    [style*="position: sticky"][style*="top: 24px"] {
+      position: static !important;
+    }
+    /* Gaps */
+    [style*="gap: 40px"] { gap: 18px !important; }
+    [style*="gap: 32px"] { gap: 18px !important; }
+    /* Pinned-width sidebars become full-width blocks */
+    [style*="width: 300px"][style*="flex-shrink: 0"],
+    [style*="width: 320px"][style*="flex-shrink: 0"],
+    [style*="width: 360px"][style*="flex-shrink: 0"],
+    [style*="width: 400px"][style*="flex-shrink: 0"] {
+      width: 100% !important;
+    }
+    /* Wide flex rows wrap so children flow */
+    [style*="display: flex"][style*="gap: 40px"],
+    [style*="display: flex"][style*="gap: 32px"] {
+      flex-wrap: wrap !important;
+    }
+    /* Availability card on Help screen: let it wrap & relax dividers */
+    [style*="display: flex"][style*="gap: 20px"][style*="align-items: center"] {
+      flex-wrap: wrap !important;
+      row-gap: 12px !important;
+    }
+    /* Make the inline tall dividers in availability card hide on mobile */
+    [style*="width: 1px"][style*="height: 36px"] { display: none !important; }
+    /* Hero band — reduce vertical padding */
+    [style*="padding: 96px 32px"][style*="align-items: center"] {
+      padding: 22px 16px !important;
+    }
+    /* Profile/event details: dl 2-column → block */
+    [style*="grid-template-columns: auto 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+    /* Reduce big bottom paddings */
+    [style*="padding-bottom: 60px"] { padding-bottom: 24px !important; }
+    /* Member profile hero stack */
+    [style*="gap: 24px"][style*="grid-template-columns"] { gap: 16px !important; }
+    /* Reserve space for bottom tab bar — ONLY inside main (the scroller).
+       Do NOT put padding-bottom on body — that would make the document
+       taller than the viewport, creating a document-level scroll. On iOS,
+       any document scroll causes the visual viewport (and the fixed bottom
+       tab bar within it) to visually rubber-band with the page. We want
+       all scrolling to happen INSIDE main so the viewport stays still. */
+    main {
+      padding-bottom: 60px;
+      overscroll-behavior-y: contain;
+      position: relative;
+    }
+    /* iOS rubber-band trap.
+       When a screen fits in one viewport (e.g. Inbox > Priority with 4
+       items), main has no natural overflow, so touch-drag gestures escape
+       to the visual viewport and the whole page rubber-bands.
+
+       Fix: an absolutely-positioned 1px sentinel below main's bottom edge.
+       This makes main.scrollHeight > main.clientHeight unconditionally, so
+       main IS a real scroll container even on short screens. Combined with
+       `overscroll-behavior-y: contain`, all bounce stays inside main and
+       never chains to the viewport. Invisible, no layout impact. */
+    main::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+    /* Show / hide helpers */
+    .bc-desktop-only { display: none !important; }
+    .bc-mobile-only  { display: flex !important; }
+    .bc-mobile-tabbar {
+      display: flex !important;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      height: 60px; background: #ffffff; border-top: 1px solid #dcdcd6;
+      padding: 6px 4px 8px;
+      align-items: stretch; justify-content: space-around;
+      box-shadow: 0 -4px 14px -4px rgba(12,12,11,0.06);
+    }
+    /* Header on mobile — drop big gaps & tighten */
+    .bc-header-inner { padding: 0 14px !important; height: 56px !important; gap: 8px !important; }
+    .bc-header-wordmark { font-size: 16px !important; }
+    /* Announcement banner: hide the timestamp pill on mobile */
+    .bc-announcement { font-size: 11px; }
+    .bc-announcement-meta { display: none !important; }
+    /* Pill rows — already use flex-wrap; nothing to add */
+    /* Inbox: only show one panel at a time. Sidebar on top when nothing selected. */
+    /* Event card grid (date | content | actions) collapses to flow */
+    [style*="grid-template-columns: auto 1fr auto"] {
+      grid-template-columns: auto 1fr !important;
+    }
+    [style*="grid-template-columns: auto 1fr auto"] > :nth-child(3) {
+      grid-column: 1 / -1 !important;
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 8px !important;
+    }
+    [style*="grid-template-columns: auto 1fr auto"] > :nth-child(3) > * { flex: 1 !important; }
+
+    /* Inbox: hide the right-rail (detail pane) by default — list-first navigation. */
+    [style*="grid-template-columns: 360px 1fr"][style*="overflow: hidden"] > :nth-child(2) {
+      border-top: 1px solid #ebebe5;
+    }
+
+    /* People search bar: drop the rigid min-width on mobile so the search
+       and the "X results · Y open" caption fit cleanly side-by-side or stack. */
+    .bc-people-searchbar {
+      min-width: 0 !important;
+      width: 100% !important;
+      flex: 1 1 auto !important;
+    }
+    .bc-people-context-strip {
+      padding: 12px 16px !important;
+      gap: 10px !important;
+    }
+    /* Avatar / large media stays reasonably sized */
+    [style*="width: 88px"][style*="height: 88px"],
+    [style*="width: 96px"][style*="height: 96px"] {
+      width: 72px !important; height: 72px !important;
+    }
+    /* Hero "Your asks" card border softens on mobile */
+    /* Reduce mid-large heading on mobile */
+    [style*="font-size: 22px"][style*="font-weight: 600"] { font-size: 18px !important; }
+    /* Top breadcrumb bar: keep label readable */
+    /* Profile sticky aside becomes a normal block */
+    aside[style*="position: sticky"] { position: static !important; width: 100% !important; }
+
+    /* Tap targets: bump up small icon buttons */
+    button[style*="width: 28px"][style*="height: 28px"] {
+      width: 32px !important; height: 32px !important;
+    }
+
+    /* Notification dropdown: shrink to viewport width (was 340px) */
+    [style*="width: 340px"][style*="position: absolute"][style*="top: 44px"] {
+      width: calc(100vw - 24px) !important;
+      max-width: 360px !important;
+      right: 12px !important;
+    }
+    /* Account dropdown: nudge in from edge */
+    [style*="min-width: 180px"][style*="position: absolute"][style*="top: 44px"] {
+      right: 8px !important;
+    }
+
+    /* Tweaks panel: drop max width so it doesn't clip viewport */
+    .twk-panel {
+      width: calc(100vw - 24px) !important;
+      max-width: 320px !important;
+      right: 12px !important;
+      bottom: 76px !important;  /* clear bottom tab bar */
+      max-height: calc(100vh - 140px) !important;
+    }
+
+    /* EventsMasterDetail: kill the inner border between list & detail when stacked */
+    .bc-events-master-detail > :first-child {
+      border-right: none !important;
+      border-bottom: 1px solid #ebebe5 !important;
+    }
+    /* Event hero band — let actions wrap below title */
+    .bc-events-master-detail [style*="grid-template-columns: 1fr auto"][style*="padding: 32px 36px"] {
+      grid-template-columns: 1fr !important;
+      padding: 22px 18px !important;
+      gap: 14px !important;
+    }
+
+    /* Hero band right column ("Your asks") — give it breathing room on top */
+    [style*="grid-template-columns: 1fr 400px"] > :nth-child(2) {
+      margin-top: 4px;
+    }
+
+    /* Long titles wrap pretty in hero */
+    h1[style*="font-size"] { text-wrap: balance; }
+
+    /* AskBar: the inner 3-col chip grid stacks naturally via repeat(3,1fr) rule */
+    /* Toolbars / button rows wrap rather than overflow */
+    [style*="display: flex"][style*="gap: 10px"][style*="margin-top: 20px"] {
+      flex-wrap: wrap !important;
+    }
+  }
+  /* Hide mobile-only items on desktop */
+  @media (min-width: 761px) {
+    .bc-mobile-only { display: none !important; }
+    .bc-mobile-tabbar { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="Button.jsx"></script>
+<script type="text/babel" src="StatusBadge.jsx"></script>
+<script type="text/babel" src="Header.jsx"></script>
+<script type="text/babel" src="AskBar.jsx"></script>
+<script type="text/babel" src="MemberCard.jsx"></script>
+<script type="text/babel" src="InboxPanel.jsx"></script>
+<script type="text/babel" src="HelpScreen.jsx"></script>
+
+<script type="text/babel">
+// ─── Sample data ───────────────────────────────────────────────────────────
+const PEOPLE = [
+  { id:'p1', name:'Jamie Kim', currentTitle:'Product Manager', currentEmployer:'Stripe', city:'Brooklyn, NY', university:'Cornell', graduationYear:2020, isOpenAsMentor:true, isOpenAsAdviceHelper:true, isFriend:false, mentoringTopics:['Career transitions','Product management','Tech recruiting'], rationale:'Spent 5 years in consulting before pivoting to PM. Can speak directly to the path you\'re asking about.', matchTier:'strong', activeMenteeCount:2, maxActiveMentees:5 },
+  { id:'p2', name:'Alex Wong', currentTitle:'Principal', currentEmployer:'Andreessen Horowitz', city:'San Francisco, CA', university:'Cornell', graduationYear:2017, isOpenAsMentor:false, isOpenAsAdviceHelper:true, isFriend:true, mentoringTopics:['VC','Startups','Fundraising'], rationale:'Deep VC experience after a consulting background — uniquely positioned to speak to this pivot.', matchTier:'strong', activeMenteeCount:0, maxActiveMentees:5 },
+  { id:'p3', name:'Maya Reyes', currentTitle:'Founder & CEO', currentEmployer:'Kinetic Health', city:'New York, NY', university:'Cornell', graduationYear:2019, isOpenAsMentor:true, isOpenAsAdviceHelper:true, isFriend:false, mentoringTopics:['Entrepreneurship','Health tech','Early-stage startups'], rationale:'Founded a health-tech startup after McKinsey. Has direct experience with the consulting-to-founder path.', matchTier:'good', activeMenteeCount:3, maxActiveMentees:5 },
+  { id:'p4', name:'David Liu', currentTitle:'Engineering Manager', currentEmployer:'Google', city:'Seattle, WA', university:'Cornell', graduationYear:2016, isOpenAsMentor:true, isOpenAsAdviceHelper:false, isFriend:false, mentoringTopics:['Engineering leadership','Big tech career paths'], rationale:'Made the IC-to-management jump at a big-tech company — can walk you through the trade-offs.', matchTier:'good', activeMenteeCount:4, maxActiveMentees:5 },
+  { id:'p5', name:'Priya Nair', currentTitle:'Head of Strategy', currentEmployer:'Spotify', city:'London, UK', university:'Cornell', graduationYear:2018, isOpenAsMentor:false, isOpenAsAdviceHelper:false, mentorPaused:true, isFriend:false, mentoringTopics:[], rationale:'Built a strategy function from scratch at a public tech company — relevant if you\'re scoping a similar role.', matchTier:'weak', activeMenteeCount:0, maxActiveMentees:5 },
+  { id:'p6', name:'Sam Chen', currentTitle:'Policy Lead', currentEmployer:'Meta', city:'Washington, DC', university:'Cornell', graduationYear:2021, isOpenAsMentor:false, isOpenAsAdviceHelper:true, isFriend:false, mentoringTopics:['Policy','Government','Tech regulation'], rationale:'Moved from government consulting into tech policy — knows the public-sector-to-big-tech transition well.', matchTier:'weak', activeMenteeCount:0, maxActiveMentees:5 },
+];
+
+const MY_RECENT_ASKS = [
+  { id:'a1', summary:'Looking for advice on moving from consulting into product management', status:'replied', stamp:'2 replies · 1d ago' },
+  { id:'a2', summary:'Need a portfolio review before Big Tech APM applications', status:'pending', stamp:'sent 3d ago' },
+  { id:'a3', summary:'Anyone in Seoul this summer? Coffee while I\'m visiting.', status:'completed', stamp:'closed last week' },
+];
+
+const EVENTS = [
+  { id:'e1', title:'NYC Alumni Mixer — Spring 2026', date:'Sat Jun 7 · 6:30 PM', location:'Brooklyn, NY', going:34, category:'Networking' },
+  { id:'e2', title:'Cornell Tech Career Panel', date:'Wed May 28 · 12:00 PM', location:'Virtual', going:87, category:'Career' },
+];
+
+// ─── Home Screen ─────────────────────────────────────────────────────────────
+const HERO_BACKGROUNDS = {
+  editorial: {
+    label: 'Editorial (current)',
+    bg: `linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0)),
+         radial-gradient(circle at 12% 0%, rgba(37,99,235,0.07), transparent 32%),
+         #fafaf9`,
+    textColor: '#0c0c0b', mutedColor: '#4d4d4a', kickerColor: '#2563eb',
+    border: '1px solid #dcdcd6',
+  },
+  dark: {
+    label: 'Dark canvas',
+    bg: `radial-gradient(circle at 20% 0%, rgba(37,99,235,0.18), transparent 50%),
+         radial-gradient(circle at 80% 100%, rgba(21,160,95,0.12), transparent 45%),
+         #0c0c0b`,
+    textColor: '#fafaf9', mutedColor: 'rgba(250,250,249,0.65)', kickerColor: '#93c5fd',
+    border: '1px solid rgba(250,250,249,0.1)',
+  },
+  midnight: {
+    label: 'Midnight editorial',
+    bg: '#081126',
+    textColor: '#fafaf9', mutedColor: 'rgba(250,250,249,0.65)', kickerColor: '#93c5fd',
+    border: '1px solid #081126',
+  },
+  warm: {
+    label: 'Warm cream',
+    bg: `radial-gradient(circle at 10% 0%, rgba(245,158,11,0.10), transparent 38%),
+         radial-gradient(circle at 85% 90%, rgba(161,98,7,0.07), transparent 40%),
+         #fdf8f0`,
+    textColor: '#0c0c0b', mutedColor: '#4d4d4a', kickerColor: '#a16207',
+    border: '1px solid #e8ddc8',
+  },
+};
+
+function HomeScreen({ onNavigate, t, setTweak }) {
+  const hero = HERO_BACKGROUNDS[t.heroStyle] || HERO_BACKGROUNDS.editorial;
+  const isDark = t.heroStyle === 'dark' || t.heroStyle === 'midnight';
+
+  const [submitted, setSubmitted] = React.useState(false);
+  const [query, setQuery] = React.useState('');
+
+  const handleAsk = (q) => {
+    setQuery(q);
+    onNavigate('people', q);
+  };
+
+  return React.createElement(React.Fragment, null,
+    React.createElement('div', { style: { minHeight: 'calc(100vh - 72px)', background: '#fafaf9' } },
+    // Announcement banner
+    React.createElement('div', { className: 'bc-announcement' },
+      React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
+        React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: '#2563eb', strokeWidth: 2 },
+          React.createElement('path', { d: 'M3 11l19-9-9 19-2-8-8-2z' })
+        ),
+        React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', color: '#2563eb' } }, 'Announcement'),
+        React.createElement('span', { style: { color: '#4d4d4a', display: 'none' } }, '·'),
+        React.createElement('span', { style: { fontWeight: 500, color: '#0c0c0b' } }, 'Spring Career Panel — Register by May 30')
+      ),
+      React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', color: '#4d4d4a' } },
+        React.createElement('span', null, '2d ago'),
+        React.createElement(ArrowRight, { size: 12 })
+      )
+    ),
+
+    // Hero band
+    React.createElement('section', { className: isDark ? '' : 'bc-page-band', style: { borderBottom: hero.border, background: hero.bg, position: 'relative', overflow: 'hidden' } },
+      // Optional network motif overlay
+      t.showMotif && React.createElement('svg', {
+        style: { position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: isDark ? 0.55 : 0.22, pointerEvents: 'none' },
+        viewBox: '0 0 1280 420', preserveAspectRatio: 'xMidYMid slice', 'aria-hidden': true,
+      },
+        React.createElement('defs', null,
+          React.createElement('linearGradient', { id: 'heroNet', x1: '0', x2: '1', y1: '0', y2: '1' },
+            React.createElement('stop', { offset: '0%', stopColor: isDark ? 'rgba(147,197,253,0.8)' : 'rgba(37,99,235,0.5)' }),
+            React.createElement('stop', { offset: '55%', stopColor: isDark ? 'rgba(112,169,130,0.7)' : 'rgba(21,160,95,0.4)' }),
+            React.createElement('stop', { offset: '100%', stopColor: isDark ? 'rgba(221,161,80,0.65)' : 'rgba(161,98,7,0.35)' }),
+          )
+        ),
+        React.createElement('path', { d: 'M-40 340 C 160 120 360 100 600 240 S 1000 380 1280 160', fill: 'none', stroke: 'url(#heroNet)', strokeWidth: 1.5 }),
+        React.createElement('path', { d: 'M100 80 C 340 200 560 340 840 280 S 1160 140 1320 300', fill: 'none', stroke: isDark ? 'rgba(250,250,249,0.14)' : 'rgba(12,12,11,0.07)', strokeWidth: 1 }),
+        [[-20,340],[160,200],[360,160],[560,240],[760,200],[960,260],[1160,160],[1300,200]].map(([cx,cy], i) =>
+          React.createElement('g', { key: i },
+            React.createElement('circle', { cx, cy, r: 5, fill: isDark ? 'rgba(250,250,249,0.85)' : 'rgba(12,12,11,0.7)' }),
+            React.createElement('circle', { cx, cy, r: 14, fill: 'none', stroke: isDark ? 'rgba(250,250,249,0.12)' : 'rgba(12,12,11,0.08)' })
+          )
+        )
+      ),
+      React.createElement('div', {
+        style: { position: 'relative', maxWidth: '1280px', margin: '0 auto', padding: '96px 32px', display: 'grid', gridTemplateColumns: '1fr 400px', gap: '32px', alignItems: 'center' },
+      },
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '24px' } },
+          React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
+            React.createElement('div', {
+              style: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: hero.kickerColor },
+            },
+              React.createElement('span', { style: { display: 'block', width: '1.75rem', height: '2px', borderRadius: '999px', background: hero.kickerColor } }),
+              'Class of \'20 · Cornell Alumni'
+            ),
+            React.createElement('div', { style: { maxWidth: '640px' } },
+              React.createElement('h1', {
+                style: { fontFamily: "'Inter Tight', sans-serif", fontSize: `${t.headingSize}px`, fontWeight: 600, lineHeight: 1.1, letterSpacing: '-0.02em', color: hero.textColor },
+              }, 'Hi Alex. Who do you want to ask?'),
+              React.createElement('p', {
+                style: { fontSize: '17px', color: hero.mutedColor, lineHeight: 1.55, marginTop: '10px' },
+              }, 'Find someone who has been there, or offer help where your experience matters.')
+            )
+          ),
+          React.createElement(BCAskBar, { onSubmit: handleAsk, compact: t.compactAsk })
+        ),
+        // Right column on Ask hero — Your recent asks (fits the surface)
+        React.createElement('div', {
+          style: {
+            background: isDark ? 'rgba(255,255,255,0.07)' : '#fff',
+            border: isDark ? '1px solid rgba(250,250,249,0.15)' : '1px solid #dcdcd6',
+            borderRadius: '12px', padding: '18px 20px',
+            boxShadow: isDark ? 'none' : '0 12px 34px -8px rgba(12,12,11,0.10)',
+            display: 'flex', flexDirection: 'column', gap: '14px' },
+        },
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+            React.createElement('div', {
+              style: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: hero.kickerColor },
+            },
+              React.createElement('span', { style: { display: 'block', width: '1.75rem', height: '2px', borderRadius: '999px', background: hero.kickerColor } }),
+              'Your asks'
+            ),
+            React.createElement('button', {
+              onClick: () => onNavigate('inbox'),
+              style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 500, color: hero.mutedColor, fontFamily: "'Inter', sans-serif" },
+            }, 'See all')
+          ),
+          React.createElement('ul', { style: { display: 'flex', flexDirection: 'column', gap: '10px', listStyle: 'none' } },
+            MY_RECENT_ASKS.map(a =>
+              React.createElement('li', {
+                key: a.id,
+                style: { display: 'flex', gap: '10px', alignItems: 'flex-start', paddingBottom: '10px', borderBottom: `1px solid ${isDark ? 'rgba(250,250,249,0.10)' : '#ebebe5'}` },
+              },
+                React.createElement('span', {
+                  style: { width: '6px', height: '6px', borderRadius: '50%', marginTop: '6px', flexShrink: 0,
+                    background: a.status === 'replied' ? '#15a05f' : a.status === 'pending' ? '#a16207' : '#4d4d4a' },
+                }),
+                React.createElement('div', { style: { minWidth: 0, flex: 1 } },
+                  React.createElement('p', { style: { fontSize: '12.5px', color: hero.textColor, lineHeight: 1.45, fontWeight: 500 } }, a.summary),
+                  React.createElement('div', { style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: '4px' } },
+                    React.createElement('span', { style: { fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
+                      color: a.status === 'replied' ? '#15a05f' : a.status === 'pending' ? '#a16207' : hero.mutedColor } }, a.status),
+                    React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: hero.mutedColor } }, '·'),
+                    React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: hero.mutedColor } }, a.stamp)
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+
+    // Body
+    React.createElement('div', { style: { background: t.pageBg } },
+    React.createElement('section', { style: { maxWidth: '1280px', margin: '0 auto', padding: '40px 32px' } },
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr', gap: '32px' } },
+        // Left: people who can help
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '24px' } },
+          React.createElement('div', { style: { borderTop: '1px solid #dcdcd6', paddingTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' } },
+            React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '18px', fontWeight: 600, color: '#0c0c0b' } }, 'People who can help you'),
+            React.createElement(BCButton, {
+              variant: 'outline', size: 'sm',
+              onClick: () => onNavigate('people'),
+              style: { borderRadius: '8px' },
+            }, 'Ask a question', React.createElement(ArrowRight, { size: 13 }))
+          ),
+          React.createElement('div', { style: { display: 'grid', gridTemplateColumns: `repeat(${t.cardColumns || 2}, 1fr)`, gap: '12px' } },
+            PEOPLE.slice(0, Math.max(3, (t.cardColumns || 2) * 2)).map((p, i) =>
+              React.createElement(BCPersonCard, {
+                key: p.id, ...p,
+                density: 'comfortable',
+                variant: t.cardVariant,
+                accent: t.cardAccent,
+                radius: t.cardRadius,
+                avatarShape: t.avatarShape,
+                hoverLift: t.cardHover,
+                matchScore: t.showMatchScore ? [92, 87, 81, 74][i] : null,
+        onAsk: (person) => onNavigate('ask_person', person),
+                onView: (person) => onNavigate('member_profile', person),
+              })
+            )
+          )
+        ),
+
+
+      )
+    )
+    ), // closes pageBg wrapper div
+  ), // closes inner 'div' wrapper
+    // Tweaks panel
+    React.createElement(TweaksPanel, null,
+      React.createElement(TweakSection, { label: 'Color theme' },
+        React.createElement(TweakRadio, {
+          label: 'Palette',
+          id: 'colorTheme',
+          value: t.colorTheme || 'bridgecircle',
+          onChange: v => setTweak('colorTheme', v),
+          options: [
+            { value: 'bridgecircle', label: 'BridgeCircle' },
+            { value: 'stripe',       label: 'Stripe' },
+            { value: 'apple',        label: 'Apple' },
+            { value: 'instagram',    label: 'Instagram' },
+          ],
+        })
+      ),
+      React.createElement(TweakSection, { label: 'Ask hero' },
+        React.createElement(TweakRadio, {
+          label: 'Background',
+          id: 'heroStyle',
+          value: t.heroStyle,
+          onChange: v => setTweak('heroStyle', v),
+          options: [
+            { value: 'editorial', label: 'Editorial' },
+            { value: 'dark',      label: 'Dark' },
+            { value: 'midnight',  label: 'Midnight' },
+            { value: 'warm',      label: 'Warm' },
+          ],
+        }),
+        React.createElement(TweakToggle, { label: 'Network motif overlay', id: 'showMotif', value: t.showMotif, onChange: v => setTweak('showMotif', v) }),
+        React.createElement(TweakSlider, { label: 'Heading size', id: 'headingSize', value: t.headingSize, min: 28, max: 56, step: 2, onChange: v => setTweak('headingSize', v) }),
+        React.createElement(TweakToggle, { label: 'Compact AskBar', id: 'compactAsk', value: t.compactAsk, onChange: v => setTweak('compactAsk', v) })
+      ),
+      React.createElement(TweakSection, { label: 'Result cards' },
+        React.createElement(TweakSelect, {
+          label: 'Style',
+          id: 'cardVariant',
+          value: t.cardVariant,
+          onChange: v => setTweak('cardVariant', v),
+          options: [
+            { value: 'paper',     label: 'Paper — white card' },
+            { value: 'bone',      label: 'Bone — platinum #fafaf9' },
+            { value: 'panel',     label: 'Panel — warm secondary' },
+            { value: 'sageTint',  label: 'Emerald tint — success' },
+            { value: 'ochreTint', label: 'Ochre tint — warning' },
+            { value: 'plumTint',  label: 'Grape tint — categorized' },
+            { value: 'midnight',  label: 'Midnight — editorial dark' },
+            { value: 'outlined',  label: 'Outlined — hairline only' },
+            { value: 'accentBar', label: 'Accent bar on top' },
+          ],
+        }),
+        React.createElement(TweakColor, {
+          label: 'Accent',
+          id: 'cardAccent',
+          value: t.cardAccent,
+          onChange: v => setTweak('cardAccent', v),
+          options: ['#2563eb', '#15a05f', '#a16207', '#c4314b', '#7c3aed', '#0c0c0b'],
+        }),
+        React.createElement(TweakSlider, { label: 'Corner radius', id: 'cardRadius', value: t.cardRadius, min: 0, max: 20, step: 1, onChange: v => setTweak('cardRadius', v) }),
+        React.createElement(TweakRadio, {
+          label: 'Avatar shape',
+          id: 'avatarShape',
+          value: t.avatarShape,
+          onChange: v => setTweak('avatarShape', v),
+          options: [
+            { value: 'square', label: 'Square' },
+            { value: 'circle', label: 'Circle' },
+          ],
+        }),
+        React.createElement(TweakRadio, {
+          label: 'Columns',
+          id: 'cardColumns',
+          value: t.cardColumns || 2,
+          onChange: v => setTweak('cardColumns', Number(v)),
+          options: [
+            { value: 1, label: '1' },
+            { value: 2, label: '2' },
+            { value: 3, label: '3' },
+          ],
+        }),
+        React.createElement(TweakToggle, { label: 'Lift on hover', id: 'cardHover', value: t.cardHover, onChange: v => setTweak('cardHover', v) }),
+        React.createElement(TweakToggle, { label: 'Show % Match pill', id: 'showMatchScore', value: t.showMatchScore, onChange: v => setTweak('showMatchScore', v) }),
+        React.createElement(TweakColor, {
+          label: 'Page background',
+          id: 'pageBg',
+          value: t.pageBg,
+          onChange: v => setTweak('pageBg', v),
+          options: ['#fafaf9', '#f4f3ee', '#ebebe5', '#eef2ec', '#f1f4fb', '#081126'],
+        })
+      )
+    )
+  ); // closes Fragment
+}
+// ─── People Screen helpers — B6 layout ──────────────────────────────────────
+// Filter rail + horizontal strip rows + editorial active-query line.
+const PEOPLE_TOPIC_FILTERS = [
+  { label: 'Career transitions', count: 12, active: true },
+  { label: 'Product management', count: 18 },
+  { label: 'VC & Startups', count: 9 },
+  { label: 'Founders', count: 14 },
+  { label: 'Engineering leadership', count: 11 },
+];
+const PEOPLE_STATUS_FILTERS = [
+  { label: 'Open as mentor', count: 18, dot: '#15a05f' },
+  { label: 'Open for advice', count: 27, dot: '#15a05f' },
+  { label: 'Friends only', count: 8, dot: '#2563eb' },
+  { label: 'Include paused', count: null, muted: true },
+];
+const PEOPLE_COHORT_FILTERS = [
+  { label: "Cornell '16–'18", count: 64 },
+  { label: "Cornell '19–'21", count: 92 },
+  { label: "Cornell '22–'24", count: 73 },
+];
+
+// Per-person extras the result rows surface (helped count, reply rate, etc.)
+const PEOPLE_EXTRAS = {
+  p1: { helped: 18, replyRate: 96, responseDays: 2, mutual: 12, matchScore: 94 },
+  p2: { helped: 24, replyRate: 88, responseDays: 1, mutual: 8,  matchScore: 91 },
+  p3: { helped: 11, replyRate: 90, responseDays: 3, mutual: 6,  matchScore: 82 },
+  p4: { helped: 32, replyRate: 84, responseDays: 4, mutual: 4,  matchScore: 74 },
+  p5: { helped: 8,  replyRate: 72, responseDays: null, mutual: 3, matchScore: null },
+  p6: { helped: 5,  replyRate: 80, responseDays: 5, mutual: 2,  matchScore: 62 },
+};
+
+function PeopleFilterRail({ activeTopic, setActiveTopic, activeStatus, setActiveStatus, mobile = false, onClose }) {
+  const section = (title, items, activeLabel, setActive) =>
+    React.createElement('div', { key: title },
+      React.createElement('div', {
+        style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700,
+                 letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4d4d4a', marginBottom: '10px' },
+      }, title),
+      React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
+        items.map(it => React.createElement('button', {
+          key: it.label,
+          onClick: () => setActive(activeLabel === it.label ? null : it.label),
+          style: {
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '7px 10px', borderRadius: '8px', border: 'none',
+            background: activeLabel === it.label ? 'rgba(37,99,235,0.08)' : 'transparent',
+            color: activeLabel === it.label ? '#2563eb' : it.muted ? '#4d4d4a' : '#0c0c0b',
+            fontSize: '12.5px', fontWeight: activeLabel === it.label ? 600 : 500,
+            textAlign: 'left', cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+            transition: 'background 150ms',
+          },
+        },
+          React.createElement('span', { style: { display: 'inline-flex', alignItems: 'center', gap: '8px' } },
+            it.dot && React.createElement('span', { style: { width: '6px', height: '6px', borderRadius: '50%', background: it.dot } }),
+            it.label
+          ),
+          it.count != null && React.createElement('span', {
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10.5px', color: '#4d4d4a' },
+          }, it.count)
+        ))
+      )
+    );
+
+  return React.createElement('aside', {
+    style: mobile
+      ? { width: '100%' }
+      : { position: 'sticky', top: '24px', height: 'fit-content' },
+  },
+    React.createElement('div', {
+      style: {
+        background: '#fff', border: '1px solid #dcdcd6', borderRadius: '12px',
+        padding: mobile ? '14px 16px' : '20px',
+        display: 'flex', flexDirection: 'column', gap: mobile ? '16px' : '22px',
+      },
+    },
+      React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+        React.createElement('span', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '15px', fontWeight: 600 } }, 'Filters'),
+        React.createElement('div', { style: { display: 'flex', gap: 14, alignItems: 'center' } },
+          React.createElement('button', {
+            onClick: () => { setActiveTopic && setActiveTopic(null); setActiveStatus && setActiveStatus(null); },
+            style: { background: 'none', border: 'none', fontSize: '11.5px', color: '#2563eb', fontWeight: 600, cursor: 'pointer' },
+          }, 'Clear all'),
+          mobile && onClose && React.createElement('button', {
+            onClick: onClose,
+            'aria-label': 'Close filters',
+            style: { background: 'none', border: 'none', padding: 0, color: '#4d4d4a', cursor: 'pointer',
+                     display: 'inline-flex', alignItems: 'center' },
+          },
+            React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none',
+              stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+              React.createElement('path', { d: 'M18 6L6 18M6 6l12 12' })
+            )
+          )
+        )
+      ),
+      section('Status', PEOPLE_STATUS_FILTERS, activeStatus, setActiveStatus),
+      section('Topic', PEOPLE_TOPIC_FILTERS.map(t => ({ ...t, active: undefined })), activeTopic, setActiveTopic),
+      section('Cohort', PEOPLE_COHORT_FILTERS, null, () => {}),
+      React.createElement(BCButton, {
+        variant: 'outline', size: 'sm', style: { width: '100%', borderRadius: '8px' },
+      }, 'Save this search')
+    )
+  );
+}
+
+function PeopleStripRow({ p, onAsk, onView, featured }) {
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches;
+  const extras = PEOPLE_EXTRAS[p.id] || {};
+  const isOpen = p.isOpenAsMentor || p.isOpenAsAdviceHelper;
+  const ratio = p.maxActiveMentees > 0 ? p.activeMenteeCount / p.maxActiveMentees : 0;
+  const capColor = ratio <= 0.5 ? '#15a05f' : ratio <= 0.85 ? '#a16207' : '#9b2c1f';
+  const yearShort = `'${String(p.graduationYear).slice(-2)}`;
+  const tierMap = {
+    strong: { label: 'Strong match', color: '#15a05f', bg: 'rgba(21,160,95,0.10)', border: 'rgba(21,160,95,0.25)' },
+    good:   { label: 'Good match',   color: '#2563eb', bg: 'rgba(37,99,235,0.08)', border: 'rgba(37,99,235,0.22)' },
+    weak:   { label: 'Possible',     color: '#4d4d4a', bg: '#ebebe5',              border: 'rgba(12,12,11,0.10)' },
+  };
+  const tier = p.matchTier ? tierMap[p.matchTier] : null;
+
+  return React.createElement('div', {
+    className: 'bc-person-card bc-person-card--lift',
+    style: isMobile ? {
+      display: 'flex', flexDirection: 'column', gap: '12px',
+      padding: '14px',
+      background: '#fff', border: '1px solid #dcdcd6', borderRadius: '12px',
+      boxShadow: '0 1px 0 rgba(12,12,11,0.03)',
+      position: 'relative', overflow: 'hidden',
+    } : {
+      display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '20px',
+      alignItems: 'center', padding: '18px 22px',
+      background: '#fff', border: '1px solid #dcdcd6', borderRadius: '12px',
+      boxShadow: '0 1px 0 rgba(12,12,11,0.03)',
+      position: 'relative', overflow: 'hidden',
+      transition: 'transform 150ms ease-out, border-color 150ms ease-out, box-shadow 150ms ease-out',
+    },
+  },
+    featured && React.createElement('div', {
+      style: { position: 'absolute', top: 0, bottom: 0, left: 0, width: '3px',
+               background: 'linear-gradient(180deg, #2563eb, #15a05f)' },
+    }),
+
+    // ── MOBILE LAYOUT ─────────────────────────────────────────────────
+    isMobile ? React.createElement(React.Fragment, null,
+      // Header row: avatar + name/meta
+      React.createElement('div', { style: { display: 'flex', gap: '12px', alignItems: 'flex-start', minWidth: 0 } },
+        React.createElement(BCAvatar, { name: p.name, size: 52, square: false,
+          capacityRatio: p.isOpenAsMentor ? ratio : null }),
+        React.createElement('div', { style: { minWidth: 0, flex: 1 } },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' } },
+            React.createElement('span', {
+              style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '16px', fontWeight: 600, color: '#0c0c0b' },
+            }, p.name),
+            tier && React.createElement('span', {
+              style: {
+                display: 'inline-flex', alignItems: 'center', gap: '4px',
+                padding: '2px 7px', borderRadius: '999px', fontSize: '10.5px', fontWeight: 600,
+                background: tier.bg, color: tier.color, border: `1px solid ${tier.border}`,
+              },
+            },
+              React.createElement('span', { style: { width: '5px', height: '5px', borderRadius: '50%', background: tier.color } }),
+              extras.matchScore != null ? `${tier.label.split(' ')[0]} · ${extras.matchScore}%` : tier.label
+            ),
+            p.isFriend && React.createElement('span', {
+              style: { fontSize: '10.5px', fontWeight: 600, color: '#2563eb',
+                       padding: '1px 7px', borderRadius: '999px',
+                       background: 'rgba(37,99,235,0.10)', border: '1px solid rgba(37,99,235,0.22)' },
+            }, 'Friend')
+          ),
+          React.createElement('div', {
+            style: { fontSize: '12.5px', color: '#0c0c0b', marginTop: '3px', fontWeight: 500, lineHeight: 1.35 },
+          },
+            p.currentTitle,
+            React.createElement('span', { style: { color: '#dcdcd6', margin: '0 5px' } }, '·'),
+            p.currentEmployer
+          ),
+          React.createElement('div', {
+            style: { fontSize: '11.5px', color: '#4d4d4a', marginTop: '2px', lineHeight: 1.35 },
+          }, `${p.city} · ${p.university} ${yearShort}`)
+        )
+      ),
+
+      // Rationale quote
+      p.rationale && React.createElement('p', {
+        style: { fontStyle: 'italic', fontSize: '12.5px', color: '#0c0c0b', lineHeight: 1.5,
+                 display: 'flex', alignItems: 'flex-start', gap: '6px', margin: 0 },
+      },
+        React.createElement('svg', { width: 12, height: 12, viewBox: '0 0 24 24', fill: '#2563eb',
+          style: { flexShrink: 0, marginTop: '3px' } },
+          React.createElement('path', { d: 'M3 17h3l2-4V7H3v6h3l-2 4zm10 0h3l2-4V7h-5v6h3l-2 4z' })
+        ),
+        React.createElement('span', null, `"${p.rationale}"`)
+      ),
+
+      // Pills + stats
+      ((p.mentoringTopics || []).length > 0 || extras.helped != null) && React.createElement('div', {
+        style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' },
+      },
+        (p.mentoringTopics || []).slice(0, 3).map(t => React.createElement('span', {
+          key: t,
+          style: { padding: '2px 8px', borderRadius: '999px',
+                   fontSize: '10.5px', fontWeight: 500, color: '#4d4d4a',
+                   background: '#f4f3ee', border: '1px solid #e3e0d6' },
+        }, t)),
+        (extras.helped != null || extras.replyRate != null) && React.createElement('span', {
+          style: { fontSize: '11px', color: '#4d4d4a', display: 'inline-flex', alignItems: 'center', gap: '8px' },
+        },
+          extras.helped != null && React.createElement('span', null,
+            React.createElement('strong', { style: { color: '#0c0c0b', fontWeight: 600 } }, extras.helped), ' helped'),
+          extras.replyRate != null && React.createElement('span', null,
+            React.createElement('strong', { style: { color: '#0c0c0b', fontWeight: 600 } }, `${extras.replyRate}%`), ' reply')
+        )
+      ),
+
+      // Status + actions row
+      React.createElement('div', {
+        style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                 gap: '8px', paddingTop: '10px', borderTop: '1px solid #ebebe5' },
+      },
+        // Status pill
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 } },
+          p.isOpenAsMentor
+            ? React.createElement(BCStatusBadge, { tone: 'open', size: 'sm' },
+                React.createElement('span', { style: { width: '5px', height: '5px', borderRadius: '50%', background: capColor, marginRight: '4px' } }),
+                p.isOpenAsMentor ? `${p.activeMenteeCount}/${p.maxActiveMentees} mentees` : 'Open as mentor'
+              )
+            : p.isOpenAsAdviceHelper
+              ? React.createElement(BCStatusBadge, { tone: 'open', size: 'sm', dot: true }, 'Open for advice')
+              : p.mentorPaused
+                ? React.createElement(BCStatusBadge, { tone: 'warn', size: 'sm', dot: true }, 'Paused')
+                : React.createElement(BCStatusBadge, { tone: 'muted', size: 'sm' }, 'Not open')
+        ),
+        // Actions
+        React.createElement('div', { style: { display: 'flex', gap: '6px', flexShrink: 0 } },
+          React.createElement(BCButton, { variant: 'outline', size: 'sm', onClick: onView, style: { borderRadius: '8px', fontSize: '12px', height: '32px' } }, 'View'),
+          isOpen
+            ? React.createElement(BCButton, { variant: 'default', size: 'sm', onClick: onAsk, style: { borderRadius: '8px', fontSize: '12px', height: '32px' } }, `Ask ${p.name.split(' ')[0]}`)
+            : React.createElement(BCButton, { variant: 'ghost', size: 'sm', onClick: onView, style: { borderRadius: '8px', fontSize: '12px', height: '32px', color: '#4d4d4a' } }, 'Not open')
+        )
+      )
+    )
+
+    // ── DESKTOP LAYOUT ────────────────────────────────────────────────
+    : React.createElement(React.Fragment, null,
+    React.createElement(BCAvatar, { name: p.name, size: 72, square: false,
+      capacityRatio: p.isOpenAsMentor ? ratio : null }),
+    React.createElement('div', { style: { minWidth: 0, display: 'flex', flexDirection: 'column', gap: '8px' } },
+      React.createElement('div', null,
+        React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' } },
+          React.createElement('span', {
+            style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '18px', fontWeight: 600, color: '#0c0c0b' },
+          }, p.name),
+          tier && React.createElement('span', {
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              padding: '3px 9px', borderRadius: '999px', fontSize: '11px', fontWeight: 600,
+              background: tier.bg, color: tier.color, border: `1px solid ${tier.border}`,
+            },
+          },
+            React.createElement('span', { style: { width: '6px', height: '6px', borderRadius: '50%', background: tier.color } }),
+            extras.matchScore != null ? `${tier.label} · ${extras.matchScore}%` : tier.label
+          ),
+          p.isFriend && React.createElement('span', {
+            style: { display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600,
+                     color: '#2563eb', padding: '2px 8px', borderRadius: '999px',
+                     background: 'rgba(37,99,235,0.10)', border: '1px solid rgba(37,99,235,0.22)' },
+          },
+            React.createElement('span', { style: { width: '5px', height: '5px', borderRadius: '50%', background: '#2563eb' } }),
+            'Friend'
+          )
+        ),
+        React.createElement('div', {
+          style: { fontSize: '13.5px', color: '#0c0c0b', marginTop: '3px', fontWeight: 500 },
+        },
+          p.currentTitle,
+          React.createElement('span', { style: { color: '#dcdcd6', margin: '0 6px' } }, '·'),
+          p.currentEmployer,
+          React.createElement('span', { style: { color: '#4d4d4a', fontWeight: 400, marginLeft: '10px', fontSize: '12.5px' } },
+            `${p.city} · ${p.university} ${yearShort}`)
+        )
+      ),
+      p.rationale && React.createElement('p', {
+        style: { fontStyle: 'italic', fontSize: '13px', color: '#0c0c0b', lineHeight: 1.5,
+                 display: 'flex', alignItems: 'flex-start', gap: '8px', maxWidth: '720px' },
+      },
+        React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: '#2563eb',
+          style: { flexShrink: 0, marginTop: '2px' } },
+          React.createElement('path', { d: 'M3 17h3l2-4V7H3v6h3l-2 4zm10 0h3l2-4V7h-5v6h3l-2 4z' })
+        ),
+        React.createElement('span', null, `"${p.rationale}"`)
+      ),
+      React.createElement('div', {
+        style: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' },
+      },
+        (p.mentoringTopics || []).slice(0, 3).map(t => React.createElement('span', {
+          key: t,
+          style: { display: 'inline-flex', alignItems: 'center', padding: '3px 9px', borderRadius: '999px',
+                   fontSize: '11px', fontWeight: 500, color: '#4d4d4a',
+                   background: '#f4f3ee', border: '1px solid #e3e0d6' },
+        }, t)),
+        (p.mentoringTopics || []).length > 0 && React.createElement('span', { style: { width: '1px', height: '14px', background: '#dcdcd6' } }),
+        React.createElement('span', { style: { fontSize: '11.5px', color: '#4d4d4a', display: 'inline-flex', alignItems: 'center', gap: '12px' } },
+          extras.helped != null && React.createElement('span', null,
+            React.createElement('strong', { style: { color: '#0c0c0b', fontWeight: 600 } }, extras.helped), ' helped'),
+          extras.replyRate != null && React.createElement('span', null,
+            React.createElement('strong', { style: { color: '#0c0c0b', fontWeight: 600 } }, `${extras.replyRate}%`), ' reply'),
+          extras.mutual != null && React.createElement('span', { style: { display: 'inline-flex', alignItems: 'center', gap: '4px' } },
+            React.createElement('span', { style: { width: '4px', height: '4px', borderRadius: '50%', background: '#dcdcd6' } }),
+            `${extras.mutual} mutual`)
+        )
+      )
+    ),
+    // Right column: status + capacity + actions
+    React.createElement('div', {
+      style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px', minWidth: '170px' },
+    },
+      p.isOpenAsMentor
+        ? React.createElement(BCStatusBadge, { tone: 'open', size: 'sm' },
+            React.createElement('span', { style: { width: '5px', height: '5px', borderRadius: '50%', background: capColor, marginRight: '4px' } }),
+            'Open as mentor'
+          )
+        : p.isOpenAsAdviceHelper
+          ? React.createElement(BCStatusBadge, { tone: 'open', size: 'sm', dot: true }, 'Open for advice')
+          : p.mentorPaused
+            ? React.createElement(BCStatusBadge, { tone: 'warn', size: 'sm', dot: true }, 'Paused')
+            : React.createElement(BCStatusBadge, { tone: 'muted', size: 'sm' }, 'Not open now'),
+      p.isOpenAsMentor && React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' } },
+        React.createElement('span', {
+          style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#4d4d4a', letterSpacing: '0.04em', textTransform: 'uppercase' },
+        }, 'Capacity'),
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+          React.createElement('div', { style: { width: '88px', height: '4px', background: '#ebebe5', borderRadius: '2px', overflow: 'hidden' } },
+            React.createElement('div', { style: { width: `${ratio * 100}%`, height: '100%', background: capColor } })
+          ),
+          React.createElement('span', {
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#4d4d4a' },
+          }, `${p.activeMenteeCount}/${p.maxActiveMentees}`)
+        )
+      ),
+      React.createElement('div', { style: { display: 'flex', gap: '6px', marginTop: '4px' } },
+        React.createElement(BCButton, { variant: 'outline', size: 'sm', onClick: onView, style: { borderRadius: '8px', fontSize: '12px', height: '32px' } }, 'View'),
+        isOpen
+          ? React.createElement(BCButton, { variant: 'default', size: 'sm', onClick: onAsk, style: { borderRadius: '8px', fontSize: '12px', height: '32px' } }, `Ask ${p.name.split(' ')[0]}`)
+          : React.createElement(BCButton, { variant: 'ghost', size: 'sm', onClick: onView, style: { borderRadius: '8px', fontSize: '12px', height: '32px', color: '#4d4d4a' } }, 'Not open')
+      )
+    )
+    )  // close desktop Fragment
+  );
+}
+
+function PeopleScreen({ initialQuery = '', onNavigate = () => {} }) {
+  const [query, setQuery] = React.useState(initialQuery);
+  const [inputVal, setInputVal] = React.useState(initialQuery);
+  const [activeTopic, setActiveTopic] = React.useState(initialQuery ? 'Career transitions' : null);
+  const [activeStatus, setActiveStatus] = React.useState(null);
+  const [filtersOpen, setFiltersOpen] = React.useState(false);
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches;
+
+  const openCount = PEOPLE.filter(p => p.isOpenAsMentor || p.isOpenAsAdviceHelper).length;
+  const activeFilterCount = (activeTopic ? 1 : 0) + (activeStatus ? 1 : 0);
+
+  return React.createElement(React.Fragment, null,
+    // ── Thin context strip (kicker · counts · search) ────────────────────
+    React.createElement('div', {
+      className: 'bc-people-context-strip',
+      style: {
+        background: '#fafaf9', borderBottom: '1px solid #dcdcd6',
+        padding: '14px 32px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap',
+      },
+    },
+      React.createElement('div', {
+        className: 'bc-people-searchbar',
+        style: {
+          display: 'flex', alignItems: 'center', gap: '8px',
+          background: '#fff', border: '1px solid #dcdcd6', borderRadius: '999px',
+          padding: '6px 6px 6px 14px', minWidth: '320px',
+          flex: '1 1 320px',
+        },
+      },
+        React.createElement(SearchIcon, { size: 13, color: '#4d4d4a' }),
+        React.createElement('input', {
+          type: 'text', value: inputVal,
+          onChange: e => setInputVal(e.target.value),
+          onKeyDown: e => { if (e.key === 'Enter') setQuery(inputVal); },
+          placeholder: 'Search the network…',
+          style: { flex: 1, border: 'none', outline: 'none', fontSize: '13px', background: 'transparent', color: '#0c0c0b' },
+        }),
+        React.createElement(BCButton, {
+          variant: 'default', size: 'sm',
+          onClick: () => setQuery(inputVal),
+          style: { borderRadius: '999px', height: '28px', padding: '0 12px', fontSize: '11.5px' },
+        }, 'Search')
+      ),
+      React.createElement('span', {
+        style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#4d4d4a',
+                 letterSpacing: '0.05em', textTransform: 'uppercase', flexShrink: 0 },
+      }, `${PEOPLE.length} results · ${openCount} open`),
+
+      // Mobile-only: Filters toggle (replaces the sticky sidebar on small screens)
+      isMobile && React.createElement('button', {
+        type: 'button',
+        onClick: () => setFiltersOpen(o => !o),
+        'aria-expanded': filtersOpen,
+        style: {
+          display: 'inline-flex', alignItems: 'center', gap: '6px',
+          padding: '7px 12px', borderRadius: '999px',
+          background: filtersOpen ? 'rgba(37,99,235,0.10)' : '#fff',
+          border: `1px solid ${filtersOpen || activeFilterCount ? 'rgba(37,99,235,0.45)' : '#dcdcd6'}`,
+          color: filtersOpen || activeFilterCount ? '#2563eb' : '#0c0c0b',
+          fontSize: '12px', fontWeight: 600,
+          fontFamily: "'Inter', sans-serif", cursor: 'pointer',
+          marginLeft: 'auto',
+        },
+      },
+        React.createElement('svg', { width: 13, height: 13, viewBox: '0 0 24 24', fill: 'none',
+          stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+          React.createElement('path', { d: 'M3 6h18M6 12h12M10 18h4' })
+        ),
+        'Filters',
+        activeFilterCount > 0 && React.createElement('span', {
+          style: {
+            minWidth: 16, height: 16, padding: '0 5px', borderRadius: 8,
+            background: '#2563eb', color: '#fff',
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          },
+        }, activeFilterCount),
+        React.createElement('svg', { width: 11, height: 11, viewBox: '0 0 24 24', fill: 'none',
+          stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+          style: { transform: filtersOpen ? 'rotate(180deg)' : 'none', transition: 'transform 150ms' } },
+          React.createElement('path', { d: 'M6 9l6 6 6-6' })
+        )
+      ),
+      !isMobile && React.createElement('div', { style: { flex: 1 } })
+    ),
+
+    // ── Body grid: filter rail + main ───────────────────────────────────
+    React.createElement('div', {
+      style: { display: 'grid',
+               gridTemplateColumns: isMobile ? 'minmax(0, 1fr)' : '260px 1fr',
+               gap: isMobile ? '0' : '32px',
+               padding: isMobile ? '16px 16px 80px' : '24px 32px 64px',
+               maxWidth: '1400px', margin: '0 auto' },
+    },
+      // Desktop: sticky filter rail. Mobile: collapsible inline panel.
+      !isMobile && React.createElement(PeopleFilterRail, {
+        activeTopic, setActiveTopic, activeStatus, setActiveStatus,
+      }),
+      isMobile && filtersOpen && React.createElement('div', {
+        style: { marginBottom: '14px' },
+      },
+        React.createElement(PeopleFilterRail, {
+          activeTopic, setActiveTopic, activeStatus, setActiveStatus,
+          mobile: true,
+          onClose: () => setFiltersOpen(false),
+        })
+      ),
+      React.createElement('div', null,
+        // Active query — editorial italic line
+        query && React.createElement('div', {
+          style: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap',
+                   padding: '0 0 16px', marginBottom: '16px', borderBottom: '1px solid #dcdcd6' },
+        },
+          React.createElement('span', {
+            style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '15px', fontWeight: 500, color: '#4d4d4a' },
+          }, 'You asked'),
+          React.createElement('span', {
+            style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '19px', fontWeight: 500,
+                     fontStyle: 'italic', color: '#0c0c0b', letterSpacing: '-0.01em' },
+          }, `"${query}"`),
+          React.createElement('button', {
+            onClick: () => { /* TODO: open refine modal */ },
+            style: { display: 'inline-flex', alignItems: 'center', gap: '4px',
+                     background: 'transparent', border: 'none', cursor: 'pointer',
+                     fontSize: '12px', fontWeight: 600, color: '#2563eb', fontFamily: "'Inter', sans-serif" },
+          },
+            React.createElement('svg', { width: 11, height: 11, viewBox: '0 0 24 24', fill: 'none',
+              stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+              React.createElement('path', { d: 'M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z' })
+            ),
+            'Refine'
+          ),
+          React.createElement('span', { style: { color: '#dcdcd6' } }, '·'),
+          React.createElement('button', {
+            onClick: () => { setQuery(''); setInputVal(''); },
+            style: { background: 'transparent', border: 'none', cursor: 'pointer',
+                     fontSize: '12px', fontWeight: 500, color: '#4d4d4a', fontFamily: "'Inter', sans-serif" },
+          }, 'Clear'),
+          React.createElement('div', { style: { flex: 1, minWidth: '12px' } }),
+          React.createElement('span', {
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#4d4d4a', letterSpacing: '0.04em' },
+          }, `${PEOPLE.length} results · sorted by match`)
+        ),
+
+        // Result list
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
+          PEOPLE.map((p, i) => React.createElement(PeopleStripRow, {
+            key: p.id, p, featured: i === 0 && !!query,
+            onAsk: () => onNavigate('ask_person', p),
+            onView: () => onNavigate('member_profile', p),
+          }))
+        ),
+
+        // Feedback strip
+        React.createElement('div', {
+          style: {
+            marginTop: '24px',
+            padding: isMobile ? '14px 16px' : '14px 20px',
+            background: '#fff', border: '1px dashed #dcdcd6', borderRadius: '10px',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            justifyContent: isMobile ? 'flex-start' : 'space-between',
+            gap: isMobile ? '12px' : '16px',
+          },
+        },
+          React.createElement('div', null,
+            React.createElement('div', { style: { fontSize: '13px', fontWeight: 600, color: '#0c0c0b' } },
+              'Are these the right people?'),
+            React.createElement('div', { style: { fontSize: '11.5px', color: '#4d4d4a', marginTop: '2px', lineHeight: 1.45 } },
+              "Tell us why a result felt off and we'll improve your matches.")
+          ),
+          React.createElement('div', {
+            style: {
+              display: 'flex', gap: '6px',
+              flexShrink: 0,
+              flexWrap: isMobile ? 'wrap' : 'nowrap',
+            },
+          },
+            React.createElement(BCButton, {
+              variant: 'outline', size: 'sm',
+              style: { borderRadius: '8px', flex: isMobile ? '1 1 0' : '0 0 auto', justifyContent: 'center' },
+            }, '👎 Off-target'),
+            React.createElement(BCButton, {
+              variant: 'outline', size: 'sm',
+              style: { borderRadius: '8px', flex: isMobile ? '1 1 0' : '0 0 auto', justifyContent: 'center' },
+            }, '👍 Helpful'),
+            !isMobile && React.createElement(BCButton, { variant: 'ghost', size: 'sm', style: { borderRadius: '8px', color: '#4d4d4a' } }, 'Skip')
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── Help Screen (supply-side: give help) ────────────────────────────────────
+// HelpScreen + TopicPill now live in HelpScreen.jsx.
+// The new design: Featured AI pick tab + user-created subject feeds.
+
+function InboxScreen() {
+  // Mobile: let main scroll (no internal scrollers) so behavior matches
+  // every other screen — both top header and bottom tab bar stay anchored.
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches;
+  return React.createElement('div', {
+    style: {
+      flex: 1,
+      overflow: isMobile ? 'visible' : 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+    },
+  },
+    React.createElement(BCInboxPanel)
+  );
+}
+
+// ─── School Screen ───────────────────────────────────────────────────────────
+const SCHOOL_EVENTS = [
+  { id:'e1', title:'NYC Alumni Mixer — Spring 2026', dateText:'Sat Jun 7 · 6:30 PM', dateFull:'Saturday, June 7, 2026', timeRange:'6:30 PM — 9:30 PM EDT', month:'JUN', day:'07', location:'Brooklyn, NY', venue:'House of Yes', address:'2 Wyckoff Ave, Brooklyn, NY 11237', going:34, capacity:60, category:'Networking', featured:true, host:'Class Council', hostBio:'Run by Class of \'20 reunion committee. Hosts seasonal meetups in NYC.', description:'A casual evening to reconnect with classmates and meet alumni from adjacent years. Light bites and drinks provided. Bring a friend or come solo — we’ll make introductions. The Brooklyn Spring Mixer is our largest non-reunion event of the year.', dressCode:'Smart casual', cost:'$15 / member', tags:['Networking','In person','Alumni only'] },
+  { id:'e2', title:'Cornell Tech Career Panel', dateText:'Wed May 28 · 12:00 PM', dateFull:'Wednesday, May 28, 2026', timeRange:'12:00 PM — 1:00 PM EDT', month:'MAY', day:'28', location:'Virtual', venue:'Zoom', address:'Link sent on RSVP', going:87, capacity:200, category:'Career', host:'Office of Alumni Affairs', hostBio:'Official programming team for school-wide alumni events.', description:'Four alumni from product, design, and engineering at top tech companies share how they navigated early-career decisions, salary negotiation, and team selection. 30 minutes of panel, 30 minutes of Q&A. Recorded for those who can’t attend live.', dressCode:null, cost:'Free', tags:['Career','Virtual','All members'] },
+  { id:'e3', title:'Founders Coffee — Bay Area', dateText:'Sun Jun 15 · 10:00 AM', dateFull:'Sunday, June 15, 2026', timeRange:'10:00 AM — 12:00 PM PDT', month:'JUN', day:'15', location:'San Francisco, CA', venue:'Sightglass Coffee, SoMa', address:'270 7th St, San Francisco, CA 94103', going:18, capacity:25, category:'Founders', host:'Maya Reyes \'19', hostBio:'Founder & CEO of Kinetic Health. Hosts monthly founder coffees in SF and NYC.', description:'Informal coffee for current and aspiring founders in the Bay Area. We’ll go around the room with one ask, one offer per person, then break into smaller groups. Open to alumni who are full-time on a startup or seriously exploring.', dressCode:'Casual', cost:'You buy your own coffee', tags:['Founders','In person','Curated'] },
+  { id:'e4', title:'Class of \'20 — 6-Year Reunion', dateText:'Fri Oct 24 · 7:00 PM', dateFull:'Friday, October 24, 2026', timeRange:'7:00 PM — 11:00 PM EDT', month:'OCT', day:'24', location:'Ithaca, NY', venue:'Statler Hotel ballroom', address:'130 Statler Dr, Ithaca, NY 14853', going:142, capacity:300, category:'Reunion', host:'Class Reunion Committee', hostBio:'Volunteer-run committee of 12 classmates planning the 6-year homecoming weekend.', description:'Cocktails, dinner, and dancing for the Class of \'20. Part of the larger Cornell reunion weekend Oct 23–26. Block of hotel rooms reserved at member rate. Travel stipends available for international classmates — see details below.', dressCode:'Cocktail', cost:'$95 / member', tags:['Reunion','In person','Class \'20'] },
+];
+
+const EVENT_ATTENDEES = [
+  { name:'Jamie Kim',  cohort:2020, role:'PM at Stripe',          avatarColor:'#2563eb' },
+  { name:'Alex Wong',  cohort:2017, role:'Principal at a16z',     avatarColor:'#15a05f' },
+  { name:'Maya Reyes', cohort:2019, role:'Founder, Kinetic',      avatarColor:'#7c3aed' },
+  { name:'David Liu',  cohort:2016, role:'EM at Google',          avatarColor:'#a16207' },
+  { name:'Priya Nair', cohort:2018, role:'Head of Strategy',      avatarColor:'#4d4d4a' },
+  { name:'Sam Chen',   cohort:2021, role:'Policy Lead at Meta',   avatarColor:'#9b2c1f' },
+  { name:'Sofia Ramirez', cohort:2021, role:'PD at Figma',         avatarColor:'#2563eb' },
+  { name:'Theo Park',  cohort:2023, role:'SWE at Airbnb',         avatarColor:'#15a05f' },
+];
+
+const SCHOOL_ANNOUNCEMENTS = [
+  { id:'an1', kind:'Announcement', title:'2026 Mentorship Awards — Nominate by Jun 12', body:'Recognize the alumni who showed up for you this year. Three categories, peer-nominated.', author:'Office of Alumni Affairs', stamp:'2d ago', pinned:true },
+  { id:'an2', kind:'Update', title:'120 new members joined the circle in May', body:'Welcome to our largest joining month yet. Help newcomers feel seen.', author:'Community team', stamp:'5d ago' },
+  { id:'an3', kind:'Opportunity', title:'Mock-interview marathon — sign up to help', body:'New grads from \'25 and \'26 are asking. 30-minute slots, virtual or in person.', author:'Career Office', stamp:'1w ago' },
+];
+
+const ACTIVITY_FEED = [
+  { who:'Jamie K.', cohort:'\'20', action:'accepted 2 mentorship requests', when:'1h ago' },
+  { who:'Alex W.', cohort:'\'17', action:'posted a question about VC interviews', when:'4h ago' },
+  { who:'Maya R.', cohort:'\'19', action:'is hosting Founders Coffee in SF', when:'1d ago' },
+  { who:'Sam C.',  cohort:'\'21', action:'replied to 3 advice requests', when:'1d ago' },
+  { who:'Theo P.', cohort:'\'23', action:'joined the circle', when:'2d ago' },
+];
+
+const CLASS_BREAKDOWN = [
+  { year:'\'24-\'26', count:148, color:'#2563eb' },
+  { year:'\'20-\'23', count:312, color:'#15a05f' },
+  { year:'\'15-\'19', count:267, color:'#a16207' },
+  { year:'\'10-\'14', count:184, color:'#7c3aed' },
+  { year:'pre \'10',  count:93,  color:'#4d4d4a' },
+];
+
+function EventDateBlock({ month, day, tone = 'default' }) {
+  const accent = tone === 'featured' ? '#f59e0b' : '#2563eb';
+  return React.createElement('div', {
+    style: {
+      width: '64px', flexShrink: 0,
+      border: '1px solid #dcdcd6', borderRadius: '8px', overflow: 'hidden',
+      background: '#fff', textAlign: 'center',
+    },
+  },
+    React.createElement('div', {
+      style: { background: accent, color: tone === 'featured' ? '#0c0c0b' : '#fff', padding: '4px 0', fontSize: '10px', fontWeight: 700, letterSpacing: '0.10em', textTransform: 'uppercase', fontFamily: "'JetBrains Mono', monospace" },
+    }, month),
+    React.createElement('div', {
+      style: { padding: '6px 0 8px', fontFamily: "'Inter Tight', sans-serif", fontSize: '24px', fontWeight: 600, lineHeight: 1, color: '#0c0c0b' },
+    }, day)
+  );
+}
+
+function CapacityBar({ going, capacity }) {
+  const pct = Math.min(100, Math.round((going / capacity) * 100));
+  const tone = pct >= 90 ? '#a16207' : pct >= 60 ? '#2563eb' : '#15a05f';
+  return React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '3px', minWidth: '110px' } },
+    React.createElement('div', { style: { height: '4px', borderRadius: '2px', background: '#ebebe5', overflow: 'hidden' } },
+      React.createElement('div', { style: { height: '100%', width: `${pct}%`, background: tone, transition: 'width 300ms' } })
+    ),
+    React.createElement('p', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#4d4d4a' } }, `${going} / ${capacity} going`)
+  );
+}
+
+// ─── Events helpers (C9 master-detail × spotlight) ──────────────────────────
+const EVENT_CATEGORY_COLOR = {
+  Networking: '#2563eb',
+  Career:     '#15a05f',
+  Founders:   '#7c3aed',
+  Reunion:    '#a16207',
+};
+const MONTH_SHORT_TO_IDX = { JAN:0, FEB:1, MAR:2, APR:3, MAY:4, JUN:5, JUL:6, AUG:7, SEP:8, OCT:9, NOV:10, DEC:11 };
+const MONTH_LONG_NAMES   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WEEKDAY_SHORT      = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const TODAY = new Date(2026, 4, 27); // demo: May 27, 2026
+
+function eventDate(ev) { return new Date(2026, MONTH_SHORT_TO_IDX[ev.month], parseInt(ev.day, 10)); }
+function eventWeekday(ev) { return WEEKDAY_SHORT[eventDate(ev).getDay()]; }
+function eventMonthLong(ev) { return MONTH_LONG_NAMES[MONTH_SHORT_TO_IDX[ev.month]]; }
+function eventDaysAway(ev) { return Math.round((eventDate(ev).getTime() - TODAY.getTime()) / 86400000); }
+
+function EventCountdown({ ev }) {
+  const d = eventDaysAway(ev);
+  let cfg;
+  if (d <= 0)       cfg = { color: '#9b2c1f', bg: 'rgba(155,44,31,0.10)', text: d === 0 ? 'Today' : 'Past' };
+  else if (d === 1) cfg = { color: '#a16207', bg: 'rgba(161,98,7,0.12)', text: 'Tomorrow' };
+  else if (d <= 7)  cfg = { color: '#a16207', bg: 'rgba(161,98,7,0.12)', text: `In ${d}d` };
+  else if (d <= 30) cfg = { color: '#2563eb', bg: 'rgba(37,99,235,0.08)',  text: `In ${d}d` };
+  else              cfg = { color: '#4d4d4a', bg: '#ebebe5',               text: `In ${d}d` };
+  return React.createElement('span', {
+    style: {
+      display: 'inline-flex', alignItems: 'center', padding: '3px 8px', borderRadius: '4px',
+      fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700,
+      letterSpacing: '0.04em', textTransform: 'uppercase',
+      color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.color}33`,
+    },
+  }, cfg.text);
+}
+
+function EventListDateBlock({ ev }) {
+  return React.createElement('div', {
+    style: {
+      width: 48, padding: '6px 6px', borderRadius: 8,
+      background: '#fff', border: '1px solid #dcdcd6', textAlign: 'center', flexShrink: 0,
+    },
+  },
+    React.createElement('div', {
+      style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700,
+               color: '#2563eb', letterSpacing: 0.6 },
+    }, ev.month),
+    React.createElement('div', {
+      style: { fontFamily: "'Inter Tight', sans-serif", fontSize: 18, fontWeight: 600,
+               color: '#0c0c0b', lineHeight: 1, marginTop: 2 },
+    }, ev.day),
+    React.createElement('div', {
+      style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#4d4d4a',
+               letterSpacing: 0.5, marginTop: 3 },
+    }, eventWeekday(ev))
+  );
+}
+
+function EventsMasterDetail({ events, onNavigate, categoryKey }) {
+  // Reset selection to first when filter changes
+  const [selectedIdx, setSelectedIdx] = React.useState(0);
+  React.useEffect(() => { setSelectedIdx(0); }, [categoryKey]);
+  // Sort chronologically before grouping so soonest events come first
+  const sorted = [...events].sort((a, b) => eventDate(a).getTime() - eventDate(b).getTime());
+  const ev = sorted[selectedIdx] || sorted[0];
+  if (!ev) return null;
+  const categoryColor = EVENT_CATEGORY_COLOR[ev.category] || '#2563eb';
+  const monthsOrdered = []; // preserve insertion order
+  const groups = {};
+  sorted.forEach((e, i) => {
+    const key = `${eventMonthLong(e)} 2026`;
+    if (!groups[key]) { groups[key] = []; monthsOrdered.push(key); }
+    groups[key].push({ event: e, idx: i });
+  });
+
+  const attendeeInitials = (name) => name.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const others = EVENT_ATTENDEES.slice(0, 5);
+
+  return React.createElement('div', {
+    className: 'bc-events-master-detail',
+    style: {
+      display: 'grid', gridTemplateColumns: '300px 1fr', gap: 0,
+      background: '#fff', border: '1px solid #dcdcd6', borderRadius: 14, overflow: 'hidden',
+      boxShadow: '0 1px 0 rgba(12,12,11,0.03), 0 18px 36px -22px rgba(12,12,11,0.14)',
+    },
+  },
+    // ─── List column ──────────────────────────────────────────────────
+    React.createElement('div', { style: { borderRight: '1px solid #ebebe5', background: '#fafaf9' } },
+      React.createElement('div', {
+        style: { padding: '12px 18px', borderBottom: '1px solid #ebebe5',
+                 display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+      },
+        React.createElement('span', {
+          style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#4d4d4a',
+                   letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 700 },
+        }, `${events.length} upcoming · ${monthsOrdered.length} ${monthsOrdered.length === 1 ? 'month' : 'months'}`),
+        React.createElement('button', {
+          style: { background: 'none', border: 'none', cursor: 'pointer',
+                   fontSize: 11, fontWeight: 600, color: '#4d4d4a',
+                   padding: 0, fontFamily: "'Inter', sans-serif" },
+        }, 'Sort ▾')
+      ),
+      monthsOrdered.map(monthKey => React.createElement('div', { key: monthKey },
+        // Month header — from C2
+        React.createElement('div', {
+          style: { padding: '10px 18px 8px', borderBottom: '1px solid #ebebe5',
+                   background: '#f4f3ee',
+                   display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' },
+        },
+          React.createElement('span', {
+            style: { fontFamily: "'Inter Tight', sans-serif", fontSize: 13, fontWeight: 600, color: '#0c0c0b' },
+          }, monthKey.split(' ')[0]),
+          React.createElement('span', {
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: '#4d4d4a',
+                     letterSpacing: 0.6, textTransform: 'uppercase' },
+          }, `${monthKey.split(' ')[1]} · ${groups[monthKey].length} ${groups[monthKey].length === 1 ? 'event' : 'events'}`)
+        ),
+        // Items in this month
+        groups[monthKey].map(({ event: e, idx }) => {
+          const sel = idx === selectedIdx;
+          const eColor = EVENT_CATEGORY_COLOR[e.category] || '#2563eb';
+          return React.createElement('button', {
+            key: e.id, onClick: () => setSelectedIdx(idx),
+            style: {
+              width: '100%', border: 'none', textAlign: 'left',
+              padding: '12px 18px 12px 15px',
+              background: sel ? '#fff' : 'transparent',
+              borderLeft: sel ? `3px solid ${eColor}` : '3px solid transparent',
+              borderBottom: '1px solid #ebebe5',
+              display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 12, alignItems: 'center',
+              cursor: 'pointer', transition: 'background 150ms', fontFamily: "'Inter', sans-serif",
+            },
+          },
+            React.createElement(EventListDateBlock, { ev: e }),
+            React.createElement('div', { style: { minWidth: 0 } },
+              React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 } },
+                React.createElement('span', { style: { width: 6, height: 6, borderRadius: '50%', background: eColor, flexShrink: 0 } }),
+                React.createElement('span', {
+                  style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700,
+                           letterSpacing: 0.6, textTransform: 'uppercase', color: '#4d4d4a' },
+                }, e.category),
+                React.createElement(EventCountdown, { ev: e })
+              ),
+              React.createElement('div', {
+                style: { fontFamily: "'Inter Tight', sans-serif",
+                         fontSize: 13.5, fontWeight: sel ? 600 : 500, color: '#0c0c0b',
+                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', letterSpacing: '-0.005em' },
+              }, e.title),
+              React.createElement('div', {
+                style: { fontSize: 11, color: '#4d4d4a', marginTop: 2,
+                         whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+              }, `${e.dateText.split(' · ')[1] || ''} · ${e.location.split(',')[0]}`)
+            )
+          );
+        })
+      ))
+    ),
+
+    // ─── Detail column ────────────────────────────────────────────────
+    React.createElement('div', { style: { display: 'flex', flexDirection: 'column' } },
+      // Spotlight cover band
+      React.createElement('div', {
+        style: {
+          background: `linear-gradient(135deg, ${categoryColor}, ${categoryColor}cc 50%, #081126 100%)`,
+          color: '#fafaf9', padding: '32px 36px', position: 'relative', overflow: 'hidden',
+          display: 'grid', gridTemplateColumns: '1fr auto', gap: 28, alignItems: 'center',
+        },
+      },
+        // Decorative network motif
+        React.createElement('svg', {
+          viewBox: '0 0 300 100',
+          style: { position: 'absolute', right: 0, top: 0, width: 360, height: 120,
+                   opacity: 0.22, pointerEvents: 'none' },
+        },
+          React.createElement('g', { stroke: 'rgba(250,250,249,0.5)', strokeWidth: 0.7, fill: 'none' },
+            React.createElement('line', { x1: 40, y1: 30, x2: 120, y2: 20 }),
+            React.createElement('line', { x1: 120, y1: 20, x2: 180, y2: 60 }),
+            React.createElement('line', { x1: 180, y1: 60, x2: 260, y2: 40 }),
+            React.createElement('line', { x1: 120, y1: 20, x2: 80, y2: 80 }),
+            React.createElement('line', { x1: 180, y1: 60, x2: 80, y2: 80 })
+          ),
+          React.createElement('circle', { cx: 40, cy: 30, r: 3, fill: 'rgba(250,250,249,0.6)' }),
+          React.createElement('circle', { cx: 120, cy: 20, r: 3.5, fill: 'rgba(250,250,249,0.7)' }),
+          React.createElement('circle', { cx: 180, cy: 60, r: 4, fill: 'rgba(250,250,249,0.8)' }),
+          React.createElement('circle', { cx: 260, cy: 40, r: 3, fill: 'rgba(250,250,249,0.6)' }),
+          React.createElement('circle', { cx: 80, cy: 80, r: 3, fill: 'rgba(250,250,249,0.5)' })
+        ),
+        // Left: identity
+        React.createElement('div', { style: { position: 'relative', minWidth: 0 } },
+          React.createElement('div', {
+            style: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' },
+          },
+            React.createElement('span', {
+              style: {
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+                letterSpacing: 0.8, textTransform: 'uppercase', color: '#fafaf9',
+                padding: '3px 9px', borderRadius: 4,
+                background: 'rgba(250,250,249,0.14)', border: '1px solid rgba(250,250,249,0.22)',
+              },
+            }, `\u25C6 ${ev.category}`),
+            React.createElement(EventCountdown, { ev }),
+            React.createElement('span', {
+              style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5,
+                       color: 'rgba(250,250,249,0.7)', letterSpacing: 0.5, whiteSpace: 'nowrap' },
+            }, `Hosted by ${ev.host}`)
+          ),
+          React.createElement('h3', {
+            style: { fontFamily: "'Inter Tight', sans-serif",
+                     fontSize: 28, fontWeight: 600, lineHeight: 1.1, letterSpacing: '-0.02em' },
+          }, ev.title),
+          React.createElement('div', {
+            style: { fontSize: 13.5, color: 'rgba(250,250,249,0.85)', marginTop: 10 },
+          }, `${ev.dateText} · ${ev.location}`)
+        ),
+        // Right: huge date stamp
+        React.createElement('div', {
+          style: {
+            position: 'relative', textAlign: 'center', padding: '18px 26px',
+            background: 'rgba(250,250,249,0.08)', border: '1px solid rgba(250,250,249,0.18)',
+            borderRadius: 14, flexShrink: 0,
+          },
+        },
+          React.createElement('div', {
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
+                     color: 'rgba(250,250,249,0.7)', fontWeight: 700, letterSpacing: 0.8 },
+          }, ev.month),
+          React.createElement('div', {
+            style: { fontFamily: "'Inter Tight', sans-serif", fontSize: 64, fontWeight: 600,
+                     lineHeight: 0.95, letterSpacing: '-0.06em', marginTop: 4 },
+          }, ev.day),
+          React.createElement('div', {
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5,
+                     color: 'rgba(250,250,249,0.7)', letterSpacing: 0.6, marginTop: 6 },
+          }, `${eventWeekday(ev)} \u00B7 2026`)
+        )
+      ),
+
+      // Body
+      React.createElement('div', {
+        style: { padding: '22px 32px 24px', display: 'flex', flexDirection: 'column', gap: 16, flex: 1 },
+      },
+        ev.description && React.createElement('p', {
+          style: { fontSize: 13.5, color: '#0c0c0b', lineHeight: 1.6, maxWidth: 620 },
+        }, ev.description),
+
+        // 3-cell facts grid
+        React.createElement('div', {
+          style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0,
+                   background: '#fafaf9', border: '1px solid #ebebe5', borderRadius: 10, overflow: 'hidden' },
+        },
+          React.createElement(EventFactCell, { label: 'When',
+            value: ev.timeRange || ev.dateText.split(' · ')[1] || 'All day',
+            sub: `${eventWeekday(ev)} \u00B7 ${ev.month} ${ev.day}, 2026` }),
+          React.createElement(EventFactCell, { label: 'Where',
+            value: ev.venue || ev.location,
+            sub: ev.address || ev.location, last: false }),
+          React.createElement(EventFactCell, { label: 'Host', value: ev.host, sub: ev.cost || 'View past events', last: true })
+        ),
+
+        // Social proof + capacity
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' } },
+          React.createElement('div', { style: { display: 'flex' } },
+            others.map((a, idx) => React.createElement('span', {
+              key: a.name,
+              style: {
+                width: 30, height: 30, borderRadius: '50%', background: '#ebebe5', color: '#4d4d4a',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Inter Tight', sans-serif", fontWeight: 700, fontSize: 10.5,
+                border: '2px solid #fff', marginLeft: idx === 0 ? 0 : -10,
+              },
+            }, attendeeInitials(a.name)))
+          ),
+          React.createElement('div', { style: { fontSize: 12.5, color: '#4d4d4a' } },
+            React.createElement('strong', { style: { color: '#0c0c0b', fontWeight: 600 } }, `${others[0].name.split(' ')[0]}, ${others[1].name.split(' ')[0]}`),
+            ` and ${Math.max(0, ev.going - 2)} others going`
+          ),
+          React.createElement('div', { style: { flex: 1 } }),
+          React.createElement('div', { style: { minWidth: 140 } },
+            React.createElement(CapacityBar, { going: ev.going, capacity: ev.capacity })
+          )
+        ),
+
+        // Actions
+        React.createElement('div', {
+          style: { display: 'flex', gap: 8, marginTop: 4, paddingTop: 12, borderTop: '1px solid #ebebe5', flexWrap: 'wrap' },
+        },
+          React.createElement(BCButton, { variant: 'cta', size: 'default', style: { borderRadius: 8 } }, 'RSVP — I\'m going'),
+          React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: 8 } }, 'Add to calendar'),
+          React.createElement(BCButton, { variant: 'ghost', size: 'default', style: { borderRadius: 8, color: '#4d4d4a' } }, 'Invite a friend'),
+          React.createElement('div', { style: { flex: 1 } }),
+          React.createElement(BCButton, {
+            variant: 'ghost', size: 'default', style: { borderRadius: 8 },
+            onClick: () => onNavigate && onNavigate('event_detail', ev),
+          }, 'Full details \u2192')
+        )
+      )
+    )
+  );
+}
+
+function EventFactCell({ label, value, sub, last }) {
+  return React.createElement('div', {
+    style: { padding: '12px 14px', borderRight: last ? 'none' : '1px solid #ebebe5' },
+  },
+    React.createElement('div', {
+      style: { fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: '#4d4d4a',
+               letterSpacing: 0.6, textTransform: 'uppercase', fontWeight: 700 },
+    }, label),
+    React.createElement('div', {
+      style: { fontFamily: "'Inter Tight', sans-serif", fontSize: 13.5, fontWeight: 600,
+               color: '#0c0c0b', marginTop: 4, lineHeight: 1.3 },
+    }, value),
+    React.createElement('div', { style: { fontSize: 11, color: '#4d4d4a', marginTop: 2, lineHeight: 1.4 } }, sub)
+  );
+}
+
+function PinnedAnnBanner({ ann, onClick }) {
+  return React.createElement('div', {
+    role: 'button', onClick,
+    style: {
+      display: 'flex', alignItems: 'center', gap: '14px',
+      padding: '12px 18px 12px 14px', marginBottom: '20px',
+      background: 'color-mix(in srgb, #2563eb 5%, #fff)',
+      border: '1px solid #dcdcd6', borderLeft: '3px solid #2563eb',
+      borderRadius: '10px', cursor: 'pointer',
+      transition: 'background 150ms',
+    },
+    onMouseEnter: e => { e.currentTarget.style.background = 'color-mix(in srgb, #2563eb 9%, #fff)'; },
+    onMouseLeave: e => { e.currentTarget.style.background = 'color-mix(in srgb, #2563eb 5%, #fff)'; },
+  },
+    React.createElement('svg', {
+      width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
+      stroke: '#2563eb', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+      style: { flexShrink: 0 },
+    },
+      React.createElement('path', { d: 'M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79L3 15h18l-4.89-2.45A2 2 0 0 1 15 10.76V5a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z' })
+    ),
+    React.createElement('span', {
+      style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '9.5px', fontWeight: 700,
+               textTransform: 'uppercase', letterSpacing: '0.10em', color: '#2563eb',
+               whiteSpace: 'nowrap', flexShrink: 0 },
+    }, `Pinned · ${ann.kind}`),
+    React.createElement('span', { style: { color: '#dcdcd6', flexShrink: 0 } }, '·'),
+    React.createElement('span', {
+      style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '14px', fontWeight: 600, color: '#0c0c0b',
+               flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+    }, ann.title),
+    React.createElement('span', {
+      style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10.5px', color: '#4d4d4a',
+               letterSpacing: '0.05em', flexShrink: 0, whiteSpace: 'nowrap' },
+    }, ann.stamp),
+    React.createElement('svg', {
+      width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
+      stroke: '#2563eb', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+      style: { flexShrink: 0 },
+    },
+      React.createElement('path', { d: 'M5 12h14' }),
+      React.createElement('path', { d: 'm12 5 7 7-7 7' })
+    )
+  );
+}
+
+function SchoolScreen({ onNavigate = () => {} }) {
+  const [activeCategory, setActiveCategory] = React.useState('All');
+  const pinnedAnn = SCHOOL_ANNOUNCEMENTS.find(a => a.pinned);
+  const otherAnns = SCHOOL_ANNOUNCEMENTS.filter(a => !a.pinned);
+
+  return React.createElement('div', { style: { background: '#fafaf9', paddingBottom: '60px' } },
+
+    // ─── Body grid: events + sidebar ─────────────────────────────────────
+    React.createElement('section', { style: { maxWidth: '1280px', margin: '0 auto', padding: '24px 32px 32px' } },
+      pinnedAnn && React.createElement(PinnedAnnBanner, { ann: pinnedAnn }),
+      // Two-column grid: calendar wide on the left, announcements right rail
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 320px', gap: '32px', alignItems: 'flex-start' } },
+        // Upcoming events — C9 master-detail × spotlight + C2 month groups
+        React.createElement('div', null,
+          React.createElement('div', { style: { borderTop: '1px solid #dcdcd6', paddingTop: '20px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' } },
+            React.createElement('div', null,
+              React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '8px' } }, `Upcoming · ${SCHOOL_EVENTS.length} events`),
+              React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '22px', fontWeight: 600, color: '#0c0c0b' } }, 'On the calendar')
+            ),
+            React.createElement('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+              ['All', 'Networking', 'Career', 'Founders', 'Reunion'].map(label =>
+                React.createElement('button', {
+                  key: label, onClick: () => setActiveCategory(label),
+                  style: {
+                    fontFamily: "'Inter', sans-serif", fontSize: '11.5px', fontWeight: 500,
+                    padding: '5px 12px', borderRadius: '999px', cursor: 'pointer', transition: 'all 150ms',
+                    background: activeCategory === label ? 'rgba(37,99,235,0.08)' : '#fff',
+                    color: activeCategory === label ? '#2563eb' : '#4d4d4a',
+                    border: `1px solid ${activeCategory === label ? 'rgba(37,99,235,0.25)' : '#dcdcd6'}`,
+                  },
+                }, label)
+              )
+            )
+          ),
+          React.createElement(EventsMasterDetail, {
+            events: activeCategory === 'All'
+              ? SCHOOL_EVENTS
+              : SCHOOL_EVENTS.filter(e => e.category === activeCategory),
+            onNavigate,
+            categoryKey: activeCategory,
+          })
+        ),
+
+        // Announcements — right rail (pinned shown as banner above)
+        React.createElement('aside', { style: { position: 'sticky', top: '24px', height: 'fit-content' } },
+          React.createElement('div', { style: { borderTop: '1px solid #dcdcd6', paddingTop: '20px', marginBottom: '12px' } },
+            React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '8px' } }, `Announcements · ${otherAnns.length}`),
+            React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '18px', fontWeight: 600, color: '#0c0c0b' } }, 'From the office')
+          ),
+          otherAnns.length > 0 && React.createElement('div', {
+            style: {
+              background: '#fff', border: '1px solid #dcdcd6', borderRadius: '12px',
+              overflow: 'hidden', boxShadow: '0 1px 0 rgba(12,12,11,0.03)',
+            },
+          },
+            otherAnns.map((an, i) =>
+              React.createElement('article', {
+                key: an.id,
+                style: {
+                  padding: '14px 16px',
+                  borderTop: i === 0 ? 'none' : '1px solid #ebebe5',
+                },
+              },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' } },
+                  React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', color: '#4d4d4a' } }, an.kind)
+                ),
+                React.createElement('h3', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '13.5px', fontWeight: 600, color: '#0c0c0b', lineHeight: 1.3 } }, an.title),
+                React.createElement('p', { style: { fontSize: '12px', color: '#4d4d4a', lineHeight: 1.5, marginTop: '6px' } }, an.body),
+                React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' } },
+                  React.createElement('span', { style: { fontSize: '11px', color: '#4d4d4a' } }, an.author),
+                  React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#4d4d4a' } }, an.stamp)
+                )
+              )
+            )
+          ),
+          React.createElement('div', { style: { marginTop: '10px', textAlign: 'center' } },
+            React.createElement(BCButton, { variant: 'ghost', size: 'sm', style: { fontSize: '11.5px', color: '#4d4d4a' } }, 'See all announcements →')
+          )
+        )
+      ),
+
+    )
+  );
+}
+
+// ─── Member Profile Screen (viewing another member) ──────────────────────────
+function MemberProfileScreen({ person, onNavigate }) {
+  const p = person || PEOPLE[0];
+  const first = p.name.split(' ')[0];
+  const yearShort = `'${String(p.graduationYear).slice(-2)}`;
+  const activeRatio = p.maxActiveMentees > 0 ? p.activeMenteeCount / p.maxActiveMentees : 0;
+
+  // Mutual / context data
+  const mutualConnections = ['Maya Reyes', 'David Liu', 'Sam Chen'];
+  const sharedTopics = ['Career transitions', 'Product management'];
+  const recentActivity = [
+    { action: 'Answered an advice question about consulting transitions', when: '3d ago' },
+    { action: 'RSVPed to NYC Alumni Mixer \u2014 Spring 2026', when: '1w ago' },
+    { action: 'Updated mentor topics', when: '2w ago' },
+  ];
+
+  return React.createElement('div', { style: { background: '#fafaf9', paddingBottom: '60px' } },
+
+    // Breadcrumb top bar
+    React.createElement('div', { style: { borderBottom: '1px solid #dcdcd6', background: '#fff' } },
+      React.createElement('div', { style: { maxWidth: '1080px', margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: '16px' } },
+        React.createElement('button', {
+          onClick: () => onNavigate('people'),
+          style: { display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#4d4d4a', fontFamily: "'Inter', sans-serif", padding: 0 },
+        },
+          React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+            React.createElement('path', { d: 'm15 18-6-6 6-6' })
+          ),
+          'People'
+        ),
+        React.createElement('span', { style: { color: '#dcdcd6' } }, '/'),
+        React.createElement('span', { style: { fontSize: '13px', color: '#0c0c0b', fontWeight: 500 } }, p.name)
+      )
+    ),
+
+    // Body
+    React.createElement('div', { style: { maxWidth: '1080px', margin: '0 auto', padding: '32px', display: 'grid', gridTemplateColumns: '1fr 320px', gap: '40px' } },
+
+      // ── Main column ─────────────────────────────────────────────────────
+      React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '32px' } },
+
+        // Identity header
+        React.createElement('div', { style: { display: 'flex', gap: '20px', alignItems: 'flex-start' } },
+          React.createElement(BCAvatar, { name: p.name, size: 88, square: true, capacityRatio: p.isOpenAsMentor ? activeRatio : null }),
+          React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' } },
+              React.createElement('h1', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '28px', fontWeight: 600, letterSpacing: '-0.02em', color: '#0c0c0b' } }, p.name),
+              React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', color: '#4d4d4a' } }, `${yearShort} \u00b7 ${p.university || 'Cornell'}`)
+            ),
+            React.createElement('p', { style: { fontSize: '15.5px', color: '#0c0c0b', marginTop: '6px', fontWeight: 500 } }, [p.currentTitle, p.currentEmployer].filter(Boolean).join(' \u00b7 ')),
+            React.createElement('p', { style: { fontSize: '13px', color: '#4d4d4a', marginTop: '2px' } }, [p.city, p.major].filter(Boolean).join(' \u00b7 ')),
+            React.createElement('div', { style: { display: 'flex', gap: '6px', marginTop: '12px', flexWrap: 'wrap' } },
+              p.isFriend && React.createElement(BCStatusBadge, { tone: 'info', dot: true }, 'Friend'),
+              p.isOpenAsAdviceHelper && React.createElement(BCStatusBadge, { tone: 'open', dot: true }, 'Open for advice'),
+              p.isOpenAsMentor && React.createElement(BCStatusBadge, { tone: 'open', dot: true }, `Mentor \u00b7 ${p.activeMenteeCount}/${p.maxActiveMentees}`),
+              p.mentorPaused && React.createElement(BCStatusBadge, { tone: 'warn', dot: true }, 'Paused')
+            )
+          )
+        ),
+
+        // About / bio
+        p.rationale && React.createElement('div', null,
+          React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'About'),
+          React.createElement('p', { style: { fontFamily: "'Inter', sans-serif", fontSize: '15px', lineHeight: 1.65, color: '#0c0c0b' } },
+            `${first} ${p.rationale.toLowerCase().replace(/^"/, '').replace(/"$/, '')}`
+          )
+        ),
+
+        // Topics
+        p.mentoringTopics && p.mentoringTopics.length > 0 && React.createElement('div', null,
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px' } },
+            React.createElement('div', { className: 'bc-section-kicker' }, `${first} can help with`),
+            sharedTopics.length > 0 && React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#15a05f', fontWeight: 700 } }, `${sharedTopics.length} match your topics`)
+          ),
+          React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
+            p.mentoringTopics.map(t => {
+              const isMatch = sharedTopics.includes(t);
+              return React.createElement('span', {
+                key: t,
+                style: {
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', padding: '4px 10px', borderRadius: '4px',
+                  background: isMatch ? 'rgba(21,160,95,0.10)' : '#ebebe5',
+                  color: isMatch ? '#15a05f' : '#4d4d4a',
+                  border: `1px solid ${isMatch ? 'rgba(21,160,95,0.22)' : 'rgba(12,12,11,0.1)'}`,
+                  fontWeight: isMatch ? 600 : 400,
+                },
+              }, t);
+            })
+          )
+        ),
+
+        // Recent activity
+        React.createElement('div', null,
+          React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Recent activity'),
+          React.createElement('ul', { style: { listStyle: 'none', border: '1px solid #dcdcd6', borderRadius: '10px', background: '#fff', overflow: 'hidden' } },
+            recentActivity.map((a, i) =>
+              React.createElement('li', {
+                key: i,
+                style: { padding: '11px 14px', borderBottom: i === recentActivity.length - 1 ? 'none' : '1px solid #ebebe5', display: 'flex', justifyContent: 'space-between', gap: '12px' },
+              },
+                React.createElement('span', { style: { fontSize: '13px', color: '#0c0c0b' } }, a.action),
+                React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#4d4d4a', flexShrink: 0 } }, a.when)
+              )
+            )
+          )
+        ),
+
+        // Mutual connections
+        mutualConnections.length > 0 && React.createElement('div', null,
+          React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, `${mutualConnections.length} mutual connections`),
+          React.createElement('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } },
+            mutualConnections.map(name =>
+              React.createElement('div', {
+                key: name,
+                style: { display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px 6px 6px', borderRadius: '999px', border: '1px solid #dcdcd6', background: '#fff' },
+              },
+                React.createElement(BCAvatar, { name, size: 24 }),
+                React.createElement('span', { style: { fontSize: '12px', color: '#0c0c0b', fontWeight: 500 } }, name)
+              )
+            )
+          )
+        )
+      ),
+
+      // ── Sticky action rail ──────────────────────────────────────────────
+      React.createElement('aside', { style: { position: 'sticky', top: '24px', alignSelf: 'flex-start' } },
+        React.createElement('div', {
+          style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', boxShadow: '0 12px 34px -8px rgba(12,12,11,0.08)', overflow: 'hidden' },
+        },
+          // Primary actions
+          React.createElement('div', { style: { padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '8px' } },
+            (p.isOpenAsAdviceHelper || p.isOpenAsMentor)
+              ? React.createElement(BCButton, { variant: 'cta', size: 'lg', onClick: () => onNavigate('ask_person', p), style: { borderRadius: '10px', width: '100%' } }, `Ask ${first} for help`)
+              : React.createElement('div', { style: { padding: '10px 12px', borderRadius: '8px', background: 'rgba(161,98,7,0.10)', border: '1px solid rgba(161,98,7,0.22)' } },
+                  React.createElement('p', { style: { fontSize: '12.5px', fontWeight: 600, color: '#0c0c0b' } }, p.mentorPaused ? `${first} has paused requests` : `${first} isn\u2019t taking requests`),
+                  React.createElement('p', { style: { fontSize: '11.5px', color: '#4d4d4a', marginTop: '3px', lineHeight: 1.45 } }, 'Check back later or send a connection request.')
+                ),
+            !p.isFriend && React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: '10px', width: '100%' } }, 'Send connection request'),
+            p.isFriend && React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: '10px', width: '100%' } }, 'Message')
+          ),
+          // Quick facts
+          React.createElement('div', { style: { padding: '14px 18px', borderTop: '1px solid #ebebe5', display: 'flex', flexDirection: 'column', gap: '10px' } },
+            [
+              ['Class of', `Cornell ${yearShort}`],
+              p.major && ['Major', p.major],
+              ['Lives in', p.city],
+              p.isOpenAsMentor && ['Mentor capacity', `${p.activeMenteeCount} of ${p.maxActiveMentees}`],
+            ].filter(Boolean).map(([label, value]) =>
+              React.createElement('div', { key: label, style: { display: 'flex', justifyContent: 'space-between', gap: '12px' } },
+                React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4d4d4a' } }, label),
+                React.createElement('span', { style: { fontSize: '12.5px', color: '#0c0c0b', textAlign: 'right' } }, value)
+              )
+            )
+          ),
+          // Report row
+          React.createElement('div', { style: { padding: '10px 18px', borderTop: '1px solid #ebebe5', background: '#fafaf9' } },
+            React.createElement('button', {
+              style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '11.5px', color: '#4d4d4a', fontFamily: "'Inter', sans-serif" },
+            }, 'Report this profile')
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── Event Detail Screen ─────────────────────────────────────────────────────
+function EventDetailScreen({ event, onNavigate }) {
+  const ev = event || SCHOOL_EVENTS[0];
+  const [rsvpState, setRsvpState] = React.useState('not_going'); // not_going | going | waitlist
+  const pct = Math.min(100, Math.round((ev.going / ev.capacity) * 100));
+  const isFull = pct >= 100;
+  const isAlmostFull = pct >= 90;
+  const isVirtual = ev.location === 'Virtual';
+
+  return React.createElement('div', { style: { background: '#fafaf9', paddingBottom: '60px' } },
+
+    // ── Top bar with back nav ────────────────────────────────────────────
+    React.createElement('div', { style: { borderBottom: '1px solid #dcdcd6', background: '#fff' } },
+      React.createElement('div', { style: { maxWidth: '1080px', margin: '0 auto', padding: '14px 32px', display: 'flex', alignItems: 'center', gap: '16px' } },
+        React.createElement('button', {
+          onClick: () => onNavigate('school'),
+          style: { display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#4d4d4a', fontFamily: "'Inter', sans-serif", padding: 0 },
+        },
+          React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+            React.createElement('path', { d: 'm15 18-6-6 6-6' })
+          ),
+          'School'
+        ),
+        React.createElement('span', { style: { color: '#dcdcd6' } }, '/'),
+        React.createElement('span', { style: { fontSize: '13px', color: '#0c0c0b', fontWeight: 500 } }, 'Event')
+      )
+    ),
+
+    // ── Body ─────────────────────────────────────────────────────────────
+    React.createElement('div', { style: { maxWidth: '1080px', margin: '0 auto', padding: '32px', display: 'grid', gridTemplateColumns: '1fr 320px', gap: '40px' } },
+
+      // ── Main column ────────────────────────────────────────────────────
+      React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '28px' } },
+
+        // Title block
+        React.createElement('div', null,
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' } },
+            React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', color: '#2563eb' } }, ev.category),
+            ev.featured && React.createElement('span', {
+              style: { display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '4px', background: 'rgba(245,158,11,0.15)', color: '#0c0c0b', border: '1px solid rgba(245,158,11,0.35)', fontSize: '9.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em' },
+            },
+              React.createElement('span', { style: { width: '5px', height: '5px', borderRadius: '50%', background: '#f59e0b' } }),
+              'Featured'
+            )
+          ),
+          React.createElement('h1', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '36px', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.1, color: '#0c0c0b' } }, ev.title),
+          React.createElement('p', { style: { fontSize: '15px', color: '#4d4d4a', lineHeight: 1.5, marginTop: '10px' } }, `Hosted by ${ev.host}`)
+        ),
+
+        // When/where info card
+        React.createElement('div', {
+          style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', boxShadow: '0 1px 0 rgba(12,12,11,0.03)', overflow: 'hidden' },
+        },
+          // When
+          React.createElement('div', { style: { padding: '16px 18px', borderBottom: '1px solid #ebebe5', display: 'flex', gap: '14px', alignItems: 'flex-start' } },
+            React.createElement(EventDateBlock, { month: ev.month, day: ev.day, tone: ev.featured ? 'featured' : 'default' }),
+            React.createElement('div', { style: { flex: 1, paddingTop: '4px' } },
+              React.createElement('p', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4d4d4a' } }, 'When'),
+              React.createElement('p', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '17px', fontWeight: 600, color: '#0c0c0b', marginTop: '4px' } }, ev.dateFull),
+              React.createElement('p', { style: { fontSize: '13px', color: '#4d4d4a', marginTop: '2px' } }, ev.timeRange)
+            ),
+            React.createElement('button', {
+              style: { background: '#fafaf9', border: '1px solid #dcdcd6', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', fontWeight: 500, fontFamily: "'Inter', sans-serif", color: '#0c0c0b', cursor: 'pointer', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 150ms' },
+              onMouseEnter: e => e.currentTarget.style.background = '#f4f3ee',
+              onMouseLeave: e => e.currentTarget.style.background = '#fafaf9',
+            },
+              React.createElement('svg', { width: 13, height: 13, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                React.createElement('rect', { x: 3, y: 4, width: 18, height: 18, rx: 2 }),
+                React.createElement('line', { x1: 16, y1: 2, x2: 16, y2: 6 }),
+                React.createElement('line', { x1: 8, y1: 2, x2: 8, y2: 6 }),
+                React.createElement('line', { x1: 3, y1: 10, x2: 21, y2: 10 })
+              ),
+              'Add to calendar'
+            )
+          ),
+          // Where
+          React.createElement('div', { style: { padding: '16px 18px', display: 'flex', gap: '14px', alignItems: 'flex-start' } },
+            React.createElement('div', {
+              style: { width: '44px', height: '44px', borderRadius: '8px', background: isVirtual ? 'rgba(37,99,235,0.10)' : 'rgba(21,160,95,0.10)', border: `1px solid ${isVirtual ? 'rgba(37,99,235,0.22)' : 'rgba(21,160,95,0.22)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+            },
+              React.createElement('svg', { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: isVirtual ? '#2563eb' : '#15a05f', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                isVirtual
+                  ? [React.createElement('rect', { key: 'r', x: 2, y: 6, width: 14, height: 12, rx: 2 }), React.createElement('path', { key: 'p', d: 'm22 8-6 4 6 4V8Z' })]
+                  : [React.createElement('path', { key: 'p', d: 'M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0Z' }), React.createElement('circle', { key: 'c', cx: 12, cy: 10, r: 3 })]
+              )
+            ),
+            React.createElement('div', { style: { flex: 1 } },
+              React.createElement('p', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4d4d4a' } }, 'Where'),
+              React.createElement('p', { style: { fontSize: '14px', fontWeight: 600, color: '#0c0c0b', marginTop: '4px' } }, ev.venue),
+              React.createElement('p', { style: { fontSize: '12.5px', color: '#4d4d4a', marginTop: '2px' } }, ev.address)
+            ),
+            !isVirtual && React.createElement('button', {
+              style: { background: 'none', border: 'none', color: '#2563eb', fontSize: '12px', fontWeight: 600, fontFamily: "'Inter', sans-serif", cursor: 'pointer', alignSelf: 'center' },
+            }, 'Get directions \u2192')
+          )
+        ),
+
+        // About
+        React.createElement('div', null,
+          React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'About this event'),
+          React.createElement('p', { style: { fontFamily: "'Inter', sans-serif", fontSize: '15px', lineHeight: 1.65, color: '#0c0c0b' } }, ev.description),
+          React.createElement('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '14px' } },
+            ev.tags.map(t =>
+              React.createElement('span', {
+                key: t,
+                style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', padding: '3px 9px', borderRadius: '4px', background: '#ebebe5', color: '#4d4d4a', border: '1px solid rgba(12,12,11,0.1)' },
+              }, t)
+            )
+          )
+        ),
+
+        // Practical details
+        React.createElement('div', null,
+          React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Details'),
+          React.createElement('dl', { style: { display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '8px 24px', fontSize: '13.5px', lineHeight: 1.5 } },
+            [
+              ['Cost', ev.cost],
+              ev.dressCode && ['Dress code', ev.dressCode],
+              ['Capacity', `${ev.going} going of ${ev.capacity} spots`],
+              ['Open to', ev.tags.includes('Alumni only') ? 'Alumni only' : ev.tags.includes('Curated') ? 'Curated guest list' : 'All members'],
+            ].filter(Boolean).map(([label, value], i) =>
+              React.createElement(React.Fragment, { key: i },
+                React.createElement('dt', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4d4d4a', paddingTop: '2px' } }, label),
+                React.createElement('dd', { style: { color: '#0c0c0b' } }, value)
+              )
+            )
+          )
+        ),
+
+        // Host card
+        React.createElement('div', null,
+          React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Hosted by'),
+          React.createElement('div', { style: { border: '1px solid #dcdcd6', borderRadius: '10px', background: '#fff', padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'flex-start' } },
+            React.createElement(BCAvatar, { name: ev.host, size: 44, square: true }),
+            React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+              React.createElement('p', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '14.5px', fontWeight: 600, color: '#0c0c0b' } }, ev.host),
+              React.createElement('p', { style: { fontSize: '12.5px', color: '#4d4d4a', marginTop: '3px', lineHeight: 1.55 } }, ev.hostBio)
+            )
+          )
+        ),
+
+        // Attendees (only show if going)
+        React.createElement('div', null,
+          React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '10px' } },
+            React.createElement('div', { className: 'bc-section-kicker' }, `${ev.going} going`),
+            React.createElement('button', {
+              style: { background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 500, color: '#2563eb', fontFamily: "'Inter', sans-serif" },
+            }, 'See all')
+          ),
+          React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '8px' } },
+            EVENT_ATTENDEES.slice(0, 6).map(a =>
+              React.createElement('div', {
+                key: a.name,
+                style: { display: 'flex', gap: '10px', alignItems: 'center', padding: '8px 10px', borderRadius: '8px', border: '1px solid #ebebe5', background: '#fff' },
+              },
+                React.createElement(BCAvatar, { name: a.name, size: 32 }),
+                React.createElement('div', { style: { minWidth: 0, flex: 1 } },
+                  React.createElement('p', { style: { fontSize: '12px', fontWeight: 600, color: '#0c0c0b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, a.name),
+                  React.createElement('p', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '9.5px', color: '#4d4d4a' } }, `'${String(a.cohort).slice(-2)} \u00b7 ${a.role}`)
+                )
+              )
+            )
+          )
+        )
+      ),
+
+      // ── Sticky RSVP rail ──────────────────────────────────────────────
+      React.createElement('aside', { style: { position: 'sticky', top: '24px', alignSelf: 'flex-start' } },
+        React.createElement('div', {
+          style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', boxShadow: '0 12px 34px -8px rgba(12,12,11,0.08)', overflow: 'hidden' },
+        },
+          // Capacity status
+          React.createElement('div', { style: { padding: '16px 18px', borderBottom: '1px solid #ebebe5' } },
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' } },
+              React.createElement('p', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: isAlmostFull ? '#a16207' : '#15a05f' } },
+                isFull ? 'Full' : isAlmostFull ? `${ev.capacity - ev.going} spots left` : 'Spots available'
+              ),
+              React.createElement('p', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#4d4d4a' } }, `${ev.going} / ${ev.capacity}`)
+            ),
+            React.createElement('div', { style: { height: '5px', borderRadius: '3px', background: '#ebebe5', overflow: 'hidden' } },
+              React.createElement('div', { style: { height: '100%', width: `${pct}%`, background: isAlmostFull ? '#a16207' : '#15a05f', transition: 'width 300ms' } })
+            )
+          ),
+          // RSVP actions
+          React.createElement('div', { style: { padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '8px' } },
+            rsvpState === 'not_going'
+              ? React.createElement(React.Fragment, null,
+                  React.createElement(BCButton, { variant: 'cta', size: 'lg', onClick: () => setRsvpState(isFull ? 'waitlist' : 'going'), style: { borderRadius: '10px', width: '100%' } }, isFull ? 'Join waitlist' : 'RSVP'),
+                  React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: '10px', width: '100%' } }, 'Add to calendar')
+                )
+              : rsvpState === 'going'
+                ? React.createElement(React.Fragment, null,
+                    React.createElement('div', { style: { padding: '10px 12px', borderRadius: '8px', background: 'rgba(21,160,95,0.10)', border: '1px solid rgba(21,160,95,0.22)', display: 'flex', alignItems: 'center', gap: '8px' } },
+                      React.createElement('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: '#15a05f', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                        React.createElement('polyline', { points: '20 6 9 17 4 12' })
+                      ),
+                      React.createElement('span', { style: { fontSize: '13px', fontWeight: 600, color: '#15a05f' } }, "You're going")
+                    ),
+                    React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: '10px', width: '100%' } }, 'Add to calendar'),
+                    React.createElement(BCButton, { variant: 'ghost', size: 'sm', onClick: () => setRsvpState('not_going'), style: { borderRadius: '10px', width: '100%', color: '#4d4d4a' } }, 'Cancel RSVP')
+                  )
+                : React.createElement(React.Fragment, null,
+                    React.createElement('div', { style: { padding: '10px 12px', borderRadius: '8px', background: 'rgba(161,98,7,0.12)', border: '1px solid rgba(161,98,7,0.25)' } },
+                      React.createElement('p', { style: { fontSize: '13px', fontWeight: 600, color: '#0c0c0b' } }, "You're on the waitlist"),
+                      React.createElement('p', { style: { fontSize: '11.5px', color: '#4d4d4a', marginTop: '2px' } }, "We'll notify you if a spot opens.")
+                    ),
+                    React.createElement(BCButton, { variant: 'ghost', size: 'sm', onClick: () => setRsvpState('not_going'), style: { borderRadius: '10px', width: '100%', color: '#4d4d4a' } }, 'Leave waitlist')
+                  )
+          ),
+          // Share strip
+          React.createElement('div', { style: { padding: '12px 18px', borderTop: '1px solid #ebebe5', background: '#fafaf9', display: 'flex', gap: '4px', alignItems: 'center' } },
+            React.createElement('span', { style: { fontSize: '11px', color: '#4d4d4a', flex: 1 } }, 'Share with a classmate'),
+            ['copy', 'mail'].map(kind =>
+              React.createElement('button', {
+                key: kind,
+                style: { width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #dcdcd6', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4d4d4a' },
+              },
+                kind === 'copy'
+                  ? React.createElement('svg', { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                      React.createElement('rect', { x: 9, y: 9, width: 13, height: 13, rx: 2, ry: 2 }),
+                      React.createElement('path', { d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })
+                    )
+                  : React.createElement('svg', { width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                      React.createElement('rect', { x: 2, y: 4, width: 20, height: 16, rx: 2 }),
+                      React.createElement('path', { d: 'm22 7-10 5L2 7' })
+                    )
+              )
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── Ask a Person Screen ─────────────────────────────────────────────────────
+function AskPersonScreen({ person, onNavigate }) {
+  const p = person || PEOPLE[0];
+  const [askType, setAskType] = React.useState('advice');
+  const [askText, setAskText] = React.useState('');
+  const [sent, setSent] = React.useState(false);
+
+  if (sent) {
+    return React.createElement('div', {
+      style: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 72px)', background: '#fafaf9' },
+    },
+      React.createElement('div', { style: { maxWidth: '440px', width: '100%', textAlign: 'center', padding: '32px' } },
+        React.createElement('div', {
+          style: { width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(21,160,95,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' },
+        },
+          React.createElement('svg', { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: '#15a05f', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round' },
+            React.createElement('polyline', { points: '20 6 9 17 4 12' })
+          )
+        ),
+        React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '22px', fontWeight: 600, color: '#0c0c0b', letterSpacing: '-0.01em' } },
+          `Ask sent to ${p.name.split(' ')[0]}.`),
+        React.createElement('p', { style: { fontSize: '14px', color: '#4d4d4a', lineHeight: 1.55, marginTop: '8px' } },
+          "You'll get a notification when they reply. Most people respond within a few days."),
+        React.createElement('div', { style: { display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '20px' } },
+          React.createElement(BCButton, { variant: 'outline', size: 'default', onClick: () => onNavigate('people'), style: { borderRadius: '8px' } }, 'Back to People'),
+          React.createElement(BCButton, { variant: 'default', size: 'default', onClick: () => onNavigate('inbox'), style: { borderRadius: '8px' } }, 'Open Inbox')
+        )
+      )
+    );
+  }
+
+  return React.createElement('div', { style: { maxWidth: '760px', margin: '0 auto', padding: '40px 32px' } },
+    React.createElement('button', {
+      onClick: () => onNavigate('people'),
+      style: { display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#4d4d4a', fontFamily: "'Inter', sans-serif", marginBottom: '24px', padding: 0 },
+    },
+      React.createElement('svg', { width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+        React.createElement('path', { d: 'm15 18-6-6 6-6' })
+      ),
+      'Back to People'
+    ),
+    React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '8px' } }, 'Ask for help'),
+    React.createElement('h1', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '28px', fontWeight: 600, letterSpacing: '-0.02em', color: '#0c0c0b', marginBottom: '24px' } },
+      `Ask ${p.name.split(' ')[0]} for help`),
+    // Person summary
+    React.createElement('div', {
+      style: { border: '1px solid #dcdcd6', borderRadius: '10px', background: '#fff', padding: '16px 18px', display: 'flex', gap: '14px', alignItems: 'flex-start', marginBottom: '24px', boxShadow: '0 1px 0 rgba(12,12,11,0.03)' },
+    },
+      React.createElement(BCAvatar, { name: p.name, size: 48, square: true }),
+      React.createElement('div', { style: { minWidth: 0, flex: 1 } },
+        React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '8px' } },
+          React.createElement('span', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '16px', fontWeight: 600, color: '#0c0c0b' } }, p.name),
+          React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#4d4d4a' } }, `'${String(p.graduationYear).slice(-2)}`)
+        ),
+        React.createElement('p', { style: { fontSize: '13px', color: '#0c0c0b', marginTop: '3px' } }, [p.currentTitle, p.currentEmployer].filter(Boolean).join(' · ')),
+        React.createElement('p', { style: { fontSize: '12px', color: '#4d4d4a', marginTop: '2px' } }, p.city),
+        p.mentoringTopics && p.mentoringTopics.length > 0 && React.createElement('div', { style: { display: 'flex', gap: '4px', marginTop: '8px', flexWrap: 'wrap' } },
+          p.mentoringTopics.slice(0, 4).map(t =>
+            React.createElement('span', { key: t, style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '9.5px', padding: '2px 7px', borderRadius: '4px', background: '#ebebe5', color: '#4d4d4a', border: '1px solid rgba(12,12,11,0.1)' } }, t)
+          )
+        )
+      )
+    ),
+    // Ask type selector
+    React.createElement('div', { style: { marginBottom: '20px' } },
+      React.createElement('label', { style: { fontSize: '13px', fontWeight: 600, color: '#0c0c0b', display: 'block', marginBottom: '8px' } }, 'What kind of help?'),
+      React.createElement('div', { style: { display: 'flex', gap: '8px' } },
+        [
+          { id: 'advice',     label: 'Quick advice',  sub: 'One-off question or exchange' },
+          { id: 'mentorship', label: 'Mentorship',     sub: 'Ongoing relationship over time' },
+        ].map(opt =>
+          React.createElement('button', {
+            key: opt.id, type: 'button', onClick: () => setAskType(opt.id),
+            style: {
+              flex: 1, textAlign: 'left', padding: '12px 14px', borderRadius: '10px', cursor: 'pointer',
+              border: `1px solid ${askType === opt.id ? '#2563eb' : '#dcdcd6'}`,
+              background: askType === opt.id ? 'rgba(37,99,235,0.06)' : '#fff',
+              transition: 'all 150ms',
+            },
+          },
+            React.createElement('p', { style: { fontSize: '13px', fontWeight: 600, color: askType === opt.id ? '#2563eb' : '#0c0c0b', fontFamily: "'Inter', sans-serif" } }, opt.label),
+            React.createElement('p', { style: { fontSize: '11.5px', color: '#4d4d4a', marginTop: '2px', fontFamily: "'Inter', sans-serif" } }, opt.sub)
+          )
+        )
+      )
+    ),
+    // Ask text
+    React.createElement('div', { style: { marginBottom: '24px' } },
+      React.createElement('label', { style: { fontSize: '13px', fontWeight: 600, color: '#0c0c0b', display: 'block', marginBottom: '4px' } }, 'Your ask'),
+      React.createElement('p', { style: { fontSize: '12px', color: '#4d4d4a', marginBottom: '8px', lineHeight: 1.5 } },
+        'Be specific about where you are and what would be most useful. A few sentences is plenty.'),
+      React.createElement('textarea', {
+        rows: 5, value: askText, onChange: e => setAskText(e.target.value),
+        placeholder: `Hi ${p.name.split(' ')[0]}, I'm currently…`,
+        style: {
+          width: '100%', fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#0c0c0b',
+          border: '1px solid #dcdcd6', borderRadius: '10px', padding: '10px 14px',
+          resize: 'vertical', outline: 'none', lineHeight: 1.55, background: '#fff',
+          transition: 'border-color 150ms, box-shadow 150ms',
+        },
+        onFocus: e => { e.target.style.borderColor = '#2563eb'; e.target.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.10)'; },
+        onBlur:  e => { e.target.style.borderColor = '#dcdcd6'; e.target.style.boxShadow = 'none'; },
+      })
+    ),
+    // Actions
+    React.createElement('div', { style: { display: 'flex', gap: '8px', alignItems: 'center' } },
+      React.createElement(BCButton, {
+        variant: 'cta', size: 'lg', onClick: () => { if (askText.trim()) setSent(true); },
+        style: { borderRadius: '8px', opacity: askText.trim() ? 1 : 0.55, transition: 'opacity 150ms' },
+      }, `Send ask to ${p.name.split(' ')[0]}`, React.createElement(ArrowRight, { size: 15 })),
+      React.createElement(BCButton, { variant: 'ghost', size: 'lg', onClick: () => onNavigate('people'), style: { borderRadius: '8px', color: '#4d4d4a' } }, 'Cancel')
+    )
+  );
+}
+
+// ─── Profile Screen (Your profile) ───────────────────────────────────────────
+const MY_PROFILE = {
+  name: 'Alex Wong',
+  preferredName: 'Alex',
+  pronouns: 'they/them',
+  currentTitle: 'Senior Product Manager',
+  currentEmployer: 'Linear',
+  city: 'Brooklyn, NY',
+  university: 'Cornell University',
+  major: 'Computer Science',
+  graduationYear: 2020,
+  bio: 'PM at Linear after five years across consulting and early-stage startups. Happy to chat about pivots into product, interview prep, and what to actually look for at small companies vs scaled ones.',
+  topics: ['Career transitions', 'Product management', 'Tech recruiting', 'Consulting exits'],
+  isOpenAsMentor: true,
+  isOpenAsAdviceHelper: true,
+  activeMenteeCount: 2,
+  maxActiveMentees: 5,
+  stats: { helped: 14, mentees: 2, responseRate: 92 },
+};
+
+function ProfileScreen({ onNavigate }) {
+  const p = MY_PROFILE;
+  return React.createElement('div', { style: { maxWidth: '900px', margin: '0 auto', padding: '40px 32px' } },
+    React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Your profile · How others see you'),
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px', gap: '16px' } },
+      React.createElement('h1', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '32px', fontWeight: 600, letterSpacing: '-0.02em', color: '#0c0c0b' } }, p.name),
+      React.createElement('div', { style: { display: 'flex', gap: '8px' } },
+        React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: '8px' } }, 'Preview as classmate'),
+        React.createElement(BCButton, { variant: 'default', size: 'default', style: { borderRadius: '8px' } }, 'Edit profile')
+      )
+    ),
+    // Hero card
+    React.createElement('div', {
+      style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', padding: '28px', display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '24px', boxShadow: '0 4px 12px -2px rgba(12,12,11,0.06)' },
+    },
+      React.createElement(BCAvatar, { name: p.name, size: 96, square: true, capacityRatio: p.activeMenteeCount / p.maxActiveMentees }),
+      React.createElement('div', null,
+        React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' } },
+          React.createElement('span', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '22px', fontWeight: 600, color: '#0c0c0b' } }, `${p.preferredName} (${p.name.split(' ')[0]})`),
+          React.createElement('span', { style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#4d4d4a' } }, `'${String(p.graduationYear).slice(-2)} · ${p.pronouns}`)
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' } },
+          p.isOpenAsAdviceHelper && React.createElement(BCStatusBadge, { tone: 'open', dot: true }, 'Open for advice'),
+          p.isOpenAsMentor && React.createElement(BCStatusBadge, { tone: 'open', dot: true }, `Mentor · ${p.activeMenteeCount}/${p.maxActiveMentees}`)
+        ),
+        React.createElement('p', { style: { fontSize: '14px', color: '#0c0c0b', marginTop: '14px', fontWeight: 500 } }, `${p.currentTitle} · ${p.currentEmployer}`),
+        React.createElement('p', { style: { fontSize: '13px', color: '#4d4d4a', marginTop: '2px' } }, `${p.city} · ${p.university}${p.major ? ' · ' + p.major : ''}`),
+        React.createElement('p', { style: { fontSize: '14px', color: '#0c0c0b', lineHeight: 1.55, marginTop: '16px', maxWidth: '560px' } }, p.bio)
+      )
+    ),
+    // Topics
+    React.createElement('div', { style: { marginTop: '28px' } },
+      React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'What I can help with'),
+      React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
+        p.topics.map(t =>
+          React.createElement('span', {
+            key: t,
+            style: { fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', padding: '4px 10px', borderRadius: '4px', background: '#ebebe5', color: '#0c0c0b', border: '1px solid rgba(12,12,11,0.1)' },
+          }, t)
+        )
+      )
+    ),
+    // Impact stats
+    React.createElement('div', { style: { marginTop: '32px' } },
+      React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Your impact · since you joined'),
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' } },
+        [
+          { v: p.stats.helped, l: 'People helped' },
+          { v: p.stats.mentees, l: 'Active mentees' },
+          { v: `${p.stats.responseRate}%`, l: 'Response rate' },
+        ].map((s, i) =>
+          React.createElement('div', {
+            key: i,
+            style: { border: '1px solid #dcdcd6', borderRadius: '10px', background: '#fff', padding: '16px 18px' },
+          },
+            React.createElement('div', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '28px', fontWeight: 600, color: '#0c0c0b', lineHeight: 1 } }, s.v),
+            React.createElement('div', { style: { fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: '#4d4d4a', marginTop: '6px' } }, s.l)
+          )
+        )
+      )
+    )
+  );
+}
+
+// ─── Mentorship Settings Screen ────────────────────────────────
+function SettingsRow({ title, helper, children }) {
+  return React.createElement('div', {
+    style: { padding: '20px 24px', borderBottom: '1px solid #ebebe5', display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'center' },
+  },
+    React.createElement('div', null,
+      React.createElement('p', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '15px', fontWeight: 600, color: '#0c0c0b' } }, title),
+      helper && React.createElement('p', { style: { fontSize: '12.5px', color: '#4d4d4a', lineHeight: 1.5, marginTop: '4px', maxWidth: '460px' } }, helper)
+    ),
+    React.createElement('div', { style: { justifySelf: 'end' } }, children)
+  );
+}
+
+function Toggle({ checked, onChange }) {
+  return React.createElement('button', {
+    type: 'button', role: 'switch', 'aria-checked': checked,
+    onClick: () => onChange(!checked),
+    style: {
+      width: '40px', height: '24px', borderRadius: '999px',
+      background: checked ? '#2563eb' : '#dcdcd6',
+      border: 'none', cursor: 'pointer', position: 'relative',
+      transition: 'background 150ms ease-out', padding: 0,
+    },
+  },
+    React.createElement('span', {
+      style: {
+        position: 'absolute', top: '3px', left: checked ? '19px' : '3px',
+        width: '18px', height: '18px', borderRadius: '50%', background: '#fff',
+        transition: 'left 150ms ease-out', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+      },
+    })
+  );
+}
+
+function MentorSettingsScreen() {
+  const [advice, setAdvice] = React.useState(true);
+  const [mentor, setMentor] = React.useState(true);
+  const [capacity, setCapacity] = React.useState(5);
+  const [topics, setTopics] = React.useState(['Career transitions','Product management','Tech recruiting','Consulting exits']);
+  const allTopics = ['Career transitions','Product management','Tech recruiting','Consulting exits','VC & Startups','Engineering leadership','Grad school','International careers','Founder advice','Health tech','Policy'];
+
+  return React.createElement('div', { style: { maxWidth: '900px', margin: '0 auto', padding: '40px 32px' } },
+    React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Mentorship settings'),
+    React.createElement('h1', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '32px', fontWeight: 600, letterSpacing: '-0.02em', color: '#0c0c0b', marginBottom: '6px' } }, 'How classmates can reach you'),
+    React.createElement('p', { style: { fontSize: '15px', color: '#4d4d4a', lineHeight: 1.55, marginBottom: '24px', maxWidth: '600px' } }, 'Choose what you\'re open to and the topics where your experience matters. Settings save automatically.'),
+
+    React.createElement('div', { style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', overflow: 'hidden' } },
+      React.createElement(SettingsRow, { title: 'Open for advice', helper: 'Receive one-off questions. Reply when you can — short answers count.' },
+        React.createElement(Toggle, { checked: advice, onChange: setAdvice })
+      ),
+      React.createElement(SettingsRow, { title: 'Open for mentorship', helper: 'Take on ongoing mentees. They can request multi-session relationships.' },
+        React.createElement(Toggle, { checked: mentor, onChange: setMentor })
+      ),
+      React.createElement(SettingsRow, { title: 'Mentee capacity', helper: 'Cap how many active mentees you take on at once. You\'re at ' + 2 + ' now.' },
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+          [3,5,7,10].map(n =>
+            React.createElement('button', {
+              key: n, onClick: () => setCapacity(n),
+              style: {
+                width: '36px', height: '36px', borderRadius: '8px',
+                border: `1px solid ${capacity === n ? '#2563eb' : '#dcdcd6'}`,
+                background: capacity === n ? 'rgba(37,99,235,0.08)' : '#fff',
+                color: capacity === n ? '#2563eb' : '#0c0c0b',
+                fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: "'Inter', sans-serif",
+              },
+            }, n)
+          )
+        )
+      ),
+      // Topics
+      React.createElement('div', { style: { padding: '20px 24px', borderBottom: '1px solid #ebebe5' } },
+        React.createElement('div', { style: { marginBottom: '12px' } },
+          React.createElement('p', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '15px', fontWeight: 600, color: '#0c0c0b' } }, 'Topics you offer'),
+          React.createElement('p', { style: { fontSize: '12.5px', color: '#4d4d4a', lineHeight: 1.5, marginTop: '4px' } }, 'Classmates search by these. Pick what feels true — four to eight is a good range.')
+        ),
+        React.createElement('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } },
+          allTopics.map(t => {
+            const active = topics.includes(t);
+            return React.createElement('button', {
+              key: t,
+              onClick: () => setTopics(topics => active ? topics.filter(x => x !== t) : [...topics, t]),
+              style: {
+                fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 500,
+                padding: '6px 12px', borderRadius: '999px',
+                background: active ? 'rgba(37,99,235,0.08)' : '#fff',
+                color: active ? '#2563eb' : '#4d4d4a',
+                border: `1px solid ${active ? 'rgba(37,99,235,0.25)' : '#dcdcd6'}`,
+                cursor: 'pointer', transition: 'all 150ms',
+              },
+            }, (active ? '× ' : '+ ') + t);
+          })
+        )
+      ),
+      // Pause
+      React.createElement('div', { style: { padding: '20px 24px', background: 'color-mix(in srgb, #a16207 4%, #fff)', display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'center' } },
+        React.createElement('div', null,
+          React.createElement('p', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '15px', fontWeight: 600, color: '#0c0c0b' } }, 'Need a break?'),
+          React.createElement('p', { style: { fontSize: '12.5px', color: '#4d4d4a', lineHeight: 1.5, marginTop: '4px', maxWidth: '460px' } }, 'Pause incoming requests without going dark. Existing mentees stay active. Status auto-expires after 14 days.')
+        ),
+        React.createElement('div', { style: { justifySelf: 'end' } },
+          React.createElement(BCButton, { variant: 'outline', size: 'sm', style: { borderRadius: '8px' } }, 'Pause new requests')
+        )
+      )
+    )
+  );
+}
+
+// ─── Account Settings Screen ─────────────────────────────────
+function Field({ label, value, helper, type = 'text' }) {
+  return React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '4px' } },
+    React.createElement('label', { style: { fontSize: '12px', fontWeight: 500, color: '#0c0c0b' } }, label),
+    React.createElement('input', {
+      type, defaultValue: value,
+      style: {
+        fontFamily: "'Inter', sans-serif", fontSize: '14px', color: '#0c0c0b',
+        background: '#fff', border: '1px solid #dcdcd6', borderRadius: '8px',
+        padding: '9px 12px', outline: 'none', transition: 'border-color 150ms',
+      },
+      onFocus: e => { e.target.style.borderColor = '#2563eb'; e.target.style.boxShadow = '0 0 0 4px rgba(37,99,235,0.10)'; },
+      onBlur:  e => { e.target.style.borderColor = '#dcdcd6'; e.target.style.boxShadow = 'none'; },
+    }),
+    helper && React.createElement('span', { style: { fontSize: '11px', color: '#4d4d4a' } }, helper)
+  );
+}
+
+function AccountSettingsScreen() {
+  return React.createElement('div', { style: { maxWidth: '900px', margin: '0 auto', padding: '40px 32px' } },
+    React.createElement('div', { className: 'bc-section-kicker', style: { marginBottom: '10px' } }, 'Account settings'),
+    React.createElement('h1', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '32px', fontWeight: 600, letterSpacing: '-0.02em', color: '#0c0c0b', marginBottom: '6px' } }, 'Your account'),
+    React.createElement('p', { style: { fontSize: '15px', color: '#4d4d4a', lineHeight: 1.55, marginBottom: '24px', maxWidth: '600px' } }, 'Personal details and verification info from your school record. Changes save when you click Save.'),
+
+    // Identity section
+    React.createElement('section', { style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', padding: '24px', marginBottom: '16px' } },
+      React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '16px', fontWeight: 600, color: '#0c0c0b', marginBottom: '16px' } }, 'Identity'),
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' } },
+        React.createElement(Field, { label: 'Full name', value: 'Alex Wong' }),
+        React.createElement(Field, { label: 'Preferred name', value: 'Alex' }),
+        React.createElement(Field, { label: 'Pronouns', value: 'they/them' }),
+        React.createElement(Field, { label: 'Current city', value: 'Brooklyn, NY' })
+      )
+    ),
+
+    // Verification
+    React.createElement('section', { style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', padding: '24px', marginBottom: '16px' } },
+      React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' } },
+        React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '16px', fontWeight: 600, color: '#0c0c0b' } }, 'School verification'),
+        React.createElement(BCStatusBadge, { tone: 'open', dot: true }, 'Verified')
+      ),
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' } },
+        React.createElement(Field, { label: 'School', value: 'Cornell University', helper: 'Sourced from your verification record' }),
+        React.createElement(Field, { label: 'Class year', value: '2020', helper: 'Locked from invitation' }),
+        React.createElement(Field, { label: 'Major', value: 'Computer Science' }),
+        React.createElement(Field, { label: 'Verified email', value: 'awong@alumni.cornell.edu', helper: 'Used for school sign-in' })
+      )
+    ),
+
+    // Contact + sign-in
+    React.createElement('section', { style: { border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', padding: '24px', marginBottom: '16px' } },
+      React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '16px', fontWeight: 600, color: '#0c0c0b', marginBottom: '16px' } }, 'Contact & sign-in'),
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' } },
+        React.createElement(Field, { label: 'Personal email', value: 'alex@hey.com', helper: 'For notifications outside school' }),
+        React.createElement(Field, { label: 'LinkedIn', value: 'linkedin.com/in/alexwong', helper: 'Public on your profile' })
+      )
+    ),
+
+    // Danger zone
+    React.createElement('section', { style: { border: '1px solid rgba(155,44,31,0.2)', borderRadius: '12px', background: 'rgba(155,44,31,0.04)', padding: '24px' } },
+      React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '16px', fontWeight: 600, color: '#9b2c1f', marginBottom: '6px' } }, 'Danger zone'),
+      React.createElement('p', { style: { fontSize: '13px', color: '#4d4d4a', lineHeight: 1.55, marginBottom: '14px' } }, 'Leaving removes you from the school circle. Active mentees will be notified. You can rejoin within 30 days.'),
+      React.createElement(BCButton, { variant: 'destructive', size: 'sm', style: { borderRadius: '8px' } }, 'Leave the circle')
+    ),
+
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' } },
+      React.createElement(BCButton, { variant: 'outline', size: 'default', style: { borderRadius: '8px' } }, 'Cancel'),
+      React.createElement(BCButton, { variant: 'default', size: 'default', style: { borderRadius: '8px' } }, 'Save changes')
+    )
+  );
+}
+
+// ─── Sign-out Confirmation Screen ─────────────────────────────
+function SignOutScreen({ onNavigate }) {
+  return React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 32px', minHeight: 'calc(100vh - 72px)' } },
+    React.createElement('div', {
+      style: { width: '100%', maxWidth: '440px', border: '1px solid #dcdcd6', borderRadius: '12px', background: '#fff', padding: '32px', boxShadow: '0 12px 34px -8px rgba(12,12,11,0.10)', textAlign: 'center' },
+    },
+      React.createElement('div', {
+        style: { width: '52px', height: '52px', borderRadius: '50%', background: 'rgba(37,99,235,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' },
+      },
+        React.createElement('svg', { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: '#2563eb', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+          React.createElement('path', { d: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4' }),
+          React.createElement('polyline', { points: '16 17 21 12 16 7' }),
+          React.createElement('line', { x1: 21, y1: 12, x2: 9, y2: 12 })
+        )
+      ),
+      React.createElement('h2', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: '22px', fontWeight: 600, color: '#0c0c0b', letterSpacing: '-0.01em' } }, 'Sign out of BridgeCircle?'),
+      React.createElement('p', { style: { fontSize: '14px', color: '#4d4d4a', lineHeight: 1.55, marginTop: '8px' } }, 'You\'ll be signed out across this device. We won\'t change your availability or pause your mentor settings.'),
+      React.createElement('div', { style: { display: 'flex', gap: '8px', marginTop: '20px', justifyContent: 'center' } },
+        React.createElement(BCButton, { variant: 'outline', size: 'default', onClick: () => onNavigate('ask'), style: { borderRadius: '8px' } }, 'Cancel'),
+        React.createElement(BCButton, { variant: 'destructive', size: 'default', style: { borderRadius: '8px' } }, 'Sign out')
+      )
+    )
+  );
+}
+
+// ─── Shared tweaks (persisted to disk via the host) ─────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "heroStyle": "editorial",
+  "showMotif": false,
+  "headingSize": 40,
+  "compactAsk": false,
+  "cardVariant": "paper",
+  "cardAccent": "#2563eb",
+  "cardRadius": 8,
+  "avatarShape": "circle",
+  "cardHover": true,
+  "showMatchScore": false,
+  "pageBg": "#fafaf9",
+  "helpTopicPillStyle": "tinted",
+  "colorTheme": "bridgecircle",
+  "cardColumns": 3
+}/*EDITMODE-END*/;
+
+// ─── Root App ─────────────────────────────────────────────────────────────────
+function App() {
+  const [t, setTweakState] = React.useState(TWEAK_DEFAULTS);
+  const setTweak = React.useCallback((key, val) => {
+    const edits = typeof key === 'object' ? key : { [key]: val };
+    setTweakState(prev => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+
+  // Apply selected color theme to <body> so the theme CSS layer kicks in.
+  React.useEffect(() => {
+    const all = ['theme-stripe', 'theme-apple', 'theme-instagram'];
+    all.forEach(c => document.body.classList.remove(c));
+    // Back-compat: "spotify" was removed → fall back to instagram.
+    const t2 = t.colorTheme === 'spotify' ? 'instagram' : t.colorTheme;
+    if (t2 && t2 !== 'bridgecircle') {
+      document.body.classList.add(`theme-${t2}`);
+    }
+  }, [t.colorTheme]);
+
+  const [screen, setScreen] = React.useState('ask');
+  const [peopleQuery, setPeopleQuery] = React.useState('');
+  const [askPerson, setAskPerson] = React.useState(null);
+  const [activeEvent, setActiveEvent] = React.useState(null);
+  const [activeMember, setActiveMember] = React.useState(null);
+
+  const handleNavigate = (dest, payload = null) => {
+    if (dest === 'people' && typeof payload === 'string') setPeopleQuery(payload);
+    if (dest === 'ask_person' && payload) setAskPerson(payload);
+    if (dest === 'event_detail' && payload) setActiveEvent(payload);
+    if (dest === 'member_profile' && payload) setActiveMember(payload);
+    setScreen(dest);
+  };
+
+  // Track mobile so the inbox uses the same scroll model as other tabs on
+  // small viewports (main scrolls; both bars stay anchored).
+  const [isMobile, setIsMobile] = React.useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches
+  );
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 760px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener ? mq.addEventListener('change', onChange) : mq.addListener(onChange);
+    return () => mq.removeEventListener ? mq.removeEventListener('change', onChange) : mq.removeListener(onChange);
+  }, []);
+
+  // Inbox locks the viewport with internal scrollers only on DESKTOP, where
+  // the classic two-pane (list | thread) layout needs it. On mobile the inbox
+  // grows naturally and `main` scrolls — same as Ask, Help, People, etc.
+  const inboxFill = screen === 'inbox' && !isMobile;
+
+  return React.createElement('div', {
+    style: { display: 'flex', flexDirection: 'column', minHeight: '100vh' },
+  },
+    React.createElement(BCHeader, {
+      activeScreen: screen,
+      onNavigate: handleNavigate,
+      isAdmin: false,
+      unreadCount: 2,
+    }),
+    React.createElement('main', {
+      style: {
+        flex: 1,
+        display: inboxFill ? 'flex' : 'block',
+        flexDirection: inboxFill ? 'column' : undefined,
+        overflow: inboxFill ? 'hidden' : 'auto',
+      },
+    },
+      screen === 'ask'    && React.createElement(HomeScreen, { onNavigate: handleNavigate, t, setTweak }),
+      screen === 'help'   && React.createElement(HelpScreen, { onNavigate: handleNavigate, t, setTweak }),
+      screen === 'people' && React.createElement(PeopleScreen, { initialQuery: peopleQuery, onNavigate: handleNavigate }),
+      screen === 'inbox'  && React.createElement(InboxScreen),
+      screen === 'school' && React.createElement(SchoolScreen, { onNavigate: handleNavigate }),
+      screen === 'event_detail' && React.createElement(EventDetailScreen, { event: activeEvent, onNavigate: handleNavigate }),
+      screen === 'member_profile' && React.createElement(MemberProfileScreen, { person: activeMember, onNavigate: handleNavigate }),
+      screen === 'admin'  && React.createElement('div', { style: { padding: '40px 32px', color: '#4d4d4a', fontSize: '14px' } }, 'Admin surface — density-pro. See density card in design system.'),
+      screen === 'ask_person'       && React.createElement(AskPersonScreen, { person: askPerson, onNavigate: handleNavigate }),
+      screen === 'profile'           && React.createElement(ProfileScreen, { onNavigate: handleNavigate }),
+      screen === 'account_settings'  && React.createElement(AccountSettingsScreen),
+      screen === 'signout'           && React.createElement(SignOutScreen, { onNavigate: handleNavigate })
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

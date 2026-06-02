@@ -2,124 +2,56 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 export default function PeopleLoading() {
   return (
-    <div className="bg-background min-h-full">
-      {/* 1. Hero Skeleton */}
-      <section className="relative overflow-hidden border-b border-border bg-card">
-        {/* Background Dots */}
-        <div
-          aria-hidden
-          className="absolute inset-0 opacity-10 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(12,12,11,0.15) 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-          }}
-        />
-        {/* Decorative SVG motifs */}
-        <svg
-          aria-hidden="true"
-          role="presentation"
-          viewBox="0 0 200 200"
-          className="absolute right-0 top-1/2 -translate-y-1/2 h-[200px] w-[200px] opacity-10 pointer-events-none sm:right-10 md:right-16 lg:right-24"
-        >
-          <title>Decorative two-circle motif</title>
-          <circle
-            cx="80"
-            cy="100"
-            r="60"
-            fill="none"
-            className="stroke-foreground"
-            strokeWidth="1"
-          />
-          <circle cx="130" cy="100" r="60" fill="none" className="stroke-primary" strokeWidth="1" />
-        </svg>
-
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-12 sm:px-8 sm:py-14">
-          <Skeleton className="h-3 w-40" />
-          <Skeleton className="mt-2.5 h-10 w-72" />
-          <Skeleton className="mt-3.5 h-5 w-full max-w-2xl" />
-        </div>
-      </section>
-
-      {/* 2. Main Directory Columns Skeleton */}
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8 space-y-6">
-        {/* Search Capsule Skeleton */}
-        <div className="flex items-center border border-border bg-card rounded-full p-1.5 pl-5 shadow-sm h-11">
-          <Skeleton className="size-4 rounded-full mr-3" />
-          <Skeleton className="h-4 flex-1 max-w-xs" />
-          <Skeleton className="h-8 w-20 rounded-full ml-auto" />
+    <main className="density-cozy min-h-full bg-background">
+      <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-8">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <Skeleton className="h-10 flex-1 rounded-md" />
+            <Skeleton className="h-10 w-32 rounded-md" />
+          </div>
         </div>
 
-        {/* 2-Column layout */}
-        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 items-start">
-          {/* Left Column: Facet Sidebar Skeleton */}
-          <aside className="hidden md:block space-y-4">
-            <div className="flex justify-between items-baseline mb-2">
+        <div className="mt-6 grid gap-6 md:grid-cols-[260px_minmax(0,1fr)]">
+          <aside className="hidden md:block">
+            <div className="sticky top-24 rounded-lg border border-border bg-card p-4 shadow-card">
               <Skeleton className="h-4 w-24" />
-            </div>
-            <div className="border border-border bg-card rounded-lg p-4 space-y-6 shadow-sm">
-              {/* Group 1 Skeleton */}
-              <div className="space-y-2 pb-3 border-b border-border/60">
-                <Skeleton className="h-3.5 w-20 mb-3" />
-                <div className="flex items-center gap-2">
-                  <Skeleton className="size-4 rounded" />
-                  <Skeleton className="h-3 w-28" />
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <Skeleton className="size-4 rounded" />
-                  <Skeleton className="h-3 w-28" />
-                </div>
-              </div>
-              {/* Group 2 Skeleton */}
-              <div className="space-y-2 pb-3 border-b border-border/60">
-                <Skeleton className="h-3.5 w-24 mb-3" />
-                <Skeleton className="h-7 w-full rounded" />
-                <Skeleton className="h-7 w-full rounded mt-2" />
-              </div>
-              {/* Group 3 Skeleton */}
-              <div className="space-y-2">
-                <Skeleton className="h-3.5 w-16 mb-3" />
-                <Skeleton className="h-7 w-full rounded" />
+              <div className="mt-5 space-y-5">
+                {['status', 'topics', 'cohort', 'location'].map((id) => (
+                  <div key={id} className="space-y-2 border-b border-border pb-4 last:border-b-0">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-8 w-full rounded-sm" />
+                    <Skeleton className="h-8 w-4/5 rounded-sm" />
+                  </div>
+                ))}
               </div>
             </div>
           </aside>
 
-          {/* Right Column: Results List Skeleton */}
-          <div className="space-y-6">
-            {/* Header / Density Toggle Skeleton */}
-            <div className="flex items-center justify-between border-b pb-3 border-border">
-              <Skeleton className="h-4 w-48" />
-              <div className="flex gap-1.5">
-                <Skeleton className="h-6 w-12 rounded" />
-                <Skeleton className="h-6 w-12 rounded" />
-              </div>
+          <section className="space-y-4">
+            <div className="flex items-center justify-between gap-4 border-b border-border pb-3">
+              <Skeleton className="h-4 w-52" />
+              <Skeleton className="h-8 w-28 rounded-md md:hidden" />
             </div>
-
-            {/* Grid Skeletons */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
-                  key={i}
-                  className="p-4 border border-border bg-card rounded-lg space-y-4 shadow-sm"
-                >
-                  <div className="flex gap-3">
-                    <Skeleton className="size-[52px] rounded-lg shrink-0" />
-                    <div className="flex-1 space-y-2 min-w-0">
-                      <Skeleton className="h-4 w-2/3" />
-                      <Skeleton className="h-3 w-1/2" />
+            {Array.from({ length: 5 }).map((_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton array
+              <div key={index} className="rounded-lg border border-border bg-card p-4 shadow-card">
+                <div className="grid gap-4 sm:grid-cols-[auto_1fr_auto]">
+                  <Skeleton className="size-14 rounded-md" />
+                  <div className="min-w-0 space-y-2">
+                    <Skeleton className="h-5 w-48" />
+                    <Skeleton className="h-4 w-64 max-w-full" />
+                    <div className="flex gap-1.5">
+                      <Skeleton className="h-6 w-20 rounded-sm" />
+                      <Skeleton className="h-6 w-24 rounded-sm" />
                     </div>
                   </div>
-                  <Skeleton className="h-3 w-full" />
-                  <div className="flex gap-1.5 pt-2 border-t border-dashed border-border/60">
-                    <Skeleton className="h-6 w-20 rounded animate-pulse" />
-                    <Skeleton className="h-6 w-16 rounded animate-pulse" />
-                  </div>
+                  <Skeleton className="h-10 w-28 rounded-md" />
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            ))}
+          </section>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

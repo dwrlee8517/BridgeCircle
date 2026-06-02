@@ -121,7 +121,7 @@ test.describe("Core User Loop", () => {
 
     // Redirect to landing dashboard
     await page.waitForURL(/\/$/);
-    await expect(page.getByText(/Student Sam/i).first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Hi Student\. Who do you want to ask\?/i })).toBeVisible();
 
     // Phase 3: Mentor Discovery & Request Mentorship
     await page.goto("/people");
@@ -157,12 +157,11 @@ test.describe("Core User Loop", () => {
 
     // Phase 5: Inbox, Accept request & send chat message
     await page.goto("/inbox");
-    await page.locator("button", { hasText: "Student Sam" }).first().click();
-    await page.getByRole("link", { name: /reply & accept/i }).click();
-    await page.waitForURL(/\/ask\/[a-f0-9-]+/);
+    await page.getByRole("button", { name: /^Requests\b/ }).click();
+    await page.getByRole("button", { name: /Student Sam/i }).first().click();
 
-    // Accept request
-    await page.getByRole("button", { name: /^accept$/i }).click();
+    // Accept request from the redesigned inline request detail panel
+    await page.getByRole("button", { name: /accept & reply/i }).click();
     await page.waitForURL(/\/ask\/thread\/[a-f0-9-]+/);
 
     // Send chat message in thread

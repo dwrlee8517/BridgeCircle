@@ -437,13 +437,13 @@ function CareerCard({
           {entry.startDate ?? '?'} – {entry.endDate ?? 'present'}
         </span>
         {entry.endDate === null ? (
-          <Badge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary" className="text-xs">
             current
           </Badge>
         ) : null}
         <Badge
           variant={entry._origin === 'saved' ? 'outline' : 'default'}
-          className="ml-auto text-[10px]"
+          className="ml-auto text-xs"
         >
           {entry._origin === 'saved' ? 'on profile' : newBadgeLabel}
         </Badge>
@@ -535,7 +535,7 @@ function EducationCard({
         </span>
         <Badge
           variant={entry._origin === 'saved' ? 'outline' : 'default'}
-          className="ml-auto text-[10px]"
+          className="ml-auto text-xs"
         >
           {entry._origin === 'saved' ? 'on profile' : newBadgeLabel}
         </Badge>

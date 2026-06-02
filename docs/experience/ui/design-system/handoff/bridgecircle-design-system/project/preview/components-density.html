@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .density-col{border:1px solid #dcdcd6;border-radius:10px;overflow:hidden}
+  .col-header{padding:10px 14px;border-bottom:1px solid #dcdcd6;background:#f4f3ee}
+  .col-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.08em}
+  .col-sub{font-size:10px;color:#4d4d4a;margin-top:2px}
+  .row-item{padding:12px 14px;border-bottom:1px solid #dcdcd6;background:#fff;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 150ms}
+  .row-item:last-child{border-bottom:none}
+  .av{border-radius:50%;background:#ebebe5;display:flex;align-items:center;justify-content:center;font-family:'Inter Tight',sans-serif;font-weight:700;color:#4d4d4a;flex-shrink:0}
+  .badge{display:inline-flex;align-items:center;gap:3px;border-radius:4px;border:1px solid transparent;white-space:nowrap;font-weight:600}
+  .badge-open{background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)}
+</style>
+</head>
+<body>
+<div class="grid">
+  <!-- Default density -->
+  <div class="density-col">
+    <div class="col-header">
+      <div class="col-label">Default density</div>
+      <div class="col-sub">Hero / single-focus surfaces</div>
+    </div>
+    <div class="row-item">
+      <div class="av" style="width:52px;height:52px;font-size:18px">JK</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:16px;font-weight:600">Jamie Kim</div>
+        <div style="font-size:13px;color:#4d4d4a;margin-top:2px">PM at Stripe · Brooklyn</div>
+        <div style="margin-top:5px"><span class="badge badge-open" style="font-size:11px;padding:2px 8px"><span style="width:6px;height:6px;border-radius:50%;background:#3b6e51"></span>Mentor</span></div>
+      </div>
+    </div>
+    <div class="row-item">
+      <div class="av" style="width:52px;height:52px;font-size:18px">AW</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:16px;font-weight:600">Alex Wong</div>
+        <div style="font-size:13px;color:#4d4d4a;margin-top:2px">VC at a16z · SF</div>
+        <div style="margin-top:5px"><span class="badge badge-open" style="font-size:11px;padding:2px 8px"><span style="width:6px;height:6px;border-radius:50%;background:#3b6e51"></span>Advice</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cozy density -->
+  <div class="density-col">
+    <div class="col-header">
+      <div class="col-label">density-cozy</div>
+      <div class="col-sub">Member list-of-cards surfaces</div>
+    </div>
+    <div class="row-item" style="padding:9px 12px">
+      <div class="av" style="width:40px;height:40px;font-size:14px">JK</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:14px;font-weight:600">Jamie Kim</div>
+        <div style="font-size:12px;color:#4d4d4a;margin-top:1px">PM at Stripe · Brooklyn</div>
+        <div style="margin-top:4px"><span class="badge badge-open" style="font-size:9px;padding:1px 6px"><span style="width:5px;height:5px;border-radius:50%;background:#3b6e51"></span>Mentor</span></div>
+      </div>
+    </div>
+    <div class="row-item" style="padding:9px 12px">
+      <div class="av" style="width:40px;height:40px;font-size:14px">AW</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:14px;font-weight:600">Alex Wong</div>
+        <div style="font-size:12px;color:#4d4d4a;margin-top:1px">VC at a16z · SF</div>
+        <div style="margin-top:4px"><span class="badge badge-open" style="font-size:9px;padding:1px 6px"><span style="width:5px;height:5px;border-radius:50%;background:#3b6e51"></span>Advice</span></div>
+      </div>
+    </div>
+    <div class="row-item" style="padding:9px 12px">
+      <div class="av" style="width:40px;height:40px;font-size:14px">MR</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-family:'Inter Tight',sans-serif;font-size:14px;font-weight:600">Maya Reyes</div>
+        <div style="font-size:12px;color:#4d4d4a;margin-top:1px">Founder · NYC</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pro density -->
+  <div class="density-col">
+    <div class="col-header">
+      <div class="col-label">density-pro</div>
+      <div class="col-sub">Admin / operator surfaces</div>
+    </div>
+    <div class="row-item" style="padding:7px 12px">
+      <div class="av" style="width:28px;height:28px;font-size:10px;border-radius:6px">JK</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:13px;font-weight:600">Jamie Kim</div>
+        <div style="font-size:11px;color:#4d4d4a">jamie@alumni.edu</div>
+      </div>
+      <span class="badge badge-open" style="font-size:9px;padding:1px 6px">active</span>
+    </div>
+    <div class="row-item" style="padding:7px 12px">
+      <div class="av" style="width:28px;height:28px;font-size:10px;border-radius:6px">AW</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:13px;font-weight:600">Alex Wong</div>
+        <div style="font-size:11px;color:#4d4d4a">awong@alumni.edu</div>
+      </div>
+      <span class="badge" style="font-size:9px;padding:1px 6px;background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)">pending</span>
+    </div>
+    <div class="row-item" style="padding:7px 12px">
+      <div class="av" style="width:28px;height:28px;font-size:10px;border-radius:6px">MR</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:13px;font-weight:600">Maya Reyes</div>
+        <div style="font-size:11px;color:#4d4d4a">mreyes@alumni.edu</div>
+      </div>
+      <span class="badge" style="font-size:9px;padding:1px 6px;background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.08)">invited</span>
+    </div>
+    <div class="row-item" style="padding:7px 12px">
+      <div class="av" style="width:28px;height:28px;font-size:10px;border-radius:6px">SC</div>
+      <div style="min-width:0;flex:1">
+        <div style="font-size:13px;font-weight:600">Sam Chen</div>
+        <div style="font-size:11px;color:#4d4d4a">schen@alumni.edu</div>
+      </div>
+      <span class="badge" style="font-size:9px;padding:1px 6px;background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)">declined</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

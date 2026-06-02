@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Nav Active State Options</title>
+    <style>
+      :root {
+        --background: #fafaf9;
+        --card: #fff;
+        --foreground: #0c0c0b;
+        --muted: #ebebe5;
+        --muted-foreground: #4d4d4a;
+        --border: #dcdcd6;
+        --primary: #2563eb;
+        --primary-tint: rgb(37 99 235 / 10%);
+        --focus-ring-muted: rgb(37 99 235 / 10%);
+        --accent-sage: #15a05f;
+        --success-tint: rgb(21 160 95 / 10%);
+        --accent-plum: #7c3aed;
+        --plum-tint: rgb(124 58 237 / 10%);
+        --accent-ochre: #a16207;
+        --warning-tint: rgb(161 98 7 / 12%);
+        --shadow-card: 0 1px 0 rgb(12 12 11 / 4%), 0 10px 24px rgb(12 12 11 / 5%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at 12% 0%, rgb(37 99 235 / 5%), transparent 36%),
+          linear-gradient(180deg, #fff, var(--background) 44%);
+        color: var(--foreground);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1120px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 32px 0 56px;
+      }
+
+      .intro {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.08;
+        letter-spacing: -0.015em;
+      }
+
+      .intro p {
+        max-width: 520px;
+        margin: 10px 0 0;
+        color: var(--muted-foreground);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .recommendation {
+        border: 1px solid rgb(37 99 235 / 22%);
+        background: var(--primary-tint);
+        border-radius: 8px;
+        padding: 12px 14px;
+        min-width: 230px;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .recommendation strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--primary);
+      }
+
+      .options {
+        display: grid;
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .option {
+        display: grid;
+        grid-template-columns: 184px minmax(0, 1fr);
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .meta {
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+      }
+
+      .meta h2 {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+
+      .meta p {
+        margin: 6px 0 0;
+        color: var(--muted-foreground);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .shell {
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        box-shadow: var(--shadow-card);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        height: 72px;
+        padding: 0 28px;
+        gap: 28px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-right: 6px;
+        font-weight: 760;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+
+      .mark {
+        position: relative;
+        width: 26px;
+        height: 26px;
+      }
+
+      .mark::before,
+      .mark::after {
+        position: absolute;
+        top: 4px;
+        width: 16px;
+        height: 18px;
+        content: "";
+        border: 1.5px solid var(--foreground);
+        border-radius: 999px;
+      }
+
+      .mark::before {
+        left: 3px;
+      }
+
+      .mark::after {
+        right: 3px;
+        border-color: var(--primary);
+      }
+
+      .links {
+        display: flex;
+        align-items: stretch;
+        gap: 22px;
+        height: 100%;
+      }
+
+      .item {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 0;
+        background: transparent;
+        color: var(--muted-foreground);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 560;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+
+      .icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 17px;
+        height: 17px;
+      }
+
+      .icon svg {
+        width: 15px;
+        height: 15px;
+        fill: none;
+        stroke: currentcolor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.8;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+      }
+
+      .bell,
+      .avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        background: var(--background);
+        color: var(--muted-foreground);
+      }
+
+      .bell {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+      }
+
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        background: #c4314b;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .preview {
+        height: 74px;
+        padding: 18px 28px;
+        color: var(--muted-foreground);
+        font-size: 13px;
+      }
+
+      .a .item.active {
+        color: var(--foreground);
+      }
+
+      .a .item.active .icon {
+        color: var(--primary);
+      }
+
+      .a .item.active::before {
+        position: absolute;
+        inset: 17px -9px;
+        z-index: 0;
+        content: "";
+        border: 1px solid rgb(37 99 235 / 16%);
+        border-radius: 999px;
+        background: var(--primary-tint);
+      }
+
+      .a .item.active > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .b .item.active {
+        color: var(--foreground);
+        font-weight: 650;
+      }
+
+      .b .item.active .icon {
+        width: 25px;
+        height: 25px;
+        border: 1px solid rgb(37 99 235 / 18%);
+        border-radius: 7px;
+        background: var(--primary-tint);
+        color: var(--primary);
+        box-shadow: 0 1px 0 rgb(37 99 235 / 8%);
+      }
+
+      .b .item.active::after {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        content: "";
+        border-radius: 999px 999px 0 0;
+        background: var(--primary);
+      }
+
+      .c .item.active {
+        color: var(--foreground);
+      }
+
+      .c .item.active .icon {
+        color: var(--primary);
+      }
+
+      .c .item.active::before {
+        position: absolute;
+        bottom: 0;
+        left: 2px;
+        width: 7px;
+        height: 7px;
+        content: "";
+        border-radius: 999px;
+        background: var(--primary);
+      }
+
+      .c .item.active::after {
+        position: absolute;
+        right: 2px;
+        bottom: 2px;
+        left: 15px;
+        height: 2px;
+        content: "";
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--primary), rgb(37 99 235 / 18%));
+      }
+
+      .d .item.active {
+        color: var(--foreground);
+      }
+
+      .d .item.active .icon {
+        width: 25px;
+        height: 25px;
+        border-radius: 999px;
+        background: var(--success-tint);
+        color: var(--accent-sage);
+      }
+
+      .d .item.active::after {
+        position: absolute;
+        right: 4px;
+        bottom: 0;
+        left: 4px;
+        height: 2px;
+        content: "";
+        background: var(--accent-sage);
+      }
+
+      .e .item.active {
+        height: 40px;
+        align-self: center;
+        padding: 0 11px 0 9px;
+        border: 1px solid rgb(37 99 235 / 16%);
+        border-radius: 8px;
+        background: linear-gradient(180deg, #fff, rgb(37 99 235 / 5%));
+        color: var(--foreground);
+        box-shadow: 0 1px 0 rgb(12 12 11 / 5%), 0 10px 20px rgb(37 99 235 / 6%);
+      }
+
+      .e .item.active .icon {
+        color: var(--primary);
+      }
+
+      @media (max-width: 860px) {
+        main {
+          width: min(100vw - 24px, 720px);
+        }
+
+        .intro,
+        .option {
+          display: block;
+        }
+
+        .recommendation,
+        .shell {
+          margin-top: 14px;
+        }
+
+        .nav {
+          overflow-x: auto;
+          padding: 0 18px;
+        }
+
+        .actions {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="intro">
+        <div>
+          <h1>Active Nav State Mockups</h1>
+          <p>
+            Five quick treatments for the signed-in BridgeCircle navigation. Help is selected in
+            each row so the difference is easy to compare against the live page.
+          </p>
+        </div>
+        <div class="recommendation">
+          <strong>Recommended</strong>
+          Option B: active icon tile plus a restrained underline.
+        </div>
+      </section>
+
+      <div class="options">
+        <section class="option">
+          <div class="meta">
+            <h2>A. Soft active pill</h2>
+            <p>Clear and friendly. Good if you want the selected item to read like a mode.</p>
+          </div>
+          <div class="shell a">
+            <div class="nav">
+              <div data-include="brand"></div>
+              <div data-include="links"></div>
+              <div data-include="actions"></div>
+            </div>
+            <div class="preview">Quiet blue-tint background around the active label.</div>
+          </div>
+        </section>
+
+        <section class="option">
+          <div class="meta">
+            <h2>B. Icon tile + label</h2>
+            <p>Compact, modern, and still editorial. This is the best fit for the current header.</p>
+          </div>
+          <div class="shell b">
+            <div class="nav">
+              <div data-include="brand"></div>
+              <div data-include="links"></div>
+              <div data-include="actions"></div>
+            </div>
+            <div class="preview">Only the active icon gets a surface treatment; label stays clean.</div>
+          </div>
+        </section>
+
+        <section class="option">
+          <div class="meta">
+            <h2>C. Editorial dot rail</h2>
+            <p>Closest to the current underline, with a more intentional civic publication feel.</p>
+          </div>
+          <div class="shell c">
+            <div class="nav">
+              <div data-include="brand"></div>
+              <div data-include="links"></div>
+              <div data-include="actions"></div>
+            </div>
+            <div class="preview">Small leading dot plus shortened gradient underline.</div>
+          </div>
+        </section>
+
+        <section class="option">
+          <div class="meta">
+            <h2>D. Page-aware accent</h2>
+            <p>Help uses Emerald because it is the offer/help action. More expressive, slightly riskier.</p>
+          </div>
+          <div class="shell d">
+            <div class="nav">
+              <div data-include="brand"></div>
+              <div data-include="links"></div>
+              <div data-include="actions"></div>
+            </div>
+            <div class="preview">Active state can shift by page purpose without changing the IA.</div>
+          </div>
+        </section>
+
+        <section class="option">
+          <div class="meta">
+            <h2>E. Raised active surface</h2>
+            <p>Most app-like. Strongest selected state, but heavier than BridgeCircle probably needs.</p>
+          </div>
+          <div class="shell e">
+            <div class="nav">
+              <div data-include="brand"></div>
+              <div data-include="links"></div>
+              <div data-include="actions"></div>
+            </div>
+            <div class="preview">Subtle bordered chip with shadow; useful if the header needs more weight.</div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <template id="brand-template">
+      <div class="brand"><span class="mark"></span><span>BridgeCircle</span></div>
+    </template>
+
+    <template id="links-template">
+      <div class="links">
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M9.6 9.5a2.4 2.4 0 0 1 4.5 1.2c0 1.8-2.1 2.1-2.1 3.6" /><path d="M12 17.4h.01" /></svg></span>
+          <span>Ask</span>
+        </div>
+        <div class="item active">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M7.5 13.5 4.8 12a2.2 2.2 0 0 1 0-3.8l4.3-2.5a2.2 2.2 0 0 1 3 3l-.7 1.1" /><path d="m9.6 13.9 4.8-3.1" /><path d="m13.9 14.2.7 1.1a2.2 2.2 0 0 0 3 .8l2.2-1.3" /></svg></span>
+          <span>Help</span>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" /><circle cx="9.5" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+          <span>People</span>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="m22 10-10-5-10 5 10 5 10-5Z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg></span>
+          <span>School</span>
+        </div>
+        <div class="item">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z" /><path d="m4 8 8 6 8-6" /></svg></span>
+          <span>Inbox</span>
+        </div>
+      </div>
+    </template>
+
+    <template id="actions-template">
+      <div class="actions"><div class="bell">2</div><div class="avatar">M</div></div>
+    </template>
+
+    <script>
+      const templateByName = {
+        brand: "brand-template",
+        links: "links-template",
+        actions: "actions-template",
+      };
+
+      document.querySelectorAll("[data-include]").forEach((target) => {
+        const template = document.getElementById(templateByName[target.dataset.include]);
+        if (template) target.replaceWith(template.content.cloneNode(true));
+      });
+    </script>
+  </body>
+</html>

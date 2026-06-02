@@ -1,31 +1,18 @@
-import { ArrowRight } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { ArrowRight, Send } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { EventTime } from '@/components/ui/event-time'
-import type { HomeEvent, HomeFeed } from '@/lib/home/getHomeFeed'
-import {
-  AskBar,
-  FreshnessReviewCard,
-  type HelpNetworkPerson,
-  HelpOpportunityCard,
-  MatchBriefCard,
-  NetworkMotif,
-  PromptChips,
-  SchoolPulseCard,
-} from './help-network-ui'
-
-const PROMPTS = [
-  'I want to move from consulting into product',
-  'I need college advice from someone who studied in the US',
-  'I am moving to Seoul and want to meet alumni nearby',
-  'Can someone review my resume or portfolio?',
-  'I want to understand finance careers after Chadwick',
-  'I am looking for an ongoing mentor',
-]
+import { StatusBadge } from '@/components/ui/status-badge'
+import type { HomeEvent, HomeFeed, HomeRecentAsk } from '@/lib/home/getHomeFeed'
+import { displayName } from '@/lib/utils'
+import { AskBar, type HelpNetworkPerson } from './help-network-ui'
 
 interface DashboardClientProps {
   feed: HomeFeed
   firstName: string
+  viewerName: string
   cohortYear: number | null
   orgDisplayName: string
   viewerCity: string | null
@@ -37,209 +24,133 @@ export default function DashboardClient({
   firstName,
   cohortYear,
   orgDisplayName,
-  viewerCity,
-  isHelper,
 }: DashboardClientProps) {
   const featuredEvent = feed.upcomingEvents[0] ?? null
-  const peopleWhoCanHelp = feed.openMentors.slice(0, 3).map(toPerson)
-  const peopleYouCouldHelp = feed.pendingMentorRequests.slice(0, 3)
-  const fallbackHelp = feed.recentJoiners.slice(0, 3)
+  const peopleWhoCanHelp = feed.openMentors.slice(0, 6).map(toPerson)
+  const cohortLabel = cohortYear ? `Class of '${String(cohortYear).slice(-2)}` : null
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="bc-page-band border-b border-border">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:py-10">
-          <div className="flex min-w-0 flex-col justify-between gap-6">
+      <HomeAnnouncementStrip announcement={feed.latestAnnouncement} event={featuredEvent} />
+
+      <section className="bc-page-band relative overflow-hidden border-b border-border">
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-7 px-4 py-12 text-center min-[761px]:px-8 min-[761px]:py-20">
+          <div className="flex w-full max-w-[820px] flex-col items-center gap-6">
             <div className="space-y-3">
-              <p className="bc-section-kicker">
-                {cohortYear ? `Class of ${cohortYear} · ` : ''}
-                {orgDisplayName}
-              </p>
-              <div className="max-w-2xl space-y-2">
-                <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+              <div className="bc-section-kicker justify-center">
+                {[cohortLabel, orgDisplayName].filter(Boolean).join(' · ')}
+              </div>
+              <div className="mx-auto max-w-[720px]">
+                <h1 className="font-heading text-[40px] font-semibold leading-[1.1] tracking-normal text-foreground max-[480px]:text-[32px]">
                   Hi {firstName}. Who do you want to ask?
                 </h1>
-                <p className="text-base leading-relaxed text-muted-foreground">
+                <p className="mx-auto mt-2.5 max-w-[640px] text-[17px] leading-[1.55] text-muted-foreground">
                   Find someone who has been there, or offer help where your experience matters.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="w-full">
               <AskBar />
-              <PromptChips prompts={PROMPTS} />
             </div>
           </div>
 
-          <NetworkMotif
-            helperCount={feed.stats.openMentorsTotal}
-            requestCount={feed.pendingMentorRequests.length}
-            eventCount={feed.stats.upcomingEventsTotal}
-          />
+          <div className="w-full max-w-[580px] text-left">
+            <YourAsksRail asks={feed.myRecentAsks} />
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 lg:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.7fr)]">
-          <div className="space-y-8">
-            <SectionHeader
-              kicker="Relationship path"
-              title="People who can help you"
-              body="Start from your question. These are open helpers and mentors from your trusted school circle."
-              href="/ask"
-              cta="Ask a question"
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-8">
+        <div className="space-y-6">
+          <SectionHeader title="People who can help you" href="/people" cta="Ask a question" />
+          {peopleWhoCanHelp.length > 0 ? (
+            <div className="grid gap-3 md:grid-cols-3">
+              {peopleWhoCanHelp.map((person) => (
+                <HomePersonCard key={person.userId} person={person} />
+              ))}
+            </div>
+          ) : (
+            <EmptyPanel
+              title="No open helpers surfaced yet"
+              body="Update your profile and try People search while the first helper supply is seeded."
+              href="/people"
+              cta="Explore people"
             />
-            <div className="space-y-4">
-              {peopleWhoCanHelp.length > 0 ? (
-                peopleWhoCanHelp.map((person) => (
-                  <MatchBriefCard key={person.userId} person={person} compact />
-                ))
-              ) : (
-                <EmptyPanel
-                  title="No open helpers surfaced yet"
-                  body="Update your profile and try People search while the first helper supply is seeded."
-                  href="/people"
-                  cta="Explore people"
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <SectionHeader
-                kicker="Offer help"
-                title="People you could help"
-                body={
-                  isHelper
-                    ? 'Requests and likely fits where your experience can be useful.'
-                    : 'Turn on advice or mentorship availability when you are ready to help.'
-                }
-                href="/help"
-                cta="Open Help"
-              />
-              {peopleYouCouldHelp.length > 0 ? (
-                <div className="grid gap-3">
-                  {peopleYouCouldHelp.map((request) => (
-                    <HelpOpportunityCard
-                      key={request.id}
-                      title={`${request.menteeName ?? 'Someone'} is asking for help`}
-                      subtitle={
-                        request.menteeGraduationYear
-                          ? `Class of ${request.menteeGraduationYear}`
-                          : 'School circle request'
-                      }
-                      body={
-                        request.reason ??
-                        request.helpNeeded ??
-                        'Review their ask and reply if you can help.'
-                      }
-                      href={`/ask/${request.id}`}
-                      cta="Review request"
-                      tone="ochre"
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid gap-3">
-                  {fallbackHelp.slice(0, 2).map((member) => (
-                    <HelpOpportunityCard
-                      key={member.userId}
-                      title={`${member.name ?? 'A new member'} joined the circle`}
-                      subtitle={
-                        member.graduationYear ? `Class of ${member.graduationYear}` : 'New member'
-                      }
-                      body={buildJoinerHelpCopy(
-                        member.currentTitle,
-                        member.currentEmployer,
-                        member.city,
-                      )}
-                      href={`/profile/${member.userId}`}
-                      cta="See where you can help"
-                    />
-                  ))}
-                  <HelpOpportunityCard
-                    title={
-                      isHelper ? 'Keep your helper settings current' : 'Make yourself available'
-                    }
-                    subtitle={viewerCity ? `Visible in ${viewerCity}` : 'Availability matters'}
-                    body="Choose quick advice, ongoing mentorship, and the topics where classmates should find you."
-                    href="/mentorship/settings"
-                    cta="Update availability"
-                    tone="plum"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <SectionHeader
-                kicker="School signal"
-                title="School pulse"
-                body="Events and announcements stay close to the relationship work."
-                href="/school"
-                cta="Open School"
-              />
-              <div className="grid gap-3">
-                {featuredEvent ? <HomeEventPulse event={featuredEvent} /> : null}
-                {feed.latestAnnouncement ? (
-                  <SchoolPulseCard
-                    title={feed.latestAnnouncement.title}
-                    meta="Announcement"
-                    body={feed.latestAnnouncement.body ?? 'Latest update from your school circle.'}
-                    href="/announcements"
-                    kind="announcement"
-                  />
-                ) : null}
-                {!featuredEvent && !feed.latestAnnouncement ? (
-                  <EmptyPanel
-                    title="No school updates yet"
-                    body="Events and announcements will appear here as the circle starts moving."
-                    href="/school"
-                    cta="Open School"
-                  />
-                ) : null}
-              </div>
-            </div>
-
-            <FreshnessReviewCard />
-          </div>
+          )}
         </div>
       </section>
     </main>
   )
 }
 
-function SectionHeader({
-  title,
-  body,
-  href,
-  cta,
-  kicker,
-}: {
-  title: string
-  body: string
-  href: string
-  cta: string
-  kicker: string
-}) {
+function SectionHeader({ title, href, cta }: { title: string; href: string; cta: string }) {
   return (
     <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="bc-section-kicker mb-3">{kicker}</p>
-        <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
+        <h2 className="font-heading text-lg font-semibold leading-tight text-foreground">
           {title}
         </h2>
-        <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">{body}</p>
       </div>
-      <Button asChild variant="outline" size="sm" className="w-fit rounded-lg">
+      <Button asChild variant="outline" size="sm" className="h-8 w-fit rounded-md text-xs">
         <Link href={href}>
           {cta}
-          <ArrowRight className="size-4" />
+          <ArrowRight className="size-[13px]" />
         </Link>
       </Button>
     </div>
   )
+}
+
+function HomeAnnouncementStrip({
+  announcement,
+  event,
+}: {
+  announcement: HomeFeed['latestAnnouncement']
+  event: HomeEvent | null
+}) {
+  if (!announcement && !event) return null
+
+  const href = announcement ? '/announcements' : event ? `/events/${event.id}` : '/school'
+  const label = announcement ? 'Announcement' : 'Event'
+  const title = announcement?.title ?? event?.title ?? 'School update'
+  const stamp = announcement ? (
+    shortRelativeTime(new Date(announcement.publishedAt))
+  ) : event ? (
+    <EventTime iso={event.startsAt} pattern="MMM d" />
+  ) : null
+
+  return (
+    <Link
+      href={href}
+      className="flex items-center justify-between gap-4 border-b border-border bg-primary/[0.03] px-4 py-2 text-xs transition-colors hover:bg-primary/[0.06] sm:px-8"
+    >
+      <span className="flex min-w-0 items-center gap-2.5">
+        <Send className="size-3.5 shrink-0 text-primary" />
+        <span className="font-mono text-xs font-bold uppercase tracking-[0.10em] text-primary">
+          {label}
+        </span>
+        <span className="min-w-0 truncate font-medium text-foreground">{title}</span>
+      </span>
+      {stamp ? (
+        <span className="flex shrink-0 items-center gap-1.5 text-muted-foreground">
+          <span>{stamp}</span>
+          <ArrowRight className="size-3" />
+        </span>
+      ) : null}
+    </Link>
+  )
+}
+
+function shortRelativeTime(date: Date) {
+  const diffMs = Date.now() - date.getTime()
+  const minutes = Math.max(1, Math.round(diffMs / 60_000))
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.round(hours / 24)
+  if (days < 14) return `${days}d ago`
+  return formatDistanceToNow(date, { addSuffix: true })
 }
 
 function EmptyPanel({
@@ -254,34 +165,264 @@ function EmptyPanel({
   cta: string
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-border bg-card p-6">
+    <div className="rounded-md border border-dashed border-border bg-card p-6">
       <p className="font-heading text-lg font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <Button asChild size="sm" variant="outline" className="mt-4 rounded-lg">
+      <Button asChild size="sm" variant="outline" className="mt-4 rounded-md">
         <Link href={href}>{cta}</Link>
       </Button>
     </div>
   )
 }
 
-function HomeEventPulse({ event }: { event: HomeEvent }) {
+function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
+  const name = displayName(person.name, person.preferredName ?? null)
+  const yearShort = person.graduationYear ? `'${String(person.graduationYear).slice(-2)}` : null
+  const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' · ')
+  const context = [person.city, person.university, person.major].filter(Boolean).join(' · ')
+  const topics = buildHomeTopics(person)
+  const rationale = person.rationale ?? buildHomeRationale(person)
+  const canAsk = person.isOpenAsMentor || person.isOpenAsAdviceHelper
+
   return (
-    <SchoolPulseCard
-      title={event.title}
-      meta={
-        <>
-          <EventTime iso={event.startsAt} pattern="MMM d" /> · {event.goingCount} going
-        </>
-      }
-      body={
-        event.location
-          ? `A school gathering at ${event.location}. See who is going and decide if it belongs on your calendar.`
-          : 'A school gathering from your circle. See who is going and decide if it belongs on your calendar.'
-      }
-      href={`/events/${event.id}`}
-      kind="event"
-    />
+    <article
+      className="group relative flex h-full flex-col overflow-hidden rounded-md border border-border bg-card p-5 shadow-card transition-[border-color,box-shadow,transform] hover:-translate-y-px hover:border-foreground hover:shadow-card-hover"
+      data-interactive="true"
+    >
+      <div className="flex flex-1 gap-3">
+        <div className="relative size-[52px] shrink-0 overflow-hidden rounded-full bg-surface-subtle">
+          {person.avatarUrl ? (
+            <Image src={person.avatarUrl} alt="" fill sizes="52px" className="object-cover" />
+          ) : (
+            <span className="flex size-full items-center justify-center font-heading text-base font-semibold text-muted-foreground">
+              {initials(name)}
+            </span>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <Link
+              href={`/profile/${person.userId}`}
+              className="truncate font-heading text-[15px] font-semibold text-foreground hover:text-primary"
+            >
+              {name}
+            </Link>
+            {yearShort ? (
+              <span className="shrink-0 font-mono text-xs text-muted-foreground">{yearShort}</span>
+            ) : null}
+          </div>
+
+          <div className="mt-1 flex flex-wrap gap-1">
+            {person.isOpenAsMentor ? (
+              <StatusBadge tone="open" size="sm" className="min-h-5 px-2 text-xs">
+                <span className="size-[5px] rounded-full bg-accent-sage" aria-hidden />
+                Mentor
+              </StatusBadge>
+            ) : person.isOpenAsAdviceHelper ? (
+              <StatusBadge tone="open" size="sm" dot className="min-h-5 px-2 text-xs">
+                Advice
+              </StatusBadge>
+            ) : null}
+          </div>
+
+          {role ? <p className="mt-1.5 text-xs font-medium text-foreground">{role}</p> : null}
+          {context ? <p className="mt-0.5 text-[11px] text-muted-foreground">{context}</p> : null}
+        </div>
+      </div>
+
+      {rationale ? (
+        <div className="mt-3">
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.08em] text-primary">
+            Match brief
+          </p>
+          <p className="border-l-[3px] border-primary pl-2.5 text-xs italic leading-[1.5] text-foreground">
+            &ldquo;{rationale}&rdquo;
+          </p>
+        </div>
+      ) : null}
+
+      {topics.length > 0 ? (
+        <div className="mt-2.5 flex flex-wrap gap-1">
+          {topics.slice(0, 3).map((topic) => (
+            <span
+              key={topic}
+              className="inline-flex items-center rounded-sm border border-foreground/15 bg-surface-subtle px-2 py-px font-mono text-xs text-muted-foreground"
+            >
+              {topic}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-dashed border-border pt-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {canAsk ? (
+            <Button asChild variant="default" size="sm" className="h-8 rounded-md text-xs">
+              <Link href={`/ask/new?to=${person.userId}&type=advice`}>Ask for help</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline" size="sm" className="h-8 rounded-md text-xs">
+              <Link href={`/profile/${person.userId}`}>View profile</Link>
+            </Button>
+          )}
+          {canAsk ? (
+            <Link
+              href={`/profile/${person.userId}`}
+              className="px-1.5 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+            >
+              View profile
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </article>
   )
+}
+
+function buildHomeTopics(person: HelpNetworkPerson) {
+  if (person.mentoringTopics?.length) return person.mentoringTopics
+  return [
+    person.currentTitle ? 'Career advice' : null,
+    person.currentEmployer ? person.currentEmployer : null,
+    person.university ? person.university : null,
+  ].filter(Boolean) as string[]
+}
+
+function buildHomeRationale(person: HelpNetworkPerson) {
+  const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
+  if (role) return `Their path as ${role} may be useful context.`
+  if (person.university) return `They share school context and are open to helping.`
+  return 'They are part of your trusted school circle.'
+}
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
+}
+
+/**
+ * Hero-right "Your asks" rail — the viewer's recent outgoing asks with a
+ * status dot + lifecycle label, mirroring the Civic Editorial prototype.
+ * The dot carries the status hue; the label stays foreground/accent so small
+ * text never relies on ochre (which fails contrast below ~12px).
+ */
+function YourAsksRail({ asks }: { asks: HomeRecentAsk[] }) {
+  const hasAsks = asks.length > 0
+
+  return (
+    <aside
+      className={`flex h-fit w-full flex-col rounded-md border bg-card ${
+        hasAsks
+          ? 'gap-3.5 border-border p-[18px_20px] shadow-hero'
+          : 'gap-2.5 border-border/70 p-[14px_16px] shadow-none'
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <p className="bc-section-kicker">Your asks</p>
+        <Link
+          href="/inbox"
+          className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          See all
+        </Link>
+      </div>
+      {asks.length > 0 ? (
+        <ul className="flex flex-col gap-2.5">
+          {asks.map((ask, i) => {
+            const meta = askStatusMeta(ask)
+            return (
+              <li
+                key={ask.id}
+                className={
+                  i < asks.length - 1
+                    ? 'flex items-start gap-2.5 border-b border-muted pb-2.5'
+                    : 'flex items-start gap-2.5'
+                }
+              >
+                <span
+                  className={`mt-1.5 size-1.5 shrink-0 rounded-full ${meta.dotClass}`}
+                  aria-hidden
+                />
+                <Link href={`/ask/${ask.id}`} className="group min-w-0 flex-1">
+                  <p className="text-[13px] font-medium leading-snug text-foreground group-hover:text-primary">
+                    {ask.summary}
+                  </p>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <span
+                      className={`text-xs font-bold uppercase tracking-[0.08em] ${meta.labelClass}`}
+                    >
+                      {meta.label}
+                    </span>
+                    <span className="font-mono text-xs text-muted-foreground">·</span>
+                    <span className="font-mono text-xs text-muted-foreground">{meta.stamp}</span>
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      ) : (
+        <div className="py-0.5">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            No active asks yet. Start above when you know what you want to ask.
+          </p>
+          <Link
+            href="/people"
+            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-link hover:text-link-hover"
+          >
+            Browse helpers
+            <ArrowRight className="size-3" />
+          </Link>
+        </div>
+      )}
+    </aside>
+  )
+}
+
+function askStatusMeta(ask: HomeRecentAsk): {
+  label: string
+  dotClass: string
+  labelClass: string
+  stamp: string
+} {
+  const ago = formatDistanceToNow(new Date(ask.createdAt), { addSuffix: true })
+  switch (ask.status) {
+    case 'accepted':
+      return {
+        label: 'active',
+        dotClass: 'bg-accent-sage',
+        labelClass: 'text-accent-sage',
+        stamp: ask.respondedAt
+          ? `replied ${formatDistanceToNow(new Date(ask.respondedAt), { addSuffix: true })}`
+          : ago,
+      }
+    case 'declined':
+      return {
+        label: 'declined',
+        dotClass: 'bg-accent-rust',
+        labelClass: 'text-accent-rust',
+        stamp: ago,
+      }
+    case 'expired':
+      return {
+        label: 'expired',
+        dotClass: 'bg-muted-foreground',
+        labelClass: 'text-muted-foreground',
+        stamp: ago,
+      }
+    default:
+      return {
+        label: 'pending',
+        dotClass: 'bg-accent-ochre',
+        labelClass: 'text-foreground',
+        stamp: `sent ${ago}`,
+      }
+  }
 }
 
 function toPerson(member: HomeFeed['openMentors'][number]): HelpNetworkPerson {
@@ -299,12 +440,4 @@ function toPerson(member: HomeFeed['openMentors'][number]): HelpNetworkPerson {
     isOpenAsAdviceHelper: true,
     mentoringTopics: null,
   }
-}
-
-function buildJoinerHelpCopy(title: string | null, employer: string | null, city: string | null) {
-  const role = [title, employer].filter(Boolean).join(' at ')
-  if (role)
-    return `${role}. A quick welcome or context from your path can make the network feel alive.`
-  if (city) return `Based in ${city}. Local context is often the easiest first way to help.`
-  return 'A quick welcome or useful pointer can make the network feel alive.'
 }

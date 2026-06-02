@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+  .section-label::before{content:'';display:block;width:20px;height:2px;background:#2563eb;border-radius:99px}
+  .badge{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;border:1px solid transparent;white-space:nowrap}
+  .badge-sm{font-size:9px;padding:1px 6px;height:16px}
+  .badge-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+  .caption{font-size:9px;color:#4d4d4a;font-family:'JetBrains Mono',monospace;margin-top:2px}
+  /* Card badge */
+  .cbadge{display:inline-flex;align-items:center;border-radius:4px;padding:1px 8px;font-size:11px;font-weight:600;border:1px solid transparent}
+</style>
+</head>
+<body>
+<div class="section-label">StatusBadge — semantic tones</div>
+<div class="row">
+  <div><span class="badge" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span class="badge-dot" style="background:#3b6e51"></span>Mentor open</span><div class="caption">tone="open"</div></div>
+  <div><span class="badge" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span class="badge-dot" style="background:#a16207"></span>Paused</span><div class="caption">tone="warn"</div></div>
+  <div><span class="badge" style="background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)"><span class="badge-dot" style="background:#9b2c1f"></span>Declined</span><div class="caption">tone="alert"</div></div>
+  <div><span class="badge" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)"><span class="badge-dot" style="background:#2563eb"></span>Friend</span><div class="caption">tone="info"</div></div>
+  <div><span class="badge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.08)">Expired</span><div class="caption">tone="muted"</div></div>
+  <div><span class="badge" style="background:rgb(114 47 55/.10);color:#722f37;border-color:rgba(114,47,55,.2)">Alumni mentors</span><div class="caption">tone="plum"</div></div>
+</div>
+
+<div class="section-label">LifecycleStatusBadge — mapped states</div>
+<div class="row">
+  <span class="badge" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span class="badge-dot" style="background:#a16207"></span>pending</span>
+  <span class="badge" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)"><span class="badge-dot" style="background:#2563eb"></span>accepted</span>
+  <span class="badge" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)"><span class="badge-dot" style="background:#2563eb"></span>active</span>
+  <span class="badge" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span class="badge-dot" style="background:#3b6e51"></span>completed</span>
+  <span class="badge" style="background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)"><span class="badge-dot" style="background:#9b2c1f"></span>declined</span>
+  <span class="badge" style="background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)"><span class="badge-dot" style="background:#9b2c1f"></span>revoked</span>
+  <span class="badge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.08)">expired</span>
+  <span class="badge" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span class="badge-dot" style="background:#a16207"></span>paused</span>
+  <span class="badge" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span class="badge-dot" style="background:#a16207"></span>unread</span>
+  <span class="badge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.08)">disabled</span>
+  <span class="badge" style="background:rgb(155 44 31/.10);color:#9b2c1f;border-color:rgba(155,44,31,.2)"><span class="badge-dot" style="background:#9b2c1f"></span>error</span>
+</div>
+
+<div class="section-label">Small (size="sm") — used inline in cards</div>
+<div class="row">
+  <span class="badge badge-sm" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span style="width:4px;height:4px;border-radius:50%;background:#3b6e51;flex-shrink:0"></span>Mentor</span>
+  <span class="badge badge-sm" style="background:rgb(59 110 81/.10);color:#3b6e51;border-color:rgba(59,110,81,.2)"><span style="width:4px;height:4px;border-radius:50%;background:#3b6e51;flex-shrink:0"></span>Advice</span>
+  <span class="badge badge-sm" style="background:rgb(161 98 7/.12);color:#0c0c0b;border-color:rgba(161,98,7,.25)"><span style="width:4px;height:4px;border-radius:50%;background:#a16207;flex-shrink:0"></span>Paused</span>
+  <span class="badge badge-sm" style="background:rgb(37 99 235/.10);color:#2563eb;border-color:rgba(37,99,235,.2)">Friend</span>
+  <span class="badge badge-sm" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.08)">Class of '26</span>
+</div>
+
+<div class="section-label">Badge (topics, tags)</div>
+<div class="row">
+  <span class="cbadge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.15);font-size:10px;font-family:'JetBrains Mono',monospace">Product management</span>
+  <span class="cbadge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.15);font-size:10px;font-family:'JetBrains Mono',monospace">Career transitions</span>
+  <span class="cbadge" style="background:#ebebe5;color:#4d4d4a;border-color:rgba(12,12,11,.15);font-size:10px;font-family:'JetBrains Mono',monospace">US grad school</span>
+  <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#2563eb;border:1px solid rgba(37,99,235,.15);background:rgb(37 99 235/.04);border-radius:4px;padding:2px 8px">Match evidence available</span>
+</div>
+</body>
+</html>

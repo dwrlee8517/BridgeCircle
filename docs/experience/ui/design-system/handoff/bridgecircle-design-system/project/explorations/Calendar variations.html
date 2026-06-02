@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Calendar · Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; color: #0c0c0b; background: #ebebe5; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .kicker { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase; color: #2563eb; }
+  .kicker::before { content: ''; display: block; width: 28px; height: 2px; background: currentColor; border-radius: 999px; }
+  .display { font-family: 'Inter Tight', sans-serif; letter-spacing: -0.02em; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .topic { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px;
+           font-size: 11px; font-weight: 500; color: #4d4d4a; background: #f4f3ee; border: 1px solid #e3e0d6; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+         font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
+         transition: background 150ms, border-color 150ms; border-radius: 8px; white-space: nowrap; }
+  .btn-cta { background: #f59e0b; color: #0c0c0b; border: 1px solid #f59e0b; }
+  .btn-cta:hover { background: #d97706; border-color: #d97706; }
+  .btn-outline { background: #fff; color: #0c0c0b; border: 1px solid #dcdcd6; }
+  .btn-outline:hover { border-color: #0c0c0b; }
+  .btn-ghost { background: transparent; color: #4d4d4a; border: 1px solid transparent; }
+  .btn-ghost:hover { background: rgba(12,12,11,0.04); color: #0c0c0b; }
+  .btn-sm { height: 30px; padding: 0 12px; font-size: 11.5px; }
+  .btn-md { height: 38px; padding: 0 16px; font-size: 13px; }
+  .btn-lg { height: 46px; padding: 0 22px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="calendar-variations.jsx"></script>
+<script type="text/babel" src="calendar-variations-more.jsx"></script>
+
+<script type="text/babel">
+function App() {
+  return (
+    <DesignCanvas
+      title="Calendar · Variations"
+      subtitle="Four ways to make the events section more interesting"
+    >
+      <DCSection id="cal-mash" title="C9 · Recommended mash-up" subtitle="C5's master-detail mechanics with C7's spotlight cover band on the detail panel.">
+        <DCArtboard id="c9" label="C9 · Master-detail × Spotlight" width={1320} height={1080}>
+          <CalendarC9 />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="cal-variants" title="Calendar treatments">
+        <DCArtboard id="c1" label="C1 · Hero + list" width={1280} height={1080}>
+          <CalendarC1 />
+        </DCArtboard>
+        <DCArtboard id="c2" label="C2 · Grouped by month" width={1280} height={1020}>
+          <CalendarC2 />
+        </DCArtboard>
+        <DCArtboard id="c3" label="C3 · Horizontal timeline" width={1280} height={1080}>
+          <CalendarC3 />
+        </DCArtboard>
+        <DCArtboard id="c4" label="C4 · Calendar peek" width={1280} height={1020}>
+          <CalendarC4 />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="cal-more" title="More variations" subtitle="Master-detail, kanban, spotlight carousel, year heatmap">
+        <DCArtboard id="c5" label="C5 · Master-detail" width={1320} height={1020}>
+          <CalendarC5 />
+        </DCArtboard>
+        <DCArtboard id="c6" label="C6 · Kanban by urgency" width={1280} height={780}>
+          <CalendarC6 />
+        </DCArtboard>
+        <DCArtboard id="c7" label="C7 · Spotlight carousel" width={1320} height={1080}>
+          <CalendarC7 />
+        </DCArtboard>
+        <DCArtboard id="c8" label="C8 · Year-at-a-glance" width={1280} height={920}>
+          <CalendarC8 />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

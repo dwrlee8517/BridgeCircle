@@ -58,6 +58,7 @@ export async function rsvpAction(formData: FormData): Promise<RsvpActionResult> 
   }
 
   revalidatePath('/events')
+  revalidatePath('/school')
   revalidatePath(`/events/${parsed.data.eventId}`)
   return { ok: true, status: result.status }
 }

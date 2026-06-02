@@ -1,6 +1,6 @@
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { getHelperPreference } from '@/lib/asks/preferences'
 import { requireSession } from '@/lib/auth/session'
@@ -22,46 +22,63 @@ export default async function HelperSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
+    // density-cozy: member-facing surface. Editorial header (kicker + heading)
+    // matches the Civic Editorial prototype's MentorSettingsScreen; the form
+    // itself already carries the controls + live card preview.
+    <div className="density-cozy mx-auto max-w-[900px] space-y-6 px-4 py-8 sm:px-8">
       <Link
         href={`/profile/${session.userId}`}
-        className="text-sm text-muted-foreground hover:underline"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        ← Back to profile
+        <ArrowLeft className="size-4" />
+        Back to profile
       </Link>
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>Helper preferences</CardTitle>
-              <CardDescription>
-                Choose how you&apos;d like to help — quick advice, ongoing mentorship, or both.
-              </CardDescription>
-            </div>
-            {pref.pausedAt ? <Badge variant="outline">Paused while away</Badge> : null}
-          </div>
-        </CardHeader>
-        <CardContent>
+
+      <div className="space-y-2">
+        <div className="flex items-start justify-between gap-3">
+          <p className="bc-section-kicker">Your availability</p>
           {pref.pausedAt ? (
-            <p className="mb-4 rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-3 text-xs text-foreground">
-              You were auto-paused after 14 days without responding to a request. Saving any change
-              here will lift the pause.
-            </p>
+            <StatusBadge tone="warn" dot>
+              Paused while away
+            </StatusBadge>
           ) : null}
-          <SettingsForm
-            defaults={{
-              openToAdvice: pref.openToAdvice,
-              openToMentorship: pref.openToMentorship,
-              topics: pref.topics.join(', '),
-              screeningPrompt: pref.screeningPrompt ?? '',
-              maxActiveMentees: pref.maxActiveMentees,
-              maxPendingRequests: pref.maxPendingRequests,
-            }}
-            activeMenteeCount={pref.activeMenteeCount}
-            pendingRequestCount={pref.pendingRequestCount}
-          />
-        </CardContent>
-      </Card>
+        </div>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          How you&apos;d like to help
+        </h1>
+        <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
+          Choose quick advice, ongoing mentorship, or both — and the topics where classmates should
+          find you. Status auto-expires after 14 days away.
+        </p>
+      </div>
+
+      {pref.pausedAt ? (
+        <p className="rounded-lg border border-accent-ochre/25 bg-accent-ochre/10 p-3 text-xs text-foreground">
+          You were auto-paused after 14 days without responding to a request. Saving any change here
+          will lift the pause.
+        </p>
+      ) : null}
+
+      <SettingsForm
+        key={[
+          pref.openToAdvice,
+          pref.openToMentorship,
+          pref.topics.join(','),
+          pref.screeningPrompt ?? '',
+          pref.maxActiveMentees,
+          pref.maxPendingRequests,
+        ].join('|')}
+        defaults={{
+          openToAdvice: pref.openToAdvice,
+          openToMentorship: pref.openToMentorship,
+          topics: pref.topics.join(', '),
+          screeningPrompt: pref.screeningPrompt ?? '',
+          maxActiveMentees: pref.maxActiveMentees,
+          maxPendingRequests: pref.maxPendingRequests,
+        }}
+        activeMenteeCount={pref.activeMenteeCount}
+        pendingRequestCount={pref.pendingRequestCount}
+      />
     </div>
   )
 }

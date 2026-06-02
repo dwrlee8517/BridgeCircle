@@ -775,6 +775,30 @@ async function createMentorshipScenarios() {
       status: 'pending' as const,
       created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     },
+    // Richard's own outgoing asks — populate the "Your asks" home rail with a
+    // varied trio (active / pending / declined).
+    {
+      organization_id: ORG.id,
+      ask_type: 'advice' as const,
+      asker_id: richard,
+      helper_id: mark,
+      reason: 'Sanity-checking my jump from engineering into product management.',
+      help_needed: 'Would value 20 minutes on how to frame the transition for hiring managers.',
+      status: 'accepted' as const,
+      created_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+      responded_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      organization_id: ORG.id,
+      ask_type: 'mentorship' as const,
+      asker_id: richard,
+      helper_id: felix,
+      reason: 'Hoping to learn how you scaled a startup engineering team.',
+      help_needed: 'Looking for an ongoing mentor as I move into a lead role.',
+      status: 'declined' as const,
+      created_at: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+      responded_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    },
     {
       organization_id: ORG.id,
       ask_type: 'advice' as const,
@@ -903,10 +927,36 @@ async function createMentorshipScenarios() {
           .from('ask_threads')
           .update({ last_message_at: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString() })
           .eq('id', thread.id)
+      } else if (req.asker_id === richard && req.helper_id === mark) {
+        const richardMarkMessages = [
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: mark,
+            body: 'Hi Richard — glad to help with the PM move. Hiring managers mostly want evidence you can drive outcomes without owning the code. Want to walk through a couple of your projects?',
+            created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            thread_id: thread.id,
+            thread_type: 'ask' as const,
+            sender_id: richard,
+            body: 'That would be perfect. I will put together two examples and send them over before our call.',
+            created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+            read_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+        ]
+        const { error: msgErr } = await admin.from('messages').insert(richardMarkMessages)
+        if (msgErr) throw msgErr
+
+        await admin
+          .from('ask_threads')
+          .update({ last_message_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString() })
+          .eq('id', thread.id)
       }
     }
   }
-  console.log('[seed-dev] mentorship requests: 2 pending, 2 accepted, 1 declined')
+  console.log('[seed-dev] asks seeded: incoming + Richard outgoing across advice/mentorship')
 }
 
 async function createFriendshipAndDMScenarios() {
@@ -1150,6 +1200,7 @@ async function createEventsAndRsvps() {
   const mark = idByEmail.get('mentor-mark@example.com')!
   const mei = idByEmail.get('mentor-mei@example.com')!
   const felix = idByEmail.get('mentor-fully-booked@example.com')!
+  const richard = idByEmail.get('richard@example.com')!
 
   const rsvps = [
     // Event 1: PV Mixer
@@ -1157,6 +1208,7 @@ async function createEventsAndRsvps() {
     { event_id: EVENTS[0].id, user_id: rohan, status: 'going' },
     { event_id: EVENTS[0].id, user_id: sam, status: 'going' },
     { event_id: EVENTS[0].id, user_id: mark, status: 'going' },
+    { event_id: EVENTS[0].id, user_id: richard, status: 'going' },
 
     // Event 2: Songdo Coffee
     { event_id: EVENTS[1].id, user_id: mei, status: 'going' },
@@ -1169,6 +1221,7 @@ async function createEventsAndRsvps() {
     { event_id: EVENTS[2].id, user_id: mark, status: 'going' },
     { event_id: EVENTS[2].id, user_id: mei, status: 'going' },
     { event_id: EVENTS[2].id, user_id: felix, status: 'going' },
+    { event_id: EVENTS[2].id, user_id: richard, status: 'going' },
 
     // Event 4: Holiday Dinner (Past)
     { event_id: EVENTS[3].id, user_id: ria, status: 'going' },
@@ -1183,6 +1236,107 @@ async function createEventsAndRsvps() {
   const { error } = await admin.from('event_rsvps').insert(rsvps)
   if (error) throw error
   console.log(`[seed-dev] events: ${EVENTS.length} created with ${rsvps.length} total RSVPs`)
+}
+
+
+async function createAnnouncements() {
+  const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
+  const idByEmail = new Map<string, string>()
+  for (const u of usersList?.users ?? []) {
+    if (u.email) idByEmail.set(u.email, u.id)
+  }
+  const amy = idByEmail.get('admin-amy@example.com')!
+
+  const now = Date.now()
+  const day = 24 * 60 * 60 * 1000
+  const announcements = [
+    {
+      organization_id: ORG.id,
+      created_by: amy,
+      title: 'Spring Career Panel — register by May 30',
+      body: 'Join alumni from product, finance, and medicine for a candid evening on early-career pivots. Doors at 6:30pm in the PV commons; remote link for Songdo. Bring a question.',
+      published_at: new Date(now - 2 * day).toISOString(),
+    },
+    {
+      organization_id: ORG.id,
+      created_by: amy,
+      title: '2026 Mentorship Awards — nominate by Jun 12',
+      body: 'Know an alum who showed up for you this year? Nominate them for the annual mentorship awards. A few sentences is all it takes.',
+      published_at: new Date(now - 5 * day).toISOString(),
+    },
+    {
+      organization_id: ORG.id,
+      created_by: amy,
+      title: 'Summer in Seoul — alumni meetups forming now',
+      body: 'Heading to Korea this summer? A handful of classmates are organizing casual coffee meetups near Songdo and Gangnam. Reply in the circle to be looped in.',
+      published_at: new Date(now - 9 * day).toISOString(),
+    },
+  ]
+  const { error } = await admin.from('announcements').insert(announcements)
+  if (error) throw error
+  console.log(`[seed-dev] announcements: ${announcements.length} published`)
+}
+
+
+async function createNotifications() {
+  const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 })
+  const idByEmail = new Map<string, string>()
+  for (const u of usersList?.users ?? []) {
+    if (u.email) idByEmail.set(u.email, u.id)
+  }
+  const richard = idByEmail.get('richard@example.com')!
+
+  const now = Date.now()
+  const hour = 60 * 60 * 1000
+  const day = 24 * hour
+  // Types + payload shape mirror src/lib/notifications/types.ts (the renderer
+  // pulls payload.actor_name / ask_type / title). target_id is left null —
+  // clicks fall back to /inbox or /announcements, which is fine for seed data.
+  const notifications = [
+    {
+      user_id: richard,
+      organization_id: ORG.id,
+      type: 'ask_received',
+      payload: { actor_name: 'Alexander Kim', ask_type: 'mentorship' },
+      read_at: null,
+      created_at: new Date(now - 2 * hour).toISOString(),
+    },
+    {
+      user_id: richard,
+      organization_id: ORG.id,
+      type: 'friend_request_received',
+      payload: { actor_name: 'Dev Patel' },
+      read_at: null,
+      created_at: new Date(now - 5 * hour).toISOString(),
+    },
+    {
+      user_id: richard,
+      organization_id: ORG.id,
+      type: 'ask_message',
+      payload: { actor_name: 'Iris Okonkwo' },
+      read_at: null,
+      created_at: new Date(now - 22 * hour).toISOString(),
+    },
+    {
+      user_id: richard,
+      organization_id: ORG.id,
+      type: 'ask_accepted',
+      payload: { actor_name: 'Mark Mentor', ask_type: 'advice' },
+      read_at: new Date(now - 4 * day).toISOString(),
+      created_at: new Date(now - 5 * day).toISOString(),
+    },
+    {
+      user_id: richard,
+      organization_id: ORG.id,
+      type: 'announcement',
+      payload: { title: 'Spring Career Panel — register by May 30' },
+      read_at: new Date(now - 1 * day).toISOString(),
+      created_at: new Date(now - 2 * day).toISOString(),
+    },
+  ]
+  const { error } = await admin.from('notifications').insert(notifications)
+  if (error) throw error
+  console.log(`[seed-dev] notifications: ${notifications.length} for Richard`)
 }
 
 
@@ -1201,6 +1355,8 @@ async function main() {
   await createMentorshipScenarios()
   await createFriendshipAndDMScenarios()
   await createEventsAndRsvps()
+  await createAnnouncements()
+  await createNotifications()
   console.log('\n[seed-dev] done. log in with any email above + the password from PERSONAS.')
 }
 

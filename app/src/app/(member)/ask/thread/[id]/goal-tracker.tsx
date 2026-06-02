@@ -3,6 +3,10 @@
 import { Plus, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { StatusBadge } from '@/components/ui/status-badge'
 
 type Goal = {
   id: string
@@ -11,11 +15,13 @@ type Goal = {
 }
 
 const DEFAULT_GOALS = [
-  { id: '1', text: 'Resume & LinkedIn Review', done: false },
-  { id: '2', text: 'Define 3 career anchors', done: false },
+  { id: '1', text: 'Resume & LinkedIn review', done: false },
+  { id: '2', text: 'Define three career anchors', done: false },
   { id: '3', text: 'Conduct mock interview', done: false },
   { id: '4', text: 'Formulate 30-60-90 day plan', done: false },
 ]
+
+const PRESETS = ['Portfolio review', 'Mock interview', 'Resume deep dive', '30-60-90 day plan']
 
 export function MentorshipGoalTracker({ threadId }: { threadId: string }) {
   const [mounted, setMounted] = useState(false)
@@ -25,163 +31,155 @@ export function MentorshipGoalTracker({ threadId }: { threadId: string }) {
   const storageKey = `bridgecircle:mentorship:goals:${threadId}`
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true)
-    try {
-      const saved = localStorage.getItem(storageKey)
-      if (saved) {
-        setGoals(JSON.parse(saved))
-      } else {
+    const timeout = window.setTimeout(() => {
+      setMounted(true)
+      try {
+        const saved = localStorage.getItem(storageKey)
+        setGoals(saved ? JSON.parse(saved) : DEFAULT_GOALS)
+      } catch (_error) {
         setGoals(DEFAULT_GOALS)
       }
-    } catch (_e) {
-      setGoals(DEFAULT_GOALS)
-    }
+    }, 0)
+
+    return () => window.clearTimeout(timeout)
   }, [storageKey])
 
-  // Sync to localStorage
   useEffect(() => {
     if (!mounted) return
     localStorage.setItem(storageKey, JSON.stringify(goals))
   }, [goals, storageKey, mounted])
 
-  const toggleGoal = (id: string) => {
-    setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, done: !g.done } : g)))
+  function toggleGoal(id: string) {
+    setGoals((prev) => prev.map((goal) => (goal.id === id ? { ...goal, done: !goal.done } : goal)))
   }
 
-  const addGoal = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newGoalText.trim()) return
-    const newGoal = {
-      id: Date.now().toString(),
-      text: newGoalText.trim(),
-      done: false,
-    }
-    setGoals((prev) => [...prev, newGoal])
+  function addGoal(event: React.FormEvent) {
+    event.preventDefault()
+    const text = newGoalText.trim()
+    if (!text) return
+    setGoals((prev) => [...prev, { id: Date.now().toString(), text, done: false }])
     setNewGoalText('')
     toast.success('Goal added')
   }
 
-  const deleteGoal = (id: string) => {
-    setGoals((prev) => prev.filter((g) => g.id !== id))
+  function deleteGoal(id: string) {
+    setGoals((prev) => prev.filter((goal) => goal.id !== id))
     toast.info('Goal removed')
   }
 
-  const insertPreset = (text: string) => {
-    if (goals.some((g) => g.text.toLowerCase() === text.toLowerCase())) {
+  function insertPreset(text: string) {
+    if (goals.some((goal) => goal.text.toLowerCase() === text.toLowerCase())) {
       toast.warning('Goal already exists')
       return
     }
-    const newGoal = {
-      // eslint-disable-next-line react-hooks/purity
-      id: Date.now().toString(),
-      text,
-      done: false,
-    }
-    setGoals((prev) => [...prev, newGoal])
+    setGoals((prev) => [...prev, { id: Date.now().toString(), text, done: false }])
     toast.success(`Preset goal added: ${text}`)
   }
 
-  const doneCount = goals.filter((g) => g.done).length
+  const doneCount = goals.filter((goal) => goal.done).length
   const totalCount = goals.length
   const completionRate = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
 
   if (!mounted) {
     return (
-      <div className="flex flex-col h-full bg-card border-l border-border font-mono text-[11px] p-4 text-muted-foreground animate-pulse">
+      <div className="bc-loading-pulse p-5 text-sm text-muted-foreground">
         Loading goal tracker...
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-full bg-card border-l border-border font-mono text-[11px] min-h-[400px]">
-      <div className="p-3.5 border-b border-border bg-muted/30">
-        <span className="text-[9px] font-bold text-primary uppercase tracking-wider block mb-1">
-          Progress Tracker
-        </span>
-        <div className="flex justify-between items-baseline text-foreground">
-          <span className="font-bold tracking-tight">GOALS</span>
-          <span className="font-bold text-primary">{completionRate}%</span>
+    <div className="flex flex-col">
+      <div className="border-b border-border bg-surface-panel/45 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Progress tracker
+            </p>
+            <h2 className="mt-1 font-heading text-lg font-semibold text-foreground">Goals</h2>
+          </div>
+          <StatusBadge tone={completionRate === 100 ? 'open' : 'info'}>
+            {completionRate}%
+          </StatusBadge>
         </div>
-        <div className="h-1 bg-muted rounded-full overflow-hidden mt-2 relative">
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-card">
           <div
-            className="h-full bg-primary transition-all duration-300 rounded-full"
+            className="h-full rounded-full bg-primary transition-[width] duration-medium ease-emphasized"
             style={{ width: `${completionRate}%` }}
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3.5 flex flex-col gap-3">
+      <div className="space-y-4 p-5">
         {goals.length === 0 ? (
-          <div className="text-muted-foreground text-center py-6">
-            No active goals. Add some below!
-          </div>
+          <p className="text-sm text-muted-foreground">No active goals yet.</p>
         ) : (
-          <div className="flex flex-col gap-2.5">
-            {goals.map((g) => (
+          <div className="space-y-2">
+            {goals.map((goal) => (
               <div
-                key={g.id}
-                className="flex gap-2 items-start justify-between relative group/item"
+                key={goal.id}
+                className="group/item flex items-start gap-3 rounded-md border border-border bg-background p-3"
               >
-                <div className="flex gap-2 items-start flex-1 min-w-0 pr-4">
-                  <input
-                    type="checkbox"
-                    checked={g.done}
-                    onChange={() => toggleGoal(g.id)}
-                    className="mt-0.5 cursor-pointer accent-primary size-3 rounded border-border"
-                  />
-                  <span
-                    className={`leading-relaxed break-words ${
-                      g.done ? 'text-muted-foreground line-through' : 'text-foreground'
-                    }`}
-                  >
-                    {g.text}
-                  </span>
-                </div>
+                <Checkbox
+                  checked={goal.done}
+                  onCheckedChange={() => toggleGoal(goal.id)}
+                  aria-label={`Mark ${goal.text} complete`}
+                  className="mt-0.5"
+                />
+                <span
+                  className={`min-w-0 flex-1 text-sm leading-6 ${
+                    goal.done ? 'text-muted-foreground line-through' : 'text-foreground'
+                  }`}
+                >
+                  {goal.text}
+                </span>
                 <button
                   type="button"
-                  onClick={() => deleteGoal(g.id)}
-                  className="text-destructive hover:text-destructive/80 opacity-0 group-hover/item:opacity-100 transition-opacity p-0.5 shrink-0"
+                  onClick={() => deleteGoal(goal.id)}
+                  className="rounded-sm p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-danger-tint hover:text-destructive group-hover/item:opacity-100 group-focus-within/item:opacity-100"
                   aria-label="Delete goal"
                 >
-                  <X className="size-3" />
+                  <X className="size-4" />
                 </button>
               </div>
             ))}
           </div>
         )}
 
-        <div className="mt-4 border-t border-dashed border-border/80 pt-3">
-          <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider block mb-2">
-            Quick Presets
-          </span>
-          <div className="flex flex-col gap-1.5 items-start">
-            {['Portfolio Review', 'Mock Interview', 'Resume Deep Dive', '30-60-90 Day Plan'].map(
-              (preset) => (
-                <button
-                  type="button"
-                  key={preset}
-                  onClick={() => insertPreset(preset)}
-                  className="text-primary hover:underline text-[10px] text-left flex items-center gap-1 font-medium"
-                >
-                  <Plus className="size-2.5" />
-                  {preset}
-                </button>
-              ),
-            )}
+        <div className="border-t border-dashed border-border pt-4">
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            Quick presets
+          </p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {PRESETS.map((preset) => (
+              <Button
+                key={preset}
+                type="button"
+                variant="outline"
+                size="xs"
+                onClick={() => insertPreset(preset)}
+              >
+                <Plus className="size-3" />
+                {preset}
+              </Button>
+            ))}
           </div>
         </div>
       </div>
 
-      <form onSubmit={addGoal} className="p-3 border-t border-border bg-muted/10">
-        <input
-          type="text"
-          placeholder="Add custom goal..."
-          value={newGoalText}
-          onChange={(e) => setNewGoalText(e.target.value)}
-          className="w-full px-2.5 py-1.5 bg-background text-foreground border border-border rounded text-[11px] font-mono outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-        />
+      <form onSubmit={addGoal} className="border-t border-border bg-surface-panel/35 p-5">
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Add custom goal..."
+            value={newGoalText}
+            onChange={(event) => setNewGoalText(event.target.value)}
+            className="bg-card"
+          />
+          <Button type="submit" variant="default" size="default" aria-label="Add goal">
+            <Plus className="size-4" />
+          </Button>
+        </div>
       </form>
     </div>
   )

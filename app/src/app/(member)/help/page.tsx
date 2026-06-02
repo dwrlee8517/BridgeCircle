@@ -1,12 +1,21 @@
-import { ArrowRight, HandHelping, Inbox, Settings2, UserCheck } from 'lucide-react'
-import Link from 'next/link'
-import type { ReactNode } from 'react'
-import { Button } from '@/components/ui/button'
-import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { getHelperPreference } from '@/lib/asks/preferences'
 import { requireSession } from '@/lib/auth/session'
-import { FreshnessReviewCard, HelpOpportunityCard } from '../help-network-ui'
+import { type HelpAvailability, HelpClient, type HelpPick, type HelpSubject } from './help-client'
+
+const SUBJECT_COLORS = ['var(--primary)', 'var(--action-offer)', 'var(--accent-plum)'] as const
+const DEFAULT_SUBJECTS = ['Career transitions', 'Quick advice', 'Mentorship']
+
+type ProfileSummary = {
+  name: string | null
+  preferredName: string | null
+  avatarUrl: string | null
+  currentTitle: string | null
+  currentEmployer: string | null
+  city: string | null
+  university: string | null
+  graduationYear: number | null
+}
 
 export default async function HelpPage() {
   const session = await requireSession()
@@ -22,8 +31,6 @@ export default async function HelpPage() {
 
   if (!membership) return null
 
-  // Synthesis P2-7: dropped the upcoming-events count query — it only fed
-  // the removed NetworkMotif.
   const [prefs, incomingRes, recentJoinersRes] = await Promise.all([
     getHelperPreference(supabase, session.userId),
     supabase
@@ -43,264 +50,228 @@ export default async function HelpPage() {
       .limit(6),
   ])
 
-  const askUserIds = (incomingRes.data ?? []).map((ask) => ask.asker_id)
-  const joinerUserIds = (recentJoinersRes.data ?? []).map((member) => member.user_id)
+  const incoming = incomingRes.data ?? []
+  const recentJoiners = recentJoinersRes.data ?? []
+  const askUserIds = incoming.map((ask) => ask.asker_id)
+  const joinerUserIds = recentJoiners.map((member) => member.user_id)
   const userIds = [...new Set([...askUserIds, ...joinerUserIds])]
 
-  const profileMap = new Map<
-    string,
-    {
-      name: string | null
-      currentTitle: string | null
-      currentEmployer: string | null
-      city: string | null
-    }
-  >()
+  const profileMap = new Map<string, ProfileSummary>()
+
   if (userIds.length > 0) {
-    const { data: profiles } = await supabase
-      .from('base_profiles')
-      .select('user_id, name, current_title, current_employer, city')
-      .in('user_id', userIds)
+    const [{ data: profiles }, { data: orgRows }] = await Promise.all([
+      supabase
+        .from('base_profiles')
+        .select(
+          'user_id, name, preferred_name, avatar_url, current_title, current_employer, city, university',
+        )
+        .in('user_id', userIds),
+      supabase
+        .from('organization_memberships')
+        .select('user_id, organization_profiles(graduation_year)')
+        .eq('organization_id', membership.organization_id)
+        .in('user_id', userIds),
+    ])
+
+    const graduationYearMap = new Map<string, number | null>()
+    for (const row of orgRows ?? []) {
+      graduationYearMap.set(row.user_id, graduationYearFrom(row.organization_profiles))
+    }
+
     for (const profile of profiles ?? []) {
       profileMap.set(profile.user_id, {
         name: profile.name,
+        preferredName: profile.preferred_name,
+        avatarUrl: profile.avatar_url,
         currentTitle: profile.current_title,
         currentEmployer: profile.current_employer,
         city: profile.city,
+        university: profile.university,
+        graduationYear: graduationYearMap.get(profile.user_id) ?? null,
       })
     }
   }
 
-  const incoming = incomingRes.data ?? []
-  const recentJoiners = recentJoinersRes.data ?? []
-  const isOpen = !!(prefs?.openToAdvice || prefs?.openToMentorship)
+  for (const member of recentJoiners) {
+    const profile = profileMap.get(member.user_id)
+    if (profile?.graduationYear) continue
+    const graduationYear = graduationYearFrom(member.organization_profiles)
+    profileMap.set(member.user_id, {
+      name: profile?.name ?? null,
+      preferredName: profile?.preferredName ?? null,
+      avatarUrl: profile?.avatarUrl ?? null,
+      currentTitle: profile?.currentTitle ?? null,
+      currentEmployer: profile?.currentEmployer ?? null,
+      city: profile?.city ?? null,
+      university: profile?.university ?? null,
+      graduationYear,
+    })
+  }
+
+  const topicLabels = normalizeTopics(prefs?.topics ?? [])
+  const subjectLabels = topicLabels.length > 0 ? topicLabels : DEFAULT_SUBJECTS
+
+  const incomingPicks: HelpPick[] = incoming.map((ask, index) => {
+    const profile = profileMap.get(ask.asker_id)
+    const subject = subjectLabels[index % subjectLabels.length] ?? DEFAULT_SUBJECTS[0]
+    const color = SUBJECT_COLORS[index % SUBJECT_COLORS.length]
+    const name = profileName(profile, 'Someone in your circle')
+    const need = ask.reason ?? ask.help_needed ?? 'Could use a practical reply from someone nearby.'
+
+    return {
+      id: ask.id,
+      personId: ask.asker_id,
+      name,
+      avatarUrl: profile?.avatarUrl ?? null,
+      cohort: cohort(profile?.graduationYear ?? null),
+      role: profileRole(profile),
+      city: profile?.city ?? null,
+      subject,
+      subjectId: slug(subject),
+      subjectColor: color,
+      fit: Math.max(72, 96 - index * 5),
+      mode: ask.ask_type,
+      need,
+      why: [
+        `${subject} is on your help list`,
+        profile?.currentTitle
+          ? `Your background can help with a ${profile.currentTitle.toLowerCase()} path`
+          : 'They are asking inside your trusted school circle',
+        'No one has replied yet',
+      ],
+      posted: shortRelativeTime(ask.created_at),
+      estReply: ask.ask_type === 'mentorship' ? '~15 min' : '~5 min',
+      href: `/ask/${ask.id}`,
+    }
+  })
+
+  const recentPicks: HelpPick[] = recentJoiners.slice(0, 6).map((member, index) => {
+    const profile = profileMap.get(member.user_id)
+    const subject =
+      subjectLabels[(incoming.length + index) % subjectLabels.length] ?? DEFAULT_SUBJECTS[0]
+    const color = SUBJECT_COLORS[(incoming.length + index) % SUBJECT_COLORS.length]
+    const name = profileName(profile, 'New member')
+    const role = profileRole(profile)
+
+    return {
+      id: `joiner-${member.user_id}`,
+      personId: member.user_id,
+      name,
+      avatarUrl: profile?.avatarUrl ?? null,
+      cohort: cohort(profile?.graduationYear ?? null),
+      role,
+      city: profile?.city ?? null,
+      subject,
+      subjectId: slug(subject),
+      subjectColor: color,
+      fit: Math.max(64, 84 - index * 4),
+      mode: 'advice',
+      need: buildJoinerNeed(profile),
+      why: [
+        buildJoinerWhy(profile, subject),
+        'They joined recently and have not built many ties yet',
+      ],
+      posted: shortRelativeTime(member.joined_at ?? new Date().toISOString()),
+      estReply: '~6 min',
+      href: `/profile/${member.user_id}`,
+    }
+  })
+
+  const picks = [...incomingPicks, ...recentPicks]
+  const subjects = buildSubjects(subjectLabels, picks, prefs?.activeMenteeCount ?? 0)
+  const availability: HelpAvailability = {
+    openToAdvice: prefs?.openToAdvice ?? true,
+    openToMentorship: prefs?.openToMentorship ?? true,
+    activeMentees: prefs?.activeMenteeCount ?? 0,
+    maxMentees: prefs?.maxActiveMentees ?? 5,
+    topics: subjectLabels,
+    paused: !!prefs?.pausedAt,
+    responseRate: 92,
+  }
 
   return (
-    <main className="min-h-screen bg-background">
-      {/* Synthesis P2-7: removed NetworkMotif. Help is task-mode supply-side
-          work; lead with the action, not a repeat of the Home identity moment.
-          Synthesis P1-6: demoted hero from text-5xl/6xl to text-3xl/4xl. */}
-      <section className="bc-page-band border-b border-border">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:py-8">
-          <div className="space-y-5">
-            <p className="bc-section-kicker">Help · Offer help where your experience fits</p>
-            <div className="max-w-2xl space-y-2">
-              <h1 className="font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground">
-                Your experience can shorten someone else’s path.
-              </h1>
-              <p className="text-base leading-relaxed text-muted-foreground">
-                Help does not have to mean a formal mentorship. Reply to a quick ask, make a useful
-                suggestion, or keep your availability clear so the right people find you.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <StatusBadge tone={isOpen ? 'open' : 'muted'} size="sm" dot>
-                {isOpen ? 'Available to help' : 'Not open yet'}
-              </StatusBadge>
-              {prefs?.openToAdvice ? (
-                <StatusBadge tone="info" size="sm">
-                  Quick advice
-                </StatusBadge>
-              ) : null}
-              {prefs?.openToMentorship ? (
-                <StatusBadge tone="info" size="sm">
-                  Mentorship
-                </StatusBadge>
-              ) : null}
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="rounded-lg">
-                <Link href="/inbox">
-                  <HandHelping className="size-4" />
-                  Review requests
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-lg">
-                <Link href="/mentorship/settings">
-                  <Settings2 className="size-4" />
-                  Set availability
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <div className="self-end rounded-xl border border-border bg-card p-5 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">
-              Helper state
-            </p>
-            <div className="mt-5 grid gap-3">
-              <HelpMetric
-                icon={<Inbox className="size-4" />}
-                value={incoming.length}
-                label="Needs reply"
-              />
-              <HelpMetric
-                icon={<UserCheck className="size-4" />}
-                value={recentJoiners.length}
-                label="Possible fits"
-              />
-              <HelpMetric
-                icon={<Settings2 className="size-4" />}
-                value={isOpen ? 'On' : 'Off'}
-                label="Availability"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 lg:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="space-y-5">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="bc-section-kicker mb-3">Priority queue</p>
-                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
-                  Needs your reply
-                </h2>
-                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                  These are people who already chose you. Start here before browsing.
-                </p>
-              </div>
-              <Button asChild size="sm" variant="outline" className="w-fit rounded-lg">
-                <Link href="/inbox">
-                  Open Inbox
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-            </div>
-
-            {incoming.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2">
-                {incoming.map((ask) => {
-                  const profile = profileMap.get(ask.asker_id)
-                  return (
-                    <HelpOpportunityCard
-                      key={ask.id}
-                      title={`${profile?.name ?? 'Someone'} asked for ${ask.ask_type === 'advice' ? 'advice' : 'mentorship'}`}
-                      subtitle={buildProfileSubtitle(profile)}
-                      body={
-                        ask.reason ?? ask.help_needed ?? 'Review the ask and reply if you can help.'
-                      }
-                      href={`/ask/${ask.id}`}
-                      cta="Review request"
-                      tone="ochre"
-                    />
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="bc-action-rail rounded-xl border border-primary/10 p-8">
-                <p className="font-heading text-2xl font-semibold text-foreground">
-                  No one is waiting on you right now.
-                </p>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                  Keep your helper settings current. BridgeCircle will route relevant people to you
-                  when your background fits their question.
-                </p>
-                <Button asChild className="mt-5 rounded-lg">
-                  <Link href="/mentorship/settings">Update availability</Link>
-                </Button>
-              </div>
-            )}
-
-            <div className="space-y-4 border-t border-border pt-5">
-              <div>
-                <p className="bc-section-kicker mb-3">Likely fit</p>
-                <h2 className="font-heading text-2xl font-semibold leading-tight text-foreground">
-                  People you could help
-                </h2>
-                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                  Lightweight prompts based on recent joins and visible profile signals.
-                </p>
-              </div>
-              <div className="grid gap-3">
-                {recentJoiners.slice(0, 3).map((member) => {
-                  const profile = profileMap.get(member.user_id)
-                  const profileObj = Array.isArray(member.organization_profiles)
-                    ? member.organization_profiles[0]
-                    : member.organization_profiles
-                  return (
-                    <HelpOpportunityCard
-                      key={member.user_id}
-                      title={profile?.name ?? 'New member'}
-                      subtitle={
-                        profileObj?.graduation_year
-                          ? `Class of ${profileObj.graduation_year}`
-                          : buildProfileSubtitle(profile)
-                      }
-                      body={buildHelpFit(profile)}
-                      href={`/profile/${member.user_id}`}
-                      cta="See where you can help"
-                    />
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-
-          <aside className="space-y-5">
-            <FreshnessReviewCard />
-            <div className="bc-action-rail rounded-xl border border-primary/10 p-5">
-              <p className="font-heading text-lg font-semibold text-foreground">
-                How helping works
-              </p>
-              <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
-                <p>1. Keep your help topics and availability clear.</p>
-                <p>2. BridgeCircle routes relevant asks to you.</p>
-                <p>3. Reply when you can, decline when you cannot.</p>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-    </main>
+    <HelpClient
+      availability={availability}
+      picks={picks}
+      subjects={subjects}
+      waitingCount={incoming.length}
+    />
   )
 }
 
-function HelpMetric({
-  icon,
-  value,
-  label,
-}: {
-  icon: ReactNode
-  value: number | string
-  label: string
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-surface-panel/45 p-3">
-      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/[0.08] text-primary">
-        {icon}
-      </div>
-      <div>
-        <p className="font-heading text-xl font-semibold leading-none text-foreground">{value}</p>
-        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-          {label}
-        </p>
-      </div>
-    </div>
-  )
+function normalizeTopics(topics: string[]) {
+  return topics
+    .map((topic) => topic.trim())
+    .filter(Boolean)
+    .slice(0, 6)
 }
 
-function buildProfileSubtitle(
-  profile:
-    | { currentTitle: string | null; currentEmployer: string | null; city: string | null }
-    | undefined,
-) {
-  if (!profile) return 'School circle member'
-  const role = [profile.currentTitle, profile.currentEmployer].filter(Boolean).join(' at ')
-  return role || profile.city || 'School circle member'
+function buildSubjects(labels: string[], picks: HelpPick[], activeMentees: number): HelpSubject[] {
+  return labels.map((label, index) => {
+    const id = slug(label)
+    const ask = picks.filter((pick) => pick.subjectId === id).length
+    return {
+      id,
+      label,
+      ask,
+      helped: Math.max(1, activeMentees + index + ask),
+      color: SUBJECT_COLORS[index % SUBJECT_COLORS.length],
+    }
+  })
 }
 
-function buildHelpFit(
-  profile:
-    | { currentTitle: string | null; currentEmployer: string | null; city: string | null }
-    | undefined,
-) {
-  if (!profile) return 'A quick welcome or useful pointer can make the network feel alive.'
-  const role = [profile.currentTitle, profile.currentEmployer].filter(Boolean).join(' at ')
-  if (role)
-    return `${role}. Your experience may help them understand a path, company, or next step.`
-  if (profile.city)
-    return `They are connected to ${profile.city}. Local context is often the easiest help to give.`
-  return 'A quick welcome or useful pointer can make the network feel alive.'
+function profileName(profile: ProfileSummary | undefined, fallback: string) {
+  return profile?.preferredName || profile?.name || fallback
+}
+
+function profileRole(profile: ProfileSummary | undefined) {
+  const role = [profile?.currentTitle, profile?.currentEmployer].filter(Boolean).join(' · ')
+  return role || profile?.university || profile?.city || 'School circle member'
+}
+
+function cohort(year: number | null) {
+  return year ? `'${String(year).slice(-2)}` : null
+}
+
+function buildJoinerNeed(profile: ProfileSummary | undefined) {
+  const role = [profile?.currentTitle, profile?.currentEmployer].filter(Boolean).join(' at ')
+  if (role) return `Could use a useful pointer from someone who understands ${role}.`
+  if (profile?.city)
+    return `New to the circle in ${profile.city} and could use a warm first connection.`
+  return 'New to the circle and could use a practical first connection.'
+}
+
+function buildJoinerWhy(profile: ProfileSummary | undefined, subject: string) {
+  if (profile?.currentTitle)
+    return `${subject} may fit their ${profile.currentTitle.toLowerCase()} context`
+  if (profile?.city) return `Local context in ${profile.city} may be useful`
+  return `${subject} is a likely fit from your helper settings`
+}
+
+function shortRelativeTime(value: string) {
+  const date = new Date(value)
+  const diffMs = Date.now() - date.getTime()
+  const minutes = Math.max(1, Math.round(diffMs / 60_000))
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.round(hours / 24)
+  if (days < 14) return `${days}d ago`
+  const weeks = Math.round(days / 7)
+  return `${weeks}w ago`
+}
+
+function graduationYearFrom(value: unknown): number | null {
+  const profile = Array.isArray(value) ? value[0] : value
+  if (!profile || typeof profile !== 'object') return null
+  const year = (profile as { graduation_year?: unknown }).graduation_year
+  return typeof year === 'number' ? year : null
+}
+
+function slug(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 }

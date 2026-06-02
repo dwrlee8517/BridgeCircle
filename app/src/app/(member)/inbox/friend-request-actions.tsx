@@ -29,7 +29,7 @@ export function FriendRequestActions({ requestId }: { requestId: string }) {
         <form action={acceptDispatch}>
           <input type="hidden" name="requestId" value={requestId} />
           <input type="hidden" name="response" value="accept" />
-          <Button type="submit" variant="cta" size="sm" disabled={pending}>
+          <Button type="submit" variant="offer" size="sm" disabled={pending}>
             {acceptPending ? 'Accepting…' : 'Accept'}
           </Button>
         </form>

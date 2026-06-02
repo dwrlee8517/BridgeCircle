@@ -4,8 +4,11 @@ This is the production component guide for BridgeCircle's Civic Editorial system
 Use it with [`tokens.md`](tokens.md), [`states-and-motion.md`](states-and-motion.md),
 and the live app primitives in `app/src/components/ui/`.
 
-The interactive prototype and `reference-src/` files are visual reference only.
-Do not copy component code, token exports, or raw colors from them into the app.
+The handoff bundle in [`handoff/`](handoff/) is the source of truth for intended
+UI/UX. Its prototype files define composition, hierarchy, interaction direction,
+and component behavior. Translate that output into production primitives and
+tokens; do not copy inline prototype styles mechanically. Older `reference-src/`
+files remain visual history unless explicitly promoted.
 
 ## Production Rules
 

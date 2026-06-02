@@ -15,6 +15,7 @@ claude-design-context/
 # Per-user agent tooling. Skills, hooks, and prompts live with the developer,
 # not in the repo. If anything in here ever needs to be shared, copy it into
 # a tracked path (e.g. app/CLAUDE.md, docs/, a /scripts/ entry) explicitly.
+.agent/
 .agents/
 .codex/
 .claude/

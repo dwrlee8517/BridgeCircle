@@ -46,7 +46,7 @@ export default function CircleMovesToggle({
           <button
             type="button"
             onClick={() => setActiveTab('career')}
-            className={`font-heading font-semibold text-lg tracking-tight pb-1 transition-all border-b-2 -mb-[18px] z-10 ${
+            className={`font-heading font-semibold text-lg tracking-tight pb-1 transition-colors border-b-2 -mb-[18px] z-10 ${
               activeTab === 'career'
                 ? 'border-primary text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -57,7 +57,7 @@ export default function CircleMovesToggle({
           <button
             type="button"
             onClick={() => setActiveTab('location')}
-            className={`font-heading font-semibold text-lg tracking-tight pb-1 transition-all border-b-2 -mb-[18px] z-10 ${
+            className={`font-heading font-semibold text-lg tracking-tight pb-1 transition-colors border-b-2 -mb-[18px] z-10 ${
               activeTab === 'location'
                 ? 'border-primary text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -67,7 +67,7 @@ export default function CircleMovesToggle({
           </button>
         </div>
 
-        <span className="font-mono text-[9px] font-bold tracking-[0.14em] uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 shrink-0">
+        <span className="font-mono text-xs font-bold tracking-[0.14em] uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 shrink-0">
           <span className="size-1 rounded-full bg-current" />
           Circle updates
         </span>
@@ -103,7 +103,7 @@ export default function CircleMovesToggle({
                         {m.name}
                       </h4>
                       {yearShort && (
-                        <span className="font-mono text-[10px] text-muted-foreground shrink-0">
+                        <span className="font-mono text-xs text-muted-foreground shrink-0">
                           {yearShort}
                         </span>
                       )}
@@ -115,7 +115,7 @@ export default function CircleMovesToggle({
                     </p>
 
                     {m.oldEmployer && (
-                      <p className="text-[10px] text-muted-foreground mt-0.5 leading-normal">
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-normal">
                         formerly {m.oldTitle ? `${m.oldTitle} at ` : ''}
                         <span>{m.oldEmployer}</span>
                       </p>
@@ -124,12 +124,11 @@ export default function CircleMovesToggle({
 
                   <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
                     {m.pulse && (
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-sage opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-sage" />
+                      <span className="relative flex h-2 w-2 rounded-full bg-accent-sage ring-4 ring-success-tint">
+                        <span className="sr-only">New</span>
                       </span>
                     )}
-                    <span className="font-mono text-[9px] text-muted-foreground uppercase tracking-wider">
+                    <span className="font-mono text-xs text-muted-foreground uppercase tracking-wider">
                       {m.timeAgo}
                     </span>
                   </div>
@@ -173,7 +172,7 @@ export default function CircleMovesToggle({
                         {m.name}
                       </h4>
                       {yearShort && (
-                        <span className="font-mono text-[10px] text-muted-foreground shrink-0">
+                        <span className="font-mono text-xs text-muted-foreground shrink-0">
                           {yearShort}
                         </span>
                       )}
@@ -200,7 +199,7 @@ export default function CircleMovesToggle({
                   </div>
 
                   <div className="shrink-0 pt-0.5">
-                    <div className="flex items-center gap-1 font-mono text-[9px] text-muted-foreground bg-muted/65 px-2.5 py-0.5 rounded-md border border-border/40">
+                    <div className="flex items-center gap-1 font-mono text-xs text-muted-foreground bg-muted/65 px-2.5 py-0.5 rounded-md border border-border/40">
                       <MapPin className="size-3 text-muted-foreground/75 shrink-0 mr-1" />
                       <span className="truncate max-w-[100px] sm:max-w-none">{m.city}</span>
                     </div>

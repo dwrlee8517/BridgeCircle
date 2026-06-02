@@ -15,6 +15,7 @@ import {
   notificationShouldToast,
   notificationTargetUrl,
 } from '@/lib/notifications/types'
+import { cn } from '@/lib/utils'
 import { markAllNotificationsReadAction, markNotificationReadAction } from './notifications-actions'
 
 type Props = {
@@ -133,17 +134,20 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
             variant="ghost"
             size="icon-sm"
             aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-            className="relative border border-border bg-background text-muted-foreground shadow-sm hover:border-primary/30 hover:bg-primary/[0.06] hover:text-primary"
+            className="relative border border-border bg-background text-muted-foreground shadow-card hover:border-primary/30 hover:bg-primary/[0.06] hover:text-primary"
           >
             <Bell className="h-4 w-4" />
             {unread > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-medium leading-4 text-destructive-foreground">
+              <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-[18px] items-center justify-center rounded-full bg-request-attention px-1 font-mono text-xs font-semibold leading-[18px] text-foreground">
                 {badgeText}
               </span>
             ) : null}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-[calc(100vw-1rem)] max-w-[420px] p-0 sm:w-80">
+        <PopoverContent
+          align="end"
+          className="w-[calc(100vw-1rem)] max-w-[420px] gap-0 overflow-hidden p-0 sm:w-80"
+        >
           <div className="flex items-center justify-between border-b px-3 py-2">
             <span className="text-sm font-medium">Notifications</span>
             {unread > 0 ? (
@@ -188,25 +192,32 @@ function NotificationList({
   return (
     <ul className="max-h-80 divide-y overflow-y-auto">
       {items.map((row) => (
-        <li key={row.id}>
+        <li key={row.id} className={row.readAt ? undefined : 'bg-warning-tint/55'}>
           <button
             type="button"
             onClick={() => onItemClick(row)}
-            className={`flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-muted/50 ${
-              row.readAt ? 'opacity-60' : ''
-            }`}
+            className={cn(
+              'flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors',
+              row.readAt ? 'hover:bg-muted/50' : 'hover:bg-warning-tint',
+            )}
           >
             <Icon type={row.type} />
             <div className="min-w-0 flex-1">
-              <p className="text-sm leading-tight">{notificationLabel(row)}</p>
+              <p className={`text-sm leading-tight ${row.readAt ? '' : 'font-semibold'}`}>
+                {notificationLabel(row)}
+              </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(row.createdAt), { addSuffix: true })}
               </p>
             </div>
             {!row.readAt ? (
-              <span role="img" className="mt-1 size-2 shrink-0 rounded-full bg-primary">
+              <>
                 <span className="sr-only">Unread</span>
-              </span>
+                <span
+                  className="mt-1 size-2 shrink-0 rounded-full bg-request-attention"
+                  aria-hidden
+                />
+              </>
             ) : null}
           </button>
         </li>
@@ -248,7 +259,7 @@ function RealtimeToast({ row, onClose }: { row: NotificationRow; onClose: () => 
       <Link
         href={url ?? '#'}
         onClick={onClose}
-        className="flex items-start gap-2 rounded-md border bg-background p-3 shadow-lg hover:bg-muted/30"
+        className="flex items-start gap-2 rounded-md border bg-background p-3 shadow-card-hover hover:bg-muted/30"
       >
         <Bell className="mt-0.5 size-4 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox \u2014 Layout & Design Variations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #111; }
+  #root { width: 100vw; height: 100vh; }
+
+  /* Scrollbars inside artboards stay subtle */
+  .dc-card *::-webkit-scrollbar { width: 6px; height: 6px; }
+  .dc-card *::-webkit-scrollbar-track { background: transparent; }
+  .dc-card *::-webkit-scrollbar-thumb { background: rgba(0,0,0,.12); border-radius: 3px; }
+
+  /* Intro card for design reasoning */
+  .intro {
+    background: #fef4a8;
+    border-radius: 4px;
+    padding: 18px 22px;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #5a4a2a;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    transform: rotate(-.4deg);
+  }
+  .intro h2 { font-family: 'Inter Tight', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 8px; color: #3d3220; }
+  .intro p + p { margin-top: 8px; }
+  .intro ul { margin-top: 6px; padding-left: 18px; }
+  .intro li { margin-top: 3px; }
+  .intro strong { color: #3d3220; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+
+<!-- Dependencies for the "Current" reference artboard -->
+<script type="text/babel" src="../ui_kits/app/Button.jsx"></script>
+<script type="text/babel" src="../ui_kits/app/StatusBadge.jsx"></script>
+<script type="text/babel" src="../ui_kits/app/InboxPanel.jsx"></script>
+
+<script type="text/babel" src="inbox-shared.jsx"></script>
+<script type="text/babel" src="inbox-variant-a.jsx"></script>
+<script type="text/babel" src="inbox-variant-b.jsx"></script>
+<script type="text/babel" src="inbox-variant-c.jsx"></script>
+<script type="text/babel" src="inbox-variant-d.jsx"></script>
+<script type="text/babel" src="inbox-variant-e.jsx"></script>
+
+<script type="text/babel">
+function Intro() {
+  return React.createElement('div', { className:'intro', style:{ width: 360 } },
+    React.createElement('h2', null, 'Inbox \u2014 four directions'),
+    React.createElement('p', null,
+      'Current inbox is the standard ',
+      React.createElement('strong', null, 'nav \u00b7 list \u00b7 detail'),
+      ' (email metaphor). Solid, but conventional.'
+    ),
+    React.createElement('p', null, 'Each variation here reframes ',
+      React.createElement('strong', null, 'what an inbox IS'), ':'),
+    React.createElement('ul', null,
+      React.createElement('li', null, React.createElement('strong', null, 'A. Triage focus'), ' \u2014 one decision at a time'),
+      React.createElement('li', null, React.createElement('strong', null, 'B. Editorial digest'), ' \u2014 a curated reading list'),
+      React.createElement('li', null, React.createElement('strong', null, 'C. Dual-role split'), ' \u2014 two sides of the work'),
+      React.createElement('li', null, React.createElement('strong', null, 'D. Pipeline'), ' \u2014 relationships as flow')
+    ),
+    React.createElement('p', { style:{ marginTop:12 } }, 'All four use the same dataset and design tokens \u2014 only the layout / metaphor changes.')
+  );
+}
+
+function App() {
+  return React.createElement(DesignCanvas, null,
+
+    React.createElement(DCSection, {
+      id:'intro',
+      title:'Inbox \u2014 layout & design variations',
+      subtitle:'Four ways to reframe what \u201cinbox\u201d means in BridgeCircle.',
+    },
+      React.createElement(DCArtboard, { id:'note', label:'Reading order', width:380, height:340 },
+        React.createElement(Intro)
+      ),
+      React.createElement(DCArtboard, { id:'current', label:'Current \u2014 nav \u00b7 list \u00b7 detail (reference)', width:900, height:620 },
+        React.createElement(BCInboxPanel)
+      )
+    ),
+
+    React.createElement(DCSection, {
+      id:'leading',
+      title:'Leading direction — toggle-top, two-column',
+      subtitle:'Variant C\u2019s segmented toggle replaces the left nav; current list + detail stay.',
+    },
+      React.createElement(DCArtboard, {
+        id:'e',
+        label:'E \u2014 Pills top \u00b7 Priority | All | Advice | Mentorship | Connections',
+        width:1100, height:620,
+      },
+        React.createElement(VariantE_PillsTop)
+      )
+    ),
+
+    React.createElement(DCSection, {
+      id:'reframes',
+      title:'Other directions (earlier exploration)',
+      subtitle:'Same data, four different metaphors for what the inbox does.',
+    },
+      React.createElement(DCArtboard, {
+        id:'a',
+        label:'A \u2014 Triage focus \u00b7 one decision at a time, on Midnight',
+        width:900, height:620,
+      },
+        React.createElement(VariantA_Triage)
+      ),
+
+      React.createElement(DCArtboard, {
+        id:'b',
+        label:'B \u2014 Editorial digest \u00b7 read your relationship work like a newsletter',
+        width:760, height:620,
+      },
+        React.createElement(VariantB_Digest)
+      ),
+
+      React.createElement(DCArtboard, {
+        id:'c',
+        label:'C \u2014 Dual-role split \u00b7 helping vs. being helped, side by side',
+        width:900, height:620,
+      },
+        React.createElement(VariantC_Split)
+      ),
+
+      React.createElement(DCArtboard, {
+        id:'d',
+        label:'D \u2014 Pipeline \u00b7 relationships as a kanban of states',
+        width:1100, height:620,
+      },
+        React.createElement(VariantD_Pipeline)
+      )
+    ),
+
+    React.createElement(DCSection, {
+      id:'tradeoffs',
+      title:'Trade-offs at a glance',
+      subtitle:'Which one fits depends on how members actually work.',
+    },
+      React.createElement(DCArtboard, { id:'tradeoffs', label:'Notes', width:1100, height:280 },
+        React.createElement('div', {
+          style:{
+            background:'#fafaf9', height:'100%', padding:'28px 32px', fontFamily:"'Inter',sans-serif",
+            display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:18,
+          },
+        },
+          [
+            { letter:'A', title:'Triage focus', color:'#081126', textColor:'#fff',
+              good:'Best when you have 5\u201310 unread asks once a day. Forces a decision, eliminates inbox dread.',
+              risk:'Feels overkill when there\u2019s nothing urgent. The Midnight surface is bold \u2014 not for everyday.' },
+            { letter:'B', title:'Editorial digest', color:'#fafaf9', textColor:'#0c0c0b',
+              good:'Calmest of the four. Each item is a self-contained decision. Most on-brand (Civic Editorial).',
+              risk:'Long scroll if you have 30+ open threads. Better for sparse, considered networks.' },
+            { letter:'C', title:'Dual-role split', color:'#3b6e51', textColor:'#fff',
+              good:'Makes the helping/asking duality the central UX truth. Great for mentors actively doing both.',
+              risk:'Asymmetric volume \u2014 most members will have a heavier helping column.' },
+            { letter:'D', title:'Pipeline', color:'#a16207', textColor:'#fff',
+              good:'Treats relationships as flow, not zero-inbox. Most useful for power users / coordinators.',
+              risk:'CRM-y. Risk of feeling like work software, not warm community.' },
+          ].map((c, i) =>
+            React.createElement('div', {
+              key:i,
+              style:{
+                background:'#fff', borderRadius:10, border:'1px solid #ebebe5',
+                padding:'18px 18px', boxShadow:'0 1px 0 rgba(12,12,11,.03)',
+                display:'flex', flexDirection:'column', gap:10,
+              },
+            },
+              React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:10 } },
+                React.createElement('div', {
+                  style:{ width:34, height:34, borderRadius:7, background:c.color, color:c.textColor, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Inter Tight',sans-serif", fontWeight:700, fontSize:16, letterSpacing:'-.02em' },
+                }, c.letter),
+                React.createElement('h3', { style:{ fontFamily:"'Inter Tight',sans-serif", fontSize:15, fontWeight:600, letterSpacing:'-.01em' } }, c.title),
+              ),
+              React.createElement('div', null,
+                React.createElement('p', { style:{ fontSize:10, fontWeight:700, letterSpacing:'.10em', textTransform:'uppercase', color:'#3b6e51', marginBottom:3 } }, 'Where it shines'),
+                React.createElement('p', { style:{ fontSize:12, lineHeight:1.5, color:'#0c0c0b' } }, c.good),
+              ),
+              React.createElement('div', null,
+                React.createElement('p', { style:{ fontSize:10, fontWeight:700, letterSpacing:'.10em', textTransform:'uppercase', color:'#b9472a', marginBottom:3 } }, 'Watch out'),
+                React.createElement('p', { style:{ fontSize:12, lineHeight:1.5, color:'#4d4d4a' } }, c.risk),
+              ),
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

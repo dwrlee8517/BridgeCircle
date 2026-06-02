@@ -40,7 +40,7 @@ export function MessageForm({ threadId }: { threadId: string }) {
       />
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
       <div className="flex justify-end">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" variant="cta" disabled={pending}>
           {pending ? 'Sending…' : 'Send'}
         </Button>
       </div>

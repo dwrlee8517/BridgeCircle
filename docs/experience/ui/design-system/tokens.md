@@ -4,8 +4,13 @@ This is the production token contract for BridgeCircle's Civic Editorial system.
 
 ## Authority
 
-This file is the only production token spec. The matching live CSS contract is
-`app/src/app/globals.css`.
+The handoff files
+[`handoff/bridgecircle-design-system/project/uploads/DESIGN.md`](handoff/bridgecircle-design-system/project/uploads/DESIGN.md)
+and
+[`handoff/bridgecircle-design-system/project/colors_and_type.css`](handoff/bridgecircle-design-system/project/colors_and_type.css)
+define the intended UI/UX token direction. This file documents how that token
+direction is implemented in production, alongside the matching live CSS contract
+in `app/src/app/globals.css`.
 
 Do not use token exports from `reference-src/`, especially
 `reference-src/ds-tokens-export.jsx` or `reference-src/ds-foundations.jsx`.
@@ -35,10 +40,10 @@ For component usage, use [`components.md`](components.md).
 | `muted-foreground` | `#4d4d4a` | Secondary copy and metadata |
 | `border` | `#dcdcd6` | Crisp editorial rule |
 | `destructive` | `#9b2c1f` | Destructive and error states |
-| `accent-ochre` | `#c8761a` | Warnings, nudges, attention without alarm |
-| `accent-rust` | `#b9472a` | Alerts, declines, negative state |
-| `accent-sage` | `#3b6e51` | Open, available, accepted |
-| `accent-plum` | `#722f37` | Secondary editorial categorization |
+| `accent-ochre` | `#a16207` | Warnings, nudges, attention without alarm |
+| `accent-rust` | `#c4314b` | Crimson — alerts, declines, negative state |
+| `accent-sage` | `#15a05f` | Emerald — open, available, accepted |
+| `accent-plum` | `#7c3aed` | Grape — secondary editorial categorization |
 
 Production rule: raw color values should be avoided in app surfaces unless they are stable generated avatar colors, event category colors, chart colors, or a documented one-off.
 
@@ -123,10 +128,10 @@ and inline notification panels. Tints are not a license to introduce new hues.
 |---|---:|---|
 | `primary-tint` | `rgb(37 99 235 / 10%)` | Info badge fill, selected item background |
 | `primary-tint-strong` | `rgb(37 99 235 / 16%)` | Active row, stronger selected state |
-| `success-tint` | `rgb(59 110 81 / 10%)` | Open, accepted, completed background |
-| `warning-tint` | `rgb(200 118 26 / 12%)` | Attention-needed background |
+| `success-tint` | `rgb(21 160 95 / 10%)` | Open, accepted, completed background |
+| `warning-tint` | `rgb(161 98 7 / 12%)` | Attention-needed background |
 | `danger-tint` | `rgb(155 44 31 / 10%)` | Error and destructive warning background |
-| `plum-tint` | `rgb(114 47 55 / 10%)` | Editorial category background |
+| `plum-tint` | `rgb(124 58 237 / 10%)` | Editorial category background |
 | `editorial-rule` | `rgb(250 250 249 / 16%)` | Divider on Midnight editorial surfaces |
 | `editorial-rule-strong` | `rgb(250 250 249 / 28%)` | Strong divider or outline on Midnight editorial surfaces |
 | `focus-ring-muted` | `rgb(37 99 235 / 10%)` | Outer focus halo |
@@ -157,8 +162,10 @@ luminance:
 
 Known limits:
 
-- `accent-ochre` on `background` is `3.32:1`; use it as a border, dot, fill,
-  or large icon only.
+- The older ochre `#c8761a` was `3.32:1` on `background` and is superseded.
+  Current `accent-ochre` `#a16207` is `4.71:1`, but warning body copy should
+  still use `state-warning-foreground` so warnings are not dependent on color
+  alone and do not visually compete with amber CTA.
 - `primary` on `surface-midnight` is `3.63:1`; use `primary-on-dark` on
   Midnight editorial surfaces.
 - Any new foreground/background pair needs a contrast check before production.

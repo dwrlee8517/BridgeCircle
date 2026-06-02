@@ -1,6 +1,11 @@
 # Current Member UI Quality Plan
 
-Status: `Active`.
+Status: `Active implementation checklist`.
+
+Authority: the handoff bundle at
+[`../ui/design-system/handoff/`](../ui/design-system/handoff/) is the intended
+UI/UX source of truth. Use this plan to track production alignment work, not as
+a competing visual source.
 
 Generated from the May 24, 2026 clean screenshot pass in
 `output/playwright/fresh-screenshots-2026-05-24-clean/`.

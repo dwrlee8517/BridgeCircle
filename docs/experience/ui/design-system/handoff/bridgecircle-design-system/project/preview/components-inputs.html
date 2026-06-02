@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#fafaf9;padding:20px;color:#0c0c0b}
+  .section-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2563eb;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+  .section-label::before{content:'';display:block;width:20px;height:2px;background:#2563eb;border-radius:99px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+  .field-wrap{display:flex;flex-direction:column;gap:4px}
+  label{font-size:12px;font-weight:500;color:#0c0c0b}
+  .helper{font-size:11px;color:#4d4d4a}
+  .error-text{font-size:11px;color:#9b2c1f}
+  input,textarea,select{font-family:'Inter',sans-serif;font-size:15px;color:#0c0c0b;background:#fff;border:1px solid #dcdcd6;border-radius:10px;padding:9px 12px;width:100%;outline:none;transition:border-color 150ms,box-shadow 150ms}
+  input::placeholder,textarea::placeholder{color:rgba(77,77,74,.5)}
+  .input-focus{border-color:#2563eb;box-shadow:0 0 0 1px #2563eb,0 0 0 4px rgb(37 99 235/.10)}
+  .input-error{border-color:#9b2c1f;box-shadow:0 0 0 4px rgb(155 44 31/.10)}
+  .input-disabled{opacity:.6;cursor:not-allowed;background:#f4f3ee}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234d4d4a' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+  textarea{resize:vertical;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="section-label">Input states</div>
+<div class="grid">
+  <div class="field-wrap">
+    <label for="i1">Full name</label>
+    <input id="i1" type="text" placeholder="Your full name">
+    <span class="helper">As it appears on your degree or alumni record</span>
+  </div>
+  <div class="field-wrap">
+    <label for="i2">Email address <span style="color:#9b2c1f">*</span></label>
+    <input id="i2" type="email" class="input-focus" value="alex@alumni.edu" placeholder="you@example.com">
+    <span class="helper">Focus state — 2px ring + halo</span>
+  </div>
+  <div class="field-wrap">
+    <label for="i3">LinkedIn profile</label>
+    <input id="i3" type="url" class="input-error" value="not-a-valid-url" placeholder="https://linkedin.com/in/…">
+    <span class="error-text">Please enter a valid LinkedIn URL</span>
+  </div>
+  <div class="field-wrap">
+    <label for="i4">Current city</label>
+    <input id="i4" type="text" class="input-disabled" value="Brooklyn, NY" disabled>
+    <span class="helper">Disabled state — sourced from profile</span>
+  </div>
+  <div class="field-wrap">
+    <label for="s1">What are you open to?</label>
+    <select id="s1">
+      <option>Quick advice sessions</option>
+      <option>Ongoing mentorship</option>
+      <option>Both</option>
+    </select>
+  </div>
+  <div class="field-wrap">
+    <label for="ta1">Your ask</label>
+    <textarea id="ta1" rows="3" placeholder="What are you trying to figure out? Be specific about where you are and what would be most useful."></textarea>
+  </div>
+</div>
+
+<div class="section-label">Search capsule (pill)</div>
+<div style="display:flex;gap:12px;align-items:center">
+  <div style="display:flex;align-items:center;gap:8px;background:#fafaf9;border:1px solid #dcdcd6;border-radius:9999px;padding:6px 14px;height:36px;width:240px;transition:all 150ms">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4d4d4a" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <span style="font-size:14px;color:rgba(77,77,74,.5)">Search the circle…</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;background:#fafaf9;border:1px solid #2563eb;border-radius:9999px;padding:6px 14px;height:36px;width:240px;box-shadow:0 0 0 4px rgb(37 99 235/.10)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <span style="font-size:14px;color:#0c0c0b">consulting to product</span>
+  </div>
+</div>
+</body>
+</html>

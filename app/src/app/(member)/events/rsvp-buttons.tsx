@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { rsvpAction } from './actions'
@@ -18,16 +18,14 @@ type Props = {
 }
 
 /**
- * Three-state RSVP control. The user always submits 'going' or 'not_going';
+ * Single-action RSVP control. The user always submits 'going' or 'not_going';
  * the server resolves to 'waitlisted' if the event is at capacity. The
  * button copy adapts to the resolved state on the next render.
  *
  * UI states:
- *   current=going       → "✓ Going" (filled)
- *   current=waitlisted  → "On waitlist" (secondary fill)
- *   current=not_going   → "Going" / "Not going" buttons, "Not going" highlighted
- *   current=null + full → "Join waitlist" / "Not going"
- *   current=null        → "Going" / "Not going"
+ *   current=going       → "You're going" (sage, clicking cancels)
+ *   current=waitlisted  → "On waitlist" (sage, clicking leaves waitlist)
+ *   current=null/full   → amber commit action
  *
  * Errors from the server action surface inline below the buttons so the user
  * (and we!) know when something went wrong instead of staring at an
@@ -48,51 +46,36 @@ export function RsvpButtons({ eventId, current, isFull, size = 'default' }: Prop
     })
   }
 
-  // Going button label + variant adapts to context. The visual rule:
-  //   active state  → filled with primary color (clear "you picked this")
-  //   inactive      → outline (clear "you can pick this")
-  // Previously both states used the same neutral-feeling chips, which made
-  // the buttons read as inactive tabs rather than toggle states.
-  let goingLabel: string
-  const goingActive = current === 'going' || current === 'waitlisted'
+  let label: string
+  const active = current === 'going' || current === 'waitlisted'
   if (current === 'going') {
-    goingLabel = 'Going'
+    label = "You're going"
   } else if (current === 'waitlisted') {
-    goingLabel = 'On waitlist'
+    label = 'On waitlist'
   } else if (isFull) {
-    goingLabel = 'Join waitlist'
+    label = 'Join waitlist'
   } else {
-    goingLabel = 'Going'
+    label = "RSVP - I'm going"
   }
-
-  const notGoingActive = current === 'not_going'
 
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          size={size}
-          variant={goingActive ? 'default' : 'outline'}
-          onClick={() => submit('going')}
-          disabled={pending}
-          className="rounded-lg border-border/60"
-        >
-          {goingActive ? <Check className="size-3.5" strokeWidth={1.5} /> : null}
-          {goingLabel}
-        </Button>
-        <Button
-          type="button"
-          size={size}
-          variant={notGoingActive ? 'default' : 'outline'}
-          onClick={() => submit('not_going')}
-          disabled={pending}
-          className="rounded-lg border-border/60"
-        >
-          {notGoingActive ? <X className="size-3.5" strokeWidth={1.5} /> : null}
-          Not going
-        </Button>
-      </div>
+      <Button
+        type="button"
+        size={size}
+        variant={active ? 'offer' : 'cta'}
+        onClick={() => submit(active ? 'not_going' : 'going')}
+        disabled={pending}
+        className="w-full"
+      >
+        {active ? <Check className="size-4" strokeWidth={1.7} /> : null}
+        {pending ? 'Saving...' : label}
+      </Button>
+      {active ? (
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Select again if your plans change.
+        </p>
+      ) : null}
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
     </div>
   )

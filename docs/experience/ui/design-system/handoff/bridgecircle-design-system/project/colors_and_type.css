@@ -1,0 +1,510 @@
+/**
+ * BridgeCircle — Civic Editorial Design System
+ * CSS Custom Properties: Colors, Typography, Spacing, Motion, Elevation
+ *
+ * Source of truth: app/src/app/globals.css + uploads/DESIGN.md
+ * Fonts: Inter Tight (display), Inter (body/UI), JetBrains Mono (metadata)
+ * All available via Google Fonts.
+ *
+ * Usage in standalone HTML:
+ *   <link rel="preconnect" href="https://fonts.googleapis.com">
+ *   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+ *   <link rel="stylesheet" href="colors_and_type.css">
+ */
+
+/* ============================================================
+ * FONT IMPORTS
+ * ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ============================================================
+ * BASE TOKENS — LIGHT MODE
+ * "Civic Editorial" — Electric Sky & Midnight on Platinum Bone
+ * ============================================================ */
+:root {
+  /* --- Font families --- */
+  --font-display: 'Inter Tight', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- Core palette --- */
+  --color-background:        #fafaf9;  /* Platinum Bone — page canvas */
+  --color-foreground:        #0c0c0b;  /* Obsidian — primary text, 18.7:1 AAA */
+  --color-card:              #ffffff;  /* Surface white — raised cards */
+  --color-card-foreground:   #0c0c0b;
+  --color-popover:           #ffffff;
+  --color-popover-foreground:#0c0c0b;
+
+  /* --- Brand primaries --- */
+  --color-primary:           #2563eb;  /* Electric Sky — navigation, links, interactive */
+  --color-primary-hover:     #1d4ed8;
+  --color-primary-on-dark:   #93c5fd;  /* Electric Sky on Midnight surfaces */
+  --color-primary-foreground:#ffffff;
+  --color-cta:               #f59e0b;  /* Amber — single highest-stakes action per surface */
+  --color-cta-hover:         #d97706;
+  --color-cta-foreground:    #0c0c0b;
+
+  /* --- Editorial surfaces --- */
+  --color-surface-midnight:          #081126;  /* Midnight — hero/auth only */
+  --color-surface-midnight-foreground:#fafaf9;
+  --color-surface-midnight-muted:    rgb(250 250 249 / 68%);
+
+  /* --- Neutral surfaces --- */
+  --color-secondary:         #f4f3ee;  /* Soft Panel — side panels, grouping */
+  --color-secondary-foreground: #0c0c0b;
+  --color-muted:             #ebebe5;  /* Surface Subtle — hover backgrounds */
+  --color-muted-foreground:  #4d4d4a;  /* Secondary copy, 8.1:1 AAA */
+  --color-border:            #dcdcd6;
+  --color-input:             #dcdcd6;
+
+  /* --- Semantic role aliases --- */
+  --color-surface-page:      var(--color-background);
+  --color-surface-card:      var(--color-card);
+  --color-surface-panel:     var(--color-secondary);
+  --color-surface-subtle:    var(--color-muted);
+  --color-link:              var(--color-primary);
+  --color-link-hover:        var(--color-primary-hover);
+  --color-focus-ring:        var(--color-primary);
+  --color-focus-ring-muted:  rgb(37 99 235 / 10%);
+
+  /* --- Accent / editorial colors --- */
+  --color-accent-ochre:      #a16207;  /* Warning, mentor paused, request attention — darkened from #c8761a so it can't be confused with Amber CTA at 8–12 px */
+  --color-accent-rust:       #c4314b;  /* Crimson — declined, destructive emphasis */
+  --color-accent-sage:       #15a05f;  /* Emerald — success, mentor open, completed */
+  --color-accent-plum:       #7c3aed;  /* Grape — secondary taxonomy (topics, content type) */
+
+  /* --- State colors --- */
+  --color-state-info:        var(--color-primary);
+  --color-state-info-fg:     var(--color-primary);
+  --color-state-success:     var(--color-accent-sage);
+  --color-state-success-fg:  var(--color-accent-sage);
+  --color-state-warning:     var(--color-accent-ochre);
+  --color-state-warning-fg:  var(--color-foreground);  /* warning text uses foreground — not ochre (low contrast) */
+  --color-state-danger:      #9b2c1f;
+  --color-state-danger-fg:   #9b2c1f;
+  --color-destructive:       #9b2c1f;
+  --color-destructive-foreground: #ffffff;
+
+  /* --- Product-specific semantic tokens --- */
+  --color-match-signal:      var(--color-primary);
+  --color-mentor-open:       var(--color-accent-sage);
+  --color-mentor-paused:     var(--color-accent-ochre);
+  --color-request-attention: var(--color-accent-ochre);
+  --color-request-declined:  var(--color-accent-rust);
+  --color-verification:      var(--color-accent-sage);
+  --color-event-featured:    var(--color-primary);
+
+  /* --- Action layer (button intent) ---
+   * Direction B "Ask / Offer": color encodes the direction of exchange.
+   *   ask    = request help / browse        (Sky blue)
+   *   offer  = give help / accept a request (Sage)
+   *   commit = the single decisive action per surface — send ask, RSVP, ask-from-profile (Amber) */
+  --color-action-ask:        var(--color-primary);       /* #2563eb */
+  --color-action-offer:      var(--color-accent-sage);    /* #15a05f */
+  --color-action-offer-hover:#11814d;
+  --color-action-commit:     var(--color-cta);            /* amber */
+
+  /* --- Tints (alpha fills for badges, selection backgrounds) --- */
+  --color-primary-tint:      rgb(37 99 235 / 10%);
+  --color-primary-tint-strong: rgb(37 99 235 / 16%);
+  --color-success-tint:      rgb(21 160 95 / 10%);
+  --color-warning-tint:      rgb(161 98 7 / 12%);
+  --color-danger-tint:       rgb(155 44 31 / 10%);
+  --color-plum-tint:         rgb(124 58 237 / 10%);
+
+  /* --- Editorial surface dividers (on Midnight) --- */
+  --color-editorial-rule:       rgb(250 250 249 / 16%);
+  --color-editorial-rule-strong: rgb(250 250 249 / 28%);
+
+  /* --- Sidebar (dark sidebar pattern) --- */
+  --color-sidebar:           #0c0c0b;
+  --color-sidebar-foreground:#fafaf9;
+  --color-sidebar-primary:   #2563eb;
+  --color-sidebar-accent:    #222221;
+  --color-sidebar-border:    #222221;
+
+  /* ============================================================
+   * TYPOGRAPHY SCALE
+   * 1.25 modular ratio (Major Third), anchored at 16px body.
+   * ============================================================ */
+  --font-size-display-lg: 2.5rem;       /* 40px */
+  --font-size-display-md: 2rem;         /* 32px */
+  --font-size-h1:         1.6rem;       /* 25.6px */
+  --font-size-h2:         1.25rem;      /* 20px */
+  --font-size-body-lg:    1.0625rem;    /* 17px */
+  --font-size-body-md:    1rem;         /* 16px */
+  --font-size-body-sm:    0.875rem;     /* 14px */
+  --font-size-label-md:   0.875rem;     /* 14px */
+  --font-size-caption:    0.8125rem;    /* 13px */
+  --font-size-mono-sm:    0.75rem;      /* 12px — minimum allowed */
+  --font-size-kicker:     0.6875rem;    /* 11px — section kicker */
+
+  --line-height-display-lg: 1.05;
+  --line-height-display-md: 1.15;
+  --line-height-h1:         1.25;
+  --line-height-h2:         1.25;
+  --line-height-body-lg:    1.55;
+  --line-height-body-md:    1.5;
+  --line-height-body-sm:    1.45;
+  --line-height-caption:    1.4;
+  --line-height-mono-sm:    1.4;
+
+  --font-weight-display:  600;
+  --font-weight-heading:  600;
+  --font-weight-label:    500;
+  --font-weight-body:     400;
+  --font-weight-mono:     400;
+  --font-weight-kicker:   700;
+
+  --letter-spacing-display-lg: -0.02em;
+  --letter-spacing-display-md: -0.02em;
+  --letter-spacing-h1:         -0.01em;
+  --letter-spacing-mono-sm:     0.02em;
+  --letter-spacing-kicker:      0.12em;
+
+  /* ============================================================
+   * SPACING SCALE — 4px base unit
+   * ============================================================ */
+  --space-1:  0.25rem;   /* 4px */
+  --space-2:  0.5rem;    /* 8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-12: 3rem;      /* 48px */
+
+  --space-card-padding:  var(--space-6);  /* 24px default */
+  --space-section-gap:   var(--space-8);  /* 32px between major sections */
+  --space-sibling-gap:   var(--space-4);  /* 16px within sections */
+
+  /* ============================================================
+   * BORDER RADIUS
+   * ============================================================ */
+  --radius-none: 0px;
+  --radius-sm:   6px;      /* compact inline chips, dense admin controls */
+  --radius-md:   10px;     /* default — cards, inputs, buttons, panels, badges */
+  --radius-lg:   14px;
+  --radius-full: 9999px;   /* avatars, dots, radio, search capsule */
+
+  /* ============================================================
+   * ELEVATION / SHADOWS
+   * Paper-weight lift — not dashboard gloss.
+   * ============================================================ */
+  --shadow-card:       0 1px 0 rgb(12 12 11 / 0.03);           /* hairline — quiet rows */
+  --shadow-card-hover: 0 4px 12px -2px rgb(12 12 11 / 0.06);   /* lift — interactive cards */
+  --shadow-hero:       0 12px 34px -8px rgb(12 12 11 / 0.10);  /* hero — one per surface */
+
+  /* ============================================================
+   * MOTION
+   * ============================================================ */
+  --motion-instant: 0ms;
+  --motion-fast:    100ms;
+  --motion-base:    150ms;   /* controls, color/bg transitions */
+  --motion-medium:  200ms;   /* overlay enter (dialogs, popovers) */
+  --motion-slow:    300ms;
+
+  --ease-standard:  ease-out;
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ============================================================
+   * Z-INDEX STACK
+   * ============================================================ */
+  --z-base:             0;
+  --z-card-hover:       10;
+  --z-sticky-nav:       100;
+  --z-floating-dock:    200;
+  --z-dropdown-popover: 300;
+  --z-command-drawer:   1000;
+  --z-modal-dialog:     1100;
+  --z-toast:            1200;
+}
+
+/* ============================================================
+ * DARK MODE OVERRIDES
+ * ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background:        #0c0c0b;
+    --color-foreground:        #fafaf9;
+    --color-card:              #1e1e1d;
+    --color-card-foreground:   #fafaf9;
+    --color-primary:           #93c5fd;
+    --color-primary-hover:     #bfdbfe;
+    --color-cta:               #fbbf24;
+    --color-cta-hover:         #f59e0b;
+    --color-secondary:         #2b2b29;
+    --color-secondary-foreground: #fafaf9;
+    --color-muted:             #2b2b29;
+    --color-muted-foreground:  #b0b0aa;
+    --color-border:            rgb(250 250 249 / 12%);
+    --color-destructive:       #c44a39;
+    --color-accent-ochre:      #c98a3a;  /* dark-mode pair, shifted darker to mirror the light-mode change */
+    --color-accent-rust:       #e0617a;
+    --color-accent-sage:       #43c489;
+    --color-accent-plum:       #a78bfa;
+    --color-primary-tint:      rgb(147 197 253 / 14%);
+    --color-success-tint:      rgb(67 196 137 / 16%);
+    --color-plum-tint:         rgb(167 139 250 / 16%);
+    --color-warning-tint:      rgb(221 161 80 / 16%);
+    --color-danger-tint:       rgb(208 95 67 / 16%);
+    --shadow-card:       0 1px 0 rgb(0 0 0 / 0.25);
+    --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.35);
+    --shadow-hero:       0 12px 34px -8px rgb(0 0 0 / 0.45);
+  }
+}
+
+/* ============================================================
+ * DENSITY MODES
+ * Apply as wrapper class: density-cozy, density-pro
+ * ============================================================ */
+.density-cozy {
+  --font-size-display-lg: 2.125rem;   /* 34px */
+  --font-size-display-md: 1.75rem;    /* 28px */
+  --font-size-h1:         1.375rem;   /* 22px */
+  --font-size-body-lg:    0.9375rem;  /* 15px */
+  --font-size-body-md:    0.875rem;   /* 14px */
+  --font-size-caption:    0.75rem;    /* 12px */
+  --space-card-padding:   var(--space-4);  /* 16px */
+}
+
+.density-pro {
+  --font-size-display-lg: 1.875rem;   /* 30px */
+  --font-size-display-md: 1.5rem;     /* 24px */
+  --font-size-h1:         1.25rem;    /* 20px */
+  --font-size-body-lg:    0.9375rem;
+  --font-size-body-md:    0.875rem;
+  --font-size-caption:    0.75rem;
+  --space-card-padding:   0.75rem;    /* 12px */
+  /* CTA reverts to primary blue in pro density */
+  --color-cta:            var(--color-primary);
+  --color-cta-hover:      var(--color-primary-hover);
+  --color-cta-foreground: var(--color-primary-foreground);
+}
+
+/* ============================================================
+ * SEMANTIC TYPE CLASSES
+ * Use these on elements for consistent typographic roles.
+ * ============================================================ */
+
+.bc-display-lg {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display-lg);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display-lg);
+  letter-spacing: var(--letter-spacing-display-lg);
+  color: var(--color-foreground);
+}
+
+.bc-display-md {
+  font-family: var(--font-display);
+  font-size: var(--font-size-display-md);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display-md);
+  letter-spacing: var(--letter-spacing-display-md);
+  color: var(--color-foreground);
+}
+
+.bc-h1 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-h1);
+  letter-spacing: var(--letter-spacing-h1);
+  color: var(--color-foreground);
+}
+
+.bc-h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-h2);
+  color: var(--color-foreground);
+}
+
+.bc-body-lg {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body-lg);
+  color: var(--color-foreground);
+}
+
+.bc-body-md {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-md);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body-md);
+  color: var(--color-foreground);
+}
+
+.bc-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-foreground);
+}
+
+.bc-label-md {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-label-md);
+  font-weight: var(--font-weight-label);
+  line-height: var(--line-height-body-sm);
+  color: var(--color-foreground);
+}
+
+.bc-caption {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-caption);
+  color: var(--color-muted-foreground);
+}
+
+.bc-mono-sm {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-mono-sm);
+  font-weight: var(--font-weight-mono);
+  line-height: var(--line-height-mono-sm);
+  letter-spacing: var(--letter-spacing-mono-sm);
+  color: var(--color-muted-foreground);
+}
+
+/* Section kicker — ALL CAPS tracked label with blue rule before it */
+.bc-section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-kicker);
+  font-weight: var(--font-weight-kicker);
+  letter-spacing: var(--letter-spacing-kicker);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.bc-section-kicker::before {
+  content: '';
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+/* Pull quote — italic with sapphire left rule */
+.bc-pull-quote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 0.75rem;
+  font-family: var(--font-sans);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-foreground);
+}
+
+/* Display heading helper (Inter Tight) */
+.bc-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+ * UTILITY COMPONENT CLASSES
+ * ============================================================ */
+
+/* Platinum Bone page band with Electric Sky bleed — dashboard hero */
+.bc-page-band {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0)),
+    radial-gradient(circle at 12% 0%, rgb(37 99 235 / 0.07), transparent 32%),
+    var(--color-background);
+}
+
+/* AskBar command surface */
+.bc-command-surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at 8% 30%, rgb(37 99 235 / 0.055), transparent 32%),
+    radial-gradient(circle at 78% 10%, rgb(21 160 95 / 0.035), transparent 30%),
+    linear-gradient(135deg, rgb(255 255 255 / 0.99), rgb(250 250 249 / 0.9)),
+    var(--color-card);
+  box-shadow:
+    0 0 0 1px rgb(37 99 235 / 0.04),
+    0 20px 58px rgb(37 99 235 / 0.07),
+    0 14px 34px rgb(12 12 11 / 0.07);
+  transition:
+    border-color var(--motion-base) var(--ease-standard),
+    box-shadow var(--motion-base) var(--ease-standard);
+}
+.bc-command-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgb(37 99 235 / 0.03) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(37 99 235 / 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(90deg, black, transparent 72%);
+}
+
+/* Decision row (bordered card pattern) */
+.bc-decision-row {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* Action rail (left-bordered callout) */
+.bc-action-rail {
+  border-left: 3px solid var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-card));
+}
+
+/* Motion control (properties: color, bg, border, shadow, opacity) */
+.bc-motion-control {
+  transition-duration: var(--motion-base);
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-timing-function: var(--ease-standard);
+}
+
+/* Motion surface (includes transform for lift animations) */
+.bc-motion-surface {
+  transition-duration: var(--motion-base);
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-timing-function: var(--ease-standard);
+}
+
+/* Loading pulse */
+@keyframes bc-loading-pulse {
+  0%, 100% { opacity: 0.56; }
+  50%       { opacity: 1; }
+}
+.bc-loading-pulse {
+  animation: bc-loading-pulse 1.4s var(--ease-standard) infinite;
+}
+
+/* Selected state */
+.bc-state-selected {
+  background-color: var(--color-primary-tint);
+  border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* Unread indicator dot */
+.bc-unread-dot {
+  background-color: var(--color-request-attention);
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+  }
+}

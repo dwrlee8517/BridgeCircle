@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BridgeCircle — Palette Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f0eee9; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const INK = '#0c0c0b', MUTED = '#4d4d4a', HAIR = '#dcdcd6', BONE = '#fafaf9', PANEL = '#f4f3ee';
+
+// ── Palette directions ──────────────────────────────────────────────────
+// ask = "request help" action · offer = "give help" action ·
+// commit = the single decisive action per surface · quiet = outline/secondary
+const DIRECTIONS = [
+  {
+    id: 'baseline',
+    name: 'Baseline',
+    note: 'Every list action is solid blue; amber reserved for the one commit. Coherent, but Help reads monotone — nothing distinguishes “ask” from “offer.”',
+    ask:    { bg: '#2563eb', fg: '#fff', border: '#2563eb' },
+    offer:  { bg: '#2563eb', fg: '#fff', border: '#2563eb' },
+    commit: { bg: '#f59e0b', fg: '#0c0c0b' },
+    quiet:  { bg: '#fff', fg: '#0c0c0b', border: '#dcdcd6' },
+    swatches: [
+      { name: 'Sky', hex: '#2563eb' },
+      { name: 'Amber', hex: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'tonal',
+    name: 'A · Tonal',
+    note: 'One hue, two weights. Solid Sky for the likeliest action, soft-Sky (tint fill, blue text) for the rest. No new color — quietest, safest, adds hierarchy without meaning.',
+    ask:    { bg: '#2563eb', fg: '#fff', border: '#2563eb' },
+    offer:  { bg: 'rgba(37,99,235,0.10)', fg: '#1d4ed8', border: 'rgba(37,99,235,0.24)' },
+    commit: { bg: '#f59e0b', fg: '#0c0c0b' },
+    quiet:  { bg: '#fff', fg: '#0c0c0b', border: '#dcdcd6' },
+    swatches: [
+      { name: 'Sky', hex: '#2563eb' },
+      { name: 'Sky 10%', hex: 'rgba(37,99,235,0.10)', text: '#1d4ed8' },
+      { name: 'Amber', hex: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'askoffer',
+    name: 'B · Ask / Offer',
+    note: 'Sky = you ask (request). Sage = you offer (give) — already your “mentor-open” color. Amber = the one commit. Color carries direction of exchange; Help stops being all-blue. Recommended.',
+    recommended: true,
+    ask:    { bg: '#2563eb', fg: '#fff', border: '#2563eb' },
+    offer:  { bg: '#3b6e51', fg: '#fff', border: '#3b6e51' },
+    commit: { bg: '#f59e0b', fg: '#0c0c0b' },
+    quiet:  { bg: '#fff', fg: '#0c0c0b', border: '#dcdcd6' },
+    swatches: [
+      { name: 'Sky · ask', hex: '#2563eb' },
+      { name: 'Sage · offer', hex: '#3b6e51' },
+      { name: 'Amber · commit', hex: '#f59e0b' },
+    ],
+  },
+  {
+    id: 'newaccent',
+    name: 'C · New accent',
+    note: 'Adds a true third hue — muted Cerulean for “connect / intro” tertiary actions — and swaps bright Amber for a deeper, more editorial Amber-600. Most expressive; most to govern.',
+    ask:    { bg: '#2563eb', fg: '#fff', border: '#2563eb' },
+    offer:  { bg: '#3b6e51', fg: '#fff', border: '#3b6e51' },
+    commit: { bg: '#d97706', fg: '#fff' },
+    accent: { bg: 'rgba(15,125,119,0.10)', fg: '#0f6f6a', border: 'rgba(15,125,119,0.28)' },
+    quiet:  { bg: '#fff', fg: '#0c0c0b', border: '#dcdcd6' },
+    swatches: [
+      { name: 'Sky', hex: '#2563eb' },
+      { name: 'Sage', hex: '#3b6e51' },
+      { name: 'Cerulean', hex: '#0f7d77' },
+      { name: 'Amber 600', hex: '#d97706' },
+    ],
+  },
+];
+
+// ── Mini primitives ─────────────────────────────────────────────────────
+function Avatar({ initials, size = 38 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: 8, flexShrink: 0,
+      background: '#e9e7df', border: '1px solid #dcdcd6',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontFamily: "'Inter Tight', sans-serif", fontWeight: 600, fontSize: size * 0.34,
+      color: '#6b675e',
+    }}>{initials}</div>
+  );
+}
+
+function Btn({ s, children, big }) {
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      height: big ? 38 : 30, padding: big ? '0 16px' : '0 12px',
+      borderRadius: 8, fontFamily: "'Inter', sans-serif", fontWeight: 600,
+      fontSize: big ? 13.5 : 12, whiteSpace: 'nowrap',
+      background: s.bg, color: s.fg,
+      border: `1px solid ${s.border || s.bg}`,
+    }}>{children}</span>
+  );
+}
+
+function Kicker({ children, color = '#2563eb' }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: 10,
+      letterSpacing: '0.12em', textTransform: 'uppercase', color,
+    }}>
+      <span style={{ width: 22, height: 2, borderRadius: 9, background: color }} />
+      {children}
+    </div>
+  );
+}
+
+// A single in-context exchange row
+function Row({ kicker, kickerColor, name, sub, quote, quietLabel, action, actionStyle }) {
+  return (
+    <div style={{
+      background: '#fff', border: '1px solid #ebebe5', borderRadius: 10,
+      padding: '13px 14px', boxShadow: '0 1px 0 rgba(12,12,11,0.03)',
+    }}>
+      <Kicker color={kickerColor}>{kicker}</Kicker>
+      <div style={{ display: 'flex', gap: 11, marginTop: 10 }}>
+        <Avatar initials={name.split(' ').map(w => w[0]).join('')} />
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontFamily: "'Inter Tight', sans-serif", fontSize: 13.5, fontWeight: 600, color: INK }}>{name}</div>
+          <div style={{ fontSize: 11.5, color: MUTED, marginTop: 1 }}>{sub}</div>
+        </div>
+      </div>
+      <p style={{ fontSize: 12, color: INK, lineHeight: 1.45, margin: '10px 0 0' }}>{quote}</p>
+      <div style={{ display: 'flex', gap: 6, marginTop: 11, alignItems: 'center' }}>
+        <Btn s={{ bg: 'transparent', fg: MUTED, border: 'transparent' }}>{quietLabel}</Btn>
+        <Btn s={actionStyle}>{action}</Btn>
+      </div>
+    </div>
+  );
+}
+
+function Swatches({ items }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+      {items.map((sw, i) => (
+        <div key={i} style={{
+          display: 'flex', alignItems: 'center', gap: 7,
+          padding: '4px 9px 4px 4px', borderRadius: 999,
+          background: '#fff', border: '1px solid #e3e0d6',
+        }}>
+          <span style={{
+            width: 18, height: 18, borderRadius: 5, background: sw.hex,
+            border: '1px solid rgba(12,12,11,0.10)',
+          }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: MUTED }}>{sw.name}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── One direction artboard ──────────────────────────────────────────────
+function DirectionCard({ d }) {
+  return (
+    <div style={{
+      width: '100%', background: BONE,
+      border: '1px solid #dcdcd6', borderRadius: 14, overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{ padding: '18px 18px 16px', borderBottom: '1px solid #ebebe5', background: '#fff', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <h2 style={{
+            fontFamily: "'Inter Tight', sans-serif", fontSize: 17, fontWeight: 600,
+            letterSpacing: '-0.01em', color: INK, margin: 0,
+          }}>{d.name}</h2>
+          {d.recommended && (
+            <span style={{
+              fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 700,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: '#3b6e51', background: 'rgba(59,110,81,0.12)',
+              border: '1px solid rgba(59,110,81,0.28)', borderRadius: 4, padding: '2px 7px',
+            }}>Recommended</span>
+          )}
+        </div>
+        <p style={{ fontSize: 11.5, lineHeight: 1.5, color: MUTED, margin: 0 }}>{d.note}</p>
+        <Swatches items={d.swatches} />
+      </div>
+
+      {/* In-context surfaces */}
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <Row
+          kicker="People · ask" kickerColor="#2563eb"
+          name="Jamie Kim" sub="Product Manager · Stripe"
+          quote="“Navigating a PM interview loop at a Series B — would love 30 min.”"
+          quietLabel="View" action="Ask Jamie" actionStyle={d.ask}
+        />
+        <Row
+          kicker="Help · offer" kickerColor={d.id === 'baseline' || d.id === 'tonal' ? '#2563eb' : '#3b6e51'}
+          name="Dani Cruz" sub="Asked for advice · 2h ago"
+          quote="“Switching from consulting into product. How did you frame it?”"
+          quietLabel="Pass" action="Offer help" actionStyle={d.offer}
+        />
+
+        {/* Commit surface */}
+        <div style={{
+          background: 'linear-gradient(135deg, #fff, #fafaf9)',
+          border: '1px solid rgba(37,99,235,0.18)', borderRadius: 10,
+          padding: '13px 14px',
+          boxShadow: '0 8px 22px rgba(37,99,235,0.05)',
+        }}>
+          <Kicker>Command · the one commit</Kicker>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+            <div style={{
+              flex: 1, height: 38, borderRadius: 8, background: '#fff',
+              border: '1px solid #dcdcd6', display: 'flex', alignItems: 'center',
+              padding: '0 12px', fontSize: 12, color: '#9a968c',
+            }}>What do you need help with?</div>
+            <Btn s={d.commit} big>{d.commit.fg === '#fff' ? 'Send ask →' : 'Send ask →'}</Btn>
+          </div>
+          {d.accent && (
+            <div style={{ marginTop: 10, display: 'flex', gap: 6, alignItems: 'center' }}>
+              <span style={{ fontSize: 10.5, color: MUTED }}>Tertiary tier:</span>
+              <Btn s={d.accent}>Request intro</Btn>
+              <Btn s={d.accent}>Connect</Btn>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection
+        id="palette"
+        title="Palette directions"
+        subtitle="Same three surfaces under each direction — judge how the colors coexist, not just the swatches."
+      >
+        {DIRECTIONS.map(d => (
+          <DCArtboard key={d.id} id={d.id} label={d.name} width={340} height={720}>
+            <DirectionCard d={d} />
+          </DCArtboard>
+        ))}
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

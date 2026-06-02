@@ -25,11 +25,14 @@ export default async function NotificationsPage() {
   const items = await listNotifications(supabase, session.userId, { limit: 100 })
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Notifications</h1>
+    <div className="density-cozy mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-8">
+      <div className="space-y-2">
+        <p className="bc-section-kicker">Your activity</p>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          Notifications
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Last 100. Use the bell in the top nav to mark items as read.
+          Your last 100. Use the bell in the top nav to mark items as read.
         </p>
       </div>
 
@@ -62,12 +65,14 @@ function Row({ row }: { row: NotificationRow }) {
   const inner = (
     <div
       className={`flex items-start gap-3 px-4 py-3 ${
-        row.readAt ? 'opacity-60' : 'bg-muted/20'
+        row.readAt ? '' : 'bg-warning-tint/55'
       } ${url ? 'hover:bg-muted/40' : ''}`}
     >
       <Icon type={row.type} />
       <div className="min-w-0 flex-1">
-        <p className="text-sm leading-tight">{notificationLabel(row)}</p>
+        <p className={`text-sm leading-tight ${row.readAt ? '' : 'font-semibold'}`}>
+          {notificationLabel(row)}
+        </p>
         <p
           className="mt-0.5 text-xs text-muted-foreground"
           title={format(new Date(row.createdAt), 'PPpp')}
@@ -76,9 +81,10 @@ function Row({ row }: { row: NotificationRow }) {
         </p>
       </div>
       {!row.readAt ? (
-        <span role="img" className="mt-1 size-2 shrink-0 rounded-full bg-primary">
+        <>
           <span className="sr-only">Unread</span>
-        </span>
+          <span className="mt-1 size-2 shrink-0 rounded-full bg-request-attention" aria-hidden />
+        </>
       ) : null}
     </div>
   )
@@ -92,24 +98,51 @@ function Row({ row }: { row: NotificationRow }) {
   )
 }
 
-function Icon({ type }: { type: NotificationType }) {
-  const className = 'mt-0.5 size-4 shrink-0 text-muted-foreground'
+const NOTIF_ICON: Record<NotificationType, typeof Bell> = {
+  friend_request_received: UserPlus,
+  friend_request_accepted: UserPlus,
+  ask_received: Handshake,
+  ask_accepted: Handshake,
+  ask_declined: Handshake,
+  direct_message: MessageSquare,
+  ask_message: MessageSquare,
+  announcement: Megaphone,
+  event_canceled: CalendarX,
+}
+
+/**
+ * Tone-tinted icon chip per notification type — mirrors the Civic Editorial
+ * prototype's notification dropdown, which color-codes by semantic: ochre for
+ * an incoming ask (needs reply), sage for an acceptance, blue for
+ * connections/messages, muted for announcements, danger for cancellations.
+ * Icon-as-fill is contrast-safe in ochre even though small ochre body text is not.
+ */
+function notifTone(type: NotificationType): string {
   switch (type) {
-    case 'friend_request_received':
-    case 'friend_request_accepted':
-      return <UserPlus className={className} />
     case 'ask_received':
+      return 'bg-warning-tint text-accent-ochre'
     case 'ask_accepted':
+    case 'friend_request_accepted':
+      return 'bg-success-tint text-accent-sage'
     case 'ask_declined':
-      return <Handshake className={className} />
+    case 'event_canceled':
+      return 'bg-danger-tint text-state-danger'
+    case 'friend_request_received':
     case 'direct_message':
     case 'ask_message':
-      return <MessageSquare className={className} />
-    case 'announcement':
-      return <Megaphone className={className} />
-    case 'event_canceled':
-      return <CalendarX className={className} />
+      return 'bg-primary-tint text-primary'
     default:
-      return <Bell className={className} />
+      return 'bg-muted text-muted-foreground'
   }
+}
+
+function Icon({ type }: { type: NotificationType }) {
+  const Glyph = NOTIF_ICON[type] ?? Bell
+  return (
+    <span
+      className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${notifTone(type)}`}
+    >
+      <Glyph className="size-4" />
+    </span>
+  )
 }

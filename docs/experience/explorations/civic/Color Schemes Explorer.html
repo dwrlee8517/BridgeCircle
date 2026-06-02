@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BridgeCircle · Design System Color Schemes Explorer</title>
+
+  <!-- CDN Links for React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --radius: 10px;
+      --transition-speed: 0.2s;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      background: #fafaf9;
+      color: #0c0c0b;
+      overflow: hidden;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.1);
+      border-radius: 99px;
+    }
+    .dark-sb::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 99px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const THEMES = {
+      oxford: {
+        id: "oxford",
+        name: "Oxford Civic: 'Classic Academic'",
+        description: "Oxford crimson, deep heritage ivy green CTA, oatmeal paper panels, and brass accents. Conveys high credibility, trust, and prestige.",
+        colors: ["#a51c30", "#1b4332", "#162421", "#faf8f5"],
+        light: {
+          '--background': '#faf8f5',
+          '--foreground': '#101518',
+          '--card': '#ffffff',
+          '--card-foreground': '#101518',
+          '--secondary': '#f4efea',
+          '--secondary-foreground': '#101518',
+          '--muted': '#e7e0d6',
+          '--muted-foreground': '#5a5f63',
+          '--border': '#ded5c8',
+          '--input': '#ded5c8',
+          '--primary': '#a51c30',
+          '--primary-hover': '#821424',
+          '--primary-on-dark': '#f1a9b3',
+          '--primary-foreground': '#ffffff',
+          '--cta': '#1b4332',
+          '--cta-hover': '#0f281e',
+          '--cta-foreground': '#ffffff',
+          '--surface-midnight': '#162421',
+          '--surface-midnight-foreground': '#faf8f5',
+          '--surface-midnight-muted': 'rgba(250, 248, 245, 0.7)',
+          '--accent-ochre': '#d4af37',
+          '--accent-rust': '#c94a29',
+          '--accent-sage': '#2d6a4f',
+          '--accent-plum': '#582f3e',
+          '--ring': '#a51c30',
+          '--primary-tint': 'rgba(165, 28, 48, 0.08)',
+          '--primary-tint-strong': 'rgba(165, 28, 48, 0.14)',
+          '--success-tint': 'rgba(45, 106, 79, 0.1)',
+          '--warning-tint': 'rgba(212, 175, 55, 0.12)',
+          '--danger-tint': 'rgba(201, 74, 41, 0.1)',
+          '--shadow-card': '0 1px 0 rgba(16, 21, 24, 0.02)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(16, 21, 24, 0.05)',
+          '--shadow-hero': '0 12px 34px -8px rgba(16, 21, 24, 0.08)',
+        },
+        dark: {
+          '--background': '#111413',
+          '--foreground': '#faf8f5',
+          '--card': '#1b1e1d',
+          '--card-foreground': '#faf8f5',
+          '--secondary': '#272a29',
+          '--secondary-foreground': '#faf8f5',
+          '--muted': '#272a29',
+          '--muted-foreground': '#b3b0a8',
+          '--border': 'rgba(250, 248, 245, 0.08)',
+          '--input': 'rgba(250, 248, 245, 0.1)',
+          '--primary': '#f1a9b3',
+          '--primary-hover': '#f7cbd1',
+          '--primary-on-dark': '#f1a9b3',
+          '--primary-foreground': '#111413',
+          '--cta': '#52b788',
+          '--cta-hover': '#74c69d',
+          '--cta-foreground': '#111413',
+          '--surface-midnight': '#162421',
+          '--surface-midnight-foreground': '#faf8f5',
+          '--surface-midnight-muted': 'rgba(250, 248, 245, 0.7)',
+          '--accent-ochre': '#e9c46a',
+          '--accent-rust': '#f4a261',
+          '--accent-sage': '#52b788',
+          '--accent-plum': '#a27083',
+          '--ring': '#f1a9b3',
+          '--primary-tint': 'rgba(241, 169, 179, 0.14)',
+          '--primary-tint-strong': 'rgba(241, 169, 179, 0.22)',
+          '--success-tint': 'rgba(82, 183, 136, 0.16)',
+          '--warning-tint': 'rgba(233, 196, 106, 0.16)',
+          '--danger-tint': 'rgba(244, 162, 97, 0.16)',
+          '--shadow-card': '0 1px 0 rgba(0, 0, 0, 0.25)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.35)',
+          '--shadow-hero': '0 12px 34px -8px rgba(0, 0, 0, 0.45)',
+        }
+      },
+      stripe: {
+        id: "stripe",
+        name: "Stripe: 'Neo-Vibrant Tech'",
+        description: "Vibrant blurple, sunset orange high-stakes CTA, and deep slate blue headers. Delivers a modern, energetic, SaaS-centric posture.",
+        colors: ["#635bff", "#ff5a1f", "#0a2540", "#f8fafc"],
+        light: {
+          '--background': '#f8fafc',
+          '--foreground': '#0a0d1d',
+          '--card': '#ffffff',
+          '--card-foreground': '#0a0d1d',
+          '--secondary': '#f1f5f9',
+          '--secondary-foreground': '#0a0d1d',
+          '--muted': '#e2e8f0',
+          '--muted-foreground': '#475569',
+          '--border': '#cbd5e1',
+          '--input': '#cbd5e1',
+          '--primary': '#635bff',
+          '--primary-hover': '#563acc',
+          '--primary-on-dark': '#a29bfe',
+          '--primary-foreground': '#ffffff',
+          '--cta': '#ff5a1f',
+          '--cta-hover': '#e04a10',
+          '--cta-foreground': '#ffffff',
+          '--surface-midnight': '#0a2540',
+          '--surface-midnight-foreground': '#f8fafc',
+          '--surface-midnight-muted': 'rgba(248, 250, 252, 0.7)',
+          '--accent-ochre': '#ff9f1c',
+          '--accent-rust': '#e63946',
+          '--accent-sage': '#00d4b2',
+          '--accent-plum': '#7a24e0',
+          '--ring': '#635bff',
+          '--primary-tint': 'rgba(99, 91, 255, 0.1)',
+          '--primary-tint-strong': 'rgba(99, 91, 255, 0.16)',
+          '--success-tint': 'rgba(0, 212, 178, 0.1)',
+          '--warning-tint': 'rgba(255, 159, 28, 0.12)',
+          '--danger-tint': 'rgba(230, 57, 70, 0.1)',
+          '--shadow-card': '0 1px 0 rgba(10, 13, 29, 0.03)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(10, 13, 29, 0.06)',
+          '--shadow-hero': '0 12px 34px -8px rgba(10, 13, 29, 0.1)',
+        },
+        dark: {
+          '--background': '#0a0e17',
+          '--foreground': '#f8fafc',
+          '--card': '#131a26',
+          '--card-foreground': '#f8fafc',
+          '--secondary': '#1e293b',
+          '--secondary-foreground': '#f8fafc',
+          '--muted': '#1e293b',
+          '--muted-foreground': '#94a3b8',
+          '--border': 'rgba(248, 250, 252, 0.1)',
+          '--input': 'rgba(248, 250, 252, 0.12)',
+          '--primary': '#a29bfe',
+          '--primary-hover': '#c3bdfb',
+          '--primary-on-dark': '#a29bfe',
+          '--primary-foreground': '#0a0d1d',
+          '--cta': '#ff7a45',
+          '--cta-hover': '#ff5a1f',
+          '--cta-foreground': '#0a0d1d',
+          '--surface-midnight': '#0a2540',
+          '--surface-midnight-foreground': '#f8fafc',
+          '--surface-midnight-muted': 'rgba(248, 250, 252, 0.7)',
+          '--accent-ochre': '#ffb84d',
+          '--accent-rust': '#f25c66',
+          '--accent-sage': '#33e1c6',
+          '--accent-plum': '#b388ff',
+          '--ring': '#a29bfe',
+          '--primary-tint': 'rgba(162, 155, 254, 0.14)',
+          '--primary-tint-strong': 'rgba(162, 155, 254, 0.22)',
+          '--success-tint': 'rgba(51, 225, 198, 0.16)',
+          '--warning-tint': 'rgba(255, 184, 77, 0.16)',
+          '--danger-tint': 'rgba(242, 92, 102, 0.16)',
+          '--shadow-card': '0 1px 0 rgba(0, 0, 0, 0.25)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.35)',
+          '--shadow-hero': '0 12px 34px -8px rgba(0, 0, 0, 0.45)',
+        }
+      },
+      apple: {
+        id: "apple",
+        name: "Apple: 'Studio Minimalist'",
+        description: "Pure whites, Cupertino snow canvas, dark jet text, and a single electric blue accent. High structural contrast, focus on glassmorphism.",
+        colors: ["#007aff", "#1d1d1f", "#000000", "#f5f5f7"],
+        light: {
+          '--background': '#f5f5f7',
+          '--foreground': '#1d1d1f',
+          '--card': '#ffffff',
+          '--card-foreground': '#1d1d1f',
+          '--secondary': '#e8e8ed',
+          '--secondary-foreground': '#1d1d1f',
+          '--muted': '#d2d2d7',
+          '--muted-foreground': '#86868b',
+          '--border': '#d2d2d7',
+          '--input': '#d2d2d7',
+          '--primary': '#007aff',
+          '--primary-hover': '#0066d6',
+          '--primary-on-dark': '#0a84ff',
+          '--primary-foreground': '#ffffff',
+          '--cta': '#1d1d1f',
+          '--cta-hover': '#000000',
+          '--cta-foreground': '#ffffff',
+          '--surface-midnight': '#000000',
+          '--surface-midnight-foreground': '#ffffff',
+          '--surface-midnight-muted': 'rgba(255, 255, 255, 0.65)',
+          '--accent-ochre': '#ff9500',
+          '--accent-rust': '#ff3b30',
+          '--accent-sage': '#34c759',
+          '--accent-plum': '#af52de',
+          '--ring': '#007aff',
+          '--primary-tint': 'rgba(0, 122, 255, 0.08)',
+          '--primary-tint-strong': 'rgba(0, 122, 255, 0.14)',
+          '--success-tint': 'rgba(52, 199, 89, 0.1)',
+          '--warning-tint': 'rgba(255, 149, 0, 0.12)',
+          '--danger-tint': 'rgba(255, 59, 48, 0.1)',
+          '--shadow-card': '0 1px 0 rgba(29, 29, 31, 0.02)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(29, 29, 31, 0.05)',
+          '--shadow-hero': '0 12px 34px -8px rgba(29, 29, 31, 0.08)',
+        },
+        dark: {
+          '--background': '#000000',
+          '--foreground': '#f5f5f7',
+          '--card': '#1c1c1e',
+          '--card-foreground': '#f5f5f7',
+          '--secondary': '#2c2c2e',
+          '--secondary-foreground': '#f5f5f7',
+          '--muted': '#3a3a3c',
+          '--muted-foreground': '#8e8e93',
+          '--border': 'rgba(255, 255, 255, 0.08)',
+          '--input': 'rgba(255, 255, 255, 0.1)',
+          '--primary': '#0a84ff',
+          '--primary-hover': '#409cff',
+          '--primary-on-dark': '#0a84ff',
+          '--primary-foreground': '#000000',
+          '--cta': '#f5f5f7',
+          '--cta-hover': '#ffffff',
+          '--cta-foreground': '#000000',
+          '--surface-midnight': '#000000',
+          '--surface-midnight-foreground': '#ffffff',
+          '--surface-midnight-muted': 'rgba(255, 255, 255, 0.65)',
+          '--accent-ochre': '#ff9f0a',
+          '--accent-rust': '#ff453a',
+          '--accent-sage': '#30d158',
+          '--accent-plum': '#bf5af2',
+          '--ring': '#0a84ff',
+          '--primary-tint': 'rgba(10, 132, 255, 0.14)',
+          '--primary-tint-strong': 'rgba(10, 132, 255, 0.22)',
+          '--success-tint': 'rgba(48, 209, 88, 0.16)',
+          '--warning-tint': 'rgba(255, 159, 10, 0.16)',
+          '--danger-tint': 'rgba(255, 69, 58, 0.16)',
+          '--shadow-card': '0 1px 0 rgba(0, 0, 0, 0.25)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.35)',
+          '--shadow-hero': '0 12px 34px -8px rgba(0, 0, 0, 0.45)',
+        }
+      },
+      instagram: {
+        id: "instagram",
+        name: "Instagram: 'Creative Sunset'",
+        description: "Vibrant berry pink, ocean blue CTA, and warm sunset gradient outlines. Delivers high creative energy and strong social engagement.",
+        colors: ["#d62976", "#0095f6", "#4a154b", "#fafafa"],
+        light: {
+          '--background': '#fafafa',
+          '--foreground': '#121212',
+          '--card': '#ffffff',
+          '--card-foreground': '#121212',
+          '--secondary': '#f0f0f0',
+          '--secondary-foreground': '#121212',
+          '--muted': '#dbdbdb',
+          '--muted-foreground': '#737373',
+          '--border': '#dbdbdb',
+          '--input': '#dbdbdb',
+          '--primary': '#d62976',
+          '--primary-hover': '#c13584',
+          '--primary-on-dark': '#fbad50',
+          '--primary-foreground': '#ffffff',
+          '--cta': '#0095f6',
+          '--cta-hover': '#0077c5',
+          '--cta-foreground': '#ffffff',
+          '--surface-midnight': '#4a154b',
+          '--surface-midnight-foreground': '#fafafa',
+          '--surface-midnight-muted': 'rgba(250, 250, 250, 0.7)',
+          '--accent-ochre': '#f56040',
+          '--accent-rust': '#e1306c',
+          '--accent-sage': '#43a047',
+          '--accent-plum': '#833ab4',
+          '--ring': '#d62976',
+          '--primary-tint': 'rgba(214, 41, 118, 0.08)',
+          '--primary-tint-strong': 'rgba(214, 41, 118, 0.14)',
+          '--success-tint': 'rgba(67, 160, 71, 0.1)',
+          '--warning-tint': 'rgba(245, 96, 64, 0.12)',
+          '--danger-tint': 'rgba(225, 48, 108, 0.1)',
+          '--shadow-card': '0 1px 0 rgba(18, 18, 18, 0.02)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(18, 18, 18, 0.05)',
+          '--shadow-hero': '0 12px 34px -8px rgba(18, 18, 18, 0.08)',
+        },
+        dark: {
+          '--background': '#121212',
+          '--foreground': '#fafafa',
+          '--card': '#1e1e1e',
+          '--card-foreground': '#fafafa',
+          '--secondary': '#262626',
+          '--secondary-foreground': '#fafafa',
+          '--muted': '#262626',
+          '--muted-foreground': '#a8a8a8',
+          '--border': 'rgba(255, 255, 255, 0.1)',
+          '--input': 'rgba(255, 255, 255, 0.12)',
+          '--primary': '#fd1d1d',
+          '--primary-hover': '#f56040',
+          '--primary-on-dark': '#fbad50',
+          '--primary-foreground': '#ffffff',
+          '--cta': '#0095f6',
+          '--cta-hover': '#40b0ff',
+          '--cta-foreground': '#ffffff',
+          '--surface-midnight': '#4a154b',
+          '--surface-midnight-foreground': '#fafafa',
+          '--surface-midnight-muted': 'rgba(250, 250, 250, 0.7)',
+          '--accent-ochre': '#f77737',
+          '--accent-rust': '#fd1d1d',
+          '--accent-sage': '#5cc262',
+          '--accent-plum': '#c13584',
+          '--ring': '#fd1d1d',
+          '--primary-tint': 'rgba(253, 29, 29, 0.14)',
+          '--primary-tint-strong': 'rgba(253, 29, 29, 0.22)',
+          '--success-tint': 'rgba(92, 194, 98, 0.16)',
+          '--warning-tint': 'rgba(247, 119, 55, 0.16)',
+          '--danger-tint': 'rgba(253, 29, 29, 0.16)',
+          '--shadow-card': '0 1px 0 rgba(0, 0, 0, 0.25)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.35)',
+          '--shadow-hero': '0 12px 34px -8px rgba(0, 0, 0, 0.45)',
+        }
+      },
+      sonoma: {
+        id: "sonoma",
+        name: "Sonoma: 'Warm Terracotta & Sage'",
+        description: "Coastal clay terracotta, soft native cypress/sage CTA, and soil espresso backgrounds. Organic, Californian, warm and highly approachable.",
+        colors: ["#c86446", "#3e5c4a", "#281e18", "#fdfaf6"],
+        light: {
+          '--background': '#fdfaf6',
+          '--foreground': '#2d221c',
+          '--card': '#ffffff',
+          '--card-foreground': '#2d221c',
+          '--secondary': '#f6efe6',
+          '--secondary-foreground': '#2d221c',
+          '--muted': '#ebdcc9',
+          '--muted-foreground': '#6b5c53',
+          '--border': '#e0cea8',
+          '--input': '#e0cea8',
+          '--primary': '#c86446',
+          '--primary-hover': '#ab4f33',
+          '--primary-on-dark': '#f3beb0',
+          '--primary-foreground': '#ffffff',
+          '--cta': '#3e5c4a',
+          '--cta-hover': '#2d4436',
+          '--cta-foreground': '#ffffff',
+          '--surface-midnight': '#281e18',
+          '--surface-midnight-foreground': '#fdfaf6',
+          '--surface-midnight-muted': 'rgba(253, 250, 246, 0.7)',
+          '--accent-ochre': '#d8a156',
+          '--accent-rust': '#b24130',
+          '--accent-sage': '#5c8266',
+          '--accent-plum': '#8a586a',
+          '--ring': '#c86446',
+          '--primary-tint': 'rgba(200, 100, 70, 0.08)',
+          '--primary-tint-strong': 'rgba(200, 100, 70, 0.14)',
+          '--success-tint': 'rgba(92, 130, 102, 0.1)',
+          '--warning-tint': 'rgba(216, 161, 86, 0.12)',
+          '--danger-tint': 'rgba(178, 65, 48, 0.1)',
+          '--shadow-card': '0 1px 0 rgba(45, 34, 28, 0.02)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(45, 34, 28, 0.05)',
+          '--shadow-hero': '0 12px 34px -8px rgba(45, 34, 28, 0.08)',
+        },
+        dark: {
+          '--background': '#171210',
+          '--foreground': '#fdfaf6',
+          '--card': '#221c18',
+          '--card-foreground': '#fdfaf6',
+          '--secondary': '#2d2621',
+          '--secondary-foreground': '#fdfaf6',
+          '--muted': '#2d2621',
+          '--muted-foreground': '#b8aaa2',
+          '--border': 'rgba(253, 250, 246, 0.08)',
+          '--input': 'rgba(253, 250, 246, 0.1)',
+          '--primary': '#f3beb0',
+          '--primary-hover': '#fcdbd3',
+          '--primary-on-dark': '#f3beb0',
+          '--primary-foreground': '#171210',
+          '--cta': '#83a78d',
+          '--cta-hover': '#a1bfa8',
+          '--cta-foreground': '#171210',
+          '--surface-midnight': '#281e18',
+          '--surface-midnight-foreground': '#fdfaf6',
+          '--surface-midnight-muted': 'rgba(253, 250, 246, 0.7)',
+          '--accent-ochre': '#e7c18f',
+          '--accent-rust': '#e07a6d',
+          '--accent-sage': '#83a78d',
+          '--accent-plum': '#be92a3',
+          '--ring': '#f3beb0',
+          '--primary-tint': 'rgba(243, 190, 176, 0.14)',
+          '--primary-tint-strong': 'rgba(243, 190, 176, 0.22)',
+          '--success-tint': 'rgba(131, 167, 141, 0.16)',
+          '--warning-tint': 'rgba(231, 193, 143, 0.16)',
+          '--danger-tint': 'rgba(224, 122, 109, 0.16)',
+          '--shadow-card': '0 1px 0 rgba(0, 0, 0, 0.25)',
+          '--shadow-card-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.35)',
+          '--shadow-hero': '0 12px 34px -8px rgba(0, 0, 0, 0.45)',
+        }
+      }
+    };
+
+    function Icon({ name, size = 16, color = 'currentColor', strokeWidth = 2, style }) {
+      const icons = {
+        people: <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />,
+        calendar: <><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
+        inbox: <><polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" /></>,
+        bell: <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />,
+        search: <><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></>,
+        sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></>,
+        moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+        copy: <><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></>,
+        info: <><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></>,
+        check: <polyline points="20 6 9 17 4 12" />
+      };
+      const path = icons[name] || <circle cx="12" cy="12" r="10" />;
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{ width: `${size}px`, height: `${size}px`, flexShrink: 0, ...style }}>
+          {path}
+        </svg>
+      );
+    }
+
+    function ExplorerApp() {
+      const [activeThemeId, setActiveThemeId] = useState('oxford'); // Default to Oxford
+      const [themeMode, setThemeMode] = useState('light');
+      const [activeTab, setActiveTab] = useState('People');
+      const [copiedCode, setCopiedCode] = useState(false);
+      const [densityMode, setDensityMode] = useState('cozy');
+
+      const isLight = themeMode === 'light';
+      const activeThemeObj = THEMES[activeThemeId];
+      const activeVariables = isLight ? activeThemeObj.light : activeThemeObj.dark;
+
+      const triggerCopy = () => {
+        let codeStr = `/* ${activeThemeObj.name} */\n`;
+        codeStr += isLight ? `:root {\n` : `.dark {\n`;
+        Object.entries(activeVariables).forEach(([key, value]) => {
+          codeStr += `  ${key}: ${value};\n`;
+        });
+        codeStr += `}`;
+
+        navigator.clipboard.writeText(codeStr);
+        setCopiedCode(true);
+        setTimeout(() => setCopiedCode(false), 2000);
+      };
+
+      // Set DOM CSS variables on the preview-wrapper container dynamically
+      const cssVars = {
+        ...activeVariables,
+        transition: 'all 0.2s ease-in-out'
+      };
+
+      return (
+        <div style={{
+          height: '100vh',
+          display: 'grid',
+          gridTemplateColumns: '380px 1fr',
+          background: isLight ? '#f4f3f0' : '#080809',
+          color: isLight ? '#0c0c0b' : '#fafaf9',
+          transition: 'background 0.2s, color 0.2s'
+        }}>
+          {/* LEFT CONTROL SIDEBAR */}
+          <aside style={{
+            background: isLight ? '#ffffff' : '#101011',
+            borderRight: `1px solid ${isLight ? '#e5e5e0' : '#222224'}`,
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            height: '100vh'
+          }} className={isLight ? '' : 'dark-sb'}>
+
+            {/* Header branding */}
+            <div style={{ padding: '24px', borderBottom: `1px solid ${isLight ? '#f0f0eb' : '#1e1e20'}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #a51c30, #2563eb)'
+                }} />
+                <span style={{ fontFamily: 'Inter Tight', fontSize: '16px', fontWeight: 700, letterSpacing: '-0.02em' }}>
+                  BridgeCircle Themes
+                </span>
+              </div>
+              <p style={{ fontSize: '11px', color: '#888880', lineHeight: 1.45 }}>
+                Explore premium color schemes designed for verified community portals. Switch themes and toggle light/dark modes to test readability.
+              </p>
+            </div>
+
+            {/* Scheme Selector */}
+            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <h4 style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 700, color: '#888880', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Select Theme</h4>
+
+              {Object.values(THEMES).map(theme => {
+                const isSelected = theme.id === activeThemeId;
+                return (
+                  <button
+                    key={theme.id}
+                    onClick={() => setActiveThemeId(theme.id)}
+                    style={{
+                      background: isSelected ? (isLight ? '#f5f5f0' : '#1e1e21') : 'transparent',
+                      border: `1px solid ${isSelected ? (isLight ? '#deded9' : '#333336') : 'transparent'}`,
+                      borderRadius: '8px',
+                      padding: '12px',
+                      cursor: 'pointer',
+                      width: '100%',
+                      textAlign: 'left',
+                      transition: 'background 0.2s',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: isLight ? '#0c0c0b' : '#fafaf9' }}>{theme.name.split(':')[0]}</span>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {theme.colors.map((c, i) => (
+                          <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, border: '1px solid rgba(0,0,0,0.1)' }} />
+                        ))}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '10px', color: '#888880', lineHeight: 1.35 }}>{theme.description}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Global Preview Controls */}
+            <div style={{ padding: '20px 24px', borderTop: `1px solid ${isLight ? '#f0f0eb' : '#1e1e20'}`, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h4 style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 700, color: '#888880', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Preview Mode</h4>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  onClick={() => setThemeMode('light')}
+                  style={{
+                    flex: 1,
+                    background: isLight ? '#0c0c0b' : 'transparent',
+                    color: isLight ? '#ffffff' : '#fafaf9',
+                    border: `1px solid ${isLight ? '#0c0c0b' : '#333336'}`,
+                    borderRadius: '6px',
+                    padding: '8px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Icon name="sun" size={12} color={isLight ? '#fff' : 'currentColor'} />
+                  Light Mode
+                </button>
+                <button
+                  onClick={() => setThemeMode('dark')}
+                  style={{
+                    flex: 1,
+                    background: !isLight ? '#fafaf9' : 'transparent',
+                    color: !isLight ? '#0c0c0b' : '#0c0c0b',
+                    border: `1px solid ${!isLight ? '#fafaf9' : '#cbd5e1'}`,
+                    borderRadius: '6px',
+                    padding: '8px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Icon name="moon" size={12} color={!isLight ? '#000' : 'currentColor'} />
+                  Dark Mode
+                </button>
+              </div>
+
+              {/* Density Controls */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                <span style={{ fontSize: '10px', color: '#888880', fontWeight: 600 }}>Active Density Mode:</span>
+                <div style={{ display: 'flex', background: isLight ? '#f0f0eb' : '#1e1e21', borderRadius: '6px', padding: '2px' }}>
+                  {['default', 'cozy', 'pro'].map(mode => (
+                    <button
+                      key={mode}
+                      onClick={() => setDensityMode(mode)}
+                      style={{
+                        flex: 1,
+                        background: densityMode === mode ? (isLight ? '#fff' : '#101011') : 'transparent',
+                        color: densityMode === mode ? (isLight ? '#0c0c0b' : '#fff') : '#888880',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '6px 0',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        textTransform: 'capitalize'
+                      }}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* CSS Variables Exporter */}
+            <div style={{ padding: '20px 24px', borderTop: `1px solid ${isLight ? '#f0f0eb' : '#1e1e20'}`, marginTop: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', marginBottom: '8px' }}>
+                <h4 style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 700, color: '#888880', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CSS Variable Export</h4>
+                <button
+                  onClick={triggerCopy}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: copiedCode ? '#10b981' : '#2563eb',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Icon name={copiedCode ? "check" : "copy"} size={10} color={copiedCode ? '#10b981' : '#2563eb'} />
+                  {copiedCode ? "Copied!" : "Copy Code"}
+                </button>
+              </div>
+              <div style={{
+                background: isLight ? '#f8f8f5' : '#080809',
+                border: `1px solid ${isLight ? '#e5e5e0' : '#222224'}`,
+                borderRadius: '6px',
+                padding: '12px',
+                height: '180px',
+                overflowY: 'auto'
+              }} className={isLight ? '' : 'dark-sb'}>
+                <pre style={{ fontFamily: 'JetBrains Mono', fontSize: '10px', color: isLight ? '#475569' : '#94a3b8', lineHeight: 1.5 }}>
+                  {Object.entries(activeVariables).map(([key, value]) => (
+                    <div key={key}>{`  ${key}: ${value};`}</div>
+                  ))}
+                </pre>
+              </div>
+            </div>
+
+          </aside>
+
+          {/* MAIN PREVIEW CANVAS */}
+          <main style={{
+            padding: '32px',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            height: '100vh'
+          }} className={isLight ? '' : 'dark-sb'}>
+
+            {/* Swatch mapping header */}
+            <div style={{ maxWidth: '1000px', width: '100%', margin: '0 auto 24px auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h2 style={{ fontFamily: 'Inter Tight', fontSize: '22px', fontWeight: 600 }}>Civic Editorial Sandbox</h2>
+                <p style={{ fontSize: '12px', color: '#888880', marginTop: '2px' }}>
+                  Live preview of active color variables mapped to typical BridgeCircle alumni layouts.
+                </p>
+              </div>
+
+              {/* Color swatch timeline */}
+              <div style={{ display: 'flex', gap: '8px', background: isLight ? '#fff' : '#101011', padding: '8px 12px', borderRadius: '8px', border: `1px solid ${isLight ? '#e5e5e0' : '#222224'}` }}>
+                {Object.entries(activeVariables)
+                  .filter(([key]) => ['--primary', '--cta', '--background', '--foreground', '--accent-sage', '--accent-plum'].includes(key))
+                  .map(([key, val]) => (
+                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: val, border: '1px solid rgba(0,0,0,0.1)' }} />
+                      <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 600, color: '#888880' }}>
+                        {key.replace('--', '')}
+                      </span>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+
+            {/* MOCK APPLICATION CANVAS */}
+            <div
+              style={cssVars}
+              className={`density-${densityMode}`}
+            >
+              <div style={{
+                maxWidth: '1000px',
+                width: '100%',
+                margin: '0 auto',
+                background: 'var(--background)',
+                color: 'var(--foreground)',
+                borderRadius: 'var(--radius)',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow-hero)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '680px',
+                fontFamily: "'Inter', sans-serif"
+              }}>
+
+                {/* APPLICATION HEADER */}
+                <header style={{
+                  height: '64px',
+                  background: 'var(--card)',
+                  borderBottom: '1px solid var(--border)',
+                  padding: '0 24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  position: 'relative',
+                  zIndex: 2
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--foreground))' }} />
+                    <span style={{ fontFamily: 'Inter Tight', fontSize: '15px', fontWeight: 700 }}>
+                      Bridge<span style={{ color: 'var(--primary)' }}>Circle</span>
+                    </span>
+                  </div>
+
+                  <nav style={{ display: 'flex', gap: '24px', height: '100%' }}>
+                    {['People', 'Inbox', 'Events', 'Admin'].map(tab => {
+                      const isActive = activeTab === tab;
+                      return (
+                        <button
+                          key={tab}
+                          onClick={() => setActiveTab(tab)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: isActive ? 'var(--foreground)' : 'var(--muted-foreground)',
+                            fontWeight: isActive ? 700 : 500,
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            transition: 'color var(--transition-speed)'
+                          }}
+                        >
+                          {tab}
+                          {isActive && (
+                            <div style={{
+                              position: 'absolute',
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              height: '2px',
+                              background: 'var(--primary)'
+                            }} />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </nav>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    {/* Search Field */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'var(--secondary)',
+                      borderRadius: 'var(--radius)',
+                      padding: '6px 12px',
+                      width: '140px',
+                      border: '1px solid var(--border)'
+                    }}>
+                      <Icon name="search" size={11} color="var(--muted-foreground)" />
+                      <span style={{ color: 'var(--muted-foreground)', fontSize: '10px' }}>Search directory...</span>
+                    </div>
+
+                    {/* Notification Icon */}
+                    <div style={{ position: 'relative', cursor: 'pointer' }}>
+                      <Icon name="bell" size={14} color="var(--foreground)" />
+                      <span style={{
+                        position: 'absolute',
+                        top: '-4px',
+                        right: '-4px',
+                        background: 'var(--primary)',
+                        color: 'var(--primary-foreground)',
+                        fontFamily: 'JetBrains Mono',
+                        fontSize: '7px',
+                        fontWeight: 700,
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        display: 'grid',
+                        placeItems: 'center'
+                      }}>2</span>
+                    </div>
+
+                    <div style={{
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, var(--primary), var(--foreground))',
+                      display: 'grid',
+                      placeItems: 'center',
+                      fontFamily: 'Inter Tight',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      color: 'var(--primary-foreground)'
+                    }}>
+                      RL
+                    </div>
+                  </div>
+                </header>
+
+                {/* EDITORIAL HERO SECTION */}
+                <div style={{
+                  background: 'var(--surface-midnight)',
+                  color: 'var(--surface-midnight-foreground)',
+                  padding: '36px 32px',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {/* Decorative grid pattern */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: 'linear-gradient(90deg, var(--editorial-rule) 1px, transparent 1px), linear-gradient(180deg, var(--editorial-rule) 1px, transparent 1px)',
+                    backgroundSize: '24px 24px',
+                    maskImage: 'linear-gradient(90deg, black, transparent)',
+                    opacity: 0.8
+                  }} />
+
+                  <div style={{ position: 'relative', zIndex: 1, maxWidth: '600px' }}>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      background: 'var(--primary-tint-strong)',
+                      border: '1px solid var(--editorial-rule-strong)',
+                      padding: '4px 10px',
+                      borderRadius: '999px',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      color: 'var(--primary-on-dark)',
+                      marginBottom: '12px'
+                    }}>
+                      <Icon name="info" size={10} color="var(--primary-on-dark)" />
+                      Chadwick Alumni Council · verified Circle
+                    </div>
+
+                    <h3 style={{
+                      fontFamily: 'Inter Tight',
+                      fontSize: densityMode === 'default' ? '28px' : '22px',
+                      fontWeight: 700,
+                      lineSpacing: '-0.02em',
+                      margin: '0 0 8px 0'
+                    }}>
+                      Palos Verdes & Songdo Networks
+                    </h3>
+                    <p style={{
+                      margin: 0,
+                      fontSize: densityMode === 'default' ? '13px' : '11px',
+                      color: 'var(--surface-midnight-muted)',
+                      lineHeight: 1.5
+                    }}>
+                      A verified warm-network platform for trusted school circles. Connect directly, attend gatherings, and share high-integrity referrals.
+                    </p>
+                  </div>
+                </div>
+
+                {/* CORE CONTENT GRID */}
+                <div style={{
+                  padding: '24px',
+                  display: 'grid',
+                  gridTemplateColumns: '1.2fr 1fr',
+                  gap: '24px',
+                  background: 'var(--background)',
+                  flex: 1
+                }}>
+
+                  {/* LEFT COLUMN: ACTIVE ADVICE DESK */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Relationship Desk
+                      </span>
+                    </div>
+
+                    {/* Card 1: Advice Request */}
+                    <div style={{
+                      background: 'var(--card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      boxShadow: 'var(--shadow-card)',
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <div style={{
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '4px',
+                            background: 'var(--primary-tint)',
+                            border: '1px solid var(--primary-tint-strong)',
+                            color: 'var(--primary)',
+                            display: 'grid',
+                            placeItems: 'center',
+                            fontFamily: 'JetBrains Mono',
+                            fontSize: '10px',
+                            fontWeight: 700
+                          }}>
+                            SP
+                          </div>
+                          <div>
+                            <div style={{ fontSize: '12px', fontWeight: 700 }}>Sujin Park</div>
+                            <span style={{ fontSize: '10px', color: 'var(--muted-foreground)' }}>Class of &apos;12 · Product Design</span>
+                          </div>
+                        </div>
+
+                        {/* Status badge in sage */}
+                        <div style={{
+                          background: 'var(--success-tint)',
+                          border: '1px solid var(--accent-sage)',
+                          color: 'var(--accent-sage)',
+                          fontSize: '9px',
+                          fontWeight: 600,
+                          padding: '2px 8px',
+                          borderRadius: '999px'
+                        }}>
+                          Open for help
+                        </div>
+                      </div>
+
+                      {/* Pull quote style with left accent-color rule */}
+                      <p style={{
+                        margin: 0,
+                        fontSize: '11px',
+                        color: 'var(--foreground)',
+                        lineHeight: 1.45,
+                        fontStyle: 'italic',
+                        borderLeft: '3px solid var(--primary)',
+                        paddingLeft: '10px'
+                      }}>
+                        &ldquo;Seeking advice on transitioning from boutique agency work to corporate product design environments in Seoul. Especially keen to connect with Chadwick alumni at Kakao or Toss.&rdquo;
+                      </p>
+
+                      {/* Action buttons testing states */}
+                      <div style={{ display: 'flex', gap: '8px', borderTop: '1px solid var(--border)', paddingTop: '12px', marginTop: '4px' }}>
+                        <button style={{
+                          background: 'var(--cta)',
+                          color: 'var(--cta-foreground)',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '8px 14px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                        }}>
+                          Introduce Myself
+                        </button>
+                        <button style={{
+                          background: 'var(--secondary)',
+                          color: 'var(--secondary-foreground)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '6px',
+                          padding: '8px 14px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}>
+                          Decline Request
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Interactive Input Swatch */}
+                    <div style={{
+                      background: 'var(--card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div style={{ fontSize: '11px', fontWeight: 600 }}>Test Form Focus-Ring & Input Styles</div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="text"
+                          placeholder="Type something to focus..."
+                          style={{
+                            flex: 1,
+                            border: '1px solid var(--border)',
+                            borderRadius: 'var(--radius)',
+                            background: 'var(--background)',
+                            color: 'var(--foreground)',
+                            padding: '8px 12px',
+                            fontSize: '11px',
+                            outline: 'none'
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = 'var(--primary)';
+                            e.target.style.boxShadow = '0 0 0 1px var(--primary), 0 0 0 4px var(--primary-tint)';
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = 'var(--border)';
+                            e.target.style.boxShadow = 'none';
+                          }}
+                        />
+                        <button style={{
+                          background: 'var(--primary)',
+                          color: 'var(--primary-foreground)',
+                          border: 'none',
+                          borderRadius: 'var(--radius)',
+                          padding: '8px 14px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}>
+                          Test Action
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RIGHT COLUMN: GATHERINGS & AMBASSADORS */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Gatherings
+                      </span>
+                    </div>
+
+                    {/* Event Card with Progress Bar */}
+                    <div style={{
+                      background: 'var(--card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      boxShadow: 'var(--shadow-card)',
+                      padding: '16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px'
+                    }}>
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <span style={{ fontFamily: 'JetBrains Mono', fontSize: '9px', fontWeight: 700, color: 'var(--primary)' }}>SEOUL GATHERING</span>
+                          <span style={{ fontSize: '10px', color: 'var(--accent-ochre)', fontWeight: 600 }}>8 days left</span>
+                        </div>
+                        <h4 style={{ fontFamily: 'Inter Tight', fontSize: '13px', fontWeight: 700 }}>
+                          Supper Club Seoul: Fintech & Venture
+                        </h4>
+                        <span style={{ fontSize: '10px', color: 'var(--muted-foreground)' }}>May 28 · 7:30 PM · Hosted by Richard Lee</span>
+                      </div>
+
+                      {/* Capacity progress indicator using primary-tint */}
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', marginBottom: '4px' }}>
+                          <span style={{ color: 'var(--muted-foreground)' }}>Spots remaining</span>
+                          <span style={{ fontWeight: 700, color: 'var(--primary)' }}>12/15 filled</span>
+                        </div>
+                        <div style={{
+                          background: 'var(--secondary)',
+                          height: '5px',
+                          borderRadius: '999px',
+                          overflow: 'hidden'
+                        }}>
+                          <div style={{
+                            background: 'var(--primary)',
+                            height: '100%',
+                            width: '80%'
+                          }} />
+                        </div>
+                      </div>
+
+                      <button style={{
+                        background: 'var(--secondary)',
+                        color: 'var(--secondary-foreground)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        padding: '8px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        width: '100%'
+                      }}>
+                        Request to RSVP
+                      </button>
+                    </div>
+
+                    {/* Operational Table (Density test block) */}
+                    <div style={{
+                      background: 'var(--card)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius)',
+                      padding: '14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--muted-foreground)' }}>Circle Operator Log</span>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-sage)' }} />
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>
+                          <span style={{ color: 'var(--muted-foreground)' }}>Active Members</span>
+                          <span style={{ fontWeight: 700 }}>452</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', paddingBottom: '4px', borderBottom: '1px solid var(--border)' }}>
+                          <span style={{ color: 'var(--muted-foreground)' }}>Match Signals</span>
+                          <span style={{ fontWeight: 700, color: 'var(--primary)' }}>92% Strong</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px' }}>
+                          <span style={{ color: 'var(--muted-foreground)' }}>Sentry Status</span>
+                          <span style={{ fontWeight: 700, color: 'var(--accent-sage)' }}>Operational</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* FOOTER */}
+                <footer style={{
+                  padding: '16px 24px',
+                  background: 'var(--card)',
+                  borderTop: '1px solid var(--border)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: '10px',
+                  color: 'var(--muted-foreground)'
+                }}>
+                  <span>BridgeCircle verified community space.</span>
+                  <span>Sitemap · Privacy · Terms</span>
+                </footer>
+
+              </div>
+            </div>
+
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<ExplorerApp />);
+  </script>
+</body>
+</html>

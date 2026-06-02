@@ -55,18 +55,27 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 space-y-4">
-      <Link href={backHref} className="text-sm text-muted-foreground hover:underline">
+    <div className="density-cozy mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-8">
+      <Link
+        href={backHref}
+        className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
+      >
         ← {backLabel}
       </Link>
 
-      <Card>
-        <CardHeader className="flex-row items-start gap-4 space-y-0">
-          <Avatar className="size-12">
+      <Card className="border-border bg-card shadow-card">
+        <CardHeader className="flex-row items-start gap-4 space-y-0 border-b border-border pb-5">
+          <Avatar className="size-12 rounded-md after:rounded-md">
             {otherProfile?.avatar_url ? (
-              <AvatarImage src={otherProfile.avatar_url} alt={otherProfile.name ?? ''} />
+              <AvatarImage
+                src={otherProfile.avatar_url}
+                alt={otherProfile.name ?? ''}
+                className="rounded-md"
+              />
             ) : null}
-            <AvatarFallback>{(otherProfile?.name ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="rounded-md">
+              {(otherProfile?.name ?? '?').slice(0, 1).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
             <CardTitle className="text-lg">
@@ -74,7 +83,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
                 ? `Request from ${otherProfile?.name}`
                 : `Your request to ${otherProfile?.name}`}
             </CardTitle>
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{req.ask_type === 'advice' ? 'Advice' : 'Mentorship'}</Badge>
               <LifecycleStatusBadge status={req.status as RequestLifecycleStatus} />
               <span className="text-xs text-muted-foreground">
@@ -87,7 +96,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
             ) : null}
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-5">
           {/* Field shape varies by ask type:
                 advice     → only the question (help_needed) is filled.
                 mentorship → reason ("why this person") is optional,
@@ -95,22 +104,29 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
                              is optional context. We hide null fields
                              instead of rendering a stray "—" line. */}
           {req.ask_type === 'advice' ? (
-            <Field label="Their question">{req.help_needed ?? '—'}</Field>
+            <AskQuote label="Their question">{req.help_needed ?? '—'}</AskQuote>
           ) : (
             <>
               {req.reason ? <Field label="Why you specifically">{req.reason}</Field> : null}
-              <Field label="What they're hoping to explore">{req.help_needed ?? '—'}</Field>
+              <AskQuote label="What they're hoping to explore">{req.help_needed ?? '—'}</AskQuote>
               {req.background ? <Field label="Anything else">{req.background}</Field> : null}
             </>
           )}
 
-          <div className="flex gap-2 pt-2">
+          {isHelper && req.status === 'pending' ? (
+            <div className="rounded-md border border-border bg-surface-panel/55 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+              <span className="font-semibold text-foreground">What happens next:</span> accepting
+              opens a conversation thread so you can reply; declining closes the request.
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             {isHelper && req.status === 'pending' ? (
               <>
                 <form action={acceptAction}>
                   <input type="hidden" name="requestId" value={req.id} />
-                  <Button type="submit" variant="cta">
-                    Accept
+                  <Button type="submit" variant="offer">
+                    Accept & reply
                   </Button>
                 </form>
                 <form action={declineAction}>
@@ -148,8 +164,21 @@ type RequestLifecycleStatus = Extract<
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <h3 className="text-xs font-medium uppercase text-muted-foreground tracking-wide">{label}</h3>
-      <p className="text-sm whitespace-pre-line">{children}</p>
+      <h3 className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </h3>
+      <p className="whitespace-pre-line text-sm leading-6 text-foreground">{children}</p>
+    </div>
+  )
+}
+
+function AskQuote({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="bc-pull-quote space-y-2 rounded-r-md bg-primary-tint/55 py-3 pr-4">
+      <h3 className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+        {label}
+      </h3>
+      <p className="whitespace-pre-line text-base leading-7 text-foreground">{children}</p>
     </div>
   )
 }

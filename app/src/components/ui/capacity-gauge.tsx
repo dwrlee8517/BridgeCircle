@@ -43,7 +43,7 @@ export function CapacityIndicatorGauge({
     return (
       <div
         className={cn(
-          'flex items-center gap-1.5 text-[10px] font-mono leading-none tracking-tight text-muted-foreground h-5',
+          'flex h-5 items-center gap-1.5 font-mono text-xs leading-none tracking-tight text-muted-foreground',
           className,
         )}
       >
@@ -51,7 +51,7 @@ export function CapacityIndicatorGauge({
         <span className="text-muted-foreground/40 font-sans">[</span>
         <div className="h-1.5 w-16 bg-muted rounded-none overflow-hidden relative flex shrink-0">
           <div
-            className={cn('h-full transition-all duration-slow ease-standard', activeTone.bar)}
+            className={cn('h-full transition-[width] duration-slow ease-standard', activeTone.bar)}
             style={{ width: `${Math.min(activeRatio * 100, 100)}%` }}
           />
         </div>
@@ -67,7 +67,7 @@ export function CapacityIndicatorGauge({
     return (
       <div
         className={cn(
-          'flex flex-col gap-1 w-full text-[10px] font-mono leading-none tracking-tight',
+          'flex w-full flex-col gap-1 font-mono text-xs leading-none tracking-tight',
           className,
         )}
       >
@@ -82,7 +82,7 @@ export function CapacityIndicatorGauge({
         <div className="h-1 bg-muted rounded-full overflow-hidden relative">
           <div
             className={cn(
-              'h-full rounded-full transition-all duration-slow ease-standard',
+              'h-full rounded-full transition-[width] duration-slow ease-standard',
               activeTone.bar,
             )}
             style={{ width: `${Math.min(activeRatio * 100, 100)}%` }}
@@ -95,14 +95,14 @@ export function CapacityIndicatorGauge({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3.5 p-3.5 rounded-lg border border-border bg-card/50 text-[11px] font-mono leading-none',
+        'flex flex-col gap-3.5 rounded-md border border-border bg-card/50 p-3.5 font-mono text-xs leading-none',
         className,
       )}
     >
       {/* Active Mentees */}
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center font-medium text-foreground">
-          <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">
             Active Mentees
           </span>
           <span>
@@ -112,13 +112,13 @@ export function CapacityIndicatorGauge({
         <div className="h-1 bg-muted rounded-full overflow-hidden">
           <div
             className={cn(
-              'h-full rounded-full transition-all duration-slow ease-standard',
+              'h-full rounded-full transition-[width] duration-slow ease-standard',
               activeTone.bar,
             )}
             style={{ width: `${Math.min(activeRatio * 100, 100)}%` }}
           />
         </div>
-        <div className="flex justify-between text-[9px] text-muted-foreground">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>{Math.round(activeRatio * 100)}% capacity</span>
           <span className={cn('font-medium', activeTone.text)}>
             {activeRatio >= 1.0
@@ -133,7 +133,7 @@ export function CapacityIndicatorGauge({
       {/* Pending Requests */}
       <div className="flex flex-col gap-1.5 border-t border-border/40 pt-3">
         <div className="flex justify-between items-center font-medium text-foreground">
-          <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">
             Pending Requests
           </span>
           <span>
@@ -143,13 +143,13 @@ export function CapacityIndicatorGauge({
         <div className="h-1 bg-muted rounded-full overflow-hidden">
           <div
             className={cn(
-              'h-full rounded-full transition-all duration-slow ease-standard',
+              'h-full rounded-full transition-[width] duration-slow ease-standard',
               pendingTone.bar,
             )}
             style={{ width: `${Math.min(pendingRatio * 100, 100)}%` }}
           />
         </div>
-        <div className="flex justify-between text-[9px] text-muted-foreground">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>{Math.round(pendingRatio * 100)}% queue</span>
           <span className={cn('font-medium', pendingTone.text)}>
             {pendingRatio >= 1.0

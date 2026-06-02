@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>People · Modern v1 — Three Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'Inter', system-ui, sans-serif; color: #0c0c0b; background: #ebebe5; }
+  button { font-family: inherit; cursor: pointer; }
+  input { font-family: inherit; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #dcdcd6; border-radius: 3px; }
+
+  /* Shared utilities — Civic Editorial vocabulary */
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: #2563eb;
+  }
+  .kicker::before {
+    content: ''; display: block; width: 28px; height: 2px;
+    background: currentColor; border-radius: 999px;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .display { font-family: 'Inter Tight', sans-serif; letter-spacing: -0.02em; }
+
+  /* Avatar (initials, muted, with optional capacity ring) */
+  .av {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    background: #ebebe5; color: #4d4d4a; border-radius: 50%;
+    font-family: 'Inter Tight', sans-serif; font-weight: 700; flex-shrink: 0;
+    user-select: none;
+  }
+  .av-ring { box-shadow: 0 0 0 2px #fff, 0 0 0 3px #3b6e51; }
+  .av-ring-warn { box-shadow: 0 0 0 2px #fff, 0 0 0 3px #a16207; }
+  .av-dot {
+    position: absolute; bottom: -1px; right: -1px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #3b6e51; border: 2px solid #fff;
+  }
+  .av-dot.warn { background: #a16207; }
+  .av-dot.full { background: #9b2c1f; }
+
+  /* Card lift */
+  .lift { transition: transform 160ms ease-out, border-color 160ms ease-out, box-shadow 160ms ease-out; }
+  .lift:hover { transform: translateY(-1px); border-color: #0c0c0b; box-shadow: 0 6px 18px -6px rgba(12,12,11,0.08); }
+
+  /* Topic chip */
+  .topic {
+    display: inline-flex; align-items: center;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 11px; font-weight: 500; color: #4d4d4a;
+    background: #f4f3ee; border: 1px solid #e3e0d6;
+  }
+  .topic.match-hit { background: rgba(37,99,235,0.08); color: #2563eb; border-color: rgba(37,99,235,0.22); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: 'Inter', sans-serif; font-weight: 600; cursor: pointer;
+    transition: background 150ms, border-color 150ms, color 150ms;
+    border-radius: 8px; white-space: nowrap;
+  }
+  .btn-cta { background: #f59e0b; color: #0c0c0b; border: 1px solid #f59e0b; }
+  .btn-cta:hover { background: #d97706; border-color: #d97706; }
+  .btn-primary { background: #0c0c0b; color: #fff; border: 1px solid #0c0c0b; }
+  .btn-primary:hover { background: #2b2b29; }
+  .btn-outline { background: #fff; color: #0c0c0b; border: 1px solid #dcdcd6; }
+  .btn-outline:hover { border-color: #0c0c0b; }
+  .btn-ghost { background: transparent; color: #4d4d4a; border: 1px solid transparent; }
+  .btn-ghost:hover { color: #0c0c0b; background: rgba(12,12,11,0.04); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .btn-md { height: 38px; padding: 0 16px; font-size: 13px; }
+  .btn-lg { height: 48px; padding: 0 20px; font-size: 14px; }
+
+  /* Match pill (semantic) */
+  .pill-strong { background: rgba(59,110,81,0.10); color: #3b6e51; border: 1px solid rgba(59,110,81,0.25); }
+  .pill-good   { background: rgba(37,99,235,0.08); color: #2563eb; border: 1px solid rgba(37,99,235,0.22); }
+  .pill-weak   { background: #ebebe5; color: #4d4d4a; border: 1px solid rgba(12,12,11,0.10); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Hairline */
+  .hr { height: 1px; background: #dcdcd6; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="people-modern-shared.jsx"></script>
+<script type="text/babel" src="people-modern-A.jsx"></script>
+<script type="text/babel" src="people-modern-B.jsx"></script>
+<script type="text/babel" src="people-modern-C.jsx"></script>
+<script type="text/babel" src="people-modern-B-variants.jsx"></script>
+<script type="text/babel" src="people-modern-B-hero.jsx"></script>
+<script type="text/babel" src="people-modern-B6-polish.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function App() {
+  return (
+    <DesignCanvas
+      title="People · Modern Refresh"
+      subtitle="Three bold directions for the BridgeCircle People page · B variations below"
+    >
+      <DCSection id="directions" title="Three Directions" subtitle="Original exploration — A, B, C">
+        <DCArtboard id="dir-a" label="A · Editorial Index" width={1280} height={1680}>
+          <DirectionA />
+        </DCArtboard>
+        <DCArtboard id="dir-b" label="B · Profile Strip" width={1280} height={1720}>
+          <DirectionB />
+        </DCArtboard>
+        <DCArtboard id="dir-c" label="C · Quoted Voices" width={1280} height={1780}>
+          <DirectionC />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="b6-polish" title="B6 · Polish" subtitle="Refined main view, chip micro-variants, empty / no-results states.">
+        <DCArtboard id="b6-v2" label="B6 · Refined main view" width={1280} height={1480}>
+          <DirectionB6v2 />
+        </DCArtboard>
+        <DCArtboard id="b6-chips" label="B6 · Active-query chip variants" width={1100} height={780}>
+          <B6ChipVariants />
+        </DCArtboard>
+        <DCArtboard id="b6-empty" label="B6 · No active query (browse)" width={1280} height={1240}>
+          <DirectionB6Empty />
+        </DCArtboard>
+        <DCArtboard id="b6-noresults" label="B6 · No results" width={1280} height={900}>
+          <DirectionB6NoResults />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="b-hero" title="B · Hero treatments" subtitle="Same left-rail + right-list layout. Three takes on the page header.">
+        <DCArtboard id="b6" label="B6 · No hero" width={1280} height={1340}>
+          <DirectionB6 />
+        </DCArtboard>
+        <DCArtboard id="b7" label="B7 · Iconic numeric" width={1280} height={1480}>
+          <DirectionB7 />
+        </DCArtboard>
+        <DCArtboard id="b8" label="B8 · Network sigil" width={1280} height={1380}>
+          <DirectionB8 />
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="b-variations" title="B · Variations" subtitle="Pushing on row composition — what should each row lead with?">
+        <DCArtboard id="b2" label="B2 · Activity-Forward" width={1280} height={1340}>
+          <DirectionB2 />
+        </DCArtboard>
+        <DCArtboard id="b3" label="B3 · Stats-Forward" width={1280} height={1140}>
+          <DirectionB3 />
+        </DCArtboard>
+        <DCArtboard id="b4" label="B4 · Hairline Index" width={1280} height={1080}>
+          <DirectionB4 />
+        </DCArtboard>
+        <DCArtboard id="b5" label="B5 · Topic-Tinted" width={1280} height={1380}>
+          <DirectionB5 />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

@@ -23,8 +23,8 @@ export function getEventStableColor(title: string): AccentColor {
 
   if (normalizedTitle.includes('mixer')) {
     return {
-      name: 'Sage',
-      hex: '#3b6e51',
+      name: 'Emerald',
+      hex: '#15a05f',
       bg: 'bg-accent-sage',
       text: 'text-accent-sage',
       border: 'border-accent-sage',
@@ -35,7 +35,7 @@ export function getEventStableColor(title: string): AccentColor {
   if (normalizedTitle.includes('coffee')) {
     return {
       name: 'Ochre',
-      hex: '#c8761a',
+      hex: '#a16207',
       bg: 'bg-accent-ochre',
       text: 'text-accent-ochre',
       border: 'border-accent-ochre',
@@ -60,8 +60,8 @@ export function getEventStableColor(title: string): AccentColor {
     normalizedTitle.includes('holiday')
   ) {
     return {
-      name: 'Plum',
-      hex: '#722f37',
+      name: 'Grape',
+      hex: '#7c3aed',
       bg: 'bg-accent-plum',
       text: 'text-accent-plum',
       border: 'border-accent-plum',
@@ -75,8 +75,8 @@ export function getEventStableColor(title: string): AccentColor {
     normalizedTitle.includes('panel')
   ) {
     return {
-      name: 'Rust',
-      hex: '#b9472a',
+      name: 'Crimson',
+      hex: '#c4314b',
       bg: 'bg-accent-rust',
       text: 'text-accent-rust',
       border: 'border-accent-rust',

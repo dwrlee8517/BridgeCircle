@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inbox Nav — Option Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #111; }
+  #root { width: 100vw; height: 100vh; }
+  .bc-section-kicker { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #2563eb; }
+  .bc-section-kicker::before { content: ''; display: block; width: 1.5rem; height: 2px; border-radius: 99px; background: #2563eb; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+// ── Shared data & primitives ─────────────────────────────────────────────────
+
+const ITEMS = [
+  { id:'r1', type:'incoming_ask',    from:'Jordan Lee',   cohort:2022, badge:'Mentorship req', tone:'warn',  sub:'Breaking into VC after consulting', date:'2h ago', unread:true  },
+  { id:'r2', type:'incoming_ask',    from:'Nora Patel',   cohort:2024, badge:'Advice req',     tone:'warn',  sub:'APM resume review', date:'1d ago', unread:true  },
+  { id:'t1', type:'active_thread',   from:'Marcus Chen',  cohort:2019, badge:'Advice',         tone:'info',  sub:'Re: consulting → PM transition', date:'1d ago', unread:true,  isHelper:true  },
+  { id:'t2', type:'active_thread',   from:'Jamie Kim',    cohort:2020, badge:'Mentorship',     tone:'info',  sub:'Session 3 — APM essays', date:'3d ago', unread:false, isHelper:true  },
+  { id:'t3', type:'active_thread',   from:'Priya Nair',   cohort:2018, badge:'Mentorship',     tone:'info',  sub:'Check-in on your progress', date:'2d ago', unread:false, isHelper:false },
+  { id:'o1', type:'outgoing_ask',    from:'Sam Chen',     cohort:2021, badge:'Awaiting reply', tone:'muted', sub:'Sent 2 days ago', date:'2d ago', unread:false },
+  { id:'fr1',type:'friend_request',  from:'Sofia Ramirez',cohort:2021, badge:'Connection req', tone:'info',  sub:'Wants to connect', date:'5h ago', unread:true  },
+  { id:'dm1',type:'dm_thread',       from:'David Liu',    cohort:2016, badge:'Message',        tone:'muted', sub:"Let's catch up next week", date:'3d ago', unread:false },
+];
+
+function StatusDot({ tone, size = 6 }) {
+  const c = tone === 'warn' ? '#c8761a' : tone === 'open' ? '#3b6e51' : tone === 'info' ? '#2563eb' : '#4d4d4a';
+  return React.createElement('span', { style: { width: size, height: size, borderRadius: '50%', background: c, flexShrink: 0, display: 'inline-block' } });
+}
+
+function Badge({ tone, children }) {
+  const styles = {
+    warn:  { bg: 'rgba(200,118,26,.12)', color: '#0c0c0b', border: 'rgba(200,118,26,.25)' },
+    info:  { bg: 'rgba(37,99,235,.10)',  color: '#2563eb',  border: 'rgba(37,99,235,.2)'  },
+    muted: { bg: '#ebebe5',              color: '#4d4d4a',  border: 'rgba(12,12,11,.10)'  },
+    open:  { bg: 'rgba(59,110,81,.10)',  color: '#3b6e51',  border: 'rgba(59,110,81,.2)'  },
+  };
+  const s = styles[tone] || styles.muted;
+  return React.createElement('span', {
+    style: { display: 'inline-flex', alignItems: 'center', gap: 3, borderRadius: 4, padding: '1px 6px', fontSize: 9, fontWeight: 700, background: s.bg, color: s.color, border: `1px solid ${s.border}`, whiteSpace: 'nowrap' },
+  }, children);
+}
+
+function Avatar({ name, color = '#ebebe5', size = 30, square = false }) {
+  const initials = (name||'?').split(/\s+/).map(w=>w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  return React.createElement('div', {
+    style: { width: size, height: size, borderRadius: square ? 7 : '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  }, React.createElement('span', { style: { fontFamily: "'Inter Tight', sans-serif", fontSize: size * .32, fontWeight: 700, color: '#fff' } }, initials));
+}
+
+const AV_COLORS = { 'Jordan Lee':'#2563eb','Nora Patel':'#3b6e51','Marcus Chen':'#c8761a','Jamie Kim':'#2563eb','Priya Nair':'#4d4d4a','Sam Chen':'#722f37','Sofia Ramirez':'#722f37','David Liu':'#4d4d4a' };
+
+function Row({ item, selected, onClick }) {
+  const active = selected === item.id;
+  return React.createElement('button', {
+    type:'button', onClick,
+    style: {
+      width:'100%', textAlign:'left', padding:'8px', borderRadius:7,
+      border:`1px solid ${active ? 'rgba(37,99,235,.25)' : 'transparent'}`,
+      background: active ? 'rgba(37,99,235,.07)' : 'transparent',
+      display:'flex', gap:9, cursor:'pointer', fontFamily:"'Inter',sans-serif",
+      transition:'background 120ms',
+    },
+    onMouseEnter: e => { if (!active) e.currentTarget.style.background='rgba(235,235,229,.7)'; },
+    onMouseLeave: e => { if (!active) e.currentTarget.style.background='transparent'; },
+  },
+    React.createElement('div', { style:{ position:'relative', flexShrink:0 } },
+      React.createElement(Avatar, { name:item.from, color:AV_COLORS[item.from]||'#4d4d4a', size:30 }),
+      item.unread && React.createElement('div', { style:{ position:'absolute', top:-1, right:-1, width:7, height:7, borderRadius:'50%', background:'#c8761a', border:'1.5px solid #f4f3ee' } })
+    ),
+    React.createElement('div', { style:{ minWidth:0, flex:1 } },
+      React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', gap:4 } },
+        React.createElement('span', { style:{ fontSize:12, fontWeight:item.unread?700:500, color:'#0c0c0b', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, item.from),
+        React.createElement('span', { style:{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#4d4d4a', flexShrink:0 } }, item.date)
+      ),
+      React.createElement('div', { style:{ display:'flex', gap:4, margin:'2px 0', alignItems:'center' } },
+        React.createElement(Badge, { tone:item.tone }, item.badge),
+        React.createElement('span', { style:{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, color:'#4d4d4a' } }, `'${String(item.cohort).slice(-2)}`)
+      ),
+      React.createElement('p', { style:{ fontSize:11, color:item.unread?'#0c0c0b':'#4d4d4a', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, item.sub)
+    )
+  );
+}
+
+// placeholder detail pane
+function DetailPane({ item }) {
+  if (!item) return React.createElement('div', { style:{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', color:'#4d4d4a', fontSize:13 } }, 'Nothing selected.');
+  return React.createElement('div', { style:{ flex:1, padding:24, overflowY:'auto' } },
+    React.createElement('div', { style:{ display:'flex', gap:12, marginBottom:16, alignItems:'flex-start' } },
+      React.createElement(Avatar, { name:item.from, color:AV_COLORS[item.from]||'#4d4d4a', size:44, square:true }),
+      React.createElement('div', null,
+        React.createElement('h3', { style:{ fontFamily:"'Inter Tight',sans-serif", fontSize:17, fontWeight:600, color:'#0c0c0b' } }, item.from),
+        React.createElement('p', { style:{ fontSize:11, color:'#4d4d4a', marginTop:2 } }, `Class of '${String(item.cohort).slice(-2)}`),
+        React.createElement('div', { style:{ marginTop:6 } }, React.createElement(Badge, { tone:item.tone }, item.badge))
+      )
+    ),
+    React.createElement('div', { style:{ borderLeft:'3px solid #2563eb', paddingLeft:10, fontStyle:'italic', fontSize:13, lineHeight:1.6, color:'#0c0c0b' } }, `"${item.sub}"`),
+    React.createElement('div', { style:{ display:'flex', gap:8, marginTop:20 } },
+      React.createElement('button', { style:{ height:36, padding:'0 14px', borderRadius:8, background:'#f59e0b', color:'#0c0c0b', border:'none', fontSize:12, fontWeight:600, cursor:'pointer', fontFamily:"'Inter',sans-serif" } }, 'Accept & reply'),
+      React.createElement('button', { style:{ height:36, padding:'0 14px', borderRadius:8, background:'#fff', color:'#0c0c0b', border:'1px solid #dcdcd6', fontSize:12, fontWeight:600, cursor:'pointer', fontFamily:"'Inter',sans-serif" } }, 'Decline')
+    )
+  );
+}
+
+// ── OPTION 1: Type nav + give/get toggle ──────────────────────────────────────
+
+const TYPE_SECTIONS = [
+  {
+    id: 'advice', label: 'Advice', color: '#2563eb',
+    roles: [
+      { id:'advice_give', label:'As helper', items: ITEMS.filter(i => i.isHelper && (i.type==='active_thread' && i.badge==='Advice' || i.type==='incoming_ask' && i.badge==='Advice req')) },
+      { id:'advice_get',  label:'As asker',  items: ITEMS.filter(i => !i.isHelper && i.type==='outgoing_ask' || i.type==='incoming_ask') },
+    ],
+  },
+  {
+    id: 'mentorship', label: 'Mentorship', color: '#3b6e51',
+    roles: [
+      { id:'mentor_give', label:'As mentor', items: ITEMS.filter(i => i.isHelper && i.badge==='Mentorship') },
+      { id:'mentor_get',  label:'As mentee', items: ITEMS.filter(i => !i.isHelper && i.badge==='Mentorship') },
+    ],
+  },
+  {
+    id: 'connections', label: 'Connections', color: '#4d4d4a',
+    roles: [
+      { id:'conn_all', label:'All', items: ITEMS.filter(i => i.type==='dm_thread' || i.type==='friend_request') },
+    ],
+  },
+];
+
+function Option1Inbox() {
+  const [activeSection, setActiveSection] = React.useState('advice');
+  const [activeRole, setActiveRole] = React.useState('advice_give');
+  const [selected, setSelected] = React.useState('t1');
+
+  const section = TYPE_SECTIONS.find(s => s.id === activeSection);
+  const roles = section?.roles || [];
+  const role = roles.find(r => r.id === activeRole) || roles[0];
+  const items = role?.items || [];
+  const selectedItem = ITEMS.find(i => i.id === selected);
+
+  const handleSection = (s) => {
+    setActiveSection(s.id);
+    const firstRole = s.roles[0];
+    setActiveRole(firstRole.id);
+    if (firstRole.items[0]) setSelected(firstRole.items[0].id);
+  };
+
+  return React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'320px 1fr', height:'100%', background:'#fafaf9', overflow:'hidden' } },
+    // Sidebar
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', borderRight:'1px solid #dcdcd6', background:'rgba(244,243,238,.55)', overflow:'hidden' } },
+      // Header
+      React.createElement('div', { style:{ padding:'16px 14px 12px', borderBottom:'1px solid #dcdcd6', background:'#fff', flexShrink:0 } },
+        React.createElement('div', { className:'bc-section-kicker', style:{ marginBottom:6 } }, 'Relationship work'),
+        React.createElement('h1', { style:{ fontFamily:"'Inter Tight',sans-serif", fontSize:20, fontWeight:600, color:'#0c0c0b' } }, 'Inbox')
+      ),
+      // Section nav — type tabs
+      React.createElement('div', { style:{ borderBottom:'1px solid #dcdcd6', flexShrink:0 } },
+        TYPE_SECTIONS.map(s => {
+          const active = activeSection === s.id;
+          const unread = s.roles.reduce((n, r) => n + r.items.filter(i => i.unread).length, 0);
+          return React.createElement('button', {
+            key:s.id, onClick:()=>handleSection(s),
+            style:{
+              display:'flex', justifyContent:'space-between', alignItems:'center',
+              width:'100%', padding:'10px 14px', background:'none', border:'none',
+              borderLeft:`3px solid ${active ? s.color : 'transparent'}`,
+              background: active ? `color-mix(in srgb, ${s.color} 6%, #fff)` : 'transparent',
+              cursor:'pointer', fontFamily:"'Inter',sans-serif", transition:'all 150ms',
+            },
+          },
+            React.createElement('span', { style:{ fontSize:13, fontWeight:active?700:500, color:active ? s.color : '#0c0c0b' } }, s.label),
+            unread > 0 && React.createElement('span', { style:{ minWidth:18, height:18, borderRadius:9, padding:'0 5px', background:active?s.color:'#ebebe5', color:active?'#fff':'#4d4d4a', fontSize:9.5, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' } }, unread)
+          );
+        })
+      ),
+      // Give / Get toggle
+      roles.length > 1 && React.createElement('div', {
+        style:{ display:'flex', gap:4, padding:'8px 10px', borderBottom:'1px solid #ebebe5', flexShrink:0, background:'rgba(244,243,238,.4)' },
+      },
+        roles.map(r =>
+          React.createElement('button', {
+            key:r.id, onClick:()=>{ setActiveRole(r.id); if(r.items[0]) setSelected(r.items[0].id); },
+            style:{
+              flex:1, padding:'5px 0', borderRadius:7, fontSize:11, fontWeight:activeRole===r.id?700:500,
+              border:`1px solid ${activeRole===r.id ? section.color : '#dcdcd6'}`,
+              background: activeRole===r.id ? `color-mix(in srgb, ${section.color} 10%, #fff)` : '#fff',
+              color: activeRole===r.id ? section.color : '#4d4d4a',
+              cursor:'pointer', fontFamily:"'Inter',sans-serif", transition:'all 150ms',
+            },
+          }, r.label)
+        )
+      ),
+      // Thread list
+      React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'5px' } },
+        items.length === 0
+          ? React.createElement('p', { style:{ padding:'20px', fontSize:12, color:'#4d4d4a', textAlign:'center' } }, 'Nothing here.')
+          : React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:2 } },
+              items.map(item => React.createElement(Row, { key:item.id, item, selected, onClick:()=>setSelected(item.id) }))
+            )
+      )
+    ),
+    // Detail
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', background:'#fff', overflow:'hidden' } },
+      React.createElement(DetailPane, { item: selectedItem })
+    )
+  );
+}
+
+// ── OPTION 2: Priority queue + type browser ──────────────────────────────────
+
+const priorityItems = ITEMS.filter(i => i.unread || i.type==='incoming_ask' || i.type==='friend_request');
+
+const BROWSER_SECTIONS = [
+  { id:'advice',     label:'Advice',      color:'#2563eb', items: ITEMS.filter(i => i.badge==='Advice' || i.badge==='Advice req') },
+  { id:'mentorship', label:'Mentorship',  color:'#3b6e51', items: ITEMS.filter(i => i.badge==='Mentorship' || i.badge==='Mentorship req') },
+  { id:'connections',label:'Connections', color:'#4d4d4a', items: ITEMS.filter(i => i.type==='dm_thread'||i.type==='friend_request') },
+];
+
+function Option2Inbox() {
+  const [activeNav, setActiveNav] = React.useState('priority');
+  const [activeRole, setActiveRole] = React.useState('all');
+  const [selected, setSelected] = React.useState('r1');
+
+  const currentSection = BROWSER_SECTIONS.find(s => s.id === activeNav);
+  const getFilteredItems = () => {
+    if (activeNav === 'priority') return priorityItems;
+    if (!currentSection) return [];
+    if (activeRole === 'give') return currentSection.items.filter(i => i.isHelper);
+    if (activeRole === 'get')  return currentSection.items.filter(i => !i.isHelper);
+    return currentSection.items;
+  };
+  const items = getFilteredItems();
+  const selectedItem = ITEMS.find(i => i.id === selected);
+
+  const handleNav = (id) => {
+    setActiveNav(id);
+    setActiveRole('all');
+    const first = id === 'priority' ? priorityItems[0] : BROWSER_SECTIONS.find(s=>s.id===id)?.items[0];
+    if (first) setSelected(first.id);
+  };
+
+  return React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'320px 1fr', height:'100%', background:'#fafaf9', overflow:'hidden' } },
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', borderRight:'1px solid #dcdcd6', background:'rgba(244,243,238,.55)', overflow:'hidden' } },
+      // Header
+      React.createElement('div', { style:{ padding:'16px 14px 12px', borderBottom:'1px solid #dcdcd6', background:'#fff', flexShrink:0 } },
+        React.createElement('div', { className:'bc-section-kicker', style:{ marginBottom:6 } }, 'Relationship work'),
+        React.createElement('h1', { style:{ fontFamily:"'Inter Tight',sans-serif", fontSize:20, fontWeight:600, color:'#0c0c0b' } }, 'Inbox')
+      ),
+
+      // Priority nav item
+      React.createElement('div', { style:{ padding:'6px 8px', borderBottom:'1px solid #dcdcd6', flexShrink:0 } },
+        React.createElement('button', {
+          onClick:()=>handleNav('priority'),
+          style:{
+            width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
+            padding:'9px 10px', borderRadius:8, border:'none', cursor:'pointer',
+            background: activeNav==='priority' ? 'rgba(12,12,11,.06)' : 'transparent',
+            fontFamily:"'Inter',sans-serif", transition:'background 150ms',
+          },
+        },
+          React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:8 } },
+            React.createElement('div', { style:{ width:8, height:8, borderRadius:'50%', background:'#c8761a', boxShadow:'0 0 0 3px rgba(200,118,26,.18)' } }),
+            React.createElement('span', { style:{ fontSize:13.5, fontWeight:activeNav==='priority'?700:600, color:'#0c0c0b' } }, 'Priority')
+          ),
+          React.createElement('span', { style:{ minWidth:18, height:18, borderRadius:9, padding:'0 5px', background:activeNav==='priority'?'#c8761a':'rgba(200,118,26,.15)', color:activeNav==='priority'?'#fff':'#0c0c0b', fontSize:9.5, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' } }, priorityItems.length)
+        )
+      ),
+
+      // Divider label
+      React.createElement('div', { style:{ padding:'10px 14px 6px', flexShrink:0 } },
+        React.createElement('p', { style:{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, letterSpacing:'.10em', textTransform:'uppercase', color:'#4d4d4a' } }, 'Browse by type')
+      ),
+
+      // Type section nav
+      React.createElement('div', { style:{ flexShrink:0, borderBottom:'1px solid #dcdcd6' } },
+        BROWSER_SECTIONS.map(s => {
+          const active = activeNav === s.id;
+          const unread = s.items.filter(i=>i.unread).length;
+          return React.createElement('button', {
+            key:s.id, onClick:()=>handleNav(s.id),
+            style:{
+              display:'flex', justifyContent:'space-between', alignItems:'center',
+              width:'100%', padding:'9px 14px', background:'none', border:'none',
+              borderLeft:`3px solid ${active ? s.color : 'transparent'}`,
+              background: active ? `color-mix(in srgb, ${s.color} 6%, #fff)` : 'transparent',
+              cursor:'pointer', fontFamily:"'Inter',sans-serif", transition:'all 150ms',
+            },
+          },
+            React.createElement('span', { style:{ fontSize:13, fontWeight:active?700:500, color:active?s.color:'#0c0c0b' } }, s.label),
+            unread > 0 && React.createElement('span', { style:{ minWidth:16, height:16, borderRadius:8, padding:'0 4px', background:active?s.color:'#ebebe5', color:active?'#fff':'#4d4d4a', fontSize:9, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' } }, unread)
+          );
+        })
+      ),
+
+      // Give/get filter — only shown when a type is selected
+      currentSection && React.createElement('div', {
+        style:{ display:'flex', gap:4, padding:'8px 10px', borderBottom:'1px solid #ebebe5', flexShrink:0, background:'rgba(244,243,238,.4)' },
+      },
+        [['all','All'],['give','As helper'],['get','As asker']].map(([id,label]) =>
+          React.createElement('button', {
+            key:id, onClick:()=>setActiveRole(id),
+            style:{
+              flex:1, padding:'4px 0', borderRadius:7, fontSize:10.5, fontWeight:activeRole===id?700:500,
+              border:`1px solid ${activeRole===id ? currentSection.color : '#dcdcd6'}`,
+              background: activeRole===id ? `color-mix(in srgb, ${currentSection.color} 10%, #fff)` : '#fff',
+              color: activeRole===id ? currentSection.color : '#4d4d4a',
+              cursor:'pointer', fontFamily:"'Inter',sans-serif", transition:'all 150ms',
+            },
+          }, label)
+        )
+      ),
+
+      // Thread list
+      React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'5px' } },
+        items.length === 0
+          ? React.createElement('p', { style:{ padding:'20px', fontSize:12, color:'#4d4d4a', textAlign:'center' } }, 'Nothing here.')
+          : React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:2 } },
+              items.map(item => React.createElement(Row, { key:item.id, item, selected, onClick:()=>setSelected(item.id) }))
+            )
+      )
+    ),
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', background:'#fff', overflow:'hidden' } },
+      React.createElement(DetailPane, { item: selectedItem })
+    )
+  );
+}
+
+// ── OPTION 3: Hybrid — priority top + collapsible type trees ─────────────────
+
+const TREE_SECTIONS = [
+  {
+    id: 'advice', label: 'Advice', color: '#2563eb',
+    branches: [
+      { id:'advice_give', label:'Helping',  items: ITEMS.filter(i => (i.badge==='Advice'||i.badge==='Advice req') && i.isHelper) },
+      { id:'advice_get',  label:'Getting help', items: ITEMS.filter(i => i.badge==='Advice req' && !i.isHelper || i.type==='outgoing_ask') },
+    ],
+  },
+  {
+    id: 'mentorship', label: 'Mentorship', color: '#3b6e51',
+    branches: [
+      { id:'mentor_give', label:'Mentoring',   items: ITEMS.filter(i => i.badge==='Mentorship' && i.isHelper) },
+      { id:'mentor_get',  label:'Being mentored', items: ITEMS.filter(i => i.badge==='Mentorship' && !i.isHelper) },
+    ],
+  },
+  {
+    id: 'connections', label: 'Connections', color: '#4d4d4a',
+    branches: [
+      { id:'conn_all', label:'All', items: ITEMS.filter(i => i.type==='dm_thread'||i.type==='friend_request') },
+    ],
+  },
+];
+
+function Option3Inbox() {
+  const [expanded, setExpanded] = React.useState({ advice: true, mentorship: false, connections: false });
+  const [activeBranch, setActiveBranch] = React.useState('advice_give');
+  const [selected, setSelected] = React.useState('t1');
+
+  const toggleSection = (id) => setExpanded(e => ({ ...e, [id]: !e[id] }));
+
+  const activeItems = (() => {
+    if (activeBranch === 'priority') return priorityItems;
+    for (const sec of TREE_SECTIONS) {
+      const br = sec.branches.find(b => b.id === activeBranch);
+      if (br) return br.items;
+    }
+    return [];
+  })();
+
+  const selectedItem = ITEMS.find(i => i.id === selected);
+
+  return React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'300px 1fr', height:'100%', background:'#fafaf9', overflow:'hidden' } },
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', borderRight:'1px solid #dcdcd6', background:'rgba(244,243,238,.55)', overflow:'hidden' } },
+
+      // Header
+      React.createElement('div', { style:{ padding:'14px 14px 10px', borderBottom:'1px solid #dcdcd6', background:'#fff', flexShrink:0 } },
+        React.createElement('div', { className:'bc-section-kicker', style:{ marginBottom:5 } }, 'Relationship work'),
+        React.createElement('h1', { style:{ fontFamily:"'Inter Tight',sans-serif", fontSize:20, fontWeight:600, color:'#0c0c0b' } }, 'Inbox')
+      ),
+
+      // Scrollable nav tree
+      React.createElement('div', { style:{ flex:1, overflowY:'auto' } },
+
+        // Priority — top fixed item
+        React.createElement('div', { style:{ padding:'6px 8px', borderBottom:'1px solid #dcdcd6' } },
+          React.createElement('button', {
+            onClick: () => { setActiveBranch('priority'); if(priorityItems[0]) setSelected(priorityItems[0].id); },
+            style:{
+              width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
+              padding:'8px 10px', borderRadius:8, border:'none', cursor:'pointer',
+              background: activeBranch==='priority' ? 'rgba(200,118,26,.10)' : 'transparent',
+              fontFamily:"'Inter',sans-serif", transition:'background 150ms',
+            },
+          },
+            React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:8 } },
+              React.createElement('div', { style:{ width:8, height:8, borderRadius:'50%', background:'#c8761a', boxShadow:'0 0 0 3px rgba(200,118,26,.18)' } }),
+              React.createElement('span', { style:{ fontSize:13, fontWeight:activeBranch==='priority'?700:600, color: activeBranch==='priority' ? '#c8761a' : '#0c0c0b' } }, 'Priority')
+            ),
+            React.createElement('span', { style:{ minWidth:18, height:18, borderRadius:9, padding:'0 5px', background:activeBranch==='priority'?'#c8761a':'rgba(200,118,26,.15)', color:activeBranch==='priority'?'#fff':'#0c0c0b', fontSize:9.5, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' } }, priorityItems.length)
+          )
+        ),
+
+        // Collapsible type sections
+        React.createElement('div', { style:{ padding:'4px 0' } },
+          TREE_SECTIONS.map(sec => {
+            const open = expanded[sec.id];
+            const totalUnread = sec.branches.reduce((n,b) => n + b.items.filter(i=>i.unread).length, 0);
+            const anyBranchActive = sec.branches.some(b => b.id === activeBranch);
+
+            return React.createElement('div', { key:sec.id },
+              // Section header — clickable to expand/collapse
+              React.createElement('button', {
+                onClick: () => toggleSection(sec.id),
+                style:{
+                  width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
+                  padding:'7px 14px 7px 12px', background:'none', border:'none', cursor:'pointer',
+                  fontFamily:"'Inter',sans-serif", transition:'background 150ms',
+                },
+                onMouseEnter: e => e.currentTarget.style.background='rgba(235,235,229,.6)',
+                onMouseLeave: e => e.currentTarget.style.background='transparent',
+              },
+                React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:7 } },
+                  // Chevron
+                  React.createElement('svg', { width:12, height:12, viewBox:'0 0 24 24', fill:'none', stroke:'#4d4d4a', strokeWidth:2.5, strokeLinecap:'round', strokeLinejoin:'round',
+                    style:{ transition:'transform 150ms', transform: open ? 'rotate(90deg)' : 'rotate(0deg)' } },
+                    React.createElement('path', { d:'m9 18 6-6-6-6' })
+                  ),
+                  React.createElement('span', { style:{ fontSize:12.5, fontWeight: anyBranchActive ? 700 : 600, color: anyBranchActive ? sec.color : '#0c0c0b' } }, sec.label)
+                ),
+                totalUnread > 0 && React.createElement('span', { style:{ minWidth:16, height:16, borderRadius:8, padding:'0 4px', background: anyBranchActive ? sec.color : '#ebebe5', color: anyBranchActive ? '#fff' : '#4d4d4a', fontSize:9, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' } }, totalUnread)
+              ),
+
+              // Branch items — shown when expanded
+              open && React.createElement('div', { style:{ paddingLeft:22, paddingBottom:4 } },
+                sec.branches.map(br => {
+                  const brActive = activeBranch === br.id;
+                  const brUnread = br.items.filter(i=>i.unread).length;
+                  return React.createElement('button', {
+                    key:br.id,
+                    onClick: () => { setActiveBranch(br.id); if(br.items[0]) setSelected(br.items[0].id); },
+                    style:{
+                      width:'100%', display:'flex', justifyContent:'space-between', alignItems:'center',
+                      padding:'5px 10px 5px 8px', borderRadius:7,
+                      background: brActive ? `color-mix(in srgb, ${sec.color} 9%, #fff)` : 'transparent',
+                      border: `1px solid ${brActive ? `color-mix(in srgb, ${sec.color} 22%, transparent)` : 'transparent'}`,
+                      cursor:'pointer', fontFamily:"'Inter',sans-serif", transition:'all 150ms',
+                    },
+                    onMouseEnter: e => { if(!brActive) e.currentTarget.style.background='rgba(235,235,229,.7)'; },
+                    onMouseLeave: e => { if(!brActive) e.currentTarget.style.background='transparent'; },
+                  },
+                    React.createElement('span', { style:{ fontSize:12, fontWeight:brActive?700:400, color: brActive ? sec.color : '#4d4d4a' } }, br.label),
+                    brUnread > 0 && React.createElement('span', { style:{ minWidth:15, height:15, borderRadius:7, padding:'0 4px', background: brActive ? sec.color : 'rgba(200,118,26,.15)', color: brActive ? '#fff' : '#0c0c0b', fontSize:8.5, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center' } }, brUnread)
+                  );
+                })
+              )
+            );
+          })
+        )
+      ),
+
+      // Thread list for active selection
+      React.createElement('div', { style:{ height:220, borderTop:'1px solid #dcdcd6', overflowY:'auto', padding:'5px', flexShrink:0 } },
+        activeItems.length === 0
+          ? React.createElement('p', { style:{ padding:'16px', fontSize:11.5, color:'#4d4d4a', textAlign:'center' } }, 'Nothing here.')
+          : React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:2 } },
+              activeItems.map(item => React.createElement(Row, { key:item.id, item, selected, onClick:()=>setSelected(item.id) }))
+            )
+      )
+    ),
+
+    // Detail pane
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', background:'#fff', overflow:'hidden' } },
+      React.createElement(DetailPane, { item: selectedItem })
+    )
+  );
+}
+
+// ── Canvas ────────────────────────────────────────────────────────────────────
+function App() {
+  return React.createElement(DesignCanvas, null,
+    React.createElement(DCSection, { id:'s1', title:'Inbox nav — option comparison' },
+      React.createElement(DCArtboard, { id:'a1', label:'Option 1 — Type nav + give/get toggle', width:740, height:560 },
+        React.createElement(Option1Inbox)
+      ),
+      React.createElement(DCArtboard, { id:'a2', label:'Option 2 — Priority queue + type browser', width:740, height:560 },
+        React.createElement(Option2Inbox)
+      ),
+      React.createElement(DCArtboard, { id:'a3', label:'Option 3 — Hybrid: priority top + collapsible type trees', width:740, height:560 },
+        React.createElement(Option3Inbox)
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
