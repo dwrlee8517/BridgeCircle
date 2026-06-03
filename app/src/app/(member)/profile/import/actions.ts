@@ -20,6 +20,7 @@ const MAX_BYTES = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_MIME = new Set([
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/png',
 ])
 
 export type ExtractState = {
@@ -41,7 +42,7 @@ export async function extractFromUploadAction(
     return { error: 'File is too large (5MB max).' }
   }
   if (!ACCEPTED_MIME.has(file.type)) {
-    return { error: 'Upload a PDF or DOCX file.' }
+    return { error: 'Upload a PDF, DOCX, or PNG file.' }
   }
 
   const bytes = Buffer.from(await file.arrayBuffer())
@@ -60,6 +61,7 @@ export async function extractFromUploadAction(
   const mimeType = file.type as
     | 'application/pdf'
     | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    | 'image/png'
   const result = await extractFromResume({ mimeType, bytes })
 
   if (!result.ok) {
@@ -231,7 +233,7 @@ function extractErrorMessage(err: string): string {
     case 'llm_call_failed':
       return 'The extraction service is temporarily unavailable. Try again in a minute.'
     case 'invalid_response':
-      return "We couldn't read the resume cleanly. Try a different file."
+      return "We couldn't read that resume cleanly. Try a different file or format."
     default:
       return 'Extraction failed. Try again.'
   }

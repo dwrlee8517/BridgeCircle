@@ -372,10 +372,10 @@ export function SearchForm({
             </FilterSection>
 
             <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-2 grid grid-cols-1 gap-2 border-t border-border bg-card px-4 py-3 md:static md:mx-0 md:mb-0 md:border-t-0 md:bg-transparent md:p-0">
-              <Button type="submit" variant="default" size="sm" className="w-full rounded-lg">
+              <Button type="submit" variant="default" size="sm" className="w-full rounded-md">
                 Apply filters
               </Button>
-              <Button type="button" variant="outline" size="sm" className="w-full rounded-lg">
+              <Button type="button" variant="outline" size="sm" className="w-full rounded-md">
                 Save this search
               </Button>
             </div>
@@ -431,7 +431,7 @@ function FilterInput({
         placeholder={placeholder}
         inputMode={inputMode}
         aria-label={label}
-        className="h-8 rounded-lg px-2.5 text-xs"
+        className="h-8 rounded-md px-2.5 text-xs"
       />
     </label>
   )
@@ -489,7 +489,7 @@ function FilterRow({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-[13px] font-medium transition-colors',
+        'flex items-center justify-between rounded-md px-2.5 py-2 text-left text-[13px] font-medium transition-colors',
         active
           ? 'bg-primary-tint text-primary'
           : muted

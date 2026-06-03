@@ -47,7 +47,7 @@ Three import paths, offered during profile setup:
 - consent copy shown above the URL field per the brand-voice rule
 
 **B. Resume upload -> LLM extraction**
-- user uploads PDF or DOCX resume
+- user uploads PDF, DOCX, or PNG resume/CV
 - backend worker extracts: current employer, title, past roles, education, skills, location
 - extraction uses Claude Haiku with a strict JSON schema response (low cost, fast)
 - user reviews extracted fields on a confirm screen before saving
@@ -111,7 +111,7 @@ As shipped (paths reflect the actual landed code; the original plan called these
 - new: `app/src/app/proposals/[id]/` (root-level, token-authed; reached via email links)
 - new: `app/src/app/api/cron/enrichment-sweep-{start,poll}/route.ts` (pg_cron entry points, shared-secret auth)
 - new: `app/src/notify/emails/proposal-{review,applied}-email.tsx` + Resend wrappers
-- onboarding wire: inline "Import from LinkedIn" prompt across steps 2/3/4 + freshness consent radio on step 5
+- onboarding wire: inline import prompt across steps 2/3/4 linking to `/onboarding/import` for LinkedIn URL or PDF/DOCX/PNG resume-CV upload + freshness consent radio on step 5
 - profile edit: **Update from LinkedIn** form button (live LinkdAPI fetch + diff)
 - migrations: `profile_enrichment_settings`, `profile_enrichment_runs`, `profile_change_proposals`, `enrichment_sweep_jobs`
 

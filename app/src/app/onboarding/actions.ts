@@ -1,9 +1,11 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/db/server'
 import { track } from '@/lib/analytics/track'
 import { requireSession } from '@/lib/auth/session'
+import { ONBOARDING_STEP_COOKIE, type OnboardingStep } from '@/lib/onboarding/progress'
 import {
   markOnboardingComplete,
   saveOnboardingAbout,
@@ -41,6 +43,22 @@ function isSkip(formData: FormData) {
   return formData.get('skip') === '1'
 }
 
+async function rememberStep(step: OnboardingStep) {
+  const cookieStore = await cookies()
+  cookieStore.set(ONBOARDING_STEP_COOKIE, String(step), {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 30,
+    path: '/',
+  })
+}
+
+async function clearRememberedStep() {
+  const cookieStore = await cookies()
+  cookieStore.delete(ONBOARDING_STEP_COOKIE)
+}
+
 // --- Step 1: About you (cannot skip) ----------------------------------
 
 export async function aboutAction(_prev: StepState, formData: FormData): Promise<StepState> {
@@ -65,6 +83,7 @@ export async function aboutAction(_prev: StepState, formData: FormData): Promise
     return { error: 'Could not save. Try again.' }
   }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 1 })
+  await rememberStep(2)
   redirect('/onboarding?step=2')
 }
 
@@ -74,6 +93,7 @@ export async function educationAction(_prev: StepState, formData: FormData): Pro
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 2 })
+    await rememberStep(3)
     redirect('/onboarding?step=3')
   }
 
@@ -89,6 +109,7 @@ export async function educationAction(_prev: StepState, formData: FormData): Pro
   const result = await saveOnboardingEducation(supabase, session.userId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 2 })
+  await rememberStep(3)
   redirect('/onboarding?step=3')
 }
 
@@ -98,6 +119,7 @@ export async function currentAction(_prev: StepState, formData: FormData): Promi
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 3 })
+    await rememberStep(4)
     redirect('/onboarding?step=4')
   }
 
@@ -113,6 +135,7 @@ export async function currentAction(_prev: StepState, formData: FormData): Promi
   const result = await saveOnboardingCurrent(supabase, session.userId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 3 })
+  await rememberStep(4)
   redirect('/onboarding?step=4')
 }
 
@@ -122,6 +145,7 @@ export async function pastAction(_prev: StepState, formData: FormData): Promise<
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 4 })
+    await rememberStep(5)
     redirect('/onboarding?step=5')
   }
 
@@ -137,6 +161,7 @@ export async function pastAction(_prev: StepState, formData: FormData): Promise<
   const result = await saveOnboardingPast(supabase, session.userId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 4 })
+  await rememberStep(5)
   redirect('/onboarding?step=5')
 }
 
@@ -150,10 +175,20 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
     // Skipping the final step still completes onboarding — the user
     // chose not to fill in mentoring/avatar fields right now. They can
     // do so from /profile/edit and /mentorship/settings later.
+    const saveResult = await saveOnboardingHelp(supabase, session.userId, {
+      openToMentor: boolFromForm(formData.get('openToMentor')),
+      mentoringTopics: null,
+      bio: null,
+      avatarUrl: null,
+      freshnessPolicy: freshnessPolicyFromForm(formData),
+    })
+    if (!saveResult.ok) return { error: 'Could not save. Try again.' }
+
     const finishResult = await markOnboardingComplete(supabase, session.userId)
     if (!finishResult.ok) return { error: 'Could not save. Try again.' }
     track({ type: 'onboarding_skipped', userId: session.userId, step: 5 })
     track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: true })
+    await clearRememberedStep()
     redirect('/')
   }
 
@@ -180,5 +215,20 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
   if (!finishResult.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 5 })
   track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: false })
+  await clearRememberedStep()
   redirect('/')
+}
+
+function boolFromForm(value: FormDataEntryValue | null): boolean {
+  return value === 'on' || value === 'true'
+}
+
+function freshnessPolicyFromForm(
+  formData: FormData,
+): 'manual_only' | 'review_before_update' | 'auto_apply_and_notify' {
+  const raw = formData.get('freshnessPolicy')
+  if (raw === 'manual_only' || raw === 'review_before_update' || raw === 'auto_apply_and_notify') {
+    return raw
+  }
+  return 'review_before_update'
 }

@@ -1,7 +1,8 @@
 'use client'
 
-import { Link2 } from 'lucide-react'
+import { FileText, Link2 } from 'lucide-react'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { useActionState } from 'react'
 import {
   type EducationEntryInput,
@@ -10,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { anyHasContent, useFormHasContent, useSubmitterTracker } from './use-form-has-content'
+import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepEducationState = {
   error?: string
@@ -46,14 +47,11 @@ type Props = {
 export function StepEducation({ defaults, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
-  const initial =
-    anyHasContent(defaults.university, defaults.major) || defaults.educationHistory.length > 0
-  const { hasContent, onFormChange } = useFormHasContent(initial)
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
 
   return (
-    <form action={formAction} className="space-y-5" onChange={onFormChange}>
-      <LinkedInImportLink step={2} />
+    <form action={formAction} className="space-y-5">
+      <OnboardingImportOptions step={2} />
       <div className="space-y-1.5">
         <Label htmlFor="university">University</Label>
         <Input
@@ -86,13 +84,7 @@ export function StepEducation({ defaults, action }: Props) {
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button
-          type="submit"
-          onClick={onSaveClick}
-          disabled={pending || !hasContent}
-          className="sm:flex-1"
-          title={hasContent ? undefined : 'Add at least one field, or use Skip for now.'}
-        >
+        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
@@ -112,31 +104,70 @@ export function StepEducation({ defaults, action }: Props) {
 }
 
 /**
- * Inline LinkedIn import prompt for Steps 2/3/4. A single import fills
- * education, current role, career history, and skills — so once a user
- * accepts the import, the steps that follow are pre-filled.
+ * Inline import prompt for Steps 2/3/4. A single import fills education,
+ * current role, career history, and skills — so once a user accepts the
+ * import, the steps that follow are pre-filled.
  *
  * `step` controls where the user lands after the import confirm step.
  */
-export function LinkedInImportLink({ step }: { step: 2 | 3 | 4 }) {
+export function OnboardingImportOptions({
+  step,
+  resumeRoleCount,
+}: {
+  step: 2 | 3 | 4
+  resumeRoleCount?: number
+}) {
   const returnTo = `/onboarding?step=${step}`
+  const linkedinHref = onboardingImportHref(returnTo, 'linkedin')
+  const resumeHref = onboardingImportHref(returnTo, 'resume')
+  const hasImportedResume = typeof resumeRoleCount === 'number' && resumeRoleCount > 0
+
   return (
     <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2.5">
         <Link2 className="size-4 mt-0.5 text-primary" aria-hidden />
-        <div className="flex-1 space-y-1">
-          <p className="font-medium text-foreground">Have a LinkedIn URL?</p>
+        <div className="min-w-0 flex-1 space-y-2.5">
+          <p className="font-medium text-foreground">Want to fill this faster?</p>
           <p className="text-xs text-muted-foreground">
-            Import once to pre-fill education, current role, career history, and skills.
+            Import once to pre-fill education, current role, career history, and skills. You review
+            every field before anything is saved.
           </p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <ImportOption href={linkedinHref} icon={<Link2 className="size-3.5" aria-hidden />}>
+              Import from LinkedIn
+            </ImportOption>
+            <ImportOption href={resumeHref} icon={<FileText className="size-3.5" aria-hidden />}>
+              {hasImportedResume
+                ? `Re-import resume/CV (${resumeRoleCount} role${resumeRoleCount === 1 ? '' : 's'})`
+                : 'Upload resume/CV'}
+            </ImportOption>
+          </div>
         </div>
-        <Link
-          href={`/profile/import?source=linkedin&return=${encodeURIComponent(returnTo)}`}
-          className="text-sm font-medium text-primary underline underline-offset-2 hover:text-primary-hover"
-        >
-          Import →
-        </Link>
       </div>
     </div>
   )
+}
+
+function ImportOption({
+  href,
+  icon,
+  children,
+}: {
+  href: string
+  icon: ReactNode
+  children: ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-md border border-primary/20 bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/35 hover:bg-primary-tint"
+    >
+      {icon}
+      {children}
+    </Link>
+  )
+}
+
+function onboardingImportHref(returnTo: string, source: 'linkedin' | 'resume') {
+  return `/onboarding/import?source=${source}&return=${encodeURIComponent(returnTo)}`
 }

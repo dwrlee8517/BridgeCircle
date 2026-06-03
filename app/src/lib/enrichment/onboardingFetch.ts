@@ -40,7 +40,7 @@ export type OnboardingFetchResult = OnboardingFetchSuccess | OnboardingFetchFail
  * rule has data to read.
  *
  * Returns the same `ExtractedProfile` shape the resume extractor produces —
- * that's the integration contract that lets the /profile/import confirm UI
+ * that's the integration contract that lets the shared import confirm UI
  * consume any provider without branching.
  */
 export async function fetchForOnboarding(

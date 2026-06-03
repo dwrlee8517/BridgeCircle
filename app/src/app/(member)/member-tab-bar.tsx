@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
 import { getMemberNavIcon } from './member-nav-icons'
+import { activeMemberNavStyle, getMemberNavAccent } from './member-nav-style'
 import { MEMBER_NAV_LINKS } from './nav-links'
 
 /**
@@ -29,7 +29,7 @@ export function MemberTabBar() {
             ? pathname === '/'
             : pathname === prefix || pathname.startsWith(`${prefix}/`),
         )
-        const activeAccent = getMemberTabAccent(link.href)
+        const activeAccent = getMemberNavAccent(link.href)
         return (
           <Link
             key={link.href}
@@ -38,7 +38,7 @@ export function MemberTabBar() {
             className="flex min-h-[60px] flex-1 items-center justify-center px-1 text-[11px] font-medium"
           >
             <span
-              style={active ? activeTabStyle(activeAccent) : undefined}
+              style={active ? activeMemberNavStyle(activeAccent, '--member-tab-accent') : undefined}
               className={cn(
                 'relative flex h-12 min-w-[58px] flex-col items-center justify-center gap-1 rounded-md border px-2 transition-[color,background-color,border-color,box-shadow]',
                 active
@@ -61,19 +61,4 @@ export function MemberTabBar() {
       })}
     </nav>
   )
-}
-
-function getMemberTabAccent(href: string) {
-  if (href === '/help') return 'var(--action-offer)'
-  if (href === '/people') return 'var(--accent-plum)'
-  return 'var(--primary)'
-}
-
-function activeTabStyle(accent: string): CSSProperties {
-  return {
-    '--member-tab-accent': accent,
-    borderColor: `color-mix(in srgb, ${accent} 18%, var(--border))`,
-    background: `linear-gradient(180deg, var(--card), color-mix(in srgb, ${accent} 7%, var(--card)))`,
-    boxShadow: `0 1px 0 rgb(12 12 11 / 5%), 0 10px 20px color-mix(in srgb, ${accent} 6%, transparent)`,
-  } as CSSProperties
 }

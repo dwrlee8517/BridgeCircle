@@ -97,7 +97,7 @@ function StatusBanner({ stage }: { stage: Stage }) {
     <div
       role="status"
       aria-live="polite"
-      className="flex items-center gap-2.5 rounded-lg bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground"
+      className="flex items-center gap-2.5 rounded-md bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground"
     >
       <span
         className="inline-block size-2 shrink-0 animate-pulse rounded-full bg-primary"

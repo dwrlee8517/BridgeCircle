@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { anyHasContent, useFormHasContent, useSubmitterTracker } from './use-form-has-content'
+import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepHelpState = {
   error?: string
@@ -52,33 +52,23 @@ type Props = {
  * caveat tour.
  *
  * The mentoringTopics input is dim/disabled when openToMentor is off,
- * since topics only make sense when you're actually open. Both still
- * submit; the action handles them either way.
+ * since topics only make sense when you're actually open.
  */
 export function StepHelp({ defaults, name, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
   const [openToMentor, setOpenToMentor] = useState(defaults.openToMentor)
   const [freshnessPolicy, setFreshnessPolicy] = useState<FreshnessPolicy>(defaults.freshnessPolicy)
-  const initial =
-    defaults.openToMentor ||
-    anyHasContent(defaults.bio, defaults.mentoringTopics, defaults.avatarUrl)
-  const { hasContent, onFormChange } = useFormHasContent(initial)
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
 
   return (
-    <form action={formAction} className="space-y-6" onChange={onFormChange}>
+    <form action={formAction} className="space-y-6">
       <div className="space-y-2">
         <Label className="text-sm">Profile photo</Label>
         <p className="text-xs text-muted-foreground">
           Optional, but adds warmth — most members include one.
         </p>
         <AvatarUploader initialAvatarUrl={defaults.avatarUrl || null} initialName={name} />
-        {/* Hidden input mirrors the current avatar URL so the action can
-            read it. The AvatarUploader has already saved the URL to
-            base_profiles.avatar_url itself, so this is mostly belt-and-
-            suspenders for the form-data path. */}
-        <input type="hidden" name="avatarUrl" defaultValue={defaults.avatarUrl} />
       </div>
 
       <div className="space-y-1.5">
@@ -174,17 +164,7 @@ export function StepHelp({ defaults, name, action }: Props) {
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button
-          type="submit"
-          onClick={onSaveClick}
-          disabled={pending || !hasContent}
-          className="sm:flex-1"
-          title={
-            hasContent
-              ? undefined
-              : 'Add a photo, bio, or opt in to mentoring; or use Skip for now.'
-          }
-        >
+        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and finish'}
         </Button>
         <Button

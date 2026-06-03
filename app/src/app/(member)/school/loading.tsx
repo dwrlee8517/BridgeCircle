@@ -4,7 +4,7 @@ export default function SchoolLoading() {
   return (
     <main className="density-cozy min-h-full bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
-        <div className="mb-6 rounded-lg border border-border bg-card p-5 shadow-card">
+        <div className="mb-6 rounded-md border border-border bg-card p-5 shadow-card">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <Skeleton className="h-3 w-36" />
@@ -29,7 +29,7 @@ export default function SchoolLoading() {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
+            <div className="overflow-hidden rounded-md border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
               <div className="border-r border-border bg-background/75">
                 {['school-event-a', 'school-event-b', 'school-event-c', 'school-event-d'].map(
                   (id) => (
@@ -54,7 +54,7 @@ export default function SchoolLoading() {
                     <Skeleton className="h-8 w-3/4" />
                     <Skeleton className="h-4 w-full" />
                   </div>
-                  <Skeleton className="size-24 rounded-lg" />
+                  <Skeleton className="size-24 rounded-md" />
                 </div>
                 <Skeleton className="mt-5 h-24 w-full rounded-md" />
                 <div className="mt-5 flex gap-2">
@@ -66,12 +66,12 @@ export default function SchoolLoading() {
           </section>
 
           <aside className="space-y-5">
-            <div className="rounded-lg border border-border bg-card p-5 shadow-card">
+            <div className="rounded-md border border-border bg-card p-5 shadow-card">
               <Skeleton className="h-3 w-32" />
               <Skeleton className="mt-2 h-6 w-48" />
               <Skeleton className="mt-4 h-24 w-full rounded-md" />
             </div>
-            <div className="rounded-lg border border-border bg-card p-5 shadow-card">
+            <div className="rounded-md border border-border bg-card p-5 shadow-card">
               <Skeleton className="h-3 w-32" />
               <div className="mt-4 space-y-3">
                 <Skeleton className="h-14 w-full rounded-md" />

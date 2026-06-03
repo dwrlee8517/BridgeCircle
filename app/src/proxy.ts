@@ -6,16 +6,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth']
 
 export async function proxy(request: NextRequest) {
-  // Forward the pathname as a request header so server-component layouts
-  // can read it. Next.js doesn't expose pathname natively in server
-  // components, and the (member) layout needs it to exempt specific routes
-  // (e.g. /profile/import is reachable during onboarding via Step 2/3/4's
-  // "Import from LinkedIn" link, so it must not be gated on
-  // onboarding_completed_at).
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-pathname', request.nextUrl.pathname)
-
-  let response = NextResponse.next({ request: { headers: requestHeaders } })
+  let response = NextResponse.next()
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
@@ -32,7 +23,7 @@ export async function proxy(request: NextRequest) {
         for (const { name, value } of cookiesToSet) {
           request.cookies.set(name, value)
         }
-        response = NextResponse.next({ request: { headers: requestHeaders } })
+        response = NextResponse.next()
         for (const { name, value, options } of cookiesToSet) {
           response.cookies.set(name, value, options)
         }

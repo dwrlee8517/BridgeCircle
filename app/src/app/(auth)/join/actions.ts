@@ -64,7 +64,7 @@ export async function signUpWithPassword(_prev: JoinState, formData: FormData): 
     return { error: 'Account was created but accepting the invite failed. Contact your admin.' }
   }
 
-  redirect('/onboarding')
+  redirect('/onboarding?step=1')
 }
 
 export async function startGoogleSignup(formData: FormData) {

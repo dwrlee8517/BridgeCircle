@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import type { CSSProperties } from 'react'
 
 import { cn } from '@/lib/utils'
 import { getMemberNavIcon } from './member-nav-icons'
+import { activeMemberNavStyle, getMemberNavAccent } from './member-nav-style'
 import { MEMBER_NAV_LINKS } from './nav-links'
 
 export { MEMBER_NAV_LINKS }
@@ -32,7 +32,7 @@ export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
             key={link.href}
             href={link.href}
             aria-current={active ? 'page' : undefined}
-            style={active ? activeNavStyle(activeAccent) : undefined}
+            style={active ? activeMemberNavStyle(activeAccent, '--member-nav-accent') : undefined}
             className={cn(
               'relative flex h-10 items-center gap-1.5 self-center rounded-md border border-transparent px-2.5 text-sm font-medium tracking-tight transition-[color,background-color,border-color,box-shadow]',
               active
@@ -54,20 +54,4 @@ export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
       })}
     </nav>
   )
-}
-
-function getMemberNavAccent(href: string) {
-  if (href === '/help') return 'var(--action-offer)'
-  if (href === '/people') return 'var(--accent-plum)'
-  if (href === '/admin/invite') return 'var(--accent-plum)'
-  return 'var(--primary)'
-}
-
-function activeNavStyle(accent: string): CSSProperties {
-  return {
-    '--member-nav-accent': accent,
-    borderColor: `color-mix(in srgb, ${accent} 18%, var(--border))`,
-    background: `linear-gradient(180deg, var(--card), color-mix(in srgb, ${accent} 7%, var(--card)))`,
-    boxShadow: `0 1px 0 rgb(12 12 11 / 5%), 0 10px 20px color-mix(in srgb, ${accent} 6%, transparent)`,
-  } as CSSProperties
 }

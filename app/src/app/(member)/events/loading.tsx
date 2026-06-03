@@ -17,7 +17,7 @@ export default function EventsLoading() {
           <Skeleton className="-mb-px h-10 w-24 rounded-t-sm" />
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="overflow-hidden rounded-md border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
           <div className="border-r border-border bg-background/75">
             {['event-a', 'event-b', 'event-c', 'event-d', 'event-e'].map((id) => (
               <div key={id} className="grid grid-cols-[auto_1fr] gap-3 border-b border-border p-4">
@@ -38,7 +38,7 @@ export default function EventsLoading() {
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-2/3" />
               </div>
-              <Skeleton className="size-24 rounded-lg" />
+              <Skeleton className="size-24 rounded-md" />
             </div>
             <Skeleton className="mt-5 h-24 w-full rounded-md" />
             <div className="mt-5 flex gap-2">
