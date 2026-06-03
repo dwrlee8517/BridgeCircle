@@ -10,6 +10,7 @@ export type ExtractInput = {
   mimeType:
     | 'application/pdf'
     | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    | 'image/png'
   bytes: Buffer
 }
 
@@ -68,8 +69,9 @@ Rules:
  * Run the LLM extraction. Pure: takes raw bytes, returns ExtractedProfile.
  *
  * For PDF, we send the document as a base64 doc content block — Claude 4.x
- * reads PDFs natively. For DOCX, we extract text with mammoth first since
- * Claude doesn't accept DOCX directly.
+ * reads PDFs natively. For PNG resume/CV screenshots, we send an image block.
+ * For DOCX, we extract text with mammoth first since Claude doesn't accept
+ * DOCX directly.
  *
  * On parse failure we retry once with a stricter "fix the JSON" message,
  * then bail. Cost is ~$0.008 per resume at Haiku pricing; latency 5-15s.
@@ -90,6 +92,21 @@ export async function extractFromResume(input: ExtractInput): Promise<ExtractRes
           media_type: 'application/pdf',
           data: input.bytes.toString('base64'),
         },
+      },
+    ]
+  } else if (input.mimeType === 'image/png') {
+    userContent = [
+      {
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: 'image/png',
+          data: input.bytes.toString('base64'),
+        },
+      },
+      {
+        type: 'text',
+        text: 'Extract structured profile data from this resume or CV image.',
       },
     ]
   } else {

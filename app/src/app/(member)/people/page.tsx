@@ -157,7 +157,7 @@ export default async function PeoplePage({
         }}
       >
         {nlError ? (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-card">
+          <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive shadow-card">
             {nlError}
           </div>
         ) : null}
@@ -296,17 +296,17 @@ function PeopleFeedbackStrip() {
         </p>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        <Button type="button" variant="outline" size="sm" className="rounded-lg">
+        <Button type="button" variant="outline" size="sm" className="rounded-md">
           Off-target
         </Button>
-        <Button type="button" variant="outline" size="sm" className="rounded-lg">
+        <Button type="button" variant="outline" size="sm" className="rounded-md">
           Helpful
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="hidden rounded-lg text-muted-foreground sm:inline-flex"
+          className="hidden rounded-md text-muted-foreground sm:inline-flex"
         >
           Skip
         </Button>
@@ -347,8 +347,8 @@ function PeoplePagination({
               aria-current={isCurrent ? 'page' : undefined}
               className={
                 isCurrent
-                  ? 'flex size-8 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground'
-                  : 'flex size-8 items-center justify-center rounded-lg border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
+                  ? 'flex size-8 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground'
+                  : 'flex size-8 items-center justify-center rounded-md border border-border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground'
               }
             >
               {page}

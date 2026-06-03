@@ -52,7 +52,7 @@ export function RsvpQuickButton({ eventId, current, isFull, className }: Props) 
         variant={isGoing ? 'secondary' : 'cta'}
         onClick={submit}
         disabled={pending}
-        className="w-full rounded-lg"
+        className="w-full rounded-md"
       >
         {isGoing ? <Check className="size-4" strokeWidth={1.5} /> : null}
         {label}

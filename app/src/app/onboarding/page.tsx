@@ -1,13 +1,20 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { OnboardingShell, TOTAL_STEPS } from '@/components/onboarding/shell'
+import { OnboardingShell } from '@/components/onboarding/shell'
 import { StepAbout } from '@/components/onboarding/step-about'
 import { StepCurrent } from '@/components/onboarding/step-current'
 import { StepEducation } from '@/components/onboarding/step-education'
 import { StepHelp } from '@/components/onboarding/step-help'
 import { StepPast } from '@/components/onboarding/step-past'
+import { Button } from '@/components/ui/button'
 import { createAdminClient } from '@/db/admin'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import {
+  inferOnboardingStep,
+  ONBOARDING_STEP_COOKIE,
+  parseOnboardingStep,
+} from '@/lib/onboarding/progress'
 import { displayOrgName } from '@/lib/utils'
 import { aboutAction, currentAction, educationAction, helpAction, pastAction } from './actions'
 
@@ -35,9 +42,9 @@ type DbEducationEntry = {
  * Routing rules:
  *   - Anyone with users.onboarding_completed_at set → redirect to /. They've
  *     already finished onboarding; further fields go through /profile/edit.
- *   - No active membership row → sign out + redirect to /sign-in (the user
- *     somehow got here without a valid invite acceptance).
- *   - Step out of range (or missing) → default to 1.
+ *   - No active membership row → show the pending-approval state when the
+ *     user has a pending membership, otherwise sign out + redirect to /sign-in.
+ *   - Step out of range (or missing) → resume the remembered/inferred step.
  *   - Step ≥ 2 but name/grad year still missing → force back to step 1.
  *     Step 1 is the only required step; you can't skip it.
  *
@@ -83,6 +90,18 @@ export default async function OnboardingPage({
   ])
 
   if (!membership) {
+    const { data: inactiveMemberships } = await admin
+      .from('organization_memberships')
+      .select('status, organizations(name)')
+      .eq('user_id', session.userId)
+
+    const pendingMembership = inactiveMemberships?.find((m) => m.status === 'pending')
+    if (pendingMembership) {
+      const pendingOrgName = (pendingMembership.organizations as { name: string } | null)?.name
+      const orgName = pendingOrgName ? displayOrgName(pendingOrgName) : null
+      return <PendingApproval orgName={orgName} />
+    }
+
     await supabase.auth.signOut()
     redirect(
       `/sign-in?error=${encodeURIComponent("We couldn't find an invite for this email. Ask your admin to send you one.")}`,
@@ -112,7 +131,24 @@ export default async function OnboardingPage({
   // Step coercion. Always force step 1 if the required floor (name +
   // grad year) is not yet set.
   const requiredFloorMet = !!base?.name && !!orgProfile?.graduation_year
-  const requestedStep = clampStep(params.step)
+  const cookieStore = await cookies()
+  const requestedStep =
+    parseOnboardingStep(params.step) ??
+    parseOnboardingStep(cookieStore.get(ONBOARDING_STEP_COOKIE)?.value) ??
+    inferOnboardingStep({
+      name: base?.name,
+      graduationYear: orgProfile?.graduation_year,
+      university: base?.university,
+      major: base?.major,
+      educationHistory: (base?.education_history as DbEducationEntry[] | null) ?? null,
+      currentEmployer: base?.current_employer,
+      currentTitle: base?.current_title,
+      city: base?.city,
+      headline: base?.headline,
+      linkedinUrl: base?.linkedin_url,
+      careerHistory: (base?.career_history as DbCareerEntry[] | null) ?? null,
+      skills: base?.skills,
+    })
   const step = requiredFloorMet ? requestedStep : 1
 
   const firstName = base?.name?.split(' ')[0] ?? null
@@ -226,7 +262,6 @@ export default async function OnboardingPage({
               skills: base?.skills ?? [],
             }}
             action={pastAction}
-            importReturnTo={`/profile/import?return=${encodeURIComponent('/onboarding?step=4')}`}
           />
         </OnboardingShell>
       )
@@ -266,15 +301,46 @@ export default async function OnboardingPage({
       )
 
     default:
-      // Should never hit because clampStep guarantees 1..TOTAL_STEPS.
+      // Should never hit because parseOnboardingStep/inferOnboardingStep guarantee 1..5.
       redirect('/onboarding?step=1')
   }
 }
 
-function clampStep(raw: string | undefined): number {
-  if (!raw) return 1
-  const n = Number.parseInt(raw, 10)
-  if (Number.isNaN(n) || n < 1) return 1
-  if (n > TOTAL_STEPS) return TOTAL_STEPS
-  return n
+async function signOutFromPendingApproval() {
+  'use server'
+
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/sign-in')
+}
+
+function PendingApproval({ orgName }: { orgName: string | null }) {
+  return (
+    <main className="mx-auto flex min-h-screen max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
+      <header className="mb-16 flex items-center justify-between">
+        <span className="bc-fraunces text-xl font-bold tracking-[-0.025em] text-foreground">
+          Bridge<span className="text-primary">Circle</span>
+        </span>
+      </header>
+      <section className="mt-10 space-y-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Approval pending
+        </p>
+        <h1 className="font-heading text-3xl font-bold tracking-[-0.025em] text-foreground sm:text-4xl">
+          {orgName
+            ? `Your ${orgName} membership is waiting for approval.`
+            : 'Your membership is waiting for approval.'}
+        </h1>
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+          You accepted the invite. An admin still needs to approve access before your profile setup
+          can continue.
+        </p>
+        <form action={signOutFromPendingApproval}>
+          <Button type="submit" variant="outline">
+            Sign out
+          </Button>
+        </form>
+      </section>
+    </main>
+  )
 }

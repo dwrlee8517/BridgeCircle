@@ -70,7 +70,7 @@ function SchoolHubTabButton({
       <span className="min-w-0 truncate">{label}</span>
       {count > 0 ? (
         <span
-          className={`font-mono text-[10px] ${active ? 'text-background/75' : 'text-muted-foreground'}`}
+          className={`font-mono text-xs ${active ? 'text-background/75' : 'text-muted-foreground'}`}
         >
           {count}
         </span>

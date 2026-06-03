@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import type { ImportCurrentProfile } from '@/lib/profile/importCurrentProfile'
 import type { CareerEntry, EducationEntry, ExtractedProfile } from '@/lib/resume/schemas'
 
 /**
@@ -23,31 +24,7 @@ import type { CareerEntry, EducationEntry, ExtractedProfile } from '@/lib/resume
  *   - extra buttons via `extraActions` (e.g. Decline on the proposal review)
  */
 
-export type CurrentProfile = {
-  name: string | null
-  headline: string | null
-  city: string | null
-  currentEmployer: string | null
-  currentTitle: string | null
-  university: string | null
-  major: string | null
-  linkedinUrl: string | null
-  careerHistory: Array<{
-    employer: string
-    title: string
-    start_date: string | null
-    end_date: string | null
-    description: string | null
-  }>
-  educationHistory: Array<{
-    school: string
-    degree: string | null
-    field: string | null
-    start_date: string | null
-    end_date: string | null
-  }>
-  skills: string[]
-}
+export type CurrentProfile = ImportCurrentProfile
 
 const SCALAR_FIELDS = [
   { key: 'name', label: 'Full name' },

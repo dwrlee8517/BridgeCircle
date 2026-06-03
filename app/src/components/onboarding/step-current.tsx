@@ -4,8 +4,8 @@ import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LinkedInImportLink } from './step-education'
-import { anyHasContent, useFormHasContent, useSubmitterTracker } from './use-form-has-content'
+import { OnboardingImportOptions } from './step-education'
+import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepCurrentState = {
   error?: string
@@ -39,19 +39,11 @@ type Props = {
 export function StepCurrent({ defaults, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
-  const initial = anyHasContent(
-    defaults.currentEmployer,
-    defaults.currentTitle,
-    defaults.city,
-    defaults.headline,
-    defaults.linkedinUrl,
-  )
-  const { hasContent, onFormChange } = useFormHasContent(initial)
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
 
   return (
-    <form action={formAction} className="space-y-5" onChange={onFormChange}>
-      <LinkedInImportLink step={3} />
+    <form action={formAction} className="space-y-5">
+      <OnboardingImportOptions step={3} />
       <div className="space-y-1.5">
         <Label htmlFor="currentEmployer">Current employer</Label>
         <Input
@@ -122,13 +114,7 @@ export function StepCurrent({ defaults, action }: Props) {
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button
-          type="submit"
-          onClick={onSaveClick}
-          disabled={pending || !hasContent}
-          className="sm:flex-1"
-          title={hasContent ? undefined : 'Add at least one field, or use Skip for now.'}
-        >
+        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button

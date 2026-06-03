@@ -170,11 +170,11 @@ export function ResultCard(props: ResultCardProps) {
           ) : null}
 
           <div className="flex gap-1.5">
-            <Button asChild variant="outline" size="sm" className="h-8 rounded-lg px-3 text-xs">
+            <Button asChild variant="outline" size="sm" className="h-8 rounded-md px-3 text-xs">
               <Link href={`/profile/${props.userId}`}>View</Link>
             </Button>
             {isOpen ? (
-              <Button asChild variant="default" size="sm" className="h-8 rounded-lg px-3 text-xs">
+              <Button asChild variant="default" size="sm" className="h-8 rounded-md px-3 text-xs">
                 <Link href={`/ask/new?to=${props.userId}&type=${askType}`}>Ask {firstName}</Link>
               </Button>
             ) : (
@@ -182,7 +182,7 @@ export function ResultCard(props: ResultCardProps) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="h-8 rounded-lg px-3 text-xs"
+                className="h-8 rounded-md px-3 text-xs"
               >
                 Not open
               </Button>

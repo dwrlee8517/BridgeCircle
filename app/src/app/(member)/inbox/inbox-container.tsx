@@ -540,7 +540,7 @@ function MobileInboxNav({
               <span className="min-w-0 truncate">{area.label}</span>
               {primaryCounts[area.id] > 0 ? (
                 <span
-                  className={`font-mono text-[10px] ${
+                  className={`font-mono text-xs ${
                     isActive ? 'text-background/75' : 'text-muted-foreground'
                   }`}
                 >
@@ -567,7 +567,7 @@ function MobileInboxNav({
               aria-pressed={isActive}
             >
               <span>{view.label}</span>
-              <span className="font-mono text-[10px]">
+              <span className="font-mono text-xs">
                 {countForView(view.id, conversationCounts, requestCounts, historyCounts)}
               </span>
             </button>

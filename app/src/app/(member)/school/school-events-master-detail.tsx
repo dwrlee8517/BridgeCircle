@@ -114,7 +114,7 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
       </div>
 
       {selected ? (
-        <div className="bc-events-master-detail overflow-hidden rounded-lg border border-border bg-card shadow-[0_1px_0_rgba(12,12,11,0.03),0_18px_36px_-22px_rgba(12,12,11,0.14)] md:grid md:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="bc-events-master-detail overflow-hidden rounded-md border border-border bg-card shadow-[0_1px_0_rgba(12,12,11,0.03),0_18px_36px_-22px_rgba(12,12,11,0.14)] md:grid md:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
           <div
             className={cn(
               'border-border bg-background/72 md:block md:border-r',
@@ -208,14 +208,14 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed border-border bg-card p-6">
+        <div className="rounded-md border border-dashed border-border bg-card p-6">
           <p className="font-heading text-xl font-semibold text-foreground">
             No {activeCategory.toLowerCase()} events right now
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             Try another category or check the events archive.
           </p>
-          <Button asChild size="sm" variant="outline" className="mt-4 rounded-lg">
+          <Button asChild size="sm" variant="outline" className="mt-4 rounded-md">
             <Link href="/events">Open events</Link>
           </Button>
         </div>
@@ -274,7 +274,7 @@ function EventSpotlight({
           </p>
         </div>
 
-        <div className="relative w-fit rounded-lg border border-white/20 bg-white/10 px-6 py-4 text-center">
+        <div className="relative w-fit rounded-md border border-white/20 bg-white/10 px-6 py-4 text-center">
           <div className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-white/70">
             {format(starts, 'MMM')}
           </div>
@@ -321,17 +321,17 @@ function EventSpotlight({
 
         <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-border pt-4">
           <SchoolRsvpButton event={event} isFull={isFull} />
-          <Button asChild variant="outline" className="rounded-lg">
+          <Button asChild variant="outline" className="rounded-md">
             <a href={`/events/${event.id}/ical`} download>
               <CalendarPlus className="size-4" strokeWidth={1.6} />
               Add to calendar
             </a>
           </Button>
-          <Button asChild variant="ghost" className="rounded-lg text-muted-foreground">
+          <Button asChild variant="ghost" className="rounded-md text-muted-foreground">
             <Link href="/people">Invite a friend</Link>
           </Button>
           <div className="hidden flex-1 sm:block" />
-          <Button asChild variant="ghost" className="rounded-lg">
+          <Button asChild variant="ghost" className="rounded-md">
             <Link href={`/events/${event.id}`}>
               Full details
               <ArrowRight className="size-4" strokeWidth={1.6} />
@@ -379,7 +379,7 @@ function SchoolRsvpButton({ event, isFull }: { event: EventRow; isFull: boolean 
         variant={going || waitlisted ? 'offer' : 'cta'}
         onClick={submit}
         disabled={pending}
-        className="rounded-lg"
+        className="rounded-md"
       >
         {going || waitlisted ? <Check className="size-4" strokeWidth={1.8} /> : null}
         {pending
@@ -521,9 +521,9 @@ function CapacityBar({
 
 function EventListDateBlock({ starts, accentHex }: { starts: Date; accentHex: string }) {
   return (
-    <span className="grid h-14 w-12 shrink-0 grid-rows-[14px_1fr_14px] items-center rounded-lg border border-border bg-card px-1 py-1 text-center shadow-card">
+    <span className="grid h-14 w-12 shrink-0 grid-rows-[14px_1fr_14px] items-center rounded-md border border-border bg-card px-1 py-1 text-center shadow-card">
       <span
-        className="font-mono text-[10px] font-bold uppercase leading-none"
+        className="font-mono text-xs font-bold uppercase leading-none"
         style={{ color: accentHex }}
       >
         {format(starts, 'MMM')}
@@ -531,7 +531,7 @@ function EventListDateBlock({ starts, accentHex }: { starts: Date; accentHex: st
       <span className="font-heading text-lg font-semibold leading-none text-foreground">
         {format(starts, 'd')}
       </span>
-      <span className="font-mono text-[10px] uppercase leading-none text-muted-foreground">
+      <span className="font-mono text-xs uppercase leading-none text-muted-foreground">
         {format(starts, 'EEE')}
       </span>
     </span>

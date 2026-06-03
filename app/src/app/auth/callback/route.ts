@@ -52,7 +52,7 @@ export async function GET(request: Request) {
     const verified = await verifyInviteToken(pendingToken)
     if (verified.ok && verified.invite.email.toLowerCase() === data.user.email?.toLowerCase()) {
       await acceptInvite({ inviteId: verified.invite.id, userId: data.user.id })
-      return NextResponse.redirect(`${origin}/onboarding`)
+      return NextResponse.redirect(`${origin}/onboarding?step=1`)
     }
     // Mismatched email or invalid token. Fall through to the no-invite check
     // below — if they have a prior membership that's fine, otherwise we
@@ -63,7 +63,8 @@ export async function GET(request: Request) {
   //   1. Active membership exists → land on /<next>
   //   2. No active, but pending self-delete grace → /cancel-delete
   //   3. No active, but self_deactivated memberships exist → /reactivate
-  //   4. Otherwise → not invited / not authorized → reject
+  //   4. Pending approval membership exists → /onboarding pending screen
+  //   5. Otherwise → not invited / not authorized → reject
   //
   // Admin-initiated deletions ban the auth user immediately, so they never
   // reach this branch — the auth.exchangeCodeForSession above fails for
@@ -80,6 +81,7 @@ export async function GET(request: Request) {
   ])
 
   const hasActive = memberships?.some((m) => m.status === 'active') ?? false
+  const hasPending = memberships?.some((m) => m.status === 'pending') ?? false
   const hasSelfDeactivated = memberships?.some((m) => m.status === 'self_deactivated') ?? false
 
   if (hasActive) {
@@ -99,6 +101,10 @@ export async function GET(request: Request) {
 
   if (hasSelfDeactivated) {
     return NextResponse.redirect(`${origin}/reactivate`)
+  }
+
+  if (hasPending) {
+    return NextResponse.redirect(`${origin}/onboarding`)
   }
 
   await supabase.auth.signOut()

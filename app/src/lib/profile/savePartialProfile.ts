@@ -153,15 +153,6 @@ export async function saveOnboardingHelp(
         .filter(Boolean)
     : null
 
-  const { error: baseErr } = await supabase
-    .from('base_profiles')
-    .update({
-      avatar_url: input.avatarUrl || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId)
-  if (baseErr) return { ok: false, error: 'db_error', detail: baseErr.message }
-
   const membership = await getActiveMembership(supabase, userId)
   if (!membership) return { ok: false, error: 'no_membership' }
 

@@ -89,10 +89,17 @@ function UploadStep({
     <form action={action} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="file">Upload your resume</Label>
-        <Input id="file" name="file" type="file" accept=".pdf,.docx" required disabled={pending} />
+        <Input
+          id="file"
+          name="file"
+          type="file"
+          accept=".pdf,.docx,.png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/png"
+          required
+          disabled={pending}
+        />
         <p className="text-xs text-muted-foreground">
-          PDF or DOCX, up to 5MB. We&apos;ll extract your career history, education, and skills,
-          then let you confirm before saving anything.
+          PDF, DOCX, or PNG, up to 5MB. We&apos;ll extract your career history, education, and
+          skills, then let you confirm before saving anything.
         </p>
       </div>
 

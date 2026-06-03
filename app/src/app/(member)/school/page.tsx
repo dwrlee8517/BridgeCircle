@@ -202,7 +202,7 @@ function SchoolAnnouncementsSection({
       )}
 
       <div className="text-center">
-        <Button asChild size="sm" variant="ghost" className="rounded-lg text-muted-foreground">
+        <Button asChild size="sm" variant="ghost" className="rounded-md text-muted-foreground">
           <Link href="/announcements">
             See all announcements
             <ArrowRight className="size-3.5" strokeWidth={1.6} />
@@ -253,10 +253,10 @@ function EmptySchoolState({
   cta: string
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-border bg-card p-6">
+    <div className="rounded-md border border-dashed border-border bg-card p-6">
       <p className="font-heading text-xl font-semibold text-foreground">{title}</p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <Button asChild size="sm" variant="outline" className="mt-4 rounded-lg">
+      <Button asChild size="sm" variant="outline" className="mt-4 rounded-md">
         <Link href={href}>{cta}</Link>
       </Button>
     </div>

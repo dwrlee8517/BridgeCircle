@@ -43,7 +43,7 @@ export function EventsMasterDetail({ events, attendeesByEvent, view, initialSele
   const grouped = groupByMonth(displayEvents)
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
+    <div className="overflow-hidden rounded-md border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
       <section className="border-border bg-background/75 md:border-r" aria-label="Event list">
         <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
           <span className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -163,7 +163,7 @@ function EventArchiveSpotlight({
           </p>
         </div>
 
-        <div className="w-fit rounded-lg border border-border bg-background px-6 py-4 text-center shadow-card">
+        <div className="w-fit rounded-md border border-border bg-background px-6 py-4 text-center shadow-card">
           <div className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             {format(starts, 'MMM')}
           </div>

@@ -78,7 +78,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_340px]">
           <div className="space-y-6">
-            <section className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
+            <section className="overflow-hidden rounded-md border border-border bg-card shadow-card">
               <div className="grid gap-6 p-5 sm:p-7 md:grid-cols-[1fr_auto] md:items-start">
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -133,14 +133,14 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
             </section>
 
             <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-              <div className="rounded-lg border border-border bg-card p-5 shadow-card sm:p-6">
+              <div className="rounded-md border border-border bg-card p-5 shadow-card sm:p-6">
                 <SectionLabel icon={Ticket}>About this event</SectionLabel>
                 <p className="mt-4 whitespace-pre-line text-base leading-8 text-foreground">
                   {eventSummary}
                 </p>
               </div>
 
-              <div className="rounded-lg border border-border bg-card p-5 shadow-card sm:p-6">
+              <div className="rounded-md border border-border bg-card p-5 shadow-card sm:p-6">
                 <SectionLabel icon={CalendarDays}>Program flow</SectionLabel>
                 <ol className="mt-5 space-y-0">
                   {meta.agenda.map((item, index) => (
@@ -171,7 +171,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
               </div>
             </section>
 
-            <section className="rounded-lg border border-border bg-card p-5 shadow-card sm:p-6">
+            <section className="rounded-md border border-border bg-card p-5 shadow-card sm:p-6">
               <SectionLabel icon={MapPin}>Where to gather</SectionLabel>
               <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_220px] sm:items-start">
                 <div>
@@ -225,7 +225,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <div
-              className="rounded-lg border border-border bg-card p-5 shadow-card"
+              className="rounded-md border border-border bg-card p-5 shadow-card"
               style={{ borderTopColor: accent.hex, borderTopWidth: 3 }}
             >
               <div className="flex items-center gap-2">
@@ -285,7 +285,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
 
 function DateBlock({ starts, accentHex }: { starts: Date; accentHex: string }) {
   return (
-    <div className="w-fit rounded-lg border border-border bg-background px-6 py-4 text-center shadow-card">
+    <div className="w-fit rounded-md border border-border bg-background px-6 py-4 text-center shadow-card">
       <div
         className="font-mono text-xs font-semibold uppercase tracking-[0.08em]"
         style={{ color: accentHex }}
@@ -420,7 +420,7 @@ function AttendeeRoster({
   showWaitlistPosition?: boolean
 }) {
   return (
-    <section className="rounded-lg border border-border bg-card p-5 shadow-card sm:p-6">
+    <section className="rounded-md border border-border bg-card p-5 shadow-card sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <SectionLabel icon={UsersRound}>{title}</SectionLabel>
         <span className="font-mono text-xs text-muted-foreground">{attendees.length}</span>
@@ -478,7 +478,7 @@ function RelatedEventsSection({
   subdued?: boolean
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-4 shadow-card">
+    <div className="rounded-md border border-border bg-card p-4 shadow-card">
       <div className="mb-3 flex items-center justify-between gap-3">
         <h3 className="font-heading text-base font-semibold text-foreground">{title}</h3>
         <span className="font-mono text-xs text-muted-foreground">{events.length}</span>
