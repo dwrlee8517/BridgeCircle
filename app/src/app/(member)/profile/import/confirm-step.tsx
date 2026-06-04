@@ -48,6 +48,10 @@ function k(): string {
   return `k${nextKey}`
 }
 
+function stripChoiceKey<T extends { _key: string }>({ _key: _discarded, ...rest }: T) {
+  return rest
+}
+
 export function ConfirmStep({
   profile,
   current,
@@ -169,36 +173,26 @@ export function ConfirmStep({
     setNewSkill('')
   }
 
-  function buildFormData(extras: Record<string, string> = {}): FormData {
-    const fd = new FormData()
-    for (const [k2, v] of Object.entries(hiddenFields)) fd.set(k2, v)
-    for (const [k2, v] of Object.entries(extras)) fd.set(k2, v)
-    const stripKey = <T extends { _key: string }>({ _key, ...rest }: T) => rest
-    fd.set(
-      'selections',
-      JSON.stringify({
-        scalars,
-        careerHistory: careerHistory.map(stripKey),
-        educationHistory: educationHistory.map(stripKey),
-        skills: skills.map(stripKey),
-      }),
-    )
-    return fd
-  }
-
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    action(buildFormData())
-  }
-
   const includedCount =
     Object.values(scalars).filter((s) => s.use).length +
     careerHistory.filter((e) => e.use).length +
     educationHistory.filter((e) => e.use).length +
     skills.filter((s) => s.use).length
 
+  const selectionsJson = JSON.stringify({
+    scalars,
+    careerHistory: careerHistory.map(stripChoiceKey),
+    educationHistory: educationHistory.map(stripChoiceKey),
+    skills: skills.map(stripChoiceKey),
+  })
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form action={action} className="space-y-6">
+      {Object.entries(hiddenFields).map(([name, value]) => (
+        <input key={name} type="hidden" name={name} value={value} />
+      ))}
+      <input type="hidden" name="selections" value={selectionsJson} />
+
       {headerBanner ? (
         <div className="rounded-md border border-accent-sage/25 bg-accent-sage/10 p-3 text-sm text-foreground">
           {headerBanner}
