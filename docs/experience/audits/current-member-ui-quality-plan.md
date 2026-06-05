@@ -85,6 +85,9 @@ Priority:
 Actions:
 
 - Treat Ask as the product command center.
+- Keep typed Ask queries and their ranked match results on `/ask?nl=...`.
+  People can be offered as a secondary directory view, but Ask should not
+  redirect members into the People surface.
 - Make match explanations structured: reason, trust signal, suggested first
   ask.
 - Avoid turning the page into another people directory.
@@ -113,6 +116,8 @@ Priority:
 
 Actions:
 
+- Keep People as broad alumni exploration and structured filtering, not the
+  default destination for submitted AskBar queries.
 - Convert the current grid/card feel into a stronger decision list where
   possible.
 - Use one primary action per person based on state: ask, request mentorship,

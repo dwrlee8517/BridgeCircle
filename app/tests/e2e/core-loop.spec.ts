@@ -123,6 +123,21 @@ test.describe("Core User Loop", () => {
     await page.waitForURL(/\/$/);
     await expect(page.getByRole("heading", { name: /Hi Student\. Who do you want to ask\?/i })).toBeVisible();
 
+    // AskBar submissions stay inside Ask instead of redirecting into the People directory.
+    await page.getByLabel(/Ask a question to find people who can help/i).fill("Mark Mentor");
+    await page.getByRole("button", { name: /find matches/i }).click();
+    await page.waitForURL((url) => url.pathname === "/ask" && url.searchParams.get("nl") === "Mark Mentor");
+    await expect(page.getByRole("heading", { name: /People who can help with this ask/i })).toBeVisible();
+    await expect(page.getByText("People search")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /^Ask$/ }).first()).toHaveAttribute("aria-current", "page");
+    await expect(page.getByText("Mark Mentor").first()).toBeVisible();
+
+    await page.getByRole("link", { name: /ask for advice|request mentorship/i }).first().click();
+    await page.waitForURL(
+      (url) => url.pathname === "/ask/new" && url.searchParams.get("intent") === "Mark Mentor",
+    );
+    await expect(page.locator("#helpNeeded")).toHaveValue("Mark Mentor");
+
     // Phase 3: Mentor Discovery & Request Mentorship
     await page.goto("/people");
     await page.locator("#nl").fill("Mark Mentor");

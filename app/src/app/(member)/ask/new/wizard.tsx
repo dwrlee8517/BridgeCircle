@@ -29,6 +29,7 @@ type Props = {
   askType: AskType
   skipHref: string
   cancelHref: string
+  initialContext?: string
   /** Pre-derived server-side. Empty array → wizard skips the signals step. */
   signalCandidates: SignalCandidate[]
   // Capacity Props for protected wizard checking
@@ -47,6 +48,7 @@ export function Wizard({
   askType,
   skipHref,
   cancelHref,
+  initialContext = '',
   signalCandidates,
   activeMenteeCount = 0,
   maxActiveMentees = 5,
@@ -66,7 +68,7 @@ export function Wizard({
     return 'context'
   })
 
-  const [context, setContext] = useState('')
+  const [context, setContext] = useState(initialContext)
   const [genre, setGenre] = useState<AskGenre | null>(null)
 
   // Signals start active — the model picked them; the asker can drop any.
