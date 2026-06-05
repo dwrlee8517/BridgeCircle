@@ -34,7 +34,7 @@ export type HelpNetworkPerson = {
 
 export function AskBar({
   defaultValue = '',
-  action = '/people',
+  action = '/ask',
   compact = false,
 }: {
   defaultValue?: string
@@ -79,7 +79,7 @@ export function AskBar({
           size={compact ? 'default' : 'lg'}
           className="h-11 rounded-md px-5 text-[15px] font-semibold max-[760px]:size-8 max-[760px]:gap-0 max-[760px]:px-0"
         >
-          <span className="max-[760px]:sr-only">Find people</span>
+          <span className="max-[760px]:sr-only">Find matches</span>
           <ArrowRight className="size-3.5" />
         </Button>
       </div>
@@ -171,12 +171,14 @@ export function MatchBriefCard({
   person,
   query,
   reason,
+  intent,
   compact: _compact = false,
   variant = 'card',
 }: {
   person: HelpNetworkPerson
   query?: string
   reason?: string | null
+  intent?: string
   compact?: boolean
   variant?: 'card' | 'list-row'
 }) {
@@ -199,6 +201,7 @@ export function MatchBriefCard({
   const showSuggestedAsk = Boolean(query?.trim())
   const suggestedAsk = showSuggestedAsk ? buildSuggestedAsk(query, person) : null
   const askLabel = askType === 'advice' ? 'Ask for advice' : 'Request mentorship'
+  const askIntent = intent ?? query
   const isListRow = variant === 'list-row'
   const content = (
     <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_244px]">
@@ -269,7 +272,7 @@ export function MatchBriefCard({
       <div className="flex flex-col justify-center gap-2 border-t border-border bg-surface-panel/60 p-4 md:border-l md:border-t-0">
         {askType ? (
           <Button asChild variant="default" size="sm" className="w-full rounded-md">
-            <Link href={`/ask/new?to=${person.userId}&type=${askType}`}>
+            <Link href={askRequestHref(person.userId, askType, askIntent)}>
               {askLabel}
               <ArrowRight className="size-4" />
             </Link>
@@ -591,4 +594,12 @@ function buildSuggestedAsk(query: string | undefined, person: HelpNetworkPerson)
     return `Could I ask for your perspective on ${person.mentoringTopics[0]}?`
   }
   return 'Could I ask for your perspective based on your path?'
+}
+
+function askRequestHref(userId: string, askType: string, intent: string | undefined) {
+  const params = new URLSearchParams({ to: userId, type: askType })
+  if (intent?.trim()) {
+    params.set('intent', intent.trim())
+  }
+  return `/ask/new?${params.toString()}`
 }

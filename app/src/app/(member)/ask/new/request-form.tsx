@@ -27,6 +27,7 @@ type Props = {
   askType: AskType
   placeholderContext: PlaceholderContext
   guidedHref: string
+  initialHelpNeeded?: string
 }
 
 export function RequestForm({
@@ -35,9 +36,10 @@ export function RequestForm({
   askType,
   placeholderContext,
   guidedHref,
+  initialHelpNeeded = '',
 }: Props) {
   const [state, action, pending] = useActionState(submitRequest, initialState)
-  const [helpNeeded, setHelpNeeded] = useState('')
+  const [helpNeeded, setHelpNeeded] = useState(initialHelpNeeded)
   const firstName = helperName.split(/\s+/)[0] || 'them'
   const placeholders = buildPlaceholders(askType, placeholderContext)
   const fieldError = state.fieldErrors?.helpNeeded

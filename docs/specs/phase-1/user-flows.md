@@ -195,6 +195,14 @@ Make the directory feel alive and useful even before the member takes a high-com
 
 Help a member find people relevant to their needs using natural language plus structured filtering.
 
+### Route Ownership
+
+- `/ask?nl=...` is the question-led matching route. It keeps the member's
+  typed ask, shows ranked matches, and carries that ask into the request
+  composer.
+- `/people` is the directory route for broader alumni exploration, structured
+  filters, and profile browsing.
+
 ### Example Queries
 
 - alumni in San Francisco open to mentoring about consulting

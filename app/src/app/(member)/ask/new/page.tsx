@@ -12,7 +12,7 @@ import { cn, displayName } from '@/lib/utils'
 import { RequestForm } from './request-form'
 import { Wizard } from './wizard'
 
-type SearchParams = { to?: string; type?: string; skip?: string; guided?: string }
+type SearchParams = { to?: string; type?: string; skip?: string; guided?: string; intent?: string }
 
 function parseAskType(t: string | undefined): AskType {
   return t === 'mentorship' ? 'mentorship' : 'advice'
@@ -29,6 +29,7 @@ export default async function NewAskPage({
   if (!params.to) notFound()
 
   const requestedAskType = parseAskType(params.type)
+  const intent = params.intent?.trim() || ''
 
   const supabase = await createClient()
   // Pass viewerId so privacy redaction applies — per locked decision,
@@ -68,10 +69,12 @@ export default async function NewAskPage({
 
   const helperDisplay = displayName(helper.name, helper.preferredName)
   const helperFirstName = helperDisplay.split(/\s+/)[0] || 'them'
-  const baseHref = `/ask/new?to=${helper.userId}`
-  const simpleHref = `${baseHref}&type=${askType}`
-  const guidedHref = `${simpleHref}&guided=1`
+  const baseHref = askNewHref({ to: helper.userId, intent })
+  const simpleHref = askNewHref({ to: helper.userId, type: askType, intent })
+  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent, guided: true })
   const cancelHref = `/profile/${helper.userId}`
+  const backHref = intent ? `/ask?nl=${encodeURIComponent(intent)}` : '/people'
+  const backLabel = intent ? 'Back to Ask results' : 'Back to People'
   const useGuidedComposer = params.guided === '1' && params.skip !== '1'
 
   // Derive signals server-side once. If the asker profile failed to load
@@ -107,11 +110,11 @@ export default async function NewAskPage({
     <div className="min-h-[calc(100vh-72px)] bg-background">
       <div className="mx-auto max-w-[760px] px-4 py-8 sm:px-8 lg:py-10">
         <Link
-          href="/people"
+          href={backHref}
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           <span aria-hidden>←</span>
-          Back to People
+          {backLabel}
         </Link>
 
         <div className="mb-6">
@@ -140,6 +143,7 @@ export default async function NewAskPage({
                   askType={askType}
                   skipHref={simpleHref}
                   cancelHref={cancelHref}
+                  initialContext={intent}
                   signalCandidates={signalCandidates}
                   activeMenteeCount={helper.activeMenteeCount}
                   maxActiveMentees={helper.maxActiveMentees}
@@ -165,6 +169,7 @@ export default async function NewAskPage({
                   helperCity: helper.city,
                   helperMentoringTopics: helper.mentoringTopics,
                 }}
+                initialHelpNeeded={intent}
               />
             </div>
           )}
@@ -172,6 +177,24 @@ export default async function NewAskPage({
       </div>
     </div>
   )
+}
+
+function askNewHref({
+  to,
+  type,
+  intent,
+  guided,
+}: {
+  to: string
+  type?: AskType
+  intent?: string
+  guided?: boolean
+}) {
+  const next = new URLSearchParams({ to })
+  if (type) next.set('type', type)
+  if (intent?.trim()) next.set('intent', intent.trim())
+  if (guided) next.set('guided', '1')
+  return `/ask/new?${next.toString()}`
 }
 
 type HelperProfile = NonNullable<Awaited<ReturnType<typeof getProfile>>>
