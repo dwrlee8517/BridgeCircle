@@ -23,7 +23,9 @@ export default async function HelpPage() {
 
   const { data: membership } = await supabase
     .from('organization_memberships')
-    .select('id, organization_id, organizations(name)')
+    .select(
+      'id, organization_id, organizations!organization_memberships_organization_id_fkey(name)',
+    )
     .eq('user_id', session.userId)
     .eq('status', 'active')
     .limit(1)

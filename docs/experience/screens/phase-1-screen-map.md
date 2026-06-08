@@ -65,8 +65,10 @@ Primary job: turn a member's question into explained people matches and a
 guided ask.
 
 Ask is the primary command surface. It should feel more active and focused than
-People. Use structured match evidence, suggested first asks, and one clear next
-step rather than making the member browse a directory.
+People. Use hybrid match evidence, suggested first asks, and one clear next
+step rather than making the member browse a directory. The target Ask matching
+architecture is ADR 0009: structured + lexical + vector retrieval,
+warm-network scoring, and LLM rerank.
 
 Workflow routes:
 

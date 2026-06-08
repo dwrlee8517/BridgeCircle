@@ -16,7 +16,7 @@ export default async function PeoplePage({
   searchParams: Promise<RawSearchParams>
 }) {
   const params = await searchParams
-  const results = await getMemberSearchResults(params)
+  const results = await getMemberSearchResults(params, { surface: 'people' })
 
   if (!results) return null
 

@@ -22,7 +22,8 @@ BridgeCircle is now a working Next.js and Supabase web app, not just a pitch. Th
 - alumni profile creation and editing
 - resume import and profile enrichment
 - field-level privacy controls
-- natural-language alumni search with extracted filters and LLM reranking
+- natural-language Ask matching with hybrid retrieval, warm-network scoring,
+  and LLM reranking
 - explainable search result cards
 - profile detail pages
 - mentorship availability, request, review, and chat flows

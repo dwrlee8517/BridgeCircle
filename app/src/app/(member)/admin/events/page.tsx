@@ -24,7 +24,7 @@ export default async function AdminEventsPage() {
 
   const { data: roles } = await supabase
     .from('admin_role_assignments')
-    .select('organization_id, organizations(name)')
+    .select('organization_id, organizations!admin_role_assignments_organization_id_fkey(name)')
     .eq('user_id', session.userId)
     .in('role', ['super_admin', 'admin'])
     .limit(1)

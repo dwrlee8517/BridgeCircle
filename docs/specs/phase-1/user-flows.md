@@ -212,7 +212,9 @@ Help a member find people relevant to their needs using natural language plus st
 ### Happy Path
 
 1. member enters natural-language query or uses filters
-2. system returns ranked results
+2. system retrieves candidates with the appropriate route contract:
+   Ask uses the ADR 0009 hybrid matching target; People remains the broader
+   directory/filter route
 3. results show why each person matches
 4. member optionally sorts or filters further
 5. member opens one or more profiles
@@ -224,6 +226,8 @@ Help a member find people relevant to their needs using natural language plus st
 ### Result Ranking Inputs
 
 - direct relevance to the user's natural-language query or saved mentor intent
+- retrieval evidence from structured, lexical, and vector sources where Ask
+  hybrid matching is enabled
 - open to mentor status, treated as a major ranking signal
 - same university
 - same major

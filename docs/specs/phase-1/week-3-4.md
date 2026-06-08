@@ -119,7 +119,14 @@ As shipped (paths reflect the actual landed code; the original plan called these
 
 ### Approach
 
-Entity extraction + structured match. Not semantic vector search.
+Historical Phase 1 baseline: entity extraction + structured match, not
+semantic vector search.
+
+This shipped baseline is superseded for the default Ask matching target by
+[ADR 0009](../../decisions/0009-hybrid-ask-matching.md): hybrid retrieval
+(structured + lexical + vector), warm-network scoring, and LLM rerank. People
+directory search can still use the bounded Phase 1 path where directory-style
+filtering is the intended behavior.
 
 ### Pipeline
 
@@ -131,9 +138,10 @@ Entity extraction + structured match. Not semantic vector search.
 
 ### Explicitly Not In Scope
 
-- profile embeddings / vector search
-- semantic similarity ranking
-- multi-turn refinement or query rewriting
+- unbounded agentic matching as the default search path
+- vector-only matching without hard gates, lexical search, warm-network scoring,
+  privacy filtering, and fallback behavior
+- multi-turn refinement or query rewriting for the Phase 1 search box
 
 ### Cost Sanity Check
 

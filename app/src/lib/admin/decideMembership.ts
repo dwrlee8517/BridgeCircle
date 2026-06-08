@@ -1,5 +1,6 @@
 import 'server-only'
 import { createAdminClient } from '@/db/admin'
+import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import { sendMembershipApprovedEmail, sendMembershipRejectedEmail } from '@/notify/resend'
 
 export type Decision = 'approve' | 'reject'
@@ -71,6 +72,15 @@ export async function decideMembership(input: DecideInput): Promise<DecideResult
     target_type: 'membership',
     target_id: input.membershipId,
   })
+
+  if (input.decision === 'approve') {
+    await markProfileEmbeddingDirty({
+      userId: membership.user_id,
+      organizationId: membership.organization_id,
+      organizationMembershipId: membership.id,
+      reason: 'membership_approved',
+    })
+  }
 
   // Look up the user's email + name to address the notification. Email lives
   // on auth.users; name on base_profiles. Both lookups are best-effort — if

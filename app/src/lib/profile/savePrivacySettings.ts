@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import {
   PRIVACY_DEFAULTS,
   PRIVACY_SECTIONS,
@@ -37,5 +38,11 @@ export async function savePrivacySettings(
     .eq('user_id', userId)
 
   if (error) return { ok: false, error: 'db_error', detail: error.message }
+
+  await markProfileEmbeddingDirty({
+    userId,
+    reason: 'privacy_settings',
+  })
+
   return { ok: true }
 }

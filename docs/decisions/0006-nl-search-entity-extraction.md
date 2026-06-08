@@ -1,6 +1,6 @@
 # 0006 — NL search uses entity extraction → structured match (not vector search)
 
-- **Status:** accepted
+- **Status:** superseded by 0009
 - **Date:** 2026-04-25
 - **Decider:** Richard
 
@@ -23,6 +23,11 @@ Use **entity extraction**:
 4. The result-card relevance reason is templated from the matched entities ("UPenn alum, finance, NYC").
 
 No vector embeddings. No `pgvector` extension. No re-embedding pipeline.
+
+This was the correct Phase 1 baseline. It is superseded for the default Ask
+matching architecture by [0009 — Hybrid Ask matching](./0009-hybrid-ask-matching.md).
+People directory search may still reuse this bounded entity-extraction path
+where directory-style filtering is the intended product behavior.
 
 ## Consequences
 

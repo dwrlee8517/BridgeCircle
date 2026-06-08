@@ -227,7 +227,10 @@ Two trigger paths, both running through `/lib/events/matchConditions.ts`:
 1. **On-RSVP trigger.** When a new condition is saved, immediately scan unmatched conditions on the same event for compatibility. Sub-100ms target.
 2. **Post-RSVP trigger.** When any RSVP (conditional or confirmed) is added to an event, scan existing conditional RSVPs whose conditions the new RSVP might satisfy. e.g., a confirmed Sam-the-SWE RSVP triggers a scan for profile_filter conditions wanting SWEs.
 
-Matching logic stays bounded — no embeddings, no LLM-at-match-time. Structured-to-structured comparison only. This is consistent with the [feature-roadmap.md maintainability principles](../product/feature-roadmap.md): "structured profile data, explicit permission checks, bounded recommendation types."
+Event-condition matching logic stays bounded — no embeddings,
+no LLM-at-match-time. Structured-to-structured comparison only. This is a
+separate surface from ADR 0009 Ask matching, where hybrid retrieval is accepted
+because the member is asking for a mentor/helper, not resolving an RSVP rule.
 
 ---
 

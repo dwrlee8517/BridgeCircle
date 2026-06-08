@@ -82,7 +82,7 @@ export default async function OnboardingPage({
       .maybeSingle(),
     supabase
       .from('organization_memberships')
-      .select('id, organizations(name)')
+      .select('id, organizations!organization_memberships_organization_id_fkey(name)')
       .eq('user_id', session.userId)
       .eq('status', 'active')
       .limit(1)
@@ -92,7 +92,7 @@ export default async function OnboardingPage({
   if (!membership) {
     const { data: inactiveMemberships } = await admin
       .from('organization_memberships')
-      .select('status, organizations(name)')
+      .select('status, organizations!organization_memberships_organization_id_fkey(name)')
       .eq('user_id', session.userId)
 
     const pendingMembership = inactiveMemberships?.find((m) => m.status === 'pending')
