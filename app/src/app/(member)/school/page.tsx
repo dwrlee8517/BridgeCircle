@@ -20,7 +20,7 @@ export default async function SchoolPage() {
 
   const { data: membership } = await supabase
     .from('organization_memberships')
-    .select('organization_id, organizations(name)')
+    .select('organization_id, organizations!organization_memberships_organization_id_fkey(name)')
     .eq('user_id', session.userId)
     .eq('status', 'active')
     .limit(1)

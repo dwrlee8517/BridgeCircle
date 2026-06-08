@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
+import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import type { ApplyExtractedInput } from './schemas'
 
 export type ApplyResult = { ok: true } | { ok: false; error: 'db_error'; detail?: string }
@@ -71,5 +72,11 @@ export async function applyExtractedToProfile(
   const { error } = await supabase.from('base_profiles').update(update).eq('user_id', userId)
 
   if (error) return { ok: false, error: 'db_error', detail: error.message }
+
+  await markProfileEmbeddingDirty({
+    userId,
+    reason: 'profile_import_apply',
+  })
+
   return { ok: true }
 }

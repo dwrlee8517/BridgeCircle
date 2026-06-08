@@ -1,5 +1,6 @@
 import 'server-only'
 import { createAdminClient } from '@/db/admin'
+import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import { sendMembershipApprovedEmail, sendMembershipDeactivatedEmail } from '@/notify/resend'
 
 export type SetActiveInput = {
@@ -64,6 +65,15 @@ export async function setMemberActive(input: SetActiveInput): Promise<SetActiveR
     target_id: input.membershipId,
     payload: input.action === 'deactivate' && input.reason ? { reason: input.reason } : null,
   })
+
+  if (input.action === 'reactivate') {
+    await markProfileEmbeddingDirty({
+      userId: membership.user_id,
+      organizationId: membership.organization_id,
+      organizationMembershipId: membership.id,
+      reason: 'membership_reactivated',
+    })
+  }
 
   // Notify the affected member. Best-effort: a missing email or send failure
   // doesn't roll back the status change.

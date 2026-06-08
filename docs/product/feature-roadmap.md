@@ -305,10 +305,12 @@ The intelligence layer must be controlled, not magical.
 **Recommended intelligence pipeline:**
 
 1. Understand intent.
-2. Convert intent into structured filters and themes.
+2. Separate hard gates from soft preferences.
 3. Query only permission-safe data.
-4. Retrieve candidates from SQL and, later, embeddings.
-5. Rank by relevance, availability, freshness, relationship path, and response likelihood.
+4. Retrieve candidates through structured/rules search, lexical search, and
+   vector semantic search where ADR 0009 applies.
+5. Merge evidence, dedupe candidates, and rank by relevance, availability,
+   freshness, relationship path, helper load, and response likelihood.
 6. Explain the suggestion in plain language ([voice-guidelines.md §10](./voice-guidelines.md)).
 7. Suggest the next action.
 8. Help draft the message or invite.

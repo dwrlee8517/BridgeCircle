@@ -48,6 +48,7 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Data model](architecture/data-model.md) — tables, relations, RLS posture
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
+- [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
 - [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow
 - [Data model (interactive)](architecture/data-model.html)
@@ -73,9 +74,10 @@ Locked architectural decisions in MADR format.
 - [0003 — Friendship and mentorship as separate tracks](decisions/0003-friendship-mentorship-split.md)
 - [0004 — Controlled vocab over ethnicity labels](decisions/0004-controlled-vocab-not-ethnicity-labels.md)
 - [0005 — Hybrid Supabase branching](decisions/0005-hybrid-supabase-branching.md)
-- [0006 — NL search via entity extraction](decisions/0006-nl-search-entity-extraction.md)
+- [0006 — NL search via entity extraction](decisions/0006-nl-search-entity-extraction.md) — superseded by 0009 for Ask matching
 - [0007 — `/lib` discipline](decisions/0007-lib-discipline.md)
 - [0008 — Deploy ordering + expand/contract](decisions/0008-deploy-ordering-expand-contract.md)
+- [0009 — Hybrid Ask matching](decisions/0009-hybrid-ask-matching.md)
 
 ## UI
 

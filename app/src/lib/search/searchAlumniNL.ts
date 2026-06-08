@@ -2,6 +2,8 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import { type ExtractedFilters, extractSearchFiltersCached } from './extractFilters'
+import { askMatchingPipeline, hasVoyageConfig } from './matching/config'
+import { searchAlumniVoyageHybrid } from './matching/searchAlumniVoyageHybrid'
 import { type RerankCandidate, rerankCandidates } from './rerankCandidates'
 import type { FilterScope, FilterScopes, SearchFilters } from './schemas'
 import { type SearchHit, searchAlumni } from './searchAlumni'
@@ -63,6 +65,16 @@ export type NLSearchInput = {
  * scalars, rerank on JSONB" decision from the Day 9/10 plan.
  */
 export async function searchAlumniNL(
+  supabase: SupabaseClient<Database>,
+  input: NLSearchInput,
+): Promise<NLSearchResult> {
+  if (askMatchingPipeline() === 'voyage_hybrid' && hasVoyageConfig()) {
+    return searchAlumniVoyageHybrid(supabase, input)
+  }
+  return searchAlumniNLLegacy(supabase, input)
+}
+
+export async function searchAlumniNLLegacy(
   supabase: SupabaseClient<Database>,
   input: NLSearchInput,
 ): Promise<NLSearchResult> {

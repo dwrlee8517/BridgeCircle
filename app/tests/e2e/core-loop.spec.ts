@@ -19,7 +19,7 @@ function loadEnv() {
         } else if (val.startsWith("'") && val.endsWith("'")) {
           val = val.substring(1, val.length - 1);
         }
-        process.env[key] = val;
+        process.env[key] ??= val;
       }
     }
   }

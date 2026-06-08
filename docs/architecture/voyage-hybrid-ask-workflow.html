@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Voyage Hybrid Ask Workflow</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f7f5ef;
+        --ink: #201c18;
+        --muted: #665d55;
+        --line: #d9d1c6;
+        --panel: #fffdf8;
+        --wash: #efebe2;
+        --blue: #2457a6;
+        --blue-soft: #e4ecf8;
+        --green: #14734c;
+        --green-soft: #e2f2ea;
+        --amber: #a35b12;
+        --amber-soft: #f9ead6;
+        --red: #a53b34;
+        --red-soft: #f7e3e1;
+        --shadow: 0 18px 44px rgb(32 28 24 / 0.08);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(180deg, rgb(247 245 239 / 0.96), rgb(247 245 239 / 1)),
+          radial-gradient(circle at 86% 0%, rgb(36 87 166 / 0.08), transparent 34%);
+        color: var(--ink);
+      }
+
+      main {
+        width: min(1240px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 42px 0 58px;
+      }
+
+      header {
+        display: grid;
+        gap: 16px;
+        padding: 30px;
+        border: 1px solid var(--line);
+        background: rgb(255 253 248 / 0.9);
+        box-shadow: var(--shadow);
+      }
+
+      .kicker {
+        margin: 0;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 920px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 820px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      a {
+        color: var(--blue);
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 31px;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      section {
+        margin-top: 28px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 22px;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(25px, 3vw, 34px);
+        line-height: 1.1;
+        letter-spacing: 0;
+      }
+
+      .section-note {
+        max-width: 560px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .step {
+        min-height: 184px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: 0 8px 22px rgb(32 28 24 / 0.04);
+      }
+
+      .step .number {
+        display: inline-grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        margin-bottom: 13px;
+        border: 1px solid var(--line);
+        background: var(--wash);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .step h3 {
+        font-size: 15px;
+        line-height: 1.24;
+      }
+
+      .step p {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.48;
+      }
+
+      .step.primary {
+        border-color: rgb(36 87 166 / 0.35);
+        background: linear-gradient(180deg, #ffffff, var(--blue-soft));
+      }
+
+      .step.green {
+        border-color: rgb(20 115 76 / 0.32);
+        background: linear-gradient(180deg, #ffffff, var(--green-soft));
+      }
+
+      .step.amber {
+        border-color: rgb(163 91 18 / 0.32);
+        background: linear-gradient(180deg, #ffffff, var(--amber-soft));
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 12px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: rgb(255 253 248 / 0.78);
+      }
+
+      .card h3 {
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--line);
+        background: var(--wash);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .card-body {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid rgb(217 209 198 / 0.7);
+      }
+
+      .row:last-child {
+        border-bottom: 0;
+      }
+
+      .label {
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 850;
+      }
+
+      .value {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      ul {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      code {
+        padding: 1px 4px;
+        border: 1px solid rgb(217 209 198 / 0.82);
+        background: rgb(239 235 226 / 0.76);
+        color: var(--ink);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+      }
+
+      .rail {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 10px;
+      }
+
+      .source {
+        min-height: 118px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .source strong {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+      }
+
+      .source span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .fallbacks {
+        display: grid;
+        gap: 8px;
+      }
+
+      .fallback {
+        display: grid;
+        grid-template-columns: 190px 1fr;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+      }
+
+      .fallback strong {
+        font-size: 13px;
+      }
+
+      .fallback span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .footer-note {
+        margin-top: 26px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        background: rgb(239 235 226 / 0.7);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      @media (max-width: 1040px) {
+        .workflow {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .rail,
+        .grid-3 {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 760px) {
+        main {
+          width: min(100% - 22px, 1240px);
+          padding-top: 20px;
+        }
+
+        header {
+          padding: 20px;
+        }
+
+        .section-head,
+        .grid-2,
+        .grid-3,
+        .rail,
+        .workflow {
+          grid-template-columns: 1fr;
+        }
+
+        .section-head {
+          display: grid;
+        }
+
+        .row,
+        .fallback {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="kicker">BridgeCircle Ask Matching</p>
+        <h1>Voyage hybrid workflow</h1>
+        <p class="lede">
+          The new Ask path keeps the current product promise: find trusted people who can
+          help with a real question. It adds semantic recall through Voyage embeddings,
+          keeps structured and lexical signals for precision, then uses Voyage reranking
+          only after privacy and warm-network rules have narrowed the candidate pool.
+        </p>
+        <div class="links" aria-label="Related documents">
+          <a class="tag" href="../decisions/0009-hybrid-ask-matching.md">ADR 0009</a>
+          <a class="tag" href="ask-matching-model-research.md">Model research</a>
+          <span class="tag">Feature flag: <code>ASK_MATCHING_PIPELINE=voyage_hybrid</code></span>
+        </div>
+      </header>
+
+      <section aria-labelledby="runtime-title">
+        <div class="section-head">
+          <h2 id="runtime-title">Runtime Request</h2>
+          <p class="section-note">
+            This is what happens when a member opens Ask with natural language, for example
+            <code>/ask?nl=I want advice from someone who moved from consulting to product</code>.
+          </p>
+        </div>
+
+        <div class="workflow">
+          <article class="step primary">
+            <span class="number">1</span>
+            <h3>Receive the ask</h3>
+            <p>
+              The Ask route passes the original natural-language intent into
+              <code>searchAlumniNL</code>. Legacy remains the default unless the flag and Voyage
+              key are both present.
+            </p>
+          </article>
+          <article class="step">
+            <span class="number">2</span>
+            <h3>Apply hard gates</h3>
+            <p>
+              Exclude impossible or unsafe matches first: wrong organization, inactive membership,
+              private visibility, self-match, unavailable helper, or capacity conflict.
+            </p>
+          </article>
+          <article class="step green">
+            <span class="number">3</span>
+            <h3>Retrieve in parallel</h3>
+            <p>
+              Pull candidates from structured rules, lexical matches, vector search over raw
+              factual chunks, and vector search over semantic profile passages.
+            </p>
+          </article>
+          <article class="step amber">
+            <span class="number">4</span>
+            <h3>Merge and warm score</h3>
+            <p>
+              Dedupe by member, preserve evidence from each retrieval source, then apply trust and
+              usefulness signals before reranking.
+            </p>
+          </article>
+          <article class="step primary">
+            <span class="number">5</span>
+            <h3>Voyage rerank</h3>
+            <p>
+              Send the top candidate evidence strings to <code>rerank-2.5-lite</code>. The reranker
+              sees allowed evidence, not private profile rows or synthetic display copy.
+            </p>
+          </article>
+          <article class="step green">
+            <span class="number">6</span>
+            <h3>Explain and hand off</h3>
+            <p>
+              Return 5-10 explained matches. Templated explanations are default; Haiku can polish
+              final copy when <code>ASK_MATCHING_EXPLANATIONS=haiku_polish</code>.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="retrieval-title">
+        <div class="section-head">
+          <h2 id="retrieval-title">Candidate Sources</h2>
+          <p class="section-note">
+            Vector search improves recall, but it is not allowed to replace exact matching,
+            privacy gates, or warm-network ranking.
+          </p>
+        </div>
+        <div class="rail">
+          <div class="source">
+            <strong>Structured rules</strong>
+            <span>Known fields such as school, role, city, cohort, helper status, and explicit filters.</span>
+          </div>
+          <div class="source">
+            <strong>Lexical search</strong>
+            <span>Exact names, employers, titles, schools, topics, and profile words that must stay precise.</span>
+          </div>
+          <div class="source">
+            <strong>Raw chunk vectors</strong>
+            <span>Permission-safe profile facts embedded with <code>voyage-4</code> at 1024 dimensions.</span>
+          </div>
+          <div class="source">
+            <strong>Semantic passage vectors</strong>
+            <span>Haiku-generated summaries from supplied facts only. Used for retrieval, never display evidence.</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="index-title">
+        <div class="section-head">
+          <h2 id="index-title">Profile Indexing</h2>
+          <p class="section-note">
+            The background path prepares profile evidence before a member searches, so live Ask
+            requests only need query embedding, retrieval, reranking, and explanation formatting.
+          </p>
+        </div>
+        <div class="grid-2">
+          <article class="card">
+            <h3>Chunk families</h3>
+            <div class="card-body">
+              <div class="row">
+                <div class="label">Raw factual chunks</div>
+                <div class="value">
+                  Generated from visible profile facts: current role, career history, education,
+                  skills, bio, mentoring topics, location, and helper preferences.
+                </div>
+              </div>
+              <div class="row">
+                <div class="label">Semantic passages</div>
+                <div class="value">
+                  Generated by Haiku from the same visible facts only. The prompt must forbid
+                  unsupported inference and preserve uncertainty.
+                </div>
+              </div>
+              <div class="row">
+                <div class="label">Versioning</div>
+                <div class="value">
+                  Store <code>content_hash</code>, <code>synthetic_prompt_version</code>,
+                  <code>embedding_model</code>, and <code>embedding_dim</code> for idempotent
+                  backfills and re-embedding.
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Storage rules</h3>
+            <div class="card-body">
+              <ul>
+                <li>Store chunks in <code>profile_embedding_chunks</code> with organization and membership scope.</li>
+                <li>Use <code>visibility_tier</code> to prevent private sections from becoming searchable.</li>
+                <li>Do not generate or embed <code>self</code>-only sections for Ask matching.</li>
+                <li>Allow <code>friends</code> chunks only when the viewer is already friends with the candidate.</li>
+                <li>Keep direct table reads blocked for normal users; retrieval runs through controlled server code.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="ranking-title">
+        <div class="section-head">
+          <h2 id="ranking-title">Ranking Logic</h2>
+          <p class="section-note">
+            The model stack does semantic ordering, but deterministic product signals still define
+            what counts as a good BridgeCircle match.
+          </p>
+        </div>
+        <div class="grid-3">
+          <article class="card">
+            <h3>Warm score</h3>
+            <div class="card-body">
+              <ul>
+                <li>Shared school or organization context</li>
+                <li>Cohort proximity where useful</li>
+                <li>Shared city, major, industry, or path</li>
+                <li>Helper openness and response likelihood</li>
+                <li>Profile freshness and current availability</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Reranker payload</h3>
+            <div class="card-body">
+              <ul>
+                <li>Original ask as the query</li>
+                <li>Top 20-40 merged candidates</li>
+                <li>Privacy-redacted raw evidence strings</li>
+                <li>Retrieval-source hints for traceability</li>
+                <li>No private sections and no synthetic display evidence</li>
+              </ul>
+            </div>
+          </article>
+          <article class="card">
+            <h3>Final result</h3>
+            <div class="card-body">
+              <ul>
+                <li>5-10 people ranked for actionability</li>
+                <li>Visible "why this match" evidence</li>
+                <li>Suggested first ask copy</li>
+                <li>CTA carries the original intent into <code>/ask/new</code></li>
+                <li>Diagnostics log counts and fallback reason, not private text</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="fallback-title">
+        <div class="section-head">
+          <h2 id="fallback-title">Fallbacks</h2>
+          <p class="section-note">
+            The new workflow is designed to fail closed and keep Ask usable while the index,
+            provider key, and evals mature.
+          </p>
+        </div>
+        <div class="fallbacks">
+          <div class="fallback">
+            <strong>No Voyage key</strong>
+            <span>Use the existing legacy path: extraction, structured search, and Haiku reranking.</span>
+          </div>
+          <div class="fallback">
+            <strong>No chunks or vector failure</strong>
+            <span>Use structured plus lexical retrieval and warm scoring; skip vector candidates.</span>
+          </div>
+          <div class="fallback">
+            <strong>Reranker failure</strong>
+            <span>Return the merged warm-scored candidates with templated explanations.</span>
+          </div>
+          <div class="fallback">
+            <strong>Haiku polish failure</strong>
+            <span>Keep the same ranking and return templated explanations and default ask copy.</span>
+          </div>
+        </div>
+      </section>
+
+      <p class="footer-note">
+        Practical default: start with <code>voyage-4</code> embeddings and
+        <code>rerank-2.5-lite</code>, keep <code>ASK_MATCHING_PIPELINE=legacy</code> as the
+        fallback until migration, backfill, unit tests, and the existing Ask/People loop are
+        verified.
+      </p>
+    </main>
+  </body>
+</html>

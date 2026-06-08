@@ -2,6 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import { setOpenToMentorship } from '@/lib/asks/preferences'
+import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import type { ProfileFormInput } from './schemas'
 
 export type SaveProfileResult =
@@ -99,6 +100,12 @@ export async function saveProfile(
 
   const prefResult = await setOpenToMentorship(supabase, membership.id, input.openToMentor)
   if (!prefResult.ok) return prefResult
+
+  await markProfileEmbeddingDirty({
+    userId,
+    organizationMembershipId: membership.id,
+    reason: 'profile_edit',
+  })
 
   return { ok: true }
 }

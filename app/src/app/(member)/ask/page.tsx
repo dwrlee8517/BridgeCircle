@@ -24,7 +24,7 @@ export default async function AskPage({
     return <AskStarter />
   }
 
-  const results = await getMemberSearchResults(params)
+  const results = await getMemberSearchResults(params, { surface: 'ask' })
 
   if (!results) return null
 

@@ -40,7 +40,7 @@ Phase 1 breaks into five major areas:
 
 Member top nav has **five** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/member-nav.tsx`:
 
-1. **Ask** — natural-language question → explained people matches → guided ask composer
+1. **Ask** — natural-language question → hybrid retrieved and explained people matches → guided ask composer
 2. **Help** — supply-side surface for requests needing reply and people the viewer could help
 3. **People** — alumni exploration; NL search + structured filters + "People I know" toggle; result cards are match briefs
 4. **School** — events and announcements in one member-facing pulse hub
@@ -227,12 +227,18 @@ Main elements:
 
 Ranking emphasis:
 
-- structured pass: open-to-mentor boost > same university > same major > same city > grad-year proximity > keyword match
-- NL pass: structured pre-filter narrows to ≤30 candidates, Claude Haiku reranks against the original query reading career history / education / skills / bio (privacy-redacted)
+- People keeps directory-oriented ranking: structured filters, lexical/name
+  search, helper availability, shared school/major/city, grad-year proximity,
+  and profile match evidence.
+- Ask owns question-led matching. Its target architecture is separate: hard
+  gates, structured + lexical + vector candidate retrieval, warm-network
+  scoring, and LLM rerank over privacy-allowed evidence.
 
 Behavior notes:
 
-- NL extraction is entity-based, not vector — `extractFilters` pulls structured fields out of the prose, then merges with form-supplied filters (form wins)
+- Current production still uses entity extraction + structured search + Haiku
+  rerank while ADR 0009 is not implemented. Do not present that current
+  baseline as the final Ask matching architecture.
 - `/search?...`, `/discover?...`, and `/friends` legacy URLs 308 here
 
 ### 9. Profile Detail (`/profile/[id]`)
@@ -269,7 +275,12 @@ Sent inline from the profile page via the `Add friend` button. There is no stand
 
 ### 12. Ask Surface And Workflow Routes (`/ask/*`)
 
-Ask is now the primary top-level member surface. The user starts with a natural-language question, sees explained people matches, and then enters the guided composer for a specific helper. Inbox owns request state after creation. The underlying ask model remains polymorphic (`ask_type` enum: `advice` | `mentorship`).
+Ask is now the primary top-level member surface. The user starts with a
+natural-language question, sees explained people matches, and then enters the
+guided composer for a specific helper. The accepted target matching architecture
+is hybrid retrieval + warm-network scoring + LLM rerank ([ADR 0009](../decisions/0009-hybrid-ask-matching.md)).
+Inbox owns request state after creation. The underlying ask model remains
+polymorphic (`ask_type` enum: `advice` | `mentorship`).
 
 Sub-pages:
 

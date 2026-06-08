@@ -4,6 +4,7 @@ import { createAdminClient } from '@/db/admin'
 import type { Database } from '@/db/database.types'
 import { setOpenToMentorship } from '@/lib/asks/preferences'
 import { upsertRefreshPolicy } from '@/lib/enrichment/persistSettings'
+import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import type {
   OnboardingAboutInput,
   OnboardingCurrentInput,
@@ -205,6 +206,12 @@ export async function markOnboardingComplete(
     .update({ onboarding_completed_at: new Date().toISOString() })
     .eq('id', userId)
   if (error) return { ok: false, error: 'db_error', detail: error.message }
+
+  await markProfileEmbeddingDirty({
+    userId,
+    reason: 'onboarding_complete',
+  })
+
   return { ok: true }
 }
 

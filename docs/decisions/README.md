@@ -49,6 +49,7 @@ What else we looked at and why we rejected it.
 - [0003 — Friendship and mentorship as separate tracks](0003-friendship-mentorship-split.md)
 - [0004 — Controlled vocabulary, not ethnicity labels, for mentor preference](0004-controlled-vocab-not-ethnicity-labels.md)
 - [0005 — Hybrid Supabase setup (separate dev project + branching integration on prod)](0005-hybrid-supabase-branching.md)
-- [0006 — NL search via entity extraction, not vector search](0006-nl-search-entity-extraction.md)
+- [0006 — NL search via entity extraction, not vector search](0006-nl-search-entity-extraction.md) — superseded by 0009 for Ask matching
 - [0007 — `/lib` discipline: business logic out of route handlers](0007-lib-discipline.md)
 - [0008 — Deploy ordering and the expand/contract migration discipline](0008-deploy-ordering-expand-contract.md)
+- [0009 — Hybrid Ask matching](0009-hybrid-ask-matching.md)

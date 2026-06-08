@@ -3,7 +3,7 @@ import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { parseSearchParams, type SearchFilters } from './schemas'
 import { type SearchHit, searchAlumni } from './searchAlumni'
-import { type NLSearchHit, searchAlumniNL } from './searchAlumniNL'
+import { type NLSearchHit, searchAlumniNL, searchAlumniNLLegacy } from './searchAlumniNL'
 
 export type RawSearchParams = Record<string, string | string[] | undefined>
 
@@ -46,8 +46,11 @@ export type MemberSearchResults = {
 
 export const MEMBER_SEARCH_PAGE_SIZE = 10
 
+export type MemberSearchSurface = 'ask' | 'people'
+
 export async function getMemberSearchResults(
   params: RawSearchParams,
+  options: { surface: MemberSearchSurface },
 ): Promise<MemberSearchResults | null> {
   const session = await requireSession()
   const supabase = await createClient()
@@ -60,7 +63,9 @@ export async function getMemberSearchResults(
 
   const { data: viewerMembership } = await supabase
     .from('organization_memberships')
-    .select('id, organization_id, organizations(name)')
+    .select(
+      'id, organization_id, organizations!organization_memberships_organization_id_fkey(name)',
+    )
     .eq('user_id', session.userId)
     .eq('status', 'active')
     .limit(1)
@@ -99,7 +104,8 @@ export async function getMemberSearchResults(
   let nlError: string | null = null
 
   if (useNL) {
-    const result = await searchAlumniNL(supabase, {
+    const nlSearch = options.surface === 'ask' ? searchAlumniNL : searchAlumniNLLegacy
+    const result = await nlSearch(supabase, {
       query: nlQuery,
       organizationId: viewerMembership.organization_id,
       viewerId: session.userId,

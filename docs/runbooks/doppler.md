@@ -78,6 +78,9 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — anon key for client-side Supabase calls
 - `SUPABASE_SECRET_KEY` — service-role key for server-side Supabase calls (RLS-bypassing)
 - `ANTHROPIC_API_KEY` — for the AI-powered features
+- `VOYAGE_API_KEY` — for Voyage Ask matching embeddings and reranking when `ASK_MATCHING_PIPELINE=voyage_hybrid`
+- `ASK_MATCHING_PIPELINE` — Ask matching mode; defaults to `legacy` until the Voyage hybrid path is verified
+- `ASK_MATCHING_EXPLANATIONS` — Ask explanation mode; defaults to `templated`
 - `RESEND_API_KEY` — for transactional email
 - `SENTRY_AUTH_TOKEN` — for source-map upload during build
 - `NODE_ENV` — set explicitly to `development` (see "The NODE_ENV Gotcha" below)

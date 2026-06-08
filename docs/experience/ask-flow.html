@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Ask Flow</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f8f7f3;
+        --ink: #1c1917;
+        --muted: #6b625b;
+        --line: #d8d1c7;
+        --card: #fffdf8;
+        --panel: #f0ede6;
+        --blue: #2563eb;
+        --blue-soft: #dce8ff;
+        --green: #15803d;
+        --green-soft: #ddf5e5;
+        --amber: #b45309;
+        --amber-soft: #fff1d6;
+        --red: #b42318;
+        --red-soft: #fee4e2;
+        --shadow: 0 16px 40px rgb(28 25 23 / 0.08);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(180deg, rgb(248 247 243 / 0.96), rgb(248 247 243 / 0.98)),
+          radial-gradient(circle at 12% 0%, rgb(37 99 235 / 0.08), transparent 32%);
+        color: var(--ink);
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 44px 0 56px;
+      }
+
+      header {
+        display: grid;
+        gap: 16px;
+        padding: 28px;
+        border: 1px solid var(--line);
+        background: rgb(255 253 248 / 0.86);
+        box-shadow: var(--shadow);
+      }
+
+      .kicker {
+        margin: 0;
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 820px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.65;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 30px;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 99px;
+        background: var(--blue);
+      }
+
+      .dot.green {
+        background: var(--green);
+      }
+
+      .dot.amber {
+        background: var(--amber);
+      }
+
+      .dot.red {
+        background: var(--red);
+      }
+
+      section {
+        margin-top: 28px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(25px, 3vw, 34px);
+        line-height: 1.1;
+      }
+
+      .section-note {
+        max-width: 520px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .flow.matching {
+        grid-template-columns: 1.05fr 1.35fr 1.35fr 1.05fr;
+      }
+
+      .lane {
+        min-height: 100%;
+        border: 1px solid var(--line);
+        background: rgb(255 253 248 / 0.74);
+      }
+
+      .lane-title {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .lane-body {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+      }
+
+      .node {
+        position: relative;
+        min-height: 84px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        box-shadow: 0 6px 18px rgb(28 25 23 / 0.04);
+      }
+
+      .node strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 15px;
+        line-height: 1.25;
+      }
+
+      .node span,
+      .node code {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      code {
+        padding: 1px 4px;
+        border: 1px solid rgb(216 209 199 / 0.8);
+        background: rgb(240 237 230 / 0.72);
+        color: var(--ink);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 12px;
+      }
+
+      .node.primary {
+        border-color: rgb(37 99 235 / 0.32);
+        background: linear-gradient(180deg, #ffffff, var(--blue-soft));
+      }
+
+      .node.server {
+        border-color: rgb(21 128 61 / 0.28);
+        background: linear-gradient(180deg, #ffffff, var(--green-soft));
+      }
+
+      .node.model {
+        border-color: rgb(180 83 9 / 0.3);
+        background: linear-gradient(180deg, #ffffff, var(--amber-soft));
+      }
+
+      .node.warn {
+        border-color: rgb(180 35 24 / 0.26);
+        background: linear-gradient(180deg, #ffffff, var(--red-soft));
+      }
+
+      .connector {
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .connector::before,
+      .connector::after {
+        content: "";
+        display: block;
+        width: 1px;
+        height: 12px;
+        background: var(--line);
+      }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .detail-card {
+        padding: 16px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        box-shadow: 0 8px 22px rgb(28 25 23 / 0.04);
+      }
+
+      .detail-card h3 {
+        margin-bottom: 8px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 20px;
+        line-height: 1.2;
+      }
+
+      .detail-card ul {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .artifact {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 16px;
+        align-items: stretch;
+        padding: 18px;
+        border: 1px solid var(--line);
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .mock-results {
+        display: grid;
+        gap: 10px;
+      }
+
+      .result-card {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) 142px;
+        gap: 12px;
+        align-items: center;
+        min-height: 92px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .avatar {
+        width: 44px;
+        height: 44px;
+        background: var(--panel);
+      }
+
+      .lines {
+        display: grid;
+        gap: 7px;
+      }
+
+      .line {
+        height: 9px;
+        background: var(--panel);
+      }
+
+      .line.short {
+        width: 56%;
+      }
+
+      .line.medium {
+        width: 76%;
+      }
+
+      .cta {
+        display: grid;
+        place-items: center;
+        min-height: 36px;
+        background: var(--blue);
+        color: white;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .returned {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid rgb(37 99 235 / 0.28);
+        background: var(--blue-soft);
+      }
+
+      .returned h3 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 22px;
+      }
+
+      .returned p {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .source-list {
+        display: grid;
+        gap: 8px;
+        margin: 12px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .source-list a {
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .source-list a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 920px) {
+        .flow,
+        .flow.matching,
+        .detail-grid,
+        .artifact {
+          grid-template-columns: 1fr;
+        }
+
+        .section-head {
+          display: grid;
+          align-items: start;
+        }
+
+        .result-card {
+          grid-template-columns: 44px minmax(0, 1fr);
+        }
+
+        .cta {
+          grid-column: 1 / -1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="kicker">BridgeCircle product flow</p>
+        <h1>How an Ask becomes matched people, then a sent request.</h1>
+        <p class="lede">
+          The Ask surface owns question-led matching. People remains the broader directory. A typed
+          question stays on <code>/ask</code>, gets translated into matching signals, returns ranked
+          helpers, and carries the original intent into the composer.
+        </p>
+        <div class="legend" aria-label="Diagram legend">
+          <span class="pill"><span class="dot"></span>User interface</span>
+          <span class="pill"><span class="dot green"></span>Server and Supabase</span>
+          <span class="pill"><span class="dot amber"></span>LLM matching step</span>
+          <span class="pill"><span class="dot red"></span>Fallback or validation</span>
+        </div>
+      </header>
+
+      <section aria-labelledby="overview-title">
+        <div class="section-head">
+          <h2 id="overview-title">1. From question to Ask results</h2>
+          <p class="section-note">
+            The AskBar submits a normal GET request. The route is visible and shareable as
+            <code>/ask?nl=...</code>, and pagination/refinements stay under Ask.
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="lane">
+            <div class="lane-title">Member</div>
+            <div class="lane-body">
+              <div class="node primary">
+                <strong>Types a question</strong>
+                <span>Example: "Mark Mentor" or "I want help thinking about product."</span>
+              </div>
+              <div class="connector">GET</div>
+              <div class="node primary">
+                <strong>Lands on Ask</strong>
+                <code>/ask?nl=Mark+Mentor</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Ask page</div>
+            <div class="lane-body">
+              <div class="node primary">
+                <strong>Reads the <code>nl</code> query</strong>
+                <span>Empty Ask shows starter prompts. Non-empty Ask loads matches.</span>
+              </div>
+              <div class="connector">load</div>
+              <div class="node server">
+                <strong>Calls shared loader</strong>
+                <code>getMemberSearchResults(params)</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Backend context</div>
+            <div class="lane-body">
+              <div class="node server">
+                <strong>Requires session</strong>
+                <span>Identifies the member and active organization.</span>
+              </div>
+              <div class="connector">context</div>
+              <div class="node server">
+                <strong>Loads viewer signals</strong>
+                <span>School, major, city, grad year, friends, and organization.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Returned UI</div>
+            <div class="lane-body">
+              <div class="node primary">
+                <strong>Ask-specific header</strong>
+                <span>"People who can help with this ask"</span>
+              </div>
+              <div class="connector">render</div>
+              <div class="node primary">
+                <strong>Match cards</strong>
+                <span>Why this match, suggested first ask, and a request CTA.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="matching-title">
+        <div class="section-head">
+          <h2 id="matching-title">2. Target matching pipeline behind Ask results</h2>
+          <p class="section-note">
+            ADR 0009 upgrades Ask from a single structured candidate engine to hybrid retrieval:
+            hard gates, structured search, lexical search, vector search, warm-network scoring, and
+            LLM reranking.
+          </p>
+        </div>
+
+        <div class="flow matching">
+          <div class="lane">
+            <div class="lane-title">Gates</div>
+            <div class="lane-body">
+              <div class="node primary">
+                <strong>Original ask text</strong>
+                <span>Kept as the user's wording and passed through the entire flow.</span>
+              </div>
+              <div class="node server">
+                <strong>Hard gates first</strong>
+                <span>Same org, active member, privacy, helper openness, capacity, not self.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Parallel retrieval</div>
+            <div class="lane-body">
+              <div class="node server">
+                <strong>Structured/rules search</strong>
+                <span>Explicit filters, helper preferences, school, cohort, city, role fields.</span>
+              </div>
+              <div class="node server">
+                <strong>Lexical search</strong>
+                <span>Exact names, titles, employers, schools, skills, topics, and profile text.</span>
+              </div>
+              <div class="node model">
+                <strong>Vector semantic search</strong>
+                <span>Permission-safe profile chunks retrieve helpers with adjacent experience.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Merge and score</div>
+            <div class="lane-body">
+              <div class="node server">
+                <strong>Merge evidence</strong>
+                <span>Dedupe by user and preserve why each retrieval path found the person.</span>
+              </div>
+              <div class="node server">
+                <strong>Warm-network scoring</strong>
+                <span>Availability, shared school, cohort, city, relationship path, helper load.</span>
+              </div>
+              <div class="node server">
+                <strong>Cap rerank pool</strong>
+                <span>Send the strongest 20-40 candidates to the LLM, not the whole directory.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Rerank and fallback</div>
+            <div class="lane-body">
+              <div class="node model">
+                <strong>LLM reranks candidates</strong>
+                <span>Ranks against the original ask using only privacy-allowed evidence.</span>
+              </div>
+              <div class="node primary">
+                <strong>Return top 10</strong>
+                <span>Cards use rationale and score bands like "Strong fit" or "Good fit."</span>
+              </div>
+              <div class="node warn">
+                <strong>If a stage fails</strong>
+                <span>Fall back to structured + lexical results, then templated explanations.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="returned-title">
+        <div class="section-head">
+          <h2 id="returned-title">3. What the user gets back</h2>
+          <p class="section-note">
+            The result is not the People directory. It is an Ask result page built around the
+            original question and the next action.
+          </p>
+        </div>
+
+        <div class="artifact">
+          <div class="mock-results" aria-label="Ask results page mock">
+            <div class="result-card">
+              <div class="avatar"></div>
+              <div class="lines">
+                <div class="line short"></div>
+                <div class="line medium"></div>
+                <div class="line"></div>
+              </div>
+              <div class="cta">Ask for advice</div>
+            </div>
+            <div class="result-card">
+              <div class="avatar"></div>
+              <div class="lines">
+                <div class="line short"></div>
+                <div class="line medium"></div>
+                <div class="line"></div>
+              </div>
+              <div class="cta">Request mentorship</div>
+            </div>
+            <div class="result-card">
+              <div class="avatar"></div>
+              <div class="lines">
+                <div class="line short"></div>
+                <div class="line medium"></div>
+                <div class="line"></div>
+              </div>
+              <div class="cta">Ask for advice</div>
+            </div>
+          </div>
+
+          <aside class="returned">
+            <h3>Ask result contents</h3>
+            <p><strong>You asked:</strong> the original natural-language question.</p>
+            <p><strong>Counts:</strong> total matches and how many are open to help.</p>
+            <p><strong>Each card:</strong> identity, availability, match band, rationale, suggested first ask, CTA.</p>
+            <p><strong>Escape hatch:</strong> "Open in People" keeps directory exploration available.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section aria-labelledby="send-title">
+        <div class="section-head">
+          <h2 id="send-title">4. From chosen helper to saved ask</h2>
+          <p class="section-note">
+            The original question rides along as <code>intent</code>, so the member does not retype
+            it when they choose a helper.
+          </p>
+        </div>
+
+        <div class="flow">
+          <div class="lane">
+            <div class="lane-title">CTA</div>
+            <div class="lane-body">
+              <div class="node primary">
+                <strong>Click request CTA</strong>
+                <span>Builds <code>/ask/new?to=...&amp;type=...&amp;intent=...</code>.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Composer</div>
+            <div class="lane-body">
+              <div class="node server">
+                <strong>Load helper profile</strong>
+                <span>Applies profile privacy and verifies the helper is open.</span>
+              </div>
+              <div class="node primary">
+                <strong>Prefill textarea</strong>
+                <span>The initial ask text is the original question.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Validation</div>
+            <div class="lane-body">
+              <div class="node warn">
+                <strong>Server action validates</strong>
+                <span>Required copy, ask type, helper id, and request rules.</span>
+              </div>
+              <div class="node warn">
+                <strong>Business checks</strong>
+                <span>Not self, shared org, helper open, mentorship capacity, no duplicate pending.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-title">Persistence</div>
+            <div class="lane-body">
+              <div class="node server">
+                <strong>Insert ask row</strong>
+                <span>Writes helper, asker, org, type, reason, help_needed, background.</span>
+              </div>
+              <div class="node server">
+                <strong>Notify helper</strong>
+                <span>Creates in-app notification, logs audit event, sends email best-effort.</span>
+              </div>
+              <div class="node primary">
+                <strong>Return to asker</strong>
+                <span>Redirects to <code>/ask/:askId</code>.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="notes-title">
+        <div class="section-head">
+          <h2 id="notes-title">Implementation anchors</h2>
+          <p class="section-note">
+            The Ask UI and send flow exist today. The target matching upgrade is documented in ADR
+            0009 and is not yet implemented in code.
+          </p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card">
+            <h3>Ask UI</h3>
+            <ul>
+              <li><code>AskBar</code> submits to <code>/ask</code> by default.</li>
+              <li><code>/ask</code> renders starter state or Ask-specific results.</li>
+              <li><code>MatchBriefCard</code> carries <code>intent</code> into the CTA URL.</li>
+            </ul>
+          </div>
+          <div class="detail-card">
+            <h3>Search backend</h3>
+            <ul>
+              <li><code>getMemberSearchResults</code> currently loads auth, org context, counts, and pages.</li>
+              <li><code>searchAlumniNL</code> is the current baseline: extract filters, search, rerank.</li>
+              <li>ADR 0009 is the target: structured + lexical + vector retrieval, warm scoring, LLM rerank.</li>
+            </ul>
+          </div>
+          <div class="detail-card">
+            <h3>Ask creation</h3>
+            <ul>
+              <li><code>/ask/new</code> accepts <code>intent</code> and passes it to the form.</li>
+              <li><code>RequestForm</code> initializes the textarea from the original ask.</li>
+              <li><code>createAsk</code> writes the row, audit log, notification, and email.</li>
+            </ul>
+          </div>
+        </div>
+
+        <ul class="source-list" aria-label="Source links">
+          <li>
+            <a href="../../app/src/app/(member)/help-network-ui.tsx">AskBar and MatchBriefCard</a>
+          </li>
+          <li>
+            <a href="../../app/src/app/(member)/ask/page.tsx">Ask results page</a>
+          </li>
+          <li>
+            <a href="../../app/src/lib/search/getMemberSearchResults.ts">Shared member search loader</a>
+          </li>
+          <li>
+            <a href="../decisions/0009-hybrid-ask-matching.md">Target hybrid Ask matching ADR</a>
+          </li>
+          <li>
+            <a href="../../app/src/lib/search/searchAlumniNL.ts">Current natural-language matching baseline</a>
+          </li>
+          <li>
+            <a href="../../app/src/app/(member)/ask/new/page.tsx">Ask composer page</a>
+          </li>
+          <li>
+            <a href="../../app/src/lib/asks/createAsk.ts">Ask creation backend</a>
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

@@ -101,7 +101,10 @@ Set in **Railway → BridgeCircle service → Variables tab**. Production secret
 | `SUPABASE_SECRET_KEY` | Prod service-role key (server-only, RLS bypass) | `sb_secret_…` |
 | `RESEND_API_KEY` | Resend API key | `re_…` |
 | `RESEND_FROM` | Sender address used by every Resend send. Set 2026-04-29 to `BridgeCircle <noreply@bridgecircle.org>`. Defaults to `BridgeCircle <invites@bridgecircle.org>` if unset. | `BridgeCircle <noreply@bridgecircle.org>` |
-| `ANTHROPIC_API_KEY` | Claude Haiku key for resume extraction + NL search entity extraction | `sk-ant-…` |
+| `ANTHROPIC_API_KEY` | Claude Haiku key for resume extraction + current NL search extraction/rerank | `sk-ant-…` |
+| `VOYAGE_API_KEY` | Voyage key for Ask matching embeddings and reranking when `ASK_MATCHING_PIPELINE=voyage_hybrid` | `pa-…` |
+| `ASK_MATCHING_PIPELINE` | Ask matching mode. Keep `legacy` until migration, backfill, and E2E verification pass; set `voyage_hybrid` for the new path. | `legacy` |
+| `ASK_MATCHING_EXPLANATIONS` | Ask explanation mode. Use `templated` by default; `haiku_polish` only polishes final matches. | `templated` |
 | `NEXT_PUBLIC_APP_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
 | `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
 
@@ -133,8 +136,20 @@ Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and 
 
 **Anthropic**
 - Single API key shared by dev and prod (low-volume usage).
-- Used for resume extraction (1 call per resume import) and NL search (2 calls per query: extract filters + rerank candidates).
+- Used for resume extraction (1 call per resume import) and current NL search
+  (2 calls per query: extract filters + rerank candidates).
+- The accepted Ask matching target is hybrid retrieval + warm-network scoring,
+  Voyage reranking, and optional Haiku explanation polish
+  ([ADR 0009](../decisions/0009-hybrid-ask-matching.md)).
 - No usage caps configured today — see "post-launch backlog" in `app/CLAUDE.md` for cost monitoring.
+
+**Voyage**
+- Separate API key from Anthropic. Anthropic recommends Voyage for embeddings, but
+  Voyage calls authenticate against Voyage with `VOYAGE_API_KEY`.
+- Used by `ASK_MATCHING_PIPELINE=voyage_hybrid` for `voyage-4` embeddings and
+  `rerank-2.5-lite`.
+- Keep the production flag at `legacy` until the additive migration, profile
+  embedding backfill, and Ask/People verification pass.
 
 ### GitHub repository
 
@@ -169,6 +184,9 @@ For the full prod inventory + descriptions, see **Manual Production Configuratio
 | `RESEND_API_KEY` | Resend key (shared with prod) | Resend key |
 | `RESEND_FROM` | (leave unset → defaults to `invites@`) | `BridgeCircle <noreply@bridgecircle.org>` |
 | `ANTHROPIC_API_KEY` | Claude key (shared with prod) | Claude key |
+| `VOYAGE_API_KEY` | Voyage key | Voyage key |
+| `ASK_MATCHING_PIPELINE` | `legacy` or `voyage_hybrid` | `legacy` until verified |
+| `ASK_MATCHING_EXPLANATIONS` | `templated` or `haiku_polish` | `templated` |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
 | `SENTRY_AUTH_TOKEN` | (build-time only, optional locally) | set by Sentry wizard |
 

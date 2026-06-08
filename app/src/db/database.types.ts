@@ -991,6 +991,155 @@ export type Database = {
           },
         ]
       }
+      profile_embedding_chunks: {
+        Row: {
+          chunk_kind: string
+          content: string
+          content_hash: string
+          created_at: string
+          embedding: string
+          embedding_dim: number
+          embedding_model: string
+          id: string
+          organization_id: string
+          organization_membership_id: string
+          source_section: string
+          synthetic_prompt_version: string | null
+          updated_at: string
+          user_id: string
+          visibility_tier: string
+        }
+        Insert: {
+          chunk_kind: string
+          content: string
+          content_hash: string
+          created_at?: string
+          embedding: string
+          embedding_dim?: number
+          embedding_model: string
+          id?: string
+          organization_id: string
+          organization_membership_id: string
+          source_section: string
+          synthetic_prompt_version?: string | null
+          updated_at?: string
+          user_id: string
+          visibility_tier: string
+        }
+        Update: {
+          chunk_kind?: string
+          content?: string
+          content_hash?: string
+          created_at?: string
+          embedding?: string
+          embedding_dim?: number
+          embedding_model?: string
+          id?: string
+          organization_id?: string
+          organization_membership_id?: string
+          source_section?: string
+          synthetic_prompt_version?: string | null
+          updated_at?: string
+          user_id?: string
+          visibility_tier?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_embedding_chunks_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_embedding_chunks_organization_membership_id_fkey'
+            columns: ['organization_membership_id']
+            isOneToOne: false
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_embedding_chunks_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      profile_embedding_index_status: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          dirty_reason: string | null
+          dirty_since: string | null
+          last_error: string | null
+          last_indexed_at: string | null
+          last_success_at: string | null
+          locked_at: string | null
+          locked_by: string | null
+          organization_id: string
+          organization_membership_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          dirty_reason?: string | null
+          dirty_since?: string | null
+          last_error?: string | null
+          last_indexed_at?: string | null
+          last_success_at?: string | null
+          locked_at?: string | null
+          locked_by?: string | null
+          organization_id: string
+          organization_membership_id: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          dirty_reason?: string | null
+          dirty_since?: string | null
+          last_error?: string | null
+          last_indexed_at?: string | null
+          last_success_at?: string | null
+          locked_at?: string | null
+          locked_by?: string | null
+          organization_id?: string
+          organization_membership_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_embedding_index_status_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_embedding_index_status_organization_membership_id_fkey'
+            columns: ['organization_membership_id']
+            isOneToOne: false
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'profile_embedding_index_status_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profile_enrichment_runs: {
         Row: {
           cost_units: number | null
@@ -1298,6 +1447,25 @@ export type Database = {
       }
       is_active_member_of: { Args: { org_id: string }; Returns: boolean }
       is_admin_of: { Args: { org_id: string }; Returns: boolean }
+      match_profile_embedding_chunks: {
+        Args: {
+          p_friend_ids: string[]
+          p_limit?: number
+          p_organization_id: string
+          p_query_embedding: string
+          p_viewer_id: string
+        }
+        Returns: {
+          chunk_id: string
+          chunk_kind: string
+          content: string
+          organization_membership_id: string
+          similarity: number
+          source_section: string
+          user_id: string
+          visibility_tier: string
+        }[]
+      }
       shares_org_with: { Args: { other_user_id: string }; Returns: boolean }
     }
     Enums: {

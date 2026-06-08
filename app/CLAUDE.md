@@ -99,7 +99,10 @@ See `../docs/runbooks/day-0-setup.md` Step 6 for the canonical example. If you f
 - Background jobs: Railway worker (invite fan-out, mentor inactivity sweeps, email retries)
 - File storage: Supabase Storage (public `avatars`, private `resumes`)
 - Error tracking: Sentry
-- LLM (week 3): Claude Haiku for resume extraction and NL search entity extraction
+- LLM/search: Claude Haiku for resume extraction and current NL search extraction/rerank.
+  Target Ask matching is hybrid retrieval + warm-network scoring + LLM rerank
+  per `../docs/decisions/0009-hybrid-ask-matching.md`; People remains the
+  broad directory/filter surface.
 
 Do not introduce alternative providers or frameworks without checking with the user. Do not add Prisma, Drizzle, tRPC, or auth libraries other than Supabase Auth.
 
@@ -145,7 +148,7 @@ Before declaring a task done:
 | Route | Purpose | Notes |
 |---|---|---|
 | `/` | Ask-first Home — natural-language ask prompt, people who can help, people you could help, School pulse | Default after sign-in |
-| `/ask` | Primary question-driven matching surface — NL question → explained people matches → guided ask composer | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]` |
+| `/ask` | Primary question-driven matching surface — NL question → hybrid retrieved and reranked people matches → guided ask composer | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`; target matching plan is ADR 0009 |
 | `/help` | Supply-side helper surface — requests needing reply, likely people the viewer could help, availability CTA | |
 | `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
@@ -171,7 +174,9 @@ Do not build (without explicit user request):
 - social feed
 - saved mentor interest / passive matching
 - direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach. The supported path is `lib/enrichment/` (LinkdAPI primary, Bright Data for the monthly sweep, PDL fallback) — see [`../docs/architecture/profile-enrichment.md`](../docs/architecture/profile-enrichment.md) for the full plan.
-- semantic vector search (NL search uses entity extraction → structured match)
+- unbounded agentic matching as the default page-load search path. Hybrid Ask
+  matching is allowed only within the bounded ADR 0009 plan: hard gates,
+  permission-safe retrieval, warm-network scoring, fallbacks, and evaluation.
 - per-organization or viewer-specific privacy rules
 - fundraising features
 
