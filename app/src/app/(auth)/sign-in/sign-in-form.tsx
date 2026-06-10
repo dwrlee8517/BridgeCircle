@@ -23,7 +23,7 @@ export function SignInForm({
     <Card className="text-base shadow-card-hover">
       <CardHeader className="pt-7 pb-2">
         {/* No mini-wordmark kicker — the auth panel already carries the lockup. */}
-        <CardTitle className="font-heading text-3xl font-bold tracking-[-0.02em]">
+        <CardTitle className="font-heading text-3xl font-bold tracking-tight">
           Welcome back
         </CardTitle>
         <CardDescription className="text-base">

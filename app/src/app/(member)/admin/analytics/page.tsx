@@ -94,7 +94,7 @@ function MetricCardView({ card }: { card: MetricCard }) {
         <p className="text-xs uppercase tracking-wide text-muted-foreground">{card.label}</p>
         <p className="mt-1 text-3xl font-semibold leading-none">{card.value}</p>
         <p className={`mt-1 text-xs ${subClass}`}>{card.sub}</p>
-        <p className="mt-3 border-t border-dashed pt-2 text-[11px] text-muted-foreground">
+        <p className="mt-3 border-t border-dashed pt-2 text-kicker text-muted-foreground">
           {card.footnote}
         </p>
       </CardContent>

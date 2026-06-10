@@ -53,15 +53,12 @@ export function AskBar({
   return (
     <form
       action={action}
-      className={cn(
-        'bc-command-surface',
-        compact ? 'p-2' : 'p-[14px_16px] max-[760px]:p-[10px_12px]',
-      )}
+      className={cn('bc-command-surface', compact ? 'p-2' : 'px-4 py-3.5 max-detail:px-3 py-2.5')}
     >
-      <div className="relative flex items-center gap-3 max-[760px]:gap-2.5">
-        <div className="flex min-w-0 flex-1 items-center gap-3 max-[760px]:gap-2.5">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground max-[760px]:size-[34px] max-[760px]:rounded-md">
-            <CircleHelp className="size-5 max-[760px]:size-4" />
+      <div className="relative flex items-center gap-3 max-detail:gap-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-3 max-detail:gap-2.5">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground max-detail:size-[34px] max-detail:rounded-md">
+            <CircleHelp className="size-5 max-detail:size-4" />
           </div>
           {/* suppressHydrationWarning: form-filler / accessibility browser
               extensions inject attributes onto search inputs after SSR,
@@ -74,8 +71,8 @@ export function AskBar({
             aria-label="Ask a question to find people who can help"
             placeholder="What are you trying to figure out?"
             className={cn(
-              'h-11 min-w-0 flex-1 border-none bg-transparent px-0 font-medium text-foreground outline-none placeholder:text-muted-foreground/60 max-[760px]:h-8 max-[760px]:text-sm',
-              spacious ? 'text-[17px]' : 'text-[15px]',
+              'h-11 min-w-0 flex-1 border-none bg-transparent px-0 font-medium text-foreground outline-none placeholder:text-muted-foreground/60 max-detail:h-8 max-detail:text-sm',
+              spacious ? 'text-body-lg' : 'text-sm',
             )}
             suppressHydrationWarning
           />
@@ -84,9 +81,9 @@ export function AskBar({
           type="submit"
           variant={submitVariant}
           size={compact ? 'default' : 'lg'}
-          className="h-11 rounded-md px-5 text-[15px] font-semibold max-[760px]:size-8 max-[760px]:gap-0 max-[760px]:px-0"
+          className="h-11 rounded-md px-5 text-sm font-semibold max-detail:size-8 max-detail:gap-0 max-detail:px-0"
         >
-          <span className="max-[760px]:sr-only">Find matches</span>
+          <span className="max-detail:sr-only">Find matches</span>
           <ArrowRight className="size-3.5" />
         </Button>
       </div>
@@ -146,7 +143,7 @@ export function NetworkMotif({
       </svg>
       <div className="relative flex h-full min-h-[240px] flex-col justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary-on-dark">
+          <p className="text-xs font-semibold uppercase tracking-kicker text-primary-on-dark">
             Live school circle
           </p>
           <h2 className="mt-2 max-w-sm font-heading text-3xl font-semibold leading-tight">
@@ -167,7 +164,7 @@ function NetworkStat({ value, label }: { value: number; label: string }) {
   return (
     <div className="rounded-md border border-editorial-rule bg-white/[0.06] p-3">
       <div className="font-heading text-2xl font-semibold leading-none">{value}</div>
-      <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.10em] text-surface-midnight-muted">
+      <div className="mt-1 text-kicker font-medium uppercase tracking-label text-surface-midnight-muted">
         {label}
       </div>
     </div>
@@ -269,7 +266,7 @@ export function MatchBriefCard({
                 isListRow && 'border-0 bg-transparent open:bg-transparent',
               )}
             >
-              <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground">
+              <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-label text-muted-foreground transition-colors hover:text-foreground">
                 <ChevronRight className="size-3 transition-transform group-open:rotate-90" />
                 Suggested first message
               </summary>
@@ -467,7 +464,7 @@ export function SchoolPulseCard({
         {kind === 'event' ? <CalendarDays className="size-5" /> : <Sparkles className="size-5" />}
       </div>
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <p className="text-kicker font-semibold uppercase tracking-label text-muted-foreground">
           {meta}
         </p>
         <p className="mt-1 font-heading text-base font-semibold leading-tight text-foreground">

@@ -63,7 +63,7 @@ export default async function AnnouncementsPage() {
         announcements.map((a) => (
           <Card key={a.id}>
             <CardHeader>
-              <span className="inline-flex w-fit items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-[0.1em] text-primary">
+              <span className="inline-flex w-fit items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-label text-primary">
                 <Megaphone className="size-3.5" />
                 Announcement
               </span>

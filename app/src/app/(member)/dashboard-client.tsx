@@ -36,17 +36,17 @@ export default function DashboardClient({
       <HomeAnnouncementStrip announcement={feed.latestAnnouncement} event={featuredEvent} />
 
       <section className="bc-page-band relative overflow-hidden">
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-10 text-center min-[761px]:px-8 min-[761px]:py-14">
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-10 text-center detail:px-8 detail:py-14">
           <div className="flex w-full max-w-[820px] flex-col items-center gap-6">
             <div className="space-y-3">
               <div className="bc-section-kicker justify-center">
                 {[cohortLabel, orgDisplayName].filter(Boolean).join(' · ')}
               </div>
               <div className="mx-auto max-w-[720px]">
-                <h1 className="font-heading text-[40px] font-semibold leading-[1.1] tracking-normal text-foreground max-[480px]:text-[32px]">
+                <h1 className="font-heading text-display-lg font-semibold leading-[1.1] tracking-normal text-foreground max-[480px]:text-display-md">
                   Hi {firstName}. Who do you want to ask?
                 </h1>
-                <p className="mx-auto mt-2.5 max-w-[640px] text-[17px] leading-[1.55] text-muted-foreground">
+                <p className="mx-auto mt-2.5 max-w-[640px] text-body-lg leading-[1.55] text-muted-foreground">
                   Find someone who has been there, or offer help where your experience matters.
                 </p>
               </div>
@@ -129,9 +129,7 @@ function HomeAnnouncementStrip({
     >
       <span className="flex min-w-0 items-center gap-2.5">
         <Send className="size-3.5 shrink-0 text-primary" />
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-          {label}
-        </span>
+        <span className="text-xs font-semibold uppercase tracking-label text-primary">{label}</span>
         <span className="min-w-0 truncate font-medium text-foreground">{title}</span>
       </span>
       {stamp ? (
@@ -203,7 +201,7 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
           <div className="flex items-baseline gap-2">
             <Link
               href={`/profile/${person.userId}`}
-              className="truncate font-heading text-[15px] font-semibold text-foreground hover:text-primary"
+              className="truncate font-heading text-sm font-semibold text-foreground hover:text-primary"
             >
               {name}
             </Link>
@@ -226,7 +224,7 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
           </div>
 
           {role ? <p className="mt-1.5 text-xs font-medium text-foreground">{role}</p> : null}
-          {context ? <p className="mt-0.5 text-[11px] text-muted-foreground">{context}</p> : null}
+          {context ? <p className="mt-0.5 text-kicker text-muted-foreground">{context}</p> : null}
         </div>
       </div>
 
@@ -254,7 +252,7 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
           {askType ? (
             <Link
               href={`/profile/${person.userId}`}
-              className="px-1.5 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+              className="px-1.5 py-1 text-kicker font-medium text-muted-foreground hover:text-foreground"
             >
               View profile
             </Link>
@@ -293,15 +291,15 @@ function YourAsksRail({ asks: allAsks }: { asks: HomeRecentAsk[] }) {
     <aside
       className={`flex h-fit w-full flex-col rounded-md border bg-card ${
         hasAsks
-          ? 'gap-3.5 border-border p-[18px_20px] shadow-hero'
-          : 'gap-2.5 border-border/70 p-[14px_16px] shadow-none'
+          ? 'gap-3.5 border-border px-5 py-4.5 shadow-hero'
+          : 'gap-2.5 border-border/70 px-4 py-3.5 shadow-none'
       }`}
     >
       <div className="flex items-center justify-between">
         <p className="bc-section-kicker">Your asks</p>
         <Link
           href="/inbox"
-          className="text-[11px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+          className="text-kicker font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           See all
         </Link>
@@ -324,7 +322,7 @@ function YourAsksRail({ asks: allAsks }: { asks: HomeRecentAsk[] }) {
                   aria-hidden
                 />
                 <Link href={`/ask/${ask.id}`} className="group min-w-0 flex-1">
-                  <p className="text-[13px] font-medium leading-snug text-foreground group-hover:text-primary">
+                  <p className="text-caption font-medium leading-snug text-foreground group-hover:text-primary">
                     {ask.summary}
                   </p>
                   <div className="mt-1 flex items-center gap-1.5">

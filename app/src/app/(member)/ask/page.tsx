@@ -40,7 +40,7 @@ export default async function AskPage({
           <div className="space-y-5">
             <div>
               <p className="bc-section-kicker">Ask</p>
-              <h1 className="mt-2 font-heading text-[28px] font-semibold leading-tight text-foreground sm:text-[34px]">
+              <h1 className="mt-2 font-heading text-[28px] font-semibold leading-tight text-foreground sm:text-display-md">
                 People who can help with this ask
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -84,7 +84,7 @@ export default async function AskPage({
           <>
             <div className="overflow-hidden rounded-md border border-border bg-card shadow-card">
               <div className="border-b border-border bg-surface-panel/50 px-4 py-3 sm:px-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   You asked
                 </p>
                 <p className="mt-1 text-sm font-medium text-foreground">&ldquo;{query}&rdquo;</p>
@@ -123,10 +123,10 @@ function AskStarter() {
           <div className="space-y-6">
             <div>
               <p className="bc-section-kicker">Ask</p>
-              <h1 className="mt-2 max-w-2xl font-heading text-[34px] font-semibold leading-[1.1] text-foreground sm:text-[40px]">
+              <h1 className="mt-2 max-w-2xl font-heading text-display-md font-semibold leading-[1.1] text-foreground sm:text-display-lg">
                 Start with what you are trying to figure out.
               </h1>
-              <p className="mt-3 max-w-2xl text-[17px] leading-[1.55] text-muted-foreground">
+              <p className="mt-3 max-w-2xl text-body-lg leading-[1.55] text-muted-foreground">
                 Tell us what you&rsquo;re working through — we&rsquo;ll find people who&rsquo;ve
                 been there.
               </p>

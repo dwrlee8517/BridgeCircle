@@ -35,7 +35,7 @@ const statusBadgeVariants = cva(
       },
       size: {
         sm: 'min-h-5 px-2 py-0.5 text-xs font-medium gap-1',
-        md: 'min-h-6 px-2 py-0.5 text-[13px] font-normal gap-1',
+        md: 'min-h-6 px-2 py-0.5 text-caption font-normal gap-1',
       },
     },
     defaultVariants: {

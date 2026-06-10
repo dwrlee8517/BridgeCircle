@@ -10,7 +10,7 @@ export default function AskLoading() {
           <Skeleton className="h-3 w-24" />
           <Skeleton className="mt-3 h-9 w-3/4 max-w-xl" />
           <Skeleton className="mt-3 h-5 w-2/3 max-w-lg" />
-          <div className="bc-command-surface mt-6 p-[14px_16px]">
+          <div className="bc-command-surface mt-6 px-4 py-3.5">
             <div className="flex items-center gap-3">
               <Skeleton className="size-11 shrink-0 rounded-md" />
               <Skeleton className="h-6 flex-1" />

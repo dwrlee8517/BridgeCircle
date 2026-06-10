@@ -46,7 +46,7 @@ export function EventsMasterDetail({ events, attendeesByEvent, view, initialSele
     <div className="overflow-hidden rounded-md border border-border bg-card shadow-card md:grid md:grid-cols-[300px_minmax(0,1fr)]">
       <section className="border-border bg-background/75 md:border-r" aria-label="Event list">
         <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <span className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
             {displayEvents.length} {view === 'past' ? 'past' : 'upcoming'}
           </span>
           <span className="font-sans text-xs font-medium text-muted-foreground">
@@ -61,7 +61,7 @@ export function EventsMasterDetail({ events, attendeesByEvent, view, initialSele
                 <span className="font-heading text-sm font-semibold text-foreground">
                   {group.month}
                 </span>
-                <span className="font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="font-mono text-xs uppercase tracking-label text-muted-foreground">
                   {group.year}
                 </span>
               </div>
@@ -89,7 +89,7 @@ export function EventsMasterDetail({ events, attendeesByEvent, view, initialSele
                           style={{ backgroundColor: item.accentHex }}
                           aria-hidden
                         />
-                        <span className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                        <span className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
                           {item.category}
                         </span>
                       </span>
@@ -142,7 +142,7 @@ function EventArchiveSpotlight({
         <div className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span
-              className="rounded-sm border px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.08em]"
+              className="rounded-sm border px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-label"
               style={{
                 borderColor: `${accentHex}33`,
                 backgroundColor: `${accentHex}12`,
@@ -151,11 +151,11 @@ function EventArchiveSpotlight({
             >
               {item.category}
             </span>
-            <span className="font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
+            <span className="font-mono text-xs uppercase tracking-label text-muted-foreground">
               {view === 'past' ? 'Archive' : format(starts, 'EEE · MMM d')}
             </span>
           </div>
-          <h2 className="font-heading text-[28px] font-semibold leading-[1.08] tracking-[-0.01em] text-foreground sm:text-[32px]">
+          <h2 className="font-heading text-[28px] font-semibold leading-[1.08] tracking-[-0.01em] text-foreground sm:text-display-md">
             {event.title}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -164,13 +164,13 @@ function EventArchiveSpotlight({
         </div>
 
         <div className="w-fit rounded-md border border-border bg-background px-6 py-4 text-center shadow-card">
-          <div className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <div className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
             {format(starts, 'MMM')}
           </div>
-          <div className="mt-1 font-heading text-[52px] font-semibold leading-none tracking-[-0.04em] text-foreground">
+          <div className="mt-1 font-heading text-[52px] font-semibold leading-none tracking-tighter text-foreground">
             {format(starts, 'd')}
           </div>
-          <div className="mt-1.5 font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
+          <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-muted-foreground">
             {format(starts, 'EEE')} · {format(starts, 'yyyy')}
           </div>
         </div>
@@ -294,7 +294,7 @@ function EventFact({
 }) {
   return (
     <div className={cn('p-4', !last && 'border-b border-border sm:border-b-0 sm:border-r')}>
-      <div className="flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
         <Icon className="size-3.5" strokeWidth={1.7} />
         {label}
       </div>
@@ -383,7 +383,7 @@ function CapacityBar({ event, isFull }: { event: EventRow; isFull: boolean }) {
     <div>
       <div className="mb-2 flex items-baseline justify-between gap-3">
         <span
-          className="font-mono text-xs font-semibold uppercase tracking-[0.08em]"
+          className="font-mono text-xs font-semibold uppercase tracking-label"
           style={{ color: almostFull ? 'var(--accent-ochre)' : 'var(--action-offer)' }}
         >
           {event.capacity === null ? 'Open capacity' : isFull ? 'Full' : `${spotsLeft} spots left`}

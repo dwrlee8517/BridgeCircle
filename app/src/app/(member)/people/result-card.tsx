@@ -57,7 +57,7 @@ export function ResultCard(props: ResultCardProps) {
   return (
     <Card
       data-interactive="true"
-      className="group relative overflow-hidden rounded-md border-border bg-card px-3.5 py-3.5 shadow-card transition-[border-color,box-shadow,transform] duration-base ease-emphasized hover:-translate-y-px hover:border-foreground/25 hover:shadow-card-hover md:px-[22px] md:py-[18px]"
+      className="group relative overflow-hidden rounded-md border-border bg-card px-3.5 py-3.5 shadow-card transition-[border-color,box-shadow,transform] duration-base ease-emphasized hover:-translate-y-px hover:border-foreground/25 hover:shadow-card-hover md:px-5.5 md:py-4.5"
     >
       <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-3 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center md:gap-x-5">
         <Link href={`/profile/${props.userId}`} className="row-start-1 shrink-0">
@@ -88,7 +88,7 @@ export function ResultCard(props: ResultCardProps) {
               ) : null}
             </div>
 
-            <p className="mt-1 text-[13px] font-medium leading-snug text-foreground">
+            <p className="mt-1 text-caption font-medium leading-snug text-foreground">
               {[props.currentTitle, props.currentEmployer].filter(Boolean).join(' · ') ||
                 'No role listed'}
               <span className="ml-0 block text-xs font-normal text-muted-foreground sm:ml-2 sm:inline">
@@ -99,7 +99,7 @@ export function ResultCard(props: ResultCardProps) {
             </p>
 
             {systemRationale ? (
-              <RationaleBlock className="mt-3 max-w-[720px]" bodyClassName="text-[13px]">
+              <RationaleBlock className="mt-3 max-w-[720px]" bodyClassName="text-caption">
                 {systemRationale}
               </RationaleBlock>
             ) : humanHeadline ? (
@@ -107,7 +107,7 @@ export function ResultCard(props: ResultCardProps) {
                 label={null}
                 human
                 className="mt-3 max-w-[720px]"
-                bodyClassName="text-[13px] text-foreground"
+                bodyClassName="text-caption text-foreground"
               >
                 {humanHeadline}
               </RationaleBlock>

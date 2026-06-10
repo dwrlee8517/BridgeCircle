@@ -166,7 +166,7 @@ export function SearchForm({
           <p className="bc-section-kicker">People search</p>
           <div className="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="font-heading text-[22px] font-semibold leading-tight text-foreground">
+              <h1 className="font-heading text-h1 font-semibold leading-tight text-foreground">
                 Find someone in your circle
               </h1>
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -240,7 +240,7 @@ export function SearchForm({
           )}
         >
           <div className="mb-5 flex items-center justify-between">
-            <span className="font-heading text-[15px] font-semibold text-foreground">Filters</span>
+            <span className="font-heading text-sm font-semibold text-foreground">Filters</span>
             <div className="flex items-center gap-3">
               {activeRefinements.length > 0 ? (
                 <button
@@ -400,7 +400,7 @@ export function SearchForm({
 function FilterSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-2.5 font-mono text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
+      <p className="mb-2.5 font-mono text-xs font-bold uppercase tracking-label text-muted-foreground">
         {label}
       </p>
       <div className="flex flex-col gap-0.5">{children}</div>
@@ -490,7 +490,7 @@ function FilterRow({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        'flex items-center justify-between rounded-md px-2.5 py-2 text-left text-[13px] font-medium transition-colors',
+        'flex items-center justify-between rounded-md px-2.5 py-2 text-left text-caption font-medium transition-colors',
         active
           ? 'bg-primary-tint text-primary'
           : muted
@@ -532,17 +532,15 @@ function ActiveQueryLine({
       <div className="flex flex-wrap items-center gap-3">
         {query ? (
           <>
-            <span className="font-heading text-[15px] font-medium text-muted-foreground">
+            <span className="font-heading text-sm font-medium text-muted-foreground">
               You asked
             </span>
-            <span className="font-heading text-[19px] font-medium italic text-foreground">
+            <span className="font-heading text-body-lg font-medium italic text-foreground">
               {query.value}
             </span>
           </>
         ) : (
-          <span className="font-heading text-[15px] font-medium text-muted-foreground">
-            Refined by
-          </span>
+          <span className="font-heading text-sm font-medium text-muted-foreground">Refined by</span>
         )}
 
         {refinements.map((filter) => (

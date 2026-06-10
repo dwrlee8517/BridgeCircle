@@ -93,7 +93,7 @@ export function MentorshipGoalTracker({ threadId }: { threadId: string }) {
       <div className="border-b border-border bg-surface-panel/45 p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <p className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
               Progress tracker
             </p>
             <h2 className="mt-1 font-heading text-lg font-semibold text-foreground">Goals</h2>
@@ -147,7 +147,7 @@ export function MentorshipGoalTracker({ threadId }: { threadId: string }) {
         )}
 
         <div className="border-t border-dashed border-border pt-4">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <p className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
             Quick presets
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">

@@ -35,7 +35,7 @@ export function MemberTabBar() {
             key={link.href}
             href={link.href}
             aria-current={active ? 'page' : undefined}
-            className="flex min-h-[60px] flex-1 items-center justify-center px-1 text-[11px] font-medium"
+            className="flex min-h-[60px] flex-1 items-center justify-center px-1 text-kicker font-medium"
           >
             <span
               style={active ? activeMemberNavStyle(activeAccent, '--member-tab-accent') : undefined}

@@ -77,7 +77,7 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
       <div className="mb-3 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="bc-section-kicker mb-3">Upcoming · {events.length} events</p>
-          <h2 className="font-heading text-[22px] font-semibold leading-tight text-foreground">
+          <h2 className="font-heading text-h1 font-semibold leading-tight text-foreground">
             On the calendar
           </h2>
         </div>
@@ -99,7 +99,7 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
                   setMobileDetailOpen(false)
                 }}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-[11.5px] font-medium leading-none transition-colors',
+                  'rounded-full border px-3 py-1.5 text-kicker font-medium leading-none transition-colors',
                   active
                     ? 'border-primary/25 bg-primary-tint text-primary'
                     : 'border-border bg-card text-muted-foreground hover:bg-surface-subtle hover:text-foreground',
@@ -122,13 +122,13 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
             )}
           >
             <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-              <span className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
+              <span className="font-mono text-xs font-bold uppercase tracking-label text-muted-foreground">
                 {filteredEvents.length} upcoming · {grouped.length}{' '}
                 {grouped.length === 1 ? 'month' : 'months'}
               </span>
               <Link
                 href="/events"
-                className="text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
+                className="text-kicker font-semibold text-muted-foreground transition-colors hover:text-foreground"
               >
                 Archive
               </Link>
@@ -141,7 +141,7 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
                     <span className="font-heading text-sm font-semibold text-foreground">
                       {group.month}
                     </span>
-                    <span className="font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
+                    <span className="font-mono text-xs uppercase tracking-label text-muted-foreground">
                       {group.year} · {group.items.length}{' '}
                       {group.items.length === 1 ? 'event' : 'events'}
                     </span>
@@ -172,19 +172,19 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
                               className="size-1.5 shrink-0 rounded-full"
                               style={{ backgroundColor: item.accentHex }}
                             />
-                            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                            <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                               {item.categoryLabel}
                             </span>
                           </span>
                           <span
                             className={cn(
-                              'block truncate font-heading text-[13.5px] leading-snug text-foreground',
+                              'block truncate font-heading text-caption leading-snug text-foreground',
                               isSelected ? 'font-semibold' : 'font-medium',
                             )}
                           >
                             {item.event.title}
                           </span>
-                          <span className="mt-1 block truncate text-[11.5px] text-muted-foreground">
+                          <span className="mt-1 block truncate text-kicker text-muted-foreground">
                             {format(item.starts, 'h:mm a')} · {item.venue}
                           </span>
                         </span>
@@ -265,29 +265,29 @@ function EventSpotlight({
             </span>
             <span className="text-xs text-surface-midnight-muted">Hosted by {orgName}</span>
           </div>
-          <h3 className="font-heading text-[26px] font-semibold leading-[1.08] tracking-[-0.01em] text-surface-midnight-foreground sm:text-[28px]">
+          <h3 className="font-heading text-h1 font-semibold leading-[1.08] tracking-[-0.01em] text-surface-midnight-foreground sm:text-[28px]">
             {event.title}
           </h3>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-surface-midnight-muted">
+          <p className="mt-2 text-caption leading-relaxed text-surface-midnight-muted">
             {format(starts, 'EEE, MMM d · h:mm a')} · {event.location ?? 'Location to be shared'}
           </p>
         </div>
 
         <div className="relative w-fit rounded-md border border-editorial-rule-strong bg-white/[0.06] px-6 py-4 text-center">
-          <div className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-primary-on-dark">
+          <div className="font-mono text-xs font-bold uppercase tracking-label text-primary-on-dark">
             {format(starts, 'MMM')}
           </div>
-          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-[-0.05em] text-surface-midnight-foreground sm:text-[64px]">
+          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-tighter text-surface-midnight-foreground sm:text-[64px]">
             {format(starts, 'd')}
           </div>
-          <div className="mt-1.5 font-mono text-xs uppercase tracking-[0.08em] text-surface-midnight-muted">
+          <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-surface-midnight-muted">
             {format(starts, 'EEE')} · {format(starts, 'yyyy')}
           </div>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-4 px-5 py-5 sm:px-7 sm:py-6">
-        <p className="max-w-2xl text-[13.5px] leading-relaxed text-foreground">{summary}</p>
+        <p className="max-w-2xl text-caption leading-relaxed text-foreground">{summary}</p>
 
         <div className="grid overflow-hidden rounded-md border border-border bg-background sm:grid-cols-3">
           <EventFactCell
@@ -417,14 +417,14 @@ function EventFactCell({
     <div
       className={cn('p-3.5 sm:p-4', !last && 'border-b border-border sm:border-b-0 sm:border-r')}
     >
-      <div className="flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-label text-muted-foreground">
         <Icon className="size-3.5" strokeWidth={1.7} />
         {label}
       </div>
-      <div className="mt-1.5 font-heading text-[13.5px] font-semibold leading-snug text-foreground">
+      <div className="mt-1.5 font-heading text-caption font-semibold leading-snug text-foreground">
         {value}
       </div>
-      <div className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">{sub}</div>
+      <div className="mt-1 text-kicker leading-relaxed text-muted-foreground">{sub}</div>
     </div>
   )
 }
@@ -454,7 +454,7 @@ function AttendeePreview({
           <UsersRound className="size-4" strokeWidth={1.6} />
         </div>
       )}
-      <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+      <p className="text-caption leading-relaxed text-muted-foreground">
         {goingCount > 0 ? (
           <>
             <strong className="font-semibold text-foreground">
@@ -505,7 +505,7 @@ function CapacityBar({
               ? 'Full — waitlist open'
               : `${goingCount} going · ${spotsLeft} ${spotsLeft === 1 ? 'seat' : 'seats'} open`}
         </span>
-        <span className="font-mono text-[11px] text-muted-foreground">
+        <span className="font-mono text-kicker text-muted-foreground">
           {capacity ? `${goingCount} / ${capacity}` : null}
         </span>
       </div>
@@ -516,7 +516,7 @@ function CapacityBar({
         />
       </div>
       {waitlistCount > 0 ? (
-        <p className="mt-1.5 text-[11.5px] text-muted-foreground">{waitlistCount} waitlisted</p>
+        <p className="mt-1.5 text-kicker text-muted-foreground">{waitlistCount} waitlisted</p>
       ) : null}
     </div>
   )

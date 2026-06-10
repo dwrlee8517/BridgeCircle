@@ -15,7 +15,7 @@ export function UpdatePasswordForm() {
   return (
     <Card className="text-base shadow-card-hover">
       <CardHeader className="pt-7 pb-2">
-        <CardTitle className="font-heading text-3xl font-bold tracking-[-0.02em]">
+        <CardTitle className="font-heading text-3xl font-bold tracking-tight">
           Choose a new password
         </CardTitle>
         <CardDescription className="text-base">

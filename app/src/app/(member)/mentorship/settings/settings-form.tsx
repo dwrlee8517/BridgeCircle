@@ -161,7 +161,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
         <div className="rounded-lg border border-border bg-card p-5 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
                 Current availability
               </p>
               <h2 className="mt-1 font-heading text-lg font-semibold text-foreground">
@@ -182,7 +182,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
           </div>
           {screeningPrompt ? (
             <div className="mt-4 border-t border-border pt-4">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <p className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
                 Screening question
               </p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">

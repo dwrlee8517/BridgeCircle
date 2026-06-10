@@ -36,3 +36,11 @@ context rather than templated copy. Mind the cost-monitoring item above.
 /notifications rows navigate but don't mark as read; only the bell popover
 acknowledges. Reuse the popover's mark-read action on row click so the page
 isn't a read-only mirror.
+
+## Tailwind class linting upgrade
+
+The design-token ratchet (scripts/check-design-tokens.sh) is a grep-based
+baseline check — cheap and dependency-free, but it can't see context.
+Once the baseline is at/near zero, consider eslint-plugin-tailwindcss (or
+Biome's plugin API when it lands) for proper class-aware linting with
+per-line allowlists.

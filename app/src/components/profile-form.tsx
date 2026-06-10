@@ -206,7 +206,7 @@ export function ProfileForm({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset className="space-y-4 border-t pt-5 first:border-t-0 first:pt-0">
-      <legend className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      <legend className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
         {title}
       </legend>
       {children}

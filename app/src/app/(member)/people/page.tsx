@@ -162,7 +162,7 @@ function PeopleFeedbackStrip() {
   return (
     <div className="mt-6 flex flex-col gap-3 rounded-md border border-dashed border-border bg-card px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <div>
-        <p className="text-[13px] font-semibold text-foreground">Are these the right people?</p>
+        <p className="text-caption font-semibold text-foreground">Are these the right people?</p>
         <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
           Tell us why a result felt off and we&apos;ll improve your matches.
         </p>

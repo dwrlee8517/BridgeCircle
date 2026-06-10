@@ -292,7 +292,7 @@ export function Wizard({
 
               {/* Bandwidth Capacity Details */}
               <div className="border-t border-border pt-3 mt-1.5 w-full space-y-2">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground block">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground block">
                   Availability
                 </span>
                 <CapacityIndicatorGauge
@@ -519,7 +519,7 @@ export function Wizard({
                 size="sm"
                 disabled={drafting}
                 onClick={() => fetchDraft({ variant: 'shorter' })}
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2 text-kicker"
               >
                 Shorter
               </Button>
@@ -529,7 +529,7 @@ export function Wizard({
                 size="sm"
                 disabled={drafting}
                 onClick={() => fetchDraft({ variant: 'more-direct' })}
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2 text-kicker"
               >
                 More direct
               </Button>
@@ -539,7 +539,7 @@ export function Wizard({
                 size="sm"
                 disabled={drafting}
                 onClick={() => fetchDraft({ variant: 'warmer' })}
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2 text-kicker"
               >
                 Warmer
               </Button>
@@ -549,7 +549,7 @@ export function Wizard({
                 size="sm"
                 disabled={drafting}
                 onClick={() => fetchDraft()}
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2 text-kicker"
               >
                 {drafting ? 'Drafting…' : 'Regenerate'}
               </Button>

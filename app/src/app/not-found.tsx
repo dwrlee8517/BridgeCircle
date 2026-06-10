@@ -10,13 +10,13 @@ export default function NotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-12 text-center">
       <Link href="/" className="mb-10" aria-label="BridgeCircle home">
-        <Wordmark withIcon={false} textClassName="text-2xl tracking-[-0.025em]" />
+        <Wordmark withIcon={false} textClassName="text-2xl tracking-tight" />
       </Link>
 
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+      <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
         Page not found
       </p>
-      <h1 className="font-heading mt-3 max-w-xl text-4xl font-bold tracking-[-0.025em] text-foreground sm:text-5xl">
+      <h1 className="font-heading mt-3 max-w-xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
         That page isn&rsquo;t in the circle.
       </h1>
       <p className="mt-4 max-w-md text-base text-muted-foreground">

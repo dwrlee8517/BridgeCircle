@@ -287,6 +287,37 @@ The scale uses a **1.25 modular ratio (Major Third)** anchored at body 16px. The
 
 Production rule: do not introduce sizes below `mono-sm` (12px). The previous `mono-xs` (9px) token was removed because the rule "do not depend on it alone" was easier to break than to enforce.
 
+### Named utilities (no `text-[Npx]` literals)
+
+Every scale step has a Tailwind utility, mapped through the `--font-size-*`
+custom properties so density modes keep working:
+
+| Utility | Resolves to | Notes |
+|---|---|---|
+| `text-kicker` | 11px | eyebrow/kicker lines |
+| `text-caption` | 13px (12px cozy/pro) | secondary labels |
+| `text-body-sm` | 14px | compact body |
+| `text-body-md` | 16px (14px cozy/pro) | default body |
+| `text-body-lg` | 17px (15px cozy) | lede copy |
+| `text-h1` / `text-h2` | 25.6/20px (density-aware) | page headings |
+| `text-display-md` / `text-display-lg` | 32/40px (density-aware) | hero moments |
+| `tracking-label` | 0.08em | uppercase card labels |
+| `tracking-kicker` | 0.12em | page kickers |
+| `tracking-hero` | 0.18em | wide editorial-hero kickers (auth) |
+| `detail:` / `max-detail:` | 761px breakpoint | the master-detail layout pivot |
+
+Hero display sizes flow through the density contract: a `density-cozy`
+surface renders `text-display-lg` at 34px on purpose — do not hardcode
+40px to escape it.
+
+**Enforcement:** `pnpm check:tokens` (scripts/check-design-tokens.sh, also a
+CI step) ratchets the count of arbitrary `text-[Npx]` / `tracking-[…]` /
+`p*-[Npx]` / `min|max-[Npx]` literals — it fails when the count rises above
+`scripts/design-tokens-baseline.txt`, and the baseline only moves down. The
+~16 remaining literals are deliberate (Midnight date-block display sizes,
+28px between-scale heroes, sub-0.01em negative tracking, the 480px mobile
+cutoff).
+
 ## Shape And Spacing
 
 | Token | Value | Role |

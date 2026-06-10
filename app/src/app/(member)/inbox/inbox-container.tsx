@@ -316,7 +316,7 @@ export function InboxContainer({
       <header className="shrink-0 border-b border-border bg-card px-4 md:px-6">
         <div className="flex min-h-16 flex-col justify-center py-3 md:py-0">
           <div>
-            <h1 className="font-heading text-[22px] font-semibold leading-tight text-foreground">
+            <h1 className="font-heading text-h1 font-semibold leading-tight text-foreground">
               Inbox
             </h1>
             <p className="mt-0.5 text-sm leading-tight text-muted-foreground">
@@ -602,7 +602,7 @@ function InboxListHeader({
             {activeViewMeta.description}
           </p>
         </div>
-        <p className="shrink-0 whitespace-nowrap font-mono text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+        <p className="shrink-0 whitespace-nowrap font-mono text-xs font-medium uppercase tracking-label text-muted-foreground">
           {listCountLabel(activeArea, activeView, count)}
         </p>
       </div>
@@ -655,7 +655,7 @@ function InboxRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <span
-              className={`truncate text-[13px] text-foreground ${
+              className={`truncate text-caption text-foreground ${
                 item.unread || isSelected ? 'font-semibold' : 'font-medium'
               }`}
             >
@@ -673,7 +673,7 @@ function InboxRow({
               aria-hidden
             />
             <span
-              className="font-sans text-xs font-semibold uppercase tracking-[0.08em]"
+              className="font-sans text-xs font-semibold uppercase tracking-label"
               style={{ color }}
             >
               {sectionLabel}
@@ -1281,7 +1281,7 @@ function AskDetail({
   return (
     <div className="space-y-5">
       <section className="space-y-2">
-        <p className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <p className="font-sans text-xs font-semibold uppercase tracking-label text-muted-foreground">
           {isOutgoing ? 'Your ask' : 'Their ask'}
         </p>
         <div className="border-l-[3px] border-l-primary pl-3 text-sm italic leading-relaxed text-foreground">
@@ -1291,7 +1291,7 @@ function AskDetail({
 
       {detail ? (
         <section className="space-y-1.5">
-          <p className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <p className="font-sans text-xs font-semibold uppercase tracking-label text-muted-foreground">
             What they need
           </p>
           <p className="text-sm leading-relaxed text-muted-foreground">{detail}</p>
@@ -1392,7 +1392,7 @@ function FriendRequestDetail({
   return (
     <div className="space-y-5">
       <div className="space-y-1.5">
-        <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <h4 className="font-sans text-xs font-semibold uppercase tracking-label text-muted-foreground">
           {isOutgoing ? 'Sent connection request' : 'Incoming connection request'}
         </h4>
         <h3 className="font-heading text-lg font-semibold text-foreground">
@@ -1402,7 +1402,7 @@ function FriendRequestDetail({
 
       {request.message && (
         <div className="space-y-2">
-          <h5 className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <h5 className="font-sans text-xs font-semibold uppercase tracking-label text-muted-foreground">
             Personal note
           </h5>
           <p className="border-l-[3px] border-l-primary pl-3 text-sm italic leading-relaxed text-foreground">
@@ -1748,7 +1748,7 @@ function InlineConversation({
               <circle cx="75" cy="65" r="55" fill="none" strokeWidth="1.8" />
               <circle cx="125" cy="65" r="55" fill="none" strokeWidth="1.8" />
             </svg>
-            <p className="font-mono text-xs uppercase tracking-[0.08em]">Loading conversation...</p>
+            <p className="font-mono text-xs uppercase tracking-label">Loading conversation...</p>
           </div>
         ) : loadError ? (
           <div className="flex h-full flex-col items-center justify-center text-muted-foreground/60">
@@ -1776,7 +1776,7 @@ function InlineConversation({
               <div key={m.id} className="w-full">
                 {showTimestamp && (
                   <div className="my-3 flex w-full justify-center">
-                    <span className="rounded-sm bg-surface-subtle/60 px-2 py-0.5 font-mono text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                    <span className="rounded-sm bg-surface-subtle/60 px-2 py-0.5 font-mono text-xs font-medium uppercase tracking-label text-muted-foreground">
                       {formatGroupedDate(m.createdAt)}
                     </span>
                   </div>
