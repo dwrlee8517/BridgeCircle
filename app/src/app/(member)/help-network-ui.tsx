@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StatusBadge } from '@/components/ui/status-badge'
-import { cn, displayName } from '@/lib/utils'
+import { avatarColorClasses, cn, displayName } from '@/lib/utils'
 
 export type HelpNetworkPerson = {
   userId: string
@@ -36,10 +36,17 @@ export function AskBar({
   defaultValue = '',
   action = '/ask',
   compact = false,
+  submitVariant = 'cta',
 }: {
   defaultValue?: string
   action?: string
   compact?: boolean
+  /**
+   * Amber belongs to the single social-commitment moment per screen. On
+   * browse/results surfaces pass 'default' so re-running a search doesn't
+   * out-shout the cards (tokens.md § CTA rule).
+   */
+  submitVariant?: 'cta' | 'default'
 }) {
   const spacious = !compact
 
@@ -75,7 +82,7 @@ export function AskBar({
         </div>
         <Button
           type="submit"
-          variant="cta"
+          variant={submitVariant}
           size={compact ? 'default' : 'lg'}
           className="h-11 rounded-md px-5 text-[15px] font-semibold max-[760px]:size-8 max-[760px]:gap-0 max-[760px]:px-0"
         >
@@ -248,7 +255,7 @@ export function MatchBriefCard({
             )}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-              Why this match
+              Why this person might fit
             </p>
             <p className="mt-1.5 text-sm leading-relaxed text-foreground">{matchReason}</p>
           </div>
@@ -261,9 +268,14 @@ export function MatchBriefCard({
             >
               <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground">
                 <ChevronRight className="size-3 transition-transform group-open:rotate-90" />
-                Suggested first ask
+                Suggested first message
               </summary>
-              <p className="px-3 pb-3 text-sm leading-relaxed text-foreground">{suggestedAsk}</p>
+              <div className="px-3 pb-3">
+                <p className="text-sm leading-relaxed text-foreground">{suggestedAsk}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  A starting point — edit before sending.
+                </p>
+              </div>
             </details>
           ) : null}
         </div>
@@ -537,7 +549,12 @@ function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
   // cards could pull the same rust hue. One muted surface across the board
   // keeps the visual rhythm calm and lets photos do the differentiation.
   return (
-    <div className="relative size-12 shrink-0 overflow-hidden rounded-md bg-surface-subtle">
+    <div
+      className={cn(
+        'relative size-12 shrink-0 overflow-hidden rounded-md',
+        avatarColorClasses(person.userId),
+      )}
+    >
       {person.avatarUrl ? (
         <Image
           src={person.avatarUrl}
@@ -548,7 +565,7 @@ function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
           className="object-cover"
         />
       ) : (
-        <span className="flex size-full items-center justify-center font-heading text-base font-semibold text-muted-foreground">
+        <span className="flex size-full items-center justify-center font-heading text-base font-semibold">
           {initials}
         </span>
       )}
@@ -561,7 +578,7 @@ function buildDefaultReason(person: HelpNetworkPerson, query?: string) {
     return `They help with ${person.mentoringTopics.slice(0, 2).join(' and ')}, which fits this question.`
   }
   if (person.currentTitle && person.currentEmployer) {
-    return `Their path as ${person.currentTitle} at ${person.currentEmployer} may be useful context.`
+    return `Their path as ${person.currentTitle} at ${person.currentEmployer} could be useful context.`
   }
   if (person.city)
     return `They are connected to ${person.city}, which may make the conversation more practical.`
@@ -586,14 +603,14 @@ function matchBandClass(score: number): string {
   return 'text-muted-foreground'
 }
 
-function buildSuggestedAsk(query: string | undefined, person: HelpNetworkPerson) {
-  if (query?.trim()) {
-    return `Could I ask how you would think about: “${query.trim()}”?`
-  }
+function buildSuggestedAsk(_query: string | undefined, person: HelpNetworkPerson) {
+  // Never echo the member's raw query back in quotes — the parroted template
+  // reads as auto-generated filler. Keep the opener short; the guided
+  // composer does the real drafting.
   if (person.mentoringTopics?.[0]) {
-    return `Could I ask for your perspective on ${person.mentoringTopics[0]}?`
+    return `Could I get your perspective on ${person.mentoringTopics[0]}?`
   }
-  return 'Could I ask for your perspective based on your path?'
+  return 'Could I get your perspective on this?'
 }
 
 function askRequestHref(userId: string, askType: string, intent: string | undefined) {

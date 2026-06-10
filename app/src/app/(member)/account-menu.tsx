@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
+import { avatarColorClasses, cn } from '@/lib/utils'
 import { signOut } from '../(auth)/sign-in/actions'
 
 type Props = {
@@ -19,26 +19,10 @@ type Props = {
   avatarUrl: string | null
 }
 
-function getStableBgColor(name: string | null) {
-  if (!name) return 'bg-muted-foreground text-background'
-  const colors = [
-    'bg-accent-rust text-background',
-    'bg-accent-sage text-background',
-    'bg-accent-plum text-background',
-    'bg-accent-ochre text-background',
-    'bg-primary text-primary-foreground',
-    'bg-muted-foreground text-background',
-  ]
-  let sum = 0
-  for (let i = 0; i < name.length; i++) {
-    sum += name.charCodeAt(i)
-  }
-  return colors[sum % colors.length]
-}
-
 export function AccountMenu({ userId, name, avatarUrl }: Props) {
   const initial = (name ?? '?').slice(0, 1).toUpperCase()
-  const fallbackColorClass = getStableBgColor(name)
+  // Seeded on userId so the viewer's color matches their avatar everywhere.
+  const fallbackColorClass = avatarColorClasses(userId)
 
   return (
     <DropdownMenu>

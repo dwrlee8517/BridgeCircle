@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/db/client'
+import { avatarColorClasses } from '@/lib/utils'
 import {
   acceptAskFromInboxAction,
   declineAskFromInboxAction,
@@ -319,7 +320,7 @@ export function InboxContainer({
               Inbox
             </h1>
             <p className="mt-0.5 text-sm leading-tight text-muted-foreground">
-              Conversations first, requests clearly separated.
+              Your conversations and requests, in one place.
             </p>
           </div>
         </div>
@@ -641,8 +642,7 @@ function InboxRow({
           <Avatar className="size-[34px]">
             {item.avatarUrl ? <AvatarImage src={item.avatarUrl} alt={item.title} /> : null}
             <AvatarFallback
-              className="font-heading text-xs font-semibold text-white"
-              style={{ backgroundColor: getAvatarColor(item.title) }}
+              className={`font-heading text-xs font-semibold ${avatarColorClasses(item.title)}`}
             >
               {getInitials(item.title)}
             </AvatarFallback>
@@ -678,9 +678,6 @@ function InboxRow({
             >
               {sectionLabel}
             </span>
-            <StatusBadge tone={item.badgeTone} size="sm">
-              {item.badge}
-            </StatusBadge>
             {item.cohort ? (
               <span className="font-mono text-xs text-muted-foreground">
                 &apos;{String(item.cohort).slice(-2)}
@@ -802,6 +799,7 @@ function InboxDetailPane({
                 ? (item.originalData as DmData).isStillFriends
                 : (item.originalData as ThreadData).status === 'active'
             }
+            composerLockedReason={composerLockedReason(item)}
             reactionsMap={reactionsMap}
             toggleReaction={toggleReaction}
           />
@@ -830,6 +828,22 @@ function InboxDetailPane({
   )
 }
 
+/**
+ * Why the composer is locked, in the coordinator's voice. Shown in place of
+ * the composer; explains the gate instead of just refusing.
+ */
+function composerLockedReason(item: InboxItem): string {
+  const first = item.title.split(' ')[0] || item.title
+  if (item.type === 'dm_thread') {
+    return `You and ${first} aren't connected yet. Messages open once you're friends.`
+  }
+  const status = (item.originalData as ThreadData).status
+  if (status === 'pending') {
+    return `This thread opens when ${first} accepts your request.`
+  }
+  return 'This thread has ended — it stays here for reference.'
+}
+
 function DetailActionSummary({ item, currentUser }: { item: InboxItem; currentUser: CurrentUser }) {
   const summary = detailActionCopy(item, currentUser.userId)
   const section = getItemSection(item)
@@ -842,9 +856,7 @@ function DetailActionSummary({ item, currentUser }: { item: InboxItem; currentUs
         borderLeftWidth: 3,
       }}
     >
-      <p className="font-mono text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
-        {summary.kicker}
-      </p>
+      <p className="bc-card-label">{summary.kicker}</p>
       <h3 className="mt-2 font-heading text-xl font-semibold leading-tight tracking-normal text-foreground">
         {summary.title}
       </h3>
@@ -896,8 +908,9 @@ function DetailSummary({
           />
         ) : null}
         <AvatarFallback
-          className={`font-heading font-semibold text-white ${square ? 'rounded-md' : ''}`}
-          style={{ backgroundColor: getAvatarColor(item.title) }}
+          className={`font-heading font-semibold ${avatarColorClasses(item.title)} ${
+            square ? 'rounded-md' : ''
+          }`}
         >
           {getInitials(item.title)}
         </AvatarFallback>
@@ -911,9 +924,6 @@ function DetailSummary({
           >
             {item.title}
           </h2>
-          <StatusBadge tone={item.badgeTone} dot={item.unread}>
-            {item.badge}
-          </StatusBadge>
         </div>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
           {detailMeta(item, currentUser.userId)}
@@ -1179,7 +1189,7 @@ function detailActionCopy(item: InboxItem, viewerId: string) {
     return {
       kicker: 'Needs your response',
       title: `${item.title} wants to connect`,
-      body: 'Accept to open a direct relationship thread, or decline if this connection is not useful right now.',
+      body: "Accepting opens messages between you. Not ready? That's fine — declining is private.",
     }
   }
 
@@ -1383,17 +1393,17 @@ function FriendRequestDetail({
     <div className="space-y-5">
       <div className="space-y-1.5">
         <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {isOutgoing ? 'Sent Connection Request' : 'Incoming Connection Request'}
+          {isOutgoing ? 'Sent connection request' : 'Incoming connection request'}
         </h4>
         <h3 className="font-heading text-lg font-semibold text-foreground">
-          {isOutgoing ? 'Waiting for Response' : 'Wants to Connect'}
+          {isOutgoing ? 'Waiting for response' : 'Wants to connect'}
         </h3>
       </div>
 
       {request.message && (
         <div className="space-y-2">
           <h5 className="font-sans text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-            Personal Note
+            Personal note
           </h5>
           <p className="border-l-[3px] border-l-primary pl-3 text-sm italic leading-relaxed text-foreground">
             &ldquo;{request.message}&rdquo;
@@ -1404,11 +1414,14 @@ function FriendRequestDetail({
       <div className="border-t border-border pt-4">
         {isOutgoing ? (
           <Button asChild variant="outline">
-            <Link href={`/profile/${request.otherUserId}`}>View Profile</Link>
+            <Link href={`/profile/${request.otherUserId}`}>View profile</Link>
           </Button>
         ) : (
           <div className="space-y-2">
-            <FriendRequestActions requestId={request.requestId} />
+            <FriendRequestActions
+              requestId={request.requestId}
+              requesterFirstName={request.name?.split(' ')[0] ?? null}
+            />
           </div>
         )}
       </div>
@@ -1560,6 +1573,7 @@ function InlineConversation({
   viewerName,
   viewerAvatarUrl,
   composerEnabled,
+  composerLockedReason,
   reactionsMap,
   toggleReaction,
 }: {
@@ -1571,11 +1585,13 @@ function InlineConversation({
   viewerName?: string | null
   viewerAvatarUrl?: string | null
   composerEnabled: boolean
+  composerLockedReason?: string
   reactionsMap: Record<string, string[]>
   toggleReaction: (messageId: string, reaction: string) => void
 }) {
   const [messages, setMessages] = useState<MessageType[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState(false)
   const [activePickerId, setActivePickerId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const [formKey, setFormKey] = useState(0)
@@ -1590,6 +1606,7 @@ function InlineConversation({
 
     async function loadMessages() {
       setLoading(true)
+      setLoadError(false)
       const expectedType = threadType === 'direct' ? 'direct' : 'ask'
       const { data, error } = await supabase
         .from('messages')
@@ -1610,6 +1627,10 @@ function InlineConversation({
               readAt: m.read_at,
             })),
           )
+        } else if (error) {
+          // Never render "No messages yet" over a fetch failure — that lies
+          // to the member about the state of the conversation.
+          setLoadError(true)
         }
       }
     }
@@ -1729,10 +1750,21 @@ function InlineConversation({
             </svg>
             <p className="font-mono text-xs uppercase tracking-[0.08em]">Loading conversation...</p>
           </div>
+        ) : loadError ? (
+          <div className="flex h-full flex-col items-center justify-center text-muted-foreground/60">
+            <p className="text-xs font-semibold text-foreground">
+              We couldn&apos;t load this conversation
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">Refresh the page to try again.</p>
+          </div>
         ) : messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center text-muted-foreground/60">
             <p className="text-xs font-semibold text-foreground">No messages yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">Say hello to start the discussion.</p>
+            {composerEnabled ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Say hello to start the discussion.
+              </p>
+            ) : null}
           </div>
         ) : (
           messages.map((m, idx) => {
@@ -1757,8 +1789,7 @@ function InlineConversation({
                     <Avatar className="size-7 shrink-0">
                       {avatarUrl ? <AvatarImage src={avatarUrl} alt={title} /> : null}
                       <AvatarFallback
-                        className="font-heading text-xs font-semibold text-white"
-                        style={{ backgroundColor: getAvatarColor(title) }}
+                        className={`font-heading text-xs font-semibold ${avatarColorClasses(title)}`}
                       >
                         {title.slice(0, 1).toUpperCase()}
                       </AvatarFallback>
@@ -1804,8 +1835,9 @@ function InlineConversation({
                         <AvatarImage src={viewerAvatarUrl} alt={viewerName ?? 'You'} />
                       ) : null}
                       <AvatarFallback
-                        className="font-heading text-xs font-semibold text-white"
-                        style={{ backgroundColor: getAvatarColor(viewerName ?? 'You') }}
+                        className={`font-heading text-xs font-semibold ${avatarColorClasses(
+                          viewerName ?? 'You',
+                        )}`}
                       >
                         {(viewerName ?? 'You').slice(0, 1).toUpperCase()}
                       </AvatarFallback>
@@ -1919,8 +1951,8 @@ function InlineConversation({
             </Button>
           </form>
         ) : (
-          <div className="text-xs text-muted-foreground text-center py-2 italic">
-            You cannot send messages to this thread right now.
+          <div className="text-xs text-muted-foreground text-center py-2">
+            {composerLockedReason ?? 'This thread is read-only right now.'}
           </div>
         )}
         {state && !state.ok && (
@@ -1941,18 +1973,6 @@ function formatGroupedDate(iso: string): string {
   if (isToday(d)) return 'Today'
   if (isYesterday(d)) return 'Yesterday'
   return format(d, 'MMMM d, yyyy')
-}
-
-function getAvatarColor(name: string): string {
-  const palette = [
-    'var(--primary)',
-    'var(--action-offer)',
-    'var(--accent-ochre)',
-    'var(--accent-plum)',
-    'var(--muted-foreground)',
-  ]
-  const seed = Array.from(name).reduce((sum, char) => sum + char.charCodeAt(0), 0)
-  return palette[seed % palette.length]
 }
 
 function formatInboxDate(dateStr: string | null | undefined): string {

@@ -4,6 +4,7 @@ import {
   CalendarDays,
   CalendarPlus,
   Clock3,
+  ExternalLink,
   MapPin,
   PencilLine,
   Ticket,
@@ -13,6 +14,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { EventTime } from '@/components/ui/event-time'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getEvent } from '@/lib/events/getEvent'
@@ -70,7 +72,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
         <Link
           href="/events"
-          className="inline-flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5" strokeWidth={1.8} />
           All events
@@ -109,7 +111,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 <EventFact
                   icon={Clock3}
                   label="When"
-                  value={format(starts, 'h:mm a')}
+                  value={<EventTime iso={event.startsAt} pattern="h:mm a" withZone />}
                   sub={format(starts, 'EEEE · MMM d, yyyy')}
                 />
                 <EventFact
@@ -183,10 +185,19 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                   </p>
                 </div>
                 <div className="rounded-md border border-border bg-background p-4">
-                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                    Coordinates
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-foreground">{meta.coordinates}</p>
+                  <p className="bc-card-label">Getting there</p>
+                  <Button asChild variant="outline" size="sm" className="mt-3 w-full rounded-md">
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(
+                        [event.location, meta.street, meta.cityZip].filter(Boolean).join(', '),
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Get directions
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  </Button>
                 </div>
               </div>
             </section>
@@ -211,7 +222,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 <h2 className="font-heading text-xl font-semibold text-foreground">More events</h2>
                 <Link
                   href="/events"
-                  className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground"
+                  className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground"
                 >
                   View all
                 </Link>
@@ -271,9 +282,12 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
               </div>
 
               <dl className="mt-5 space-y-3 border-t border-dashed border-border pt-5">
+                {/* Seats intentionally omitted — the meter above already says it. */}
                 <SpecLine label="Format" value={eventFormat(event.location)} />
-                <SpecLine label="Seats" value={capacityLabel} />
-                <SpecLine label="Starts" value={format(starts, 'h:mm a')} />
+                <SpecLine
+                  label="Starts"
+                  value={<EventTime iso={event.startsAt} pattern="h:mm a" withZone />}
+                />
               </dl>
             </div>
           </aside>
@@ -311,13 +325,13 @@ function EventFact({
 }: {
   icon: typeof Clock3
   label: string
-  value: string
+  value: React.ReactNode
   sub: string
   last?: boolean
 }) {
   return (
     <div className={cn('p-4', !last && 'border-b border-border sm:border-b-0 sm:border-r')}>
-      <div className="flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         <Icon className="size-3.5" strokeWidth={1.7} />
         {label}
       </div>
@@ -340,7 +354,7 @@ function EventStatus({
 }) {
   if (isPast) {
     return (
-      <span className="rounded-sm border border-border bg-background px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <span className="rounded-sm border border-border bg-background px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         Past event
       </span>
     )
@@ -362,7 +376,7 @@ function EventStatus({
 
 function SectionLabel({ icon: Icon, children }: { icon: typeof Ticket; children: string }) {
   return (
-    <div className="flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
       <Icon className="size-4" strokeWidth={1.7} />
       {children}
     </div>
@@ -388,11 +402,13 @@ function CapacityMeter({
   return (
     <div className="mt-5 border-t border-border pt-5">
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <span className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-          {event.capacity === null ? 'Open capacity' : `${spotsLeft} spots left`}
+        <span className="text-xs font-semibold text-muted-foreground">
+          {event.capacity === null
+            ? `${event.goingCount} going · open capacity`
+            : `${event.goingCount} going · ${spotsLeft} ${spotsLeft === 1 ? 'seat' : 'seats'} open`}
         </span>
         <span className="font-mono text-xs text-muted-foreground">
-          {event.capacity ? `${event.goingCount} / ${event.capacity}` : `${event.goingCount} going`}
+          {event.capacity ? `${event.goingCount} / ${event.capacity}` : null}
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-surface-panel">
@@ -527,10 +543,10 @@ function RelatedEventsSection({
   )
 }
 
-function SpecLine({ label, value }: { label: string; value: string }) {
+function SpecLine({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </dt>
       <dd className="text-right text-sm font-medium text-foreground">{value}</dd>

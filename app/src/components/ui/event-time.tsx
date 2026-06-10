@@ -18,10 +18,17 @@ export function EventTime({
   iso,
   pattern = 'EEE, MMM d · h:mm a',
   fallback,
+  withZone = false,
 }: {
   iso: string
   pattern?: string
   fallback?: string
+  /**
+   * Append the viewer's short timezone ("PT", "KST"). Use on event times —
+   * the community spans Palos Verdes and Songdo, so a bare clock time is
+   * ambiguous (voice guidelines § format rules).
+   */
+  withZone?: boolean
 }) {
   const mounted = useSyncExternalStore(
     subscribeAfterHydration,
@@ -33,7 +40,17 @@ export function EventTime({
     return <span suppressHydrationWarning>{fallback ?? iso}</span>
   }
 
-  return <span suppressHydrationWarning>{format(new Date(iso), pattern)}</span>
+  const date = new Date(iso)
+  // Voice format rule: lowercase meridiem with no space — "6:00pm", not "6:00 PM".
+  const text = format(date, pattern).replace(/\s(AM|PM)\b/g, (_, m: string) => m.toLowerCase())
+  return <span suppressHydrationWarning>{withZone ? `${text} ${shortZone(date)}` : text}</span>
+}
+
+function shortZone(date: Date): string {
+  const part = new Intl.DateTimeFormat(undefined, { timeZoneName: 'short' })
+    .formatToParts(date)
+    .find((p) => p.type === 'timeZoneName')
+  return part?.value ?? ''
 }
 
 function subscribeAfterHydration(onStoreChange: () => void) {

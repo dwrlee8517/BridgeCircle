@@ -6,7 +6,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { avatarColorClasses, cn } from '@/lib/utils'
 
 export type HelpAvailability = {
   openToAdvice: boolean
@@ -15,7 +15,6 @@ export type HelpAvailability = {
   maxMentees: number
   topics: string[]
   paused: boolean
-  responseRate: number
 }
 
 export type HelpSubject = {
@@ -37,8 +36,12 @@ export type HelpPick = {
   subject: string
   subjectId: string
   subjectColor: string
-  fit: number
   mode: 'advice' | 'mentorship'
+  /**
+   * True when `need` is the member's own words (renders quoted). System
+   * suggestions render unquoted — the product never fabricates member speech.
+   */
+  isRealAsk: boolean
   need: string
   why: string[]
   posted: string
@@ -79,7 +82,9 @@ export function HelpClient({
   const moreFeaturedPicks = filteredPicks.filter((pick) => pick.id !== nextPick?.id).slice(0, 6)
 
   return (
-    <main className="min-h-screen bg-background">
+    // The route layout owns the page <main>; keep this a <div> so landmarks
+    // don't nest.
+    <div className="min-h-screen bg-background">
       <section
         className="border-b border-border"
         style={{
@@ -162,9 +167,9 @@ export function HelpClient({
             <div className="flex min-w-0 flex-col gap-[18px]">
               <div className="flex items-baseline justify-between gap-3 pt-1">
                 <p className="font-heading text-[13px] font-semibold uppercase tracking-[0.08em] text-foreground">
-                  Matched asks and introductions
+                  People you could help
                 </p>
-                <span className="text-xs text-muted-foreground">Sorted by AI fit</span>
+                <span className="text-xs text-muted-foreground">Suggested first</span>
               </div>
               <div className="flex flex-col gap-2.5">
                 {moreFeaturedPicks.length > 0 ? (
@@ -195,7 +200,7 @@ export function HelpClient({
                     </em>{' '}
                     recently
                   </p>
-                  <span className="shrink-0 text-xs text-muted-foreground">Sorted by AI fit</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">Suggested first</span>
                 </div>
                 {filteredPicks.length > 0 ? (
                   filteredPicks.map((pick) => <SubjectFeedRow key={pick.id} pick={pick} />)
@@ -208,7 +213,7 @@ export function HelpClient({
           )}
         </div>
       </section>
-    </main>
+    </div>
   )
 }
 
@@ -366,23 +371,21 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
             </div>
           </div>
 
-          <p className="mt-[18px] font-heading text-lg leading-[1.45] tracking-normal text-foreground">
-            &ldquo;{pick.need}&rdquo;
-          </p>
+          {pick.isRealAsk ? (
+            <p className="mt-[18px] font-heading text-lg leading-[1.45] tracking-normal text-foreground">
+              &ldquo;{pick.need}&rdquo;
+            </p>
+          ) : (
+            <p className="mt-[18px] font-heading text-lg leading-[1.45] tracking-normal text-foreground">
+              {pick.need}
+            </p>
+          )}
 
-          <p className="mt-3.5 flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
-            <Sparkles className="size-[11px] shrink-0" />
-            <span className="italic">{pick.why[0]}</span>
-          </p>
+          <p className="mt-3.5 text-[12.5px] text-muted-foreground">{pick.why[0]}</p>
         </div>
 
         <div className="rounded-md border border-muted bg-background p-4">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
-              Today
-            </p>
-            <FitBadge fit={pick.fit} compact />
-          </div>
+          <p className="bc-card-label">Today</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div>
               <p className="font-heading text-2xl font-semibold leading-none text-foreground">
@@ -396,7 +399,9 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
               <p className="font-heading text-2xl font-semibold leading-none text-foreground">
                 {pick.estReply}
               </p>
-              <p className="mt-1 text-[11.5px] leading-tight text-muted-foreground">useful reply</p>
+              <p className="mt-1 text-[11.5px] leading-tight text-muted-foreground">
+                for a useful reply
+              </p>
             </div>
           </div>
           <div className="mt-4">
@@ -434,7 +439,7 @@ function EmptyNextHelpCard() {
         you.
       </p>
       <Button asChild variant="outline" size="sm" className="mt-4 rounded-md">
-        <Link href="/mentorship/settings">Tune availability</Link>
+        <Link href="/mentorship/settings">Edit availability</Link>
       </Button>
     </div>
   )
@@ -458,11 +463,10 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
           <span className="text-[11.5px] text-muted-foreground">· {pick.role}</span>
         </div>
         <p className="mt-1.5 font-heading text-sm leading-[1.4] tracking-[-0.003em] text-foreground">
-          &ldquo;{pick.need}&rdquo;
+          {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
         </p>
         <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted-foreground">
-          <Sparkles className="size-2.5 shrink-0" />
-          <span className="italic">{pick.why[0]}</span>
+          <span>{pick.why[0]}</span>
           <span className="text-border" aria-hidden>
             ·
           </span>
@@ -470,9 +474,10 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
         </p>
       </div>
       <div className="flex items-center gap-2 min-[761px]:flex-col min-[761px]:items-end">
-        <FitBadge fit={pick.fit} compact />
         <Button asChild variant="outline" size="sm" className="rounded-md">
-          <Link href={pick.href}>{pick.mode === 'mentorship' ? 'Mentor' : 'Help'}</Link>
+          <Link href={pick.href}>
+            {pick.mode === 'mentorship' ? 'Offer mentorship' : 'Offer help'}
+          </Link>
         </Button>
       </div>
     </div>
@@ -498,15 +503,12 @@ function SubjectFeedRow({ pick }: { pick: HelpPick }) {
           <span className="ml-auto font-mono text-[11px] text-muted-foreground">{pick.posted}</span>
         </div>
         <p className="mt-2 text-[13.5px] leading-normal text-foreground">
-          &ldquo;{pick.need}&rdquo;
+          {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
         </p>
         <div className="mt-2.5 flex flex-wrap items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-[11.5px] italic text-primary">
-            <Sparkles className="size-[11px]" />
-            {pick.why[0]}
-          </span>
+          <span className="text-[11.5px] text-primary">{pick.why[0]}</span>
           <span className="text-[11.5px] text-muted-foreground">
-            · {pick.fit}% fit · {pick.estReply}
+            · {pick.estReply} for a useful reply
           </span>
           <div className="flex gap-1.5 min-[761px]:ml-auto">
             <Button
@@ -515,7 +517,7 @@ function SubjectFeedRow({ pick }: { pick: HelpPick }) {
               size="sm"
               className="rounded-md text-muted-foreground"
             >
-              Pass
+              Not now
             </Button>
             <Button asChild variant="offer" size="sm" className="rounded-md">
               <Link href={pick.href}>Offer help</Link>
@@ -528,57 +530,15 @@ function SubjectFeedRow({ pick }: { pick: HelpPick }) {
 }
 
 function SubjectSideRail({ subject }: { subject: HelpSubject }) {
-  const bars = [
-    { id: 'jun-01', value: 2 },
-    { id: 'jun-02', value: 1 },
-    { id: 'jun-03', value: 3 },
-    { id: 'jun-04', value: 1 },
-    { id: 'jun-05', value: 2 },
-    { id: 'jun-06', value: 0 },
-    { id: 'may-01', value: 2 },
-    { id: 'may-02', value: 1 },
-    { id: 'may-03', value: 2 },
-    { id: 'may-04', value: 3 },
-    { id: 'may-05', value: 2 },
-    { id: 'may-06', value: 1 },
-  ]
-
+  // No invented stats here — the previous "Your record" panel charted
+  // hardcoded bars, which breaks the honesty rule. Real history can return
+  // when we have real data to show.
   return (
     <aside className="flex flex-col gap-3.5">
       <div className="rounded-md border border-muted bg-card p-[16px_18px]">
-        <p className="mb-2.5 text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
-          Your record · {subject.label}
-        </p>
-        <p className="font-heading text-[32px] font-semibold" style={{ color: subject.color }}>
-          {subject.helped}
-        </p>
-        <p className="text-[12.5px] text-muted-foreground">people helped this year</p>
-        <div className="mt-4 grid h-10 grid-cols-12 items-end gap-[3px]">
-          {bars.map((bar) => (
-            <div
-              key={`${subject.id}-${bar.id}`}
-              className="rounded-sm"
-              style={{
-                height: `${(bar.value / 3) * 100 || 8}%`,
-                background: bar.value ? subject.color : 'var(--surface-subtle)',
-                opacity: bar.value ? 0.4 + (bar.value / 3) * 0.6 : 1,
-              }}
-            />
-          ))}
-        </div>
-        <div className="mt-1.5 flex justify-between font-mono text-xs text-muted-foreground">
-          <span>Jun</span>
-          <span>May</span>
-        </div>
-      </div>
-
-      <div className="rounded-md border border-muted bg-card p-[16px_18px]">
-        <p className="mb-2.5 text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
-          Tune this channel
-        </p>
+        <p className="bc-card-label mb-2.5">{subject.label} · settings</p>
         <div className="flex flex-col gap-2 text-[13px]">
-          <ToggleRow label="Email me new matches" on />
-          <ToggleRow label="Show low-fit (<70%)" on={false} />
+          <ToggleRow label="Email me new requests" on />
         </div>
         <Button asChild variant="outline" size="sm" className="mt-3.5 w-full rounded-md">
           <Link href="/mentorship/settings">Pause this subject</Link>
@@ -695,36 +655,25 @@ function EmptyHelpCard() {
         We will surface matched asks here as they arrive.
       </p>
       <Button asChild variant="outline" size="sm" className="mt-4 rounded-md">
-        <Link href="/mentorship/settings">Tune availability</Link>
+        <Link href="/mentorship/settings">Edit availability</Link>
       </Button>
     </div>
-  )
-}
-
-function FitBadge({ fit, compact = false }: { fit: number; compact?: boolean }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-full border border-muted bg-background font-bold uppercase tracking-[0.08em] text-muted-foreground',
-        compact ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-xs',
-      )}
-    >
-      <Sparkles className={compact ? 'size-3' : 'size-3'} />
-      {fit}% fit
-    </span>
   )
 }
 
 function HelpAvatar({ pick, size }: { pick: HelpPick; size: number }) {
   return (
     <div
-      className="relative shrink-0 overflow-hidden rounded-md bg-surface-subtle"
+      className={cn(
+        'relative shrink-0 overflow-hidden rounded-md',
+        avatarColorClasses(pick.personId),
+      )}
       style={{ width: size, height: size }}
     >
       {pick.avatarUrl ? (
         <Image src={pick.avatarUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
       ) : (
-        <span className="flex size-full items-center justify-center font-heading text-sm font-semibold text-muted-foreground">
+        <span className="flex size-full items-center justify-center font-heading text-sm font-semibold">
           {initials(pick.name)}
         </span>
       )}

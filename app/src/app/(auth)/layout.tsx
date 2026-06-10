@@ -1,3 +1,5 @@
+import { Wordmark } from '@/components/ui/wordmark'
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[0.9fr_1.1fr]">
@@ -29,13 +31,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </svg>
 
         <div className="relative">
-          <p className="bc-fraunces text-2xl font-bold tracking-[-0.025em]">
-            Bridge<span className="text-primary-on-dark">Circle</span>
-          </p>
+          <Wordmark
+            variant="editorial"
+            withIcon={false}
+            textClassName="text-2xl tracking-[-0.025em]"
+          />
         </div>
         <div className="relative max-w-md">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-on-dark">
-            Verified Alumni Network
+            Verified alumni network
           </p>
           <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-[-0.025em]">
             Build from a circle you already trust.

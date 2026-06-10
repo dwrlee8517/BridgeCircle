@@ -1,8 +1,8 @@
 import { format } from 'date-fns'
 import { Mail } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { LifecycleStatusBadge } from '@/components/ui/status-badge'
 import {
   Table,
   TableBody,
@@ -124,11 +124,7 @@ export default async function AdminInvitePage() {
 }
 
 function StatusBadge({ status }: { status: InviteStatus }) {
-  const variant: Record<InviteStatus, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-    pending: 'secondary',
-    accepted: 'default',
-    expired: 'outline',
-    revoked: 'destructive',
-  }
-  return <Badge variant={variant[status]}>{status}</Badge>
+  // Shared lifecycle mapping — same tone + sentence-case label as every
+  // other status surface (no route-local color maps).
+  return <LifecycleStatusBadge status={status} size="sm" />
 }

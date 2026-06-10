@@ -12,6 +12,8 @@ export type ThreadSummary = {
   lastMessageAt: string | null
   lastMessageFromViewer: boolean
   unreadCount: number
+  /** False when the friendship behind this thread was removed — gates the composer. */
+  isStillFriends: boolean
 }
 
 /**
@@ -39,22 +41,30 @@ export async function listDmThreads(
     new Set(threads.map((t) => (t.user_a_id === viewerId ? t.user_b_id : t.user_a_id))),
   )
 
-  const [{ data: messages, error: mErr }, { data: bases, error: bErr }] = await Promise.all([
-    supabase
-      .from('messages')
-      .select('id, thread_id, sender_id, body, read_at, created_at')
-      .eq('thread_type', 'direct')
-      .in('thread_id', threadIds)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('base_profiles')
-      .select('user_id, name, headline, avatar_url')
-      .in('user_id', otherIds),
-  ])
+  const [{ data: messages, error: mErr }, { data: bases, error: bErr }, { data: friendships }] =
+    await Promise.all([
+      supabase
+        .from('messages')
+        .select('id, thread_id, sender_id, body, read_at, created_at')
+        .eq('thread_type', 'direct')
+        .in('thread_id', threadIds)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('base_profiles')
+        .select('user_id, name, headline, avatar_url')
+        .in('user_id', otherIds),
+      supabase
+        .from('friendships')
+        .select('user_a_id, user_b_id')
+        .or(`user_a_id.eq.${viewerId},user_b_id.eq.${viewerId}`),
+    ])
   if (mErr) throw new Error(`listDmThreads messages: ${mErr.message}`)
   if (bErr) throw new Error(`listDmThreads profiles: ${bErr.message}`)
 
   const baseByUser = new Map((bases ?? []).map((b) => [b.user_id, b]))
+  const friendIds = new Set(
+    (friendships ?? []).map((f) => (f.user_a_id === viewerId ? f.user_b_id : f.user_a_id)),
+  )
 
   // Group messages per thread. They're already ordered DESC, so the first
   // entry per thread is the latest.
@@ -87,6 +97,7 @@ export async function listDmThreads(
       lastMessageAt: last?.createdAt ?? null,
       lastMessageFromViewer: last?.senderId === viewerId,
       unreadCount: unreadByThread.get(t.id) ?? 0,
+      isStillFriends: friendIds.has(otherId),
     }
   })
 

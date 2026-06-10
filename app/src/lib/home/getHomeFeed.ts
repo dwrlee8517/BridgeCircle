@@ -194,12 +194,13 @@ export async function getHomeFeed(
     telemetryMembershipsRes,
     membersForUpdatesRes,
   ] = await Promise.all([
-    // Recent joiners: most recently active members in the org.
+    // Recent joiners: most recently active members in the org, never the viewer.
     supabase
       .from('organization_memberships')
       .select('user_id, joined_at, organization_profiles(graduation_year)')
       .eq('organization_id', organizationId)
       .eq('status', 'active')
+      .neq('user_id', viewerId)
       .not('joined_at', 'is', null)
       .order('joined_at', { ascending: false })
       .limit(6),
@@ -215,6 +216,7 @@ export async function getHomeFeed(
       .is('paused_at', null)
       .eq('organization_memberships.status', 'active')
       .eq('organization_memberships.organization_id', organizationId)
+      .neq('organization_memberships.user_id', viewerId)
       .limit(6),
 
     // Upcoming events: published, starts in the future, soonest first.
@@ -278,6 +280,7 @@ export async function getHomeFeed(
       .select('user_id, organization_profiles(graduation_year)')
       .eq('organization_id', organizationId)
       .eq('status', 'active')
+      .neq('user_id', viewerId)
       .limit(25),
   ])
 
@@ -523,7 +526,8 @@ export async function getHomeFeed(
         joined_at: string | null
         organization_profiles: { graduation_year: number | null } | null
       } | null
-      if (!m) return null
+      // Never suggest the viewer to themselves (defensive double of the query filter).
+      if (!m || m.user_id === viewerId) return null
       const p = profileById.get(m.user_id)
       return {
         userId: m.user_id,

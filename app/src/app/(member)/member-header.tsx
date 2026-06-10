@@ -7,6 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Wordmark } from '@/components/ui/wordmark'
 import type { NotificationRow } from '@/lib/notifications/types'
 import { AccountMenu } from './account-menu'
 import { MemberNav } from './member-nav'
@@ -63,14 +64,8 @@ export function MemberHeader({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Link href="/" className="flex items-center gap-2.5" aria-label="BridgeCircle home">
-          <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" className="shrink-0">
-            <circle cx="11" cy="14" r="9" fill="none" stroke="currentColor" strokeWidth="1.4" />
-            <circle cx="17" cy="14" r="9" fill="none" stroke="var(--primary)" strokeWidth="1.4" />
-          </svg>
-          <span className="bc-fraunces text-lg font-bold leading-none tracking-[-0.02em] text-foreground">
-            BridgeCircle
-          </span>
+        <Link href="/" aria-label="BridgeCircle home">
+          <Wordmark />
         </Link>
 
         {/* Inline nav — visible only when the header is wide enough.  */}

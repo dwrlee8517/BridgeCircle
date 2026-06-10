@@ -73,14 +73,32 @@ only when maintaining an existing primitive API.
 | `action-primary-hover` | `primary-hover` | Hover and pressed primary action |
 | `action-on-primary` | `primary-foreground` | Text or icon on primary fill |
 | `action-on-editorial` | `primary-on-dark` | Electric Sky accent on Midnight editorial surfaces |
-| `cta` | `cta` (amber) | The single highest-stakes action per surface — Send, RSVP, Accept, Ask for advice |
+| `action-offer` | `accent-sage` | Helper-side "give help" actions — Offer mentorship, Accept, You're going. The helper-side mirror of amber; never asker-side, never destructive |
+| `action-offer-hover` | — | Hover state for offer actions |
+| `action-on-offer` | — | Text/icon on offer fill |
+| `cta` | `cta` (amber) | The single social-commitment action per screen — Send, RSVP, Ask for advice |
 | `cta-hover` | `cta-hover` | CTA hover state |
 | `cta-foreground` | `cta-foreground` | Text/icon on amber CTA fill |
 | `link` | `primary` | Inline links and low-emphasis navigation links |
 | `link-hover` | `primary-hover` | Hovered inline links |
 | `focus-ring` | `ring` | Focus border and focus halo source color |
 
-CTA rule: at most one amber CTA per local decision area. If two compete, the product decision is unresolved. In `density-pro` (operator surfaces), `cta` reverts to `primary` because admin contexts have many equal-weight actions and amber would over-claim attention.
+CTA rule: amber appears **at most once per viewport**, on the moment of social
+commitment (composer "Send ask to {first}", profile "Ask for advice", home
+"Find matches", event RSVP). It is **never repeated per-card in a list** —
+multi-card browse surfaces (ask results, people, home suggestion grids) use
+`action-primary` blue for card actions, and search re-run buttons on results
+pages stay blue too. Scarcity is what makes amber mean something. If two amber
+controls compete on one screen, the product decision is unresolved. In
+`density-pro` (operator surfaces), `cta` reverts to `primary` because admin
+contexts have many equal-weight actions.
+
+Offer rule: `action-offer` (sage) is the third action color — helper-side
+"give help" commitments only (Offer mentorship, Accept a request, You're
+going). It mirrors amber's asker-side role across the two-sided exchange and
+is implemented as `Button variant="offer"`. Sage remains a state color
+elsewhere; the action role never applies to asker-side or destructive
+controls.
 
 ### State Roles
 
@@ -224,9 +242,34 @@ Production rules:
   weight, use Inter Tight at a generous size with tight letter-spacing.
 - Italic is reserved for the pull-quote treatment. Body italic is
   acceptable in long-form announcement bodies; avoid it in short cards.
+- **Quotes are sacred.** Quotation marks, the pull-quote rule, and italics
+  appear only around words a human actually wrote (bios, personal notes,
+  real ask text). System-generated rationale renders as plain text under a
+  card label — the product never fabricates member speech.
 - Mono is for metadata that benefits from a fixed-width skeleton (dates,
-  counts, technical IDs). Do not use mono for decorative kickers when a
-  caption-sentence-case label would carry the same orientation.
+  counts, ratios, technical IDs, ledger numerals). Never decorative kickers.
+
+### Label voices
+
+Three label styles, each with exactly one job:
+
+| Voice | Class | Job | Example |
+|---|---|---|---|
+| Page eyebrow | `.bc-section-kicker` | Page-level wayfinding (blue, leading rule) | "Ask", "Help queue", "People search" |
+| Card label | `.bc-card-label` | Section naming inside cards — Inter 12px/600 uppercase, muted ink | "Why they might fit", "Today", "Getting there" |
+| Data | `font-mono` | Fixed-width data only | "sent 12 days ago", "4 / 50", "01–04" |
+
+The decorative-mono kicker pattern (MATCH BRIEF, CAPACITY, COORDINATES…) is
+retired; sweep any reappearance to `.bc-card-label`.
+
+### Avatar colors
+
+Initials fallbacks use a stable generated color via `avatarColorClasses()`
+in `app/src/lib/utils.ts`: hash(userId, or name for display-only rows) → one
+of six verified-contrast tint/ink pairs (sky, sage, plum, ochre, rust on
+tints; Midnight solid). Photo first; gray `surface-panel` avatars are
+retired — with no photos yet, a stable personal color is the card's human
+presence.
 
 ### Size scale
 

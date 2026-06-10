@@ -97,18 +97,21 @@ function dotClass(tone: NonNullable<StatusBadgeProps['tone']>) {
   }
 }
 
+// Labels are sentence case — the one casing rule for status language across
+// member and admin surfaces. Asker-facing surfaces that must soften
+// "Declined" (voice § decline copy) pass their own children instead.
 const lifecycleStatus = {
-  pending: { tone: 'warn', label: 'pending', dot: true },
-  accepted: { tone: 'info', label: 'accepted', dot: true },
-  active: { tone: 'info', label: 'active', dot: true },
-  completed: { tone: 'open', label: 'completed', dot: true },
-  declined: { tone: 'alert', label: 'declined', dot: true },
-  revoked: { tone: 'alert', label: 'revoked', dot: true },
-  expired: { tone: 'muted', label: 'expired', dot: false },
-  paused: { tone: 'warn', label: 'paused', dot: true },
-  unread: { tone: 'warn', label: 'unread', dot: true },
-  disabled: { tone: 'muted', label: 'disabled', dot: false },
-  error: { tone: 'alert', label: 'error', dot: true },
+  pending: { tone: 'warn', label: 'Pending', dot: true },
+  accepted: { tone: 'info', label: 'Accepted', dot: true },
+  active: { tone: 'info', label: 'Active', dot: true },
+  completed: { tone: 'open', label: 'Completed', dot: true },
+  declined: { tone: 'alert', label: 'Declined', dot: true },
+  revoked: { tone: 'alert', label: 'Revoked', dot: true },
+  expired: { tone: 'muted', label: 'Expired', dot: false },
+  paused: { tone: 'warn', label: 'Paused', dot: true },
+  unread: { tone: 'warn', label: 'Unread', dot: true },
+  disabled: { tone: 'muted', label: 'Disabled', dot: false },
+  error: { tone: 'alert', label: 'Error', dot: true },
 } satisfies Record<
   string,
   { tone: NonNullable<StatusBadgeProps['tone']>; label: string; dot: boolean }

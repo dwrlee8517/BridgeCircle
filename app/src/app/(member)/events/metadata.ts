@@ -102,7 +102,7 @@ export function getEventMetadata(title: string): EventMetadata {
 
   if (normalizedTitle.includes('mixer')) {
     return {
-      category: 'LOCAL NETWORK',
+      category: 'Local network',
       tagline: 'Casual evening drinks at the PV campus with structured advisory discussions.',
       preparations: [
         'Bring business cards or digital profile QR code',
@@ -128,7 +128,7 @@ export function getEventMetadata(title: string): EventMetadata {
   }
   if (normalizedTitle.includes('coffee')) {
     return {
-      category: 'LOCAL NETWORK',
+      category: 'Local network',
       tagline: 'Saturday morning coffee meetup for Chadwick International alumni in Seoul.',
       preparations: [
         'Confirm RSVP 24 hours prior due to space limits',
@@ -150,7 +150,7 @@ export function getEventMetadata(title: string): EventMetadata {
   }
   if (normalizedTitle.includes('roundtable') || normalizedTitle.includes('tech')) {
     return {
-      category: 'TECH & PRODUCT',
+      category: 'Tech & product',
       tagline: 'A focused roundtable for alumni working across product, engineering, and design.',
       preparations: [
         'Bring one current project, team challenge, or hiring question',
@@ -180,7 +180,7 @@ export function getEventMetadata(title: string): EventMetadata {
     normalizedTitle.includes('holiday')
   ) {
     return {
-      category: 'COMMUNITY NETWORK',
+      category: 'Community network',
       tagline: 'Our annual end-of-year dinner celebration for local alumni.',
       preparations: [
         'Semiformality: Jacket recommended, no tie required',
@@ -210,7 +210,7 @@ export function getEventMetadata(title: string): EventMetadata {
     normalizedTitle.includes('panel')
   ) {
     return {
-      category: 'MENTORSHIP',
+      category: 'Mentorship',
       tagline:
         'Moderated conversation with Chadwick alumni in media, art direction, photography, and design.',
       preparations: [
@@ -238,7 +238,7 @@ export function getEventMetadata(title: string): EventMetadata {
 
   // Fallback
   return {
-    category: 'GATHERING',
+    category: 'Gathering',
     tagline: 'A community gathering for BridgeCircle members.',
     preparations: [
       'Bring your community profile on the BridgeCircle mobile app',

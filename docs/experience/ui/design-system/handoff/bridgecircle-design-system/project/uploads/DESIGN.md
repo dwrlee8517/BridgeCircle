@@ -201,8 +201,10 @@ components:
     rounded: "{rounded.full}"
     padding: 2px 8px
   avatar:
-    backgroundColor: "{colors.surface-panel}"
-    textColor: "{colors.on-surface}"
+    # Initials fallback uses a stable generated tint/ink pair (see § Avatars);
+    # surface-panel gray is only the loading placeholder.
+    backgroundColor: generated
+    textColor: generated
     rounded: "{rounded.full}"
     size: 40px
 ---
@@ -329,7 +331,11 @@ Use `Dialog` for confirmation, explanation, and focused secondary tasks. Keep co
 
 ### Avatars
 
-40px default, full radius, photo first. Initials fallback uses `font-heading` (Inter Tight) at the matching size with a stable generated background color.
+40px default, full radius, photo first. Initials fallback uses `font-heading` (Inter Tight) at the matching size with a stable generated background color — implemented as `avatarColorClasses(userId)` in `app/src/lib/utils.ts`: six verified-contrast tint/ink pairs (sky, sage, plum, ochre, rust tints + Midnight solid). Seed on userId when available so a member's color never changes. Flat gray fallbacks are off-contract.
+
+### Midnight hero recipe
+
+One editorial "cover" moment per page, on Midnight only: `surface-editorial` canvas, `surface-editorial-foreground` ink, `primary-on-dark` accents, `editorial-rule` borders, oversized Inter Tight focal type (e.g. the event date block). Category or status colors appear only as small chip dots — never as the canvas, never as a gradient. The overlapping-circles brand motif is permitted **only** on Midnight surfaces (auth panel, featured-event hero) at low opacity; constellation/network-node decoration is off-brand everywhere.
 
 ## Do's and Don'ts
 

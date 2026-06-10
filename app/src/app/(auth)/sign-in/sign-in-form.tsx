@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -21,9 +22,7 @@ export function SignInForm({
   return (
     <Card className="text-base shadow-card-hover">
       <CardHeader className="pt-7 pb-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-          BridgeCircle
-        </p>
+        {/* No mini-wordmark kicker — the auth panel already carries the lockup. */}
         <CardTitle className="font-heading text-3xl font-bold tracking-[-0.02em]">
           Welcome back
         </CardTitle>
@@ -69,9 +68,17 @@ export function SignInForm({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-sm">
-              Password
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password" className="text-sm">
+                Password
+              </Label>
+              <Link
+                href="/reset-password"
+                className="text-xs font-medium text-link hover:text-link-hover"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               name="password"
@@ -86,6 +93,10 @@ export function SignInForm({
             {pending ? 'Signing in…' : 'Sign in'}
           </Button>
         </form>
+
+        <p className="border-t border-border pt-4 text-center text-xs leading-relaxed text-muted-foreground">
+          New here? BridgeCircle is invite-only — your school sends the invitation email.
+        </p>
       </CardContent>
     </Card>
   )

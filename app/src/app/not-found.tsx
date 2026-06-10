@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Wordmark } from '@/components/ui/wordmark'
 
 // Renders inside the root layout (no member header, no auth shell), so this
 // page has to be self-contained: wordmark + headline + recovery links. Both
@@ -9,9 +10,7 @@ export default function NotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-6 py-12 text-center">
       <Link href="/" className="mb-10" aria-label="BridgeCircle home">
-        <span className="bc-fraunces text-2xl font-bold tracking-[-0.025em] text-foreground">
-          Bridge<span className="text-primary">Circle</span>
-        </span>
+        <Wordmark withIcon={false} textClassName="text-2xl tracking-[-0.025em]" />
       </Link>
 
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -21,7 +20,7 @@ export default function NotFound() {
         That page isn&rsquo;t in the circle.
       </h1>
       <p className="mt-4 max-w-md text-base text-muted-foreground">
-        The link may be old, or the page may have moved during a recent reorg.
+        The link may be old, or the page may have moved.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

@@ -44,15 +44,19 @@ export default async function AskPage({
                 People who can help with this ask
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                BridgeCircle found matches for the question you are trying to answer.
+                Here&rsquo;s who might help, and why they fit.
               </p>
             </div>
 
-            <AskBar defaultValue={query} />
+            {/* Re-running a search is not the social-commitment moment — amber
+                stays off browse surfaces so the cards' actions read first. */}
+            <AskBar defaultValue={query} submitVariant="default" />
 
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className="rounded-full border border-border bg-card px-3 py-1.5 font-mono">
-                {results.resultCount.toLocaleString()} matches
+                {results.resultCount === 1
+                  ? '1 match'
+                  : `${results.resultCount.toLocaleString()} matches`}
               </span>
               <span className="rounded-full border border-border bg-card px-3 py-1.5 font-mono">
                 {results.openCount.toLocaleString()} open to help
@@ -123,7 +127,8 @@ function AskStarter() {
                 Start with what you are trying to figure out.
               </h1>
               <p className="mt-3 max-w-2xl text-[17px] leading-[1.55] text-muted-foreground">
-                The strongest BridgeCircle paths begin with a real question, not a blank directory.
+                Tell us what you&rsquo;re working through — we&rsquo;ll find people who&rsquo;ve
+                been there.
               </p>
             </div>
 
@@ -134,8 +139,8 @@ function AskStarter() {
 
       <section className="mx-auto max-w-5xl px-4 py-8 sm:px-8">
         <div className="grid gap-3 sm:grid-cols-3">
-          <StarterAsk href="/ask?nl=I%20am%20thinking%20about%20product%20management">
-            I am thinking about product management
+          <StarterAsk href="/ask?nl=I%27m%20thinking%20about%20product%20management">
+            I&rsquo;m thinking about product management
           </StarterAsk>
           <StarterAsk href="/ask?nl=I%20want%20to%20understand%20founder%20paths">
             I want to understand founder paths
@@ -166,12 +171,14 @@ function StarterAsk({ href, children }: { href: string; children: React.ReactNod
 function AskEmptyResults({ query, poolSize }: { query: string; poolSize: number }) {
   const body =
     poolSize === 0
-      ? 'No one matched the constraints extracted from this ask.'
-      : 'The pool was narrowed, but no candidate scored highly enough for this ask.'
+      ? "We don't have many alumni in this area yet. Try widening the question, or browse People."
+      : 'No one was a clear fit for this question. Try rephrasing it, or browse People.'
 
   return (
     <div className="rounded-md border border-border bg-card p-8 text-center shadow-card">
-      <p className="font-heading text-lg font-semibold text-foreground">No matches surfaced yet</p>
+      <p className="font-heading text-lg font-semibold text-foreground">
+        We didn&rsquo;t find a match this time
+      </p>
       <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{body}</p>
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <Button asChild variant="outline" size="sm" className="rounded-md">

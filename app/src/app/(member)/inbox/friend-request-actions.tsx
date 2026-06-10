@@ -9,7 +9,13 @@ import { type FriendActionState, respondToFriendRequestAction } from './friendsh
  * inline status message reflects which action the user took. The whole row
  * disables itself while either is pending.
  */
-export function FriendRequestActions({ requestId }: { requestId: string }) {
+export function FriendRequestActions({
+  requestId,
+  requesterFirstName,
+}: {
+  requestId: string
+  requesterFirstName?: string | null
+}) {
   const [acceptState, acceptDispatch, acceptPending] = useActionState<
     FriendActionState | null,
     FormData
@@ -37,10 +43,14 @@ export function FriendRequestActions({ requestId }: { requestId: string }) {
           <input type="hidden" name="requestId" value={requestId} />
           <input type="hidden" name="response" value="decline" />
           <Button type="submit" size="sm" variant="outline" disabled={pending}>
-            {declinePending ? 'Declining…' : 'Decline'}
+            {declinePending ? 'Declining…' : 'Not this time'}
           </Button>
         </form>
       </div>
+      <p className="text-xs text-muted-foreground">
+        {/* Decline never notifies — verified in lib/friendship/respondToFriendRequest. */}
+        {`Declining is private — ${requesterFirstName ?? 'they'} won't be notified.`}
+      </p>
       {message ? (
         <p className={`text-xs ${ok ? 'text-accent-sage' : 'text-destructive'}`}>{message}</p>
       ) : null}

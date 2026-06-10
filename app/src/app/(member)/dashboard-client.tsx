@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { EventTime } from '@/components/ui/event-time'
 import { StatusBadge } from '@/components/ui/status-badge'
 import type { HomeEvent, HomeFeed, HomeRecentAsk } from '@/lib/home/getHomeFeed'
-import { displayName } from '@/lib/utils'
+import { avatarColorClasses, displayName } from '@/lib/utils'
 import { AskBar, type HelpNetworkPerson } from './help-network-ui'
 
 interface DashboardClientProps {
@@ -30,11 +30,13 @@ export default function DashboardClient({
   const cohortLabel = cohortYear ? `Class of '${String(cohortYear).slice(-2)}` : null
 
   return (
-    <main className="min-h-screen bg-background">
+    // The route layout already renders the page <main>; this wrapper must stay
+    // a <div> so the home route doesn't nest main landmarks.
+    <div className="min-h-screen bg-background">
       <HomeAnnouncementStrip announcement={feed.latestAnnouncement} event={featuredEvent} />
 
-      <section className="bc-page-band relative overflow-hidden border-b border-border">
-        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-7 px-4 py-12 text-center min-[761px]:px-8 min-[761px]:py-20">
+      <section className="bc-page-band relative overflow-hidden">
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-10 text-center min-[761px]:px-8 min-[761px]:py-14">
           <div className="flex w-full max-w-[820px] flex-col items-center gap-6">
             <div className="space-y-3">
               <div className="bc-section-kicker justify-center">
@@ -72,15 +74,15 @@ export default function DashboardClient({
             </div>
           ) : (
             <EmptyPanel
-              title="No open helpers surfaced yet"
-              body="Update your profile and try People search while the first helper supply is seeded."
+              title="No one to suggest just yet"
+              body="As more alumni join and open up to helping, they'll show up here. In the meantime, browse People to find someone yourself."
               href="/people"
-              cta="Explore people"
+              cta="Browse people"
             />
           )}
         </div>
       </section>
-    </main>
+    </div>
   )
 }
 
@@ -127,7 +129,7 @@ function HomeAnnouncementStrip({
     >
       <span className="flex min-w-0 items-center gap-2.5">
         <Send className="size-3.5 shrink-0 text-primary" />
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.10em] text-primary">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
           {label}
         </span>
         <span className="min-w-0 truncate font-medium text-foreground">{title}</span>
@@ -190,11 +192,13 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
       data-interactive="true"
     >
       <div className="flex flex-1 gap-3">
-        <div className="relative size-[52px] shrink-0 overflow-hidden rounded-full bg-surface-subtle">
+        <div
+          className={`relative size-[52px] shrink-0 overflow-hidden rounded-full ${avatarColorClasses(person.userId)}`}
+        >
           {person.avatarUrl ? (
             <Image src={person.avatarUrl} alt="" fill sizes="52px" className="object-cover" />
           ) : (
-            <span className="flex size-full items-center justify-center font-heading text-base font-semibold text-muted-foreground">
+            <span className="flex size-full items-center justify-center font-heading text-base font-semibold">
               {initials(name)}
             </span>
           )}
@@ -233,12 +237,10 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
 
       {rationale ? (
         <div className="mt-3">
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-[0.08em] text-primary">
-            Match brief
-          </p>
-          <p className="border-l-[3px] border-primary pl-2.5 text-xs italic leading-[1.5] text-foreground">
-            &ldquo;{rationale}&rdquo;
-          </p>
+          <p className="bc-card-label mb-1.5">Why they might fit</p>
+          {/* Plain text on purpose — quotes and the pull-quote rule are reserved
+              for words a human actually wrote. */}
+          <p className="text-xs leading-[1.5] text-muted-foreground">{rationale}</p>
         </div>
       ) : null}
 
@@ -247,7 +249,7 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
           {topics.slice(0, 3).map((topic) => (
             <span
               key={topic}
-              className="inline-flex items-center rounded-sm border border-foreground/15 bg-surface-subtle px-2 py-px font-mono text-xs text-muted-foreground"
+              className="inline-flex items-center rounded-sm bg-surface-subtle px-2 py-px text-xs text-muted-foreground"
             >
               {topic}
             </span>
@@ -281,18 +283,15 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
 }
 
 function buildHomeTopics(person: HelpNetworkPerson) {
-  if (person.mentoringTopics?.length) return person.mentoringTopics
-  return [
-    person.currentTitle ? 'Career advice' : null,
-    person.currentEmployer ? person.currentEmployer : null,
-    person.university ? person.university : null,
-  ].filter(Boolean) as string[]
+  // Topic chips only — employer/university already appear in the card header,
+  // and repeating them as chips was pure noise ("one accent moment per card").
+  return person.mentoringTopics ?? []
 }
 
 function buildHomeRationale(person: HelpNetworkPerson) {
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
-  if (role) return `Their path as ${role} may be useful context.`
-  if (person.university) return `They share school context and are open to helping.`
+  if (role) return `Their path as ${role} could be useful context.`
+  if (person.university) return 'They share school context and are open to helping.'
   return 'They are part of your trusted school circle.'
 }
 
@@ -311,7 +310,9 @@ function initials(name: string) {
  * The dot carries the status hue; the label stays foreground/accent so small
  * text never relies on ochre (which fails contrast below ~12px).
  */
-function YourAsksRail({ asks }: { asks: HomeRecentAsk[] }) {
+function YourAsksRail({ asks: allAsks }: { asks: HomeRecentAsk[] }) {
+  // Cap at 3 so the suggestions section crests the fold; "See all" covers the rest.
+  const asks = allAsks.slice(0, 3)
   const hasAsks = asks.length > 0
 
   return (
@@ -353,11 +354,7 @@ function YourAsksRail({ asks }: { asks: HomeRecentAsk[] }) {
                     {ask.summary}
                   </p>
                   <div className="mt-1 flex items-center gap-1.5">
-                    <span
-                      className={`text-xs font-bold uppercase tracking-[0.08em] ${meta.labelClass}`}
-                    >
-                      {meta.label}
-                    </span>
+                    <span className={`text-xs font-semibold ${meta.labelClass}`}>{meta.label}</span>
                     <span className="font-mono text-xs text-muted-foreground">·</span>
                     <span className="font-mono text-xs text-muted-foreground">{meta.stamp}</span>
                   </div>
@@ -394,7 +391,7 @@ function askStatusMeta(ask: HomeRecentAsk): {
   switch (ask.status) {
     case 'accepted':
       return {
-        label: 'active',
+        label: 'Active',
         dotClass: 'bg-accent-sage',
         labelClass: 'text-accent-sage',
         stamp: ask.respondedAt
@@ -402,22 +399,24 @@ function askStatusMeta(ask: HomeRecentAsk): {
           : ago,
       }
     case 'declined':
+      // Dignified on the asker's side: the rust dot carries the state; the
+      // word "declined" never faces the asker (voice guidelines § decline copy).
       return {
-        label: 'declined',
+        label: 'Not this time',
         dotClass: 'bg-accent-rust',
-        labelClass: 'text-accent-rust',
+        labelClass: 'text-muted-foreground',
         stamp: ago,
       }
     case 'expired':
       return {
-        label: 'expired',
+        label: 'Expired',
         dotClass: 'bg-muted-foreground',
         labelClass: 'text-muted-foreground',
         stamp: ago,
       }
     default:
       return {
-        label: 'pending',
+        label: 'Waiting',
         dotClass: 'bg-accent-ochre',
         labelClass: 'text-foreground',
         stamp: `sent ${ago}`,

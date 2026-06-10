@@ -2,8 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
 // Routes accessible without an authenticated session. Everything else gets
-// bounced to /sign-in?next=<path>.
-const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth']
+// bounced to /sign-in?next=<path>. /reset-password/update is intentionally
+// NOT public — the recovery link signs the user in via /auth/callback first.
+const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password']
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next()
