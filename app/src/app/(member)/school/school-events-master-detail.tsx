@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { useMemo, useState, useTransition } from 'react'
 import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { CirclesMotif } from '@/components/ui/circles-motif'
 import type { EventAttendee } from '@/lib/events/attendeePreviewHelpers'
 import type { EventRow, RsvpStatus } from '@/lib/events/listEvents'
 import { cn, getInitials } from '@/lib/utils'
@@ -198,12 +199,20 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
           </div>
 
           <div className={cn('md:block', mobileDetailOpen ? 'block' : 'hidden')}>
-            <EventSpotlight
-              item={selected}
-              attendees={attendeesByEvent[selected.event.id] ?? []}
-              orgName={orgName}
-              onMobileBack={() => setMobileDetailOpen(false)}
-            />
+            {/* Master-detail pane swap recipe (states-and-motion.md): keyed on
+                the selection so reveal + selection change both animate —
+                slide on mobile, pure fade on desktop. */}
+            <div
+              key={selected.event.id}
+              className="animate-in fade-in slide-in-from-right-2 duration-medium ease-emphasized md:slide-in-from-right-0 md:duration-fast"
+            >
+              <EventSpotlight
+                item={selected}
+                attendees={attendeesByEvent[selected.event.id] ?? []}
+                orgName={orgName}
+                onMobileBack={() => setMobileDetailOpen(false)}
+              />
+            </div>
           </div>
         </div>
       ) : (
@@ -252,7 +261,7 @@ function EventSpotlight({
           gradients, no constellation chrome). The event's category color
           appears only as a small chip dot; Electric Sky carries the accent. */}
       <div className="relative grid gap-6 overflow-hidden bg-surface-midnight px-5 py-6 text-surface-midnight-foreground sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
-        <CirclesMotif />
+        <CirclesMotif className="absolute -right-6 -top-8 h-40 w-60 text-primary-on-dark opacity-[0.18]" />
         <div className="relative min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2.5">
             <span className="inline-flex items-center gap-1.5 rounded border border-editorial-rule bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-surface-midnight-foreground">
@@ -538,24 +547,6 @@ function EventListDateBlock({ starts, accentHex }: { starts: Date; accentHex: st
         {format(starts, 'EEE')}
       </span>
     </span>
-  )
-}
-
-/**
- * The brand's overlapping-circles motif, permitted only on Midnight
- * editorial surfaces (same family as the auth hero). Replaces the old
- * constellation decoration, which read as generic network chrome.
- */
-function CirclesMotif() {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 200 130"
-      className="pointer-events-none absolute -right-6 -top-8 h-40 w-60 stroke-primary-on-dark opacity-[0.18]"
-    >
-      <circle cx="75" cy="65" r="55" fill="none" strokeWidth="1.6" />
-      <circle cx="125" cy="65" r="55" fill="none" strokeWidth="1.6" />
-    </svg>
   )
 }
 

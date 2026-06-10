@@ -485,4 +485,10 @@ should inline these stable values instead of using `var(...)`.
 - Admin tables may be denser, but still use the same tokens and status language.
 - Dark "Midnight editorial" surfaces use `surface-midnight` plus `primary-on-dark`; Midnight is the canvas and Electric Sky remains the blue accent.
 - Do not use Midnight for ordinary cards, tables, sidebars, or dense member workflows.
+- The overlapping-circles motif (`components/ui/circles-motif.tsx`) appears
+  only on Midnight surfaces and inside the shared `EmptyState` component, at
+  low opacity — never as general card decoration.
+- Dark mode is live: `next-themes` applies `.dark` from the OS preference,
+  with a Light/Dark/System override in the account menu. New tokens must be
+  added to both `:root` and `.dark`.
 - Cards should read as decision surfaces, not decoration.

@@ -335,7 +335,7 @@ Use `Dialog` for confirmation, explanation, and focused secondary tasks. Keep co
 
 ### Midnight hero recipe
 
-One editorial "cover" moment per page, on Midnight only: `surface-editorial` canvas, `surface-editorial-foreground` ink, `primary-on-dark` accents, `editorial-rule` borders, oversized Inter Tight focal type (e.g. the event date block). Category or status colors appear only as small chip dots — never as the canvas, never as a gradient. The overlapping-circles brand motif is permitted **only** on Midnight surfaces (auth panel, featured-event hero) at low opacity; constellation/network-node decoration is off-brand everywhere.
+One editorial "cover" moment per page, on Midnight only: `surface-editorial` canvas, `surface-editorial-foreground` ink, `primary-on-dark` accents, `editorial-rule` borders, oversized Inter Tight focal type (e.g. the event date block). Category or status colors appear only as small chip dots — never as the canvas, never as a gradient. The overlapping-circles brand motif (`components/ui/circles-motif.tsx`) is permitted **only** on Midnight surfaces (auth panel, featured-event hero) and inside the shared `EmptyState` component, always at low opacity; it is never general card decoration, and constellation/network-node chrome is off-brand everywhere.
 
 ## Do's and Don'ts
 

@@ -1,7 +1,8 @@
 'use client'
 
-import { LogOut, Settings, UserRound } from 'lucide-react'
+import { LogOut, Monitor, Moon, Settings, Sun, UserRound } from 'lucide-react'
 import Link from 'next/link'
+import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -88,6 +89,8 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="my-1.5" />
+        <ThemeRow />
+        <DropdownMenuSeparator className="my-1.5" />
         <form action={signOut}>
           <DropdownMenuItem
             asChild
@@ -101,5 +104,58 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
         </form>
       </DropdownMenuContent>
     </DropdownMenu>
+  )
+}
+
+const THEME_OPTIONS = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'System', icon: Monitor },
+] as const
+
+/**
+ * Light / Dark / System segmented row. Follows the OS by default
+ * (defaultTheme="system" in the root ThemeProvider); this is the manual
+ * override. Plain buttons with onSelect-preventDefault so picking a theme
+ * doesn't close the menu.
+ */
+function ThemeRow() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <div className="flex items-center justify-between gap-2.5 px-3 py-2">
+      <span className="text-sm text-foreground">Theme</span>
+      <div
+        className="flex rounded-md border border-border bg-secondary p-0.5"
+        role="group"
+        aria-label="Theme"
+      >
+        {THEME_OPTIONS.map((option) => {
+          const Icon = option.icon
+          const active = (theme ?? 'system') === option.value
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={(event) => {
+                event.preventDefault()
+                setTheme(option.value)
+              }}
+              aria-pressed={active}
+              aria-label={option.label}
+              title={option.label}
+              className={cn(
+                'flex size-7 items-center justify-center rounded-sm transition-colors',
+                active
+                  ? 'bg-card text-foreground shadow-card'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              <Icon className="size-3.5" />
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }

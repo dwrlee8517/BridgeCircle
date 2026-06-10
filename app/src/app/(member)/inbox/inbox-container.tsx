@@ -386,20 +386,28 @@ export function InboxContainer({
 
         <section className={`min-h-0 flex-col bg-card ${showDetail ? 'flex' : 'hidden md:flex'}`}>
           {activeItem ? (
-            <InboxDetailPane
-              item={activeItem}
-              currentUser={currentUser}
-              onBack={handleBackToList}
-              backLabel={
-                activeArea === 'requests'
-                  ? 'Requests'
-                  : activeArea === 'history'
-                    ? 'History'
-                    : 'Conversations'
-              }
-              reactionsMap={reactionsMap}
-              toggleReaction={toggleReaction}
-            />
+            // Master-detail pane swap recipe (states-and-motion.md): keyed on
+            // the selection so reveal + selection change both animate — slide
+            // on mobile, pure fade on desktop.
+            <div
+              key={activeItem.id}
+              className="flex min-h-0 flex-1 flex-col animate-in fade-in slide-in-from-right-2 duration-medium ease-emphasized md:slide-in-from-right-0 md:duration-fast"
+            >
+              <InboxDetailPane
+                item={activeItem}
+                currentUser={currentUser}
+                onBack={handleBackToList}
+                backLabel={
+                  activeArea === 'requests'
+                    ? 'Requests'
+                    : activeArea === 'history'
+                      ? 'History'
+                      : 'Conversations'
+                }
+                reactionsMap={reactionsMap}
+                toggleReaction={toggleReaction}
+              />
+            </div>
           ) : (
             <EmptyDetail />
           )}
