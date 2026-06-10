@@ -125,9 +125,8 @@ function ThemeRow() {
   return (
     <div className="flex items-center justify-between gap-2.5 px-3 py-2">
       <span className="text-sm text-foreground">Theme</span>
-      <div
+      <fieldset
         className="flex rounded-md border border-border bg-secondary p-0.5"
-        role="group"
         aria-label="Theme"
       >
         {THEME_OPTIONS.map((option) => {
@@ -155,7 +154,7 @@ function ThemeRow() {
             </button>
           )
         })}
-      </div>
+      </fieldset>
     </div>
   )
 }

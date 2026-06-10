@@ -52,7 +52,7 @@ export async function updatePassword(
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
   if (!userData.user) {
-    redirect('/sign-in?error=' + encodeURIComponent('That reset link expired. Request a new one.'))
+    redirect(`/sign-in?error=${encodeURIComponent('That reset link expired. Request a new one.')}`)
   }
 
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password })
