@@ -58,7 +58,7 @@ export default function CircleMovesToggle({
           </button>
         </div>
 
-        <span className="font-mono text-xs font-bold tracking-[0.14em] uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 shrink-0">
+        <span className="font-mono text-xs font-bold tracking-kicker uppercase text-primary bg-primary/10 px-2 py-0.5 rounded-md inline-flex items-center gap-1.5 shrink-0">
           <span className="size-1 rounded-full bg-current" />
           Circle updates
         </span>
@@ -83,7 +83,7 @@ export default function CircleMovesToggle({
               const content = (
                 <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-start py-3.5 px-3 -mx-3 transition rounded-lg hover:bg-muted/5 dark:hover:bg-muted/10">
                   <div
-                    className={`size-10 rounded-lg border flex items-center justify-center text-[11px] font-mono font-bold shrink-0 ${avatarBg}`}
+                    className={`size-10 rounded-lg border flex items-center justify-center text-kicker font-mono font-bold shrink-0 ${avatarBg}`}
                   >
                     {initials}
                   </div>
@@ -152,7 +152,7 @@ export default function CircleMovesToggle({
               const content = (
                 <div className="grid grid-cols-[auto_1fr_auto] gap-4 items-start py-3.5 px-3 -mx-3 transition rounded-lg hover:bg-muted/5 dark:hover:bg-muted/10">
                   <div
-                    className={`size-10 rounded-lg border flex items-center justify-center text-[11px] font-mono font-bold shrink-0 ${avatarBg}`}
+                    className={`size-10 rounded-lg border flex items-center justify-center text-kicker font-mono font-bold shrink-0 ${avatarBg}`}
                   >
                     {initials}
                   </div>

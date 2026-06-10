@@ -34,7 +34,7 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
     <main className="mx-auto flex min-h-screen max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
       <header className="mb-10 flex items-center justify-between">
         <Link href="/" aria-label="BridgeCircle home" className="inline-flex">
-          <Wordmark withIcon={false} textClassName="text-xl tracking-[-0.025em]" />
+          <Wordmark withIcon={false} textClassName="text-xl tracking-tight" />
         </Link>
         <p className="text-xs font-medium text-muted-foreground">
           Step {step} of {TOTAL_STEPS}
@@ -58,10 +58,10 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
       ) : null}
 
       <section className={step > 1 ? 'mt-4' : 'mt-10'}>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
           {eyebrow}
         </p>
-        <h1 className="font-heading mt-2 text-3xl font-bold tracking-[-0.025em] text-foreground sm:text-4xl">
+        <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {title}
         </h1>
         <div className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{lede}</div>

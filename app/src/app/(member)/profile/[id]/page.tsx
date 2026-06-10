@@ -211,7 +211,7 @@ export default async function ProfileDetailPage({
       {/* Breadcrumb */}
       <Link
         href="/people"
-        className="mb-6 inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground"
+        className="mb-6 inline-flex items-center gap-1.5 font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground transition-colors hover:text-foreground"
       >
         ← People
       </Link>
@@ -291,7 +291,7 @@ export default async function ProfileDetailPage({
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 space-y-1">
-              <h1 className="bc-fraunces text-3xl font-bold tracking-[-0.02em] text-foreground sm:text-4xl">
+              <h1 className="bc-fraunces text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 {displayName(profile.name, profile.preferredName)}
               </h1>
               <div className="text-sm md:text-base text-muted-foreground font-sans">
@@ -336,7 +336,7 @@ export default async function ProfileDetailPage({
           {profile.bio ? (
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   {isSelf ? 'In your own words' : 'In their own words'}
                 </span>
               </div>
@@ -353,7 +353,7 @@ export default async function ProfileDetailPage({
                   kicker — it added noise without orienting the user. Section
                   label uses caption sentence case. */}
               <div className="mb-6">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   Career
                 </span>
               </div>
@@ -399,7 +399,7 @@ export default async function ProfileDetailPage({
           {educationHistory.length > 0 ? (
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-6">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   Education
                 </span>
               </div>
@@ -447,7 +447,7 @@ export default async function ProfileDetailPage({
           {/* Open To Grids */}
           <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
             <div className="mb-4">
-              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                 Open to
               </span>
             </div>
@@ -514,7 +514,7 @@ export default async function ProfileDetailPage({
           {profile.mentoringTopics && profile.mentoringTopics.length > 0 ? (
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   Mentoring Topics
                 </span>
               </div>
@@ -535,7 +535,7 @@ export default async function ProfileDetailPage({
           {profile.skills && profile.skills.length > 0 ? (
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   Skills & Expertise
                 </span>
               </div>
@@ -556,7 +556,7 @@ export default async function ProfileDetailPage({
           {profile.linkedinUrl ? (
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   Links
                 </span>
               </div>
@@ -579,7 +579,7 @@ export default async function ProfileDetailPage({
           {/* Actions panel */}
           <Card className="rounded-md border border-border bg-card p-6 shadow-card">
             <div className="mb-4">
-              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                 Actions
               </span>
             </div>
@@ -618,7 +618,7 @@ export default async function ProfileDetailPage({
           {/* Verification Details */}
           <Card className="rounded-md border border-border bg-card p-6 shadow-card">
             <div className="mb-4">
-              <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                 Verification
               </span>
             </div>
@@ -652,7 +652,7 @@ export default async function ProfileDetailPage({
                 </svg>
               </div>
               <div>
-                <h4 className="font-heading text-[15px] font-bold text-foreground leading-tight">
+                <h4 className="font-heading text-sm font-bold text-foreground leading-tight">
                   Verified Member
                 </h4>
                 <p className="text-xs text-muted-foreground">Registered & verified identity</p>
@@ -692,7 +692,7 @@ export default async function ProfileDetailPage({
           {!isSelf ? (
             <Card className="rounded-md border border-border bg-card p-6 shadow-card">
               <div className="mb-4">
-                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
                   You share
                 </span>
               </div>

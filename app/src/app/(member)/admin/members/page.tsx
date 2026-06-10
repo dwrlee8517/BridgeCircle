@@ -133,7 +133,7 @@ export default async function AdminMembersPage() {
                             )}
                           </Link>
                           {m.isOpenAsMentor ? (
-                            <Pill tone="open" className="ml-2 align-middle text-[10px]" dot>
+                            <Pill tone="open" className="ml-2 align-middle text-xs" dot>
                               mentor
                             </Pill>
                           ) : null}
@@ -225,7 +225,7 @@ function DeletionBadge({
   return (
     <Badge
       variant={overdue ? 'destructive' : 'outline'}
-      className="text-[10px] leading-4"
+      className="text-xs leading-4"
       title={`Initiated by ${initiator}`}
     >
       {label}

@@ -92,13 +92,13 @@ export function HelpClient({
             'linear-gradient(180deg, color-mix(in srgb, var(--card) 60%, transparent), transparent), radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--action-offer) 7%, transparent), transparent 38%), radial-gradient(circle at 82% 100%, color-mix(in srgb, var(--accent-ochre) 5%, transparent), transparent 40%), var(--background)',
         }}
       >
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-12 text-center min-[761px]:px-8 min-[761px]:py-16">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-12 text-center detail:px-8 detail:py-16">
           <div className="max-w-[720px] space-y-3">
             <div className="bc-section-kicker justify-center">Help queue</div>
-            <h1 className="font-heading text-[38px] font-semibold leading-[1.08] tracking-normal text-foreground max-[480px]:text-[31px]">
+            <h1 className="font-heading text-display-lg font-semibold leading-[1.08] tracking-normal text-foreground max-[480px]:text-display-md">
               {waitingCount > 0 ? 'Who should you help next?' : 'Your help queue is clear.'}
             </h1>
-            <p className="mx-auto max-w-[620px] text-[16px] leading-[1.55] text-muted-foreground">
+            <p className="mx-auto max-w-[620px] text-base leading-[1.55] text-muted-foreground">
               {waitingCount > 0
                 ? 'Start with the best matched request, send one useful reply, then browse the rest when you have time.'
                 : 'Keep your availability current so the next useful ask finds you.'}
@@ -118,23 +118,23 @@ export function HelpClient({
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
-        <div className="mb-[18px] flex flex-col gap-4 min-[761px]:flex-row min-[761px]:items-end min-[761px]:justify-between min-[761px]:gap-6">
+        <div className="mb-[18px] flex flex-col gap-4 detail:flex-row detail:items-end detail:justify-between detail:gap-6">
           <div>
-            <h2 className="font-heading text-[22px] font-semibold leading-tight tracking-normal text-foreground">
+            <h2 className="font-heading text-h1 font-semibold leading-tight tracking-normal text-foreground">
               More people you can help
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               Search, browse by subject, or pick another match after the first reply.
             </p>
           </div>
-          <label className="flex w-full items-center gap-2.5 rounded-md border border-border bg-card px-3 py-[9px] min-[761px]:max-w-[360px] min-[761px]:flex-1">
+          <label className="flex w-full items-center gap-2.5 rounded-md border border-border bg-card px-3 py-2.25 detail:max-w-[360px] detail:flex-1">
             <Search className="size-3.5 shrink-0 text-muted-foreground" />
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search by name, role, or topic..."
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] text-foreground outline-none placeholder:text-muted-foreground/60"
+              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-caption text-foreground outline-none placeholder:text-muted-foreground/60"
               aria-label="Search people to help"
             />
           </label>
@@ -145,7 +145,7 @@ export function HelpClient({
             type="button"
             onClick={() => setActive('featured')}
             className={cn(
-              'relative inline-flex items-center gap-2 px-[14px] py-3 pb-3.5 font-heading text-sm font-semibold',
+              'relative inline-flex items-center gap-2 px-3.5 py-3 pb-3.5 font-heading text-sm font-semibold',
               isFeatured ? 'text-foreground' : 'text-muted-foreground',
             )}
           >
@@ -164,9 +164,9 @@ export function HelpClient({
 
         <div className="pt-[22px]">
           {isFeatured ? (
-            <div className="flex min-w-0 flex-col gap-[18px]">
+            <div className="flex min-w-0 flex-col gap-4.5">
               <div className="flex items-baseline justify-between gap-3 pt-1">
-                <p className="font-heading text-[13px] font-semibold uppercase tracking-[0.08em] text-foreground">
+                <p className="font-heading text-caption font-semibold uppercase tracking-label text-foreground">
                   People you could help
                 </p>
                 <span className="text-xs text-muted-foreground">Suggested first</span>
@@ -184,7 +184,7 @@ export function HelpClient({
               </div>
             </div>
           ) : (
-            <div className="grid gap-6 min-[761px]:grid-cols-[minmax(0,1fr)_280px]">
+            <div className="grid gap-6 detail:grid-cols-[minmax(0,1fr)_280px]">
               <div className="flex min-w-0 flex-col gap-3">
                 <div className="mb-0.5 flex items-baseline justify-between gap-3">
                   <p className="text-sm text-muted-foreground">
@@ -230,8 +230,8 @@ function AvailabilityRail({
     : 'Off'
 
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-[14px_16px] shadow-card-hover min-[761px]:flex-row min-[761px]:items-center min-[761px]:gap-5 min-[761px]:p-[14px_18px]">
-      <div className="flex flex-wrap items-center gap-3.5 min-[761px]:gap-5">
+    <div className="flex flex-col gap-3 rounded-md border border-border bg-card px-4 py-3.5 shadow-card-hover detail:flex-row detail:items-center detail:gap-5 detail:px-4.5 py-3.5">
+      <div className="flex flex-wrap items-center gap-3.5 detail:gap-5">
         <AvailabilityStatus
           dot="var(--primary)"
           label="Advice"
@@ -241,20 +241,20 @@ function AvailabilityRail({
         <AvailabilityStatus dot="var(--action-offer)" label="Mentorship" sub={mentorshipSub} mono />
       </div>
 
-      <Divider className="hidden min-[761px]:block" />
-      <div className="h-px w-full bg-muted min-[761px]:hidden" />
+      <Divider className="hidden detail:block" />
+      <div className="h-px w-full bg-muted detail:hidden" />
 
       <div className="min-w-0 flex-1">
         <button
           type="button"
           onClick={() => setTopicsOpen((open) => !open)}
-          className="flex w-full items-center justify-between gap-3 text-left min-[761px]:pointer-events-none"
+          className="flex w-full items-center justify-between gap-3 text-left detail:pointer-events-none"
           aria-expanded={topicsOpen}
         >
-          <span className="text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground min-[761px]:mb-[5px]">
+          <span className="text-kicker font-semibold uppercase tracking-wider text-muted-foreground detail:mb-[5px]">
             Topics you offer · <span className="text-foreground">{subjects.length}</span>
           </span>
-          <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-muted-foreground min-[761px]:hidden">
+          <span className="inline-flex items-center gap-1 text-kicker font-medium text-muted-foreground detail:hidden">
             {topicsOpen ? 'Hide' : 'Show'}
             <ChevronDown
               className={cn('size-3 transition-transform', topicsOpen && 'rotate-180')}
@@ -263,8 +263,8 @@ function AvailabilityRail({
         </button>
         <div
           className={cn(
-            'mt-2 flex flex-wrap gap-1.5 min-[761px]:mt-0 min-[761px]:gap-1',
-            !topicsOpen && 'hidden min-[761px]:flex',
+            'mt-2 flex flex-wrap gap-1.5 detail:mt-0 detail:gap-1',
+            !topicsOpen && 'hidden detail:flex',
           )}
         >
           {subjects.map((subject) => (
@@ -275,12 +275,12 @@ function AvailabilityRail({
         </div>
       </div>
 
-      <Button asChild variant="outline" size="sm" className="w-full rounded-md min-[761px]:w-auto">
+      <Button asChild variant="outline" size="sm" className="w-full rounded-md detail:w-auto">
         <Link href="/mentorship/settings">Edit availability</Link>
       </Button>
 
       {availability.paused ? (
-        <p className="rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-2 text-[11px] leading-relaxed text-foreground min-[761px]:hidden">
+        <p className="rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-2 text-kicker leading-relaxed text-foreground detail:hidden">
           Paused while away. Editing availability clears the pause.
         </p>
       ) : null}
@@ -310,10 +310,10 @@ function AvailabilityStatus({
         aria-hidden
       />
       <div>
-        <p className="text-[13.5px] font-semibold leading-none text-foreground">{label}</p>
+        <p className="text-caption font-semibold leading-none text-foreground">{label}</p>
         <p
           className={cn(
-            'mt-0.5 text-[11px] font-medium leading-tight text-muted-foreground',
+            'mt-0.5 text-kicker font-medium leading-tight text-muted-foreground',
             mono && 'font-mono',
           )}
         >
@@ -345,8 +345,8 @@ function TopicPill({ accent, children }: { accent: string; children: ReactNode }
 
 function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: number }) {
   return (
-    <article className="w-full max-w-[860px] rounded-md border border-border bg-card p-5 text-left shadow-hero min-[761px]:p-[24px_26px]">
-      <div className="grid gap-5 min-[761px]:grid-cols-[minmax(0,1fr)_210px]">
+    <article className="w-full max-w-[860px] rounded-md border border-border bg-card p-5 text-left shadow-hero detail:px-6.5 py-6">
+      <div className="grid gap-5 detail:grid-cols-[minmax(0,1fr)_210px]">
         <div className="min-w-0">
           <p className="bc-section-kicker mb-4">Best next reply</p>
           <div className="flex items-center gap-4">
@@ -360,12 +360,10 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
                   {pick.name}
                 </Link>
                 {pick.cohort ? (
-                  <span className="font-mono text-[11.5px] text-muted-foreground">
-                    {pick.cohort}
-                  </span>
+                  <span className="font-mono text-kicker text-muted-foreground">{pick.cohort}</span>
                 ) : null}
               </div>
-              <p className="mt-0.5 text-[13px] text-muted-foreground">
+              <p className="mt-0.5 text-caption text-muted-foreground">
                 {pick.role} · {pick.posted}
               </p>
             </div>
@@ -381,7 +379,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
             </p>
           )}
 
-          <p className="mt-3.5 text-[12.5px] text-muted-foreground">{pick.why[0]}</p>
+          <p className="mt-3.5 text-caption text-muted-foreground">{pick.why[0]}</p>
         </div>
 
         <div className="rounded-md border border-muted bg-background p-4">
@@ -391,7 +389,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
               <p className="font-heading text-2xl font-semibold leading-none text-foreground">
                 {Math.max(waitingCount, 1)}
               </p>
-              <p className="mt-1 text-[11.5px] leading-tight text-muted-foreground">
+              <p className="mt-1 text-kicker leading-tight text-muted-foreground">
                 {waitingCount === 1 ? 'ask waiting' : 'asks waiting'}
               </p>
             </div>
@@ -399,7 +397,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
               <p className="font-heading text-2xl font-semibold leading-none text-foreground">
                 {pick.estReply}
               </p>
-              <p className="mt-1 text-[11.5px] leading-tight text-muted-foreground">
+              <p className="mt-1 text-kicker leading-tight text-muted-foreground">
                 for a useful reply
               </p>
             </div>
@@ -447,7 +445,7 @@ function EmptyNextHelpCard() {
 
 function AltPickCard({ pick }: { pick: HelpPick }) {
   return (
-    <div className="grid gap-3 rounded-md border border-muted bg-card p-[14px_16px] min-[761px]:grid-cols-[36px_minmax(0,1fr)_auto] min-[761px]:items-start min-[761px]:gap-x-3">
+    <div className="grid gap-3 rounded-md border border-muted bg-card px-4 py-3.5 detail:grid-cols-[36px_minmax(0,1fr)_auto] detail:items-start detail:gap-x-3">
       <HelpAvatar pick={pick} size={36} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
@@ -460,12 +458,12 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
           {pick.cohort ? (
             <span className="font-mono text-xs text-muted-foreground">{pick.cohort}</span>
           ) : null}
-          <span className="text-[11.5px] text-muted-foreground">· {pick.role}</span>
+          <span className="text-kicker text-muted-foreground">· {pick.role}</span>
         </div>
         <p className="mt-1.5 font-heading text-sm leading-[1.4] tracking-[-0.003em] text-foreground">
           {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
         </p>
-        <p className="mt-2 flex flex-wrap items-center gap-1.5 text-[11.5px] text-muted-foreground">
+        <p className="mt-2 flex flex-wrap items-center gap-1.5 text-kicker text-muted-foreground">
           <span>{pick.why[0]}</span>
           <span className="text-border" aria-hidden>
             ·
@@ -473,7 +471,7 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
           <span className="font-mono">{pick.posted}</span>
         </p>
       </div>
-      <div className="flex items-center gap-2 min-[761px]:flex-col min-[761px]:items-end">
+      <div className="flex items-center gap-2 detail:flex-col detail:items-end">
         <Button asChild variant="outline" size="sm" className="rounded-md">
           <Link href={pick.href}>
             {pick.mode === 'mentorship' ? 'Offer mentorship' : 'Offer help'}
@@ -486,7 +484,7 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
 
 function SubjectFeedRow({ pick }: { pick: HelpPick }) {
   return (
-    <div className="flex flex-col gap-3 rounded-md border border-muted bg-card p-[16px_18px] min-[761px]:flex-row min-[761px]:items-start min-[761px]:gap-4">
+    <div className="flex flex-col gap-3 rounded-md border border-muted bg-card px-4.5 py-4 detail:flex-row detail:items-start detail:gap-4">
       <HelpAvatar pick={pick} size={44} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -497,20 +495,20 @@ function SubjectFeedRow({ pick }: { pick: HelpPick }) {
             {pick.name}
           </Link>
           {pick.cohort ? (
-            <span className="font-mono text-[11px] text-muted-foreground">{pick.cohort}</span>
+            <span className="font-mono text-kicker text-muted-foreground">{pick.cohort}</span>
           ) : null}
           <span className="text-xs text-muted-foreground">{pick.role}</span>
-          <span className="ml-auto font-mono text-[11px] text-muted-foreground">{pick.posted}</span>
+          <span className="ml-auto font-mono text-kicker text-muted-foreground">{pick.posted}</span>
         </div>
-        <p className="mt-2 text-[13.5px] leading-normal text-foreground">
+        <p className="mt-2 text-caption leading-normal text-foreground">
           {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
         </p>
         <div className="mt-2.5 flex flex-wrap items-center gap-3">
-          <span className="text-[11.5px] text-primary">{pick.why[0]}</span>
-          <span className="text-[11.5px] text-muted-foreground">
+          <span className="text-kicker text-primary">{pick.why[0]}</span>
+          <span className="text-kicker text-muted-foreground">
             · {pick.estReply} for a useful reply
           </span>
-          <div className="flex gap-1.5 min-[761px]:ml-auto">
+          <div className="flex gap-1.5 detail:ml-auto">
             <Button
               type="button"
               variant="ghost"
@@ -535,9 +533,9 @@ function SubjectSideRail({ subject }: { subject: HelpSubject }) {
   // when we have real data to show.
   return (
     <aside className="flex flex-col gap-3.5">
-      <div className="rounded-md border border-muted bg-card p-[16px_18px]">
+      <div className="rounded-md border border-muted bg-card px-4.5 py-4">
         <p className="bc-card-label mb-2.5">{subject.label} · settings</p>
-        <div className="flex flex-col gap-2 text-[13px]">
+        <div className="flex flex-col gap-2 text-caption">
           <ToggleRow label="Email me new requests" on />
         </div>
         <Button asChild variant="outline" size="sm" className="mt-3.5 w-full rounded-md">
@@ -570,7 +568,7 @@ function SubjectPicker({
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          'relative inline-grid max-w-[280px] grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-[14px] py-3 pb-3.5 font-heading text-sm font-semibold',
+          'relative inline-grid max-w-[280px] grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-3.5 py-3 pb-3.5 font-heading text-sm font-semibold',
           active ? 'text-foreground' : 'text-muted-foreground',
         )}
       >
@@ -581,7 +579,7 @@ function SubjectPicker({
         )}
         <span className="min-w-0 truncate">{active ? active.label : 'Browse by subject'}</span>
         {active ? (
-          <span className="font-mono text-[11px] font-medium text-muted-foreground">
+          <span className="font-mono text-kicker font-medium text-muted-foreground">
             {active.ask}
           </span>
         ) : null}
@@ -598,7 +596,7 @@ function SubjectPicker({
                 value={filter}
                 onChange={(event) => setFilter(event.target.value)}
                 placeholder="Filter subjects..."
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[13px] text-foreground outline-none"
+                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-caption text-foreground outline-none"
               />
             </div>
           ) : null}
@@ -614,22 +612,22 @@ function SubjectPicker({
                     setFilter('')
                   }}
                   className={cn(
-                    'grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[6px] px-2.5 py-2 text-left text-[13.5px] text-foreground hover:bg-background',
+                    'grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 rounded-[6px] px-2.5 py-2 text-left text-caption text-foreground hover:bg-background',
                     subject.id === activeId && 'bg-background font-semibold',
                   )}
                 >
                   <span className="size-2 rounded-full" style={{ background: subject.color }} />
                   <span className="min-w-0 truncate">{subject.label}</span>
-                  <span className="font-mono text-[11px] text-muted-foreground">{subject.ask}</span>
+                  <span className="font-mono text-kicker text-muted-foreground">{subject.ask}</span>
                 </button>
               ))
             ) : (
-              <p className="p-3.5 text-center text-[13px] text-muted-foreground">
+              <p className="p-3.5 text-center text-caption text-muted-foreground">
                 No subjects match.
               </p>
             )}
           </div>
-          <div className="-mx-1.5 -mb-1.5 mt-1.5 flex items-center justify-between border-t border-muted px-3 py-2 text-[11.5px] text-muted-foreground">
+          <div className="-mx-1.5 -mb-1.5 mt-1.5 flex items-center justify-between border-t border-muted px-3 py-2 text-kicker text-muted-foreground">
             <span>{subjects.length} subjects total</span>
             <Link
               href="/mentorship/settings"

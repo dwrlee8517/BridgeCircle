@@ -50,7 +50,7 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
     >
       <Link
         href={backHref}
-        className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
+        className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground transition-colors hover:text-foreground"
       >
         ← {backLabel}
       </Link>
@@ -83,7 +83,7 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
           <CardContent className="pt-5">
             {thread.ask ? (
               <div className="bc-pull-quote mb-5 space-y-3 rounded-r-md bg-primary-tint/55 py-3 pr-4">
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                <p className="font-mono text-xs font-semibold uppercase tracking-label text-primary">
                   Original ask
                 </p>
                 {thread.ask.reason ? (

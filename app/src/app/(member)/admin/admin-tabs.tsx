@@ -43,7 +43,7 @@ export function AdminTabs({ pendingCount }: { pendingCount: number }) {
           >
             {tab.label}
             {tab.href === '/admin/approvals' && pendingCount > 0 ? (
-              <Badge variant="secondary" className="px-1.5 py-0 text-[10px] leading-4">
+              <Badge variant="secondary" className="px-1.5 py-0 text-xs leading-4">
                 {pendingCount}
               </Badge>
             ) : null}

@@ -131,7 +131,7 @@ function Hero({
     <section className="border-b border-border bg-card">
       <div className="mx-auto flex max-w-7xl items-end justify-between gap-4 px-4 py-8 sm:px-8">
         <div>
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          <p className="font-mono text-xs font-semibold uppercase tracking-kicker text-muted-foreground">
             {'03 // Events · '}
             {totalUpcoming} upcoming
           </p>
@@ -167,7 +167,7 @@ function TabLink({
   return (
     <Link
       href={href}
-      className={`-mb-px rounded-t-sm border-b-2 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.1em] transition-colors ${
+      className={`-mb-px rounded-t-sm border-b-2 px-4 py-2.5 font-mono text-xs uppercase tracking-label transition-colors ${
         active
           ? 'border-primary text-foreground font-semibold bg-secondary/30'
           : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/10'

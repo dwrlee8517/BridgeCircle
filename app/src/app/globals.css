@@ -125,6 +125,31 @@
   --font-size-caption: var(--font-size-caption);
   --font-size-mono-sm: var(--font-size-mono-sm);
 
+  /* Named font-size utilities (text-kicker, text-caption, …). Mapped through
+     the --font-size-* custom properties so .density-cozy / .density-pro
+     overrides keep working. Use these instead of text-[Npx] literals —
+     scripts/check-design-tokens.sh ratchets arbitrary values down. */
+  --text-kicker: var(--font-size-kicker);
+  --text-caption: var(--font-size-caption);
+  --text-body-sm: var(--font-size-body-sm);
+  --text-body-md: var(--font-size-body-md);
+  --text-body-lg: var(--font-size-body-lg);
+  --text-h1: var(--font-size-h1);
+  --text-h2: var(--font-size-h2);
+  --text-display-md: var(--font-size-display-md);
+  --text-display-lg: var(--font-size-display-lg);
+
+  /* Letter-spacing utilities for the label voices (tracking-label,
+     tracking-kicker) plus the wide editorial-hero kicker (tracking-hero,
+     auth/onboarding "Verified alumni network"-style lines). */
+  --tracking-label: 0.08em;
+  --tracking-kicker: 0.12em;
+  --tracking-hero: 0.18em;
+
+  /* The master-detail layout pivot (was 40+ min-[761px]/max-[760px]
+     literals). detail: ≥761px, max-detail: ≤760px. */
+  --breakpoint-detail: 761px;
+
   /* Line Heights */
   --line-height-display-lg: var(--line-height-display-lg);
   --line-height-display-md: var(--line-height-display-md);

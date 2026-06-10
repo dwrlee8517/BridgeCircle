@@ -65,7 +65,7 @@ export default async function OnboardingImportPage({
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-5 py-10 sm:px-8 sm:py-14">
       <header className="mb-10 flex items-center justify-between">
         <Link href="/" aria-label="BridgeCircle home" className="inline-flex">
-          <span className="bc-fraunces text-xl font-bold tracking-[-0.025em] text-foreground">
+          <span className="bc-fraunces text-xl font-bold tracking-tight text-foreground">
             Bridge<span className="text-primary">Circle</span>
           </span>
         </Link>
@@ -75,10 +75,10 @@ export default async function OnboardingImportPage({
       </header>
 
       <section className="space-y-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
           {copy.eyebrow}
         </p>
-        <h1 className="font-heading text-3xl font-bold tracking-[-0.025em] text-foreground sm:text-4xl">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {copy.title}
         </h1>
         <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{copy.description}</p>

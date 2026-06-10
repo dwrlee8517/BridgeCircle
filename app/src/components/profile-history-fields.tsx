@@ -221,7 +221,7 @@ function CareerCard({
           {entry.startDate ?? '?'} – {entry.endDate ?? 'present'}
         </span>
         {entry.endDate === null && entry.startDate ? (
-          <Badge variant="secondary" className="text-[10px]">
+          <Badge variant="secondary" className="text-xs">
             current
           </Badge>
         ) : null}

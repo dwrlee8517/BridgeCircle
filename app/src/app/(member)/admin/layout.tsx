@@ -36,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="border-b bg-muted/30">
         <div className="mx-auto flex max-w-5xl items-center gap-4 overflow-x-auto px-4 py-2 text-sm">
           {/* Section label, styled so it can't be mistaken for the active tab. */}
-          <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          <span className="shrink-0 text-xs font-semibold uppercase tracking-label text-muted-foreground">
             Admin
           </span>
           <AdminTabs pendingCount={pendingCount} />

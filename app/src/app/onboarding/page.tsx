@@ -318,15 +318,15 @@ function PendingApproval({ orgName }: { orgName: string | null }) {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
       <header className="mb-16 flex items-center justify-between">
-        <span className="bc-fraunces text-xl font-bold tracking-[-0.025em] text-foreground">
+        <span className="bc-fraunces text-xl font-bold tracking-tight text-foreground">
           Bridge<span className="text-primary">Circle</span>
         </span>
       </header>
       <section className="mt-10 space-y-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
           Approval pending
         </p>
-        <h1 className="font-heading text-3xl font-bold tracking-[-0.025em] text-foreground sm:text-4xl">
+        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {orgName
             ? `Your ${orgName} membership is waiting for approval.`
             : 'Your membership is waiting for approval.'}

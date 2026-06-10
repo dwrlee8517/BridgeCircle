@@ -109,17 +109,17 @@ export default async function AdminEventsPage() {
                         </div>
                         <div className="flex gap-1 mt-0.5">
                           {isPast ? (
-                            <Badge variant="outline" className="text-[10px]">
+                            <Badge variant="outline" className="text-xs">
                               past
                             </Badge>
                           ) : null}
                           {isCanceled ? (
-                            <Badge variant="destructive" className="text-[10px]">
+                            <Badge variant="destructive" className="text-xs">
                               canceled
                             </Badge>
                           ) : null}
                           {e.waitlistCount > 0 ? (
-                            <Badge variant="secondary" className="text-[10px]">
+                            <Badge variant="secondary" className="text-xs">
                               {e.waitlistCount} waitlisted
                             </Badge>
                           ) : null}

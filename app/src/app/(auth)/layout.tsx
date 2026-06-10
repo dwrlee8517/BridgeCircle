@@ -31,17 +31,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </svg>
 
         <div className="relative">
-          <Wordmark
-            variant="editorial"
-            withIcon={false}
-            textClassName="text-2xl tracking-[-0.025em]"
-          />
+          <Wordmark variant="editorial" withIcon={false} textClassName="text-2xl tracking-tight" />
         </div>
         <div className="relative max-w-md">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-on-dark">
+          <p className="text-kicker font-semibold uppercase tracking-hero text-primary-on-dark">
             Verified alumni network
           </p>
-          <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-[-0.025em]">
+          <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-tight">
             Build from a circle you already trust.
           </h1>
           <p className="mt-4 text-base leading-relaxed text-surface-midnight-muted">

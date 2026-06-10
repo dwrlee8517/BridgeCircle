@@ -10,7 +10,7 @@ export default function HelpLoading() {
             'linear-gradient(180deg, color-mix(in srgb, var(--card) 60%, transparent), transparent), radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--action-offer) 7%, transparent), transparent 38%), radial-gradient(circle at 82% 100%, color-mix(in srgb, var(--accent-ochre) 5%, transparent), transparent 40%), var(--background)',
         }}
       >
-        <div className="mx-auto flex max-w-7xl items-start gap-10 px-4 py-[22px] min-[761px]:px-8 min-[761px]:pt-6 min-[761px]:pb-5">
+        <div className="mx-auto flex max-w-7xl items-start gap-10 px-4 py-5.5 detail:px-8 detail:pt-6 detail:pb-5">
           <div className="min-w-0 flex-1">
             <div className="mb-3 flex flex-col gap-1">
               <div className="flex items-center gap-2.5">
@@ -19,39 +19,39 @@ export default function HelpLoading() {
               </div>
               <Skeleton className="ml-[18px] h-4 w-72 max-w-[calc(100%-18px)]" />
             </div>
-            <div className="flex flex-col gap-3 rounded-md border border-border bg-card p-[14px_16px] shadow-card-hover min-[761px]:flex-row min-[761px]:items-center min-[761px]:gap-5 min-[761px]:p-[14px_18px]">
-              <div className="flex items-center gap-3.5 min-[761px]:gap-5">
+            <div className="flex flex-col gap-3 rounded-md border border-border bg-card px-4 py-3.5 shadow-card-hover detail:flex-row detail:items-center detail:gap-5 detail:px-4.5 py-3.5">
+              <div className="flex items-center gap-3.5 detail:gap-5">
                 <AvailabilitySkeleton />
                 <div className="h-9 w-px bg-muted" />
                 <AvailabilitySkeleton />
               </div>
-              <div className="h-px w-full bg-muted min-[761px]:hidden" />
+              <div className="h-px w-full bg-muted detail:hidden" />
               <div className="min-w-0 flex-1 space-y-2">
                 <Skeleton className="h-3 w-36" />
-                <div className="hidden flex-wrap gap-1 min-[761px]:flex">
+                <div className="hidden flex-wrap gap-1 detail:flex">
                   <Skeleton className="h-5 w-28 rounded-sm" />
                   <Skeleton className="h-5 w-24 rounded-sm" />
                   <Skeleton className="h-5 w-32 rounded-sm" />
                 </div>
               </div>
-              <Skeleton className="h-8 w-full rounded-md min-[761px]:w-32" />
+              <Skeleton className="h-8 w-full rounded-md detail:w-32" />
             </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
-        <div className="mb-[18px] flex flex-col gap-4 min-[761px]:flex-row min-[761px]:items-end min-[761px]:justify-between min-[761px]:gap-6">
+        <div className="mb-[18px] flex flex-col gap-4 detail:flex-row detail:items-end detail:justify-between detail:gap-6">
           <Skeleton className="h-7 w-52" />
-          <Skeleton className="h-9 w-full rounded-md min-[761px]:max-w-[360px]" />
+          <Skeleton className="h-9 w-full rounded-md detail:max-w-[360px]" />
         </div>
         <div className="flex items-end gap-1 border-b border-muted">
           <Skeleton className="h-11 w-28 rounded-none" />
           <Skeleton className="h-11 w-44 rounded-none" />
         </div>
-        <div className="grid gap-6 pt-[22px] min-[761px]:grid-cols-[minmax(0,1fr)_280px]">
-          <div className="flex flex-col gap-[18px]">
-            <div className="rounded-md border border-muted bg-card p-[24px_26px] shadow-card">
+        <div className="grid gap-6 pt-[22px] detail:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="flex flex-col gap-4.5">
+            <div className="rounded-md border border-muted bg-card px-6.5 py-6 shadow-card">
               <div className="flex items-center gap-4">
                 <Skeleton className="size-[52px] rounded-md" />
                 <div className="flex-1 space-y-2">
@@ -78,7 +78,7 @@ export default function HelpLoading() {
               ))}
             </div>
           </div>
-          <aside className="rounded-md border border-muted bg-card p-[18px_20px]">
+          <aside className="rounded-md border border-muted bg-card px-5 py-4.5">
             <Skeleton className="h-3 w-28" />
             <div className="mt-4 flex items-baseline gap-2">
               <Skeleton className="h-9 w-8" />
@@ -110,14 +110,14 @@ function AvailabilitySkeleton() {
 
 function AltPickSkeleton() {
   return (
-    <div className="grid gap-3 rounded-md border border-muted bg-card p-[14px_16px] min-[761px]:grid-cols-[36px_minmax(0,1fr)_auto] min-[761px]:items-start min-[761px]:gap-x-3">
+    <div className="grid gap-3 rounded-md border border-muted bg-card px-4 py-3.5 detail:grid-cols-[36px_minmax(0,1fr)_auto] detail:items-start detail:gap-x-3">
       <Skeleton className="size-9 rounded-md" />
       <div className="space-y-2">
         <Skeleton className="h-4 w-52 max-w-full" />
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-3.5 w-3/4" />
       </div>
-      <div className="flex gap-2 min-[761px]:flex-col min-[761px]:items-end">
+      <div className="flex gap-2 detail:flex-col detail:items-end">
         <Skeleton className="h-5 w-16 rounded-full" />
         <Skeleton className="h-8 w-14 rounded-md" />
       </div>

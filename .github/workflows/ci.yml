@@ -40,6 +40,9 @@ jobs:
       - name: ESLint
         run: pnpm lint
 
+      - name: Design-token ratchet
+        run: pnpm check:tokens
+
       - name: TypeScript
         run: pnpm tsc --noEmit
 

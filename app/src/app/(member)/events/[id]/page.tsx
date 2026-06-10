@@ -72,7 +72,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
         <Link
           href="/events"
-          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
+          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-label text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5" strokeWidth={1.8} />
           All events
@@ -85,7 +85,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 <div className="min-w-0">
                   <div className="mb-3 flex flex-wrap items-center gap-2">
                     <span
-                      className="rounded-sm border px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.08em]"
+                      className="rounded-sm border px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-label"
                       style={{
                         borderColor: `${accent.hex}33`,
                         backgroundColor: `${accent.hex}12`,
@@ -96,7 +96,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                     </span>
                     <EventStatus isPast={event.isPast} starts={starts} accentHex={accent.hex} />
                   </div>
-                  <h1 className="font-heading text-[32px] font-semibold leading-[1.08] tracking-[-0.01em] text-foreground sm:text-[36px]">
+                  <h1 className="font-heading text-display-md font-semibold leading-[1.08] tracking-[-0.01em] text-foreground sm:text-[36px]">
                     {event.title}
                   </h1>
                   <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
@@ -222,7 +222,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                 <h2 className="font-heading text-xl font-semibold text-foreground">More events</h2>
                 <Link
                   href="/events"
-                  className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground hover:text-foreground"
+                  className="text-xs font-semibold uppercase tracking-label text-muted-foreground hover:text-foreground"
                 >
                   View all
                 </Link>
@@ -301,15 +301,15 @@ function DateBlock({ starts, accentHex }: { starts: Date; accentHex: string }) {
   return (
     <div className="w-fit rounded-md border border-border bg-background px-6 py-4 text-center shadow-card">
       <div
-        className="font-mono text-xs font-semibold uppercase tracking-[0.08em]"
+        className="font-mono text-xs font-semibold uppercase tracking-label"
         style={{ color: accentHex }}
       >
         {format(starts, 'MMM')}
       </div>
-      <div className="mt-1 font-heading text-[52px] font-semibold leading-none tracking-[-0.04em] text-foreground">
+      <div className="mt-1 font-heading text-[52px] font-semibold leading-none tracking-tighter text-foreground">
         {format(starts, 'd')}
       </div>
-      <div className="mt-1.5 font-mono text-xs uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-muted-foreground">
         {format(starts, 'EEE')} · {format(starts, 'yyyy')}
       </div>
     </div>
@@ -331,7 +331,7 @@ function EventFact({
 }) {
   return (
     <div className={cn('p-4', !last && 'border-b border-border sm:border-b-0 sm:border-r')}>
-      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-label text-muted-foreground">
         <Icon className="size-3.5" strokeWidth={1.7} />
         {label}
       </div>
@@ -354,7 +354,7 @@ function EventStatus({
 }) {
   if (isPast) {
     return (
-      <span className="rounded-sm border border-border bg-background px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <span className="rounded-sm border border-border bg-background px-2.5 py-1 text-xs font-semibold uppercase tracking-label text-muted-foreground">
         Past event
       </span>
     )
@@ -362,7 +362,7 @@ function EventStatus({
 
   return (
     <span
-      className="rounded-sm border px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.08em]"
+      className="rounded-sm border px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-label"
       style={{
         borderColor: `${accentHex}33`,
         backgroundColor: `${accentHex}12`,
@@ -376,7 +376,7 @@ function EventStatus({
 
 function SectionLabel({ icon: Icon, children }: { icon: typeof Ticket; children: string }) {
   return (
-    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-label text-muted-foreground">
       <Icon className="size-4" strokeWidth={1.7} />
       {children}
     </div>
@@ -546,7 +546,7 @@ function RelatedEventsSection({
 function SpecLine({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <dt className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
         {label}
       </dt>
       <dd className="text-right text-sm font-medium text-foreground">{value}</dd>

@@ -58,7 +58,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
     <div className="density-cozy mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-8">
       <Link
         href={backHref}
-        className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground"
+        className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground transition-colors hover:text-foreground"
       >
         ← {backLabel}
       </Link>
@@ -164,7 +164,7 @@ type RequestLifecycleStatus = Extract<
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <h3 className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <h3 className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
         {label}
       </h3>
       <p className="whitespace-pre-line text-sm leading-6 text-foreground">{children}</p>
@@ -175,7 +175,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function AskQuote({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="bc-pull-quote space-y-2 rounded-r-md bg-primary-tint/55 py-3 pr-4">
-      <h3 className="font-mono text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+      <h3 className="font-mono text-xs font-semibold uppercase tracking-label text-primary">
         {label}
       </h3>
       <p className="whitespace-pre-line text-base leading-7 text-foreground">{children}</p>
