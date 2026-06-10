@@ -166,9 +166,7 @@ function SchoolAnnouncementsSection({
                   : 'block border-t border-border p-4 transition-colors hover:bg-surface-panel/55'
               }
             >
-              <p className="font-mono text-xs font-bold uppercase tracking-[0.10em] text-muted-foreground">
-                Announcement
-              </p>
+              <p className="bc-card-label">Announcement</p>
               <h3 className="mt-1 font-heading text-sm font-semibold leading-snug text-foreground">
                 {announcement.title}
               </h3>
@@ -225,8 +223,8 @@ function PinnedAnnouncementBanner({ announcement }: { announcement: Announcement
     >
       <span className="flex items-center gap-3">
         <Pin className="size-3.5 shrink-0 text-primary" strokeWidth={1.8} />
-        <span className="shrink-0 font-mono text-xs font-bold uppercase tracking-[0.10em] text-primary">
-          Pinned · Announcement
+        <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+          Pinned announcement
         </span>
         <span className="hidden shrink-0 text-border sm:inline">·</span>
       </span>

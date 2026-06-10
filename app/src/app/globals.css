@@ -600,6 +600,23 @@
   content: "";
 }
 
+/*
+ * Card-level section label — the second of the three label voices:
+ *   1. .bc-section-kicker  — page wayfinding (blue, leading rule)
+ *   2. .bc-card-label      — section naming inside cards (this class)
+ *   3. mono                — fixed-width data only (timestamps, counts, IDs)
+ * Inter semibold uppercase in muted ink; replaces the retired decorative-mono
+ * kicker pattern. See tokens.md § Label voices.
+ */
+.bc-card-label {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
 .bc-action-rail {
   border-left: 3px solid var(--primary);
   background: color-mix(in srgb, var(--primary) 5%, var(--card));

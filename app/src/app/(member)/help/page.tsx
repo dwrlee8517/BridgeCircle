@@ -118,7 +118,10 @@ export default async function HelpPage() {
     const subject = subjectLabels[index % subjectLabels.length] ?? DEFAULT_SUBJECTS[0]
     const color = SUBJECT_COLORS[index % SUBJECT_COLORS.length]
     const name = profileName(profile, 'Someone in your circle')
-    const need = ask.reason ?? ask.help_needed ?? 'Could use a practical reply from someone nearby.'
+    // Only the member's own words render as a quote downstream; the fallback
+    // is coordinator voice, never fabricated speech.
+    const realNeed = ask.reason ?? ask.help_needed
+    const need = realNeed ?? "They're looking for a practical reply from someone nearby."
 
     return {
       id: ask.id,
@@ -131,8 +134,8 @@ export default async function HelpPage() {
       subject,
       subjectId: slug(subject),
       subjectColor: color,
-      fit: Math.max(72, 96 - index * 5),
       mode: ask.ask_type,
+      isRealAsk: Boolean(realNeed),
       need,
       why: [
         `${subject} is on your help list`,
@@ -166,8 +169,8 @@ export default async function HelpPage() {
       subject,
       subjectId: slug(subject),
       subjectColor: color,
-      fit: Math.max(64, 84 - index * 4),
       mode: 'advice',
+      isRealAsk: false,
       need: buildJoinerNeed(profile),
       why: [
         buildJoinerWhy(profile, subject),
@@ -188,7 +191,6 @@ export default async function HelpPage() {
     maxMentees: prefs?.maxActiveMentees ?? 5,
     topics: subjectLabels,
     paused: !!prefs?.pausedAt,
-    responseRate: 92,
   }
 
   return (
@@ -236,18 +238,20 @@ function cohort(year: number | null) {
 }
 
 function buildJoinerNeed(profile: ProfileSummary | undefined) {
+  // Coordinator voice — these are suggestions about new joiners, not words
+  // they wrote, so the copy must never read as a quote.
   const role = [profile?.currentTitle, profile?.currentEmployer].filter(Boolean).join(' at ')
-  if (role) return `Could use a useful pointer from someone who understands ${role}.`
+  if (role) return `Just joined as ${role} — a warm first pointer would go a long way.`
   if (profile?.city)
-    return `New to the circle in ${profile.city} and could use a warm first connection.`
-  return 'New to the circle and could use a practical first connection.'
+    return `New to the circle in ${profile.city} — a warm hello would go a long way.`
+  return 'New to the circle — a warm first connection would go a long way.'
 }
 
 function buildJoinerWhy(profile: ProfileSummary | undefined, subject: string) {
   if (profile?.currentTitle)
-    return `${subject} may fit their ${profile.currentTitle.toLowerCase()} context`
-  if (profile?.city) return `Local context in ${profile.city} may be useful`
-  return `${subject} is a likely fit from your helper settings`
+    return `Their ${profile.currentTitle.toLowerCase()} work overlaps with ${subject}`
+  if (profile?.city) return `You both know ${profile.city}`
+  return `${subject} is on your help list`
 }
 
 function shortRelativeTime(value: string) {

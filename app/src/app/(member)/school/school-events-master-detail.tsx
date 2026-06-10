@@ -1,6 +1,6 @@
 'use client'
 
-import { differenceInCalendarDays, format } from 'date-fns'
+import { format } from 'date-fns'
 import {
   ArrowLeft,
   ArrowRight,
@@ -172,10 +172,9 @@ export function SchoolEventsMasterDetail({ events, attendeesByEvent, orgName }: 
                               className="size-1.5 shrink-0 rounded-full"
                               style={{ backgroundColor: item.accentHex }}
                             />
-                            <span className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                               {item.categoryLabel}
                             </span>
-                            <EventCountdown starts={item.starts} />
                           </span>
                           <span
                             className={cn(
@@ -249,39 +248,39 @@ function EventSpotlight({
           </Button>
         </div>
       ) : null}
-      <div
-        className="relative grid gap-6 overflow-hidden px-5 py-6 text-surface-midnight-foreground sm:px-7 md:grid-cols-[1fr_auto] md:items-center"
-        style={{
-          background: `linear-gradient(135deg, ${accentHex}, color-mix(in srgb, ${accentHex} 72%, #081126) 52%, #081126 100%)`,
-        }}
-      >
-        <NetworkMotif />
+      {/* Midnight editorial hero — the one sanctioned dark canvas (no
+          gradients, no constellation chrome). The event's category color
+          appears only as a small chip dot; Electric Sky carries the accent. */}
+      <div className="relative grid gap-6 overflow-hidden bg-surface-midnight px-5 py-6 text-surface-midnight-foreground sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
+        <CirclesMotif />
         <div className="relative min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2.5">
-            <span className="rounded border border-white/20 bg-white/15 px-2.5 py-1 font-mono text-xs font-bold uppercase tracking-[0.08em] text-white">
-              ◆ {item.categoryLabel}
+            <span className="inline-flex items-center gap-1.5 rounded border border-editorial-rule bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-surface-midnight-foreground">
+              <span
+                className="size-1.5 rounded-full"
+                style={{ backgroundColor: accentHex }}
+                aria-hidden
+              />
+              {item.categoryLabel}
             </span>
-            <EventCountdown starts={starts} inverted />
-            <span className="font-mono text-xs tracking-[0.05em] text-white/70">
-              Hosted by {orgName}
-            </span>
+            <span className="text-xs text-surface-midnight-muted">Hosted by {orgName}</span>
           </div>
-          <h3 className="font-heading text-[26px] font-semibold leading-[1.08] tracking-[-0.01em] text-white sm:text-[28px]">
+          <h3 className="font-heading text-[26px] font-semibold leading-[1.08] tracking-[-0.01em] text-surface-midnight-foreground sm:text-[28px]">
             {event.title}
           </h3>
-          <p className="mt-2 text-[13.5px] leading-relaxed text-white/85">
+          <p className="mt-2 text-[13.5px] leading-relaxed text-surface-midnight-muted">
             {format(starts, 'EEE, MMM d · h:mm a')} · {event.location ?? 'Location to be shared'}
           </p>
         </div>
 
-        <div className="relative w-fit rounded-md border border-white/20 bg-white/10 px-6 py-4 text-center">
-          <div className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-white/70">
+        <div className="relative w-fit rounded-md border border-editorial-rule-strong bg-white/[0.06] px-6 py-4 text-center">
+          <div className="font-mono text-xs font-bold uppercase tracking-[0.08em] text-primary-on-dark">
             {format(starts, 'MMM')}
           </div>
-          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-[-0.05em] text-white sm:text-[64px]">
+          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-[-0.05em] text-surface-midnight-foreground sm:text-[64px]">
             {format(starts, 'd')}
           </div>
-          <div className="mt-1.5 font-mono text-xs uppercase tracking-[0.08em] text-white/70">
+          <div className="mt-1.5 font-mono text-xs uppercase tracking-[0.08em] text-surface-midnight-muted">
             {format(starts, 'EEE')} · {format(starts, 'yyyy')}
           </div>
         </div>
@@ -497,13 +496,17 @@ function CapacityBar({
     <div>
       <div className="mb-2 flex items-baseline justify-between gap-3">
         <span
-          className="font-mono text-xs font-bold uppercase tracking-[0.08em]"
+          className="text-xs font-semibold"
           style={{ color: almostFull ? 'var(--accent-ochre)' : 'var(--action-offer)' }}
         >
-          {capacity === null ? 'Open capacity' : isFull ? 'Full' : `${spotsLeft} spots left`}
+          {capacity === null
+            ? `${goingCount} going · open capacity`
+            : isFull
+              ? 'Full — waitlist open'
+              : `${goingCount} going · ${spotsLeft} ${spotsLeft === 1 ? 'seat' : 'seats'} open`}
         </span>
         <span className="font-mono text-[11px] text-muted-foreground">
-          {capacity ? `${goingCount} / ${capacity}` : `${goingCount} going`}
+          {capacity ? `${goingCount} / ${capacity}` : null}
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-surface-panel">
@@ -538,45 +541,20 @@ function EventListDateBlock({ starts, accentHex }: { starts: Date; accentHex: st
   )
 }
 
-function EventCountdown({ starts, inverted = false }: { starts: Date; inverted?: boolean }) {
-  const days = differenceInCalendarDays(starts, new Date())
-  const label = days <= 0 ? 'D-Day' : `D-${days}`
-
-  return (
-    <span
-      className={cn(
-        'inline-flex h-5 items-center whitespace-nowrap rounded border px-1.5 font-mono text-xs font-bold uppercase tracking-[0.06em]',
-        inverted
-          ? 'border-white/20 bg-white/10 text-white/80'
-          : 'border-border bg-surface-panel text-muted-foreground',
-      )}
-    >
-      {label}
-    </span>
-  )
-}
-
-function NetworkMotif() {
+/**
+ * The brand's overlapping-circles motif, permitted only on Midnight
+ * editorial surfaces (same family as the auth hero). Replaces the old
+ * constellation decoration, which read as generic network chrome.
+ */
+function CirclesMotif() {
   return (
     <svg
       aria-hidden="true"
-      viewBox="0 0 300 100"
-      className="pointer-events-none absolute right-0 top-0 h-32 w-80 text-white opacity-20"
+      viewBox="0 0 200 130"
+      className="pointer-events-none absolute -right-6 -top-8 h-40 w-60 stroke-primary-on-dark opacity-[0.18]"
     >
-      <g stroke="currentColor" strokeWidth="0.7" fill="none">
-        <line x1="40" y1="30" x2="120" y2="20" />
-        <line x1="120" y1="20" x2="180" y2="60" />
-        <line x1="180" y1="60" x2="260" y2="40" />
-        <line x1="120" y1="20" x2="80" y2="80" />
-        <line x1="180" y1="60" x2="80" y2="80" />
-      </g>
-      <g fill="currentColor">
-        <circle cx="40" cy="30" r="3" />
-        <circle cx="120" cy="20" r="3.5" />
-        <circle cx="180" cy="60" r="4" />
-        <circle cx="260" cy="40" r="3" />
-        <circle cx="80" cy="80" r="3" />
-      </g>
+      <circle cx="75" cy="65" r="55" fill="none" strokeWidth="1.6" />
+      <circle cx="125" cy="65" r="55" fill="none" strokeWidth="1.6" />
     </svg>
   )
 }

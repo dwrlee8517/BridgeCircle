@@ -130,7 +130,9 @@ export function LiveThread({
     <div className="flex min-h-[400px] flex-col md:h-[calc(100vh-12rem)]">
       <div ref={scrollRef} className="space-y-3 px-1 py-2 md:min-h-0 md:flex-1 md:overflow-y-auto">
         {messages.length === 0 ? (
-          <p className="text-center text-sm text-muted-foreground py-8">No messages yet. Say hi!</p>
+          <p className="text-center text-sm text-muted-foreground py-8">
+            {composerEnabled ? 'No messages yet — say hello.' : 'No messages yet.'}
+          </p>
         ) : (
           messages.map((m, idx) => (
             <MessageBubble
@@ -182,7 +184,7 @@ export function LiveThread({
         </form>
       ) : (
         <div className="mt-2 border-t pt-3 text-center text-sm text-muted-foreground">
-          You can&apos;t send messages to this person right now.
+          You aren&apos;t connected right now. Messages open once you&apos;re friends.
         </div>
       )}
 

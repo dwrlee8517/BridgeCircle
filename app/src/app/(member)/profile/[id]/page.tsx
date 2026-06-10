@@ -337,7 +337,7 @@ export default async function ProfileDetailPage({
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-4">
                 <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  In their own words
+                  {isSelf ? 'In your own words' : 'In their own words'}
                 </span>
               </div>
               <p className="bc-pull-quote text-base md:text-lg whitespace-pre-line text-foreground/90 leading-relaxed italic">
@@ -478,7 +478,7 @@ export default async function ProfileDetailPage({
                   {profile.isOpenAsMentor
                     ? profile.mentorshipAtCapacity
                       ? 'At capacity right now'
-                      : 'Yes — open to request'
+                      : 'Open to requests'
                     : profile.mentorPaused
                       ? 'Paused while away'
                       : 'Not accepting right now'}
@@ -504,9 +504,7 @@ export default async function ProfileDetailPage({
                   <span className="text-sm font-semibold">Advice</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {profile.isOpenAsAdviceHelper
-                    ? 'Yes — open to questions'
-                    : 'Not accepting right now'}
+                  {profile.isOpenAsAdviceHelper ? 'Open to questions' : 'Not accepting right now'}
                 </p>
               </div>
             </div>
@@ -675,7 +673,7 @@ export default async function ProfileDetailPage({
               {profile.graduationYear ? (
                 <NumberedField
                   n={3}
-                  label="Cohort"
+                  label="Class"
                   value={`Class of '${`${profile.graduationYear}`.slice(-2)}`}
                 />
               ) : null}

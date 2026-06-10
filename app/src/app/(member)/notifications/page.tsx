@@ -31,9 +31,7 @@ export default async function NotificationsPage() {
         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
           Notifications
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Your last 100. Use the bell in the top nav to mark items as read.
-        </p>
+        <p className="text-sm text-muted-foreground">Your last 100 notifications.</p>
       </div>
 
       {items.length === 0 ? (

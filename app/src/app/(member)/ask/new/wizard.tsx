@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Check } from 'lucide-react'
 import Link from 'next/link'
 import { useActionState, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -83,14 +83,15 @@ export function Wizard({
   const [hasAutoDrafted, setHasAutoDrafted] = useState(false)
 
   const hasSignals = signalCandidates.length > 0
+  const helperFirstName = helperName.split(' ')[0] || helperName
 
-  // Determine dynamically steps
+  // Member-facing step labels; internal step ids are unchanged.
   const steps: { id: Step; label: string }[] = [
-    { id: 'path', label: 'Path' },
-    { id: 'context', label: 'Context' },
-    { id: 'genre', label: 'Genre' },
-    ...(hasSignals ? [{ id: 'signals' as Step, label: 'Signals' }] : []),
-    { id: 'compose', label: 'Compose' },
+    { id: 'path', label: 'Help type' },
+    { id: 'context', label: 'Your situation' },
+    { id: 'genre', label: 'Question type' },
+    ...(hasSignals ? [{ id: 'signals' as Step, label: "What we'll mention" }] : []),
+    { id: 'compose', label: 'Draft' },
   ]
 
   const currentStepIndex = steps.findIndex((s) => s.id === step)
@@ -185,8 +186,8 @@ export function Wizard({
 
   return (
     <div className="space-y-6">
-      {/* High-Contrast Monospace Steps Progress Bar */}
-      <div className="flex border border-border bg-muted/20 rounded-md p-2 justify-between text-xs font-mono tracking-tight uppercase select-none overflow-x-auto whitespace-nowrap scrollbar-none">
+      {/* Steps progress bar — completed steps render filled with a check */}
+      <div className="flex border border-border bg-muted/20 rounded-md p-2 justify-between text-xs select-none overflow-x-auto whitespace-nowrap scrollbar-none">
         {steps.map((s, idx) => {
           const isActive = s.id === step
           const isCompleted = currentStepIndex > idx
@@ -196,16 +197,23 @@ export function Wizard({
                 className={cn(
                   'size-5 rounded-full border flex items-center justify-center text-xs',
                   isActive
-                    ? 'border-primary bg-primary text-primary-foreground font-bold'
+                    ? 'border-primary bg-primary text-primary-foreground font-semibold'
                     : isCompleted
-                      ? 'border-muted-foreground bg-muted-foreground/10 text-muted-foreground'
+                      ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border text-muted-foreground',
                 )}
               >
-                {idx + 1}
+                {isCompleted ? <Check className="size-3" aria-hidden /> : idx + 1}
               </span>
               <span
-                className={cn(isActive ? 'text-foreground font-bold' : 'text-muted-foreground')}
+                className={cn(
+                  'font-medium',
+                  isActive
+                    ? 'text-foreground font-semibold'
+                    : isCompleted
+                      ? 'text-foreground'
+                      : 'text-muted-foreground',
+                )}
               >
                 {s.label}
               </span>
@@ -218,9 +226,9 @@ export function Wizard({
       {step === 'path' ? (
         <div className="space-y-4">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Select your path</h2>
+            <h2 className="text-lg font-semibold">What kind of help?</h2>
             <p className="text-sm text-muted-foreground">
-              Select the path that matches your needs and {helperName}&apos;s bandwidth.
+              {`Quick advice is one exchange. Mentorship is ongoing — and depends on ${helperFirstName}'s availability.`}
             </p>
           </div>
 
@@ -229,18 +237,19 @@ export function Wizard({
             <button
               type="button"
               onClick={() => setCurrentAskType('advice')}
+              aria-pressed={currentAskType === 'advice'}
               className={cn(
-                'border rounded-lg p-4 text-left transition-colors w-full flex flex-col gap-1.5 focus:outline-none focus:ring-2 focus:ring-primary',
+                'border rounded-lg p-4 text-left transition-colors w-full flex flex-col gap-1.5 outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted',
                 currentAskType === 'advice'
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
                   : 'border-border hover:bg-accent',
               )}
             >
               <div className="flex justify-between w-full items-baseline">
-                <span className="font-semibold text-sm text-foreground">Ask for Quick Advice</span>
-                <span className="font-mono text-xs uppercase tracking-wider text-primary">
-                  Advice Path
-                </span>
+                <span className="font-semibold text-sm text-foreground">Ask for quick advice</span>
+                {currentAskType === 'advice' ? (
+                  <Check className="size-4 text-primary" aria-hidden />
+                ) : null}
               </div>
               <p className="text-xs text-muted-foreground leading-normal">
                 Best for a quick coffee chat, resume review, single question, or one-off design
@@ -257,10 +266,11 @@ export function Wizard({
                   setCurrentAskType('mentorship')
                 }
               }}
+              aria-pressed={currentAskType === 'mentorship' && !mentorshipAtCapacity}
               className={cn(
                 'border rounded-lg p-4 text-left transition-colors w-full flex flex-col gap-2.5 relative text-left',
                 !mentorshipAtCapacity
-                  ? 'cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary'
+                  ? 'cursor-pointer outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted'
                   : 'opacity-75 cursor-not-allowed',
                 currentAskType === 'mentorship' && !mentorshipAtCapacity
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
@@ -269,16 +279,11 @@ export function Wizard({
             >
               <div className="flex justify-between w-full items-baseline">
                 <span className="font-semibold text-sm text-foreground">
-                  Request Regular Mentorship
+                  Request ongoing mentorship
                 </span>
-                <span
-                  className={cn(
-                    'font-mono text-xs uppercase tracking-wider',
-                    mentorshipAtCapacity ? 'text-destructive font-bold' : 'text-primary',
-                  )}
-                >
-                  Mentorship Path
-                </span>
+                {currentAskType === 'mentorship' && !mentorshipAtCapacity ? (
+                  <Check className="size-4 text-primary" aria-hidden />
+                ) : null}
               </div>
               <p className="text-xs text-muted-foreground leading-normal">
                 Best for recurring sessions, long-term goals, project sponsorship, or milestone
@@ -287,8 +292,8 @@ export function Wizard({
 
               {/* Bandwidth Capacity Details */}
               <div className="border-t border-border pt-3 mt-1.5 w-full space-y-2">
-                <span className="text-xs font-mono text-muted-foreground uppercase font-bold tracking-wider block">
-                  Bandwidth Capacity
+                <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground block">
+                  Availability
                 </span>
                 <CapacityIndicatorGauge
                   activeCount={activeMenteeCount}
@@ -299,10 +304,10 @@ export function Wizard({
                   className="bg-background/80"
                 />
                 {mentorshipAtCapacity && (
-                  <div className="flex gap-1.5 items-center text-destructive text-xs font-mono font-bold mt-2 bg-destructive/10 p-2 rounded border border-destructive/20">
-                    <AlertCircle className="size-3.5 shrink-0" />
+                  <div className="flex gap-1.5 items-center text-foreground text-xs mt-2 bg-warning-tint p-2 rounded border border-accent-ochre/20">
+                    <AlertCircle className="size-3.5 shrink-0 text-accent-ochre" />
                     <span>
-                      Warning: Mentor is at full capacity. Requesting mentorship is disabled.
+                      {`${helperFirstName} is at capacity for mentorship right now — quick advice is still open.`}
                     </span>
                   </div>
                 )}
@@ -328,9 +333,9 @@ export function Wizard({
       {step === 'context' ? (
         <div className="space-y-4">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">Tell me what you&apos;re working on</h2>
+            <h2 className="text-lg font-semibold">What are you working on?</h2>
             <p className="text-sm text-muted-foreground">
-              A sentence or two. We&apos;ll use this to draft a note to {helperName}.
+              {`A sentence or two. We'll use this to draft a note to ${helperFirstName}.`}
             </p>
           </div>
           <div className="space-y-2">
@@ -352,7 +357,7 @@ export function Wizard({
                 onClick={() => setStep('genre')}
                 disabled={context.trim().length < 5}
               >
-                Pick a topic
+                Continue
               </Button>
               <Button type="button" variant="outline" onClick={() => setStep('path')}>
                 Back
@@ -371,9 +376,9 @@ export function Wizard({
       {step === 'genre' ? (
         <div className="space-y-4">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">What kind of help?</h2>
+            <h2 className="text-lg font-semibold">What kind of question is this?</h2>
             <p className="text-sm text-muted-foreground">
-              Helps {helperName} know what you&apos;re hoping for.
+              {`Helps ${helperFirstName} know what you're hoping for.`}
             </p>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -384,14 +389,18 @@ export function Wizard({
                   key={g.id}
                   type="button"
                   onClick={() => setGenre(g.id)}
+                  aria-pressed={active}
                   className={cn(
-                    'rounded-lg border p-3 text-left transition focus:outline-none focus:ring-2 focus:ring-primary',
+                    'rounded-lg border p-3 text-left transition outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted',
                     active
                       ? 'border-primary bg-primary/5 font-medium'
                       : 'border-border bg-background hover:bg-accent',
                   )}
                 >
-                  <div className="text-sm font-medium">{g.label}</div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium">{g.label}</span>
+                    {active ? <Check className="size-4 shrink-0 text-primary" aria-hidden /> : null}
+                  </div>
                   <div className="text-xs text-muted-foreground mt-0.5">{g.hint}</div>
                 </button>
               )
@@ -399,7 +408,7 @@ export function Wizard({
           </div>
           <div className="flex gap-2 pt-2">
             <Button type="button" onClick={goAfterGenre} disabled={!genre}>
-              {hasSignals ? 'Pick signals' : 'Draft my note'}
+              {hasSignals ? 'Continue' : 'Draft my note'}
             </Button>
             <Button type="button" variant="outline" onClick={() => setStep('context')}>
               Back
@@ -411,9 +420,9 @@ export function Wizard({
       {step === 'signals' ? (
         <div className="space-y-4">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold">What we noticed about {helperName}</h2>
+            <h2 className="text-lg font-semibold">What we noticed about {helperFirstName}</h2>
             <p className="text-sm text-muted-foreground">
-              We&apos;ll lean on these when drafting. Tap any to drop it.
+              We&apos;ll mention these in the draft. Remove any you&apos;d rather not.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -426,7 +435,7 @@ export function Wizard({
                   onClick={() => toggleSignal(s.id)}
                   aria-pressed={active}
                   className={cn(
-                    'rounded-full border px-3 py-1.5 text-sm transition focus:outline-none focus:ring-2 focus:ring-primary',
+                    'rounded-full border px-3 py-1.5 text-sm transition outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted',
                     active
                       ? 'border-primary bg-primary/10 text-foreground font-medium'
                       : 'border-border bg-background text-muted-foreground line-through hover:bg-accent',
@@ -438,9 +447,8 @@ export function Wizard({
             })}
           </div>
           {activeSignalIds.size === 0 ? (
-            <p className="text-xs text-muted-foreground italic">
-              No signals selected — the draft will lean on your situation and {helperName}&apos;s
-              profile only.
+            <p className="text-xs text-muted-foreground">
+              {`Nothing selected — the draft will lean on your situation and ${helperFirstName}'s profile only.`}
             </p>
           ) : null}
           <div className="flex gap-2 pt-2">
@@ -471,7 +479,7 @@ export function Wizard({
           {currentAskType === 'mentorship' ? (
             <div className="space-y-2">
               <Label htmlFor="reason">
-                Why you&apos;d like {helperName} specifically{' '}
+                Why you&apos;d like {helperFirstName} specifically{' '}
                 <span className="text-xs text-muted-foreground">(optional)</span>
               </Label>
               <Textarea

@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { Wordmark } from '@/components/ui/wordmark'
 import { cn } from '@/lib/utils'
 
 export const TOTAL_STEPS = 5
@@ -33,9 +34,7 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
     <main className="mx-auto flex min-h-screen max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
       <header className="mb-10 flex items-center justify-between">
         <Link href="/" aria-label="BridgeCircle home" className="inline-flex">
-          <span className="bc-fraunces text-xl font-bold tracking-[-0.025em] text-foreground">
-            Bridge<span className="text-primary">Circle</span>
-          </span>
+          <Wordmark withIcon={false} textClassName="text-xl tracking-[-0.025em]" />
         </Link>
         <p className="text-xs font-medium text-muted-foreground">
           Step {step} of {TOTAL_STEPS}

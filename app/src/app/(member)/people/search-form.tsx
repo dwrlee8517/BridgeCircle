@@ -210,8 +210,9 @@ export function SearchForm({
             </Button>
           </div>
 
-          <span className="shrink-0 font-mono text-xs uppercase tracking-[0.05em] text-muted-foreground">
-            {resultCount.toLocaleString()} results · {openCount.toLocaleString()} open
+          <span className="shrink-0 text-xs text-muted-foreground">
+            {resultCount.toLocaleString()} {resultCount === 1 ? 'person' : 'people'} ·{' '}
+            {openCount.toLocaleString()} open to help
           </span>
 
           <button

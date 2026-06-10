@@ -487,10 +487,10 @@ What this gets right:
 
 ## 14. Wordmark & assets
 
-- **Wordmark.** Fraunces (serif), display weight, slight negative tracking. "BridgeCircle" is one continuous word — never break it, never insert a space.
+- **Wordmark.** Inter Tight (display sans — **no serif anywhere**, per the design system; the earlier Fraunces direction is retired), bold, slight negative tracking, two-tone: "Bridge" in Obsidian (or light ink on Midnight), "Circle" in Electric Sky (`primary-on-dark` on Midnight). One continuous word — never break it, never insert a space. The canonical lockup is the shared `Wordmark` component (`app/src/components/ui/wordmark.tsx`); do not hand-roll it per surface.
 - **Pairing fonts.** Inter / Inter Tight for UI body and labels.
-- **Color anchors.** Platinum Bone surfaces, Obsidian Ink structure, Electric Sky links and navigation, Amber for the single highest-stakes CTA per surface. Full system in [`docs/experience/ui/design-system/`](../experience/ui/design-system/).
-- **Brand assets directory.** _TBD — the `brand-assets/` folder does not yet exist._ When created, it should contain: wordmark lockups (light/dark, with and without tagline), symbol mark, color tokens, min-size and clear-space specs, social cards. Until then, do not recreate the wordmark in pure Inter.
+- **Color anchors.** Platinum Bone surfaces, Obsidian Ink structure, Electric Sky links and navigation, Amber for the single social-commitment CTA per screen, Sage for helper-side "give help" actions. Full system in [`docs/experience/ui/design-system/`](../experience/ui/design-system/).
+- **Brand assets directory.** _TBD — the `brand-assets/` folder does not yet exist._ When created, it should contain: wordmark lockups (light/dark, with and without tagline), symbol mark, color tokens, min-size and clear-space specs, social cards.
 
 ## 15. Voice in the wild
 

@@ -51,3 +51,29 @@ export function displayName(
   if (trimmedName && trimmedName.length > 0) return trimmedName
   return fallback
 }
+
+/**
+ * Stable generated avatar colors for initials fallbacks (DESIGN.md § Avatars).
+ * Six approved tint/ink pairs from the Civic palette — every pair is a
+ * verified-contrast combination from tokens.md, so initials never fall below
+ * 4.5:1. Full literal class strings so Tailwind's scanner picks them up.
+ *
+ * Seed on a stable id (userId) when available so a member's color never
+ * changes; name is an acceptable fallback for display-only rows.
+ */
+const AVATAR_COLOR_CLASSES = [
+  'bg-primary-tint text-primary',
+  'bg-success-tint text-accent-sage',
+  'bg-plum-tint text-accent-plum',
+  'bg-warning-tint text-accent-ochre',
+  'bg-danger-tint text-accent-rust',
+  'bg-surface-editorial text-surface-editorial-foreground',
+] as const
+
+export function avatarColorClasses(seed: string): string {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0
+  }
+  return AVATAR_COLOR_CLASSES[Math.abs(hash) % AVATAR_COLOR_CLASSES.length]
+}

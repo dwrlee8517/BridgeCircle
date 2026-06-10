@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { StatusBadge, type StatusBadgeProps } from '@/components/ui/status-badge'
-import { cn, displayName } from '@/lib/utils'
+import { avatarColorClasses, cn, displayName } from '@/lib/utils'
 
 export type ResultCardProps = {
   userId: string
@@ -34,10 +34,6 @@ export type ResultCardProps = {
   pendingRequestCount?: number
 }
 
-function getStableBgColor(_name: string | null) {
-  return 'bg-surface-subtle text-muted-foreground'
-}
-
 export function ResultCard(props: ResultCardProps) {
   const display = displayName(props.name, props.preferredName)
   const firstName = getActionName(display)
@@ -49,16 +45,17 @@ export function ResultCard(props: ResultCardProps) {
     .join('')
     .toUpperCase()
   const yearShort = props.graduationYear ? `'${`${props.graduationYear}`.slice(-2)}` : null
-  const avatarColorClass = getStableBgColor(display)
+  const avatarColorClass = avatarColorClasses(props.userId)
   const activeCount = props.activeMenteeCount ?? 0
   const maxActive = props.maxActiveMentees ?? 5
-  const pendingCount = props.pendingRequestCount ?? 0
-  const activeRatio = maxActive > 0 ? activeCount / maxActive : 0
-  const capacityColorClass = getCapacityColorClass(activeRatio)
+  const remaining = Math.max(0, maxActive - activeCount)
   const status = getStatus(props)
   const isOpen = props.isOpenAsAdviceHelper || props.isOpenAsMentor
   const askType = props.isOpenAsAdviceHelper ? 'advice' : 'mentorship'
-  const rationale = props.rationale ?? props.headline
+  // System rationale renders as plain text; only the member's own headline
+  // earns the pull-quote treatment.
+  const systemRationale = props.rationale
+  const humanHeadline = !props.rationale ? props.headline : null
   const topics = props.mentoringTopics?.slice(0, 3) ?? []
 
   return (
@@ -104,69 +101,42 @@ export function ResultCard(props: ResultCardProps) {
               </span>
             </p>
 
-            {rationale ? (
+            {systemRationale ? (
+              <p className="mt-3 max-w-[720px] text-[13px] leading-relaxed text-muted-foreground">
+                {systemRationale}
+              </p>
+            ) : humanHeadline ? (
               <p className="bc-pull-quote mt-3 max-w-[720px] py-0 pl-3 text-[13px] italic leading-relaxed text-foreground">
-                &ldquo;{rationale}&rdquo;
+                &ldquo;{humanHeadline}&rdquo;
               </p>
             ) : null}
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {topics.map((topic) => (
-                <span
-                  key={topic}
-                  className="inline-flex items-center rounded-full border border-border bg-surface-panel px-2.5 py-1 text-xs font-medium text-muted-foreground"
-                >
-                  {topic}
-                </span>
-              ))}
-              {topics.length > 0 ? <span className="hidden h-3.5 w-px bg-border sm:block" /> : null}
-              <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                {props.isOpenAsMentor ? (
-                  <span>
-                    <strong className="font-semibold text-foreground">{activeCount}</strong> active
+            {topics.length > 0 ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {topics.map((topic) => (
+                  <span
+                    key={topic}
+                    className="inline-flex items-center rounded-full border border-border bg-surface-panel px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                  >
+                    {topic}
                   </span>
-                ) : null}
-                {props.isOpenAsMentor ? (
-                  <span>
-                    <strong className="font-semibold text-foreground">{maxActive}</strong> capacity
-                  </span>
-                ) : null}
-                {pendingCount > 0 ? (
-                  <span>
-                    <strong className="font-semibold text-foreground">{pendingCount}</strong>{' '}
-                    pending
-                  </span>
-                ) : null}
-              </span>
-            </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </Link>
 
         <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 border-t border-border/70 pt-3 md:col-span-1 md:col-start-3 md:row-start-1 md:min-w-[170px] md:flex-col md:items-end md:justify-center md:border-t-0 md:pt-0">
           <StatusBadge tone={status.tone} dot={status.dot} size="sm">
-            {props.isOpenAsMentor ? (
-              <span className={cn('mr-1 size-1.5 rounded-full', capacityColorClass)} aria-hidden />
-            ) : null}
             {status.label}
           </StatusBadge>
 
           {props.isOpenAsMentor ? (
-            <div className="flex items-center gap-2 md:flex-col md:items-end md:gap-1">
-              <span className="font-mono text-xs uppercase tracking-[0.04em] text-muted-foreground">
-                Capacity
-              </span>
-              <div className="flex items-center gap-2">
-                <div className="h-1 w-[88px] overflow-hidden rounded-full bg-surface-subtle">
-                  <div
-                    className={cn('h-full rounded-full', capacityColorClass)}
-                    style={{ width: `${Math.min(activeRatio, 1) * 100}%` }}
-                  />
-                </div>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {activeCount}/{maxActive}
-                </span>
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground md:text-right">
+              {remaining > 0
+                ? `Can take ${remaining} more ${remaining === 1 ? 'conversation' : 'conversations'}`
+                : 'At capacity right now'}
+            </p>
           ) : null}
 
           <div className="flex gap-1.5">
@@ -177,16 +147,7 @@ export function ResultCard(props: ResultCardProps) {
               <Button asChild variant="default" size="sm" className="h-8 rounded-md px-3 text-xs">
                 <Link href={`/ask/new?to=${props.userId}&type=${askType}`}>Ask {firstName}</Link>
               </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-8 rounded-md px-3 text-xs"
-              >
-                Not open
-              </Button>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -220,7 +181,7 @@ function PersonAvatar({
           className="absolute inset-0 size-full object-cover"
         />
       ) : (
-        <span className="font-heading flex size-full items-center justify-center text-sm font-semibold text-muted-foreground md:text-lg">
+        <span className="font-heading flex size-full items-center justify-center text-sm font-semibold md:text-lg">
           {initials}
         </span>
       )}
@@ -229,8 +190,10 @@ function PersonAvatar({
 }
 
 function MatchBadge({ score }: { score: number }) {
+  // Same bands + wording as the Ask results cards (help-network-ui) so fit
+  // language reads identically across surfaces. Raw percentages stay internal.
   const tier = score >= 85 ? 'strong' : score >= 65 ? 'good' : 'possible'
-  const label = tier === 'strong' ? 'Strong match' : tier === 'good' ? 'Good match' : 'Possible'
+  const label = tier === 'strong' ? 'Strong fit' : tier === 'good' ? 'Good fit' : 'Worth exploring'
   return (
     <span
       className={cn(
@@ -249,7 +212,7 @@ function MatchBadge({ score }: { score: number }) {
         )}
         aria-hidden
       />
-      {label} · {score}%
+      {label}
     </span>
   )
 }
@@ -263,12 +226,6 @@ function getStatus(props: ResultCardProps): {
   if (props.isOpenAsAdviceHelper) return { label: 'Open for advice', tone: 'open', dot: true }
   if (props.mentorPaused) return { label: 'Paused', tone: 'warn', dot: true }
   return { label: 'Not open now', tone: 'muted', dot: false }
-}
-
-function getCapacityColorClass(ratio: number) {
-  if (ratio <= 0.5) return 'bg-accent-sage'
-  if (ratio <= 0.85) return 'bg-accent-ochre'
-  return 'bg-destructive'
 }
 
 function getActionName(display: string) {
