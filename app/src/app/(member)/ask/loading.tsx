@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { MATCH_AVATAR_BOX, MATCH_GRID, MATCH_RAIL } from '../help-network-ui'
 
 export default function AskLoading() {
   return (
@@ -26,17 +27,19 @@ export default function AskLoading() {
             <Skeleton className="mt-2 h-4 w-72 max-w-full" />
           </div>
           <div className="divide-y divide-border">
+            {/* Mirrors MatchBriefCard's list-row geometry via the shared
+                constants — change the card, and this follows. */}
             {['ask-result-a', 'ask-result-b', 'ask-result-c'].map((id) => (
-              <div key={id} className="grid gap-0 p-4 md:grid-cols-[minmax(0,1fr)_244px]">
-                <div className="flex gap-3.5">
-                  <Skeleton className="size-12 shrink-0 rounded-md" />
+              <div key={id} className={MATCH_GRID}>
+                <div className="flex gap-3.5 p-4 sm:p-5">
+                  <Skeleton className={`${MATCH_AVATAR_BOX} shrink-0 rounded-md`} />
                   <div className="min-w-0 flex-1 space-y-2">
                     <Skeleton className="h-5 w-40" />
                     <Skeleton className="h-4 w-2/3" />
                     <Skeleton className="mt-3 h-20 w-full rounded-md" />
                   </div>
                 </div>
-                <div className="mt-4 flex flex-col justify-center gap-2 md:mt-0 md:pl-4">
+                <div className={MATCH_RAIL}>
                   <Skeleton className="h-9 w-full rounded-md" />
                   <Skeleton className="mx-auto h-3 w-20" />
                 </div>

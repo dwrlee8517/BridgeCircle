@@ -106,7 +106,26 @@ contract.
 
 ### Person Card
 
-Current local source: `app/src/app/(member)/people/result-card.tsx`.
+Shared anatomy kit: `app/src/components/ui/person-card.tsx` — `PersonAvatar`,
+`MatchBandBadge`, `RationaleBlock`, `TopicChips`, plus `getInitials` /
+`classYearShort` / `askComposeHref` / `preferredAskType` in
+`app/src/lib/utils.ts`. There is intentionally no single `<PersonCard>`
+component: each surface owns its layout grid, action rail, and
+availability-badge philosophy, and composes the kit so the shared parts
+cannot drift. Compositions: `app/src/app/(member)/people/result-card.tsx`
+(directory row), `HomePersonCard` in
+`app/src/app/(member)/dashboard-client.tsx` (home feed tile), and
+`MatchBriefCard` in `app/src/app/(member)/help-network-ui.tsx` (ask-results
+decision brief; its skeleton shares geometry via the exported `MATCH_*`
+constants).
+
+Supply-side rows (`NextHelpCard` / `AltPickCard` / `SubjectFeedRow` in
+`app/src/app/(member)/help/help-client.tsx`) are a different species — they
+present a person *plus their ask* with "Offer help" actions — and are
+deliberately not part of this kit beyond `getInitials`.
+
+Topic chips are `rounded-sm` quiet chips everywhere (full circles stay
+reserved for avatars, dots, and controls).
 
 Purpose: help a member decide whether this person can help, should be asked,
 or is worth opening in profile detail.

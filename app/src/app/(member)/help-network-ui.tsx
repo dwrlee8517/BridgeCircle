@@ -6,12 +6,12 @@ import {
   MessageCircleQuestion,
   Sparkles,
 } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { MatchBandBadge, PersonAvatar, RationaleBlock } from '@/components/ui/person-card'
 import { StatusBadge } from '@/components/ui/status-badge'
-import { avatarColorClasses, cn, displayName } from '@/lib/utils'
+import { askComposeHref, classYearShort, cn, displayName, preferredAskType } from '@/lib/utils'
 
 export type HelpNetworkPerson = {
   userId: string
@@ -174,6 +174,14 @@ function NetworkStat({ value, label }: { value: number; label: string }) {
   )
 }
 
+// Geometry shared between MatchBriefCard and its skeletons (the card-variant
+// MatchBriefCardSkeleton below and the list-row mirror in ask/loading.tsx) —
+// all consumers must use these so loading states can't drift from the card.
+export const MATCH_GRID = 'grid gap-0 md:grid-cols-[minmax(0,1fr)_244px]'
+export const MATCH_AVATAR_BOX = 'size-12'
+export const MATCH_RAIL =
+  'flex flex-col justify-center gap-2 border-t border-border bg-surface-panel/60 p-4 md:border-l md:border-t-0'
+
 export function MatchBriefCard({
   person,
   query,
@@ -191,11 +199,7 @@ export function MatchBriefCard({
 }) {
   const display = displayName(person.name, person.preferredName ?? null)
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
-  const askType = person.isOpenAsAdviceHelper
-    ? 'advice'
-    : person.isOpenAsMentor
-      ? 'mentorship'
-      : null
+  const askType = preferredAskType(person)
   const matchReason =
     reason ??
     person.rationale ??
@@ -211,11 +215,17 @@ export function MatchBriefCard({
   const askIntent = intent ?? query
   const isListRow = variant === 'list-row'
   const content = (
-    <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_244px]">
+    <div className={MATCH_GRID}>
       <div className="relative overflow-hidden p-4 sm:p-5">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgb(37_99_235/0.025),transparent_42%),radial-gradient(circle_at_100%_100%,rgb(21_160_95/0.025),transparent_32%)]" />
         <div className="relative flex items-start gap-3.5">
-          <PersonAvatar person={person} />
+          <PersonAvatar
+            userId={person.userId}
+            name={display}
+            avatarUrl={person.avatarUrl}
+            shape="square"
+            className={cn(MATCH_AVATAR_BOX, 'text-base')}
+          />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <Link
@@ -224,21 +234,14 @@ export function MatchBriefCard({
               >
                 {display}
               </Link>
-              {person.graduationYear ? (
+              {classYearShort(person.graduationYear) ? (
                 <span className="text-xs font-semibold text-muted-foreground">
-                  &apos;{String(person.graduationYear).slice(-2)}
+                  {classYearShort(person.graduationYear)}
                 </span>
               ) : null}
               <AvailabilityBadges person={person} />
               {person.matchScore !== null && person.matchScore !== undefined ? (
-                <span
-                  className={cn(
-                    'inline-flex items-center rounded-full bg-surface-panel px-2.5 py-0.5 text-xs font-semibold',
-                    matchBandClass(person.matchScore),
-                  )}
-                >
-                  {matchBandLabel(person.matchScore)}
-                </span>
+                <MatchBandBadge score={person.matchScore} />
               ) : null}
             </div>
             <p className="mt-1 truncate text-sm text-muted-foreground">
@@ -248,17 +251,17 @@ export function MatchBriefCard({
         </div>
 
         <div className="relative mt-3 space-y-2">
-          <div
+          <RationaleBlock
+            label="Why this person might fit"
+            labelClassName="text-primary"
+            bodyClassName="text-sm text-foreground"
             className={cn(
               'bg-primary/[0.04] p-3',
               isListRow ? '' : 'rounded-md border border-primary/18 bg-card shadow-sm',
             )}
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-              Why this person might fit
-            </p>
-            <p className="mt-1.5 text-sm leading-relaxed text-foreground">{matchReason}</p>
-          </div>
+            {matchReason}
+          </RationaleBlock>
           {showSuggestedAsk && suggestedAsk ? (
             <details
               className={cn(
@@ -281,10 +284,10 @@ export function MatchBriefCard({
         </div>
       </div>
 
-      <div className="flex flex-col justify-center gap-2 border-t border-border bg-surface-panel/60 p-4 md:border-l md:border-t-0">
+      <div className={MATCH_RAIL}>
         {askType ? (
           <Button asChild variant="default" size="sm" className="w-full rounded-md">
-            <Link href={askRequestHref(person.userId, askType, askIntent)}>
+            <Link href={askComposeHref(person.userId, askType, askIntent)}>
               {askLabel}
               <ArrowRight className="size-4" />
             </Link>
@@ -337,12 +340,17 @@ export function MatchBriefCardSkeleton({ count = 5 }: { count?: number }) {
           key={id}
           className="overflow-hidden rounded-md border border-border bg-card p-0 shadow-card"
         >
-          <div className="grid gap-0 md:grid-cols-[minmax(0,1fr)_244px]">
+          <div className={MATCH_GRID}>
             {/* Left: identity + reason + disclosure */}
             <div className="relative overflow-hidden p-4 sm:p-5">
               <div className="relative flex items-start gap-3.5">
                 {/* Avatar */}
-                <div className="size-12 shrink-0 animate-pulse rounded-md bg-surface-subtle" />
+                <div
+                  className={cn(
+                    MATCH_AVATAR_BOX,
+                    'shrink-0 animate-pulse rounded-md bg-surface-subtle',
+                  )}
+                />
                 <div className="min-w-0 flex-1 space-y-2">
                   {/* Name + year + availability badge + (sometimes) match pill */}
                   <div className="flex flex-wrap items-center gap-2">
@@ -377,7 +385,7 @@ export function MatchBriefCardSkeleton({ count = 5 }: { count?: number }) {
             </div>
 
             {/* Right: CTA + view-profile link */}
-            <div className="flex flex-col justify-center gap-2 border-t border-border bg-surface-panel/60 p-4 md:border-l md:border-t-0">
+            <div className={MATCH_RAIL}>
               <div className="h-9 w-full animate-pulse rounded-md bg-surface-subtle" />
               <div className="mx-auto h-3 w-20 animate-pulse rounded bg-surface-subtle/70" />
             </div>
@@ -534,45 +542,6 @@ function AvailabilityBadges({ person }: { person: HelpNetworkPerson }) {
   )
 }
 
-function PersonAvatar({ person }: { person: HelpNetworkPerson }) {
-  const display = displayName(person.name, person.preferredName ?? null)
-  const initials = display
-    .split(/\s+/)
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-
-  // P3 cleanup: randomized accent-color avatars looked arbitrary — viewers
-  // searched for meaning in the color and found none, and three adjacent
-  // cards could pull the same rust hue. One muted surface across the board
-  // keeps the visual rhythm calm and lets photos do the differentiation.
-  return (
-    <div
-      className={cn(
-        'relative size-12 shrink-0 overflow-hidden rounded-md',
-        avatarColorClasses(person.userId),
-      )}
-    >
-      {person.avatarUrl ? (
-        <Image
-          src={person.avatarUrl}
-          alt=""
-          fill
-          sizes="48px"
-          unoptimized
-          className="object-cover"
-        />
-      ) : (
-        <span className="flex size-full items-center justify-center font-heading text-base font-semibold">
-          {initials}
-        </span>
-      )}
-    </div>
-  )
-}
-
 function buildDefaultReason(person: HelpNetworkPerson, query?: string) {
   if (person.mentoringTopics && person.mentoringTopics.length > 0) {
     return `They help with ${person.mentoringTopics.slice(0, 2).join(' and ')}, which fits this question.`
@@ -586,23 +555,6 @@ function buildDefaultReason(person: HelpNetworkPerson, query?: string) {
   return null
 }
 
-// Match scores come from the LLM reranker (0-100). Surfacing the raw
-// percentage made the card read like "AI-matched: 94% compatibility" —
-// the algorithmic spectacle voice §5.5 explicitly bans. Bands match the
-// reranker's own mental model (90+ strong / 60-89 partial / <60 weak),
-// nudged down slightly so the boundaries don't feel arbitrary.
-function matchBandLabel(score: number): string {
-  if (score >= 85) return 'Strong fit'
-  if (score >= 65) return 'Good fit'
-  return 'Worth exploring'
-}
-
-function matchBandClass(score: number): string {
-  if (score >= 85) return 'text-state-success-foreground'
-  if (score >= 65) return 'text-state-info-foreground'
-  return 'text-muted-foreground'
-}
-
 function buildSuggestedAsk(_query: string | undefined, person: HelpNetworkPerson) {
   // Never echo the member's raw query back in quotes — the parroted template
   // reads as auto-generated filler. Keep the opener short; the guided
@@ -611,12 +563,4 @@ function buildSuggestedAsk(_query: string | undefined, person: HelpNetworkPerson
     return `Could I get your perspective on ${person.mentoringTopics[0]}?`
   }
   return 'Could I get your perspective on this?'
-}
-
-function askRequestHref(userId: string, askType: string, intent: string | undefined) {
-  const params = new URLSearchParams({ to: userId, type: askType })
-  if (intent?.trim()) {
-    params.set('intent', intent.trim())
-  }
-  return `/ask/new?${params.toString()}`
 }

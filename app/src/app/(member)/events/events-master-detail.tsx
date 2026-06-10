@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarGroup, AvatarImage } from '@/components/u
 import { Button } from '@/components/ui/button'
 import type { EventAttendee } from '@/lib/events/attendeePreviewHelpers'
 import type { EventRow, RsvpStatus } from '@/lib/events/listEvents'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { rsvpAction } from './actions'
 import { getEventMetadata, getEventStableColor } from './metadata'
 
@@ -341,7 +341,7 @@ function AttendeePreview({
           {attendees.slice(0, 5).map((attendee) => (
             <Avatar key={attendee.userId} size="sm" className="rounded-full">
               {attendee.avatarUrl ? <AvatarImage src={attendee.avatarUrl} alt="" /> : null}
-              <AvatarFallback>{initialsFor(attendee.name)}</AvatarFallback>
+              <AvatarFallback>{getInitials(attendee.name)}</AvatarFallback>
             </Avatar>
           ))}
         </AvatarGroup>
@@ -456,14 +456,6 @@ function groupByMonth(items: DisplayEvent[]) {
   }
 
   return groups
-}
-
-function initialsFor(name: string | null): string {
-  if (!name) return '?'
-  const parts = name.split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return (parts[0]?.slice(0, 2) ?? '?').toUpperCase()
-  return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase()
 }
 
 function firstName(name: string | undefined): string {

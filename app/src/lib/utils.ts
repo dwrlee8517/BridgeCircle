@@ -77,3 +77,51 @@ export function avatarColorClasses(seed: string): string {
   }
   return AVATAR_COLOR_CLASSES[Math.abs(hash) % AVATAR_COLOR_CLASSES.length]
 }
+
+/**
+ * Two-letter initials for avatar fallbacks. One implementation for every
+ * surface (was duplicated as `initials`/`initialsFor`/`getInitials` across
+ * cards, events, school, and inbox).
+ */
+export function getInitials(name: string | null | undefined, fallback = '?'): string {
+  const parts = (name ?? '').split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return fallback
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
+/** "'26"-style short class year, or null when unknown. */
+export function classYearShort(year: number | null | undefined): string | null {
+  if (year === null || year === undefined) return null
+  return `'${String(year).slice(-2)}`
+}
+
+/**
+ * Canonical link into the ask composer. Centralized so the intent param
+ * can't silently drop on some surfaces (it did on Home and People).
+ */
+export function askComposeHref(
+  userId: string,
+  type: 'advice' | 'mentorship',
+  intent?: string,
+): string {
+  const params = new URLSearchParams({ to: userId, type })
+  if (intent?.trim()) params.set('intent', intent.trim())
+  return `/ask/new?${params.toString()}`
+}
+
+/**
+ * Which composer type a card's CTA should open. Advice-first because it's
+ * the lower-friction ask; mentor-only people route to the mentorship
+ * composer instead of being mislabeled as advice.
+ */
+export function preferredAskType(person: {
+  isOpenAsAdviceHelper?: boolean
+  isOpenAsMentor?: boolean
+}): 'advice' | 'mentorship' | null {
+  if (person.isOpenAsAdviceHelper) return 'advice'
+  if (person.isOpenAsMentor) return 'mentorship'
+  return null
+}
