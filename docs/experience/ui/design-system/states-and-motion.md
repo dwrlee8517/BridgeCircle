@@ -54,6 +54,7 @@ common lifecycle words.
 | Selection change | `motion-fast` | `ease-standard` | background, border, text color | Inbox rows, table rows, selected cards |
 | Interactive surface hover | `motion-base` | `ease-standard` | background, border, box-shadow, 1px transform | Clickable cards only |
 | Overlay enter | `motion-medium` | `ease-emphasized` | opacity, transform | Dialogs, popovers, menus |
+| Master-detail pane swap | `motion-medium` mobile / `motion-fast` desktop | `ease-emphasized` | opacity, transform | Detail pane keyed on the selection: `animate-in fade-in slide-in-from-right-2 duration-medium ease-emphasized md:slide-in-from-right-0 md:duration-fast` — slide on mobile reveal, pure fade on desktop selection change. Used by inbox, School events, and the events archive. Returning to the list is intentionally instant (re-animating the list would re-mount it and lose scroll position). |
 | Loading pulse | `motion-slow` repeated | `ease-standard` | opacity | Skeletons only |
 | Error reveal | `motion-fast` | `ease-standard` | opacity | Inline validation and alert text |
 

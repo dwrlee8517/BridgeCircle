@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google'
+import { ThemeProvider } from 'next-themes'
 import './globals.css'
 
 // Type system: Inter Tight (display) + Inter (body) + JetBrains Mono (meta).
@@ -56,7 +57,17 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {children}
+        {/* Dark tokens live in globals.css `.dark`; next-themes applies the
+            class from the OS preference by default, with a manual override
+            in the account menu. */}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

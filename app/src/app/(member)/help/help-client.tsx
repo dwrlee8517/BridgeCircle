@@ -6,6 +6,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { avatarColorClasses, cn, getInitials } from '@/lib/utils'
 
 export type HelpAvailability = {
@@ -430,16 +431,12 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
 
 function EmptyNextHelpCard() {
   return (
-    <div className="w-full max-w-[720px] rounded-md border border-dashed border-border bg-card p-6 text-center shadow-card">
-      <p className="font-heading text-lg font-semibold text-foreground">No one is waiting today.</p>
-      <p className="mx-auto mt-2 max-w-[460px] text-sm leading-relaxed text-muted-foreground">
-        You can still browse recent members below or tune the topics where classmates should find
-        you.
-      </p>
-      <Button asChild variant="outline" size="sm" className="mt-4 rounded-md">
-        <Link href="/mentorship/settings">Edit availability</Link>
-      </Button>
-    </div>
+    <EmptyState
+      title="No one is waiting today"
+      description="You can still browse recent members below, or adjust the topics where classmates should find you."
+      action={{ label: 'Edit availability', href: '/mentorship/settings' }}
+      className="w-full max-w-[720px]"
+    />
   )
 }
 
@@ -645,17 +642,12 @@ function SubjectPicker({
 
 function EmptyHelpCard() {
   return (
-    <div className="rounded-md border border-border bg-card p-6 text-center">
-      <p className="font-heading text-base font-semibold text-foreground">
-        No open asks in this view right now.
-      </p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        We will surface matched asks here as they arrive.
-      </p>
-      <Button asChild variant="outline" size="sm" className="mt-4 rounded-md">
-        <Link href="/mentorship/settings">Edit availability</Link>
-      </Button>
-    </div>
+    <EmptyState
+      size="inline"
+      title="No open requests in this view right now"
+      description="When someone in the circle asks for help here, they'll show up for you."
+      action={{ label: 'Edit availability', href: '/mentorship/settings' }}
+    />
   )
 }
 

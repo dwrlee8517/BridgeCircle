@@ -137,7 +137,13 @@ function EventArchiveSpotlight({
   const isFull = event.capacity !== null && event.goingCount >= event.capacity
 
   return (
-    <section className="flex min-h-[580px] flex-col" aria-label={`${event.title} details`}>
+    // Master-detail pane swap recipe (states-and-motion.md): keyed on the
+    // event so selection changes fade in (this surface is desktop-grid only).
+    <section
+      key={event.id}
+      className="flex min-h-[580px] flex-col animate-in fade-in duration-fast ease-standard"
+      aria-label={`${event.title} details`}
+    >
       <div className="grid gap-5 border-b border-border bg-card px-5 py-6 sm:px-7 md:grid-cols-[1fr_auto] md:items-start">
         <div className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2">
