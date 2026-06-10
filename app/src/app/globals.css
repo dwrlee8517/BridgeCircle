@@ -309,6 +309,11 @@
   --shadow-card-hover: 0 4px 12px -2px rgb(12 12 11 / 0.06);
   --shadow-hero: 0 12px 34px -8px rgb(12 12 11 / 0.1);
 
+  /* Page band (.bc-page-band) — white sheen + sapphire glow over the canvas.
+     Themed via variables so dark mode overrides values, not selectors. */
+  --page-band-sheen: rgb(255 255 255 / 0.72);
+  --page-band-glow: rgb(37 99 235 / 0.07);
+
   /* Spacing Grid Scale variables */
   --space-1: 0.25rem; /* 4px */
   --space-2: 0.5rem; /* 8px */
@@ -427,6 +432,10 @@
   --shadow-card: 0 1px 0 rgb(0 0 0 / 0.25);
   --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.35);
   --shadow-hero: 0 12px 34px -8px rgb(0 0 0 / 0.45);
+
+  /* Page band — flip the white sheen to a faint lift; soften the glow */
+  --page-band-sheen: rgb(255 255 255 / 0.04);
+  --page-band-glow: rgb(147 197 253 / 0.06);
 }
 
 @layer base {
@@ -568,17 +577,13 @@
   color: var(--foreground);
 }
 
+/* Sheen and glow colors come from :root / .dark token blocks — a single rule
+   themed by variables survives the compiler; a separate `.dark .bc-page-band`
+   override was intermittently dropped from Turbopack's compiled output. */
 .bc-page-band {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.72), rgb(255 255 255 / 0)),
-    radial-gradient(circle at 12% 0%, rgb(37 99 235 / 0.07), transparent 32%), var(--background);
-}
-
-/* Dark flips the white sheen to a card-tinted lift; the blue glow can stay. */
-.dark .bc-page-band {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0)),
-    radial-gradient(circle at 12% 0%, rgb(147 197 253 / 0.06), transparent 32%), var(--background);
+    linear-gradient(180deg, var(--page-band-sheen), rgb(255 255 255 / 0)),
+    radial-gradient(circle at 12% 0%, var(--page-band-glow), transparent 32%), var(--background);
 }
 
 .bc-command-surface {
