@@ -21,7 +21,7 @@ import { getEvent } from '@/lib/events/getEvent'
 import { type AttendeeRow, listAttendees } from '@/lib/events/listAttendees'
 import type { EventRow } from '@/lib/events/listEvents'
 import { listEvents } from '@/lib/events/listEvents'
-import { cn } from '@/lib/utils'
+import { cn, getInitials } from '@/lib/utils'
 import { getEventMetadata, getEventStableColor } from '../metadata'
 import { RsvpButtons } from '../rsvp-buttons'
 
@@ -454,7 +454,7 @@ function AttendeeRoster({
                 {attendee.avatarUrl ? (
                   <AvatarImage src={attendee.avatarUrl} alt={attendee.name ?? 'Member'} />
                 ) : null}
-                <AvatarFallback>{initialsFor(attendee.name)}</AvatarFallback>
+                <AvatarFallback>{getInitials(attendee.name)}</AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-foreground">
@@ -570,12 +570,4 @@ function eventFormat(location: string | null): string {
   const normalized = location?.toLowerCase() ?? ''
   if (normalized.includes('zoom') || normalized.includes('virtual')) return 'Virtual'
   return 'In person'
-}
-
-function initialsFor(name: string | null): string {
-  if (!name) return '?'
-  const parts = name.split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return (parts[0]?.slice(0, 2) ?? '?').toUpperCase()
-  return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase()
 }

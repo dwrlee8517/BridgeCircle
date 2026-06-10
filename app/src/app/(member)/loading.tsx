@@ -111,9 +111,9 @@ function SectionHeaderSkeleton() {
   )
 }
 
-// Mirrors MatchBriefCard as rendered on Home (no `query`, so no match-signal
-// pill and no suggested-ask disclosure). Home's toPerson() sets both
-// isOpenAsMentor and isOpenAsAdviceHelper true → two availability badges.
+// Mirrors HomePersonCard's grid footprint (Home renders HomePersonCard from
+// dashboard-client.tsx, not MatchBriefCard). Keep this in step with that
+// card's geometry when it changes.
 function CompactMatchSkeleton() {
   return (
     <Card className="overflow-hidden rounded-md border border-border bg-card p-0 shadow-card">

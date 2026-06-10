@@ -1,11 +1,16 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  MatchBandBadge,
+  PersonAvatar,
+  RationaleBlock,
+  TopicChips,
+} from '@/components/ui/person-card'
 import { StatusBadge, type StatusBadgeProps } from '@/components/ui/status-badge'
-import { avatarColorClasses, cn, displayName } from '@/lib/utils'
+import { askComposeHref, classYearShort, displayName, preferredAskType } from '@/lib/utils'
 
 export type ResultCardProps = {
   userId: string
@@ -37,21 +42,12 @@ export type ResultCardProps = {
 export function ResultCard(props: ResultCardProps) {
   const display = displayName(props.name, props.preferredName)
   const firstName = getActionName(display)
-  const initials = display
-    .split(/\s+/)
-    .map((s) => s[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-  const yearShort = props.graduationYear ? `'${`${props.graduationYear}`.slice(-2)}` : null
-  const avatarColorClass = avatarColorClasses(props.userId)
+  const yearShort = classYearShort(props.graduationYear)
   const activeCount = props.activeMenteeCount ?? 0
   const maxActive = props.maxActiveMentees ?? 5
   const remaining = Math.max(0, maxActive - activeCount)
   const status = getStatus(props)
-  const isOpen = props.isOpenAsAdviceHelper || props.isOpenAsMentor
-  const askType = props.isOpenAsAdviceHelper ? 'advice' : 'mentorship'
+  const askType = preferredAskType(props)
   // System rationale renders as plain text; only the member's own headline
   // earns the pull-quote treatment.
   const systemRationale = props.rationale
@@ -66,9 +62,10 @@ export function ResultCard(props: ResultCardProps) {
       <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-3 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center md:gap-x-5">
         <Link href={`/profile/${props.userId}`} className="row-start-1 shrink-0">
           <PersonAvatar
+            userId={props.userId}
+            name={display}
             avatarUrl={props.avatarUrl}
-            initials={initials}
-            avatarColorClass={avatarColorClass}
+            className="size-[52px] text-sm shadow-card md:size-[72px] md:text-lg"
           />
         </Link>
 
@@ -83,7 +80,7 @@ export function ResultCard(props: ResultCardProps) {
                   {yearShort}
                 </span>
               ) : null}
-              {props.rerankScore !== null ? <MatchBadge score={props.rerankScore} /> : null}
+              {props.rerankScore !== null ? <MatchBandBadge score={props.rerankScore} /> : null}
               {props.isFriend ? (
                 <StatusBadge tone="info" dot size="sm">
                   Friend
@@ -102,27 +99,21 @@ export function ResultCard(props: ResultCardProps) {
             </p>
 
             {systemRationale ? (
-              <p className="mt-3 max-w-[720px] text-[13px] leading-relaxed text-muted-foreground">
+              <RationaleBlock className="mt-3 max-w-[720px]" bodyClassName="text-[13px]">
                 {systemRationale}
-              </p>
+              </RationaleBlock>
             ) : humanHeadline ? (
-              <p className="bc-pull-quote mt-3 max-w-[720px] py-0 pl-3 text-[13px] italic leading-relaxed text-foreground">
-                &ldquo;{humanHeadline}&rdquo;
-              </p>
+              <RationaleBlock
+                label={null}
+                human
+                className="mt-3 max-w-[720px]"
+                bodyClassName="text-[13px] text-foreground"
+              >
+                {humanHeadline}
+              </RationaleBlock>
             ) : null}
 
-            {topics.length > 0 ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="inline-flex items-center rounded-full border border-border bg-surface-panel px-2.5 py-1 text-xs font-medium text-muted-foreground"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            ) : null}
+            <TopicChips topics={topics} className="mt-3" />
           </div>
         </Link>
 
@@ -143,77 +134,15 @@ export function ResultCard(props: ResultCardProps) {
             <Button asChild variant="outline" size="sm" className="h-8 rounded-md px-3 text-xs">
               <Link href={`/profile/${props.userId}`}>View</Link>
             </Button>
-            {isOpen ? (
+            {askType ? (
               <Button asChild variant="default" size="sm" className="h-8 rounded-md px-3 text-xs">
-                <Link href={`/ask/new?to=${props.userId}&type=${askType}`}>Ask {firstName}</Link>
+                <Link href={askComposeHref(props.userId, askType)}>Ask {firstName}</Link>
               </Button>
             ) : null}
           </div>
         </div>
       </div>
     </Card>
-  )
-}
-
-function PersonAvatar({
-  avatarUrl,
-  initials,
-  avatarColorClass,
-}: {
-  avatarUrl: string | null
-  initials: string
-  avatarColorClass: string
-}) {
-  return (
-    <div
-      className={cn(
-        'relative size-[52px] shrink-0 overflow-hidden rounded-full shadow-card md:size-[72px]',
-        avatarUrl ? '' : avatarColorClass,
-      )}
-    >
-      {avatarUrl ? (
-        <Image
-          src={avatarUrl}
-          alt=""
-          fill
-          sizes="(min-width: 768px) 72px, 52px"
-          unoptimized
-          className="absolute inset-0 size-full object-cover"
-        />
-      ) : (
-        <span className="font-heading flex size-full items-center justify-center text-sm font-semibold md:text-lg">
-          {initials}
-        </span>
-      )}
-    </div>
-  )
-}
-
-function MatchBadge({ score }: { score: number }) {
-  // Same bands + wording as the Ask results cards (help-network-ui) so fit
-  // language reads identically across surfaces. Raw percentages stay internal.
-  const tier = score >= 85 ? 'strong' : score >= 65 ? 'good' : 'possible'
-  const label = tier === 'strong' ? 'Strong fit' : tier === 'good' ? 'Good fit' : 'Worth exploring'
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold',
-        tier === 'strong' && 'border-success-tint bg-success-tint text-state-success-foreground',
-        tier === 'good' && 'border-primary/20 bg-primary-tint text-primary',
-        tier === 'possible' && 'border-border bg-surface-subtle text-muted-foreground',
-      )}
-    >
-      <span
-        className={cn(
-          'size-1.5 rounded-full',
-          tier === 'strong' && 'bg-state-success',
-          tier === 'good' && 'bg-primary',
-          tier === 'possible' && 'bg-muted-foreground',
-        )}
-        aria-hidden
-      />
-      {label}
-    </span>
   )
 }
 

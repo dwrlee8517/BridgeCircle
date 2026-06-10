@@ -5,16 +5,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import type { HomeCareerMove, HomeLocationMove } from '@/lib/home/getHomeFeed'
-
-function getInitials(name: string | null): string {
-  if (!name) return 'BC'
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
-}
+import { getInitials } from '@/lib/utils'
 
 const AVATAR_COLORS = [
   'border-accent-sage/30 bg-accent-sage/10 text-accent-sage',

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { avatarColorClasses, cn } from '@/lib/utils'
+import { avatarColorClasses, cn, getInitials } from '@/lib/utils'
 
 export type HelpAvailability = {
   openToAdvice: boolean
@@ -674,7 +674,7 @@ function HelpAvatar({ pick, size }: { pick: HelpPick; size: number }) {
         <Image src={pick.avatarUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
       ) : (
         <span className="flex size-full items-center justify-center font-heading text-sm font-semibold">
-          {initials(pick.name)}
+          {getInitials(pick.name)}
         </span>
       )}
     </div>
@@ -701,13 +701,4 @@ function ToggleRow({ label, on }: { label: string; on: boolean }) {
       </span>
     </div>
   )
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('')
 }

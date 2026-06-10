@@ -1,12 +1,12 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ArrowRight, Send } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { EventTime } from '@/components/ui/event-time'
+import { PersonAvatar, RationaleBlock, TopicChips } from '@/components/ui/person-card'
 import { StatusBadge } from '@/components/ui/status-badge'
 import type { HomeEvent, HomeFeed, HomeRecentAsk } from '@/lib/home/getHomeFeed'
-import { avatarColorClasses, displayName } from '@/lib/utils'
+import { askComposeHref, classYearShort, displayName, preferredAskType } from '@/lib/utils'
 import { AskBar, type HelpNetworkPerson } from './help-network-ui'
 
 interface DashboardClientProps {
@@ -179,12 +179,12 @@ function EmptyPanel({
 
 function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
   const name = displayName(person.name, person.preferredName ?? null)
-  const yearShort = person.graduationYear ? `'${String(person.graduationYear).slice(-2)}` : null
+  const yearShort = classYearShort(person.graduationYear)
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' · ')
   const context = [person.city, person.university, person.major].filter(Boolean).join(' · ')
   const topics = buildHomeTopics(person)
   const rationale = person.rationale ?? buildHomeRationale(person)
-  const canAsk = person.isOpenAsMentor || person.isOpenAsAdviceHelper
+  const askType = preferredAskType(person)
 
   return (
     <article
@@ -192,17 +192,12 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
       data-interactive="true"
     >
       <div className="flex flex-1 gap-3">
-        <div
-          className={`relative size-[52px] shrink-0 overflow-hidden rounded-full ${avatarColorClasses(person.userId)}`}
-        >
-          {person.avatarUrl ? (
-            <Image src={person.avatarUrl} alt="" fill sizes="52px" className="object-cover" />
-          ) : (
-            <span className="flex size-full items-center justify-center font-heading text-base font-semibold">
-              {initials(name)}
-            </span>
-          )}
-        </div>
+        <PersonAvatar
+          userId={person.userId}
+          name={name}
+          avatarUrl={person.avatarUrl}
+          className="size-[52px] text-base"
+        />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
@@ -236,39 +231,27 @@ function HomePersonCard({ person }: { person: HelpNetworkPerson }) {
       </div>
 
       {rationale ? (
-        <div className="mt-3">
-          <p className="bc-card-label mb-1.5">Why they might fit</p>
-          {/* Plain text on purpose — quotes and the pull-quote rule are reserved
-              for words a human actually wrote. */}
-          <p className="text-xs leading-[1.5] text-muted-foreground">{rationale}</p>
-        </div>
+        <RationaleBlock className="mt-3" bodyClassName="text-xs leading-[1.5]">
+          {rationale}
+        </RationaleBlock>
       ) : null}
 
-      {topics.length > 0 ? (
-        <div className="mt-2.5 flex flex-wrap gap-1">
-          {topics.slice(0, 3).map((topic) => (
-            <span
-              key={topic}
-              className="inline-flex items-center rounded-sm bg-surface-subtle px-2 py-px text-xs text-muted-foreground"
-            >
-              {topic}
-            </span>
-          ))}
-        </div>
-      ) : null}
+      <TopicChips topics={topics} className="mt-2.5" />
 
       <div className="mt-3.5 flex items-center justify-between gap-2 border-t border-dashed border-border pt-3">
         <div className="flex flex-wrap items-center gap-1.5">
-          {canAsk ? (
+          {askType ? (
             <Button asChild variant="default" size="sm" className="h-8 rounded-md text-xs">
-              <Link href={`/ask/new?to=${person.userId}&type=advice`}>Ask for help</Link>
+              {/* preferredAskType routes mentor-only people to the mentorship
+                  composer (the old hardcoded type=advice mislabeled them). */}
+              <Link href={askComposeHref(person.userId, askType)}>Ask for help</Link>
             </Button>
           ) : (
             <Button asChild variant="outline" size="sm" className="h-8 rounded-md text-xs">
               <Link href={`/profile/${person.userId}`}>View profile</Link>
             </Button>
           )}
-          {canAsk ? (
+          {askType ? (
             <Link
               href={`/profile/${person.userId}`}
               className="px-1.5 py-1 text-[11px] font-medium text-muted-foreground hover:text-foreground"
@@ -293,15 +276,6 @@ function buildHomeRationale(person: HelpNetworkPerson) {
   if (role) return `Their path as ${role} could be useful context.`
   if (person.university) return 'They share school context and are open to helping.'
   return 'They are part of your trusted school circle.'
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('')
 }
 
 /**

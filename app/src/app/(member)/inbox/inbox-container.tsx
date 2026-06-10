@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/db/client'
-import { avatarColorClasses } from '@/lib/utils'
+import { avatarColorClasses, getInitials } from '@/lib/utils'
 import {
   acceptAskFromInboxAction,
   declineAskFromInboxAction,
@@ -2001,11 +2001,4 @@ function formatInboxDate(dateStr: string | null | undefined): string {
   } catch (_e) {
     return ''
   }
-}
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  if (parts.length === 0) return ''
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
