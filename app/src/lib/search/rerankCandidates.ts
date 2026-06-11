@@ -75,12 +75,13 @@ Return ONLY a JSON object of this shape — no prose, no markdown fences:
 }
 
 Ranking rules:
-- Score is 0-100. 90+ means strong match (their past or current work directly matches the theme). 60-89 means partial / adjacent match. Below 60 means weak — only include if there are no better candidates.
+- Score is 0-100. 90+ means strong match (their past or current work directly matches the theme). 60-89 means partial / adjacent match. Below 60 means weak.
+- Score EVERY candidate and return a ranking for each one — weak fits included. Low scores with honest rationales are useful: the UI shows them as longer shots, dimmed, so members can widen their search deliberately.
 - READ PAST CAREER ROLES, not just current title. A candidate whose current title is "Creative Director" but who was a "Photo Editor at Vogue 2012-2014" is a STRONG match for a photography query.
 - READ SKILLS AND BIO too — they often capture intent that titles don't.
 - Rationale must cite the specific evidence: "Past role at Vogue Korea as Photo Editor 2012-2014" is good. "Has relevant experience" is bad.
+- For weak fits, the rationale must say plainly what is missing: "Shared school context only — no startup or consulting experience" is good. Never inflate.
 - Order by score descending.
-- Return AT MOST 10 rankings. If fewer than 10 candidates have score >= 50, return only those.
 - If candidates is empty, return { "rankings": [] }.
 - Use the candidate id field exactly as given — do not invent ids.`
 
@@ -158,9 +159,18 @@ export async function rerankCandidates(input: RerankInput): Promise<RerankResult
 
   const limit = input.limit ?? 10
   const validIds = new Set(input.candidates.map((c) => c.id))
+  // Dedupe by id, keeping the first (highest-scored after sort) entry —
+  // with score-everything prompting the model occasionally lists a
+  // candidate twice.
+  const seen = new Set<string>()
   const rankings = validated.data.rankings
     .filter((r) => validIds.has(r.id))
     .sort((a, b) => b.score - a.score)
+    .filter((r) => {
+      if (seen.has(r.id)) return false
+      seen.add(r.id)
+      return true
+    })
     .slice(0, limit)
 
   return { ok: true, rankings }

@@ -16,7 +16,8 @@ import type { NLSearchHit } from '@/lib/search/searchAlumniNL'
 import { AskHome } from '../ask-home'
 import type { HelpNetworkPerson } from '../help-network-ui'
 import { KeepAskOpenCard } from './open-ask-ui'
-import { CompactMatchRow, FeaturedMatchCard, MatchRowDivider } from './results-ui'
+import { ResultsFocus } from './results-focus'
+import { CompactMatchRow, MatchRowDivider } from './results-ui'
 
 export default async function AskPage({
   searchParams,
@@ -40,11 +41,10 @@ export default async function AskPage({
     ? results.pagedNlHits
     : results.pagedStructuredHits
   const hasHits = hits.length > 0
-  // The strongest fit gets the full treatment on page 1; everything else is
-  // a compact row. Hierarchy through density — not ten identical cards.
-  const featureFirstHit = results.currentPage === 1 && results.showNaturalLanguageResults
-  const featuredHit = featureFirstHit && hasHits ? hits[0] : null
-  const rowHits = featuredHit ? hits.slice(1) : hits
+  // NL page 1 gets the focus viewer: the strongest fit starts featured and
+  // any row can be promoted into the slot client-side. Structured results
+  // and later pages keep the static row list.
+  const useFocusViewer = results.currentPage === 1 && results.showNaturalLanguageResults
   const tags = results.nlFilters ? readingTags(results.nlFilters) : []
 
   // The no-match dead end becomes a deferred promise: offer to keep the ask
@@ -94,27 +94,18 @@ export default async function AskPage({
           <div className="min-w-0">
             {hasHits ? (
               <>
-                {featuredHit ? (
+                {useFocusViewer ? (
+                  <ResultsFocus
+                    people={hits.map(toHelpNetworkPerson)}
+                    intent={query}
+                    initialFocusId={singleParam(params.focus) ?? null}
+                  />
+                ) : (
                   <div>
-                    <p className="bc-card-label">Strongest fit</p>
-                    <div className="mt-2">
-                      <FeaturedMatchCard
-                        person={toHelpNetworkPerson(featuredHit)}
-                        intent={query}
-                        reason={matchReason(featuredHit)}
-                      />
-                    </div>
-                  </div>
-                ) : null}
-
-                {rowHits.length > 0 ? (
-                  <div className={featuredHit ? 'mt-6' : ''}>
-                    <p className="bc-card-label">
-                      {featuredHit ? 'Also worth asking' : 'People who might fit'}
-                    </p>
+                    <p className="bc-card-label">People who might fit</p>
                     <div className="mt-2">
                       <MatchRowDivider>
-                        {rowHits.map((hit) => (
+                        {hits.map((hit) => (
                           <CompactMatchRow
                             key={hit.userId}
                             person={toHelpNetworkPerson(hit)}
@@ -125,7 +116,7 @@ export default async function AskPage({
                       </MatchRowDivider>
                     </div>
                   </div>
-                ) : null}
+                )}
 
                 <AskPagination
                   currentPage={results.currentPage}
