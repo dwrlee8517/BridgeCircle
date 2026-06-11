@@ -19,6 +19,8 @@ export const NOTIFICATION_TYPES = [
   'ask_message',
   'announcement',
   'event_canceled',
+  'open_ask_match',
+  'open_ask_expired',
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
@@ -53,6 +55,9 @@ export function notificationIcon(t: NotificationType): string {
       return 'Megaphone'
     case 'event_canceled':
       return 'CalendarX'
+    case 'open_ask_match':
+    case 'open_ask_expired':
+      return 'CircleHelp'
   }
 }
 
@@ -93,6 +98,14 @@ export function notificationLabel(row: NotificationRow): string {
         typeof row.payload?.event_title === 'string' ? row.payload.event_title : 'An event'
       return `${title} was canceled`
     }
+    case 'open_ask_match': {
+      const count = typeof row.payload?.match_count === 'number' ? row.payload.match_count : 1
+      return count === 1
+        ? 'Someone who fits your open ask is now available'
+        : `${count} people who fit your open ask are now available`
+    }
+    case 'open_ask_expired':
+      return 'Your open ask closed — no strong fit this time'
   }
 }
 
@@ -118,6 +131,14 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
       return '/announcements'
     case 'event_canceled':
       return row.targetId ? `/events/${row.targetId}` : '/events'
+    case 'open_ask_match': {
+      // Re-running the ask is how the asker meets the new fit — identities
+      // travel through the gated /ask surface, never the notification.
+      const question = typeof row.payload?.question === 'string' ? row.payload.question : null
+      return question ? `/ask?nl=${encodeURIComponent(question)}` : '/ask'
+    }
+    case 'open_ask_expired':
+      return '/ask'
   }
 }
 
@@ -133,9 +154,11 @@ export function notificationShouldToast(t: NotificationType): boolean {
     case 'ask_declined':
     case 'direct_message':
     case 'ask_message':
+    case 'open_ask_match':
       return true
     case 'announcement':
     case 'event_canceled':
+    case 'open_ask_expired':
       return false
   }
 }

@@ -1,6 +1,7 @@
 import 'server-only'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
+import type { ExtractedFilters } from './extractFilters'
 import { parseSearchParams, type SearchFilters } from './schemas'
 import { type SearchHit, searchAlumni } from './searchAlumni'
 import { type NLSearchHit, searchAlumniNL, searchAlumniNLLegacy } from './searchAlumniNL'
@@ -30,6 +31,10 @@ export type MemberSearchResults = {
   nlError: string | null
   nlPoolSize: number
   nlHits: NLSearchHit[]
+  /** What the extractor read out of the query — lets the UI show "how we
+   * read it" so members can trust (or correct) the match. Null outside NL
+   * mode or when extraction failed. */
+  nlFilters: ExtractedFilters | null
   structuredHits: SearchHit[]
   pagedNlHits: NLSearchHit[]
   pagedStructuredHits: SearchHit[]
@@ -102,6 +107,7 @@ export async function getMemberSearchResults(
   let structuredHits: SearchHit[] = []
   let nlPoolSize = 0
   let nlError: string | null = null
+  let nlFilters: ExtractedFilters | null = null
 
   if (useNL) {
     const nlSearch = options.surface === 'ask' ? searchAlumniNL : searchAlumniNLLegacy
@@ -118,6 +124,7 @@ export async function getMemberSearchResults(
     if (result.ok) {
       nlHits = result.hits
       nlPoolSize = result.poolSize
+      nlFilters = result.filters
     } else {
       nlError =
         result.error === 'no_api_key'
@@ -192,6 +199,7 @@ export async function getMemberSearchResults(
     nlError,
     nlPoolSize,
     nlHits,
+    nlFilters,
     structuredHits,
     pagedNlHits: nlHits.slice(pageStart, pageStart + MEMBER_SEARCH_PAGE_SIZE),
     pagedStructuredHits: structuredHits.slice(pageStart, pageStart + MEMBER_SEARCH_PAGE_SIZE),

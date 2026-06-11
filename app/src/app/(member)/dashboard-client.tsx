@@ -7,7 +7,8 @@ import { PersonAvatar, RationaleBlock, TopicChips } from '@/components/ui/person
 import { StatusBadge } from '@/components/ui/status-badge'
 import type { HomeEvent, HomeFeed, HomeRecentAsk } from '@/lib/home/getHomeFeed'
 import { askComposeHref, classYearShort, displayName, preferredAskType } from '@/lib/utils'
-import { AskBar, type HelpNetworkPerson } from './help-network-ui'
+import { AskBar } from './ask-bar'
+import type { HelpNetworkPerson } from './help-network-ui'
 
 interface DashboardClientProps {
   feed: HomeFeed

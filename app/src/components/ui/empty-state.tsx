@@ -34,7 +34,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <Card className={cn('relative overflow-hidden', className)}>
-      {/* Brand motif — sanctioned on shared empty states (and Midnight
+      {/* Brand motif — sanctioned on shared empty states (and Ink
           surfaces) only; whisper-quiet so the copy stays the focus. */}
       {size === 'default' ? (
         <CirclesMotif className="absolute -right-8 -top-10 h-32 w-48 text-muted-foreground opacity-[0.14]" />

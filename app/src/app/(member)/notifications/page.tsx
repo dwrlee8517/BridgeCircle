@@ -1,5 +1,13 @@
 import { format, formatDistanceToNow } from 'date-fns'
-import { Bell, CalendarX, Handshake, Megaphone, MessageSquare, UserPlus } from 'lucide-react'
+import {
+  Bell,
+  CalendarX,
+  CircleHelp,
+  Handshake,
+  Megaphone,
+  MessageSquare,
+  UserPlus,
+} from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -106,6 +114,8 @@ const NOTIF_ICON: Record<NotificationType, typeof Bell> = {
   ask_message: MessageSquare,
   announcement: Megaphone,
   event_canceled: CalendarX,
+  open_ask_match: CircleHelp,
+  open_ask_expired: CircleHelp,
 }
 
 /**

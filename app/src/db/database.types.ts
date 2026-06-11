@@ -811,6 +811,105 @@ export type Database = {
           },
         ]
       }
+      open_ask_matches: {
+        Row: {
+          created_at: string
+          helper_user_id: string
+          id: string
+          match_score: number | null
+          notified_at: string | null
+          open_ask_id: string
+          rationale: string | null
+        }
+        Insert: {
+          created_at?: string
+          helper_user_id: string
+          id?: string
+          match_score?: number | null
+          notified_at?: string | null
+          open_ask_id: string
+          rationale?: string | null
+        }
+        Update: {
+          created_at?: string
+          helper_user_id?: string
+          id?: string
+          match_score?: number | null
+          notified_at?: string | null
+          open_ask_id?: string
+          rationale?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'open_ask_matches_helper_user_id_fkey'
+            columns: ['helper_user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'open_ask_matches_open_ask_id_fkey'
+            columns: ['open_ask_id']
+            isOneToOne: false
+            referencedRelation: 'open_asks'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      open_asks: {
+        Row: {
+          close_reason: string | null
+          closed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          last_matched_at: string | null
+          organization_id: string
+          question: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          close_reason?: string | null
+          closed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_matched_at?: string | null
+          organization_id: string
+          question: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          close_reason?: string | null
+          closed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_matched_at?: string | null
+          organization_id?: string
+          question?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'open_asks_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'open_asks_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           approved_at: string | null

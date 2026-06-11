@@ -28,13 +28,13 @@ For component usage, use [`components.md`](components.md).
 | `card` | `#ffffff` | Raised card and popover surface |
 | `primary` | `#2563eb` | Electric Sky — links, navigation, secondary positive actions |
 | `primary-hover` | `#1d4ed8` | Hover and pressed primary states |
-| `primary-on-dark` | `#93c5fd` | Electric Sky accent on Midnight/dark editorial surfaces |
+| `primary-on-dark` | `#93c5fd` | Electric Sky accent on Ink/dark editorial surfaces |
 | `cta` | `#f59e0b` | Amber — single highest-stakes action per surface (Send request, RSVP, Accept) |
 | `cta-hover` | `#d97706` | Amber hover state |
 | `cta-foreground` | `#0c0c0b` | Text on amber (Obsidian — 8.2:1 contrast, AAA) |
-| `surface-midnight` | `#081126` | Midnight blue editorial canvas for heroes and entry moments |
-| `surface-midnight-foreground` | `#fafaf9` | Text and controls on Midnight surfaces |
-| `surface-midnight-muted` | `rgb(250 250 249 / 68%)` | Secondary copy and metadata on Midnight surfaces |
+| `surface-ink` | `#1b1813` | Warm Ink editorial canvas for heroes and entry moments — the Obsidian family as a surface. Replaced the placeholder Midnight navy `#081126` (2026-06-11), which was the only cold neutral in the warm system. Dark mode lifts it to `#211e19` so the band stays distinct from the dark canvas |
+| `surface-ink-foreground` | `#fafaf9` | Text and controls on Ink surfaces |
+| `surface-ink-muted` | `rgb(250 250 249 / 68%)` | Secondary copy and metadata on Ink surfaces |
 | `secondary` | `#f4f3ee` | Soft panel, grouped controls |
 | `muted` | `#ebebe5` | Dividers, subtle fills |
 | `muted-foreground` | `#4d4d4a` | Secondary copy and metadata |
@@ -61,9 +61,9 @@ only when maintaining an existing primitive API.
 | `surface-card` | `card` | Cards, popovers, raised decision surfaces |
 | `surface-panel` | `secondary` | Grouped controls, side panels, quiet callouts |
 | `surface-subtle` | `muted` | Low-emphasis fills and separators |
-| `surface-editorial` | `surface-midnight` | Hero, auth, and entry editorial moments |
-| `surface-editorial-foreground` | `surface-midnight-foreground` | Text on editorial surfaces |
-| `surface-editorial-muted` | `surface-midnight-muted` | Secondary text on editorial surfaces |
+| `surface-editorial` | `surface-ink` | Hero, auth, and entry editorial moments |
+| `surface-editorial-foreground` | `surface-ink-foreground` | Text on editorial surfaces |
+| `surface-editorial-muted` | `surface-ink-muted` | Secondary text on editorial surfaces |
 
 ### Action Roles
 
@@ -72,7 +72,7 @@ only when maintaining an existing primitive API.
 | `action-primary` | `primary` | Secondary positive actions, navigation buttons, link-as-button |
 | `action-primary-hover` | `primary-hover` | Hover and pressed primary action |
 | `action-on-primary` | `primary-foreground` | Text or icon on primary fill |
-| `action-on-editorial` | `primary-on-dark` | Electric Sky accent on Midnight editorial surfaces |
+| `action-on-editorial` | `primary-on-dark` | Electric Sky accent on Ink editorial surfaces |
 | `action-offer` | `accent-sage` | Helper-side "give help" actions — Offer mentorship, Accept, You're going. The helper-side mirror of amber; never asker-side, never destructive |
 | `action-offer-hover` | — | Hover state for offer actions |
 | `action-on-offer` | — | Text/icon on offer fill |
@@ -150,8 +150,8 @@ and inline notification panels. Tints are not a license to introduce new hues.
 | `warning-tint` | `rgb(161 98 7 / 12%)` | Attention-needed background |
 | `danger-tint` | `rgb(155 44 31 / 10%)` | Error and destructive warning background |
 | `plum-tint` | `rgb(124 58 237 / 10%)` | Editorial category background |
-| `editorial-rule` | `rgb(250 250 249 / 16%)` | Divider on Midnight editorial surfaces |
-| `editorial-rule-strong` | `rgb(250 250 249 / 28%)` | Strong divider or outline on Midnight editorial surfaces |
+| `editorial-rule` | `rgb(250 250 249 / 16%)` | Divider on Ink editorial surfaces |
+| `editorial-rule-strong` | `rgb(250 250 249 / 28%)` | Strong divider or outline on Ink editorial surfaces |
 | `focus-ring-muted` | `rgb(37 99 235 / 10%)` | Outer focus halo |
 
 Dark mode may override tint alpha and source values while preserving the same
@@ -171,8 +171,8 @@ luminance:
 | `primary` on `background` | `4.95:1` | Links, labels, and compact action text |
 | `primary` on `card` | `5.17:1` | Links and labels on cards |
 | `primary-foreground` on `primary` | `5.17:1` | Primary filled buttons |
-| `surface-midnight-foreground` on `surface-midnight` | `17.98:1` | Text on Midnight editorial surfaces |
-| `primary-on-dark` on `surface-midnight` | `10.41:1` | Links and accents on Midnight editorial surfaces |
+| `surface-ink-foreground` on `surface-ink` | `16.9:1` | Text on Ink editorial surfaces (measured 2026-06-11) |
+| `primary-on-dark` on `surface-ink` | `9.8:1` | Links and accents on Ink editorial surfaces (measured 2026-06-11) |
 | `destructive` on `background` | `7.25:1` | Error text on page canvas |
 | `accent-sage` on `background` | `5.69:1` | Success text on page canvas |
 | `accent-rust` on `background` | `5.03:1` | Negative state text on page canvas |
@@ -184,8 +184,8 @@ Known limits:
   Current `accent-ochre` `#a16207` is `4.71:1`, but warning body copy should
   still use `state-warning-foreground` so warnings are not dependent on color
   alone and do not visually compete with amber CTA.
-- `primary` on `surface-midnight` is `3.63:1`; use `primary-on-dark` on
-  Midnight editorial surfaces.
+- `primary` on `surface-ink` is `3.4:1`; use `primary-on-dark` on
+  Ink editorial surfaces.
 - Any new foreground/background pair needs a contrast check before production.
 
 ## Typography
@@ -267,7 +267,7 @@ retired; sweep any reappearance to `.bc-card-label`.
 Initials fallbacks use a stable generated color via `avatarColorClasses()`
 in `app/src/lib/utils.ts`: hash(userId, or name for display-only rows) → one
 of six verified-contrast tint/ink pairs (sky, sage, plum, ochre, rust on
-tints; Midnight solid). Photo first; gray `surface-panel` avatars are
+tints; Ink solid). Photo first; gray `surface-panel` avatars are
 retired — with no photos yet, a stable personal color is the card's human
 presence.
 
@@ -314,7 +314,7 @@ surface renders `text-display-lg` at 34px on purpose — do not hardcode
 CI step) ratchets the count of arbitrary `text-[Npx]` / `tracking-[…]` /
 `p*-[Npx]` / `min|max-[Npx]` literals — it fails when the count rises above
 `scripts/design-tokens-baseline.txt`, and the baseline only moves down. The
-~16 remaining literals are deliberate (Midnight date-block display sizes,
+~16 remaining literals are deliberate (Ink date-block display sizes,
 28px between-scale heroes, sub-0.01em negative tracking, the 480px mobile
 cutoff).
 
@@ -483,10 +483,10 @@ should inline these stable values instead of using `var(...)`.
 
 - Every member screen should expose the next useful relationship action without requiring browsing.
 - Admin tables may be denser, but still use the same tokens and status language.
-- Dark "Midnight editorial" surfaces use `surface-midnight` plus `primary-on-dark`; Midnight is the canvas and Electric Sky remains the blue accent.
-- Do not use Midnight for ordinary cards, tables, sidebars, or dense member workflows.
+- Dark "Ink editorial" surfaces use `surface-ink` plus `primary-on-dark`; warm Ink is the canvas and Electric Sky remains the blue accent.
+- Do not use Ink for ordinary cards, tables, sidebars, or dense member workflows.
 - The overlapping-circles motif (`components/ui/circles-motif.tsx`) appears
-  only on Midnight surfaces and inside the shared `EmptyState` component, at
+  only on Ink surfaces and inside the shared `EmptyState` component, at
   low opacity — never as general card decoration.
 - Dark mode is live: `next-themes` applies `.dark` from the OS preference,
   with a Light/Dark/System override in the account menu. New tokens must be

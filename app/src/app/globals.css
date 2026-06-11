@@ -41,9 +41,9 @@
   --color-cta: var(--cta);
   --color-cta-hover: var(--cta-hover);
   --color-cta-foreground: var(--cta-foreground);
-  --color-surface-midnight: var(--surface-midnight);
-  --color-surface-midnight-foreground: var(--surface-midnight-foreground);
-  --color-surface-midnight-muted: var(--surface-midnight-muted);
+  --color-surface-ink: var(--surface-ink);
+  --color-surface-ink-foreground: var(--surface-ink-foreground);
+  --color-surface-ink-muted: var(--surface-ink-muted);
   --color-surface-page: var(--surface-page);
   --color-surface-card: var(--surface-card);
   --color-surface-panel: var(--surface-panel);
@@ -184,7 +184,7 @@
   --z-index-toast-notification: var(--z-toast-notification);
 }
 
-/* Civic Editorial theme — Electric Sky & Midnight on Platinum Bone.
+/* Civic Editorial theme — Electric Sky & Obsidian Ink on Platinum Bone.
    Keep this in sync with docs/experience/ui/design-system/tokens.md. */
 :root {
   /* Page surface — Platinum Bone (#fafaf9) so cards on white still have contrast */
@@ -204,9 +204,12 @@
   --cta: #f59e0b;
   --cta-hover: #d97706;
   --cta-foreground: #0c0c0b;
-  --surface-midnight: #081126;
-  --surface-midnight-foreground: #fafaf9;
-  --surface-midnight-muted: rgb(250 250 249 / 68%);
+  /* Warm Ink — the Obsidian family as an editorial surface. Replaced the
+     placeholder Midnight navy (#081126), which was the only cold neutral in
+     an otherwise warm system. Same material as the page, inverted. */
+  --surface-ink: #1b1813;
+  --surface-ink-foreground: #fafaf9;
+  --surface-ink-muted: rgb(250 250 249 / 68%);
   --secondary: #f4f3ee;
   --secondary-foreground: #0c0c0b;
   --muted: #ebebe5;
@@ -245,9 +248,9 @@
   --surface-card: var(--card);
   --surface-panel: var(--secondary);
   --surface-subtle: var(--muted);
-  --surface-editorial: var(--surface-midnight);
-  --surface-editorial-foreground: var(--surface-midnight-foreground);
-  --surface-editorial-muted: var(--surface-midnight-muted);
+  --surface-editorial: var(--surface-ink);
+  --surface-editorial-foreground: var(--surface-ink-foreground);
+  --surface-editorial-muted: var(--surface-ink-muted);
 
   --action-primary: var(--primary);
   --action-primary-hover: var(--primary-hover);
@@ -377,9 +380,11 @@
   --cta: #fbbf24;
   --cta-hover: #f59e0b;
   --cta-foreground: #0c0c0b;
-  --surface-midnight: #081126;
-  --surface-midnight-foreground: #fafaf9;
-  --surface-midnight-muted: rgb(250 250 249 / 68%);
+  /* Warm Ink on dark — lifted slightly above the #0c0c0b canvas so the
+     editorial band stays a distinct surface in dark mode. */
+  --surface-ink: #211e19;
+  --surface-ink-foreground: #fafaf9;
+  --surface-ink-muted: rgb(250 250 249 / 68%);
   --secondary: #2b2b29;
   --secondary-foreground: #fafaf9;
   --muted: #2b2b29;

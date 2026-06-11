@@ -164,5 +164,15 @@ export async function extractSearchFiltersCached(query: string): Promise<Extract
     ['extractSearchFilters', 'v1', cacheKey],
     { revalidate: CACHE_TTL_SECONDS },
   )
-  return cached()
+  try {
+    return await cached()
+  } catch (err) {
+    // Outside the Next runtime (worker sweeps, scripts) there is no
+    // incremental cache — fall through to the uncached call rather than
+    // failing the whole job. Anything else is a real error.
+    if (err instanceof Error && err.message.includes('incrementalCache missing')) {
+      return extractSearchFilters(query)
+    }
+    throw err
+  }
 }

@@ -3,8 +3,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 // Loading fallback for member route navigation. Mirrors the current Home
 // layout (dashboard-client.tsx) so the cross-fade is structural, not a
-// jump from midnight hero to light cream. The NetworkMotif panel is the
-// only midnight surface — everything else is light bc-page-band / card.
+// jump from ink hero to light cream. The NetworkMotif panel is the
+// only ink surface — everything else is light bc-page-band / card.
 //
 // Keep this in sync with dashboard-client.tsx. Routes that don't share the
 // Home shape (Ask, People, Inbox, Thread) define their own loading.tsx so

@@ -2,11 +2,11 @@ import { cn } from '@/lib/utils'
 
 /**
  * The brand's overlapping-circles motif. Sanctioned surfaces only:
- * Midnight editorial moments (auth panel, featured-event hero) and shared
+ * Ink editorial moments (auth panel, featured-event hero) and shared
  * empty states — never general card decoration (tokens.md § motif rule).
  *
  * Stroke color comes from `currentColor`, so callers set it via text-*
- * classes (e.g. `text-primary-on-dark` on Midnight, `text-muted-foreground`
+ * classes (e.g. `text-primary-on-dark` on Ink, `text-muted-foreground`
  * on light empty states) and tune opacity via className.
  */
 export function CirclesMotif({ className }: { className?: string }) {
