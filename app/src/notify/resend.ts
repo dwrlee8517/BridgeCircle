@@ -3,6 +3,8 @@ import type * as React from 'react'
 import { Resend } from 'resend'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
 import { AnnouncementEmail } from './emails/announcement-email'
+import { AskExpiredEmail } from './emails/ask-expired-email'
+import { AskReminderEmail } from './emails/ask-reminder-email'
 import { EventCanceledEmail } from './emails/event-canceled-email'
 import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-email'
 import { EventWaitlistPromotedEmail } from './emails/event-waitlist-promoted-email'
@@ -375,6 +377,46 @@ export async function sendProposalAppliedEmail(
       recipientName: input.recipientName,
       undoUrl: input.undoUrl,
       changeSummary: input.changeSummary,
+    }),
+  })
+}
+
+export type SendAskReminderInput = {
+  to: string
+  helperName: string | null
+  askerName: string
+  askExcerpt: string | null
+  reviewUrl: string
+}
+
+export async function sendAskReminderEmail(input: SendAskReminderInput): Promise<NotifyResult> {
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `${input.askerName}'s ask is still open — when you have a minute`,
+    email: AskReminderEmail({
+      helperName: input.helperName,
+      askerName: input.askerName,
+      askExcerpt: input.askExcerpt,
+      reviewUrl: input.reviewUrl,
+    }),
+  })
+}
+
+export type SendAskExpiredInput = {
+  to: string
+  askerName: string | null
+  helperName: string
+  detailUrl: string
+}
+
+export async function sendAskExpiredEmail(input: SendAskExpiredInput): Promise<NotifyResult> {
+  return sendRenderedEmail({
+    to: input.to,
+    subject: `Your ask to ${input.helperName} closed quietly`,
+    email: AskExpiredEmail({
+      askerName: input.askerName,
+      helperName: input.helperName,
+      detailUrl: input.detailUrl,
     }),
   })
 }

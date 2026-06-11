@@ -182,6 +182,7 @@ export type Database = {
           asker_id: string
           background: string | null
           created_at: string
+          decline_reason: string | null
           help_needed: string | null
           helper_id: string
           id: string
@@ -197,6 +198,7 @@ export type Database = {
           asker_id: string
           background?: string | null
           created_at?: string
+          decline_reason?: string | null
           help_needed?: string | null
           helper_id: string
           id?: string
@@ -212,6 +214,7 @@ export type Database = {
           asker_id?: string
           background?: string | null
           created_at?: string
+          decline_reason?: string | null
           help_needed?: string | null
           helper_id?: string
           id?: string
@@ -620,6 +623,7 @@ export type Database = {
           open_to_mentorship: boolean
           organization_membership_id: string
           paused_at: string | null
+          paused_until: string | null
           screening_prompt: string | null
           topics: string[] | null
           updated_at: string
@@ -632,6 +636,7 @@ export type Database = {
           open_to_mentorship?: boolean
           organization_membership_id: string
           paused_at?: string | null
+          paused_until?: string | null
           screening_prompt?: string | null
           topics?: string[] | null
           updated_at?: string
@@ -644,6 +649,7 @@ export type Database = {
           open_to_mentorship?: boolean
           organization_membership_id?: string
           paused_at?: string | null
+          paused_until?: string | null
           screening_prompt?: string | null
           topics?: string[] | null
           updated_at?: string

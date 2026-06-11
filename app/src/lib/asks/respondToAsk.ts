@@ -4,10 +4,14 @@ import { createAdminClient } from '@/db/admin'
 import type { Database } from '@/db/database.types'
 import { createNotification } from '@/lib/notifications/createNotification'
 import { sendMentorshipAcceptedEmail } from '@/notify/resend'
+import type { DeclineReason } from './declineReasons'
 
 export type RespondInput = {
   askId: string
   decision: 'accepted' | 'declined'
+  /** Optional structured reason when declining — shapes the asker-facing
+   * copy and records a routing signal. Never required. */
+  declineReason?: DeclineReason | null
 }
 
 export type RespondResult =
@@ -80,7 +84,13 @@ export async function respondToAsk(
 
   const { error: updateErr } = await supabase
     .from('asks')
-    .update({ status: input.decision, responded_at: now })
+    .update({
+      status: input.decision,
+      responded_at: now,
+      ...(input.decision === 'declined' && input.declineReason
+        ? { decline_reason: input.declineReason }
+        : {}),
+    })
     .eq('id', input.askId)
 
   if (updateErr) return { ok: false, error: 'db_error', detail: updateErr.message }
@@ -130,6 +140,9 @@ export async function respondToAsk(
       actor_id: helperId,
       actor_name: helperBase?.name ?? null,
       ask_type: ask.ask_type,
+      ...(input.decision === 'declined' && input.declineReason
+        ? { decline_reason: input.declineReason }
+        : {}),
     },
   })
 

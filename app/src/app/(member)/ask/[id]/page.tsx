@@ -8,27 +8,38 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { type LifecycleStatus, LifecycleStatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
+import type { DeclineReason } from '@/lib/asks/declineReasons'
 import { requireSession } from '@/lib/auth/session'
-import { acceptAction, declineAction } from './actions'
+import { acceptAction } from './actions'
+import { DeclineChooser } from './decline-chooser'
 import {
   AskAlternativeSection,
   AskAlternativeSkeleton,
   AskerClosedBadge,
   AskerTimeline,
   ClosedAskCopy,
+  PauseOfferCard,
 } from './lifecycle-ui'
 
 type Params = { id: string }
+type SearchParams = { pause?: string }
 
-export default async function RequestDetailPage({ params }: { params: Promise<Params> }) {
+export default async function RequestDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<Params>
+  searchParams: Promise<SearchParams>
+}) {
   const session = await requireSession()
   const { id } = await params
+  const { pause } = await searchParams
   const supabase = await createClient()
 
   const { data: req } = await supabase
     .from('asks')
     .select(
-      'id, helper_id, asker_id, organization_id, status, ask_type, reason, help_needed, background, created_at, responded_at, reminder_sent_at',
+      'id, helper_id, asker_id, organization_id, status, ask_type, reason, help_needed, background, created_at, responded_at, reminder_sent_at, decline_reason',
     )
     .eq('id', id)
     .maybeSingle()
@@ -52,13 +63,24 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
     .eq('user_id', otherUserId)
     .maybeSingle()
 
-  // For the asker, "other" is the helper — the lifecycle copy speaks of them
-  // by first name. Skip honorifics so "Dr. Jessica Wong" reads as Jessica,
-  // not "Still waiting on Dr.".
-  const helperNameParts = (otherProfile?.name ?? '')
-    .split(/\s+/)
-    .filter((part) => !/^(dr|prof|mr|ms|mrs)\.?$/i.test(part))
-  const helperFirstName = helperNameParts[0] || 'They'
+  // Lifecycle copy speaks of people by first name; skip honorifics so
+  // "Dr. Jessica Wong" reads as Jessica, not "Still waiting on Dr.".
+  const otherFirstName = firstNameOf(otherProfile?.name) || 'They'
+  // Asker view: "other" is the helper. Helper view: "other" is the asker.
+  const helperFirstName = otherFirstName
+  const askerFirstName = otherFirstName
+
+  // The decline chooser previews what the asker will read, which names the
+  // helper — the viewer themself in that branch.
+  let viewerFirstName = 'They'
+  if (isHelper && req.status === 'pending') {
+    const { data: viewerProfile } = await supabase
+      .from('base_profiles')
+      .select('name')
+      .eq('user_id', session.userId)
+      .maybeSingle()
+    viewerFirstName = firstNameOf(viewerProfile?.name) || 'They'
+  }
 
   // If accepted, show a link to the thread the response created.
   let threadId: string | null = null
@@ -166,6 +188,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
               <ClosedAskCopy
                 status={req.status as 'declined' | 'expired'}
                 helperFirstName={helperFirstName}
+                declineReason={(req.decline_reason as DeclineReason | null) ?? null}
               />
               <Suspense fallback={<AskAlternativeSkeleton />}>
                 <AskAlternativeSection
@@ -178,6 +201,10 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
             </>
           ) : null}
 
+          {isHelper && req.status === 'declined' && pause === 'offered' ? (
+            <PauseOfferCard askerFirstName={askerFirstName} />
+          ) : null}
+
           <div className="flex flex-wrap gap-2 border-t border-border pt-4">
             {isHelper && req.status === 'pending' ? (
               <>
@@ -187,12 +214,11 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
                     Accept & reply
                   </Button>
                 </form>
-                <form action={declineAction}>
-                  <input type="hidden" name="requestId" value={req.id} />
-                  <Button type="submit" variant="outline">
-                    Decline
-                  </Button>
-                </form>
+                <DeclineChooser
+                  askId={req.id}
+                  helperFirstName={viewerFirstName}
+                  askerFirstName={askerFirstName}
+                />
               </>
             ) : null}
 
@@ -218,6 +244,11 @@ type RequestLifecycleStatus = Extract<
   LifecycleStatus,
   'pending' | 'accepted' | 'declined' | 'expired'
 >
+
+function firstNameOf(name: string | null | undefined): string | null {
+  const parts = (name ?? '').split(/\s+/).filter((part) => !/^(dr|prof|mr|ms|mrs)\.?$/i.test(part))
+  return parts[0] || null
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
