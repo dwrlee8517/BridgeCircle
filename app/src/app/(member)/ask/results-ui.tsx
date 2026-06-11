@@ -100,17 +100,51 @@ export function CompactMatchRow({
   person,
   intent,
   reason,
+  onSelect,
+  dimmed = false,
+  flash = false,
 }: {
   person: HelpNetworkPerson
   intent: string
   reason: string | null
+  /** When set, the whole row promotes this person into the focus slot.
+   * Links inside stop propagation so Ask / profile stay one click. */
+  onSelect?: () => void
+  /** Sub-65 band: quieter treatment so longer shots never dress up as
+   * strong fits. */
+  dimmed?: boolean
+  /** Brief highlight when a person lands back in the list after being
+   * demoted from the focus slot — the eye can follow them. */
+  flash?: boolean
 }) {
   const display = displayName(person.name, person.preferredName ?? null)
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
   const askType = preferredAskType(person)
+  const selectable = Boolean(onSelect)
 
   return (
-    <li className="flex items-center gap-3 px-3 py-2.5 sm:px-4">
+    <li
+      onClick={onSelect}
+      onKeyDown={
+        selectable
+          ? (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onSelect?.()
+              }
+            }
+          : undefined
+      }
+      role={selectable ? 'button' : undefined}
+      tabIndex={selectable ? 0 : undefined}
+      aria-label={selectable ? `View ${display}'s match details` : undefined}
+      className={cn(
+        'flex items-center gap-3 px-3 py-2.5 transition-colors duration-slow ease-standard sm:px-4',
+        selectable && 'cursor-pointer hover:bg-surface-panel/45',
+        dimmed && 'opacity-90',
+        flash && 'bg-primary-tint duration-instant',
+      )}
+    >
       <PersonAvatar
         userId={person.userId}
         name={display}
@@ -122,7 +156,11 @@ export function CompactMatchRow({
         <p className="truncate text-sm">
           <Link
             href={`/profile/${person.userId}`}
-            className="font-heading font-semibold text-foreground hover:text-primary"
+            onClick={selectable ? (event) => event.stopPropagation() : undefined}
+            className={cn(
+              'font-heading font-semibold hover:text-primary',
+              dimmed ? 'text-muted-foreground' : 'text-foreground',
+            )}
           >
             {display}
           </Link>
@@ -144,13 +182,14 @@ export function CompactMatchRow({
       ) : askType ? (
         <span
           aria-hidden
-          className="size-1.5 shrink-0 rounded-full bg-accent-sage"
+          className={cn('size-1.5 shrink-0 rounded-full', dimmed ? 'bg-border' : 'bg-accent-sage')}
           title="Open to help"
         />
       ) : null}
       {askType ? (
         <Link
           href={askComposeHref(person.userId, askType, intent)}
+          onClick={selectable ? (event) => event.stopPropagation() : undefined}
           className="inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold text-link hover:text-link-hover"
         >
           Ask
@@ -159,6 +198,7 @@ export function CompactMatchRow({
       ) : (
         <Link
           href={`/profile/${person.userId}`}
+          onClick={selectable ? (event) => event.stopPropagation() : undefined}
           className="shrink-0 text-xs font-medium text-muted-foreground hover:text-foreground"
         >
           Profile
