@@ -190,7 +190,15 @@ This may be part of onboarding or a secondary flow from Profile.
 
 ## Member Experience
 
-### 7. Home (`/`)
+### 7. Home (`/`) — merged home/ask surface
+
+Home IS the ask entry moment (merged 2026-06-11; `ask-home.tsx`). The
+pre-merge split — a home hero with its own ask bar plus a separate /ask
+starter — duplicated the front door and kept the trust scaffolding (social
+proof, the two-sided "how asking works") off the page members actually land
+on. One component now renders at `/`, at `/ask` without a query, and behind
+the composer sheet via `ask/default.tsx`. The Ask nav tab points at `/` and
+highlights on both routes.
 
 Purpose:
 
@@ -198,19 +206,22 @@ Purpose:
 
 Main elements:
 
-- large natural-language ask bar
-- prompt chips for common help intents
-- relationship-map motif with counts for helpers, pending requests, and school events
-- people who can help you
-- people you could help
-- School pulse: next event + latest announcement
-- profile freshness CTA
+- announcement strip (latest announcement or next event)
+- warm-Ink editorial band with personal kicker (class year · org) and greeting headline
+- large natural-language ask bar (multi-line, overlapping the band)
+- the member's open standing ask (expiry, match count, close)
+- "Your asks" rail — recent outgoing asks with lifecycle states
+- example asks ("Not sure how to put it?")
+- "People who can help you" carousel — one suggested helper at a time
+  (arrows + dots, no auto-advance, capped at 5, count line hides below
+  5 open helpers)
+- "How asking works" 3-step strip (permanent — states the decline buffer)
 
 Primary actions:
 
-- ask a question → `/ask?q=...`
+- ask a question → `/ask?nl=...` (results)
+- ask a suggested helper → composer sheet
 - review help requests → `/help` or `/inbox`
-- open School pulse → `/school`
 
 ### 8. People (`/people`)
 
@@ -283,14 +294,9 @@ is hybrid retrieval + warm-network scoring + LLM rerank ([ADR 0009](../decisions
 Inbox owns request state after creation. The underlying ask model remains
 polymorphic (`ask_type` enum: `advice` | `mentorship`).
 
-**Starter state** (`/ask` with no query, redesigned 2026-06-11): warm-Ink
-editorial band (the entry-moment surface) with an overlapping multi-line
-command bar (auto-grow textarea, Enter submits / Shift+Enter newline, soft
-400-char cap), a "nothing is sent yet" reassurance line, 3 specific example
-asks, an "Open to help right now" social-proof panel (real helper counts;
-hidden below 5 open helpers), and a 3-step "How asking works" strip that
-states the two-sided decline buffer out loud. `?edit=1&nl=…` re-opens the
-starter with the bar prefilled.
+**Starter state** (`/ask` with no query): renders the merged home/ask
+surface (see § 7 Home) — same component, same front door. `?edit=1&nl=…`
+re-opens it with the bar prefilled and focused.
 
 **Results state** (`/ask?nl=…`): two-column brief. Left rail = the ask as an
 object (quoted member text, Edit ask, "How we read it" tags surfaced from

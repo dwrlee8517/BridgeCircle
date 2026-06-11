@@ -3,33 +3,26 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 
 /**
- * Social proof for the ask starter. Below this many open helpers the panel
- * hides entirely — honest numbers only work once the room isn't empty.
+ * Social proof for the merged home/ask surface. Below this many open
+ * helpers the count line hides — honest numbers only work once the room
+ * isn't empty.
  */
 export const SOCIAL_PROOF_MIN_HELPERS = 5
-const SAMPLE_HELPER_COUNT = 5
 const ANSWERED_WINDOW_DAYS = 90
 
 export type AskStarterStats = {
   /** Active, unpaused members opted in to advice or mentorship. */
   helperCount: number
-  /** A few real helpers for the avatar cluster — never invented faces. */
-  sampleHelpers: Array<{
-    userId: string
-    name: string | null
-    preferredName: string | null
-    avatarUrl: string | null
-  }>
   /** Asks accepted in the last 90 days, org-wide. 0 when unavailable. */
   answeredRecentCount: number
 }
 
 /**
- * Aggregates the "Open to help right now" panel. Helper visibility uses the
+ * Aggregates the helper-carousel count line. Helper visibility uses the
  * viewer's own client (org-mates can already read helper preferences — the
  * same data powers search badges). The answered-asks count crosses ask-row
  * RLS, so it comes through the admin client as a bare count — no row data
- * leaves the aggregate.
+ * leaves the aggregate; pass admin as null to skip it.
  */
 export async function getAskStarterStats(
   supabase: SupabaseClient<Database>,
@@ -49,25 +42,6 @@ export async function getAskStarterStats(
   const helpers = helperRows ?? []
   const helperCount = helpers.length
 
-  const sampleUserIds = helpers
-    .slice(0, SAMPLE_HELPER_COUNT)
-    .map((row) => row.organization_memberships?.user_id)
-    .filter((id): id is string => Boolean(id))
-
-  let sampleHelpers: AskStarterStats['sampleHelpers'] = []
-  if (sampleUserIds.length > 0) {
-    const { data: profiles } = await supabase
-      .from('base_profiles')
-      .select('user_id, name, preferred_name, avatar_url')
-      .in('user_id', sampleUserIds)
-    sampleHelpers = (profiles ?? []).map((p) => ({
-      userId: p.user_id,
-      name: p.name,
-      preferredName: p.preferred_name,
-      avatarUrl: p.avatar_url,
-    }))
-  }
-
   let answeredRecentCount = 0
   if (admin) {
     const cutoff = new Date(Date.now() - ANSWERED_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString()
@@ -80,5 +54,5 @@ export async function getAskStarterStats(
     answeredRecentCount = count ?? 0
   }
 
-  return { helperCount, sampleHelpers, answeredRecentCount }
+  return { helperCount, answeredRecentCount }
 }
