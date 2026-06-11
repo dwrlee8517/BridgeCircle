@@ -135,12 +135,13 @@ test.describe("Core User Loop", () => {
     // Compose links live in the results (featured card "Ask {first}" or a
     // compact row's "Ask") — scope to main so the nav "Ask" link can't match.
     // Soft navigation intercepts /ask/new into the composer side sheet; the
-    // URL still changes, and the request form renders inside the sheet.
+    // URL still changes, and the guided advice flow renders inside the sheet
+    // with the ask text carried into the situation field.
     await page.locator('main a[href*="/ask/new"]').first().click();
     await page.waitForURL(
       (url) => url.pathname === "/ask/new" && url.searchParams.get("intent") === "Mark Mentor",
     );
-    await expect(page.locator("#helpNeeded")).toHaveValue("Mark Mentor");
+    await expect(page.locator("#situation")).toHaveValue("Mark Mentor");
 
     // Phase 3: Mentor Discovery & Request Mentorship
     await page.goto("/people");
