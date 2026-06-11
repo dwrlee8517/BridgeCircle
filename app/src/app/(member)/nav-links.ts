@@ -9,7 +9,11 @@
 // pragma, lets both sides see the real array.
 
 export const MEMBER_NAV_LINKS = [
-  { href: '/', label: 'Ask', match: ['/', '/ask'] },
+  // The Ask tab goes to the ask entry moment (/ask) — the redesigned
+  // starter with the Ink band, social proof, and "how asking works".
+  // Home (/) stays the default post-sign-in landing, reachable via the
+  // wordmark; it still highlights this tab because home is ask-first.
+  { href: '/ask', label: 'Ask', match: ['/', '/ask'] },
   // Help is the supply-side surface for alumni who want to give useful,
   // lightweight help without committing every interaction to mentorship.
   { href: '/help', label: 'Help', match: ['/help'] },

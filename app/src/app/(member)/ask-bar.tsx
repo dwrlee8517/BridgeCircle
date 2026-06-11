@@ -49,6 +49,16 @@ export function AskBar({
   const resize = useCallback(() => {
     const el = textareaRef.current
     if (!el) return
+    // Empty field: clear the inline height so CSS min-height rules. Also
+    // bail while the element has no layout width (hydration, HMR, hidden
+    // ancestors) — measuring then makes the placeholder wrap vertically
+    // and scrollHeight balloon, pinning a huge height that sticks because
+    // this effect only re-runs on value changes.
+    if (el.value === '' || el.clientWidth === 0) {
+      el.style.height = ''
+      el.style.overflowY = 'hidden'
+      return
+    }
     el.style.height = 'auto'
     const next = Math.min(el.scrollHeight, MAX_GROW_HEIGHT_PX)
     el.style.height = `${next}px`
