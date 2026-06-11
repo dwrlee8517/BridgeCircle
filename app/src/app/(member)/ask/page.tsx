@@ -1,15 +1,22 @@
-import { ArrowRight, CircleHelp } from 'lucide-react'
+import { ArrowRight, Lock, Pencil } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { createClient } from '@/db/server'
+import { getOpenAskForUser, OPEN_ASK_MIN_LENGTH, type OpenAsk } from '@/lib/asks/openAsks'
+import { requireSession } from '@/lib/auth/session'
 import {
   getMemberSearchResults,
   MEMBER_SEARCH_PAGE_SIZE,
   memberSearchPageHref,
   type RawSearchParams,
 } from '@/lib/search/getMemberSearchResults'
+import { readingTags } from '@/lib/search/readingTags'
 import type { SearchHit } from '@/lib/search/searchAlumni'
 import type { NLSearchHit } from '@/lib/search/searchAlumniNL'
-import { AskBar, type HelpNetworkPerson, MatchBriefCard } from '../help-network-ui'
+import type { HelpNetworkPerson } from '../help-network-ui'
+import { KeepAskOpenCard } from './open-ask-ui'
+import { CompactMatchRow, FeaturedMatchCard, MatchRowDivider } from './results-ui'
+import { AskStarter } from './starter'
 
 export default async function AskPage({
   searchParams,
@@ -19,9 +26,10 @@ export default async function AskPage({
   const rawParams = await searchParams
   const params = normalizeAskSearchParams(rawParams)
   const query = singleParam(params.nl)?.trim() ?? ''
+  const editing = singleParam(params.edit) === '1'
 
-  if (!query) {
-    return <AskStarter />
+  if (!query || editing) {
+    return <AskStarter defaultValue={query} />
   }
 
   const results = await getMemberSearchResults(params, { surface: 'ask' })
@@ -32,44 +40,39 @@ export default async function AskPage({
     ? results.pagedNlHits
     : results.pagedStructuredHits
   const hasHits = hits.length > 0
+  // The strongest fit gets the full treatment on page 1; everything else is
+  // a compact row. Hierarchy through density — not ten identical cards.
+  const featureFirstHit = results.currentPage === 1 && results.showNaturalLanguageResults
+  const featuredHit = featureFirstHit && hasHits ? hits[0] : null
+  const rowHits = featuredHit ? hits.slice(1) : hits
+  const tags = results.nlFilters ? readingTags(results.nlFilters) : []
+
+  // The no-match dead end becomes a deferred promise: offer to keep the ask
+  // open. Only fetched when needed.
+  let existingOpenAsk: OpenAsk | null = null
+  if (!hasHits) {
+    const session = await requireSession()
+    const supabase = await createClient()
+    existingOpenAsk = await getOpenAskForUser(supabase, { userId: session.userId })
+  }
 
   return (
     <div className="density-cozy min-h-full bg-background">
-      <section className="bc-page-band border-b border-border">
-        <div className="mx-auto max-w-5xl px-4 py-8 sm:px-8 lg:py-10">
-          <div className="space-y-5">
-            <div>
-              <p className="bc-section-kicker">Ask</p>
-              <h1 className="mt-2 font-heading text-[28px] font-semibold leading-tight text-foreground sm:text-display-md">
-                People who can help with this ask
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-                Here&rsquo;s who might help, and why they fit.
-              </p>
-            </div>
-
-            {/* Re-running a search is not the social-commitment moment — amber
-                stays off browse surfaces so the cards' actions read first. */}
-            <AskBar defaultValue={query} submitVariant="default" />
-
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span className="rounded-full border border-border bg-card px-3 py-1.5 font-mono">
-                {results.resultCount === 1
-                  ? '1 match'
-                  : `${results.resultCount.toLocaleString()} matches`}
-              </span>
-              <span className="rounded-full border border-border bg-card px-3 py-1.5 font-mono">
-                {results.openCount.toLocaleString()} open to help
-              </span>
-              <Link
-                href={`/people?nl=${encodeURIComponent(query)}`}
-                className="ml-auto inline-flex items-center gap-1.5 font-medium text-link hover:text-link-hover"
-              >
-                Open in People
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </div>
+      <section className="bc-page-band border-border border-b">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-end justify-between gap-3 px-4 py-6 sm:px-8 lg:py-7">
+          <div>
+            <p className="bc-section-kicker">Ask</p>
+            <h1 className="mt-2 font-heading text-h1 font-semibold leading-tight text-foreground">
+              People who can help with this
+            </h1>
           </div>
+          <Link
+            href={`/people?nl=${encodeURIComponent(query)}`}
+            className="inline-flex items-center gap-1.5 pb-1 text-sm font-medium text-link hover:text-link-hover"
+          >
+            Open in People
+            <ArrowRight className="size-3.5" />
+          </Link>
         </div>
       </section>
 
@@ -80,115 +83,130 @@ export default async function AskPage({
           </div>
         ) : null}
 
-        {hasHits ? (
-          <>
-            <div className="overflow-hidden rounded-md border border-border bg-card shadow-card">
-              <div className="border-b border-border bg-surface-panel/50 px-4 py-3 sm:px-5">
-                <p className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
-                  You asked
-                </p>
-                <p className="mt-1 text-sm font-medium text-foreground">&ldquo;{query}&rdquo;</p>
-              </div>
-              {hits.map((hit) => (
-                <MatchBriefCard
-                  key={hit.userId}
-                  person={toHelpNetworkPerson(hit)}
-                  query={query}
-                  intent={query}
-                  reason={matchReason(hit)}
-                  variant="list-row"
+        <div className="grid gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:gap-8">
+          <AskContextRail
+            query={query}
+            tags={tags}
+            resultCount={results.resultCount}
+            openCount={results.openCount}
+          />
+
+          <div className="min-w-0">
+            {hasHits ? (
+              <>
+                {featuredHit ? (
+                  <div>
+                    <p className="bc-card-label">Strongest fit</p>
+                    <div className="mt-2">
+                      <FeaturedMatchCard
+                        person={toHelpNetworkPerson(featuredHit)}
+                        intent={query}
+                        reason={matchReason(featuredHit)}
+                      />
+                    </div>
+                  </div>
+                ) : null}
+
+                {rowHits.length > 0 ? (
+                  <div className={featuredHit ? 'mt-6' : ''}>
+                    <p className="bc-card-label">
+                      {featuredHit ? 'Also worth asking' : 'People who might fit'}
+                    </p>
+                    <div className="mt-2">
+                      <MatchRowDivider>
+                        {rowHits.map((hit) => (
+                          <CompactMatchRow
+                            key={hit.userId}
+                            person={toHelpNetworkPerson(hit)}
+                            intent={query}
+                            reason={matchReason(hit)}
+                          />
+                        ))}
+                      </MatchRowDivider>
+                    </div>
+                  </div>
+                ) : null}
+
+                <AskPagination
+                  currentPage={results.currentPage}
+                  totalPages={results.totalPages}
+                  totalResults={results.resultCount}
+                  params={params}
                 />
-              ))}
-            </div>
-            <AskPagination
-              currentPage={results.currentPage}
-              totalPages={results.totalPages}
-              totalResults={results.resultCount}
-              params={params}
-            />
-          </>
-        ) : (
-          <AskEmptyResults query={query} poolSize={results.nlPoolSize} />
-        )}
-      </section>
-    </div>
-  )
-}
-
-function AskStarter() {
-  return (
-    <div className="density-cozy min-h-full bg-background">
-      <section className="bc-page-band border-b border-border">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8 lg:py-14">
-          <div className="space-y-6">
-            <div>
-              <p className="bc-section-kicker">Ask</p>
-              <h1 className="mt-2 max-w-2xl font-heading text-display-md font-semibold leading-[1.1] text-foreground sm:text-display-lg">
-                Start with what you are trying to figure out.
-              </h1>
-              <p className="mt-3 max-w-2xl text-body-lg leading-[1.55] text-muted-foreground">
-                Tell us what you&rsquo;re working through — we&rsquo;ll find people who&rsquo;ve
-                been there.
-              </p>
-            </div>
-
-            <AskBar />
+              </>
+            ) : (
+              <KeepAskOpenCard
+                query={query}
+                poolSize={results.nlPoolSize}
+                existingOpenAsk={existingOpenAsk}
+                canKeepOpen={query.trim().length >= OPEN_ASK_MIN_LENGTH}
+              />
+            )}
           </div>
         </div>
       </section>
-
-      <section className="mx-auto max-w-5xl px-4 py-8 sm:px-8">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <StarterAsk href="/ask?nl=I%27m%20thinking%20about%20product%20management">
-            I&rsquo;m thinking about product management
-          </StarterAsk>
-          <StarterAsk href="/ask?nl=I%20want%20to%20understand%20founder%20paths">
-            I want to understand founder paths
-          </StarterAsk>
-          <StarterAsk href="/ask?nl=Can%20someone%20review%20a%20career%20decision%3F">
-            Can someone review a career decision?
-          </StarterAsk>
-        </div>
-      </section>
     </div>
   )
 }
 
-function StarterAsk({ href, children }: { href: string; children: React.ReactNode }) {
+function AskContextRail({
+  query,
+  tags,
+  resultCount,
+  openCount,
+}: {
+  query: string
+  tags: string[]
+  resultCount: number
+  openCount: number
+}) {
   return (
-    <Link
-      href={href}
-      className="group flex min-h-24 flex-col justify-between rounded-md border border-border bg-card p-4 shadow-card transition-[border-color,box-shadow,transform] hover:-translate-y-px hover:border-primary/30 hover:shadow-card-hover"
-    >
-      <CircleHelp className="size-4 text-primary" />
-      <span className="mt-4 text-sm font-medium leading-snug text-foreground group-hover:text-primary">
-        {children}
-      </span>
-    </Link>
-  )
-}
-
-function AskEmptyResults({ query, poolSize }: { query: string; poolSize: number }) {
-  const body =
-    poolSize === 0
-      ? "We don't have many alumni in this area yet. Try widening the question, or browse People."
-      : 'No one was a clear fit for this question. Try rephrasing it, or browse People.'
-
-  return (
-    <div className="rounded-md border border-border bg-card p-8 text-center shadow-card">
-      <p className="font-heading text-lg font-semibold text-foreground">
-        We didn&rsquo;t find a match this time
-      </p>
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{body}</p>
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-        <Button asChild variant="outline" size="sm" className="rounded-md">
-          <Link href="/ask">Edit your ask</Link>
-        </Button>
-        <Button asChild size="sm" className="rounded-md">
-          <Link href={`/people?nl=${encodeURIComponent(query)}`}>Try People search</Link>
+    <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
+      <div className="rounded-md border border-border bg-card p-3.5 shadow-card">
+        <p className="bc-card-label">Your ask</p>
+        {/* Member-written words — quotes are sacred and allowed here. */}
+        <blockquote className="mt-2 border-primary border-l-2 pl-3 text-sm font-medium leading-relaxed text-foreground">
+          &ldquo;{query}&rdquo;
+        </blockquote>
+        <Button asChild variant="outline" size="xs" className="mt-3 rounded-md">
+          <Link href={`/ask?edit=1&nl=${encodeURIComponent(query)}`}>
+            <Pencil className="size-3" />
+            Edit ask
+          </Link>
         </Button>
       </div>
-    </div>
+
+      {tags.length > 0 ? (
+        <div>
+          <p className="bc-card-label">How we read it</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-md bg-primary-tint px-2 py-1 text-xs font-medium text-primary"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            Off the mark? Edit your ask and we&rsquo;ll match again.
+          </p>
+        </div>
+      ) : null}
+
+      <div className="space-y-2.5 border-border border-t pt-3.5 text-xs text-muted-foreground">
+        <p>
+          <span className="font-mono font-semibold text-foreground">{resultCount}</span>{' '}
+          {resultCount === 1 ? 'person matches' : 'people match'} ·{' '}
+          <span className="font-mono font-semibold text-accent-sage">{openCount}</span> open now
+        </p>
+        <p className="flex gap-1.5 leading-relaxed">
+          <Lock aria-hidden className="mt-0.5 size-3 shrink-0" />
+          Asks only reach members who opted in to be asked.
+        </p>
+      </div>
+    </aside>
   )
 }
 
@@ -210,8 +228,8 @@ function AskPagination({
   const end = Math.min(currentPage * MEMBER_SEARCH_PAGE_SIZE, totalResults)
 
   return (
-    <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-xs font-medium text-muted-foreground">
+    <div className="mt-5 flex flex-col gap-3 border-border border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="font-mono text-xs font-medium text-muted-foreground">
         Showing {start}-{end} of {totalResults}
       </p>
       <nav aria-label="Ask result pages" className="flex items-center gap-1.5">

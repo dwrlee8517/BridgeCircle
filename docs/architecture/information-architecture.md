@@ -38,7 +38,7 @@ Phase 1 breaks into five major areas:
 
 ### Member Navigation (current)
 
-Member top nav has **five** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/member-nav.tsx`:
+Member top nav has **five** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/nav-links.ts`:
 
 1. **Ask** — natural-language question → hybrid retrieved and explained people matches → guided ask composer
 2. **Help** — supply-side surface for requests needing reply and people the viewer could help
@@ -236,9 +236,10 @@ Ranking emphasis:
 
 Behavior notes:
 
-- Current production still uses entity extraction + structured search + Haiku
-  rerank while ADR 0009 is not implemented. Do not present that current
-  baseline as the final Ask matching architecture.
+- The default path still uses entity extraction + structured search + Haiku
+  rerank unless `ASK_MATCHING_PIPELINE=voyage_hybrid` and `VOYAGE_API_KEY` are
+  configured. ADR 0009's Voyage hybrid implementation exists behind that flag;
+  do not present either path without naming which runtime mode is active.
 - `/search?...`, `/discover?...`, and `/friends` legacy URLs 308 here
 
 ### 9. Profile Detail (`/profile/[id]`)
@@ -282,10 +283,43 @@ is hybrid retrieval + warm-network scoring + LLM rerank ([ADR 0009](../decisions
 Inbox owns request state after creation. The underlying ask model remains
 polymorphic (`ask_type` enum: `advice` | `mentorship`).
 
+**Starter state** (`/ask` with no query, redesigned 2026-06-11): warm-Ink
+editorial band (the entry-moment surface) with an overlapping multi-line
+command bar (auto-grow textarea, Enter submits / Shift+Enter newline, soft
+400-char cap), a "nothing is sent yet" reassurance line, 3 specific example
+asks, an "Open to help right now" social-proof panel (real helper counts;
+hidden below 5 open helpers), and a 3-step "How asking works" strip that
+states the two-sided decline buffer out loud. `?edit=1&nl=…` re-opens the
+starter with the bar prefilled.
+
+**Results state** (`/ask?nl=…`): two-column brief. Left rail = the ask as an
+object (quoted member text, Edit ask, "How we read it" tags surfaced from
+the extractor's structured reading, match/open counts, opt-in privacy line).
+Main column = one featured "Strongest fit" card with full rationale, then
+compact "Also worth asking" rows. Card actions stay Electric Sky per the
+amber-scarcity rule.
+
+**Composer panel**: soft navigations to `/ask/new` are intercepted into a
+right-side sheet over the current page (Next parallel + intercepting routes
+under `ask/@sheet`), so composing never loses the result list. Hard loads
+and shared links still render the full `/ask/new` page. Amber appears once,
+on the send action inside the composer.
+
+**Standing asks** (bounded slice of "passive matching", approved
+2026-06-11): when results come up empty, the member can keep the ask open
+(`open_asks`, one per member per org, 14-day TTL, auto-expires). A nightly
+service sweep (`scripts/sweep-open-asks.ts` → `lib/asks/openAskSweep.ts`)
+re-matches through the same pipeline and notifies the asker with a count on
+new strong fits; the asker meets the helper by re-running the ask — helper
+identities never travel through notifications or client-readable rows
+(`open_ask_matches` is service-role only). The starter shows the open ask
+with expiry + honest match count and a Close action. Helper-side /help
+surfacing is deliberately deferred until creation/match data justifies it.
+
 Sub-pages:
 
-- `/ask` — question-driven matching surface
-- `/ask/new` — composer (per-type fields)
+- `/ask` — question-driven matching surface (starter + results states)
+- `/ask/new` — composer (per-type fields; also rendered as the intercepted side sheet)
 - `/ask/[id]` — request detail (asker view + helper review view)
 - `/ask/thread/[id]` — post-accept conversation
 - Legacy `/mentorship/request/*` and `/mentorship/thread/*` 308 here.

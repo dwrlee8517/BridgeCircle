@@ -1,4 +1,4 @@
-font-size=9
+font-size=8
 tracking=5
 padding=0
 breakpoint=2

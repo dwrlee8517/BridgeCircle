@@ -257,14 +257,14 @@ function EventSpotlight({
           </Button>
         </div>
       ) : null}
-      {/* Midnight editorial hero — the one sanctioned dark canvas (no
+      {/* Ink editorial hero — the one sanctioned dark canvas (no
           gradients, no constellation chrome). The event's category color
           appears only as a small chip dot; Electric Sky carries the accent. */}
-      <div className="relative grid gap-6 overflow-hidden bg-surface-midnight px-5 py-6 text-surface-midnight-foreground sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
+      <div className="relative grid gap-6 overflow-hidden bg-surface-ink px-5 py-6 text-surface-ink-foreground sm:px-7 md:grid-cols-[1fr_auto] md:items-center">
         <CirclesMotif className="absolute -right-6 -top-8 h-40 w-60 text-primary-on-dark opacity-[0.18]" />
         <div className="relative min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded border border-editorial-rule bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-surface-midnight-foreground">
+            <span className="inline-flex items-center gap-1.5 rounded border border-editorial-rule bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-surface-ink-foreground">
               <span
                 className="size-1.5 rounded-full"
                 style={{ backgroundColor: accentHex }}
@@ -272,12 +272,12 @@ function EventSpotlight({
               />
               {item.categoryLabel}
             </span>
-            <span className="text-xs text-surface-midnight-muted">Hosted by {orgName}</span>
+            <span className="text-xs text-surface-ink-muted">Hosted by {orgName}</span>
           </div>
-          <h3 className="font-heading text-h1 font-semibold leading-[1.08] tracking-[-0.01em] text-surface-midnight-foreground sm:text-[28px]">
+          <h3 className="font-heading text-h1 font-semibold leading-[1.08] tracking-[-0.01em] text-surface-ink-foreground sm:text-[28px]">
             {event.title}
           </h3>
-          <p className="mt-2 text-caption leading-relaxed text-surface-midnight-muted">
+          <p className="mt-2 text-caption leading-relaxed text-surface-ink-muted">
             {format(starts, 'EEE, MMM d · h:mm a')} · {event.location ?? 'Location to be shared'}
           </p>
         </div>
@@ -286,10 +286,10 @@ function EventSpotlight({
           <div className="font-mono text-xs font-bold uppercase tracking-label text-primary-on-dark">
             {format(starts, 'MMM')}
           </div>
-          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-tighter text-surface-midnight-foreground sm:text-[64px]">
+          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-tighter text-surface-ink-foreground sm:text-[64px]">
             {format(starts, 'd')}
           </div>
-          <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-surface-midnight-muted">
+          <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-surface-ink-muted">
             {format(starts, 'EEE')} · {format(starts, 'yyyy')}
           </div>
         </div>

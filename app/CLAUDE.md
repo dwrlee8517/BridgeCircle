@@ -99,10 +99,12 @@ See `../docs/runbooks/day-0-setup.md` Step 6 for the canonical example. If you f
 - Background jobs: Railway worker (invite fan-out, mentor inactivity sweeps, email retries)
 - File storage: Supabase Storage (public `avatars`, private `resumes`)
 - Error tracking: Sentry
-- LLM/search: Claude Haiku for resume extraction and current NL search extraction/rerank.
-  Target Ask matching is hybrid retrieval + warm-network scoring + LLM rerank
-  per `../docs/decisions/0009-hybrid-ask-matching.md`; People remains the
-  broad directory/filter surface.
+- LLM/search: Claude Haiku for resume extraction, legacy NL search
+  extraction/rerank, semantic passage generation, and optional Ask explanation
+  polish. Ask also has a feature-gated Voyage hybrid path
+  (`ASK_MATCHING_PIPELINE=voyage_hybrid`) for embeddings + dedicated reranking
+  per `../docs/decisions/0009-hybrid-ask-matching.md`; People remains the broad
+  directory/filter surface.
 
 Do not introduce alternative providers or frameworks without checking with the user. Do not add Prisma, Drizzle, tRPC, or auth libraries other than Supabase Auth.
 
@@ -111,7 +113,7 @@ Do not introduce alternative providers or frameworks without checking with the u
 From `app/`:
 
 ```bash
-pnpm dev          # local dev at http://localhost:3000
+pnpm dev          # local dev at http://localhost:3001
 pnpm build        # production build (also runs Sentry source map upload in CI)
 pnpm start        # serve production build
 pnpm lint         # eslint
@@ -172,7 +174,7 @@ Do not build (without explicit user request):
 - meetup proposals or ambassador role workflows
 - mentorship scheduler or Zoom integration
 - social feed
-- saved mentor interest / passive matching
+- saved mentor interest / passive matching — **except** the bounded standing-ask slice (user-approved 2026-06-11): one `open_asks` row per member per org, 14-day TTL with auto-expiry, nightly sweep re-match with count-only notifications (`lib/asks/openAskSweep.ts`). Anything beyond that slice (helper-side /help surfacing, event-driven triggers, renewal flows) still needs explicit approval
 - direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach. The supported path is `lib/enrichment/` (LinkdAPI primary, Bright Data for the monthly sweep, PDL fallback) — see [`../docs/architecture/profile-enrichment.md`](../docs/architecture/profile-enrichment.md) for the full plan.
 - unbounded agentic matching as the default page-load search path. Hybrid Ask
   matching is allowed only within the bounded ADR 0009 plan: hard gates,

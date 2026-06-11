@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
  * "BridgeCircle" (Circle in Electric Sky). One component so the wordmark
  * renders identically on every surface — header, auth, onboarding, 404.
  *
- * `editorial` is the Midnight-surface variant (light ink + primary-on-dark
+ * `editorial` is the Ink-surface variant (light ink + primary-on-dark
  * accent). The wordmark is one continuous word; never break or re-space it.
  */
 export function Wordmark({
