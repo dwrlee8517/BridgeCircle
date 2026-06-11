@@ -34,6 +34,7 @@ import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../src/db/database.types'
 import { sweepExpirePendingAsks } from '../src/lib/asks/askLifecycle'
 import { sweepOpenAsks } from '../src/lib/asks/openAskSweep'
+import { sweepResumeExplicitPauses } from '../src/lib/asks/preferences'
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
 const secret = process.env.SUPABASE_SECRET_KEY
@@ -60,12 +61,17 @@ async function main() {
   console.log(`New strong matches:  ${result.newMatches}`)
   console.log(`Askers notified:     ${result.askersNotified}`)
 
-  const directResult = await sweepExpirePendingAsks(admin, { dryRun })
+  const appOrigin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://bridgecircle.org'
+  const directResult = await sweepExpirePendingAsks(admin, { dryRun, appOrigin })
   console.log('')
   console.log(`Stale direct asks:   ${directResult.scanned}`)
   console.log(`Expired quietly:     ${directResult.expired}`)
 
+  const resume = await sweepResumeExplicitPauses(admin, { dryRun })
+  console.log(`Helpers resumed:     ${resume.resumed}${dryRun ? ' (would be)' : ''}`)
+
   const errors = [...result.errors, ...directResult.errors]
+  if (resume.error) errors.push(`resume paused helpers failed: ${resume.error}`)
   if (errors.length > 0) {
     console.error('')
     console.error('Errors:')

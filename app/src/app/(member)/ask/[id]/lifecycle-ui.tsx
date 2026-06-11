@@ -7,8 +7,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import { askLifecycleView, findAskAlternative } from '@/lib/asks/askLifecycle'
+import { type DeclineReason, declineCopyForAsker } from '@/lib/asks/declineReasons'
+import { explicitPauseHorizon } from '@/lib/asks/preferences'
 import { askComposeHref, classYearShort, cn, displayName, preferredAskType } from '@/lib/utils'
-import { sendReminderAction } from './actions'
+import { pauseHelperAction, sendReminderAction } from './actions'
 
 /**
  * Asker-side post-send loop (the "close the loop" mocks, 2026-06-11):
@@ -169,16 +171,60 @@ export function AskerClosedBadge({ status }: { status: 'declined' | 'expired' })
 export function ClosedAskCopy({
   status,
   helperFirstName,
+  declineReason = null,
 }: {
   status: 'declined' | 'expired'
   helperFirstName: string
+  declineReason?: DeclineReason | null
 }) {
   return (
     <p className="text-sm leading-relaxed text-foreground">
       {status === 'declined'
-        ? `${helperFirstName} couldn’t take this one right now. Capacity comes and goes — this usually isn’t about your ask.`
+        ? declineCopyForAsker(declineReason, helperFirstName)
         : 'This one closed quietly after two weeks without a reply. Capacity comes and goes — this usually isn’t about your ask.'}
     </p>
+  )
+}
+
+/**
+ * The guilt-free pause offer, shown to a helper right after their second
+ * "at capacity" decline in a month. Boundaries without penalty: the date
+ * is visible, nobody is told, and "keep them coming" is a fine answer.
+ */
+export function PauseOfferCard({ askerFirstName }: { askerFirstName: string }) {
+  const horizon = explicitPauseHorizon()
+  const horizonLabel = format(horizon, 'EEE, MMM d')
+
+  return (
+    <div className="rounded-md border border-border bg-surface-panel/40 p-4">
+      <p className="flex items-center gap-1.5 text-xs font-medium text-accent-sage">
+        <Check aria-hidden className="size-3.5 shrink-0" />
+        Done — {askerFirstName} knows, kindly.
+      </p>
+      <div className="mt-3 border-border border-t pt-3">
+        <p className="font-heading text-sm font-semibold text-foreground">Breathing room?</p>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          That&rsquo;s your second &ldquo;at capacity&rdquo; this month. Want to pause new asks
+          until <span className="font-mono font-semibold text-foreground">{horizonLabel}</span>?
+          Your profile stays in the circle — new asks just wait until you&rsquo;re back. Unpause
+          anytime.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <form action={pauseHelperAction}>
+            <Button type="submit" variant="outline" size="sm" className="rounded-md">
+              Pause until {format(horizon, 'MMM d')}
+            </Button>
+          </form>
+          <Button asChild variant="ghost" size="sm" className="rounded-md text-muted-foreground">
+            <Link href="/inbox">Keep them coming</Link>
+          </Button>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+          Pausing is a normal part of being a helper here — nobody is told, and your past
+          conversations aren&rsquo;t affected.
+        </p>
+      </div>
+    </div>
   )
 }
 

@@ -143,6 +143,9 @@ export async function saveHelperPreference(
       max_active_mentees: resolvedMaxActive,
       max_pending_requests: resolvedMaxPending,
       paused_at: null,
+      // A settings save is the deliberate "I'm managing my availability"
+      // signal, so it releases an explicit pause too.
+      paused_until: null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: 'organization_membership_id' },
@@ -150,6 +153,78 @@ export async function saveHelperPreference(
 
   if (error) return { ok: false, error: 'db_error', detail: error.message }
   return { ok: true }
+}
+
+export const EXPLICIT_PAUSE_DAYS = 14
+
+/** Request-scoped pause horizon for UI copy ("Pause until Thu, Jun 25").
+ * Lives here so the impure clock read stays out of component bodies. */
+export function explicitPauseHorizon(now = new Date()): Date {
+  return new Date(now.getTime() + EXPLICIT_PAUSE_DAYS * 24 * 60 * 60 * 1000)
+}
+
+/**
+ * The guilt-free pause from the decline flow: member-chosen, with a
+ * visible comeback date. Sets paused_at (the flag every matching surface
+ * already filters on) plus paused_until so the nightly sweep auto-resumes
+ * it — unlike inactivity auto-pauses, an explicit pause survives logins
+ * and only a settings save or the horizon clears it.
+ */
+export async function pauseHelper(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  { now = new Date() }: { now?: Date } = {},
+): Promise<SaveHelperPreferenceResult> {
+  const { data: membership } = await supabase
+    .from('organization_memberships')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (!membership) return { ok: false, error: 'no_membership' }
+
+  const until = new Date(now.getTime() + EXPLICIT_PAUSE_DAYS * 24 * 60 * 60 * 1000)
+  const { error } = await supabase.from('helper_preferences').upsert(
+    {
+      organization_membership_id: membership.id,
+      paused_at: now.toISOString(),
+      paused_until: until.toISOString(),
+      updated_at: now.toISOString(),
+    },
+    { onConflict: 'organization_membership_id' },
+  )
+
+  if (error) return { ok: false, error: 'db_error', detail: error.message }
+  return { ok: true }
+}
+
+/**
+ * Nightly: resume helpers whose explicit pause horizon has passed.
+ * Service-role; returns how many were resumed.
+ */
+export async function sweepResumeExplicitPauses(
+  admin: SupabaseClient<Database>,
+  { now = new Date(), dryRun = false }: { now?: Date; dryRun?: boolean } = {},
+): Promise<{ resumed: number; error: string | null }> {
+  if (dryRun) {
+    const { error, count } = await admin
+      .from('helper_preferences')
+      .select('organization_membership_id', { count: 'exact', head: true })
+      .lte('paused_until', now.toISOString())
+    return { resumed: count ?? 0, error: error?.message ?? null }
+  }
+
+  const { error, count } = await admin
+    .from('helper_preferences')
+    .update(
+      { paused_at: null, paused_until: null, updated_at: now.toISOString() },
+      { count: 'exact' },
+    )
+    .lte('paused_until', now.toISOString())
+
+  return { resumed: count ?? 0, error: error?.message ?? null }
 }
 
 /**

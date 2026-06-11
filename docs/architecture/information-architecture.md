@@ -364,6 +364,18 @@ Both forms enforce the helper's `helper_preferences` opt-in (per-type) and mento
 
 Helper-facing when `helper_id == viewer`. Shows requester summary + the rendered fields for the ask type, with Accept / Decline / leave-pending controls. Mentorship caps + paused state surface here.
 
+The decline moment (added 2026-06-11) is a chooser, not a button: an
+optional structured reason (`asks.decline_reason`: at_capacity /
+not_my_area / not_now) with a live preview of exactly what the asker will
+read — the reason vocabulary and asker copy share one module
+(`lib/asks/declineReasons.ts`) so they can't drift. A second "at capacity"
+within 30 days triggers the guilt-free pause offer
+(`helper_preferences.paused_until`, explicit member-chosen pause that
+survives logins; the nightly sweep auto-resumes past the horizon, a
+settings save clears it). Lifecycle emails: the gentle reminder reaches
+the helper by email (neutral resurface) and expiry reaches the asker by
+email pointing at the next-best fit.
+
 Asker-facing (the post-send loop, added 2026-06-11): a "What happens next"
 timeline (sent → they see it → reply-or-pass → auto-expiry at 14 days,
 enforced by the nightly sweep in `scripts/sweep-open-asks.ts`); one gentle

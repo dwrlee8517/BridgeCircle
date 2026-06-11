@@ -89,12 +89,17 @@ export type SendAskReminderResult =
  */
 export async function sendAskReminder(
   admin: SupabaseClient<Database>,
-  { askId, askerId, now = new Date() }: { askId: string; askerId: string; now?: Date },
+  {
+    askId,
+    askerId,
+    appOrigin,
+    now = new Date(),
+  }: { askId: string; askerId: string; appOrigin: string; now?: Date },
 ): Promise<SendAskReminderResult> {
   const { data: ask } = await admin
     .from('asks')
     .select(
-      'id, asker_id, helper_id, organization_id, ask_type, status, created_at, reminder_sent_at',
+      'id, asker_id, helper_id, organization_id, ask_type, status, created_at, reminder_sent_at, help_needed',
     )
     .eq('id', askId)
     .maybeSingle()
@@ -135,7 +140,38 @@ export async function sendAskReminder(
     payload: { actor_id: askerId, actor_name: actorName, ask_type: ask.ask_type },
   })
 
+  // Email is the channel that actually resurfaces the ask for helpers who
+  // don't visit daily. Best-effort, like every other lifecycle email.
+  try {
+    const { data: helperAuth } = await admin.auth.admin.getUserById(ask.helper_id)
+    if (helperAuth?.user?.email) {
+      const { data: helperProfile } = await admin
+        .from('base_profiles')
+        .select('name')
+        .eq('user_id', ask.helper_id)
+        .maybeSingle()
+      const { sendAskReminderEmail } = await import('@/notify/resend')
+      await sendAskReminderEmail({
+        to: helperAuth.user.email,
+        helperName: helperProfile?.name ?? null,
+        askerName: actorName,
+        askExcerpt: excerptOf(ask.help_needed),
+        reviewUrl: `${appOrigin}/ask/${ask.id}`,
+      })
+    }
+  } catch {
+    // Email is best-effort; the in-app notification already landed.
+  }
+
   return { ok: true }
+}
+
+const EXCERPT_MAX = 180
+
+function excerptOf(text: string | null): string | null {
+  const trimmed = text?.trim()
+  if (!trimmed) return null
+  return trimmed.length > EXCERPT_MAX ? `${trimmed.slice(0, EXCERPT_MAX - 1)}…` : trimmed
 }
 
 export type ExpireAsksResult = {
@@ -151,7 +187,11 @@ export type ExpireAsksResult = {
  */
 export async function sweepExpirePendingAsks(
   admin: SupabaseClient<Database>,
-  { now = new Date(), dryRun = false }: { now?: Date; dryRun?: boolean } = {},
+  {
+    now = new Date(),
+    dryRun = false,
+    appOrigin = 'https://bridgecircle.org',
+  }: { now?: Date; dryRun?: boolean; appOrigin?: string } = {},
 ): Promise<ExpireAsksResult> {
   const result: ExpireAsksResult = { scanned: 0, expired: 0, errors: [] }
   const cutoff = new Date(now.getTime() - ASK_EXPIRY_DAYS * DAY_MS).toISOString()
@@ -193,6 +233,7 @@ export async function sweepExpirePendingAsks(
       .eq('user_id', ask.helper_id)
       .maybeSingle()
 
+    const helperName = displayName(helperProfile?.name, helperProfile?.preferred_name ?? null)
     await createNotification({
       userId: ask.asker_id,
       type: 'ask_expired',
@@ -201,10 +242,30 @@ export async function sweepExpirePendingAsks(
       targetId: ask.id,
       payload: {
         actor_id: ask.helper_id,
-        actor_name: displayName(helperProfile?.name, helperProfile?.preferred_name ?? null),
+        actor_name: helperName,
         ask_type: ask.ask_type,
       },
     })
+
+    try {
+      const { data: askerAuth } = await admin.auth.admin.getUserById(ask.asker_id)
+      if (askerAuth?.user?.email) {
+        const { data: askerProfile } = await admin
+          .from('base_profiles')
+          .select('name')
+          .eq('user_id', ask.asker_id)
+          .maybeSingle()
+        const { sendAskExpiredEmail } = await import('@/notify/resend')
+        await sendAskExpiredEmail({
+          to: askerAuth.user.email,
+          askerName: askerProfile?.name ?? null,
+          helperName,
+          detailUrl: `${appOrigin}/ask/${ask.id}`,
+        })
+      }
+    } catch {
+      // Email is best-effort; the quiet in-app notification already landed.
+    }
   }
 
   return result
