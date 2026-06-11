@@ -1,5 +1,5 @@
 /**
- * Sweep script: expire stale standing asks and re-match the live ones.
+ * Nightly ask-lifecycle sweep: standing asks + direct-ask expiry.
  *
  * Run from app/ (the react-server condition is required because the lib
  * modules import 'server-only'):
@@ -16,6 +16,9 @@
  *     notifies the asker with a count (open_ask_match). The asker meets the
  *     helper by re-running the ask on /ask — identities never travel
  *     through notifications or client-readable rows.
+ *   - Expires direct asks that sat pending past the 14-day window
+ *     (ask_expired, quiet) — this is what keeps the asker-side "it closes
+ *     on its own" timeline step honest.
  *
  * When to run:
  *   - Nightly. At pilot scale this approximates event-driven matching:
@@ -29,6 +32,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../src/db/database.types'
+import { sweepExpirePendingAsks } from '../src/lib/asks/askLifecycle'
 import { sweepOpenAsks } from '../src/lib/asks/openAskSweep'
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -55,10 +59,17 @@ async function main() {
   console.log(`Expired:             ${result.expired}`)
   console.log(`New strong matches:  ${result.newMatches}`)
   console.log(`Askers notified:     ${result.askersNotified}`)
-  if (result.errors.length > 0) {
+
+  const directResult = await sweepExpirePendingAsks(admin, { dryRun })
+  console.log('')
+  console.log(`Stale direct asks:   ${directResult.scanned}`)
+  console.log(`Expired quietly:     ${directResult.expired}`)
+
+  const errors = [...result.errors, ...directResult.errors]
+  if (errors.length > 0) {
     console.error('')
     console.error('Errors:')
-    for (const message of result.errors) console.error(`  - ${message}`)
+    for (const message of errors) console.error(`  - ${message}`)
     process.exit(1)
   }
 }

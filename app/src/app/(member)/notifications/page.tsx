@@ -116,6 +116,8 @@ const NOTIF_ICON: Record<NotificationType, typeof Bell> = {
   event_canceled: CalendarX,
   open_ask_match: CircleHelp,
   open_ask_expired: CircleHelp,
+  ask_reminder: Handshake,
+  ask_expired: Handshake,
 }
 
 /**

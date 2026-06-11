@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,6 +10,13 @@ import { type LifecycleStatus, LifecycleStatusBadge } from '@/components/ui/stat
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { acceptAction, declineAction } from './actions'
+import {
+  AskAlternativeSection,
+  AskAlternativeSkeleton,
+  AskerClosedBadge,
+  AskerTimeline,
+  ClosedAskCopy,
+} from './lifecycle-ui'
 
 type Params = { id: string }
 
@@ -20,7 +28,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
   const { data: req } = await supabase
     .from('asks')
     .select(
-      'id, helper_id, asker_id, status, ask_type, reason, help_needed, background, created_at, responded_at',
+      'id, helper_id, asker_id, organization_id, status, ask_type, reason, help_needed, background, created_at, responded_at, reminder_sent_at',
     )
     .eq('id', id)
     .maybeSingle()
@@ -32,6 +40,7 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
   if (!isHelper && !isAsker) notFound()
 
   const otherUserId = isHelper ? req.asker_id : req.helper_id
+  const askerClosed = isAsker && (req.status === 'declined' || req.status === 'expired')
 
   // Inbox owns request state for both askers and helpers.
   const backHref = '/inbox'
@@ -42,6 +51,14 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
     .select('user_id, name, headline, avatar_url')
     .eq('user_id', otherUserId)
     .maybeSingle()
+
+  // For the asker, "other" is the helper — the lifecycle copy speaks of them
+  // by first name. Skip honorifics so "Dr. Jessica Wong" reads as Jessica,
+  // not "Still waiting on Dr.".
+  const helperNameParts = (otherProfile?.name ?? '')
+    .split(/\s+/)
+    .filter((part) => !/^(dr|prof|mr|ms|mrs)\.?$/i.test(part))
+  const helperFirstName = helperNameParts[0] || 'They'
 
   // If accepted, show a link to the thread the response created.
   let threadId: string | null = null
@@ -85,7 +102,11 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
             </CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{req.ask_type === 'advice' ? 'Advice' : 'Mentorship'}</Badge>
-              <LifecycleStatusBadge status={req.status as RequestLifecycleStatus} />
+              {askerClosed ? (
+                <AskerClosedBadge status={req.status as 'declined' | 'expired'} />
+              ) : (
+                <LifecycleStatusBadge status={req.status as RequestLifecycleStatus} />
+              )}
               <span className="text-xs text-muted-foreground">
                 Sent {format(new Date(req.created_at), 'PP')}
                 {req.responded_at ? ` · responded ${format(new Date(req.responded_at), 'PP')}` : ''}
@@ -104,11 +125,21 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
                              is optional context. We hide null fields
                              instead of rendering a stray "—" line. */}
           {req.ask_type === 'advice' ? (
-            <AskQuote label="Their question">{req.help_needed ?? '—'}</AskQuote>
+            <AskQuote label={isAsker ? 'Your question' : 'Their question'}>
+              {req.help_needed ?? '—'}
+            </AskQuote>
           ) : (
             <>
-              {req.reason ? <Field label="Why you specifically">{req.reason}</Field> : null}
-              <AskQuote label="What they're hoping to explore">{req.help_needed ?? '—'}</AskQuote>
+              {req.reason ? (
+                <Field label={isAsker ? 'Why this person' : 'Why you specifically'}>
+                  {req.reason}
+                </Field>
+              ) : null}
+              <AskQuote
+                label={isAsker ? "What you're hoping to explore" : "What they're hoping to explore"}
+              >
+                {req.help_needed ?? '—'}
+              </AskQuote>
               {req.background ? <Field label="Anything else">{req.background}</Field> : null}
             </>
           )}
@@ -118,6 +149,33 @@ export default async function RequestDetailPage({ params }: { params: Promise<Pa
               <span className="font-semibold text-foreground">What happens next:</span> accepting
               opens a conversation thread so you can reply; declining closes the request.
             </div>
+          ) : null}
+
+          {isAsker && req.status === 'pending' ? (
+            <AskerTimeline
+              askId={req.id}
+              helperFirstName={helperFirstName}
+              createdAt={req.created_at}
+              reminderSentAt={req.reminder_sent_at}
+              helpNeeded={req.help_needed ?? ''}
+            />
+          ) : null}
+
+          {askerClosed ? (
+            <>
+              <ClosedAskCopy
+                status={req.status as 'declined' | 'expired'}
+                helperFirstName={helperFirstName}
+              />
+              <Suspense fallback={<AskAlternativeSkeleton />}>
+                <AskAlternativeSection
+                  organizationId={req.organization_id}
+                  askerId={req.asker_id}
+                  query={req.help_needed ?? req.reason ?? ''}
+                  excludeUserId={req.helper_id}
+                />
+              </Suspense>
+            </>
           ) : null}
 
           <div className="flex flex-wrap gap-2 border-t border-border pt-4">

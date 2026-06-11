@@ -187,6 +187,7 @@ export type Database = {
           id: string
           organization_id: string
           reason: string | null
+          reminder_sent_at: string | null
           responded_at: string | null
           screening_answer: string | null
           status: Database['public']['Enums']['ask_status']
@@ -201,6 +202,7 @@ export type Database = {
           id?: string
           organization_id: string
           reason?: string | null
+          reminder_sent_at?: string | null
           responded_at?: string | null
           screening_answer?: string | null
           status?: Database['public']['Enums']['ask_status']
@@ -215,6 +217,7 @@ export type Database = {
           id?: string
           organization_id?: string
           reason?: string | null
+          reminder_sent_at?: string | null
           responded_at?: string | null
           screening_answer?: string | null
           status?: Database['public']['Enums']['ask_status']

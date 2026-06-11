@@ -364,6 +364,16 @@ Both forms enforce the helper's `helper_preferences` opt-in (per-type) and mento
 
 Helper-facing when `helper_id == viewer`. Shows requester summary + the rendered fields for the ask type, with Accept / Decline / leave-pending controls. Mentorship caps + paused state surface here.
 
+Asker-facing (the post-send loop, added 2026-06-11): a "What happens next"
+timeline (sent → they see it → reply-or-pass → auto-expiry at 14 days,
+enforced by the nightly sweep in `scripts/sweep-open-asks.ts`); one gentle
+reminder per ask, unlocked after 7 quiet days (`asks.reminder_sent_at`,
+service-role write — column-level grant keeps it out of client reach), which
+resurfaces the ask neutrally on the helper's side; and on decline/expiry,
+dignity copy ("declined" never faces the asker) plus a streamed next-best
+alternative from the live matcher (strong matches only, prior helpers
+excluded, the note carries over via composer prefill).
+
 #### 12d. Ask Thread (`/ask/thread/[id]`)
 
 Post-accept conversation, gated by acceptance state. Shared shape across types — the only difference is the role label ("Mentor / Mentee" for mentorship asks; "Helper / Asker" for advice asks).
