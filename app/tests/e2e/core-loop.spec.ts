@@ -124,15 +124,19 @@ test.describe("Core User Loop", () => {
     await expect(page.getByRole("heading", { name: /Hi Student\. Who do you want to ask\?/i })).toBeVisible();
 
     // AskBar submissions stay inside Ask instead of redirecting into the People directory.
-    await page.getByLabel(/Ask a question to find people who can help/i).fill("Mark Mentor");
-    await page.getByRole("button", { name: /find matches/i }).click();
+    await page.getByLabel(/find people who can help/i).fill("Mark Mentor");
+    await page.getByRole("button", { name: /find people/i }).click();
     await page.waitForURL((url) => url.pathname === "/ask" && url.searchParams.get("nl") === "Mark Mentor");
-    await expect(page.getByRole("heading", { name: /People who can help with this ask/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /People who can help with this/i })).toBeVisible();
     await expect(page.getByText("People search")).toHaveCount(0);
     await expect(page.getByRole("link", { name: /^Ask$/ }).first()).toHaveAttribute("aria-current", "page");
     await expect(page.getByText("Mark Mentor").first()).toBeVisible();
 
-    await page.getByRole("link", { name: /ask for advice|request mentorship/i }).first().click();
+    // Compose links live in the results (featured card "Ask {first}" or a
+    // compact row's "Ask") — scope to main so the nav "Ask" link can't match.
+    // Soft navigation intercepts /ask/new into the composer side sheet; the
+    // URL still changes, and the request form renders inside the sheet.
+    await page.locator('main a[href*="/ask/new"]').first().click();
     await page.waitForURL(
       (url) => url.pathname === "/ask/new" && url.searchParams.get("intent") === "Mark Mentor",
     );
