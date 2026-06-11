@@ -44,17 +44,18 @@ export function askNewHref({
   to,
   type,
   intent,
-  guided,
+  skip,
 }: {
   to: string
   type?: AskType
   intent?: string
-  guided?: boolean
+  /** Bypass the guided flow and write the note directly. */
+  skip?: boolean
 }) {
   const next = new URLSearchParams({ to })
   if (type) next.set('type', type)
   if (intent?.trim()) next.set('intent', intent.trim())
-  if (guided) next.set('guided', '1')
+  if (skip) next.set('skip', '1')
   return `/ask/new?${next.toString()}`
 }
 
@@ -78,9 +79,9 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
   // Pass viewerId so privacy redaction applies — per locked decision,
   // mentorship doesn't override privacy. The asker sees only what
   // privacy settings + their (likely non-friend) relationship allows.
-  // We also fetch the asker's own profile so the wizard's signals step
-  // can derive shared-attribute candidates (city / school / major /
-  // cohort) — that derivation is pure but needs both sides.
+  // We also fetch the asker's own profile so the guided flows can derive
+  // shared-attribute signal candidates (city / school / major / cohort)
+  // — that derivation is pure but needs both sides.
   const [helper, asker] = await Promise.all([
     getProfile(supabase, params.to, session.userId),
     getProfile(supabase, session.userId, session.userId),
@@ -94,7 +95,7 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
 
   // Derive signals server-side once. If the asker profile failed to load
   // (rare — they're authed and have a session), pass an empty list so
-  // the wizard simply skips the signals step.
+  // the flows simply hide their mentions / evidence pieces.
   const signalCandidates = asker
     ? deriveSignals(
         {
@@ -128,7 +129,9 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
     askType,
     isOpenForType,
     intent,
-    useGuidedComposer: params.guided === '1' && params.skip !== '1',
+    // Guided is the default; ?skip=1 is the explicit "I know what to say"
+    // path straight to the plain form. (?guided=1 in old links is harmless.)
+    useGuidedComposer: params.skip !== '1',
     signalCandidates,
   }
 }

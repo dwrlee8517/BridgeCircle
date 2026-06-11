@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { AdviceFlow } from '../../new/advice-flow'
 import {
   AskTypeSelector,
   askNewHref,
@@ -7,8 +8,8 @@ import {
   loadComposer,
   PersonSummaryCard,
 } from '../../new/composer'
+import { MentorshipFlow } from '../../new/mentorship-flow'
 import { RequestForm } from '../../new/request-form'
-import { Wizard } from '../../new/wizard'
 import { ComposerSheet } from './composer-sheet'
 
 /**
@@ -44,8 +45,9 @@ export default async function InterceptedNewAskPage({
   }
 
   const baseHref = askNewHref({ to: helper.userId, intent })
-  const simpleHref = askNewHref({ to: helper.userId, type: askType, intent })
-  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent, guided: true })
+  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent })
+  const skipHref = askNewHref({ to: helper.userId, type: askType, intent, skip: true })
+  const adviceHref = askNewHref({ to: helper.userId, type: 'advice', intent })
   const cancelHref = `/profile/${helper.userId}`
 
   return (
@@ -55,20 +57,29 @@ export default async function InterceptedNewAskPage({
         <AskTypeSelector helper={helper} askType={askType} baseHref={baseHref} />
 
         {data.useGuidedComposer ? (
-          <Wizard
-            helperId={helper.userId}
-            helperName={helperDisplay}
-            askType={askType}
-            skipHref={simpleHref}
-            cancelHref={cancelHref}
-            initialContext={intent}
-            signalCandidates={data.signalCandidates}
-            activeMenteeCount={helper.activeMenteeCount}
-            maxActiveMentees={helper.maxActiveMentees}
-            pendingRequestCount={helper.pendingRequestCount}
-            maxPendingRequests={helper.maxPendingRequests}
-            mentorshipAtCapacity={helper.mentorshipAtCapacity}
-          />
+          askType === 'advice' ? (
+            <AdviceFlow
+              helperId={helper.userId}
+              helperFirstName={helperFirstName}
+              skipHref={skipHref}
+              signalCandidates={data.signalCandidates}
+              initialSituation={intent}
+            />
+          ) : (
+            <MentorshipFlow
+              helperId={helper.userId}
+              helperFirstName={helperFirstName}
+              cancelHref={cancelHref}
+              adviceHref={adviceHref}
+              adviceOpen={helper.isOpenAsAdviceHelper}
+              signalCandidates={data.signalCandidates}
+              screeningPrompt={helper.screeningPrompt}
+              activeMenteeCount={helper.activeMenteeCount}
+              maxActiveMentees={helper.maxActiveMentees}
+              mentorshipAtCapacity={helper.mentorshipAtCapacity}
+              initialGoal={intent}
+            />
+          )
         ) : (
           <RequestForm
             helperId={helper.userId}

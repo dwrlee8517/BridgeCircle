@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/db/server'
 import { draftAsk } from '@/lib/asks/draftAsk'
-import { askGenreSchema, askTypeSchema, draftVariantSchema } from '@/lib/asks/schemas'
+import { askCommitmentSchema, askTypeSchema, draftVariantSchema } from '@/lib/asks/schemas'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
 
@@ -12,11 +12,13 @@ const bodySchema = z.object({
   askType: askTypeSchema,
   userText: z.string().max(2000).optional(),
   variant: draftVariantSchema.optional().nullable(),
-  genre: askGenreSchema.optional().nullable(),
   context: z.string().max(2000).optional().nullable(),
-  // Signal sentences from the wizard's transparency step. Capped to keep
-  // the prompt bounded; the wizard surfaces at most 4 candidates.
+  // Signal sentences from the guided flow's mentions / evidence step.
+  // Capped to keep the prompt bounded; the flows surface at most a
+  // handful of candidates plus the asker's own additions.
   signals: z.array(z.string().max(400)).max(8).optional().nullable(),
+  // The pace picked in the mentorship flow — the note names it plainly.
+  commitment: askCommitmentSchema.optional().nullable(),
 })
 
 /**
@@ -69,9 +71,9 @@ export async function POST(req: Request) {
     askType: parsed.data.askType,
     userText: parsed.data.userText,
     variant: parsed.data.variant ?? null,
-    genre: parsed.data.genre ?? null,
     context: parsed.data.context ?? null,
     signals: parsed.data.signals ?? null,
+    commitment: parsed.data.commitment ?? null,
     asker: {
       name: askerProfile.name,
       graduationYear: askerProfile.graduationYear,
@@ -112,12 +114,11 @@ export async function POST(req: Request) {
     // input was handled above.
     // Surface to server logs so dev-time failures are debuggable; the
     // detail field can contain the upstream error message which is too
-    // long for the wizard's tiny error slot.
+    // long for the flow's tiny error slot.
     console.error('[asks/draft] draftAsk failed', {
       error: result.error,
       detail: result.detail,
       askType: parsed.data.askType,
-      hasGenre: !!parsed.data.genre,
       hasContext: !!parsed.data.context,
       signalCount: parsed.data.signals?.length ?? 0,
     })
@@ -130,7 +131,6 @@ export async function POST(req: Request) {
         error: result.error,
         detail: result.detail,
         askType: parsed.data.askType,
-        hasGenre: !!parsed.data.genre,
         hasContext: !!parsed.data.context,
         signalCount: parsed.data.signals?.length ?? 0,
       },
@@ -141,5 +141,6 @@ export async function POST(req: Request) {
   return NextResponse.json({
     helpNeeded: result.helpNeeded,
     reason: result.reason,
+    coach: result.coach,
   })
 }

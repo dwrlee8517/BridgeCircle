@@ -1,7 +1,7 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
-import type { AskGenre, AskType, DraftVariant } from './schemas'
+import type { AskCommitment, AskType, DraftVariant } from './schemas'
 
 const MODEL = 'claude-haiku-4-5-20251001'
 const MAX_OUTPUT_TOKENS = 400
@@ -54,6 +54,9 @@ const draftSchema = z.object({
   // Mentorship asks may also propose a "why this person" line. For advice
   // we ignore this even if the model returns one.
   reason: z.string().trim().max(500).nullable().optional(),
+  // One line addressed to the asker about why the draft is easy to say yes
+  // to. Display-only coaching — never sent to the helper.
+  coach: z.string().trim().max(300).nullable().optional(),
 })
 
 export type DraftAskInput = {
@@ -65,21 +68,22 @@ export type DraftAskInput = {
   /** Refinement lens. When set, the model is asked to rework the seed —
    *  shorter, more direct, or warmer — rather than draft from scratch. */
   variant?: DraftVariant | null
-  /** Topic captured by the wizard's "what kind of help?" step. Biases
-   *  framing without changing length / tone rules (those come from askType). */
-  genre?: AskGenre | null
-  /** Free-text the asker entered in the wizard's "what are you working on"
-   *  step. Distinct from `userText` (a seed draft) — this is the situation
-   *  context, not a partial draft. */
+  /** Free-text from the guided flow — the asker's situation (advice) or
+   *  the goal they hope to explore (mentorship). Distinct from `userText`
+   *  (a seed draft) — this is context, not a partial draft. */
   context?: string | null
-  /** Active signals the asker chose to keep in the wizard's signals step.
-   *  Each entry is a sentence injected into the prompt as a "lean on this"
-   *  instruction. Order matters — the first is the strongest. */
+  /** Active signals the asker chose to keep in the guided flow's mentions
+   *  / evidence step. Each entry is a sentence injected into the prompt as
+   *  a "lean on this" instruction. Order matters — the first is the
+   *  strongest. */
   signals?: string[] | null
+  /** The pace the asker proposed in the mentorship flow. The note should
+   *  name it plainly — a bounded ask is easier to say yes to. */
+  commitment?: AskCommitment | null
 }
 
 export type DraftAskResult =
-  | { ok: true; helpNeeded: string; reason: string | null }
+  | { ok: true; helpNeeded: string; reason: string | null; coach: string | null }
   | {
       ok: false
       error: 'no_api_key' | 'llm_call_failed' | 'invalid_response'
@@ -107,8 +111,14 @@ Choosing what to mention:
 Output format: ONLY a JSON object matching this exact shape — no prose, no markdown fences:
 {
   "helpNeeded": string,    // the body of the ask itself
-  "reason": string | null  // optional — only for mentorship asks: a short "why you specifically" line. null for advice.
+  "reason": string | null, // optional — only for mentorship asks: a short "why you specifically" line. null for advice.
+  "coach": string | null   // one short line TO THE ASKER about why this draft is easy to say yes to. Never part of the note.
 }
+
+The coach line:
+- Addressed to the asker, about their draft — e.g. "Names the decision and asks for a bounded slot — an easy ask to say yes to."
+- One sentence, plain and specific. No praise of the asker, no exclamation marks.
+- It is UI guidance only; the helper never sees it.
 
 Length:
 - Advice asks: helpNeeded is 1–3 sentences. Just the question with minimal context. reason: null.
@@ -168,22 +178,17 @@ function pickRecentCareer(history: DraftCareerEntry[], n: number): DraftCareerEn
     .slice(0, n)
 }
 
-function genreInstruction(genre: AskGenre | null | undefined): string | null {
-  if (!genre) return null
-  const map: Record<AskGenre, string> = {
-    'career-path':
-      "Topic: career path. The asker is considering a path the helper has walked. Frame the ask around understanding the helper's journey or weighing options.",
-    'industry-intro':
-      'Topic: industry intro. The asker wants to break into or learn about an industry. Frame the ask around what working in this space is actually like.',
-    'decision-review':
-      'Topic: decision review. The asker is weighing a specific decision and wants the helper as a sounding board. Frame the ask around the trade-off or call.',
-    'school-advice':
-      'Topic: school / academics. Frame the ask around schools, applications, or academic decisions.',
-    'skill-question':
-      'Topic: a specific skill or knowledge question. Keep the ask narrow and answerable.',
-    other: 'Topic: open-ended. Frame the ask warmly without forcing a specific genre.',
+function commitmentInstruction(commitment: AskCommitment | null | undefined): string | null {
+  if (!commitment) return null
+  const map: Record<AskCommitment, string> = {
+    few_exchanges:
+      'Proposed pace: a few exchanges — messages as questions come up. Name that light, bounded pace in the note.',
+    monthly_semester:
+      'Proposed pace: monthly check-ins for a semester or so. Name that pace plainly in the note — it bounds the ask.',
+    ongoing:
+      'Proposed pace: open to ongoing. Keep the proposal modest — suggest starting and seeing where it goes, not a standing claim on their time.',
   }
-  return map[genre]
+  return map[commitment]
 }
 
 function variantInstruction(variant: DraftVariant | null | undefined): string | null {
@@ -226,8 +231,8 @@ export async function draftAsk(input: DraftAskInput): Promise<DraftAskResult> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   if (!apiKey) return { ok: false, error: 'no_api_key' }
 
-  const genreLine = genreInstruction(input.genre)
   const variantLine = variantInstruction(input.variant)
+  const paceLine = commitmentInstruction(input.commitment)
   const contextLine =
     input.context && input.context.trim().length > 0
       ? `What the asker is working on (their words):\n  ${input.context.trim()}`
@@ -240,11 +245,11 @@ export async function draftAsk(input: DraftAskInput): Promise<DraftAskResult> {
       : null
   const userPrompt = [
     `Ask type: ${input.askType}`,
-    ...(genreLine ? [genreLine] : []),
     describePersona(input.asker, 'Asker'),
     describeHelper(input.helper),
     ...(contextLine ? [contextLine] : []),
     ...(signalsLine ? [signalsLine] : []),
+    ...(paceLine ? [paceLine] : []),
     input.userText && input.userText.trim().length > 0
       ? `What the asker has typed so far (seed — refine, don't replace verbatim):\n  ${input.userText.trim()}`
       : contextLine
@@ -302,5 +307,10 @@ export async function draftAsk(input: DraftAskInput): Promise<DraftAskResult> {
   const reason =
     input.askType === 'mentorship' && validated.data.reason ? validated.data.reason : null
 
-  return { ok: true, helpNeeded: validated.data.helpNeeded, reason }
+  return {
+    ok: true,
+    helpNeeded: validated.data.helpNeeded,
+    reason,
+    coach: validated.data.coach ?? null,
+  }
 }

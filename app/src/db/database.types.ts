@@ -181,6 +181,7 @@ export type Database = {
           ask_type: Database['public']['Enums']['ask_type']
           asker_id: string
           background: string | null
+          commitment: string | null
           created_at: string
           decline_reason: string | null
           help_needed: string | null
@@ -197,6 +198,7 @@ export type Database = {
           ask_type?: Database['public']['Enums']['ask_type']
           asker_id: string
           background?: string | null
+          commitment?: string | null
           created_at?: string
           decline_reason?: string | null
           help_needed?: string | null
@@ -213,6 +215,7 @@ export type Database = {
           ask_type?: Database['public']['Enums']['ask_type']
           asker_id?: string
           background?: string | null
+          commitment?: string | null
           created_at?: string
           decline_reason?: string | null
           help_needed?: string | null

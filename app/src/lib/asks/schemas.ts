@@ -9,17 +9,30 @@ export type AskType = z.infer<typeof askTypeSchema>
 export const draftVariantSchema = z.enum(['shorter', 'more-direct', 'warmer'])
 export type DraftVariant = z.infer<typeof draftVariantSchema>
 
-// Topic genre captured in the wizard's "what kind of help" step. Used
-// only to bias the draft prompt — not persisted on the asks row.
-export const askGenreSchema = z.enum([
-  'career-path',
-  'industry-intro',
-  'decision-review',
-  'school-advice',
-  'skill-question',
-  'other',
-])
-export type AskGenre = z.infer<typeof askGenreSchema>
+// The pace the asker proposes in the mentorship flow. Persisted on
+// asks.commitment (mentorship only) and shown to the mentor on the review
+// screen — the two-sided payoff: honest expectations make the yes easier.
+export const askCommitmentSchema = z.enum(['few_exchanges', 'monthly_semester', 'ongoing'])
+export type AskCommitment = z.infer<typeof askCommitmentSchema>
+
+// One vocabulary for both sides: the asker picks from these cards, the
+// mentor reads the same words on review. The framing is deliberate —
+// "a starting point, not a contract", never an SLA.
+export const COMMITMENT_OPTIONS: Array<{
+  id: AskCommitment
+  label: string
+  sub: string
+}> = [
+  { id: 'few_exchanges', label: 'A few exchanges', sub: 'Messages as questions come up' },
+  { id: 'monthly_semester', label: 'Monthly check-ins', sub: 'For a semester or so' },
+  { id: 'ongoing', label: 'Open to ongoing', sub: 'See where it goes' },
+]
+
+export function commitmentLabel(commitment: AskCommitment): string {
+  return COMMITMENT_OPTIONS.find((o) => o.id === commitment)?.label ?? commitment
+}
+
+export const SCREENING_ANSWER_MAX_LENGTH = 400
 
 export const askSchema = z.object({
   helperId: z.uuid(),
@@ -35,8 +48,20 @@ export const askSchema = z.object({
     .optional()
     .nullable()
     .transform((v) => (v && v.length > 0 ? v : null)),
-  helpNeeded: z.string().trim().min(10, 'Be specific (10+ chars).').max(500),
+  // 800 matches the draft API's ceiling so a generated note can never be
+  // rejected at send for being a few sentences too warm.
+  helpNeeded: z.string().trim().min(10, 'Be specific (10+ chars).').max(800),
   background: z.string().trim().max(1000).optional().nullable(),
+  // Mentorship-only fields from the guided flow. createAsk drops both for
+  // advice asks so a stray hidden input can't write them.
+  commitment: z.preprocess((v) => (v === '' ? null : v), askCommitmentSchema.optional().nullable()),
+  screeningAnswer: z
+    .string()
+    .trim()
+    .max(SCREENING_ANSWER_MAX_LENGTH)
+    .optional()
+    .nullable()
+    .transform((v) => (v && v.length > 0 ? v : null)),
 })
 
 export type AskInput = z.infer<typeof askSchema>
@@ -48,6 +73,8 @@ export function parseAskForm(formData: FormData) {
     reason: formData.get('reason'),
     helpNeeded: formData.get('helpNeeded'),
     background: formData.get('background'),
+    commitment: formData.get('commitment'),
+    screeningAnswer: formData.get('screeningAnswer'),
   })
 }
 

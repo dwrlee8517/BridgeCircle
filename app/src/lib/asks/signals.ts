@@ -1,8 +1,10 @@
 /**
- * Pure signal derivation for the wizard's transparency step.
+ * Pure signal derivation for the guided composer's transparency steps —
+ * the advice flow's prunable "We'll mention" chips and the mentorship
+ * flow's "Why them" evidence picker.
  *
  * Given an asker and helper profile pair, produce a ranked list of
- * "signals" the AI could lean on while drafting. The wizard shows these
+ * "signals" the AI could lean on while drafting. The flows show these
  * to the asker before generation so they can drop one that feels off —
  * which is the brand-side defense against the LinkedIn-AI failure mode
  * (drafts that smell like AI because they leaned on something generic).
@@ -33,7 +35,7 @@ export type SignalHelperSnapshot = SignalAskerSnapshot & {
 }
 
 export type SignalCandidate = {
-  /** Stable id used by the wizard for toggle keys. */
+  /** Stable id used by the flows for toggle keys. */
   id: string
   /** Short user-facing chip label. */
   label: string
@@ -76,8 +78,8 @@ function firstYear(d: string | null): number | null {
  * cohort window) come last and the prompt text tells the model to use
  * them only as a brief tail mention.
  *
- * Empty result is meaningful: the wizard skips the signals step entirely
- * when there's nothing concrete to surface.
+ * Empty result is meaningful: the flows hide their mentions / evidence
+ * pieces entirely when there's nothing concrete to surface.
  */
 export function deriveSignals(
   asker: SignalAskerSnapshot,

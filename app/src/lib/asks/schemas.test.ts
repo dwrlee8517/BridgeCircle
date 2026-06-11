@@ -106,6 +106,64 @@ describe('parseAskForm', () => {
     )
     expect(result.success).toBe(false)
   })
+
+  it('accepts a mentorship ask with commitment and screening answer', () => {
+    const result = parseAskForm(
+      form({
+        helperId: HELPER_B,
+        askType: 'mentorship',
+        helpNeeded: validHelp,
+        commitment: 'monthly_semester',
+        screeningAnswer: 'Whether to accept the consulting offer by July 1.',
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.commitment).toBe('monthly_semester')
+      expect(result.data.screeningAnswer).toBe('Whether to accept the consulting offer by July 1.')
+    }
+  })
+
+  it('treats empty commitment and screening answer as null (advice form omits them)', () => {
+    const result = parseAskForm(
+      form({
+        helperId: HELPER_A,
+        askType: 'advice',
+        helpNeeded: validHelp,
+        commitment: '',
+        screeningAnswer: '',
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.commitment).toBeNull()
+      expect(result.data.screeningAnswer).toBeNull()
+    }
+  })
+
+  it('rejects an unknown commitment value', () => {
+    const result = parseAskForm(
+      form({
+        helperId: HELPER_B,
+        askType: 'mentorship',
+        helpNeeded: validHelp,
+        commitment: 'weekly_forever',
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a screening answer over the cap', () => {
+    const result = parseAskForm(
+      form({
+        helperId: HELPER_B,
+        askType: 'mentorship',
+        helpNeeded: validHelp,
+        screeningAnswer: 'x'.repeat(401),
+      }),
+    )
+    expect(result.success).toBe(false)
+  })
 })
 
 describe('parseHelperPreferenceForm', () => {
