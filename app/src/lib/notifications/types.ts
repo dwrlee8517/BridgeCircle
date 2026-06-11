@@ -21,6 +21,8 @@ export const NOTIFICATION_TYPES = [
   'event_canceled',
   'open_ask_match',
   'open_ask_expired',
+  'ask_reminder',
+  'ask_expired',
 ] as const
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
@@ -47,6 +49,8 @@ export function notificationIcon(t: NotificationType): string {
     case 'ask_received':
     case 'ask_accepted':
     case 'ask_declined':
+    case 'ask_reminder':
+    case 'ask_expired':
       return 'Handshake'
     case 'direct_message':
     case 'ask_message':
@@ -106,6 +110,12 @@ export function notificationLabel(row: NotificationRow): string {
     }
     case 'open_ask_expired':
       return 'Your open ask closed — no strong fit this time'
+    // Deliberately neutral — the reminder must never read as a complaint
+    // on the helper's side.
+    case 'ask_reminder':
+      return `${actor}'s ask is still open — when you have a minute`
+    case 'ask_expired':
+      return `Your ask to ${actor} closed quietly`
   }
 }
 
@@ -139,6 +149,9 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
     }
     case 'open_ask_expired':
       return '/ask'
+    case 'ask_reminder':
+    case 'ask_expired':
+      return row.targetId ? `/ask/${row.targetId}` : '/inbox'
   }
 }
 
@@ -155,10 +168,14 @@ export function notificationShouldToast(t: NotificationType): boolean {
     case 'direct_message':
     case 'ask_message':
     case 'open_ask_match':
+    case 'ask_reminder':
       return true
     case 'announcement':
     case 'event_canceled':
     case 'open_ask_expired':
+    // Quiet by design — the asker finds the gentle close + next-best fit
+    // on the detail page, not via an alarming toast.
+    case 'ask_expired':
       return false
   }
 }
