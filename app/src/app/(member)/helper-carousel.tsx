@@ -70,7 +70,9 @@ export function HelperCarousel({
           </CarouselArrow>
         ) : null}
 
-        <div
+        {/* Labeled <section> = implicit region role, which
+            aria-roledescription needs to attach to (APG carousel pattern). */}
+        <section
           className="min-w-0 flex-1 overflow-hidden"
           aria-roledescription="carousel"
           aria-label="People who can help you"
@@ -143,7 +145,7 @@ export function HelperCarousel({
               )
             })}
           </div>
-        </div>
+        </section>
 
         {multi ? (
           <CarouselArrow label="Next person" onClick={() => go(1)}>
