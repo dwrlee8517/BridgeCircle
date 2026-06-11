@@ -9,11 +9,10 @@
 // pragma, lets both sides see the real array.
 
 export const MEMBER_NAV_LINKS = [
-  // The Ask tab goes to the ask entry moment (/ask) — the redesigned
-  // starter with the Ink band, social proof, and "how asking works".
-  // Home (/) stays the default post-sign-in landing, reachable via the
-  // wordmark; it still highlights this tab because home is ask-first.
-  { href: '/ask', label: 'Ask', match: ['/', '/ask'] },
+  // Home IS the ask surface (merged front door — ask-home.tsx). The tab
+  // points at /, /ask without a query renders the same component, and the
+  // highlight is honest on both: clicking the lit tab is a no-op.
+  { href: '/', label: 'Ask', match: ['/', '/ask'] },
   // Help is the supply-side surface for alumni who want to give useful,
   // lightweight help without committing every interaction to mentorship.
   { href: '/help', label: 'Help', match: ['/help'] },

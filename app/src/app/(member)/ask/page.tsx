@@ -13,10 +13,10 @@ import {
 import { readingTags } from '@/lib/search/readingTags'
 import type { SearchHit } from '@/lib/search/searchAlumni'
 import type { NLSearchHit } from '@/lib/search/searchAlumniNL'
+import { AskHome } from '../ask-home'
 import type { HelpNetworkPerson } from '../help-network-ui'
 import { KeepAskOpenCard } from './open-ask-ui'
 import { CompactMatchRow, FeaturedMatchCard, MatchRowDivider } from './results-ui'
-import { AskStarter } from './starter'
 
 export default async function AskPage({
   searchParams,
@@ -29,7 +29,7 @@ export default async function AskPage({
   const editing = singleParam(params.edit) === '1'
 
   if (!query || editing) {
-    return <AskStarter defaultValue={query} />
+    return <AskHome defaultValue={query} />
   }
 
   const results = await getMemberSearchResults(params, { surface: 'ask' })

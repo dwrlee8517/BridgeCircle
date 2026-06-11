@@ -119,9 +119,9 @@ test.describe("Core User Loop", () => {
     await page.waitForURL(/\/onboarding\?step=5/);
     await page.getByRole("button", { name: /skip for now/i }).click();
 
-    // Redirect to landing dashboard
+    // Redirect to the merged home/ask landing
     await page.waitForURL(/\/$/);
-    await expect(page.getByRole("heading", { name: /Hi Student\. Who do you want to ask\?/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Hi Student/i })).toBeVisible();
 
     // AskBar submissions stay inside Ask instead of redirecting into the People directory.
     await page.getByLabel(/find people who can help/i).fill("Mark Mentor");
