@@ -128,6 +128,9 @@ export async function createAsk(
     .maybeSingle()
   if (existing) return { ok: false, error: 'duplicate_pending' }
 
+  // Pace and screening answer are mentorship-flow concepts; drop them for
+  // advice even if a stray form field sent them.
+  const isMentorship = input.askType === 'mentorship'
   const { data: created, error: insertErr } = await supabase
     .from('asks')
     .insert({
@@ -138,6 +141,8 @@ export async function createAsk(
       reason: input.reason,
       help_needed: input.helpNeeded,
       background: input.background || null,
+      commitment: isMentorship ? (input.commitment ?? null) : null,
+      screening_answer: isMentorship ? (input.screeningAnswer ?? null) : null,
     })
     .select('id')
     .single()

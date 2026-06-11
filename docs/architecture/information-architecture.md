@@ -308,8 +308,23 @@ amber-scarcity rule.
 **Composer panel**: soft navigations to `/ask/new` are intercepted into a
 right-side sheet over the current page (Next parallel + intercepting routes
 under `ask/@sheet`), so composing never loses the result list. Hard loads
-and shared links still render the full `/ask/new` page. Amber appears once,
-on the send action inside the composer.
+and shared links still render the full `/ask/new` page. The guided
+composer is the default and splits by ask type. Advice is two steps:
+situation + question (600-char guide) with prunable "We'll mention" chips
+(profile-derived signals + add-your-own), then an editable draft with tone
+lenses (Warmer / More direct / Shorter / New draft) and a coach line.
+Mentorship is five: a why-them evidence picker whose chips cite their
+source ("from Mark's career history"), an explore-goal step with
+insertable starters, pace cards (`asks.commitment`:
+`few_exchanges` / `monthly_semester` / `ongoing` — "a starting point, not
+a contract"), the mentor's screening question when one is set
+(`asks.screening_answer`, goes to the mentor alone), and the assembled
+draft with per-piece edit affordances plus the mentor's open mentee
+capacity stated before the send. `?skip=1` goes straight to the plain
+form for members who know what to say. Amber appears once, on the send
+action inside the composer; both flows land on the ask's timeline page
+(`/ask/[id]`), where the helper's review also shows the proposed pace and
+screening answer.
 
 **Standing asks** (bounded slice of "passive matching", approved
 2026-06-11): when results come up empty, the member can keep the ask open
@@ -325,7 +340,7 @@ surfacing is deliberately deferred until creation/match data justifies it.
 Sub-pages:
 
 - `/ask` — question-driven matching surface (starter + results states)
-- `/ask/new` — composer (per-type fields; also rendered as the intercepted side sheet)
+- `/ask/new` — guided composer (type-split flows; `?skip=1` plain form; also rendered as the intercepted side sheet)
 - `/ask/[id]` — request detail (asker view + helper review view)
 - `/ask/thread/[id]` — post-accept conversation
 - Legacy `/mentorship/request/*` and `/mentorship/thread/*` 308 here.

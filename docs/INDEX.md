@@ -39,7 +39,7 @@ What we're building. Feature-sliced — one folder per phase.
 **Phase 2 drafts:**
 
 - [Events — conditional RSVP ("I'll go if…")](specs/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
-- [Ask mediator ("Let BridgeCircle ask for you")](specs/ask-mediator.md) — extends the ask wizard with a mediated send option
+- [Ask mediator ("Let BridgeCircle ask for you")](specs/ask-mediator.md) — extends the guided ask composer with a mediated send option
 
 ## Architecture
 

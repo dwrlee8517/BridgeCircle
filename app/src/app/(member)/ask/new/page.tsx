@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AdviceFlow } from './advice-flow'
 import {
   AskTypeSelector,
   askNewHref,
@@ -8,8 +9,8 @@ import {
   loadComposer,
   PersonSummaryCard,
 } from './composer'
+import { MentorshipFlow } from './mentorship-flow'
 import { RequestForm } from './request-form'
-import { Wizard } from './wizard'
 
 export default async function NewAskPage({
   searchParams,
@@ -43,8 +44,9 @@ export default async function NewAskPage({
   }
 
   const baseHref = askNewHref({ to: helper.userId, intent })
-  const simpleHref = askNewHref({ to: helper.userId, type: askType, intent })
-  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent, guided: true })
+  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent })
+  const skipHref = askNewHref({ to: helper.userId, type: askType, intent, skip: true })
+  const adviceHref = askNewHref({ to: helper.userId, type: 'advice', intent })
   const cancelHref = `/profile/${helper.userId}`
   const backHref = intent ? `/ask?nl=${encodeURIComponent(intent)}` : '/people'
   const backLabel = intent ? 'Back to Ask results' : 'Back to People'
@@ -72,30 +74,31 @@ export default async function NewAskPage({
           <AskTypeSelector helper={helper} askType={askType} baseHref={baseHref} />
 
           {data.useGuidedComposer ? (
-            <Card className="rounded-lg border-border bg-card p-0">
-              <CardHeader>
-                <CardTitle>Guided composer</CardTitle>
-                <CardDescription>
-                  Use the step-by-step flow if you want help shaping the request.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Wizard
+            <div className="rounded-lg border border-border bg-card p-5">
+              {askType === 'advice' ? (
+                <AdviceFlow
                   helperId={helper.userId}
-                  helperName={helperDisplay}
-                  askType={askType}
-                  skipHref={simpleHref}
-                  cancelHref={cancelHref}
-                  initialContext={intent}
+                  helperFirstName={helperFirstName}
+                  skipHref={skipHref}
                   signalCandidates={data.signalCandidates}
+                  initialSituation={intent}
+                />
+              ) : (
+                <MentorshipFlow
+                  helperId={helper.userId}
+                  helperFirstName={helperFirstName}
+                  cancelHref={cancelHref}
+                  adviceHref={adviceHref}
+                  adviceOpen={helper.isOpenAsAdviceHelper}
+                  signalCandidates={data.signalCandidates}
+                  screeningPrompt={helper.screeningPrompt}
                   activeMenteeCount={helper.activeMenteeCount}
                   maxActiveMentees={helper.maxActiveMentees}
-                  pendingRequestCount={helper.pendingRequestCount}
-                  maxPendingRequests={helper.maxPendingRequests}
                   mentorshipAtCapacity={helper.mentorshipAtCapacity}
+                  initialGoal={intent}
                 />
-              </CardContent>
-            </Card>
+              )}
+            </div>
           ) : (
             <div className="rounded-lg border border-border bg-card p-5">
               <RequestForm

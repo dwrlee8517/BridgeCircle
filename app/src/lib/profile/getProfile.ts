@@ -69,6 +69,10 @@ export type ProfileView = {
   maxActiveMentees: number
   pendingRequestCount: number
   maxPendingRequests: number
+  // Mentor-authored question every mentorship asker answers at compose
+  // time. Null when unset (most mentors) — the composer skips the
+  // screening step entirely in that case.
+  screeningPrompt: string | null
   // Viewer-relative metadata. Lets the UI render a "Some sections are
   // hidden by this member's privacy settings" hint without re-deriving.
   isSelf: boolean
@@ -123,7 +127,7 @@ export async function getProfile(
   const { data: pref } = await supabase
     .from('helper_preferences')
     .select(
-      'open_to_advice, open_to_mentorship, paused_at, max_pending_requests, max_active_mentees',
+      'open_to_advice, open_to_mentorship, paused_at, max_pending_requests, max_active_mentees, screening_prompt',
     )
     .eq('organization_membership_id', membership.id)
     .maybeSingle()
@@ -222,6 +226,7 @@ export async function getProfile(
     maxActiveMentees: pref?.max_active_mentees ?? 5,
     pendingRequestCount,
     maxPendingRequests: pref?.max_pending_requests ?? 10,
+    screeningPrompt: pref?.screening_prompt ?? null,
     isSelf,
     isFriend,
     privacySettings: privacy,
