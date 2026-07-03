@@ -198,7 +198,9 @@ export async function searchAlumni(
     const rawCareer = (base.career_history as CareerEntry[] | null) ?? []
     const rawEducation = (base.education_history as EducationEntry[] | null) ?? []
 
-    if (f.openToMentor && !isOpenAsMentor) continue
+    // "Open to help" filter (ADR 0011 Phase 2): either legacy flag counts
+    // until the Phase 6 column collapse.
+    if (f.openToMentor && !(isOpenAsMentor || isOpenAsAdviceHelper)) continue
     if (f.peopleIKnow && !friendIds.has(base.user_id)) continue
     if (f.gradYearMin && (op?.graduation_year ?? -Infinity) < f.gradYearMin) continue
     if (f.gradYearMax && (op?.graduation_year ?? Infinity) > f.gradYearMax) continue

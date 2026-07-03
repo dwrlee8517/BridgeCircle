@@ -26,7 +26,6 @@ async function main() {
       to: 'helper-mark@example.com',
       askerName: 'Student Sam',
       reviewUrl: 'http://localhost:3001/ask/some-id',
-      askType: 'mentorship',
     })
     console.log('sendAskRequestEmail result:', result)
   } catch (err) {

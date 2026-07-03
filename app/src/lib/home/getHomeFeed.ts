@@ -205,14 +205,14 @@ export async function getHomeFeed(
       .order('joined_at', { ascending: false })
       .limit(6),
 
-    // Open mentors: active memberships in this org with open_to_mentorship=true
-    // and not paused.
+    // Open helpers: active memberships in this org open to helping (either
+    // legacy flag counts until Phase 6 collapses them) and not paused.
     supabase
       .from('helper_preferences')
       .select(
         'organization_membership_id, organization_memberships!inner(user_id, status, organization_id, joined_at, organization_profiles(graduation_year))',
       )
-      .eq('open_to_mentorship', true)
+      .or('open_to_advice.eq.true,open_to_mentorship.eq.true')
       .is('paused_at', null)
       .eq('organization_memberships.status', 'active')
       .eq('organization_memberships.organization_id', organizationId)
@@ -256,13 +256,12 @@ export async function getHomeFeed(
       .order('created_at', { ascending: false })
       .limit(4),
 
-    // Active mentorship threads for the viewer.
+    // Active ask threads for the viewer (single type, ADR 0011).
     supabase
       .from('ask_threads')
-      .select('id, asker_id, helper_id, status, asks!inner(ask_type)')
+      .select('id, asker_id, helper_id, status')
       .or(`asker_id.eq.${viewerId},helper_id.eq.${viewerId}`)
       .eq('status', 'active')
-      .eq('asks.ask_type', 'mentorship')
       .limit(3),
 
     // Fetch active member user IDs in this org (up to 100) for telemetry

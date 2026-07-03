@@ -3,22 +3,18 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/db/server'
 import { draftAsk } from '@/lib/asks/draftAsk'
-import { askCommitmentSchema, askTypeSchema, draftVariantSchema } from '@/lib/asks/schemas'
+import { draftVariantSchema } from '@/lib/asks/schemas'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
 
 const bodySchema = z.object({
   helperId: z.uuid(),
-  askType: askTypeSchema,
   userText: z.string().max(2000).optional(),
   variant: draftVariantSchema.optional().nullable(),
   context: z.string().max(2000).optional().nullable(),
-  // Signal sentences from the guided flow's mentions / evidence step.
-  // Capped to keep the prompt bounded; the flows surface at most a
-  // handful of candidates plus the asker's own additions.
+  // Signal sentences from the composer's leaned-on chips. Capped to keep
+  // the prompt bounded; the composer surfaces at most a handful.
   signals: z.array(z.string().max(400)).max(8).optional().nullable(),
-  // The pace picked in the mentorship flow — the note names it plainly.
-  commitment: askCommitmentSchema.optional().nullable(),
 })
 
 /**
@@ -68,12 +64,10 @@ export async function POST(req: Request) {
   }
 
   const result = await draftAsk({
-    askType: parsed.data.askType,
     userText: parsed.data.userText,
     variant: parsed.data.variant ?? null,
     context: parsed.data.context ?? null,
     signals: parsed.data.signals ?? null,
-    commitment: parsed.data.commitment ?? null,
     asker: {
       name: askerProfile.name,
       graduationYear: askerProfile.graduationYear,
@@ -118,7 +112,6 @@ export async function POST(req: Request) {
     console.error('[asks/draft] draftAsk failed', {
       error: result.error,
       detail: result.detail,
-      askType: parsed.data.askType,
       hasContext: !!parsed.data.context,
       signalCount: parsed.data.signals?.length ?? 0,
     })
@@ -130,7 +123,6 @@ export async function POST(req: Request) {
         scope: 'asks-draft-route',
         error: result.error,
         detail: result.detail,
-        askType: parsed.data.askType,
         hasContext: !!parsed.data.context,
         signalCount: parsed.data.signals?.length ?? 0,
       },

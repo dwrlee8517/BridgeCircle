@@ -1181,13 +1181,9 @@ function detailMeta(item: InboxItem, viewerId: string) {
 
 function detailActionCopy(item: InboxItem, viewerId: string) {
   if (item.type === 'incoming_ask') {
-    const ask = item.originalData as AskData
     return {
       kicker: 'Needs your reply',
-      title:
-        ask.ask_type === 'mentorship'
-          ? `${item.title} asked for ongoing help`
-          : `${item.title} asked for your help`,
+      title: `${item.title} asked for your help`,
       body: 'Accept with a short reply to open the thread, or decline if you are not the right fit.',
     }
   }
@@ -1252,23 +1248,13 @@ function roleHeader(item: InboxItem, viewerId: string) {
 }
 
 function rowContextLabel(item: InboxItem, viewerId: string) {
-  const section = getItemSection(item)
-  const sectionName =
-    section === 'connections'
-      ? 'Connection'
-      : section === 'mentorship'
-        ? 'Ongoing help'
-        : 'Quick question'
-
   if (item.type === 'active_thread') {
-    return isHelpingItem(item, viewerId)
-      ? `${sectionName} · helping`
-      : `${sectionName} · getting help`
+    return isHelpingItem(item, viewerId) ? 'Ask · helping' : 'Ask · getting help'
   }
 
   if (item.type === 'dm_thread') return 'Direct message'
-  if (item.type === 'incoming_ask') return `New ask · ${sectionName.toLowerCase()}`
-  if (item.type === 'outgoing_ask') return `Ask sent · ${sectionName.toLowerCase()}`
+  if (item.type === 'incoming_ask') return 'New ask'
+  if (item.type === 'outgoing_ask') return 'Ask sent'
   if (item.type === 'friend_request_incoming') return 'Connection request'
   return 'Connection sent'
 }
@@ -1286,7 +1272,7 @@ function AskDetail({
 }) {
   const primaryAsk = ask.reason ?? ask.help_needed ?? ''
   const detail = ask.help_needed && ask.help_needed !== primaryAsk ? ask.help_needed : null
-  const typeLabel = ask.ask_type === 'advice' ? 'Quick question' : 'Ongoing help'
+  const typeLabel = 'Ask'
   const acceptFormId = `accept-ask-${ask.id}`
 
   return (
@@ -1317,7 +1303,7 @@ function AskDetail({
         </div>
       ) : (
         <div className="space-y-3 border-t border-border pt-4">
-          <AskReplyContext ask={ask} cohort={cohort} primaryAsk={primaryAsk || typeLabel} />
+          <AskReplyContext cohort={cohort} primaryAsk={primaryAsk || typeLabel} />
           <form id={acceptFormId} action={acceptAskFromInboxAction} className="space-y-3">
             <input type="hidden" name="requestId" value={ask.id} />
             <div className="space-y-2">
@@ -1348,23 +1334,14 @@ function AskDetail({
   )
 }
 
-function AskReplyContext({
-  ask,
-  cohort,
-  primaryAsk,
-}: {
-  ask: AskData
-  cohort?: number | null
-  primaryAsk: string
-}) {
-  const typeLabel = ask.ask_type === 'advice' ? 'Quick question' : 'Ongoing help'
+function AskReplyContext({ cohort, primaryAsk }: { cohort?: number | null; primaryAsk: string }) {
   const cohortLabel = cohort ? `Class of '${String(cohort).slice(-2)}` : null
 
   return (
     <div className="rounded-md border border-border bg-surface-panel/55 p-3">
       <div className="flex flex-wrap items-center gap-1.5">
-        <StatusBadge tone={ask.ask_type === 'mentorship' ? 'open' : 'info'} size="sm">
-          {typeLabel}
+        <StatusBadge tone="info" size="sm">
+          Ask
         </StatusBadge>
         {cohortLabel ? (
           <span className="rounded-sm border border-border bg-card px-2 py-0.5 font-mono text-xs text-muted-foreground">

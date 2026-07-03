@@ -9,7 +9,7 @@ import { createClient } from '@/db/server'
 import { askLifecycleView, findAskAlternative } from '@/lib/asks/askLifecycle'
 import { type DeclineReason, declineCopyForAsker } from '@/lib/asks/declineReasons'
 import { explicitPauseHorizon } from '@/lib/asks/preferences'
-import { askComposeHref, classYearShort, cn, displayName, preferredAskType } from '@/lib/utils'
+import { askComposeHref, classYearShort, cn, displayName, isOpenToHelp } from '@/lib/utils'
 import { pauseHelperAction, sendReminderAction } from './actions'
 
 /**
@@ -266,8 +266,7 @@ export async function AskAlternativeSection({
 
   const display = displayName(hit.name, hit.preferredName ?? null)
   const firstName = display.split(/\s+/)[0] || display
-  const askType = preferredAskType(hit)
-  if (!askType) return null
+  if (!isOpenToHelp(hit)) return null
   const role = [hit.currentTitle, hit.currentEmployer].filter(Boolean).join(' at ')
 
   return (
@@ -295,13 +294,8 @@ export async function AskAlternativeSection({
                   {classYearShort(hit.graduationYear)}
                 </span>
               ) : null}
-              <StatusBadge
-                tone={askType === 'advice' ? 'open' : 'info'}
-                size="sm"
-                dot
-                className="ml-2"
-              >
-                {askType === 'advice' ? 'Quick question' : 'Ongoing help'}
+              <StatusBadge tone="open" size="sm" dot className="ml-2">
+                Open to help
               </StatusBadge>
             </p>
             {role || hit.city ? (
@@ -324,7 +318,7 @@ export async function AskAlternativeSection({
             Your note carries over — nothing to rewrite.
           </p>
           <Button asChild size="sm" className="rounded-md">
-            <Link href={askComposeHref(hit.userId, askType, query)}>
+            <Link href={askComposeHref(hit.userId, query)}>
               Ask {firstName}
               <ArrowRight className="size-3.5" />
             </Link>

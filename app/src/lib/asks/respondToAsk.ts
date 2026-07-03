@@ -37,7 +37,7 @@ export async function respondToAsk(
 ): Promise<RespondResult> {
   const { data: ask, error: askErr } = await supabase
     .from('asks')
-    .select('id, helper_id, asker_id, organization_id, status, ask_type')
+    .select('id, helper_id, asker_id, organization_id, status')
     .eq('id', input.askId)
     .maybeSingle()
 
@@ -63,16 +63,11 @@ export async function respondToAsk(
     const recovered = await createThread(admin, ask)
     if (!recovered.ok) return recovered
     // Send email asynchronously in the background so it doesn't block the request.
-    sendAcceptedEmail(
-      supabase,
-      appOrigin,
-      recovered.threadId,
-      ask.helper_id,
-      ask.asker_id,
-      ask.ask_type as 'advice' | 'mentorship',
-    ).catch((err) => {
-      console.error('Error sending accepted email:', err)
-    })
+    sendAcceptedEmail(supabase, appOrigin, recovered.threadId, ask.helper_id, ask.asker_id).catch(
+      (err) => {
+        console.error('Error sending accepted email:', err)
+      },
+    )
     return { ok: true, threadId: recovered.threadId }
   }
   if (ask.status === 'declined') {
@@ -101,14 +96,7 @@ export async function respondToAsk(
     if (!result.ok) return result
     threadId = result.threadId
     // Send email asynchronously in the background so it doesn't block the request.
-    sendAcceptedEmail(
-      supabase,
-      appOrigin,
-      threadId,
-      ask.helper_id,
-      ask.asker_id,
-      ask.ask_type as 'advice' | 'mentorship',
-    ).catch((err) => {
+    sendAcceptedEmail(supabase, appOrigin, threadId, ask.helper_id, ask.asker_id).catch((err) => {
       console.error('Error sending accepted email:', err)
     })
   }
@@ -139,7 +127,6 @@ export async function respondToAsk(
     payload: {
       actor_id: helperId,
       actor_name: helperBase?.name ?? null,
-      ask_type: ask.ask_type,
       ...(input.decision === 'declined' && input.declineReason
         ? { decline_reason: input.declineReason }
         : {}),
@@ -174,7 +161,6 @@ async function sendAcceptedEmail(
   threadId: string,
   helperId: string,
   askerId: string,
-  askType: 'advice' | 'mentorship',
 ) {
   try {
     const { data: helperBase } = await supabase
@@ -192,7 +178,6 @@ async function sendAcceptedEmail(
       to: askerAuth.user.email,
       helperName: helperBase?.name ?? 'Your helper',
       threadUrl: `${appOrigin}/ask/thread/${threadId}`,
-      askType,
     })
   } catch {
     // Email is best-effort.

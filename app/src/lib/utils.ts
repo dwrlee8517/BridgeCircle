@@ -102,26 +102,20 @@ export function classYearShort(year: number | null | undefined): string | null {
  * Canonical link into the ask composer. Centralized so the intent param
  * can't silently drop on some surfaces (it did on Home and People).
  */
-export function askComposeHref(
-  userId: string,
-  type: 'advice' | 'mentorship',
-  intent?: string,
-): string {
-  const params = new URLSearchParams({ to: userId, type })
+export function askComposeHref(userId: string, intent?: string): string {
+  const params = new URLSearchParams({ to: userId })
   if (intent?.trim()) params.set('intent', intent.trim())
   return `/ask/new?${params.toString()}`
 }
 
 /**
- * Which composer type a card's CTA should open. Advice-first because it's
- * the lower-friction ask; mentor-only people route to the mentorship
- * composer instead of being mislabeled as advice.
+ * Whether a card's ask CTA should render at all — one availability state
+ * (ADR 0011 Phase 2). Either legacy flag counts as open until the Phase 6
+ * column collapse, so members with divergent legacy rows stay reachable.
  */
-export function preferredAskType(person: {
+export function isOpenToHelp(person: {
   isOpenAsAdviceHelper?: boolean
   isOpenAsMentor?: boolean
-}): 'advice' | 'mentorship' | null {
-  if (person.isOpenAsAdviceHelper) return 'advice'
-  if (person.isOpenAsMentor) return 'mentorship'
-  return null
+}): boolean {
+  return Boolean(person.isOpenAsAdviceHelper || person.isOpenAsMentor)
 }

@@ -1,7 +1,7 @@
 import 'server-only'
 import Anthropic from '@anthropic-ai/sdk'
 import { z } from 'zod'
-import type { AskCommitment, AskType, DraftVariant } from './schemas'
+import type { DraftVariant } from './schemas'
 
 const MODEL = 'claude-haiku-4-5-20251001'
 const MAX_OUTPUT_TOKENS = 400
@@ -51,8 +51,7 @@ export type DraftHelperContext = DraftPersona & {
 
 const draftSchema = z.object({
   helpNeeded: z.string().trim().min(1).max(800),
-  // Mentorship asks may also propose a "why this person" line. For advice
-  // we ignore this even if the model returns one.
+  // Optional "why you specifically" line when the inputs support one.
   reason: z.string().trim().max(500).nullable().optional(),
   // One line addressed to the asker about why the draft is easy to say yes
   // to. Display-only coaching — never sent to the helper.
@@ -62,24 +61,19 @@ const draftSchema = z.object({
 export type DraftAskInput = {
   asker: DraftPersona
   helper: DraftHelperContext
-  askType: AskType
   /** Anything the user has typed so far (used as the seed). Empty is fine. */
   userText?: string
   /** Refinement lens. When set, the model is asked to rework the seed —
    *  shorter, more direct, or warmer — rather than draft from scratch. */
   variant?: DraftVariant | null
-  /** Free-text from the guided flow — the asker's situation (advice) or
-   *  the goal they hope to explore (mentorship). Distinct from `userText`
-   *  (a seed draft) — this is context, not a partial draft. */
+  /** Free-text from the composer — the asker's situation in their own
+   *  words. Distinct from `userText` (a seed draft) — this is context,
+   *  not a partial draft. */
   context?: string | null
-  /** Active signals the asker chose to keep in the guided flow's mentions
-   *  / evidence step. Each entry is a sentence injected into the prompt as
-   *  a "lean on this" instruction. Order matters — the first is the
-   *  strongest. */
+  /** Active signals the asker chose to keep. Each entry is a sentence
+   *  injected into the prompt as a "lean on this" instruction. Order
+   *  matters — the first is the strongest. */
   signals?: string[] | null
-  /** The pace the asker proposed in the mentorship flow. The note should
-   *  name it plainly — a bounded ask is easier to say yes to. */
-  commitment?: AskCommitment | null
 }
 
 export type DraftAskResult =
@@ -111,7 +105,7 @@ Choosing what to mention:
 Output format: ONLY a JSON object matching this exact shape — no prose, no markdown fences:
 {
   "helpNeeded": string,    // the body of the ask itself
-  "reason": string | null, // optional — only for ongoing-help asks: a short "why you specifically" line. null for quick questions.
+  "reason": string | null, // optional — a short "why you specifically" line when the inputs support one; else null.
   "coach": string | null   // one short line TO THE ASKER about why this draft is easy to say yes to. Never part of the note.
 }
 
@@ -121,8 +115,9 @@ The coach line:
 - It is UI guidance only; the helper never sees it.
 
 Length:
-- Quick-question asks: helpNeeded is 1–3 sentences. Just the question with minimal context. reason: null.
-- Ongoing-help asks: helpNeeded is 3–5 sentences. State what you're working on and what you'd like their help thinking through. Never use the words "mentor", "mentee", or "mentorship" — this is one member asking another for help. reason: 1 sentence naming what you've noticed about the helper that drew you to ask them (overlap in path / topic / city). Use only attributes from the input.`
+- helpNeeded is 1–5 sentences. A light question stays short (1–3); a heavier ask earns a little more context (up to 5). Match the weight of what the asker described.
+- Never use the words "mentor", "mentee", or "mentorship" — this is one member asking another for help.
+- reason: a 1-sentence "why you specifically" line when the asker's inputs support one (overlap in path / topic / city); otherwise null. Use only attributes from the input.`
 
 const BIO_MAX_CHARS = 500
 const CAREER_ENTRIES_MAX = 5
@@ -178,19 +173,6 @@ function pickRecentCareer(history: DraftCareerEntry[], n: number): DraftCareerEn
     .slice(0, n)
 }
 
-function commitmentInstruction(commitment: AskCommitment | null | undefined): string | null {
-  if (!commitment) return null
-  const map: Record<AskCommitment, string> = {
-    few_exchanges:
-      'Proposed pace: a few exchanges — messages as questions come up. Name that light, bounded pace in the note.',
-    monthly_semester:
-      'Proposed pace: monthly check-ins for a semester or so. Name that pace plainly in the note — it bounds the ask.',
-    ongoing:
-      'Proposed pace: open to ongoing. Keep the proposal modest — suggest starting and seeing where it goes, not a standing claim on their time.',
-  }
-  return map[commitment]
-}
-
 function variantInstruction(variant: DraftVariant | null | undefined): string | null {
   if (!variant) return null
   switch (variant) {
@@ -232,7 +214,6 @@ export async function draftAsk(input: DraftAskInput): Promise<DraftAskResult> {
   if (!apiKey) return { ok: false, error: 'no_api_key' }
 
   const variantLine = variantInstruction(input.variant)
-  const paceLine = commitmentInstruction(input.commitment)
   const contextLine =
     input.context && input.context.trim().length > 0
       ? `What the asker is working on (their words):\n  ${input.context.trim()}`
@@ -244,12 +225,10 @@ export async function draftAsk(input: DraftAskInput): Promise<DraftAskResult> {
           .join('\n')}`
       : null
   const userPrompt = [
-    `Ask type: ${input.askType}`,
     describePersona(input.asker, 'Asker'),
     describeHelper(input.helper),
     ...(contextLine ? [contextLine] : []),
     ...(signalsLine ? [signalsLine] : []),
-    ...(paceLine ? [paceLine] : []),
     input.userText && input.userText.trim().length > 0
       ? `What the asker has typed so far (seed — refine, don't replace verbatim):\n  ${input.userText.trim()}`
       : contextLine
@@ -302,10 +281,7 @@ export async function draftAsk(input: DraftAskInput): Promise<DraftAskResult> {
     }
   }
 
-  // For advice, drop any reason the model produced — the form doesn't have
-  // a place for it, and we don't want a stray sentence to confuse the user.
-  const reason =
-    input.askType === 'mentorship' && validated.data.reason ? validated.data.reason : null
+  const reason = validated.data.reason ?? null
 
   return {
     ok: true,

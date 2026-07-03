@@ -42,7 +42,7 @@ export default async function ProfileDetailPage({
   const isSelf = profile.isSelf
   const isFriend = profile.isFriend
 
-  // Mentorship state with this user (only meaningful when viewing someone else)
+  // Ask state with this user (only meaningful when viewing someone else)
   let mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active' = 'none'
   let relatedRequestId: string | null = null
   let relatedThreadId: string | null = null
@@ -64,11 +64,10 @@ export default async function ProfileDetailPage({
             : 'none'
 
   if (!isSelf) {
-    // Surface the most recent mentorship-type ask either direction.
+    // Surface the most recent ask either direction (single type, ADR 0011).
     const { data: req } = await supabase
       .from('asks')
       .select('id, helper_id, asker_id, status')
-      .eq('ask_type', 'mentorship')
       .or(
         `and(helper_id.eq.${id},asker_id.eq.${session.userId}),and(helper_id.eq.${session.userId},asker_id.eq.${id})`,
       )
@@ -252,22 +251,13 @@ export default async function ProfileDetailPage({
                 Verified &apos;{`${profile.graduationYear}`.slice(-2)}
               </span>
             ) : null}
-            {profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
+            {profile.isOpenAsMentor || profile.isOpenAsAdviceHelper ? (
               <StatusBadge tone="open" dot>
-                Open to ongoing help
-              </StatusBadge>
-            ) : profile.isOpenAsMentor && profile.mentorshipAtCapacity ? (
-              <StatusBadge tone="warn" dot>
-                At capacity
+                Open to help
               </StatusBadge>
             ) : profile.mentorPaused ? (
               <StatusBadge tone="warn" dot>
                 Paused
-              </StatusBadge>
-            ) : null}
-            {profile.isOpenAsAdviceHelper ? (
-              <StatusBadge tone="open" dot>
-                Open to quick questions
               </StatusBadge>
             ) : null}
           </div>
@@ -451,62 +441,32 @@ export default async function ProfileDetailPage({
                 Open to
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Mentorship box */}
-              <div
-                className={cn(
-                  'p-4 rounded-md border transition-colors',
-                  profile.isOpenAsMentor
-                    ? 'border-border bg-card text-foreground'
-                    : 'border-border/50 bg-muted/30 text-muted-foreground opacity-75',
-                )}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span
-                    className={cn(
-                      'size-2 rounded-full',
-                      profile.isOpenAsMentor
-                        ? profile.mentorshipAtCapacity
-                          ? 'bg-accent-ochre'
-                          : 'bg-accent-sage'
-                        : 'bg-muted-foreground/60',
-                    )}
-                  />
-                  <span className="text-sm font-semibold">Ongoing help</span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {profile.isOpenAsMentor
-                    ? profile.mentorshipAtCapacity
-                      ? 'At capacity right now'
-                      : 'Open to asks'
-                    : profile.mentorPaused
-                      ? 'Paused while away'
-                      : 'Not taking asks right now'}
-                </p>
+            <div
+              className={cn(
+                'p-4 rounded-md border transition-colors',
+                profile.isOpenAsMentor || profile.isOpenAsAdviceHelper
+                  ? 'border-border bg-card text-foreground'
+                  : 'border-border/50 bg-muted/30 text-muted-foreground opacity-75',
+              )}
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <span
+                  className={cn(
+                    'size-2 rounded-full',
+                    profile.isOpenAsMentor || profile.isOpenAsAdviceHelper
+                      ? 'bg-accent-sage'
+                      : 'bg-muted-foreground/60',
+                  )}
+                />
+                <span className="text-sm font-semibold">Helping</span>
               </div>
-
-              {/* Advice box */}
-              <div
-                className={cn(
-                  'p-4 rounded-md border transition-colors',
-                  profile.isOpenAsAdviceHelper
-                    ? 'border-border bg-card text-foreground'
-                    : 'border-border/50 bg-muted/30 text-muted-foreground opacity-75',
-                )}
-              >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span
-                    className={cn(
-                      'size-2 rounded-full',
-                      profile.isOpenAsAdviceHelper ? 'bg-accent-sage' : 'bg-muted-foreground/60',
-                    )}
-                  />
-                  <span className="text-sm font-semibold">Quick questions</span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {profile.isOpenAsAdviceHelper ? 'Open to questions' : 'Not taking asks right now'}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                {profile.isOpenAsMentor || profile.isOpenAsAdviceHelper
+                  ? 'Open to asks'
+                  : profile.mentorPaused
+                    ? 'Paused while away'
+                    : 'Not taking asks right now'}
+              </p>
             </div>
           </Card>
 
@@ -840,26 +800,13 @@ function HelperAsks({
     )
   }
 
-  const showMentorshipButton = isOpenAsMentor && !mentorshipAtCapacity
-  const showCapacityNotice = isOpenAsMentor && mentorshipAtCapacity
-
+  // One front door (ADR 0011 Phase 2): a single ask CTA, no type fork.
+  // mentorshipAtCapacity is unused since the active-cap check left
+  // createAsk; the prop stays until getProfile drops it in Phase 6.
+  void mentorshipAtCapacity
   return (
-    <>
-      {isOpenAsAdviceHelper ? (
-        <Button asChild variant="cta" className="w-full">
-          <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for help</Link>
-        </Button>
-      ) : null}
-      {showMentorshipButton ? (
-        <Button asChild variant={isOpenAsAdviceHelper ? 'outline' : 'cta'} className="w-full">
-          <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Ask for ongoing help</Link>
-        </Button>
-      ) : null}
-      {showCapacityNotice ? (
-        <Button variant="outline" disabled className="w-full">
-          At capacity for ongoing help
-        </Button>
-      ) : null}
-    </>
+    <Button asChild variant="cta" className="w-full">
+      <Link href={`/ask/new?to=${profileUserId}`}>Ask for help</Link>
+    </Button>
   )
 }

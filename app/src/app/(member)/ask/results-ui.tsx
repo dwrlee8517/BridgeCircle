@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { MatchBandBadge, PersonAvatar, RationaleBlock } from '@/components/ui/person-card'
 import { StatusBadge } from '@/components/ui/status-badge'
-import { askComposeHref, classYearShort, cn, displayName, preferredAskType } from '@/lib/utils'
+import { askComposeHref, classYearShort, cn, displayName, isOpenToHelp } from '@/lib/utils'
 import type { HelpNetworkPerson } from '../help-network-ui'
 
 /**
@@ -13,10 +13,6 @@ import type { HelpNetworkPerson } from '../help-network-ui'
  * as a brief. The "How we read it" tag derivation lives in
  * lib/search/readingTags.ts.
  */
-
-function askLabelFor(askType: 'advice' | 'mentorship', firstName: string) {
-  return askType === 'advice' ? `Ask ${firstName}` : 'Ask for ongoing help'
-}
 
 export function FeaturedMatchCard({
   person,
@@ -31,7 +27,7 @@ export function FeaturedMatchCard({
   const firstName = display.split(/\s+/)[0] || display
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
   const context = [role || null, person.city].filter(Boolean).join(' · ')
-  const askType = preferredAskType(person)
+  const canAsk = isOpenToHelp(person)
 
   return (
     <article className="overflow-hidden rounded-md border border-border bg-card p-4 shadow-card sm:p-5">
@@ -83,10 +79,10 @@ export function FeaturedMatchCard({
         >
           View profile
         </Link>
-        {askType ? (
+        {canAsk ? (
           <Button asChild size="sm" className="rounded-md">
-            <Link href={askComposeHref(person.userId, askType, intent)}>
-              {askLabelFor(askType, firstName)}
+            <Link href={askComposeHref(person.userId, intent)}>
+              {`Ask ${firstName}`}
               <ArrowRight className="size-4" />
             </Link>
           </Button>
@@ -119,7 +115,7 @@ export function CompactMatchRow({
 }) {
   const display = displayName(person.name, person.preferredName ?? null)
   const role = [person.currentTitle, person.currentEmployer].filter(Boolean).join(' at ')
-  const askType = preferredAskType(person)
+  const canAsk = isOpenToHelp(person)
   const selectable = Boolean(onSelect)
 
   return (
@@ -179,16 +175,16 @@ export function CompactMatchRow({
         <StatusBadge tone="warn" size="sm" dot>
           Paused
         </StatusBadge>
-      ) : askType ? (
+      ) : canAsk ? (
         <span
           aria-hidden
           className={cn('size-1.5 shrink-0 rounded-full', dimmed ? 'bg-border' : 'bg-accent-sage')}
           title="Open to help"
         />
       ) : null}
-      {askType ? (
+      {canAsk ? (
         <Link
-          href={askComposeHref(person.userId, askType, intent)}
+          href={askComposeHref(person.userId, intent)}
           onClick={selectable ? (event) => event.stopPropagation() : undefined}
           className="inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold text-link hover:text-link-hover"
         >
@@ -218,14 +214,9 @@ function AvailabilityBadges({ person }: { person: HelpNetworkPerson }) {
   }
   return (
     <>
-      {person.isOpenAsAdviceHelper ? (
+      {isOpenToHelp(person) ? (
         <StatusBadge tone="open" size="sm" dot>
-          Quick questions
-        </StatusBadge>
-      ) : null}
-      {person.isOpenAsMentor ? (
-        <StatusBadge tone="info" size="sm" dot>
-          Ongoing help
+          Open to help
         </StatusBadge>
       ) : null}
     </>

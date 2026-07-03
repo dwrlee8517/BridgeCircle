@@ -78,22 +78,12 @@ export type SendAskRequestInput = {
   to: string
   askerName: string
   reviewUrl: string
-  /** Subject line + greeting differ slightly per ask type until the enum is
-   * retired (ADR 0011 Phase 6). Default 'mentorship' preserves prior behavior
-   * for any callers that haven't been updated. */
-  askType?: 'advice' | 'mentorship'
 }
 
 export async function sendAskRequestEmail(input: SendAskRequestInput): Promise<NotifyResult> {
-  const askType = input.askType ?? 'mentorship'
-  const subject =
-    askType === 'advice'
-      ? `${input.askerName} asked you a quick question`
-      : `${input.askerName} asked for your ongoing help`
-
   return sendRenderedEmail({
     to: input.to,
-    subject,
+    subject: `${input.askerName} is hoping you can help`,
     email: AskRequestEmail(input),
   })
 }
@@ -102,19 +92,12 @@ export type SendAskAcceptedInput = {
   to: string
   helperName: string
   threadUrl: string
-  askType?: 'advice' | 'mentorship'
 }
 
 export async function sendAskAcceptedEmail(input: SendAskAcceptedInput): Promise<NotifyResult> {
-  const askType = input.askType ?? 'mentorship'
-  const subject =
-    askType === 'advice'
-      ? `${input.helperName} replied to your ask`
-      : `${input.helperName} said yes to your ask`
-
   return sendRenderedEmail({
     to: input.to,
-    subject,
+    subject: `${input.helperName} said yes to your ask`,
     email: AskAcceptedEmail(input),
   })
 }

@@ -106,7 +106,7 @@ export default async function InboxPage() {
       type: 'incoming_ask',
       title: p?.name ?? 'Someone',
       avatarUrl: p?.avatarUrl ?? null,
-      badge: r.ask_type === 'advice' ? 'QUICK' : 'ONGOING',
+      badge: 'ASK',
       badgeTone: 'warn',
       subtitle: r.reason ?? r.help_needed ?? 'Awaiting response',
       date: r.created_at,

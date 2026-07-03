@@ -7,33 +7,21 @@ export type HelperPreferenceView = {
   membershipId: string
   organizationId: string
   organizationName: string
-  openToAdvice: boolean
-  openToMentorship: boolean
+  openToHelp: boolean
   topics: string[]
-  screeningPrompt: string | null
-  maxActiveMentees: number
-  maxPendingRequests: number
   pausedAt: string | null
-  activeMenteeCount: number
-  pendingRequestCount: number
 }
-
-const DEFAULT_MAX_ACTIVE = 5
-const DEFAULT_MAX_PENDING = 10
 
 /**
  * Load the helper's preference row for their primary active org. Returns
  * sensible defaults when no row exists yet (new members who haven't visited
  * settings) so the form has something to render against.
  *
- * Defaults match the schema: both opt-ins start true. Advice is the lighter
- * commitment, broadly recruited. Mentorship defaults on too — at a small
- * school the network needs supply, and the settings UI shows a friendly
- * caveat when a member unchecks it (pointing at the active/pending caps as
- * a way to keep mentorship light rather than turn it off entirely).
- *
- * Active/pending counts are scoped to mentorship asks because the caps only
- * apply to mentorship — advice has no caps in this iteration.
+ * One availability state (ADR 0011 Phase 2): open to helping, or not.
+ * open_to_advice is THE flag until the Phase 6 rename to open_to_help; it
+ * defaults open — at a small school the network needs supply. Caps and the
+ * screening prompt left the view with the type split; max_pending_requests
+ * stays enforced inside createAsk as the invisible abuse valve.
  */
 export async function getHelperPreference(
   supabase: SupabaseClient<Database>,
@@ -53,41 +41,19 @@ export async function getHelperPreference(
 
   const orgName = (membership.organizations as { name: string } | null)?.name ?? ''
 
-  const [{ data: pref }, { count: activeCount }, { count: pendingCount }] = await Promise.all([
-    supabase
-      .from('helper_preferences')
-      .select(
-        'open_to_advice, open_to_mentorship, topics, screening_prompt, max_active_mentees, max_pending_requests, paused_at',
-      )
-      .eq('organization_membership_id', membership.id)
-      .maybeSingle(),
-    supabase
-      .from('ask_threads')
-      .select('id, asks!inner(ask_type)', { count: 'exact', head: true })
-      .eq('helper_id', userId)
-      .eq('status', 'active')
-      .eq('asks.ask_type', 'mentorship'),
-    supabase
-      .from('asks')
-      .select('id', { count: 'exact', head: true })
-      .eq('helper_id', userId)
-      .eq('ask_type', 'mentorship')
-      .eq('status', 'pending'),
-  ])
+  const { data: pref } = await supabase
+    .from('helper_preferences')
+    .select('open_to_advice, topics, paused_at')
+    .eq('organization_membership_id', membership.id)
+    .maybeSingle()
 
   return {
     membershipId: membership.id,
     organizationId: membership.organization_id,
     organizationName: orgName,
-    openToAdvice: pref?.open_to_advice ?? true,
-    openToMentorship: pref?.open_to_mentorship ?? true,
+    openToHelp: pref?.open_to_advice ?? true,
     topics: pref?.topics ?? [],
-    screeningPrompt: pref?.screening_prompt ?? null,
-    maxActiveMentees: pref?.max_active_mentees ?? DEFAULT_MAX_ACTIVE,
-    maxPendingRequests: pref?.max_pending_requests ?? DEFAULT_MAX_PENDING,
     pausedAt: pref?.paused_at ?? null,
-    activeMenteeCount: activeCount ?? 0,
-    pendingRequestCount: pendingCount ?? 0,
   }
 }
 
@@ -117,31 +83,16 @@ export async function saveHelperPreference(
 
   if (!membership) return { ok: false, error: 'no_membership' }
 
-  // Caps are optional at the form layer (the form disables the inputs when
-  // mentorship is off, and disabled inputs don't submit). Resolve undefined
-  // values to the existing row's caps so a disable→re-enable cycle preserves
-  // what the user had set, falling back to module defaults for first-save.
-  let resolvedMaxActive = input.maxActiveMentees
-  let resolvedMaxPending = input.maxPendingRequests
-  if (resolvedMaxActive === undefined || resolvedMaxPending === undefined) {
-    const { data: existing } = await supabase
-      .from('helper_preferences')
-      .select('max_active_mentees, max_pending_requests')
-      .eq('organization_membership_id', membership.id)
-      .maybeSingle()
-    resolvedMaxActive ??= existing?.max_active_mentees ?? DEFAULT_MAX_ACTIVE
-    resolvedMaxPending ??= existing?.max_pending_requests ?? DEFAULT_MAX_PENDING
-  }
-
+  // One open state, written to both legacy columns so anything still reading
+  // open_to_mentorship stays consistent until Phase 6 drops it. Caps and
+  // screening are deliberately not written — existing values sit untouched
+  // (max_pending_requests keeps working as the invisible valve in createAsk).
   const { error } = await supabase.from('helper_preferences').upsert(
     {
       organization_membership_id: membership.id,
-      open_to_advice: input.openToAdvice,
-      open_to_mentorship: input.openToMentorship,
+      open_to_advice: input.openToHelp,
+      open_to_mentorship: input.openToHelp,
       topics: input.topics,
-      screening_prompt: input.screeningPrompt,
-      max_active_mentees: resolvedMaxActive,
-      max_pending_requests: resolvedMaxPending,
       paused_at: null,
       // A settings save is the deliberate "I'm managing my availability"
       // signal, so it releases an explicit pause too.
@@ -228,16 +179,12 @@ export async function sweepResumeExplicitPauses(
 }
 
 /**
- * Lightweight per-type opt-in flip used by the profile form's "open to
- * mentor" checkbox. Currently writes only to `open_to_mentorship` to keep
- * the existing single-toggle UI working; the next step (mentor settings UI)
- * will let users control both types from the form directly.
- *
- * Creates the preferences row with defaults if it doesn't exist yet, so the
- * profile toggle and the request gate stay in sync without requiring the
- * user to visit helper settings first.
+ * Lightweight availability flip used by the profile form's "open to
+ * helping" checkbox. Writes the single open state to both legacy columns
+ * (ADR 0011 Phase 2) so the profile toggle and the ask gate stay in sync
+ * without requiring the user to visit help settings first.
  */
-export async function setOpenToMentorship(
+export async function setOpenToHelp(
   supabase: SupabaseClient<Database>,
   membershipId: string,
   open: boolean,
@@ -245,6 +192,7 @@ export async function setOpenToMentorship(
   const { error } = await supabase.from('helper_preferences').upsert(
     {
       organization_membership_id: membershipId,
+      open_to_advice: open,
       open_to_mentorship: open,
       updated_at: new Date().toISOString(),
     },
