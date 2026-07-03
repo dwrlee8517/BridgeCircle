@@ -1,6 +1,7 @@
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { listDmThreads } from '@/lib/dm/listThreads'
+import { listFriendIds } from '@/lib/friendship/listFriendIds'
 import { listPendingFriendRequests } from '@/lib/friendship/listPendingRequests'
 import { InboxContainer, type InboxItem } from './inbox-container'
 
@@ -13,35 +14,46 @@ export default async function InboxPage() {
   // pending), and direct messages all flow through here — friendship and
   // DMs folded in when /friends and /messages folded into /people and
   // /inbox respectively.
-  const [{ data: currentUserProfile }, incoming, outgoing, threads, friendRequests, dmThreads] =
-    await Promise.all([
-      supabase
-        .from('base_profiles')
-        .select('name, avatar_url')
-        .eq('user_id', session.userId)
-        .maybeSingle(),
-      supabase
-        .from('asks')
-        .select('id, asker_id, status, ask_type, reason, help_needed, created_at')
-        .eq('helper_id', session.userId)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('asks')
-        .select('id, helper_id, status, ask_type, reason, help_needed, created_at, responded_at')
-        .eq('asker_id', session.userId)
-        .order('created_at', { ascending: false })
-        .limit(20),
-      supabase
-        .from('ask_threads')
-        .select('id, helper_id, asker_id, status, last_message_at, created_at, asks(ask_type)')
-        .or(`helper_id.eq.${session.userId},asker_id.eq.${session.userId}`)
-        .eq('status', 'active')
-        .order('last_message_at', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false }),
-      listPendingFriendRequests(supabase, session.userId),
-      listDmThreads(supabase, session.userId),
-    ])
+  const [
+    { data: currentUserProfile },
+    incoming,
+    outgoing,
+    threads,
+    friendRequests,
+    dmThreads,
+    friendIds,
+  ] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select('name, avatar_url')
+      .eq('user_id', session.userId)
+      .maybeSingle(),
+    supabase
+      .from('asks')
+      .select('id, asker_id, status, ask_type, reason, help_needed, created_at')
+      .eq('helper_id', session.userId)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('asks')
+      .select('id, helper_id, status, ask_type, reason, help_needed, created_at, responded_at')
+      .eq('asker_id', session.userId)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabase
+      .from('ask_threads')
+      .select('id, helper_id, asker_id, status, last_message_at, created_at, asks(ask_type)')
+      .or(`helper_id.eq.${session.userId},asker_id.eq.${session.userId}`)
+      .eq('status', 'active')
+      .order('last_message_at', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false }),
+    listPendingFriendRequests(supabase, session.userId),
+    listDmThreads(supabase, session.userId),
+    // Circle membership (ADR 0011 Phase 3): who the viewer is connected to,
+    // for the recognition mark on names. Pending connect requests are
+    // deliberately not in this set — the mark means "already connected".
+    listFriendIds(supabase, session.userId),
+  ])
 
   const allUserIds = new Set<string>()
   for (const r of incoming.data ?? []) allUserIds.add(r.asker_id)
@@ -112,6 +124,7 @@ export default async function InboxPage() {
       date: r.created_at,
       unread: true,
       cohort: cohortMap.get(r.asker_id) ?? null,
+      inCircle: friendIds.has(r.asker_id),
       originalData: r,
     }
   })
@@ -131,6 +144,7 @@ export default async function InboxPage() {
       subtitle: r.reason ?? r.help_needed ?? 'Waiting for help',
       date: r.created_at,
       cohort: cohortMap.get(r.helper_id) ?? null,
+      inCircle: friendIds.has(r.helper_id),
       originalData: r,
     }
   })
@@ -152,6 +166,7 @@ export default async function InboxPage() {
       date: t.last_message_at ?? t.created_at,
       unread: unreadAskThreadIds.has(t.id),
       cohort: cohortMap.get(otherId) ?? null,
+      inCircle: friendIds.has(otherId),
       originalData: { ...t, viewerUserId: session.userId },
     }
   })
@@ -203,6 +218,9 @@ export default async function InboxPage() {
       date: date,
       unread: unread,
       cohort: cohortMap.get(t.otherUserId) ?? null,
+      // A DM implies a live connection; a revoked friendship drops out of the
+      // set, so a read-only DM correctly shows no mark.
+      inCircle: friendIds.has(t.otherUserId),
       originalData: t,
     }
   })

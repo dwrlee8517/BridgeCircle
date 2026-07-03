@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { useActionState, useEffect, useMemo, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { CircleMark } from '@/components/ui/circle-mark'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/db/client'
@@ -91,6 +92,9 @@ export type InboxItem = {
   date: string
   unread?: boolean
   cohort?: number | null
+  /** True when this person is in the viewer's circle (connected). Drives the
+   * circle mark next to their name (ADR 0011 Phase 3). */
+  inCircle?: boolean
   originalData: unknown
 }
 
@@ -662,12 +666,15 @@ function InboxRow({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <span
-              className={`truncate text-caption text-foreground ${
-                item.unread || isSelected ? 'font-semibold' : 'font-medium'
-              }`}
-            >
-              {item.title}
+            <span className="flex min-w-0 items-center gap-1">
+              <span
+                className={`truncate text-caption text-foreground ${
+                  item.unread || isSelected ? 'font-semibold' : 'font-medium'
+                }`}
+              >
+                {item.title}
+              </span>
+              {item.inCircle ? <CircleMark className="text-primary" /> : null}
             </span>
             <span className="shrink-0 font-mono text-xs text-muted-foreground">
               {formatInboxDate(item.date)}
@@ -924,7 +931,7 @@ function DetailSummary({
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           <h2
             className={`font-heading font-semibold leading-tight text-foreground ${
               compact ? 'text-base' : 'text-lg'
@@ -932,6 +939,7 @@ function DetailSummary({
           >
             {item.title}
           </h2>
+          {item.inCircle ? <CircleMark className="text-primary" /> : null}
         </div>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
           {detailMeta(item, currentUser.userId)}
