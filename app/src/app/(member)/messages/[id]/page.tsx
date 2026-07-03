@@ -3,10 +3,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { CircleMark } from '@/components/ui/circle-mark'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getDmThread } from '@/lib/dm/getThread'
 import { markDmThreadRead } from '@/lib/dm/markThreadRead'
+import { classYearShort } from '@/lib/utils'
 import { LiveThread } from './live-thread'
 
 type Params = { id: string }
@@ -47,12 +49,25 @@ export default async function MessageThreadPage({ params }: { params: Promise<Pa
             </Avatar>
           </Link>
           <div className="min-w-0 flex-1">
-            <Link href={`/profile/${thread.otherUserId}`} className="font-semibold hover:underline">
-              {thread.otherName ?? 'Friend'}
-            </Link>
-            {thread.otherHeadline ? (
-              <p className="text-xs text-muted-foreground truncate">{thread.otherHeadline}</p>
-            ) : null}
+            <span className="flex items-center gap-1.5">
+              <Link
+                href={`/profile/${thread.otherUserId}`}
+                className="font-semibold hover:underline"
+              >
+                {thread.otherName ?? 'Friend'}
+              </Link>
+              {classYearShort(thread.otherGradYear) ? (
+                <span className="font-mono text-xs text-muted-foreground">
+                  {classYearShort(thread.otherGradYear)}
+                </span>
+              ) : null}
+              {thread.isStillFriends ? <CircleMark className="text-primary" /> : null}
+            </span>
+            <p className="text-xs text-muted-foreground">
+              {thread.isStillFriends
+                ? 'You’re connected'
+                : thread.otherHeadline || 'Connection ended — read-only'}
+            </p>
           </div>
           {!thread.isStillFriends ? (
             <span className="text-xs text-muted-foreground italic">Read-only</span>

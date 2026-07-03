@@ -16,6 +16,7 @@ export type ThreadDetail = {
   otherName: string | null
   otherAvatarUrl: string | null
   otherHeadline: string | null
+  otherGradYear: number | null
   isStillFriends: boolean
   messages: ThreadMessage[]
 }
@@ -55,23 +56,38 @@ export async function getDmThread(
       ? [thread.user_a_id, thread.user_b_id]
       : [thread.user_b_id, thread.user_a_id]
 
-  const [{ data: messages, error: mErr }, { data: base }, { data: friendship }] = await Promise.all(
-    [
-      supabase
-        .from('messages')
-        .select('id, sender_id, body, read_at, created_at')
-        .eq('thread_id', threadId)
-        .eq('thread_type', 'direct')
-        .order('created_at', { ascending: true }),
-      supabase
-        .from('base_profiles')
-        .select('user_id, name, headline, avatar_url')
-        .eq('user_id', otherId)
-        .maybeSingle(),
-      supabase.from('friendships').select('id').eq('user_a_id', a).eq('user_b_id', b).maybeSingle(),
-    ],
-  )
+  const [
+    { data: messages, error: mErr },
+    { data: base },
+    { data: friendship },
+    { data: membership },
+  ] = await Promise.all([
+    supabase
+      .from('messages')
+      .select('id, sender_id, body, read_at, created_at')
+      .eq('thread_id', threadId)
+      .eq('thread_type', 'direct')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('base_profiles')
+      .select('user_id, name, headline, avatar_url')
+      .eq('user_id', otherId)
+      .maybeSingle(),
+    supabase.from('friendships').select('id').eq('user_a_id', a).eq('user_b_id', b).maybeSingle(),
+    supabase
+      .from('organization_memberships')
+      .select('organization_profiles(graduation_year)')
+      .eq('user_id', otherId)
+      .eq('status', 'active')
+      .limit(1)
+      .maybeSingle(),
+  ])
   if (mErr) throw new Error(`getDmThread messages: ${mErr.message}`)
+
+  const orgProfiles = membership?.organization_profiles
+  const otherGradYear = Array.isArray(orgProfiles)
+    ? (orgProfiles[0]?.graduation_year ?? null)
+    : ((orgProfiles as { graduation_year: number | null } | null)?.graduation_year ?? null)
 
   return {
     ok: true,
@@ -81,6 +97,7 @@ export async function getDmThread(
       otherName: base?.name ?? null,
       otherAvatarUrl: base?.avatar_url ?? null,
       otherHeadline: base?.headline ?? null,
+      otherGradYear,
       isStillFriends: !!friendship,
       messages: (messages ?? []).map((m) => ({
         id: m.id,

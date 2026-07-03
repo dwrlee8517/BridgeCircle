@@ -3,9 +3,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CircleMark } from '@/components/ui/circle-mark'
 import { createClient } from '@/db/server'
 import { getAskThread, type ThreadMessage, type ThreadParticipant } from '@/lib/asks/getThread'
 import { requireSession } from '@/lib/auth/session'
+import { getFriendshipState } from '@/lib/friendship/friendshipState'
+import { classYearShort } from '@/lib/utils'
 import { MessageForm } from './message-form'
 
 type Params = { id: string }
@@ -29,6 +32,10 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
   const backLabel = 'Inbox'
   // Roles attach to the exchange, never to the person (ADR 0011).
   const myRole = isHelper ? 'Helper' : 'Asker'
+  // Circle mark: is the other participant connected to the viewer? An ask
+  // conversation alone doesn't put someone in your circle — only Connect does.
+  const friendship = await getFriendshipState(supabase, session.userId, other.userId)
+  const otherInCircle = friendship.kind === 'friends'
 
   return (
     <div className="density-cozy mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-8">
@@ -51,7 +58,15 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg">{other.name ?? 'Thread'}</CardTitle>
+              <CardTitle className="flex items-center gap-1.5 text-lg">
+                {other.name ?? 'Thread'}
+                {classYearShort(other.graduationYear) ? (
+                  <span className="font-mono text-xs font-normal text-muted-foreground">
+                    {classYearShort(other.graduationYear)}
+                  </span>
+                ) : null}
+                {otherInCircle ? <CircleMark className="text-primary" /> : null}
+              </CardTitle>
               <CardDescription>
                 You&apos;re the {myRole} in this conversation.{' '}
                 <Link href={`/profile/${other.userId}`} className="underline">
