@@ -119,12 +119,12 @@ export default async function RequestDetailPage({
           </Avatar>
           <div className="flex-1 space-y-1">
             <CardTitle className="text-lg">
-              {isHelper
-                ? `Request from ${otherProfile?.name}`
-                : `Your request to ${otherProfile?.name}`}
+              {isHelper ? `Ask from ${otherProfile?.name}` : `Your ask to ${otherProfile?.name}`}
             </CardTitle>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">{req.ask_type === 'advice' ? 'Advice' : 'Mentorship'}</Badge>
+              <Badge variant="outline">
+                {req.ask_type === 'advice' ? 'Quick question' : 'Ongoing help'}
+              </Badge>
               {askerClosed ? (
                 <AskerClosedBadge status={req.status as 'declined' | 'expired'} />
               ) : (

@@ -71,23 +71,21 @@ export function notificationLabel(row: NotificationRow): string {
   const actor = typeof row.payload?.actor_name === 'string' ? row.payload.actor_name : 'Someone'
   switch (row.type) {
     case 'friend_request_received':
-      return `${actor} sent you a friend request`
+      return `${actor} would like to connect`
     case 'friend_request_accepted':
-      return `${actor} accepted your friend request`
+      return `You and ${actor} are now connected`
     case 'ask_received': {
       const askType = row.payload?.ask_type
-      if (askType === 'advice') return `${actor} asked you for advice`
-      return `${actor} requested mentorship`
+      if (askType === 'advice') return `${actor} asked for your help`
+      return `${actor} asked for ongoing help`
     }
     case 'ask_accepted': {
       const askType = row.payload?.ask_type
-      if (askType === 'advice') return `${actor} accepted your advice request`
-      return `${actor} accepted your mentorship request`
+      if (askType === 'advice') return `${actor} replied to your ask`
+      return `${actor} said yes to your ask`
     }
     case 'ask_declined': {
-      const askType = row.payload?.ask_type
-      if (askType === 'advice') return `${actor} declined your advice request`
-      return `${actor} declined your mentorship request`
+      return `${actor} isn't able to help with this right now`
     }
     case 'direct_message':
       return `New message from ${actor}`

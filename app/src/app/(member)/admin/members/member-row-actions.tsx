@@ -171,8 +171,8 @@ function DeactivateDialog({
         <DialogHeader>
           <DialogTitle>Deactivate {subject}?</DialogTitle>
           <DialogDescription>
-            They&apos;ll lose access to the directory, mentorship, and messaging until reactivated.
-            The reason below is included in the email they receive.
+            They&apos;ll lose access to the directory, asks, and messaging until reactivated. The
+            reason below is included in the email they receive.
           </DialogDescription>
         </DialogHeader>
         <form action={action} className="space-y-4">

@@ -1,6 +1,6 @@
 import { createAdminClient } from '../src/db/admin'
 import { createClient } from '../src/db/server'
-import { sendMentorshipRequestEmail } from '../src/notify/resend'
+import { sendAskRequestEmail } from '../src/notify/resend'
 
 async function main() {
   console.log('Starting debug-ask-email...')
@@ -20,17 +20,17 @@ async function main() {
     console.error('getUserById threw:', err)
   }
 
-  console.log('Sending mentorship request email via Resend...')
+  console.log('Sending ask request email via Resend...')
   try {
-    const result = await sendMentorshipRequestEmail({
-      to: 'mentor-mark@example.com',
-      menteeName: 'Student Sam',
-      reviewUrl: 'http://localhost:3000/ask/some-id',
+    const result = await sendAskRequestEmail({
+      to: 'helper-mark@example.com',
+      askerName: 'Student Sam',
+      reviewUrl: 'http://localhost:3001/ask/some-id',
       askType: 'mentorship',
     })
-    console.log('sendMentorshipRequestEmail result:', result)
+    console.log('sendAskRequestEmail result:', result)
   } catch (err) {
-    console.error('sendMentorshipRequestEmail threw:', err)
+    console.error('sendAskRequestEmail threw:', err)
   }
 
   console.log('Done.')

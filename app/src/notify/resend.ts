@@ -3,8 +3,10 @@ import type * as React from 'react'
 import { Resend } from 'resend'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
 import { AnnouncementEmail } from './emails/announcement-email'
+import { AskAcceptedEmail } from './emails/ask-accepted-email'
 import { AskExpiredEmail } from './emails/ask-expired-email'
 import { AskReminderEmail } from './emails/ask-reminder-email'
+import { AskRequestEmail } from './emails/ask-request-email'
 import { EventCanceledEmail } from './emails/event-canceled-email'
 import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-email'
 import { EventWaitlistPromotedEmail } from './emails/event-waitlist-promoted-email'
@@ -14,8 +16,6 @@ import { InviteEmail } from './emails/invite-email'
 import { MembershipApprovedEmail } from './emails/membership-approved-email'
 import { MembershipDeactivatedEmail } from './emails/membership-deactivated-email'
 import { MembershipRejectedEmail } from './emails/membership-rejected-email'
-import { MentorshipAcceptedEmail } from './emails/mentorship-accepted-email'
-import { MentorshipRequestEmail } from './emails/mentorship-request-email'
 import { ProposalAppliedEmail } from './emails/proposal-applied-email'
 import { ProposalReviewEmail } from './emails/proposal-review-email'
 
@@ -74,51 +74,48 @@ export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyRes
   })
 }
 
-export type SendMentorshipRequestInput = {
+export type SendAskRequestInput = {
   to: string
-  menteeName: string
+  askerName: string
   reviewUrl: string
-  /** Subject line + greeting differ slightly per ask type. Default 'mentorship'
-   * preserves prior behavior for any callers that haven't been updated. */
+  /** Subject line + greeting differ slightly per ask type until the enum is
+   * retired (ADR 0011 Phase 6). Default 'mentorship' preserves prior behavior
+   * for any callers that haven't been updated. */
   askType?: 'advice' | 'mentorship'
 }
 
-export async function sendMentorshipRequestEmail(
-  input: SendMentorshipRequestInput,
-): Promise<NotifyResult> {
+export async function sendAskRequestEmail(input: SendAskRequestInput): Promise<NotifyResult> {
   const askType = input.askType ?? 'mentorship'
   const subject =
     askType === 'advice'
-      ? `${input.menteeName} asked you for advice`
-      : `${input.menteeName} sent you a mentorship request`
+      ? `${input.askerName} asked you a quick question`
+      : `${input.askerName} asked for your ongoing help`
 
   return sendRenderedEmail({
     to: input.to,
     subject,
-    email: MentorshipRequestEmail(input),
+    email: AskRequestEmail(input),
   })
 }
 
-export type SendMentorshipAcceptedInput = {
+export type SendAskAcceptedInput = {
   to: string
-  mentorName: string
+  helperName: string
   threadUrl: string
   askType?: 'advice' | 'mentorship'
 }
 
-export async function sendMentorshipAcceptedEmail(
-  input: SendMentorshipAcceptedInput,
-): Promise<NotifyResult> {
+export async function sendAskAcceptedEmail(input: SendAskAcceptedInput): Promise<NotifyResult> {
   const askType = input.askType ?? 'mentorship'
   const subject =
     askType === 'advice'
-      ? `${input.mentorName} replied to your advice request`
-      : `${input.mentorName} accepted your mentorship request`
+      ? `${input.helperName} replied to your ask`
+      : `${input.helperName} said yes to your ask`
 
   return sendRenderedEmail({
     to: input.to,
     subject,
-    email: MentorshipAcceptedEmail(input),
+    email: AskAcceptedEmail(input),
   })
 }
 
@@ -150,7 +147,7 @@ export type SendFriendRequestInput = {
 export async function sendFriendRequestEmail(input: SendFriendRequestInput): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: `${input.senderName} sent you a friend request`,
+    subject: `${input.senderName} would like to connect`,
     email: FriendRequestEmail({
       senderName: input.senderName,
       reviewUrl: input.reviewUrl,
@@ -323,7 +320,7 @@ export async function sendFriendRequestAcceptedEmail(
 ): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: `${input.accepterName} accepted your friend request`,
+    subject: `You and ${input.accepterName} are connected`,
     email: FriendRequestAcceptedEmail({
       accepterName: input.accepterName,
       profileUrl: input.profileUrl,

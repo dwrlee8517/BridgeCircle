@@ -96,10 +96,10 @@ export function StepHelp({ defaults, name, action }: Props) {
             onCheckedChange={(v) => setOpenToMentor(v === true)}
           />
           <div className="space-y-1">
-            <Label htmlFor="openToMentor">I&rsquo;m open to mentoring fellow alumni</Label>
+            <Label htmlFor="openToMentor">I&rsquo;m open to helping fellow alumni</Label>
             <p className="text-xs text-muted-foreground">
-              Members can ask you for advice or ongoing mentorship. You can pause or change this any
-              time from Helper preferences.
+              Members can ask you a quick question or ask for ongoing help. You can pause or change
+              this any time from Help settings.
             </p>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function StepHelp({ defaults, name, action }: Props) {
             disabled={!openToMentor}
           />
           <p className="text-xs text-muted-foreground">
-            Comma-separated. Helps mentees find you in search.
+            Comma-separated. Helps members find you in search.
           </p>
           {fe.mentoringTopics ? (
             <p className="text-xs text-destructive">{fe.mentoringTopics}</p>

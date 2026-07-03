@@ -162,9 +162,11 @@ Before declaring a task done:
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **Ask · Help · People · School · Inbox**. The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Top nav (members): **Ask · Help · People · School · Messages** (the Messages tab points at the `/inbox` route; the route rename is deferred to a later ADR 0011 phase). The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
 
-Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
+Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/mentorship/settings → /help/settings`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
+
+Vocabulary (ADR 0011 Phase 1, applied 2026-07-03): user-facing copy never says "mentor", "mentee", or "mentorship" — the two ask types render as **quick question** and **ongoing help**, helper availability is a state ("open to quick questions / ongoing help"), and friend requests read as **connect** language. Database columns, identifiers, and file names (`open_to_mentorship`, `mentorship-flow.tsx`, `askType: 'mentorship'`) intentionally keep the old names until ADR 0011 Phases 2 and 6.
 
 ## Out Of Scope For Phase 1
 

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-import { type SettingsFormState, saveMentorSettings } from './actions'
+import { type SettingsFormState, saveHelpSettings } from './actions'
 
 const initialState: SettingsFormState = {}
 const ACTIVE_MENTEE_OPTIONS = [1, 2, 3, 5, 10, 20] as const
@@ -31,7 +31,7 @@ type Props = {
 
 export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount }: Props) {
   const router = useRouter()
-  const [state, action, pending] = useActionState(saveMentorSettings, initialState)
+  const [state, action, pending] = useActionState(saveHelpSettings, initialState)
   const fe = state.fieldErrors ?? {}
 
   const [advice, setAdvice] = useState(defaults.openToAdvice)
@@ -48,7 +48,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
     <form action={action} className="space-y-5">
       <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
         <SettingRow
-          title="One-off advice"
+          title="Quick questions"
           description="Members can ask you a single question. Lower commitment, no caps."
           control={
             <Checkbox
@@ -56,35 +56,35 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
               name="openToAdvice"
               checked={advice}
               onCheckedChange={(value) => setAdvice(value === true)}
-              aria-label="Open to one-off advice"
+              aria-label="Open to quick questions"
             />
           }
         />
 
         <SettingRow
-          title="Ongoing mentorship"
-          description="Members can request a longer-running relationship, bounded by the caps below."
+          title="Ongoing help"
+          description="Members can ask for a longer-running conversation, bounded by the caps below."
           control={
             <Checkbox
               id="openToMentorship"
               name="openToMentorship"
               checked={mentorship}
               onCheckedChange={(value) => setMentorship(value === true)}
-              aria-label="Open to ongoing mentorship"
+              aria-label="Open to ongoing help"
             />
           }
         />
 
         {!mentorship ? (
           <div className="border-b border-border bg-warning-tint px-5 py-4 text-sm leading-6 text-foreground">
-            Younger alumni often search specifically for ongoing mentorship. If time is the worry,
-            keep mentorship on and set the caps as low as one active mentee and one pending request.
+            Younger alumni often look specifically for ongoing help. If time is the worry, keep it
+            on and set the caps as low as one active conversation and one pending ask.
           </div>
         ) : null}
 
         <SettingRow
-          title="Mentoring topics"
-          description="Comma-separated topics help mentees find you in search."
+          title="Help topics"
+          description="Comma-separated topics help members find you in search."
           disabled={!mentorship}
           control={
             <div className="w-full min-w-0 sm:max-w-md">
@@ -103,7 +103,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
 
         <SettingRow
           title="Screening question"
-          description="Optional. Mentees answer this before sending a request."
+          description="Optional. Members answer this before sending an ongoing ask."
           disabled={!mentorship}
           align="start"
           control={
@@ -125,7 +125,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
         />
 
         <SettingRow
-          title="Active mentee capacity"
+          title="Ongoing conversations at once"
           description={`Currently ${activeMenteeCount} active.`}
           disabled={!mentorship}
           control={
@@ -133,7 +133,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
               name="maxActiveMentees"
               value={maxActiveMentees}
               options={withCurrent(ACTIVE_MENTEE_OPTIONS, maxActiveMentees)}
-              unit="mentees"
+              unit="conversations"
               disabled={!mentorship}
               onChange={setMaxActiveMentees}
             />
@@ -141,7 +141,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
         />
 
         <SettingRow
-          title="Pending request cap"
+          title="Pending asks cap"
           description={`Currently ${pendingRequestCount} pending.`}
           disabled={!mentorship}
           control={
@@ -149,7 +149,7 @@ export function SettingsForm({ defaults, activeMenteeCount, pendingRequestCount 
               name="maxPendingRequests"
               value={maxPendingRequests}
               options={withCurrent(PENDING_REQUEST_OPTIONS, maxPendingRequests)}
-              unit="requests"
+              unit="asks"
               disabled={!mentorship}
               onChange={setMaxPendingRequests}
             />

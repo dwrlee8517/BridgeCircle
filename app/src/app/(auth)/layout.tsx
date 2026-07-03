@@ -41,7 +41,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             Build from a circle you already trust.
           </h1>
           <p className="mt-4 text-base leading-relaxed text-surface-ink-muted">
-            Mentorship, referrals, events, and local connection for verified communities.
+            Real help, referrals, events, and local connection for verified communities.
           </p>
         </div>
       </section>

@@ -235,11 +235,16 @@ function AvailabilityRail({
       <div className="flex flex-wrap items-center gap-3.5 detail:gap-5">
         <AvailabilityStatus
           dot="var(--primary)"
-          label="Advice"
+          label="Quick questions"
           sub={availability.openToAdvice ? 'Open' : 'Off'}
         />
         <Divider />
-        <AvailabilityStatus dot="var(--action-offer)" label="Mentorship" sub={mentorshipSub} mono />
+        <AvailabilityStatus
+          dot="var(--action-offer)"
+          label="Ongoing help"
+          sub={mentorshipSub}
+          mono
+        />
       </div>
 
       <Divider className="hidden detail:block" />
@@ -277,7 +282,7 @@ function AvailabilityRail({
       </div>
 
       <Button asChild variant="outline" size="sm" className="w-full rounded-md detail:w-auto">
-        <Link href="/mentorship/settings">Edit availability</Link>
+        <Link href="/help/settings">Edit availability</Link>
       </Button>
 
       {availability.paused ? (
@@ -434,7 +439,7 @@ function EmptyNextHelpCard() {
     <EmptyState
       title="No one is waiting today"
       description="You can still browse recent members below, or adjust the topics where classmates should find you."
-      action={{ label: 'Edit availability', href: '/mentorship/settings' }}
+      action={{ label: 'Edit availability', href: '/help/settings' }}
       className="w-full max-w-[720px]"
     />
   )
@@ -536,7 +541,7 @@ function SubjectSideRail({ subject }: { subject: HelpSubject }) {
           <ToggleRow label="Email me new requests" on />
         </div>
         <Button asChild variant="outline" size="sm" className="mt-3.5 w-full rounded-md">
-          <Link href="/mentorship/settings">Pause this subject</Link>
+          <Link href="/help/settings">Pause this subject</Link>
         </Button>
       </div>
     </aside>
@@ -627,7 +632,7 @@ function SubjectPicker({
           <div className="-mx-1.5 -mb-1.5 mt-1.5 flex items-center justify-between border-t border-muted px-3 py-2 text-kicker text-muted-foreground">
             <span>{subjects.length} subjects total</span>
             <Link
-              href="/mentorship/settings"
+              href="/help/settings"
               className="inline-flex items-center gap-1 font-semibold text-foreground"
             >
               <Plus className="size-[11px]" />
@@ -646,7 +651,7 @@ function EmptyHelpCard() {
       size="inline"
       title="No open requests in this view right now"
       description="When someone in the circle asks for help here, they'll show up for you."
-      action={{ label: 'Edit availability', href: '/mentorship/settings' }}
+      action={{ label: 'Edit availability', href: '/help/settings' }}
     />
   )
 }

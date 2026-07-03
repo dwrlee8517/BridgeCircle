@@ -119,13 +119,13 @@ export function MentorshipFlow({
           <AlertCircle className="mt-0.5 size-4 shrink-0 text-accent-ochre" aria-hidden />
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground">
-              {`${helperFirstName} is at capacity for mentorship right now`}
+              {`${helperFirstName} is at capacity for ongoing help right now`}
             </p>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              {`Their mentee spots are full. ${
+              {`Their ongoing spots are full. ${
                 adviceOpen
-                  ? 'Quick advice is still open — one question, no ongoing commitment.'
-                  : 'Check back in a few weeks, or look for another mentor on the same path.'
+                  ? 'A quick question is still open — one question, no ongoing commitment.'
+                  : 'Check back in a few weeks, or look for someone else on the same path.'
               }`}
             </p>
           </div>
@@ -133,7 +133,7 @@ export function MentorshipFlow({
         <div className="flex flex-wrap gap-2">
           {adviceOpen ? (
             <Button asChild>
-              <Link href={adviceHref}>Ask for quick advice instead</Link>
+              <Link href={adviceHref}>Ask a quick question instead</Link>
             </Button>
           ) : null}
           <Button asChild variant="outline">
@@ -234,8 +234,8 @@ export function MentorshipFlow({
               What do you hope to explore together?
             </h2>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Goals over questions — mentorship is a direction, not one answer. One or two sentences
-              is plenty.
+              Goals over questions — ongoing help is a direction, not one answer. One or two
+              sentences is plenty.
             </p>
           </div>
 
@@ -464,7 +464,7 @@ export function MentorshipFlow({
               <span className="font-mono font-semibold text-foreground">
                 {openSpots} of {maxActiveMentees}
               </span>{' '}
-              {`mentee ${openSpots === 1 ? 'spot' : 'spots'} open on ${helperFirstName}'s side right now.`}
+              {`ongoing ${openSpots === 1 ? 'spot' : 'spots'} open on ${helperFirstName}'s side right now.`}
             </p>
           ) : null}
 
@@ -512,7 +512,7 @@ function evidenceSource(kind: SignalCandidate['kind'], firstName: string): strin
     case 'bio':
       return `from ${firstName}'s bio`
     case 'mentoring-topic':
-      return `from ${firstName}'s mentoring topics`
+      return `from ${firstName}'s help topics`
     default:
       return 'shared with your profile'
   }

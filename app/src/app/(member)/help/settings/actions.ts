@@ -12,7 +12,7 @@ export type SettingsFormState = {
   fieldErrors?: Record<string, string>
 }
 
-export async function saveMentorSettings(
+export async function saveHelpSettings(
   _prev: SettingsFormState,
   formData: FormData,
 ): Promise<SettingsFormState> {
@@ -38,7 +38,7 @@ export async function saveMentorSettings(
     return { error: 'Could not save your settings. Try again.' }
   }
 
-  revalidatePath('/mentorship/settings')
+  revalidatePath('/help/settings')
   revalidatePath(`/profile/${session.userId}`)
   return { ok: true }
 }

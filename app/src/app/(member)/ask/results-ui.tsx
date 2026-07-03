@@ -15,7 +15,7 @@ import type { HelpNetworkPerson } from '../help-network-ui'
  */
 
 function askLabelFor(askType: 'advice' | 'mentorship', firstName: string) {
-  return askType === 'advice' ? `Ask ${firstName}` : 'Request mentorship'
+  return askType === 'advice' ? `Ask ${firstName}` : 'Ask for ongoing help'
 }
 
 export function FeaturedMatchCard({
@@ -220,12 +220,12 @@ function AvailabilityBadges({ person }: { person: HelpNetworkPerson }) {
     <>
       {person.isOpenAsAdviceHelper ? (
         <StatusBadge tone="open" size="sm" dot>
-          Quick advice
+          Quick questions
         </StatusBadge>
       ) : null}
       {person.isOpenAsMentor ? (
         <StatusBadge tone="info" size="sm" dot>
-          Mentorship
+          Ongoing help
         </StatusBadge>
       ) : null}
     </>

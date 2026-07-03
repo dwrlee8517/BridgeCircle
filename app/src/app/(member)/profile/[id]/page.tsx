@@ -254,11 +254,11 @@ export default async function ProfileDetailPage({
             ) : null}
             {profile.isOpenAsMentor && !profile.mentorshipAtCapacity ? (
               <StatusBadge tone="open" dot>
-                Open to mentor
+                Open to ongoing help
               </StatusBadge>
             ) : profile.isOpenAsMentor && profile.mentorshipAtCapacity ? (
               <StatusBadge tone="warn" dot>
-                Mentorship full
+                At capacity
               </StatusBadge>
             ) : profile.mentorPaused ? (
               <StatusBadge tone="warn" dot>
@@ -267,7 +267,7 @@ export default async function ProfileDetailPage({
             ) : null}
             {profile.isOpenAsAdviceHelper ? (
               <StatusBadge tone="open" dot>
-                Open to advice
+                Open to quick questions
               </StatusBadge>
             ) : null}
           </div>
@@ -472,16 +472,16 @@ export default async function ProfileDetailPage({
                         : 'bg-muted-foreground/60',
                     )}
                   />
-                  <span className="text-sm font-semibold">Mentorship</span>
+                  <span className="text-sm font-semibold">Ongoing help</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {profile.isOpenAsMentor
                     ? profile.mentorshipAtCapacity
                       ? 'At capacity right now'
-                      : 'Open to requests'
+                      : 'Open to asks'
                     : profile.mentorPaused
                       ? 'Paused while away'
-                      : 'Not accepting right now'}
+                      : 'Not taking asks right now'}
                 </p>
               </div>
 
@@ -501,10 +501,10 @@ export default async function ProfileDetailPage({
                       profile.isOpenAsAdviceHelper ? 'bg-accent-sage' : 'bg-muted-foreground/60',
                     )}
                   />
-                  <span className="text-sm font-semibold">Advice</span>
+                  <span className="text-sm font-semibold">Quick questions</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  {profile.isOpenAsAdviceHelper ? 'Open to questions' : 'Not accepting right now'}
+                  {profile.isOpenAsAdviceHelper ? 'Open to questions' : 'Not taking asks right now'}
                 </p>
               </div>
             </div>
@@ -515,7 +515,7 @@ export default async function ProfileDetailPage({
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
               <div className="mb-4">
                 <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
-                  Mentoring Topics
+                  Help topics
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -813,21 +813,21 @@ function HelperAsks({
   if (mentorshipState === 'active' && relatedThreadId) {
     return (
       <Button asChild variant="offer" className="w-full">
-        <Link href={`/ask/thread/${relatedThreadId}`}>Open mentorship thread</Link>
+        <Link href={`/ask/thread/${relatedThreadId}`}>Open your conversation</Link>
       </Button>
     )
   }
   if (mentorshipState === 'pending_outgoing' && relatedRequestId) {
     return (
       <Button asChild variant="outline" className="w-full">
-        <Link href={`/ask/${relatedRequestId}`}>Request pending — view</Link>
+        <Link href={`/ask/${relatedRequestId}`}>Ask pending — view</Link>
       </Button>
     )
   }
   if (mentorshipState === 'pending_incoming' && relatedRequestId) {
     return (
       <Button asChild variant="offer" className="w-full">
-        <Link href={`/ask/${relatedRequestId}`}>Review their request</Link>
+        <Link href={`/ask/${relatedRequestId}`}>Review their ask</Link>
       </Button>
     )
   }
@@ -835,7 +835,7 @@ function HelperAsks({
   if (!isOpenAsMentor && !isOpenAsAdviceHelper) {
     return (
       <Button variant="outline" disabled className="w-full">
-        Not open to requests right now
+        Not taking asks right now
       </Button>
     )
   }
@@ -847,17 +847,17 @@ function HelperAsks({
     <>
       {isOpenAsAdviceHelper ? (
         <Button asChild variant="cta" className="w-full">
-          <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for advice</Link>
+          <Link href={`/ask/new?to=${profileUserId}&type=advice`}>Ask for help</Link>
         </Button>
       ) : null}
       {showMentorshipButton ? (
         <Button asChild variant={isOpenAsAdviceHelper ? 'outline' : 'cta'} className="w-full">
-          <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Request mentorship</Link>
+          <Link href={`/ask/new?to=${profileUserId}&type=mentorship`}>Ask for ongoing help</Link>
         </Button>
       ) : null}
       {showCapacityNotice ? (
         <Button variant="outline" disabled className="w-full">
-          Mentorship full right now
+          At capacity for ongoing help
         </Button>
       ) : null}
     </>

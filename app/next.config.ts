@@ -35,6 +35,14 @@ const nextConfig: NextConfig = {
         destination: '/ask/thread/:id',
         permanent: true,
       },
+      // Helper availability moved out of the mentorship vocabulary
+      // entirely (ADR 0011 Phase 1): settings now live beside the
+      // supply-side surface at /help/settings.
+      {
+        source: '/mentorship/settings',
+        destination: '/help/settings',
+        permanent: true,
+      },
       // /search and /discover now fold into /people, the canonical
       // directory and request-start surface.
       {

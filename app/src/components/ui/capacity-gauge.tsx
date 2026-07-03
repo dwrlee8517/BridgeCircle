@@ -73,7 +73,7 @@ export function CapacityIndicatorGauge({
       >
         <div className="flex justify-between text-muted-foreground">
           <span>
-            MENTEES: {activeCount}/{maxActive}
+            ONGOING: {activeCount}/{maxActive}
           </span>
           <span className={cn('font-semibold', activeTone.text)}>
             {Math.round(activeRatio * 100)}%
@@ -103,7 +103,7 @@ export function CapacityIndicatorGauge({
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between items-center font-medium text-foreground">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">
-            Active Mentees
+            Ongoing conversations
           </span>
           <span>
             {activeCount} / {maxActive}

@@ -2,7 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import { createNotification } from '@/lib/notifications/createNotification'
-import { sendMentorshipRequestEmail } from '@/notify/resend'
+import { sendAskRequestEmail } from '@/notify/resend'
 import type { AskInput } from './schemas'
 
 export type CreateAskResult =
@@ -213,9 +213,9 @@ async function sendAskEmail(
     const { data: authUser } = await admin.auth.admin.getUserById(helperId)
     if (!authUser?.user?.email) return
 
-    await sendMentorshipRequestEmail({
+    await sendAskRequestEmail({
       to: authUser.user.email,
-      menteeName: askerBase?.name ?? 'A fellow alumnus',
+      askerName: askerBase?.name ?? 'A fellow alum',
       reviewUrl: `${appOrigin}/ask/${askId}`,
       askType,
     })

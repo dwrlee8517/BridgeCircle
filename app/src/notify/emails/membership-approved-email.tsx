@@ -26,7 +26,7 @@ export function MembershipApprovedEmail({ recipientName, orgName, signInUrl }: P
       <CivicText>{greeting(recipientName)}</CivicText>
       <CivicText>
         An admin approved your membership in <strong>{orgName}</strong>. You now have access to
-        search alumni, request mentorship, RSVP to events, and connect with classmates.
+        search alumni, ask for help, RSVP to events, and connect with classmates.
       </CivicText>
       <CivicButtonRow>
         <CivicButton href={signInUrl}>Sign in</CivicButton>

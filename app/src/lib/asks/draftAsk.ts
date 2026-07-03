@@ -111,7 +111,7 @@ Choosing what to mention:
 Output format: ONLY a JSON object matching this exact shape — no prose, no markdown fences:
 {
   "helpNeeded": string,    // the body of the ask itself
-  "reason": string | null, // optional — only for mentorship asks: a short "why you specifically" line. null for advice.
+  "reason": string | null, // optional — only for ongoing-help asks: a short "why you specifically" line. null for quick questions.
   "coach": string | null   // one short line TO THE ASKER about why this draft is easy to say yes to. Never part of the note.
 }
 
@@ -121,8 +121,8 @@ The coach line:
 - It is UI guidance only; the helper never sees it.
 
 Length:
-- Advice asks: helpNeeded is 1–3 sentences. Just the question with minimal context. reason: null.
-- Mentorship asks: helpNeeded is 3–5 sentences. State what you're working on and what you'd like a mentor to help you think through. reason: 1 sentence naming what you've noticed about the helper that drew you to ask them (overlap in path / topic / city). Use only attributes from the input.`
+- Quick-question asks: helpNeeded is 1–3 sentences. Just the question with minimal context. reason: null.
+- Ongoing-help asks: helpNeeded is 3–5 sentences. State what you're working on and what you'd like their help thinking through. Never use the words "mentor", "mentee", or "mentorship" — this is one member asking another for help. reason: 1 sentence naming what you've noticed about the helper that drew you to ask them (overlap in path / topic / city). Use only attributes from the input.`
 
 const BIO_MAX_CHARS = 500
 const CAREER_ENTRIES_MAX = 5

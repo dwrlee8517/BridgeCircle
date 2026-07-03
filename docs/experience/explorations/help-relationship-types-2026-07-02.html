@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relationship types &amp; how they talk — ADR 0010 exploration · 2026-07-02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#fafaf9; --foreground:#0c0c0b; --card:#ffffff;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-on-dark:#93c5fd;
+    --cta:#f59e0b; --cta-hover:#d97706; --cta-foreground:#0c0c0b;
+    --surface-ink:#1b1813; --surface-ink-foreground:#fafaf9; --surface-ink-muted:rgb(250 250 249 / 68%);
+    --secondary:#f4f3ee; --muted:#ebebe5; --muted-foreground:#4d4d4a; --border:#dcdcd6;
+    --destructive:#9b2c1f; --ochre:#a16207; --rust:#c4314b; --sage:#15a05f; --plum:#7c3aed;
+    --primary-tint:rgb(37 99 235 / 10%); --success-tint:rgb(21 160 95 / 10%);
+    --warning-tint:rgb(161 98 7 / 12%); --danger-tint:rgb(155 44 31 / 10%);
+    --plum-tint:rgb(124 58 237 / 10%);
+    --editorial-rule:rgb(250 250 249 / 16%);
+    --radius:10px;
+    --shadow-card:0 1px 0 rgb(12 12 11 / 0.03);
+    --shadow-card-hover:0 4px 12px -2px rgb(12 12 11 / 0.06);
+    --shadow-hero:0 12px 34px -8px rgb(12 12 11 / 0.10);
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --display:'Inter Tight',var(--sans);
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--background);color:var(--foreground);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px 96px}
+
+  /* ---------- editorial hero ---------- */
+  .hero{background:var(--surface-ink);color:var(--surface-ink-foreground);padding:56px 0 48px;margin-bottom:56px}
+  .hero .wrap{padding-bottom:0}
+  .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--primary-on-dark);display:flex;align-items:center;gap:10px}
+  .kicker::before{content:"";width:28px;height:2px;background:var(--primary-on-dark);display:inline-block}
+  .hero h1{font-family:var(--display);font-weight:700;font-size:40px;letter-spacing:-.02em;line-height:1.12;margin:14px 0 12px;max-width:21em}
+  .hero p{color:var(--surface-ink-muted);max-width:46em;font-size:17px}
+  .hero .meta{margin-top:22px;padding-top:16px;border-top:1px solid var(--editorial-rule);font-family:var(--mono);font-size:12px;color:var(--surface-ink-muted)}
+  .hero .meta strong{color:var(--surface-ink-foreground);font-weight:500}
+
+  /* ---------- section chrome ---------- */
+  section{margin-bottom:72px}
+  .section-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--primary);display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .section-kicker::before{content:"";width:28px;height:2px;background:var(--primary)}
+  section>h2{font-family:var(--display);font-weight:700;font-size:32px;letter-spacing:-.015em;line-height:1.15;margin-bottom:10px}
+  .lede{color:var(--muted-foreground);max-width:52em;font-size:17px;margin-bottom:8px}
+  .lede b{color:var(--foreground);font-weight:600}
+  .diff{margin:18px 0 28px;padding:14px 18px;background:var(--secondary);border-left:3px solid var(--primary);border-radius:0 var(--radius) var(--radius) 0;max-width:52em;font-size:14px}
+  .diff .card-label{margin-bottom:4px}
+
+  /* ---------- the map ---------- */
+  .map{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}
+  .lane{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-card)}
+  .lane h3{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em;margin-bottom:2px}
+  .lane .sub{font-size:13px;color:var(--muted-foreground);margin-bottom:18px}
+  .gate{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:99px;margin-bottom:14px}
+  .gate.one{background:var(--success-tint);color:#0e7a47}
+  .gate.two{background:var(--primary-tint);color:var(--primary-hover)}
+  .dirs{display:flex;flex-direction:column;gap:10px}
+  .dir{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;padding:10px 12px;background:var(--secondary);border-radius:8px;font-size:14px}
+  .dir .arrow{font-family:var(--mono);font-size:12px;color:var(--muted-foreground);white-space:nowrap}
+  .dir .arrow b{color:var(--foreground);font-weight:500}
+  .dir.new{outline:1.5px dashed var(--sage);outline-offset:-1.5px;background:var(--success-tint)}
+  .dir .tag-new{font-family:var(--mono);font-size:11px;color:#0e7a47;font-weight:500}
+  .lane .foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:13px;color:var(--muted-foreground)}
+
+  /* ---------- scenario panels ---------- */
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .side-title{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted-foreground);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .side-title .dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+  .dot.ask{background:var(--cta)} .dot.help{background:var(--sage)} .dot.dm{background:var(--primary)}
+
+  .screen{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-card-hover);overflow:hidden}
+  .screen .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--secondary)}
+  .screen .bar .who{font-size:13px;font-weight:600}
+  .screen .bar .ctx{font-family:var(--mono);font-size:11px;color:var(--muted-foreground)}
+  .screen .body{padding:20px}
+
+  .card-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .chip{font-size:12px;padding:3px 10px;border-radius:99px;border:1px solid var(--border);background:var(--card);color:var(--muted-foreground)}
+  .chip.tier{background:var(--primary-tint);border-color:transparent;color:var(--primary-hover);font-weight:500}
+  .chip.tier-ongoing{background:var(--plum-tint);border-color:transparent;color:var(--plum);font-weight:500}
+  .chip.open{background:var(--success-tint);border-color:transparent;color:#0e7a47;font-weight:500}
+  .chip.paused{background:var(--warning-tint);border-color:transparent;color:var(--foreground);font-weight:500}
+
+  .disclosure{font-size:13px;font-style:italic;color:var(--muted-foreground);margin-bottom:10px}
+  .draft{border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:14px;background:var(--background);margin-bottom:14px}
+  .draft p{margin-bottom:9px} .draft p:last-child{margin-bottom:0}
+  .quoted{border-left:3px solid var(--primary);padding:10px 14px;background:var(--primary-tint);border-radius:0 8px 8px 0;font-size:14px;font-style:italic;margin-bottom:14px}
+  .quoted .attr{display:block;font-style:normal;font-family:var(--mono);font-size:11px;color:var(--muted-foreground);margin-top:6px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:14px;font-weight:600;padding:9px 18px;border-radius:var(--radius);border:1px solid transparent;cursor:default;line-height:1.2}
+  .btn.amber{background:var(--cta);color:var(--cta-foreground)}
+  .btn.sage{background:var(--sage);color:#fff}
+  .btn.blue{background:var(--primary);color:#fff}
+  .btn.quiet{background:transparent;border-color:var(--border);color:var(--muted-foreground);font-weight:500}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .reassure{font-size:13px;color:var(--muted-foreground);margin-top:10px}
+
+  .coach{display:flex;gap:10px;font-size:13px;color:var(--muted-foreground);background:var(--secondary);border-radius:8px;padding:10px 14px;margin-bottom:14px}
+  .coach::before{content:"—";color:var(--primary);font-weight:700}
+
+  .pace{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .pace .p{border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;text-align:left}
+  .pace .p b{display:block;font-size:13px;font-weight:600;margin-bottom:2px}
+  .pace .p span{color:var(--muted-foreground);font-size:12px}
+  .pace .p.sel{border-color:var(--primary);background:var(--primary-tint)}
+
+  .decline-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .decline-opts .o{border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .decline-opts .o.sel{border-color:var(--ochre);background:var(--warning-tint)}
+  .decline-opts .o small{font-family:var(--mono);font-size:11px;color:var(--muted-foreground);white-space:nowrap}
+  .preview{border:1px dashed var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--muted-foreground);background:var(--background)}
+  .preview b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:6px;color:var(--muted-foreground)}
+  .preview em{color:var(--foreground);font-style:normal}
+
+  /* thread */
+  .thread{display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:82%;padding:10px 14px;border-radius:12px;font-size:14px}
+  .msg.them{background:var(--secondary);border-bottom-left-radius:4px;align-self:flex-start}
+  .msg.me{background:var(--primary-tint);border-bottom-right-radius:4px;align-self:flex-end}
+  .msg .m-meta{display:block;font-family:var(--mono);font-size:10px;color:var(--muted-foreground);margin-top:5px}
+  .thread-scope{font-size:12px;color:var(--muted-foreground);background:var(--secondary);border-radius:8px;padding:8px 12px;text-align:center;margin-bottom:4px}
+  .thread-scope b{font-weight:600;color:var(--foreground)}
+
+  .notif{border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--card);box-shadow:var(--shadow-card)}
+  .notif h4{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:4px}
+  .notif p{font-size:14px;color:var(--muted-foreground);margin-bottom:12px}
+  .notif p em{color:var(--foreground);font-style:normal}
+
+  .annot{margin-top:14px;font-size:13px;color:var(--muted-foreground);padding-left:14px;border-left:2px solid var(--muted)}
+  .annot b{color:var(--foreground);font-weight:600}
+
+  .result-h{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.01em;margin-bottom:12px}
+  .person{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;background:var(--card)}
+  .person:last-child{margin-bottom:0}
+  .avatar{width:40px;height:40px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:14px;flex-shrink:0}
+  .av-sky{background:var(--primary-tint);color:var(--primary-hover)}
+  .av-sage{background:var(--success-tint);color:#0e7a47}
+  .av-plum{background:var(--plum-tint);color:var(--plum)}
+  .av-ochre{background:var(--warning-tint);color:var(--ochre)}
+  .person .p-name{font-family:var(--display);font-weight:700;font-size:15px}
+  .person .p-sub{font-size:13px;color:var(--muted-foreground)}
+  .person .p-why{font-size:13px;margin-top:6px}
+  .person .p-why b{font-weight:600}
+  .person .p-act{margin-left:auto;flex-shrink:0;align-self:center}
+
+  /* comparison table */
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:14px;box-shadow:var(--shadow-card)}
+  thead th{background:var(--surface-ink);color:var(--surface-ink-foreground);text-align:left;padding:12px 16px;font-family:var(--display);font-size:14px;font-weight:700}
+  thead th:first-child{width:130px}
+  tbody th{text-align:left;padding:12px 16px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted-foreground);vertical-align:top;background:var(--secondary)}
+  tbody td{padding:12px 16px;border-top:1px solid var(--border);vertical-align:top;color:var(--foreground)}
+  tbody tr th{border-top:1px solid var(--border)}
+  td .pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:99px;margin-bottom:4px}
+  .pill.g1{background:var(--success-tint);color:#0e7a47}
+  .pill.g2{background:var(--primary-tint);color:var(--primary-hover)}
+  td small{display:block;color:var(--muted-foreground);font-size:12.5px;margin-top:2px}
+
+  .foot-note{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);font-size:13px;color:var(--muted-foreground);max-width:52em}
+  .foot-note code{font-family:var(--mono);font-size:12px;background:var(--secondary);padding:1px 6px;border-radius:4px}
+
+  @media (max-width:880px){
+    .pair,.map{grid-template-columns:1fr}
+    .hero h1{font-size:32px}
+    .pace{grid-template-columns:1fr}
+    .table-scroll{overflow-x:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="kicker">Exploration · ADR 0010 — horizontal help</div>
+    <h1>Five ways two members meet, and how each one talks</h1>
+    <p>Mentorship stops being an identity and becomes a commitment tier. Roles attach to a single exchange, never to a person. This exploration mocks each relationship type from <strong>both sides</strong> — because every gate, decline, and thread has to lower the barrier for the asker <em>and</em> protect the helper.</p>
+    <div class="meta">status <strong>exploration — not shipped</strong> · grounds <strong>ADR 0010 (proposed) + ADR 0003 gating split</strong> · voice <strong>voice-guidelines.md v1</strong> · tokens <strong>Civic Editorial</strong> · 2026-07-02</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ================= THE MAP ================= -->
+<section>
+  <div class="section-kicker">The map</div>
+  <h2>Two lanes, two gates</h2>
+  <p class="lede">Everything peer-to-peer runs through one of two gates, and the gates are deliberately different. <b>Asks are one-sided</b> — a helper opts in once, and any member can approach them through the buffer. <b>Friendship is two-sided</b> — both people accept before a free channel opens. ADR 0010 keeps this split; collapsing it was explicitly rejected.</p>
+
+  <div class="map">
+    <div class="lane">
+      <h3>The help lane — one ask object, 4 directions</h3>
+      <div class="sub">Scoped exchanges. The buffer does the social work.</div>
+      <span class="gate one">gate: helper opt-in · one-sided</span>
+      <div class="dirs">
+        <div class="dir"><span class="arrow">junior <b>→</b> senior</span><span>The classic. Maren ('22) asks Jane ('08) a quick question.</span></div>
+        <div class="dir new"><span class="arrow">senior <b>→</b> junior</span><span>The reverse. David ('98) asks Priya ('21) about agent tooling. Topic relevance outranks class year. <span class="tag-new">new in 0010</span></span></div>
+        <div class="dir new"><span class="arrow">peer <b>↔</b> peer</span><span>Lateral. Two '22s compare notes — nobody is the expert. <span class="tag-new">new in 0010</span></span></div>
+        <div class="dir new"><span class="arrow">helper <b>→</b> asker</span><span>Supply side. Grace sees an open ask and offers to help. <span class="tag-new">new in 0010</span></span></div>
+      </div>
+      <div class="foot">Every direction is the <b>same ask object</b> with a commitment tier: <b>quick</b> (a few exchanges) or <b>ongoing</b> (paced, capacity-capped). Threads are scoped to the ask.</div>
+    </div>
+    <div class="lane">
+      <h3>The friendship lane — one channel, no roles</h3>
+      <div class="sub">Open-ended relationship. No buffer scaffolding needed once inside.</div>
+      <span class="gate two">gate: mutual accept · two-sided</span>
+      <div class="dirs">
+        <div class="dir"><span class="arrow">member <b>⇄</b> member</span><span>Either person sends the request; DM opens only after both say yes.</span></div>
+      </div>
+      <div class="foot">No commitment tiers, no expiry, no coach, no decline reasons. The two-sided gate <b>is</b> the protection — everything after it is just a conversation. An unanswered request fades quietly; the sender is never shown a rejection.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1. QUICK, CLASSIC ================= -->
+<section>
+  <div class="section-kicker">Type 1 · quick help, classic direction</div>
+  <h2>Maren ('22) asks Jane ('08) a quick question</h2>
+  <p class="lede">The bread-and-butter exchange. 2-step guided composer, one amber send, a thread scoped to the ask, and a 14-day lifecycle with one gentle reminder.</p>
+  <div class="diff"><div class="card-label">What marks this type</div>Quick tier chip · draft disclosure · single amber send with the pass-quietly reassurance · helper sees sage accept + quiet pass · thread carries the ask as context and closes naturally.</div>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot ask"></span>Maren's side — composer, step 2 of 2</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Ask Jane Park</span><span class="ctx">quick · step 2/2</span></div>
+        <div class="body">
+          <div class="chips"><span class="chip tier">Quick question</span><span class="chip">portfolio reviews</span><span class="chip">Figma</span><span class="chip">Brooklyn</span></div>
+          <div class="disclosure">Here's a draft to get you started — edit before sending.</div>
+          <div class="draft">
+            <p>Hi Jane,</p>
+            <p>I'm a '22 grad working in product design at a small startup in Brooklyn. I saw you've been at Figma for a few years — I'd love your read on whether my portfolio leans too heavy on visuals for product roles.</p>
+            <p>Could I have 20 minutes sometime in the next two weeks?</p>
+            <p>Either way — thanks for being part of the network.</p>
+            <p>— Maren</p>
+          </div>
+          <div class="coach">Naming the specific worry — "too heavy on visuals" — gives Jane something concrete to say yes to.</div>
+          <div class="btn-row">
+            <span class="btn amber">Send ask to Jane</span>
+            <span class="btn quiet">Warmer</span><span class="btn quiet">Shorter</span>
+          </div>
+          <p class="reassure">Jane can pass quietly — you'll only hear back if it's a yes or she suggests someone else.</p>
+        </div>
+      </div>
+      <div class="annot"><b>Amber = the one social commitment on screen.</b> Tone lenses stay quiet. The reassurance line under send is the asker's half of the buffer.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot help"></span>Jane's side — review, then the scoped thread</div>
+      <div class="screen">
+        <div class="bar"><span class="who">A quick question for you</span><span class="ctx">from Maren '22</span></div>
+        <div class="body">
+          <div class="chips"><span class="chip tier">Quick question</span><span class="chip">a few exchanges</span></div>
+          <div class="quoted">"…I'd love your read on whether my portfolio leans too heavy on visuals for product roles."<span class="attr">Maren Cho · Class of '22 · product design, Brooklyn</span></div>
+          <div class="btn-row"><span class="btn sage">I can help</span><span class="btn quiet">Not this time</span></div>
+          <p class="reassure">Passing goes to BridgeCircle, not to Maren. She's never told who said no.</p>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">Maren Cho</span><span class="ctx">quick · opened Jul 2</span></div>
+        <div class="body">
+          <div class="thread">
+            <div class="thread-scope">This thread is about <b>Maren's portfolio question</b> · quick exchange</div>
+            <div class="msg them">Hi Jane, thanks so much for saying yes — link's here whenever you have a minute.<span class="m-meta">Maren · 2:04pm</span></div>
+            <div class="msg me">Happy to. First pass: your case studies are strong — I'd lead with the checkout redesign, not the brand work.<span class="m-meta">Jane · 4:31pm</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>Sage = the helper-side commitment color</b>, mirroring amber. The thread header keeps the ask in view — this is a scoped exchange, not an open channel.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2. REVERSE ================= -->
+<section>
+  <div class="section-kicker">Type 2 · quick help, reverse direction</div>
+  <h2>David ('98) asks Priya ('21) — and nothing about the UI changes</h2>
+  <p class="lede">The direction no incumbent supports. David is 23 years senior, but on agent tooling Priya is the one who knows. The whole point of this mockup: <b>it is the same screen as Type 1.</b> Roles attach to the exchange, so seniority never leaks into the chrome.</p>
+  <div class="diff"><div class="card-label">What marks this type</div>Identical object, flipped roles · matching rationale cites topic, never class year · the results heading stays "who can help" because someone genuinely can — direction is irrelevant to it.</div>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot ask"></span>David's side — results, before composing</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Your ask</span><span class="ctx">results · 4 people</span></div>
+        <div class="body">
+          <div class="quoted">"How are small teams actually evaluating AI agents before putting them in front of customers?"<span class="attr">David Okafor · Class of '98 · managing partner</span></div>
+          <div class="result-h">People who can help</div>
+          <div class="person">
+            <div class="avatar av-sage">PS</div>
+            <div>
+              <div class="p-name">Priya Shah</div>
+              <div class="p-sub">Class of '21 · ML engineer, Anthropic ecosystem startup</div>
+              <div class="p-why"><b>Why she might fit:</b> ships agent evals daily — her last two roles are exactly the workflow you're asking about.</div>
+            </div>
+            <span class="p-act btn blue" style="font-size:13px;padding:7px 14px">Ask Priya</span>
+          </div>
+          <div class="person" style="opacity:.75">
+            <div class="avatar av-sky">TK</div>
+            <div>
+              <div class="p-name">Tom Kim</div>
+              <div class="p-sub">Class of '10 · engineering manager</div>
+              <div class="p-why"><b>Why he might fit:</b> runs an applied-AI team, though closer to infra than evals.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>Priya outranks Tom despite being 11 years junior.</b> The rationale names her work, not her year — topic relevance beats seniority in the 0010 matching change. No "reverse mentoring" novelty framing anywhere.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot help"></span>Priya's side — the same review card as Jane's</div>
+      <div class="screen">
+        <div class="bar"><span class="who">A quick question for you</span><span class="ctx">from David '98</span></div>
+        <div class="body">
+          <div class="chips"><span class="chip tier">Quick question</span><span class="chip">a few exchanges</span></div>
+          <div class="quoted">"…I keep hearing 'evals' and I suspect we're doing it wrong. Could I borrow 20 minutes of your expertise?"<span class="attr">David Okafor · Class of '98 · managing partner, Meridian</span></div>
+          <div class="btn-row"><span class="btn sage">I can help</span><span class="btn quiet">Not this time</span></div>
+          <p class="reassure">Passing goes to BridgeCircle, not to David.</p>
+        </div>
+      </div>
+      <div class="annot"><b>"Borrow 20 minutes of your expertise" does the direction work in the copy</b>, drafted from David's own inputs — the UI never announces "a senior is asking you." Priya gets the same dignity, the same sage accept, the same quiet pass as any helper. That symmetry is the feature.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. PEER ================= -->
+<section>
+  <div class="section-kicker">Type 3 · peer, lateral</div>
+  <h2>Two '22s compare notes — nobody is the helper</h2>
+  <p class="lede">Same-cohort asks are where vertical framing hurt most: neither person is "the mentor," and casting one as such raises the barrier for both. The lateral lane swaps the results heading and makes the copy symmetric.</p>
+  <div class="diff"><div class="card-label">What marks this type</div>Results heading becomes <b>"who's figuring out the same thing"</b> · rationale cites the shared problem space · the CTA is "Compare notes," not "Ask for help" · both sides see identical framing.</div>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot ask"></span>Maren's side — lateral results</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Your ask</span><span class="ctx">results · peer lane</span></div>
+        <div class="body">
+          <div class="quoted">"Weighing an MBA against staying in industry — is anyone else stuck on this?"<span class="attr">Maren Cho · Class of '22</span></div>
+          <div class="result-h">People figuring out the same thing</div>
+          <div class="person">
+            <div class="avatar av-plum">IL</div>
+            <div>
+              <div class="p-name">Iris Lau</div>
+              <div class="p-sub">Class of '22 · strategy analyst, Seoul</div>
+              <div class="p-why"><b>Shared ground:</b> also weighing grad school against a promotion this cycle — she said so on her profile in May.</div>
+            </div>
+            <span class="p-act btn blue" style="font-size:13px;padding:7px 14px">Compare notes</span>
+          </div>
+          <div class="result-h" style="margin-top:18px">People who've been through it</div>
+          <div class="person" style="opacity:.75">
+            <div class="avatar av-ochre">RM</div>
+            <div>
+              <div class="p-name">Rosa Marín</div>
+              <div class="p-sub">Class of '15 · did the MBA, went back to industry</div>
+              <div class="p-why"><b>Why she might fit:</b> made this exact call twice.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>Two lanes on one results page.</b> The peer lane leads when the extraction reads "same decision, same stage." The vertical lane is still offered below — the member picks the relationship, not the algorithm.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot help"></span>Iris's side — a symmetric invitation, not a request for help</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Someone's weighing the same thing</span><span class="ctx">from Maren '22</span></div>
+        <div class="body">
+          <div class="quoted">"Weighing an MBA against staying in industry — is anyone else stuck on this?"<span class="attr">Maren Cho · Class of '22 · product design, Brooklyn</span></div>
+          <p style="font-size:14px;color:var(--muted-foreground);margin-bottom:14px">You mentioned you're deciding between grad school and a promotion. Maren's a few months into the same question — want to trade where you've each landed?</p>
+          <div class="btn-row"><span class="btn sage">Compare notes</span><span class="btn quiet">Not this time</span></div>
+          <p class="reassure">Passing goes to BridgeCircle, not to Maren.</p>
+        </div>
+      </div>
+      <div class="annot"><b>Neither side is cast as the recipient of help.</b> "Trade where you've each landed" is reciprocal by construction. The buffer mechanics (quiet pass, no decline exposure) are unchanged — symmetry in framing, not in protection.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4. ONGOING ================= -->
+<section>
+  <div class="section-kicker">Type 4 · ongoing help (the tier formerly known as mentorship)</div>
+  <h2>Leo ('24) asks Grace ('05) for something paced</h2>
+  <p class="lede">Ongoing is the heavier tier — so the friction lives here, deliberately. Pace cards, the helper's own screening question, and a visible capacity line. Grace is never labeled "mentor"; she's a member whose <b>ongoing lane</b> is open, with room for 1 more.</p>
+  <div class="diff"><div class="card-label">What marks this type</div>5-step composer · pace cards → <code style="font-family:var(--mono);font-size:12px">asks.commitment</code> · helper-set screening prompt · capacity caps + guilt-free pause attach to <b>this tier only</b> · plum tier chip distinguishes it from quick at a glance.</div>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot ask"></span>Leo's side — pace, then Grace's screening question</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Ask Grace Nakamura</span><span class="ctx">ongoing · step 3/5</span></div>
+        <div class="body">
+          <div class="card-label">What pace fits what you need?</div>
+          <div class="pace">
+            <div class="p"><b>A few exchanges</b><span>one thread, wraps naturally</span></div>
+            <div class="p sel"><b>Monthly, through the semester</b><span>a check-in rhythm</span></div>
+            <div class="p"><b>Ongoing</b><span>open-ended, revisit anytime</span></div>
+          </div>
+          <div class="card-label" style="margin-top:6px">Grace asks everyone this first</div>
+          <div class="quoted" style="border-color:var(--plum);background:var(--plum-tint)">"What are you hoping will be different for you in 6 months?"<span class="attr">Grace's screening question · her answer helps her say yes well</span></div>
+          <div class="draft"><p>Clearer conviction about whether to aim for a PM role or stay technical — and one person I can sanity-check that with.</p></div>
+          <div class="btn-row"><span class="btn blue">Next: review your ask</span></div>
+          <p class="reassure">Grace has room for 1 more ongoing conversation right now. Quick questions to her are always open.</p>
+        </div>
+      </div>
+      <div class="annot"><b>The commitment axis is the visible choice</b> — not "request mentorship." The capacity line is honest scarcity, stated calmly: no urgency, just fact. Screening only appears because Grace set a prompt.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot help"></span>Grace's side — settings as state, and a richer review</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Your help settings</span><span class="ctx">/help/settings</span></div>
+        <div class="body">
+          <div class="card-label">How you're open to helping</div>
+          <div class="chips" style="margin-bottom:8px"><span class="chip open">Open to quick questions</span><span class="chip open">Open to ongoing help · 2 of 3 in use</span></div>
+          <div class="chips"><span class="chip paused">Example paused state: "Paused until Sep 1 — quick questions still open"</span></div>
+          <p style="font-size:13px;color:var(--muted-foreground)">Pause anytime — nobody is told you paused; you simply stop appearing for new ongoing asks.</p>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">An ongoing ask for you</span><span class="ctx">from Leo '24</span></div>
+        <div class="body">
+          <div class="chips"><span class="chip tier-ongoing">Ongoing · monthly, through the semester</span></div>
+          <div class="quoted">"…deciding between aiming for a PM role or staying technical, and I'd value a steady sounding board while I work it out."<span class="attr">Leo Tran · Class of '24 · junior engineer, Songdo</span></div>
+          <div class="card-label">His answer to your question</div>
+          <div class="draft" style="margin-bottom:14px"><p>"Clearer conviction about whether to aim for a PM role or stay technical — and one person I can sanity-check that with."</p></div>
+          <div class="btn-row"><span class="btn sage">I'm in for this</span><span class="btn quiet">Not this time</span></div>
+          <p class="reassure">Saying yes uses your last open ongoing spot. Passing goes to BridgeCircle, not to Leo.</p>
+        </div>
+      </div>
+      <div class="annot"><b>Identity → state.</b> "Open to ongoing help" is a setting Grace flips, not a badge she wears. Pace + screening answer render on her review — the asker's extra effort pays the helper directly (two-sided payoff, shipped in #109, relabeled here).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5. OFFER ================= -->
+<section>
+  <div class="section-kicker">Type 5 · offer to help (helper-initiated)</div>
+  <h2>Grace sees an open ask and raises her hand</h2>
+  <p class="lede">The supply side of the same object — new in 0010. Standing asks already exist (count-only, 14-day TTL); this surfaces them to well-matched helpers on <code style="font-family:var(--mono);font-size:13px">/help</code> and lets the helper start. The buffer flips with the direction: now it's the <b>asker</b> who can pass quietly.</p>
+  <div class="diff"><div class="card-label">What marks this type</div>Helper initiates · sage is the primary action for once · asker receives a warm, no-pressure notification and holds the accept · a yes converts it into a normal quick/ongoing thread.</div>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot help"></span>Grace's side — the /help queue</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Ways you could help</span><span class="ctx">/help · 2 open asks</span></div>
+        <div class="body">
+          <div class="person" style="display:block">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div class="avatar av-sky">MC</div>
+              <div>
+                <div class="p-name">Maren Cho</div>
+                <div class="p-sub">Class of '22 · Brooklyn · open ask, 9 days left</div>
+              </div>
+            </div>
+            <div class="quoted" style="margin:12px 0">"Trying to figure out how designers make the jump from startups to a place like Figma without a referral."<span class="attr">her standing ask · visible to a handful of well-matched members</span></div>
+            <div class="p-why" style="margin-bottom:12px"><b>Why you're seeing it:</b> you made this exact move in 2019.</div>
+            <div class="btn-row"><span class="btn sage">I can help with this</span><span class="btn quiet">Not for me</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>"Not for me" costs nothing and teaches the queue.</b> Maren never learns who scrolled past — the open-ask pool shows helpers asks, never askers helpers. Sage leads because offering is the helper-side commitment.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot ask"></span>Maren's side — someone said yes first</div>
+      <div class="notif">
+        <h4>Grace offered to help.</h4>
+        <p><em>Grace Nakamura ('05, design manager at Figma)</em> saw your open ask about making the jump without a referral. She made the same move in 2019 and offered to talk it through.</p>
+        <div class="btn-row"><span class="btn amber">Open the conversation</span><span class="btn quiet">Not this time</span></div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">Grace Nakamura</span><span class="ctx">quick · she offered</span></div>
+        <div class="body">
+          <div class="thread">
+            <div class="thread-scope">This thread is about <b>your open ask</b> · Grace reached out</div>
+            <div class="msg them">Hi Maren — I saw your note about moving from a startup to somewhere like Figma. I did that jump in 2019 and remember exactly how opaque it felt. Happy to share what actually mattered.<span class="m-meta">Grace · 9:12am</span></div>
+            <div class="msg me">This is so kind — yes please. Honestly the referral question is the part keeping me up.<span class="m-meta">Maren · 9:40am</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>The asker keeps the accept.</b> An offer is an invitation, not an ambush — Maren can decline quietly, same dignity as a helper passing. Notice the amber moved to her side: whoever commits socially holds the amber.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6. FRIENDSHIP / DM ================= -->
+<section>
+  <div class="section-kicker">Type 6 · friendship → DM (the other lane)</div>
+  <h2>Maren and Iris become friends — and the scaffolding disappears</h2>
+  <p class="lede">After comparing notes, Maren and Iris want to just… talk. That's the friendship lane: a <b>two-sided</b> gate (mutual accept), then a plain, open-ended DM. No tiers, no expiry, no coach, no decline reasons — the mutual gate already did the protecting.</p>
+  <div class="diff"><div class="card-label">What marks this type</div>Mutual accept before any channel opens · unanswered requests fade quietly, no rejection surfaced · thread has no ask header, no lifecycle chrome · this is the one relationship that persists as a relationship.</div>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot dm"></span>Iris's side — the two-sided gate</div>
+      <div class="notif">
+        <h4>Maren would like to stay in touch.</h4>
+        <p>You compared notes on grad school 2 weeks ago. Friends can message each other anytime, without an ask attached.</p>
+        <div class="btn-row"><span class="btn blue">Accept</span><span class="btn quiet">Not now</span></div>
+      </div>
+      <div class="annot"><b>Blue, not amber or sage.</b> Accepting a friend isn't an asker or helper commitment — it's mutual, so it takes the neutral action color. "Not now" simply lets the request rest; Maren is never shown a decline, and the request never nags.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot dm"></span>The DM — no scaffolding, on purpose</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Iris Lau</span><span class="ctx">friends since Jul 2026</span></div>
+        <div class="body">
+          <div class="thread">
+            <div class="msg me">Update: I turned down the MBA. Celebrating with instant ramen.<span class="m-meta">Maren · 8:02pm</span></div>
+            <div class="msg them">NO WAY. I literally submitted my deposit yesterday. We chose opposite doors!<span class="m-meta">Iris · 8:05pm</span></div>
+            <div class="msg me">Perfect — now we each have a control group. Dinner when you're in NY?<span class="m-meta">Maren · 8:06pm</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>Compare this header to every ask thread above:</b> no quoted ask, no tier chip, no expiry, no "scoped to." The absence is the design. Ask threads borrow trust from the buffer; friendship earned it at the gate, so the product gets out of the way.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section>
+  <div class="section-kicker">Side by side</div>
+  <h2>What actually differs between the types</h2>
+  <p class="lede" style="margin-bottom:24px">Five interaction types, two gates, three action colors. If a new feature can't fill in a column of this table, it doesn't know what it is yet.</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th></th><th>Quick help</th><th>Ongoing help</th><th>Offer to help</th><th>Friendship + DM</th></tr></thead>
+    <tbody>
+      <tr>
+        <th>Gate</th>
+        <td><span class="pill g1">one-sided</span><small>helper opted in ("open to quick questions")</small></td>
+        <td><span class="pill g1">one-sided</span><small>helper opted in, capacity-capped</small></td>
+        <td><span class="pill g1">one-sided</span><small>asker's open ask is the standing invitation</small></td>
+        <td><span class="pill g2">two-sided</span><small>both accept before any channel exists</small></td>
+      </tr>
+      <tr>
+        <th>Who starts</th>
+        <td>The asker</td>
+        <td>The asker</td>
+        <td>The helper</td>
+        <td>Either member</td>
+      </tr>
+      <tr>
+        <th>Roles</th>
+        <td>Attach to this exchange only<small>flip freely on the next ask</small></td>
+        <td>Attach to this arrangement only<small>never a profile label</small></td>
+        <td>Same, initiated from the help side</td>
+        <td>None<small>symmetric by definition</small></td>
+      </tr>
+      <tr>
+        <th>Commitment</th>
+        <td>A few exchanges<small>wraps naturally</small></td>
+        <td>Paced: monthly / semester / ongoing<small>pace card → <code style="font-family:var(--mono);font-size:11px">asks.commitment</code></small></td>
+        <td>Inherits the tier of the underlying ask</td>
+        <td>Open-ended<small>no tier, no pace</small></td>
+      </tr>
+      <tr>
+        <th>Lifecycle</th>
+        <td>14-day expiry · 1 gentle reminder at day 7<small>expiry → dignified copy + next-best alternative</small></td>
+        <td>Screening prompt (if the helper set one)<small>capacity line shown before sending</small></td>
+        <td>Rides the open ask's 14-day TTL</td>
+        <td>None<small>requests fade quietly if unanswered</small></td>
+      </tr>
+      <tr>
+        <th>The buffer</th>
+        <td>Helper passes quietly; reason never faces the asker<small>at capacity / not my area / not now</small></td>
+        <td>Same, plus guilt-free pause<small>2nd at-capacity in 30 days → pause offer</small></td>
+        <td>Flipped: the <b>asker</b> can pass quietly<small>"not for me" costs the helper nothing either</small></td>
+        <td>The mutual gate is the buffer<small>no decline machinery inside</small></td>
+      </tr>
+      <tr>
+        <th>Capacity + pause</th>
+        <td>—<small>quick stays open even while paused (helper's choice)</small></td>
+        <td>Caps + pause live here<small>attached to the tier, for anyone, any seniority</small></td>
+        <td>Respects the helper's caps</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <th>The channel</th>
+        <td>Thread scoped to the ask<small>quoted ask in the header</small></td>
+        <td>Thread scoped to the arrangement<small>pace visible, revisit rhythm</small></td>
+        <td>Becomes a normal ask thread on accept</td>
+        <td>Free-form DM<small>no header context, no chrome</small></td>
+      </tr>
+      <tr>
+        <th>Action color</th>
+        <td>Amber send (asker) · sage accept (helper)</td>
+        <td>Amber send · sage accept</td>
+        <td>Sage offer (helper) · amber open (asker)</td>
+        <td>Blue accept — mutual, so neutral</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<p class="foot-note">
+  <b>Grounding.</b> Relationship model per <code>docs/decisions/0010-horizontal-help-warm-data-flywheel.md</code> (status: proposed) — D1 horizontal help, quick/ongoing commitment axis, reverse + lateral matching, offer-to-help, and the preserved gating split from ADR 0003 (asks one-sided, friendship two-sided; collapsing into one "connection" was rejected). Buffer mechanics (decline reasons, pause, standing-ask privacy) as shipped in PRs #106–107; composer steps as shipped in #109, relabeled quick/ongoing. Copy follows <code>voice-guidelines.md</code> v1 (coordinator narrator, embarrassed-asker default, decline dignity §9, AI disclosure §10.1). Colors, type, and spacing from Civic Editorial <code>tokens.md</code> — amber once per surface on the social commitment, sage for helper-side give-help, blue for mutual/neutral actions. All members fictional.
+</p>
+
+</div>
+</body>
+</html>

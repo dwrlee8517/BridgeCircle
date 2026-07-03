@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two verbs, one inbox — simplified Connect / Ask exploration · 2026-07-02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter+Tight:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --background:#fafaf9; --foreground:#0c0c0b; --card:#ffffff;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-on-dark:#93c5fd;
+    --cta:#f59e0b; --cta-hover:#d97706; --cta-foreground:#0c0c0b;
+    --surface-ink:#1b1813; --surface-ink-foreground:#fafaf9; --surface-ink-muted:rgb(250 250 249 / 68%);
+    --secondary:#f4f3ee; --muted:#ebebe5; --muted-foreground:#4d4d4a; --border:#dcdcd6;
+    --sage:#15a05f; --ochre:#a16207; --plum:#7c3aed;
+    --primary-tint:rgb(37 99 235 / 10%); --success-tint:rgb(21 160 95 / 10%);
+    --warning-tint:rgb(161 98 7 / 12%); --plum-tint:rgb(124 58 237 / 10%);
+    --editorial-rule:rgb(250 250 249 / 16%);
+    --radius:10px;
+    --shadow-card:0 1px 0 rgb(12 12 11 / 0.03);
+    --shadow-card-hover:0 4px 12px -2px rgb(12 12 11 / 0.06);
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --display:'Inter Tight',var(--sans);
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--background);color:var(--foreground);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 32px 96px}
+
+  .hero{background:var(--surface-ink);color:var(--surface-ink-foreground);padding:56px 0 48px;margin-bottom:56px}
+  .hero .wrap{padding-bottom:0}
+  .kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--primary-on-dark);display:flex;align-items:center;gap:10px}
+  .kicker::before{content:"";width:28px;height:2px;background:var(--primary-on-dark);display:inline-block}
+  .hero h1{font-family:var(--display);font-weight:700;font-size:40px;letter-spacing:-.02em;line-height:1.12;margin:14px 0 12px}
+  .hero p{color:var(--surface-ink-muted);max-width:46em;font-size:17px}
+  .hero .meta{margin-top:22px;padding-top:16px;border-top:1px solid var(--editorial-rule);font-family:var(--mono);font-size:12px;color:var(--surface-ink-muted)}
+  .hero .meta strong{color:var(--surface-ink-foreground);font-weight:500}
+
+  section{margin-bottom:72px}
+  .section-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--primary);display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .section-kicker::before{content:"";width:28px;height:2px;background:var(--primary)}
+  section>h2{font-family:var(--display);font-weight:700;font-size:32px;letter-spacing:-.015em;line-height:1.15;margin-bottom:10px}
+  .lede{color:var(--muted-foreground);max-width:52em;font-size:17px;margin-bottom:8px}
+  .lede b{color:var(--foreground);font-weight:600}
+
+  /* ---------- the model diagram ---------- */
+  .model{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:stretch;margin-top:28px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-card);overflow:hidden}
+  .model .col{padding:26px 24px}
+  .model .col h3{font-family:var(--display);font-weight:700;font-size:18px;margin-bottom:4px}
+  .model .col .sub{font-size:13px;color:var(--muted-foreground);margin-bottom:16px}
+  .model .flow-arrow{display:flex;align-items:center;justify-content:center;padding:0 6px;color:var(--muted-foreground);font-family:var(--mono);font-size:18px;background:var(--secondary);border-left:1px solid var(--border);border-right:1px solid var(--border)}
+  .verb{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:14px}
+  .verb:last-child{margin-bottom:0}
+  .verb .v-dot{width:10px;height:10px;border-radius:99px;margin-top:5px;flex-shrink:0}
+  .verb b{font-weight:600;display:block}
+  .verb span{color:var(--muted-foreground);font-size:13px}
+  .v-connect{background:var(--primary)} .v-ask{background:var(--cta)} .v-open{background:var(--sage)}
+  .model .gate-box{border:1.5px dashed var(--border);border-radius:8px;padding:14px;text-align:center;font-size:14px}
+  .model .gate-box b{display:block;font-family:var(--display);font-size:15px}
+  .model .gate-box span{font-size:12.5px;color:var(--muted-foreground)}
+  .model .inbox-box{border:1px solid var(--border);border-radius:8px;padding:14px;background:var(--secondary);font-size:14px}
+  .model .inbox-box b{display:block;font-family:var(--display);font-size:15px;margin-bottom:2px}
+  .model .inbox-box span{font-size:12.5px;color:var(--muted-foreground)}
+
+  .diff{margin:18px 0 28px;padding:14px 18px;background:var(--secondary);border-left:3px solid var(--primary);border-radius:0 var(--radius) var(--radius) 0;max-width:52em;font-size:14px}
+  .diff .card-label{margin-bottom:4px}
+
+  /* ---------- panels ---------- */
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .side-title{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted-foreground);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .side-title .dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+  .dot.ask{background:var(--cta)} .dot.help{background:var(--sage)} .dot.dm{background:var(--primary)}
+
+  .screen{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-card-hover);overflow:hidden}
+  .screen .bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--secondary)}
+  .screen .bar .who{font-size:13px;font-weight:600}
+  .screen .bar .ctx{font-family:var(--mono);font-size:11px;color:var(--muted-foreground)}
+  .screen .body{padding:20px}
+
+  .card-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:8px}
+  .disclosure{font-size:13px;font-style:italic;color:var(--muted-foreground);margin-bottom:10px}
+  .draft{border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:14px;background:var(--background);margin-bottom:14px}
+  .draft p{margin-bottom:9px} .draft p:last-child{margin-bottom:0}
+  .quoted{border-left:3px solid var(--primary);padding:10px 14px;background:var(--primary-tint);border-radius:0 8px 8px 0;font-size:14px;font-style:italic;margin-bottom:14px}
+  .quoted .attr{display:block;font-style:normal;font-family:var(--mono);font-size:11px;color:var(--muted-foreground);margin-top:6px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:14px;font-weight:600;padding:9px 18px;border-radius:var(--radius);border:1px solid transparent;cursor:default;line-height:1.2}
+  .btn.amber{background:var(--cta);color:var(--cta-foreground)}
+  .btn.sage{background:var(--sage);color:#fff}
+  .btn.blue{background:var(--primary);color:#fff}
+  .btn.quiet{background:transparent;border-color:var(--border);color:var(--muted-foreground);font-weight:500}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .reassure{font-size:13px;color:var(--muted-foreground);margin-top:10px}
+
+  /* AI assist chat */
+  .ai-chat{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+  .ai-msg{max-width:88%;padding:10px 14px;border-radius:12px;font-size:14px}
+  .ai-msg.bot{background:var(--secondary);border-bottom-left-radius:4px;align-self:flex-start}
+  .ai-msg.user{background:var(--primary-tint);border-bottom-right-radius:4px;align-self:flex-end}
+  .ai-msg .m-who{display:block;font-family:var(--mono);font-size:10px;color:var(--muted-foreground);margin-bottom:4px}
+  .ai-input{display:flex;gap:8px;border:1px solid var(--border);border-radius:99px;padding:8px 8px 8px 16px;font-size:14px;color:var(--muted-foreground);align-items:center;background:var(--card)}
+  .ai-input .send-dot{margin-left:auto;width:30px;height:30px;border-radius:99px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+  /* quick hello chips */
+  .hello-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .hello-opts .h{border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:14px}
+  .hello-opts .h.sel{border-color:var(--primary);background:var(--primary-tint)}
+
+  /* thread */
+  .thread{display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:82%;padding:10px 14px;border-radius:12px;font-size:14px}
+  .msg.them{background:var(--secondary);border-bottom-left-radius:4px;align-self:flex-start}
+  .msg.me{background:var(--primary-tint);border-bottom-right-radius:4px;align-self:flex-end}
+  .msg .m-meta{display:block;font-family:var(--mono);font-size:10px;color:var(--muted-foreground);margin-top:5px}
+  .sys-line{font-size:12px;color:var(--muted-foreground);text-align:center;padding:2px 0}
+
+  .notif{border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;background:var(--card);box-shadow:var(--shadow-card)}
+  .notif h4{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:4px}
+  .notif p{font-size:14px;color:var(--muted-foreground);margin-bottom:12px}
+  .notif p em{color:var(--foreground);font-style:normal}
+
+  .annot{margin-top:14px;font-size:13px;color:var(--muted-foreground);padding-left:14px;border-left:2px solid var(--muted)}
+  .annot b{color:var(--foreground);font-weight:600}
+
+  /* profile front door */
+  .profile-head{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+  .avatar{width:48px;height:48px;border-radius:99px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:16px;flex-shrink:0}
+  .av-sky{background:var(--primary-tint);color:var(--primary-hover)}
+  .av-sage{background:var(--success-tint);color:#0e7a47}
+  .av-plum{background:var(--plum-tint);color:var(--plum)}
+  .av-ochre{background:var(--warning-tint);color:var(--ochre)}
+  .p-name{font-family:var(--display);font-weight:700;font-size:18px}
+  .p-sub{font-size:13px;color:var(--muted-foreground)}
+
+  /* open-ask cards */
+  .oa-card{border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;background:var(--card)}
+  .oa-card:last-child{margin-bottom:0}
+  .oa-q{font-size:14px;font-style:italic;margin-bottom:8px}
+  .oa-meta{font-family:var(--mono);font-size:11px;color:var(--muted-foreground);margin-bottom:10px}
+  .oa-why{font-size:13px;margin-bottom:12px}
+  .oa-why b{font-weight:600}
+
+  /* inbox */
+  .inbox-row{display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+  .inbox-row:last-child{border-bottom:0}
+  .inbox-row .r-main{min-width:0;flex:1}
+  .inbox-row .r-name{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .inbox-row .r-prev{font-size:13px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .inbox-row .r-time{font-family:var(--mono);font-size:11px;color:var(--muted-foreground);flex-shrink:0}
+  .origin{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
+  .origin.ask{background:var(--warning-tint);color:var(--ochre)}
+  .origin.open{background:var(--success-tint);color:#0e7a47}
+  .origin.conn{background:var(--primary-tint);color:var(--primary-hover)}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:14px;box-shadow:var(--shadow-card)}
+  thead th{background:var(--surface-ink);color:var(--surface-ink-foreground);text-align:left;padding:12px 16px;font-family:var(--display);font-size:14px;font-weight:700}
+  thead th:first-child{width:130px}
+  tbody th{text-align:left;padding:12px 16px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted-foreground);vertical-align:top;background:var(--secondary);border-top:1px solid var(--border)}
+  tbody td{padding:12px 16px;border-top:1px solid var(--border);vertical-align:top}
+  td small{display:block;color:var(--muted-foreground);font-size:12.5px;margin-top:2px}
+
+  .foot-note{margin-top:56px;padding-top:20px;border-top:1px solid var(--border);font-size:13px;color:var(--muted-foreground);max-width:52em}
+  .foot-note code{font-family:var(--mono);font-size:12px;background:var(--secondary);padding:1px 6px;border-radius:4px}
+
+  @media (max-width:880px){
+    .pair{grid-template-columns:1fr}
+    .model{grid-template-columns:1fr}
+    .model .flow-arrow{border:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:6px;transform:rotate(90deg);transform-origin:center}
+    .hero h1{font-size:32px}
+    .table-scroll{overflow-x:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="kicker">Exploration · simplified model — supersedes the 5-type exploration</div>
+    <h1>Two verbs, one inbox</h1>
+    <p>A member can do exactly two things to another member: <strong>Connect</strong> or <strong>Ask</strong>. If you don't know who to ask, ask the circle. Every accepted intro becomes an ordinary conversation in Messages — no ask threads, no mentorship screens, no relationship types. The AI's whole job is the first message; after that, the product gets out of the way.</p>
+    <div class="meta">status <strong>exploration — not shipped</strong> · replaces <strong>help-relationship-types-2026-07-02.html</strong> · voice <strong>voice-guidelines.md v1</strong> · tokens <strong>Civic Editorial</strong> · 2026-07-02</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ================= THE MODEL ================= -->
+<section>
+  <div class="section-kicker">The model</div>
+  <h2>Three front doors, one gate, one room</h2>
+  <p class="lede">Strangers can't just message each other. Every path in goes through <b>one first message and one accept</b> — then it's just Messages. The three doors differ only in who you're approaching and why; what's behind them is identical.</p>
+
+  <div class="model">
+    <div class="col">
+      <h3>The front doors</h3>
+      <div class="sub">Pick a person, or ask the circle.</div>
+      <div class="verb"><span class="v-dot v-connect"></span><div><b>Connect</b><span>"I want you in my circle." Quick hello if you know them; AI helps with the intro if you don't.</span></div></div>
+      <div class="verb"><span class="v-dot v-ask"></span><div><b>Ask a person</b><span>"I could use your help." AI drafts the first message, tailored to you both.</span></div></div>
+      <div class="verb"><span class="v-dot v-open"></span><div><b>Ask the circle</b><span>Don't know who to ask? Post the question; AI shows it to people who can help.</span></div></div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="col" style="display:flex;align-items:center">
+      <div class="gate-box" style="width:100%">
+        <b>One accept</b>
+        <span>They say yes, or pass quietly.<br>A pass goes to BridgeCircle — never to you.</span>
+      </div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="col" style="display:flex;align-items:center">
+      <div class="inbox-box" style="width:100%">
+        <b>Messages</b>
+        <span>Every conversation lives here, identical after the intro. A small tag remembers how it started — nothing else does.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="annot" style="margin-top:18px"><b>What this deletes:</b> ask types (advice/mentorship), commitment tiers and pace cards, screening steps, peer lanes, scoped-thread chrome, per-function interfaces. <b>What stays, invisibly:</b> the accept gate, the quiet pass, and AI matching for open asks.</div>
+</section>
+
+<!-- ================= ASK A PERSON ================= -->
+<section>
+  <div class="section-kicker">Door 1 · ask a person</div>
+  <h2>Maren asks Jane for help — AI writes the first note with her</h2>
+  <p class="lede">From Jane's profile, one button: <b>Ask for help</b>. The composer is a short back-and-forth with the AI — Maren says what she wants in her own words, the AI shapes a note that's polite and tailored to both of them, she edits and sends. Jane accepts or passes; a yes drops both of them into a normal conversation.</p>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot ask"></span>Maren's side — one button, then a conversation with the AI</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Jane Park</span><span class="ctx">profile</span></div>
+        <div class="body">
+          <div class="profile-head">
+            <div class="avatar av-sky">JP</div>
+            <div>
+              <div class="p-name">Jane Park</div>
+              <div class="p-sub">Class of '08 · design manager, Figma · can help with portfolios, design careers</div>
+            </div>
+          </div>
+          <div class="btn-row"><span class="btn amber">Ask for help</span><span class="btn quiet">Connect</span></div>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">Ask Jane for help</span><span class="ctx">drafting together</span></div>
+        <div class="body">
+          <div class="ai-chat">
+            <div class="ai-msg bot"><span class="m-who">BridgeCircle</span>What do you want Jane's help with? Say it however it comes out — I'll shape it into a note.</div>
+            <div class="ai-msg user"><span class="m-who">Maren</span>i want her take on my portfolio, i think it's too visual for product roles but idk. also don't want to sound desperate lol</div>
+            <div class="ai-msg bot"><span class="m-who">BridgeCircle</span>Here's a draft — it names the specific worry, which gives her something concrete to say yes to. Edit anything before sending.</div>
+          </div>
+          <div class="draft">
+            <p>Hi Jane,</p>
+            <p>I'm a '22 grad working in product design at a startup in Brooklyn. I saw you've been at Figma for a few years — I'd love your read on whether my portfolio leans too heavy on visuals for product roles.</p>
+            <p>Could I have 20 minutes sometime in the next two weeks?</p>
+            <p>Either way — thanks for being part of the network.</p>
+            <p>— Maren</p>
+          </div>
+          <div class="btn-row"><span class="btn amber">Send to Jane</span><span class="btn quiet">Warmer</span><span class="btn quiet">Shorter</span></div>
+          <p class="reassure">Jane can pass quietly — you'll only hear back if it's a yes.</p>
+        </div>
+      </div>
+      <div class="annot"><b>The AI chat replaces every wizard.</b> No steps, no chips, no genre pickers — Maren types like she'd text a friend, and the draft comes back tailored to her situation and Jane's profile. The tone lenses survive as one-tap refinements.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot help"></span>Jane's side — it arrives in Messages, then it just is Messages</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Messages</span><span class="ctx">1 new request</span></div>
+        <div class="body">
+          <div class="card-label">Maren Cho wants your help</div>
+          <div class="quoted">"…I'd love your read on whether my portfolio leans too heavy on visuals for product roles. Could I have 20 minutes sometime in the next two weeks?"<span class="attr">Maren Cho · Class of '22 · product design, Brooklyn</span></div>
+          <div class="btn-row"><span class="btn sage">I can help</span><span class="btn quiet">Not this time</span></div>
+          <p class="reassure">Passing goes to BridgeCircle, not to Maren. She's never told who said no.</p>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">Maren Cho</span><span class="ctx">messages</span></div>
+        <div class="body">
+          <div class="thread">
+            <div class="sys-line">Jane accepted Maren's ask · Jul 2</div>
+            <div class="msg them">Hi Jane — thank you for saying yes! Portfolio's here whenever you have a minute: maren.design<span class="m-meta">Maren · 2:04pm</span></div>
+            <div class="msg me">Happy to. First pass: lead with the checkout redesign, not the brand work — that's the one that reads "product."<span class="m-meta">Jane · 4:31pm</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>After the accept there is no ask interface.</b> One quiet system line marks how the conversation started; everything else is a plain thread, identical to any other in Messages.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONNECT ================= -->
+<section>
+  <div class="section-kicker">Door 2 · connect</div>
+  <h2>Connecting — a quick hello, or an AI-shaped intro</h2>
+  <p class="lede">Connect is for the relationship, not a request. Two ways in: <b>already know each other?</b> One tap on a quick hello and it's sent. <b>Reaching someone new?</b> Tell the AI why, like you'd tell ChatGPT, and it shapes a proper intro. Either way: mutual accept, then a plain conversation.</p>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot dm"></span>Maren's side — the two intro modes</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Connect with Iris Lau</span><span class="ctx">you know each other</span></div>
+        <div class="body">
+          <div class="card-label">Already friends? A quick hello is plenty</div>
+          <div class="hello-opts">
+            <div class="h sel">Hi Iris — it's Maren from Chadwick. Glad to find you on here.</div>
+            <div class="h">Iris! Been way too long. Wanted to stay in touch properly.</div>
+          </div>
+          <div class="btn-row"><span class="btn blue">Send hello</span><span class="btn quiet">Write my own</span></div>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">Connect with Rosa Marín</span><span class="ctx">you haven't met</span></div>
+        <div class="body">
+          <div class="ai-chat">
+            <div class="ai-msg bot"><span class="m-who">BridgeCircle</span>You haven't crossed paths with Rosa yet — want help with the intro? Tell me why you'd like to connect.</div>
+            <div class="ai-msg user"><span class="m-who">Maren</span>she did the MBA-then-back-to-industry thing and I might be facing that call in a few years. no ask right now, just want her in my orbit</div>
+            <div class="ai-msg bot"><span class="m-who">BridgeCircle</span>Here's an intro that says exactly that — no hidden ask, just honest context. Edit before sending.</div>
+          </div>
+          <div class="draft">
+            <p>Hi Rosa,</p>
+            <p>I'm Maren, '22 — we haven't met, but your path (MBA, then back into industry) is one I might be walking in a few years. No question for you right now; I'd just be glad to be connected before I need one.</p>
+            <p>— Maren</p>
+          </div>
+          <div class="btn-row"><span class="btn blue">Send with intro</span><span class="btn quiet">Warmer</span><span class="btn quiet">Shorter</span></div>
+        </div>
+      </div>
+      <div class="annot"><b>The fork is one honest question: do you know each other?</b> Friends skip straight past the AI. Strangers get the same conversational drafting as an ask — and "no question right now, just want to be connected" is a message the AI is allowed to write. Blue throughout: connecting is mutual, so it never wears amber.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot dm"></span>Rosa's side — accept, then it's just a thread</div>
+      <div class="notif">
+        <h4>Maren would like to connect.</h4>
+        <p><em>Maren Cho ('22, product design, Brooklyn)</em> · "…your path (MBA, then back into industry) is one I might be walking in a few years. No question for you right now…"</p>
+        <div class="btn-row"><span class="btn blue">Accept</span><span class="btn quiet">Not now</span></div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="screen">
+        <div class="bar"><span class="who">Maren Cho</span><span class="ctx">messages</span></div>
+        <div class="body">
+          <div class="thread">
+            <div class="sys-line">You and Maren connected · Jul 2</div>
+            <div class="msg them">Thanks for accepting! Truly no agenda — but if you ever write up the "why I went back to industry" story, I'm first in line.<span class="m-meta">Maren · 5:11pm</span></div>
+            <div class="msg me">Ha — it's mostly a story about spreadsheets and homesickness. Happy to tell it over coffee if you're ever in Austin.<span class="m-meta">Rosa · 6:02pm</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>"Not now" lets the request rest quietly</b> — Maren is never shown a decline. Once accepted, this thread is indistinguishable from the ask thread above it. That's the point: the doors differ, the room doesn't.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASK THE CIRCLE ================= -->
+<section>
+  <div class="section-kicker">Door 3 · ask the circle</div>
+  <h2>Don't know who to ask? Ask everyone — quietly</h2>
+  <p class="lede">Maren posts the question instead of picking a person. The AI shows it to members who can plausibly help. On the other side, David tells the AI what he'd like to help with, and it suggests open questions that fit. When he raises his hand, a conversation opens in Maren's Messages — same room as everything else.</p>
+
+  <div class="pair">
+    <div>
+      <div class="side-title"><span class="dot ask"></span>Maren's side — post it, then someone says yes</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Ask the circle</span><span class="ctx">open question</span></div>
+        <div class="body">
+          <div class="ai-chat">
+            <div class="ai-msg user"><span class="m-who">Maren</span>How do designers make the jump from startups to a place like Figma without a referral?</div>
+            <div class="ai-msg bot"><span class="m-who">BridgeCircle</span>Good question for the circle — a few members have made that exact move. I'll show it to people who can speak to it. You'll hear when someone offers.</div>
+          </div>
+          <div class="btn-row"><span class="btn amber">Post to the circle</span></div>
+          <p class="reassure">Your question is shown to people who can help — not to everyone. You'll only hear from members who offer.</p>
+        </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="notif">
+        <h4>David offered to help.</h4>
+        <p><em>David Okafor ('98, hired designers at two startups and a big co)</em> saw your question about making the jump without a referral.</p>
+        <div class="btn-row"><span class="btn amber">Open the conversation</span><span class="btn quiet">Not this time</span></div>
+      </div>
+      <div class="annot"><b>The asker keeps the accept.</b> An offer is an invitation, not an ambush — Maren can pass as quietly as any helper. Note who showed up: David, 24 years her senior, surfaced by relevance. The reverse direction needs no feature of its own here — it falls out of the model for free.</div>
+    </div>
+    <div>
+      <div class="side-title"><span class="dot help"></span>David's side — "what would you like to help with?"</div>
+      <div class="screen">
+        <div class="bar"><span class="who">Help someone</span><span class="ctx">open questions</span></div>
+        <div class="body">
+          <div class="ai-input">hiring and portfolios — I've reviewed a few hundred design applications<span class="send-dot">→</span></div>
+          <div style="height:14px"></div>
+          <div class="card-label">3 open questions match</div>
+          <div class="oa-card">
+            <div class="oa-q">"How do designers make the jump from startups to a place like Figma without a referral?"</div>
+            <div class="oa-meta">Maren Cho · Class of '22 · asked 2 days ago</div>
+            <div class="oa-why"><b>Why this fits:</b> you've sat on the hiring side of exactly this jump.</div>
+            <div class="btn-row"><span class="btn sage">I can help with this</span><span class="btn quiet">Not for me</span></div>
+          </div>
+          <div class="oa-card" style="opacity:.7">
+            <div class="oa-q">"Is a design-systems portfolio piece worth the time if I'm aiming at product roles?"</div>
+            <div class="oa-meta">Leo Tran · Class of '24 · asked 5 days ago</div>
+          </div>
+        </div>
+      </div>
+      <div class="annot"><b>Helping starts from a sentence, not a settings page.</b> No "open to mentoring" identity, no capacity dashboard — David describes what he can speak to, the AI matches it against open questions. "Not for me" costs nothing and quietly teaches the suggestions.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE INBOX ================= -->
+<section>
+  <div class="section-kicker">The room</div>
+  <h2>One Messages inbox — every door leads here</h2>
+  <p class="lede">The proof of the model is this screen: an ask, an open-ask offer, and two connections, all as ordinary conversations. The origin tag is the <b>only</b> trace of how each one began.</p>
+
+  <div class="pair">
+    <div>
+      <div class="screen">
+        <div class="bar"><span class="who">Messages</span><span class="ctx">4 conversations</span></div>
+        <div class="body" style="padding:0">
+          <div class="inbox-row">
+            <div class="avatar av-sky" style="width:40px;height:40px;font-size:14px">JP</div>
+            <div class="r-main">
+              <div class="r-name">Jane Park <span class="origin ask">your ask</span></div>
+              <div class="r-prev">Lead with the checkout redesign, not the brand work —</div>
+            </div>
+            <div class="r-time">4:31pm</div>
+          </div>
+          <div class="inbox-row">
+            <div class="avatar av-ochre" style="width:40px;height:40px;font-size:14px">DO</div>
+            <div class="r-main">
+              <div class="r-name">David Okafor <span class="origin open">offered on your question</span></div>
+              <div class="r-prev">The referral thing is half myth — what actually got people in the door was</div>
+            </div>
+            <div class="r-time">11:20am</div>
+          </div>
+          <div class="inbox-row">
+            <div class="avatar av-plum" style="width:40px;height:40px;font-size:14px">IL</div>
+            <div class="r-main">
+              <div class="r-name">Iris Lau <span class="origin conn">connected</span></div>
+              <div class="r-prev">NO WAY. I literally submitted my deposit yesterday.</div>
+            </div>
+            <div class="r-time">Tue</div>
+          </div>
+          <div class="inbox-row">
+            <div class="avatar av-sage" style="width:40px;height:40px;font-size:14px">RM</div>
+            <div class="r-main">
+              <div class="r-name">Rosa Marín <span class="origin conn">connected</span></div>
+              <div class="r-prev">Happy to tell it over coffee if you're ever in Austin.</div>
+            </div>
+            <div class="r-time">Jun 28</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="annot" style="margin-top:0;border-left-color:var(--primary)">
+        <b>Why the tags earn their place:</b> they're memory, not machinery. Tapping a conversation never opens a different interface — the tag just answers "wait, how do I know this person?" a year later.
+      </div>
+      <div style="height:20px"></div>
+      <div class="table-scroll">
+      <table>
+        <thead><tr><th></th><th>Connect</th><th>Ask a person</th><th>Ask the circle</th></tr></thead>
+        <tbody>
+          <tr><th>Who starts</th><td>Either member</td><td>The asker</td><td>Asker posts; helper offers</td></tr>
+          <tr><th>The gate</th><td>Mutual accept</td><td>Helper accepts or passes quietly</td><td>Helper offers; <b>asker</b> accepts or passes quietly</td></tr>
+          <tr><th>AI's role</th><td>Optional intro — skip it for a quick hello<small>conversational, like ChatGPT</small></td><td>Drafts the first note with you<small>tailored to both profiles</small></td><td>Routes the question to relevant people<small>matches helpers' "I can speak to…"</small></td></tr>
+          <tr><th>Then</th><td colspan="3" style="text-align:center;background:var(--secondary)"><b>Messages.</b> Identical plain conversation, small origin tag, nothing else.</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<p class="foot-note">
+  <b>Grounding.</b> Simplified per Richard's direction of 2026-07-02: two primitives (Connect / Ask), open asks to the circle, AI-written first messages, and all conversations converging in Messages with no per-function interfaces. This intentionally supersedes the visible commitment-tier axis, pace cards, screening steps, and peer lanes from ADR 0010 D1 and the earlier exploration (<code>help-relationship-types-2026-07-02.html</code>, kept for comparison). Preserved from the existing product: the quiet pass and never-surfaced declines (PRs #106–107), AI draft disclosure and message style (voice-guidelines §10), and the ADR 0003 gate shapes (connect two-sided, ask one-sided) — now as invisible plumbing rather than interface. Colors and type per Civic Editorial <code>tokens.md</code>: amber for the asker's social commitment, sage for offering help, blue for mutual connection. All members fictional.
+</p>
+
+</div>
+</body>
+</html>

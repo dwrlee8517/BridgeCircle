@@ -152,14 +152,13 @@ function mentorshipRequestRateCard(
   const rate = activeMembers > 0 ? requests / activeMembers : null
   return {
     key: 'mentorship_request_rate',
-    label: 'Mentorship request rate',
+    label: 'Ask rate',
     value: rate === null ? '—' : rate.toFixed(2),
-    sub:
-      activeMembers === 0 ? 'No active members' : `${requests} requests · ${activeMembers} active`,
+    sub: activeMembers === 0 ? 'No active members' : `${requests} asks · ${activeMembers} active`,
     footnote: 'Per active member, last 30 days',
     tone: 'neutral',
     tooltip:
-      'Mentorship requests sent in the last 30 days, divided by active members. Higher means the mentorship feature is getting more use.',
+      'Asks sent in the last 30 days, divided by active members. Higher means the help loop is getting more use.',
   }
 }
 
@@ -174,14 +173,13 @@ function mentorshipResponseRateCard(
   const pct = eligible > 0 ? Math.round((responded / eligible) * 100) : null
   return {
     key: 'mentor_response_rate',
-    label: 'Mentor response rate',
+    label: 'Helper response rate',
     value: pct === null ? '—' : `${pct}%`,
-    sub:
-      eligible === 0 ? 'No requests old enough yet' : `${responded} of ${eligible} within 7 days`,
+    sub: eligible === 0 ? 'No asks old enough yet' : `${responded} of ${eligible} within 7 days`,
     footnote: 'Last 30 days',
     tone: pct !== null && pct >= 70 ? 'up' : 'neutral',
     tooltip:
-      'Of mentorship requests at least 7 days old, the percentage where the mentor accepted or declined within 7 days. Quality signal for the network.',
+      'Of asks at least 7 days old, the percentage where the helper accepted or declined within 7 days. Quality signal for the network.',
   }
 }
 
