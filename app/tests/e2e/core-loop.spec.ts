@@ -129,7 +129,7 @@ test.describe("Core User Loop", () => {
     await page.waitForURL((url) => url.pathname === "/ask" && url.searchParams.get("nl") === "Mark Mentor");
     await expect(page.getByRole("heading", { name: /People who can help with this/i })).toBeVisible();
     await expect(page.getByText("People search")).toHaveCount(0);
-    await expect(page.getByRole("link", { name: /^Ask$/ }).first()).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("link", { name: /^Help$/ }).first()).toHaveAttribute("aria-current", "page");
     await expect(page.getByText("Mark Mentor").first()).toBeVisible();
 
     // Compose links live in the results (featured card "Ask {first}" or a

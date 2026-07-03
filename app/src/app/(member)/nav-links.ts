@@ -9,13 +9,11 @@
 // pragma, lets both sides see the real array.
 
 export const MEMBER_NAV_LINKS = [
-  // Home IS the ask surface (merged front door — ask-home.tsx). The tab
-  // points at /, /ask without a query renders the same component, and the
-  // highlight is honest on both: clicking the lit tab is a no-op.
-  { href: '/', label: 'Ask', match: ['/', '/ask'] },
-  // Help is the supply-side surface for alumni who want to give useful,
-  // lightweight help without committing to an ongoing relationship.
-  { href: '/help', label: 'Help', match: ['/help'] },
+  // One Help hub (home): a segmented toggle flips between asking for help
+  // (default) and giving help. The former separate Ask and Help tabs
+  // collapsed into this one. `/ask` results and `/help` (→ give side) both
+  // stay lit under it.
+  { href: '/', label: 'Help', match: ['/', '/ask', '/help'] },
   // People remains the broad exploration surface, but the product center
   // is the question-driven Ask / Help loop.
   { href: '/people', label: 'People', match: ['/people', '/discover', '/profile', '/friends'] },

@@ -149,9 +149,9 @@ Before declaring a task done:
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/` | Ask-first Home — natural-language ask prompt, people who can help, people you could help, School pulse | Default after sign-in |
-| `/ask` | Primary question-driven matching surface — NL question → hybrid retrieved and reranked people matches → guided ask composer | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`; target matching plan is ADR 0009 |
-| `/help` | Supply-side helper surface — requests needing reply, likely people the viewer could help, availability CTA | |
+| `/` | The Help hub — one page with a segmented **Ask for help / Give help** toggle (`?mode=give` = give). Ask side = `AskHome` (NL ask prompt, people who can help); give side = `GiveHelpPanel` (requests needing reply, availability). Default after sign-in | Ask + Help tabs collapsed into one "Help" nav tab pointing here |
+| `/ask` | Question-driven matching results — `?nl=` → hybrid retrieved/reranked matches; `?edit=1` → composer front door | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`; matching plan is ADR 0009 |
+| `/help` | 307 → `/?mode=give` (folded into the Help hub) | Give-side body lives in `help/give-help-panel.tsx`; `/help/settings` still resolves |
 | `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
 | `/inbox` | Unified request lifecycle — needs reply, helping, getting help, connections, direct messages | Folded in `/messages` (root), `/friends` (incoming reqs) |
@@ -162,7 +162,7 @@ Before declaring a task done:
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **Ask · Help · People · School · Messages** (the Messages tab points at the `/inbox` route; the route rename is deferred to a later ADR 0011 phase). The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Top nav (members): **Help · People · School · Messages**. The Help tab is the combined ask/give hub at `/` (the former Ask and Help tabs merged into it); the Messages tab points at the `/inbox` route (route rename deferred to a later ADR 0011 phase). The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
 
 Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/mentorship/settings → /help/settings`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
 
