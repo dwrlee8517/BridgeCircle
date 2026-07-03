@@ -1,0 +1,51 @@
+<!-- @dsCard group="Colors" name="Section identity & gradation" subtitle="Ask blue · Give green · School deep-blue band — identity never touches buttons" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .band{border-radius:var(--radius-card);padding:22px 24px;color:#fff}
+  .band .kicker{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.75;margin:0 0 6px}
+  .band h2{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-0.015em}
+  .band p{margin:0;font-size:14px;opacity:.85}
+  .band .btn{display:inline-block;margin-top:14px;background:#fff;border-radius:var(--radius-control);padding:9px 18px;font-size:14px;font-weight:600}
+  .card{background:var(--surface-card);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:18px 20px}
+  .chiprow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .chip{border-radius:var(--radius-pill);padding:4px 12px;font-size:12px;font-weight:700}
+  .rule{font-size:12px;color:var(--text-muted);margin:0}
+</style>
+</head>
+<body>
+
+  <div class="band" style="background:var(--gradient-band-blue)">
+    <p class="kicker">School</p>
+    <h2>Chadwick, this month</h2>
+    <p>Deep-blue gradation (blue-600 → blue-800) — band surfaces only. White text measured 8.6:1 at the dark end.</p>
+    <span class="btn" style="color:var(--blue-700)">See events</span>
+  </div>
+
+  <div class="band" style="background:var(--gradient-band-green)">
+    <p class="kicker">Give help</p>
+    <h2>2 people are hoping you can help</h2>
+    <p>Green identity (green-500 → green-700). Buttons stay blue elsewhere; on-band buttons are white-fill with band-hue text.</p>
+    <span class="btn" style="color:var(--green-700)">See the queue</span>
+  </div>
+
+  <div class="card">
+    <p class="kicker" style="color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin:0 0 6px">Ask (default)</p>
+    <p style="margin:0;font-size:14px;color:var(--text-secondary)">Standard surfaces — grey canvas, white cards, blue actions. Identity shows only in tints, dots, and badges:</p>
+    <div class="chiprow">
+      <span class="chip" style="background:var(--state-info-tint);color:var(--state-info-text)">Ask · blue</span>
+      <span class="chip" style="background:var(--state-success-tint);color:var(--state-success-text)">Give · green</span>
+      <span class="chip" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Attention · orange</span>
+      <span class="chip" style="background:var(--state-danger-tint);color:var(--state-danger-text)">Alert · red</span>
+    </div>
+  </div>
+
+  <p class="rule">Rules: same-hue gradation only · bands only · 2–3 hues per surface · every commitment button is blue (D3/D7).</p>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+/* ============================================================================
+   Field Pro — BridgeCircle design tokens (TDS baseline)
+   ADR 0012 · seed v0.1 · 2026-07-03
+
+   PROVISIONAL UNTIL A5: every value below is sourced from the approved Toss
+   exploration + public TDS values. The A5 reconciliation audit (ADR 0012
+   Phase A) replaces these with the exact values extracted from
+   "Toss Style – Field Pro v2" and re-pushes. Do not translate into
+   production (globals.css) before A5 lands.
+
+   Layers:
+     1. Ramps        --{hue}-{stop}    literal hex, 50 → 900 per hue
+     2. Roles        --surface-* --action-* --state-* --text-* --border-*
+     3. Identity     --identity-* + --gradient-band-*   (section identities)
+     4. Type/shape   --font-* --radius-* --shadow-* --motion-*
+   Components consume layers 2–4 only. Dark mode overrides live at the end.
+   ========================================================================= */
+
+:root {
+  /* ------------------------------------------------------------------ */
+  /* 1 · RAMPS — grey is the spine; blue is the only ACTION hue (D3);   */
+  /* green/orange/red are status + identity hues (D7). Teal/violet:     */
+  /* pending A5 — do not invent stops before reconciliation.            */
+  /* ------------------------------------------------------------------ */
+
+  --grey-50: #f9fafb;
+  --grey-100: #f2f4f6;
+  --grey-200: #e5e8eb;
+  --grey-300: #d1d6db;
+  --grey-400: #b0b8c1;
+  --grey-500: #8b95a1;
+  --grey-600: #6b7684;
+  --grey-700: #4e5968;
+  --grey-800: #333d4b;
+  --grey-900: #191f28;
+
+  --blue-50: #e8f3ff;
+  --blue-100: #c9e2ff;
+  --blue-200: #90c2ff;
+  --blue-300: #64a8ff;
+  --blue-400: #4593fc;
+  --blue-500: #3182f6; /* THE action color */
+  --blue-600: #2272eb;
+  --blue-700: #1b64da;
+  --blue-800: #1957c2; /* School band reaches here */
+  --blue-900: #194aa6;
+
+  --green-50: #e5f9f0;
+  --green-100: #c2f1dc;
+  --green-200: #8fe5bf;
+  --green-300: #57d89f;
+  --green-400: #26cd84;
+  --green-500: #00c471; /* give-help identity anchor */
+  --green-600: #00a661;
+  --green-700: #028a52;
+  --green-800: #066941;
+  --green-900: #084f33;
+
+  --orange-50: #fff4e5;
+  --orange-100: #ffe3bd;
+  --orange-200: #ffce8c;
+  --orange-300: #ffb75c;
+  --orange-400: #fea62e;
+  --orange-500: #fe9800;
+  --orange-600: #de7f02;
+  --orange-700: #ba6a04;
+  --orange-800: #8f5206;
+  --orange-900: #6b3d05;
+
+  --red-50: #fdebed;
+  --red-100: #fac9ce;
+  --red-200: #f5a0a9;
+  --red-300: #f17784;
+  --red-400: #f05d6c;
+  --red-500: #f04452;
+  --red-600: #d22030;
+  --red-700: #b01824;
+  --red-800: #85131c;
+  --red-900: #611015;
+
+  /* ------------------------------------------------------------------ */
+  /* 2 · ROLES — what components consume. Names mirror the production   */
+  /* role vocabulary so the Phase B translation is a value swap.        */
+  /* ------------------------------------------------------------------ */
+
+  /* Surfaces: borderless-on-grey is the TDS idiom — cards separate by
+     background contrast, not rules. */
+  --surface-page: var(--grey-100);
+  --surface-card: #ffffff;
+  --surface-panel: var(--grey-50);
+  --surface-subtle: var(--grey-100);
+
+  /* Text */
+  --text-primary: var(--grey-900);
+  --text-secondary: var(--grey-600);
+  --text-muted: var(--grey-500);
+  --text-faint: var(--grey-400);
+
+  /* Borders: rare by design. Hairline only where contrast can't do it. */
+  --border: var(--grey-200);
+  --border-strong: var(--grey-300);
+
+  /* Actions (D3: monochrome — every commitment is blue) */
+  --action-primary: var(--blue-500);
+  --action-primary-hover: var(--blue-700);
+  --action-on-primary: #ffffff;
+  --action-weak: var(--blue-50); /* tinted secondary ("weak" button) */
+  --action-weak-text: var(--blue-600);
+  --action-quiet: var(--grey-100); /* grey-quiet: passes, tone lenses */
+  --action-quiet-text: var(--grey-700);
+  --link: var(--blue-500);
+  --link-hover: var(--blue-700);
+  --focus-ring: var(--blue-500);
+  --focus-ring-muted: rgb(49 130 246 / 12%);
+  --selection: var(--blue-100);
+
+  /* States (ramp-derived; text/fill pair from the SAME hue — D7 rule) */
+  --state-info-text: var(--blue-600);
+  --state-info-tint: var(--blue-50);
+  --state-success-text: var(--green-600);
+  --state-success-tint: var(--green-50);
+  --state-warning-text: var(--orange-700);
+  --state-warning-tint: var(--orange-50);
+  --state-danger-text: var(--red-600);
+  --state-danger-tint: var(--red-50);
+
+  /* Skeleton / loading */
+  --skeleton-base: var(--grey-100);
+  --skeleton-pulse: var(--grey-200);
+
+  /* ------------------------------------------------------------------ */
+  /* 3 · SECTION IDENTITY + GRADATION (D7)                              */
+  /* Identity shows in bands, tints, dots, badges — never buttons.      */
+  /* Gradients are SAME-HUE only, hero/section bands only.              */
+  /* ------------------------------------------------------------------ */
+
+  --identity-ask: var(--blue-500); /* Ask / default */
+  --identity-give: var(--green-500); /* Give help */
+  --identity-school: var(--blue-800); /* School (deep-blue) */
+
+  --gradient-band-blue: linear-gradient(135deg, var(--blue-600), var(--blue-800));
+  --gradient-band-green: linear-gradient(135deg, var(--green-500), var(--green-700));
+  /* Text on either band: #ffffff (measured in DESIGN.md contrast table). */
+
+  /* ------------------------------------------------------------------ */
+  /* 4 · TYPE / SHAPE / ELEVATION / MOTION                               */
+  /* ------------------------------------------------------------------ */
+
+  /* Pretendard (OFL) — production self-hosts via next/font/local (D4).
+     One family; JetBrains Mono retires; data uses tabular-nums. */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Apple SD Gothic Neo', Roboto, sans-serif;
+
+  --font-size-display: 2.5rem; /* 40px · weight 800 · tracking -0.025em */
+  --font-size-h1: 1.75rem; /* 28px · weight 800 · tracking -0.02em  */
+  --font-size-h2: 1.375rem; /* 22px · weight 700 · tracking -0.015em */
+  --font-size-h3: 1.125rem; /* 18px · weight 700 */
+  --font-size-body-lg: 1.0625rem; /* 17px */
+  --font-size-body: 1rem; /* 16px · weight 400 · line-height 1.6 */
+  --font-size-body-sm: 0.875rem; /* 14px */
+  --font-size-caption: 0.8125rem; /* 13px · secondary labels */
+  --font-size-micro: 0.75rem; /* 12px · floor — nothing smaller */
+
+  /* Shape: TDS radius tiers. Full circles for avatars/dots/pills only. */
+  --radius-card: 20px;
+  --radius-box: 14px;
+  --radius-control: 12px;
+  --radius-bubble: 18px;
+  --radius-pill: 999px;
+
+  /* Elevation: one soft shadow; contrast does the separating. */
+  --shadow-card: 0 2px 8px rgb(25 31 40 / 0.04), 0 0 1px rgb(25 31 40 / 0.1);
+  --shadow-raised: 0 6px 20px rgb(25 31 40 / 0.08), 0 0 1px rgb(25 31 40 / 0.12);
+
+  /* Motion (carried from Civic — behavior-neutral) */
+  --motion-fast: 100ms;
+  --motion-base: 150ms;
+  --motion-medium: 200ms;
+  --motion-slow: 300ms;
+  --ease-standard: ease-out;
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------------
+   DARK MODE — ramp pairings flip: 800-stop fills, 100–200-stop text.
+   Values provisional until A5 (Field Pro v2 may define its own darks).
+   ------------------------------------------------------------------- */
+.dark {
+  --surface-page: #101418;
+  --surface-card: #1b222c;
+  --surface-panel: #171d25;
+  --surface-subtle: #222a35;
+
+  --text-primary: var(--grey-100);
+  --text-secondary: var(--grey-400);
+  --text-muted: var(--grey-500);
+  --text-faint: var(--grey-600);
+
+  --border: rgb(255 255 255 / 8%);
+  --border-strong: rgb(255 255 255 / 14%);
+
+  --action-weak: rgb(49 130 246 / 16%);
+  --action-weak-text: var(--blue-200);
+  --action-quiet: rgb(255 255 255 / 7%);
+  --action-quiet-text: var(--grey-300);
+  --selection: rgb(49 130 246 / 30%);
+
+  --state-info-text: var(--blue-200);
+  --state-info-tint: rgb(49 130 246 / 14%);
+  --state-success-text: var(--green-200);
+  --state-success-tint: rgb(0 196 113 / 12%);
+  --state-warning-text: var(--orange-200);
+  --state-warning-tint: rgb(254 152 0 / 12%);
+  --state-danger-text: var(--red-200);
+  --state-danger-tint: rgb(240 68 82 / 14%);
+
+  --skeleton-base: #222a35;
+  --skeleton-pulse: #2b3543;
+
+  --shadow-card: 0 2px 8px rgb(0 0 0 / 0.32), 0 0 1px rgb(0 0 0 / 0.4);
+  --shadow-raised: 0 6px 20px rgb(0 0 0 / 0.44), 0 0 1px rgb(0 0 0 / 0.5);
+}
