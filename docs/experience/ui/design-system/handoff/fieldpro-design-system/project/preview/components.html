@@ -1,0 +1,85 @@
+<!-- @dsCard group="Components" name="Core components" subtitle="Buttons · badges · card · toggle · bubbles · inbox row" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 10px}
+  .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-control);padding:10px 20px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
+  .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
+  .btn.weak{background:var(--action-weak);color:var(--action-weak-text)}
+  .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
+  .pill{border-radius:var(--radius-pill);padding:4px 12px;font-size:12px;font-weight:700}
+  .toggle{display:inline-flex;background:var(--surface-card);border-radius:var(--radius-pill);padding:4px;box-shadow:var(--shadow-card)}
+  .toggle span{border-radius:var(--radius-pill);padding:7px 16px;font-size:14px;font-weight:600;color:var(--text-muted)}
+  .toggle .on{background:var(--action-primary);color:#fff}
+  .bubble{max-width:78%;border-radius:var(--radius-bubble);padding:11px 15px;font-size:14px;line-height:1.5}
+  .row{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}
+  .row:last-child{border-bottom:0}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .mark{display:inline-block;width:18px;height:11px;vertical-align:-1px;color:var(--action-primary)}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Buttons — one fill per surface, always blue (D3)</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="btn fill">Send ask to Jane</span>
+      <span class="btn weak">Connect</span>
+      <span class="btn quiet">Not this time</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Status pills — tint + same-ramp text</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill" style="background:var(--state-success-tint);color:var(--state-success-text)">Open to help</span>
+      <span class="pill" style="background:var(--state-info-tint);color:var(--state-info-text)">New ask</span>
+      <span class="pill" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Paused</span>
+      <span class="pill" style="background:var(--state-danger-tint);color:var(--state-danger-text)">Expired</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Segmented toggle — the Help hub switch</p>
+    <span class="toggle"><span class="on">Ask for help</span><span>Give help</span></span>
+  </div>
+
+  <div class="card">
+    <p class="label">Message bubbles</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span class="bubble" style="align-self:flex-start;background:var(--surface-subtle);border-bottom-left-radius:6px">Hi Jane — thank you for saying yes! Portfolio&rsquo;s here whenever you have a minute.</span>
+      <span class="bubble" style="align-self:flex-end;background:var(--action-primary);color:#fff;border-bottom-right-radius:6px">Happy to. First pass: lead with the checkout redesign.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Inbox rows — year says when, mark says they&rsquo;re yours</p>
+    <div class="row">
+      <span class="avatar" style="background:var(--state-info-tint);color:var(--state-info-text)">IL</span>
+      <span style="flex:1;min-width:0">
+        <span style="font-size:14px;font-weight:600">Iris Lau</span>
+        <span style="font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums">&nbsp;'22&nbsp;</span>
+        <svg class="mark" viewBox="0 0 20 12" role="img" aria-label="In your circle"><circle cx="7.2" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12.8" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        <span style="display:block;font-size:13px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">NO WAY. I literally submitted my deposit yesterday.</span>
+      </span>
+      <span style="font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums">Tue</span>
+    </div>
+    <div class="row">
+      <span class="avatar" style="background:var(--state-warning-tint);color:var(--state-warning-text)">DO</span>
+      <span style="flex:1;min-width:0">
+        <span style="font-size:14px;font-weight:600">David Okafor</span>
+        <span style="font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums">&nbsp;'98</span>
+        <span style="display:block;font-size:13px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">The referral thing is half myth — what actually got people in…</span>
+      </span>
+      <span style="font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums">11:20a</span>
+    </div>
+  </div>
+
+</body>
+</html>

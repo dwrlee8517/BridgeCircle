@@ -1,0 +1,42 @@
+<!-- @dsCard group="Colors" name="Color ramps" subtitle="Grey spine · blue action · green / orange / red — 10 stops each" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary)}
+  h1{font-size:15px;font-weight:800;margin:0 0 4px}
+  p.note{font-size:12px;color:var(--text-muted);margin:0 0 18px}
+  .ramp{display:grid;grid-template-columns:64px repeat(10,1fr);gap:4px;align-items:center;margin-bottom:10px}
+  .ramp b{font-size:12px;font-weight:700;color:var(--text-secondary)}
+  .stop{height:44px;border-radius:8px;display:flex;flex-direction:column;justify-content:flex-end;padding:4px 6px;box-sizing:border-box}
+  .stop span{font-size:9px;font-weight:600;opacity:.9}
+</style>
+</head>
+<body>
+  <h1>Ramps — seed v0.1 (provisional until A5)</h1>
+  <p class="note">Text/fill pair from the same ramp: light = 50 fill + 600–800 text · dark = 800 fill + 100–200 text. Buttons only ever use blue.</p>
+  <div id="ramps"></div>
+  <script>
+    const ramps = {
+      grey:  ['#f9fafb','#f2f4f6','#e5e8eb','#d1d6db','#b0b8c1','#8b95a1','#6b7684','#4e5968','#333d4b','#191f28'],
+      blue:  ['#e8f3ff','#c9e2ff','#90c2ff','#64a8ff','#4593fc','#3182f6','#2272eb','#1b64da','#1957c2','#194aa6'],
+      green: ['#e5f9f0','#c2f1dc','#8fe5bf','#57d89f','#26cd84','#00c471','#00a661','#028a52','#066941','#084f33'],
+      orange:['#fff4e5','#ffe3bd','#ffce8c','#ffb75c','#fea62e','#fe9800','#de7f02','#ba6a04','#8f5206','#6b3d05'],
+      red:   ['#fdebed','#fac9ce','#f5a0a9','#f17784','#f05d6c','#f04452','#d22030','#b01824','#85131c','#611015'],
+    }
+    const stops = [50,100,200,300,400,500,600,700,800,900]
+    const host = document.getElementById('ramps')
+    for (const [name, hexes] of Object.entries(ramps)) {
+      const row = document.createElement('div')
+      row.className = 'ramp'
+      row.innerHTML = `<b>${name}</b>` + hexes.map((h,i) =>
+        `<div class="stop" style="background:${h};color:${i<5?'#191f28':'#ffffff'}"><span>${stops[i]}</span></div>`
+      ).join('')
+      host.appendChild(row)
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!-- @dsCard group="Prototype" name="Member app starter" subtitle="Hub toggle · ask/give sides · School band · inbox" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Field Pro — member app starter (seed v0.1)</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px 64px}
+
+  header{background:var(--surface-card);box-shadow:var(--shadow-card)}
+  .hrow{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:22px;padding:14px 20px}
+  .wordmark{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:-0.01em}
+  .wordmark svg{width:26px;height:16px;color:var(--action-primary)}
+  nav{display:flex;gap:4px;margin-left:auto}
+  nav a{text-decoration:none;font-size:14px;font-weight:600;color:var(--text-muted);padding:7px 12px;border-radius:var(--radius-pill)}
+  nav a.on{background:var(--action-weak);color:var(--action-weak-text)}
+
+  .toggle{display:flex;justify-content:center;padding:18px 0 6px}
+  .toggle .box{display:inline-flex;background:var(--surface-card);border-radius:var(--radius-pill);padding:4px;box-shadow:var(--shadow-card)}
+  .toggle button{border:0;background:transparent;border-radius:var(--radius-pill);padding:8px 18px;font-family:var(--font-sans);font-size:14px;font-weight:600;color:var(--text-muted);cursor:pointer}
+  .toggle button.on{background:var(--action-primary);color:#fff}
+
+  .card{background:var(--surface-card);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:20px 22px;margin-top:14px}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);margin:0 0 8px}
+  h1{font-size:var(--font-size-h1);font-weight:800;letter-spacing:-0.02em;margin:10px 0 6px}
+  .sub{color:var(--text-secondary);font-size:15px;margin:0}
+
+  .askbar{display:flex;gap:10px;background:var(--surface-subtle);border-radius:var(--radius-pill);padding:8px 8px 8px 18px;align-items:center;margin-top:16px}
+  .askbar input{flex:1;border:0;background:transparent;font-family:var(--font-sans);font-size:15px;outline:none;color:var(--text-primary)}
+  .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-control);padding:10px 20px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:pointer}
+  .fill{background:var(--action-primary);color:#fff}
+  .weak{background:var(--action-weak);color:var(--action-weak-text)}
+  .quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
+
+  .band{border-radius:var(--radius-card);padding:22px 24px;color:#fff;margin-top:14px}
+  .band .kicker{color:rgb(255 255 255 / 72%)}
+  .band h2{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-0.015em}
+  .band p{margin:0;font-size:14px;color:rgb(255 255 255 / 85%)}
+  .band .btn{margin-top:14px;background:#fff}
+
+  .person{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+  .person:last-child{border-bottom:0}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .name{font-size:14px;font-weight:600}
+  .yr{font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums}
+  .meta{display:block;font-size:13px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mark{display:inline-block;width:18px;height:11px;vertical-align:-1px;color:var(--action-primary)}
+  .pill{border-radius:var(--radius-pill);padding:3px 10px;font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <span class="wordmark">
+      <svg viewBox="0 0 20 12" aria-hidden="true"><circle cx="7.2" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12.8" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+      BridgeCircle
+    </span>
+    <nav>
+      <a class="on" href="#help">Help</a><a href="#people">People</a><a href="#school">School</a><a href="#messages">Messages</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="toggle"><span class="box">
+    <button id="t-ask" class="on" onclick="setMode('ask')">Ask for help</button>
+    <button id="t-give" onclick="setMode('give')">Give help</button>
+  </span></div>
+
+  <!-- ASK SIDE -->
+  <section id="side-ask">
+    <div class="card">
+      <p class="kicker">Ask · Chadwick School</p>
+      <h1>Hi Maren — what are you trying to figure out?</h1>
+      <p class="sub">Say it however it comes out. We&rsquo;ll find the right people and help you write the note.</p>
+      <div class="askbar">
+        <input placeholder="e.g. moving from startups to a bigger design org without a referral" aria-label="Find people who can help">
+        <button class="btn fill">Find people</button>
+      </div>
+    </div>
+    <div class="card">
+      <p class="kicker">People who can help you</p>
+      <div class="person">
+        <span class="avatar" style="background:var(--state-info-tint);color:var(--state-info-text)">JP</span>
+        <span style="flex:1;min-width:0">
+          <span class="name">Jane Park</span> <span class="yr">'08</span>
+          <span class="meta">Design manager at Figma · portfolios, design careers</span>
+        </span>
+        <span class="pill" style="background:var(--state-success-tint);color:var(--state-success-text)">Open to help</span>
+        <button class="btn weak" style="padding:8px 14px">Ask Jane</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GIVE SIDE -->
+  <section id="side-give" hidden>
+    <div class="band" style="background:var(--gradient-band-green)">
+      <p class="kicker">Give help</p>
+      <h2>2 people are hoping you can help</h2>
+      <p>Start with the best match, send one useful reply. Passing quietly is always an option.</p>
+      <button class="btn" style="color:var(--green-700)">See the queue</button>
+    </div>
+    <div class="card">
+      <p class="kicker">Best next reply</p>
+      <div class="person">
+        <span class="avatar" style="background:var(--state-success-tint);color:var(--state-success-text)">MC</span>
+        <span style="flex:1;min-width:0">
+          <span class="name">Maren Cho</span> <span class="yr">'22</span>
+          <span class="meta">&ldquo;Trying to figure out the jump from startups to a place like Figma…&rdquo;</span>
+        </span>
+        <button class="btn fill" style="padding:8px 14px">Offer help</button>
+        <button class="btn quiet" style="padding:8px 14px">Not now</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCHOOL BAND -->
+  <div class="band" style="background:var(--gradient-band-blue)">
+    <p class="kicker">School</p>
+    <h2>Bay Area product careers night</h2>
+    <p>Hosted by Figma · Approved by Chadwick Alumni · Tue, Jul 14, 6:30pm PT</p>
+    <button class="btn" style="color:var(--blue-700)">RSVP</button>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="card">
+    <p class="kicker">Messages</p>
+    <div class="person">
+      <span class="avatar" style="background:var(--state-info-tint);color:var(--state-info-text)">IL</span>
+      <span style="flex:1;min-width:0">
+        <span class="name">Iris Lau</span> <span class="yr">'22</span>
+        <svg class="mark" viewBox="0 0 20 12" role="img" aria-label="In your circle"><circle cx="7.2" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12.8" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        <span class="meta">NO WAY. I literally submitted my deposit yesterday.</span>
+      </span>
+      <span class="yr">Tue</span>
+    </div>
+    <div class="person">
+      <span class="avatar" style="background:var(--state-warning-tint);color:var(--state-warning-text)">DO</span>
+      <span style="flex:1;min-width:0">
+        <span class="name">David Okafor</span> <span class="yr">'98</span>
+        <span class="meta">The referral thing is half myth — what actually got people in…</span>
+      </span>
+      <span class="yr">11:20a</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function setMode(m){
+    document.getElementById('side-ask').hidden = m !== 'ask'
+    document.getElementById('side-give').hidden = m !== 'give'
+    document.getElementById('t-ask').classList.toggle('on', m === 'ask')
+    document.getElementById('t-give').classList.toggle('on', m === 'give')
+  }
+</script>
+</body>
+</html>
