@@ -138,8 +138,8 @@ Before declaring a task done:
 
 - Web-first; mobile responsiveness yes, native mobile no until repeat-engagement signals appear (see `../docs/decisions/0002-web-first-defer-native.md`)
 - Single-engineer build — prefer the smallest credible thing that ships, not the most general one
-- Friendship, asks (advice + mentorship), and direct messages are separate tracks at the data layer. They share a unified surface on /inbox but the gates differ: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
-- Asks are polymorphic (one `asks` table, `ask_type` enum: `advice` | `mentorship`). Helper opt-in is a per-type checkbox on `helper_preferences` (`open_to_advice`, `open_to_mentorship`). Mentorship still has the cap + paused-at fields; advice is intentionally lower-friction.
+- Friendship, asks, and direct messages are separate tracks at the data layer. They share a unified surface on /inbox but the gates differ: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
+- There is ONE ask type (ADR 0011 Phase 2). The `asks.ask_type` enum column still exists until the Phase 6 contract migration; `createAsk` writes the constant `'advice'`. Helper availability is one state: saves write `open_to_advice` and `open_to_mentorship` together, and reads treat either flag as open (`isOpenToHelp` in `lib/utils`). `max_pending_requests` is enforced invisibly in `createAsk` (the abuse valve); `max_active_mentees`, `commitment`, and `screening_prompt`/`screening_answer` are no longer written or read — they drop in Phase 6. The composer is the conversational `chat-composer.tsx` (default) + `request-form.tsx` (`?skip=1`).
 - Use one combined profile in the UI for now. The `base_profile` / `organization_profile` separation lives in the schema for multi-org later (unlocks when Chadwick International onboards as org #2).
 - Field-level privacy UI is week 3+. Until then, hardcode the defaults from `../docs/specs/phase-1/spec.md` (name/year/city/employer/title/university/major org-visible; contact links friends-only) on the read path.
 - Mentor inactivity auto-pause: 14 days without responding to any pending request → "paused while away", unpause on next login.
@@ -166,7 +166,7 @@ Top nav (members): **Ask · Help · People · School · Messages** (the Messages
 
 Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/mentorship/settings → /help/settings`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
 
-Vocabulary (ADR 0011 Phase 1, applied 2026-07-03): user-facing copy never says "mentor", "mentee", or "mentorship" — the two ask types render as **quick question** and **ongoing help**, helper availability is a state ("open to quick questions / ongoing help"), and friend requests read as **connect** language. Database columns, identifiers, and file names (`open_to_mentorship`, `mentorship-flow.tsx`, `askType: 'mentorship'`) intentionally keep the old names until ADR 0011 Phases 2 and 6.
+Vocabulary (ADR 0011 Phases 1–2, applied 2026-07-03): user-facing copy never says "mentor", "mentee", or "mentorship" — an ask is just an **ask**, helper availability is one state ("open to helping"), and friend requests read as **connect** language. Database columns and enum values (`open_to_mentorship`, `ask_type 'advice'|'mentorship'`) intentionally keep the old names until the ADR 0011 Phase 6 contract migration.
 
 ## Out Of Scope For Phase 1
 

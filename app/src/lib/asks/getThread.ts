@@ -1,7 +1,6 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import type { AskType } from './schemas'
 
 export type ThreadView = {
   id: string
@@ -10,7 +9,6 @@ export type ThreadView = {
   asker: ThreadParticipant
   ask: {
     id: string
-    askType: AskType
     reason: string | null
     helpNeeded: string | null
     background: string | null
@@ -86,7 +84,6 @@ export async function getAskThread(
     ask: ask
       ? {
           id: ask.id,
-          askType: ask.ask_type as AskType,
           reason: ask.reason,
           helpNeeded: ask.help_needed,
           background: ask.background,

@@ -13,7 +13,7 @@ export type CarouselHelper = {
   role: string | null
   reason: string
   avatarUrl: string | null
-  askType: 'advice' | 'mentorship' | null
+  openToHelp: boolean
 }
 
 /**
@@ -130,9 +130,9 @@ export function HelperCarousel({
                     >
                       View profile
                     </Link>
-                    {helper.askType ? (
+                    {helper.openToHelp ? (
                       <Link
-                        href={askComposeHref(helper.userId, helper.askType)}
+                        href={askComposeHref(helper.userId)}
                         tabIndex={active ? 0 : -1}
                         className="inline-flex items-center gap-0.5 text-xs font-semibold text-link hover:text-link-hover"
                       >

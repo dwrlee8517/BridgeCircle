@@ -1,14 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { AdviceFlow } from '../../new/advice-flow'
+import { ChatComposer } from '../../new/chat-composer'
 import {
-  AskTypeSelector,
   askNewHref,
   type ComposerSearchParams,
   loadComposer,
   PersonSummaryCard,
 } from '../../new/composer'
-import { MentorshipFlow } from '../../new/mentorship-flow'
 import { RequestForm } from '../../new/request-form'
 import { ComposerSheet } from './composer-sheet'
 
@@ -26,9 +24,9 @@ export default async function InterceptedNewAskPage({
   const data = await loadComposer(params)
   if (!data) notFound()
 
-  const { helper, helperDisplay, helperFirstName, askType, isOpenForType, intent } = data
+  const { helper, helperDisplay, helperFirstName, isOpen, intent } = data
 
-  if (!isOpenForType) {
+  if (!isOpen) {
     return (
       <ComposerSheet title="Not taking asks right now">
         <p className="text-sm leading-relaxed text-muted-foreground">
@@ -44,47 +42,26 @@ export default async function InterceptedNewAskPage({
     )
   }
 
-  const baseHref = askNewHref({ to: helper.userId, intent })
-  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent })
-  const skipHref = askNewHref({ to: helper.userId, type: askType, intent, skip: true })
-  const adviceHref = askNewHref({ to: helper.userId, type: 'advice', intent })
-  const cancelHref = `/profile/${helper.userId}`
+  const guidedHref = askNewHref({ to: helper.userId, intent })
+  const skipHref = askNewHref({ to: helper.userId, intent, skip: true })
 
   return (
     <ComposerSheet title={`Ask ${helperFirstName} for help`}>
       <div className="space-y-5">
         <PersonSummaryCard helper={helper} helperDisplay={helperDisplay} />
-        <AskTypeSelector helper={helper} askType={askType} baseHref={baseHref} />
 
         {data.useGuidedComposer ? (
-          askType === 'advice' ? (
-            <AdviceFlow
-              helperId={helper.userId}
-              helperFirstName={helperFirstName}
-              skipHref={skipHref}
-              signalCandidates={data.signalCandidates}
-              initialSituation={intent}
-            />
-          ) : (
-            <MentorshipFlow
-              helperId={helper.userId}
-              helperFirstName={helperFirstName}
-              cancelHref={cancelHref}
-              adviceHref={adviceHref}
-              adviceOpen={helper.isOpenAsAdviceHelper}
-              signalCandidates={data.signalCandidates}
-              screeningPrompt={helper.screeningPrompt}
-              activeMenteeCount={helper.activeMenteeCount}
-              maxActiveMentees={helper.maxActiveMentees}
-              mentorshipAtCapacity={helper.mentorshipAtCapacity}
-              initialGoal={intent}
-            />
-          )
+          <ChatComposer
+            helperId={helper.userId}
+            helperFirstName={helperFirstName}
+            skipHref={skipHref}
+            signalCandidates={data.signalCandidates}
+            initialSituation={intent}
+          />
         ) : (
           <RequestForm
             helperId={helper.userId}
             helperName={helperDisplay}
-            askType={askType}
             guidedHref={guidedHref}
             placeholderContext={{
               helperFirstName,

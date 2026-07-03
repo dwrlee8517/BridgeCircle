@@ -6,7 +6,6 @@ import { useActionState, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import type { AskType } from '@/lib/asks/schemas'
 import { type RequestFormState, submitRequest } from './actions'
 
 const initialState: RequestFormState = {}
@@ -24,7 +23,6 @@ export type PlaceholderContext = {
 type Props = {
   helperId: string
   helperName: string
-  askType: AskType
   placeholderContext: PlaceholderContext
   guidedHref: string
   initialHelpNeeded?: string
@@ -33,7 +31,6 @@ type Props = {
 export function RequestForm({
   helperId,
   helperName,
-  askType,
   placeholderContext,
   guidedHref,
   initialHelpNeeded = '',
@@ -41,13 +38,12 @@ export function RequestForm({
   const [state, action, pending] = useActionState(submitRequest, initialState)
   const [helpNeeded, setHelpNeeded] = useState(initialHelpNeeded)
   const firstName = helperName.split(/\s+/)[0] || 'them'
-  const placeholders = buildPlaceholders(askType, placeholderContext)
+  const placeholders = buildPlaceholders(placeholderContext)
   const fieldError = state.fieldErrors?.helpNeeded
 
   return (
     <form action={action} className="space-y-6">
       <input type="hidden" name="helperId" value={helperId} />
-      <input type="hidden" name="askType" value={askType} />
 
       <div className="space-y-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -101,29 +97,22 @@ type Placeholders = {
   helpNeeded: string
 }
 
-function buildPlaceholders(type: AskType, ctx: PlaceholderContext): Placeholders {
+function buildPlaceholders(ctx: PlaceholderContext): Placeholders {
   const firstName = ctx.helperFirstName || 'there'
 
-  if (type === 'advice') {
-    const topic = ctx.helperMentoringTopics?.[0]
-    if (topic) {
-      return {
-        helpNeeded: `Hi ${firstName}, I am trying to think through ${topic}. Could I ask how you approached it and what you wish you had known earlier?`,
-      }
-    }
-    if (ctx.helperCurrentEmployer) {
-      return {
-        helpNeeded: `Hi ${firstName}, I am curious about your path into ${ctx.helperCurrentEmployer}. Could I ask what helped you decide it was the right move?`,
-      }
-    }
+  const topic = ctx.helperMentoringTopics?.[0]
+  if (topic) {
     return {
-      helpNeeded:
-        'Hi there, I am trying to make a career decision and would value your perspective on how you thought through a similar path.',
+      helpNeeded: `Hi ${firstName}, I am trying to think through ${topic}. Could I ask how you approached it and what you wish you had known earlier?`,
     }
   }
-
+  if (ctx.helperCurrentEmployer) {
+    return {
+      helpNeeded: `Hi ${firstName}, I am curious about your path into ${ctx.helperCurrentEmployer}. Could I ask what helped you decide it was the right move?`,
+    }
+  }
   return {
     helpNeeded:
-      'Hi there, I am looking for ongoing guidance over the next few months. I would love help thinking through my path, what to prioritize, and how to make better decisions from where I am now.',
+      'Hi there, I am trying to make a career decision and would value your perspective on how you thought through a similar path.',
   }
 }

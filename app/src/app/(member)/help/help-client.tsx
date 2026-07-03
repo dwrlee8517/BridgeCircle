@@ -10,10 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { avatarColorClasses, cn, getInitials } from '@/lib/utils'
 
 export type HelpAvailability = {
-  openToAdvice: boolean
-  openToMentorship: boolean
-  activeMentees: number
-  maxMentees: number
+  openToHelp: boolean
   topics: string[]
   paused: boolean
 }
@@ -37,7 +34,6 @@ export type HelpPick = {
   subject: string
   subjectId: string
   subjectColor: string
-  mode: 'advice' | 'mentorship'
   /**
    * True when `need` is the member's own words (renders quoted). System
    * suggestions render unquoted — the product never fabricates member speech.
@@ -226,24 +222,14 @@ function AvailabilityRail({
   subjects: HelpSubject[]
 }) {
   const [topicsOpen, setTopicsOpen] = useState(false)
-  const mentorshipSub = availability.openToMentorship
-    ? `${availability.activeMentees} / ${availability.maxMentees} active`
-    : 'Off'
 
   return (
     <div className="flex flex-col gap-3 rounded-md border border-border bg-card px-4 py-3.5 shadow-card-hover detail:flex-row detail:items-center detail:gap-5 detail:px-4.5 py-3.5">
       <div className="flex flex-wrap items-center gap-3.5 detail:gap-5">
         <AvailabilityStatus
-          dot="var(--primary)"
-          label="Quick questions"
-          sub={availability.openToAdvice ? 'Open' : 'Off'}
-        />
-        <Divider />
-        <AvailabilityStatus
           dot="var(--action-offer)"
-          label="Ongoing help"
-          sub={mentorshipSub}
-          mono
+          label="Open to helping"
+          sub={availability.paused ? 'Paused' : availability.openToHelp ? 'Open' : 'Off'}
         />
       </div>
 
@@ -417,7 +403,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
       <div className="mt-5 flex flex-wrap items-center gap-2.5">
         <Button asChild variant="offer" size="default" className="rounded-md">
           <Link href={pick.href}>
-            {pick.mode === 'mentorship' ? 'Offer mentorship' : 'Offer advice'}
+            Offer help
             <ArrowRight className="size-3.5" />
           </Link>
         </Button>
@@ -475,9 +461,7 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
       </div>
       <div className="flex items-center gap-2 detail:flex-col detail:items-end">
         <Button asChild variant="outline" size="sm" className="rounded-md">
-          <Link href={pick.href}>
-            {pick.mode === 'mentorship' ? 'Offer mentorship' : 'Offer help'}
-          </Link>
+          <Link href={pick.href}>Offer help</Link>
         </Button>
       </div>
     </div>

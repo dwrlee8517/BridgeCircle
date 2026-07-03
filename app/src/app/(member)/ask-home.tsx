@@ -10,7 +10,7 @@ import {
 } from '@/lib/asks/starterStats'
 import { requireSession } from '@/lib/auth/session'
 import { getHomeFeed, type HomeFeed } from '@/lib/home/getHomeFeed'
-import { classYearShort, displayName, displayOrgName, preferredAskType } from '@/lib/utils'
+import { classYearShort, displayName, displayOrgName } from '@/lib/utils'
 import { OpenAskRow } from './ask/open-ask-ui'
 import { AskBar } from './ask-bar'
 import { type CarouselHelper, HelperCarousel } from './helper-carousel'
@@ -165,7 +165,7 @@ export async function AskHome({ defaultValue = '' }: { defaultValue?: string }) 
       ) : null}
 
       <section className="mx-auto max-w-5xl px-4 py-7 sm:px-8">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           <div>
             <p className="bc-card-label">Not sure how to put it?</p>
             <div className="mt-3 space-y-2.5">
@@ -192,7 +192,7 @@ export async function AskHome({ defaultValue = '' }: { defaultValue?: string }) 
 
       <section className="mx-auto max-w-5xl border-border border-t px-4 py-8 sm:px-8">
         <p className="bc-card-label">How asking works</p>
-        <div className="mt-4 grid gap-6 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
           <HowItWorksStep
             number="01"
             title="Describe the situation"
@@ -224,7 +224,9 @@ function toCarouselHelper(member: HomeFeed['openMentors'][number]): CarouselHelp
     role: [role || null, member.city].filter(Boolean).join(' · ') || null,
     reason: buildHelperReason(role, member.university),
     avatarUrl: member.avatarUrl,
-    askType: preferredAskType({ isOpenAsAdviceHelper: true, isOpenAsMentor: true }),
+    // The carousel is fed exclusively from open helpers (getHomeFeed filters
+    // on the availability flag), so this is true by construction.
+    openToHelp: true,
   }
 }
 

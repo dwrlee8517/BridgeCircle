@@ -10,30 +10,17 @@ import {
 type Props = {
   askerName: string
   reviewUrl: string
-  askType?: 'advice' | 'mentorship'
 }
 
-export function AskRequestEmail({ askerName, reviewUrl, askType = 'mentorship' }: Props) {
-  const isQuick = askType === 'advice'
-  const preview = isQuick
-    ? `${askerName} asked you a quick question`
-    : `${askerName} asked for your ongoing help`
-
+export function AskRequestEmail({ askerName, reviewUrl }: Props) {
   return (
     <CivicEmail
-      preview={preview}
-      footer={
-        isQuick
-          ? 'You received this because this member found you through BridgeCircle and asked for help. You can review the ask before responding.'
-          : "You received this because you're open to helping on BridgeCircle. You can pause or change this any time in your help settings."
-      }
+      preview={`${askerName} is hoping you can help`}
+      footer="You received this because this member found you through BridgeCircle and asked for help. You can pause or change your availability any time in your help settings."
     >
-      <CivicHeading>
-        {isQuick ? 'A quick question for you' : 'An ask for ongoing help'}
-      </CivicHeading>
+      <CivicHeading>{askerName} is hoping you can help</CivicHeading>
       <CivicText>
-        <strong>{askerName}</strong> asked you {isQuick ? 'a quick question' : 'for ongoing help'}{' '}
-        on BridgeCircle.
+        <strong>{askerName}</strong> sent you an ask on BridgeCircle.
       </CivicText>
       <CivicText>
         Review what they need, then decide from your inbox. Passing quietly is always an option —

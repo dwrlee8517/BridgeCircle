@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { type LifecycleStatus, LifecycleStatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
 import type { DeclineReason } from '@/lib/asks/declineReasons'
-import { type AskCommitment, commitmentLabel } from '@/lib/asks/schemas'
 import { requireSession } from '@/lib/auth/session'
 import { acceptAction } from './actions'
 import { DeclineChooser } from './decline-chooser'
@@ -163,23 +162,6 @@ export default async function RequestDetailPage({
               >
                 {req.help_needed ?? '—'}
               </AskQuote>
-              {req.commitment ? (
-                <Field label={isAsker ? 'Pace you proposed' : 'Proposed pace'}>
-                  {commitmentLabel(req.commitment as AskCommitment)}
-                  <span className="text-muted-foreground"> — a starting point, not a contract</span>
-                </Field>
-              ) : null}
-              {req.screening_answer ? (
-                <Field
-                  label={
-                    isAsker
-                      ? `Your screening answer — only ${otherFirstName} sees it`
-                      : 'Their answer to your screening question'
-                  }
-                >
-                  {req.screening_answer}
-                </Field>
-              ) : null}
               {req.background ? <Field label="Anything else">{req.background}</Field> : null}
             </>
           )}

@@ -74,16 +74,10 @@ export function notificationLabel(row: NotificationRow): string {
       return `${actor} would like to connect`
     case 'friend_request_accepted':
       return `You and ${actor} are now connected`
-    case 'ask_received': {
-      const askType = row.payload?.ask_type
-      if (askType === 'advice') return `${actor} asked for your help`
-      return `${actor} asked for ongoing help`
-    }
-    case 'ask_accepted': {
-      const askType = row.payload?.ask_type
-      if (askType === 'advice') return `${actor} replied to your ask`
+    case 'ask_received':
+      return `${actor} asked for your help`
+    case 'ask_accepted':
       return `${actor} said yes to your ask`
-    }
     case 'ask_declined': {
       return `${actor} isn't able to help with this right now`
     }

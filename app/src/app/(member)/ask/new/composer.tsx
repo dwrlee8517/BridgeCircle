@@ -1,12 +1,10 @@
-import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { createClient } from '@/db/server'
-import type { AskType } from '@/lib/asks/schemas'
 import { deriveSignals, type SignalCandidate } from '@/lib/asks/signals'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
-import { cn, displayName } from '@/lib/utils'
+import { displayName, isOpenToHelp } from '@/lib/utils'
 
 /**
  * Shared composer plumbing for the full-page composer (/ask/new) and the
@@ -17,6 +15,7 @@ import { cn, displayName } from '@/lib/utils'
 
 export type ComposerSearchParams = {
   to?: string
+  /** Legacy ?type= from pre-Phase-2 links — accepted and ignored. */
   type?: string
   skip?: string
   guided?: string
@@ -29,41 +28,26 @@ export type ComposerData = {
   helper: HelperProfile
   helperDisplay: string
   helperFirstName: string
-  askType: AskType
-  isOpenForType: boolean
+  isOpen: boolean
   intent: string
   useGuidedComposer: boolean
   signalCandidates: SignalCandidate[]
 }
 
-export function parseAskType(t: string | undefined): AskType {
-  return t === 'mentorship' ? 'mentorship' : 'advice'
-}
-
 export function askNewHref({
   to,
-  type,
   intent,
   skip,
 }: {
   to: string
-  type?: AskType
   intent?: string
-  /** Bypass the guided flow and write the note directly. */
+  /** Bypass the conversational composer and write the note directly. */
   skip?: boolean
 }) {
   const next = new URLSearchParams({ to })
-  if (type) next.set('type', type)
   if (intent?.trim()) next.set('intent', intent.trim())
   if (skip) next.set('skip', '1')
   return `/ask/new?${next.toString()}`
-}
-
-function getAvailableAskType(requested: AskType, helper: HelperProfile): AskType {
-  if (requested === 'advice' && helper.isOpenAsAdviceHelper) return 'advice'
-  if (requested === 'mentorship' && helper.isOpenAsMentor) return 'mentorship'
-  if (helper.isOpenAsAdviceHelper) return 'advice'
-  return 'mentorship'
 }
 
 /** Gathers everything the composer needs. Returns null when `to` is missing
@@ -72,14 +56,13 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
   if (!params.to) return null
 
   const session = await requireSession()
-  const requestedAskType = parseAskType(params.type)
   const intent = params.intent?.trim() || ''
 
   const supabase = await createClient()
   // Pass viewerId so privacy redaction applies — per locked decision,
   // asking doesn't override privacy. The asker sees only what
   // privacy settings + their (likely non-friend) relationship allows.
-  // We also fetch the asker's own profile so the guided flows can derive
+  // We also fetch the asker's own profile so the composer can derive
   // shared-attribute signal candidates (city / school / major / cohort)
   // — that derivation is pure but needs both sides.
   const [helper, asker] = await Promise.all([
@@ -88,14 +71,12 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
   ])
   if (!helper) return null
 
-  const askType = getAvailableAskType(requestedAskType, helper)
-  const isOpenForType = askType === 'advice' ? helper.isOpenAsAdviceHelper : helper.isOpenAsMentor
   const helperDisplay = displayName(helper.name, helper.preferredName)
   const helperFirstName = helperDisplay.split(/\s+/)[0] || 'them'
 
   // Derive signals server-side once. If the asker profile failed to load
   // (rare — they're authed and have a session), pass an empty list so
-  // the flows simply hide their mentions / evidence pieces.
+  // the composer simply hides its leaned-on chips.
   const signalCandidates = asker
     ? deriveSignals(
         {
@@ -126,11 +107,11 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
     helper,
     helperDisplay,
     helperFirstName,
-    askType,
-    isOpenForType,
+    // One availability state (ADR 0011 Phase 2), matching createAsk's gate.
+    isOpen: isOpenToHelp(helper),
     intent,
-    // Guided is the default; ?skip=1 is the explicit "I know what to say"
-    // path straight to the plain form. (?guided=1 in old links is harmless.)
+    // Conversational composer is the default; ?skip=1 is the explicit
+    // "I know what to say" path straight to the plain form.
     useGuidedComposer: params.skip !== '1',
     signalCandidates,
   }
@@ -172,14 +153,9 @@ export function PersonSummaryCard({
           ) : null}
         </div>
         <div className="mt-1 flex flex-wrap gap-1.5">
-          {helper.isOpenAsAdviceHelper ? (
+          {isOpenToHelp(helper) ? (
             <StatusBadge tone="open" size="sm" dot>
-              Quick questions
-            </StatusBadge>
-          ) : null}
-          {helper.isOpenAsMentor ? (
-            <StatusBadge tone="info" size="sm" dot>
-              Ongoing help
+              Open to help
             </StatusBadge>
           ) : null}
         </div>
@@ -197,69 +173,6 @@ export function PersonSummaryCard({
             ))}
           </div>
         ) : null}
-      </div>
-    </div>
-  )
-}
-
-export function AskTypeSelector({
-  helper,
-  askType,
-  baseHref,
-}: {
-  helper: HelperProfile
-  askType: AskType
-  baseHref: string
-}) {
-  const options: Array<{
-    id: AskType
-    label: string
-    sub: string
-    disabled: boolean
-  }> = [
-    {
-      id: 'advice',
-      label: 'Quick question',
-      sub: 'One question, a few exchanges',
-      disabled: !helper.isOpenAsAdviceHelper,
-    },
-    {
-      id: 'mentorship',
-      label: 'Ongoing help',
-      sub: 'A longer-running conversation',
-      disabled: !helper.isOpenAsMentor,
-    },
-  ]
-
-  return (
-    <div className="space-y-2">
-      <p className="text-sm font-semibold text-foreground">What kind of help?</p>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {options.map((option) => {
-          const selected = askType === option.id
-          const className = cn(
-            'rounded-lg border p-3 text-left transition-colors',
-            selected
-              ? 'border-primary bg-primary-tint text-primary'
-              : 'border-border bg-card text-foreground hover:border-primary/35',
-            option.disabled && 'pointer-events-none opacity-45',
-          )
-          const content = (
-            <>
-              <p className="text-sm font-semibold">{option.label}</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{option.sub}</p>
-            </>
-          )
-          return option.disabled ? (
-            <div key={option.id} className={className} aria-disabled>
-              {content}
-            </div>
-          ) : (
-            <Link key={option.id} href={`${baseHref}&type=${option.id}`} className={className}>
-              {content}
-            </Link>
-          )
-        })}
       </div>
     </div>
   )

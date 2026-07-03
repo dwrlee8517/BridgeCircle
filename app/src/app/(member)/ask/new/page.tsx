@@ -1,15 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AdviceFlow } from './advice-flow'
-import {
-  AskTypeSelector,
-  askNewHref,
-  type ComposerSearchParams,
-  loadComposer,
-  PersonSummaryCard,
-} from './composer'
-import { MentorshipFlow } from './mentorship-flow'
+import { ChatComposer } from './chat-composer'
+import { askNewHref, type ComposerSearchParams, loadComposer, PersonSummaryCard } from './composer'
 import { RequestForm } from './request-form'
 
 export default async function NewAskPage({
@@ -21,9 +14,9 @@ export default async function NewAskPage({
   const data = await loadComposer(params)
   if (!data) notFound()
 
-  const { helper, helperDisplay, helperFirstName, askType, isOpenForType, intent } = data
+  const { helper, helperDisplay, helperFirstName, isOpen, intent } = data
 
-  if (!isOpenForType) {
+  if (!isOpen) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
         <Card>
@@ -41,11 +34,8 @@ export default async function NewAskPage({
     )
   }
 
-  const baseHref = askNewHref({ to: helper.userId, intent })
-  const guidedHref = askNewHref({ to: helper.userId, type: askType, intent })
-  const skipHref = askNewHref({ to: helper.userId, type: askType, intent, skip: true })
-  const adviceHref = askNewHref({ to: helper.userId, type: 'advice', intent })
-  const cancelHref = `/profile/${helper.userId}`
+  const guidedHref = askNewHref({ to: helper.userId, intent })
+  const skipHref = askNewHref({ to: helper.userId, intent, skip: true })
   const backHref = intent ? `/ask?nl=${encodeURIComponent(intent)}` : '/people'
   const backLabel = intent ? 'Back to Ask results' : 'Back to People'
 
@@ -69,40 +59,20 @@ export default async function NewAskPage({
 
         <div className="space-y-6">
           <PersonSummaryCard helper={helper} helperDisplay={helperDisplay} />
-          <AskTypeSelector helper={helper} askType={askType} baseHref={baseHref} />
 
-          {data.useGuidedComposer ? (
-            <div className="rounded-lg border border-border bg-card p-5">
-              {askType === 'advice' ? (
-                <AdviceFlow
-                  helperId={helper.userId}
-                  helperFirstName={helperFirstName}
-                  skipHref={skipHref}
-                  signalCandidates={data.signalCandidates}
-                  initialSituation={intent}
-                />
-              ) : (
-                <MentorshipFlow
-                  helperId={helper.userId}
-                  helperFirstName={helperFirstName}
-                  cancelHref={cancelHref}
-                  adviceHref={adviceHref}
-                  adviceOpen={helper.isOpenAsAdviceHelper}
-                  signalCandidates={data.signalCandidates}
-                  screeningPrompt={helper.screeningPrompt}
-                  activeMenteeCount={helper.activeMenteeCount}
-                  maxActiveMentees={helper.maxActiveMentees}
-                  mentorshipAtCapacity={helper.mentorshipAtCapacity}
-                  initialGoal={intent}
-                />
-              )}
-            </div>
-          ) : (
-            <div className="rounded-lg border border-border bg-card p-5">
+          <div className="rounded-lg border border-border bg-card p-5">
+            {data.useGuidedComposer ? (
+              <ChatComposer
+                helperId={helper.userId}
+                helperFirstName={helperFirstName}
+                skipHref={skipHref}
+                signalCandidates={data.signalCandidates}
+                initialSituation={intent}
+              />
+            ) : (
               <RequestForm
                 helperId={helper.userId}
                 helperName={helperDisplay}
-                askType={askType}
                 guidedHref={guidedHref}
                 placeholderContext={{
                   helperFirstName,
@@ -115,8 +85,8 @@ export default async function NewAskPage({
                 }}
                 initialHelpNeeded={intent}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

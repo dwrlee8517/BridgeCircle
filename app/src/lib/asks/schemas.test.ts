@@ -9,72 +9,30 @@ function form(entries: Record<string, string>): FormData {
 
 const HELPER_A = crypto.randomUUID()
 const HELPER_B = crypto.randomUUID()
-const HELPER_C = crypto.randomUUID()
-const HELPER_D = crypto.randomUUID()
-const HELPER_E = crypto.randomUUID()
 
 describe('parseAskForm', () => {
   const validReason = 'I have a quick question about your role at Anthropic.'
   const validHelp = 'Would love 15 minutes to ask about the day-to-day.'
 
-  it('accepts an advice ask with helperId', () => {
+  it('accepts an ask with helperId', () => {
     const result = parseAskForm(
       form({
         helperId: HELPER_A,
-        askType: 'advice',
         reason: validReason,
         helpNeeded: validHelp,
       }),
     )
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.askType).toBe('advice')
       expect(result.data.helperId).toBe(HELPER_A)
+      expect(result.data.reason).toBe(validReason)
     }
   })
 
-  it('accepts a mentorship ask with helperId', () => {
-    const result = parseAskForm(
-      form({
-        helperId: HELPER_B,
-        askType: 'mentorship',
-        reason: validReason,
-        helpNeeded: validHelp,
-      }),
-    )
-    expect(result.success).toBe(true)
-    if (result.success) expect(result.data.askType).toBe('mentorship')
-  })
-
-  it('defaults askType to mentorship when not provided (legacy form)', () => {
-    const result = parseAskForm(
-      form({
-        helperId: HELPER_C,
-        reason: validReason,
-        helpNeeded: validHelp,
-      }),
-    )
-    expect(result.success).toBe(true)
-    if (result.success) expect(result.data.askType).toBe('mentorship')
-  })
-
-  it('falls back to legacy mentorId field when helperId is missing', () => {
-    const result = parseAskForm(
-      form({
-        mentorId: HELPER_D,
-        reason: validReason,
-        helpNeeded: validHelp,
-      }),
-    )
-    expect(result.success).toBe(true)
-    if (result.success) expect(result.data.helperId).toBe(HELPER_D)
-  })
-
-  it('accepts an advice ask with no reason field (advice form is one-field)', () => {
+  it('accepts an ask with no reason field', () => {
     const result = parseAskForm(
       form({
         helperId: HELPER_A,
-        askType: 'advice',
         helpNeeded: validHelp,
       }),
     )
@@ -82,11 +40,10 @@ describe('parseAskForm', () => {
     if (result.success) expect(result.data.reason).toBeNull()
   })
 
-  it('accepts a mentorship ask with empty reason (now optional)', () => {
+  it('treats an empty reason as null', () => {
     const result = parseAskForm(
       form({
         helperId: HELPER_B,
-        askType: 'mentorship',
         reason: '',
         helpNeeded: validHelp,
       }),
@@ -95,121 +52,72 @@ describe('parseAskForm', () => {
     if (result.success) expect(result.data.reason).toBeNull()
   })
 
-  it('rejects an unknown askType', () => {
-    const result = parseAskForm(
-      form({
-        helperId: HELPER_E,
-        askType: 'collaboration',
-        reason: validReason,
-        helpNeeded: validHelp,
-      }),
-    )
-    expect(result.success).toBe(false)
-  })
-
-  it('accepts a mentorship ask with commitment and screening answer', () => {
+  it('ignores legacy type-split fields (askType, commitment, screeningAnswer)', () => {
     const result = parseAskForm(
       form({
         helperId: HELPER_B,
-        askType: 'mentorship',
         helpNeeded: validHelp,
+        askType: 'mentorship',
         commitment: 'monthly_semester',
         screeningAnswer: 'Whether to accept the consulting offer by July 1.',
       }),
     )
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.commitment).toBe('monthly_semester')
-      expect(result.data.screeningAnswer).toBe('Whether to accept the consulting offer by July 1.')
+      expect('askType' in result.data).toBe(false)
+      expect('commitment' in result.data).toBe(false)
+      expect('screeningAnswer' in result.data).toBe(false)
     }
   })
 
-  it('treats empty commitment and screening answer as null (advice form omits them)', () => {
-    const result = parseAskForm(
-      form({
-        helperId: HELPER_A,
-        askType: 'advice',
-        helpNeeded: validHelp,
-        commitment: '',
-        screeningAnswer: '',
-      }),
-    )
-    expect(result.success).toBe(true)
-    if (result.success) {
-      expect(result.data.commitment).toBeNull()
-      expect(result.data.screeningAnswer).toBeNull()
-    }
-  })
-
-  it('rejects an unknown commitment value', () => {
-    const result = parseAskForm(
-      form({
-        helperId: HELPER_B,
-        askType: 'mentorship',
-        helpNeeded: validHelp,
-        commitment: 'weekly_forever',
-      }),
-    )
+  it('rejects a missing helperId', () => {
+    const result = parseAskForm(form({ helpNeeded: validHelp }))
     expect(result.success).toBe(false)
   })
 
-  it('rejects a screening answer over the cap', () => {
-    const result = parseAskForm(
-      form({
-        helperId: HELPER_B,
-        askType: 'mentorship',
-        helpNeeded: validHelp,
-        screeningAnswer: 'x'.repeat(401),
-      }),
-    )
+  it('rejects a too-short helpNeeded', () => {
+    const result = parseAskForm(form({ helperId: HELPER_A, helpNeeded: 'help' }))
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects helpNeeded over the 800-char draft ceiling', () => {
+    const result = parseAskForm(form({ helperId: HELPER_A, helpNeeded: 'x'.repeat(801) }))
     expect(result.success).toBe(false)
   })
 })
 
 describe('parseHelperPreferenceForm', () => {
-  it('reads openToAdvice and openToMentorship as separate booleans', () => {
+  it('reads the single openToHelp state and topics', () => {
     const result = parseHelperPreferenceForm(
       form({
-        openToAdvice: 'on',
-        openToMentorship: 'on',
+        openToHelp: 'on',
         topics: 'product, hiring',
-        maxActiveMentees: '5',
-        maxPendingRequests: '10',
       }),
     )
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.openToAdvice).toBe(true)
-      expect(result.data.openToMentorship).toBe(true)
+      expect(result.data.openToHelp).toBe(true)
       expect(result.data.topics).toEqual(['product', 'hiring'])
     }
   })
 
-  it('falls back to legacy isOpen field for openToMentorship when missing', () => {
-    const result = parseHelperPreferenceForm(
-      form({
-        openToAdvice: 'on',
-        isOpen: 'on',
-        maxActiveMentees: '5',
-        maxPendingRequests: '10',
-      }),
-    )
-    expect(result.success).toBe(true)
-    if (result.success) expect(result.data.openToMentorship).toBe(true)
-  })
-
-  it('treats unchecked checkboxes as false', () => {
-    const result = parseHelperPreferenceForm(
-      form({
-        // openToAdvice + openToMentorship intentionally absent
-        maxActiveMentees: '5',
-        maxPendingRequests: '10',
-      }),
-    )
+  it('treats an unchecked checkbox as false', () => {
+    const result = parseHelperPreferenceForm(form({}))
     expect(result.success).toBe(true)
     if (result.success) {
-      expect(result.data.openToAdvice).toBe(false)
-      expect(result.data.openToMentorship).toBe(false)
+      expect(result.data.openToHelp).toBe(false)
+      expect(result.data.topics).toEqual([])
     }
+  })
+
+  it('trims and drops empty topic entries', () => {
+    const result = parseHelperPreferenceForm(
+      form({
+        openToHelp: 'on',
+        topics: ' consulting , , business school ',
+      }),
+    )
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.topics).toEqual(['consulting', 'business school'])
   })
 })

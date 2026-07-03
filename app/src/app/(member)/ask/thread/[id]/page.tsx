@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { createClient } from '@/db/server'
 import { getAskThread, type ThreadMessage, type ThreadParticipant } from '@/lib/asks/getThread'
 import { requireSession } from '@/lib/auth/session'
-import { MentorshipGoalTracker } from './goal-tracker'
 import { MessageForm } from './message-form'
 
 type Params = { id: string }
@@ -28,19 +27,11 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
   // Inbox owns active ask threads for both askers and helpers.
   const backHref = '/inbox'
   const backLabel = 'Inbox'
-  // Roles attach to the exchange, never to the person (ADR 0011): the same
-  // helper/asker labels apply to both ask types.
+  // Roles attach to the exchange, never to the person (ADR 0011).
   const myRole = isHelper ? 'Helper' : 'Asker'
-  const conversationKind =
-    thread.ask?.askType === 'mentorship' ? 'ongoing conversation' : 'conversation'
-  const isMentorship = thread.ask?.askType === 'mentorship' && thread.status === 'active'
 
   return (
-    <div
-      className={`density-cozy mx-auto space-y-4 px-4 py-8 sm:px-8 ${
-        isMentorship ? 'max-w-6xl' : 'max-w-3xl'
-      }`}
-    >
+    <div className="density-cozy mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-8">
       <Link
         href={backHref}
         className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground transition-colors hover:text-foreground"
@@ -48,11 +39,7 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
         ← {backLabel}
       </Link>
 
-      <div
-        className={`grid grid-cols-1 items-start gap-6 ${
-          isMentorship ? 'lg:grid-cols-[minmax(0,1fr)_320px]' : ''
-        }`}
-      >
+      <div className="grid grid-cols-1 items-start gap-6">
         <Card className="h-full border-border bg-card shadow-card">
           <CardHeader className="flex-row items-start gap-4 space-y-0 border-b border-border pb-5">
             <Avatar className="size-12 rounded-md after:rounded-md">
@@ -66,7 +53,7 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg">{other.name ?? 'Thread'}</CardTitle>
               <CardDescription>
-                You&apos;re the {myRole} in this {conversationKind}.{' '}
+                You&apos;re the {myRole} in this conversation.{' '}
                 <Link href={`/profile/${other.userId}`} className="underline">
                   View profile
                 </Link>
@@ -114,12 +101,6 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
             </div>
           </CardContent>
         </Card>
-
-        {isMentorship ? (
-          <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card lg:sticky lg:top-24">
-            <MentorshipGoalTracker threadId={thread.id} />
-          </div>
-        ) : null}
       </div>
     </div>
   )

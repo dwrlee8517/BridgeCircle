@@ -10,7 +10,7 @@ import {
   TopicChips,
 } from '@/components/ui/person-card'
 import { StatusBadge, type StatusBadgeProps } from '@/components/ui/status-badge'
-import { askComposeHref, classYearShort, displayName, preferredAskType } from '@/lib/utils'
+import { askComposeHref, classYearShort, displayName, isOpenToHelp } from '@/lib/utils'
 
 export type ResultCardProps = {
   userId: string
@@ -43,11 +43,8 @@ export function ResultCard(props: ResultCardProps) {
   const display = displayName(props.name, props.preferredName)
   const firstName = getActionName(display)
   const yearShort = classYearShort(props.graduationYear)
-  const activeCount = props.activeMenteeCount ?? 0
-  const maxActive = props.maxActiveMentees ?? 5
-  const remaining = Math.max(0, maxActive - activeCount)
   const status = getStatus(props)
-  const askType = preferredAskType(props)
+  const canAsk = isOpenToHelp(props)
   // System rationale renders as plain text; only the member's own headline
   // earns the pull-quote treatment.
   const systemRationale = props.rationale
@@ -122,21 +119,13 @@ export function ResultCard(props: ResultCardProps) {
             {status.label}
           </StatusBadge>
 
-          {props.isOpenAsMentor ? (
-            <p className="text-xs text-muted-foreground md:text-right">
-              {remaining > 0
-                ? `Can take ${remaining} more ${remaining === 1 ? 'conversation' : 'conversations'}`
-                : 'At capacity right now'}
-            </p>
-          ) : null}
-
           <div className="flex gap-1.5">
             <Button asChild variant="outline" size="sm" className="h-8 rounded-md px-3 text-xs">
               <Link href={`/profile/${props.userId}`}>View</Link>
             </Button>
-            {askType ? (
+            {canAsk ? (
               <Button asChild variant="default" size="sm" className="h-8 rounded-md px-3 text-xs">
-                <Link href={askComposeHref(props.userId, askType)}>Ask {firstName}</Link>
+                <Link href={askComposeHref(props.userId)}>Ask {firstName}</Link>
               </Button>
             ) : null}
           </div>
@@ -151,8 +140,7 @@ function getStatus(props: ResultCardProps): {
   tone: NonNullable<StatusBadgeProps['tone']>
   dot: boolean
 } {
-  if (props.isOpenAsMentor) return { label: 'Open as mentor', tone: 'open', dot: false }
-  if (props.isOpenAsAdviceHelper) return { label: 'Open for advice', tone: 'open', dot: true }
+  if (isOpenToHelp(props)) return { label: 'Open to help', tone: 'open', dot: true }
   if (props.mentorPaused) return { label: 'Paused', tone: 'warn', dot: true }
   return { label: 'Not open now', tone: 'muted', dot: false }
 }

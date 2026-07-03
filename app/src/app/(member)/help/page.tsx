@@ -134,7 +134,6 @@ export default async function HelpPage() {
       subject,
       subjectId: slug(subject),
       subjectColor: color,
-      mode: ask.ask_type,
       isRealAsk: Boolean(realNeed),
       need,
       why: [
@@ -145,7 +144,7 @@ export default async function HelpPage() {
         'No one has replied yet',
       ],
       posted: shortRelativeTime(ask.created_at),
-      estReply: ask.ask_type === 'mentorship' ? '~15 min' : '~5 min',
+      estReply: '~5 min',
       href: `/ask/${ask.id}`,
     }
   })
@@ -169,7 +168,6 @@ export default async function HelpPage() {
       subject,
       subjectId: slug(subject),
       subjectColor: color,
-      mode: 'advice',
       isRealAsk: false,
       need: buildJoinerNeed(profile),
       why: [
@@ -183,12 +181,9 @@ export default async function HelpPage() {
   })
 
   const picks = [...incomingPicks, ...recentPicks]
-  const subjects = buildSubjects(subjectLabels, picks, prefs?.activeMenteeCount ?? 0)
+  const subjects = buildSubjects(subjectLabels, picks, incoming.length)
   const availability: HelpAvailability = {
-    openToAdvice: prefs?.openToAdvice ?? true,
-    openToMentorship: prefs?.openToMentorship ?? true,
-    activeMentees: prefs?.activeMenteeCount ?? 0,
-    maxMentees: prefs?.maxActiveMentees ?? 5,
+    openToHelp: prefs?.openToHelp ?? true,
     topics: subjectLabels,
     paused: !!prefs?.pausedAt,
   }

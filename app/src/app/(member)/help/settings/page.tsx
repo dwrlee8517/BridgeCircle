@@ -15,7 +15,7 @@ export default async function HelperSettingsPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-10">
         <p className="text-sm text-muted-foreground">
-          You need an active organization membership to set helper preferences.
+          You need an active organization membership to set help preferences.
         </p>
       </div>
     )
@@ -23,9 +23,8 @@ export default async function HelperSettingsPage() {
 
   return (
     // density-cozy: member-facing surface. Editorial header (kicker + heading)
-    // matches the Civic Editorial prototype's MentorSettingsScreen; the form
-    // itself already carries the controls + live card preview.
-    <div className="density-cozy mx-auto max-w-[900px] space-y-6 px-4 py-8 sm:px-8">
+    // over the reduced one-state form (ADR 0011 Phase 2).
+    <div className="density-cozy mx-auto max-w-[720px] space-y-6 px-4 py-8 sm:px-8">
       <Link
         href={`/profile/${session.userId}`}
         className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -47,8 +46,8 @@ export default async function HelperSettingsPage() {
           How you&apos;d like to help
         </h1>
         <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
-          Choose quick questions, ongoing help, or both — and the topics where classmates should
-          find you. Status auto-expires after 14 days away.
+          One switch — open to helping, or not — and the topics where classmates should find you.
+          Status auto-expires after 14 days away.
         </p>
       </div>
 
@@ -60,24 +59,11 @@ export default async function HelperSettingsPage() {
       ) : null}
 
       <SettingsForm
-        key={[
-          pref.openToAdvice,
-          pref.openToMentorship,
-          pref.topics.join(','),
-          pref.screeningPrompt ?? '',
-          pref.maxActiveMentees,
-          pref.maxPendingRequests,
-        ].join('|')}
+        key={[pref.openToHelp, pref.topics.join(',')].join('|')}
         defaults={{
-          openToAdvice: pref.openToAdvice,
-          openToMentorship: pref.openToMentorship,
+          openToHelp: pref.openToHelp,
           topics: pref.topics.join(', '),
-          screeningPrompt: pref.screeningPrompt ?? '',
-          maxActiveMentees: pref.maxActiveMentees,
-          maxPendingRequests: pref.maxPendingRequests,
         }}
-        activeMenteeCount={pref.activeMenteeCount}
-        pendingRequestCount={pref.pendingRequestCount}
       />
     </div>
   )

@@ -54,10 +54,8 @@ function errorMessage(err: string): string {
       return 'This person is paused while away.'
     case 'helper_full':
       return 'This person has as many pending asks as they can hold right now.'
-    case 'helper_at_capacity':
-      return 'This person is at capacity for ongoing help right now.'
     case 'duplicate_pending':
-      return 'You already have a pending ask of this kind to this person.'
+      return 'You already have a pending ask to this person.'
     default:
       return 'Could not send your ask. Try again.'
   }
