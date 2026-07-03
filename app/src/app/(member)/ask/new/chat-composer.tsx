@@ -117,7 +117,7 @@ export function ChatComposer({
             )}
           >
             {b.role === 'bc' ? (
-              <span className="mb-0.5 block font-mono text-[10px] font-semibold uppercase tracking-label text-muted-foreground">
+              <span className="mb-0.5 block font-mono text-kicker font-semibold uppercase tracking-label text-muted-foreground">
                 BridgeCircle
               </span>
             ) : null}
