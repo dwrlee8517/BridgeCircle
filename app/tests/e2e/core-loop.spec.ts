@@ -152,13 +152,13 @@ test.describe("Core User Loop", () => {
     await page.locator("a", { hasText: "Mark Mentor" }).first().click();
     await page.waitForURL(/\/profile\/[a-f0-9-]+/);
 
-    // Request Mentorship
+    // Ask for ongoing help
     const profileUrl = page.url();
     const mentorId = profileUrl.split("/").pop()?.split("?")[0];
     await page.goto(`/ask/new?to=${mentorId}&type=mentorship&skip=1`);
     await page.waitForURL(/\/ask\/new/);
     await page.locator("#helpNeeded").fill("I am looking for guidance on software engineering careers.");
-    await page.getByRole("button", { name: /send request/i }).click();
+    await page.getByRole("button", { name: /send ask/i }).click();
 
     // Verify request detailed page
     await page.waitForURL(/\/ask\/[a-f0-9-]+/);
