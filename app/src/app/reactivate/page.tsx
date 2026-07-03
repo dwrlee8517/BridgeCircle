@@ -53,7 +53,7 @@ export default async function ReactivatePage() {
         <CardHeader>
           <CardTitle>Welcome back</CardTitle>
           <CardDescription>
-            Your account is paused. Reactivate to get full access to the directory, mentorship, and
+            Your account is paused. Reactivate to get full access to the directory, asks, and
             messaging.
           </CardDescription>
         </CardHeader>

@@ -117,7 +117,7 @@ export function getEventMetadata(title: string): EventMetadata {
         },
         {
           time: '7:30 PM',
-          title: 'Open Networking & Mentorship Matching',
+          title: 'Open Networking & Helper Matching',
           sub: 'Appetizers served',
         },
       ],
@@ -138,7 +138,7 @@ export function getEventMetadata(title: string): EventMetadata {
         { time: '10:00 AM', title: 'Coffee Pouring & Morning Warmups', sub: 'Brew bar counter' },
         {
           time: '10:30 AM',
-          title: 'Mentorship Circles & Ask/Offer Board',
+          title: 'Help Circles & Ask/Offer Board',
           sub: 'Upstairs terrace',
         },
         { time: '11:30 AM', title: 'Open Conversations & Next Steps', sub: 'Group photos' },

@@ -138,13 +138,13 @@ export function ProfileForm({
         {fe.skills ? <p className="text-xs text-destructive">{fe.skills}</p> : null}
       </Section>
 
-      <Section title="Mentorship">
+      <Section title="Helping others">
         <div className="flex items-start gap-3">
           <Checkbox id="openToMentor" name="openToMentor" defaultChecked={defaults.openToMentor} />
           <div className="space-y-1">
-            <Label htmlFor="openToMentor">I&apos;m open to mentoring other alumni</Label>
+            <Label htmlFor="openToMentor">I&apos;m open to helping other alumni</Label>
             <p className="text-xs text-muted-foreground">
-              You can change this any time in mentor settings.
+              You can change this any time in help settings.
             </p>
           </div>
         </div>

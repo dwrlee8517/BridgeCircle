@@ -133,19 +133,19 @@ const CONVERSATION_VIEWS = [
   {
     id: 'helping',
     label: 'Helping others',
-    description: 'Advice and mentorship you give',
+    description: 'Asks you said yes to',
     tone: 'open',
   },
   {
     id: 'getting_help',
     label: 'Getting help',
-    description: 'Advice and mentorship you receive',
+    description: 'Your asks to other members',
     tone: 'info',
   },
   {
     id: 'direct',
     label: 'Direct messages',
-    description: 'Friend-to-friend threads',
+    description: 'Conversations with your connections',
     tone: 'muted',
   },
 ] as const satisfies ReadonlyArray<{
@@ -746,7 +746,7 @@ function InboxListEmpty({
             Find people
           </Link>
           <Link
-            href="/mentorship/settings"
+            href="/help/settings"
             className="text-sm font-semibold text-link hover:text-link-hover"
           >
             Availability
@@ -1063,12 +1063,11 @@ function emptyTitle(area: InboxArea, view: InboxView) {
 
 function emptyBody(area: InboxArea, view: InboxView) {
   if (area === 'conversations' && view === 'needs_response') {
-    return 'Nothing urgent needs a reply. Active advice, mentorship, and direct conversations are still available in the other conversation views.'
+    return 'Nothing urgent needs a reply. Active asks and direct conversations are still available in the other conversation views.'
   }
-  if (area === 'conversations')
-    return 'Accepted help relationships and direct messages collect here.'
+  if (area === 'conversations') return 'Accepted asks and direct messages collect here.'
   if (area === 'requests' && view === 'received') {
-    return 'Advice, mentorship, and connection requests you receive will appear here.'
+    return 'Asks and connection requests you receive will appear here.'
   }
   if (area === 'requests') return 'Pending and declined requests you sent will appear here.'
   return 'Closed threads will appear here once archiving is available.'
@@ -1187,8 +1186,8 @@ function detailActionCopy(item: InboxItem, viewerId: string) {
       kicker: 'Needs your reply',
       title:
         ask.ask_type === 'mentorship'
-          ? `${item.title} asked for mentorship`
-          : `${item.title} asked for advice`,
+          ? `${item.title} asked for ongoing help`
+          : `${item.title} asked for your help`,
       body: 'Accept with a short reply to open the thread, or decline if you are not the right fit.',
     }
   }
@@ -1255,7 +1254,11 @@ function roleHeader(item: InboxItem, viewerId: string) {
 function rowContextLabel(item: InboxItem, viewerId: string) {
   const section = getItemSection(item)
   const sectionName =
-    section === 'connections' ? 'Connection' : section === 'mentorship' ? 'Mentorship' : 'Advice'
+    section === 'connections'
+      ? 'Connection'
+      : section === 'mentorship'
+        ? 'Ongoing help'
+        : 'Quick question'
 
   if (item.type === 'active_thread') {
     return isHelpingItem(item, viewerId)
@@ -1264,8 +1267,8 @@ function rowContextLabel(item: InboxItem, viewerId: string) {
   }
 
   if (item.type === 'dm_thread') return 'Direct message'
-  if (item.type === 'incoming_ask') return `${sectionName} request`
-  if (item.type === 'outgoing_ask') return `${sectionName} sent`
+  if (item.type === 'incoming_ask') return `New ask · ${sectionName.toLowerCase()}`
+  if (item.type === 'outgoing_ask') return `Ask sent · ${sectionName.toLowerCase()}`
   if (item.type === 'friend_request_incoming') return 'Connection request'
   return 'Connection sent'
 }
@@ -1283,7 +1286,7 @@ function AskDetail({
 }) {
   const primaryAsk = ask.reason ?? ask.help_needed ?? ''
   const detail = ask.help_needed && ask.help_needed !== primaryAsk ? ask.help_needed : null
-  const typeLabel = ask.ask_type === 'advice' ? 'Advice request' : 'Mentorship request'
+  const typeLabel = ask.ask_type === 'advice' ? 'Quick question' : 'Ongoing help'
   const acceptFormId = `accept-ask-${ask.id}`
 
   return (
@@ -1354,7 +1357,7 @@ function AskReplyContext({
   cohort?: number | null
   primaryAsk: string
 }) {
-  const typeLabel = ask.ask_type === 'advice' ? 'Advice' : 'Mentorship'
+  const typeLabel = ask.ask_type === 'advice' ? 'Quick question' : 'Ongoing help'
   const cohortLabel = cohort ? `Class of '${String(cohort).slice(-2)}` : null
 
   return (

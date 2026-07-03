@@ -14,15 +14,16 @@ export const MEMBER_NAV_LINKS = [
   // highlight is honest on both: clicking the lit tab is a no-op.
   { href: '/', label: 'Ask', match: ['/', '/ask'] },
   // Help is the supply-side surface for alumni who want to give useful,
-  // lightweight help without committing every interaction to mentorship.
+  // lightweight help without committing to an ongoing relationship.
   { href: '/help', label: 'Help', match: ['/help'] },
   // People remains the broad exploration surface, but the product center
   // is the question-driven Ask / Help loop.
   { href: '/people', label: 'People', match: ['/people', '/discover', '/profile', '/friends'] },
   { href: '/school', label: 'School', match: ['/school', '/events', '/announcements'] },
-  // Inbox absorbs direct messages — the /messages list page redirects
-  // here. Request management lives in Inbox after an ask has been sent.
-  { href: '/inbox', label: 'Inbox', match: ['/inbox', '/messages'] },
+  // Messages (route still /inbox) absorbs direct messages — the /messages
+  // list page redirects here. Every conversation converges here per ADR
+  // 0011; the route itself is renamed in a later phase.
+  { href: '/inbox', label: 'Messages', match: ['/inbox', '/messages'] },
   // /announcements no longer has a top-nav slot — they're low-frequency
   // admin posts. The home page surfaces the latest one as a banner;
   // notifications and admin emails deep-link into /announcements when

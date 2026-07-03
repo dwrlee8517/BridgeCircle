@@ -4,7 +4,7 @@ import { requireSession } from '@/lib/auth/session'
 import { type HelpAvailability, HelpClient, type HelpPick, type HelpSubject } from './help-client'
 
 const SUBJECT_COLORS = ['var(--primary)', 'var(--action-offer)', 'var(--accent-plum)'] as const
-const DEFAULT_SUBJECTS = ['Career transitions', 'Quick advice', 'Mentorship']
+const DEFAULT_SUBJECTS = ['Career transitions', 'Quick questions', 'Ongoing help']
 
 type ProfileSummary = {
   name: string | null

@@ -87,11 +87,7 @@ export function RequestForm({
 
       <div className="flex flex-wrap items-center gap-2">
         <Button type="submit" variant="cta" size="lg" disabled={pending} className="rounded-lg">
-          {pending
-            ? 'Sending...'
-            : askType === 'advice'
-              ? `Send ask to ${firstName}`
-              : `Send request to ${firstName}`}
+          {pending ? 'Sending...' : `Send ask to ${firstName}`}
         </Button>
         <Button type="button" variant="ghost" size="lg" asChild className="rounded-lg">
           <Link href={`/profile/${helperId}`}>Cancel</Link>

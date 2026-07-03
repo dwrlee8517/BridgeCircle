@@ -34,8 +34,8 @@ const SECTIONS: Array<{
   },
   {
     key: 'bio',
-    label: 'Bio & mentoring topics',
-    description: "Your free-text bio and the mentoring topics you've listed.",
+    label: 'Bio & help topics',
+    description: "Your free-text bio and the help topics you've listed.",
   },
   {
     key: 'skills',

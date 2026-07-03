@@ -77,7 +77,7 @@ export async function loadComposer(params: ComposerSearchParams): Promise<Compos
 
   const supabase = await createClient()
   // Pass viewerId so privacy redaction applies — per locked decision,
-  // mentorship doesn't override privacy. The asker sees only what
+  // asking doesn't override privacy. The asker sees only what
   // privacy settings + their (likely non-friend) relationship allows.
   // We also fetch the asker's own profile so the guided flows can derive
   // shared-attribute signal candidates (city / school / major / cohort)
@@ -174,12 +174,12 @@ export function PersonSummaryCard({
         <div className="mt-1 flex flex-wrap gap-1.5">
           {helper.isOpenAsAdviceHelper ? (
             <StatusBadge tone="open" size="sm" dot>
-              Quick advice
+              Quick questions
             </StatusBadge>
           ) : null}
           {helper.isOpenAsMentor ? (
             <StatusBadge tone="info" size="sm" dot>
-              Mentorship
+              Ongoing help
             </StatusBadge>
           ) : null}
         </div>
@@ -219,14 +219,14 @@ export function AskTypeSelector({
   }> = [
     {
       id: 'advice',
-      label: 'Quick advice',
-      sub: 'One-off question or exchange',
+      label: 'Quick question',
+      sub: 'One question, a few exchanges',
       disabled: !helper.isOpenAsAdviceHelper,
     },
     {
       id: 'mentorship',
-      label: 'Mentorship',
-      sub: 'Ongoing relationship over time',
+      label: 'Ongoing help',
+      sub: 'A longer-running conversation',
       disabled: !helper.isOpenAsMentor,
     },
   ]

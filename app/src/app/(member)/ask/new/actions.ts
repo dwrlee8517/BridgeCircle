@@ -49,16 +49,16 @@ function errorMessage(err: string): string {
     case 'no_shared_org':
       return "You and this person aren't in the same organization."
     case 'helper_closed':
-      return 'This person is not currently accepting requests of this kind.'
+      return 'This person is not taking asks of this kind right now.'
     case 'helper_paused':
       return 'This person is paused while away.'
     case 'helper_full':
-      return 'This person is at their maximum number of pending mentorship requests.'
+      return 'This person has as many pending asks as they can hold right now.'
     case 'helper_at_capacity':
-      return 'This person is at their maximum number of active mentees right now.'
+      return 'This person is at capacity for ongoing help right now.'
     case 'duplicate_pending':
-      return 'You already have a pending request of this kind to this person.'
+      return 'You already have a pending ask of this kind to this person.'
     default:
-      return 'Could not send the request. Try again.'
+      return 'Could not send your ask. Try again.'
   }
 }

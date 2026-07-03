@@ -265,7 +265,7 @@ export function SearchForm({
           <div className="flex flex-col gap-4">
             <FilterSection label="Availability">
               <FilterRow
-                label="Open as mentor"
+                label="Open to help"
                 count={openCount}
                 active={defaults.openToMentor}
                 dotClassName="bg-accent-sage"
@@ -589,7 +589,7 @@ function buildActiveFilters(defaults: SearchFormDefaults): ActiveFilterItem[] {
         }
       : null,
     defaults.q ? { key: 'q', label: 'keyword', value: defaults.q } : null,
-    defaults.openToMentor ? { key: 'openToMentor', label: 'mentor', value: 'yes' } : null,
+    defaults.openToMentor ? { key: 'openToMentor', label: 'open to help', value: 'yes' } : null,
     defaults.peopleIKnow ? { key: 'peopleIKnow', label: 'my circle', value: 'yes' } : null,
   ]
   return filters.filter((filter): filter is ActiveFilterItem => filter !== null)

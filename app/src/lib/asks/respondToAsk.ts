@@ -3,7 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/db/admin'
 import type { Database } from '@/db/database.types'
 import { createNotification } from '@/lib/notifications/createNotification'
-import { sendMentorshipAcceptedEmail } from '@/notify/resend'
+import { sendAskAcceptedEmail } from '@/notify/resend'
 import type { DeclineReason } from './declineReasons'
 
 export type RespondInput = {
@@ -188,9 +188,9 @@ async function sendAcceptedEmail(
     const { data: askerAuth } = await admin.auth.admin.getUserById(askerId)
     if (!askerAuth?.user?.email) return
 
-    await sendMentorshipAcceptedEmail({
+    await sendAskAcceptedEmail({
       to: askerAuth.user.email,
-      mentorName: helperBase?.name ?? 'Your helper',
+      helperName: helperBase?.name ?? 'Your helper',
       threadUrl: `${appOrigin}/ask/thread/${threadId}`,
       askType,
     })

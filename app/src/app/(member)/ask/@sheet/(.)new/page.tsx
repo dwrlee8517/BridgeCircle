@@ -30,9 +30,9 @@ export default async function InterceptedNewAskPage({
 
   if (!isOpenForType) {
     return (
-      <ComposerSheet title="Not taking requests right now">
+      <ComposerSheet title="Not taking asks right now">
         <p className="text-sm leading-relaxed text-muted-foreground">
-          {helperDisplay} isn&apos;t accepting advice or mentorship requests right now.
+          {helperDisplay} isn&apos;t taking new asks right now.
         </p>
         <Link
           href={`/profile/${helper.userId}`}

@@ -28,10 +28,8 @@ export default async function NewAskPage({
       <div className="mx-auto max-w-2xl px-4 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>Not taking requests right now</CardTitle>
-            <CardDescription>
-              {helperDisplay} isn&apos;t accepting advice or mentorship requests right now.
-            </CardDescription>
+            <CardTitle>Not taking asks right now</CardTitle>
+            <CardDescription>{helperDisplay} isn&apos;t taking new asks right now.</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href={`/profile/${helper.userId}`} className="text-sm underline">

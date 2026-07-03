@@ -28,18 +28,11 @@ export default async function ThreadPage({ params }: { params: Promise<Params> }
   // Inbox owns active ask threads for both askers and helpers.
   const backHref = '/inbox'
   const backLabel = 'Inbox'
-  // Role label adapts to ask type: mentor/mentee for ongoing mentorship,
-  // helper/asker for one-off advice. Both still flow through the same
-  // thread shape; only the label changes.
-  const myRole =
-    thread.ask?.askType === 'mentorship'
-      ? isHelper
-        ? 'Mentor'
-        : 'Mentee'
-      : isHelper
-        ? 'Helper'
-        : 'Asker'
-  const conversationKind = thread.ask?.askType === 'mentorship' ? 'mentorship' : 'conversation'
+  // Roles attach to the exchange, never to the person (ADR 0011): the same
+  // helper/asker labels apply to both ask types.
+  const myRole = isHelper ? 'Helper' : 'Asker'
+  const conversationKind =
+    thread.ask?.askType === 'mentorship' ? 'ongoing conversation' : 'conversation'
   const isMentorship = thread.ask?.askType === 'mentorship' && thread.status === 'active'
 
   return (

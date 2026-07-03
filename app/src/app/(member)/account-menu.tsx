@@ -83,9 +83,9 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
           asChild
           className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
         >
-          <Link href="/mentorship/settings">
+          <Link href="/help/settings">
             <Settings className="size-4 text-muted-foreground" />
-            Helper preferences
+            Help settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="my-1.5" />

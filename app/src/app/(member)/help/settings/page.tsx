@@ -47,14 +47,14 @@ export default async function HelperSettingsPage() {
           How you&apos;d like to help
         </h1>
         <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
-          Choose quick advice, ongoing mentorship, or both — and the topics where classmates should
+          Choose quick questions, ongoing help, or both — and the topics where classmates should
           find you. Status auto-expires after 14 days away.
         </p>
       </div>
 
       {pref.pausedAt ? (
         <p className="rounded-lg border border-accent-ochre/25 bg-accent-ochre/10 p-3 text-xs text-foreground">
-          You were auto-paused after 14 days without responding to a request. Saving any change here
+          You were auto-paused after 14 days without responding to an ask. Saving any change here
           will lift the pause.
         </p>
       ) : null}

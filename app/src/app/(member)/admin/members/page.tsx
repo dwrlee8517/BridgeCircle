@@ -93,7 +93,7 @@ export default async function AdminMembersPage() {
               {counts.revoked > 0 ? (
                 <Badge variant="destructive">{counts.revoked} revoked</Badge>
               ) : null}
-              <Badge variant="outline">{counts.mentors} open mentors</Badge>
+              <Badge variant="outline">{counts.mentors} open to helping</Badge>
             </div>
           </div>
         </CardHeader>
@@ -134,7 +134,7 @@ export default async function AdminMembersPage() {
                           </Link>
                           {m.isOpenAsMentor ? (
                             <Pill tone="open" className="ml-2 align-middle text-xs" dot>
-                              mentor
+                              helper
                             </Pill>
                           ) : null}
                         </div>

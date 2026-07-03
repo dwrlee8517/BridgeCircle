@@ -301,7 +301,7 @@ export async function AskAlternativeSection({
                 dot
                 className="ml-2"
               >
-                {askType === 'advice' ? 'Quick advice' : 'Mentorship'}
+                {askType === 'advice' ? 'Quick question' : 'Ongoing help'}
               </StatusBadge>
             </p>
             {role || hit.city ? (

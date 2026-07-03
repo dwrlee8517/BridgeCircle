@@ -46,7 +46,7 @@ export default async function NotificationsPage() {
         <EmptyState
           icon={Bell}
           title="No notifications yet"
-          description="Friend requests, mentor responses, messages, and announcements will show up here as they happen."
+          description="Connection requests, ask replies, messages, and announcements will show up here as they happen."
           action={{ label: 'Find people', href: '/people' }}
         />
       ) : (

@@ -244,7 +244,7 @@ export default async function OnboardingPage({
           title="Where you've been."
           lede={
             <>
-              Past roles are how mentors get matched on the harder questions —{' '}
+              Past roles are how helpers get matched on the harder questions —{' '}
               <em>&ldquo;someone who worked in fintech before teaching.&rdquo;</em> Drop your resume
               to fill it in fast.
             </>

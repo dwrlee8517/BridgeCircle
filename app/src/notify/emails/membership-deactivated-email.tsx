@@ -18,8 +18,7 @@ export function MembershipDeactivatedEmail({ recipientName, orgName, reason }: P
       <CivicText>{greeting(recipientName)}</CivicText>
       <CivicText>
         An admin deactivated your access to <strong>{orgName}</strong> on BridgeCircle. You will not
-        appear in the directory or be reachable for new mentorship requests unless your access is
-        restored.
+        appear in the directory or be reachable for new asks unless your access is restored.
       </CivicText>
       {reason ? (
         <>

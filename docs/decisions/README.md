@@ -53,3 +53,5 @@ What else we looked at and why we rejected it.
 - [0007 — `/lib` discipline: business logic out of route handlers](0007-lib-discipline.md)
 - [0008 — Deploy ordering and the expand/contract migration discipline](0008-deploy-ordering-expand-contract.md)
 - [0009 — Hybrid Ask matching](0009-hybrid-ask-matching.md)
+- [0010 — Horizontal help and the warm-data flywheel](0010-horizontal-help-warm-data-flywheel.md) — *proposed*; amends 0003; D1 superseded in part by 0011
+- [0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface](0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics, preserves 0003 gating
