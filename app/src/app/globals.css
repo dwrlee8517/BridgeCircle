@@ -26,6 +26,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
@@ -60,6 +61,8 @@
   --color-action-offer: var(--action-offer);
   --color-action-offer-hover: var(--action-offer-hover);
   --color-action-on-offer: var(--action-on-offer);
+  --color-action-offer-weak: var(--action-offer-weak);
+  --color-action-offer-weak-text: var(--action-offer-weak-text);
   --color-link: var(--link);
   --color-link-hover: var(--link-hover);
   --color-focus-ring: var(--focus-ring);
@@ -184,64 +187,67 @@
   --z-index-toast-notification: var(--z-toast-notification);
 }
 
-/* Civic Editorial theme — Electric Sky & Obsidian Ink on Platinum Bone.
-   Keep this in sync with docs/experience/ui/design-system/tokens.md. */
+/* Field Pro theme (TDS/Toss baseline) — ADR 0012 Phase B.
+   Values swapped from Civic Editorial onto the SAME token names so every
+   owned primitive keeps compiling; shape (radius) + per-primitive reskin
+   land in Phase C. Ramp source of truth:
+   docs/experience/ui/design-system/handoff/fieldpro-design-system/. */
 :root {
-  /* Page surface — Platinum Bone (#fafaf9) so cards on white still have contrast */
-  --background: #fafaf9;
-  --foreground: #0c0c0b;
+  /* Page canvas — grey-100 so white cards float (the Toss idiom) */
+  --background: #f2f4f6;
+  --foreground: #191f28; /* grey-900 */
   --card: #ffffff;
-  --card-foreground: #0c0c0b;
+  --card-foreground: #191f28;
   --popover: #ffffff;
-  --popover-foreground: #0c0c0b;
-  --primary: #2563eb; /* Electric Sky */
-  --primary-hover: #1d4ed8;
-  --primary-on-dark: #93c5fd;
+  --popover-foreground: #191f28;
+  --primary: #3182f6; /* blue-500 — THE action color (D3) */
+  --primary-hover: #1b64da; /* blue-700 */
+  --primary-on-dark: #90c2ff; /* blue-200 */
   --primary-foreground: #ffffff;
-  /* CTA — Amber #F59E0B. Reserved for the single highest-stakes action per
-     surface (Send request, RSVP, Ask for advice). Primary blue still owns
-     links and navigation. See docs/experience/ui/design-system/tokens.md. */
-  --cta: #f59e0b;
-  --cta-hover: #d97706;
-  --cta-foreground: #0c0c0b;
-  /* Warm Ink — the Obsidian family as an editorial surface. Replaced the
-     placeholder Midnight navy (#081126), which was the only cold neutral in
-     an otherwise warm system. Same material as the page, inverted. */
-  --surface-ink: #1b1813;
-  --surface-ink-foreground: #fafaf9;
-  --surface-ink-muted: rgb(250 250 249 / 68%);
-  --secondary: #f4f3ee;
-  --secondary-foreground: #0c0c0b;
-  --muted: #ebebe5;
-  --muted-foreground: #4d4d4a;
-  --accent: #ebebe5;
-  --accent-foreground: #2563eb;
-  --destructive: #9b2c1f;
+  /* CTA — under Field Pro D3 the highest-stakes action is blue, not amber.
+     Amber retires; --cta now tracks primary (density-pro already did this). */
+  --cta: #3182f6;
+  --cta-hover: #1b64da;
+  --cta-foreground: #ffffff;
+  /* Dark surface band — cool grey-ink, replaces Warm Ink navy. A6 confirmed a
+     dark band survives; its gradient lives in --gradient-band-dark below. */
+  --surface-ink: #191f28;
+  --surface-ink-foreground: #f9fafb;
+  --surface-ink-muted: rgb(249 250 251 / 68%);
+  --secondary: #f2f4f6; /* grey-100 chip/secondary fill (reads on white cards) */
+  --secondary-foreground: #191f28;
+  --muted: #f2f4f6;
+  --muted-foreground: #6b7684; /* grey-600 */
+  --accent: #f2f4f6; /* ghost/hover fill */
+  --accent-foreground: #3182f6;
+  --destructive: #d22030; /* red-600 — safe as fill AND text on white */
   --destructive-foreground: #ffffff;
-  --border: #dcdcd6;
-  --input: #dcdcd6;
-  --ring: #2563eb;
-  --chart-1: #2563eb; /* Electric Sky */
-  --chart-2: #15a05f;
-  --chart-3: #a16207;
-  --chart-4: #9b2c1f;
-  --chart-5: #0c0c0b;
-  --radius: 10px;
-  --sidebar: #0c0c0b;
-  --sidebar-foreground: #fafaf9;
-  --sidebar-primary: #2563eb;
+  --border: #e6e9ee; /* grey-200 hairline */
+  --border-subtle: #edf0f2; /* lighter divider — nav rails, card row splits */
+  --input: #e6e9ee;
+  --ring: #3182f6;
+  --chart-1: #3182f6; /* blue-500 */
+  --chart-2: #03b26c; /* green-500 */
+  --chart-3: #c98a1a; /* ochre-500 */
+  --chart-4: #d22030; /* red-600 */
+  --chart-5: #191f28; /* grey-900 */
+  --radius: 10px; /* Phase C: controls → 12, cards → 20 */
+  --sidebar: #191f28; /* grey-ink dark rail (was warm near-black) */
+  --sidebar-foreground: #f9fafb;
+  --sidebar-primary: #3182f6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #222221;
+  --sidebar-accent: #333d4b; /* grey-800 */
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #222221;
-  --sidebar-ring: #2563eb;
+  --sidebar-border: #333d4b;
+  --sidebar-ring: #3182f6;
 
-  /* Unique Editorial Accent Colors.
-     Ochre is intentionally distinct from Amber CTA at small sizes. */
-  --accent-ochre: #a16207;
-  --accent-rust: #c4314b;
-  --accent-sage: #15a05f;
-  --accent-plum: #7c3aed;
+  /* Editorial accent roles, re-derived from Field Pro ramps.
+     sage → green-700 (AA as success text + dots); ochre → #c98a1a;
+     rust → red-500; plum → blue (A6: violet deliberately dropped). */
+  --accent-ochre: #c98a1a;
+  --accent-rust: #f04452; /* red-500 */
+  --accent-sage: #0b8a57; /* green-700 */
+  --accent-plum: #3182f6; /* A6: violet folds to blue */
 
   /* Semantic role aliases */
   --surface-page: var(--background);
@@ -256,9 +262,14 @@
   --action-primary-hover: var(--primary-hover);
   --action-on-primary: var(--primary-foreground);
   --action-on-editorial: var(--primary-on-dark);
-  --action-offer: var(--accent-sage);
-  --action-offer-hover: #11814d;
+  /* Give-side lead action (A6: action follows section identity). Green-700
+     fill so white text clears AA (~4.8:1); the brighter #15c47e in the mockup
+     fails. This is the one place a section hue fills a button. */
+  --action-offer: #0b8a57; /* green-700 */
+  --action-offer-hover: #077046; /* green-800 */
   --action-on-offer: #ffffff;
+  --action-offer-weak: #e7f8f0; /* tint for low-match / secondary offer */
+  --action-offer-weak-text: #03b26c; /* green-500 */
   --link: var(--primary);
   --link-hover: var(--primary-hover);
   --focus-ring: var(--ring);
@@ -284,16 +295,16 @@
   --event-featured: var(--primary);
   --admin-operational: var(--foreground);
 
-  /* Tints and interaction colors */
-  --primary-tint: rgb(37 99 235 / 10%);
-  --primary-tint-strong: rgb(37 99 235 / 16%);
-  --success-tint: rgb(21 160 95 / 10%);
-  --warning-tint: rgb(161 98 7 / 12%);
-  --danger-tint: rgb(155 44 31 / 10%);
-  --plum-tint: rgb(124 58 237 / 10%);
-  --editorial-rule: rgb(250 250 249 / 16%);
-  --editorial-rule-strong: rgb(250 250 249 / 28%);
-  --focus-ring-muted: rgb(37 99 235 / 10%);
+  /* Tints and interaction colors (Field Pro ramp rgb) */
+  --primary-tint: rgb(49 130 246 / 10%); /* blue-500 */
+  --primary-tint-strong: rgb(49 130 246 / 16%);
+  --success-tint: rgb(3 178 108 / 10%); /* green-500 */
+  --warning-tint: rgb(201 138 26 / 12%); /* ochre-500 */
+  --danger-tint: rgb(240 68 82 / 10%); /* red-500 */
+  --plum-tint: rgb(49 130 246 / 10%); /* A6: plum folds to blue */
+  --editorial-rule: rgb(249 250 251 / 16%);
+  --editorial-rule-strong: rgb(249 250 251 / 28%);
+  --focus-ring-muted: rgb(49 130 246 / 12%);
 
   /* Motion and density tokens */
   --motion-instant: 0ms;
@@ -307,15 +318,28 @@
   --density-default: 1;
   --density-roomy: 1.125;
 
-  /* Shadow scale — keep editorial; subtle lift, no dashboard gloss */
-  --shadow-card: 0 1px 0 rgb(12 12 11 / 0.03);
-  --shadow-card-hover: 0 4px 12px -2px rgb(12 12 11 / 0.06);
-  --shadow-hero: 0 12px 34px -8px rgb(12 12 11 / 0.1);
+  /* Shadow scale — Field Pro floats cards on grey; ink is grey-900.
+     Phase C may soften to the full TDS card shadow + --ring-card. */
+  --shadow-card: 0 1px 0 rgb(25 31 40 / 0.03);
+  --shadow-card-hover: 0 4px 12px -2px rgb(25 31 40 / 0.06);
+  --shadow-hero: 0 12px 34px -8px rgb(25 31 40 / 0.1);
+
+  /* Near-borderless card edge (A6) — compose as
+     `box-shadow: var(--ring-card), var(--shadow-card)`. */
+  --ring-card: inset 0 0 0 1px rgb(25 31 40 / 0.05);
+
+  /* Section-identity gradient bands (D7/A6) — same-hue, band surfaces only.
+     Text on blue/green bands is #ffffff. */
+  --gradient-band-blue: linear-gradient(162deg, #3f88f1 0%, #2f73e6 48%, #1f5bcc 100%);
+  --gradient-band-green: linear-gradient(160deg, #23c386 0%, #15a368 50%, #0b8a57 100%);
+  --gradient-band-dark: linear-gradient(157deg, #2a3340 0%, #191f28 62%);
+  --identity-give: #03b26c; /* green-500 */
+  --identity-school: #2f73e6; /* School band mid */
 
   /* Page band (.bc-page-band) — white sheen + sapphire glow over the canvas.
      Themed via variables so dark mode overrides values, not selectors. */
   --page-band-sheen: rgb(255 255 255 / 0.72);
-  --page-band-glow: rgb(37 99 235 / 0.07);
+  --page-band-glow: rgb(49 130 246 / 0.07);
 
   /* Spacing Grid Scale variables */
   --space-1: 0.25rem; /* 4px */
@@ -366,81 +390,85 @@
 }
 
 .dark {
-  --background: #0c0c0b;
-  --foreground: #fafaf9;
-  --card: #1e1e1d;
-  --card-foreground: #fafaf9;
-  --popover: #1e1e1d;
-  --popover-foreground: #fafaf9;
-  --primary: #93c5fd; /* Electric Sky on dark */
-  --primary-hover: #bfdbfe;
-  --primary-on-dark: #93c5fd;
-  --primary-foreground: #0c0c0b;
-  /* CTA on dark — slightly lighter amber for the 4.5:1 contrast target */
-  --cta: #fbbf24;
-  --cta-hover: #f59e0b;
-  --cta-foreground: #0c0c0b;
-  /* Warm Ink on dark — lifted slightly above the #0c0c0b canvas so the
-     editorial band stays a distinct surface in dark mode. */
-  --surface-ink: #211e19;
-  --surface-ink-foreground: #fafaf9;
-  --surface-ink-muted: rgb(250 250 249 / 68%);
-  --secondary: #2b2b29;
-  --secondary-foreground: #fafaf9;
-  --muted: #2b2b29;
-  --muted-foreground: #b0b0aa;
-  --accent: #2b2b29;
-  --accent-foreground: #93c5fd;
-  --destructive: #c44a39;
-  --destructive-foreground: #fafaf9;
-  --border: rgb(250 250 249 / 12%);
-  --input: rgb(250 250 249 / 15%);
-  --ring: #93c5fd;
-  --chart-1: #93c5fd;
-  --chart-2: #43c489;
-  --chart-3: #dda150;
-  --chart-4: #c44a39;
-  --chart-5: #fafaf9;
-  --sidebar: #1e1e1d;
-  --sidebar-foreground: #fafaf9;
-  --sidebar-primary: #93c5fd;
-  --sidebar-primary-foreground: #0c0c0b;
-  --sidebar-accent: #2b2b29;
-  --sidebar-accent-foreground: #fafaf9;
-  --sidebar-border: rgb(250 250 249 / 12%);
-  --sidebar-ring: #93c5fd;
+  --background: #101418;
+  --foreground: #f2f4f6; /* grey-100 */
+  --card: #1b222c;
+  --card-foreground: #f2f4f6;
+  --popover: #1b222c;
+  --popover-foreground: #f2f4f6;
+  --primary: #64a8ff; /* blue-300 on dark */
+  --primary-hover: #90c2ff; /* blue-200 */
+  --primary-on-dark: #90c2ff;
+  --primary-foreground: #101418;
+  /* CTA retires to primary on dark too (D3) */
+  --cta: #64a8ff;
+  --cta-hover: #90c2ff;
+  --cta-foreground: #101418;
+  /* Dark band surface, lifted above the #101418 canvas so it stays distinct */
+  --surface-ink: #222a35;
+  --surface-ink-foreground: #f2f4f6;
+  --surface-ink-muted: rgb(242 244 246 / 68%);
+  --secondary: #222a35;
+  --secondary-foreground: #f2f4f6;
+  --muted: #222a35;
+  --muted-foreground: #b0b8c1; /* grey-400 */
+  --accent: #222a35;
+  --accent-foreground: #64a8ff;
+  --destructive: #f04452; /* red-500 */
+  --destructive-foreground: #f9fafb;
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 14%);
+  --ring: #64a8ff;
+  --chart-1: #64a8ff;
+  --chart-2: #15c47e; /* green-400 */
+  --chart-3: #d69f32; /* ochre-400 */
+  --chart-4: #f05d6c; /* red-400 */
+  --chart-5: #f2f4f6;
+  --sidebar: #1b222c;
+  --sidebar-foreground: #f2f4f6;
+  --sidebar-primary: #64a8ff;
+  --sidebar-primary-foreground: #101418;
+  --sidebar-accent: #222a35;
+  --sidebar-accent-foreground: #f2f4f6;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #64a8ff;
 
-  /* Unique Editorial Accent Colors for Dark Mode (Slightly lighter OKLCH L-values) */
-  --accent-ochre: #dda150;
-  --accent-rust: #e0617a;
-  --accent-sage: #43c489;
-  --accent-plum: #a78bfa;
+  /* Editorial accent roles on dark — ramp stops lifted for legibility;
+     plum still folds to blue (A6). */
+  --accent-ochre: #d69f32; /* ochre-400 */
+  --accent-rust: #f05d6c; /* red-400 */
+  --accent-sage: #15c47e; /* green-400 */
+  --accent-plum: #64a8ff; /* A6: violet folds to blue */
 
-  /* Offer action on dark — emerald lifts to #43c489, so flip the label to ink */
-  --action-offer-hover: #2fb772;
-  --action-on-offer: #0c0c0b;
+  /* Give action lifts to a brighter green on dark; label flips to ink */
+  --action-offer: #15c47e; /* green-400 */
+  --action-offer-hover: #03b26c; /* green-500 */
+  --action-on-offer: #191f28;
+  --action-offer-weak: rgb(3 178 108 / 16%);
+  --action-offer-weak-text: #4dd49b; /* green-300 */
 
   --state-warning-foreground: var(--accent-ochre);
   --state-danger-foreground: #fecaca;
   --state-categorized-foreground: var(--foreground);
-  --primary-tint: rgb(147 197 253 / 14%);
-  --primary-tint-strong: rgb(147 197 253 / 22%);
-  --success-tint: rgb(67 196 137 / 16%);
-  --warning-tint: rgb(221 161 80 / 16%);
-  --danger-tint: rgb(208 95 67 / 16%);
-  --plum-tint: rgb(167 139 250 / 16%);
-  --editorial-rule: rgb(250 250 249 / 16%);
-  --editorial-rule-strong: rgb(250 250 249 / 28%);
-  --focus-ring-muted: rgb(147 197 253 / 14%);
+  --primary-tint: rgb(100 168 255 / 14%);
+  --primary-tint-strong: rgb(100 168 255 / 22%);
+  --success-tint: rgb(21 196 126 / 16%);
+  --warning-tint: rgb(214 159 50 / 16%);
+  --danger-tint: rgb(240 93 108 / 16%);
+  --plum-tint: rgb(100 168 255 / 16%); /* A6: plum folds to blue */
+  --editorial-rule: rgb(242 244 246 / 16%);
+  --editorial-rule-strong: rgb(242 244 246 / 28%);
+  --focus-ring-muted: rgb(100 168 255 / 14%);
 
   /* Shadow scale — slightly stronger on dark to remain visible */
   --shadow-card: 0 1px 0 rgb(0 0 0 / 0.25);
   --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.35);
   --shadow-hero: 0 12px 34px -8px rgb(0 0 0 / 0.45);
+  --ring-card: inset 0 0 0 1px rgb(255 255 255 / 0.06);
 
   /* Page band — flip the white sheen to a faint lift; soften the glow */
   --page-band-sheen: rgb(255 255 255 / 0.04);
-  --page-band-glow: rgb(147 197 253 / 0.06);
+  --page-band-glow: rgb(100 168 255 / 0.06);
 }
 
 @layer base {
@@ -595,15 +623,15 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid rgb(37 99 235 / 18%);
+  border: 1px solid rgb(49 130 246 / 18%);
   border-radius: var(--radius-md);
   background:
-    radial-gradient(circle at 8% 30%, rgb(37 99 235 / 5.5%), transparent 32%),
-    radial-gradient(circle at 78% 10%, rgb(21 160 95 / 3.5%), transparent 30%), var(--card);
+    radial-gradient(circle at 8% 30%, rgb(49 130 246 / 5.5%), transparent 32%),
+    radial-gradient(circle at 78% 10%, rgb(3 178 108 / 3.5%), transparent 30%), var(--card);
   box-shadow:
-    0 0 0 1px rgb(37 99 235 / 4%),
-    0 20px 58px rgb(37 99 235 / 7%),
-    0 14px 34px rgb(12 12 11 / 7%);
+    0 0 0 1px rgb(49 130 246 / 4%),
+    0 20px 58px rgb(49 130 246 / 7%),
+    0 14px 34px rgb(25 31 40 / 7%);
   transition:
     border-color var(--motion-base) var(--ease-standard),
     box-shadow var(--motion-base) var(--ease-standard);
@@ -615,11 +643,11 @@
 }
 
 .bc-command-surface:focus-within {
-  border-color: rgb(37 99 235 / 38%);
+  border-color: rgb(49 130 246 / 38%);
   box-shadow:
     0 0 0 4px var(--focus-ring-muted),
-    0 20px 58px rgb(37 99 235 / 9%),
-    0 14px 34px rgb(12 12 11 / 8%);
+    0 20px 58px rgb(49 130 246 / 9%),
+    0 14px 34px rgb(25 31 40 / 8%);
 }
 
 .bc-section-kicker {
@@ -668,7 +696,7 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--card);
-  box-shadow: 0 1px 0 rgb(12 12 11 / 0.03);
+  box-shadow: 0 1px 0 rgb(25 31 40 / 0.03);
 }
 
 .bc-timeline-line {
@@ -725,9 +753,9 @@
   --line-height-body-md: 1.5;
   --line-height-caption: 1.4;
 
-  --shadow-card: 0 1px 0 rgb(12 12 11 / 0.03);
-  --shadow-card-hover: 0 4px 12px -2px rgb(12 12 11 / 0.06);
-  --shadow-hero: 0 12px 34px -8px rgb(12 12 11 / 0.1);
+  --shadow-card: 0 1px 0 rgb(25 31 40 / 0.03);
+  --shadow-card-hover: 0 4px 12px -2px rgb(25 31 40 / 0.06);
+  --shadow-hero: 0 12px 34px -8px rgb(25 31 40 / 0.1);
 }
 
 /* ---- DENSITY: PRO ---- */
@@ -752,9 +780,9 @@
   --line-height-body-md: 1.45;
   --line-height-caption: 1.4;
 
-  --shadow-card: 0 1px 0 rgb(12 12 11 / 0.04);
-  --shadow-card-hover: 0 2px 6px -1px rgb(12 12 11 / 0.06);
-  --shadow-hero: 0 4px 12px -3px rgb(12 12 11 / 0.08);
+  --shadow-card: 0 1px 0 rgb(25 31 40 / 0.04);
+  --shadow-card-hover: 0 2px 6px -1px rgb(25 31 40 / 0.06);
+  --shadow-hero: 0 4px 12px -3px rgb(25 31 40 / 0.08);
 
   /* Operator override: amber CTA reverts to primary blue */
   --cta: var(--primary);
