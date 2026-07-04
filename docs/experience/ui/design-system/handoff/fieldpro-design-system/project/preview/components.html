@@ -11,6 +11,8 @@
   .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 10px}
   .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-control);padding:10px 20px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
   .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
+  .btn.give{background:var(--action-give);color:var(--action-on-give)}
+  .btn.give-weak{background:var(--action-give-weak);color:var(--action-give-weak-text)}
   .btn.weak{background:var(--action-weak);color:var(--action-weak-text)}
   .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
   .pill{border-radius:var(--radius-pill);padding:4px 12px;font-size:12px;font-weight:700}
@@ -27,9 +29,11 @@
 <body>
 
   <div class="card">
-    <p class="label">Buttons — one fill per surface, always blue (D3)</p>
+    <p class="label">Buttons — one lead fill per surface: blue by default, green on give (D3, A6)</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <span class="btn fill">Send ask to Jane</span>
+      <span class="btn give">Offer to help</span>
+      <span class="btn give-weak">Offer · low match</span>
       <span class="btn weak">Connect</span>
       <span class="btn quiet">Not this time</span>
     </div>
