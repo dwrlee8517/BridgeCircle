@@ -24,7 +24,8 @@ tints are warm cream, hairline `#e6e9ee`, cards carry a faint inset ring.
 **System:** Field Pro — TDS (Toss) baseline + BridgeCircle brand mechanics.
 Replaces Civic Editorial (ADR 0012).
 
-**Font:** Pretendard only (OFL; Latin + Hangul). Headlines 700–800, tight
+**Font:** Pretendard only (OFL; **Latin-only subset — English-only, no
+Hangul/CJK**; self-hosted via next/font/local). Headlines 700–800, tight
 tracking. Digits: tabular-nums. 12px floor. Sentence case.
 
 **Key colors (ramps 50–900 in colors_and_type.css):**

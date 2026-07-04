@@ -193,6 +193,12 @@
    land in Phase C. Ramp source of truth:
    docs/experience/ui/design-system/handoff/fieldpro-design-system/. */
 :root {
+  /* Type: one family — Pretendard (D4). next/font sets --font-sans on <html>;
+     the display + mono aliases fold to it so `font-heading` and mono call
+     sites survive until the Phase D cleanup. Data uses `tabular-nums`. */
+  --font-display: var(--font-sans);
+  --font-mono: var(--font-sans);
+
   /* Page canvas — grey-100 so white cards float (the Toss idiom) */
   --background: #f2f4f6;
   --foreground: #191f28; /* grey-900 */

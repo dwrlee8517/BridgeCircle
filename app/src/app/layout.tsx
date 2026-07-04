@@ -1,36 +1,31 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import { ThemeProvider } from 'next-themes'
 import './globals.css'
 
-// Type system: Inter Tight (display) + Inter (body) + JetBrains Mono (meta).
-// Three sans/mono families, no serif. Matches the Civic Editorial spec
-// documented in docs/experience/ui/design-system/tokens.md.
+// Type system (Field Pro / ADR 0012 D4): one family — Pretendard. Self-hosted
+// via next/font/local, no runtime CDN. Inter / Inter Tight / JetBrains Mono
+// retire; the display + mono aliases fold to Pretendard in globals.css
+// (--font-display / --font-mono → var(--font-sans)), so the ~10 `font-heading`
+// call sites and mono metadata keep working; data uses `tabular-nums`.
 //
-// The IBM Plex full-system swap (2026-05-24 morning) was reverted the
-// same day because it replaced Inter Tight on hero h1s, changing
-// surfaces the user never intended to change. See
-// docs/font_explorations_may24_companies_claude.html for the considered
-// alternatives that document the reasoning.
-
-// Body font. The variable name `--font-sans` is what shadcn / Tailwind
-// utilities resolve to.
-const sans = Inter({
+// The vendored woff2 is a LATIN-ONLY subset of the Pretendard variable font
+// (weight axis 45–930) — no Hangul / CJK glyphs (English-only, per Richard).
+// Regenerate with pyftsubset from `pretendard`'s PretendardVariable.ttf if the
+// covered ranges ever need to change. 100 KB vs. the 2 MB full Hangul build.
+const pretendard = localFont({
+  src: './fonts/PretendardLatinVar.woff2',
   variable: '--font-sans',
-  subsets: ['latin'],
-})
-
-// Display heading font for the modern editorial look — used via the
-// `font-heading` Tailwind utility on hero h1s and section h2s.
-const display = Inter_Tight({
-  variable: '--font-display',
-  subsets: ['latin'],
-})
-
-// Monospace for system metadata, dates, and technical details.
-const mono = JetBrains_Mono({
-  variable: '--font-mono',
-  subsets: ['latin'],
+  weight: '45 930',
+  display: 'swap',
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'sans-serif',
+  ],
 })
 
 export const metadata: Metadata = {
@@ -53,7 +48,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${display.variable} ${mono.variable} h-full antialiased`}
+      className={`${pretendard.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>

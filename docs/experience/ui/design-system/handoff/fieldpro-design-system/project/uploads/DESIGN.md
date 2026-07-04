@@ -146,9 +146,10 @@ Two button rules interact with identity (A6):
 
 ## 3 · Typography
 
-**One family: Pretendard** (Variable; OFL; Latin + full Hangul — the Songdo
-pilot renders natively). Production self-hosts via `next/font/local` (D4);
-previews may use the jsDelivr dynamic-subset CSS.
+**One family: Pretendard** (Variable; OFL). Production self-hosts a
+**Latin-only subset** via `next/font/local` (D4) — **English-only, no
+Hangul/CJK** (2026-07-04 decision); ~100 KB variable woff2, weight axis
+45–930. Previews may use the jsDelivr CDN build.
 
 | Level | Size | Weight | Tracking |
 |---|---:|---:|---|
