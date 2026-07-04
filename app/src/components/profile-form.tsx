@@ -78,7 +78,7 @@ export function ProfileForm({
             id="nameOther"
             name="nameOther"
             defaultValue={defaults.nameOther}
-            placeholder="e.g. 이수민, or a nickname"
+            placeholder="e.g. Sam, or a nickname"
           />
         </Field>
         <Field id="graduationYear" label="Graduation year" error={fe.graduationYear} required>
