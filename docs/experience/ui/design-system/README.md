@@ -1,5 +1,14 @@
 # Civic Editorial Design System
 
+> **⚠️ Direction change — 2026-07-04 (ADR 0012 → [0013](../../../decisions/0013-toss-baseline-then-brand-overlay.md)).**
+> Civic Editorial is being retired in favour of a Toss Design System (TDS)
+> baseline. The faithful, complete **`toss-base`** system now lives at
+> [`handoff/toss-base/`](handoff/toss-base/) — the pristine Layer-0 foundation
+> the BridgeCircle brand forks from (the brand fork is `handoff/bridgecircle/`,
+> not yet created). Until the Phase C reskin lands, the Civic contract below
+> still describes **live production** — treat it as current reality, not target.
+> The full docs rewrite/archive is ADR 0013 Phase D.
+
 > **Updated 2026-06-02.** The Claude Design handoff bundle in
 > [`handoff/`](handoff/) is now the source of truth for intended BridgeCircle
 > UI/UX. Production docs and app primitives should align to that handoff while

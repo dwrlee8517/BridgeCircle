@@ -78,6 +78,10 @@ Locked architectural decisions in MADR format.
 - [0007 — `/lib` discipline](decisions/0007-lib-discipline.md)
 - [0008 — Deploy ordering + expand/contract](decisions/0008-deploy-ordering-expand-contract.md)
 - [0009 — Hybrid Ask matching](decisions/0009-hybrid-ask-matching.md)
+- [0010 — Horizontal help and the warm-data flywheel](decisions/0010-horizontal-help-warm-data-flywheel.md) — *proposed*; amends 0003
+- [0011 — Two verbs, one inbox](decisions/0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics
+- [0012 — TDS design system ("Field Pro")](decisions/0012-tds-design-system.md) — *superseded by 0013*
+- [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer `toss-base` + `bridgecircle` fork
 
 ## UI
 
@@ -85,7 +89,7 @@ UX, UI, screen-level decisions, and active visual references.
 
 - [Experience index](experience/README.md) — trust hierarchy for current UX, UI, and screen guidance
 - [UX](experience/ux/) — active UX interpretation and links to canonical behavior docs
-- [Civic Editorial design system](experience/ui/design-system/) — active UI system; the handoff bundle inside it is the intended UI/UX source of truth
+- [Design system](experience/ui/design-system/) — **transitioning off Civic Editorial to a Toss (TDS) baseline** (ADR 0012 → [0013](decisions/0013-toss-baseline-then-brand-overlay.md)). The faithful [`toss-base` bundle](experience/ui/design-system/handoff/toss-base/) is the new Layer-0 foundation the brand forks from; Civic still describes live production until the Phase C reskin.
 - [Current member UI quality plan](experience/audits/current-member-ui-quality-plan.md) — active UI alignment checklist for Home, Ask, Help, People, School, and Inbox
 - [Screen map](experience/screens/phase-1-screen-map.md) — screen-level bridge between behavior and UI
 - [Explorations](experience/explorations/) — experimental workspace, not canonical unless promoted

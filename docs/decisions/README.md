@@ -55,4 +55,5 @@ What else we looked at and why we rejected it.
 - [0009 — Hybrid Ask matching](0009-hybrid-ask-matching.md)
 - [0010 — Horizontal help and the warm-data flywheel](0010-horizontal-help-warm-data-flywheel.md) — *proposed*; amends 0003; D1 superseded in part by 0011
 - [0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface](0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics, preserves 0003 gating
-- [0012 — Adopt a TDS-based design system ("Field Pro"), retire Civic Editorial](0012-tds-design-system.md) — *proposed*; canonical source = new Claude Design design-system project synced via DesignSync
+- [0012 — Adopt a TDS-based design system ("Field Pro"), retire Civic Editorial](0012-tds-design-system.md) — *superseded by 0013*; canonical source = Claude Design design-system project synced via DesignSync
+- [0013 — Build a complete Toss (TDS) baseline first, then a thin BridgeCircle brand overlay](0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer tokens (`toss-base` + `bridgecircle-brand`) from official `@toss/tds` docs
