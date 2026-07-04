@@ -1,4 +1,4 @@
-<!-- @dsCard group="Colors" name="Section identity & gradation" subtitle="Ask blue · Give green · School deep-blue band — identity never touches buttons" -->
+<!-- @dsCard group="Colors" name="Section identity & gradation" subtitle="Ask blue · Give green · School deep-blue band — one action color per surface (A6)" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -30,8 +30,18 @@
   <div class="band" style="background:var(--gradient-band-green)">
     <p class="kicker">Give help</p>
     <h2>2 people are hoping you can help</h2>
-    <p>Green identity (green-500 → green-700). Buttons stay blue elsewhere; on-band buttons are white-fill with band-hue text.</p>
+    <p>Green identity (green-500 → green-700). On-band buttons are white-fill with band-hue text; the give surface's content lead action is a green fill (below).</p>
     <span class="btn" style="color:var(--green-700)">See the queue</span>
+  </div>
+
+  <div class="card">
+    <p class="kicker" style="color:var(--text-muted);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin:0 0 6px">Lead action — one color per surface (A6)</p>
+    <p style="margin:0 0 12px;font-size:14px;color:var(--text-secondary)">Blue is the lead on ask/connect/default; green (<code>--action-give</code>, green-700 for AA) is the lead on the give surface. Never two filled leads on one surface.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span style="background:var(--action-primary);color:var(--action-on-primary);border-radius:var(--radius-control);padding:10px 18px;font-size:14px;font-weight:700">Ask for advice</span>
+      <span style="background:var(--action-give);color:var(--action-on-give);border-radius:var(--radius-control);padding:10px 18px;font-size:14px;font-weight:700">Offer to help</span>
+      <span style="background:var(--action-give-weak);color:var(--action-give-weak-text);border-radius:var(--radius-control);padding:10px 18px;font-size:14px;font-weight:700">Offer to help · low match</span>
+    </div>
   </div>
 
   <div class="card">
@@ -45,7 +55,7 @@
     </div>
   </div>
 
-  <p class="rule">Rules: same-hue gradation only · bands only · 2–3 hues per surface · every commitment button is blue (D3/D7).</p>
+  <p class="rule">Rules: same-hue gradation only · bands only · 2–3 hues per surface · one lead action color per surface — blue by default, green on give (D3 amended A6 / D7).</p>
 
 </body>
 </html>

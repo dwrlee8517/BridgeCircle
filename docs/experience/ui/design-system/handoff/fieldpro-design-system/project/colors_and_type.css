@@ -1,13 +1,25 @@
 /* ============================================================================
    Field Pro — BridgeCircle design tokens (TDS baseline)
-   ADR 0012 · A5-reconciled · 2026-07-04
+   ADR 0012 · A6-reconciled · 2026-07-04
 
    RECONCILED (A5): color values below are extracted from the byte-complete
    "Toss Style – Field Pro v2" reference (uploads/). Deltas from the seed:
    green anchor #00c471 → #03b26c; warning hue bright-orange → muted ochre
-   #c98a1a; School/give bands are exact 3-stops (below). Field Pro v2 uses
-   FIVE hue families only — no teal, no violet (plum folds to blue/green).
+   #c98a1a; School/give bands are exact 3-stops (below).
    A dark surface band exists (--gradient-band-dark) — amends ADR D5.
+
+   RECONCILED (A6): a full re-read of the reference corrected three things A5
+   got wrong or missed:
+     1. D3 is NOT blue-only in the real file. The give side's LEAD ACTION is
+        green-filled ("Offer to help"). Rule now: one action color PER SURFACE,
+        tied to section identity — blue on ask/connect/default, green on give.
+        See --action-give-* below. (The mockup fills give buttons with #15c47e
+        + white text at ~2.3:1 — fails AA — so production darkens the FILL to
+        green-700 #0b8a57 (~4.8:1) while keeping the green identity.)
+     2. Violet #722fc8 DOES appear (Mentor role, 7×). Per the two-verb model
+        (ADR 0011) it is INTENTIONALLY NOT carried over — no violet token.
+     3. Warning ochre #c98a1a confirmed correct; hairline is #e6e9ee (grey-200
+        nudged) with a lighter #edf0f2 divider; cards carry a faint inset ring.
    Type/shape/motion remain seed defaults (not colored) pending a type pass.
    Cleared for the Phase B production translation.
 
@@ -21,14 +33,15 @@
 
 :root {
   /* ------------------------------------------------------------------ */
-  /* 1 · RAMPS — grey is the spine; blue is the only ACTION hue (D3);   */
-  /* green/ochre/red are status + identity hues (D7). NO teal/violet —  */
-  /* confirmed absent in Field Pro v2 (A5); five hue families only.     */
+  /* 1 · RAMPS — grey is the spine; blue + green are ACTION hues (D3     */
+  /* amended, A6: action follows section identity); ochre/red are status */
+  /* (D7). Violet #722fc8 exists in the reference (Mentor role) but is    */
+  /* intentionally NOT carried over per the two-verb model (ADR 0011).   */
   /* ------------------------------------------------------------------ */
 
   --grey-50: #f9fafb;
   --grey-100: #f2f4f6;
-  --grey-200: #e5e8eb;
+  --grey-200: #e6e9ee; /* A6: the file's dominant hairline (53×); was #e5e8eb */
   --grey-300: #d1d6db;
   --grey-400: #b0b8c1;
   --grey-500: #8b95a1;
@@ -63,8 +76,12 @@
 
   /* Ochre (warning) — Field Pro v2's attention hue is a MUTED OCHRE, not
      bright Toss orange (#fe9800 appears nowhere). Var names stay --orange-*
-     to avoid churn; values are the ochre family (A5). */
-  --orange-50: #fdf3e0;
+     to avoid churn; values are the ochre family (A5). The file's own JS
+     confirms it: `const amber = '#c98a1a'` (chart palette, line ~1754).
+     A6: warning TINTS in the file are warm cream (#fef6e7 / #fef3e2 / #fff5e0);
+     50-stop nudged to match. One brighter #ee8f11 appears once, for the
+     "Request sent" pending pill — an optional accent, not a ramp stop. */
+  --orange-50: #fef3e2; /* A6: warm cream warning tint; was #fdf3e0 */
   --orange-100: #fae7c2;
   --orange-200: #f2d491;
   --orange-300: #e6ba5a;
@@ -91,8 +108,8 @@
   /* role vocabulary so the Phase B translation is a value swap.        */
   /* ------------------------------------------------------------------ */
 
-  /* Surfaces: borderless-on-grey is the TDS idiom — cards separate by
-     background contrast, not rules. */
+  /* Surfaces: near-borderless-on-grey is the TDS idiom — cards separate by
+     background contrast + a whisper-faint --ring-card (A6), not visible rules. */
   --surface-page: var(--grey-100);
   --surface-card: #ffffff;
   --surface-panel: var(--grey-50);
@@ -105,10 +122,18 @@
   --text-faint: var(--grey-400);
 
   /* Borders: rare by design. Hairline only where contrast can't do it. */
-  --border: var(--grey-200);
+  --border: var(--grey-200); /* #e6e9ee — the default hairline */
+  --border-subtle: #edf0f2; /* A6: lighter divider — nav rails, card row splits (25×) */
   --border-strong: var(--grey-300);
 
-  /* Actions (D3: monochrome — every commitment is blue) */
+  /* Card edge: cards are near-borderless but carry a whisper-faint inset
+     ring so they read as objects on the grey canvas (A6 — the file does
+     this on every card; it is not a visible rule). Compose into box-shadow:
+     `box-shadow: var(--ring-card), var(--shadow-card);` */
+  --ring-card: inset 0 0 0 1px rgb(25 31 40 / 0.05);
+
+  /* Actions — D3 amended (A6): ONE action color PER SURFACE, tied to
+     section identity. Ask / connect / default surfaces commit in blue. */
   --action-primary: var(--blue-500);
   --action-primary-hover: var(--blue-700);
   --action-on-primary: #ffffff;
@@ -116,6 +141,16 @@
   --action-weak-text: var(--blue-600);
   --action-quiet: var(--grey-100); /* grey-quiet: passes, tone lenses */
   --action-quiet-text: var(--grey-700);
+
+  /* Give-side action (A6). On the green give surface the LEAD action is
+     green, not blue — this is the section identity carrying the commitment.
+     Fill uses green-700 (#0b8a57, ~4.8:1 on white) NOT the mockup's brighter
+     #15c47e (~2.3:1, fails AA). Still ONE lead action per surface. */
+  --action-give: var(--green-700); /* #0b8a57 — accessible give fill */
+  --action-give-hover: var(--green-800); /* #077046 */
+  --action-on-give: #ffffff;
+  --action-give-weak: #e7f8f0; /* exact file tint (status pills + weak give button) */
+  --action-give-weak-text: var(--green-500); /* #03b26c */
   --link: var(--blue-500);
   --link-hover: var(--blue-700);
   --focus-ring: var(--blue-500);
@@ -138,7 +173,9 @@
 
   /* ------------------------------------------------------------------ */
   /* 3 · SECTION IDENTITY + GRADATION (D7)                              */
-  /* Identity shows in bands, tints, dots, badges — never buttons.      */
+  /* Identity shows in bands, tints, dots, badges — and, on its OWN      */
+  /* surface, the single lead action (A6: give side = green button via   */
+  /* --action-give). Everywhere else, buttons stay blue.                 */
   /* Gradients are SAME-HUE only, hero/section bands only.              */
   /* ------------------------------------------------------------------ */
 

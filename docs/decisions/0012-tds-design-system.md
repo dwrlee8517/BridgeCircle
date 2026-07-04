@@ -66,25 +66,36 @@ project names). Civic Editorial is retired to `_archive/`, not deleted.
   Civic: DesignSync moves design files only. The production contract stays
   `globals.css` + owned primitives, translated by hand (Claude-assisted),
   with drift recorded in a new `fidelity-ledger.md`.
-- **D3 — Monochrome *action* color.** Toss blue is the single commitment
-  color for buttons and CTAs. The Civic role-color semantics (amber = asker
-  commits, sage = helper commits, blue = mutual) retire; *who is committing*
-  moves entirely into button copy and badges (as in the approved
-  exploration). This supersedes tokens.md's "amber once per viewport" rule
-  and the `Button variant="offer"` *visual* (the variant API may remain,
-  styled blue, to avoid call-site churn). Monochrome applies to **actions
-  only** — ambient color is D7's job.
+- **D3 — One *action* color per surface, tied to section identity
+  *(amended by A6)*.** Originally: Toss blue is the single commitment color
+  everywhere. **A6 re-read the reference and found this is wrong** — the give
+  surface's lead action ("Offer to help") is *green*-filled, and the ask/
+  connect/default surfaces are blue. So the rule becomes: **each surface has
+  exactly one lead action color, and it is the surface's section-identity
+  hue** — blue on ask/connect/default, green (`--action-give`, production
+  fill green-700 `#0b8a57` for AA; the mockup's `#15c47e` fails white-text
+  contrast) on give. This partially *restores* the two-sided color semantics
+  D3 originally retired: giving reads green, asking reads blue — but via a
+  single lead action per surface, not competing amber/sage roles. Everywhere
+  else, buttons stay blue; a colored button outside its own section's lead
+  action is still wrong. The Civic "amber once per viewport" rule and the
+  `Button variant="offer"` API still retire/remap (offer now styles green on
+  the give surface). Ambient color remains D7's job.
 - **D7 — Full color ramps, section identities, and sanctioned gradation.**
   The token layer defines **multi-stop ramps** (50/100/200/…/800/900) for
-  grey, blue, green, red, and a warning hue. **A5 resolved the open hue
-  question: Field Pro v2 uses exactly five families — no teal, no violet**,
-  and the warning hue is a **muted ochre (`#c98a1a`), not bright orange**;
-  today's `accent-plum` usages fold into blue/green in Phase C (no new
-  ramp). On top of the ramps:
+  grey, blue, green, red, and a warning hue. **A5 said "no teal, no violet";
+  A6 corrected the violet half:** the reference *does* use violet `#722fc8`
+  (7×) for the **Mentor** role — but per ADR 0011's two-verb model (which
+  retires mentorship as a distinct type) it is **intentionally not carried
+  over**. So: five member-facing families, no teal, violet deliberately
+  dropped. The warning hue is a **muted ochre (`#c98a1a`), not bright
+  orange**; today's `accent-plum` and any Mentor-role coloring fold into
+  blue/green/grey in Phase C (no new ramp). On top of the ramps:
   - **Section identity:** pages may carry an ambient hue — per Field Pro
     v2: **School = deep-blue gradation band**, **Give help = green
     identity**, Ask/default = blue. Identity shows in bands, tints, dots,
-    and badges — buttons stay Toss blue everywhere (D3).
+    badges — and, per A6, in the *single lead action* of its own surface
+    (give = green button). Everywhere else buttons stay blue (D3, amended).
   - **Gradation policy:** soft **same-hue** gradients are sanctioned for
     hero/section bands with white/near-white text measured for contrast.
     A5 pinned the exact bands: School `#3f88f1 → #2f73e6 → #1f5bcc`, give
@@ -133,7 +144,8 @@ token ratchet).
 | A2. Create the project | Richard | In Claude Design: **new design-system-type project** named `fieldpro-design-system` (type is immutable — don't reuse a regular project). Move/duplicate "Toss Style – Field Pro v2.dc.html" into it as the reference exploration. |
 | A3. Authorize + push | Richard | Interactive `claude` session in this repo → `/design-login` → `/design-sync` targeting the new project, `localDir` = the handoff folder. Verify with `get_project` that type is `PROJECT_TYPE_DESIGN_SYSTEM` before pushing. First sync pushes the seed up; Claude Design is canonical from then on. |
 | A4. First pull-down | Richard | Sync down so the repo also holds Field Pro v2 itself — this finally gives Claude the exact reference file and dissolves the long-standing access blocker. |
-| A5. Reconciliation audit | Claude | **DONE 2026-07-04.** Extracted exact values from the byte-complete reference and reconciled `colors_and_type.css` + `DESIGN.md` + previews + `SKILL.md`. Deltas applied: green anchor `#00c471 → #03b26c`; warning bright-orange → ochre `#c98a1a`; School/give bands to exact 3-stops; `--gradient-band-dark` added; teal/violet confirmed absent. Still to push back up on the next `/design-sync`. |
+| A5. Reconciliation audit | Claude | **DONE 2026-07-04.** Extracted exact values from the byte-complete reference and reconciled `colors_and_type.css` + `DESIGN.md` + previews + `SKILL.md`. Deltas applied: green anchor `#00c471 → #03b26c`; warning bright-orange → ochre `#c98a1a`; School/give bands to exact 3-stops; `--gradient-band-dark` added. |
+| A6. Full re-read + rule fixes | Claude | **DONE 2026-07-04.** A complete read of all 9 screens (A5 had sampled) corrected three calls: (1) **give side uses green buttons** → D3 amended to *one action color per surface, tied to identity* (blue ask / green give), `--action-give` = green-700 `#0b8a57` for AA since the mockup's `#15c47e` fails white-text contrast; (2) **violet `#722fc8` exists** (Mentor role) but is **intentionally dropped** per ADR 0011; (3) hairline `#e6e9ee`, warm-cream warning tint `#fef3e2`, and a **faint inset card ring** (`--ring-card`) — cards aren't truly borderless. Richard decided (1) and (2). Still to push A5+A6 back up on the next `/design-sync`. |
 
 **Verify:** Design System pane shows the `@dsCard` previews; repo folder and
 project file lists match; A5 diff reviewed and pushed.
@@ -223,8 +235,11 @@ inbox, profile, auth in light + dark; no ratchet regression.
 - **−** Large visual churn across every surface (~26 primitives + all
   routes); mitigated by role-token indirection (values first) and PR
   slicing.
-- **−** D3 gives up the amber/sage two-sided color semantics — the buffer's
-  *who-commits* signal now lives in words and badges only.
+- **~** D3 *(amended A6)* keeps a lighter two-sided color signal: the give
+  surface's lead action is green, the ask side's is blue, so *which side
+  you're on* still reads in color — but via one lead action per surface, not
+  Civic's competing amber/sage roles. Finer who-commits nuance still lives in
+  words and badges.
 - **−** The measured-contrast and ratchet baselines need redoing; email kit
   and OG assets follow separately.
 - **−** A broader palette (full ramps + section identities + gradation)

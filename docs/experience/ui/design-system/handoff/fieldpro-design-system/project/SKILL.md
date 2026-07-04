@@ -11,8 +11,11 @@ If creating visual artifacts (mocks, slides, prototypes), copy the token CSS
 in and build static HTML. If working on production code, translate to the
 role tokens in `app/src/app/globals.css` — never copy inline styles.
 
-**A5-reconciled (2026-07-04)** against the byte-complete "Toss Style – Field
-Pro v2" reference. Colors are the real values; cleared for Phase B.
+**A6-reconciled (2026-07-04)** against the byte-complete "Toss Style – Field
+Pro v2" reference. Colors are the real values; cleared for Phase B. A6 fixed
+three A5 calls: the give side uses **green** buttons (not blue-only);
+**violet is dropped** (reference had it for the retiring Mentor role); warning
+tints are warm cream, hairline `#e6e9ee`, cards carry a faint inset ring.
 
 ---
 
@@ -25,22 +28,25 @@ Replaces Civic Editorial (ADR 0012).
 tracking. Digits: tabular-nums. 12px floor. Sentence case.
 
 **Key colors (ramps 50–900 in colors_and_type.css):**
-- `#3182f6` blue-500 — THE action color; every button/commitment (hover blue-700)
+- `#3182f6` blue-500 — action on ask/connect/default surfaces (hover blue-700)
 - `#e8f3ff` blue-50 — weak (tinted) secondary actions
-- `#f2f4f6` grey-100 — page canvas; white cards float on it, borderless
+- `#0b8a57` green-700 (`--action-give`) — **give-side lead action** fill (AA-safe)
+- `#f2f4f6` grey-100 — page canvas; white cards float on it (faint ring)
 - `#191f28` grey-900 — primary text
 - `#03b26c` green-500 — give-help identity + success (band `#23c386 → #0b8a57`)
 - `#2f73e6` — School band mid; band `#3f88f1 → #2f73e6 → #1f5bcc`
 - `#c98a1a` ochre-500 — warning/attention (muted, NOT bright orange)
 - `#f04452` red-500 — danger/decline tints
-- No teal, no violet — five hue families only (A5)
+- No teal, no violet (reference's Mentor `#722fc8` intentionally dropped, A6)
 
 **Hard rules:**
-- Buttons are blue. Identity hues (green/school-blue) live in bands, tints,
-  dots, badges — never actions (D3/D7).
+- **One action color per surface (D3, amended A6):** blue on ask/connect/
+  default; green (`--action-give`) on the give surface's single lead action.
+  Everywhere else, colored buttons are wrong. Other identity hues live in
+  bands, tints, dots, badges (D7).
 - Gradients: same-hue, band surfaces only (blue-600→800, green-500→700).
 - Text/fill pair from the same ramp (light: 50 fill + 600–800 text).
-- Cards: white, radius 20, one soft shadow, no border.
+- Cards: white, radius 20, one soft shadow + faint inset ring, no visible border.
 - Radius tiers: card 20 / box 14 / control 12 / bubble 18 / pill 999.
 
 **Brand marks:** two-overlapping-circles motif + CircleMark (recognition —
