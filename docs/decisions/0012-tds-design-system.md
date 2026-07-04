@@ -160,9 +160,12 @@ project file lists match; A5 diff reviewed and pushed.
 > and the three `--gradient-band-*` tokens, and updated `:root` + `.dark`.
 > Verified live on the auth surface in both themes (page grey-100, `#3182f6`
 > button, dark `#101418`/blue-300). Radius/shape and the ramp *custom
-> properties* stay for Phase C. **B2** carries the Pretendard self-host (a real
-> loading-strategy call: single 2 MB full-Hangul variable woff2 vs. the
-> dynamic-subset set — deferred so it gets its own decision) and the email kit.
+> properties* stay for Phase C. **B2 (DONE, PR #119):** Pretendard self-hosted
+> via `next/font/local` as a **Latin-only subset** (`pyftsubset` of the
+> variable TTF → 100 KB woff2, weight axis 45–930, **no Hangul/CJK** —
+> English-only per the 2026-07-04 decision); Inter / Inter Tight / JetBrains
+> Mono dropped; `--font-display` / `--font-mono` fold to `--font-sans`. Email
+> kit still to follow.
 
 - Rewrite `app/src/app/globals.css`: TDS palette under the existing
   **role-token names** (`surface-*`, `action-*`, `state-*`) so the 26
@@ -242,7 +245,9 @@ inbox, profile, auth in light + dark; no ratchet regression.
 
 - **+** One persistent, canonical design home; Richard designs in Claude
   Design, the repo follows, drift is visible in the ledger.
-- **+** Pretendard's Korean coverage directly serves the Songdo pilot.
+- **+** Pretendard self-hosts as a **Latin-only subset** (~100 KB variable
+  woff2, no Hangul/CJK) — English-only per the 2026-07-04 decision; no runtime
+  CDN, no 2 MB font payload.
 - **+** The Phase A4 pull-down finally lands Field Pro v2 in the repo.
 - **−** Large visual churn across every surface (~26 primitives + all
   routes); mitigated by role-token indirection (values first) and PR
