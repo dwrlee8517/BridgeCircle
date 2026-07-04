@@ -74,7 +74,7 @@ export function StepAbout({ defaults, action }: Props) {
           id="nameOther"
           name="nameOther"
           defaultValue={defaults.nameOther}
-          placeholder="e.g. 이수민"
+          placeholder="e.g. Sam"
         />
       </Field>
 
