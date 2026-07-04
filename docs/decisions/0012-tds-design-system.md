@@ -150,7 +150,19 @@ token ratchet).
 **Verify:** Design System pane shows the `@dsCard` previews; repo folder and
 project file lists match; A5 diff reviewed and pushed.
 
-### Phase B — Production token contract swap (one PR, app-wide value change)
+### Phase B — Production token contract swap (app-wide value change)
+
+> **Status (2026-07-04):** sliced into **B1 (colour, DONE)** and **B2 (font +
+> email, pending)**. B1 swapped every Civic value in `globals.css` to the Field
+> Pro ramp under the existing role-token names (`--action-offer` → green-700
+> give action per A6; `--cta` amber → blue; `--accent-plum` violet → blue;
+> hairline/tint/shadow-ink recoloured), added `--ring-card`, `--border-subtle`,
+> and the three `--gradient-band-*` tokens, and updated `:root` + `.dark`.
+> Verified live on the auth surface in both themes (page grey-100, `#3182f6`
+> button, dark `#101418`/blue-300). Radius/shape and the ramp *custom
+> properties* stay for Phase C. **B2** carries the Pretendard self-host (a real
+> loading-strategy call: single 2 MB full-Hangul variable woff2 vs. the
+> dynamic-subset set — deferred so it gets its own decision) and the email kit.
 
 - Rewrite `app/src/app/globals.css`: TDS palette under the existing
   **role-token names** (`surface-*`, `action-*`, `state-*`) so the 26
