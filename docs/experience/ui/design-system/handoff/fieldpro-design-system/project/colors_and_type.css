@@ -1,12 +1,15 @@
 /* ============================================================================
    Field Pro — BridgeCircle design tokens (TDS baseline)
-   ADR 0012 · seed v0.1 · 2026-07-03
+   ADR 0012 · A5-reconciled · 2026-07-04
 
-   PROVISIONAL UNTIL A5: every value below is sourced from the approved Toss
-   exploration + public TDS values. The A5 reconciliation audit (ADR 0012
-   Phase A) replaces these with the exact values extracted from
-   "Toss Style – Field Pro v2" and re-pushes. Do not translate into
-   production (globals.css) before A5 lands.
+   RECONCILED (A5): color values below are extracted from the byte-complete
+   "Toss Style – Field Pro v2" reference (uploads/). Deltas from the seed:
+   green anchor #00c471 → #03b26c; warning hue bright-orange → muted ochre
+   #c98a1a; School/give bands are exact 3-stops (below). Field Pro v2 uses
+   FIVE hue families only — no teal, no violet (plum folds to blue/green).
+   A dark surface band exists (--gradient-band-dark) — amends ADR D5.
+   Type/shape/motion remain seed defaults (not colored) pending a type pass.
+   Cleared for the Phase B production translation.
 
    Layers:
      1. Ramps        --{hue}-{stop}    literal hex, 50 → 900 per hue
@@ -19,8 +22,8 @@
 :root {
   /* ------------------------------------------------------------------ */
   /* 1 · RAMPS — grey is the spine; blue is the only ACTION hue (D3);   */
-  /* green/orange/red are status + identity hues (D7). Teal/violet:     */
-  /* pending A5 — do not invent stops before reconciliation.            */
+  /* green/ochre/red are status + identity hues (D7). NO teal/violet —  */
+  /* confirmed absent in Field Pro v2 (A5); five hue families only.     */
   /* ------------------------------------------------------------------ */
 
   --grey-50: #f9fafb;
@@ -38,34 +41,39 @@
   --blue-100: #c9e2ff;
   --blue-200: #90c2ff;
   --blue-300: #64a8ff;
-  --blue-400: #4593fc;
+  --blue-400: #3b8bf7; /* A5: real accent (appears in the lighter School band) */
   --blue-500: #3182f6; /* THE action color */
   --blue-600: #2272eb;
   --blue-700: #1b64da;
   --blue-800: #1957c2; /* School band reaches here */
   --blue-900: #194aa6;
 
-  --green-50: #e5f9f0;
-  --green-100: #c2f1dc;
-  --green-200: #8fe5bf;
-  --green-300: #57d89f;
-  --green-400: #26cd84;
-  --green-500: #00c471; /* give-help identity anchor */
-  --green-600: #00a661;
-  --green-700: #028a52;
-  --green-800: #066941;
-  --green-900: #084f33;
+  /* A5: reconciled to Field Pro v2. Anchor #03b26c (45 uses); the give
+     band runs #23c386 → #15a368 → #0b8a57. */
+  --green-50: #eafaf3;
+  --green-100: #cdf3df;
+  --green-200: #9ce8c4;
+  --green-300: #4dd49b;
+  --green-400: #15c47e;
+  --green-500: #03b26c; /* give-help identity anchor (was #00c471) */
+  --green-600: #029a5e;
+  --green-700: #0b8a57;
+  --green-800: #077046;
+  --green-900: #05543a;
 
-  --orange-50: #fff4e5;
-  --orange-100: #ffe3bd;
-  --orange-200: #ffce8c;
-  --orange-300: #ffb75c;
-  --orange-400: #fea62e;
-  --orange-500: #fe9800;
-  --orange-600: #de7f02;
-  --orange-700: #ba6a04;
-  --orange-800: #8f5206;
-  --orange-900: #6b3d05;
+  /* Ochre (warning) — Field Pro v2's attention hue is a MUTED OCHRE, not
+     bright Toss orange (#fe9800 appears nowhere). Var names stay --orange-*
+     to avoid churn; values are the ochre family (A5). */
+  --orange-50: #fdf3e0;
+  --orange-100: #fae7c2;
+  --orange-200: #f2d491;
+  --orange-300: #e6ba5a;
+  --orange-400: #d69f32;
+  --orange-500: #c98a1a; /* real warning anchor (was #fe9800) */
+  --orange-600: #ab7314;
+  --orange-700: #8a5c11;
+  --orange-800: #6b470d;
+  --orange-900: #4e330a;
 
   --red-50: #fdebed;
   --red-100: #fac9ce;
@@ -134,13 +142,17 @@
   /* Gradients are SAME-HUE only, hero/section bands only.              */
   /* ------------------------------------------------------------------ */
 
-  --identity-ask: var(--blue-500); /* Ask / default */
-  --identity-give: var(--green-500); /* Give help */
-  --identity-school: var(--blue-800); /* School (deep-blue) */
+  --identity-ask: var(--blue-500); /* Ask / default — #3182f6 */
+  --identity-give: var(--green-500); /* Give help — #03b26c (A5) */
+  --identity-school: #2f73e6; /* School — band mid (A5: refines the sync's blue-700; same "no navy" intent) */
 
-  --gradient-band-blue: linear-gradient(135deg, var(--blue-600), var(--blue-800));
-  --gradient-band-green: linear-gradient(135deg, var(--green-500), var(--green-700));
-  /* Text on either band: #ffffff (measured in DESIGN.md contrast table). */
+  /* A5: exact bands from Field Pro v2. Literal stops — band-specific and
+     off-ramp — so a re-sync of the ramps can't silently shift them. Both
+     honor "no navy drift": blue ends at #1f5bcc, not a dark navy. */
+  --gradient-band-blue: linear-gradient(162deg, #3f88f1 0%, #2f73e6 48%, #1f5bcc 100%);
+  --gradient-band-green: linear-gradient(160deg, #23c386 0%, #15a368 50%, #0b8a57 100%);
+  --gradient-band-dark: linear-gradient(157deg, #2a3340 0%, #191f28 62%); /* A5: a dark surface band DOES exist — amends ADR D5 (a dark band survives, recolored grey-ink) */
+  /* Text on blue/green bands: #ffffff (measured in DESIGN.md contrast table). */
 
   /* ------------------------------------------------------------------ */
   /* 4 · TYPE / SHAPE / ELEVATION / MOTION                               */
@@ -174,12 +186,12 @@
   --shadow-raised: 0 6px 20px rgb(25 31 40 / 0.08), 0 0 1px rgb(25 31 40 / 0.12);
 
   /* Motion (carried from Civic — behavior-neutral) */
-  --motion-fast: 100ms;
-  --motion-base: 150ms;
-  --motion-medium: 200ms;
-  --motion-slow: 300ms;
-  --ease-standard: ease-out;
-  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-fast: 100ms; /* @kind other */
+  --motion-base: 150ms; /* @kind other */
+  --motion-medium: 200ms; /* @kind other */
+  --motion-slow: 300ms; /* @kind other */
+  --ease-standard: ease-out; /* @kind other */
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1); /* @kind other */
 }
 
 /* ---------------------------------------------------------------------

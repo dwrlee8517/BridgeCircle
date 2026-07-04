@@ -1,0 +1,10 @@
+# Claude Design self-check artifacts — regenerated on every sync, so
+# committing them just churns git (ADR 0012 Phase E). The DesignSync tool
+# treats them as outside the sync plan; a re-sync won't disturb tracked files.
+project/_ds_manifest.json
+project/_ds_bundle.js
+project/_adherence.oxlintrc.json
+project/screenshots/
+
+# Local sync journal noise (keep config.json — it's the repo↔project pin).
+.design-sync/*.log

@@ -76,16 +76,20 @@ project names). Civic Editorial is retired to `_archive/`, not deleted.
   only** — ambient color is D7's job.
 - **D7 — Full color ramps, section identities, and sanctioned gradation.**
   The token layer defines **multi-stop ramps** (50/100/200/…/800/900) for
-  grey, blue, green, orange, and red (teal/violet pending the A5
-  reconciliation against Field Pro v2 — today's plum usages either map to a
-  violet ramp or fold into blue/green). On top of the ramps:
+  grey, blue, green, red, and a warning hue. **A5 resolved the open hue
+  question: Field Pro v2 uses exactly five families — no teal, no violet**,
+  and the warning hue is a **muted ochre (`#c98a1a`), not bright orange**;
+  today's `accent-plum` usages fold into blue/green in Phase C (no new
+  ramp). On top of the ramps:
   - **Section identity:** pages may carry an ambient hue — per Field Pro
     v2: **School = deep-blue gradation band**, **Give help = green
     identity**, Ask/default = blue. Identity shows in bands, tints, dots,
     and badges — buttons stay Toss blue everywhere (D3).
   - **Gradation policy:** soft **same-hue** gradients are sanctioned for
-    hero/section bands (e.g. blue-600→800 on School) with white/near-white
-    text measured for contrast. Multi-hue and neon gradients stay banned —
+    hero/section bands with white/near-white text measured for contrast.
+    A5 pinned the exact bands: School `#3f88f1 → #2f73e6 → #1f5bcc`, give
+    `#23c386 → #15a368 → #0b8a57` (both end short of navy, per the remote
+    "no navy drift" decision). Multi-hue and neon gradients stay banned —
     voice-guidelines §13's blanket "no gradients" line is amended
     accordingly in Phase D (the current app already uses soft radial washes
     on help/school/auth, so this codifies practice rather than opening a
@@ -104,9 +108,12 @@ project names). Civic Editorial is retired to `_archive/`, not deleted.
   with `tabular-nums`. The wordmark re-sets in Pretendard bold; the
   two-overlapping-circles motif and the Phase-3 `CircleMark` are brand, not
   skin — they persist (recoloring automatically via `currentColor`).
-- **D5 — Warm Ink editorial surfaces retire.** TDS has no dark editorial
-  band; hero/auth/entry moments become white or grey-50 with large bold
-  ink-on-light headlines. `surface-ink` and its pairings go with Civic.
+- **D5 — Warm Ink editorial surfaces retire *(amended by A5)*.** Civic's
+  warm-navy `surface-ink` goes; most hero/auth/entry moments become white or
+  grey-50 with bold ink-on-light headlines. **But A5 found Field Pro v2 does
+  keep a dark surface band** (`#2a3340 → #191f28`, a cool grey-ink, not warm
+  navy) — captured as `--gradient-band-dark`. So the dark band survives,
+  recolored; it just stops being the *default* editorial treatment.
 - **D6 — The guardrails are skin-agnostic and stay.** The token-ratchet CI
   step, named-utility discipline, role-token indirection, `:root` + `.dark`
   parity, density modes (`density-cozy` / `density-pro`), email-safe token
@@ -126,7 +133,7 @@ token ratchet).
 | A2. Create the project | Richard | In Claude Design: **new design-system-type project** named `fieldpro-design-system` (type is immutable — don't reuse a regular project). Move/duplicate "Toss Style – Field Pro v2.dc.html" into it as the reference exploration. |
 | A3. Authorize + push | Richard | Interactive `claude` session in this repo → `/design-login` → `/design-sync` targeting the new project, `localDir` = the handoff folder. Verify with `get_project` that type is `PROJECT_TYPE_DESIGN_SYSTEM` before pushing. First sync pushes the seed up; Claude Design is canonical from then on. |
 | A4. First pull-down | Richard | Sync down so the repo also holds Field Pro v2 itself — this finally gives Claude the exact reference file and dissolves the long-standing access blocker. |
-| A5. Reconciliation audit | Claude | Extract the **exact** hex values, ramp stops, gradient definitions, and per-section identities from Field Pro v2 (School's deep-blue band, give-help's greens, any teal/violet) and diff against the seed tokens. Update `colors_and_type.css` + `DESIGN.md` to the reconciled truth and push back up — the seed is provisional; **A5 makes the canonical values real** before any production translation. |
+| A5. Reconciliation audit | Claude | **DONE 2026-07-04.** Extracted exact values from the byte-complete reference and reconciled `colors_and_type.css` + `DESIGN.md` + previews + `SKILL.md`. Deltas applied: green anchor `#00c471 → #03b26c`; warning bright-orange → ochre `#c98a1a`; School/give bands to exact 3-stops; `--gradient-band-dark` added; teal/violet confirmed absent. Still to push back up on the next `/design-sync`. |
 
 **Verify:** Design System pane shows the `@dsCard` previews; repo folder and
 project file lists match; A5 diff reviewed and pushed.
