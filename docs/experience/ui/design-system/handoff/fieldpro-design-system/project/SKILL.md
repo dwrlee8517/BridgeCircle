@@ -11,8 +11,8 @@ If creating visual artifacts (mocks, slides, prototypes), copy the token CSS
 in and build static HTML. If working on production code, translate to the
 role tokens in `app/src/app/globals.css` — never copy inline styles.
 
-**SEED v0.1 — provisional until the A5 reconciliation against "Toss Style –
-Field Pro v2" (ADR 0012).** Structure is stable; exact values may shift.
+**A5-reconciled (2026-07-04)** against the byte-complete "Toss Style – Field
+Pro v2" reference. Colors are the real values; cleared for Phase B.
 
 ---
 
@@ -29,9 +29,11 @@ tracking. Digits: tabular-nums. 12px floor. Sentence case.
 - `#e8f3ff` blue-50 — weak (tinted) secondary actions
 - `#f2f4f6` grey-100 — page canvas; white cards float on it, borderless
 - `#191f28` grey-900 — primary text
-- `#00c471` green-500 — give-help section identity + success states
-- `#1957c2` blue-800 — School deep-blue band (via --gradient-band-blue)
-- `#fe9800` / `#f04452` orange/red — warning/danger tints only
+- `#03b26c` green-500 — give-help identity + success (band `#23c386 → #0b8a57`)
+- `#2f73e6` — School band mid; band `#3f88f1 → #2f73e6 → #1f5bcc`
+- `#c98a1a` ochre-500 — warning/attention (muted, NOT bright orange)
+- `#f04452` red-500 — danger/decline tints
+- No teal, no violet — five hue families only (A5)
 
 **Hard rules:**
 - Buttons are blue. Identity hues (green/school-blue) live in bands, tints,

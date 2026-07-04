@@ -1,6 +1,6 @@
 # Field Pro — BridgeCircle design system (TDS baseline)
 
-**Status:** seed v0.1 · PROVISIONAL UNTIL A5 (ADR 0012) · 2026-07-03
+**Status:** A5-reconciled · 2026-07-04 (ADR 0012) — cleared for Phase B
 **Canonical home:** the `fieldpro-design-system` Claude Design project; this
 repo folder mirrors it via DesignSync.
 **Token export:** [`../colors_and_type.css`](../colors_and_type.css)
@@ -11,10 +11,13 @@ Civic Editorial (retired to `_archive/`, ADR 0012). Everything here is the
 *design* contract; production translates it into `app/src/app/globals.css`
 and the owned component primitives — never a mechanical copy.
 
-> **A5 warning:** every value in this seed comes from the approved Toss
-> exploration + public TDS values. The A5 reconciliation audit replaces them
-> with exact values extracted from "Toss Style – Field Pro v2" before any
-> production translation. Treat structure as stable, values as provisional.
+> **A5 reconciled (2026-07-04).** Color values are now extracted from the
+> byte-complete "Toss Style – Field Pro v2" reference. Key corrections vs the
+> seed: green anchor `#00c471 → #03b26c`; warning hue bright-orange → muted
+> **ochre `#c98a1a`**; School/give bands are exact 3-stops (below). Field Pro
+> v2 uses **five hue families only — no teal, no violet**. A **dark surface
+> band exists** (`--gradient-band-dark`), which amends ADR D5. Type/shape/
+> motion stay at seed defaults (uncolored) pending a dedicated type pass.
 
 ---
 
@@ -41,9 +44,11 @@ and the owned component primitives — never a mechanical copy.
 ### Ramps
 
 Five hues, ten stops each (50→900): **grey** (the spine), **blue** (the only
-action hue), **green**, **orange**, **red**. Exact values in
-`colors_and_type.css`. Teal/violet are **not defined yet** — pending A5; do
-not invent stops.
+action hue), **green** (give/success, anchor `#03b26c`), **ochre** (warning,
+anchor `#c98a1a` — var names stay `--orange-*`), **red** (`#f04452`). Exact
+values in `colors_and_type.css`. **No teal, no violet** — confirmed absent in
+Field Pro v2 (A5); the current app's `accent-plum` usages fold into blue or
+green in Phase C, they do not get a new ramp.
 
 ### Pairing rule
 
@@ -66,16 +71,18 @@ plain black/white on a colored tint.
 
 ### Section identity + gradation (D7)
 
-| Section | Identity | Treatment |
+| Section | Identity | Band (exact, A5) |
 |---|---|---|
-| Ask (default) | blue | standard surfaces |
-| Give help | green | green tints/dots/badges; `--gradient-band-green` allowed on its hero band |
-| School | deep blue | `--gradient-band-blue` (blue-600 → blue-800) hero band, white text |
+| Ask (default) | blue `#3182f6` | none — standard grey/white surfaces |
+| Give help | green `#03b26c` | `#23c386 → #15a368 → #0b8a57` (160°) |
+| School | blue `#2f73e6` | `#3f88f1 → #2f73e6 → #1f5bcc` (162°) |
+| Dark surface | grey-ink | `#2a3340 → #191f28` (157°) — footer/feature; amends D5 |
 
 Gradients are **same-hue only**, **band surfaces only** (hero/section
 headers). Multi-hue or neon gradation stays banned. Buttons inside a band
-are still `action-primary` blue (on the green band, use white-fill buttons
-with band-hue text if blue clashes — decide per surface at A5).
+are still `action-primary` blue; on the green/blue bands, on-band buttons use
+**white fill with band-hue text** (Field Pro v2 does this — e.g. white
+button, `#0b8a57` text on the give band).
 
 ### Derived palettes (re-derive from ramps, never freelance)
 
@@ -86,18 +93,21 @@ with band-hue text if blue clashes — decide per surface at A5).
 - **Charts (admin):** blue-500, green-500, orange-500, grey-400 in that
   order; tints for fills, 600s for lines.
 
-### Contrast (provisional measurements — re-measure at A5 and in Phase B)
+### Contrast (A5-reconciled; re-confirm in Phase B against the live theme)
 
 | Pair | Ratio | Verdict |
 |---|---:|---|
 | grey-900 on white | 16.7:1 | body ✓ |
 | grey-600 on white | 5.5:1 | secondary ✓ |
 | grey-500 on grey-100 | 3.9:1 | metadata only (≥12px, non-essential) |
-| white on blue-500 | 3.7:1 | buttons ✓ (≥14px semibold UI text) |
-| white on blue-800 (band) | 8.6:1 | band text ✓ |
-| white on green-600 | 3.1:1 | large text only — prefer green-700 fills for text-bearing greens |
-| blue-600 on blue-50 | 4.9:1 | weak buttons ✓ |
-| green-700 on green-50 | 5.6:1 | success text ✓ |
+| white on blue-500 `#3182f6` | 3.7:1 | buttons ✓ (≥14px semibold UI text) |
+| white on School band mid `#2f73e6` | ~4.6:1 | band heads ✓ |
+| white on School band deep `#1f5bcc` | ~6.6:1 | band body ✓ |
+| white on give band deep `#0b8a57` | ~4.8:1 | band text ✓ |
+| white on give anchor `#03b26c` | ~2.7:1 | **fill only** — no white text; text-bearing greens use `#0b8a57` |
+| green-700 `#0b8a57` on green-50 | ~5.6:1 | success text ✓ |
+| ochre-700 `#8a5c11` on orange-50 | ~6.1:1 | warning text ✓ |
+| blue-600 `#2272eb` on blue-50 | ~4.9:1 | weak buttons ✓ |
 
 ## 3 · Typography
 
