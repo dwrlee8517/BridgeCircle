@@ -91,8 +91,16 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
      you're connected with can also find this."
    - **Everyone at [school]** — any member browsing or searching. Copy:
      "Anyone in the community can find this."
-   ❓ *At the Everyone tier: optional "hide my name until I accept an offer"
-   (shows as "a member, Class of '27") — max reach + max cover; v1 or later?*
+   **Anonymous-until-accept (DECIDED, Richard 2026-07-05):** any open ask, at
+   any tier, may toggle "post without your name." Helpers see **"A member ·
+   Class of '27"**; name + profile are revealed **only to the helper whose
+   offer the asker accepts**. Mechanics: match-evidence lines for anonymous
+   asks derive from the ask's content only (never asker profile facts — that
+   would leak identity); honest copy at the toggle ("Your class year still
+   shows — in a small circle, people may guess"). Orthogonal to reach because
+   embarrassment is often highest in front of people you know. The strongest
+   two-sided-buffer feature in the app: maximum reach with maximum cover.
+   ❓ *timing: v1 or fast-follow?*
 4. **Recipient picker** (direct asks) — "Send it to the right people":
    AI-matched list with evidence line each ("Made the agency → in-house jump
    in 2018"), status chips (In your circle / ● Open to help),
