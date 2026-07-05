@@ -80,13 +80,24 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
    helps us match the right people"). AI assist = one conversational drafter
    (ADR 0011 D1: no types, no steps); `?skip=1` plain form survives.
 2. **Topic chips** — AI-suggested from the text, editable (+ Add).
-3. **Audience** — "Only people I pick" (default) ❓ *vs "Open network" — does
-   v1 keep both reach modes from the mockups, or launch picked-only and let
-   "ask the circle" (open asks) cover broad reach?*
-4. **Recipient picker** — "Send it to the right people": AI-matched list with
-   evidence line each ("Made the agency → in-house jump in 2018"), status
-   chips (In your circle / ● Open to help), Include/Included toggles,
-   "Reaching N people" count. The asker holds the send.
+3. **Audience** (Richard's tier model, 2026-07-05) — the ask is either
+   **direct** ("Only people I pick" → recipient picker, step 4) or an **open
+   ask** with an asker-chosen visibility tier. Tiers are cumulative reach;
+   **default = Good matches only** (the embarrassed-asker default — broader
+   reach is always the asker's explicit escalation):
+   - **Good matches only** — relevance-matched helpers via suggestion +
+     competence-query. Copy: "Only people whose experience fits will see this."
+   - **My circle** — + your connections can browse/find it. Copy: "People
+     you're connected with can also find this."
+   - **Everyone at [school]** — any member browsing or searching. Copy:
+     "Anyone in the community can find this."
+   ❓ *At the Everyone tier: optional "hide my name until I accept an offer"
+   (shows as "a member, Class of '27") — max reach + max cover; v1 or later?*
+4. **Recipient picker** (direct asks) — "Send it to the right people":
+   AI-matched list with evidence line each ("Made the agency → in-house jump
+   in 2018"), status chips (In your circle / ● Open to help),
+   Include/Included toggles, "Reaching N people" count. The asker holds the
+   send.
 5. **Send** ("Ask for advice") → confirmation Result ("Ask sent — it stays
    open 14 days") → lands on the ask's status view.
 6. **Lifecycle:** recipient accepts → thread in Messages (origin line: "Maya
@@ -95,20 +106,33 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
    Offers from the open circle (3b) arrive as **offer rows on the ask**: the
    asker holds the accept; accept → thread; pass → helper sees nothing.
 
-### 3b · Give help (green wash)
+### 3b · Give help (green wash) — four lanes
 
 1. **Status strip** — "Open to helping" switch · capacity "1 of 3 slots used"
    (meter) ❓ *slots: keep the mockup's visible capacity, or keep caps
    invisible per ADR 0011 (only `max_pending_requests` as hidden abuse valve)?
    Visible slots contradict D1's "no caps in the interface" — recommend
    dropping the meter, keeping only the switch + "we stop matching you when
-   you're busy" copy.* · expiry ("status expires in 14 days" auto-pause).
-2. **What can you speak to** — editable topic chips (same data as onboarding
-   step 4).
-3. **Asks matched to you** — list with match evidence ("you made this exact
-   call"), weak-green "Offer help" per row.
-4. **Offer** → short optional note → sent. Asker accepts → thread ("You
-   offered to help with…" origin line). Asker passes → helper sees nothing.
+   you're busy" copy.* · expiry ("status expires in 14 days" auto-pause) ·
+   standing **topic chips** ("what can you speak to" — same data as
+   onboarding step 4; these drive passive suggestions + Home's module).
+2. **"What can you speak to right now?"** — competence query (same capsule
+   family as People's NL search): the helper searches over their OWN
+   experience; retrieval returns relevance-gated open asks across all tiers,
+   each with a match-evidence line. Below threshold = honest empty state
+   ("Nothing needs you right now — we'll nudge you when something does").
+3. **Browse open asks** — search + filter over asks whose asker-set tier
+   includes this helper ("From your circle" / "Open to everyone"). **A quiet
+   list, never a feed:** no view counts, no public replies (offers are
+   private 1:1), no popularity ranking — relevance/recency sort only.
+4. **Asked you directly** — direct asks naming this helper (canonical home:
+   Messages' "Waiting on you" group; echoed here).
+
+**Offer** (from any lane) → short optional note → sent. Asker accepts →
+thread ("You offered to help with…" origin line). Asker passes → helper sees
+nothing. RLS note for build time: three read-policy shapes — match-row grant
+(existing) · friendship-join (circle tier) · org-member (everyone tier);
+`rls-auditor` mandatory (extends ADR 0011 Phase 5).
 
 Buffer inventory for Help: quiet pass both directions, pause/auto-pause,
 expiry with dignity, asker-holds-accept on offers, helper-holds-accept on
