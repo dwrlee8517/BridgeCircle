@@ -17,11 +17,12 @@ that isn't in the ledger, propose a new entry; never just freelance it.
 **Applied (2026-07-04 brand batch):** O1 Pretendard · O2 green give action
 (`--action-give #0b8a57`, give surface's single lead action only) · O3 section
 identity + gradient bands (`--gradient-band-{green,blue,dark}`) · O4 Display XL
-40/800 + 12px floor · O5 ochre warning (`#c98a1a` under `--orange-*`) · O6
-softer radii (card 20 / box 14 / bubble 18 / control 12) · O7 hairline
-`#e6e9ee` + `--border-subtle` + `--ring-card` · E2 avatar palette
-(`--avatar-1..6`, no status meaning).
+40/800 + 12px floor · O6 softer radii (card 20 / box 14 / bubble 18 / control
+12) · O7 hairline `#e6e9ee` + `--border-subtle` + `--ring-card` · E2 avatar
+palette (`--avatar-1..6`, no status meaning).
 
+**Rejected:** O5 ochre warning (2026-07-05) — **warning is TDS orange
+`#fe9800`**, do not reach for ochre.
 **Still proposed:** E1 neutral-pending hue · E3 desktop system · E4 CircleMark.
 Hard rules that survive the batch: ONE lead action per surface (green only on
 give, blue everywhere else — any other colored button is wrong); gradients

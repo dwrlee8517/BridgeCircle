@@ -4,10 +4,11 @@
 
    Everything here is faithful TDS (see ../../toss-base/) EXCEPT the applied
    entries in uploads/OVERRIDES.md. Applied in this file:
-     O1 Pretendard (inherited substitute)         O5 ochre warning ramp
-     O2 green give action (--action-give*)        O6 softer radii (card 20 …)
-     O3 section identity + gradient bands         O7 hairline #e6e9ee + ring-card
-     O4 display-xl 40/800, 12px floor             E2 avatar palette (decoupled)
+     O1 Pretendard (inherited substitute)         O6 softer radii (card 20 …)
+     O2 green give action (--action-give*)        O7 hairline #e6e9ee + ring-card
+     O3 section identity + gradient bands         E2 avatar palette (decoupled)
+     O4 display-xl 40/800, 12px floor
+   O5 (ochre warning) was applied then REJECTED 2026-07-05 — TDS orange stays.
    Every divergence below carries an [O#]/[E#] tag. Unlogged divergence = drift.
 
    Layers:
@@ -60,20 +61,18 @@
   --red-800: #bc1b2a;
   --red-900: #a51926;
 
-  /* orange — warning. [O5] OVERRIDDEN: TDS bright orange (#fe9800) → muted
-     ochre family (anchor #c98a1a, warm-cream tints), per the Field Pro A5/A6
-     reconciliation. Var names keep --orange-* so specimens don't churn; the
-     TDS originals live in toss-base. */
-  --orange-50:  #fef3e2;
-  --orange-100: #fae7c2;
-  --orange-200: #f2d491;
-  --orange-300: #e6ba5a;
-  --orange-400: #d69f32;
-  --orange-500: #c98a1a;
-  --orange-600: #ab7314;
-  --orange-700: #8a5c11;
-  --orange-800: #6b470d;
-  --orange-900: #4e330a;
+  /* orange — warning. Faithful TDS. (O5 ochre was applied 2026-07-04 and
+     REJECTED 2026-07-05 — Richard kept TDS orange; see OVERRIDES.md.) */
+  --orange-50:  #fff3e0;
+  --orange-100: #ffe0b0;
+  --orange-200: #ffcd80;
+  --orange-300: #ffbd51;
+  --orange-400: #ffa927;
+  --orange-500: #fe9800;
+  --orange-600: #fb8800;
+  --orange-700: #f57800;
+  --orange-800: #ed6700;
+  --orange-900: #e45600;
 
   /* yellow — caution */
   --yellow-50:  #fff9e7;
@@ -358,7 +357,7 @@
 
   --state-info-text:    var(--teal-200);    --state-info-tint:    rgb(24 165 165 / 0.14);
   --state-success-text: var(--green-200);   --state-success-tint: rgb(3 178 108 / 0.14);
-  --state-warning-text: var(--orange-200);  --state-warning-tint: rgb(201 138 26 / 0.14); /* [O5] ochre basis */
+  --state-warning-text: var(--orange-200);  --state-warning-tint: rgb(254 152 0 / 0.14);
   --state-caution-text: var(--yellow-200);  --state-caution-tint: rgb(255 195 66 / 0.14);
   --state-danger-text:  var(--red-200);     --state-danger-tint:  rgb(240 68 82 / 0.16);
   --state-premium-text: var(--purple-200);  --state-premium-tint: rgb(162 52 199 / 0.16);

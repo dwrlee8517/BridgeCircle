@@ -21,10 +21,11 @@ duplicated here — this document only frames what's different.
    (new ground: desktop, pending-status, avatar palette, brand marks) live in
    `OVERRIDES.md` with evidence and status. Unlogged divergence is drift.
 3. **Applied vs proposed.** Only *applied* entries exist in the tokens and
-   specimens. **2026-07-04 brand batch applied:** O1–O7 + E2 (green give
-   action, section bands, Display XL, ochre warning, softer radii, hairline +
-   card ring, avatar palette) — the fork now renders visibly differently from
-   the baseline. Still proposed: E1 (pending hue), E3 (desktop), E4
+   specimens. **2026-07-04 brand batch applied:** O1–O4, O6, O7 + E2 (green
+   give action, section bands, Display XL, softer radii, hairline + card ring,
+   avatar palette) — the fork now renders visibly differently from the
+   baseline. **Rejected:** O5 (warning stays TDS orange `#fe9800`,
+   2026-07-05). Still proposed: E1 (pending hue), E3 (desktop), E4
    (CircleMark). Every entry stays adjustable or revertible via the ledger.
 4. **Evidence over taste.** Entries cite the friction log
    ([`../Help Hub.html`](../Help%20Hub.html), the 2026-07-04 pristine-baseline

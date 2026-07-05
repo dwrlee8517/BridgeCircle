@@ -31,7 +31,7 @@ PRs #115–#117).
 | O2 | Action color on the give surface | blue everywhere | **green give lead action** — `--action-give` literal `#0b8a57` fill (white ~4.8:1 AA — deliberately NOT this fork's TDS green-700 `#029359`), hover `#077046`; weak `#e7f8f0` + green-500 `#03b26c` text | FL-2 (N identical blue buttons), FL-3 (giving reads transactional) · ADR-C | **applied 2026-07-04** |
 | O3 | Section identity | none — all surfaces identical | `--identity-ask/give/school` + same-hue gradient bands: give `#23c386→#15a368→#0b8a57` (160°), School `#3f88f1→#2f73e6→#1f5bcc` (162°), dark grey-ink `#2a3340→#191f28` (157°). White band text measured: School mid ~4.6:1, deep ~6.6:1; give deep ~4.8:1 | FL-1 (mode invisible below the toggle) · ADR-C | **applied 2026-07-04** |
 | O4 | Type scale ceiling | Display Hero 30/700, floor 10px | new **Display XL 40/800/48** tier (tracking −0.025em) above the TDS scale; label floor raised **10px → 12px** (TDS core roles unchanged) | FL-4 (landing moment undersold) · ADR-C | **applied 2026-07-04** |
-| O5 | Warning hue | orange-500 `#fe9800` (bright) | full ochre ramp under the `--orange-*` names — anchor `#c98a1a`, warm-cream tint `#fef3e2`, text pair ochre-700 `#8a5c11` on tint ~6.1:1 | ADR-C (Field Pro A5: the brand reads calmer without bright orange) | **applied 2026-07-04** |
+| O5 | Warning hue | orange-500 `#fe9800` (bright) | ~~muted ochre ramp (anchor `#c98a1a`)~~ — **TDS orange kept** | ADR-C proposed it; Richard rejected on review | **rejected 2026-07-05** (was applied 2026-07-04) |
 | O6 | Radius tiers | 4 / 8 / 12 / 16 / pill | softer: control 12 / **box 14** / **bubble 18** / **card 20** (`--radius-large` 16→20) / pill; compact 4 + standard 8 stay for small inner elements | ADR-C (Field Pro v2 reference) | **applied 2026-07-04** |
 | O7 | grey-200 hairline | `#e5e8eb` | `--grey-200` → `#e6e9ee`; new `--border-subtle #edf0f2`; new `--ring-card` inset (5% ink), composed with `--shadow-card` on every card | ADR-C (A6: cards are near-borderless, not borderless) | **applied 2026-07-04** |
 
@@ -55,7 +55,13 @@ PRs #115–#117).
 
 ## Rejected
 
-*(none yet)*
+- **O5 — ochre warning (rejected 2026-07-05).** Applied in the 2026-07-04
+  batch, reverted the next day on Richard's review: **TDS orange `#fe9800`
+  stays** as the warning hue. The fork's `--orange-*` ramp is back to faithful
+  TDS values. The Field Pro ochre (`#c98a1a`) remains in the ADR-C record if
+  ever reconsidered. Note: the E2 avatar "sand" pair keeps its warm literals
+  (`#fef3e2`/`#8a5c11`) — that's avatar identity, decoupled by design, not a
+  warning role.
 
 ---
 
