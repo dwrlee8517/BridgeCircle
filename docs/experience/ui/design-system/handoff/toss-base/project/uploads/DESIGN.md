@@ -102,9 +102,10 @@ Headings carry slight negative tracking (`-0.02em`). 10px is the floor.
 
 ## 5 · Components
 
-TDS documents ~47 components. This bundle carries the **Wave 1 set** (the
-~25 BridgeCircle-relevant ones) as faithful blue-only specimens across
-[`../preview/`](../preview/) and [`../ui_kits/app/`](../ui_kits/app/).
+TDS documents ~47 components. This bundle carries **~40 of them — everything
+except the deliberately-omitted fintech set** — as faithful blue-only
+specimens across [`../preview/`](../preview/) and
+[`../ui_kits/app/`](../ui_kits/app/).
 Component *anatomy* follows the official docs; where the docs give structure
 but not exact values, details are **inferred from the verified token idiom**
 (tokens, radius tiers, type scale) and marked ⓘ.
@@ -134,14 +135,26 @@ but not exact values, details are **inferred from the verified token idiom**
 | Skeleton | feedback.html | grey-100 base + grey-200 sweep, shape-matched; respects reduced motion |
 | Loader | feedback.html | 28px ring spinner, blue-500 on grey-200 |
 | Progress bar / stepper | feedback.html | 8px pill track + blue fill; stepper = 4px segment pills |
+| Slider | inputs-extended.html | 6px pill track, blue fill, 24px white thumb with soft shadow ⓘ |
+| Stepper | inputs-extended.html | grey-100 pill container, −/＋ in blue, tabular value; bound state disables the button |
+| Numeric spinner | inputs-extended.html | digit boxes, active box gets the blue focus ring ⓘ |
+| Rating | inputs-extended.html | 5 stars, yellow-500 filled / grey-200 empty |
+| Result | results.html | centered: tinted glyph circle → title 20/600 → body 14 → full-width blue CTA |
+| Error page | results.html | Result anatomy with danger glyph + "Try again" primary + quiet text link |
+| Progress stepper (labeled) | results.html | vertical rail — done (blue fill ✓) / current (blue ring) / todo (grey ring), blue connector for completed legs |
+| Highlight | results.html | inline emphasis: yellow-tint `mark` and blue bold numerals inside body text |
+| Carousel | content.html | horizontal scroll cards (grey-50, radius-comfortable) + page dots (active dot stretches) |
+| Board row | content.html | title + blue "N" new-marker + tabular date, hairline separated |
+| Table row | content.html | uppercase 11px header, hairline rows, right-aligned tabular numerals |
+| Post | content.html | avatar header → title 16/700 → body 14 grey → action row (blue lead) |
+| Chat thread (full) | content.html | bubbles + day-divider pill, timestamps 10px, blue "Read" receipt ⓘ |
+| Modal | content.html | richer than Dialog: art panel → title/body → full-width CTA + quiet skip |
 
 ### Deliberately not carried (fintech-specific)
 
 TDS also ships **Keypad, Asset, Amount Top, Agreement, Bar Chart** — money-app
 furniture BridgeCircle will not use. Omitted on purpose, not by oversight.
-**Wave 2 (add when a surface needs them):** Slider, Stepper, Numeric Spinner,
-Rating, Progress Stepper (full), Result, Error Page, Highlight, Carousel,
-Board/Table Row, Post, Bubble (full), Modal (beyond Dialog).
+This is the only gap between this bundle and the documented TDS inventory.
 
 ## 6 · Contrast (WCAG, light theme)
 
@@ -167,11 +180,10 @@ Board/Table Row, Post, Bubble (full), Modal (beyond Dialog).
   the TDS dark tokens.
 - **Typeface is a substitute.** Toss Product Sans is proprietary; Pretendard
   stands in. Metrics are close but not identical.
-- **Component set is Wave 1 (~25 of ~47), not exhaustive.** The
-  BridgeCircle-relevant components are specimened; the fintech set (Keypad,
-  Asset, Amount Top, Agreement, Chart) is deliberately omitted and the Wave 2
-  list in §5 is added when a surface needs it. Details the public docs don't
-  pin down are inferred from the token idiom and marked ⓘ in §5.
+- **Component set is ~40 of ~47.** Everything except the deliberately-omitted
+  fintech set (Keypad, Asset, Amount Top, Agreement, Chart) is specimened.
+  Details the public docs don't pin down are inferred from the token idiom and
+  marked ⓘ in §5.
 
 ## 8 · What NOT to add here
 

@@ -48,7 +48,7 @@ Pretendard substitutes for Toss Product Sans; fintech components (Keypad,
 Asset, Amount Top, Agreement, Chart) deliberately omitted.
 
 **Key files:**
-- `uploads/DESIGN.md` — full spec (principles, ramps, roles, type, contrast, the ~25-component table, gaps)
+- `uploads/DESIGN.md` — full spec (principles, ramps, roles, type, contrast, the ~40-component table, gaps)
 - `colors_and_type.css` — the token export (light + provisional dark)
-- `preview/` — @dsCard specimens: ramps · type · spacing-radius · components · forms · overlays · navigation · lists · feedback
+- `preview/` — @dsCard specimens: ramps · type · spacing-radius · components · forms · overlays · navigation · lists · feedback · inputs-extended · results · content
 - `ui_kits/app/index.html` — starter prototype

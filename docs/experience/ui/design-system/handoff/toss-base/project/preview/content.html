@@ -1,0 +1,135 @@
+<!-- @dsCard group="Components" name="Content & data" subtitle="Carousel · board row · table row · post · chat bubbles (full) · modal" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  /* carousel */
+  .carousel{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .carousel::-webkit-scrollbar{display:none}
+  .slide{flex:0 0 200px;border-radius:var(--radius-comfortable);background:var(--surface-panel);padding:16px}
+  .slide .st{font-size:14px;font-weight:600;margin:0 0 2px}
+  .slide .ss{font-size:12px;color:var(--text-faint)}
+  .slide .badge{display:inline-block;border-radius:var(--radius-pill);padding:3px 9px;font-size:11px;font-weight:600;background:var(--action-weak);color:var(--action-weak-text);margin-bottom:10px}
+  .dots{display:flex;gap:5px;justify-content:center;margin-top:8px}
+  .dots span{width:6px;height:6px;border-radius:50%;background:var(--grey-200)}
+  .dots .on{background:var(--grey-600);width:14px;border-radius:var(--radius-pill)}
+  /* board row */
+  .brow{display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--divider)}
+  .brow:last-of-type{border-bottom:0}
+  .brow .bt{flex:1;font-size:15px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brow .bnew{color:var(--action-primary);font-size:11px;font-weight:700;vertical-align:6px;margin-left:2px}
+  .brow .bd{font-size:12px;color:var(--text-faint);font-variant-numeric:tabular-nums;flex:none}
+  /* table row */
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);font-weight:700;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+  td{padding:11px 10px;border-bottom:1px solid var(--divider)}
+  tr:last-child td{border-bottom:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  /* post */
+  .post{max-width:400px}
+  .post .ph{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .post .avatar{width:36px;height:36px;border-radius:50%;background:var(--action-weak);color:var(--action-weak-text);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .post .pn{font-size:14px;font-weight:600}
+  .post .pd{font-size:12px;color:var(--text-faint)}
+  .post .pt{font-size:16px;font-weight:700;letter-spacing:-0.015em;margin:0 0 4px}
+  .post .pb{font-size:14px;line-height:22px;color:var(--text-secondary);margin:0 0 12px}
+  .post .pf{display:flex;gap:16px;font-size:13px;font-weight:600;color:var(--text-faint)}
+  .post .pf .act{color:var(--link)}
+  /* bubbles full */
+  .thread{display:flex;flex-direction:column;gap:4px;max-width:400px}
+  .day{align-self:center;font-size:11px;font-weight:600;color:var(--text-faint);background:var(--surface-subtle);border-radius:var(--radius-pill);padding:4px 12px;margin:6px 0}
+  .brow2{display:flex;gap:6px;align-items:flex-end}
+  .brow2.me{justify-content:flex-end}
+  .bub{max-width:74%;border-radius:var(--radius-large);padding:10px 14px;font-size:14px;line-height:1.5}
+  .bub.them{background:var(--surface-subtle);border-bottom-left-radius:5px}
+  .bub.me{background:var(--action-primary);color:#fff;border-bottom-right-radius:5px}
+  .meta2{font-size:10px;color:var(--text-faint);flex:none;padding-bottom:2px}
+  .meta2 .read{color:var(--action-primary);font-weight:600;display:block;text-align:right}
+  /* modal */
+  .stage{background:var(--scrim);border-radius:var(--radius-comfortable);padding:26px 20px;display:flex;align-items:center;justify-content:center}
+  .modal{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-raised);max-width:320px;width:100%;overflow:hidden}
+  .modal .art{height:110px;background:var(--action-weak);display:flex;align-items:center;justify-content:center;font-size:34px}
+  .modal .body{padding:20px 22px 18px}
+  .modal h3{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin:0 0 6px}
+  .modal p{font-size:14px;line-height:22px;color:var(--text-muted);margin:0 0 16px}
+  .modal .cta{display:block;width:100%;border:0;border-radius:var(--radius-comfortable);padding:13px;font-family:var(--font-sans);font-size:15px;font-weight:600;background:var(--action-primary);color:#fff;box-sizing:border-box}
+  .modal .skip{display:block;text-align:center;margin-top:10px;font-size:14px;font-weight:600;color:var(--text-faint)}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Carousel — horizontal scroll + page dots</p>
+    <div class="carousel">
+      <div class="slide"><span class="badge">This week</span><p class="st">Class of &rsquo;15 dinner</p><span class="ss">Thu · 12 going</span></div>
+      <div class="slide"><span class="badge">New</span><p class="st">Mentorship circle</p><span class="ss">4 spots left</span></div>
+      <div class="slide"><span class="badge">Popular</span><p class="st">Songdo meetup</p><span class="ss">Sat · 23 going</span></div>
+    </div>
+    <div class="dots"><span class="on"></span><span></span><span></span></div>
+  </div>
+
+  <div class="card">
+    <p class="label">Board rows — title + date</p>
+    <div class="brow"><span class="bt">Community guidelines refresh<span class="bnew">N</span></span><span class="bd">07.02</span></div>
+    <div class="brow"><span class="bt">June ask round-up — what got answered</span><span class="bd">06.28</span></div>
+    <div class="brow"><span class="bt">Welcome, Class of 2026</span><span class="bd">06.15</span></div>
+  </div>
+
+  <div class="card">
+    <p class="label">Table rows — tabular data</p>
+    <table>
+      <thead><tr><th>Circle</th><th>Members</th><th style="text-align:right">Response rate</th></tr></thead>
+      <tbody>
+        <tr><td>Palos Verdes</td><td>184</td><td class="num">86%</td></tr>
+        <tr><td>Songdo</td><td>97</td><td class="num">91%</td></tr>
+        <tr><td>Bay Area</td><td>62</td><td class="num">78%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <p class="label">Post — feed content unit</p>
+    <div class="post">
+      <div class="ph">
+        <span class="avatar">MP</span>
+        <span><span class="pn">Mina Park &rsquo;15</span><span class="pd" style="display:block">2 hours ago</span></span>
+      </div>
+      <p class="pt">What I wish I knew before moving abroad</p>
+      <p class="pb">Three things nobody told me about the first ninety days — and the one ask I should have posted sooner.</p>
+      <div class="pf"><span class="act">12 helpful</span><span>4 replies</span><span>Share</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Chat thread — day divider, timestamps, read receipt</p>
+    <div class="thread">
+      <span class="day">Tuesday</span>
+      <div class="brow2"><span class="bub them">Can you look at my portfolio before Friday?</span><span class="meta2">2:14 PM</span></div>
+      <div class="brow2 me"><span class="meta2"><span class="read">Read</span>2:31 PM</span><span class="bub me">Happy to — send it over.</span></div>
+      <div class="brow2"><span class="bub them">Just did. The checkout redesign is the part I&rsquo;m unsure about.</span><span class="meta2">2:33 PM</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Modal — richer than dialog (art + body + CTA)</p>
+    <div class="stage">
+      <div class="modal">
+        <div class="art">🎓</div>
+        <div class="body">
+          <h3>Your circle is ready</h3>
+          <p>Twelve classmates are already here. Say hello to the three who share your field.</p>
+          <button class="cta">Meet them</button>
+          <span class="skip">Later</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
