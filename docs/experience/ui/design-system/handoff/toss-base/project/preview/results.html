@@ -1,0 +1,90 @@
+<!-- @dsCard group="Components" name="Results & status pages" subtitle="Result · error page · progress stepper · highlight" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 14px}
+  /* result */
+  .result{text-align:center;padding:16px 8px 8px;max-width:320px;margin:0 auto}
+  .result .glyph{width:56px;height:56px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+  .result .glyph.ok{background:var(--state-success-tint)}
+  .result .glyph.ok svg{width:26px;height:26px;stroke:var(--success);stroke-width:3;fill:none}
+  .result .glyph.err{background:var(--state-danger-tint);color:var(--state-danger-text);font-size:26px;font-weight:700}
+  .result h3{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin:0 0 6px}
+  .result p{font-size:14px;line-height:22px;color:var(--text-muted);margin:0 0 18px}
+  .result .cta{display:block;width:100%;border:0;border-radius:var(--radius-large);padding:15px;font-family:var(--font-sans);font-size:16px;font-weight:600;background:var(--action-primary);color:#fff;box-sizing:border-box}
+  .result .sub{display:block;margin-top:10px;font-size:14px;font-weight:600;color:var(--link)}
+  /* progress stepper (labeled) */
+  .psteps{display:grid;gap:0;max-width:320px}
+  .pstep{display:flex;gap:12px}
+  .pstep .rail{display:flex;flex-direction:column;align-items:center}
+  .pstep .node{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}
+  .pstep .node.done{background:var(--action-primary);color:#fff}
+  .pstep .node.now{background:var(--surface-card);box-shadow:inset 0 0 0 2px var(--action-primary);color:var(--action-primary)}
+  .pstep .node.todo{background:var(--surface-card);box-shadow:inset 0 0 0 2px var(--grey-300);color:var(--text-faint)}
+  .pstep .line{width:2px;flex:1;min-height:18px;background:var(--grey-200)}
+  .pstep .line.done{background:var(--action-primary)}
+  .pstep .txt{padding:2px 0 18px}
+  .pstep .t{font-size:14px;font-weight:600}
+  .pstep .now-t{color:var(--action-primary)}
+  .pstep .s{font-size:12px;color:var(--text-faint)}
+  /* highlight */
+  .hl{font-size:15px;line-height:1.7;max-width:46ch}
+  .hl mark{background:var(--state-caution-tint);color:var(--text-primary);border-radius:4px;padding:1px 4px}
+  .hl .num{color:var(--action-primary);font-weight:700}
+</style>
+</head>
+<body>
+
+  <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div>
+      <p class="label">Result — success</p>
+      <div class="result">
+        <span class="glyph ok"><svg viewBox="0 0 24 24"><path d="M4 12.5l5.5 5.5L20 6.5"/></svg></span>
+        <h3>Ask sent</h3>
+        <p>Three people in your circle will see it first.</p>
+        <button class="cta">Done</button>
+      </div>
+    </div>
+    <div>
+      <p class="label">Error page</p>
+      <div class="result">
+        <span class="glyph err">!</span>
+        <h3>Something went wrong</h3>
+        <p>We couldn&rsquo;t load your inbox. Check your connection and try again.</p>
+        <button class="cta">Try again</button>
+        <span class="sub">Go home</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Progress stepper — labeled vertical</p>
+    <div class="psteps">
+      <div class="pstep">
+        <span class="rail"><span class="node done">✓</span><span class="line done"></span></span>
+        <span class="txt"><span class="t">Verify your email</span><span class="s" style="display:block">Done</span></span>
+      </div>
+      <div class="pstep">
+        <span class="rail"><span class="node now">2</span><span class="line"></span></span>
+        <span class="txt"><span class="t now-t">Complete your profile</span><span class="s" style="display:block">2 of 3 fields left</span></span>
+      </div>
+      <div class="pstep">
+        <span class="rail"><span class="node todo">3</span></span>
+        <span class="txt"><span class="t" style="color:var(--text-faint)">Meet your circle</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Highlight — emphasis inside body text</p>
+    <p class="hl">Members who add a photo hear back <mark>three times faster</mark>, and asks with a deadline get <span class="num">2.4×</span> more offers in the first day.</p>
+  </div>
+
+</body>
+</html>

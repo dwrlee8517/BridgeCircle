@@ -1,8 +1,17 @@
 # 0012 — Adopt a TDS-based design system ("Field Pro"), retire Civic Editorial
 
-- **Status:** proposed
+- **Status:** superseded by [0013](0013-toss-baseline-then-brand-overlay.md)
 - **Date:** 2026-07-03
 - **Decider:** Richard
+
+> **Superseded 2026-07-04 by [ADR 0013](0013-toss-baseline-then-brand-overlay.md).**
+> 0012 reconciled a single "Field Pro" bundle against a hand-made mockup. 0013
+> splits that into a **faithful, complete Toss (TDS) baseline** sourced from the
+> official `@toss/tds` tokens plus a **thin BridgeCircle brand overlay**. The
+> brand-mechanic *rationales* below (D3 per-surface action, D7 bands, D4
+> Pretendard, guardrails) still hold — they relocate into the overlay layer.
+> The merged Phase B work (#118 colour, #119 Pretendard) is re-expressed under
+> 0013's two layers, not reverted.
 
 ## Context
 

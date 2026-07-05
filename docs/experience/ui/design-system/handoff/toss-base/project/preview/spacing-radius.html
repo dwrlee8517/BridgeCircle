@@ -1,0 +1,47 @@
+<!-- @dsCard group="Foundations" name="Spacing & radius" subtitle="8px base grid · radius tiers 4 / 8 / 12 / 16 / pill" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:16px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:20px}
+  h2{font-size:13px;font-weight:700;margin:0 0 14px;letter-spacing:-0.01em}
+  .srow{display:flex;align-items:center;gap:14px;padding:6px 0}
+  .slab{width:78px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)}
+  .sbar{height:16px;background:var(--action-primary);border-radius:3px}
+  .spx{font-family:var(--font-mono);font-size:11px;color:var(--text-faint)}
+  .rgrid{display:flex;gap:18px;flex-wrap:wrap}
+  .ritem{text-align:center}
+  .rbox{width:72px;height:72px;background:var(--action-weak);box-shadow:inset 0 0 0 2px var(--action-primary)}
+  .rl{margin-top:8px;font-size:12px;font-weight:600}
+  .rv{font-family:var(--font-mono);font-size:11px;color:var(--text-faint)}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h2>Spacing — 8px base grid</h2>
+    <div class="srow"><span class="slab">space-1</span><div class="sbar" style="width:4px"></div><span class="spx">4</span></div>
+    <div class="srow"><span class="slab">space-2</span><div class="sbar" style="width:8px"></div><span class="spx">8</span></div>
+    <div class="srow"><span class="slab">space-3</span><div class="sbar" style="width:12px"></div><span class="spx">12</span></div>
+    <div class="srow"><span class="slab">space-4</span><div class="sbar" style="width:16px"></div><span class="spx">16</span></div>
+    <div class="srow"><span class="slab">space-5</span><div class="sbar" style="width:20px"></div><span class="spx">20 · page padding</span></div>
+    <div class="srow"><span class="slab">space-6</span><div class="sbar" style="width:24px"></div><span class="spx">24</span></div>
+    <div class="srow"><span class="slab">space-8</span><div class="sbar" style="width:32px"></div><span class="spx">32</span></div>
+    <div class="srow"><span class="slab">space-10</span><div class="sbar" style="width:40px"></div><span class="spx">40</span></div>
+    <div class="srow"><span class="slab">space-12</span><div class="sbar" style="width:48px"></div><span class="spx">48</span></div>
+  </div>
+  <div class="card">
+    <h2>Radius tiers — nothing rounder than 16 but pills</h2>
+    <div class="rgrid">
+      <div class="ritem"><div class="rbox" style="border-radius:var(--radius-compact)"></div><div class="rl">Compact</div><div class="rv">4</div></div>
+      <div class="ritem"><div class="rbox" style="border-radius:var(--radius-standard)"></div><div class="rl">Standard</div><div class="rv">8</div></div>
+      <div class="ritem"><div class="rbox" style="border-radius:var(--radius-comfortable)"></div><div class="rl">Comfortable</div><div class="rv">12</div></div>
+      <div class="ritem"><div class="rbox" style="border-radius:var(--radius-large)"></div><div class="rl">Large</div><div class="rv">16</div></div>
+      <div class="ritem"><div class="rbox" style="border-radius:var(--radius-pill)"></div><div class="rl">Pill</div><div class="rv">9999</div></div>
+    </div>
+  </div>
+</body>
+</html>
