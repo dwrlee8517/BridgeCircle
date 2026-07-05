@@ -14,11 +14,21 @@ entries are candidates awaiting a decision — do not design with them as if
 they were law, but you may explore them when asked. If you need a divergence
 that isn't in the ledger, propose a new entry; never just freelance it.
 
-Currently applied: **O1 only** (Pretendard for Toss Product Sans). Everything
-else — green give action, section bands, ochre warning, softer radii, larger
-display type, pending-status hue, avatar palette, desktop system, CircleMark —
-is **proposed**. Until applied, surfaces follow pure Toss: blue-only action,
-30/700 type ceiling, 4/8/12/16 radii, bright-orange warning.
+**Applied (2026-07-04 brand batch):** O1 Pretendard · O2 green give action
+(`--action-give #0b8a57`, give surface's single lead action only) · O3 section
+identity + gradient bands (`--gradient-band-{green,blue,dark}`) · O4 Display XL
+40/800 + 12px floor · O6 softer radii (card 20 / box 14 / bubble 18 / control
+12) · O7 hairline `#e6e9ee` + `--border-subtle` + `--ring-card` · E2 avatar
+palette (`--avatar-1..6`, no status meaning).
+
+**Rejected:** O5 ochre warning (2026-07-05) — **warning is TDS orange
+`#fe9800`**, do not reach for ochre.
+**Still proposed:** E1 neutral-pending hue · E3 desktop system · E4 CircleMark.
+Hard rules that survive the batch: ONE lead action per surface (green only on
+give, blue everywhere else — any other colored button is wrong); gradients
+same-hue + band surfaces only; text/fill from the same ramp; every card
+composes `var(--ring-card), var(--shadow-card)`. All entries remain adjustable
+or revertible — flip the ledger row and the fork falls back to Toss.
 
 **Evidence trail:** `Help Hub.html` in this project is the 2026-07-04
 faithful-baseline test (Ask/Give screens + friction log) that motivates most

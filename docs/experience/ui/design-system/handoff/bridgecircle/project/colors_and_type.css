@@ -1,23 +1,23 @@
 /* ============================================================================
-   toss-base — faithful Toss Design System (TDS) token export
-   ADR 0013 · Layer 0 · 2026-07-04
+   bridgecircle — brand fork token export (Layer 1, ADR 0013)
+   Forked from toss-base 2026-07-04 · BRAND BATCH APPLIED 2026-07-04
 
-   A COMPLETE, UNBENT transcription of TDS from the official
-   @toss/tds-react-native foundation docs:
-     https://tossmini-docs.toss.im/tds-react-native/foundation/colors/
-     https://tossmini-docs.toss.im/tds-react-native/foundation/typography/
-
-   This layer is BRAND-NEUTRAL. There is deliberately NO green "give" action,
-   NO section-identity bands, NO ochre warning, NO CircleMark — those are
-   BridgeCircle brand moves that live in the `bridgecircle` fork (Layer 1),
-   added later. Keep this file faithful to Toss; do not add brand tokens here.
+   Everything here is faithful TDS (see ../../toss-base/) EXCEPT the applied
+   entries in uploads/OVERRIDES.md. Applied in this file:
+     O1 Pretendard (inherited substitute)         O6 softer radii (card 20 …)
+     O2 green give action (--action-give*)        O7 hairline #e6e9ee + ring-card
+     O3 section identity + gradient bands         E2 avatar palette (decoupled)
+     O4 display-xl 40/800, 12px floor
+   O5 (ochre warning) was applied then REJECTED 2026-07-05 — TDS orange stays.
+   Every divergence below carries an [O#]/[E#] tag. Unlogged divergence = drift.
 
    Layers:
      1. Ramps      --{hue}-{stop}      8 families × 10 stops, literal hex
         + greyOpacity scrims, + semantic anchors
-     2. Roles      --surface/text/border/action/state-*    (blue-only action)
-     3. Type/shape --font-* --radius-* --space-* --shadow-* --motion-*
-   Components consume layers 2–3. Dark mode overrides at the end (provisional).
+     2. Roles      --surface/text/border/action/state-*
+     3. Identity   --identity-* + --gradient-band-*        [O3]
+     4. Type/shape --font-* --radius-* --space-* --shadow-* --motion-*
+   Components consume layers 2–4. Dark mode overrides at the end (provisional).
    ========================================================================= */
 
 :root {
@@ -28,7 +28,7 @@
   /* grey — the neutral spine (surfaces, text, hairlines) */
   --grey-50:  #f9fafb;
   --grey-100: #f2f4f6;
-  --grey-200: #e5e8eb;
+  --grey-200: #e6e9ee; /* [O7] was TDS #e5e8eb — Field Pro's dominant hairline */
   --grey-300: #d1d6db;
   --grey-400: #b0b8c1;
   --grey-500: #8b95a1;
@@ -61,7 +61,8 @@
   --red-800: #bc1b2a;
   --red-900: #a51926;
 
-  /* orange — warning */
+  /* orange — warning. Faithful TDS. (O5 ochre was applied 2026-07-04 and
+     REJECTED 2026-07-05 — Richard kept TDS orange; see OVERRIDES.md.) */
   --orange-50:  #fff3e0;
   --orange-100: #ffe0b0;
   --orange-200: #ffcd80;
@@ -168,10 +169,16 @@
   --text-disabled:  var(--grey-400);
   --text-on-fill:   #ffffff;
 
-  /* Borders — hairline is grey-200; TDS uses rules sparingly. */
-  --border:        var(--grey-200); /* #e5e8eb */
+  /* Borders — hairline is grey-200; rules stay sparing. */
+  --border:        var(--grey-200); /* #e6e9ee [O7] */
+  --border-subtle: #edf0f2; /* [O7] lighter divider — nav rails, card row splits */
   --border-strong: var(--grey-300);
   --divider:       var(--grey-100);
+
+  /* [O7] Card edge: cards are near-borderless but carry a whisper-faint inset
+     ring so they read as objects on the grey canvas. Compose into box-shadow:
+     `box-shadow: var(--ring-card), var(--shadow-card);` */
+  --ring-card: inset 0 0 0 1px rgb(25 31 40 / 0.05);
 
   /* Action — ONE color: blue. */
   --action-primary:         var(--blue-500);
@@ -184,6 +191,17 @@
   --action-quiet-text:      var(--grey-700);
   --action-disabled:        var(--grey-200);
   --action-disabled-text:   var(--grey-400);
+
+  /* [O2] Give-side action. On the GIVE surface the single lead action is
+     green — the section identity carrying the commitment (FL-2, FL-3). Fill
+     is the literal #0b8a57 (Field Pro green-700, ~4.8:1 white text, AA), NOT
+     this fork's TDS green-700 — deliberate, contrast-led. Still ONE lead
+     action per surface: everywhere else, filled buttons stay blue. */
+  --action-give:           #0b8a57;
+  --action-give-hover:     #077046;
+  --action-on-give:        #ffffff;
+  --action-give-weak:      #e7f8f0; /* weak give button / status pill tint */
+  --action-give-weak-text: var(--green-500); /* #03b26c */
 
   --link:            var(--blue-500);
   --link-hover:      var(--blue-700);
@@ -212,6 +230,36 @@
   --skeleton-pulse: var(--grey-200);
 
   /* ---------------------------------------------------------------- */
+  /* 3 · SECTION IDENTITY + GRADATION  [O3]                            */
+  /* Sections carry an ambient hue (FL-1: mode must be visible beyond  */
+  /* the toggle) — in bands, tints, dots, badges, and, on its OWN      */
+  /* surface, the single lead action (give = --action-give). Gradients */
+  /* are SAME-HUE only, hero/section bands only. Literal stops — band- */
+  /* specific and off-ramp — so ramp edits can't silently shift them.  */
+  /* ---------------------------------------------------------------- */
+
+  --identity-ask:    var(--blue-500); /* Ask / default — #3182f6 */
+  --identity-give:   var(--green-500); /* Give help — #03b26c */
+  --identity-school: #2f73e6; /* School — band mid */
+
+  --gradient-band-blue:  linear-gradient(162deg, #3f88f1 0%, #2f73e6 48%, #1f5bcc 100%);
+  --gradient-band-green: linear-gradient(160deg, #23c386 0%, #15a368 50%, #0b8a57 100%);
+  --gradient-band-dark:  linear-gradient(157deg, #2a3340 0%, #191f28 62%);
+  /* Text on bands: #ffffff (measured — School mid ~4.6:1, deep ~6.6:1;
+     give deep ~4.8:1). */
+
+  /* [E2] Avatar identity palette — DECOUPLED from semantic ramps (FL-6:
+     a green avatar must not read "success"). Six contrast-verified pairs,
+     assigned by member rotation, carrying no status meaning. Dedicated
+     tokens so semantics and identity can diverge independently. */
+  --avatar-1-bg: #e8f3ff; --avatar-1-fg: #1b64da; /* cool blue */
+  --avatar-2-bg: #f2f4f6; --avatar-2-fg: #4e5968; /* neutral slate */
+  --avatar-3-bg: #fef3e2; --avatar-3-fg: #8a5c11; /* warm sand */
+  --avatar-4-bg: #fdebee; --avatar-4-fg: #b01824; /* soft rose */
+  --avatar-5-bg: #e7f8f0; --avatar-5-fg: #0b8a57; /* sea green */
+  --avatar-6-bg: #333d4b; --avatar-6-fg: #ffffff; /* solid ink */
+
+  /* ---------------------------------------------------------------- */
   /* 3 · TYPE / SHAPE / SPACING / ELEVATION / MOTION                  */
   /* ---------------------------------------------------------------- */
 
@@ -223,8 +271,10 @@
     'Segoe UI', Roboto, 'Apple SD Gothic Neo', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
 
-  /* Type scale — role · size / weight / line-height (TDS). Tops at 30/700,
-     floors at 10px. */
+  /* Type scale — TDS roles, with [O4] applied: a display-xl tier above the
+     TDS ceiling for landing/hero moments (FL-4: 30/700 undersells them), and
+     the floor raised 10px → 12px (nothing member-facing below 12px). */
+  --font-size-display-xl:    40px; --lh-display-xl:    48px; /* w800 · -0.025em [O4] */
   --font-size-display-hero:  30px; --lh-display-hero:  40px; /* w700 */
   --font-size-display-large: 26px; --lh-display-large: 36px; /* w700 */
   --font-size-heading-large: 22px; --lh-heading-large: 30px; /* w700 */
@@ -234,7 +284,7 @@
   --font-size-body:          14px; --lh-body:          22px; /* w400 */
   --font-size-body-sm:       13px; --lh-body-sm:       20px; /* w400 */
   --font-size-caption:       12px; --lh-caption:       18px; /* w400 */
-  --font-size-label:         10px; --lh-label:         1.5;  /* w500, +tracking when caps */
+  --font-size-label:         12px; --lh-label:         1.5;  /* w500, +tracking when caps — [O4] floor raised from TDS 10px */
 
   --weight-regular: 400;
   --weight-medium:  500;
@@ -242,11 +292,15 @@
   --weight-bold:    700;
   --tracking-tight: -0.02em; /* headings */
 
-  /* Shape — the five TDS radius tiers. Nothing rounder than 16 except pills. */
+  /* Shape — [O6] softened tiers (Field Pro v2 reference): control 12 /
+     box 14 / bubble 18 / card 20 / pill. TDS compact/standard remain for
+     small inner elements. --radius-large is the CARD radius (was TDS 16). */
   --radius-compact:     4px;
   --radius-standard:    8px;
-  --radius-comfortable: 12px;
-  --radius-large:       16px;
+  --radius-comfortable: 12px;  /* controls */
+  --radius-box:         14px;  /* [O6] inner boxes, icon tiles */
+  --radius-large:       20px;  /* [O6] cards, sheets — was 16 */
+  --radius-bubble:      18px;  /* [O6] message bubbles */
   --radius-pill:        9999px;
 
   /* Spacing — 8px base grid. */

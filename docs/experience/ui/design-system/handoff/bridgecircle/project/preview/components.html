@@ -1,4 +1,4 @@
-<!-- @dsCard group="Components" name="Core components" subtitle="Buttons · pills · toggle · field · bubbles · list rows — blue-only" -->
+<!-- @dsCard group="Components" name="Core components" subtitle="Buttons (blue + give-green) · pills · toggle · field · bubbles · list rows" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,10 +7,12 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
-  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:18px 20px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
   .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
   .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-comfortable);padding:11px 18px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
   .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
+  .btn.give{background:var(--action-give);color:var(--action-on-give)}
+  .btn.give-weak{background:var(--action-give-weak);color:var(--action-give-weak-text)}
   .btn.weak{background:var(--action-weak);color:var(--action-weak-text)}
   .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
   .cta{display:block;width:100%;border:0;border-radius:var(--radius-large);padding:15px;font-family:var(--font-sans);font-size:16px;font-weight:600;background:var(--action-primary);color:#fff;box-sizing:border-box;margin-top:10px}
@@ -20,7 +22,7 @@
   .toggle .on{background:var(--surface-card);color:var(--text-primary);box-shadow:0 1px 3px rgb(2 9 19 / .10)}
   .field{width:100%;background:var(--surface-panel);border:1px solid var(--border);border-radius:var(--radius-comfortable);padding:12px 14px;font-family:var(--font-sans);font-size:15px;color:var(--text-primary);box-sizing:border-box}
   .field.focus{border-color:var(--focus-ring);box-shadow:0 0 0 3px var(--focus-ring-soft);background:var(--surface-card)}
-  .bubble{max-width:78%;border-radius:var(--radius-large);padding:11px 15px;font-size:14px;line-height:1.5}
+  .bubble{max-width:78%;border-radius:var(--radius-bubble);padding:11px 15px;font-size:14px;line-height:1.5}
   .row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--divider)}
   .row:last-child{border-bottom:0}
   .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
@@ -29,11 +31,13 @@
 <body>
 
   <div class="card">
-    <p class="label">Buttons — one lead action, always blue</p>
+    <p class="label">Buttons — one lead action per surface: blue by default, green on give [O2]</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <span class="btn fill">Send</span>
+      <span class="btn give">Offer to help</span>
+      <span class="btn give-weak">Offer · low match</span>
       <span class="btn weak">Secondary</span>
-      <span class="btn quiet">Cancel</span>
+      <span class="btn quiet">Not this time</span>
     </div>
     <span class="cta">Confirm payment</span>
   </div>
