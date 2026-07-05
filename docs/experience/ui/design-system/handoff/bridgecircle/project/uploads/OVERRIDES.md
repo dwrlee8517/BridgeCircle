@@ -28,19 +28,19 @@ PRs #115–#117).
 | # | Token / rule | Toss base | Override | Evidence | Status |
 |---|---|---|---|---|---|
 | O1 | `--font-sans` | Toss Product Sans (proprietary) | **Pretendard** (OFL; production self-hosts Latin subset via `next/font/local`, PR #119) | licensing — mandatory substitute | **applied** |
-| O2 | Action color on the give surface | blue everywhere | **green give lead action** — `--action-give` green-700 `#0b8a57` fill (AA ~4.8:1), hover green-800; weak variant `#e7f8f0` + green-500 text | FL-2 (N identical blue buttons), FL-3 (giving reads transactional) · ADR-C | proposed |
-| O3 | Section identity | none — all surfaces identical | ambient section hues + same-hue gradient bands (give green `#23c386→#15a368→#0b8a57`, School blue `#3f88f1→#2f73e6→#1f5bcc`, dark grey-ink `#2a3340→#191f28`) | FL-1 (mode invisible below the toggle) · ADR-C | proposed |
-| O4 | Type scale ceiling | Display Hero 30/700, floor 10px | display **40/800** (tracking −0.025em), floor 12px | FL-4 (landing moment undersold) · ADR-C | proposed |
-| O5 | Warning hue | orange-500 `#fe9800` (bright) | muted **ochre `#c98a1a`** ramp, warm-cream tint `#fef3e2` | ADR-C (Field Pro A5: the brand reads calmer without bright orange) | proposed |
-| O6 | Radius tiers | 4 / 8 / 12 / 16 / pill | softer: control 12 / box 14 / bubble 18 / **card 20** / pill | ADR-C (Field Pro v2 reference) | proposed |
-| O7 | grey-200 hairline | `#e5e8eb` | `#e6e9ee` + lighter `--border-subtle #edf0f2` + faint `--ring-card` inset | ADR-C (A6: cards are near-borderless, not borderless) | proposed |
+| O2 | Action color on the give surface | blue everywhere | **green give lead action** — `--action-give` literal `#0b8a57` fill (white ~4.8:1 AA — deliberately NOT this fork's TDS green-700 `#029359`), hover `#077046`; weak `#e7f8f0` + green-500 `#03b26c` text | FL-2 (N identical blue buttons), FL-3 (giving reads transactional) · ADR-C | **applied 2026-07-04** |
+| O3 | Section identity | none — all surfaces identical | `--identity-ask/give/school` + same-hue gradient bands: give `#23c386→#15a368→#0b8a57` (160°), School `#3f88f1→#2f73e6→#1f5bcc` (162°), dark grey-ink `#2a3340→#191f28` (157°). White band text measured: School mid ~4.6:1, deep ~6.6:1; give deep ~4.8:1 | FL-1 (mode invisible below the toggle) · ADR-C | **applied 2026-07-04** |
+| O4 | Type scale ceiling | Display Hero 30/700, floor 10px | new **Display XL 40/800/48** tier (tracking −0.025em) above the TDS scale; label floor raised **10px → 12px** (TDS core roles unchanged) | FL-4 (landing moment undersold) · ADR-C | **applied 2026-07-04** |
+| O5 | Warning hue | orange-500 `#fe9800` (bright) | full ochre ramp under the `--orange-*` names — anchor `#c98a1a`, warm-cream tint `#fef3e2`, text pair ochre-700 `#8a5c11` on tint ~6.1:1 | ADR-C (Field Pro A5: the brand reads calmer without bright orange) | **applied 2026-07-04** |
+| O6 | Radius tiers | 4 / 8 / 12 / 16 / pill | softer: control 12 / **box 14** / **bubble 18** / **card 20** (`--radius-large` 16→20) / pill; compact 4 + standard 8 stay for small inner elements | ADR-C (Field Pro v2 reference) | **applied 2026-07-04** |
+| O7 | grey-200 hairline | `#e5e8eb` | `--grey-200` → `#e6e9ee`; new `--border-subtle #edf0f2`; new `--ring-card` inset (5% ink), composed with `--shadow-card` on every card | ADR-C (A6: cards are near-borderless, not borderless) | **applied 2026-07-04** |
 
 ## Extensions
 
 | # | Ground | What | Evidence | Status |
 |---|---|---|---|---|
 | E1 | Pending status | a **neutral-pending** state token pair — "waiting, and that's okay" — distinct from warning/caution (which alarm) and grey (which reads disabled) | FL-5 ("Waiting" has no honest hue) | proposed |
-| E2 | Avatar identity | a dedicated **avatar tint palette decoupled from semantic ramps** (contrast-verified pairs), so a green avatar doesn't read "success" | FL-6 (avatar tints smuggle meaning) · Field Pro's 6 `avatarColorClasses` pairs | proposed |
+| E2 | Avatar identity | dedicated **`--avatar-1..6-bg/-fg` pairs decoupled from semantic ramps**, rotation-assigned, no status meaning: blue `#e8f3ff/#1b64da` · slate `#f2f4f6/#4e5968` · sand `#fef3e2/#8a5c11` · rose `#fdebee/#b01824` · sea `#e7f8f0/#0b8a57` · ink `#333d4b/#fff` (all fg-on-bg ≥4.5:1) | FL-6 (avatar tints smuggle meaning) · Field Pro's 6 `avatarColorClasses` pairs | **applied 2026-07-04** |
 | E3 | Desktop / wide viewport | grid, sidebar nav, hover states, desktop tables, density modes (`density-cozy` / `density-pro`) — TDS ships no desktop system; adapt the idiom, seeded from the production app's existing solutions | FL-8 (the calm turns empty at 1280px) | proposed |
 | E4 | Brand marks | **CircleMark** (two overlapping circles, `currentColor`, connected members only) + wordmark treatment | brand, not skin — persists across systems | proposed |
 

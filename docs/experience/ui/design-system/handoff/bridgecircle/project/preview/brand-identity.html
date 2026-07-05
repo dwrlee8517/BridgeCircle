@@ -1,0 +1,91 @@
+<!-- @dsCard group="Brand" name="Section identity & give action" subtitle="Gradient bands · green give lead · ochre warning · avatar palette [O2 O3 O5 E2]" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .band{border-radius:var(--radius-large);padding:22px 22px 18px;color:#fff;margin-bottom:10px}
+  .band:last-of-type{margin-bottom:0}
+  .band .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:0 0 4px}
+  .band h3{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 2px}
+  .band p{font-size:14px;opacity:.9;margin:0}
+  .band .whitebtn{display:inline-block;margin-top:14px;background:#fff;border-radius:var(--radius-pill);padding:9px 18px;font-size:14px;font-weight:700}
+  .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-comfortable);padding:11px 18px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
+  .btn.give{background:var(--action-give);color:var(--action-on-give)}
+  .btn.give-weak{background:var(--action-give-weak);color:var(--action-give-weak-text)}
+  .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
+  .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
+  .pill{border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;font-weight:600}
+  .avrow{display:flex;gap:14px;flex-wrap:wrap}
+  .av{text-align:center}
+  .av .c{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 6px}
+  .av .n{font-size:11px;color:var(--text-faint);font-family:var(--font-mono)}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Section identity bands [O3] — same-hue only, band surfaces only; white text measured</p>
+    <div class="band" style="background:var(--gradient-band-green)">
+      <p class="eyebrow">Give help</p>
+      <h3>Three people could use you this week</h3>
+      <p>Green is the give side&rsquo;s identity — ambient here, operative once below.</p>
+      <span class="whitebtn" style="color:#0b8a57">Browse asks</span>
+    </div>
+    <div class="band" style="background:var(--gradient-band-blue)">
+      <p class="eyebrow">School</p>
+      <h3>Chadwick, wherever you are</h3>
+      <p>Deep-blue gradation, ending short of navy.</p>
+      <span class="whitebtn" style="color:#1f5bcc">See what&rsquo;s on</span>
+    </div>
+    <div class="band" style="background:var(--gradient-band-dark)">
+      <p class="eyebrow">Feature</p>
+      <h3>Quiet by design</h3>
+      <p>The grey-ink band for footers and feature moments.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">One lead action per surface [O2] — blue on ask/connect, green on give</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+      <span class="btn give">Offer to help</span>
+      <span class="btn give-weak">Offer · low match</span>
+      <span class="btn quiet">Not this time</span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="btn fill">Send ask</span>
+      <span class="btn quiet">Save draft</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-faint);margin:12px 0 0">Give fill is the literal #0b8a57 (~4.8:1 with white text) — never the brighter identity green.</p>
+  </div>
+
+  <div class="card">
+    <p class="label">Ochre warning [O5] + give status pills</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Ask expiring</span>
+      <span class="pill" style="background:var(--action-give-weak);color:var(--action-give-weak-text)">Open to help</span>
+      <span class="pill" style="background:var(--state-info-tint);color:var(--state-info-text)">Info</span>
+      <span class="pill" style="background:var(--state-danger-tint);color:var(--state-danger-text)">Expired</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Avatar identity palette [E2] — decoupled from semantics, rotation-assigned</p>
+    <div class="avrow">
+      <span class="av"><span class="c" style="background:var(--avatar-1-bg);color:var(--avatar-1-fg)">IL</span><span class="n">1 · blue</span></span>
+      <span class="av"><span class="c" style="background:var(--avatar-2-bg);color:var(--avatar-2-fg)">DO</span><span class="n">2 · slate</span></span>
+      <span class="av"><span class="c" style="background:var(--avatar-3-bg);color:var(--avatar-3-fg)">MP</span><span class="n">3 · sand</span></span>
+      <span class="av"><span class="c" style="background:var(--avatar-4-bg);color:var(--avatar-4-fg)">JK</span><span class="n">4 · rose</span></span>
+      <span class="av"><span class="c" style="background:var(--avatar-5-bg);color:var(--avatar-5-fg)">SL</span><span class="n">5 · sea</span></span>
+      <span class="av"><span class="c" style="background:var(--avatar-6-bg);color:var(--avatar-6-fg)">HR</span><span class="n">6 · ink</span></span>
+    </div>
+    <p style="font-size:12px;color:var(--text-faint);margin:12px 0 0">Carries no status meaning — a green avatar is just a person, not a success state.</p>
+  </div>
+
+</body>
+</html>
