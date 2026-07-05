@@ -167,14 +167,29 @@ untouched — never blanket-delete; see `.design-sync/NOTES.md`).
 - Re-measure the contrast table per layer; update the ratchet baseline and add
   the "override needs a ledger entry" check (D7).
 
-### Phase E — Migrate surfaces; add brand overrides only as proven
+### Phase E — Redesign in Claude Design first; translate flow-by-flow; overrides only as proven
 
-Reskin primitives + surfaces in member-impact order (0012 Phase C order
-stands). When a surface genuinely needs a brand divergence, **promote** the
-relevant D4 candidate from *proposed* to *applied* with a ledger entry — don't
-apply the whole backlog up front. Then archive Civic docs, write the Field Pro
-(base + overlay) docs fresh, amend voice-guidelines §13/§14, and flip this ADR
-to `accepted` (0012 Phase D scope).
+> **Amended 2026-07-04 (design-first).** Richard chose a **complete redesign**
+> over a surface-by-surface reskin of existing pages. The order inverts: the
+> full experience is **designed and iterated in the `bridgecircle` Claude
+> Design project first** (screens as project files, checkpoint-synced into the
+> repo bundle), and production translation happens **per stabilized flow**,
+> not per existing page. The ledger discipline is unchanged — divergences the
+> redesign uses are promoted from *proposed* to *applied* with evidence (the
+> Help Hub friction log FL-1…8 already justifies the core batch). IA/flow
+> changes the redesign introduces are product scope: update the behavior specs
+> (user-flows, screen map) in the same change, and the two-sided buffer
+> principle binds every redrawn peer-to-peer surface.
+
+The `bridgecircle` fork is the **main design system** — the target all new
+design work builds against. When a designed flow stabilizes: promote the
+ledger entries it uses, sync, then hand-translate into production
+(`globals.css` `@layer base, brand` + owned primitives; never a mechanical
+copy, per 0012 D2). **Close-out, when the redesign has landed:** archive the
+Civic Editorial docs and the `handoff/bridgecircle-design-system/` bundle to
+`_archive/` with a dated pointer, write the fork's production docs fresh,
+amend voice-guidelines §13/§14, and flip this ADR to `accepted` (0012 Phase D
+scope).
 
 ### Migration from 0012 (already-merged work)
 

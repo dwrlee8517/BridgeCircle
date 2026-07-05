@@ -89,7 +89,7 @@ UX, UI, screen-level decisions, and active visual references.
 
 - [Experience index](experience/README.md) — trust hierarchy for current UX, UI, and screen guidance
 - [UX](experience/ux/) — active UX interpretation and links to canonical behavior docs
-- [Design system](experience/ui/design-system/) — **transitioning off Civic Editorial to a Toss (TDS) baseline** (ADR 0012 → [0013](decisions/0013-toss-baseline-then-brand-overlay.md)). The faithful [`toss-base` bundle](experience/ui/design-system/handoff/toss-base/) is the new Layer-0 foundation the brand forks from; Civic still describes live production until the Phase C reskin.
+- [Design system](experience/ui/design-system/) — **main system: [`bridgecircle`](experience/ui/design-system/handoff/bridgecircle/)** (brand fork of the faithful [`toss-base`](experience/ui/design-system/handoff/toss-base/) TDS baseline; divergences logged in its `OVERRIDES.md` — ADR [0013](decisions/0013-toss-baseline-then-brand-overlay.md)). The full redesign is designed in the `bridgecircle` Claude Design project first, then translated to production. Civic Editorial describes live production only and is archived when the redesign lands.
 - [Current member UI quality plan](experience/audits/current-member-ui-quality-plan.md) — active UI alignment checklist for Home, Ask, Help, People, School, and Inbox
 - [Screen map](experience/screens/phase-1-screen-map.md) — screen-level bridge between behavior and UI
 - [Explorations](experience/explorations/) — experimental workspace, not canonical unless promoted
