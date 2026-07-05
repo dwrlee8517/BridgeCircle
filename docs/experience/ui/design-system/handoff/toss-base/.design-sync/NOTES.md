@@ -26,11 +26,14 @@ Consequences for syncs:
 
 ## Project pin
 
-Not yet created. On the first interactive `/design-sync`, create a **new
-design-system-type project** named `toss-base` (or let the skill create it),
-verify `PROJECT_TYPE_DESIGN_SYSTEM` via `get_project`, push, then record the
-project id in `config.json` (repo↔project pin), same shape as the
-`fieldpro-design-system` bundle's `.design-sync/config.json`.
+Created and pinned (2026-07-04). Project `toss-base`
+(`f58b5256-e8d6-4e4f-b164-7f1bdd33760d`, verified `PROJECT_TYPE_DESIGN_SYSTEM`)
+is recorded in `config.json` (repo↔project pin), same shape as the
+`fieldpro-design-system` bundle's `.design-sync/config.json`. All `project/**`
+files are pushed at their project-relative paths. A re-sync is a direct
+`write_files` of the changed `project/**` files against this pin — no converter,
+no `register_assets` (cards come from `@dsCard` markers), no anchor (compare
+against a fresh `list_files`).
 
 ## Relationship to the other bundles
 

@@ -44,10 +44,11 @@ negative tracking. 10px floor.
 - Spacing: 8px base grid; 20px standard page padding.
 
 **Known gaps:** dark theme is provisional (derived, not real TDS dark);
-Pretendard substitutes for Toss Product Sans; component set is a starter.
+Pretendard substitutes for Toss Product Sans; fintech components (Keypad,
+Asset, Amount Top, Agreement, Chart) deliberately omitted.
 
 **Key files:**
-- `uploads/DESIGN.md` — full spec (principles, ramps, roles, type, contrast, gaps)
+- `uploads/DESIGN.md` — full spec (principles, ramps, roles, type, contrast, the ~25-component table, gaps)
 - `colors_and_type.css` — the token export (light + provisional dark)
-- `preview/` — @dsCard specimens (ramps, type, spacing/radius, components)
+- `preview/` — @dsCard specimens: ramps · type · spacing-radius · components · forms · overlays · navigation · lists · feedback
 - `ui_kits/app/index.html` — starter prototype
