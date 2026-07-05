@@ -9,10 +9,13 @@ divergence ledger (`uploads/OVERRIDES.md`) and the baseline-test evidence
 
 ## Project pin
 
-**Not yet created.** On the first interactive `/design-sync`: create a new
-design-system-type project named `bridgecircle`, verify
-`PROJECT_TYPE_DESIGN_SYSTEM` via `get_project`, push `project/**`, then record
-the id in `config.json` (same shape as the toss-base pin).
+Created and pinned (2026-07-04). Project `bridgecircle`
+(`b07651c7-8d28-43bd-ad1a-7af68e3f219b`, created via DesignSync
+`create_project` — design-system type) is recorded in `config.json`. First
+push of `project/**` (18 files, including `Help Hub.html` — a legitimate
+bundle file in THIS fork, unlike in toss-base) happens on the next interactive
+`/design-sync`; verify `PROJECT_TYPE_DESIGN_SYSTEM` via `get_project` before
+writing, no deletes.
 
 ## Help Hub.html provenance
 
