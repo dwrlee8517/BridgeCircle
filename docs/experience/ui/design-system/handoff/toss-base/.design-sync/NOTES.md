@@ -44,7 +44,10 @@ against a fresh `list_files`).
 added 5 preview specimens (`feedback`, `forms`, `lists`, `navigation`,
 `overlays`) and updated `SKILL.md` + `uploads/DESIGN.md` to the Wave-1
 (~25-of-~47) component set. Pushed the 7 changed/new files; 6 unchanged files
-skipped; no deletes.
+skipped; no deletes. Then grew again to **16 files**: added 3 Wave-2 specimens
+(`content`, `inputs-extended`, `results`) with the matching `SKILL.md` +
+`DESIGN.md` updates (5 files pushed, 11 skipped, no deletes). Bundle now carries
+12 preview specimens.
 
 ## Remote-only files — leave on re-sync (do NOT delete)
 
