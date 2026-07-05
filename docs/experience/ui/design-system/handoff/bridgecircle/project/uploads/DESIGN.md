@@ -35,6 +35,15 @@ duplicated here — this document only frames what's different.
    test) and ADR 0013 Appendix C (the Field Pro reconciliation). New entries
    should arrive with the same kind of evidence.
 
+## Redesign IA (Richard, 2026-07-05)
+
+Five member sections, sidebar shell (E3): **Home** = dashboard · **Help** =
+one page hosting the ask/give toggle in-page (the two verbs never split into
+separate nav items; ADR 0011) · **People** = directory · **Messages** = all
+member communication, one inbox · **School** = events + school announcements.
+IA/flow changes are product scope — the behavior specs (user-flows, screen
+map) update when flows translate to production.
+
 ## Working rhythm (ADR 0013 Phase E)
 
 Reskin production surfaces in member-impact order. When a surface genuinely

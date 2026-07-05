@@ -1,4 +1,4 @@
-<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="240px rail · identity dots · 1140px content shell · hover states [E3]" viewport-width="1200" -->
+<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="Home · Help · People · Messages · School — 240px rail · identity dots · 1140px shell [E3]" viewport-width="1200" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,7 +19,7 @@
   .ni.on{background:var(--nav-active-bg);color:var(--nav-active-text)}
   .ni .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--grey-300)}
   .ni.on .dot{background:var(--identity-ask)}
-  .ni .dot.give{background:var(--identity-give)}
+  .ni .dot.help{background:linear-gradient(90deg,var(--identity-ask) 50%,var(--identity-give) 50%)} /* Help hosts BOTH modes — ask blue / give green, toggled in-page */
   .ni .dot.school{background:var(--identity-school)}
   .ni .count{margin-left:auto;min-width:20px;height:20px;border-radius:var(--radius-pill);background:var(--action-primary);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px}
   .side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-comfortable)}
@@ -53,11 +53,10 @@
       </span>
       <nav class="nav">
         <span class="ni on"><span class="dot"></span>Home</span>
-        <span class="ni"><span class="dot"></span>Ask</span>
-        <span class="ni"><span class="dot give"></span>Give help</span>
+        <span class="ni"><span class="dot help"></span>Help</span>
         <span class="ni"><span class="dot"></span>People</span>
+        <span class="ni"><span class="dot"></span>Messages<span class="count">3</span></span>
         <span class="ni"><span class="dot school"></span>School</span>
-        <span class="ni"><span class="dot"></span>Inbox<span class="count">3</span></span>
       </nav>
       <span class="me">
         <span class="av">IL</span>
@@ -79,7 +78,7 @@
             <span style="flex:1;min-width:0"><span class="t">David Okafor &rsquo;98</span><span class="s">My daughter&rsquo;s thinking about design school. Portfolio advice?</span></span>
             <button class="btn give">Offer to help</button>
           </div>
-          <p class="note">Rows take --row-hover on pointer; the shell caps at 1140px so the grey canvas never reads as blank margin (FL-8).</p>
+          <p class="note">IA: Home = dashboard · Help = one page hosting the ask/give toggle (split blue/green dot) · People = directory · Messages = all member communication · School = events + announcements. Rows take --row-hover; the shell caps at 1140px (FL-8).</p>
         </div>
         <div class="card">
           <p class="label">Your open asks</p>

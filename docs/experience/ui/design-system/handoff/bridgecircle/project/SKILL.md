@@ -27,6 +27,12 @@ identity dots, `--nav-active-*`), pointer states (`--hover-tint`,
 `--row-hover`; hover = background shift, never a lift), operator data table
 tokens, wide band hero. Specimens: `preview/desktop-{shell,tables,patterns}.html`.
 
+**Redesign IA (locked by Richard, 2026-07-05):** the member shell has FIVE
+sections — **Home** (dashboard) · **Help** (one page; ask/give selected by an
+in-page toggle — never separate nav items; split blue/green dot) · **People**
+(directory) · **Messages** (all member-to-member communication, one inbox) ·
+**School** (events + announcements). Design every screen within this IA.
+
 **Rejected:** O5 ochre warning (2026-07-05) — **warning is TDS orange
 `#fe9800`**, do not reach for ochre.
 **Still proposed:** E1 neutral-pending hue · E4 CircleMark (the wordmark's
