@@ -22,10 +22,21 @@ identity + gradient bands (`--gradient-band-{green,blue,dark}`) · O4 Display XL
 palette (`--avatar-1..6`, no status meaning).
 
 **Applied (2026-07-05):** E3 desktop extension — breakpoints 768/1024/1280,
-`--container-shell 1140` / `--container-reading 680`, **sidebar shell** (240px,
-identity dots, `--nav-active-*`), pointer states (`--hover-tint`,
-`--row-hover`; hover = background shift, never a lift), operator data table
-tokens, wide band hero. Specimens: `preview/desktop-{shell,tables,patterns}.html`.
+`--container-shell 1320` (max, fluid below) / `--container-reading 680`,
+**sidebar shell** (240px, **icon nav** — 20px strokes, radius `--radius-box`,
+NOT identity dots; two-tone wordmark; `--gradient-avatar` member card),
+**topbar** (`--topbar-height 66`: blurred white, title, ⌘K search pill, round
+icon actions), pointer states (`--hover-tint`, `--row-hover`; hover =
+background shift, never a lift), operator data table tokens, wide band hero.
+Specimens: `preview/desktop-{shell,tables,patterns}.html`.
+
+**Identity mapping (corrected 2026-07-05 vs the reference):** blue band
+`--gradient-band-blue` = Help **get/ask** mode · green = Help **give** mode ·
+**School = `--gradient-band-school`** (dark + blue/violet radial glows) ·
+plain dark = footers/features. Band anatomy: compose `--band-glow` over the
+gradient; two-circle watermark ~16% white; mode toggle ON the band (white
+active pill on `--band-toggle-track`); floating cards use
+`--shadow-band-card`.
 
 **Redesign IA (locked by Richard, 2026-07-05):** the member shell has FIVE
 sections — **Home** (dashboard) · **Help** (one page; ask/give selected by an

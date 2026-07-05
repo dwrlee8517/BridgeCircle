@@ -238,15 +238,35 @@
   /* specific and off-ramp — so ramp edits can't silently shift them.  */
   /* ---------------------------------------------------------------- */
 
+  /* Identity mapping CORRECTED against the byte-complete reference
+     (2026-07-05): the blue band is the HELP page's GET/ASK mode band; the
+     give band is green; SCHOOL uses the dark band WITH radial glows. */
   --identity-ask:    var(--blue-500); /* Ask / default — #3182f6 */
   --identity-give:   var(--green-500); /* Give help — #03b26c */
-  --identity-school: #2f73e6; /* School — band mid */
+  --identity-school: #2f73e6; /* School accent blue (chips, links on School) */
 
-  --gradient-band-blue:  linear-gradient(162deg, #3f88f1 0%, #2f73e6 48%, #1f5bcc 100%);
-  --gradient-band-green: linear-gradient(160deg, #23c386 0%, #15a368 50%, #0b8a57 100%);
-  --gradient-band-dark:  linear-gradient(157deg, #2a3340 0%, #191f28 62%);
-  /* Text on bands: #ffffff (measured — School mid ~4.6:1, deep ~6.6:1;
+  --gradient-band-blue:  linear-gradient(162deg, #3f88f1 0%, #2f73e6 48%, #1f5bcc 100%); /* GET/ASK band */
+  --gradient-band-green: linear-gradient(160deg, #23c386 0%, #15a368 50%, #0b8a57 100%); /* GIVE band */
+  --gradient-band-dark:  linear-gradient(157deg, #2a3340 0%, #191f28 62%); /* plain dark — footers/features */
+  /* SCHOOL band: the dark band with blue + violet radial glows (reference-
+     exact; the retired Mentor violet survives only as this ambient glow). */
+  --gradient-band-school:
+    radial-gradient(95% 130% at 90% 2%, rgb(73 147 252 / 0.5) 0%, rgb(73 147 252 / 0) 55%),
+    radial-gradient(80% 120% at 2% 112%, rgb(114 47 200 / 0.4) 0%, rgb(114 47 200 / 0) 55%),
+    linear-gradient(157deg, #2a3340 0%, #191f28 62%);
+  /* Band anatomy (reference): compose --band-glow OVER the gradient; the
+     two-circle watermark sits top-right at ~16% white; the mode toggle lives
+     ON the band (white active pill on a translucent track); composer/content
+     cards float on the band with --shadow-band-card. */
+  --band-glow: radial-gradient(150% 120% at 50% -40%, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0) 55%);
+  --band-toggle-track: rgb(255 255 255 / 0.18);
+  --shadow-band-card: 0 20px 44px -14px rgb(8 17 38 / 0.40);
+  /* Text on bands: #ffffff (measured — blue mid ~4.6:1, deep ~6.6:1;
      give deep ~4.8:1). */
+
+  /* Self/brand avatar + icon tiles: the recurring blue gradient the
+     reference uses for the signed-in member's avatar (A5 diff item #4). */
+  --gradient-avatar: linear-gradient(135deg, #3b8bf7, #2272eb);
 
   /* [E2] Avatar identity palette — DECOUPLED from semantic ramps (FL-6:
      a green avatar must not read "success"). Six contrast-verified pairs,
@@ -341,11 +361,18 @@
 
   /* Containers — the FL-8 answer: content owns a measured column */
   --container-reading: 680px;  /* single-flow reading/forms column */
-  --container-shell:  1140px;  /* app shell max-width */
+  --container-shell:  1320px;  /* app shell MAX-width (fluid below) — matches
+                                  the Field Pro v2 reference frames; 240 rail
+                                  + ~1080 content sits on 1280–1512 laptops.
+                                  The reference's radius-24 outer frame is a
+                                  mockup canvas artifact — real shells are
+                                  full-bleed, no frame radius. */
 
   /* Sidebar shell */
   --sidebar-width:      240px;
   --sidebar-width-rail:  72px; /* collapsed icon rail */
+  --topbar-height:       66px; /* blurred-white header: title + global search
+                                  (⌘K) + round icon actions (reference) */
 
   /* Pointer states — TDS mobile has NO hover language; defined here.
      Hover is a background shift, never a lift or color change. */
