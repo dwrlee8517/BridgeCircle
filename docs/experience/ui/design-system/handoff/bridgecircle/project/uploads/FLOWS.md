@@ -80,25 +80,22 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
    helps us match the right people"). AI assist = one conversational drafter
    (ADR 0011 D1: no types, no steps); `?skip=1` plain form survives.
 2. **Topic chips** — AI-suggested from the text, editable (+ Add).
-3. **Audience** (Richard's tier model, 2026-07-05) — the ask is either
-   **direct** ("Only people I pick" → recipient picker, step 4) or an **open
-   ask** with an asker-chosen visibility tier. Tiers are cumulative reach;
-   **default = Good matches only** (the embarrassed-asker default — broader
-   reach is always the asker's explicit escalation):
-   - **Good matches only** — relevance-matched helpers via suggestion +
+3. **Audience** (simplified to TWO tiers, Richard 2026-07-05) — the ask is
+   either **direct** ("Only people I pick" → recipient picker, step 4) or an
+   **open ask** with one binary choice:
+   - **Private** (default) — relevance-matched helpers only, via suggestion +
      competence-query. Copy: "Only people whose experience fits will see this."
-   - **My circle** — + your connections can browse/find it. Copy: "People
-     you're connected with can also find this."
-   - **Everyone at [school]** — any member browsing or searching. Copy:
-     "Anyone in the community can find this."
-   **Anonymous-until-accept (DECIDED, Richard 2026-07-05):** any open ask, at
-   any tier, may toggle "post without your name." Helpers see **"A member ·
-   Class of '27"**; name + profile are revealed **only to the helper whose
-   offer the asker accepts**. Mechanics: match-evidence lines for anonymous
-   asks derive from the ask's content only (never asker profile facts — that
-   would leak identity); honest copy at the toggle ("Your class year still
-   shows — in a small circle, people may guess"). Orthogonal to reach because
-   embarrassment is often highest in front of people you know. The strongest
+   - **Public** — any member browsing or searching can find it. Copy:
+     "Anyone at [school] can find this."
+   (The earlier "My circle" middle tier is dropped — one toggle, no tier
+   arithmetic. The embarrassed-asker default stays the narrowest.)
+   **Anonymous-until-accept (DECIDED, Richard 2026-07-05):** any open ask,
+   private or public, may toggle "post without your name." Helpers see **"A
+   member · Class of '27"**; name + profile are revealed **only to the helper
+   whose offer the asker accepts**. Mechanics: match-evidence lines for
+   anonymous asks derive from the ask's content only (never asker profile
+   facts — that would leak identity); honest copy at the toggle ("Your class
+   year still shows — in a small circle, people may guess"). The strongest
    two-sided-buffer feature in the app: maximum reach with maximum cover.
    ❓ *timing: v1 or fast-follow?*
 4. **Recipient picker** (direct asks) — "Send it to the right people":
@@ -109,10 +106,85 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
 5. **Send** ("Ask for advice") → confirmation Result ("Ask sent — it stays
    open 14 days") → lands on the ask's status view.
 6. **Lifecycle:** recipient accepts → thread in Messages (origin line: "Maya
-   accepted your ask"). Recipient quiet-passes → asker sees *nothing* (D5).
-   14-day expiry → gentle asker email ("want to renew or let it rest?").
-   Offers from the open circle (3b) arrive as **offer rows on the ask**: the
-   asker holds the accept; accept → thread; pass → helper sees nothing.
+   accepted your ask"). Recipient quiet-passes → asker sees *nothing* while
+   the ask is open (D5). Offers on open asks arrive as **offer rows on the
+   ask**: the asker holds the accept; accept → thread; pass → helper sees
+   nothing.
+7. **The 14-day close (Richard 2026-07-05 + buffer design).** If a direct
+   recipient hasn't responded by day 14, the backend closes the ask. The
+   closure is **notified, uniform, and no-fault** — the same closure whether
+   the recipient quietly passed on day 2 or simply never opened it:
+   *"This ask has closed — [name] wasn't able to get to it."* Never
+   "declined," never read-state, never a timeline. **Uniformity is the
+   mechanism:** because a pass and a timeout produce the identical message at
+   the identical moment, silence carries no information and the quiet pass
+   stays genuinely quiet. The closure notice always ships with a **recovery
+   action**: "Ask someone else" (re-opens the picker, recipient excluded) or
+   "Open it to the circle" (converts to an open ask, one tap, text intact).
+   Receiver side: one gentle reminder around day 5 ("Alex is waiting on an
+   ask — take a look?", existing `reminder_sent_at` plumbing); after the
+   close the receiver's pending item silently disappears — no guilt screen.
+   Open asks close the same way at day 14: "Your ask has closed — want to
+   renew it, or let it rest?"
+
+### 3a-detail · The asking flow, page by page
+
+One page carries the whole compose flow (Help·Get, progressive — no wizard
+steps, sections appear in place as they become relevant). Then the ask lives
+in exactly two places: its **status view** and, once accepted, **Messages**.
+
+**Page 1 — Help·Get, compose state** (`/help`, blue wash)
+- Entry points: sidebar Help · Home's ask entry (arrives with composer
+  focused) · profile "Ask for advice" (arrives with that person pre-Included)
+  · ⌘K ("ask…").
+- On screen: pill toggle (Get active) · headline "Who do you want to ask?" ·
+  composer card (freeform, coach line "Write it like you'd ask a friend —
+  detail helps us match the right people") · below the composer, nothing yet.
+- As the member types (debounced): **topic chips** appear under the card
+  (AI-suggested, editable) and the **recipient section fades in** beneath —
+  live matches with evidence lines. The page answers "who would see this?"
+  before the member ever commits.
+
+**Page 1, reach control** (same page, bottom of the composer card)
+- One control: **"Who will see this?"** → `People I pick` (default) ·
+  `Good matches` (private open ask) · `Anyone at Chadwick` (public open ask).
+- `People I pick`: the live match list below is a **picker** —
+  Include/Included per row, "Reaching N people" counter, search-to-add.
+- `Good matches`: the list becomes a **preview** ("people like these will be
+  suggested your ask") — no picking; the system routes.
+- `Anyone at Chadwick`: preview stays + the **anonymity toggle** appears
+  ("Post without your name") with its honest small-circle copy. (Anonymity is
+  also available on private opens, in the same spot.)
+
+**Page 1 → send**
+- One primary button, label follows reach: "Send to 2 people" / "Post your
+  ask". Inline Result confirmation replaces the composer: what happens next
+  in one sentence ("They'll see it today. Asks stay open 14 days."), plus
+  "View your ask" → status view.
+
+**Page 2 — Ask status view** (`/help/asks/[id]`, also the target of every
+notification about this ask)
+- Header: the ask text · reach line ("Sent to Maya and Jordan" / "Private —
+  suggested to good matches" / "Public — anyone can find it") · countdown
+  ("closes in 9 days") · actions: Edit reach (widen only — narrow would
+  betray helpers already matched ❓ confirm) · Close it myself · (public/
+  private opens) the anonymity state.
+- Direct road: recipient rows with calm state ("Waiting" — no read receipts,
+  no last-seen; waiting is honest but informationless).
+- Open road: **offer rows** as they arrive — helper preview + their note +
+  Accept / Pass (pass is silent to the helper). Accept → thread; remaining
+  offers get the no-fault closure ("This ask has been answered").
+- Where it surfaces elsewhere: Home "Your open asks" module rows → here;
+  Messages "Waiting" group shows a compact echo row → here.
+
+**Page 3 — the thread** (Messages) — origin line, day clock in the context
+rail ("Day 5 of 14"), Mark resolved, optional outcome note ❓, then the
+"Add to your circle" nudge. From here the ask is just a conversation.
+
+**Closure paths, all roads:** answered (resolved) · asker-closed · 14-day
+close (uniform no-fault notice + recovery action, per §3a step 7). Every
+path ends with the status view in a terminal state, reachable from history
+but never nagging.
 
 ### 3b · Give help (green wash) — four lanes
 
@@ -131,18 +203,19 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
    experience; retrieval returns relevance-gated open asks across all tiers,
    each with a match-evidence line. Below threshold = honest empty state
    ("Nothing needs you right now — we'll nudge you when something does").
-3. **Browse open asks** — search + filter over asks whose asker-set tier
-   includes this helper ("From your circle" / "Open to everyone"). **A quiet
-   list, never a feed:** no view counts, no public replies (offers are
-   private 1:1), no popularity ranking — relevance/recency sort only.
+3. **Browse open asks** — search + filter over **public** open asks (the
+   only browsable tier now that "My circle" is dropped; private asks are
+   reachable solely through matching). **A quiet list, never a feed:** no
+   view counts, no public replies (offers are private 1:1), no popularity
+   ranking — relevance/recency sort only.
 4. **Asked you directly** — direct asks naming this helper (canonical home:
    Messages' "Waiting on you" group; echoed here).
 
 **Offer** (from any lane) → short optional note → sent. Asker accepts →
 thread ("You offered to help with…" origin line). Asker passes → helper sees
-nothing. RLS note for build time: three read-policy shapes — match-row grant
-(existing) · friendship-join (circle tier) · org-member (everyone tier);
-`rls-auditor` mandatory (extends ADR 0011 Phase 5).
+nothing. RLS note for build time: two read-policy shapes — match-row grant
+(private tier, existing) · org-member (public tier); `rls-auditor` mandatory
+(extends ADR 0011 Phase 5).
 
 Buffer inventory for Help: quiet pass both directions, pause/auto-pause,
 expiry with dignity, asker-holds-accept on offers, helper-holds-accept on
