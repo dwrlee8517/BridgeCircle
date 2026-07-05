@@ -1,0 +1,160 @@
+<!-- @dsCard group="Pages" name="School — punchy cover (1h)" subtitle="Navy event cover · glass tiles · attending strip · upcoming list · pinned announcements" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--wash-page),var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:14px;max-width:1040px;margin-inline:auto}
+  .kicker{font-size:13px;font-weight:600;color:var(--text-faint);margin:0}
+  h1{margin:6px 0 0;font-weight:800;font-size:28px;letter-spacing:-0.03em}
+  /* attending strip */
+  .strip{display:flex;align-items:stretch;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),0 8px 24px -14px rgb(25 31 40 / 0.12);overflow:hidden}
+  .strip .lead{flex:none;display:flex;align-items:center;gap:8px;padding:0 18px;border-right:1px solid var(--divider);background:linear-gradient(180deg,#fbfefc,#f4fcf8)}
+  .strip .lead i{width:7px;height:7px;border-radius:50%;background:var(--green-500);box-shadow:0 0 0 3px rgb(3 178 108 / 0.14)}
+  .strip .lead b{font-size:12px;font-weight:800}
+  .strip .lead .n{font-size:11px;font-weight:800;color:#029a5e;font-variant-numeric:tabular-nums}
+  .strip .ev{display:flex;align-items:center;gap:11px;padding:10px 18px;border-right:1px solid var(--divider)}
+  .strip .ev:hover{background:var(--row-hover)}
+  .dt{flex:none;width:34px;text-align:center;line-height:1.05}
+  .dt .mo{display:block;font-size:8.5px;font-weight:800;color:var(--blue-600);letter-spacing:.07em}
+  .dt .dd{display:block;font-size:15px;font-weight:800;letter-spacing:-0.02em}
+  .strip .et{font-size:12.5px;font-weight:700;white-space:nowrap}
+  .strip .em{font-size:10.5px;font-weight:500;color:var(--text-faint);white-space:nowrap}
+  .strip .manage{flex:none;display:flex;align-items:center;gap:5px;padding:0 18px;margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700}
+  /* event cover */
+  .cover{position:relative;overflow:hidden;border-radius:var(--radius-card-xl);padding:24px 26px;background:var(--cover-event);box-shadow:0 18px 44px -16px rgb(13 27 54 / 0.55);color:#fff}
+  .cover .tex{position:absolute;inset:0;background-image:var(--cover-texture);background-size:18px 18px;pointer-events:none}
+  .cover .in{position:relative}
+  .gdate{flex:none;width:62px;height:66px;border-radius:var(--radius-large);background:var(--glass-tile);box-shadow:var(--ring-glass);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+  .gdate .mo{font-size:10px;font-weight:800;color:var(--cover-accent);letter-spacing:.06em}
+  .gdate .dd{font-size:25px;font-weight:800;letter-spacing:-0.02em}
+  .gdate .dw{font-size:9.5px;font-weight:700;color:rgb(255 255 255 / 0.65)}
+  .cover .cat{font-size:11.5px;font-weight:700;color:var(--cover-accent)}
+  .cover h2{margin:3px 0 0;font-size:23px;font-weight:800;letter-spacing:-0.02em;line-height:1.15}
+  .going-pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--cover-ink);background:#fff;border-radius:var(--radius-pill);padding:6px 12px;flex:none}
+  .chg{font-size:11.5px;color:var(--cover-accent);font-weight:700}
+  .ggrid{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:18px;background:rgb(255 255 255 / 0.07);border-radius:var(--radius-box);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.12)}
+  .gc{padding:13px 18px}
+  .gc + .gc{border-left:1px solid rgb(255 255 255 / 0.12)}
+  .gc .gl{font-size:11px;font-weight:700;color:var(--cover-accent)}
+  .gc .gv{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em}
+  .gc .gs{font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px}
+  .cfoot{display:flex;align-items:center;gap:16px;margin-top:16px;flex-wrap:wrap}
+  .avs{display:flex}
+  .avs span{width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink)}
+  .avs span + span{margin-left:-6px}
+  .avs .plus{background:#cfe2ff}
+  .goingtxt{font-size:12px;color:rgb(255 255 255 / 0.85);font-weight:600;font-variant-numeric:tabular-nums}
+  .capw{flex:1;max-width:280px}
+  .capw .lab{display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:rgb(255 255 255 / 0.7);font-variant-numeric:tabular-nums}
+  .capw .track{margin-top:4px;height:5px;border-radius:var(--radius-pill);background:rgb(255 255 255 / 0.18);overflow:hidden}
+  .capw .fill{display:block;width:72%;height:100%;background:linear-gradient(90deg,#6aa8ff,#3b82f6);border-radius:var(--radius-pill)}
+  .gbtn{margin-left:auto;flex:none;background:rgb(255 255 255 / 0.14);color:#fff;border:0;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:11px;padding:9px 18px;font-family:var(--font-sans);font-size:12px;font-weight:700;backdrop-filter:blur(4px)}
+  /* two-col */
+  .cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
+  .card{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)}
+  .chead{display:flex;align-items:center;gap:9px;padding:15px 20px 11px}
+  .chead b{font-size:15px;font-weight:800;letter-spacing:-0.02em}
+  .chead .s{font-size:12px;color:var(--text-faint);font-weight:600}
+  .chead a{margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none}
+  .erow{display:flex;align-items:center;gap:13px;padding:11px 20px;border-top:1px solid var(--divider-row)}
+  .erow:hover{background:var(--row-hover)}
+  .etile{flex:none;width:40px;height:40px;border-radius:var(--radius-comfortable);background:linear-gradient(180deg,#eef5ff,#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+  .etile .mo{font-size:9px;font-weight:800;color:var(--blue-600);letter-spacing:.05em}
+  .etile .dd{font-size:15px;font-weight:800}
+  .erow .t{font-size:13.5px;font-weight:700}
+  .erow .m{font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px}
+  .viewing{flex:none;font-size:11px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border-radius:var(--radius-pill);padding:3px 10px}
+  .going{flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#029a5e;background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px}
+  .pinned{padding:12px 20px 12px 18px;border-top:1px solid var(--divider-row);background:linear-gradient(90deg,#eaf3ff,#fbfdff);border-left:3px solid var(--action-primary)}
+  .pinned .pl{font-size:11px;font-weight:700;color:var(--blue-600)}
+  .arow2{display:block;padding:11px 20px;border-top:1px solid var(--divider-row)}
+  .arow2:hover{background:var(--row-hover)}
+  .at{font-size:13.5px;font-weight:700;line-height:1.35}
+  .am{font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:3px}
+  /* newsletter tile */
+  .news{position:relative;overflow:hidden;border-radius:var(--radius-card-xl);padding:20px;background:radial-gradient(90% 120% at 90% -20%, rgb(73 147 252 / 0.45) 0%, rgb(73 147 252 / 0) 55%), linear-gradient(150deg,#101d3a 0%,#16315e 100%);box-shadow:0 14px 36px -14px rgb(13 27 54 / 0.5);color:#fff}
+  .news .tex{position:absolute;inset:0;background-image:var(--cover-texture);background-size:18px 18px;pointer-events:none}
+  .news .kl{font-size:11px;font-weight:700;color:var(--cover-accent)}
+  .news h3{font-size:17px;font-weight:800;letter-spacing:-0.02em;margin:5px 0 0}
+  .news li{font-size:12.5px;color:rgb(255 255 255 / 0.85);font-weight:500;line-height:1.5;margin-top:7px;list-style:none;position:relative;padding-left:13px}
+  .news li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:#7db4ff}
+  .news .acts{display:flex;gap:8px;margin-top:15px}
+  .news .r{flex:1;background:#fff;color:var(--cover-ink);border:0;border-radius:11px;padding:9px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
+  .news .s2{background:rgb(255 255 255 / 0.14);color:#fff;border:0;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:11px;padding:9px 14px;font-family:var(--font-sans);font-size:12.5px;font-weight:600}
+</style>
+</head>
+<body>
+
+  <div>
+    <p class="kicker">Chadwick · Class of '26</p>
+    <h1>What's on at Chadwick.</h1>
+  </div>
+
+  <div class="strip">
+    <span class="lead"><i></i><b>Attending</b><span class="n">2</span></span>
+    <span class="ev"><span class="dt"><span class="mo">MAY</span><span class="dd">14</span></span><span><span class="et" style="display:block">Spring Mixer</span><span class="em">Thu 6:00 PM · Main Court Patio</span></span></span>
+    <span class="ev"><span class="dt"><span class="mo">MAY</span><span class="dd">19</span></span><span><span class="et" style="display:block">Founders Dinner</span><span class="em">Tue 7:00 PM · The Riviera</span></span></span>
+    <span class="manage">Manage →</span>
+  </div>
+
+  <div class="cols">
+    <div style="display:grid;gap:16px">
+      <div class="cover">
+        <div class="tex"></div>
+        <div class="in">
+          <div style="display:flex;align-items:center;gap:18px">
+            <span class="gdate"><span class="mo">MAY</span><span class="dd">14</span><span class="dw">THU</span></span>
+            <span style="flex:1;min-width:0"><span class="cat">Event details · Social</span><h2>Spring Mixer on the Main Court Patio</h2></span>
+            <span style="display:flex;align-items:center;gap:8px"><span class="going-pill">✓ You're going</span><span class="chg">Change</span></span>
+          </div>
+          <div class="ggrid">
+            <div class="gc"><span class="gl">◷ When</span><span class="gv" style="display:block">Thu, May 14</span><span class="gs" style="display:block">6:00 – 9:00 PM</span></div>
+            <div class="gc"><span class="gl">◉ Where</span><span class="gv" style="display:block">Main Court Patio</span><span class="gs" style="display:block">Palos Verdes campus</span></div>
+            <div class="gc"><span class="gl">▦ Format</span><span class="gv" style="display:block">In person</span><span class="gs" style="display:block">Casual · all classes</span></div>
+          </div>
+          <div class="cfoot">
+            <span style="display:flex;align-items:center;gap:8px"><span class="avs"><span>MC</span><span>JB</span><span class="plus">+41</span></span><span class="goingtxt">44 going</span></span>
+            <span class="capw"><span class="lab"><span>Spots filled</span><span>44 / 60</span></span><span class="track"><span class="fill"></span></span></span>
+            <button class="gbtn">Add to calendar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead"><b>Upcoming</b><span class="s">6 events · select one to view it above</span><a href="#" onclick="return false">Calendar →</a></div>
+        <div class="erow"><span class="etile"><span class="mo">MAY</span><span class="dd">14</span></span><span style="flex:1;min-width:0"><span class="t" style="display:block">Spring Mixer</span><span class="m">Thu 6:00 PM · Main Court Patio · Social</span></span><span class="viewing">Viewing</span></div>
+        <div class="erow"><span class="etile"><span class="mo">MAY</span><span class="dd">19</span></span><span style="flex:1;min-width:0"><span class="t" style="display:block">Founders Dinner</span><span class="m">Tue 7:00 PM · The Riviera · Dinner</span></span><span class="going">✓ Going</span></div>
+        <div class="erow"><span class="etile"><span class="mo">JUN</span><span class="dd">02</span></span><span style="flex:1;min-width:0"><span class="t" style="display:block">Resume &amp; portfolio clinic</span><span class="m">Tue 5:30 PM · Online · Career</span></span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:16px">
+      <div class="card">
+        <div class="chead"><b>Announcements</b><span class="viewing" style="background:var(--blue-50)">2 new</span><a href="#" onclick="return false">View all →</a></div>
+        <div class="pinned"><span class="pl">Pinned</span><div class="at" style="margin-top:4px">Class of '26 mentorship cohort opens Friday</div><div class="am">Mentorship · Opens Friday</div></div>
+        <a class="arow2" href="#" onclick="return false"><span class="at" style="display:block">12 alumni added recruiting roles this week</span><span class="am" style="display:block">Hiring · 1d ago</span></a>
+        <a class="arow2" href="#" onclick="return false"><span class="at" style="display:block">Reunion weekend set for Oct 17–19</span><span class="am" style="display:block">Reunion · Yesterday</span></a>
+      </div>
+
+      <div class="news">
+        <div class="tex"></div>
+        <div style="position:relative">
+          <span class="kl">The Bridge · Issue 14</span>
+          <h3>This month in the network</h3>
+          <ul style="margin:12px 0 0;padding:0">
+            <li>Spring hiring — 12 new alumni roles</li>
+            <li>Three mentors to meet this month</li>
+            <li>Reunion weekend — first details</li>
+          </ul>
+          <div class="acts"><button class="r">Read issue</button><button class="s2">Subscribe</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

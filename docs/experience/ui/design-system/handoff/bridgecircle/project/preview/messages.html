@@ -1,0 +1,147 @@
+<!-- @dsCard group="Pages" name="Messages — thread + profile rail (1e)" subtitle="Conversation list · gradient bubbles · composer bar · about-this-conversation rail" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;max-width:1040px;margin-inline:auto}
+  .frame{display:flex;border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);background:var(--surface-card);min-height:560px}
+  /* conversation list */
+  .clist{width:280px;flex:none;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column}
+  .ctop{padding:16px 14px 12px}
+  .cseg{display:flex;background:#eceef1;border-radius:10px;padding:2px}
+  .cseg span{font-size:11.5px;font-weight:600;color:var(--grey-600);padding:4px 10px;border-radius:8px}
+  .cseg .on{font-weight:700;color:var(--text-primary);background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.08)}
+  .csearch{display:flex;align-items:center;gap:9px;height:38px;padding:0 13px;background:var(--surface-subtle);border-radius:11px;margin-top:12px;font-size:13px;color:var(--text-faint);font-weight:500}
+  .cv{display:flex;align-items:center;gap:11px;padding:12px 14px}
+  .cv.sel{background:var(--selected-tint);box-shadow:var(--selected-accent)}
+  .cv:not(.sel):hover{background:var(--row-hover)}
+  .cav{width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-neutral);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--text-secondary)}
+  .cv .nm{font-size:13.5px;font-weight:700}
+  .cv.unread .nm{font-weight:800}
+  .cv .tm{margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .cv.unread .tm{color:var(--blue-600);font-weight:700}
+  .cv .pv{font-size:12.5px;color:var(--grey-600);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+  .cv.unread .pv{color:var(--text-primary);font-weight:700}
+  .dotu{flex:none;width:8px;height:8px;border-radius:50%;background:var(--action-primary)}
+  /* thread */
+  .thread{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-thread)}
+  .thead{display:flex;align-items:center;gap:12px;padding:13px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)}
+  .pres{position:relative}
+  .pres .pd{position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;background:var(--green-500);border:2px solid #fff}
+  .thead .nm{font-size:14.5px;font-weight:700}
+  .thead .st{font-size:11.5px;color:var(--text-faint);font-weight:500}
+  .railbtn{margin-left:auto;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:8px 15px;font-family:var(--font-sans);font-size:12px;font-weight:700}
+  .msgs{flex:1;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+  .day{align-self:center;font-size:11px;font-weight:700;color:var(--text-faint);background:#eceef1;border-radius:var(--radius-pill);padding:3px 11px}
+  .m{max-width:72%}
+  .m.them{align-self:flex-start}
+  .m.me{align-self:flex-end}
+  .m .bub{padding:11px 15px;font-size:13.5px;line-height:1.55;font-weight:500}
+  .m.them .bub{background:#fff;box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06), 0 1px 3px rgb(25 31 40 / 0.05);border-radius:16px 16px 16px 5px}
+  .m.me .bub{background:var(--gradient-bubble-me);color:#fff;border-radius:16px 16px 5px 16px;box-shadow:var(--shadow-bubble-me)}
+  .m .tm{font-size:10.5px;color:var(--grey-400);font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums}
+  .m.me .tm{text-align:right}
+  .typing{align-self:flex-start;display:flex;align-items:center;gap:8px}
+  .typing .bub{background:#fff;box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:16px 16px 16px 5px;padding:11px 14px;display:flex;gap:4px}
+  .typing .d{width:6px;height:6px;border-radius:50%;background:var(--grey-400)}
+  .typing .cap{font-size:11px;color:var(--text-faint);font-weight:500}
+  .cbar{display:flex;align-items:center;gap:10px;padding:14px 20px 18px}
+  .attach{flex:none;width:40px;height:40px;border-radius:12px;border:0;background:#fff;box-shadow:var(--ring-outline);display:flex;align-items:center;justify-content:center;color:var(--grey-600);font-size:16px}
+  .field{flex:1;display:flex;align-items:center;height:44px;padding:0 16px;background:#fff;box-shadow:var(--ring-outline);border-radius:13px;font-size:13.5px;color:var(--text-faint);font-weight:500}
+  .send{flex:none;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:11px 19px;font-family:var(--font-sans);font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn)}
+  /* context rail */
+  .rail{width:270px;flex:none;border-left:1px solid var(--border-subtle);background:#fff;padding:20px 16px;display:flex;flex-direction:column;gap:14px}
+  .rav{width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-neutral);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:var(--text-secondary)}
+  .rail h4{font-size:16px;font-weight:800;letter-spacing:-0.02em;margin:10px 0 0;text-align:center}
+  .rail .rt{font-size:12px;color:var(--grey-600);font-weight:500;text-align:center;margin-top:2px}
+  .chips{display:flex;justify-content:center;gap:6px;margin-top:9px}
+  .chip{font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px}
+  .c-b{color:var(--blue-600);background:var(--blue-50)}
+  .c-g{display:inline-flex;align-items:center;gap:4px;color:#029a5e;background:rgb(3 178 108 / 0.1)}
+  .c-g i{width:4px;height:4px;border-radius:50%;background:var(--green-500)}
+  .flink{display:block;text-align:center;font-size:12px;color:var(--action-primary);font-weight:700;margin-top:10px}
+  .about{background:#f7f9fc;border-radius:14px;padding:13px 14px}
+  .about .al{font-size:11px;font-weight:700;color:var(--text-faint)}
+  .about .at{font-size:12.5px;font-weight:700;margin-top:6px;line-height:1.4}
+  .about .arow{display:flex;align-items:center;gap:6px;margin-top:7px}
+  .about .track{margin-top:8px;height:4px;border-radius:var(--radius-pill);background:#e8ebef;overflow:hidden}
+  .about .fill{width:36%;height:100%;background:var(--action-primary);border-radius:var(--radius-pill);display:block}
+  .rbtn{width:100%;border:0;border-radius:12px;padding:11px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
+  .rbtn.w{background:var(--action-weak);color:var(--blue-600)}
+  .rbtn.o{background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline)}
+  .shared .sl{font-size:11px;font-weight:700;color:var(--text-faint);margin-bottom:8px}
+  .file{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:11px}
+  .file:hover{background:var(--row-hover)}
+  .fic{flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-size:13px}
+  .file .fn{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file .fm{font-size:10.5px;color:var(--text-faint);font-weight:500}
+</style>
+</head>
+<body>
+
+  <div class="frame">
+    <div class="clist">
+      <div class="ctop">
+        <span class="cseg"><span class="on">All</span><span>Unread 2</span><span>My circle</span></span>
+        <div class="csearch">⌕ Search messages…</div>
+      </div>
+      <div class="cv sel"><span class="cav">MC</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Maya Chen</span><span class="tm">1h</span></span><span class="pv" style="display:block">Thursday works — see you then.</span></span></div>
+      <div class="cv unread"><span class="cav">SO</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Sam Okafor</span><span class="tm">5h</span></span><span class="pv" style="display:block">How risky is design instead of SWE?</span></span><span class="dotu"></span></div>
+      <div class="cv unread"><span class="cav">EV</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Eva Park</span><span class="tm">1d</span></span><span class="pv" style="display:block">Would you look over my first portfolio?</span></span><span class="dotu"></span></div>
+      <div class="cv"><span class="cav">JB</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Jordan Blake</span><span class="tm">1d</span></span><span class="pv" style="display:block">Sounds good, talk soon.</span></span></div>
+    </div>
+
+    <div class="thread">
+      <div class="thead">
+        <span class="pres"><span class="cav" style="width:40px;height:40px;font-size:13px">MC</span><span class="pd"></span></span>
+        <span><span class="nm">Maya Chen</span><span class="st" style="display:block">Active now</span></span>
+        <button class="railbtn">Hide profile ›</button>
+      </div>
+      <div class="msgs">
+        <span class="day">Today</span>
+        <div class="m them"><div class="bub">Hey Alex — saw you&rsquo;re weighing the in-house move. Happy to talk it through.</div><div class="tm">9:12 AM</div></div>
+        <div class="m me"><div class="bub">Yes please. Mostly trying to figure out timing — did you regret jumping when you did?</div><div class="tm">9:20 AM · Read</div></div>
+        <div class="m them"><div class="bub">Not at all. The skills transfer — the game is just different.</div><div class="tm">9:24 AM</div></div>
+        <div class="typing"><span class="bub"><span class="d"></span><span class="d"></span><span class="d"></span></span><span class="cap">Maya is typing…</span></div>
+      </div>
+      <div class="cbar">
+        <button class="attach">🖇</button>
+        <span class="field">Message Maya…</span>
+        <button class="send">Send ↗</button>
+      </div>
+    </div>
+
+    <div class="rail">
+      <div>
+        <span class="rav">MC</span>
+        <h4>Maya Chen</h4>
+        <p class="rt">Design Lead · Figma · San Francisco</p>
+        <div class="chips"><span class="chip c-b">Verified '14</span><span class="chip c-g"><i></i>Open to mentor</span></div>
+        <a class="flink" href="#" onclick="return false">Open full profile →</a>
+      </div>
+      <div class="about">
+        <span class="al">About this conversation</span>
+        <span class="at" style="display:block">Ask · Timing an in-house move</span>
+        <span class="arow"><span class="chip c-b">Open</span><span style="font-size:11px;color:var(--text-faint);font-weight:600">Day 5 of 14</span></span>
+        <span class="track"><span class="fill"></span></span>
+      </div>
+      <div style="display:grid;gap:8px">
+        <button class="rbtn w">Schedule a call</button>
+        <button class="rbtn o">Mark ask resolved</button>
+      </div>
+      <div class="shared">
+        <p class="sl">Shared in this chat</p>
+        <div class="file"><span class="fic">📄</span><span style="min-width:0"><span class="fn" style="display:block">portfolio-reframe-notes.pdf</span><span class="fm">Maya · 9:24 AM</span></span></div>
+        <div class="file"><span class="fic" style="background:var(--surface-subtle)">🔗</span><span style="min-width:0"><span class="fn" style="display:block">figma.com/@maya/case-studies</span><span class="fm">You · 9:31 AM</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:12px;color:var(--text-faint);margin-top:12px">Interaction rule (1e): opening the profile rail collapses the app sidebar to its 72px icon rail so the thread never squeezes; closing it restores the full nav. Thread canvas is --surface-thread #fbfcfd.</p>
+
+</body>
+</html>

@@ -32,11 +32,35 @@ Specimens: `preview/desktop-{shell,tables,patterns}.html`.
 
 **Identity mapping (corrected 2026-07-05 vs the reference):** blue band
 `--gradient-band-blue` = Help **get/ask** mode · green = Help **give** mode ·
-**School = `--gradient-band-school`** (dark + blue/violet radial glows) ·
 plain dark = footers/features. Band anatomy: compose `--band-glow` over the
 gradient; two-circle watermark ~16% white; mode toggle ON the band (white
 active pill on `--band-toggle-track`); floating cards use
 `--shadow-band-card`.
+
+**Alternatives idiom (Richard's chosen page directions, 2026-07-05 —
+O8/O9 + amendments):**
+- **Major CTAs use the gradient finish** `--gradient-primary-btn` +
+  `--shadow-primary-btn` (O8); chat me-bubbles share it.
+- **Major content cards are elevated**: `--surface-card-elevated` +
+  `--ring-card-elevated` + `--shadow-card-elevated`, radius
+  `--radius-card-xl` 22, rows split on `--divider-row` (O9).
+- **Other people's avatars are neutral** `--avatar-neutral`; status color
+  lives in chips, not avatars (E2 amended). Self = `--gradient-avatar`.
+- **Active nav & selection**: gradient `--nav-active-bg` + `--nav-active-ring`;
+  selected list items `--selected-tint` + `--selected-accent`.
+- **HELP HERO IS UNDECIDED** — two tokenized treatments exist: the saturated
+  band (O3) and the 1i **wash hero** (`--wash-get`/`--wash-give`, ink text).
+  Explore both; do not treat either as final.
+- **School (1h)**: light canvas + `--wash-page`; identity lives in **navy
+  event covers** (`--cover-event` + `--cover-texture` + glass tiles) —
+  navy is sanctioned for event covers ONLY.
+- In-row give action = the **weak green pill** (`rgb(3 178 108/.12)` /
+  `#029a5e`); the solid `--action-give` fill is for a surface's single lead
+  action.
+
+**Page specimens (from the chosen alternatives):**
+`preview/people-directory.html` (1a) · `preview/help-heroes.html` (Current +
+1i A/B) · `preview/messages.html` (1e) · `preview/school-events.html` (1h).
 
 **Redesign IA (locked by Richard, 2026-07-05):** the member shell has FIVE
 sections — **Home** (dashboard) · **Help** (one page; ask/give selected by an

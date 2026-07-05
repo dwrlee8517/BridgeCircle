@@ -267,6 +267,62 @@
   /* Self/brand avatar + icon tiles: the recurring blue gradient the
      reference uses for the signed-in member's avatar (A5 diff item #4). */
   --gradient-avatar: linear-gradient(135deg, #3b8bf7, #2272eb);
+  /* [E2 amended 2026-07-05] OTHER people render as a NEUTRAL gradient avatar;
+     identity color moved into status chips (alternatives 1a/1e/1i). The
+     --avatar-1..6 pairs remain available as an optional rotation. */
+  --avatar-neutral: linear-gradient(135deg, #eef1f6, #dde3ec);
+  --ring-avatar: inset 0 0 0 1px rgb(25 31 40 / 0.05);
+
+  /* ---------------------------------------------------------------- */
+  /* 3b · ALTERNATIVES IDIOM (2026-07-05, from Richard's chosen page   */
+  /* alternatives 1a · 1i · 1e · 1h)                                   */
+  /* ---------------------------------------------------------------- */
+
+  /* [O8] Primary action FINISH: vertical blue gradient + soft glow
+     (A5 diff item #9, embraced by every alternative: Search, Send,
+     Ask for advice). Flat blue-500 remains valid for small buttons. */
+  --gradient-primary-btn: linear-gradient(180deg, #3b8bf7, #2f7ce9);
+  --shadow-primary-btn: 0 2px 6px -1px rgb(49 130 246 / 0.4);
+  --gradient-bubble-me: var(--gradient-primary-btn); /* chat me-bubble (1e) */
+  --shadow-bubble-me: 0 3px 10px -3px rgb(49 130 246 / 0.4);
+
+  /* [O9] Elevated card treatment (major content cards in 1a/1i/1e/1h):
+     near-white vertical gradient + 4.5% inset ring + layered shadow,
+     radius 22; rows split on the even-lighter --divider-row. */
+  --surface-card-elevated: linear-gradient(180deg, #ffffff, #fdfdfe);
+  --ring-card-elevated: inset 0 0 0 1px rgb(25 31 40 / 0.045);
+  --shadow-card-elevated: 0 1px 2px rgb(25 31 40 / 0.04), 0 12px 32px -16px rgb(25 31 40 / 0.14);
+  --radius-card-xl: 22px;
+  --divider-row: #f4f5f7;
+
+  /* [O3 amended] Wash heroes (1i "open hero") — the LIGHT identity
+     treatment: a color wash that fades into the canvas, dark ink text on
+     it. The saturated bands above remain the ALTERNATIVE treatment;
+     Help hero decision (band vs wash) is deferred to design. */
+  --wash-get:  linear-gradient(180deg, #e3effd 0%, rgb(227 239 253 / 0) 100%);
+  --wash-give: linear-gradient(180deg, #e0f5ea 0%, rgb(224 245 234 / 0) 100%);
+  --wash-page: radial-gradient(85% 42% at 50% 0%, rgb(49 130 246 / 0.055) 0%, rgb(49 130 246 / 0) 72%); /* ambient canvas-top wash (1a/1h) */
+
+  /* [O3 amended] School event COVER (1h "punchy cover"): deep navy with
+     blue glows + dot-grid texture + glass tiles. Deliberately crosses the
+     old "no navy" line — sanctioned for EVENT COVERS only. School's page
+     canvas stays light (grey-100 + --wash-page). */
+  --cover-event:
+    radial-gradient(95% 130% at 88% -10%, rgb(73 147 252 / 0.55) 0%, rgb(73 147 252 / 0) 55%),
+    radial-gradient(80% 120% at 0% 115%, rgb(49 130 246 / 0.35) 0%, rgb(49 130 246 / 0) 60%),
+    linear-gradient(150deg, #0d1b36 0%, #122a52 100%);
+  --cover-texture: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px); /* use with background-size:18px 18px */
+  --cover-ink: #0d1b36;       /* text on white-on-cover buttons */
+  --cover-accent: #9cc3ff;     /* kickers/labels on the cover */
+  --glass-tile: rgb(255 255 255 / 0.12);
+  --ring-glass: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  --gradient-capacity: linear-gradient(90deg, #12c07a, #03a763); /* give capacity meter (1i) */
+
+  /* [E3 amended] Selection + nav-active per the alternatives */
+  --selected-tint: #eef5ff;                     /* selected list item bg */
+  --selected-accent: inset 2px 0 0 #3182f6;     /* left accent bar */
+  --surface-thread: #fbfcfd;                    /* chat thread canvas (1e) */
+  --ring-outline: inset 0 0 0 1px #e2e5ea;      /* outline pills / buttons */
 
   /* [E2] Avatar identity palette — DECOUPLED from semantic ramps (FL-6:
      a green avatar must not read "success"). Six contrast-verified pairs,
@@ -378,7 +434,10 @@
      Hover is a background shift, never a lift or color change. */
   --hover-tint: rgb(25 31 40 / 0.04);  /* composable over white/grey-50 */
   --row-hover:  #f7f8fa;               /* list/table row hover fill */
-  --nav-active-bg:   var(--blue-50);
+  /* [E3 amended 2026-07-05] active nav = subtle gradient + inset blue ring
+     (every chosen alternative uses this; reverses the earlier flat call) */
+  --nav-active-bg:   linear-gradient(135deg, #eaf4ff, #e2efff);
+  --nav-active-ring: inset 0 0 0 1px rgb(49 130 246 / 0.12);
   --nav-active-text: var(--blue-600);
   /* Keyboard focus reuses --focus-ring / --focus-ring-soft (:focus-visible). */
 
