@@ -267,9 +267,11 @@
   /* Self/brand avatar + icon tiles: the recurring blue gradient the
      reference uses for the signed-in member's avatar (A5 diff item #4). */
   --gradient-avatar: linear-gradient(135deg, #3b8bf7, #2272eb);
-  /* [E2 amended 2026-07-05] OTHER people render as a NEUTRAL gradient avatar;
-     identity color moved into status chips (alternatives 1a/1e/1i). The
-     --avatar-1..6 pairs remain available as an optional rotation. */
+  /* [E2 — Richard's call 2026-07-05] DEFAULT for other people = the 6
+     rotating colored pairs (--avatar-1..6 above). Status chips still carry
+     status; avatar color is identity-only (no status meaning). The neutral
+     gradient (from the alternatives) is demoted to an OPTION for dense
+     operator surfaces (admin tables) where 6 hues would be noisy. */
   --avatar-neutral: linear-gradient(135deg, #eef1f6, #dde3ec);
   --ring-avatar: inset 0 0 0 1px rgb(25 31 40 / 0.05);
 

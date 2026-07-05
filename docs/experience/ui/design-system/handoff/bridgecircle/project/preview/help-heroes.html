@@ -74,6 +74,14 @@
   .cap .fill{display:block;width:33%;height:100%;background:var(--gradient-capacity);border-radius:var(--radius-pill)}
   .exp{font-size:12px;color:var(--text-faint);font-weight:600}
   .offer{flex:none;background:rgb(3 178 108 / 0.12);color:#029a5e;border:0;border-radius:var(--radius-pill);padding:8px 17px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
+
+  /* E2 default: rotating colored pairs (Richard, 2026-07-05) */
+  .av-1{background:var(--avatar-1-bg);color:var(--avatar-1-fg)}
+  .av-2{background:var(--avatar-2-bg);color:var(--avatar-2-fg)}
+  .av-3{background:var(--avatar-3-bg);color:var(--avatar-3-fg)}
+  .av-4{background:var(--avatar-4-bg);color:var(--avatar-4-fg)}
+  .av-5{background:var(--avatar-5-bg);color:var(--avatar-5-fg)}
+  .av-6{background:var(--avatar-6-bg);color:var(--avatar-6-fg)}
 </style>
 </head>
 <body>
@@ -112,9 +120,9 @@
     <div class="picker">
       <div class="pickhead"><b>Send it to the right people</b><span class="s">you choose who sees it</span><span class="r">Reaching <b style="font-size:12px">2 people</b></span></div>
       <div class="plist">
-        <div class="pr"><span class="pav">MC</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Maya Chen</b><span class="chip c-circle">In your circle</span></span><span class="why" style="display:block">Made the agency → in-house jump in 2018</span></span><button class="inc">✓ Included</button></div>
-        <div class="pr"><span class="pav">JB</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Jordan Blake</b><span class="chip c-open"><i></i>Open to help</span></span><span class="why" style="display:block">Hires in-house designers from agencies</span></span><button class="inc">✓ Included</button></div>
-        <div class="pr"><span class="pav">DO</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Daniel Osei</b><span class="chip c-open"><i></i>Open to help</span></span><span class="why" style="display:block">Mentors people switching tracks</span></span><button class="inc off">Include</button></div>
+        <div class="pr"><span class="pav av-1">MC</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Maya Chen</b><span class="chip c-circle">In your circle</span></span><span class="why" style="display:block">Made the agency → in-house jump in 2018</span></span><button class="inc">✓ Included</button></div>
+        <div class="pr"><span class="pav av-5">JB</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Jordan Blake</b><span class="chip c-open"><i></i>Open to help</span></span><span class="why" style="display:block">Hires in-house designers from agencies</span></span><button class="inc">✓ Included</button></div>
+        <div class="pr"><span class="pav av-2">DO</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Daniel Osei</b><span class="chip c-open"><i></i>Open to help</span></span><span class="why" style="display:block">Mentors people switching tracks</span></span><button class="inc off">Include</button></div>
       </div>
     </div>
   </div>
@@ -137,8 +145,8 @@
     <div class="picker">
       <div class="pickhead"><b>Asks matched to you</b><span class="s">we stop matching you when you&rsquo;re full</span></div>
       <div class="plist">
-        <div class="pr"><span class="pav">SO</span><span style="flex:1;min-width:0"><b style="font-size:14.5px">&ldquo;How risky is going into design instead of SWE?&rdquo;</b><span class="why" style="display:block">Sam Okafor · CS '27 · 5h ago · you made this exact call</span></span><button class="offer">Offer help</button></div>
-        <div class="pr"><span class="pav">EV</span><span style="flex:1;min-width:0"><b style="font-size:14.5px">&ldquo;Would someone look over my first portfolio?&rdquo;</b><span class="why" style="display:block">Eva Park · Design '28 · 1d ago · matched on portfolio reviews</span></span><button class="offer">Offer help</button></div>
+        <div class="pr"><span class="pav av-3">SO</span><span style="flex:1;min-width:0"><b style="font-size:14.5px">&ldquo;How risky is going into design instead of SWE?&rdquo;</b><span class="why" style="display:block">Sam Okafor · CS '27 · 5h ago · you made this exact call</span></span><button class="offer">Offer help</button></div>
+        <div class="pr"><span class="pav av-4">EV</span><span style="flex:1;min-width:0"><b style="font-size:14.5px">&ldquo;Would someone look over my first portfolio?&rdquo;</b><span class="why" style="display:block">Eva Park · Design '28 · 1d ago · matched on portfolio reviews</span></span><button class="offer">Offer help</button></div>
       </div>
     </div>
   </div>

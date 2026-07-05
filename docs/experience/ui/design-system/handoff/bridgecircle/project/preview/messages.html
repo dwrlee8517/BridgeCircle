@@ -79,6 +79,14 @@
   .fic{flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-size:13px}
   .file .fn{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .file .fm{font-size:10.5px;color:var(--text-faint);font-weight:500}
+
+  /* E2 default: rotating colored pairs (Richard, 2026-07-05) */
+  .av-1{background:var(--avatar-1-bg);color:var(--avatar-1-fg)}
+  .av-2{background:var(--avatar-2-bg);color:var(--avatar-2-fg)}
+  .av-3{background:var(--avatar-3-bg);color:var(--avatar-3-fg)}
+  .av-4{background:var(--avatar-4-bg);color:var(--avatar-4-fg)}
+  .av-5{background:var(--avatar-5-bg);color:var(--avatar-5-fg)}
+  .av-6{background:var(--avatar-6-bg);color:var(--avatar-6-fg)}
 </style>
 </head>
 <body>
@@ -89,15 +97,15 @@
         <span class="cseg"><span class="on">All</span><span>Unread 2</span><span>My circle</span></span>
         <div class="csearch">⌕ Search messages…</div>
       </div>
-      <div class="cv sel"><span class="cav">MC</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Maya Chen</span><span class="tm">1h</span></span><span class="pv" style="display:block">Thursday works — see you then.</span></span></div>
-      <div class="cv unread"><span class="cav">SO</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Sam Okafor</span><span class="tm">5h</span></span><span class="pv" style="display:block">How risky is design instead of SWE?</span></span><span class="dotu"></span></div>
-      <div class="cv unread"><span class="cav">EV</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Eva Park</span><span class="tm">1d</span></span><span class="pv" style="display:block">Would you look over my first portfolio?</span></span><span class="dotu"></span></div>
-      <div class="cv"><span class="cav">JB</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Jordan Blake</span><span class="tm">1d</span></span><span class="pv" style="display:block">Sounds good, talk soon.</span></span></div>
+      <div class="cv sel"><span class="cav av-1">MC</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Maya Chen</span><span class="tm">1h</span></span><span class="pv" style="display:block">Thursday works — see you then.</span></span></div>
+      <div class="cv unread"><span class="cav av-3">SO</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Sam Okafor</span><span class="tm">5h</span></span><span class="pv" style="display:block">How risky is design instead of SWE?</span></span><span class="dotu"></span></div>
+      <div class="cv unread"><span class="cav av-4">EV</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Eva Park</span><span class="tm">1d</span></span><span class="pv" style="display:block">Would you look over my first portfolio?</span></span><span class="dotu"></span></div>
+      <div class="cv"><span class="cav av-5">JB</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Jordan Blake</span><span class="tm">1d</span></span><span class="pv" style="display:block">Sounds good, talk soon.</span></span></div>
     </div>
 
     <div class="thread">
       <div class="thead">
-        <span class="pres"><span class="cav" style="width:40px;height:40px;font-size:13px">MC</span><span class="pd"></span></span>
+        <span class="pres"><span class="cav av-1" style="width:40px;height:40px;font-size:13px">MC</span><span class="pd"></span></span>
         <span><span class="nm">Maya Chen</span><span class="st" style="display:block">Active now</span></span>
         <button class="railbtn">Hide profile ›</button>
       </div>
@@ -117,7 +125,7 @@
 
     <div class="rail">
       <div>
-        <span class="rav">MC</span>
+        <span class="rav av-1">MC</span>
         <h4>Maya Chen</h4>
         <p class="rt">Design Lead · Figma · San Francisco</p>
         <div class="chips"><span class="chip c-b">Verified '14</span><span class="chip c-g"><i></i>Open to mentor</span></div>

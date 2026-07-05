@@ -44,8 +44,10 @@ O8/O9 + amendments):**
 - **Major content cards are elevated**: `--surface-card-elevated` +
   `--ring-card-elevated` + `--shadow-card-elevated`, radius
   `--radius-card-xl` 22, rows split on `--divider-row` (O9).
-- **Other people's avatars are neutral** `--avatar-neutral`; status color
-  lives in chips, not avatars (E2 amended). Self = `--gradient-avatar`.
+- **Avatars: the 6 rotating colored pairs (`--avatar-1..6`) are the default**
+  for other people (Richard's call); `--avatar-neutral` is an option for
+  dense operator surfaces only. Status lives in chips either way; avatar
+  color carries no status meaning. Self = `--gradient-avatar`.
 - **Active nav & selection**: gradient `--nav-active-bg` + `--nav-active-ring`;
   selected list items `--selected-tint` + `--selected-accent`.
 - **HELP HERO IS UNDECIDED** — two tokenized treatments exist: the saturated
