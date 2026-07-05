@@ -1,0 +1,97 @@
+<!-- @dsCard group="Components" name="Navigation & CTA" subtitle="Navbar · tabs · BottomCTA (Single / Double / Fixed)" viewport-width="390" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px;max-width:390px;margin-inline:auto;box-sizing:border-box}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);overflow:hidden}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0;padding:16px 20px 12px}
+  /* navbar */
+  .navbar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--divider)}
+  .navbar .back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:20px}
+  .navbar .title{flex:1;font-size:16px;font-weight:600;letter-spacing:-0.01em;text-align:center}
+  .navbar .action{color:var(--link);font-size:14px;font-weight:600;width:44px;text-align:right}
+  .navbar.left .title{text-align:left;font-size:20px;font-weight:700;letter-spacing:-0.02em}
+  /* tabs */
+  .tabs{display:flex;border-bottom:1px solid var(--border)}
+  .tabs .tab{flex:1;text-align:center;padding:13px 0 11px;font-size:15px;font-weight:600;color:var(--text-faint);border-bottom:2px solid transparent}
+  .tabs .tab.on{color:var(--text-primary);border-bottom-color:var(--grey-900)}
+  .tabs.blue .tab.on{color:var(--action-primary);border-bottom-color:var(--action-primary)}
+  /* bottom CTA */
+  .ctazone{padding:14px 20px 20px;display:grid;gap:8px}
+  .cta{display:block;width:100%;border:0;border-radius:var(--radius-large);padding:16px;font-family:var(--font-sans);font-size:16px;font-weight:600;box-sizing:border-box}
+  .cta.primary{background:var(--action-primary);color:#fff}
+  .cta.weak{background:var(--action-weak);color:var(--action-weak-text)}
+  .cta.disabled{background:var(--action-disabled);color:var(--action-disabled-text)}
+  .double{display:flex;gap:8px}
+  .double .cta{flex:1}
+  .double .cta.quiet{background:var(--action-quiet);color:var(--action-quiet-text);flex:0 0 32%}
+  .fixed-demo{position:relative;height:130px;background:var(--surface-panel)}
+  .fixed-demo .scrollhint{padding:14px 20px;font-size:13px;color:var(--text-faint)}
+  .fixed-demo .fixedbar{position:absolute;left:0;right:0;bottom:0;padding:12px 20px 16px;background:linear-gradient(to top, var(--surface-card) 70%, transparent)}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Navbar — centered &amp; large-title</p>
+    <div class="navbar">
+      <span class="back">‹</span>
+      <span class="title">Profile</span>
+      <span class="action">Edit</span>
+    </div>
+    <div class="navbar left">
+      <span class="title">Inbox</span>
+      <span class="action">Filter</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Tabs — ink underline &amp; blue accent</p>
+    <div class="tabs">
+      <span class="tab on">All</span>
+      <span class="tab">Asks</span>
+      <span class="tab">Events</span>
+    </div>
+    <div class="tabs blue">
+      <span class="tab on">Received</span>
+      <span class="tab">Sent</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">BottomCTA — Single (enabled · disabled)</p>
+    <div class="ctazone">
+      <button class="cta primary">Continue</button>
+      <button class="cta disabled">Continue</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">BottomCTA — Double (quiet + primary · weak + primary)</p>
+    <div class="ctazone">
+      <div class="double">
+        <button class="cta quiet">Back</button>
+        <button class="cta primary">Confirm</button>
+      </div>
+      <div class="double">
+        <button class="cta weak" style="flex:1">Save draft</button>
+        <button class="cta primary" style="flex:1">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">FixedBottomCTA — floats over scrolling content</p>
+    <div class="fixed-demo">
+      <p class="scrollhint">…content scrolls under the fixed bar…</p>
+      <div class="fixedbar"><button class="cta primary">Agree and continue</button></div>
+    </div>
+  </div>
+
+</body>
+</html>

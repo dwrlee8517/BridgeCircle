@@ -1,0 +1,75 @@
+<!-- @dsCard group="Kits" name="App starter" subtitle="A faithful Toss mobile screen — canvas, cards, list, bottom CTA" viewport-width="390" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased}
+  .app{max-width:390px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+  .topbar h1{font-size:22px;font-weight:700;letter-spacing:-0.025em;margin:0}
+  .topbar .icon{width:36px;height:36px;border-radius:50%;background:var(--surface-card);box-shadow:var(--shadow-card);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-weight:700}
+  .scroll{flex:1;padding:0 20px 20px;display:flex;flex-direction:column;gap:14px}
+  .balance{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:22px 20px}
+  .balance .cap{font-size:13px;color:var(--text-muted);margin:0 0 6px}
+  .balance .amt{font-size:30px;font-weight:700;letter-spacing:-0.03em;margin:0;font-variant-numeric:tabular-nums}
+  .balance .actions{display:flex;gap:8px;margin-top:16px}
+  .balance .actions button{flex:1;border:0;border-radius:var(--radius-comfortable);padding:11px;font-family:var(--font-sans);font-size:14px;font-weight:600;background:var(--action-weak);color:var(--action-weak-text)}
+  .balance .actions button.primary{background:var(--action-primary);color:#fff}
+  .list{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:6px 16px}
+  .list .h{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;padding:12px 0 8px}
+  .row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--divider)}
+  .row:last-child{border-bottom:0}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .row .nm{font-size:15px;font-weight:600}
+  .row .sub{font-size:13px;color:var(--text-faint)}
+  .row .val{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+  .val.pos{color:var(--state-success-text)}
+  .footer{padding:14px 20px 24px}
+  .footer .cta{display:block;width:100%;border:0;border-radius:var(--radius-large);padding:16px;font-family:var(--font-sans);font-size:16px;font-weight:600;background:var(--action-primary);color:#fff}
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <h1>Wallet</h1>
+      <span class="icon">☰</span>
+    </div>
+    <div class="scroll">
+      <div class="balance">
+        <p class="cap">Total balance</p>
+        <p class="amt">2,480,000</p>
+        <div class="actions">
+          <button class="primary">Send</button>
+          <button>Request</button>
+          <button>Top up</button>
+        </div>
+      </div>
+      <div class="list">
+        <div class="h">Recent</div>
+        <div class="row">
+          <span class="avatar" style="background:var(--action-weak);color:var(--action-weak-text)">JK</span>
+          <span style="flex:1;min-width:0"><span class="nm">Jamie Kim</span><span class="sub" style="display:block">2 minutes ago</span></span>
+          <span class="val pos">+50,000</span>
+        </div>
+        <div class="row">
+          <span class="avatar" style="background:var(--state-info-tint);color:var(--state-info-text)">CS</span>
+          <span style="flex:1;min-width:0"><span class="nm">Corner Store</span><span class="sub" style="display:block">Today, 9:02</span></span>
+          <span class="val">−4,500</span>
+        </div>
+        <div class="row">
+          <span class="avatar" style="background:var(--surface-subtle);color:var(--text-muted)">SL</span>
+          <span style="flex:1;min-width:0"><span class="nm">Sam Lee</span><span class="sub" style="display:block">Yesterday</span></span>
+          <span class="val">−120,000</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="cta">Send money</button>
+    </div>
+  </div>
+</body>
+</html>

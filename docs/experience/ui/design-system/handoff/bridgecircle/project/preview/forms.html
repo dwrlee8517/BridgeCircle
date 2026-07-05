@@ -1,0 +1,102 @@
+<!-- @dsCard group="Components" name="Forms & controls" subtitle="Checkbox · radio · switch · dropdown · text field · textarea · search" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .opt{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:15px}
+  /* checkbox */
+  .cb{width:22px;height:22px;border-radius:var(--radius-standard);flex:none;display:flex;align-items:center;justify-content:center}
+  .cb.on{background:var(--action-primary)}
+  .cb.off{background:var(--surface-card);box-shadow:inset 0 0 0 2px var(--border-strong)}
+  .cb.on svg{width:13px;height:13px;stroke:#fff;stroke-width:3;fill:none}
+  /* radio */
+  .rd{width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center}
+  .rd.on{box-shadow:inset 0 0 0 7px var(--action-primary)}
+  .rd.off{box-shadow:inset 0 0 0 2px var(--border-strong)}
+  /* switch */
+  .sw{width:46px;height:28px;border-radius:var(--radius-pill);flex:none;position:relative;transition:none}
+  .sw.on{background:var(--action-primary)}
+  .sw.off{background:var(--grey-300)}
+  .sw::after{content:"";position:absolute;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(2 9 19 / .2)}
+  .sw.on::after{right:3px}
+  .sw.off::after{left:3px}
+  .dis{opacity:.4}
+  /* dropdown */
+  .dd{display:flex;align-items:center;justify-content:space-between;background:var(--surface-panel);border:1px solid var(--border);border-radius:var(--radius-comfortable);padding:12px 14px;font-size:15px}
+  .dd .chev{color:var(--text-faint)}
+  .dd-menu{margin-top:6px;background:var(--surface-card);border-radius:var(--radius-comfortable);box-shadow:var(--shadow-raised);padding:6px;max-width:260px}
+  .dd-menu .it{padding:10px 12px;border-radius:var(--radius-standard);font-size:14px}
+  .dd-menu .it.sel{background:var(--action-weak);color:var(--action-weak-text);font-weight:600}
+  /* fields */
+  .fwrap{display:grid;gap:8px}
+  .field{width:100%;background:var(--surface-panel);border:1px solid var(--border);border-radius:var(--radius-comfortable);padding:12px 14px;font-family:var(--font-sans);font-size:15px;color:var(--text-primary);box-sizing:border-box}
+  .field:disabled{background:var(--surface-subtle);color:var(--text-disabled)}
+  .field.focus{border-color:var(--focus-ring);box-shadow:0 0 0 3px var(--focus-ring-soft);background:var(--surface-card)}
+  .field.err{border-color:var(--error);box-shadow:0 0 0 3px rgb(240 68 82 / .10)}
+  .hint{font-size:12px;color:var(--text-faint);margin:-2px 0 0 2px}
+  .hint.err{color:var(--state-danger-text)}
+  textarea.field{min-height:72px;resize:none}
+  .search{display:flex;align-items:center;gap:8px;background:var(--surface-subtle);border-radius:var(--radius-comfortable);padding:11px 14px;font-size:15px;color:var(--text-faint)}
+  .search svg{width:16px;height:16px;stroke:var(--text-faint);stroke-width:2;fill:none;flex:none}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Checkbox · radio · switch</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+      <div>
+        <div class="opt"><span class="cb on"><svg viewBox="0 0 16 16"><path d="M2.5 8.5l3.5 3.5 7-8"/></svg></span>Selected</div>
+        <div class="opt"><span class="cb off"></span>Unselected</div>
+        <div class="opt dis"><span class="cb on"><svg viewBox="0 0 16 16"><path d="M2.5 8.5l3.5 3.5 7-8"/></svg></span>Disabled</div>
+      </div>
+      <div>
+        <div class="opt"><span class="rd on"></span>Selected</div>
+        <div class="opt"><span class="rd off"></span>Unselected</div>
+        <div class="opt dis"><span class="rd on"></span>Disabled</div>
+      </div>
+      <div>
+        <div class="opt"><span class="sw on"></span>On</div>
+        <div class="opt"><span class="sw off"></span>Off</div>
+        <div class="opt dis"><span class="sw on"></span>Disabled</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Dropdown — trigger + open menu</p>
+    <div class="dd" style="max-width:260px"><span>Class of 2015</span><span class="chev">▾</span></div>
+    <div class="dd-menu">
+      <div class="it">Class of 2014</div>
+      <div class="it sel">Class of 2015</div>
+      <div class="it">Class of 2016</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Text field — resting · focused · error · disabled</p>
+    <div class="fwrap">
+      <input class="field" value="Resting" readonly aria-label="resting">
+      <input class="field focus" value="Focused" readonly aria-label="focused">
+      <input class="field err" value="wrong@address" readonly aria-label="error">
+      <p class="hint err">That email doesn&rsquo;t look right.</p>
+      <input class="field" value="Disabled" disabled aria-label="disabled">
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Textarea &amp; search field</p>
+    <div class="fwrap">
+      <textarea class="field" readonly aria-label="textarea">A longer message goes here. The field grows with content.</textarea>
+      <div class="search"><svg viewBox="0 0 20 20"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18"/></svg>Search people, asks, events</div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!-- @dsCard group="Components" name="Feedback & loading" subtitle="Skeleton · loader · progress bar · badges (full set)" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  /* skeleton */
+  .sk-row{display:flex;gap:12px;align-items:center;padding:8px 0}
+  .sk{background:var(--skeleton-base);border-radius:var(--radius-standard);position:relative;overflow:hidden}
+  .sk::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--skeleton-pulse),transparent);animation:sk 1.4s infinite}
+  @keyframes sk{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+  @media (prefers-reduced-motion: reduce){.sk::after{animation:none}}
+  .sk.avatar{width:40px;height:40px;border-radius:50%;flex:none}
+  /* loader */
+  .loader{width:28px;height:28px;border-radius:50%;border:3px solid var(--grey-200);border-top-color:var(--action-primary);animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.loader{animation:none}}
+  /* progress */
+  .track{height:8px;border-radius:var(--radius-pill);background:var(--grey-100);overflow:hidden}
+  .fill{height:100%;border-radius:var(--radius-pill);background:var(--action-primary)}
+  .steps{display:flex;gap:6px}
+  .steps span{flex:1;height:4px;border-radius:var(--radius-pill);background:var(--grey-200)}
+  .steps span.done{background:var(--action-primary)}
+  .cap{font-size:12px;color:var(--text-faint);margin-top:6px}
+  /* badges */
+  .pill{border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;font-weight:600}
+  .dotb{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--text-secondary);margin-right:14px}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:var(--radius-pill);background:var(--error);color:#fff;font-size:11px;font-weight:700;padding:0 6px}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Skeleton — loading list</p>
+    <div class="sk-row"><span class="sk avatar"></span><span style="flex:1;display:grid;gap:7px"><span class="sk" style="height:13px;width:38%"></span><span class="sk" style="height:11px;width:66%"></span></span></div>
+    <div class="sk-row"><span class="sk avatar"></span><span style="flex:1;display:grid;gap:7px"><span class="sk" style="height:13px;width:46%"></span><span class="sk" style="height:11px;width:58%"></span></span></div>
+  </div>
+
+  <div class="card" style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div>
+      <p class="label">Loader</p>
+      <span class="loader" role="status" aria-label="Loading"></span>
+    </div>
+    <div style="flex:1;min-width:220px">
+      <p class="label">Progress bar &amp; stepper</p>
+      <div class="track"><div class="fill" style="width:64%"></div></div>
+      <p class="cap">64% — uploading photo</p>
+      <div class="steps" style="margin-top:12px"><span class="done"></span><span class="done"></span><span></span><span></span></div>
+      <p class="cap">Step 2 of 4</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Badges — full semantic set (tint + same-ramp text)</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="pill" style="background:var(--state-info-tint);color:var(--state-info-text)">Info</span>
+      <span class="pill" style="background:var(--state-success-tint);color:var(--state-success-text)">Success</span>
+      <span class="pill" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Warning</span>
+      <span class="pill" style="background:var(--state-caution-tint);color:var(--state-caution-text)">Caution</span>
+      <span class="pill" style="background:var(--state-danger-tint);color:var(--state-danger-text)">Error</span>
+      <span class="pill" style="background:var(--state-premium-tint);color:var(--state-premium-text)">Premium</span>
+      <span class="pill" style="background:var(--action-weak);color:var(--action-weak-text)">New</span>
+      <span class="pill" style="background:var(--surface-subtle);color:var(--text-muted)">Neutral</span>
+    </div>
+    <div>
+      <span class="dotb"><span class="dot" style="background:var(--success)"></span>Online</span>
+      <span class="dotb"><span class="dot" style="background:var(--grey-300)"></span>Away</span>
+      <span class="dotb"><span class="count">3</span>&nbsp;Unread count</span>
+    </div>
+  </div>
+
+</body>
+</html>

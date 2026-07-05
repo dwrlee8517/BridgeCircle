@@ -1,0 +1,316 @@
+/* ============================================================================
+   toss-base — faithful Toss Design System (TDS) token export
+   ADR 0013 · Layer 0 · 2026-07-04
+
+   A COMPLETE, UNBENT transcription of TDS from the official
+   @toss/tds-react-native foundation docs:
+     https://tossmini-docs.toss.im/tds-react-native/foundation/colors/
+     https://tossmini-docs.toss.im/tds-react-native/foundation/typography/
+
+   This layer is BRAND-NEUTRAL. There is deliberately NO green "give" action,
+   NO section-identity bands, NO ochre warning, NO CircleMark — those are
+   BridgeCircle brand moves that live in the `bridgecircle` fork (Layer 1),
+   added later. Keep this file faithful to Toss; do not add brand tokens here.
+
+   Layers:
+     1. Ramps      --{hue}-{stop}      8 families × 10 stops, literal hex
+        + greyOpacity scrims, + semantic anchors
+     2. Roles      --surface/text/border/action/state-*    (blue-only action)
+     3. Type/shape --font-* --radius-* --space-* --shadow-* --motion-*
+   Components consume layers 2–3. Dark mode overrides at the end (provisional).
+   ========================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------- */
+  /* 1 · RAMPS — the 8 TDS hue families, 50 → 900                     */
+  /* ---------------------------------------------------------------- */
+
+  /* grey — the neutral spine (surfaces, text, hairlines) */
+  --grey-50:  #f9fafb;
+  --grey-100: #f2f4f6;
+  --grey-200: #e5e8eb;
+  --grey-300: #d1d6db;
+  --grey-400: #b0b8c1;
+  --grey-500: #8b95a1;
+  --grey-600: #6b7684;
+  --grey-700: #4e5968;
+  --grey-800: #333d4b;
+  --grey-900: #191f28;
+
+  /* blue — the one interactive / action color */
+  --blue-50:  #e8f3ff;
+  --blue-100: #c9e2ff;
+  --blue-200: #90c2ff;
+  --blue-300: #64a8ff;
+  --blue-400: #4593fc;
+  --blue-500: #3182f6;
+  --blue-600: #2272eb;
+  --blue-700: #1b64da;
+  --blue-800: #1957c2;
+  --blue-900: #194aa6;
+
+  /* red — error / danger */
+  --red-50:  #ffeeee;
+  --red-100: #ffd4d6;
+  --red-200: #feafb4;
+  --red-300: #fb8890;
+  --red-400: #f66570;
+  --red-500: #f04452;
+  --red-600: #e42939;
+  --red-700: #d22030;
+  --red-800: #bc1b2a;
+  --red-900: #a51926;
+
+  /* orange — warning */
+  --orange-50:  #fff3e0;
+  --orange-100: #ffe0b0;
+  --orange-200: #ffcd80;
+  --orange-300: #ffbd51;
+  --orange-400: #ffa927;
+  --orange-500: #fe9800;
+  --orange-600: #fb8800;
+  --orange-700: #f57800;
+  --orange-800: #ed6700;
+  --orange-900: #e45600;
+
+  /* yellow — caution */
+  --yellow-50:  #fff9e7;
+  --yellow-100: #ffefbf;
+  --yellow-200: #ffe69b;
+  --yellow-300: #ffdd78;
+  --yellow-400: #ffd158;
+  --yellow-500: #ffc342;
+  --yellow-600: #ffb331;
+  --yellow-700: #faa131;
+  --yellow-800: #ee8f11;
+  --yellow-900: #dd7d02;
+
+  /* green — success */
+  --green-50:  #f0faf6;
+  --green-100: #aeefd5;
+  --green-200: #76e4b8;
+  --green-300: #3fd599;
+  --green-400: #15c47e;
+  --green-500: #03b26c;
+  --green-600: #02a262;
+  --green-700: #029359;
+  --green-800: #028450;
+  --green-900: #027648;
+
+  /* teal — info */
+  --teal-50:  #edf8f8;
+  --teal-100: #bce9e9;
+  --teal-200: #89d8d8;
+  --teal-300: #58c7c7;
+  --teal-400: #30b6b6;
+  --teal-500: #18a5a5;
+  --teal-600: #109595;
+  --teal-700: #0c8585;
+  --teal-800: #097575;
+  --teal-900: #076565;
+
+  /* purple — premium */
+  --purple-50:  #f9f0fc;
+  --purple-100: #edccf8;
+  --purple-200: #da9bef;
+  --purple-300: #c770e4;
+  --purple-400: #b44bd7;
+  --purple-500: #a234c7;
+  --purple-600: #9128b4;
+  --purple-700: #8222a2;
+  --purple-800: #73228e;
+  --purple-900: #65237b;
+
+  /* greyOpacity — translucent ink for scrims, dividers-on-photos, overlays.
+     rgba(base, alpha) exactly as TDS ships them. */
+  --grey-opacity-50:  rgb(0 23 51 / 0.02);
+  --grey-opacity-100: rgb(2 32 71 / 0.05);
+  --grey-opacity-200: rgb(0 27 55 / 0.10);
+  --grey-opacity-300: rgb(0 29 58 / 0.18);
+  --grey-opacity-400: rgb(0 25 54 / 0.31);
+  --grey-opacity-500: rgb(3 24 50 / 0.46);
+  --grey-opacity-600: rgb(0 19 43 / 0.58);
+  --grey-opacity-700: rgb(3 18 40 / 0.70);
+  --grey-opacity-800: rgb(0 12 30 / 0.80);
+  --grey-opacity-900: rgb(2 9 19 / 0.91);
+  --scrim: var(--grey-opacity-500); /* modal/sheet backdrop */
+
+  /* semantic anchors (500-stop of each meaning) */
+  --interactive: var(--blue-500); /* #3182f6 — CTAs, links, selection */
+  --brand-blue:  #0064ff;         /* the BRAND blue — distinct from interactive */
+  --error:       var(--red-500);
+  --warning:     var(--orange-500);
+  --caution:     var(--yellow-500);
+  --success:     var(--green-500);
+  --info:        var(--teal-500);
+  --premium:     var(--purple-500);
+
+  /* ---------------------------------------------------------------- */
+  /* 2 · ROLES — what components consume. BLUE-ONLY action.          */
+  /* Names mirror the production role vocabulary so the Phase D swap  */
+  /* is value-only. NO give / identity / band roles (brand, Layer 1).*/
+  /* ---------------------------------------------------------------- */
+
+  /* Surfaces. TDS `background` is white; `greyBackground` is grey-100. The
+     grouped idiom (white cards on grey-100) is the default here; --surface-base
+     is the full-bleed white screen. */
+  --surface-page:   var(--grey-100);
+  --surface-base:   #ffffff;
+  --surface-card:   #ffffff;
+  --surface-panel:  var(--grey-50);
+  --surface-subtle: var(--grey-100);
+
+  /* Text */
+  --text-primary:   var(--grey-900);
+  --text-secondary: var(--grey-700);
+  --text-muted:     var(--grey-600);
+  --text-faint:     var(--grey-500);
+  --text-disabled:  var(--grey-400);
+  --text-on-fill:   #ffffff;
+
+  /* Borders — hairline is grey-200; TDS uses rules sparingly. */
+  --border:        var(--grey-200); /* #e5e8eb */
+  --border-strong: var(--grey-300);
+  --divider:       var(--grey-100);
+
+  /* Action — ONE color: blue. */
+  --action-primary:         var(--blue-500);
+  --action-primary-hover:   var(--blue-600);
+  --action-primary-pressed: var(--blue-700);
+  --action-on-primary:      #ffffff;
+  --action-weak:            var(--blue-50);  /* tinted secondary */
+  --action-weak-text:       var(--blue-600);
+  --action-quiet:           var(--grey-100); /* neutral tertiary */
+  --action-quiet-text:      var(--grey-700);
+  --action-disabled:        var(--grey-200);
+  --action-disabled-text:   var(--grey-400);
+
+  --link:            var(--blue-500);
+  --link-hover:      var(--blue-700);
+  --focus-ring:      var(--blue-500);
+  --focus-ring-soft: rgb(49 130 246 / 0.12);
+  --selection:       var(--blue-100);
+
+  /* States — full faithful set: info=teal, success=green, warning=orange,
+     caution=yellow, danger=red, premium=purple. Text/fill pair from the SAME
+     ramp (light: 50 tint fill + 600–800 text). */
+  --state-info-text:     var(--teal-700);
+  --state-info-tint:     var(--teal-50);
+  --state-success-text:  var(--green-600);
+  --state-success-tint:  var(--green-50);
+  --state-warning-text:  var(--orange-700);
+  --state-warning-tint:  var(--orange-50);
+  --state-caution-text:  var(--yellow-800);
+  --state-caution-tint:  var(--yellow-50);
+  --state-danger-text:   var(--red-600);
+  --state-danger-tint:   var(--red-50);
+  --state-premium-text:  var(--purple-600);
+  --state-premium-tint:  var(--purple-50);
+
+  /* Skeleton / loading */
+  --skeleton-base:  var(--grey-100);
+  --skeleton-pulse: var(--grey-200);
+
+  /* ---------------------------------------------------------------- */
+  /* 3 · TYPE / SHAPE / SPACING / ELEVATION / MOTION                  */
+  /* ---------------------------------------------------------------- */
+
+  /* Type. Real face is Toss Product Sans (proprietary). Pretendard is the
+     sanctioned OPEN substitute (previews load it from CDN; production
+     self-hosts a subset). Mono: SF Mono. */
+  --font-sans:
+    Pretendard, 'Pretendard Variable', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Apple SD Gothic Neo', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Type scale — role · size / weight / line-height (TDS). Tops at 30/700,
+     floors at 10px. */
+  --font-size-display-hero:  30px; --lh-display-hero:  40px; /* w700 */
+  --font-size-display-large: 26px; --lh-display-large: 36px; /* w700 */
+  --font-size-heading-large: 22px; --lh-heading-large: 30px; /* w700 */
+  --font-size-heading:       20px; --lh-heading:       28px; /* w600 */
+  --font-size-subtitle:      16px; --lh-subtitle:      24px; /* w600 */
+  --font-size-body-lg:       16px; --lh-body-lg:       24px; /* w400 */
+  --font-size-body:          14px; --lh-body:          22px; /* w400 */
+  --font-size-body-sm:       13px; --lh-body-sm:       20px; /* w400 */
+  --font-size-caption:       12px; --lh-caption:       18px; /* w400 */
+  --font-size-label:         10px; --lh-label:         1.5;  /* w500, +tracking when caps */
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+  --weight-bold:    700;
+  --tracking-tight: -0.02em; /* headings */
+
+  /* Shape — the five TDS radius tiers. Nothing rounder than 16 except pills. */
+  --radius-compact:     4px;
+  --radius-standard:    8px;
+  --radius-comfortable: 12px;
+  --radius-large:       16px;
+  --radius-pill:        9999px;
+
+  /* Spacing — 8px base grid. */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px; /* standard horizontal page padding */
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Elevation — TDS shadows are soft and low. Separation is mostly contrast. */
+  --shadow-card:   0 1px 3px rgb(2 9 19 / 0.06), 0 4px 16px rgb(2 9 19 / 0.05);
+  --shadow-raised: 0 4px 12px rgb(2 9 19 / 0.10), 0 12px 32px rgb(2 9 19 / 0.10);
+
+  /* Motion — behavior-neutral defaults. */
+  --motion-fast: 100ms;
+  --motion-base: 150ms;
+  --motion-slow: 250ms;
+  --ease-standard: ease-out;
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------------
+   DARK MODE — PROVISIONAL. TDS ships its own dark theme; the fetched docs
+   did not include the dark token values, so the block below is DERIVED
+   (grey-ramp flip + tint reductions) and must be reconciled once we have
+   the real TDS dark tokens. Flagged in DESIGN.md.
+   ------------------------------------------------------------------- */
+.dark {
+  --surface-page:   #17171c;
+  --surface-base:   #101014;
+  --surface-card:   #1c1e24;
+  --surface-panel:  #16171b;
+  --surface-subtle: #22242b;
+
+  --text-primary:   var(--grey-100);
+  --text-secondary: var(--grey-400);
+  --text-muted:     var(--grey-500);
+  --text-faint:     var(--grey-600);
+  --text-disabled:  var(--grey-700);
+
+  --border:        rgb(255 255 255 / 0.08);
+  --border-strong: rgb(255 255 255 / 0.14);
+  --divider:       rgb(255 255 255 / 0.06);
+
+  --action-weak:      rgb(49 130 246 / 0.16);
+  --action-weak-text: var(--blue-200);
+  --action-quiet:     rgb(255 255 255 / 0.07);
+  --action-quiet-text: var(--grey-300);
+  --selection:        rgb(49 130 246 / 0.30);
+
+  --state-info-text:    var(--teal-200);    --state-info-tint:    rgb(24 165 165 / 0.14);
+  --state-success-text: var(--green-200);   --state-success-tint: rgb(3 178 108 / 0.14);
+  --state-warning-text: var(--orange-200);  --state-warning-tint: rgb(254 152 0 / 0.14);
+  --state-caution-text: var(--yellow-200);  --state-caution-tint: rgb(255 195 66 / 0.14);
+  --state-danger-text:  var(--red-200);     --state-danger-tint:  rgb(240 68 82 / 0.16);
+  --state-premium-text: var(--purple-200);  --state-premium-tint: rgb(162 52 199 / 0.16);
+
+  --skeleton-base:  #22242b;
+  --skeleton-pulse: #2b2e37;
+
+  --shadow-card:   0 2px 8px rgb(0 0 0 / 0.36), 0 0 1px rgb(0 0 0 / 0.5);
+  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.48), 0 0 1px rgb(0 0 0 / 0.6);
+}
