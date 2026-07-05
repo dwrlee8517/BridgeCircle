@@ -260,6 +260,11 @@
      cards float on the band with --shadow-band-card. */
   --band-glow: radial-gradient(150% 120% at 50% -40%, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0) 55%);
   --band-toggle-track: rgb(255 255 255 / 0.18);
+  /* [O3] HELP HERO DECIDED (Richard, 2026-07-05): the 1i WASH with the band
+     variant's PILL toggle geometry (icons, 13px/9-17 padding, white active
+     pill w/ mode-colored text) on a soft white track. Saturated bands are
+     reserved for onboarding/marketing moments. */
+  --wash-toggle-track: rgb(255 255 255 / 0.7);
   --shadow-band-card: 0 20px 44px -14px rgb(8 17 38 / 0.40);
   /* Text on bands: #ffffff (measured — blue mid ~4.6:1, deep ~6.6:1;
      give deep ~4.8:1). */

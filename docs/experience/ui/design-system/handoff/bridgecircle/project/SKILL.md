@@ -50,9 +50,10 @@ O8/O9 + amendments):**
   color carries no status meaning. Self = `--gradient-avatar`.
 - **Active nav & selection**: gradient `--nav-active-bg` + `--nav-active-ring`;
   selected list items `--selected-tint` + `--selected-accent`.
-- **HELP HERO IS UNDECIDED** — two tokenized treatments exist: the saturated
-  band (O3) and the 1i **wash hero** (`--wash-get`/`--wash-give`, ink text).
-  Explore both; do not treat either as final.
+- **HELP HERO DECIDED (2026-07-05): the 1i wash** (`--wash-get`/`--wash-give`,
+  ink text) **with the pill toggle** (icons, white active pill, mode-colored
+  text, `--wash-toggle-track`). Saturated bands (O3) are for
+  **onboarding/marketing moments only** — never in-product page heroes.
 - **School (1h)**: light canvas + `--wash-page`; identity lives in **navy
   event covers** (`--cover-event` + `--cover-texture` + glass tiles) —
   navy is sanctioned for event covers ONLY.

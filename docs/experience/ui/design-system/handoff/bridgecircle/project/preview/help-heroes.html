@@ -1,4 +1,4 @@
-<!-- @dsCard group="Pages" name="Help — hero A/B (band vs wash)" subtitle="Current saturated band · 1i open-hero wash · composer · recipient picker · give status strip" viewport-width="1100" -->
+<!-- @dsCard group="Pages" name="Help — open hero (DECIDED: 1i wash + pill toggle)" subtitle="Wash hero with the band's pill toggle · composer · recipient picker · give status strip · band reserved for onboarding/marketing" viewport-width="1100" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -24,8 +24,13 @@
   /* ---- Variant B: open-hero wash (1i) ---- */
   .wash{padding:26px 30px 28px;background:var(--wash-get)}
   .wash.give{background:var(--wash-give)}
-  .wtoggle{display:inline-flex;background:rgb(255 255 255 / 0.7);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-comfortable);padding:3px}
-  .wtoggle span{font-size:12.5px;font-weight:600;color:var(--grey-600);padding:6px 16px;border-radius:9px}
+  /* Mode toggle — DECIDED (Richard, 2026-07-05): the band variant's PILL
+     toggle geometry, adapted to the light wash: soft white track
+     (--wash-toggle-track) + hairline ring instead of translucent-on-color;
+     white active pill, mode-colored text, 15px icons. */
+  .wtoggle{display:inline-flex;background:var(--wash-toggle-track);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-pill);padding:3px;gap:2px}
+  .wtoggle span{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--grey-600);padding:9px 17px;border-radius:var(--radius-pill)}
+  .wtoggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
   .wtoggle .on{font-weight:700;background:#fff;box-shadow:0 1px 3px rgb(25 31 40 / 0.1)}
   .wtoggle .on.get{color:var(--blue-600)}
   .wtoggle .on.give{color:#029a5e}
@@ -86,7 +91,7 @@
 </head>
 <body>
 
-  <p class="label">Variant A — saturated band hero (Current) · decision deferred to design</p>
+  <p class="label">Band vocabulary — NOT the Help hero (retained for onboarding / marketing moments)</p>
   <div class="frame">
     <div class="band">
       <svg class="wm" viewBox="0 0 400 240"><circle cx="160" cy="120" r="100" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="232" cy="120" r="100" fill="none" stroke="#fff" stroke-width="1.6"/></svg>
@@ -99,11 +104,14 @@
     </div>
   </div>
 
-  <p class="label">Variant B — open-hero wash (1i) · get mode</p>
+  <p class="label">THE Help hero (decided) — 1i wash + pill toggle · get mode</p>
   <div class="frame">
     <div class="wash">
       <div style="display:flex;align-items:center;gap:12px">
-        <span class="wtoggle"><span class="on get">Get help</span><span>Give help</span></span>
+        <span class="wtoggle">
+          <span class="on get"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 2.4"/><path d="M12 17h.01"/></svg>Get help</span>
+          <span><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>Give help</span>
+        </span>
         <span class="wnote">Asks stay open 14 days</span>
       </div>
       <h2>Who do you want to ask?</h2>
@@ -127,11 +135,14 @@
     </div>
   </div>
 
-  <p class="label">Variant B — give mode: green wash · status strip · weak-green offers</p>
+  <p class="label">THE Help hero (decided) — give mode: green wash · pill toggle · status strip · weak-green offers</p>
   <div class="frame">
     <div class="wash give">
       <div style="display:flex;align-items:center;gap:12px">
-        <span class="wtoggle"><span>Get help</span><span class="on give">Give help</span></span>
+        <span class="wtoggle">
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 2.4"/><path d="M12 17h.01"/></svg>Get help</span>
+          <span class="on give"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>Give help</span>
+        </span>
         <span class="wnote">You&rsquo;ve helped 4 members this term</span>
       </div>
       <h2>Where your experience matters.</h2>
