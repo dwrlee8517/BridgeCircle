@@ -58,7 +58,14 @@ reconciles only bundle files; never delete these:
   **app-generated** by the Claude Design self-check (card index + token
   adherence lint config), regenerated on open.
 - `Help Hub.html` — a **design built with** toss-base (a BridgeCircle Ask/Give
-  mock + friction log), not bundle source. User content; never overwrite.
+  mock + friction log), remote-owned, **not** faithful-TDS bundle source.
+  Pulled down 2026-07-04; the local mirror was then **moved to the
+  `bridgecircle` fork bundle** (`../bridgecircle/project/Help Hub.html`)
+  because it is brand content (ADR 0013 layer discipline). It is deliberately
+  NOT in this bundle's `project/`, so a sync from here can never push it. The
+  **remote original in this project stays** — never delete or overwrite it. If
+  Richard edits it here, re-pull into the fork bundle (pull-only, remote is
+  source of truth).
 - Any other design docs a user creates in the project.
 
 Reconciliation deletes apply only to orphaned `project/**` bundle files (a
@@ -67,9 +74,9 @@ specimen removed locally). Everything above is out of scope for deletion.
 ## Relationship to the other bundles
 
 - `toss-base` (this) = faithful TDS, Layer 0, pristine. **Keep it faithful.**
-- `bridgecircle` (later, ADR 0013 Phase E) = the brand fork, seeded from the
-  existing `fieldpro-design-system` project. Brand divergences live there with
-  an `OVERRIDES.md` ledger — never here.
+- `bridgecircle` (`../bridgecircle/`, scaffolded 2026-07-04, ADR 0013 Phase E)
+  = the brand fork — a byte-copy of this bundle that diverges only via its
+  `uploads/OVERRIDES.md` ledger. Brand divergences live there — never here.
 - `fieldpro-design-system` = the earlier single-bundle Field Pro work (ADR
   0012, superseded). Its reconciled values feed the `bridgecircle` fork's
   override backlog; do not delete it.
@@ -80,8 +87,8 @@ specimen removed locally). Everything above is out of scope for deletion.
   fetched docs lacked dark tokens). Reconcile when the TDS dark theme is
   obtained.
 - **Pretendard** substitutes for the proprietary Toss Product Sans.
-- **Wave-1 component set (~25 of ~47).** Fintech primitives (Keypad, Asset,
-  Amount Top, Agreement, Chart) are deliberately omitted; the Wave-2 list in
-  DESIGN.md §5 is added when a surface needs it. Component details the public
-  TDS docs don't pin down are inferred from the token idiom and marked ⓘ —
-  reconcile against the real component docs when available.
+- **Component set is ~40 of ~47 (Waves 1+2 complete).** Only the fintech
+  primitives (Keypad, Asset, Amount Top, Agreement, Chart) are deliberately
+  omitted. Component details the public TDS docs don't pin down are inferred
+  from the token idiom and marked ⓘ in DESIGN.md §5 — reconcile against the
+  real component docs when available.

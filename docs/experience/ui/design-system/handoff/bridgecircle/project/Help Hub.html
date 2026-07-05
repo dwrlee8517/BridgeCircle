@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="design_doc_mode" content="canvas">
+<title>BridgeCircle — Help hub (toss-base faithful)</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased}
+
+  .frame-label{position:absolute;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.02em}
+
+  .phone{position:absolute;width:390px;background:var(--surface-page);border-radius:24px;overflow:hidden;box-shadow:0 0 0 1px var(--grey-200),0 12px 40px rgb(2 9 19 / 0.08);display:flex;flex-direction:column;min-height:800px}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px}
+  .topbar h1{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0}
+  .topbar .icon{width:36px;height:36px;border-radius:50%;background:var(--surface-card);box-shadow:var(--shadow-card);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-weight:700;font-size:14px}
+
+  .seg-wrap{padding:8px 20px 4px}
+  .seg{display:flex;background:var(--surface-subtle);border-radius:var(--radius-comfortable);padding:4px;gap:2px}
+  .seg span{flex:1;text-align:center;border-radius:9px;padding:9px 0;font-size:14px;font-weight:600;color:var(--text-muted)}
+  .seg .on{background:var(--surface-card);color:var(--text-primary);box-shadow:0 1px 3px rgb(2 9 19 / 0.10)}
+
+  .scroll{flex:1;padding:12px 20px 20px;display:flex;flex-direction:column;gap:16px}
+
+  .hero{font-size:30px;line-height:40px;font-weight:700;letter-spacing:-0.02em;margin:12px 0 0}
+
+  .field{width:100%;background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-comfortable);padding:14px 16px;font-family:var(--font-sans);font-size:15px;color:var(--text-faint);box-sizing:border-box;box-shadow:var(--shadow-card)}
+
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:6px 20px}
+  .card .h{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;padding:14px 0 6px}
+
+  .ask-row{display:flex;flex-direction:column;gap:4px;padding:14px 0;border-bottom:1px solid var(--divider)}
+  .ask-row:last-child{border-bottom:0}
+  .ask-row .top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .ask-row .title{font-size:15px;font-weight:600;line-height:22px;flex:1;min-width:0}
+  .ask-row .sub{font-size:13px;color:var(--text-faint)}
+
+  .pill{border-radius:var(--radius-pill);padding:4px 10px;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
+  .pill.offers{background:var(--state-success-tint);color:var(--state-success-text)}
+  .pill.waiting{background:var(--grey-100);color:var(--grey-600)}
+
+  .footer{padding:12px 20px 24px}
+  .cta{display:block;width:100%;border:0;border-radius:var(--radius-large);padding:16px;font-family:var(--font-sans);font-size:16px;font-weight:600;background:var(--action-primary);color:var(--action-on-primary);cursor:default}
+
+  .person-row{display:flex;flex-direction:column;gap:10px;padding:16px 0;border-bottom:1px solid var(--divider)}
+  .person-row:last-child{border-bottom:0}
+  .person-row .who{display:flex;align-items:center;gap:12px}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+  .person-row .nm{font-size:15px;font-weight:600}
+  .person-row .yr{font-size:13px;color:var(--text-faint)}
+  .person-row .ask{font-size:14px;line-height:22px;color:var(--text-secondary);margin:0}
+  .person-row .acts{display:flex;gap:8px}
+  .btn{border:0;border-radius:var(--radius-comfortable);padding:10px 16px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
+  .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
+  .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
+
+  .desktop{position:absolute;width:1280px;min-height:720px;background:var(--surface-page);border-radius:16px;overflow:hidden;box-shadow:0 0 0 1px var(--grey-200),0 12px 40px rgb(2 9 19 / 0.08);display:flex;flex-direction:row}
+  .snav{width:240px;flex-shrink:0;background:var(--surface-card);border-right:1px solid var(--border);display:flex;flex-direction:column;gap:24px;padding:24px 16px;box-sizing:border-box}
+  .snav .wordmark{font-size:17px;font-weight:700;letter-spacing:-0.02em;padding:0 12px}
+  .snav .items{display:flex;flex-direction:column;gap:2px}
+  .snav .item{padding:10px 12px;border-radius:var(--radius-standard);font-size:14px;font-weight:600;color:var(--text-muted)}
+  .snav .item.on{background:var(--action-weak);color:var(--action-weak-text)}
+  .snav .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:8px 12px}
+  .snav .me .nm{font-size:14px;font-weight:600}
+  .snav .me .yr{display:block;font-size:12px;color:var(--text-faint)}
+  .dbody{flex:1;min-width:0}
+  .dmain{width:680px;margin:0 auto;padding:40px 0 56px;display:flex;flex-direction:column;gap:16px;box-sizing:border-box}
+  .seg.fit{align-self:flex-start}
+  .seg.fit span{flex:none;padding:9px 22px}
+  .fieldrow{display:flex;gap:12px}
+  .fieldrow .field{flex:1;width:auto}
+  .btn.lg{padding:13px 22px;font-size:15px;white-space:nowrap}
+  .person-row.wide{flex-direction:row;align-items:center;gap:16px}
+  .person-row.wide .mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .person-row.wide .ask{margin:0}
+  .person-row.wide .acts{flex-shrink:0}
+
+  .friction{position:absolute;width:460px;background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-large);padding:24px 28px;box-sizing:border-box}
+  .friction h2{font-family:var(--font-mono);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin:0 0 4px}
+  .friction .note{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);margin:0 0 16px}
+  .friction ol{margin:0;padding:0 0 0 20px;display:flex;flex-direction:column;gap:14px}
+  .friction li{font-size:13px;line-height:20px;color:var(--text-secondary)}
+  .friction li strong{color:var(--text-primary);font-weight:600}
+</style>
+</head>
+<body>
+
+  <!-- ======================= FRAME 1 · ASK ======================= -->
+  <span class="frame-label" style="left:60px;top:32px">help-hub / ask · 390 · toss-base faithful</span>
+  <div class="phone" style="left:60px;top:60px" data-screen-label="Help hub — Ask">
+    <div class="topbar">
+      <h1>Help hub</h1>
+      <span class="icon">IL</span>
+    </div>
+    <div class="seg-wrap">
+      <div class="seg"><span class="on">Ask for help</span><span>Give help</span></div>
+    </div>
+    <div class="scroll">
+      <p class="hero">What do you need?</p>
+      <div class="field">e.g. Should I take the return offer, or shop around?</div>
+      <div class="card">
+        <div class="h">Your open asks</div>
+        <div class="ask-row">
+          <div class="top">
+            <span class="title">Portfolio feedback before Friday</span>
+            <span class="pill offers">2 offers</span>
+          </div>
+          <span class="sub">Sent Tuesday</span>
+        </div>
+        <div class="ask-row">
+          <div class="top">
+            <span class="title">Anyone know the Coop&rsquo;s summer sublet scene?</span>
+            <span class="pill waiting">Waiting</span>
+          </div>
+          <span class="sub">Sent yesterday</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <button class="cta">Start an ask</button>
+    </div>
+  </div>
+
+  <!-- ======================= FRAME 2 · GIVE ======================= -->
+  <span class="frame-label" style="left:510px;top:32px">help-hub / give · 390 · toss-base faithful</span>
+  <div class="phone" style="left:510px;top:60px" data-screen-label="Help hub — Give">
+    <div class="topbar">
+      <h1>Help hub</h1>
+      <span class="icon">IL</span>
+    </div>
+    <div class="seg-wrap">
+      <div class="seg"><span>Ask for help</span><span class="on">Give help</span></div>
+    </div>
+    <div class="scroll">
+      <p class="hero">Three people could use you this week</p>
+      <div class="card">
+        <div class="person-row">
+          <div class="who">
+            <span class="avatar" style="background:var(--action-weak);color:var(--action-weak-text)">IL</span>
+            <span style="min-width:0">
+              <span class="nm">Iris Lau</span> <span class="yr">&rsquo;22</span>
+            </span>
+          </div>
+          <p class="ask">Debating between two grad programs &mdash; anyone done the part-time MBA thing?</p>
+          <div class="acts">
+            <button class="btn fill">Offer to help</button>
+            <button class="btn quiet">Not this time</button>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="who">
+            <span class="avatar" style="background:var(--state-info-tint);color:var(--state-info-text)">DO</span>
+            <span style="min-width:0">
+              <span class="nm">David Okafor</span> <span class="yr">&rsquo;98</span>
+            </span>
+          </div>
+          <p class="ask">My daughter&rsquo;s thinking about design school. Portfolio advice?</p>
+          <div class="acts">
+            <button class="btn fill">Offer to help</button>
+            <button class="btn quiet">Not this time</button>
+          </div>
+        </div>
+        <div class="person-row">
+          <div class="who">
+            <span class="avatar" style="background:var(--state-premium-tint);color:var(--state-premium-text)">MP</span>
+            <span style="min-width:0">
+              <span class="nm">Mina Park</span> <span class="yr">&rsquo;15</span>
+            </span>
+          </div>
+          <p class="ask">Moving to Songdo in March. What do I need to know?</p>
+          <div class="acts">
+            <button class="btn fill">Offer to help</button>
+            <button class="btn quiet">Not this time</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= FRAME 3 · ASK (DESKTOP) ======================= -->
+  <span class="frame-label" style="left:60px;top:932px">help-hub / ask · 1280 desktop · toss-base faithful</span>
+  <div class="desktop" style="left:60px;top:960px" data-screen-label="Help hub — Ask (desktop)">
+    <div class="snav">
+      <span class="wordmark">BridgeCircle</span>
+      <div class="items">
+        <span class="item on">Help hub</span>
+        <span class="item">People</span>
+        <span class="item">Messages</span>
+      </div>
+      <div class="me">
+        <span class="avatar" style="width:36px;height:36px;background:var(--action-weak);color:var(--action-weak-text);font-size:13px">IL</span>
+        <span><span class="nm">Iris Lau</span><span class="yr">Class of &rsquo;22</span></span>
+      </div>
+    </div>
+    <div class="dbody">
+    <div class="dmain">
+      <div class="seg fit"><span class="on">Ask for help</span><span>Give help</span></div>
+      <p class="hero">What do you need?</p>
+      <div class="fieldrow">
+        <div class="field">e.g. Should I take the return offer, or shop around?</div>
+        <button class="btn fill lg">Start an ask</button>
+      </div>
+      <div class="card">
+        <div class="h">Your open asks</div>
+        <div class="ask-row">
+          <div class="top">
+            <span class="title">Portfolio feedback before Friday</span>
+            <span class="pill offers">2 offers</span>
+          </div>
+          <span class="sub">Sent Tuesday</span>
+        </div>
+        <div class="ask-row">
+          <div class="top">
+            <span class="title">Anyone know the Coop&rsquo;s summer sublet scene?</span>
+            <span class="pill waiting">Waiting</span>
+          </div>
+          <span class="sub">Sent yesterday</span>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ======================= FRAME 4 · GIVE (DESKTOP) ======================= -->
+  <span class="frame-label" style="left:60px;top:1792px">help-hub / give · 1280 desktop · toss-base faithful</span>
+  <div class="desktop" style="left:60px;top:1820px" data-screen-label="Help hub — Give (desktop)">
+    <div class="snav">
+      <span class="wordmark">BridgeCircle</span>
+      <div class="items">
+        <span class="item on">Help hub</span>
+        <span class="item">People</span>
+        <span class="item">Messages</span>
+      </div>
+      <div class="me">
+        <span class="avatar" style="width:36px;height:36px;background:var(--action-weak);color:var(--action-weak-text);font-size:13px">IL</span>
+        <span><span class="nm">Iris Lau</span><span class="yr">Class of &rsquo;22</span></span>
+      </div>
+    </div>
+    <div class="dbody">
+    <div class="dmain">
+      <div class="seg fit"><span>Ask for help</span><span class="on">Give help</span></div>
+      <p class="hero">Three people could use you this week</p>
+      <div class="card">
+        <div class="person-row wide">
+          <span class="avatar" style="background:var(--action-weak);color:var(--action-weak-text)">IL</span>
+          <span class="mid">
+            <span><span class="nm">Iris Lau</span> <span class="yr">&rsquo;22</span></span>
+            <p class="ask">Debating between two grad programs &mdash; anyone done the part-time MBA thing?</p>
+          </span>
+          <span class="acts">
+            <button class="btn fill">Offer to help</button>
+            <button class="btn quiet">Not this time</button>
+          </span>
+        </div>
+        <div class="person-row wide">
+          <span class="avatar" style="background:var(--state-info-tint);color:var(--state-info-text)">DO</span>
+          <span class="mid">
+            <span><span class="nm">David Okafor</span> <span class="yr">&rsquo;98</span></span>
+            <p class="ask">My daughter&rsquo;s thinking about design school. Portfolio advice?</p>
+          </span>
+          <span class="acts">
+            <button class="btn fill">Offer to help</button>
+            <button class="btn quiet">Not this time</button>
+          </span>
+        </div>
+        <div class="person-row wide">
+          <span class="avatar" style="background:var(--state-premium-tint);color:var(--state-premium-text)">MP</span>
+          <span class="mid">
+            <span><span class="nm">Mina Park</span> <span class="yr">&rsquo;15</span></span>
+            <p class="ask">Moving to Songdo in March. What do I need to know?</p>
+          </span>
+          <span class="acts">
+            <button class="btn fill">Offer to help</button>
+            <button class="btn quiet">Not this time</button>
+          </span>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- ======================= FRICTION LOG ======================= -->
+  <div class="friction" style="left:960px;top:60px" data-screen-label="Friction log">
+    <h2>Friction log</h2>
+    <p class="note">where faithful-Toss fought the content — logged, not fixed (feeds the bridgecircle fork)</p>
+    <ol>
+      <li><strong>Mode is invisible below the toggle.</strong> Ask and give render as the same surface — white cards on grey-100, blue lead actions, identical topbar. Cover the segmented control and nothing tells you which side you&rsquo;re on. The system forbids the one move (section-identity color) that would fix it ambiently.</li>
+      <li><strong>Three identical blue &ldquo;Offer to help&rdquo; buttons compete.</strong> &ldquo;One loud action&rdquo; assumes one action per screen; a browse-list of offers has N equal lead actions, so blue stops meaning &ldquo;the&rdquo; action and starts meaning &ldquo;a&rdquo; button.</li>
+      <li><strong>Giving reads transactional.</strong> The fill/quiet pair on every row is Toss&rsquo;s approve/decline dyad — right for payments, cold for &ldquo;help a neighbor.&rdquo; Nothing warm is available: green is reserved for status, so generosity gets the same blue as &ldquo;Send money.&rdquo;</li>
+      <li><strong>30/700 cap undersells the landing moment.</strong> &ldquo;Three people could use you this week&rdquo; is the emotional headline of the product, and at Display Hero it sits barely larger than a card title. Fine for a utility, small for an invitation.</li>
+      <li><strong>&ldquo;Waiting&rdquo; has no honest hue.</strong> The semantic set maps to error/warning/caution/success/info/premium — none fit &ldquo;pending, that&rsquo;s okay.&rdquo; Yellow reads alarming, so Waiting fell back to grey and now looks disabled next to the green &ldquo;2 offers.&rdquo;</li>
+      <li><strong>Avatar tints smuggle meaning.</strong> Tinted avatars are the only permitted personality, but the tints come from semantic ramps — a green avatar would read &ldquo;success,&rdquo; teal reads &ldquo;info.&rdquo; Picking three neutral-but-distinct tints without implying status was guesswork.</li>
+      <li><strong>Two entry points to the same ask.</strong> The Toss idiom wants a fixed bottom CTA, but the text field is already the invitation — &ldquo;Start an ask&rdquo; and the placeholder do the same job twice on one screen.</li>
+      <li><strong>Desktop: the calm turns empty.</strong> A 680px column on a 1280px grey-100 canvas leaves most of the screen as blank margin; the idiom has no desktop-scale moves (no wide layouts, no imagery), and the 30/700 cap looks even quieter at this size.</li>
+      <li><strong>Desktop: the bottom-CTA idiom has no equivalent.</strong> The blue action moves inline beside the field, so the mobile and desktop lead actions live in different places with different shapes &mdash; parity breaks the moment the system leaves the phone.</li>
+    </ol>
+  </div>
+
+</body>
+</html>

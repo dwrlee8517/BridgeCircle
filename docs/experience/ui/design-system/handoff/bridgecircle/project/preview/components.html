@@ -1,0 +1,93 @@
+<!-- @dsCard group="Components" name="Core components" subtitle="Buttons · pills · toggle · field · bubbles · list rows — blue-only" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-comfortable);padding:11px 18px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
+  .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
+  .btn.weak{background:var(--action-weak);color:var(--action-weak-text)}
+  .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
+  .cta{display:block;width:100%;border:0;border-radius:var(--radius-large);padding:15px;font-family:var(--font-sans);font-size:16px;font-weight:600;background:var(--action-primary);color:#fff;box-sizing:border-box;margin-top:10px}
+  .pill{border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;font-weight:600}
+  .toggle{display:inline-flex;background:var(--surface-subtle);border-radius:var(--radius-comfortable);padding:4px;gap:2px}
+  .toggle span{border-radius:9px;padding:8px 16px;font-size:14px;font-weight:600;color:var(--text-muted)}
+  .toggle .on{background:var(--surface-card);color:var(--text-primary);box-shadow:0 1px 3px rgb(2 9 19 / .10)}
+  .field{width:100%;background:var(--surface-panel);border:1px solid var(--border);border-radius:var(--radius-comfortable);padding:12px 14px;font-family:var(--font-sans);font-size:15px;color:var(--text-primary);box-sizing:border-box}
+  .field.focus{border-color:var(--focus-ring);box-shadow:0 0 0 3px var(--focus-ring-soft);background:var(--surface-card)}
+  .bubble{max-width:78%;border-radius:var(--radius-large);padding:11px 15px;font-size:14px;line-height:1.5}
+  .row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--divider)}
+  .row:last-child{border-bottom:0}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Buttons — one lead action, always blue</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span class="btn fill">Send</span>
+      <span class="btn weak">Secondary</span>
+      <span class="btn quiet">Cancel</span>
+    </div>
+    <span class="cta">Confirm payment</span>
+  </div>
+
+  <div class="card">
+    <p class="label">Status pills — tint + same-ramp text (semantic, not action)</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill" style="background:var(--state-info-tint);color:var(--state-info-text)">Info</span>
+      <span class="pill" style="background:var(--state-success-tint);color:var(--state-success-text)">Success</span>
+      <span class="pill" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Warning</span>
+      <span class="pill" style="background:var(--state-caution-tint);color:var(--state-caution-text)">Caution</span>
+      <span class="pill" style="background:var(--state-danger-tint);color:var(--state-danger-text)">Error</span>
+      <span class="pill" style="background:var(--state-premium-tint);color:var(--state-premium-text)">Premium</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Segmented control</p>
+    <span class="toggle"><span class="on">Sending</span><span>Receiving</span><span>History</span></span>
+  </div>
+
+  <div class="card">
+    <p class="label">Text field — resting &amp; focused</p>
+    <input class="field focus" value="focused input" readonly aria-label="focused input">
+    <input class="field" value="resting input" readonly aria-label="resting input" style="margin-top:8px">
+  </div>
+
+  <div class="card">
+    <p class="label">Message bubbles</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span class="bubble" style="align-self:flex-start;background:var(--surface-subtle);border-bottom-left-radius:5px">Can you send it to my account?</span>
+      <span class="bubble" style="align-self:flex-end;background:var(--action-primary);color:#fff;border-bottom-right-radius:5px">Done — just sent it over.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">List rows</p>
+    <div class="row">
+      <span class="avatar" style="background:var(--action-weak);color:var(--action-weak-text)">JK</span>
+      <span style="flex:1;min-width:0">
+        <span style="font-size:15px;font-weight:600">Jamie Kim</span>
+        <span style="display:block;font-size:13px;color:var(--text-faint)">Transfer · 2 minutes ago</span>
+      </span>
+      <span class="pill" style="background:var(--state-success-tint);color:var(--state-success-text)">+50,000</span>
+    </div>
+    <div class="row">
+      <span class="avatar" style="background:var(--surface-subtle);color:var(--text-muted)">SL</span>
+      <span style="flex:1;min-width:0">
+        <span style="font-size:15px;font-weight:600">Sam Lee</span>
+        <span style="display:block;font-size:13px;color:var(--text-faint)">Request · yesterday</span>
+      </span>
+      <span style="color:var(--border-strong);font-size:18px">&rsaquo;</span>
+    </div>
+  </div>
+
+</body>
+</html>
