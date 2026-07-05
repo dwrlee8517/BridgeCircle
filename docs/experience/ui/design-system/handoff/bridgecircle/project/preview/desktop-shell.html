@@ -1,0 +1,99 @@
+<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="240px rail · identity dots · 1140px content shell · hover states [E3]" viewport-width="1200" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased}
+  .shell{display:flex;min-height:100vh;max-width:var(--container-shell);margin:0 auto}
+  /* sidebar */
+  .side{width:var(--sidebar-width);flex:none;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:20px 12px}
+  .wordmark{display:flex;align-items:center;gap:9px;padding:4px 12px 20px;font-size:17px;font-weight:800;letter-spacing:-0.02em}
+  .wordmark svg{width:26px;height:16px;color:var(--action-primary)}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .ni{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:var(--radius-comfortable);font-size:14px;font-weight:600;color:var(--text-secondary);cursor:default}
+  .ni:hover{background:var(--hover-tint)}
+  .ni.on{background:var(--nav-active-bg);color:var(--nav-active-text)}
+  .ni .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--grey-300)}
+  .ni.on .dot{background:var(--identity-ask)}
+  .ni .dot.give{background:var(--identity-give)}
+  .ni .dot.school{background:var(--identity-school)}
+  .ni .count{margin-left:auto;min-width:20px;height:20px;border-radius:var(--radius-pill);background:var(--action-primary);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px}
+  .side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-comfortable)}
+  .side .me:hover{background:var(--hover-tint)}
+  .av{width:34px;height:34px;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+  .me .nm{font-size:13px;font-weight:600;line-height:1.25}
+  .me .yr{font-size:11px;color:var(--text-faint);font-variant-numeric:tabular-nums}
+  /* content */
+  .main{flex:1;min-width:0;padding:28px 32px}
+  .main h1{font-size:var(--font-size-heading-large);font-weight:700;letter-spacing:-0.025em;margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:20px 22px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .row{display:flex;gap:12px;align-items:center;padding:11px 8px;margin:0 -8px;border-radius:var(--radius-comfortable)}
+  .row:hover{background:var(--row-hover)}
+  .row .t{font-size:14px;font-weight:600}
+  .row .s{display:block;font-size:12.5px;color:var(--text-faint)}
+  .pill{border-radius:var(--radius-pill);padding:4px 11px;font-size:12px;font-weight:600;flex:none}
+  .btn{border:0;border-radius:var(--radius-comfortable);padding:10px 16px;font-family:var(--font-sans);font-size:13.5px;font-weight:600;cursor:default}
+  .btn.give{background:var(--action-give);color:var(--action-on-give)}
+  .btn.give:hover{background:var(--action-give-hover)}
+  .note{font-size:12px;color:var(--text-faint);margin-top:14px}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <span class="wordmark">
+        <svg viewBox="0 0 20 12"><circle cx="7.2" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="12.8" cy="6" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+        BridgeCircle
+      </span>
+      <nav class="nav">
+        <span class="ni on"><span class="dot"></span>Home</span>
+        <span class="ni"><span class="dot"></span>Ask</span>
+        <span class="ni"><span class="dot give"></span>Give help</span>
+        <span class="ni"><span class="dot"></span>People</span>
+        <span class="ni"><span class="dot school"></span>School</span>
+        <span class="ni"><span class="dot"></span>Inbox<span class="count">3</span></span>
+      </nav>
+      <span class="me">
+        <span class="av">IL</span>
+        <span><span class="nm">Iris Lau</span><span class="yr">Class of 2022</span></span>
+      </span>
+    </aside>
+    <main class="main">
+      <h1>Home</h1>
+      <div class="grid">
+        <div class="card">
+          <p class="label">Needs you this week</p>
+          <div class="row">
+            <span class="av" style="background:var(--avatar-3-bg);color:var(--avatar-3-fg)">MP</span>
+            <span style="flex:1;min-width:0"><span class="t">Mina Park &rsquo;15</span><span class="s">Moving to Songdo in March. What do I need to know?</span></span>
+            <button class="btn give">Offer to help</button>
+          </div>
+          <div class="row">
+            <span class="av" style="background:var(--avatar-2-bg);color:var(--avatar-2-fg)">DO</span>
+            <span style="flex:1;min-width:0"><span class="t">David Okafor &rsquo;98</span><span class="s">My daughter&rsquo;s thinking about design school. Portfolio advice?</span></span>
+            <button class="btn give">Offer to help</button>
+          </div>
+          <p class="note">Rows take --row-hover on pointer; the shell caps at 1140px so the grey canvas never reads as blank margin (FL-8).</p>
+        </div>
+        <div class="card">
+          <p class="label">Your open asks</p>
+          <div class="row">
+            <span style="flex:1;min-width:0"><span class="t">Portfolio feedback</span><span class="s">Sent Tuesday</span></span>
+            <span class="pill" style="background:var(--action-give-weak);color:var(--action-give-weak-text)">2 offers</span>
+          </div>
+          <div class="row">
+            <span style="flex:1;min-width:0"><span class="t">Sublet advice</span><span class="s">Sent yesterday</span></span>
+            <span class="pill" style="background:var(--surface-subtle);color:var(--text-muted)">Waiting</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

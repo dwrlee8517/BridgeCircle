@@ -1,0 +1,98 @@
+<!-- @dsCard group="Desktop" name="Wide-viewport patterns" subtitle="Two-column list+detail · wide band hero · hover & focus states [E3]" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:16px;max-width:1040px;margin-inline:auto}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:20px 22px}
+
+  /* wide band hero */
+  .hero{border-radius:var(--radius-large);background:var(--gradient-band-green);color:#fff;padding:36px 40px;display:flex;align-items:flex-end;gap:24px}
+  .hero .txt{flex:1}
+  .hero .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:0 0 6px}
+  .hero h2{font-size:var(--font-size-display-xl);line-height:var(--lh-display-xl);font-weight:800;letter-spacing:-0.025em;margin:0 0 4px}
+  .hero p{font-size:15px;opacity:.9;margin:0;max-width:52ch}
+  .hero .cta{flex:none;background:#fff;border:0;border-radius:var(--radius-pill);padding:13px 24px;font-family:var(--font-sans);font-size:15px;font-weight:700;color:#0b8a57;cursor:default}
+
+  /* two-column list + detail */
+  .split{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
+  .list{padding:8px}
+  .li{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border-radius:var(--radius-comfortable);cursor:default}
+  .li:hover{background:var(--row-hover)}
+  .li.on{background:var(--nav-active-bg)}
+  .li.on .t{color:var(--nav-active-text)}
+  .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+  .li .t{font-size:14px;font-weight:600;line-height:1.3}
+  .li .s{display:block;font-size:12.5px;color:var(--text-faint);line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+  .detail h3{font-size:var(--font-size-heading);font-weight:600;letter-spacing:-0.02em;margin:0 0 4px}
+  .detail .meta{font-size:13px;color:var(--text-faint);margin:0 0 14px;font-variant-numeric:tabular-nums}
+  .detail p.body{font-size:15px;line-height:1.65;color:var(--text-secondary);margin:0 0 18px;max-width:62ch}
+  .btn{border:0;border-radius:var(--radius-comfortable);padding:11px 18px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
+  .btn.give{background:var(--action-give);color:var(--action-on-give)}
+  .btn.give:hover{background:var(--action-give-hover)}
+  .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
+  .btn.quiet:hover{background:var(--grey-200)}
+
+  /* states row */
+  .states{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .st{background:var(--surface-panel);border-radius:var(--radius-box);padding:16px;text-align:center}
+  .st .cap{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);margin-bottom:12px}
+  .chipbtn{display:inline-block;border-radius:var(--radius-comfortable);padding:10px 16px;font-size:13.5px;font-weight:600;background:var(--surface-card);box-shadow:var(--ring-card)}
+  .chipbtn.hov{background:var(--row-hover)}
+  .chipbtn.foc{box-shadow:0 0 0 3px var(--focus-ring-soft), inset 0 0 0 1.5px var(--focus-ring)}
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="txt">
+      <p class="eyebrow">Give help</p>
+      <h2>Three people could use you</h2>
+      <p>The O3 band at desktop scale — Display XL carries the landing moment, and the band owns the full shell width so the canvas never feels empty.</p>
+    </div>
+    <button class="cta">Browse asks</button>
+  </div>
+
+  <div class="card split" style="padding:8px">
+    <div class="list">
+      <p class="label" style="padding:8px 14px 0">Asks · list + detail</p>
+      <div class="li on">
+        <span class="av" style="background:var(--avatar-3-bg);color:var(--avatar-3-fg)">MP</span>
+        <span><span class="t">Mina Park &rsquo;15</span><span class="s">Moving to Songdo in March. What do I need to know?</span></span>
+      </div>
+      <div class="li">
+        <span class="av" style="background:var(--avatar-2-bg);color:var(--avatar-2-fg)">DO</span>
+        <span><span class="t">David Okafor &rsquo;98</span><span class="s">My daughter&rsquo;s thinking about design school…</span></span>
+      </div>
+      <div class="li">
+        <span class="av" style="background:var(--avatar-5-bg);color:var(--avatar-5-fg)">SL</span>
+        <span><span class="t">Sam Lee &rsquo;19</span><span class="s">Anyone done the part-time MBA thing?</span></span>
+      </div>
+    </div>
+    <div class="detail" style="padding:20px 24px 20px 8px">
+      <h3>Moving to Songdo in March. What do I need to know?</h3>
+      <p class="meta">Mina Park · Class of 2015 · asked Tuesday</p>
+      <p class="body">Company&rsquo;s relocating me and I&rsquo;ve never lived outside the States. Housing, banking, the first-month traps — anything you wish someone had told you. I&rsquo;d love ten minutes with anyone who&rsquo;s done this move.</p>
+      <div style="display:flex;gap:10px">
+        <button class="btn give">Offer to help</button>
+        <button class="btn quiet">Not this time</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Pointer &amp; keyboard states — hover is a background shift, never a lift</p>
+    <div class="states">
+      <div class="st"><p class="cap">Resting</p><span class="chipbtn">Card row</span></div>
+      <div class="st"><p class="cap">Hover · --row-hover</p><span class="chipbtn hov">Card row</span></div>
+      <div class="st"><p class="cap">Focus-visible · --focus-ring</p><span class="chipbtn foc">Card row</span></div>
+    </div>
+  </div>
+
+</body>
+</html>

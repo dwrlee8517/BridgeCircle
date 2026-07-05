@@ -324,6 +324,40 @@
   --motion-slow: 250ms;
   --ease-standard: ease-out;
   --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---------------------------------------------------------------- */
+  /* 5 · DESKTOP / WIDE VIEWPORT  [E3] — EXTENSION                     */
+  /* TDS is mobile-only; everything here is invention in the Toss      */
+  /* spirit (FL-8: "the calm turns empty at 1280px"), seeded from the  */
+  /* production app's proven desktop solutions (density modes, admin   */
+  /* tables, sidebar). Mobile flows keep their width; the shell holds  */
+  /* them so wide canvases never read as blank margin.                 */
+  /* ---------------------------------------------------------------- */
+
+  /* Breakpoints (min-width) */
+  --bp-tablet:  768px;
+  --bp-desktop: 1024px;
+  --bp-wide:    1280px;
+
+  /* Containers — the FL-8 answer: content owns a measured column */
+  --container-reading: 680px;  /* single-flow reading/forms column */
+  --container-shell:  1140px;  /* app shell max-width */
+
+  /* Sidebar shell */
+  --sidebar-width:      240px;
+  --sidebar-width-rail:  72px; /* collapsed icon rail */
+
+  /* Pointer states — TDS mobile has NO hover language; defined here.
+     Hover is a background shift, never a lift or color change. */
+  --hover-tint: rgb(25 31 40 / 0.04);  /* composable over white/grey-50 */
+  --row-hover:  #f7f8fa;               /* list/table row hover fill */
+  --nav-active-bg:   var(--blue-50);
+  --nav-active-text: var(--blue-600);
+  /* Keyboard focus reuses --focus-ring / --focus-ring-soft (:focus-visible). */
+
+  /* Desktop table (density-pro heritage) */
+  --table-row-height: 44px;
+  --table-header-bg:  var(--grey-50);
 }
 
 /* ---------------------------------------------------------------------
@@ -364,6 +398,13 @@
 
   --skeleton-base:  #22242b;
   --skeleton-pulse: #2b2e37;
+
+  /* [E3] pointer states, dark */
+  --hover-tint: rgb(255 255 255 / 0.06);
+  --row-hover:  rgb(255 255 255 / 0.04);
+  --nav-active-bg:   rgb(49 130 246 / 0.16);
+  --nav-active-text: var(--blue-200);
+  --table-header-bg: rgb(255 255 255 / 0.04);
 
   --shadow-card:   0 2px 8px rgb(0 0 0 / 0.36), 0 0 1px rgb(0 0 0 / 0.5);
   --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.48), 0 0 1px rgb(0 0 0 / 0.6);

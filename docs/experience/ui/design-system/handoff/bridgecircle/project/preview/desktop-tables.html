@@ -1,0 +1,97 @@
+<!-- @dsCard group="Desktop" name="Data table — operator" subtitle="Toolbar · sortable headers · hover rows · pagination (density-pro heritage) [E3]" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);overflow:hidden;max-width:1040px;margin:0 auto}
+  .toolbar{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-subtle)}
+  .toolbar h2{font-size:16px;font-weight:700;letter-spacing:-0.015em;margin:0;flex:1}
+  .search{display:flex;align-items:center;gap:8px;background:var(--surface-subtle);border-radius:var(--radius-comfortable);padding:8px 12px;font-size:13px;color:var(--text-faint);width:220px}
+  .filter{border:0;border-radius:var(--radius-comfortable);padding:9px 14px;font-family:var(--font-sans);font-size:13px;font-weight:600;background:var(--action-quiet);color:var(--action-quiet-text);cursor:default}
+  .filter:hover{background:var(--grey-200)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  thead th{background:var(--table-header-bg);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-faint);font-weight:700;text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:default}
+  thead th.sorted{color:var(--text-secondary)}
+  thead th .arr{font-size:9px;margin-left:3px;color:var(--action-primary)}
+  tbody td{height:var(--table-row-height);padding:0 16px;border-bottom:1px solid var(--border-subtle);vertical-align:middle}
+  tbody tr:hover td{background:var(--row-hover)}
+  tbody tr:last-child td{border-bottom:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  .who{display:flex;align-items:center;gap:10px}
+  .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
+  .who b{font-weight:600}
+  .who .yr{font-size:11.5px;color:var(--text-faint);font-variant-numeric:tabular-nums}
+  .pill{border-radius:var(--radius-pill);padding:3px 10px;font-size:11.5px;font-weight:600;white-space:nowrap}
+  .foot{display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--border-subtle);font-size:12.5px;color:var(--text-faint)}
+  .foot .pages{margin-left:auto;display:flex;gap:4px}
+  .pg{min-width:28px;height:28px;border-radius:var(--radius-standard);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:default}
+  .pg:hover{background:var(--hover-tint)}
+  .pg.on{background:var(--nav-active-bg);color:var(--nav-active-text)}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="toolbar">
+      <h2>Members</h2>
+      <span class="search">⌕ Search name, class, field</span>
+      <button class="filter">Class year ▾</button>
+      <button class="filter">Status ▾</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Member</th>
+          <th class="sorted">Class<span class="arr">▲</span></th>
+          <th>Field</th>
+          <th>Status</th>
+          <th style="text-align:right">Asks answered</th>
+          <th style="text-align:right">Last active</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="who"><span class="av" style="background:var(--avatar-1-bg);color:var(--avatar-1-fg)">IL</span><b>Iris Lau</b></span></td>
+          <td class="num">2022</td>
+          <td>Product design</td>
+          <td><span class="pill" style="background:var(--action-give-weak);color:var(--action-give-weak-text)">Open to help</span></td>
+          <td class="num">12</td>
+          <td class="num">2h ago</td>
+        </tr>
+        <tr>
+          <td><span class="who"><span class="av" style="background:var(--avatar-2-bg);color:var(--avatar-2-fg)">DO</span><b>David Okafor</b></span></td>
+          <td class="num">1998</td>
+          <td>Engineering</td>
+          <td><span class="pill" style="background:var(--action-give-weak);color:var(--action-give-weak-text)">Open to help</span></td>
+          <td class="num">31</td>
+          <td class="num">Yesterday</td>
+        </tr>
+        <tr>
+          <td><span class="who"><span class="av" style="background:var(--avatar-3-bg);color:var(--avatar-3-fg)">MP</span><b>Mina Park</b></span></td>
+          <td class="num">2015</td>
+          <td>Finance</td>
+          <td><span class="pill" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Invite pending</span></td>
+          <td class="num">4</td>
+          <td class="num">3d ago</td>
+        </tr>
+        <tr>
+          <td><span class="who"><span class="av" style="background:var(--avatar-4-bg);color:var(--avatar-4-fg)">JK</span><b>Jamie Kim</b></span></td>
+          <td class="num">2015</td>
+          <td>Medicine</td>
+          <td><span class="pill" style="background:var(--surface-subtle);color:var(--text-muted)">Quiet</span></td>
+          <td class="num">0</td>
+          <td class="num">Jun 12</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="foot">
+      184 members
+      <span class="pages"><span class="pg on">1</span><span class="pg">2</span><span class="pg">3</span><span class="pg">…</span><span class="pg">12</span></span>
+    </div>
+  </div>
+</body>
+</html>

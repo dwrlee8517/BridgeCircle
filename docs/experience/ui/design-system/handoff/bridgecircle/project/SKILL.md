@@ -21,9 +21,16 @@ identity + gradient bands (`--gradient-band-{green,blue,dark}`) · O4 Display XL
 12) · O7 hairline `#e6e9ee` + `--border-subtle` + `--ring-card` · E2 avatar
 palette (`--avatar-1..6`, no status meaning).
 
+**Applied (2026-07-05):** E3 desktop extension — breakpoints 768/1024/1280,
+`--container-shell 1140` / `--container-reading 680`, **sidebar shell** (240px,
+identity dots, `--nav-active-*`), pointer states (`--hover-tint`,
+`--row-hover`; hover = background shift, never a lift), operator data table
+tokens, wide band hero. Specimens: `preview/desktop-{shell,tables,patterns}.html`.
+
 **Rejected:** O5 ochre warning (2026-07-05) — **warning is TDS orange
 `#fe9800`**, do not reach for ochre.
-**Still proposed:** E1 neutral-pending hue · E3 desktop system · E4 CircleMark.
+**Still proposed:** E1 neutral-pending hue · E4 CircleMark (the wordmark's
+two-circle motif appears in the shell specimen as a preview, not yet a token).
 Hard rules that survive the batch: ONE lead action per surface (green only on
 give, blue everywhere else — any other colored button is wrong); gradients
 same-hue + band surfaces only; text/fill from the same ramp; every card
