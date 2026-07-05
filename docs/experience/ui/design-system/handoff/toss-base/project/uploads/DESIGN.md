@@ -184,6 +184,15 @@ This is the only gap between this bundle and the documented TDS inventory.
   fintech set (Keypad, Asset, Amount Top, Agreement, Chart) is specimened.
   Details the public docs don't pin down are inferred from the token idiom and
   marked ⓘ in §5.
+- **TDS is mobile-form-factor only — desktop is out of scope for this base.**
+  The public system ships two surfaces (`tds-mobile` webview React,
+  `tds-react-native`), both phone-width. There is no public desktop/web TDS:
+  no wide-viewport grid, sidebar navigation, desktop tables, hover states, or
+  responsive breakpoints. **Do not backfill desktop components here** — there
+  is nothing to faithfully transcribe. Desktop/wide-viewport adaptation is
+  invention in the Toss spirit and belongs in the `bridgecircle` fork, logged
+  in its ledger as *extensions* (new ground), distinct from *overrides*
+  (changed values).
 
 ## 8 · What NOT to add here
 
