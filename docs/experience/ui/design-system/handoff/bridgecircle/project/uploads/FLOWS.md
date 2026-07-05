@@ -116,14 +116,16 @@ follows mode (blue get / green give). Deep-linkable: `/help?mode=give`.
 
 ### 3b · Give help (green wash) — four lanes
 
-1. **Status strip** — "Open to helping" switch · capacity "1 of 3 slots used"
-   (meter) ❓ *slots: keep the mockup's visible capacity, or keep caps
-   invisible per ADR 0011 (only `max_pending_requests` as hidden abuse valve)?
-   Visible slots contradict D1's "no caps in the interface" — recommend
-   dropping the meter, keeping only the switch + "we stop matching you when
-   you're busy" copy.* · expiry ("status expires in 14 days" auto-pause) ·
-   standing **topic chips** ("what can you speak to" — same data as
-   onboarding step 4; these drive passive suggestions + Home's module).
+1. **Status strip** — "Open to helping" switch · expiry ("status expires in
+   14 days" auto-pause) · standing **topic chips** ("what can you speak to" —
+   same data as onboarding step 4; these drive passive suggestions + Home's
+   module). **No capacity meter (DECIDED, Richard 2026-07-05):** the 1i
+   mockup's "1 of 3 slots" is dropped — it contradicts ADR 0011 D1 (no caps
+   in the interface) and re-introduces quota psychology. The switch + "we
+   stop matching you when you're busy" carries the reassurance;
+   `max_pending_requests` stays as the invisible abuse valve. If helpers
+   complain about volume in the pilot, revisit then — *complexity earns its
+   way in on real complaints, not anticipated ones.*
 2. **"What can you speak to right now?"** — competence query (same capsule
    family as People's NL search): the helper searches over their OWN
    experience; retrieval returns relevance-gated open asks across all tiers,
