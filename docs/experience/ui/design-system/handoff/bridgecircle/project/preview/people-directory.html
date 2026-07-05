@@ -1,0 +1,148 @@
+<!-- @dsCard group="Pages" name="People — refined directory (1a)" subtitle="NL search capsule · scope + filters · status-first rows · profile preview rail" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--wash-page),var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:14px;max-width:1040px;margin-inline:auto}
+  .kicker{font-size:13px;font-weight:600;color:var(--text-faint);margin:0}
+  h1{margin:6px 0 0;font-weight:800;font-size:28px;letter-spacing:-0.03em}
+  /* NL search capsule */
+  .capsule{display:flex;align-items:center;gap:12px;background:var(--surface-card);border-radius:var(--radius-large);padding:8px 8px 8px 18px;box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16), 0 2px 8px rgb(25 31 40 / 0.06)}
+  .capsule svg{width:18px;height:18px;fill:none;stroke:var(--action-primary);stroke-width:2.2;stroke-linecap:round;flex:none}
+  .capsule .q{flex:1;font-size:15px;font-weight:500}
+  .caret{display:inline-block;width:2px;height:16px;background:var(--action-primary);margin-left:2px;vertical-align:-3px}
+  .kbd{font-size:11px;font-weight:700;color:var(--grey-400);background:var(--surface-subtle);border-radius:6px;padding:3px 8px}
+  .gbtn{background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:11px 22px;font-family:var(--font-sans);font-size:14px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:default}
+  /* scope + filters */
+  .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .seg{display:flex;background:#e8eaee;border-radius:var(--radius-comfortable);padding:3px}
+  .seg span{font-size:12.5px;font-weight:600;color:var(--grey-600);padding:6px 14px}
+  .seg .on{font-weight:700;color:var(--text-primary);background:#fff;border-radius:9px;box-shadow:0 1px 3px rgb(25 31 40 / 0.1)}
+  .fpill{font-size:12.5px;font-weight:600;color:var(--text-secondary);background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:var(--radius-pill);padding:7px 13px}
+  .meta{margin-left:auto;font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  /* directory card */
+  .dir{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)}
+  .prow{display:flex;align-items:center;gap:14px;padding:14px 22px}
+  .prow + .prow{border-top:1px solid var(--divider-row)}
+  .prow:hover{background:var(--row-hover)}
+  .pav{width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-neutral);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--text-secondary)}
+  .pname{font-size:15px;font-weight:700}
+  .chip{font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px}
+  .c-circle{color:var(--blue-600);background:var(--blue-50)}
+  .c-open{display:inline-flex;align-items:center;gap:5px;color:#029a5e;background:rgb(3 178 108 / 0.1)}
+  .c-open i{width:5px;height:5px;border-radius:50%;background:var(--green-500)}
+  .c-req{color:var(--grey-600);background:var(--surface-subtle)}
+  .match{font-size:11.5px;font-weight:700;color:var(--blue-600)}
+  .psub{font-size:12.5px;color:var(--grey-600);margin-top:2px;font-weight:500}
+  .topics{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+  .topics span{font-size:11.5px;font-weight:600;color:var(--text-secondary);background:var(--surface-subtle);border-radius:var(--radius-pill);padding:3px 10px}
+  .act{flex:none;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:9px 20px;font-family:var(--font-sans);font-size:12.5px;font-weight:700;cursor:default}
+  .act.pending{background:var(--surface-subtle);color:var(--grey-400)}
+  .chev{flex:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:var(--radius-pill);color:var(--grey-600);font-size:14px}
+  /* profile preview rail */
+  .railwrap{display:grid;grid-template-columns:1fr 340px;gap:14px;align-items:start}
+  .rail{background:var(--surface-card);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 22px}
+  .rail .rl{font-size:12px;font-weight:700;color:var(--text-faint)}
+  .rail .rav{width:56px;height:56px;border-radius:50%;background:var(--avatar-neutral);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:var(--text-secondary)}
+  .rail h3{font-size:19px;font-weight:800;letter-spacing:-0.02em;margin:0}
+  .why{margin-top:14px;background:linear-gradient(180deg,#f3f8ff,#eef5ff);border-radius:13px;padding:12px 14px;box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.14)}
+  .why .wt{font-size:11px;font-weight:700;color:var(--blue-600)}
+  .why p{margin:7px 0 0;font-size:13px;line-height:1.55;color:#33404e;font-weight:500}
+  .ev{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+  .ev span{font-size:10.5px;font-weight:600;color:var(--text-secondary);background:#fff;box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-pill);padding:3px 9px}
+  .prov{margin-top:9px;font-size:10.5px;color:var(--text-faint);font-weight:500}
+  .fact{background:#f7f9fc;border-radius:13px;padding:12px 14px;margin-top:12px}
+  .fact .fl{font-size:11px;font-weight:700;color:var(--text-faint)}
+  .fact .fr{font-size:12.5px;font-weight:700;margin-top:6px}
+  .fact .fs{font-size:11px;color:var(--text-faint);font-weight:500}
+  .racts{display:flex;gap:8px;margin-top:16px}
+  .racts .p{flex:1;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn)}
+  .racts .w{flex:1;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700}
+
+  /* E2 default: rotating colored pairs (Richard, 2026-07-05) */
+  .av-1{background:var(--avatar-1-bg);color:var(--avatar-1-fg)}
+  .av-2{background:var(--avatar-2-bg);color:var(--avatar-2-fg)}
+  .av-3{background:var(--avatar-3-bg);color:var(--avatar-3-fg)}
+  .av-4{background:var(--avatar-4-bg);color:var(--avatar-4-fg)}
+  .av-5{background:var(--avatar-5-bg);color:var(--avatar-5-fg)}
+  .av-6{background:var(--avatar-6-bg);color:var(--avatar-6-fg)}
+</style>
+</head>
+<body>
+
+  <div>
+    <p class="kicker">Directory · 2,412 members</p>
+    <h1>Find people to connect with.</h1>
+  </div>
+
+  <div class="capsule">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="q">designers who moved in-house in the Bay Area<span class="caret"></span></span>
+    <span class="kbd">⌘K</span>
+    <button class="gbtn">Search</button>
+  </div>
+
+  <div class="filters">
+    <span class="seg"><span class="on">All</span><span>Open to help</span><span>In your circle</span></span>
+    <span class="fpill">Industry ▾</span>
+    <span class="fpill">Class year ▾</span>
+    <span class="fpill">Location ▾</span>
+    <span class="meta">248 people · Best match</span>
+  </div>
+
+  <div class="railwrap">
+    <div class="dir">
+      <div class="prow">
+        <span class="pav av-1">MC</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:flex;align-items:center;gap:8px"><span class="pname">Maya Chen</span><span class="chip c-circle">In your circle</span><span class="match">Strong match</span></span>
+          <span class="psub" style="display:block">Design Lead · Figma · San Francisco · '14</span>
+          <span class="topics"><span>Agency → in-house</span><span>Design interviews</span><span>Leadership</span></span>
+        </span>
+        <button class="act">Message</button><span class="chev">›</span>
+      </div>
+      <div class="prow">
+        <span class="pav av-5">JB</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:flex;align-items:center;gap:8px"><span class="pname">Jordan Blake</span><span class="chip c-open"><i></i>Open to help</span></span>
+          <span class="psub" style="display:block">Design Manager · Airbnb · New York · '12</span>
+          <span class="topics"><span>Hiring</span><span>Portfolio reviews</span><span>In-house design</span></span>
+        </span>
+        <button class="act">Connect</button><span class="chev">›</span>
+      </div>
+      <div class="prow">
+        <span class="pav av-3">PN</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:flex;align-items:center;gap:8px"><span class="pname">Priya Nair</span><span class="chip c-req">Requested</span></span>
+          <span class="psub" style="display:block">PM · Notion · Remote · '17</span>
+          <span class="topics"><span>Design → PM</span><span>Product sense</span></span>
+        </span>
+        <button class="act pending">Pending</button><span class="chev">›</span>
+      </div>
+    </div>
+
+    <div class="rail">
+      <span class="rl">Profile preview</span>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:14px">
+        <span class="rav av-1">MC</span>
+        <span><h3>Maya Chen</h3><span class="psub">Design Lead · Figma · San Francisco</span></span>
+      </div>
+      <div class="why">
+        <span class="wt">◎ Why this match</span>
+        <p>Made the agency → in-house jump in 2018 and has reviewed 20+ portfolios for people making the same move.</p>
+        <span class="ev"><span>In-house since 2018</span><span>Reviews portfolios</span></span>
+        <span class="prov" style="display:block">From verified profile facts · ranked for &ldquo;designers who moved in-house&rdquo;</span>
+      </div>
+      <div class="fact"><span class="fl">Career</span><span class="fr" style="display:block">Design Lead, Figma</span><span class="fs">2021 — now</span></div>
+      <div class="fact"><span class="fl">You share</span><span class="fr" style="display:block">Prof. Whitman&rsquo;s studio</span><span class="fs">8 years apart</span></div>
+      <div class="racts"><button class="p">Ask for advice</button><button class="w">Message</button></div>
+      <p class="prov" style="text-align:center">Profile auto-updated from public sources · last checked May 2026</p>
+    </div>
+  </div>
+
+</body>
+</html>

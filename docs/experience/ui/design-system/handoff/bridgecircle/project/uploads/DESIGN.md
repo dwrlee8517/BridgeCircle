@@ -24,13 +24,25 @@ duplicated here — this document only frames what's different.
    specimens. **2026-07-04 brand batch applied:** O1–O4, O6, O7 + E2 (green
    give action, section bands, Display XL, softer radii, hairline + card ring,
    avatar palette) — the fork now renders visibly differently from the
-   baseline. **Rejected:** O5 (warning stays TDS orange `#fe9800`,
-   2026-07-05). Still proposed: E1 (pending hue), E3 (desktop), E4
-   (CircleMark). Every entry stays adjustable or revertible via the ledger.
+   baseline. **2026-07-05:** E3 desktop extension applied (breakpoints,
+   1140px shell, sidebar nav, hover/focus states, operator table — all
+   invention in the Toss spirit; TDS is mobile-only). **Rejected:** O5
+   (warning stays TDS orange `#fe9800`, 2026-07-05). Still proposed: E1
+   (pending hue), E4 (CircleMark). Every entry stays adjustable or revertible
+   via the ledger.
 4. **Evidence over taste.** Entries cite the friction log
    ([`../Help Hub.html`](../Help%20Hub.html), the 2026-07-04 pristine-baseline
    test) and ADR 0013 Appendix C (the Field Pro reconciliation). New entries
    should arrive with the same kind of evidence.
+
+## Redesign IA (Richard, 2026-07-05)
+
+Five member sections, sidebar shell (E3): **Home** = dashboard · **Help** =
+one page hosting the ask/give toggle in-page (the two verbs never split into
+separate nav items; ADR 0011) · **People** = directory · **Messages** = all
+member communication, one inbox · **School** = events + school announcements.
+IA/flow changes are product scope — the behavior specs (user-flows, screen
+map) update when flows translate to production.
 
 ## Working rhythm (ADR 0013 Phase E)
 
