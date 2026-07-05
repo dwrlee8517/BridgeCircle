@@ -1,18 +1,36 @@
 # BridgeCircle UI/UX Handoff
 
-This folder holds the versioned Claude Design handoff bundle that defines the
+This folder holds the versioned Claude Design handoff bundles that define the
 intended BridgeCircle member-app UI/UX direction.
+
+> **Direction (2026-07-04, ADR 0013):** [`bridgecircle/`](bridgecircle/) is the
+> **main design system** — the target every new design and the full redesign
+> build against. It forks [`toss-base/`](toss-base/) (faithful TDS, Layer 0)
+> and diverges only via its
+> [`OVERRIDES.md`](bridgecircle/project/uploads/OVERRIDES.md) ledger.
+> **Civic Editorial** (the `bridgecircle-design-system/` bundle below — note
+> the confusingly similar folder name; it is the *old* system) remains the
+> reference for **live production behavior only** until the redesign lands,
+> and is **archived to `_archive/` when the redesign is done** (ADR 0013
+> Phase E close-out).
+
+## Bundles
+
+| Bundle | Layer | Status |
+|---|---|---|
+| [`bridgecircle/`](bridgecircle/) | 1 — brand fork | **MAIN design system** — design + redesign target |
+| [`toss-base/`](toss-base/) | 0 — faithful TDS | pristine baseline; never carries brand material |
+| [`fieldpro-design-system/`](fieldpro-design-system/) | — | superseded (ADR 0012); its reconciled values seeded the fork's ledger |
+| [`bridgecircle-design-system/`](bridgecircle-design-system/) | — | **Civic Editorial (old)** — mirrors live production until the redesign lands; archive after |
 
 ## Source Of Truth
 
 Use this order for UI/UX decisions:
 
-1. [`bridgecircle-design-system/project/ui_kits/app/index.html`](bridgecircle-design-system/project/ui_kits/app/index.html) — primary clickable member-app prototype. The export README identifies this as the file that was open during handoff.
-2. [`bridgecircle-design-system/project/ui_kits/app/`](bridgecircle-design-system/project/ui_kits/app/) — prototype component files that support `index.html`.
-3. [`bridgecircle-design-system/project/uploads/DESIGN.md`](bridgecircle-design-system/project/uploads/DESIGN.md) — Civic Editorial token and usage spec.
-4. [`bridgecircle-design-system/project/colors_and_type.css`](bridgecircle-design-system/project/colors_and_type.css) — standalone CSS token export.
-5. [`bridgecircle-design-system/project/preview/`](bridgecircle-design-system/project/preview/) — token and component specimens.
-6. [`bridgecircle-design-system/project/explorations/`](bridgecircle-design-system/project/explorations/) — exploratory variants; use only when explicitly promoted.
+1. [`bridgecircle/project/uploads/OVERRIDES.md`](bridgecircle/project/uploads/OVERRIDES.md) — the divergence ledger; what is *applied* is law, what is *proposed* is a candidate.
+2. [`bridgecircle/project/`](bridgecircle/project/) — the main system: tokens, spec, specimens, designed screens.
+3. [`toss-base/project/uploads/DESIGN.md`](toss-base/project/uploads/DESIGN.md) — the baseline spec; answers everything the fork doesn't override.
+4. [`bridgecircle-design-system/project/`](bridgecircle-design-system/project/) — Civic Editorial; **current production reality only**, not target direction.
 
 ## Implementation Rule
 

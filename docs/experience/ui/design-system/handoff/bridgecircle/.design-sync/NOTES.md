@@ -12,10 +12,14 @@ divergence ledger (`uploads/OVERRIDES.md`) and the baseline-test evidence
 Created and pinned (2026-07-04). Project `bridgecircle`
 (`b07651c7-8d28-43bd-ad1a-7af68e3f219b`, created via DesignSync
 `create_project` — design-system type) is recorded in `config.json`. First
-push of `project/**` (18 files, including `Help Hub.html` — a legitimate
-bundle file in THIS fork, unlike in toss-base) happens on the next interactive
-`/design-sync`; verify `PROJECT_TYPE_DESIGN_SYSTEM` via `get_project` before
-writing, no deletes.
+push **done 2026-07-04**: all 18 `project/**` files (12 preview specimens + app
+starter + `colors_and_type.css` + `SKILL.md` + `uploads/DESIGN.md` +
+`uploads/OVERRIDES.md` + `Help Hub.html` — a legitimate bundle file in THIS
+fork, unlike in toss-base) pushed at their project-relative paths; no deletes.
+A re-sync is a direct `write_files` of the changed `project/**` files against
+this pin — no converter, no `register_assets` (`@dsCard` markers index the
+cards), no anchor (compare against a fresh `list_files`). Write a
+`_ds_needs_recompile` sentinel after adding/renaming `@dsCard` specimens.
 
 ## Help Hub.html provenance
 

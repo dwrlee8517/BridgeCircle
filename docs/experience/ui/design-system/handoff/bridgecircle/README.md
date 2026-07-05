@@ -1,10 +1,17 @@
 # bridgecircle — handoff bundle
 
-**BridgeCircle's brand design system** — Layer 1 of
+**BridgeCircle's MAIN design system** — Layer 1 of
 [ADR 0013](../../../../../decisions/0013-toss-baseline-then-brand-overlay.md).
 A fork of [`toss-base`](../toss-base/) (faithful TDS) that diverges only
 through logged entries in
 [`project/uploads/OVERRIDES.md`](project/uploads/OVERRIDES.md).
+
+This is the system all new design work targets: the **complete redesign is
+designed in the `bridgecircle` Claude Design project first**, then translated
+to production flow-by-flow (ADR 0013 Phase E, design-first). Civic Editorial
+(`../bridgecircle-design-system/` — the old system, unrelated despite the
+similar name) describes live production only and is archived when the
+redesign lands.
 
 As scaffolded, the fork is a byte-copy of the baseline with **one applied
 override** (O1: Pretendard). The green give action, section bands, ochre
