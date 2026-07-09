@@ -23,9 +23,9 @@ The Chromium binary itself lives in `~/Library/Caches/ms-playwright/` (machine-g
 
 When you run `pnpm test:e2e`, Playwright reads `playwright.config.ts` and:
 
-1. Checks whether something is already serving on `http://localhost:3000`.
+1. Checks whether something is already serving on `http://localhost:3001`.
 2. If the dev server is up (the common local case), it reuses it. Tests start immediately.
-3. If nothing is on port 3000, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
+3. If nothing is on port 3001, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
 4. Spins up Chromium, runs every spec in `tests/e2e/**/*.spec.ts`, and reports pass/fail.
 
 The `reuseExistingServer: !process.env.CI` flag is the important bit:
@@ -127,9 +127,9 @@ Once a successful run has registered the check name with GitHub, add **Playwrigh
 
 ## Troubleshooting
 
-**"Error: connect ECONNREFUSED 127.0.0.1:3000"**
+**"Error: connect ECONNREFUSED 127.0.0.1:3001"**
 
-Playwright's `webServer` couldn't reach the dev server within its 120s timeout. Either start the server yourself and re-run, or check whether `doppler run -- pnpm dev` actually works in isolation (`NODE_ENV` set wrong, missing Doppler binding, port 3000 occupied by an unrelated process).
+Playwright's `webServer` couldn't reach the dev server within its 120s timeout. Either start the server yourself and re-run, or check whether `doppler run -- pnpm dev` actually works in isolation (`NODE_ENV` set wrong, missing Doppler binding, port 3001 occupied by an unrelated process).
 
 **A test that asserts on a `getByRole("heading")` fails with "element(s) not found"**
 

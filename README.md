@@ -36,7 +36,7 @@ Local dev runs against `bridgecircle-dev`, a separate Supabase project from prod
 ```bash
 cd app
 pnpm install
-pnpm dev   # http://localhost:3000
+pnpm dev   # http://localhost:3001
 ```
 
 The dev project is seeded with 9 hand-curated personas covering the main user roles. Sign in with any of them to test specific flows:

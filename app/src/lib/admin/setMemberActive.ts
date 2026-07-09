@@ -87,7 +87,7 @@ export async function setMemberActive(input: SetActiveInput): Promise<SetActiveR
   const orgName = org?.name ?? 'BridgeCircle'
 
   if (email) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
     if (input.action === 'deactivate') {
       await sendMembershipDeactivatedEmail({
         to: email,

@@ -187,7 +187,7 @@ For the full prod inventory + descriptions, see **Manual Production Configuratio
 | `VOYAGE_API_KEY` | Voyage key | Voyage key |
 | `ASK_MATCHING_PIPELINE` | `legacy` or `voyage_hybrid` | `legacy` until verified |
 | `ASK_MATCHING_EXPLANATIONS` | `templated` or `haiku_polish` | `templated` |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3001` | prod origin (`https://bridgecircle.org`) |
 | `SENTRY_AUTH_TOKEN` | (build-time only, optional locally) | set by Sentry wizard |
 
 `.env.local` is in `.gitignore` and must never be committed. Railway's Variables tab is the only place production secrets live in human-readable form — keep a backup copy in your password manager.
@@ -212,7 +212,7 @@ cd app
 pnpm dev
 ```
 
-Open http://localhost:3000. The dev server reads `.env.local`, which points at `bridgecircle-dev`. Any signup, profile edit, or other write goes to the dev project.
+Open http://localhost:3001. The dev server reads `.env.local`, which points at `bridgecircle-dev`. Any signup, profile edit, or other write goes to the dev project.
 
 ### Useful commands
 
