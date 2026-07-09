@@ -25,8 +25,8 @@ palette (`--avatar-1..6`, no status meaning).
 `--container-shell 1320` (max, fluid below) / `--container-reading 680`,
 **sidebar shell** (240px, **icon nav** — 20px strokes, radius `--radius-box`,
 NOT identity dots; two-tone wordmark; `--gradient-avatar` member card),
-**topbar** (`--topbar-height 66`: blurred white, title, ⌘K search pill, round
-icon actions), pointer states (`--hover-tint`, `--row-hover`; hover =
+**topbar** (`--topbar-height 66`: blurred white, title, round icon actions —
+no ⌘K/global search, removed 2026-07-06), pointer states (`--hover-tint`, `--row-hover`; hover =
 background shift, never a lift), operator data table tokens, wide band hero.
 Specimens: `preview/desktop-{shell,tables,patterns}.html`.
 
@@ -48,8 +48,9 @@ O8/O9 + amendments):**
   for other people (Richard's call); `--avatar-neutral` is an option for
   dense operator surfaces only. Status lives in chips either way; avatar
   color carries no status meaning. Self = `--gradient-avatar`.
-- **Active nav & selection**: gradient `--nav-active-bg` + `--nav-active-ring`;
-  selected list items `--selected-tint` + `--selected-accent`.
+- **Active nav & selection**: gradient `--nav-active-bg` only (no ring —
+  `--nav-active-ring` is `none` as of 2026-07-06); selected list items
+  `--selected-tint` + `--selected-accent`.
 - **HELP HERO DECIDED (2026-07-05): the 1i wash** (`--wash-get`/`--wash-give`,
   ink text) **with the pill toggle** (icons, white active pill, mode-colored
   text, `--wash-toggle-track`). Saturated bands (O3) are for

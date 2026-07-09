@@ -434,17 +434,19 @@
   /* Sidebar shell */
   --sidebar-width:      240px;
   --sidebar-width-rail:  72px; /* collapsed icon rail */
-  --topbar-height:       66px; /* blurred-white header: title + global search
-                                  (⌘K) + round icon actions (reference) */
+  --topbar-height:       66px; /* blurred-white header: title + round icon
+                                  actions. [global search / ⌘K removed
+                                  2026-07-06 — no cross-surface palette] */
 
   /* Pointer states — TDS mobile has NO hover language; defined here.
      Hover is a background shift, never a lift or color change. */
   --hover-tint: rgb(25 31 40 / 0.04);  /* composable over white/grey-50 */
   --row-hover:  #f7f8fa;               /* list/table row hover fill */
-  /* [E3 amended 2026-07-05] active nav = subtle gradient + inset blue ring
-     (every chosen alternative uses this; reverses the earlier flat call) */
+  /* [E3 amended 2026-07-06] active nav = subtle gradient fill ONLY; the inset
+     blue ring was removed (Richard 2026-07-06 — "remove the border"). Token
+     kept as `none` so `box-shadow: var(--nav-active-ring)` renders nothing. */
   --nav-active-bg:   linear-gradient(135deg, #eaf4ff, #e2efff);
-  --nav-active-ring: inset 0 0 0 1px rgb(49 130 246 / 0.12);
+  --nav-active-ring: none;
   --nav-active-text: var(--blue-600);
   /* Keyboard focus reuses --focus-ring / --focus-ring-soft (:focus-visible). */
 
