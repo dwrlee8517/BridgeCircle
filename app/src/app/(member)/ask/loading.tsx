@@ -19,7 +19,7 @@ export default function AskLoading() {
       </section>
 
       <section className="mx-auto max-w-5xl px-4 py-6 sm:px-8 lg:py-8">
-        <div className="grid gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:gap-8">
           {/* Context rail */}
           <div className="space-y-5">
             <div className="rounded-md border border-border bg-card p-3.5 shadow-card">

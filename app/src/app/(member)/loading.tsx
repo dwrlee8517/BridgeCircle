@@ -52,7 +52,7 @@ export default function MemberLoading() {
       </section>
 
       <section className="mx-auto max-w-5xl px-4 py-7 sm:px-8">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           <div>
             <Skeleton className="h-3 w-40" />
             <div className="mt-3 space-y-2.5">
