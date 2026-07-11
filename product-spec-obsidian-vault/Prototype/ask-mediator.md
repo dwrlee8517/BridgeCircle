@@ -2,15 +2,15 @@
 
 **Status:** v1 draft · 2026-05-24
 **Author:** _TBD_
-**Maps to:** [feature-roadmap.md](../product/feature-roadmap.md) Capability B (AI-assisted request writing) — mediator mode extends Capability B with a non-direct send path
-**Brand fit:** [voice-guidelines.md §3](../product/voice-guidelines.md) — the embarrassed asker; [voice-guidelines.md §10](../product/voice-guidelines.md) — AI voice rules
-**Companion specs:** [phase-1/spec.md](./phase-1/spec.md) (ask base), [events-conditional-rsvp.md](./events-conditional-rsvp.md) (sibling Phase 2 feature)
+**Maps to:** [feature-roadmap.md](../../docs/product/feature-roadmap.md) Capability B (AI-assisted request writing) — mediator mode extends Capability B with a non-direct send path
+**Brand fit:** [voice-guidelines.md §3](../../docs/product/voice-guidelines.md) — the embarrassed asker; [voice-guidelines.md §10](../../docs/product/voice-guidelines.md) — AI voice rules
+**Companion specs:** [phase-1/spec.md](../Production/phase-1/spec.md) (ask base), [events-conditional-rsvp.md](./events-conditional-rsvp.md) (sibling Phase 2 feature)
 
 ---
 
 ## Purpose
 
-The existing /ask guided composer ([advice-flow.tsx](<../../app/src/app/(member)/ask/new/advice-flow.tsx>) / [mentorship-flow.tsx](<../../app/src/app/(member)/ask/new/mentorship-flow.tsx>)) helps a member organize their thoughts and drafts a message to a chosen helper. Today the only send path is direct — the member edits and sends the draft themselves.
+The existing /ask guided composer ([composer.tsx](<../../app/src/app/(member)/ask/new/composer.tsx>) / [chat-composer.tsx](<../../app/src/app/(member)/ask/new/chat-composer.tsx>)) helps a member organize their thoughts and drafts a message to a chosen helper. Today the only send path is direct — the member edits and sends the draft themselves.
 
 The mediator mode adds a second send path: **"Let BridgeCircle ask for you."** When chosen, BridgeCircle reaches out on the member's behalf, in the coordinator's institutional voice, to a sequence of potential helpers. Helpers accept or decline. When one accepts, the member is notified and the conversation begins.
 
@@ -29,9 +29,9 @@ The mediator isn't just an asker-side buffer. It's a two-sided one. BridgeCircle
 
 | Decision | Choice |
 | --- | --- |
-| AI identity | **Unnamed.** Surface label is "Ask BridgeCircle." No persona name, no character. Preserves [brand-strategy.md](../product/brand-strategy.md) "AI as quiet helper, not main character." |
-| Mediator voice | **BridgeCircle coordinator voice.** The institutional narrator from [voice-guidelines.md §2](../product/voice-guidelines.md) is the sender. Mentor knows it's mediated. Member is clearly named. |
-| Disclosure | **Always disclose, with a small badge.** Every AI-touched send carries a visible "Sent with BridgeCircle" or "AI-assisted draft, reviewed by Maren" line. Matches [voice-guidelines.md §10.1](../product/voice-guidelines.md). |
+| AI identity | **Unnamed.** Surface label is "Ask BridgeCircle." No persona name, no character. Preserves [brand-strategy.md](../../docs/product/brand-strategy.md) "AI as quiet helper, not main character." |
+| Mediator voice | **BridgeCircle coordinator voice.** The institutional narrator from [voice-guidelines.md §2](../../docs/product/voice-guidelines.md) is the sender. Mentor knows it's mediated. Member is clearly named. |
+| Disclosure | **Always disclose, with a small badge.** Every AI-touched send carries a visible "Sent with BridgeCircle" or "AI-assisted draft, reviewed by Maren" line. Matches [voice-guidelines.md §10.1](../../docs/product/voice-guidelines.md). |
 | Surface scope | **Extend existing /ask guided composer.** The draft step adds a third send option ("Let BridgeCircle ask for you") alongside the existing direct-send. Reuses all existing thought-organization + drafting logic. |
 
 ---
@@ -138,7 +138,7 @@ The helper notification (app + email) is **clearly mediated** — the sender is 
 
 ## Notifications (voice-aligned)
 
-All copy below complies with [voice-guidelines.md §9](../product/voice-guidelines.md). Length ceilings respected. Narrator = BridgeCircle coordinator. The mediator notifications are the strongest example of the coordinator's voice in the product — they should be drafted with care and treated as canonical examples for future writers.
+All copy below complies with [voice-guidelines.md §9](../../docs/product/voice-guidelines.md). Length ceilings respected. Narrator = BridgeCircle coordinator. The mediator notifications are the strongest example of the coordinator's voice in the product — they should be drafted with care and treated as canonical examples for future writers.
 
 | Trigger | Sender | Title | Body |
 | --- | --- | --- | --- |
@@ -223,7 +223,7 @@ Reusing existing infrastructure where possible. New work scoped tight.
 | Decide when to escalate (timeout, next candidate) | No | Pure timer + structured queue |
 | Decide when to surface "search exhausted" | No | Configured threshold (3 declines or 7 days) |
 
-**Bounded LLM use** matches [feature-roadmap.md Maintainability Principles](../product/feature-roadmap.md): the LLM writes copy, never makes routing decisions.
+**Bounded LLM use** matches [feature-roadmap.md Maintainability Principles](../../docs/product/feature-roadmap.md): the LLM writes copy, never makes routing decisions.
 
 ### Mediator outreach copy generation
 
@@ -332,7 +332,7 @@ This is bigger than the conditional-RSVP spec (~2 weeks) because of: the queue m
 - **"Suggest someone else" follow-through.** When a helper suggests another alum, do we approach that alum in the same mediated flow, or just log it as a hint for the next round? v1 defaults to log-only.
 - **Confidence threshold for cold approaches.** Approaching a non-helper is a higher-friction ask. Should there be a confidence floor (e.g., ranking-score ≥ 0.85) before the system is willing to cold-approach? Pilot dependent.
 - **Member-side fall-through opt-out.** When search is exhausted, currently we offer direct-send fallback. Should we also offer "extend search to other circles" once Bridge Programs lands?
-- **Multi-language mediator copy.** Existing English-only copy; bilingual pilots (Korean) need the mediator outreach reviewed by a native co-writer before shipping. Same gate as [voice-guidelines.md §17 open questions](../product/voice-guidelines.md).
+- **Multi-language mediator copy.** Existing English-only copy; bilingual pilots (Korean) need the mediator outreach reviewed by a native co-writer before shipping. Same gate as [voice-guidelines.md §17 open questions](../../docs/product/voice-guidelines.md).
 - **Conversation handoff.** After introduction, BridgeCircle's involvement ends — but should it offer a single "everything okay?" nudge to the member 7 days after the introduction, to surface ghosting or stalled conversations? v1: no, keep clean handoff.
 - **AI persona naming (deferred, 2026-05-25).** Held at "unnamed / institutional voice" for now. Revisit triggers: a clear memorability gap in user feedback, members reporting the AI feels machine-y rather than human, or warmth complaints the institutional voice can't fix with copy alone. If revisited, the mediator's helper-side outreach should likely stay institutional regardless — name the composer's thought-organizing helper instead.
 

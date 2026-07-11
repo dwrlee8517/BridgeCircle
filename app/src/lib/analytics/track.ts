@@ -2,7 +2,7 @@ import 'server-only'
 
 /**
  * Stub analytics emitter. Real `analytics_events` table is on the post-launch
- * backlog (see `docs/specs/phase-1/post-launch-backlog.md`); until that
+ * backlog (see `product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md`); until that
  * lands, events are logged to stdout in dev and dropped in prod. This lets
  * us instrument call sites *now* (so when the table arrives we don't have to
  * go retrofit every flow) without paying for an event pipeline today.

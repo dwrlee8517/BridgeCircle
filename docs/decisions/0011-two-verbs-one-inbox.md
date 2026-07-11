@@ -172,7 +172,7 @@ Each destructive step split expand → contract across deploys per 0008:
   "Asks are polymorphic" bullet + scope-fence line;
   `docs/architecture/information-architecture.md`;
   `docs/product/feature-roadmap.md`; voice-guidelines avoid/prefer row for
-  mentor/mentee and friend→connect; `docs/specs/phase-1/spec.md` drift flag.
+  mentor/mentee and friend→connect; `product-spec-obsidian-vault/Production/phase-1/spec.md` drift flag.
 
 **Verify:** grep gate — zero `ask_type|open_to_mentorship|screening_prompt`
 identifiers outside migrations; full pre-PR stack (`/ship`); e2e smoke.

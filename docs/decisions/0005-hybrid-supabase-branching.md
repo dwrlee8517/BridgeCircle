@@ -37,5 +37,5 @@ Full workflow in `docs/runbooks/migration-workflow.md`.
 
 ## Alternatives considered
 
-- **Persistent dev branch on prod project (~$10/mo)** — would unify the dashboard and remove the manual `db push` step. Skipped at the 2026-04-29 cutover because the cost-vs-marginal-improvement math didn't justify it pre-launch. On the post-launch backlog (`docs/specs/phase-1/post-launch-backlog.md`).
+- **Persistent dev branch on prod project (~$10/mo)** — would unify the dashboard and remove the manual `db push` step. Skipped at the 2026-04-29 cutover because the cost-vs-marginal-improvement math didn't justify it pre-launch. On the post-launch backlog (`product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md`).
 - **Single project, destructive `db reset` for dev** — fast but loses dev data; no PR-level migration safety.

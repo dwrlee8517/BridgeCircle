@@ -147,4 +147,4 @@ Most often means the `dev_personal` Doppler config has a secret your local machi
 
 - [Environments and dev/prod separation](../architecture/environments.md) — why we run tests against `bridgecircle-dev`, not prod.
 - [Seeding the dev database](seed-dev.md) — what test users are available and how to reset state.
-- [Phase 1 launch spec](../specs/phase-1/launch-cut.md) — what flows need to be covered before launch.
+- [Phase 1 launch spec](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what flows need to be covered before launch.

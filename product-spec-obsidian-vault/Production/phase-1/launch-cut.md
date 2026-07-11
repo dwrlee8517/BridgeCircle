@@ -91,7 +91,7 @@ See `week-3-4.md`. At a glance:
 
 ## Explicitly Deferred Beyond Phase 1
 
-Unchanged from `spec.md` and the [feature roadmap](../../product/feature-roadmap.md):
+Unchanged from `spec.md` and the [feature roadmap](../../../docs/product/feature-roadmap.md):
 
 - meetup proposals
 - ambassador role
