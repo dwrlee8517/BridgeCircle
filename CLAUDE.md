@@ -21,3 +21,5 @@ For multi-step work, sketch the plan as `step → verification`, then loop until
 **Two-sided buffer framing.** Any peer-to-peer feature (asks, declines, RSVPs, mediated sends) must reduce psychological friction on **both** sides — initiator and responder. Symmetric barrier reduction is the brand mechanism, not a nice-to-have.
 
 **When code and docs disagree, code wins** — but fix the docs in the same change and flag the drift.
+
+**Product specs live in the Obsidian vault.** [`product-spec-obsidian-vault/`](product-spec-obsidian-vault/) holds product specs, split into `Production/` (finalized specs describing full features/flows, with links to the design — treat as source of truth) and `Prototype/` (personal work-in-progress drafts; expect parallel versions, none authoritative). See [`product-spec-obsidian-vault/CLAUDE.md`](product-spec-obsidian-vault/CLAUDE.md) for the full structure.
