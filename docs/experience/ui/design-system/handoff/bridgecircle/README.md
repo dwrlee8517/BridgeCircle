@@ -28,6 +28,8 @@ bridgecircle/
     uploads/OVERRIDES.md       ← THE DIVERGENCE LEDGER (read first)
     uploads/DESIGN.md          ← fork framing; baseline spec stays in toss-base
     preview/  ui_kits/         ← specimens (copied; diverge as entries apply)
+    Production/                ← designed screens whose feature ships in mainline
+    Prototype/                 ← designed screens for unbuilt features (parallel drafts OK)
     Help Hub.html              ← baseline-test evidence (Ask/Give + friction log)
   README.md                    ← this file (repo-facing; NOT pushed)
   .design-sync/                ← sync notes; project not yet created
