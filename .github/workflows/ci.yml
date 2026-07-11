@@ -1,0 +1,68 @@
+# CI — the merge gate for main.
+#
+# Every PR (and every push to main) runs lint + typecheck. Branch protection
+# on main requires these checks, so nothing unverified can merge. E2E joins
+# as a third job in Phase 4 of the CI/CD migration; deploys are a separate
+# workflow (deploy.yml, Phase 7) — this file never touches prod.
+#
+# The app lives in app/ (pnpm), so every job sets working-directory and the
+# node cache keys off app/pnpm-lock.yaml.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel in-flight runs of the same ref when a new push lands.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: ESLint
+        run: pnpm lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: app/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # `next typegen` first: next-env.d.ts and .next route types are
+      # gitignored, so a fresh checkout can't typecheck without generating
+      # them. Needs no secrets.
+      - name: tsc --noEmit
+        run: pnpm typecheck

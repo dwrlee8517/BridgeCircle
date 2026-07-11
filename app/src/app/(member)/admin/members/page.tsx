@@ -202,6 +202,7 @@ function DeletionBadge({
   initiatedByAdmin: boolean
 }) {
   const due = new Date(scheduledFor).getTime()
+  // eslint-disable-next-line react-hooks/purity -- server component: Date.now() is request-time, not a re-render hazard
   const ms = due - Date.now()
   const days = Math.round(ms / (1000 * 60 * 60 * 24))
   const overdue = ms < 0

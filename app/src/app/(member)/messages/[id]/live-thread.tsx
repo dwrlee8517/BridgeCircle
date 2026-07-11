@@ -33,7 +33,29 @@ export function LiveThread({
   const [messages, setMessages] = useState<ThreadMessage[]>(initialMessages)
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const [state, dispatch, pending] = useActionState<SendMessageState, FormData>(
-    sendMessageAction,
+    async (prev, formData) => {
+      const result = await sendMessageAction(prev, formData)
+      // Append our own send as soon as the server confirms it, unless
+      // realtime already delivered it (it usually will, almost immediately —
+      // this keeps the UI snappy on flaky networks). Deduped by id both here
+      // and in the realtime handler, whichever lands first.
+      if (result?.ok) {
+        setMessages((cur) => {
+          if (cur.some((m) => m.id === result.messageId)) return cur
+          return [
+            ...cur,
+            {
+              id: result.messageId,
+              senderId: viewerId,
+              body: result.body,
+              createdAt: result.createdAt,
+              readAt: null,
+            },
+          ]
+        })
+      }
+      return result
+    },
     null,
   )
 
@@ -85,36 +107,6 @@ export function LiveThread({
     }
   }, [threadId])
 
-  // Append on successful send + clear the textarea via key swap.
-  const formKeyRef = useRef(0)
-  useEffect(() => {
-    if (state?.ok) {
-      // Re-issue the form so the textarea resets.
-      formKeyRef.current += 1
-    }
-  }, [state])
-
-  // Track when our own send completes and add the message to local state if
-  // realtime hasn't already delivered it (it usually will, almost immediately,
-  // but the optimistic path keeps the UI snappy on flaky networks).
-  useEffect(() => {
-    if (state?.ok) {
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === state.messageId)) return prev
-        return [
-          ...prev,
-          {
-            id: state.messageId,
-            senderId: viewerId,
-            body: lastSubmittedBody.current,
-            createdAt: state.createdAt,
-            readAt: null,
-          },
-        ]
-      })
-    }
-  }, [state, viewerId])
-
   // Auto-scroll to the bottom whenever the messages array grows. The body
   // doesn't read messages.length directly, but biome's analyzer can't see
   // that the dependency exists for its trigger value. We want this to fire
@@ -124,9 +116,6 @@ export function LiveThread({
     const el = scrollRef.current
     if (el) el.scrollTop = el.scrollHeight
   }, [messages.length])
-
-  // Capture the body before it clears (so we can append optimistically).
-  const lastSubmittedBody = useRef('')
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)] min-h-[400px]">
@@ -147,12 +136,10 @@ export function LiveThread({
 
       {composerEnabled ? (
         <form
-          key={formKeyRef.current}
-          action={(fd) => {
-            const body = (fd.get('body') as string | null)?.trim() ?? ''
-            lastSubmittedBody.current = body
-            dispatch(fd)
-          }}
+          // Re-key on each successful send so the textarea resets. Derived
+          // from the last confirmed message id — no effect needed.
+          key={state?.ok ? state.messageId : 'initial'}
+          action={dispatch}
           className="flex items-end gap-2 border-t pt-3 mt-2"
         >
           <input type="hidden" name="threadId" value={threadId} />

@@ -43,6 +43,7 @@ export default async function AdminEventsPage() {
     includeDrafts: true,
   })
 
+  // eslint-disable-next-line react-hooks/purity -- async server component: Date.now() is request-time, not a re-render hazard
   const now = Date.now()
   const upcoming = events.filter((e) => new Date(e.startsAt).getTime() >= now)
   const past = events.filter((e) => new Date(e.startsAt).getTime() < now)

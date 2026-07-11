@@ -10,7 +10,7 @@ import { sendMessageSchema, startThreadSchema } from '@/lib/dm/schemas'
 import { sendMessage } from '@/lib/dm/sendMessage'
 
 export type SendMessageState =
-  | { ok: true; messageId: string; createdAt: string }
+  | { ok: true; messageId: string; createdAt: string; body: string }
   | { ok: false; message: string }
   | null
 
@@ -50,7 +50,14 @@ export async function sendMessageAction(
   // Refresh /messages so the inbox preview updates. The thread page itself
   // gets the new message via Realtime, no revalidate needed there.
   revalidatePath('/messages')
-  return { ok: true, messageId: result.messageId, createdAt: result.createdAt }
+  // body rides along so the client composer can append optimistically
+  // without capturing the submitted FormData itself.
+  return {
+    ok: true,
+    messageId: result.messageId,
+    createdAt: result.createdAt,
+    body: parsed.data.body,
+  }
 }
 
 /**

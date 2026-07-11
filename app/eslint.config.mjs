@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Cosmetic: React escapes text content already; this rule only guards
+      // against typos like a stray `>` in JSX. Escaping apostrophes in copy
+      // as &apos; hurts readability for no runtime benefit.
+      "react/no-unescaped-entities": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

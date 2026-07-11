@@ -52,6 +52,7 @@ export default async function EventsPage({
   ])
   const isAdmin = !!adminRole
 
+  // eslint-disable-next-line react-hooks/purity -- async server component: Date.now() is request-time, not a re-render hazard
   const now = Date.now()
   const upcoming = allEvents
     .filter((e) => new Date(e.startsAt).getTime() >= now)
@@ -123,6 +124,7 @@ export default async function EventsPage({
 // =============================================================================
 
 function EventsRail({ upcoming, isAdmin }: { upcoming: EventRow[]; isAdmin: boolean }) {
+  // eslint-disable-next-line react-hooks/purity -- server component: Date.now() is request-time, not a re-render hazard
   const sevenDaysFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000
   const next7 = upcoming
     .filter((e) => new Date(e.startsAt).getTime() <= sevenDaysFromNow)
