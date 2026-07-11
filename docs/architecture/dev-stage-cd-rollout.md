@@ -9,6 +9,17 @@ doc (or archive it) when Phase 6 folds the durable parts into
 Owner tags: **[R]** = Richard (dashboards, DNS, tokens — things only a human
 with the accounts should touch). **[C]** = Claude (repo files, verification).
 
+**Reconciled 2026-07-11 with the parallel "CI/CD migration" effort** that had
+been landing on main (its Phase 2, `/api/health`, arrived via PR #127 with a
+7-phase plan of its own: railway.json healthcheck, post-deploy smoke.yml,
+Actions-owned deploy.yml, auto-rollback). ADR 0014's pipeline subsumes it:
+`/api/health` + `COMMIT_SHA` are the shared probe contract, cd.yml's
+deploy-dev/promote replace its planned deploy.yml, and the integ gate covers
+its smoke.yml intent (a prod-side post-promote smoke remains a candidate
+enhancement). PR #127 also flagged separately: the proxy matcher 307s
+`POST /api/cron/*` before bearer-token auth runs — pre-existing, tracked
+outside this effort.
+
 ## Coordinates
 
 | Thing | Value |
@@ -103,8 +114,13 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 2 — version endpoint + integ suite (observe-only)
 
-- [ ] **[C]** `app/src/app/api/version/route.ts` returning the running
-  commit SHA (done in this branch).
+- [x] **[C]** Readiness probe: **`/api/health`** (landed on main via the
+  parallel CI/CD effort, PR #127 — reconciled 2026-07-11). This branch's
+  interim `/api/version` was dropped in its favor (health is
+  dependency-free and matcher-excluded, so probes skip the Supabase
+  session refresh); `env: APP_ENV` added to its payload so the CD poll
+  asserts the tier it reached. `app/railway.json` sets
+  `healthcheckPath: /api/health` (that plan's Phase 3).
 - [x] **[C]** `cd.yml` written 2026-07-11 — full pipeline in one file
   (deploy-dev → integ → gated promote) rather than an observe-only interim:
   the promote job is inert until a human approves, so shipping it gated is
@@ -151,7 +167,7 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 - [x] **[C]** `APP_ENV` set in all three configs 2026-07-11
   (`dev_personal`→`local`, `dev`→`dev`, `prd`→`prod`) and NODE_ENV pinned
   in package.json scripts — the three-tier model is live (verified:
-  local `/api/version` reports `env: local`). Still to build, gated on
+  local `/api/health` reports `env: local`). Still to build, gated on
   `APP_ENV`:
   - [ ] **[C]** Sentry `environment` tag
   - [ ] **[C]** `X-Robots-Tag: noindex` when `APP_ENV !== 'prod'`
@@ -179,8 +195,8 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 - `railway up` builds CI-uploaded source, so `RAILWAY_GIT_COMMIT_SHA` may be
   absent in scripted deploys. The workflow stamps the SHA itself (env var set
-  via `railway variables --set GIT_SHA=$GITHUB_SHA` before `up`, or a
-  generated `version.json`); `/api/version` reads the stamp first and falls
+  via `railway variables --set COMMIT_SHA=$GITHUB_SHA` before `up`);
+  `/api/health` reads Railway's var first and falls
   back to Railway's var so the endpoint works in both the scaffolding and
   scripted eras.
 - Playwright's `webServer` must be skipped when `PLAYWRIGHT_BASE_URL` points

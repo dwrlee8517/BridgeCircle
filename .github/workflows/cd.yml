@@ -61,17 +61,18 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      # /api/version reads GIT_SHA so the readiness poll (and the integ job)
-      # can confirm which commit is actually serving. `railway up` uploads
-      # source without git context, so the pipeline stamps the SHA itself.
-      # Set BEFORE the up so the new build picks it up; --skip-deploys stops
-      # the variable change itself from triggering a second deploy.
+      # /api/health reads COMMIT_SHA so the readiness poll (and the integ
+      # job) can confirm which commit is actually serving. `railway up`
+      # uploads source without git context, so the pipeline stamps the SHA
+      # itself. Set BEFORE the up so the new build picks it up;
+      # --skip-deploys stops the variable change itself from triggering a
+      # second deploy.
       - name: Stamp commit SHA on the dev environment
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: |
           doppler run --preserve-env -- railway variables \
-            --set "GIT_SHA=${{ github.sha }}" \
+            --set "COMMIT_SHA=${{ github.sha }}" \
             --service "$RAILWAY_SERVICE" \
             --environment dev \
             --skip-deploys
@@ -89,14 +90,16 @@ jobs:
 
       - name: Wait until the dev URL serves this commit
         run: |
-          echo "Polling $DEV_URL/api/version for ${{ github.sha }}"
+          echo "Polling $DEV_URL/api/health for ${{ github.sha }}"
           for i in $(seq 1 60); do
-            sha=$(curl -sf -m 10 "$DEV_URL/api/version" | jq -r '.sha' 2>/dev/null || true)
-            if [ "$sha" = "${{ github.sha }}" ]; then
-              echo "Dev stage is serving ${{ github.sha }}"
+            body=$(curl -sf -m 10 "$DEV_URL/api/health" || true)
+            sha=$(echo "$body" | jq -r '.sha' 2>/dev/null || true)
+            env=$(echo "$body" | jq -r '.env' 2>/dev/null || true)
+            if [ "$sha" = "${{ github.sha }}" ] && [ "$env" = "dev" ]; then
+              echo "Dev stage is serving ${{ github.sha }} (env: dev)"
               exit 0
             fi
-            echo "  attempt $i/60: serving ${sha:-<no response>}"
+            echo "  attempt $i/60: serving sha=${sha:-<none>} env=${env:-<none>}"
             sleep 10
           done
           echo "::error::Dev stage never reported ${{ github.sha }} (10 min timeout)"
@@ -192,15 +195,16 @@ jobs:
       # Phase 4 (ADR 0014) inserts prod migrations here, BEFORE the code
       # deploy, once the Supabase GitHub integration is retired:
       #   doppler run --preserve-env -- bash -c \
-      #     'cd app && supabase link --project-ref edumxwzilfgvamzarwvo && supabase db push'
-      # (SUPABASE_ACCESS_TOKEN + SUPABASE_DB_PASSWORD come from the prd config.)
+      #     'cd app && supabase db push --db-url "$SUPABASE_DB_URL"'
+      # (SUPABASE_DB_URL comes from the prd Doppler config — no account-wide
+      # access token in CI; see the rollout doc.)
 
       - name: Stamp commit SHA on production
         env:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
         run: |
           doppler run --preserve-env -- railway variables \
-            --set "GIT_SHA=${{ github.sha }}" \
+            --set "COMMIT_SHA=${{ github.sha }}" \
             --service "$RAILWAY_SERVICE" \
             --environment production \
             --skip-deploys
