@@ -2,7 +2,7 @@
 
 The enduring shape of how BridgeCircle proves the product works — the target state the test infrastructure builds toward, not a description of what exists today. Where this note and the code disagree, the code is the current state and this is the direction. The concrete implementation work (repointing the E2E suite, writing seeds, rewiring CI) gets its own specs in [`Prototype/`](../Prototype/) as it's taken on; this note stays as the "why" and the destination.
 
-Current state as of July 2026, for contrast: unit tests are healthy (Vitest, colocated under `app/src/lib/`, run in CI), but the two Playwright E2E specs run against the **shared remote dev Supabase project** — locally and in CI — with each spec hand-deleting its own leftover rows before running. That works at two specs and stops working at ten.
+The hermetic core landed in July 2026: local Supabase + SQL seeds (`app/supabase/seeds/`), `supabase db reset` as the wipe-and-reseed contract, per-feature suites under `app/tests/e2e/`, env via the Doppler `dev_local` branch config (local-stack values + dummied outbound services), and an `e2e.yml` with the always-report gate job. Still open from this note: flipping `E2E gate` to a required check (a GitHub settings toggle), and growing the suites to full parity with `Production/`.
 
 ## North star
 
@@ -10,7 +10,7 @@ Current state as of July 2026, for contrast: unit tests are healthy (Vitest, col
 
 Three properties define the target:
 
-- **Hermetic.** A full E2E run needs nothing deployed: no remote Supabase project, no Doppler-injected database secrets, no shared environment another run can collide with. `git clone` + local Supabase + one command = the same run CI does.
+- **Hermetic.** A full E2E run needs nothing deployed: no remote Supabase project, no shared environment another run can collide with, no real third-party credentials. Doppler stays the secrets mechanism, but the E2E config (`dev_local`) resolves to local-stack values and dummies only. `git clone` + local Supabase + one command = the same run CI does.
 - **Deterministic.** Every run starts from the same wiped-and-seeded world. No `beforeAll` cleanup archaeology, no "it depends what's in dev right now."
 - **Feature-complete.** The suite is organized by feature and converges toward 1:1 parity with the specs in [`Production/`](../Production/): if a feature has a canonical spec, it has a suite proving the spec's flows.
 
@@ -49,7 +49,7 @@ The SQL seeds never target a remote project; `seed-dev.ts` keeps its existing be
 
 ## E2E on every commit
 
-- **Every PR runs the full E2E suite.** The CI job boots local Supabase on the runner, runs `supabase db reset`, starts the app pointed at `localhost:54321` with local keys, and runs Playwright. No Doppler database secrets, no remote project, no deploy of anything.
+- **Every PR runs the full E2E suite.** The CI job boots local Supabase on the runner, runs `supabase db reset`, starts the app pointed at `localhost:54321` with local keys (via the `dev_local` Doppler config), and runs Playwright. No remote database, no remote project, no deploy of anything.
 - **E2E blocks merge to `main`.** The suite becomes a **required status check**. Two consequences to design in, not around:
   - The current `paths-ignore` docs-skip must switch to the always-report gate-job pattern (a skipped required check leaves the PR stuck "pending" — the existing comment in `ci.yml` already anticipates this).
   - The `skip-e2e` label escape hatch retires. A red suite means the code or the test is wrong; both are fixed, not bypassed.

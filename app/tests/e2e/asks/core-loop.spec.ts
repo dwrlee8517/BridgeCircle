@@ -1,61 +1,52 @@
 import { expect, test } from "@playwright/test";
-import * as fs from "node:fs";
-import * as path from "node:path";
 import * as crypto from "node:crypto";
-import { createAdminClient } from "../../src/db/admin";
+import { createAdminClient } from "../../../src/db/admin";
+import { loadE2eEnv } from "../helpers/env";
 
-// Manually load environment variables from .env.local for the Playwright test runner environment
-function loadEnv() {
-  const envPath = path.resolve(process.cwd(), ".env.local");
-  if (fs.existsSync(envPath)) {
-    const content = fs.readFileSync(envPath, "utf8");
-    for (const line of content.split("\n")) {
-      const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-      if (match) {
-        const key = match[1];
-        let val = match[2] || "";
-        if (val.startsWith('"') && val.endsWith('"')) {
-          val = val.substring(1, val.length - 1);
-        } else if (val.startsWith("'") && val.endsWith("'")) {
-          val = val.substring(1, val.length - 1);
-        }
-        process.env[key] ??= val;
-      }
-    }
-  }
-}
+/**
+ * The core loop, end to end: invite → sign-up → onboarding → find a helper →
+ * send an ask → helper accepts → first thread message.
+ *
+ * The invitee is a fresh email that is NOT in the seed, so this suite never
+ * edits the seeded personas other suites rely on. The helper side uses the
+ * seeded Mark Mentor. The beforeAll cleanup only matters for repeated local
+ * runs with E2E_SKIP_RESET=1 — after a reset there is nothing to clean.
+ */
+const INVITEE_EMAIL = "e2e-invitee-ivan@example.com";
+const INVITEE_NAME = "Ivan Invitee";
+const INVITEE_PASSWORD = "e2e-invitee-password";
 
 test.describe("Core User Loop", () => {
   let inviteToken = "";
 
   test.beforeAll(async () => {
-    loadEnv();
+    loadE2eEnv();
 
     const supabase = createAdminClient();
 
-    // 1. Clean up existing student-sam@example.com from auth.users (cascades to public schema)
+    // 1. Remove any invitee left over from a previous non-reset run
+    //    (cascades from auth.users through the public schema).
     const { data: usersData, error: listError } = await supabase.auth.admin.listUsers();
     if (listError) {
       console.warn("Warning listing users:", listError);
     }
-    const samUser = usersData?.users.find((u) => u.email === "student-sam@example.com");
-    if (samUser) {
-      const { error: deleteError } = await supabase.auth.admin.deleteUser(samUser.id);
+    const existing = usersData?.users.find((u) => u.email === INVITEE_EMAIL);
+    if (existing) {
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(existing.id);
       if (deleteError) {
-        console.warn(`Warning deleting user ${samUser.id}:`, deleteError);
+        console.warn(`Warning deleting user ${existing.id}:`, deleteError);
       }
     }
 
-    // 2. Clean up any existing invite for student-sam@example.com in the invites table
     const { error: deleteInviteError } = await supabase
       .from("invites")
       .delete()
-      .eq("email", "student-sam@example.com");
+      .eq("email", INVITEE_EMAIL);
     if (deleteInviteError) {
       console.warn("Warning deleting existing invites:", deleteInviteError);
     }
 
-    // 3. Retrieve first organization to dynamically bind to invite
+    // 2. Bind a fresh invite to the seeded organization.
     const { data: orgs, error: orgsError } = await supabase
       .from("organizations")
       .select("id")
@@ -65,21 +56,18 @@ test.describe("Core User Loop", () => {
     }
     const orgId = orgs[0].id;
 
-    // 4. Insert a fresh invite row for student-sam@example.com
     inviteToken = crypto.randomBytes(32).toString("base64url");
     const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
 
-    const { error: insertErr } = await supabase
-      .from("invites")
-      .insert({
-        organization_id: orgId,
-        email: "student-sam@example.com",
-        token: inviteToken,
-        status: "pending",
-        full_name: "Student Sam",
-        graduation_year: 2024,
-        expires_at: expiresAt.toISOString(),
-      });
+    const { error: insertErr } = await supabase.from("invites").insert({
+      organization_id: orgId,
+      email: INVITEE_EMAIL,
+      token: inviteToken,
+      status: "pending",
+      full_name: INVITEE_NAME,
+      graduation_year: 2024,
+      expires_at: expiresAt.toISOString(),
+    });
 
     if (insertErr) {
       throw new Error(`Failed to insert fresh invite: ${insertErr.message}`);
@@ -94,12 +82,12 @@ test.describe("Core User Loop", () => {
     // Phase 1: Join / Sign up
     await page.goto(`/join?token=${inviteToken}`);
     await expect(page.getByText(/You're invited to/i)).toBeVisible();
-    await page.locator("#password").fill("devseed-password-6");
+    await page.locator("#password").fill(INVITEE_PASSWORD);
     await page.getByRole("button", { name: /create account/i }).click();
 
     // Phase 2: Onboarding (Step 1 -> Steps 2-5 -> Dashboard)
     await page.waitForURL(/\/onboarding/);
-    await expect(page.locator("#name")).toHaveValue("Student Sam");
+    await expect(page.locator("#name")).toHaveValue(INVITEE_NAME);
     await expect(page.locator("#graduationYear")).toHaveValue("2024");
     await page.getByRole("button", { name: /save and continue/i }).click();
 
@@ -121,7 +109,7 @@ test.describe("Core User Loop", () => {
 
     // Redirect to the merged home/ask landing
     await page.waitForURL(/\/$/);
-    await expect(page.getByRole("heading", { name: /Hi Student/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Hi Ivan/i })).toBeVisible();
 
     // AskBar submissions stay inside Ask instead of redirecting into the People directory.
     await page.getByLabel(/find people who can help/i).fill("Mark Mentor");
@@ -164,12 +152,12 @@ test.describe("Core User Loop", () => {
     await page.waitForURL(/\/ask\/[a-f0-9-]+/);
     await expect(page.getByText(/pending/i)).toBeVisible();
 
-    // Phase 4: Sign out as Sam, Sign in as Mark Mentor
+    // Phase 4: Sign out as Ivan, Sign in as Mark Mentor
     await page.getByLabel("Account menu").click();
     await page.getByRole("menuitem", { name: /sign out/i }).click();
     await page.waitForURL(/\/sign-in/);
 
-    // Log in as Mark Mentor
+    // Log in as Mark Mentor (seeded persona)
     await page.locator("#email").fill("mentor-mark@example.com");
     await page.locator("#password").fill("devseed-password-2");
     await page.getByRole("button", { name: /^sign in$/i }).click();
@@ -178,17 +166,17 @@ test.describe("Core User Loop", () => {
     // Phase 5: Inbox, Accept request & send chat message
     await page.goto("/inbox");
     await page.getByRole("button", { name: /^Requests\b/ }).click();
-    await page.getByRole("button", { name: /Student Sam/i }).first().click();
+    await page.getByRole("button", { name: new RegExp(INVITEE_NAME, "i") }).first().click();
 
     // Accept request from the redesigned inline request detail panel
     await page.getByRole("button", { name: /accept & reply/i }).click();
     await page.waitForURL(/\/ask\/thread\/[a-f0-9-]+/);
 
     // Send chat message in thread
-    await page.locator('textarea[name="body"]').fill("Hello Sam, happy to connect.");
+    await page.locator('textarea[name="body"]').fill("Hello Ivan, happy to connect.");
     await page.getByRole("button", { name: /^send$/i }).click();
 
     // Assert message appears
-    await expect(page.getByText("Hello Sam, happy to connect.")).toBeVisible();
+    await expect(page.getByText("Hello Ivan, happy to connect.")).toBeVisible();
   });
 });
