@@ -22,3 +22,7 @@ claude-design-context/
 
 # Local scratch space for ad-hoc provider probing (PDL/LinkdAPI/etc).
 pdl_test/
+
+# design-sync per-user project pins (each syncer keeps their own; not shared)
+.design-sync/config.local.json
+**/.design-sync/config.local.json
