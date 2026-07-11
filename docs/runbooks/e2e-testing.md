@@ -65,6 +65,7 @@ Isolation rules:
 - The seed provides the shared world. A suite that **mutates** state creates its own uniquely-identified entities (the core loop signs up a fresh `e2e-invitee-ivan@example.com`, which is not in the seed) or touches rows no other suite reads (the events suite RSVPs Richard to the one event he's seeded as *not* attending).
 - No suite depends on another suite having run. Every suite passes alone and the whole set passes in parallel.
 - Don't re-test what a Vitest suite already covers — E2E is for integration truth.
+- **Fully self-seeding suites** (the strongest isolation, and the only kind that also runs in integ mode against the persistent dev database): construct one `TestScenario` from `helpers/factory.ts` per spec file. It seeds a per-run org + `test_`-prefixed members through the admin client (emails go to the `delivered+…@resend.dev` sink so nothing bounces), lets specs assert against both the UI and the database via `scenario.admin`, and `scenario.destroy()` in `afterAll` removes everything by cascade. These suites never touch the seeded personas, so they need no `test.skip(isRemote, …)`.
 
 To run one suite or spec:
 

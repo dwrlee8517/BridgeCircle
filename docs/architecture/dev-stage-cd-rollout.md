@@ -128,8 +128,12 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   - the Railway service's **root directory** setting must apply to
     `railway up` uploads (repo root is uploaded; the app lives in `app/`);
   - `railway variables --skip-deploys` + `railway up --ci` flag behavior.
-- [ ] **[C]** Integ data hygiene: seeded `test_`-prefixed users via the
-  existing admin-client pattern; suite cleans up after itself.
+- [x] **[C]** Integ data hygiene: the integ suite (`app/tests/e2e/`) seeds a
+  per-run org + `test_`-prefixed users through the admin-client factory
+  (`tests/e2e/helpers/factory.ts`), asserts against both the UI and the dev
+  DB, and tears everything down in `afterAll` (auth-user deletes cascade;
+  org delete sweeps events/invites/announcements). Notification emails go
+  to `delivered+…@resend.dev` so nothing bounces against the real domain.
 - [ ] **[R]** Add `RAILWAY_DEV_TOKEN` secret (Railway → project → Settings →
   Tokens → scope: dev environment).
 - [ ] Let it run green on a few merges before Phase 3.
