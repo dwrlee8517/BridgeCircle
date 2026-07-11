@@ -75,15 +75,15 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 ### Issues found during Phase-1 verification (2026-07-11)
 
 - [x] **[R]** `NEXT_PUBLIC_APP_URL` + `RESEND_FROM` added to both Doppler
-  configs 2026-07-11 (dev → `dev.bridgecircle.org` / "BridgeCircle Dev
-  <noreply@dev.bridgecircle.org>"; prd → prod values). Was a Railway-side
-  unmanaged var inherited from production; now Doppler-managed. Still open:
+  configs 2026-07-11; was a Railway-side unmanaged var inherited from
+  production, now Doppler-managed. Dev sender is
+  `BridgeCircle Dev <noreply-dev@bridgecircle.org>` — **shared verified
+  domain, distinct local part** (a second Resend domain needs the Pro plan;
+  decided against). Because dev sends from the real domain, the Phase-5
+  dev recipient-allowlist guardrail is mandatory, not optional. Still open:
   - [ ] **[R]** trigger a dev redeploy (sync doesn't auto-redeploy;
     `NEXT_PUBLIC_*` inlines at build time — until rebuilt, dev still links
     to prod).
-  - [ ] **[R]** verify `dev.bridgecircle.org` as a sending domain in Resend
-    (Domains → add → DKIM/SPF records into Cloudflare), or dev sends from
-    `noreply@dev.…` will fail.
 - [ ] **[R/C]** `NODE_ENV=development` syncs into the Railway **dev** deploy,
   so `next start` runs a production build in development mode. Needed for
   the *local* dev server (see doppler.md "NODE_ENV Gotcha") but wrong for a
@@ -113,15 +113,13 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 3 — pipeline owns dev + prod code deploys
 
-- [x] **[R]** GitHub `production` environment created with
-  `RAILWAY_TOKEN_PRD` (2026-07-11). Still open:
-  - [ ] **[R]** the environment has **no protection rules yet**
-    (API-verified 2026-07-11) — tick **Required reviewers** and add
-    yourself, or the gate is a no-op.
-  - [ ] **[R]** add `DOPPLER_TOKEN_PRD` (new `github-actions-prd` service
-    token on `bridgecircle/prd`) as an environment secret;
-    `SUPABASE_PROD_DB_PASSWORD` etc. go into the prd Doppler config in
-    Phase 4.
+- [x] **[R]** GitHub `production` environment: `DOPPLER_TOKEN_PRD` +
+  `RAILWAY_TOKEN_PRD` env secrets, required-reviewer rule enabled
+  (all API-verified 2026-07-11). Repo-level Railway token copies deleted;
+  only `DOPPLER_TOKEN` remains repo-level.
+  - [ ] **[R]** reviewer list currently = `dkoodev` only — confirm an
+    account that can approve promptly (e.g. the repo owner) is on it, or
+    every promote waits on one person.
 - [ ] **[C]** `deploy-dev` switches to `supabase db push` (dev, idempotent) +
   `railway up --environment dev` (blocking); `promote` job added
   (`needs: integ`, environment `production`): `railway up` → prod.
