@@ -83,26 +83,38 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 - `ASK_MATCHING_EXPLANATIONS` — Ask explanation mode; defaults to `templated`
 - `RESEND_API_KEY` — for transactional email
 - `SENTRY_AUTH_TOKEN` — for source-map upload during build
-- `NODE_ENV` — set explicitly to `development` (see "The NODE_ENV Gotcha" below)
+- `NODE_ENV` / `APP_ENV` — see "The NODE_ENV Gotcha" and "APP_ENV" below
 
 If you add a new secret, add it to `dev` first (so the whole team gets it on next run) and only override in `dev_personal` if your value needs to differ from the team's.
 
 ## The NODE_ENV Gotcha
 
-Doppler injects a `NODE_ENV` value automatically based on the config slug (`dev` → `development`, `prd` → `production`; unrecognized slugs like `dev_personal` fall through to `production`), and explicit secrets always beat the inferred value.
+`NODE_ENV` is a **build-mode flag owned by the tools, not an environment selector** — environment identity is `APP_ENV` (below). Since 2026-07-11 the `package.json` scripts pin it structurally:
 
-Since 2026-07-11 the root `dev` config carries an **explicit `NODE_ENV=production`**: it syncs to the Railway dev environment, and `next build` under `NODE_ENV=development` breaks React prerendering (the first dev-stage redeploy failed exactly this way). The deployed dev stage is a production build against dev data — that is the point of a stage.
+- `pnpm dev` → `NODE_ENV=development next dev`
+- `pnpm build` / `pnpm start` → `NODE_ENV=production next ...`
 
-Local dev servers still need `development`, from two directions:
+The inline assignment beats whatever a Doppler config injects, so no config value can put a deployed stage into development mode (the first dev-stage redeploy failed exactly that way — `next build` under `development` breaks React prerendering) or a laptop dev server into production mode.
 
-- `dev_personal` carries an **explicit `NODE_ENV=development`** (restored 2026-07-11 — it had been lost and was silently inheriting from root). Don't remove it, and copy it into any new branched config (e.g. `dev_alice`).
-- Playwright's `webServer` command pins `NODE_ENV=development ... --preserve-env=NODE_ENV` so CI e2e runs (which authenticate with the root `dev` service token) boot a real dev server regardless of the config value.
+Background: Doppler also *infers* a `NODE_ENV` from the config slug (`dev` → `development`, `prd` → `production`, unrecognized slugs like `dev_personal` → `production`) and syncs it to Railway. With the scripts pinned this only affects non-Next processes (`tsx` scripts, etc.); the configs carry explicit values matching their tier (`dev` → `production` because it feeds the deployed stage, `dev_personal` → `development`) so those processes see the truth too.
+
+## APP_ENV — the environment identity
+
+`APP_ENV` says *which tier* the process belongs to; code branches on it for Sentry environment, robots/noindex, cron gating, and the dev email allowlist. Set explicitly in every config (2026-07-11):
+
+| Config | `APP_ENV` | Tier |
+|---|---|---|
+| `dev_personal` | `local` | laptop dev server, dev Supabase |
+| `dev` | `dev` | Railway dev stage (production build), dev Supabase |
+| `prd` | `prod` | Railway production |
+
+Never branch on `NODE_ENV` for environment identity — the dev stage and production are both `NODE_ENV=production` on purpose.
 
 ### Why `--preserve-env` Is A Trap Here
 
 `doppler run --preserve-env` tells Doppler not to overwrite env vars that are already present in the parent shell. This sounds useful but bites in environments where the parent process inherits `NODE_ENV=production` from somewhere (Node-based MCP servers, some CI runners, and parent processes that hardcode `NODE_ENV` for their own reasons).
 
-When the parent has `NODE_ENV=production`, `--preserve-env` keeps that value and silently ignores the `development` value in your Doppler config — exactly the failure mode the explicit secret was meant to prevent. Don't use `--preserve-env` for `pnpm dev`. If you specifically need to preserve some other env var, `unset NODE_ENV` first.
+When the parent has `NODE_ENV=production`, `--preserve-env` keeps that value and silently ignores the config's. The package.json script pins make this harmless for Next.js itself, but ad-hoc `doppler run` invocations of other tools can still be surprised — avoid `--preserve-env` unless you need it for a specific variable.
 
 ## Adding A New Secret
 

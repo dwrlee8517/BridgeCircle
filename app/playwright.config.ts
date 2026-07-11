@@ -42,11 +42,10 @@ export default defineConfig({
   webServer: isRemote
     ? undefined
     : {
-        // The root `dev` Doppler config carries NODE_ENV=production so the
-        // Railway dev stage builds correctly (2026-07-11). A local dev
-        // server still needs development — pin it here so the value wins
-        // regardless of which config the token resolves to.
-        command: 'NODE_ENV=development doppler run --preserve-env=NODE_ENV -- pnpm dev',
+        // NODE_ENV is pinned inside the pnpm scripts themselves (see
+        // package.json / doppler.md "The NODE_ENV Gotcha"), so the value a
+        // Doppler config injects doesn't matter here.
+        command: 'doppler run -- pnpm dev',
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

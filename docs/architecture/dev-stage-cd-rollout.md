@@ -148,9 +148,16 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 5 — guardrails
 
-- [ ] **[C]** `APP_ENV=dev` in the dev env; gate on it: Sentry
-  `environment`, `X-Robots-Tag: noindex` on dev, cron/sweep no-ops for paid
-  enrichment APIs (BrightData/PDL) outside prod.
+- [x] **[C]** `APP_ENV` set in all three configs 2026-07-11
+  (`dev_personal`→`local`, `dev`→`dev`, `prd`→`prod`) and NODE_ENV pinned
+  in package.json scripts — the three-tier model is live (verified:
+  local `/api/version` reports `env: local`). Still to build, gated on
+  `APP_ENV`:
+  - [ ] **[C]** Sentry `environment` tag
+  - [ ] **[C]** `X-Robots-Tag: noindex` when `APP_ENV !== 'prod'`
+  - [ ] **[C]** cron/sweep no-ops for paid enrichment APIs off-prod
+  - [ ] **[C]** dev email recipient allowlist (mandatory — dev sends from
+    the real domain)
 - [ ] **[R]** Decide dev email posture: dev Resend sender or recipient
   allowlist — a dev test must never email a real member.
 
