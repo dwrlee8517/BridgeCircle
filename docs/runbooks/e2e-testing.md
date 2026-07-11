@@ -11,10 +11,10 @@ Unit-level tests (component logic, pure functions) live alongside their source u
 - `@playwright/test` is a `devDependency` in `app/package.json`.
 - `app/playwright.config.ts` is the Playwright config — testDir, baseURL, webServer, browser projects.
 - `app/tests/e2e/` is where every spec file lives. New tests go here.
-- `app/tests/e2e/sign-in.spec.ts` is the first smoke test, covering the unauthenticated-redirect flow.
+- `app/tests/e2e/sign-in.spec.ts` is the first smoke test, covering the unauthenticated-redirect flow. `app/tests/e2e/core-loop.spec.ts` covers the core ask/help loop.
 - `app/.gitignore` is updated to ignore Playwright's per-run artifacts (`/test-results`, `/playwright-report`, `/playwright/.cache`).
 - Two scripts are wired up in `app/package.json`:
-  - `pnpm test:e2e` — run the suite headless with the list reporter.
+  - `pnpm test:e2e` — run the suite headless. Locally this uses the `list` reporter; in CI the config switches to `github` (inline PR annotations) plus `html` (the report the workflow uploads as an artifact).
   - `pnpm test:e2e:ui` — open Playwright's interactive UI mode for writing and debugging tests.
 
 The Chromium binary itself lives in `~/Library/Caches/ms-playwright/` (machine-global, not in the repo). `pnpm exec playwright install chromium` downloads it the first time.
@@ -23,9 +23,9 @@ The Chromium binary itself lives in `~/Library/Caches/ms-playwright/` (machine-g
 
 When you run `pnpm test:e2e`, Playwright reads `playwright.config.ts` and:
 
-1. Checks whether something is already serving on `http://localhost:3000`.
+1. Checks whether something is already serving on `http://localhost:3001` (the default `baseURL`; override it with the `PLAYWRIGHT_BASE_URL` env var).
 2. If the dev server is up (the common local case), it reuses it. Tests start immediately.
-3. If nothing is on port 3000, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
+3. If nothing is on port 3001, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
 4. Spins up Chromium, runs every spec in `tests/e2e/**/*.spec.ts`, and reports pass/fail.
 
 The `reuseExistingServer: !process.env.CI` flag is the important bit:
@@ -100,14 +100,14 @@ A few project-specific notes:
 
 ## CI Setup
 
-Wired at `.github/workflows/e2e.yml`. The job runs on every PR to `main` and via manual dispatch.
+Wired at `.github/workflows/e2e.yml`. The job runs on PRs to `main` and via manual dispatch. Docs-only PRs are skipped automatically (`paths-ignore` covers `**/*.md`, `docs/**`, `product-spec-obsidian-vault/**`, and `.gitignore`).
 
 What it does:
 
 - Installs pnpm 10.33.2 and Node 22, restoring the pnpm store from cache.
 - Installs the Doppler CLI and authenticates non-interactively via the `DOPPLER_TOKEN` secret.
 - Caches and installs the Playwright Chromium binary (`pnpm exec playwright install --with-deps chromium`).
-- Runs `pnpm test:e2e`. Playwright's `webServer.command` (`doppler run -- pnpm dev`) inherits the `DOPPLER_TOKEN` from env and boots the Next.js dev server with `bridgecircle` (Doppler) secrets.
+- Runs `doppler run -- pnpm test:e2e` — the Playwright runner itself needs Doppler secrets (the core-loop spec builds a Supabase admin client in `beforeAll`). Playwright's nested `webServer.command` (`doppler run -- pnpm dev`) re-resolves the same secrets via the inherited `DOPPLER_TOKEN` and boots the Next.js dev server with `bridgecircle` (Doppler) secrets.
 - Uploads the Playwright HTML report on every run and per-test traces on failure (artifact retention: 14 days).
 
 To bypass on a specific PR (hotfixes, doc-only changes), apply the `skip-e2e` label.
@@ -127,9 +127,9 @@ Once a successful run has registered the check name with GitHub, add **Playwrigh
 
 ## Troubleshooting
 
-**"Error: connect ECONNREFUSED 127.0.0.1:3000"**
+**"Error: connect ECONNREFUSED 127.0.0.1:3001"**
 
-Playwright's `webServer` couldn't reach the dev server within its 120s timeout. Either start the server yourself and re-run, or check whether `doppler run -- pnpm dev` actually works in isolation (`NODE_ENV` set wrong, missing Doppler binding, port 3000 occupied by an unrelated process).
+Playwright's `webServer` couldn't reach the dev server within its 120s timeout. Either start the server yourself and re-run, or check whether `doppler run -- pnpm dev` actually works in isolation (`NODE_ENV` set wrong, missing Doppler binding, port 3001 occupied by an unrelated process).
 
 **A test that asserts on a `getByRole("heading")` fails with "element(s) not found"**
 
