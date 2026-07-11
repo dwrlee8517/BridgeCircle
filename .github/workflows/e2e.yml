@@ -1,8 +1,16 @@
 name: E2E
 
+# Docs-only PRs don't change app behavior, so skip the E2E suite when every
+# changed file is docs. Any code change still runs it. `workflow_dispatch`
+# stays available to run the suite manually against any branch.
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'product-spec-obsidian-vault/**'
+      - '.gitignore'
   workflow_dispatch: {}
 
 concurrency:
