@@ -16,9 +16,9 @@ The current member navigation is defined by
 | Home | `/` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
 | Ask | `/ask` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
 | Help | `/help` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| People | `/people` | [`../../specs/phase-1/user-flows.md`](../../specs/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
+| People | `/people` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
 | School | `/school` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Inbox | `/inbox` | [`../../specs/phase-1/user-flows.md`](../../specs/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
+| Inbox | `/inbox` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
 
 Supporting routes such as `/profile/*`, `/events/*`, `/announcements/*`,
 `/mentorship/settings`, `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`, auth, and

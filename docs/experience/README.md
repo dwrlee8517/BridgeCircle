@@ -10,7 +10,7 @@ Use this order when docs or artifacts disagree:
    [`../../app/src/`](../../app/src/)
 2. Intended UI/UX direction:
    [`ui/design-system/handoff/`](ui/design-system/handoff/)
-3. Product behavior: [`../specs/`](../specs/) and
+3. Product behavior: [`../../product-spec-obsidian-vault/Production/`](../../product-spec-obsidian-vault/Production/) and
    [`../architecture/`](../architecture/)
 4. Active UX interpretation: [`ux/`](ux/)
 5. Active UI system implementation notes: [`ui/design-system/`](ui/design-system/)

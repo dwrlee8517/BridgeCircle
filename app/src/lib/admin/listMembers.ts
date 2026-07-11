@@ -38,7 +38,7 @@ const COMPLETION_FIELDS = [
  * lookup batched at the end).
  *
  * Profile completion is the share of the seven required launch fields
- * (per docs/specs/phase-1/launch-cut.md) that are filled. Cheap to compute in JS;
+ * (per product-spec-obsidian-vault/Production/phase-1/launch-cut.md) that are filled. Cheap to compute in JS;
  * keeps the SQL straightforward.
  */
 export async function listMembers(

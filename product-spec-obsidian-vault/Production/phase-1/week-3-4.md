@@ -29,7 +29,7 @@ If time runs out, cut from the bottom.
 - collect explicit consent for ongoing profile freshness checks
 - deliver on the "living directory" thesis without first-party LinkedIn scraping
 
-Canonical architecture: [Profile enrichment and freshness](../../architecture/profile-enrichment.md).
+Canonical architecture: [Profile enrichment and freshness](../../../docs/architecture/profile-enrichment.md).
 
 ### Scope
 
@@ -123,7 +123,7 @@ Historical Phase 1 baseline: entity extraction + structured match, not
 semantic vector search.
 
 This shipped baseline is superseded for the default Ask matching target by
-[ADR 0009](../../decisions/0009-hybrid-ask-matching.md): hybrid retrieval
+[ADR 0009](../../../docs/decisions/0009-hybrid-ask-matching.md): hybrid retrieval
 (structured + lexical + vector), warm-network scoring, and LLM rerank. People
 directory search can still use the bounded Phase 1 path where directory-style
 filtering is the intended behavior.
