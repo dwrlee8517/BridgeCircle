@@ -55,7 +55,12 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Skip Next internals and static files.
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Skip Next internals, static files, and the liveness probe.
+    // api/health must stay out of the proxy entirely: Railway's healthcheck
+    // and the post-deploy smoke gate probe it without a session, and a
+    // redirect to /sign-in would read as "unhealthy". Skipping the matcher
+    // (rather than adding a PUBLIC_PREFIXES entry) also spares the probe
+    // the per-request session-refresh call to Supabase.
+    '/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
