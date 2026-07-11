@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { sendComposerMessage, signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { sendComposerMessage, signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("frienddm");
 let requester: SeededMember;
@@ -19,7 +19,7 @@ test.afterAll(async () => {
 });
 
 test("a stranger's profile offers Add friend but no Message button", async ({ page }) => {
-  await signIn(page, requester);
+  await signInAs(page, requester);
   await page.goto(`/profile/${receiver.userId}`);
 
   await expect(page.getByRole("heading", { name: receiver.name })).toBeVisible();
@@ -28,7 +28,7 @@ test("a stranger's profile offers Add friend but no Message button", async ({ pa
 });
 
 test("sending a connect request flips the CTA to Request sent and writes a pending friend_requests row plus a notification", async ({ page }) => {
-  await signIn(page, requester);
+  await signInAs(page, requester);
   await page.goto(`/profile/${receiver.userId}`);
   await page.getByRole("button", { name: "Add friend" }).click();
   await expect(page.getByText("Request sent")).toBeVisible();
@@ -58,7 +58,7 @@ test("sending a connect request flips the CTA to Request sent and writes a pendi
 });
 
 test("the receiver sees Wants to connect in inbox Requests and accepting creates exactly one canonical friendship row", async ({ page }) => {
-  await signIn(page, receiver);
+  await signInAs(page, receiver);
   await page.goto("/inbox");
   await page.getByRole("button", { name: "Requests" }).click();
   await page.getByRole("button", { name: new RegExp(requester.name) }).first().click();
@@ -95,7 +95,7 @@ test("the receiver sees Wants to connect in inbox Requests and accepting creates
 });
 
 test("friends see Friends ✓ and a Message button that opens a direct thread", async ({ page }) => {
-  await signIn(page, receiver);
+  await signInAs(page, receiver);
   await page.goto(`/profile/${requester.userId}`);
 
   await expect(page.getByRole("button", { name: /Friends/ })).toBeDisabled();
@@ -121,11 +121,11 @@ test("messages flow both ways, each writing a direct-typed messages row and a di
   const receiverGreeting = `Hello from the receiver side ${scenario.runId}`;
   const requesterReply = `Great to be connected ${scenario.runId}`;
 
-  await signIn(page, receiver);
+  await signInAs(page, receiver);
   await page.goto(`/messages/${dmThreadId}`);
   await sendComposerMessage(page, receiverGreeting);
 
-  await signIn(page, requester);
+  await signInAs(page, requester);
   await page.goto(`/messages/${dmThreadId}`);
   await expect(page.getByText(receiverGreeting)).toBeVisible();
   await sendComposerMessage(page, requesterReply);

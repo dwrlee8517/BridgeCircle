@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("helpset");
 let member: SeededMember;
@@ -16,7 +16,7 @@ test.afterAll(async () => {
 });
 
 test("a member without saved preferences starts default-open, and saving writes both legacy flags plus topics", async ({ page }) => {
-  await signIn(page, member);
+  await signInAs(page, member);
   await page.goto("/help/settings");
 
   const availabilityToggle = page.getByRole("checkbox", { name: "Open to helping" });
@@ -43,13 +43,13 @@ test("a member without saved preferences starts default-open, and saving writes 
 });
 
 test("the profile now advertises Open to help", async ({ page }) => {
-  await signIn(page, member);
+  await signInAs(page, member);
   await page.goto(`/profile/${member.userId}`);
   await expect(page.getByText("Open to help").first()).toBeVisible();
 });
 
 test("turning availability off writes both flags off together and disables the topics field", async ({ page }) => {
-  await signIn(page, member);
+  await signInAs(page, member);
   await page.goto("/help/settings");
 
   await page.getByRole("checkbox", { name: "Open to helping" }).uncheck();

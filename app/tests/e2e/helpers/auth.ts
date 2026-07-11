@@ -1,13 +1,25 @@
 import { expect, type Page } from "@playwright/test";
 import type { SeededMember } from "./factory";
 
-export async function signIn(page: Page, member: Pick<SeededMember, "email" | "password">) {
-  await page.context().clearCookies();
+/**
+ * Sign in through the real form with a seeded persona (see
+ * supabase/seeds/seed.sql for the cast and passwords) and wait for the
+ * authenticated home page.
+ */
+export async function signIn(page: Page, email: string, password: string): Promise<void> {
   await page.goto("/sign-in");
-  await page.locator("#email").fill(member.email);
-  await page.locator("#password").fill(member.password);
+  await page.locator("#email").fill(email);
+  await page.locator("#password").fill(password);
   await page.getByRole("button", { name: /^sign in$/i }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/sign-in"));
+  await page.waitForURL(/\/$/);
+  await expect(page.getByLabel("Account menu")).toBeVisible();
+}
+
+// Factory-seeded members switch identity mid-test, so clear the previous
+// session's cookies before signing in.
+export async function signInAs(page: Page, member: Pick<SeededMember, "email" | "password">) {
+  await page.context().clearCookies();
+  await signIn(page, member.email, member.password);
 }
 
 export async function signOut(page: Page) {

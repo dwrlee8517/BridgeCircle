@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("privacy");
 let owner: SeededMember;
@@ -37,7 +37,7 @@ test.afterAll(async () => {
 });
 
 test("a non-friend sees every org-visible field but no contact links", async ({ page }) => {
-  await signIn(page, strangerViewer);
+  await signInAs(page, strangerViewer);
   await page.goto(`/profile/${owner.userId}`);
 
   await expect(page.getByRole("heading", { name: owner.name })).toBeVisible();
@@ -51,7 +51,7 @@ test("a non-friend sees every org-visible field but no contact links", async ({ 
 });
 
 test("a friend sees the contact links card with the LinkedIn URL", async ({ page }) => {
-  await signIn(page, friendViewer);
+  await signInAs(page, friendViewer);
   await page.goto(`/profile/${owner.userId}`);
 
   await expect(page.getByRole("heading", { name: owner.name })).toBeVisible();
@@ -59,7 +59,7 @@ test("a friend sees the contact links card with the LinkedIn URL", async ({ page
 });
 
 test("your own profile shows an Edit profile action instead of connect CTAs", async ({ page }) => {
-  await signIn(page, owner);
+  await signInAs(page, owner);
   await page.goto(`/profile/${owner.userId}`);
 
   await expect(page.getByRole("link", { name: "Edit profile" }).first()).toBeVisible();
@@ -67,7 +67,7 @@ test("your own profile shows an Edit profile action instead of connect CTAs", as
 });
 
 test("the People I know filter narrows the directory to friends only", async ({ page }) => {
-  await signIn(page, friendViewer);
+  await signInAs(page, friendViewer);
   await page.goto("/people?peopleIKnow=on");
 
   await expect(page.getByText(owner.name).first()).toBeVisible();

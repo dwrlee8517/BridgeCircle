@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario } from "./helpers/factory";
+import { TestScenario } from "../helpers/factory";
 
 const scenario = new TestScenario("invite");
 

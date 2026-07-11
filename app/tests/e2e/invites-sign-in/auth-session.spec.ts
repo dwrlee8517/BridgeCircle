@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { signIn, signOut } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { signInAs, signOut } from "../helpers/auth";
 
 const scenario = new TestScenario("auth");
 let activeMember: SeededMember;
@@ -28,7 +28,7 @@ test("wrong password shows 'Invalid email or password.' and stays on the sign-in
 });
 
 test("a signed-in member lands on the Help hub greeted by first name with all four nav tabs", async ({ page }) => {
-  await signIn(page, activeMember);
+  await signInAs(page, activeMember);
 
   await expect(page).toHaveURL("/");
   const firstName = activeMember.name.split(" ")[0];
@@ -69,7 +69,7 @@ test("a member who never finished onboarding is routed into the wizard instead o
 });
 
 test("signing out returns to /sign-in and re-locks member pages", async ({ page }) => {
-  await signIn(page, activeMember);
+  await signInAs(page, activeMember);
   await signOut(page);
 
   await page.goto("/inbox");

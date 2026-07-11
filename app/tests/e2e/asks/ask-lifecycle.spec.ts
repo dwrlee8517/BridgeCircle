@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { sendComposerMessage, signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { sendComposerMessage, signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("ask");
 let asker: SeededMember;
@@ -42,7 +42,7 @@ test("submitting the plain ask form lands on the ask detail page with a pending 
   const helpNeeded = `I would like advice on moving into product management. ${scenario.runId}`;
   const helperFirstName = helper.name.split(" ")[0];
 
-  await signIn(page, asker);
+  await signInAs(page, asker);
   await page.goto(`/ask/new?to=${helper.userId}&skip=1`);
   await expect(
     page.getByRole("heading", { name: `Ask ${helperFirstName} for help` }),
@@ -85,7 +85,7 @@ test("submitting the plain ask form lands on the ask detail page with a pending 
 
 test("a second ask to the same helper is rejected as a duplicate", async ({ page }) => {
   const helperFirstName = helper.name.split(" ")[0];
-  await signIn(page, asker);
+  await signInAs(page, asker);
   await page.goto(`/ask/new?to=${helper.userId}&skip=1`);
   await page.locator("#helpNeeded").fill("Trying to send a second ask while one is already pending.");
   await page.getByRole("button", { name: `Send ask to ${helperFirstName}` }).click();
@@ -95,7 +95,7 @@ test("a second ask to the same helper is rejected as a duplicate", async ({ page
 });
 
 test("the helper accepts from the ask detail page, which opens a thread and stamps the ask accepted", async ({ page }) => {
-  await signIn(page, helper);
+  await signInAs(page, helper);
   await page.goto(`/ask/${askId}`);
   await expect(page.getByText(`Ask from ${asker.name}`)).toBeVisible();
 
@@ -139,11 +139,11 @@ test("helper and asker exchange thread messages that persist as ask-typed rows a
   const helperMessage = `Happy to help — here is my perspective. ${scenario.runId}`;
   const askerReply = `Thank you, that is exactly what I needed. ${scenario.runId}`;
 
-  await signIn(page, helper);
+  await signInAs(page, helper);
   await page.goto(`/ask/thread/${threadId}`);
   await sendComposerMessage(page, helperMessage);
 
-  await signIn(page, asker);
+  await signInAs(page, asker);
   await page.goto(`/ask/thread/${threadId}`);
   await expect(page.getByText(helperMessage)).toBeVisible();
   await sendComposerMessage(page, askerReply);
@@ -173,7 +173,7 @@ test("declining from the inbox marks the ask declined and notifies the asker", a
     helpNeeded: "An ask that is about to be declined by its helper.",
   });
 
-  await signIn(page, decliningHelper);
+  await signInAs(page, decliningHelper);
   await page.goto("/inbox");
   await page.getByRole("button", { name: "Requests" }).click();
   await page.getByRole("button", { name: new RegExp(asker.name) }).first().click();
@@ -198,14 +198,14 @@ test("declining from the inbox marks the ask declined and notifies the asker", a
     .eq("type", "ask_declined");
   expect(count).toBe(1);
 
-  await signIn(page, asker);
+  await signInAs(page, asker);
   await page.goto(`/ask/${declinedAskId}`);
   await expect(page.getByText("declined")).toBeVisible();
 });
 
 test("a helper already holding their max pending asks rejects new ones with the capacity message", async ({ page }) => {
   const firstName = fullHelper.name.split(" ")[0];
-  await signIn(page, asker);
+  await signInAs(page, asker);
   await page.goto(`/ask/new?to=${fullHelper.userId}&skip=1`);
   await page.locator("#helpNeeded").fill("One more ask for a helper whose pending queue is already full.");
   await page.getByRole("button", { name: `Send ask to ${firstName}` }).click();
@@ -222,7 +222,7 @@ test("a helper already holding their max pending asks rejects new ones with the 
 });
 
 test("a paused helper's compose page short-circuits instead of offering the form", async ({ page }) => {
-  await signIn(page, asker);
+  await signInAs(page, asker);
   await page.goto(`/ask/new?to=${pausedHelper.userId}&skip=1`);
   await expect(page.getByText("Not taking asks right now")).toBeVisible();
   await expect(page.locator("#helpNeeded")).toHaveCount(0);

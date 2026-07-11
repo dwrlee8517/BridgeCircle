@@ -15,14 +15,17 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
   describe shipped behavior end-to-end and are the canonical spec for that
   feature. Mirror the app: if the code does it, the spec lives here. Currently
   holds [`phase-1/`](Production/phase-1/) — the Phase 1 spec, launch cut, week
-  3–4 features, user flows, and launch checklist. `docs/` now points here for
-  these.
+  3–4 features, user flows, and launch checklist — and
+  [`testing-suite.md`](Production/testing-suite.md) (the shipped hermetic
+  E2E infrastructure: local Supabase + seeds, feature suites, CI/CD wiring).
+  `docs/` now points here for these.
 
 - **`Prototype/`** — Specs whose feature is **not yet built** — forward-looking
   proposals and work-in-progress drafts (a feature may have several parallel
   drafts here; none is authoritative until it ships). Currently holds
-  `ask-mediator.md`, `events-conditional-rsvp.md` (Phase 2, unbuilt), and
-  [`phase-1/post-launch-backlog.md`](Prototype/phase-1/post-launch-backlog.md)
+  `ask-mediator.md`, `events-conditional-rsvp.md` (Phase 2, unbuilt),
+  `no-invite-landing.md` (sign-in rejection → landing page + invite requests),
+  and [`phase-1/post-launch-backlog.md`](Prototype/phase-1/post-launch-backlog.md)
   (deferred).
 
 - **`Vision/`** — Long-horizon, higher-altitude material: product north stars,
@@ -33,7 +36,9 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
   feature that emerges from a Vision note gets its own spec in `Prototype/`
   (then `Production/` once built); the Vision note stays as the enduring "why."
   Currently holds
-  [`North Star and Long-Horizon Roadmap.md`](Vision/North%20Star%20and%20Long-Horizon%20Roadmap.md).
+  [`North Star and Long-Horizon Roadmap.md`](Vision/North%20Star%20and%20Long-Horizon%20Roadmap.md)
+  and [`Testing Suite.md`](Vision/Testing%20Suite.md) (target testing
+  architecture: local Supabase + seeds, hermetic E2E on every PR).
 
 ## Conventions
 

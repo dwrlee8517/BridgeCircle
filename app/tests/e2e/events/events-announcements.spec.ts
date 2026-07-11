@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("events");
 let memberA: SeededMember;
@@ -43,7 +43,7 @@ test.afterAll(async () => {
 });
 
 test("upcoming and past tabs split the seeded events correctly", async ({ page }) => {
-  await signIn(page, memberA);
+  await signInAs(page, memberA);
   await page.goto("/events");
   await expect(page.getByText(`Open Reunion Mixer ${scenario.runId}`).first()).toBeVisible();
   await expect(page.getByText(`Finished Gala ${scenario.runId}`)).toHaveCount(0);
@@ -54,7 +54,7 @@ test("upcoming and past tabs split the seeded events correctly", async ({ page }
 });
 
 test("RSVP toggles to going and back, and every flip is written to event_rsvps", async ({ page }) => {
-  await signIn(page, memberA);
+  await signInAs(page, memberA);
   await page.goto(`/events/${openEventId}`);
   await expect(page.getByRole("heading", { name: `Open Reunion Mixer ${scenario.runId}` })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Your RSVP" })).toBeVisible();
@@ -91,12 +91,12 @@ test("RSVP toggles to going and back, and every flip is written to event_rsvps",
 });
 
 test("a full event waitlists the next member and promotes them when the going member backs out", async ({ page }) => {
-  await signIn(page, memberA);
+  await signInAs(page, memberA);
   await page.goto(`/events/${capacityOneEventId}`);
   await page.getByRole("button", { name: /RSVP - I.m going/ }).click();
   await expect(page.getByRole("button", { name: /You.re going/ })).toBeVisible();
 
-  await signIn(page, memberB);
+  await signInAs(page, memberB);
   await page.goto(`/events/${capacityOneEventId}`);
   await page.getByRole("button", { name: "Join waitlist" }).click();
   await expect(page.getByRole("button", { name: "On waitlist" })).toBeVisible();
@@ -113,7 +113,7 @@ test("a full event waitlists the next member and promotes them when the going me
     })
     .toBe("waitlisted");
 
-  await signIn(page, memberA);
+  await signInAs(page, memberA);
   await page.goto(`/events/${capacityOneEventId}`);
   await page.getByRole("button", { name: /You.re going/ }).click();
   await expect(page.getByRole("button", { name: /RSVP|Join waitlist/ })).toBeVisible();
@@ -134,7 +134,7 @@ test("a full event waitlists the next member and promotes them when the going me
 });
 
 test("the announcements board shows published notices with their author and hides drafts", async ({ page }) => {
-  await signIn(page, memberB);
+  await signInAs(page, memberB);
   await page.goto("/announcements");
   await expect(page.getByRole("heading", { name: "Announcements" })).toBeVisible();
   await expect(page.getByText(`Published Notice ${scenario.runId}`)).toBeVisible();

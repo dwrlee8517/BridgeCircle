@@ -1,6 +1,6 @@
 import * as crypto from "node:crypto";
 import { createAdminClient } from "../../../src/db/admin";
-import { loadEnvLocal } from "./env";
+import { loadE2eEnv } from "./env";
 
 export type AdminClient = ReturnType<typeof createAdminClient>;
 
@@ -59,7 +59,7 @@ export class TestScenario {
   private seededUserIds: string[] = [];
 
   constructor(scenarioName: string) {
-    loadEnvLocal();
+    loadE2eEnv();
     this.runId = `${scenarioName}-${crypto.randomBytes(4).toString("hex")}`;
     this.admin = createAdminClient();
   }

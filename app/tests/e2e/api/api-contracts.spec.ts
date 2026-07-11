@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("api");
 let member: SeededMember;
@@ -43,7 +43,7 @@ test.describe("POST /api/asks/draft", () => {
   });
 
   test("rejects an unparseable body with 400 invalid_body", async ({ page }) => {
-    await signIn(page, member);
+    await signInAs(page, member);
     const response = await page.request.post("/api/asks/draft", {
       headers: { "content-type": "application/json" },
       data: Buffer.from("this is not json {"),
@@ -53,7 +53,7 @@ test.describe("POST /api/asks/draft", () => {
   });
 
   test("rejects a non-uuid helperId with 400 invalid_input and zod detail", async ({ page }) => {
-    await signIn(page, member);
+    await signInAs(page, member);
     const response = await page.request.post("/api/asks/draft", {
       data: { helperId: "not-a-uuid" },
     });
@@ -64,7 +64,7 @@ test.describe("POST /api/asks/draft", () => {
   });
 
   test("rejects drafting an ask to yourself with 400 self_request", async ({ page }) => {
-    await signIn(page, member);
+    await signInAs(page, member);
     const response = await page.request.post("/api/asks/draft", {
       data: { helperId: member.userId },
     });
@@ -73,7 +73,7 @@ test.describe("POST /api/asks/draft", () => {
   });
 
   test("returns 404 not_found for a helper that does not exist", async ({ page }) => {
-    await signIn(page, member);
+    await signInAs(page, member);
     const response = await page.request.post("/api/asks/draft", {
       data: { helperId: "99999999-9999-4999-8999-999999999999" },
     });

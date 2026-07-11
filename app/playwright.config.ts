@@ -1,30 +1,34 @@
 import { defineConfig, devices } from '@playwright/test'
-
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001'
-
-// A remote baseURL (the CD integ job sets
-// PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org) means we are testing a
-// deployed stage — there is no local server for Playwright to manage.
-const isRemote = !/^https?:\/\/(localhost|127\.0\.0\.1)/.test(baseURL)
+import { baseURL, e2eEnv, isRemote } from './tests/e2e/helpers/env'
 
 /**
- * BridgeCircle e2e config.
+ * BridgeCircle e2e config. Two modes, detected from the base URL:
  *
- * Local / PR mode: the dev server runs under Doppler so all secrets
- * (Supabase URL/keys, etc.) are injected at startup. Locally we reuse an
- * already-running server when one is detected; CI always starts its own.
+ * Local/hermetic (default, also PR CI): the suite owns a dev server on port
+ * 3002 (separate from `pnpm dev`'s 3001 so it can never silently reuse a
+ * server pointed at a remote database) wired to the LOCAL Supabase stack.
+ * Env comes from the Doppler `bridgecircle/dev_local` config — nothing
+ * remote, nothing deployed. global-setup wipes and reseeds the local
+ * database first.
  *
- * Integ mode (remote baseURL): the suite drives the deployed dev stage and
- * its database directly; no webServer is started.
+ * Integ mode (the CD pipeline sets PLAYWRIGHT_BASE_URL=
+ * https://dev.bridgecircle.org): the suite drives the deployed dev stage and
+ * its database directly — no webServer, no reset, env from Doppler.
  *
- * Run: pnpm exec playwright test
+ * Run: pnpm test:e2e   (local stack must be up: pnpm db:start)
  */
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
+  // The webServer is `next dev`, which compiles routes on first hit. With
+  // parallel workers all landing on a cold server, first navigations can
+  // exceed Playwright's default 30s test timeout — give cold compiles room.
+  timeout: 60_000,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // One retry in CI so a genuine flake still captures its trace; treat any
+  // retry as a bug to investigate, not a pass.
+  retries: process.env.CI ? 1 : 0,
+  globalSetup: './tests/e2e/global-setup.ts',
   // In CI we emit both: "github" annotates failures inline on the PR and
   // "html" produces the playwright-report directory the e2e workflow uploads
   // as an artifact for trace inspection. Locally we keep the simpler "list".
@@ -45,12 +49,17 @@ export default defineConfig({
   webServer: isRemote
     ? undefined
     : {
-        // NODE_ENV is pinned inside the pnpm scripts themselves (see
-        // package.json / doppler.md "The NODE_ENV Gotcha"), so the value a
-        // Doppler config injects doesn't matter here.
-        command: 'doppler run -- pnpm dev',
+        command: 'pnpm exec next dev -p 3002',
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
+        // dev_local values override anything in .env.local (explicit
+        // process env beats Next's dotenv loading), so a developer's
+        // remote-dev .env.local can never leak into a hermetic run.
+        env: {
+          ...(process.env as Record<string, string>),
+          ...e2eEnv(),
+          NODE_ENV: 'development',
+        },
       },
 })

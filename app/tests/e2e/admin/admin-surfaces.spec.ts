@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "./helpers/factory";
-import { signIn } from "./helpers/auth";
+import { TestScenario, type SeededMember } from "../helpers/factory";
+import { signInAs } from "../helpers/auth";
 
 const scenario = new TestScenario("admin");
 let orgAdmin: SeededMember;
@@ -16,17 +16,17 @@ test.afterAll(async () => {
 });
 
 test("the Admin nav tab appears for admins and not for plain members", async ({ page }) => {
-  await signIn(page, orgAdmin);
+  await signInAs(page, orgAdmin);
   await expect(
     page.getByRole("navigation").getByRole("link", { name: "Admin" }),
   ).toHaveAttribute("href", "/admin/invite");
 
-  await signIn(page, plainMember);
+  await signInAs(page, plainMember);
   await expect(page.getByRole("navigation").getByRole("link", { name: "Admin" })).toHaveCount(0);
 });
 
 test("a plain member requesting /admin/invite is bounced back to the Help hub", async ({ page }) => {
-  await signIn(page, plainMember);
+  await signInAs(page, plainMember);
   await page.goto("/admin/invite");
   await page.waitForURL((url) => url.pathname === "/");
 });
@@ -34,7 +34,7 @@ test("a plain member requesting /admin/invite is bounced back to the Help hub", 
 test("sending a single invite reports success, fills the recent-invites table, and writes a pending invites row", async ({ page }) => {
   const inviteeEmail = scenario.emailFor("form-invitee");
 
-  await signIn(page, orgAdmin);
+  await signInAs(page, orgAdmin);
   await page.goto("/admin/invite");
   await expect(page.getByText("Invite alumni")).toBeVisible();
 
@@ -68,7 +68,7 @@ test("publishing an event through the admin form makes it visible on the member 
     .toISOString()
     .slice(0, 16);
 
-  await signIn(page, orgAdmin);
+  await signInAs(page, orgAdmin);
   await page.goto("/admin/events");
   await page.locator("#title").fill(eventTitle);
   await page.locator("#startsAt").fill(localDatetime);

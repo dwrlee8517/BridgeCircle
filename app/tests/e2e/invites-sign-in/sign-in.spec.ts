@@ -1,12 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { signIn } from "../helpers/auth";
 
 /**
- * Smoke test: an unauthenticated visitor hitting `/` should be redirected
- * to the sign-in page, and the sign-in page should render the expected UI.
- *
- * Asserts the auth middleware is wired up and the sign-in page itself
- * builds without errors. If this fails, something is wrong with either
- * the middleware redirect or the sign-in page render.
+ * Sign-in flows: the unauthenticated redirect smoke test, and a real sign-in
+ * with a seeded persona (supabase/seeds/seed.sql) landing on the home page.
  */
 test.describe("sign-in", () => {
   test("redirects unauthenticated root visit to /sign-in", async ({ page }) => {
@@ -23,5 +20,11 @@ test.describe("sign-in", () => {
     await expect(page.getByLabel(/email/i)).toBeVisible();
     await expect(page.getByLabel(/password/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /^sign in$/i })).toBeVisible();
+  });
+
+  test("signs in a seeded member and lands on the home page", async ({ page }) => {
+    await signIn(page, "richard@example.com", "devseed-password-richard");
+
+    await expect(page.getByRole("heading", { name: /Hi Richard/i })).toBeVisible();
   });
 });
