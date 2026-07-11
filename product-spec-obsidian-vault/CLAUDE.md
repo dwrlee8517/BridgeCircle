@@ -21,8 +21,9 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
 - **`Prototype/`** — Specs whose feature is **not yet built** — forward-looking
   proposals and work-in-progress drafts (a feature may have several parallel
   drafts here; none is authoritative until it ships). Currently holds
-  `ask-mediator.md`, `events-conditional-rsvp.md` (Phase 2, unbuilt), and
-  [`phase-1/post-launch-backlog.md`](Prototype/phase-1/post-launch-backlog.md)
+  `ask-mediator.md`, `events-conditional-rsvp.md` (Phase 2, unbuilt),
+  `no-invite-landing.md` (sign-in rejection → landing page + invite requests),
+  and [`phase-1/post-launch-backlog.md`](Prototype/phase-1/post-launch-backlog.md)
   (deferred).
 
 - **`Vision/`** — Long-horizon, higher-altitude material: product north stars,

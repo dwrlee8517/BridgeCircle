@@ -40,6 +40,7 @@ What we're building. These now live in the [product-spec Obsidian vault](../prod
 
 - [Events — conditional RSVP ("I'll go if…")](../product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
 - [Ask mediator ("Let BridgeCircle ask for you")](../product-spec-obsidian-vault/Prototype/ask-mediator.md) — extends the guided ask composer with a mediated send option
+- [No-invite landing](../product-spec-obsidian-vault/Prototype/no-invite-landing.md) — replaces the sign-in rejection (sign-out + red banner) with a stay-signed-in landing page and an admin-reviewed invite-request queue
 
 ## Architecture
 
