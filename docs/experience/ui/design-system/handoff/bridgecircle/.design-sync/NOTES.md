@@ -19,6 +19,10 @@ see Richard's, and vice versa). Convention:
   their own `projectId`. When present, `config.local.json` wins; otherwise fall
   back to `config.json`. Daniel's pin
   (`1212d2cf-4e45-4dfc-8519-93f06b1bb758`, created 2026-07-10) lives there.
+- Worktree gotcha: `config.local.json` is gitignored, so it does **not** exist
+  in fresh git worktrees (or fresh clones). Recreate it from the pin recorded
+  above before syncing — never fall back to `config.json` just because the
+  local file is missing (that would push into the other maintainer's project).
 
 ## Project pin
 
