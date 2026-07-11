@@ -150,11 +150,11 @@ Honest status — the diagram is the target; this is what exists now.
 | Dev App / Dev DB | `bridgecircle-dev` Supabase project | ✅ Exists |
 | Staging App / Staging DB | — | ❌ **No staging tier today** — add when prod has real users and regressions have real cost |
 | Prod App / Prod DB | `bridgecircle` Supabase + Railway | ✅ Exists |
-| End-to-End (Local → Local DB) | `e2e.yml` / Playwright | 🟡 E2E runs against `bridgecircle-dev`, not a purely local DB |
+| End-to-End (Local → Local DB) | `e2e.yml` / Playwright + local Supabase | ✅ Hermetic: local stack + `supabase/seeds/`, wiped and reseeded per run (see [[Testing Suite]]) |
 | Integration testing (hits APIs) | — | 🟡 Partial via E2E; no dedicated integration tier |
 | QA / Chaos testing | — | ❌ Not set up (depends on staging) |
-| Local App / Personal stack | Laptop + `.env.local` → `bridgecircle-dev` | 🟡 Local dev exists; no per-developer isolated stack |
-| Script to fill in test data | [`seed-dev.md`](../docs/runbooks/seed-dev.md) | ✅ Seed script exists |
+| Local App / Personal stack | Laptop + `pnpm dev:local` → local Supabase (or `.env.local` → `bridgecircle-dev`) | ✅ Per-developer isolated stack via `pnpm db:start` + `db:reset` |
+| Script to fill in test data | `app/supabase/seeds/seed.sql` (local/CI) + [`seed-dev.md`](../docs/runbooks/seed-dev.md) (remote dev) | ✅ Deterministic SQL seed + dev-project script |
 | Third-party Service | Google OAuth, Resend, Sentry, Anthropic, Voyage | ✅ All wired ([environments.md](../docs/architecture/environments.md)) |
 
 The two biggest gaps between the drawing and reality: **there is no Staging tier**, and **QA/Chaos testing depend on it**. Everything else is present in some form. Standing up staging is the single change that unlocks the most of the right-hand side of this diagram — but per [environments.md](../docs/architecture/environments.md), it's deliberately deferred until production has real users.

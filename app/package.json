@@ -8,12 +8,16 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development next dev -p 3001",
+    "dev:local": "doppler run -p bridgecircle -c dev_local -- next dev -p 3001",
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production next start",
     "lint": "eslint",
     "check:tokens": "bash scripts/check-design-tokens.sh",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "db:start": "pnpm dlx supabase start",
+    "db:stop": "pnpm dlx supabase stop",
+    "db:reset": "pnpm dlx supabase db reset",
     "db:types": "pnpm dlx supabase gen types typescript --linked > src/db/database.types.ts"
   },
   "dependencies": {

@@ -182,8 +182,8 @@ Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and 
 - **Required status checks**: "Supabase Preview" should be required on `main`. **Currently "Not enforced"** because that requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory until Pro is enabled or the repo moves to an org plan.
 - **CI**: GitHub Actions wired at `.github/workflows/`. Two workflows trigger on every PR to `main`:
   - `ci.yml` — `Lint & test` (biome + vitest) and `Build (validates types vs. migrations)` jobs. The build job is the load-bearing migration-safety check: `next build` type-checks the whole codebase against `src/db/database.types.ts`, so a migration that drops a column app code still references fails the PR before merge.
-  - `e2e.yml` — `Playwright (chromium)` runs against `bridgecircle-dev` via the Doppler `DOPPLER_TOKEN` secret. Skippable via the `skip-e2e` PR label.
-  - Both Doppler-using jobs require a `DOPPLER_TOKEN` repo secret (service token from the Doppler dashboard). See [e2e-testing.md](../runbooks/e2e-testing.md) "Required GitHub secret".
+  - `e2e.yml` — Playwright against a **local Supabase stack booted on the runner** (migrations + `supabase/seeds/`). Env resolves from the Doppler `bridgecircle/dev_local` config via the `DOPPLER_TOKEN_LOCAL` repo secret (service token scoped to that config only — local values and dummies, no real secrets). The `E2E gate` job always reports (green on pass or on a legitimately-skipped docs-only PR) so it can be a required check. See [e2e-testing.md](../runbooks/e2e-testing.md).
+  - The `ci.yml` build job still requires the `DOPPLER_TOKEN` repo secret (service token from the Doppler dashboard).
 
 ### Where to look when something breaks in prod
 
