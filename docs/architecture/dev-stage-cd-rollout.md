@@ -102,9 +102,13 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 - [ ] **[C]** `app/src/app/api/version/route.ts` returning the running
   commit SHA (done in this branch).
-- [ ] **[C]** `cd.yml` with `deploy-dev` (initially: wait-for-live via
-  `/api/version`) and `integ` (Playwright, `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org`,
-  no local `webServer`) — **not gating anything yet**.
+- [x] **[C]** `cd.yml` written 2026-07-11 — full pipeline in one file
+  (deploy-dev → integ → gated promote) rather than an observe-only interim:
+  the promote job is inert until a human approves, so shipping it gated is
+  the safer version of "observe-only". Watch items for the first run:
+  - the Railway service's **root directory** setting must apply to
+    `railway up` uploads (repo root is uploaded; the app lives in `app/`);
+  - `railway variables --skip-deploys` + `railway up --ci` flag behavior.
 - [ ] **[C]** Integ data hygiene: seeded `test_`-prefixed users via the
   existing admin-client pattern; suite cleans up after itself.
 - [ ] **[R]** Add `RAILWAY_DEV_TOKEN` secret (Railway → project → Settings →
@@ -120,9 +124,10 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   - [ ] **[R]** reviewer list currently = `dkoodev` only — confirm an
     account that can approve promptly (e.g. the repo owner) is on it, or
     every promote waits on one person.
-- [ ] **[C]** `deploy-dev` switches to `supabase db push` (dev, idempotent) +
-  `railway up --environment dev` (blocking); `promote` job added
-  (`needs: integ`, environment `production`): `railway up` → prod.
+- [x] **[C]** `deploy-dev` (`railway up`, blocking, SHA-stamped) and
+  `promote` (`needs: integ`, environment `production`) both live in
+  `cd.yml`. The dev-side idempotent `supabase db push` joins in Phase 4
+  with the prod one.
 - [ ] **[R]** Railway: turn **off** auto-deploy in **both** envs (service →
   Settings → Source/Deploy triggers) once the first scripted run is green.
 - [ ] **[C+R]** Verify both directions: a good merge promotes after approval;

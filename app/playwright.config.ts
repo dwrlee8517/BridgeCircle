@@ -2,12 +2,20 @@ import { defineConfig, devices } from '@playwright/test'
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3001'
 
+// A remote baseURL (the CD integ job sets
+// PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org) means we are testing a
+// deployed stage — there is no local server for Playwright to manage.
+const isRemote = !/^https?:\/\/(localhost|127\.0\.0\.1)/.test(baseURL)
+
 /**
  * BridgeCircle e2e config.
  *
- * The dev server runs under Doppler so all secrets (Supabase URL/keys, etc.)
- * are injected at startup. Locally we reuse an already-running server when
- * one is detected; CI always starts its own.
+ * Local / PR mode: the dev server runs under Doppler so all secrets
+ * (Supabase URL/keys, etc.) are injected at startup. Locally we reuse an
+ * already-running server when one is detected; CI always starts its own.
+ *
+ * Integ mode (remote baseURL): the suite drives the deployed dev stage and
+ * its database directly; no webServer is started.
  *
  * Run: pnpm exec playwright test
  */
@@ -31,10 +39,12 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'doppler run -- pnpm dev',
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: isRemote
+    ? undefined
+    : {
+        command: 'doppler run -- pnpm dev',
+        url: baseURL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+      },
 })
