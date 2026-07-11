@@ -89,13 +89,14 @@ If you add a new secret, add it to `dev` first (so the whole team gets it on nex
 
 ## The NODE_ENV Gotcha
 
-Doppler injects a `NODE_ENV` value automatically based on the config slug. Its built-in mapping only recognizes the names `dev`, `stg`, and `prd` — anything else, including `dev_personal`, falls through to `production`.
+Doppler injects a `NODE_ENV` value automatically based on the config slug (`dev` → `development`, `prd` → `production`; unrecognized slugs like `dev_personal` fall through to `production`), and explicit secrets always beat the inferred value.
 
-Without intervention this means a developer running `doppler run -- pnpm dev` from a `dev_personal`-bound repo gets `NODE_ENV=production` injected, and Next.js's dev server warns and behaves incorrectly.
+Since 2026-07-11 the root `dev` config carries an **explicit `NODE_ENV=production`**: it syncs to the Railway dev environment, and `next build` under `NODE_ENV=development` breaks React prerendering (the first dev-stage redeploy failed exactly this way). The deployed dev stage is a production build against dev data — that is the point of a stage.
 
-The fix is to set `NODE_ENV=development` as an **explicit** secret in `dev_personal`. Doppler always prefers an explicit secret value over its inferred one. We've already done this; the secret is in `dev_personal`. Don't remove it.
+Local dev servers still need `development`, from two directions:
 
-If you're creating a new branched dev config (e.g., `dev_alice`), remember to copy the `NODE_ENV=development` secret into it as well.
+- `dev_personal` carries an **explicit `NODE_ENV=development`** (restored 2026-07-11 — it had been lost and was silently inheriting from root). Don't remove it, and copy it into any new branched config (e.g. `dev_alice`).
+- Playwright's `webServer` command pins `NODE_ENV=development ... --preserve-env=NODE_ENV` so CI e2e runs (which authenticate with the root `dev` service token) boot a real dev server regardless of the config value.
 
 ### Why `--preserve-env` Is A Trap Here
 

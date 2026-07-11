@@ -84,11 +84,13 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   - [ ] **[R]** trigger a dev redeploy (sync doesn't auto-redeploy;
     `NEXT_PUBLIC_*` inlines at build time — until rebuilt, dev still links
     to prod).
-- [ ] **[R/C]** `NODE_ENV=development` syncs into the Railway **dev** deploy,
-  so `next start` runs a production build in development mode. Needed for
-  the *local* dev server (see doppler.md "NODE_ENV Gotcha") but wrong for a
-  deployed env. Resolve in Phase 5 alongside `APP_ENV` (e.g. drop NODE_ENV
-  from the synced root config; keep it in `dev_personal` for local).
+- [x] **[C]** `NODE_ENV=development` in the synced dev config — resolved
+  2026-07-11 after it **failed the first dev redeploy** (`next build` in
+  development mode breaks React prerendering). Root `dev` config now
+  carries explicit `NODE_ENV=production`; `dev_personal` explicit
+  `development` restored (it had been lost); Playwright webServer pins its
+  own `development`; local repo bindings moved to `dev_personal` per the
+  runbook. See doppler.md "The NODE_ENV Gotcha".
 - [ ] **[R]** `RAILWAY_TOKEN` lives in the synced Doppler configs, so a
   deploy-capable token sits in the running app's env in both environments.
   Move Railway tokens out of the synced configs (GitHub secrets already
