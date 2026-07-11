@@ -65,6 +65,7 @@ How-to guides. Read when touching the relevant area.
 - [Migration workflow](runbooks/migration-workflow.md) — branching + db push + prod safety
 - [E2E testing](runbooks/e2e-testing.md)
 - [Doppler](runbooks/doppler.md) — secrets management
+- [Supabase custom domain](runbooks/supabase-custom-domain.md) — `auth.bridgecircle.org` for the Google consent screen (planned)
 
 ## Decisions
 
