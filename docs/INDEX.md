@@ -50,7 +50,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
-- [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow
+- [Dev stage + CD rollout](architecture/dev-stage-cd-rollout.md) — phased plan for ADR 0014: dev.bridgecircle.org, integ gate, scripted promote
+- [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow — *prod side superseded by ADR 0014*
 - [Data model (interactive)](architecture/data-model.html)
 
 ## Runbooks
@@ -82,6 +83,7 @@ Locked architectural decisions in MADR format.
 - [0011 — Two verbs, one inbox](decisions/0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics
 - [0012 — TDS design system ("Field Pro")](decisions/0012-tds-design-system.md) — *superseded by 0013*
 - [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer `toss-base` + `bridgecircle` fork
+- [0014 — Scripted CD pipeline](decisions/0014-scripted-cd-pipeline.md) — dev stage → integ gate → prod promote; supersedes the prod side of 0005 + 0008
 
 ## UI
 
