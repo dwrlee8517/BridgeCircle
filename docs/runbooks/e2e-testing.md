@@ -4,7 +4,7 @@
 
 BridgeCircle uses [Playwright](https://playwright.dev) for end-to-end browser tests. These run a real browser against a real running app and verify user-facing behavior — sign-in flows, ask submission, RSVP buttons, etc. They are the slowest tier of test in the project but the only tier that catches regressions in the integration between client components, server actions, middleware, RLS, and Supabase.
 
-Unit-level tests (component logic, pure functions) live alongside their source under `src/` and use a separate runner. This doc is only about the E2E suite. The target architecture lives in [Testing Suite](../../product-spec-obsidian-vault/Vision/Testing%20Suite.md) (the vision note this setup implements).
+Unit-level tests (component logic, pure functions) live alongside their source under `src/` and use a separate runner. This doc is only about the E2E suite. The canonical spec of the shipped system is [Production/testing-suite](../../product-spec-obsidian-vault/Production/testing-suite.md); the direction and guardrails it implements live in [Vision/Testing Suite](../../product-spec-obsidian-vault/Vision/Testing%20Suite.md).
 
 ## The Two Modes
 
@@ -143,7 +143,8 @@ With hermetic mode both run the identical stack, so look for machine-specific le
 
 ## Related Documentation
 
-- [Testing Suite vision](../../product-spec-obsidian-vault/Vision/Testing%20Suite.md) — the target architecture this implements
+- [Production/testing-suite](../../product-spec-obsidian-vault/Production/testing-suite.md) — canonical spec of the shipped system
+- [Testing Suite vision](../../product-spec-obsidian-vault/Vision/Testing%20Suite.md) — the direction and guardrails it implements
 - [Seeding the dev database](seed-dev.md) — the **remote** dev project's seed script (same cast, different mechanism)
 - [Environments and dev/prod separation](../architecture/environments.md)
 - [ADR 0014 — Scripted CD pipeline](../decisions/0014-scripted-cd-pipeline.md) — where the integ run fits

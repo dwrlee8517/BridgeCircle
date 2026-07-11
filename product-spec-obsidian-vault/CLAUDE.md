@@ -15,8 +15,10 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
   describe shipped behavior end-to-end and are the canonical spec for that
   feature. Mirror the app: if the code does it, the spec lives here. Currently
   holds [`phase-1/`](Production/phase-1/) — the Phase 1 spec, launch cut, week
-  3–4 features, user flows, and launch checklist. `docs/` now points here for
-  these.
+  3–4 features, user flows, and launch checklist — and
+  [`testing-suite.md`](Production/testing-suite.md) (the shipped hermetic
+  E2E infrastructure: local Supabase + seeds, feature suites, CI/CD wiring).
+  `docs/` now points here for these.
 
 - **`Prototype/`** — Specs whose feature is **not yet built** — forward-looking
   proposals and work-in-progress drafts (a feature may have several parallel
