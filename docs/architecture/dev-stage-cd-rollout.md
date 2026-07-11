@@ -81,9 +81,10 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   domain, distinct local part** (a second Resend domain needs the Pro plan;
   decided against). Because dev sends from the real domain, the Phase-5
   dev recipient-allowlist guardrail is mandatory, not optional. Still open:
-  - [ ] **[R]** trigger a dev redeploy (sync doesn't auto-redeploy;
-    `NEXT_PUBLIC_*` inlines at build time — until rebuilt, dev still links
-    to prod).
+  - [x] **[C]** dev redeployed 2026-07-11 (after the NODE_ENV build fix);
+    rendered deployment vars verified: `NODE_ENV=production`,
+    `NEXT_PUBLIC_APP_URL=https://dev.bridgecircle.org`, dev `RESEND_FROM`;
+    live URL serving (`/` 307 → `/sign-in` 200).
 - [x] **[C]** `NODE_ENV=development` in the synced dev config — resolved
   2026-07-11 after it **failed the first dev redeploy** (`next build` in
   development mode breaks React prerendering). Root `dev` config now
