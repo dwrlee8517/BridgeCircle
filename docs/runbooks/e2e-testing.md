@@ -93,7 +93,7 @@ Three jobs:
 
 Once a run has registered the check, add **E2E gate** to the required status checks for `main` (Settings → Branches → Branch protection rules). Enforcement requires GitHub Pro on a personal-account private repo — see [environments.md](../architecture/environments.md) "GitHub repository". There is deliberately no skip label: a red suite means the code or the test is wrong, and both get fixed, not bypassed.
 
-The integ run in `cd.yml` is unchanged: it sets `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org`, pulls env from Doppler, and re-drives the same suites against the deployed dev stage before the prod promote.
+The integ run in `cd.yml` is unchanged: it sets `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org`, pulls env from Doppler, and re-drives the suites against the deployed dev stage before the prod promote. Suites whose assertions depend on the wiped-and-reseeded local world (currently `events/`) call `test.skip(isRemote, …)` and run only in hermetic mode — the integ database is persistent, so "Richard hasn't RSVP'd yet" style preconditions don't survive repeated runs there.
 
 ## Writing A New Test
 
