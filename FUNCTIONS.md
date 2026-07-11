@@ -32,11 +32,11 @@ Two parallel ask types run on the same data model: **Advice** (one-off, low-fric
 |---|---|
 | Information architecture, routes, navigation, legacy redirects | [`docs/architecture/information-architecture.md`](docs/architecture/information-architecture.md) |
 | Data model, RLS posture, table relations | [`docs/architecture/data-model.md`](docs/architecture/data-model.md) |
-| Full Phase 1 product spec (auth, onboarding, people, profiles, friendship, asks, inbox, DMs, events, announcements, notifications, admin) | [`docs/specs/phase-1/spec.md`](docs/specs/phase-1/spec.md) |
-| What ships in the launch cut | [`docs/specs/phase-1/launch-cut.md`](docs/specs/phase-1/launch-cut.md) |
-| Week 3–4 additive features | [`docs/specs/phase-1/week-3-4.md`](docs/specs/phase-1/week-3-4.md) |
-| User flows (state diagrams for asks, friendship, DMs) | [`docs/specs/phase-1/user-flows.md`](docs/specs/phase-1/user-flows.md) |
-| Phase 2 drafts — conditional RSVP, ask mediator | [`docs/specs/events-conditional-rsvp.md`](docs/specs/events-conditional-rsvp.md), [`docs/specs/ask-mediator.md`](docs/specs/ask-mediator.md) |
+| Full Phase 1 product spec (auth, onboarding, people, profiles, friendship, asks, inbox, DMs, events, announcements, notifications, admin) | [`product-spec-obsidian-vault/Production/phase-1/spec.md`](product-spec-obsidian-vault/Production/phase-1/spec.md) |
+| What ships in the launch cut | [`product-spec-obsidian-vault/Production/phase-1/launch-cut.md`](product-spec-obsidian-vault/Production/phase-1/launch-cut.md) |
+| Week 3–4 additive features | [`product-spec-obsidian-vault/Production/phase-1/week-3-4.md`](product-spec-obsidian-vault/Production/phase-1/week-3-4.md) |
+| User flows (state diagrams for asks, friendship, DMs) | [`product-spec-obsidian-vault/Production/phase-1/user-flows.md`](product-spec-obsidian-vault/Production/phase-1/user-flows.md) |
+| Phase 2 drafts — conditional RSVP, ask mediator | [`product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md`](product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md), [`product-spec-obsidian-vault/Prototype/ask-mediator.md`](product-spec-obsidian-vault/Prototype/ask-mediator.md) |
 | Screen-level bridge between behavior and UI | [`docs/experience/screens/phase-1-screen-map.md`](docs/experience/screens/phase-1-screen-map.md) |
 | Active visual system | [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/) |
 | Profile enrichment provider chain | [`docs/architecture/profile-enrichment.md`](docs/architecture/profile-enrichment.md) |

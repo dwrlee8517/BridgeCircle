@@ -2,9 +2,9 @@
 
 **Status:** v1 draft · 2026-05-24
 **Author:** _TBD_
-**Maps to:** [feature-roadmap.md](../product/feature-roadmap.md) Phase 2 ("Make the circle feel alive")
-**Brand fit:** [voice-guidelines.md §3](../product/voice-guidelines.md) — the embarrassed asker
-**Companion specs:** [phase-1/spec.md](./phase-1/spec.md) (event RSVP base)
+**Maps to:** [feature-roadmap.md](../../docs/product/feature-roadmap.md) Phase 2 ("Make the circle feel alive")
+**Brand fit:** [voice-guidelines.md §3](../../docs/product/voice-guidelines.md) — the embarrassed asker
+**Companion specs:** [phase-1/spec.md](../Production/phase-1/spec.md) (event RSVP base)
 
 ---
 
@@ -120,7 +120,7 @@ This is also the resolution path when one side names a specific person and the o
 
 ## Notifications (voice-aligned)
 
-All copy below complies with [voice-guidelines.md §9](../product/voice-guidelines.md) — reason-first, never demand, length ceilings respected, narrator = thoughtful alumni coordinator.
+All copy below complies with [voice-guidelines.md §9](../../docs/product/voice-guidelines.md) — reason-first, never demand, length ceilings respected, narrator = thoughtful alumni coordinator.
 
 Per voice §10.2: even though there is matching logic underneath, the *condition* is the member's own statement, so the notification names what the member wrote, not what the algorithm decided. This is the cleanest possible transparency.
 
@@ -163,7 +163,7 @@ type ExtractedCondition = {
 **Confirmation policy:**
 - `llm_confidence ≥ 0.9` → show structured form preselected, member can edit
 - `llm_confidence < 0.9` → show structured form blank with the LLM's guess as a draft suggestion ("Did you mean…?")
-- Never save without explicit member confirm, regardless of confidence — matches the brand's "import, suggest, confirm" rule from [feature-roadmap.md Capability C](../product/feature-roadmap.md)
+- Never save without explicit member confirm, regardless of confidence — matches the brand's "import, suggest, confirm" rule from [feature-roadmap.md Capability C](../../docs/product/feature-roadmap.md)
 
 **AI voice disclosure** (per voice-guidelines.md §10.1): the confirm step shows the extracted condition clearly and labels it as the system's interpretation — e.g., *"We read this as: classmates from the Class of 2022."*
 
@@ -316,7 +316,7 @@ These are recorded for the post-launch backlog; do not let them creep into v1.
 - Anti-abuse: require N completed RSVPs before unlocking conditional? Or trust verified membership and skip the gate?
 - Notification cadence: when multiple matches accumulate fast (profile-filter on a high-density event), digest daily or send each? v1.0 peer-match probably one notification per match; v1.1 needs digesting.
 - Help-need topic vocabulary: reuse `helper_preferences.topics` verbatim, or expand?
-- Cross-org events (Bridge Programs, [feature-roadmap.md §G](../product/feature-roadmap.md)): does conditional RSVP work across circles, or stay within the host circle?
+- Cross-org events (Bridge Programs, [feature-roadmap.md §G](../../docs/product/feature-roadmap.md)): does conditional RSVP work across circles, or stay within the host circle?
 - Mobile timing: this is a notification-heavy feature; does it accelerate native mobile (currently out of scope for Phase 1)?
 
 ---

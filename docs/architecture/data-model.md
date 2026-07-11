@@ -1,6 +1,6 @@
 # BridgeCircle Data Model — Phase 1 Launch
 
-This document explains the schema that ships in `0001_init.sql`. It covers every table from [phase-1-launch-spec.md](../specs/phase-1/launch-cut.md) "Data Model At Launch" and the rationale behind each design choice.
+This document explains the schema that ships in `0001_init.sql`. It covers every table from [phase-1-launch-spec.md](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) "Data Model At Launch" and the rationale behind each design choice.
 
 For a clickable visual map, open [data-model.html](data-model.html).
 
@@ -69,7 +69,7 @@ This separation matters: a user signing up via invite creates a `pending` member
 
 ### `base_profiles` vs `organization_profiles` — the split that future-proofs multi-org
 
-Per [phase-1-launch-spec.md:131](../specs/phase-1/launch-cut.md): keep the split in schema even though UI shows one combined profile until org #2 onboards.
+Per [phase-1-launch-spec.md:131](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md): keep the split in schema even though UI shows one combined profile until org #2 onboards.
 
 | Table | Holds | Why here |
 | --- | --- | --- |
@@ -90,7 +90,7 @@ Why an `invites` table separate from `organization_memberships`:
 - Invite is a *promise* to join; membership is the *fact* of joining.
 - Token validation lives on the invite row alone, before any user account exists.
 - A revoked invite should not disturb membership history.
-- Per [phase-1-launch-spec.md:24](../specs/phase-1/launch-cut.md), valid invite token = auto-approve, so `invite.accepted` triggers `organization_membership(status='active')` directly.
+- Per [phase-1-launch-spec.md:24](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md), valid invite token = auto-approve, so `invite.accepted` triggers `organization_membership(status='active')` directly.
 
 ---
 
@@ -112,7 +112,7 @@ Why an `invites` table separate from `organization_memberships`:
 ### `mentorship_preferences`
 Scoped per `organization_membership`, not per user. Why: a user could be open-to-mentor at Chadwick School but not at Chadwick International. Same forward-compatibility reasoning as the profile split.
 
-Fields per [phase-1-launch-spec.md:50](../specs/phase-1/launch-cut.md):
+Fields per [phase-1-launch-spec.md:50](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md):
 - `is_open` boolean (open / closed toggle)
 - `topics` text[] (controlled list + free-text)
 - `screening_prompt` text nullable
@@ -211,7 +211,7 @@ The same request-then-relationship pattern as mentorship.
 ### `announcements`, `notifications`, `profile_refresh_prompts`, `saved_searches`
 - `announcements`: org-scoped, admin-authored, week 3 surface
 - `notifications`: per-user delivery log; email-only at launch but rows still get written so the in-app tray works on day one of week 3
-- `profile_refresh_prompts`: per-org-membership, due-date driven (the 6–12 month freshness loop from [phase-1-spec.md:284](../specs/phase-1/spec.md))
+- `profile_refresh_prompts`: per-org-membership, due-date driven (the 6–12 month freshness loop from [phase-1-spec.md:284](../../product-spec-obsidian-vault/Production/phase-1/spec.md))
 - `saved_searches`: per-user, JSON filter blob plus optional notify cadence
 
 ---
@@ -241,7 +241,7 @@ Two reasons:
 
 ### What the schema does **not** include yet
 
-Per the launch spec: no `meetup_proposals`, no `mentorship_response` (the response is a state change on the request, not a separate row), no `profile_visibility_setting` table (defaults are hardcoded in app code), no `ambassador` workflow tables. Each of these is a deliberate scope cut from [phase-1-launch-spec.md](../specs/phase-1/launch-cut.md).
+Per the launch spec: no `meetup_proposals`, no `mentorship_response` (the response is a state change on the request, not a separate row), no `profile_visibility_setting` table (defaults are hardcoded in app code), no `ambassador` workflow tables. Each of these is a deliberate scope cut from [phase-1-launch-spec.md](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md).
 
 ---
 
@@ -370,7 +370,7 @@ profile_enrichment_runs
 
 Common pattern for professional profile rows: every row carries `source`, `confirmed_at`, `updated_at`. This is what powers freshness tracking and the proposal workflow below.
 
-The `resumes` Supabase Storage bucket is already provisioned for week 3 per [phase-1-launch-spec.md:158](../specs/phase-1/launch-cut.md). `resume_uploads` is the metadata table that points into it.
+The `resumes` Supabase Storage bucket is already provisioned for week 3 per [phase-1-launch-spec.md:158](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md). `resume_uploads` is the metadata table that points into it.
 
 ### Freshness tracking — section level, not field or row
 
@@ -387,11 +387,11 @@ ALTER TABLE base_profiles
   ADD COLUMN location_confirmed_at     timestamptz;
 ```
 
-`updated_at` = last change. `confirmed_at` = user said "yes, still correct." These diverge in a useful way: clicking "confirm" without editing advances `confirmed_at` but not `updated_at`. That distinction powers the **profile freshness rate** metric in [phase-1-spec.md:515](../specs/phase-1/spec.md).
+`updated_at` = last change. `confirmed_at` = user said "yes, still correct." These diverge in a useful way: clicking "confirm" without editing advances `confirmed_at` but not `updated_at`. That distinction powers the **profile freshness rate** metric in [phase-1-spec.md:515](../../product-spec-obsidian-vault/Production/phase-1/spec.md).
 
 ### Background updates need a proposal inbox
 
-LinkedIn/LinkdAPI enrichment, PDL fallback checks, resume re-parse, employer-domain heuristics — none of these should silently overwrite the user's data unless the user explicitly chose `auto_apply_and_notify`. The product principle in [phase-1-spec.md:289](../specs/phase-1/spec.md) is explicit: external profile imports must support user confirmation.
+LinkedIn/LinkdAPI enrichment, PDL fallback checks, resume re-parse, employer-domain heuristics — none of these should silently overwrite the user's data unless the user explicitly chose `auto_apply_and_notify`. The product principle in [phase-1-spec.md:289](../../product-spec-obsidian-vault/Production/phase-1/spec.md) is explicit: external profile imports must support user confirmation.
 
 The schema enforcement is a proposal table:
 
@@ -451,7 +451,7 @@ next profile_enrichment_settings check scheduled by refresh_interval
 
 ### Search ranking gets richer for free
 
-Once `work_history` and `education_history` exist, the launch spec ranking from [phase-1-launch-spec.md:39](../specs/phase-1/launch-cut.md) gets a quiet upgrade:
+Once `work_history` and `education_history` exist, the launch spec ranking from [phase-1-launch-spec.md:39](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) gets a quiet upgrade:
 
 | Launch ranking signal | After expansion |
 | --- | --- |

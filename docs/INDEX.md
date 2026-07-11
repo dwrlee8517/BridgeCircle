@@ -7,8 +7,8 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 - [Brand & product strategy](product/brand-strategy.md) — positioning and north star
 - [Voice guidelines](product/voice-guidelines.md) — voice and copy rules
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
-- [Phase 1 launch cut](specs/phase-1/launch-cut.md) — what ships in the launch cut
-- [Phase 1 launch checklist](specs/phase-1/launch-checklist.md) — readiness criteria
+- [Phase 1 launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what ships in the launch cut
+- [Phase 1 launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md) — readiness criteria
 
 ## Product
 
@@ -25,21 +25,21 @@ Superseded product docs live under [`_archive/`](_archive/) — see [`_archive/R
 
 ## Specs
 
-What we're building. Feature-sliced — one folder per phase.
+What we're building. These now live in the [product-spec Obsidian vault](../product-spec-obsidian-vault/), split by implementation status: `Production/` = shipped in mainline, `Prototype/` = not yet built.
 
-**Phase 1 (active build):**
+**Phase 1 (active build) — [`Production/phase-1/`](../product-spec-obsidian-vault/Production/phase-1/):**
 
-- [Full spec](specs/phase-1/spec.md)
-- [Launch cut](specs/phase-1/launch-cut.md) — week 1–2 narrowed scope
-- [Week 3–4 additive features](specs/phase-1/week-3-4.md)
-- [User flows](specs/phase-1/user-flows.md)
-- [Launch checklist](specs/phase-1/launch-checklist.md)
-- [Post-launch backlog](specs/phase-1/post-launch-backlog.md)
+- [Full spec](../product-spec-obsidian-vault/Production/phase-1/spec.md)
+- [Launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — week 1–2 narrowed scope
+- [Week 3–4 additive features](../product-spec-obsidian-vault/Production/phase-1/week-3-4.md)
+- [User flows](../product-spec-obsidian-vault/Production/phase-1/user-flows.md)
+- [Launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md)
+- [Post-launch backlog](../product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md)
 
 **Phase 2 drafts:**
 
-- [Events — conditional RSVP ("I'll go if…")](specs/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
-- [Ask mediator ("Let BridgeCircle ask for you")](specs/ask-mediator.md) — extends the guided ask composer with a mediated send option
+- [Events — conditional RSVP ("I'll go if…")](../product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
+- [Ask mediator ("Let BridgeCircle ask for you")](../product-spec-obsidian-vault/Prototype/ask-mediator.md) — extends the guided ask composer with a mediated send option
 
 ## Architecture
 

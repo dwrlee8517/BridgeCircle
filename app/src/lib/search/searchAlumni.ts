@@ -68,7 +68,7 @@ export type SearchInput = {
 /**
  * Search + rank alumni in a given org.
  *
- * Per docs/specs/phase-1/launch-cut.md ranking spec:
+ * Per product-spec-obsidian-vault/Production/phase-1/launch-cut.md ranking spec:
  *   open-to-mentor boost > same university > same major > same city >
  *   grad-year proximity > string match on role/industry.
  *
