@@ -24,13 +24,18 @@ with the accounts should touch). **[C]** = Claude (repo files, verification).
 
 ## Secrets ledger (GitHub → Settings → Secrets and variables → Actions)
 
-| Secret | Used by | Scope |
+| Secret | Used by | Status (2026-07-11) |
 |---|---|---|
-| `DOPPLER_TOKEN` | existing CI + integ | already present |
-| `RAILWAY_DEV_TOKEN` | `railway up` → dev | project token scoped to the **dev** environment |
-| `RAILWAY_PROD_TOKEN` | `railway up` → prod | project token scoped to **production**; store as an **environment secret** on the GitHub `production` environment |
-| `SUPABASE_ACCESS_TOKEN` | `supabase db push` | personal access token |
-| `SUPABASE_PROD_DB_PASSWORD` | prod `db push` | prod DB password; environment secret, same as above |
+| `DOPPLER_TOKEN` | existing CI + integ | present — confirm it is a service token scoped to the dev config only |
+| `RAILWAY_TOKEN_DEV` | `railway up` → dev | present (repo-level) |
+| `RAILWAY_TOKEN_PRD` | `railway up` → prod | present but repo-level — **move into the GitHub `production` environment** so the required-reviewer gate protects it |
+| `SUPABASE_ACCESS_TOKEN` | `supabase db push` | Phase 4; environment secret on `production` |
+| `SUPABASE_PROD_DB_PASSWORD` | prod `db push` | Phase 4; environment secret on `production` |
+
+Note: GitHub already shows `BridgeCircle / dev` and `BridgeCircle / production`
+environments — those are **Railway-created deployment records**, not gates.
+The approval gate is a separate GitHub environment named `production`
+(Settings → Environments) with a required reviewer.
 
 Never in Doppler dev configs, never in `.env*`, never echoed in workflow logs.
 
@@ -38,26 +43,44 @@ Never in Doppler dev configs, never in `.env*`, never echoed in workflow logs.
 
 ## Phase 1 — dev environment + dev.bridgecircle.org
 
-- [ ] **[R]** Railway dashboard → BridgeCircle project → Environments → **New
-  environment** → duplicate `production`, name it `dev`.
-- [ ] **[R]** In the `dev` env's service variables: point every Supabase var
-  at the dev stack (`NEXT_PUBLIC_SUPABASE_URL=https://ojpvahiuafdcynbdbmri.supabase.co`,
-  dev publishable + secret keys), keep the rest (Resend/Anthropic/…) as-is for
-  now. If prod injects via Doppler, mirror with a Doppler service token for
-  the dev config instead.
-- [ ] **[R]** Scaffolding only: leave the dev env's auto-deploy from `main`
-  **on** for now (Phase 3 turns it off when the pipeline takes over).
-- [ ] **[R]** Dev env service → Settings → Networking → **Custom domain** →
-  `dev.bridgecircle.org`. Railway shows a CNAME target (`….up.railway.app`).
-- [ ] **[R]** Cloudflare dashboard → bridgecircle.org → DNS → add
-  `CNAME  dev  <railway-target>` — start **DNS-only** (grey cloud) so
-  Railway can issue its cert; flipping the proxy on later requires
-  SSL/TLS mode **Full (strict)**.
+Done 2026-07-11 (verified by Claude the same day: dev env `85afea42-…`
+auto-deploys from `main`; Doppler→Railway sync live in **both** envs —
+`bridgecircle/dev` → dev env with the dev Supabase URL, `bridgecircle/prd` →
+production with prod's; `dev.bridgecircle.org` CNAME → `w96fged0.up.railway.app`
+serving with valid TLS; prod already on the `bridgecircle.org` apex).
+The Doppler project was **renamed `bridgecircle-dev` → `bridgecircle`**
+that day — the Supabase dev project keeps the `bridgecircle-dev` name.
+
+- [x] **[R]** Railway `dev` environment (duplicate of `production`).
+- [x] **[R]** Dev env variables via the Doppler sync (`bridgecircle/dev`).
+- [x] **[R]** Auto-deploy from `main` on (scaffolding; Phase 3 turns it off).
+- [x] **[R]** Custom domain `dev.bridgecircle.org` + Cloudflare CNAME.
 - [ ] **[R]** Supabase **dev** project → Authentication → URL Configuration →
   Site URL `https://dev.bridgecircle.org`, add
-  `https://dev.bridgecircle.org/**` to redirect URLs.
-- [ ] **[C+R]** Verify: push to `main` → dev env builds → sign in at
-  `dev.bridgecircle.org` → confirm the data is `bridgecircle-dev`.
+  `https://dev.bridgecircle.org/**` to redirect URLs. **Unverified** —
+  confirm by signing in at the dev URL.
+- [ ] **[C+R]** Verify: sign in at `dev.bridgecircle.org` → confirm the data
+  is the dev database.
+
+### Issues found during Phase-1 verification (2026-07-11)
+
+- [ ] **[R]** `bridgecircle/dev` (Doppler) has
+  `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` — must be
+  `https://dev.bridgecircle.org`, or dev-generated links/redirects point at
+  prod.
+- [ ] **[R/C]** `NODE_ENV=development` syncs into the Railway **dev** deploy,
+  so `next start` runs a production build in development mode. Needed for
+  the *local* dev server (see doppler.md "NODE_ENV Gotcha") but wrong for a
+  deployed env. Resolve in Phase 5 alongside `APP_ENV` (e.g. drop NODE_ENV
+  from the synced root config; keep it in `dev_personal` for local).
+- [ ] **[R]** `RAILWAY_TOKEN` lives in the synced Doppler configs, so a
+  deploy-capable token sits in the running app's env in both environments.
+  Move Railway tokens out of the synced configs (GitHub secrets already
+  hold them) or into a non-synced `ci` config.
+- [x] **[C]** Doppler rename fallout: `.claude/launch.json` + runbooks
+  updated to `-p bridgecircle`. **[R]** Re-run
+  `doppler setup --project bridgecircle --config dev_personal` in `app/`
+  (both checkouts) — the old directory scope still pins `bridgecircle-dev`.
 
 ## Phase 2 — version endpoint + integ suite (observe-only)
 

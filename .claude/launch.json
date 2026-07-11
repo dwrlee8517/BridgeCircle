@@ -4,7 +4,7 @@
     {
       "name": "next-dev",
       "runtimeExecutable": "doppler",
-      "runtimeArgs": ["run", "-p", "bridgecircle-dev", "-c", "dev", "--", "sh", "-c", "pnpm --dir app install && pnpm --dir app dev"],
+      "runtimeArgs": ["run", "-p", "bridgecircle", "-c", "dev", "--", "sh", "-c", "pnpm --dir app install && pnpm --dir app dev"],
       "port": 3000
     },
     {

@@ -10,7 +10,7 @@ This document covers how the project is structured in Doppler, how to wire up yo
 
 ## Project And Config Structure
 
-There is one Doppler project for the application: **`bridgecircle-dev`**. Despite the name, this project owns all environments (dev, staging, prod) — the `-dev` suffix is historical.
+There is one Doppler project for the application: **`bridgecircle`** (renamed from `bridgecircle-dev` on 2026-07-11). It owns all environments (dev, staging, prod).
 
 The project has four configs:
 
@@ -44,10 +44,10 @@ Run this once inside `app/`:
 
 ```bash
 cd app
-doppler setup --project bridgecircle-dev --config dev_personal
+doppler setup --project bridgecircle --config dev_personal
 ```
 
-This writes a small file (`~/.doppler/.doppler.yaml` in your home directory) that records `app/` → `bridgecircle-dev` / `dev_personal`. After this, every `doppler run -- ...` invocation inside `app/` knows which secrets to inject without you naming the project or config explicitly.
+This writes a small file (`~/.doppler/.doppler.yaml` in your home directory) that records `app/` → `bridgecircle` / `dev_personal`. After this, every `doppler run -- ...` invocation inside `app/` knows which secrets to inject without you naming the project or config explicitly.
 
 To verify the binding:
 
@@ -55,7 +55,7 @@ To verify the binding:
 doppler configure
 ```
 
-The output should show `project = bridgecircle-dev` and `config = dev_personal` scoped to your `app/` directory.
+The output should show `project = bridgecircle` and `config = dev_personal` scoped to your `app/` directory.
 
 ## Running Commands With Secrets
 
@@ -151,7 +151,7 @@ When CI is added, this section gets the actual workflow file path and any projec
 
 **"Doppler Error: You must specify a project"**
 
-Your current directory isn't bound to a config. Run `doppler setup --project bridgecircle-dev --config dev_personal` from `app/`.
+Your current directory isn't bound to a config. Run `doppler setup --project bridgecircle --config dev_personal` from `app/`.
 
 **`zsh: command not found: doppler`**
 
