@@ -23,9 +23,9 @@ The Chromium binary itself lives in `~/Library/Caches/ms-playwright/` (machine-g
 
 When you run `pnpm test:e2e`, Playwright reads `playwright.config.ts` and:
 
-1. Checks whether something is already serving on `http://localhost:3000`.
+1. Checks whether something is already serving on `http://localhost:3001` (or, when `PLAYWRIGHT_BASE_URL` points at a remote host such as `https://dev.bridgecircle.org`, skips the webServer entirely and drives the deployed stage).
 2. If the dev server is up (the common local case), it reuses it. Tests start immediately.
-3. If nothing is on port 3000, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
+3. If nothing is on port 3001, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
 4. Spins up Chromium, runs every spec in `tests/e2e/**/*.spec.ts`, and reports pass/fail.
 
 The `reuseExistingServer: !process.env.CI` flag is the important bit:
@@ -94,8 +94,9 @@ test.describe("<feature name>", () => {
 A few project-specific notes:
 
 - **Locators.** Prefer `getByRole`, `getByLabel`, and `getByText` over CSS selectors. They are more resilient to refactors and they push us toward accessible markup. Be aware that not every shadcn/ui component renders as the role you'd expect — `CardTitle` for example is rendered as a `<div>` in this version, not a heading. When in doubt, fall back to `getByText`.
-- **Authenticated flows.** Most tests will need a signed-in user. Use the seeded test accounts from `docs/seed-dev.md` (e.g., `mentor-mark@example.com` / `devseed-password-2`). For now, sign in via the form at the start of the test. Once we have several auth-required specs, we'll factor a shared `storageState` fixture so each test doesn't pay the sign-in cost.
-- **Test data isolation.** Tests run against `bridgecircle-dev`, which is shared. Avoid leaving residue (created mentorship requests, sent messages, etc.) — clean up at the end of the test, or use API-level reset helpers instead of UI flows for setup.
+- **Authenticated flows and test data.** Use the factory in `tests/e2e/helpers/factory.ts`: each spec file constructs one `TestScenario`, seeds its own org and `test_`-prefixed members through the Supabase admin client in `beforeAll`, and calls `scenario.destroy()` in `afterAll` (auth-user deletes cascade to every member-owned row; the org delete sweeps events/invites/announcements). Sign in with the `signIn` helper from `tests/e2e/helpers/auth.ts`. Member emails use the `delivered+…@resend.dev` sink so notification emails triggered by test actions never bounce against the real domain.
+- **Test data isolation.** Tests run against `bridgecircle-dev`, which is shared with the deployed dev stage. Never depend on `seed-dev.ts` personas or the seeded `chadwick-dev` org in new specs — a reseed wipes them mid-run. Seed what you assert on.
+- **Detailed assertions.** Feature specs assert both what the browser shows *and* what landed in the database (via `scenario.admin`), so a green run certifies the UI, the server action, and the write behind it.
 - **Screenshots and traces.** On test failure Playwright drops a trace under `test-results/<test-name>/`. Open it with `pnpm exec playwright show-trace <path>`.
 
 ## CI Setup

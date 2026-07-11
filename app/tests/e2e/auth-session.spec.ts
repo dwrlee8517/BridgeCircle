@@ -1,0 +1,77 @@
+import { expect, test } from "@playwright/test";
+import { TestScenario, type SeededMember } from "./helpers/factory";
+import { signIn, signOut } from "./helpers/auth";
+
+const scenario = new TestScenario("auth");
+let activeMember: SeededMember;
+let unonboardedMember: SeededMember;
+
+test.beforeAll(async () => {
+  activeMember = await scenario.createMember("active");
+  unonboardedMember = await scenario.createMember("unonboarded", {
+    onboardingCompleted: false,
+  });
+});
+
+test.afterAll(async () => {
+  await scenario.destroy();
+});
+
+test("wrong password shows 'Invalid email or password.' and stays on the sign-in page", async ({ page }) => {
+  await page.goto("/sign-in");
+  await page.locator("#email").fill(activeMember.email);
+  await page.locator("#password").fill("definitely-the-wrong-password");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+
+  await expect(page.getByText("Invalid email or password.")).toBeVisible();
+  await expect(page).toHaveURL(/\/sign-in/);
+});
+
+test("a signed-in member lands on the Help hub greeted by first name with all four nav tabs", async ({ page }) => {
+  await signIn(page, activeMember);
+
+  await expect(page).toHaveURL("/");
+  const firstName = activeMember.name.split(" ")[0];
+  await expect(
+    page.getByRole("heading", { name: new RegExp(`Hi ${firstName}`) }),
+  ).toBeVisible();
+
+  const nav = page.getByRole("navigation");
+  await expect(nav.getByRole("link", { name: "Help", exact: true })).toHaveAttribute("href", "/");
+  await expect(nav.getByRole("link", { name: "People", exact: true })).toHaveAttribute("href", "/people");
+  await expect(nav.getByRole("link", { name: "School", exact: true })).toHaveAttribute("href", "/school");
+  await expect(nav.getByRole("link", { name: "Messages", exact: true })).toHaveAttribute("href", "/inbox");
+});
+
+test("the ?next= target survives the sign-in round trip", async ({ page }) => {
+  await page.goto("/events");
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fevents/);
+
+  await page.locator("#email").fill(activeMember.email);
+  await page.locator("#password").fill(activeMember.password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+
+  await page.waitForURL(/\/events/);
+  await expect(
+    page.getByRole("heading", { name: /What's happening across the circle/ }),
+  ).toBeVisible();
+});
+
+test("a member who never finished onboarding is routed into the wizard instead of the Help hub", async ({ page }) => {
+  await page.goto("/sign-in");
+  await page.locator("#email").fill(unonboardedMember.email);
+  await page.locator("#password").fill(unonboardedMember.password);
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+
+  await page.waitForURL(/\/onboarding/);
+  await expect(page.getByText(/Step \d of 5/)).toBeVisible();
+  await expect(page.getByRole("progressbar")).toBeVisible();
+});
+
+test("signing out returns to /sign-in and re-locks member pages", async ({ page }) => {
+  await signIn(page, activeMember);
+  await signOut(page);
+
+  await page.goto("/inbox");
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Finbox/);
+});

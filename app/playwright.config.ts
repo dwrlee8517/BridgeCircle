@@ -29,6 +29,9 @@ export default defineConfig({
   // "html" produces the playwright-report directory the e2e workflow uploads
   // as an artifact for trace inspection. Locally we keep the simpler "list".
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
+  // Dev-mode Next compiles routes lazily, so a first visit or server-action
+  // round trip can exceed Playwright's 5s default expect timeout.
+  expect: { timeout: 15_000 },
   use: {
     baseURL,
     trace: 'on-first-retry',
