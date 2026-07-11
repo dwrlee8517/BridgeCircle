@@ -1,8 +1,8 @@
 # Testing Suite
 
-The enduring shape of how BridgeCircle proves the product works — the target state the test infrastructure builds toward, not a description of what exists today. Where this note and the code disagree, the code is the current state and this is the direction. The concrete implementation work (repointing the E2E suite, writing seeds, rewiring CI) gets its own specs in [`Prototype/`](../Prototype/) as it's taken on; this note stays as the "why" and the destination.
+The enduring shape of how BridgeCircle proves the product works. Where this note and the code disagree, the code is the current state and this is the direction; this note stays as the "why" and the destination.
 
-The hermetic core landed in July 2026: local Supabase + SQL seeds (`app/supabase/seeds/`), `supabase db reset` as the wipe-and-reseed contract, per-feature suites under `app/tests/e2e/`, env via the Doppler `dev_local` branch config (local-stack values + dummied outbound services), and an `e2e.yml` with the always-report gate job. Still open from this note: flipping `E2E gate` to a required check (a GitHub settings toggle), and growing the suites to full parity with `Production/`.
+**This vision is implemented.** The canonical spec of the shipped system — and the running list of what's still open (the required-check toggle, suite parity growth) — is [[testing-suite|Production/testing-suite]]. The north star, the properties, and the guardrails below are what that implementation must keep honoring as it grows.
 
 ## North star
 
