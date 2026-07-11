@@ -4,7 +4,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 // Routes accessible without an authenticated session. Everything else gets
 // bounced to /sign-in?next=<path>. /reset-password/update is intentionally
 // NOT public — the recovery link signs the user in via /auth/callback first.
-const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password']
+// /api/version is the CD readiness probe (ADR 0014) — CI polls it with no
+// session, and it exposes only the running commit SHA.
+const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password', '/api/version']
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next()
