@@ -86,7 +86,30 @@ DMARC is currently in monitor-only mode (`p=none`) — failures are *not* reject
 - [ ] Set `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` in Railway Variables. The code in `src/lib/auth/app-url.ts` reads this env var to build absolute URLs in outbound emails (e.g. the "View on BridgeCircle" button in announcement emails) and OAuth `redirectTo` URLs. If it still points at `*.up.railway.app`, members see Railway URLs in their inbox.
 - [ ] In **Supabase Dashboard → Authentication → URL Configuration**: set **Site URL** to `https://bridgecircle.org` and add `https://bridgecircle.org/auth/callback` to **Additional Redirect URLs**. Supabase rejects any post-auth redirect not in this allowlist; without it, sign-in succeeds but the redirect back to the app fails.
 
-**What you do NOT need to do** for the custom domain: add `bridgecircle.org` to the Google Cloud OAuth client's authorized redirect URIs. Google only redirects to the Supabase callback (`<supabase-ref>.supabase.co/auth/v1/callback`), never directly to the app — so the Google client only needs the two Supabase URLs (one per project), which it already has.
+**What you do NOT need to do** for the custom domain: add `bridgecircle.org` to the Google Cloud OAuth client's authorized redirect URIs. Google only redirects to the Supabase callback (`<supabase-ref>.supabase.co/auth/v1/callback`), never directly to the app — so the Google client only needs the Supabase callback URLs (one per project today, plus the custom-domain callback once the checklist below is executed).
+
+### Supabase custom domain — `auth.bridgecircle.org` (planned, not yet executed)
+
+The Google OAuth consent screen currently says "Sign in to `edumxwzilfgvamzarwvo.supabase.co`" because Google displays the domain of the redirect URI, which is Supabase's callback on the raw project domain. The fix is the Supabase **custom domain add-on** ($10/mo, prod project only) fronting the prod API at `auth.bridgecircle.org`. Full click-through procedure, ordering constraints, and rollback: [`../runbooks/supabase-custom-domain.md`](../runbooks/supabase-custom-domain.md). Every step is a manual dashboard/DNS action.
+
+DNS records this will add (values come from the Supabase Custom Domains page at execution time):
+
+| Type | Name | Purpose | Status |
+|---|---|---|---|
+| CNAME | `auth.bridgecircle.org` | Points at `edumxwzilfgvamzarwvo.supabase.co`. **DNS only (gray cloud)** — Supabase terminates its own TLS; proxying breaks cert issuance and Realtime websockets. | Planned |
+| TXT | `_acme-challenge.auth.bridgecircle.org` | Domain-ownership / SSL challenge issued by Supabase during setup | Planned |
+
+Cutover checklist (tick as executed; order matters — Google client before activation):
+
+- [ ] Enable the custom-domain add-on on the prod project and register `auth.bridgecircle.org` (Supabase dashboard → Settings → Custom Domains).
+- [ ] Add the CNAME + TXT records above in Cloudflare (gray cloud) and verify; allow ~30 min for the certificate.
+- [ ] Google Cloud Console: confirm `bridgecircle.org` is an **Authorized domain** on the OAuth consent screen, then **add** `https://auth.bridgecircle.org/auth/v1/callback` to the OAuth client's redirect URIs. Keep both existing raw-domain URIs.
+- [ ] Activate the domain in Supabase. The raw `edumxwzilfgvamzarwvo.supabase.co` domain keeps working alongside it.
+- [ ] Supabase Auth → URL Configuration: **no change** (Site URL and redirect allowlist point at the app, not at Supabase) — verify only.
+- [ ] Railway Variables: set `NEXT_PUBLIC_SUPABASE_URL=https://auth.bridgecircle.org` and redeploy. Keys unchanged. **This signs every member out once** (the auth cookie name derives from the URL's first DNS label) — do it at a quiet hour.
+- [ ] Verify in incognito: the Google consent screen now shows `auth.bridgecircle.org`, sign-in completes, avatars load.
+
+The dev project (`ojpvahiuafdcynbdbmri`) deliberately stays on its raw domain — only maintainers ever see the dev consent screen, and a second add-on costs another $10/mo. Rationale and the repeat-if-needed recipe are in the runbook.
 
 Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway verify token live in the Resend / Railway dashboards. **Don't paste them into this doc** — they change on rotation and the dashboards are authoritative.
 
@@ -131,7 +154,8 @@ Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and 
 
 **Google OAuth**
 - One Google Cloud OAuth client.
-- Two authorized redirect URIs: one for `bridgecircle-dev`, one for `bridgecircle` (prod). Both use Supabase's standard `<project-ref>.supabase.co/auth/v1/callback` pattern.
+- Two authorized redirect URIs: one for `bridgecircle-dev`, one for `bridgecircle` (prod). Both use Supabase's standard `<project-ref>.supabase.co/auth/v1/callback` pattern. A third (`https://auth.bridgecircle.org/auth/v1/callback`) gets added when the [Supabase custom domain](../runbooks/supabase-custom-domain.md) is set up — the raw-domain URIs stay registered alongside it.
+- The consent screen shows the redirect URI's domain — today the raw prod Supabase ref, which is what the custom-domain plan fixes.
 - If you ever rotate the Google client secret, you must update **both** Supabase projects' Auth → Google provider settings.
 
 **Anthropic**
