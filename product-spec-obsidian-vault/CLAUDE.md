@@ -33,7 +33,9 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
   feature that emerges from a Vision note gets its own spec in `Prototype/`
   (then `Production/` once built); the Vision note stays as the enduring "why."
   Currently holds
-  [`North Star and Long-Horizon Roadmap.md`](Vision/North%20Star%20and%20Long-Horizon%20Roadmap.md).
+  [`North Star and Long-Horizon Roadmap.md`](Vision/North%20Star%20and%20Long-Horizon%20Roadmap.md)
+  and [`Testing Suite.md`](Vision/Testing%20Suite.md) (target testing
+  architecture: local Supabase + seeds, hermetic E2E on every PR).
 
 ## Conventions
 
