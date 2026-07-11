@@ -33,7 +33,7 @@ The `reuseExistingServer: !process.env.CI` flag is the important bit:
 - **Locally:** `CI` is unset, so the flag is `true`. If you already have `doppler run -- pnpm dev` running in a Terminal window, tests piggyback on it. They run in ~3 seconds instead of 30+.
 - **In CI:** `CI=true` is set, so the flag is `false`. Playwright always starts its own dev server, ensuring tests run against a known-clean state.
 
-The Doppler dependency means E2E tests need the same `bridgecircle-dev` / `dev_personal` Doppler config the dev server uses. Locally that's transparent because your shell is already authenticated. In CI it requires a Doppler service token (see "CI Setup" below).
+The Doppler dependency means E2E tests need the same `bridgecircle` / `dev_personal` Doppler config the dev server uses. Locally that's transparent because your shell is already authenticated. In CI it requires a Doppler service token (see "CI Setup" below).
 
 ## Running Tests Locally
 
@@ -107,7 +107,7 @@ What it does:
 - Installs pnpm 10.33.2 and Node 22, restoring the pnpm store from cache.
 - Installs the Doppler CLI and authenticates non-interactively via the `DOPPLER_TOKEN` secret.
 - Caches and installs the Playwright Chromium binary (`pnpm exec playwright install --with-deps chromium`).
-- Runs `pnpm test:e2e`. Playwright's `webServer.command` (`doppler run -- pnpm dev`) inherits the `DOPPLER_TOKEN` from env and boots the Next.js dev server with `bridgecircle-dev` secrets.
+- Runs `pnpm test:e2e`. Playwright's `webServer.command` (`doppler run -- pnpm dev`) inherits the `DOPPLER_TOKEN` from env and boots the Next.js dev server with `bridgecircle` (Doppler) secrets.
 - Uploads the Playwright HTML report on every run and per-test traces on failure (artifact retention: 14 days).
 
 To bypass on a specific PR (hotfixes, doc-only changes), apply the `skip-e2e` label.
@@ -116,7 +116,7 @@ To bypass on a specific PR (hotfixes, doc-only changes), apply the `skip-e2e` la
 
 Add a single repo secret named `DOPPLER_TOKEN`:
 
-1. In the Doppler dashboard, generate a **service token** scoped to the config you want CI to use. The simplest setup is the existing `bridgecircle-dev` / `dev` config; a dedicated `ci` config (sibling of `dev`) is cleaner long-term. Whichever you pick must have `NODE_ENV=development` set explicitly (see [doppler.md](doppler.md) "The NODE_ENV Gotcha") so the dev server boots correctly.
+1. In the Doppler dashboard, generate a **service token** scoped to the config you want CI to use. The simplest setup is the existing `bridgecircle` / `dev` config; a dedicated `ci` config (sibling of `dev`) is cleaner long-term. Whichever you pick must have `NODE_ENV=development` set explicitly (see [doppler.md](doppler.md) "The NODE_ENV Gotcha") so the dev server boots correctly.
 2. In GitHub: **Settings → Secrets and variables → Actions → New repository secret**, name it `DOPPLER_TOKEN`, paste the value.
 
 Rotate the token through the Doppler dashboard and update the GitHub secret in the same operation.
