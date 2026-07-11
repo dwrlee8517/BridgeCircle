@@ -24,18 +24,28 @@ with the accounts should touch). **[C]** = Claude (repo files, verification).
 
 ## Secrets ledger (GitHub → Settings → Secrets and variables → Actions)
 
-| Secret | Used by | Status (2026-07-11) |
+Doppler is the secrets plane (decided Richard 2026-07-11): each CD job runs
+under a **config-scoped Doppler service token** and pulls everything else —
+including `RAILWAY_TOKEN` — from that config via `doppler run`. GitHub holds
+only the two Doppler tokens.
+
+| GitHub secret | Doppler scope | Used by |
 |---|---|---|
-| `DOPPLER_TOKEN` | existing CI + integ | present — confirm it is a service token scoped to the dev config only |
-| `RAILWAY_TOKEN_DEV` | `railway up` → dev | present (repo-level) |
-| `RAILWAY_TOKEN_PRD` | `railway up` → prod | present but repo-level — **move into the GitHub `production` environment** so the required-reviewer gate protects it |
-| `SUPABASE_ACCESS_TOKEN` | `supabase db push` | Phase 4; environment secret on `production` |
-| `SUPABASE_PROD_DB_PASSWORD` | prod `db push` | Phase 4; environment secret on `production` |
+| `DOPPLER_TOKEN` (repo-level, exists) | `bridgecircle/dev` — the "GitHub actions" service token, verified dev-scoped 2026-07-11 | quality · build · deploy-dev · integ |
+| `DOPPLER_TOKEN_PRD` (**create**; environment secret on the gated `production` environment) | `bridgecircle/prd` — **no service token exists on `prd` yet** (CLI-verified; the dashboard's "github-actions-prd" token is not attached to this config — check its Manage pane) | promote only |
+
+Everything with prod power lives in the `prd` config: `RAILWAY_TOKEN` (prod
+scope, already there) and, in Phase 4, `SUPABASE_ACCESS_TOKEN` +
+`SUPABASE_PROD_DB_PASSWORD`. Reading `prd` = prod deploy power, so
+`DOPPLER_TOKEN_PRD` must only ever exist behind the reviewer gate.
+The repo-level `RAILWAY_TOKEN_DEV` / `RAILWAY_TOKEN_PRD` GitHub secrets
+(added 2026-07-11) are redundant under this design — delete them.
 
 Note: GitHub already shows `BridgeCircle / dev` and `BridgeCircle / production`
 environments — those are **Railway-created deployment records**, not gates.
-The approval gate is a separate GitHub environment named `production`
-(Settings → Environments) with a required reviewer.
+Create a separate GitHub environment named `production`
+(Settings → Environments) with a required reviewer; don't attach protection
+rules to Railway's records.
 
 Never in Doppler dev configs, never in `.env*`, never echoed in workflow logs.
 
@@ -64,10 +74,17 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ### Issues found during Phase-1 verification (2026-07-11)
 
-- [ ] **[R]** `bridgecircle/dev` (Doppler) has
-  `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` — must be
-  `https://dev.bridgecircle.org`, or dev-generated links/redirects point at
-  prod.
+- [ ] **[R]** The dev Railway env has
+  `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` — a **Railway-side
+  unmanaged variable** (not in any Doppler config; inherited when the env
+  was duplicated from production). It feeds auth redirects
+  (`lib/auth/app-url.ts`), invite email links (`lib/invite/send.ts`), and
+  enrichment callbacks (`lib/enrichment/sweep.ts`) — so dev-sent invites
+  would link to prod. Preferred fix: add `NEXT_PUBLIC_APP_URL` to both
+  Doppler configs (`dev` → `https://dev.bridgecircle.org`, `prd` →
+  `https://bridgecircle.org`) so it becomes managed; same for `RESEND_FROM`.
+  Then rebuild the dev env (sync doesn't auto-redeploy, and `NEXT_PUBLIC_*`
+  is inlined at build time).
 - [ ] **[R/C]** `NODE_ENV=development` syncs into the Railway **dev** deploy,
   so `next start` runs a production build in development mode. Needed for
   the *local* dev server (see doppler.md "NODE_ENV Gotcha") but wrong for a
