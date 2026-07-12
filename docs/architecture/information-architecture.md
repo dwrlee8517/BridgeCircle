@@ -11,7 +11,7 @@ It is the source of truth for:
 - which legacy URLs redirect where
 - which Open IA Questions have been resolved (and how)
 
-The Phase 1 spec at [`../specs/phase-1/spec.md`](../specs/phase-1/spec.md) is upstream of this — the spec covers product *what* and *why*, this doc covers product *where* and *how it's wired*.
+The Phase 1 spec at [`../../product-spec-obsidian-vault/Production/phase-1/spec.md`](../../product-spec-obsidian-vault/Production/phase-1/spec.md) is upstream of this — the spec covers product *what* and *why*, this doc covers product *where* and *how it's wired*.
 
 ## IA Principles
 
@@ -277,7 +277,7 @@ Possible helper states (per type):
 
 ### 10. Saved Mentor Interest
 
-**Deferred** post-launch — see `docs/specs/phase-1/post-launch-backlog.md`. No surface in the current build.
+**Deferred** post-launch — see `product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md`. No surface in the current build.
 
 ## Relationship And Messaging Experience
 
@@ -465,7 +465,7 @@ Main elements:
 
 ### 17. Meetup Proposals
 
-**Deferred** post-launch (see `docs/specs/phase-1/post-launch-backlog.md`). The original 20–21 screens are kept here as a placeholder for future phase planning; nothing is built.
+**Deferred** post-launch (see `product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md`). The original 20–21 screens are kept here as a placeholder for future phase planning; nothing is built.
 
 ## Profile And Settings Experience
 
@@ -713,4 +713,4 @@ These were the original Open IA Questions. Each is now answered.
 
 ## Recommended Next Artifact
 
-The next practical artifact is a wireframe brief for any *new* screens before they ship — screen goal, key components, primary CTA, secondary CTA, empty states, error states, and analytics events. The screens listed above are all in production; the next ones to design are whatever shows up in `docs/specs/phase-1/post-launch-backlog.md` first.
+The next practical artifact is a wireframe brief for any *new* screens before they ship — screen goal, key components, primary CTA, secondary CTA, empty states, error states, and analytics events. The screens listed above are all in production; the next ones to design are whatever shows up in `product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md` first.

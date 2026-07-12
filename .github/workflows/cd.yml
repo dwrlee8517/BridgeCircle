@@ -1,0 +1,219 @@
+# CD — the scripted promotion pipeline (ADR 0014).
+#
+#   push to main
+#     └─ deploy-dev   doppler(dev) → railway up → dev env → dev.bridgecircle.org
+#     └─ integ        Playwright against the deployed dev stage
+#     ── gate: integ green + manual approval (GitHub `production` environment) ──
+#     └─ promote      doppler(prd) → railway up → production
+#                     (Phase 4 adds `supabase db push` → prod DB before the up)
+#
+# Secrets model: GitHub holds ONLY the two Doppler service tokens.
+#   DOPPLER_TOKEN      (repo-level)              → bridgecircle/dev
+#   DOPPLER_TOKEN_PRD  (production env secret)   → bridgecircle/prd
+# Everything else — RAILWAY_TOKEN included — is injected from the Doppler
+# config at runtime via `doppler run`.
+#
+# Rollout: see docs/architecture/dev-stage-cd-rollout.md. Until Railway
+# auto-deploy is switched off in both envs (Phase 3, after this pipeline's
+# first green run), deploys are doubled — harmless, same commit.
+
+name: CD
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+  workflow_dispatch: {}
+
+concurrency:
+  group: cd-main
+  # Never cancel a run that may be mid-promote; queue behind it instead.
+  cancel-in-progress: false
+
+env:
+  RAILWAY_PROJECT_ID: 07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1
+  RAILWAY_SERVICE: BridgeCircle
+  DEV_URL: https://dev.bridgecircle.org
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  deploy-dev:
+    name: Deploy dev stage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dopplerhq/cli-action@v3
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      # /api/health reads COMMIT_SHA so the readiness poll (and the integ
+      # job) can confirm which commit is actually serving. `railway up`
+      # uploads source without git context, so the pipeline stamps the SHA
+      # itself. Set BEFORE the up so the new build picks it up;
+      # --skip-deploys stops the variable change itself from triggering a
+      # second deploy.
+      - name: Stamp commit SHA on the dev environment
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          doppler run --preserve-env -- railway variables \
+            --set "COMMIT_SHA=${{ github.sha }}" \
+            --service "$RAILWAY_SERVICE" \
+            --environment dev \
+            --skip-deploys
+
+      # Blocks until the deploy is live (build + health check) — the job
+      # succeeding IS the "dev stage is up" signal.
+      - name: railway up → dev
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          doppler run --preserve-env -- railway up \
+            --service "$RAILWAY_SERVICE" \
+            --environment dev \
+            --ci
+
+      - name: Wait until the dev URL serves this commit
+        run: |
+          echo "Polling $DEV_URL/api/health for ${{ github.sha }}"
+          for i in $(seq 1 60); do
+            body=$(curl -sf -m 10 "$DEV_URL/api/health" || true)
+            sha=$(echo "$body" | jq -r '.sha' 2>/dev/null || true)
+            env=$(echo "$body" | jq -r '.env' 2>/dev/null || true)
+            if [ "$sha" = "${{ github.sha }}" ] && [ "$env" = "dev" ]; then
+              echo "Dev stage is serving ${{ github.sha }} (env: dev)"
+              exit 0
+            fi
+            echo "  attempt $i/60: serving sha=${sha:-<none>} env=${env:-<none>}"
+            sleep 10
+          done
+          echo "::error::Dev stage never reported ${{ github.sha }} (10 min timeout)"
+          exit 1
+
+  integ:
+    name: Integ tests vs dev stage
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - uses: dopplerhq/cli-action@v3
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('app/pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # PLAYWRIGHT_BASE_URL is remote, so playwright.config.ts skips its
+      # webServer — the suite drives the deployed dev stage. Doppler (dev
+      # config) still supplies the Supabase admin credentials the specs use
+      # for setup/teardown against the dev database.
+      - name: Run integ suite against dev.bridgecircle.org
+        env:
+          CI: 'true'
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          PLAYWRIGHT_BASE_URL: https://dev.bridgecircle.org
+        run: doppler run --preserve-env -- pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integ-report
+          path: app/playwright-report
+          retention-days: 14
+
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integ-traces
+          path: app/test-results
+          retention-days: 14
+
+  promote:
+    name: Promote to production
+    needs: integ
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # The gate: this job waits for the required reviewer on the GitHub
+    # `production` environment, and only this job receives DOPPLER_TOKEN_PRD.
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}   # promote the exact tested commit, not HEAD
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: dopplerhq/cli-action@v3
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      # Phase 4 (ADR 0014) inserts prod migrations here, BEFORE the code
+      # deploy, once the Supabase GitHub integration is retired:
+      #   doppler run --preserve-env -- bash -c \
+      #     'cd app && supabase db push --db-url "$SUPABASE_DB_URL"'
+      # (SUPABASE_DB_URL comes from the prd Doppler config — no account-wide
+      # access token in CI; see the rollout doc.)
+
+      - name: Stamp commit SHA on production
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway variables \
+            --set "COMMIT_SHA=${{ github.sha }}" \
+            --service "$RAILWAY_SERVICE" \
+            --environment production \
+            --skip-deploys
+
+      - name: railway up → production
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway up \
+            --service "$RAILWAY_SERVICE" \
+            --environment production \
+            --ci

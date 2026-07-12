@@ -10,7 +10,7 @@ This document covers how the project is structured in Doppler, how to wire up yo
 
 ## Project And Config Structure
 
-There is one Doppler project for the application: **`bridgecircle-dev`**. Despite the name, this project owns all environments (dev, staging, prod) — the `-dev` suffix is historical.
+There is one Doppler project for the application: **`bridgecircle`** (renamed from `bridgecircle-dev` on 2026-07-11). It owns all environments (dev, staging, prod).
 
 The project has four configs:
 
@@ -44,10 +44,10 @@ Run this once inside `app/`:
 
 ```bash
 cd app
-doppler setup --project bridgecircle-dev --config dev_personal
+doppler setup --project bridgecircle --config dev_personal
 ```
 
-This writes a small file (`~/.doppler/.doppler.yaml` in your home directory) that records `app/` → `bridgecircle-dev` / `dev_personal`. After this, every `doppler run -- ...` invocation inside `app/` knows which secrets to inject without you naming the project or config explicitly.
+This writes a small file (`~/.doppler/.doppler.yaml` in your home directory) that records `app/` → `bridgecircle` / `dev_personal`. After this, every `doppler run -- ...` invocation inside `app/` knows which secrets to inject without you naming the project or config explicitly.
 
 To verify the binding:
 
@@ -55,7 +55,7 @@ To verify the binding:
 doppler configure
 ```
 
-The output should show `project = bridgecircle-dev` and `config = dev_personal` scoped to your `app/` directory.
+The output should show `project = bridgecircle` and `config = dev_personal` scoped to your `app/` directory.
 
 ## Running Commands With Secrets
 
@@ -83,25 +83,38 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 - `ASK_MATCHING_EXPLANATIONS` — Ask explanation mode; defaults to `templated`
 - `RESEND_API_KEY` — for transactional email
 - `SENTRY_AUTH_TOKEN` — for source-map upload during build
-- `NODE_ENV` — set explicitly to `development` (see "The NODE_ENV Gotcha" below)
+- `NODE_ENV` / `APP_ENV` — see "The NODE_ENV Gotcha" and "APP_ENV" below
 
 If you add a new secret, add it to `dev` first (so the whole team gets it on next run) and only override in `dev_personal` if your value needs to differ from the team's.
 
 ## The NODE_ENV Gotcha
 
-Doppler injects a `NODE_ENV` value automatically based on the config slug. Its built-in mapping only recognizes the names `dev`, `stg`, and `prd` — anything else, including `dev_personal`, falls through to `production`.
+`NODE_ENV` is a **build-mode flag owned by the tools, not an environment selector** — environment identity is `APP_ENV` (below). Since 2026-07-11 the `package.json` scripts pin it structurally:
 
-Without intervention this means a developer running `doppler run -- pnpm dev` from a `dev_personal`-bound repo gets `NODE_ENV=production` injected, and Next.js's dev server warns and behaves incorrectly.
+- `pnpm dev` → `NODE_ENV=development next dev`
+- `pnpm build` / `pnpm start` → `NODE_ENV=production next ...`
 
-The fix is to set `NODE_ENV=development` as an **explicit** secret in `dev_personal`. Doppler always prefers an explicit secret value over its inferred one. We've already done this; the secret is in `dev_personal`. Don't remove it.
+The inline assignment beats whatever a Doppler config injects, so no config value can put a deployed stage into development mode (the first dev-stage redeploy failed exactly that way — `next build` under `development` breaks React prerendering) or a laptop dev server into production mode.
 
-If you're creating a new branched dev config (e.g., `dev_alice`), remember to copy the `NODE_ENV=development` secret into it as well.
+Background: Doppler also *infers* a `NODE_ENV` from the config slug (`dev` → `development`, `prd` → `production`, unrecognized slugs like `dev_personal` → `production`) and syncs it to Railway. With the scripts pinned this only affects non-Next processes (`tsx` scripts, etc.); the configs carry explicit values matching their tier (`dev` → `production` because it feeds the deployed stage, `dev_personal` → `development`) so those processes see the truth too.
+
+## APP_ENV — the environment identity
+
+`APP_ENV` says *which tier* the process belongs to; code branches on it for Sentry environment, robots/noindex, cron gating, and the dev email allowlist. Set explicitly in every config (2026-07-11):
+
+| Config | `APP_ENV` | Tier |
+|---|---|---|
+| `dev_personal` | `local` | laptop dev server, dev Supabase |
+| `dev` | `dev` | Railway dev stage (production build), dev Supabase |
+| `prd` | `prod` | Railway production |
+
+Never branch on `NODE_ENV` for environment identity — the dev stage and production are both `NODE_ENV=production` on purpose.
 
 ### Why `--preserve-env` Is A Trap Here
 
 `doppler run --preserve-env` tells Doppler not to overwrite env vars that are already present in the parent shell. This sounds useful but bites in environments where the parent process inherits `NODE_ENV=production` from somewhere (Node-based MCP servers, some CI runners, and parent processes that hardcode `NODE_ENV` for their own reasons).
 
-When the parent has `NODE_ENV=production`, `--preserve-env` keeps that value and silently ignores the `development` value in your Doppler config — exactly the failure mode the explicit secret was meant to prevent. Don't use `--preserve-env` for `pnpm dev`. If you specifically need to preserve some other env var, `unset NODE_ENV` first.
+When the parent has `NODE_ENV=production`, `--preserve-env` keeps that value and silently ignores the config's. The package.json script pins make this harmless for Next.js itself, but ad-hoc `doppler run` invocations of other tools can still be surprised — avoid `--preserve-env` unless you need it for a specific variable.
 
 ## Adding A New Secret
 
@@ -151,7 +164,7 @@ When CI is added, this section gets the actual workflow file path and any projec
 
 **"Doppler Error: You must specify a project"**
 
-Your current directory isn't bound to a config. Run `doppler setup --project bridgecircle-dev --config dev_personal` from `app/`.
+Your current directory isn't bound to a config. Run `doppler setup --project bridgecircle --config dev_personal` from `app/`.
 
 **`zsh: command not found: doppler`**
 

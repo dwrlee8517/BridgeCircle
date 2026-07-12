@@ -1,5 +1,17 @@
 name: E2E
 
+# Hermetic E2E on every PR (see product-spec-obsidian-vault/Vision/Testing
+# Suite.md): the suite boots a LOCAL Supabase stack on the runner — migrations
+# + supabase/seeds/*.sql — and drives the app against it. Env comes from the
+# Doppler bridgecircle/dev_local config (local Supabase values + dummied
+# outbound services); DOPPLER_TOKEN_LOCAL is a service token scoped to that
+# config only. No remote project, nothing deployed. The deployed-stage integ
+# run lives in cd.yml.
+#
+# `e2e-gate` is the job to mark as a REQUIRED status check. It always reports:
+# green when the suite passed, or when the PR is docs-only and the suite was
+# legitimately skipped. (A paths-ignore skip would leave a required check
+# pending forever — this is the always-report gate pattern instead.)
 on:
   pull_request:
     branches: [main]
@@ -9,18 +21,44 @@ concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: app
-
 jobs:
+  changes:
+    name: Detect docs-only PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # code=true when any changed file is NOT docs/markdown. Manual
+      # dispatches have no base to diff against, so they always run.
+      - id: filter
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD)
+          echo "Changed files:"; echo "$files"
+          non_docs=$(echo "$files" | grep -vE '(^docs/|^product-spec-obsidian-vault/|\.md$|^\.gitignore$)' || true)
+          if [ -n "$non_docs" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   playwright:
-    name: Playwright (chromium)
-    # Apply the `skip-e2e` label on the PR to bypass — useful for hotfixes
-    # or doc-only changes where the suite is not relevant.
-    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-e2e') }}
+    name: Playwright vs local stack (chromium)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
 
@@ -49,15 +87,21 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      # The Playwright runner itself needs Doppler secrets: the core-loop
-      # spec's beforeAll builds a Supabase admin client. The nested
-      # webServer (`doppler run -- pnpm dev`) re-resolves the same secrets
-      # for the Next.js server. DOPPLER_TOKEN authenticates both.
+      # Boots Postgres + Auth + PostgREST + Storage + Realtime and applies
+      # every migration and seed. Studio and the log pipeline aren't needed
+      # for tests.
+      - name: Start local Supabase stack
+        run: pnpm dlx supabase start -x studio,imgproxy,vector,logflare
+
+      # The runner and the nested dev server both resolve env from the
+      # bridgecircle/dev_local Doppler config (tests/e2e/helpers/env.ts).
+      # The suite's global setup re-runs `supabase db reset` for a
+      # guaranteed clean seed.
       - name: Run Playwright suite
         env:
           CI: 'true'
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: doppler run -- pnpm test:e2e
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_LOCAL }}
+        run: pnpm test:e2e
 
       - name: Upload Playwright report
         if: always()
@@ -74,3 +118,24 @@ jobs:
           name: playwright-traces
           path: app/test-results
           retention-days: 14
+
+  e2e-gate:
+    name: E2E gate
+    needs: [changes, playwright]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Report
+        run: |
+          suite="${{ needs.playwright.result }}"
+          code="${{ needs.changes.outputs.code }}"
+          echo "suite=$suite code=$code"
+          if [ "$suite" = "success" ]; then
+            echo "E2E suite passed."
+          elif [ "$suite" = "skipped" ] && [ "$code" != "true" ]; then
+            echo "Docs-only PR — suite legitimately skipped."
+          else
+            echo "::error::E2E suite did not pass (result: $suite)."
+            exit 1
+          fi

@@ -387,7 +387,7 @@ Full copy, not word swaps. Use these as starting points; do not paste verbatim.
 
 ### 12.11 Conditional RSVP — peer match notification
 
-The "I'll go if…" feature ([spec](../specs/events-conditional-rsvp.md)) is where transparency-on-condition meets invisibility-on-algorithm. The notification names what the *member* wrote, never what the *system* matched.
+The "I'll go if…" feature ([spec](../../product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md)) is where transparency-on-condition meets invisibility-on-algorithm. The notification names what the *member* wrote, never what the *system* matched.
 
 > **A classmate just said the same.**
 >
@@ -420,7 +420,7 @@ What this gets right:
 
 ### 12.13 Ask mediator — coordinator approaches a helper on behalf of a member
 
-The mediator outreach ([spec](../specs/ask-mediator.md)) is the strongest single example of the coordinator's institutional voice. The sender is BridgeCircle, the asker is named, the context is bounded, and the helper has a respectful out.
+The mediator outreach ([spec](../../product-spec-obsidian-vault/Prototype/ask-mediator.md)) is the strongest single example of the coordinator's institutional voice. The sender is BridgeCircle, the asker is named, the context is bounded, and the helper has a respectful out.
 
 > **A Class of '22 alum is hoping you can help.**
 >
@@ -507,7 +507,7 @@ _Placeholder._ As copy gets rewritten in review, capture 5–10 before/after exa
 - **Marketing / community emoji policy.** Currently "sparingly." Needs a clearer rule before the first marketing site ships.
 - **Mixed-audience onboarding.** Onboarding flows that mix student and adult-alumni readers — does the embarrassed-asker default need a younger-reader register?
 - **Member-posted content.** When members post (not just receive), does the moderation/tone guidance differ from system tone?
-- **AI persona naming (deferred, 2026-05-25).** Currently unnamed — single narrator is the "thoughtful alumni coordinator" (§2). Revisit triggers: memorability gap, "feels like a bot" feedback, or warmth complaints copy alone can't fix. If named, §2 splits into two narrators with rules for which speaks when; the mediator outreach in [ask-mediator.md](../specs/ask-mediator.md) should likely stay institutional regardless.
+- **AI persona naming (deferred, 2026-05-25).** Currently unnamed — single narrator is the "thoughtful alumni coordinator" (§2). Revisit triggers: memorability gap, "feels like a bot" feedback, or warmth complaints copy alone can't fix. If named, §2 splits into two narrators with rules for which speaks when; the mediator outreach in [ask-mediator.md](../../product-spec-obsidian-vault/Prototype/ask-mediator.md) should likely stay institutional regardless.
 
 ## 18. Changelog
 

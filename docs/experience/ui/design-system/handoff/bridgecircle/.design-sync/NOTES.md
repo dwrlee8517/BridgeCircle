@@ -7,6 +7,23 @@ divergence ledger (`uploads/OVERRIDES.md`) and the baseline-test evidence
 (`Help Hub.html`). Direct file push of `project/**`; no converter, no
 `register_assets` (`@dsCard` markers index the cards).
 
+## Per-user project pins (both of us sync from this repo)
+
+The repo bundle is the shared source of truth; each syncer pushes it into
+their **own** Claude Design project (projects are per-account — Daniel cannot
+see Richard's, and vice versa). Convention:
+
+- `config.json` (committed) stays Richard's pin
+  (`b07651c7-8d28-43bd-ad1a-7af68e3f219b`) — do not overwrite it.
+- Each other syncer keeps a **gitignored** `config.local.json` next to it with
+  their own `projectId`. When present, `config.local.json` wins; otherwise fall
+  back to `config.json`. Daniel's pin
+  (`1212d2cf-4e45-4dfc-8519-93f06b1bb758`, created 2026-07-10) lives there.
+- Worktree gotcha: `config.local.json` is gitignored, so it does **not** exist
+  in fresh git worktrees (or fresh clones). Recreate it from the pin recorded
+  above before syncing — never fall back to `config.json` just because the
+  local file is missing (that would push into the other maintainer's project).
+
 ## Project pin
 
 Created and pinned (2026-07-04). Project `bridgecircle`

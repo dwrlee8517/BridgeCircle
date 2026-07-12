@@ -33,6 +33,8 @@ bridgecircle/
     uploads/DESIGN.md          ← fork framing; baseline spec stays in toss-base
     preview/  ui_kits/         ← component and pattern specimens
     templates/                 ← page + flow mockups (Claude Design DC templates)
+    Production/                ← designed screens whose feature ships in mainline
+    Prototype/                 ← designed screens for unbuilt features (parallel drafts OK)
     Help Hub.html              ← baseline-test evidence (Ask/Give + friction log)
   README.md                    ← this file (repo-facing; NOT pushed)
   .design-sync/                ← sync notes + the project pin
