@@ -16,10 +16,11 @@ that isn't in the ledger, propose a new entry; never just freelance it.
 
 **Applied (2026-07-04 brand batch):** O1 Pretendard · O2 green give action
 (`--action-give #0b8a57`, give surface's single lead action only) · O3 section
-identity + gradient bands (`--gradient-band-{green,blue,dark}`) · O4 Display XL
-40/800 + 12px floor · O6 softer radii (card 20 / box 14 / bubble 18 / control
-12) · O7 hairline `#e6e9ee` + `--border-subtle` + `--ring-card` · E2 avatar
-palette (`--avatar-1..6`, no status meaning).
+identity — **wash heroes + navy covers** (the saturated bands were retired
+2026-07-12; see Identity system below) · O4 Display XL 40/800 + 12px floor ·
+O6 softer radii (card 20 / box 14 / bubble 18 / control 12) · O7 hairline
+`#e6e9ee` + `--border-subtle #eef1f5` + `--ring-card` · E2 avatar palette
+(`--avatar-1..6`, no status meaning).
 
 **Applied (2026-07-05):** E3 desktop extension — breakpoints 768/1024/1280,
 `--container-shell 1320` (max, fluid below) / `--container-reading 680`,
@@ -27,15 +28,33 @@ palette (`--avatar-1..6`, no status meaning).
 NOT identity dots; two-tone wordmark; `--gradient-avatar` member card),
 **topbar** (`--topbar-height 66`: blurred white, title, round icon actions —
 no ⌘K/global search, removed 2026-07-06), pointer states (`--hover-tint`, `--row-hover`; hover =
-background shift, never a lift), operator data table tokens, wide band hero.
+background shift, never a lift), operator data table tokens, wide wash hero.
 Specimens: `preview/desktop-{shell,tables,patterns}.html`.
 
-**Identity mapping (corrected 2026-07-05 vs the reference):** blue band
-`--gradient-band-blue` = Help **get/ask** mode · green = Help **give** mode ·
-plain dark = footers/features. Band anatomy: compose `--band-glow` over the
-gradient; two-circle watermark ~16% white; mode toggle ON the band (white
-active pill on `--band-toggle-track`); floating cards use
-`--shadow-band-card`.
+**Applied (2026-07-12 template reconciliation):** the full Claude Design
+template set (`templates/**`) landed and the tokens were reconciled to what
+the pages actually use. Minted: **E1** `--pending-text/-tint` (Waiting = quiet
+grey, now APPLIED) · **E5** `--surface-canvas` / `--surface-inset` /
+`--icon-muted` / `--action-give-text #029a5e` · **E6** `--closing-soon-text/-tint`
+(the calm amber "Closes in Nd" pill — NOT a reopening of O5) · **E7**
+`--give-tint` (.12) / `--give-tint-weak` (.1) (the translucent green behind
+positive/give pills — alpha so it sits in the surface). Changed:
+`--border-subtle` → `#eef1f5`. Retired: the saturated band anatomy (see
+Identity system). **Dark mode is PARKED — v1 ships light-only** (the `.dark`
+block is unverified raw material; don't build against it). Templates now
+consume the vars (literals swapped 2026-07-12). 31 pattern specimens cover the
+product patterns (waiting group, ask pills, decision dialogs, system states,
+onboarding chrome, profile slide-over, ask composer, …).
+
+**Identity system (bands retired 2026-07-12 — Richard confirmed them unused):**
+sections carry an ambient hue through LIGHT washes, not saturated bands.
+- **Help hero** = the 1i wash: `--wash-get` (blue) for ask/get · `--wash-give`
+  (green) for give — fading into the canvas, dark ink text.
+- **School + onboarding** = navy `--cover-event` (+ `--cover-texture` dot grid,
+  glass tiles) — sanctioned for event covers AND onboarding bookends.
+- **Only surviving band** = `--gradient-band-dark` (Entry-page backdrop,
+  footers, feature moments). `--identity-*`, `--gradient-band-blue/-green/
+  -school`, `--band-glow`, `--band-toggle-track` are GONE — do not use them.
 
 **Alternatives idiom (Richard's chosen page directions, 2026-07-05 —
 O8/O9 + amendments):**
@@ -53,14 +72,13 @@ O8/O9 + amendments):**
   `--selected-tint` + `--selected-accent`.
 - **HELP HERO DECIDED (2026-07-05): the 1i wash** (`--wash-get`/`--wash-give`,
   ink text) **with the pill toggle** (icons, white active pill, mode-colored
-  text, `--wash-toggle-track`). Saturated bands (O3) are for
-  **onboarding/marketing moments only** — never in-product page heroes.
+  text, `--wash-toggle-track`).
 - **School (1h)**: light canvas + `--wash-page`; identity lives in **navy
-  event covers** (`--cover-event` + `--cover-texture` + glass tiles) —
-  navy is sanctioned for event covers ONLY.
-- In-row give action = the **weak green pill** (`rgb(3 178 108/.12)` /
-  `#029a5e`); the solid `--action-give` fill is for a surface's single lead
-  action.
+  event covers** (`--cover-event` + `--cover-texture` + glass tiles) — navy is
+  sanctioned for event covers and onboarding bookends.
+- In-row give action = the **weak green pill** (`--give-tint-weak` behind
+  `--action-give-text`); the solid `--action-give` fill is for a surface's
+  single lead action.
 
 **Page specimens (from the chosen alternatives):**
 `preview/people-directory.html` (1a) · `preview/help-heroes.html` (Current +
@@ -74,12 +92,13 @@ in-page toggle — never separate nav items; split blue/green dot) · **People**
 
 **Rejected:** O5 ochre warning (2026-07-05) — **warning is TDS orange
 `#fe9800`**, do not reach for ochre.
-**Still proposed:** E1 neutral-pending hue · E4 CircleMark (the wordmark's
-two-circle motif appears in the shell specimen as a preview, not yet a token).
+**Still proposed:** E4 CircleMark — in v1, "In your circle" chips carry circle
+state; the two-circle mark stays proposed for a future brand pass (the wordmark
+already draws the motif). (E1 pending-hue is now applied — see 2026-07-12 above.)
 Hard rules that survive the batch: ONE lead action per surface (green only on
 give, blue everywhere else — any other colored button is wrong); gradients
-same-hue + band surfaces only; text/fill from the same ramp; every card
-composes `var(--ring-card), var(--shadow-card)`. All entries remain adjustable
+same-hue only, on wash / cover / dark surfaces; text/fill from the same ramp;
+every card composes `var(--ring-card), var(--shadow-card)`. All entries remain adjustable
 or revertible — flip the ledger row and the fork falls back to Toss.
 
 **Evidence trail:** `Help Hub.html` in this project is the 2026-07-04

@@ -127,6 +127,22 @@ dc-runtime render of Help.dc.html clean. Push: 31 files + sentinel (this run
 DOES push templates — a sanctioned one-off inversion for the mechanical swap;
 remote remains the design origin, now byte-equal to the repo).
 
+**Doc-drift pass — 2026-07-12 (fifth run).** Reconciled the design docs made
+stale by the 07-12 changes. Fixed: **SKILL.md** (retired the band-anatomy
+"Identity mapping" section → wash heroes + navy covers; added the 2026-07-12
+applied block; E1 applied not proposed; in-row give pill → `--give-tint-weak`;
+`--border-subtle #eef1f5`; dark parked), **uploads/DESIGN.md** (batch-3 line:
+bands→washes, E1/E5/E6/E7, dark parked, "Can help with"; also fixed a
+pre-existing "1140px shell" → 1320), the repo-facing **README.md** (applied-
+overrides paragraph: E1–E3+E5–E7, washes not bands, v1 light-only), and a
+dated snapshot-note on **ADR 0013 Appendix C** pointing at OVERRIDES.md for
+live status (the appendix is a 2026-07-04 snapshot; not retro-edited).
+Pushed SKILL.md + DESIGN.md (design-agent inputs) + sentinel; README and the
+ADR are repo-only. Confirmed NOT drift and left alone: the `docs/experience/
+screens/` index references (that's the canonical product screen-map, a
+DIFFERENT dir from the deleted Codex bundle slice) and 0011's "what they can
+speak to" (match-language copy, not the section title).
+
 ## Help Hub.html provenance
 
 Originally designed by Richard **in the `toss-base` Claude Design project**
