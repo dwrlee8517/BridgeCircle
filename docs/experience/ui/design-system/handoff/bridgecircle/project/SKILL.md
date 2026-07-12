@@ -92,6 +92,8 @@ specific, calm; decline dignity; no emoji, no hype.
 **Key files:**
 - `uploads/OVERRIDES.md` — the divergence ledger (read first)
 - `uploads/DESIGN.md` — fork framing + pointer to the baseline spec
-- `colors_and_type.css` — fork tokens (currently = toss-base + O1)
+- `colors_and_type.css` — fork tokens (toss-base + applied ledger entries)
 - `preview/` — specimens (diverge from toss-base only as entries apply)
+- `screens/` — complete page/flow mockups; `index.html` is the review gallery
+  and `SCREEN-MAP.md` is the engineering coverage ledger
 - `Help Hub.html` — the baseline-test evidence

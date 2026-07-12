@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Messages page" description="One inbox (1e) in the member shell — Waiting-on-you group, ask accept/decline, live thread, foldable context rail, resolve + share-win, connect nudge, report/block" -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <script src="./messages-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}
+  @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+  @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;max-width:var(--container-shell);margin:0 auto" data-screen-label="Messages">
+
+  <sc-if value="{{ sidebarFull }}" hint-placeholder-val="{{ false }}">
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <sc-if value="{{ badgeShow }}" hint-placeholder-val="{{ true }}">
+          <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+        </sc-if>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+  </sc-if>
+
+  <sc-if value="{{ sidebarIcon }}" hint-placeholder-val="{{ true }}">
+  <aside style="width:72px;flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;align-items:center;padding:22px 0">
+    <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none;margin-bottom:22px"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+    <nav style="display:flex;flex-direction:column;gap:6px;align-items:center">
+      <a href="../home/Home.dc.html" aria-label="Home" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+      </a>
+      <a href="#" aria-label="Help" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+      </a>
+      <a href="../people/People.dc.html" aria-label="People" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+      </a>
+      <a href="#" aria-label="Messages" aria-current="page" style="position:relative;width:44px;height:44px;border-radius:var(--radius-box);background:var(--nav-active-bg);display:flex;align-items:center;justify-content:center;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--nav-active-text);stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <sc-if value="{{ badgeShow }}" hint-placeholder-val="{{ true }}">
+          <span style="position:absolute;top:4px;right:4px;min-width:10px;height:16px;padding:0 4px;border-radius:var(--radius-pill);background:var(--action-primary);color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ badgeCount }}</span>
+        </sc-if>
+      </a>
+      <a href="../school/School.dc.html" aria-label="School" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+      </a>
+    </nav>
+    <span style="margin-top:auto;width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff">IL</span>
+  </aside>
+  </sc-if>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 26px">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Messages</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+            <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+          </sc-if>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;min-height:0;display:flex">
+
+      <sc-if value="{{ pageLoading }}" hint-placeholder-val="{{ false }}">
+        <div aria-label="Loading" role="status" style="flex:1;min-width:0;display:flex">
+          <div style="width:300px;flex:none;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);padding:14px;display:grid;gap:14px;align-content:start">
+            <span data-skel="" style="display:block;height:38px;border-radius:11px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:55%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:80%;height:10px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span></div>
+            <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:45%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:70%;height:10px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span></div>
+            <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:60%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:75%;height:10px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span></div>
+            <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:50%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:65%;height:10px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span></div>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-thread)">
+            <div style="flex:none;display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)">
+              <span data-skel="" style="width:40px;height:40px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;width:180px;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            </div>
+            <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:13px">
+              <span data-skel="" style="align-self:flex-start;width:46%;height:46px;border-radius:18px 18px 18px 6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="align-self:flex-end;width:38%;height:46px;border-radius:18px 18px 6px 18px;background:linear-gradient(90deg,#e8edf3 25%,#f2f5f9 50%,#e8edf3 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="align-self:flex-start;width:52%;height:64px;border-radius:18px 18px 18px 6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            </div>
+            <div style="flex:none;padding:14px 28px 20px">
+              <span data-skel="" style="display:block;height:48px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ pageReady }}" hint-placeholder-val="{{ true }}">
+      <div style="width:300px;flex:none;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column">
+        <div style="flex:none;padding:14px 14px 10px;display:grid;gap:10px">
+          <span style="display:flex;align-items:center;gap:9px;height:38px;padding:0 13px;background:var(--surface-subtle);border-radius:11px">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:2.2;stroke-linecap:round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <input type="text" placeholder="Search messages&hellip;" value="{{ q }}" onChange="{{ onQ }}" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:13px;font-weight:500;color:var(--text-primary)"></input>
+          </span>
+          <span style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+              <sc-if value="{{ f.on }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ f.pick }}" style="border:0;background:rgb(49 130 246 / 0.12);color:var(--blue-600);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ f.label }}</button>
+              </sc-if>
+              <sc-if value="{{ f.off }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ f.pick }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ f.label }}</button>
+              </sc-if>
+            </sc-for>
+          </span>
+        </div>
+
+        <div style="flex:1;min-height:0;overflow-y:auto">
+          <sc-if value="{{ showWaiting }}" hint-placeholder-val="{{ true }}">
+            <div style="border-bottom:1px solid var(--border-subtle);background:#fbfcfd">
+              <button onClick="{{ toggleWait }}" aria-expanded="{{ waitOpen }}" style="width:100%;display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:12px 14px;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.02em;color:var(--text-secondary)">Waiting on you</span>
+                <span style="min-width:12px;height:18px;padding:0 6px;border-radius:var(--radius-pill);background:var(--error);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ waitCount }}</span>
+                <sc-if value="{{ waitOpen }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="margin-left:auto;color:var(--grey-400);font-size:14px;font-weight:700;transform:rotate(90deg)">&rsaquo;</span></sc-if>
+                <sc-if value="{{ waitFolded }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="margin-left:auto;color:var(--grey-400);font-size:14px;font-weight:700">&rsaquo;</span></sc-if>
+              </button>
+              <sc-if value="{{ waitOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;gap:2px;padding:0 8px 10px">
+                  <sc-for list="{{ waitItems }}" as="w" hint-placeholder-count="2">
+                    <div style="background:var(--surface-card);border-radius:14px;box-shadow:var(--ring-card);padding:11px 12px">
+                      <span style="display:flex;align-items:center;gap:9px">
+                        <sc-if value="{{ w.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                        <sc-if value="{{ w.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                        <sc-if value="{{ w.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                        <sc-if value="{{ w.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                        <sc-if value="{{ w.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                        <span style="flex:1;min-width:0"><span style="display:block;font-size:13px;font-weight:700">{{ w.name }} <span style="color:var(--text-faint);font-weight:600;font-size:11.5px">&rsquo;{{ w.yr }}</span></span><span style="display:block;font-size:11.5px;color:var(--grey-600);font-weight:600">{{ w.line }}</span></span>
+                        <span style="font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ w.time }}</span>
+                      </span>
+                      <p style="margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--text-secondary);font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ w.note }}</p>
+                      <span style="display:flex;gap:6px;margin-top:9px">
+                        <sc-if value="{{ w.isAsk }}" hint-placeholder-val="{{ true }}">
+                          <button onClick="{{ w.viewAsk }}" style="border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">View ask</button>
+                        </sc-if>
+                        <sc-if value="{{ w.isConnect }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ w.accept }}" style="border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Accept</button>
+                          <button onClick="{{ w.decline }}" style="border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Decline</button>
+                        </sc-if>
+                      </span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-for list="{{ convRows }}" as="c" hint-placeholder-count="5">
+            <div onClick="{{ c.open }}" style="position:relative;z-index:0;display:flex;align-items:center;gap:11px;padding:12px 14px;cursor:pointer" style-hover="background:var(--row-hover)">
+              <sc-if value="{{ c.on }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;z-index:-1;background:var(--selected-tint);box-shadow:var(--selected-accent);pointer-events:none"></span></sc-if>
+              <sc-if value="{{ c.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ c.i }}</span></sc-if>
+              <sc-if value="{{ c.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ c.i }}</span></sc-if>
+              <sc-if value="{{ c.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ c.i }}</span></sc-if>
+              <sc-if value="{{ c.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ c.i }}</span></sc-if>
+              <sc-if value="{{ c.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ c.i }}</span></sc-if>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;align-items:baseline;gap:6px">
+                  <sc-if value="{{ c.un }}" hint-placeholder-val="{{ false }}"><span style="font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</span></sc-if>
+                  <sc-if value="{{ c.rd }}" hint-placeholder-val="{{ true }}"><span style="font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</span></sc-if>
+                  <span style="font-size:11px;color:var(--text-faint);font-weight:600">&rsquo;{{ c.yr }}</span>
+                  <sc-if value="{{ c.un }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;color:var(--blue-600);font-weight:700;font-variant-numeric:tabular-nums">{{ c.time }}</span></sc-if>
+                  <sc-if value="{{ c.rd }}" hint-placeholder-val="{{ true }}"><span style="margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:700;font-variant-numeric:tabular-nums">{{ c.time }}</span></sc-if>
+                </span>
+                <sc-if value="{{ c.un }}" hint-placeholder-val="{{ false }}"><span style="display:block;font-size:12.5px;color:var(--text-primary);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700">{{ c.preview }}</span></sc-if>
+                <sc-if value="{{ c.rd }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:12.5px;color:var(--grey-600);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">{{ c.preview }}</span></sc-if>
+              </span>
+              <sc-if value="{{ c.dot }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:8px;height:8px;border-radius:50%;background:var(--action-primary)"></span></sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ listEmpty }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:28px 20px;text-align:center;font-size:12.5px;color:var(--text-faint);font-weight:600">Nothing here matches.</p>
+          </sc-if>
+        </div>
+      </div>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-thread)">
+        <div style="flex:none;display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)">
+          <a href="{{ curProfileHref }}" aria-label="Open profile" style="position:relative;display:block;border-radius:50%;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+            <sc-if value="{{ curAv1 }}" hint-placeholder-val="{{ true }}"><span style="width:40px;height:40px;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv2 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv3 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv4 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv5 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curActive }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;background:var(--green-500);border:2px solid #fff"></span></sc-if>
+          </a>
+          <span style="min-width:0">
+            <span style="display:flex;align-items:center;gap:7px"><a href="{{ curProfileHref }}" style="font-size:14.5px;font-weight:700;color:var(--text-primary);text-decoration:none" style-hover="color:var(--blue-600);text-decoration:underline" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:4px">{{ curName }}</a><span style="font-size:11.5px;color:var(--text-faint);font-weight:600">&rsquo;{{ curYr }}</span>
+              <sc-if value="{{ curCircle }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">In your circle</span></sc-if>
+            </span>
+            <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500">{{ curSub }}</span>
+          </span>
+          <sc-if value="{{ railClosed }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ openRail }}" style="margin-left:auto;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:8px 15px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&lsaquo; Details</button>
+          </sc-if>
+          <sc-if value="{{ railOpen }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ closeRail }}" style="margin-left:auto;background:var(--surface-subtle);color:var(--text-secondary);border:0;border-radius:var(--radius-pill);padding:8px 15px;font-size:12px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Hide details &rsaquo;</button>
+          </sc-if>
+        </div>
+
+        <div data-msgs="1" style="flex:1;min-height:0;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+          <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="4">
+            <sc-if value="{{ m.isDay }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:11px;font-weight:700;color:var(--text-faint);background:#eceef1;border-radius:var(--radius-pill);padding:3px 11px">{{ m.t }}</span></sc-if>
+            <sc-if value="{{ m.isSys }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:11.5px;font-weight:600;color:var(--text-faint);text-align:center">{{ m.t }}</span></sc-if>
+            <sc-if value="{{ m.isThem }}" hint-placeholder-val="{{ true }}">
+              <div style="max-width:72%;align-self:flex-start">
+                <div style="padding:11px 15px;font-size:13.5px;line-height:1.55;font-weight:500;background:#fff;box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06), 0 1px 3px rgb(25 31 40 / 0.05);border-radius:16px 16px 16px 5px">{{ m.t }}</div>
+                <div style="font-size:10.5px;color:var(--grey-400);font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums">{{ m.meta }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ m.isMe }}" hint-placeholder-val="{{ false }}">
+              <div style="max-width:72%;align-self:flex-end">
+                <div style="padding:11px 15px;font-size:13.5px;line-height:1.55;font-weight:500;background:var(--gradient-bubble-me);color:#fff;border-radius:16px 16px 5px 16px;box-shadow:var(--shadow-bubble-me)">{{ m.t }}</div>
+                <div style="font-size:10.5px;color:var(--grey-400);font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums;text-align:right">{{ m.meta }}</div>
+              </div>
+            </sc-if>
+          </sc-for>
+
+          <sc-if value="{{ typingShow }}" hint-placeholder-val="{{ false }}">
+            <div style="align-self:flex-start;display:flex;align-items:center;gap:8px">
+              <span style="background:#fff;box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:16px 16px 16px 5px;padding:11px 14px;display:flex;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:var(--grey-400)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--grey-400)"></span><span style="width:6px;height:6px;border-radius:50%;background:var(--grey-400)"></span></span>
+              <span style="font-size:11px;color:var(--text-faint);font-weight:500">{{ curFirst }} is typing&hellip;</span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ nudgeShow }}" hint-placeholder-val="{{ false }}">
+            <span style="align-self:center;display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;color:var(--text-faint);background:#fff;box-shadow:var(--ring-card);border-radius:var(--radius-pill);padding:6px 8px 6px 14px">You two have been talking a while.<button onClick="{{ sendNudge }}" style="border:0;background:var(--blue-50);color:var(--blue-600);border-radius:var(--radius-pill);padding:5px 12px;font-size:11.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Add {{ curFirst }} to your circle</button></span>
+          </sc-if>
+          <sc-if value="{{ nudgeSent }}" hint-placeholder-val="{{ false }}">
+            <span style="align-self:center;font-size:11.5px;font-weight:600;color:var(--text-faint)">Connect request sent &mdash; quietly.</span>
+          </sc-if>
+        </div>
+
+        <div style="flex:none;display:flex;align-items:center;gap:10px;padding:14px 20px 18px">
+          <button aria-label="Attach a file" style="flex:none;width:40px;height:40px;border-radius:12px;border:0;background:#fff;box-shadow:var(--ring-outline);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+            <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--grey-600);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="m21.4 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+          </button>
+          <input type="text" placeholder="Message {{ curFirst }}&hellip;" value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onDraftKey }}" style="flex:1;min-width:0;height:44px;box-sizing:border-box;padding:0 16px;background:#fff;border:0;box-shadow:var(--ring-outline);border-radius:13px;font-size:13.5px;color:var(--text-primary);font-weight:500;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+          <button onClick="{{ send }}" style="flex:none;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:11px 19px;font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ railOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="width:290px;flex:none;box-sizing:border-box;border-left:1px solid var(--border-subtle);background:#fff;padding:18px 16px;display:flex;flex-direction:column;gap:14px;overflow-y:auto">
+          <div>
+            <sc-if value="{{ curAv1 }}" hint-placeholder-val="{{ true }}"><span style="width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv2 }}" hint-placeholder-val="{{ false }}"><span style="width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv3 }}" hint-placeholder-val="{{ false }}"><span style="width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv4 }}" hint-placeholder-val="{{ false }}"><span style="width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px">{{ curI }}</span></sc-if>
+            <sc-if value="{{ curAv5 }}" hint-placeholder-val="{{ false }}"><span style="width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px">{{ curI }}</span></sc-if>
+            <h4 style="font-size:16px;font-weight:800;letter-spacing:-0.02em;margin:10px 0 0;text-align:center">{{ curName }}</h4>
+            <p style="font-size:12px;color:var(--grey-600);font-weight:500;text-align:center;margin:2px 0 0">{{ curRole }}</p>
+            <span style="display:flex;justify-content:center;gap:6px;margin-top:9px;flex-wrap:wrap">
+              <span style="font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">Verified &rsquo;{{ curYr }}</span>
+              <sc-if value="{{ curOpenHelp }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:4px;height:4px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
+            </span>
+            <a href="{{ curProfileHref }}" style="display:block;text-align:center;font-size:12px;color:var(--action-primary);font-weight:700;margin-top:10px;padding:6px;border-radius:9px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Open full profile &rarr;</a>
+          </div>
+
+          <sc-if value="{{ hasAsk }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#f7f9fc;border-radius:14px;padding:13px 14px">
+              <span style="font-size:11px;font-weight:700;color:var(--text-faint)">About this conversation</span>
+              <span style="display:block;font-size:12.5px;font-weight:700;margin-top:6px;line-height:1.4">Ask &middot; {{ askTitle }}</span>
+              <span style="display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap">
+                <sc-if value="{{ askOpen }}" hint-placeholder-val="{{ true }}"><span style="font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">Open</span></sc-if>
+                <sc-if value="{{ askResolved }}" hint-placeholder-val="{{ false }}"><span style="font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.12)">Resolved</span></sc-if>
+                <sc-if value="{{ expiryShow }}" hint-placeholder-val="{{ false }}"><span style="font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#b26f00;background:rgb(254 152 0 / 0.14)">{{ expiryLabel }}</span></sc-if>
+              </span>
+            </div>
+            <sc-if value="{{ canResolve }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ openResolve }}" style="width:100%;border:0;border-radius:12px;padding:11px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:12.5px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Mark ask resolved</button>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ photosShow }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <p style="font-size:11px;font-weight:700;color:var(--text-faint);margin:0 0 8px">Shared photos</p>
+              <span style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+                <sc-for list="{{ photos }}" as="ph" hint-placeholder-count="3">
+                  <span title="{{ ph.n }}" style="aspect-ratio:1 / 1;border-radius:10px;background:repeating-linear-gradient(45deg,#eef1f5 0 6px,#e7ebf1 6px 12px);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.05);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.35)">
+                    <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9px;color:var(--text-faint);font-weight:600">{{ ph.tag }}</span>
+                  </span>
+                </sc-for>
+              </span>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ filesShow }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <p style="font-size:11px;font-weight:700;color:var(--text-faint);margin:0 0 8px">Files &amp; links</p>
+              <sc-for list="{{ files }}" as="f" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:11px;cursor:pointer" style-hover="background:var(--row-hover)">
+                  <span style="flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue-50);display:flex;align-items:center;justify-content:center">
+                    <sc-if value="{{ f.isDoc }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--blue-600);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></sc-if>
+                    <sc-if value="{{ f.isLink }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:var(--blue-600);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></sc-if>
+                  </span>
+                  <span style="min-width:0"><span style="display:block;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.n }}</span><span style="font-size:10.5px;color:var(--text-faint);font-weight:500">{{ f.m }}</span></span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <span style="margin-top:auto;display:flex;justify-content:center;gap:14px;padding-top:8px">
+            <button onClick="{{ openReport }}" style="border:0;background:transparent;color:var(--text-faint);font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:7px" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Report</button>
+            <button onClick="{{ openBlock }}" style="border:0;background:transparent;color:var(--text-faint);font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:7px" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Block</button>
+          </span>
+        </div>
+      </sc-if>
+
+      </sc-if>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ dlgAsk }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" role="dialog" aria-label="View ask" style="width:440px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <span style="display:flex;align-items:center;gap:11px">
+        <sc-if value="{{ wAv1 }}" hint-placeholder-val="{{ false }}"><span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ wI }}</span></sc-if>
+        <sc-if value="{{ wAv2 }}" hint-placeholder-val="{{ false }}"><span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ wI }}</span></sc-if>
+        <sc-if value="{{ wAv3 }}" hint-placeholder-val="{{ true }}"><span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ wI }}</span></sc-if>
+        <sc-if value="{{ wAv4 }}" hint-placeholder-val="{{ false }}"><span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ wI }}</span></sc-if>
+        <sc-if value="{{ wAv5 }}" hint-placeholder-val="{{ false }}"><span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ wI }}</span></sc-if>
+        <span><span style="display:block;font-size:15px;font-weight:800">{{ wName }} asked you for help</span><span style="display:block;font-size:12px;color:var(--grey-600);font-weight:500;margin-top:1px">{{ wRole }}</span></span>
+      </span>
+      <div style="background:#f7f9fc;border-radius:14px;padding:14px 15px;margin-top:16px">
+        <span style="font-size:11px;font-weight:700;color:var(--text-faint)">Ask &middot; {{ wTitle }}</span>
+        <p style="margin:7px 0 0;font-size:13.5px;line-height:1.6;color:var(--text-primary);font-weight:500">{{ wText }}</p>
+      </div>
+      <p style="margin:12px 0 0;font-size:11.5px;color:var(--text-faint);font-weight:500;line-height:1.5">Declining is fine &mdash; a short note goes with it, so it lands kindly.</p>
+      <span style="display:flex;gap:8px;margin-top:16px">
+        <button onClick="{{ toDecline }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Decline</button>
+        <button onClick="{{ toAccept }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--action-give);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgb(11 138 87 / 0.25)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Accept &amp; help</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgAccept }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" role="dialog" aria-label="Start with a message" style="width:440px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Start with a message</h3>
+      <p style="margin:6px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.5">The thread never starts cold &mdash; send a first line with your accept.</p>
+      <span style="display:flex;background:#eceef1;border-radius:11px;padding:3px;margin-top:14px">
+        <sc-if value="{{ modeDefault }}" hint-placeholder-val="{{ true }}">
+          <button style="flex:1;border:0;font-size:12.5px;font-weight:700;color:var(--text-primary);background:#fff;border-radius:9px;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);padding:7px;cursor:pointer">Suggested</button>
+          <button onClick="{{ pickCustom }}" style="flex:1;border:0;font-size:12.5px;font-weight:600;color:var(--grey-600);background:transparent;border-radius:9px;padding:7px;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Write my own</button>
+        </sc-if>
+        <sc-if value="{{ modeCustom }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ pickDefault }}" style="flex:1;border:0;font-size:12.5px;font-weight:600;color:var(--grey-600);background:transparent;border-radius:9px;padding:7px;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Suggested</button>
+          <button style="flex:1;border:0;font-size:12.5px;font-weight:700;color:var(--text-primary);background:#fff;border-radius:9px;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);padding:7px;cursor:pointer">Write my own</button>
+        </sc-if>
+      </span>
+      <textarea value="{{ replyText }}" onChange="{{ onReplyText }}" rows="4" placeholder="Your opening message&hellip;" style="width:100%;box-sizing:border-box;margin-top:10px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+      <p style="margin:8px 0 0;font-size:11px;color:var(--text-faint);font-weight:500">Suggested lines are AI-helped &mdash; edit anything before it sends.</p>
+      <span style="display:flex;gap:8px;margin-top:14px">
+        <button onClick="{{ backToAsk }}" style="border:0;border-radius:12px;padding:12px 16px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Back</button>
+        <button onClick="{{ confirmAccept }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--action-give);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgb(11 138 87 / 0.25)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Accept &amp; send</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgDecline }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" role="dialog" aria-label="Decline with a note" style="width:440px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Decline with a note</h3>
+      <p style="margin:6px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.5">Every decline carries a note &mdash; {{ wName }} sees the note, never a bare no.</p>
+      <textarea value="{{ declineText }}" onChange="{{ onDeclineText }}" rows="4" placeholder="A line for {{ wName }}&hellip;" style="width:100%;box-sizing:border-box;margin-top:14px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+      <p style="margin:8px 0 0;font-size:11px;color:var(--text-faint);font-weight:500">This starts from an AI-helped draft &mdash; make it yours.</p>
+      <span style="display:flex;gap:8px;margin-top:14px">
+        <button onClick="{{ backToAsk }}" style="border:0;border-radius:12px;padding:12px 16px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Back</button>
+        <button onClick="{{ confirmDecline }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send note &amp; decline</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgResolve }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" role="dialog" aria-label="Mark ask resolved" style="width:440px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Mark this ask resolved?</h3>
+      <p style="margin:6px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.5">{{ resolveBody }}</p>
+      <textarea value="{{ resolveNote }}" onChange="{{ onResolveNote }}" rows="2" placeholder="One line on how it turned out (optional)" style="width:100%;box-sizing:border-box;margin-top:14px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+      <span onClick="{{ toggleShare }}" style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;cursor:pointer;padding:10px 12px;border-radius:12px;background:#f7f9fc">
+        <sc-if value="{{ resolveShare }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:18px;height:18px;border-radius:6px;background:var(--action-primary);display:flex;align-items:center;justify-content:center;margin-top:1px"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg></span></sc-if>
+        <sc-if value="{{ resolveShareOff }}" hint-placeholder-val="{{ true }}"><span style="flex:none;width:18px;height:18px;border-radius:6px;background:#fff;box-shadow:var(--ring-outline);margin-top:1px"></span></sc-if>
+        <span style="font-size:12px;font-weight:600;color:var(--text-secondary);line-height:1.5">Share this win with the circle &mdash; names hidden unless you both say so.</span>
+      </span>
+      <span style="display:flex;gap:8px;margin-top:16px">
+        <button onClick="{{ closeDlg }}" style="border:0;border-radius:12px;padding:12px 16px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ confirmResolve }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Mark resolved</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgReport }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" role="dialog" aria-label="Report" style="width:400px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Report {{ curName }}</h3>
+      <p style="margin:6px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.5">This goes to the moderation team, privately. {{ curFirst }} won&rsquo;t know.</p>
+      <span style="display:grid;gap:4px;margin-top:14px">
+        <sc-for list="{{ reportReasons }}" as="r" hint-placeholder-count="5">
+          <sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ r.pick }}" style="display:flex;align-items:center;gap:9px;border:0;background:var(--selected-tint);box-shadow:var(--selected-accent);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:700;color:var(--text-primary);cursor:pointer;text-align:left"><span style="flex:none;width:14px;height:14px;border-radius:50%;border:4px solid var(--action-primary);box-sizing:border-box;background:#fff"></span>{{ r.label }}</button>
+          </sc-if>
+          <sc-if value="{{ r.off }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ r.pick }}" style="display:flex;align-items:center;gap:9px;border:0;background:transparent;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;text-align:left" style-hover="background:var(--row-hover)"><span style="flex:none;width:14px;height:14px;border-radius:50%;box-shadow:var(--ring-outline);box-sizing:border-box;background:#fff"></span>{{ r.label }}</button>
+          </sc-if>
+        </sc-for>
+      </span>
+      <textarea value="{{ reportNote }}" onChange="{{ onReportNote }}" rows="2" placeholder="Anything that helps us look into it (optional)" style="width:100%;box-sizing:border-box;margin-top:10px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+      <span style="display:flex;gap:8px;margin-top:14px">
+        <button onClick="{{ closeDlg }}" style="border:0;border-radius:12px;padding:12px 16px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ confirmReport }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send report</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgBlock }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stop }}" role="dialog" aria-label="Block" style="width:400px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Block {{ curName }}?</h3>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.6">You won&rsquo;t see each other&rsquo;s asks or messages, and neither of you can reach the other. You can undo this in Settings.</p>
+      <span style="display:flex;gap:8px;margin-top:18px">
+        <button onClick="{{ closeDlg }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-subtle);color:var(--text-primary);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ confirmBlock }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--error);color:#fff;font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Block</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;seedWaiting&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;List&quot;},
+  &quot;showTyping&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Thread&quot;},
+  &quot;railStartOpen&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Context rail&quot;},
+  &quot;loading&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo states&quot;},
+  &quot;notificationDot&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = {
+    sel: 'c1', filter: 'all', q: '',
+    waitOpen: true, rail: null,
+    drafts: {}, sent: {}, read: {}, removed: {}, extra: [],
+    resolved: {}, nudged: {}, blocked: {}, blockedPids: {},
+    dlg: null, dlgId: null,
+    replyMode: 'default', replyText: '', declineText: '',
+    resolveNote: '', resolveShare: false,
+    reportReason: 'Harassment', reportNote: '',
+    toast: ''
+  };
+
+  componentDidMount() {
+    this._esc = (e) => { if (e.key === 'Escape' && this.state.dlg) this.setState({ dlg: null }); };
+    window.addEventListener('keydown', this._esc);
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('bcMsgPageState') || 'null');
+      if (saved && typeof saved === 'object') {
+        this.setState({
+          sel: saved.sel || 'c1',
+          filter: saved.filter || 'all',
+          waitOpen: saved.waitOpen !== false,
+          read: saved.read || {}
+        });
+      }
+    } catch (e) { /* ignore corrupt state */ }
+    try {
+      const r = sessionStorage.getItem('bcMsgRailOpen');
+      if (r !== null) this.setState({ rail: r === '1' });
+    } catch (e) { /* storage unavailable */ }
+    try {
+      this.setState({ blockedPids: JSON.parse(sessionStorage.getItem('bcBlocked') || '{}') });
+    } catch (e) { /* ignore corrupt state */ }
+    if (!window.BCMessagesData) {
+      this._poll = setInterval(() => { if (window.BCMessagesData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._esc);
+    if (this._poll) clearInterval(this._poll);
+    if (this._toastT) clearTimeout(this._toastT);
+  }
+
+  componentDidUpdate() {
+    if (this._stick) {
+      this._stick = false;
+      const el = document.querySelector('[data-msgs]');
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+    const { sel, filter, waitOpen, read } = this.state;
+    try { sessionStorage.setItem('bcMsgPageState', JSON.stringify({ sel, filter, waitOpen, read })); } catch (e) { /* storage unavailable */ }
+  }
+
+  data() { return window.BCMessagesData || { waiting: [], convos: [] }; }
+  convos() { return [...this.state.extra, ...this.data().convos].filter((c) => !this.state.blocked[c.id] && !this.state.blockedPids[c.pid]); }
+  waitingItems() {
+    if (!(this.props.seedWaiting ?? true)) return [];
+    return this.data().waiting.filter((w) => !this.state.removed[w.id] && !this.state.blockedPids[w.pid]);
+  }
+  unreadOf(c) { return this.state.read[c.id] ? 0 : (c.unread || 0); }
+  isResolved(c) { return !!(c.ask && (c.ask.resolved || this.state.resolved[c.id])); }
+  first(name) { return (name || '').split(' ')[0]; }
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+  setRail(open) {
+    this.setState({ rail: open });
+    try { sessionStorage.setItem('bcMsgRailOpen', open ? '1' : '0'); } catch (e) { /* ignore */ }
+  }
+  openConvo(id) {
+    this._stick = true;
+    this.setState((s) => ({ sel: id, read: { ...s.read, [id]: true } }));
+  }
+  waitItem(id) { return this.data().waiting.find((w) => w.id === id); }
+
+  sendDraft() {
+    const id = this.state.sel;
+    const text = (this.state.drafts[id] || '').trim();
+    if (!text) return;
+    this._stick = true;
+    this.setState((s) => ({
+      sent: { ...s.sent, [id]: [...(s.sent[id] || []), { k: 'me', t: text, tm: 'Just now', sent: true }] },
+      drafts: { ...s.drafts, [id]: '' },
+      read: { ...s.read, [id]: true }
+    }));
+  }
+
+  acceptAsk() {
+    const w = this.waitItem(this.state.dlgId);
+    const text = (this.state.replyText || '').trim();
+    if (!w || !text) return;
+    const id = 'n-' + w.id;
+    const convo = {
+      id, pid: w.pid, i: w.i, av: w.av, name: w.name, yr: w.yr, circle: false,
+      role: w.role, presence: 'Class of \u2019' + w.yr, time: 'Now', unread: 0, openToHelp: false,
+      ask: { title: w.title, mine: false, daysLeft: 14, resolved: false },
+      msgs: [
+        { k: 'sys', t: 'You accepted ' + this.first(w.name) + '\u2019s ask \u00b7 Today' },
+        { k: 'day', t: 'Today' },
+        { k: 'me', t: text, tm: 'Just now', sent: true }
+      ],
+      files: []
+    };
+    this._stick = true;
+    this.setState((s) => ({
+      extra: [convo, ...s.extra],
+      removed: { ...s.removed, [w.id]: true },
+      sel: id, dlg: null, dlgId: null
+    }));
+    this.showToast('You\u2019re on \u2014 your reply went to ' + this.first(w.name) + '.');
+  }
+
+  declineAsk() {
+    const w = this.waitItem(this.state.dlgId);
+    if (!w || !(this.state.declineText || '').trim()) return;
+    this.setState((s) => ({ removed: { ...s.removed, [w.id]: true }, dlg: null, dlgId: null }));
+    this.showToast('Your note went to ' + this.first(w.name) + ' \u2014 declined kindly.');
+  }
+
+  acceptConnect(w) {
+    const id = 'n-' + w.id;
+    const convo = {
+      id, pid: w.pid, i: w.i, av: w.av, name: w.name, yr: w.yr, circle: true,
+      role: w.role, presence: 'Class of \u2019' + w.yr, time: 'Now', unread: 0, openToHelp: false,
+      ask: null,
+      msgs: [
+        { k: 'sys', t: 'You connected \u00b7 Today' },
+        { k: 'day', t: 'Today' },
+        { k: 'them', t: w.note, tm: 'Earlier' }
+      ],
+      files: []
+    };
+    this._stick = true;
+    this.setState((s) => ({ extra: [convo, ...s.extra], removed: { ...s.removed, [w.id]: true }, sel: id }));
+    this.showToast(this.first(w.name) + ' is in your circle now.');
+  }
+
+  declineConnect(w) {
+    this.setState((s) => ({ removed: { ...s.removed, [w.id]: true } }));
+    this.showToast('Declined quietly \u2014 ' + this.first(w.name) + ' won\u2019t be notified.');
+  }
+
+  confirmResolve() {
+    const id = this.state.sel;
+    const c = this.convos().find((x) => x.id === id);
+    this._stick = true;
+    this.setState((s) => ({
+      resolved: { ...s.resolved, [id]: true },
+      sent: { ...s.sent, [id]: [...(s.sent[id] || []), { k: 'sys', t: 'You marked this ask resolved \u00b7 Today' }] },
+      dlg: null
+    }));
+    const shared = this.state.resolveShare;
+    this.showToast(shared
+      ? 'Resolved. If ' + this.first(c ? c.name : '') + ' agrees, this becomes an \u201cIt worked\u201d card.'
+      : 'Resolved \u2014 thanks for closing the loop.');
+  }
+
+  confirmBlock() {
+    const id = this.state.sel;
+    const cur = this.convos().find((c) => c.id === id);
+    const rest = this.convos().filter((c) => c.id !== id);
+    this.setState((s) => ({
+      blocked: { ...s.blocked, [id]: true },
+      sel: rest.length ? rest[0].id : '',
+      dlg: null
+    }));
+    // Blocks are mutual-invisible across the app (FLOWS §7c) — the shared
+    // bcBlocked key also filters this pair out of People; Settings can lift it.
+    if (cur) {
+      try {
+        const b = JSON.parse(sessionStorage.getItem('bcBlocked') || '{}');
+        b[cur.pid] = { n: cur.name, yr: cur.yr, i: cur.i };
+        sessionStorage.setItem('bcBlocked', JSON.stringify(b));
+      } catch (e) { /* storage unavailable */ }
+    }
+    this.showToast('Blocked. You can undo this in Settings.');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const railOpen = s.rail === null ? (this.props.railStartOpen ?? true) : s.rail;
+    const convos = this.convos();
+    const waiting = this.waitingItems();
+    const cur = convos.find((c) => c.id === s.sel) || convos[0] || null;
+
+    // list filtering
+    const q = s.q.trim().toLowerCase();
+    const matchQ = (c) => !q || c.name.toLowerCase().includes(q) || (c.ask && c.ask.title.toLowerCase().includes(q));
+    const counts = {
+      all: convos.length,
+      unread: convos.filter((c) => this.unreadOf(c) > 0).length,
+      circle: convos.filter((c) => c.circle).length,
+      asks: convos.filter((c) => c.ask && !this.isResolved(c)).length
+    };
+    let list = convos.filter(matchQ);
+    if (s.filter === 'unread') list = list.filter((c) => this.unreadOf(c) > 0);
+    if (s.filter === 'circle') list = list.filter((c) => c.circle);
+    if (s.filter === 'asks') list = list.filter((c) => c.ask && !this.isResolved(c));
+
+    const filterDefs = [
+      ['all', 'All', counts.all], ['unread', 'Unread', counts.unread],
+      ['circle', 'My circle', counts.circle], ['asks', 'Open asks', counts.asks]
+    ];
+    const filters = filterDefs.map(([key, label, n]) => ({
+      label: label + ' ' + n,
+      on: s.filter === key, off: s.filter !== key,
+      pick: () => this.setState({ filter: key })
+    }));
+
+    const convRows = list.map((c) => {
+      const un = this.unreadOf(c);
+      const selOn = cur && c.id === cur.id;
+      const overlay = s.sent[c.id] || [];
+      const all = [...c.msgs, ...overlay].filter((m) => m.k === 'me' || m.k === 'them');
+      const last = all[all.length - 1];
+      return {
+        i: c.i, name: c.name, yr: c.yr,
+        av1: c.av === 1, av2: c.av === 2, av3: c.av === 3, av4: c.av === 4, av5: c.av === 5,
+        time: overlay.length ? 'Now' : c.time,
+        un: un > 0, rd: un === 0,
+        preview: last ? (last.k === 'me' ? 'You: ' + last.t : last.t) : '',
+        dot: un > 0,
+        on: selOn,
+        open: () => this.openConvo(c.id)
+      };
+    });
+
+    const waitItems = waiting.map((w) => {
+      return {
+        i: w.i, name: w.name, yr: w.yr, time: w.time,
+        av1: w.av === 1, av2: w.av === 2, av3: w.av === 3, av4: w.av === 4, av5: w.av === 5,
+        line: w.kind === 'ask' ? 'Asked you for help \u00b7 ' + w.title : 'Wants to connect',
+        note: w.kind === 'ask' ? w.text : w.note,
+        isAsk: w.kind === 'ask', isConnect: w.kind === 'connect',
+        viewAsk: () => this.setState({ dlg: 'ask', dlgId: w.id, replyMode: 'default', replyText: w.defaultReply || '', declineText: w.declineNote || '' }),
+        accept: () => this.acceptConnect(w),
+        decline: () => this.declineConnect(w)
+      };
+    });
+
+    // thread
+    const resolved = cur ? this.isResolved(cur) : false;
+    const overlay = cur ? (s.sent[cur.id] || []) : [];
+    const raw = cur ? [...cur.msgs, ...overlay] : [];
+    const msgs = raw.map((m) => ({
+      isDay: m.k === 'day', isSys: m.k === 'sys',
+      isThem: m.k === 'them', isMe: m.k === 'me',
+      t: m.t,
+      meta: m.k === 'me' ? (m.tm + (m.sent ? ' \u00b7 Sent' : (m.read ? ' \u00b7 Read' : ''))) : (m.tm || '')
+    }));
+
+    const nudgeReady = cur && cur.nudge && !cur.circle && !resolved;
+    const daysLeft = cur && cur.ask ? cur.ask.daysLeft : 0;
+    const expiryShow = cur && cur.ask && !resolved && daysLeft > 0 && daysLeft <= 3;
+    const files = cur ? (cur.files || []) : [];
+    const photos = cur ? (cur.photos || []) : [];
+
+    const reasons = ['Harassment', 'Spam', 'Inappropriate', 'Impersonation', 'Other'];
+    const w = s.dlgId ? this.waitItem(s.dlgId) : null;
+
+    return {
+      // shell
+      sidebarFull: !railOpen, sidebarIcon: railOpen,
+      badgeShow: counts.unread + waiting.length > 0,
+      badgeCount: counts.unread + waiting.length,
+      showDot: this.props.notificationDot ?? true,
+
+      // list
+      q: s.q, onQ: (e) => this.setState({ q: e.target.value }),
+      filters,
+      showWaiting: waiting.length > 0,
+      waitOpen: s.waitOpen, waitFolded: !s.waitOpen,
+      toggleWait: () => this.setState((st) => ({ waitOpen: !st.waitOpen })),
+      waitCount: waiting.length,
+      waitItems,
+      convRows,
+      listEmpty: list.length === 0,
+
+      // thread header + rail shared
+      curI: cur ? cur.i : '', curName: cur ? cur.name : '', curYr: cur ? cur.yr : '',
+      curFirst: cur ? this.first(cur.name) : '',
+      curRole: cur ? cur.role : '',
+      curSub: cur ? cur.presence : '',
+      curActive: cur ? cur.presence === 'Active now' : false,
+      curCircle: cur ? !!cur.circle : false,
+      curAv1: cur ? cur.av === 1 : true, curAv2: cur ? cur.av === 2 : false, curAv3: cur ? cur.av === 3 : false, curAv4: cur ? cur.av === 4 : false, curAv5: cur ? cur.av === 5 : false,
+      curOpenHelp: cur ? !!cur.openToHelp : false,
+      curProfileHref: cur ? '../profile/Profile.dc.html?id=' + cur.pid + '&from=messages' : '#',
+      railOpen, railClosed: !railOpen,
+      openRail: () => this.setRail(true),
+      closeRail: () => this.setRail(false),
+
+      // messages
+      msgs,
+      typingShow: cur ? (!!cur.typing && (this.props.showTyping ?? true)) : false,
+      nudgeShow: !!(nudgeReady && !s.nudged[cur.id]),
+      nudgeSent: !!(nudgeReady && s.nudged[cur.id]),
+      sendNudge: () => { this._stick = true; this.setState((st) => ({ nudged: { ...st.nudged, [cur.id]: true } })); },
+      draft: cur ? (s.drafts[cur.id] || '') : '',
+      onDraft: (e) => { const id = cur ? cur.id : ''; const v = e.target.value; this.setState((st) => ({ drafts: { ...st.drafts, [id]: v } })); },
+      onDraftKey: (e) => { if (e.key === 'Enter') this.sendDraft(); },
+      send: () => this.sendDraft(),
+
+      // rail — about this conversation
+      hasAsk: cur ? !!cur.ask : false,
+      askTitle: cur && cur.ask ? cur.ask.title : '',
+      askOpen: cur && cur.ask ? !resolved : false,
+      askResolved: resolved,
+      expiryShow,
+      expiryLabel: daysLeft === 1 ? '1 day left before this ask closes' : daysLeft + ' days left before this ask closes',
+      canResolve: cur && cur.ask ? !resolved : false,
+      openResolve: () => this.setState({ dlg: 'resolve', resolveNote: '', resolveShare: false }),
+      photosShow: photos.length > 0,
+      photos: photos.map((p) => ({ n: p.n, tag: p.tag })),
+      filesShow: files.length > 0,
+      files: files.map((f) => ({ isDoc: f.icon === 'doc', isLink: f.icon === 'link', n: f.n, m: f.m })),
+      openReport: () => this.setState({ dlg: 'report', reportReason: 'Harassment', reportNote: '' }),
+      openBlock: () => this.setState({ dlg: 'block' }),
+
+      // dialogs
+      dlgAsk: s.dlg === 'ask', dlgAccept: s.dlg === 'accept', dlgDecline: s.dlg === 'decline',
+      dlgResolve: s.dlg === 'resolve', dlgReport: s.dlg === 'report', dlgBlock: s.dlg === 'block',
+      closeDlg: () => this.setState({ dlg: null }),
+      stop: (e) => e.stopPropagation(),
+      wI: w ? w.i : '', wName: w ? w.name : '', wRole: w ? w.role : '',
+      wTitle: w ? w.title : '', wText: w ? w.text : '',
+      wAv1: w ? w.av === 1 : false, wAv2: w ? w.av === 2 : false, wAv3: w ? w.av === 3 : false, wAv4: w ? w.av === 4 : false, wAv5: w ? w.av === 5 : false,
+      toAccept: () => this.setState({ dlg: 'accept' }),
+      toDecline: () => this.setState({ dlg: 'decline' }),
+      backToAsk: () => this.setState({ dlg: 'ask' }),
+      modeDefault: s.replyMode === 'default', modeCustom: s.replyMode === 'custom',
+      pickDefault: () => this.setState({ replyMode: 'default', replyText: w ? (w.defaultReply || '') : '' }),
+      pickCustom: () => this.setState({ replyMode: 'custom', replyText: '' }),
+      replyText: s.replyText, onReplyText: (e) => this.setState({ replyText: e.target.value }),
+      confirmAccept: () => this.acceptAsk(),
+      declineText: s.declineText, onDeclineText: (e) => this.setState({ declineText: e.target.value }),
+      confirmDecline: () => this.declineAsk(),
+      resolveBody: cur && cur.ask && cur.ask.mine
+        ? 'Did ' + this.first(cur.name) + '\u2019s help land? The conversation stays \u2014 only the ask closes.'
+        : 'The conversation stays; the ask closes for both of you. ' + (cur ? this.first(cur.name) : '') + ' gets a gentle \u201cdid this help?\u201d',
+      resolveNote: s.resolveNote, onResolveNote: (e) => this.setState({ resolveNote: e.target.value }),
+      resolveShare: s.resolveShare, resolveShareOff: !s.resolveShare,
+      toggleShare: () => this.setState((st) => ({ resolveShare: !st.resolveShare })),
+      confirmResolve: () => this.confirmResolve(),
+      reportReasons: reasons.map((r) => ({
+        label: r, on: s.reportReason === r, off: s.reportReason !== r,
+        pick: () => this.setState({ reportReason: r })
+      })),
+      reportNote: s.reportNote, onReportNote: (e) => this.setState({ reportNote: e.target.value }),
+      confirmReport: () => { this.setState({ dlg: null }); this.showToast('Thanks \u2014 we\u2019ll look into it.'); },
+      confirmBlock: () => this.confirmBlock(),
+
+      // loading skeleton (own shape, FLOWS §8)
+      pageLoading: this.props.loading ?? false,
+      pageReady: !(this.props.loading ?? false),
+
+      // toast
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+}
+
+</script>
+</body>
+</html>

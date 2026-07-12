@@ -1,0 +1,104 @@
+<!-- @dsCard group="Screens · People" name="People directory" subtitle="Search · scope · filters · relationship actions · direct profile routing" viewport-width="1440" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>People · BridgeCircle</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="screen-shell.css?v=20260710-direct-profile-9">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="wordmark" href="index.html" aria-label="BridgeCircle screen gallery">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"/><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"/></svg><span>BridgeCircle</span>
+    </a>
+    <nav class="primary-nav" aria-label="Member navigation">
+      <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M9 21v-6h6v6"/></svg><span class="nav-label">Home</span></a>
+      <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 15 6 6"/></svg><span class="nav-label">Help</span></a>
+      <a class="nav-item active" href="people-directory.html" aria-current="page"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17.5" cy="9.5" r="2.2"/><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"/></svg><span class="nav-label">People</span></a>
+      <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/></svg><span class="nav-label">Messages</span><span class="unread-count">3</span></a>
+      <a class="nav-item" href="#"><svg viewBox="0 0 24 24"><path d="M12 4 2 9l10 5 10-5-10-5z"/><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"/></svg><span class="nav-label">School</span></a>
+    </nav>
+    <a class="member-card" href="profile-self.html"><span class="member-avatar">IL</span><span class="member-copy"><span class="member-name">Iris Lau</span><span class="member-year">Class of '22</span></span></a>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <span class="topbar-title">People</span>
+      <div class="topbar-actions">
+        <button class="icon-button" data-notifications aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="notification-dot"></span></button>
+        <a class="icon-button" href="profile-self.html" aria-label="Open profile"><span class="member-avatar" style="width:34px;height:34px;font-size:11px">IL</span></a>
+      </div>
+      <div class="popover" id="notification-popover" aria-hidden="true">
+        <div class="popover-head"><strong>Notifications</strong><a href="#">See all</a></div>
+        <a class="notice" href="#"><span class="notice-dot"></span><span><strong>Maya accepted your connection</strong><span>You can now message each other.</span></span></a>
+        <a class="notice" href="#"><span class="notice-dot"></span><span><strong>A member offered to help</strong><span>Your portfolio-feedback ask has a new offer.</span></span></a>
+      </div>
+    </header>
+    <section class="screen-content">
+      <div class="page-heading-row">
+        <div><p class="page-kicker">Directory · 2,412 members</p><h1 class="page-title">Find people to connect with.</h1></div>
+      </div>
+      <form class="search-form" id="people-search">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="search-input" aria-label="Search people" value="designers who moved in-house in the Bay Area">
+        <button class="primary-button" type="submit">Search</button>
+      </form>
+      <div class="filter-row">
+        <span class="segment" aria-label="People scope"><button class="segment-button active" type="button">All</button><button class="segment-button" type="button">Open to help</button><button class="segment-button" type="button">In your circle</button></span>
+        <button class="filter-pill" type="button">Industry ↓</button><button class="filter-pill" type="button">Class year ↓</button><button class="filter-pill" type="button">Location ↓</button>
+        <span class="results-meta" aria-live="polite">50 strongest matches · Page 1 of 3 · showing 1–20</span>
+      </div>
+      <div class="people-layout" id="people-layout">
+        <div class="results-column">
+        <div class="directory surface" aria-label="People results">
+          <article class="person-row" data-person="maya">
+            <span class="avatar av-1">MC</span><div class="person-body"><div class="person-line"><a class="person-name" data-profile-link href="people-profile-overlay.html?person=maya">Maya Chen</a><span class="chip circle">In your circle</span><span class="strong-match">Strong match</span></div><span class="person-subtitle">Design Lead · Figma · San Francisco · '14</span><div class="topic-list"><span class="topic">Agency → in-house</span><span class="topic">Design interviews</span><span class="topic">Leadership</span></div></div>
+            <button class="row-action" type="button">Message</button>
+          </article>
+          <article class="person-row" data-person="jordan">
+            <span class="avatar av-5">JB</span><div class="person-body"><div class="person-line"><a class="person-name" data-profile-link href="people-profile-overlay.html?person=jordan">Jordan Blake</a><span class="chip open"><span class="chip-dot"></span>Open to help</span></div><span class="person-subtitle">Design Manager · Airbnb · New York · '12</span><div class="topic-list"><span class="topic">Hiring</span><span class="topic">Portfolio reviews</span><span class="topic">In-house design</span></div></div>
+            <button class="row-action" data-open-connect type="button">Connect</button>
+          </article>
+          <article class="person-row" data-person="priya">
+            <span class="avatar av-3">PN</span><div class="person-body"><div class="person-line"><a class="person-name" data-profile-link href="people-profile-overlay.html?person=priya">Priya Nair</a><span class="chip requested">Requested</span></div><span class="person-subtitle">Product Manager · Notion · Remote · '17</span><div class="topic-list"><span class="topic">Design → product</span><span class="topic">Product sense</span></div></div>
+            <button class="row-action" type="button" disabled>Pending</button>
+          </article>
+          <article class="person-row" data-person="david">
+            <span class="avatar av-2">DO</span><div class="person-body"><div class="person-line"><a class="person-name" data-profile-link href="people-profile-overlay.html?person=david">David Okafor</a><span class="chip open"><span class="chip-dot"></span>Open to help</span></div><span class="person-subtitle">Creative Director · Instrument · Portland · '98</span><div class="topic-list"><span class="topic">Creative leadership</span><span class="topic">Career changes</span></div></div>
+            <button class="row-action" data-open-connect type="button">Connect</button>
+          </article>
+        </div>
+        <div class="results-footer surface">
+          <div class="search-limit-note"><strong>Showing the 50 strongest matches · 20 per page</strong><span>Broad searches are capped to keep results relevant. Refine your search or filters to find different people.</span></div>
+          <nav class="pagination" aria-label="Search results pages">
+            <button class="page-control page-arrow" type="button" data-page-direction="previous" aria-label="Previous results page" disabled>‹</button>
+            <button class="page-control active" type="button" data-page="1" aria-current="page">1</button>
+            <button class="page-control" type="button" data-page="2">2</button>
+            <button class="page-control" type="button" data-page="3">3</button>
+            <button class="page-control page-arrow" type="button" data-page-direction="next" aria-label="Next results page">›</button>
+          </nav>
+          <div class="mobile-load-more" aria-live="polite"><span id="mobile-results-progress">20 of 50 people</span><button class="secondary-button" type="button" data-load-more>Load 20 more</button></div>
+        </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+<aside class="drawer connect-drawer" id="connect-drawer" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="directory-connect-heading">
+  <div class="connect-compose">
+  <div class="drawer-head"><span class="drawer-kicker">Connect</span><button class="drawer-close" data-close-drawer aria-label="Close"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <h2 id="directory-connect-heading">Say hello to Jordan.</h2><p class="drawer-lead" id="directory-connect-lead">A connection request is a small opening, not a commitment. Jordan can accept quietly when it feels right.</p>
+  <div class="mode-switch"><button class="mode-button active" data-mode="know" type="button">We know each other</button><button class="mode-button" data-mode="new" type="button">We haven't met</button></div>
+  <section class="mode-panel active" data-mode-panel="know"><span class="field-label">Choose a quick hello</span><div class="choice-list"><button class="choice">Good to see you here—would love to stay in touch.</button><button class="choice">It’s been a while. I’d love to reconnect.</button><button class="choice">We haven’t talked much, but I remember you from Chadwick.</button></div></section>
+  <section class="mode-panel" data-mode-panel="new"><label class="field-label" for="intro-note">What made you want to connect?</label><textarea class="text-field" id="intro-note" rows="5">I’m also making the move from agency work to an in-house team, and Jordan’s experience stood out.</textarea><div class="ai-note">BridgeCircle will shape this into a short, natural introduction. You review every word before it goes.</div></section>
+  <div class="drawer-footer"><button class="quiet-button" data-close-drawer type="button">Not now</button><button class="primary-button" data-send-directory-connect type="button">Send connection</button></div>
+  </div>
+  <div class="connect-success"><span class="avatar large av-5" id="directory-connect-success-avatar">JB</span><h2>Connection sent.</h2><p id="directory-connect-success-copy">Jordan can accept quietly when it feels right.</p><button class="primary-button" data-close-drawer>Back to People</button></div>
+</aside>
+<script src="screen-shell.js?v=20260710-direct-profile-9"></script>
+</body>
+</html>

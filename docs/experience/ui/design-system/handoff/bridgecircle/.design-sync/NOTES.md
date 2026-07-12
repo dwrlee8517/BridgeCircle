@@ -41,6 +41,55 @@ removed from the topbar; `--nav-active-ring: none`), and specimens
 `DesignSync` tool (hand-authored fork = not the converter flow); Richard's
 claude.ai/design login was live in-session.
 
+**Pull log — 2026-07-12 (reverse direction: remote → local).** Richard built
+a full Claude Design mockup set covering every flow/page in `uploads/FLOWS.md`;
+this run synced it DOWN into `project/templates/`. Pulled **66 files** — the
+`templates/**` tree (27 `<name>.dc.html` DesignComponent screens across
+app-shell · entry · help · home · messages · my-circle · notifications ·
+onboarding · people · profile · profile-self · profile-slideover · school ·
+settings · system-states, each with its own `ds-base.js` / `support.js`
+(dc-runtime) / `*-data.js`, plus `app-shell/account-menu.js`) — and the root
+`Career Timeline Options.html`, plus two tiny runtime deps the `.dc.html`
+`<head>` chain needs: `_ds_bundle.js` (near-empty namespace stub — these are
+hand-authored templates, not registered components; React is provided by the
+Claude Design host) and `fonts.css`.
+
+Fidelity: **byte-faithful, not transcribed.** `DesignSync get_file` streams
+content into context; large results persist to the harness `tool-results/`
+dir, small ones inline into the session `.jsonl`. Both hold the full JSON, so
+extraction is `json.load`-clean from disk (scratchpad `sync_extract.py`) — no
+hand-copying. All 66 validated with `node --check` (JS + every embedded
+`data-dc-script`) and an HTML structure pass; all 92 `var(--*)` tokens resolve
+against `colors_and_type.css` (the lone `--danger`, onboarding only, carries an
+inline `#d64545` fallback).
+
+Intentionally **not vendored**: per-template `.thumbnail` JPEGs (app-generated
+previews), `_ds_manifest.json` + `_adherence.oxlintrc.json` (app-internal
+index/lint), and `fonts/PretendardVariable.woff2` — the 2 MB font exceeds
+`get_file`'s 256 KiB cap so it can't be pulled whole; templates load Pretendard
+from the CDN (`cdn.jsdelivr.net/gh/orioncactus/pretendard`), so rendering is
+unaffected and `fonts.css`'s `@font-face` is the only dangling ref. No push /
+no `register_assets` this run — pull only; the remote project is unchanged.
+
+**Re-sync log — 2026-07-12 (second run, bidirectional).** Structural diff vs a
+fresh `list_files` after the morning pull. **Pulled (2):**
+`uploads/DESYNC-TODO.md` — Richard's remote-authored reconciliation plan
+(2026-07-12 templates-vs-DS audit with decided verdicts; it's a repo work plan,
+tracked locally now, **not yet applied**) — and
+`templates/onboarding/Onboarding.dc.html`, which Richard fixed remotely
+(`var(--danger, #d64545)` ×4 → `var(--error)`) *after* the morning pull; the
+pull-log line above about the `--danger` fallback is superseded. Both verified
+byte-faithful via transcript extraction. **Pushed (19 + sentinel):** the new
+`screens/**` gallery (11 files, `@dsCard` groups "Screens", "Screens · People",
+"Screens · Profile" — first push), `templates/README.md` (local-authored),
+`SKILL.md` (Jul 10 edit), `uploads/FLOWS.md` (v3 body, d5123f6 — remote was
+stale since the 07-07 push), `uploads/OVERRIDES.md`, plus idempotent re-pushes
+of `colors_and_type.css` and the three d5123f6 specimens (desktop-shell,
+help-heroes, people-directory) since commit-vs-push timing was ambiguous.
+No deletes; `_ds_needs_recompile` armed. Templates deliberately NOT pushed —
+remote is their source of truth (per DESYNC-TODO: DS sources read-only there,
+templates authored there).
+
 ## Help Hub.html provenance
 
 Originally designed by Richard **in the `toss-base` Claude Design project**

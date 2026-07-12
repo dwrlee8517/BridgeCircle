@@ -13,21 +13,23 @@ to production flow-by-flow (ADR 0013 Phase E, design-first). Civic Editorial
 similar name) describes live production only and is archived when the
 redesign lands.
 
-As scaffolded, the fork is a byte-copy of the baseline with **one applied
-override** (O1: Pretendard). The green give action, section bands, ochre
-warning, softer radii, desktop system, and brand marks are all **proposed**
-ledger entries — applied one at a time as production surfaces need them.
+The fork now carries the applied O1–O4 and O6–O9 overrides plus E2 and E3:
+Pretendard, the green Give lead action, constrained section identity, the
+larger type ceiling, softer radii, refined hairlines, gradient primary finish,
+elevated cards, the avatar palette, and the desktop shell. O5 was rejected;
+E1 and E4 remain proposed. `project/uploads/OVERRIDES.md` is authoritative.
 
 ## Layout
 
 ```
 bridgecircle/
   project/                     ← the sync localDir (pushed to the fork project)
-    colors_and_type.css        ← fork tokens (= toss-base + applied overrides)
+    colors_and_type.css        ← fork tokens (= toss-base + applied ledger entries)
     SKILL.md                   ← design-agent guidance (ledger-first)
     uploads/OVERRIDES.md       ← THE DIVERGENCE LEDGER (read first)
     uploads/DESIGN.md          ← fork framing; baseline spec stays in toss-base
-    preview/  ui_kits/         ← specimens (copied; diverge as entries apply)
+    preview/  ui_kits/         ← component and pattern specimens
+    screens/                   ← canonical page + flow mockups and coverage map
     Help Hub.html              ← baseline-test evidence (Ask/Give + friction log)
   README.md                    ← this file (repo-facing; NOT pushed)
   .design-sync/                ← sync notes; project not yet created
@@ -48,5 +50,8 @@ bridgecircle/
   a ledger entry.
 - **Unlogged divergence is drift.** If the fork's tokens differ from the
   baseline without an OVERRIDES.md entry, that's a bug.
+- Complete page work belongs in `project/screens/`; `project/preview/` remains
+  the component/pattern specimen layer. Start reviews at
+  `project/screens/index.html` and track coverage in `SCREEN-MAP.md`.
 - Production translation: `app/src/app/globals.css` uses
   `@layer base, brand` — the brand layer carries only **applied** entries.

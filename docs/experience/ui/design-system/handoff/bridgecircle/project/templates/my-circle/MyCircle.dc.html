@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="My circle" description="The managed circle view (FLOWS §7d) — who you're connected to, per-row Message / Disconnect with the §7c confirmation dialog (mutual, silent, messages stay). Reached from Messages' My-circle filter and People's In-your-circle scope." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh;max-width:var(--container-shell);margin:0 auto" data-screen-label="My circle">
+
+  <aside style="width:var(--sidebar-width);flex:none;align-self:flex-start;position:sticky;top:0;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <sc-if value="{{ showBadge }}" hint-placeholder-val="{{ true }}">
+          <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+        </sc-if>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <a href="../profile-self/ProfileSelf.dc.html" style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box);color:inherit;text-decoration:none;cursor:pointer">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </a>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="flex:none;position:sticky;top:0;z-index:10;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:14px;padding:0 30px">
+      <a href="../people/People.dc.html" aria-label="Back to People" style="width:36px;height:36px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-pill);background:var(--surface-subtle);color:var(--text-secondary);font-size:16px;text-decoration:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&lsaquo;</a>
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">My circle</span>
+      <span style="font-size:12.5px;font-weight:600;color:var(--text-faint)"><a href="../people/People.dc.html" style="color:inherit" style-hover="color:var(--blue-600)">People</a> &rsaquo; My circle</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;text-decoration:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;padding:26px 30px;background:var(--wash-page)">
+      <div style="max-width:var(--container-reading);margin:0 auto;display:grid;gap:14px">
+
+        <div>
+          <h1 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-0.03em">My circle</h1>
+          <p style="margin:6px 0 0;font-size:13px;color:var(--grey-600);font-weight:500">{{ countLine }} Connections see your circle-only links; disconnecting is mutual and never announced.</p>
+        </div>
+
+        <sc-if value="{{ hasMembers }}" hint-placeholder-val="{{ true }}">
+        <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+          <sc-for list="{{ members }}" as="m" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:14px;padding:15px 20px;border-top:1px solid var(--divider-row)" style-hover="background:var(--row-hover)">
+              <sc-if value="{{ m.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)">{{ m.initials }}</span></sc-if>
+              <sc-if value="{{ m.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)">{{ m.initials }}</span></sc-if>
+              <sc-if value="{{ m.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)">{{ m.initials }}</span></sc-if>
+              <sc-if value="{{ m.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)">{{ m.initials }}</span></sc-if>
+              <sc-if value="{{ m.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)">{{ m.initials }}</span></sc-if>
+              <sc-if value="{{ m.av6 }}" hint-placeholder-val="{{ false }}"><span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-6-bg);color:var(--avatar-6-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)">{{ m.initials }}</span></sc-if>
+              <span style="flex:1;min-width:0">
+                <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:14px;font-weight:700">{{ m.name }}</span><span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">&rsquo;{{ m.year }}</span></span>
+                <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.role }}</span>
+                <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px">{{ m.since }}</span>
+              </span>
+              <a href="../messages/Messages.dc.html" style="flex:none;display:inline-flex;align-items:center;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Message</a>
+              <button onClick="{{ m.askDisconnect }}" style="flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:8px 15px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Disconnect&hellip;</button>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:44px 32px;text-align:center">
+          <p style="margin:0;font-size:14px;color:var(--text-secondary);font-weight:600">No one in your circle yet &mdash; every accepted hello lands here.</p>
+          <a href="../people/People.dc.html" style="display:inline-flex;align-items:center;margin-top:16px;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:11px 22px;font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn);text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Find people to connect with</a>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ showUndo }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface-card);border-radius:var(--radius-box);box-shadow:var(--ring-card),var(--shadow-card);padding:12px 18px">
+          <span style="flex:1;font-size:12.5px;color:var(--text-secondary);font-weight:600">You and {{ undoName }} are no longer connected. Your messages are still in Messages.</span>
+          <button onClick="{{ dismissUndo }}" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px" style-hover="color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Dismiss</button>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ showDialog }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:60;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:24px" onClick="{{ cancelDisconnect }}">
+  <div role="dialog" aria-modal="true" aria-label="Disconnect confirmation" onClick="{{ swallow }}" style="background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--shadow-raised);max-width:400px;width:100%;padding:26px 28px;box-sizing:border-box">
+    <h2 style="margin:0;font-size:18px;font-weight:800;letter-spacing:-0.02em">Disconnect from {{ dialogName }}?</h2>
+    <p style="margin:11px 0 0;font-size:13.5px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty">You&rsquo;ll both leave each other&rsquo;s circle. Your messages stay, and neither of you is notified.</p>
+    <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:22px">
+      <button onClick="{{ cancelDisconnect }}" autoFocus="{{ true }}" style="border:0;background:var(--action-quiet);color:var(--action-quiet-text);border-radius:12px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+      <button onClick="{{ confirmDisconnect }}" style="border:0;background:var(--surface-card);box-shadow:inset 0 0 0 1.5px var(--red-200);color:var(--error);border-radius:12px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--state-danger-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Disconnect</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 820},
+  &quot;showEmptyState&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Circle&quot;},
+  &quot;messagesUnread&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;min&quot;: 0, &quot;max&quot;: 99, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = { removed: {}, dialogFor: null, undoName: null };
+
+  pool = [
+    { id: 1, name: 'Maya Chen', initials: 'MC', av: 1, year: '14', role: 'Design Lead \u00b7 Figma \u00b7 San Francisco', since: 'Connected March 2026 \u00b7 from an ask about portfolios' },
+    { id: 2, name: 'Noah Reyes', initials: 'NR', av: 2, year: '22', role: 'Engineering student \u00b7 UCLA', since: 'Connected February 2026 \u00b7 classmates' },
+    { id: 3, name: 'Grace Kim', initials: 'GK', av: 3, year: '22', role: 'Analyst \u00b7 Morgan Stanley \u00b7 New York', since: 'Connected February 2026 \u00b7 classmates' },
+    { id: 4, name: 'Jordan Bell', initials: 'JB', av: 4, year: '17', role: 'Product Manager \u00b7 Stripe \u00b7 Seattle', since: 'Connected May 2026 \u00b7 from a reunion event' },
+    { id: 5, name: 'Priya Raman', initials: 'PR', av: 5, year: '19', role: 'Med student \u00b7 UCSF', since: 'Connected June 2026 \u00b7 they said hi' },
+    { id: 6, name: 'Tom Okafor', initials: 'TO', av: 6, year: '12', role: 'Founder \u00b7 Fieldnote \u00b7 Austin', since: 'Connected April 2026 \u00b7 from an ask about internships' },
+  ];
+
+  renderVals() {
+    const forceEmpty = this.props.showEmptyState ?? false;
+    const live = forceEmpty ? [] : this.pool.filter((m) => !this.state.removed[m.id]);
+
+    const members = live.map((m) => ({
+      name: m.name, initials: m.initials, year: m.year, role: m.role, since: m.since,
+      av1: m.av === 1, av2: m.av === 2, av3: m.av === 3, av4: m.av === 4, av5: m.av === 5, av6: m.av === 6,
+      askDisconnect: () => this.setState({ dialogFor: m.id }),
+    }));
+
+    const dlg = this.pool.find((m) => m.id === this.state.dialogFor);
+    const unread = this.props.messagesUnread ?? 3;
+    const n = live.length;
+
+    return {
+      members,
+      hasMembers: n > 0,
+      isEmpty: n === 0,
+      countLine: n > 0 ? n + (n === 1 ? ' person.' : ' people.') : '',
+      showDialog: !!dlg,
+      dialogName: dlg ? dlg.name : '',
+      cancelDisconnect: () => this.setState({ dialogFor: null }),
+      swallow: (e) => e.stopPropagation(),
+      confirmDisconnect: () => {
+        if (!dlg) return;
+        this.setState({ removed: { ...this.state.removed, [dlg.id]: true }, dialogFor: null, undoName: dlg.name });
+      },
+      showUndo: !!this.state.undoName && !forceEmpty,
+      undoName: this.state.undoName || '',
+      dismissUndo: () => this.setState({ undoName: null }),
+      showBadge: unread > 0,
+      badgeCount: unread,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

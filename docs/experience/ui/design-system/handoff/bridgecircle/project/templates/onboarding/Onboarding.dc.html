@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Onboarding" description="Onboarding (FLOWS §1, revised) — navy Welcome, five prefilled steps (You · Education · Career · Activities · Help & connect), LinkedIn-style fields with working add/remove, collapsed-by-default optional forms, sticky continue bar, in-flow ask/offer/say-hi cold start, navy all-set." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button,select{font-family:var(--font-sans)} ::placeholder{color:var(--grey-400)} @keyframes onbSpin{to{transform:rotate(360deg)}}</style>
+</helmet>
+
+<sc-if value="{{ sWelcome }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Onboarding · Welcome" style="min-height:100vh;box-sizing:border-box;background:var(--cover-event);position:relative;display:flex;align-items:center;justify-content:center;padding:48px 24px;overflow:hidden">
+  <div style="position:absolute;inset:0;background:var(--cover-texture);background-size:18px 18px;pointer-events:none"></div>
+  <div style="position:relative;max-width:480px;width:100%;text-align:center;color:#fff">
+    <span style="display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="24" height="24" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#ffffff" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#9cc3ff" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <h1 style="margin:26px 0 0;font-size:var(--font-size-display-xl);line-height:var(--lh-display-xl);font-weight:800;letter-spacing:-0.025em">Welcome, Iris.</h1>
+    <p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:rgb(255 255 255 / 0.85);font-weight:500">A few quick steps, about two minutes. Your profile starts prefilled from the Chadwick roster &mdash; mostly you&rsquo;ll just confirm.</p>
+    <div style="display:grid;gap:8px;margin:28px 0 0;text-align:left">
+      <div style="display:flex;align-items:center;gap:14px;background:var(--glass-tile);box-shadow:var(--ring-glass);border-radius:var(--radius-box);padding:13px 16px"><span style="width:26px;height:26px;flex:none;border-radius:50%;background:rgb(255 255 255 / 0.14);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cover-accent)">1</span><span style="flex:1;min-width:0;font-size:14.5px;font-weight:700">Confirm who you are <span style="font-weight:500;color:rgb(255 255 255 / 0.7)">&mdash; your roster details, mostly done already</span></span></div>
+      <div style="display:flex;align-items:center;gap:14px;background:var(--glass-tile);box-shadow:var(--ring-glass);border-radius:var(--radius-box);padding:13px 16px"><span style="width:26px;height:26px;flex:none;border-radius:50%;background:rgb(255 255 255 / 0.14);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cover-accent)">2</span><span style="flex:1;min-width:0;font-size:14.5px;font-weight:700">Bring in your history <span style="font-weight:500;color:rgb(255 255 255 / 0.7)">&mdash; import from LinkedIn or a r&eacute;sum&eacute;, or type it</span></span></div>
+      <div style="display:flex;align-items:center;gap:14px;background:var(--glass-tile);box-shadow:var(--ring-glass);border-radius:var(--radius-box);padding:13px 16px"><span style="width:26px;height:26px;flex:none;border-radius:50%;background:rgb(255 255 255 / 0.14);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cover-accent)">3</span><span style="flex:1;min-width:0;font-size:14.5px;font-weight:700">Say hello <span style="font-weight:500;color:rgb(255 255 255 / 0.7)">&mdash; what you can speak to, and a first hi</span></span></div>
+    </div>
+    <button onClick="{{ next }}" style="margin-top:28px;background:#fff;color:var(--cover-ink);border:0;border-radius:12px;padding:14px 34px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px -6px rgb(0 0 0 / 0.4)" style-hover="background:#f0f4fa" style-focus="outline:2px solid #fff;outline-offset:3px">Get started</button>
+    <p style="margin:18px 0 0;font-size:13px;color:rgb(255 255 255 / 0.62);font-weight:500">Your details stay within Chadwick.</p>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sWorking }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Onboarding · Steps" style="min-height:100vh;box-sizing:border-box;background:var(--surface-page)">
+<div style="min-height:100vh;box-sizing:border-box;background:var(--wash-page);display:flex;flex-direction:column;align-items:center;padding:26px 24px 20px">
+
+  <div style="width:100%;max-width:600px;display:flex;align-items:center;gap:18px">
+    <button onClick="{{ back }}" style="flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:var(--radius-pill);background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);font-size:13.5px;font-weight:600;cursor:pointer;padding:9px 16px 9px 12px" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M15 18l-6-6 6-6"></path></svg>Back</button>
+    <span style="flex:1;display:flex;gap:6px">
+      <button onClick="{{ goSeg1 }}" aria-label="Go to step 1 · You" title="You" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg1On }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+      <button onClick="{{ goSeg2 }}" aria-label="Go to step 2 · Fast fill" title="Fast fill" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg2On }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+      <button onClick="{{ goSeg3 }}" aria-label="Go to step 3 · Education" title="Education" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg3On }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+      <button onClick="{{ goSeg4 }}" aria-label="Go to step 4 · Career" title="Career" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg4On }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+      <button onClick="{{ goSeg5 }}" aria-label="Go to step 5 · Activities" title="Activities" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg5On }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+      <button onClick="{{ goSeg6 }}" aria-label="Go to step 6 · Help" title="Help" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg6On }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+      <button onClick="{{ goSeg7 }}" aria-label="Go to step 7 · Say hi" title="Say hi" style="flex:1;height:7px;padding:0;border:0;border-radius:var(--radius-pill);background:var(--grey-200);position:relative;overflow:hidden;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><sc-if value="{{ seg7On }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:var(--radius-pill);background:var(--action-primary)"></span></sc-if></button>
+    </span>
+    <button onClick="{{ skip }}" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:13.5px;font-weight:600;cursor:pointer;padding:6px 8px;border-radius:8px" style-hover="color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Skip this step</button>
+  </div>
+
+  <div style="width:100%;max-width:600px;margin-top:36px">
+    <span style="font-size:12.5px;font-weight:700;color:var(--blue-600);letter-spacing:0.06em;text-transform:uppercase">{{ kicker }}</span>
+    <h1 style="margin:10px 0 0;font-size:var(--font-size-display-hero);line-height:var(--lh-display-hero);font-weight:700;letter-spacing:-0.02em">{{ heading }}</h1>
+    <p style="margin:10px 0 0;font-size:15px;color:var(--text-secondary);font-weight:500;line-height:1.6;text-wrap:pretty">{{ whyLine }}</p>
+  </div>
+
+  <sc-if value="{{ sYou }}" hint-placeholder-val="{{ true }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:26px 28px;box-sizing:border-box;display:grid;gap:20px">
+    <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Name</span><input defaultValue="Iris Lau" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Preferred name</span><input defaultValue="Iris" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+      <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Class year</span><input defaultValue="2022" inputMode="numeric" maxLength="4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;font-variant-numeric:tabular-nums" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+    </div>
+    <sc-if value="{{ akaClosed }}" hint-placeholder-val="{{ true }}"><button onClick="{{ openAka }}" style="justify-self:start;border:0;background:transparent;color:var(--blue-600);font-size:13px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:8px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">+ Add another name you go by</button></sc-if>
+    <sc-if value="{{ akaOpen }}" hint-placeholder-val="{{ false }}"><label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Also known as <span style="font-weight:500;color:var(--text-faint)">&middot; optional, searchable</span></span><input placeholder="Another name or script you go by" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label></sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ sImport }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;display:grid;gap:14px">
+    <sc-if value="{{ notImported }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:28px;box-sizing:border-box;display:grid;gap:16px">
+      <label style="display:grid;gap:8px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">LinkedIn profile URL</span>
+        <input value="{{ liDraft }}" onChange="{{ onLiDraft }}" onKeyDown="{{ onLiKey }}" placeholder="linkedin.com/in/yourname" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:15px 17px;font-size:16px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+      </label>
+      <button onClick="{{ importLinkedIn }}" style="border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:15px;font-size:14.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Import from LinkedIn</button>
+      <div style="display:flex;justify-content:center"><button onClick="{{ uploadResume }}" style="border:0;background:transparent;color:var(--blue-600);font-size:13.5px;font-weight:700;cursor:pointer;padding:6px 10px;border-radius:8px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">or upload a r&eacute;sum&eacute; instead &middot; PDF or Word</button></div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ importingFlag }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:36px 28px;box-sizing:border-box;display:grid;justify-items:center;gap:13px">
+      <span style="width:28px;height:28px;box-sizing:border-box;border-radius:50%;border:3px solid var(--grey-200);border-top-color:var(--action-primary);animation:onbSpin 0.8s linear infinite"></span>
+      <span style="font-size:14.5px;font-weight:700">{{ importingLine }}</span>
+      <span style="font-size:13px;color:var(--text-faint);font-weight:500">Usually a few seconds &mdash; nothing publishes without your review.</span>
+    </div>
+    </sc-if>
+    <sc-if value="{{ importedFlag }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px;box-sizing:border-box;display:grid;gap:14px">
+      <div style="display:flex;align-items:center;gap:12px;background:var(--blue-50);border-radius:var(--radius-box);padding:13px 16px">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;flex:none;fill:none;stroke:var(--blue-600);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>
+        <span style="flex:1;min-width:0;font-size:13.5px;font-weight:600;color:var(--blue-700)">{{ importedBannerLine }}</span>
+        <button onClick="{{ undoImport }}" style="flex:none;border:0;background:transparent;color:var(--blue-600);font-size:13px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Undo</button>
+      </div>
+      <span style="font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.55">We found <b>1 school</b>, <b>1 current role</b> and <b>3 skills</b>. Nothing publishes until you&rsquo;ve reviewed it on the next steps.</span>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ sEdu }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;display:grid;gap:14px">
+    <sc-if value="{{ importedFlag }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:9px;background:var(--blue-50);border-radius:var(--radius-box);padding:12px 16px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;flex:none;fill:none;stroke:var(--blue-600);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg><span style="font-size:13.5px;font-weight:600;color:var(--blue-700)">{{ importedLine }}</span></div>
+    </sc-if>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 24px;box-sizing:border-box;display:flex;align-items:center;gap:14px">
+      <span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--blue-50);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:var(--blue-600);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="m2 9 10-5 10 5-10 5z"></path><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5"></path></svg></span>
+      <span style="flex:1;min-width:0"><span style="display:block;font-size:15px;font-weight:700">Chadwick School</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:2px">Class of 2022 &middot; from the roster</span></span>
+      <span style="flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border-radius:var(--radius-pill);padding:6px 12px"><svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>Confirmed</span>
+    </div>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:26px 28px;box-sizing:border-box;display:grid;gap:18px">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <span style="flex:1;min-width:180px;font-size:16px;font-weight:700;letter-spacing:-0.01em">After Chadwick <span style="font-weight:500;color:var(--text-faint);font-size:13.5px">&middot; all optional</span></span>
+        <sc-if value="{{ notImported }}" hint-placeholder-val="{{ true }}"><button onClick="{{ goImport }}" style="border:0;background:transparent;color:var(--blue-600);font-size:13px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:8px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Import instead</button></sc-if>
+      </div>
+      <sc-for list="{{ schools }}" as="ed" hint-placeholder-count="0">
+        <div style="display:grid;gap:18px;border-top:1px solid var(--divider-row);padding-top:18px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13.5px;font-weight:700;color:var(--text-secondary)">College or program</span><button onClick="{{ ed.remove }}" style="border:0;background:transparent;color:var(--text-faint);font-size:13px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:8px" style-hover="color:var(--error)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Remove</button></div>
+          <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">School</span><input value="{{ ed.school }}" onChange="{{ ed.onSchool }}" placeholder="e.g. ArtCenter College of Design" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Degree</span><input value="{{ ed.degree }}" onChange="{{ ed.onDegree }}" placeholder="e.g. Bachelor of Fine Arts" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+            <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Field of study</span><input value="{{ ed.field }}" onChange="{{ ed.onField }}" placeholder="e.g. Graphic Design" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Start year</span><input value="{{ ed.start }}" onChange="{{ ed.onStart }}" placeholder="2022" inputMode="numeric" maxLength="4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;font-variant-numeric:tabular-nums" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+            <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">End year <span style="font-weight:500;color:var(--text-faint)">&middot; or expected</span></span><input value="{{ ed.end }}" onChange="{{ ed.onEnd }}" placeholder="2026" inputMode="numeric" maxLength="4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;font-variant-numeric:tabular-nums" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+          </div>
+          <div style="display:grid;gap:12px;background:var(--surface-subtle);border-radius:var(--radius-box);padding:16px 18px">
+            <span style="font-size:13.5px;font-weight:700;color:var(--text-secondary)">Activities &amp; societies at this school</span>
+            <sc-for list="{{ ed.acts }}" as="ea" hint-placeholder-count="1">
+              <div style="display:grid;gap:10px">
+                <sc-if value="{{ ea.notFirst }}" hint-placeholder-val="{{ false }}"><span style="border-top:1px solid var(--divider-row)"></span></sc-if>
+                <span style="display:flex;gap:10px;align-items:center">
+                  <input value="{{ ea.name }}" onChange="{{ ea.onName }}" placeholder="e.g. Design club, varsity swim, student paper" style="flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:12px 14px;font-size:14.5px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+                  <sc-if value="{{ ea.notFirst }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ea.remove }}" aria-label="Remove activity" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:13px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:8px" style-hover="color:var(--error)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Remove</button></sc-if>
+                </span>
+                <sc-if value="{{ ea.showDesc }}" hint-placeholder-val="{{ false }}"><textarea rows="2" value="{{ ea.desc }}" onChange="{{ ea.onDesc }}" placeholder="What you did there &mdash; role, projects, anything a classmate could ask about" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:12px 14px;font-size:14.5px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.55" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea></sc-if>
+                <sc-if value="{{ ea.noDesc }}" hint-placeholder-val="{{ true }}"><button onClick="{{ ea.addDetails }}" style="justify-self:start;border:0;background:transparent;color:var(--text-faint);font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 4px;border-radius:6px" style-hover="color:var(--blue-600)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">+ Add details</button></sc-if>
+              </div>
+            </sc-for>
+            <button onClick="{{ ed.addAct }}" style="justify-self:start;border:0;background:transparent;color:var(--blue-600);border-radius:8px;padding:4px 6px;font-size:13px;font-weight:700;cursor:pointer" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">+ Add an activity</button>
+          </div>
+        </div>
+      </sc-for>
+      <button onClick="{{ addSchool }}" style="border:1.5px dashed var(--grey-300);background:transparent;color:var(--blue-600);border-radius:var(--radius-box);padding:14px;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--blue-50);border-color:var(--blue-300)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ addSchoolLabel }}</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ sCareer }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;display:grid;gap:14px">
+    <sc-if value="{{ importedFlag }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:9px;background:var(--blue-50);border-radius:var(--radius-box);padding:12px 16px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;flex:none;fill:none;stroke:var(--blue-600);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg><span style="font-size:13.5px;font-weight:600;color:var(--blue-700)">{{ importedLine }}</span></div>
+    </sc-if>
+    <sc-if value="{{ notImported }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;justify-content:flex-end"><button onClick="{{ goImport }}" style="border:0;background:transparent;color:var(--blue-600);font-size:13px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:8px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Import from LinkedIn or r&eacute;sum&eacute; instead</button></div>
+    </sc-if>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:26px 28px;box-sizing:border-box;display:grid;gap:20px">
+      <span style="font-size:16px;font-weight:700;letter-spacing:-0.01em">Current role</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Title</span><input value="{{ curTitle }}" onChange="{{ onCurTitle }}" placeholder="e.g. Product designer" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+        <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Company</span><input value="{{ curCompany }}" onChange="{{ onCurCompany }}" placeholder="Where you work" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Location</span><input value="{{ curLocation }}" onChange="{{ onCurLocation }}" placeholder="Los Angeles, CA" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+        <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Start year</span><input value="{{ curStart }}" onChange="{{ onCurStart }}" placeholder="2024" inputMode="numeric" maxLength="4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;font-variant-numeric:tabular-nums" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+      </div>
+      <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">What do you do there?</span><textarea rows="2" value="{{ curDesc }}" onChange="{{ onCurDesc }}" placeholder="A line or two about your work &mdash; the specifics are what make matches good" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.55" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea></label>
+      <div style="border-top:1px solid var(--divider-row);padding-top:18px;display:grid;gap:16px">
+        <span><span style="display:block;font-size:15px;font-weight:700">Past roles</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:2px">Whatever&rsquo;s worth knowing &mdash; you can add more anytime.</span></span>
+        <sc-for list="{{ pastRoles }}" as="pr" hint-placeholder-count="0">
+          <div style="display:grid;gap:14px;background:var(--surface-subtle);border-radius:var(--radius-box);padding:16px 18px">
+            <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13.5px;font-weight:700;color:var(--text-secondary)">Past role</span><button onClick="{{ pr.remove }}" style="border:0;background:transparent;color:var(--text-faint);font-size:13px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:8px" style-hover="color:var(--error)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Remove</button></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Title</span><input value="{{ pr.title }}" onChange="{{ pr.onTitle }}" placeholder="e.g. Design intern" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+              <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Company</span><input value="{{ pr.company }}" onChange="{{ pr.onCompany }}" placeholder="Where it was" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+            </div>
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px">
+              <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Location</span><input value="{{ pr.location }}" onChange="{{ pr.onLocation }}" placeholder="Los Angeles, CA" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;min-width:0" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+              <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Start</span><input value="{{ pr.start }}" onChange="{{ pr.onStart }}" placeholder="2023" inputMode="numeric" maxLength="4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;font-variant-numeric:tabular-nums;min-width:0" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+              <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">End</span><input value="{{ pr.end }}" onChange="{{ pr.onEnd }}" placeholder="2024" inputMode="numeric" maxLength="4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;font-variant-numeric:tabular-nums;min-width:0" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+            </div>
+            <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">What did you do there?</span><textarea rows="2" value="{{ pr.desc }}" onChange="{{ pr.onDesc }}" placeholder="A line or two about the work" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.55" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea></label>
+          </div>
+        </sc-for>
+        <button onClick="{{ addPastRole }}" style="border:1.5px dashed var(--grey-300);background:transparent;color:var(--blue-600);border-radius:var(--radius-box);padding:14px;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--blue-50);border-color:var(--blue-300)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">+ Add a past role</button>
+      </div>
+      <div style="border-top:1px solid var(--divider-row);padding-top:18px;display:grid;gap:10px">
+        <span style="display:block;font-size:15px;font-weight:700">Skills</span>
+        <span style="font-size:13px;color:var(--text-secondary);font-weight:500">A few keywords &mdash; these feed matching.</span>
+        <sc-if value="{{ hasSkills }}" hint-placeholder-val="{{ false }}">
+        <span style="display:flex;gap:7px;flex-wrap:wrap">
+          <sc-for list="{{ skills }}" as="sk" hint-placeholder-count="0">
+            <span style="display:inline-flex;align-items:center;gap:7px;border-radius:var(--radius-pill);padding:8px 10px 8px 15px;font-size:13.5px;font-weight:700;background:var(--action-weak);color:var(--blue-600);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.35)">{{ sk.label }}<button onClick="{{ sk.remove }}" aria-label="Remove skill" style="border:0;background:transparent;color:var(--blue-600);font-size:15px;font-weight:600;cursor:pointer;padding:0 3px;line-height:1;border-radius:6px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&times;</button></span>
+          </sc-for>
+        </span>
+        </sc-if>
+        <span style="display:flex;gap:8px">
+          <input value="{{ skillDraft }}" onChange="{{ onSkillDraft }}" onKeyDown="{{ onSkillKey }}" placeholder="e.g. Figma, copywriting, financial modeling" style="flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+          <button onClick="{{ addSkill }}" style="flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:12px;padding:0 18px;font-size:13.5px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Add</button>
+        </span>
+        <span style="font-size:12.5px;color:var(--text-faint);font-weight:500">Press Enter or Add after each one.</span>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ sAct }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:26px 28px;box-sizing:border-box;display:grid;gap:20px">
+    <sc-for list="{{ activities }}" as="av" hint-placeholder-count="1">
+      <div style="display:grid;gap:16px">
+        <sc-if value="{{ av.notFirst }}" hint-placeholder-val="{{ false }}">
+        <div style="border-top:1px solid var(--divider-row);padding-top:18px;display:flex;align-items:center;justify-content:space-between"><span style="font-size:13.5px;font-weight:700;color:var(--text-secondary)">Another activity</span><button onClick="{{ av.remove }}" style="border:0;background:transparent;color:var(--text-faint);font-size:13px;font-weight:600;cursor:pointer;padding:4px 8px;border-radius:8px" style-hover="color:var(--error)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Remove</button></div>
+        </sc-if>
+        <div style="display:grid;gap:9px">
+          <span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Type</span>
+          <span style="display:flex;gap:7px;flex-wrap:wrap">
+            <sc-for list="{{ av.cats }}" as="ac" hint-placeholder-count="6">
+              <sc-if value="{{ ac.on }}" hint-placeholder-val="{{ false }}"><button onClick="{{ ac.pick }}" aria-pressed="true" style="border:0;border-radius:var(--radius-pill);padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;background:var(--action-weak);color:var(--blue-600);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.35)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ ac.label }}</button></sc-if>
+              <sc-if value="{{ ac.off }}" hint-placeholder-val="{{ true }}"><button onClick="{{ ac.pick }}" aria-pressed="false" style="border:0;border-radius:var(--radius-pill);padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;background:var(--surface-card);color:var(--text-secondary);box-shadow:var(--ring-outline)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ ac.label }}</button></sc-if>
+            </sc-for>
+          </span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Activity</span><input value="{{ av.name }}" onChange="{{ av.onName }}" placeholder="e.g. Coaching youth soccer" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+          <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Organization <span style="font-weight:500;color:var(--text-faint)">&middot; optional</span></span><input value="{{ av.org }}" onChange="{{ av.onOrg }}" placeholder="e.g. AYSO Region 4" style="border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input></label>
+        </div>
+        <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">A little more <span style="font-weight:500;color:var(--text-faint)">&middot; optional</span></span><textarea rows="2" value="{{ av.desc }}" onChange="{{ av.onDesc }}" placeholder="What you do, how long, why it matters to you" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.55" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea></label>
+      </div>
+    </sc-for>
+    <button onClick="{{ addActivity }}" style="border:1.5px dashed var(--grey-300);background:transparent;color:var(--blue-600);border-radius:var(--radius-box);padding:14px;font-size:14px;font-weight:700;cursor:pointer" style-hover="background:var(--blue-50);border-color:var(--blue-300)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">+ Add another activity</button>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ sHelp }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;display:grid;gap:14px">
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px;box-sizing:border-box;display:grid;gap:18px">
+      <div style="display:flex;align-items:center;gap:18px">
+        <span style="width:56px;height:56px;flex:none;border-radius:50%;background:var(--surface-subtle);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:none;stroke:var(--grey-400);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="9" r="3.4"></circle><path d="M5 20a7 7 0 0 1 14 0"></path></svg></span>
+        <span style="flex:1;min-width:0"><span style="display:block;font-size:15px;font-weight:700">Add a photo <span style="font-weight:500;color:var(--text-faint);font-size:13.5px">&middot; optional</span></span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:3px">Members with a photo hear back faster.</span></span>
+        <button style="flex:none;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Choose photo</button>
+      </div>
+      <label style="display:grid;gap:7px"><span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">Short bio <span style="font-weight:500;color:var(--text-faint)">&middot; optional</span></span><textarea rows="2" placeholder="A line or two &mdash; where you are, what you&rsquo;re into" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.55" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea></label>
+    </div>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px;box-sizing:border-box;display:grid;gap:18px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="flex:1;min-width:0"><span style="display:block;font-size:15px;font-weight:700">Open to helping</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:3px">We stop matching you when you&rsquo;re busy &mdash; pause anytime, never announced.</span></span>
+        <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}"><button onClick="{{ toggleHelping }}" role="switch" aria-checked="true" aria-label="Open to helping" style="flex:none;width:46px;height:27px;border:0;border-radius:var(--radius-pill);background:var(--action-primary);position:relative;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:3px;left:22px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(2 9 19 / 0.25)"></span></button></sc-if><sc-if value="{{ helpingOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleHelping }}" role="switch" aria-checked="false" aria-label="Open to helping" style="flex:none;width:46px;height:27px;border:0;border-radius:var(--radius-pill);background:var(--grey-300);position:relative;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(2 9 19 / 0.25)"></span></button></sc-if>
+      </div>
+      <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}">
+      <div style="border-top:1px solid var(--divider-row);padding-top:18px;display:grid;gap:10px">
+        <span style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">What can you speak to?</span>
+        <textarea rows="3" value="{{ topicsText }}" onChange="{{ onTopicsText }}" placeholder="In your own words &mdash; e.g. applying to art school, surviving a first internship, moving to LA on a budget" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.55" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+        <span style="font-size:13px;color:var(--text-faint);font-weight:500">Written naturally is best &mdash; this is what we match asks against.</span>
+      </div>
+      </sc-if>
+    </div>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px;box-sizing:border-box;display:grid;gap:10px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="flex:1;min-width:0"><span style="display:block;font-size:15px;font-weight:700">Keeping your profile fresh</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.55;margin-top:3px">Our AI can spot public changes &mdash; a new role, a move &mdash; and email you proposed updates. Nothing publishes without your OK.</span></span>
+        <sc-if value="{{ enrichOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ toggleEnrich }}" role="switch" aria-checked="true" aria-label="Check for profile updates" style="flex:none;width:46px;height:27px;border:0;border-radius:var(--radius-pill);background:var(--action-primary);position:relative;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:3px;left:22px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(2 9 19 / 0.25)"></span></button></sc-if><sc-if value="{{ enrichOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleEnrich }}" role="switch" aria-checked="false" aria-label="Check for profile updates" style="flex:none;width:46px;height:27px;border:0;border-radius:var(--radius-pill);background:var(--grey-300);position:relative;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgb(2 9 19 / 0.25)"></span></button></sc-if>
+      </div>
+      <span style="font-size:12.5px;color:var(--text-faint);font-weight:500">Fine-tune this anytime in Settings.</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ sCold }}" hint-placeholder-val="{{ false }}">
+  <div style="width:100%;max-width:600px;margin-top:24px;display:grid;gap:14px">
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px;box-sizing:border-box;display:grid;gap:12px">
+      <span><span style="display:block;font-size:16px;font-weight:700;letter-spacing:-0.01em">Anything you&rsquo;re trying to figure out?</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:3px">Ask it the way it comes out &mdash; we&rsquo;ll find who can help.</span></span>
+      <sc-if value="{{ notAsked }}" hint-placeholder-val="{{ true }}">
+      <span style="display:flex;gap:8px">
+        <input value="{{ askDraft }}" onChange="{{ onAskDraft }}" onKeyDown="{{ onAskKey }}" placeholder="What do you need?" style="flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:13px 15px;font-size:15px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+        <button onClick="{{ askIt }}" style="flex:none;border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:0 20px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask it</button>
+      </span>
+      </sc-if>
+      <sc-if value="{{ asked }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;background:var(--blue-50);border-radius:var(--radius-box);padding:13px 16px">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;flex:none;fill:none;stroke:var(--blue-600);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>
+        <span style="flex:1;min-width:0;font-size:13.5px;font-weight:600;color:var(--blue-700)">Saved &mdash; &ldquo;{{ askText }}&rdquo;. We&rsquo;ll find matches and show them on Home after setup.</span>
+        <button onClick="{{ editAsk }}" style="flex:none;border:0;background:transparent;color:var(--blue-600);font-size:13px;font-weight:700;cursor:pointer;padding:4px 8px;border-radius:8px" style-hover="color:var(--blue-700)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Edit</button>
+      </div>
+      </sc-if>
+    </div>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px 14px;box-sizing:border-box">
+      <span><span style="display:block;font-size:16px;font-weight:700;letter-spacing:-0.01em">Want to help someone?</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:3px">Two open asks near what you just entered.</span></span>
+      <div style="margin-top:8px"></div>
+      <sc-for list="{{ openAsks }}" as="oa" hint-placeholder-count="2">
+      <div style="display:flex;align-items:center;gap:13px;padding:14px 0;border-top:1px solid var(--divider-row)">
+        <sc-if value="{{ oa.av3 }}" hint-placeholder-val="{{ true }}"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;box-shadow:var(--ring-avatar)">{{ oa.initials }}</span></sc-if>
+        <sc-if value="{{ oa.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;box-shadow:var(--ring-avatar)">{{ oa.initials }}</span></sc-if>
+        <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700;line-height:1.45">&ldquo;{{ oa.q }}&rdquo;</span><span style="display:block;font-size:12.5px;color:var(--text-faint);font-weight:500;margin-top:2px">{{ oa.meta }}</span></span>
+        <sc-if value="{{ oa.notOffered }}" hint-placeholder-val="{{ true }}"><button onClick="{{ oa.offer }}" style="flex:none;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:9px 18px;font-size:13.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Offer</button></sc-if>
+        <sc-if value="{{ oa.offered }}" hint-placeholder-val="{{ false }}"><button onClick="{{ oa.offer }}" aria-pressed="true" title="Click to withdraw" style="flex:none;display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border:0;border-radius:var(--radius-pill);padding:9px 16px;cursor:pointer" style-hover="background:var(--action-weak)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg>Offered</button></sc-if>
+      </div>
+      </sc-for>
+    </div>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 28px;box-sizing:border-box">
+      <span><span style="display:block;font-size:16px;font-weight:700;letter-spacing:-0.01em">Say hi to your class</span><span style="display:block;font-size:13px;color:var(--text-secondary);font-weight:500;margin-top:3px">One connect request each &mdash; a quick hello, nothing formal.</span></span>
+      <div style="display:grid;margin-top:10px">
+        <sc-for list="{{ cohort }}" as="cm" hint-placeholder-count="5">
+          <button onClick="{{ cm.toggle }}" aria-pressed="{{ cm.aria }}" style="display:flex;align-items:center;gap:13px;text-align:left;border:0;background:transparent;padding:10px 6px;border-top:1px solid var(--divider-row);cursor:pointer;border-radius:8px" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+            <sc-if value="{{ cm.on }}" hint-placeholder-val="{{ false }}"><span style="width:19px;height:19px;flex:none;border-radius:6px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:var(--action-primary)"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg></span></sc-if>
+            <sc-if value="{{ cm.off }}" hint-placeholder-val="{{ true }}"><span style="width:19px;height:19px;flex:none;border-radius:6px;box-sizing:border-box;background:#fff;border:1.5px solid var(--grey-300)"></span></sc-if>
+            <sc-if value="{{ cm.av2 }}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:var(--ring-avatar)">{{ cm.initials }}</span></sc-if>
+            <sc-if value="{{ cm.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:var(--ring-avatar)">{{ cm.initials }}</span></sc-if>
+            <sc-if value="{{ cm.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:var(--ring-avatar)">{{ cm.initials }}</span></sc-if>
+            <sc-if value="{{ cm.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:var(--ring-avatar)">{{ cm.initials }}</span></sc-if>
+            <sc-if value="{{ cm.av6 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-6-bg);color:var(--avatar-6-fg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:var(--ring-avatar)">{{ cm.initials }}</span></sc-if>
+            <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700">{{ cm.name }}</span><span style="display:block;font-size:12.5px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ cm.line }}</span></span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div style="width:100%;max-width:600px;margin-top:28px;box-sizing:border-box;display:flex;align-items:center;gap:16px">
+    <button onClick="{{ next }}" style="border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:14px 30px;font-size:14.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ continueLabel }}</button>
+    <span style="font-size:13px;color:var(--text-faint);font-weight:500;line-height:1.45">{{ footnote }}</span>
+  </div>
+
+  <sc-if value="{{ toastOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:6px;background:var(--cover-ink);color:#fff;border-radius:12px;padding:11px 10px 11px 18px;box-shadow:0 12px 32px -10px rgb(2 9 19 / 0.45)">
+    <span style="font-size:13.5px;font-weight:600;white-space:nowrap">Removed {{ toastLabel }}</span>
+    <button onClick="{{ toastUndo }}" style="border:0;background:transparent;color:var(--cover-accent, #9cc3ff);font-size:13.5px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:8px" style-hover="color:#fff" style-focus="outline:2px solid #fff;outline-offset:2px">Undo</button>
+  </div>
+  </sc-if>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sDone }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Onboarding · All set" style="min-height:100vh;box-sizing:border-box;background:var(--cover-event);position:relative;display:flex;align-items:center;justify-content:center;padding:48px 24px;overflow:hidden">
+  <div style="position:absolute;inset:0;background:var(--cover-texture);background-size:18px 18px;pointer-events:none"></div>
+  <div style="position:relative;max-width:520px;width:100%;text-align:center;color:#fff">
+    <span style="width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--glass-tile);box-shadow:var(--ring-glass);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+    <h1 style="margin:24px 0 0;font-size:var(--font-size-display-xl);line-height:var(--lh-display-xl);font-weight:800;letter-spacing:-0.025em">You&rsquo;re all set, Iris.</h1>
+    <p style="margin:12px 0 0;font-size:16px;line-height:1.6;color:rgb(255 255 255 / 0.85);font-weight:500;text-wrap:pretty">Your profile is live, and we&rsquo;ve lined up a few classmates worth meeting. {{ doneLine }}</p>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:30px">
+      <a href="../home/Home.dc.html" style="display:inline-flex;align-items:center;background:#fff;color:var(--cover-ink);border-radius:12px;padding:14px 28px;font-size:14.5px;font-weight:700;text-decoration:none;box-shadow:0 6px 20px -6px rgb(0 0 0 / 0.4)" style-hover="background:#f0f4fa" style-focus="outline:2px solid #fff;outline-offset:3px">Go to your dashboard</a>
+      <a href="../profile-self/ProfileSelf.dc.html" style="display:inline-flex;align-items:center;background:rgb(255 255 255 / 0.16);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / 0.55);color:#fff;border-radius:12px;padding:14px 24px;font-size:14.5px;font-weight:700;text-decoration:none" style-hover="background:rgb(255 255 255 / 0.26)" style-focus="outline:2px solid #fff;outline-offset:3px">Review profile</a>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 900},
+  &quot;startScreen&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;welcome&quot;, &quot;you&quot;, &quot;import&quot;, &quot;education&quot;, &quot;career&quot;, &quot;activities&quot;, &quot;help-connect&quot;, &quot;say-hi&quot;, &quot;all-set&quot;], &quot;default&quot;: &quot;welcome&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Flow&quot;},
+  &quot;openToHelping&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Flow&quot;}
+}">
+class Component extends DCLogic {
+  screens = ['welcome', 'you', 'import', 'education', 'career', 'activities', 'help-connect', 'say-hi', 'all-set'];
+
+  state = {
+    step: 0,
+    maxStep: 0,
+    helping: true,
+    topicsText: '',
+    enrichOn: true,
+    akaOpen: false,
+    importing: '',
+    toast: null,
+    checked: {},
+    schools: [],
+    pastRoles: [],
+    liDraft: '',
+    imported: '',
+    cur: { title: '', company: '', location: '', start: '', desc: '' },
+    skills: [],
+    skillDraft: '',
+    activities: [{ cat: '', name: '', org: '', desc: '' }],
+    askDraft: '',
+    askSent: false,
+    offers: {},
+    booted: false,
+  };
+
+  actPool = ['Volunteering', 'Club or society', 'Sports', 'Music & arts', 'Side project', 'Award'];
+
+  askPool = [
+    { id: 'dp', initials: 'DP', av: 3, q: 'How do I make a portfolio site without knowing how to code?', meta: 'Devon Park \u00b7 Class of \u201925 \u00b7 matches \u201cdesign\u201d' },
+    { id: 'sk', initials: 'SK', av: 4, q: 'Is an art-school MFA worth it, or should I keep working?', meta: 'A member \u00b7 Class of \u201924 \u00b7 matches \u201cdesign\u201d' },
+  ];
+
+  cohortPool = [
+    { name: 'Noah Reyes', initials: 'NR', av: 2, line: 'Engineering student \u00b7 UCLA' },
+    { name: 'Grace Kim', initials: 'GK', av: 3, line: 'Analyst \u00b7 New York' },
+    { name: 'Theo Marsh', initials: 'TM', av: 4, line: 'Film production \u00b7 Los Angeles' },
+    { name: 'Lena Ortiz', initials: 'LO', av: 5, line: 'Pre-med \u00b7 UC San Diego' },
+    { name: 'Sam Whitfield', initials: 'SW', av: 6, line: 'Startup founder \u00b7 Austin' },
+  ];
+
+  componentDidMount() {
+    if (this.state.booted) return;
+    let start = this.props.startScreen ?? 'welcome';
+    try {
+      const q = new URLSearchParams(window.location.search).get('screen');
+      if (q) start = q;
+    } catch (e) {}
+    const idx = this.screens.indexOf(start);
+    const st = idx >= 0 ? idx : 0;
+    this.setState({ step: st, maxStep: st, helping: this.props.openToHelping ?? true, booted: true });
+  }
+
+  go(n) {
+    const step = Math.max(0, Math.min(8, n));
+    this.setState({ step, maxStep: Math.max(this.state.maxStep, step) });
+    try { window.scrollTo(0, 0); } catch (e) {}
+  }
+
+  goVisited(n) {
+    if (this.state.maxStep >= n) this.go(n);
+  }
+
+  removeAndToast(label, partial, restore) {
+    this.setState({ ...partial, toast: { label } });
+    this._restore = restore;
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: null }), 6000);
+  }
+
+  updList(key, i, field, val) {
+    this.setState({ [key]: this.state[key].map((e, idx) => idx === i ? { ...e, [field]: val } : e) });
+  }
+
+  dropFrom(key, i) {
+    this.setState({ [key]: this.state[key].filter((_, idx) => idx !== i) });
+  }
+
+  addSkill() {
+    const v = this.state.skillDraft.trim();
+    if (v && !this.state.skills.includes(v)) this.setState({ skills: [...this.state.skills, v], skillDraft: '' });
+    else this.setState({ skillDraft: '' });
+  }
+
+  doImport(source) {
+    this.setState({ importing: source });
+    clearTimeout(this._importT);
+    this._importT = setTimeout(() => {
+      this.setState({
+        importing: '',
+        imported: source,
+        schools: [{ school: 'ArtCenter College of Design', degree: 'Bachelor of Fine Arts', field: 'Graphic Design', start: '2022', end: '2026', acts: [{ name: 'Student design association', desc: '' }] }],
+        cur: { title: 'Product design intern', company: 'Field Pro', location: 'Los Angeles, CA', start: '2025', desc: '' },
+        skills: ['Figma', 'Design systems', 'Prototyping'],
+      });
+    }, 1400);
+  }
+
+  undoImport() {
+    this.setState({ imported: '', schools: [], cur: { title: '', company: '', location: '', start: '', desc: '' }, skills: [] });
+  }
+
+  renderVals() {
+    const s = this.state.step;
+    const kickers = ['', 'Step 1 of 7 \u00b7 You', 'Step 2 of 7 \u00b7 Fast fill', 'Step 3 of 7 \u00b7 Education', 'Step 4 of 7 \u00b7 Career', 'Step 5 of 7 \u00b7 Activities', 'Step 6 of 7 \u00b7 Help', 'Step 7 of 7 \u00b7 Say hi', ''];
+    const headings = ['', 'Is this you?', 'Bring your history in one go', 'Where did you study?', 'What do you do now?', 'What else are you into?', 'How can the circle find you?', 'A first hello', ''];
+    const whys = ['',
+      'Your details come from the school roster \u2014 fix anything that\u2019s off. Everything stays within Chadwick.',
+      'Paste your LinkedIn URL or upload a r\u00e9sum\u00e9 and we\u2019ll prefill the next two steps for you to review. Prefer typing? Skip ahead.',
+      'Chadwick is already on your profile. Add anything after \u2014 classmates on the same path can find you.',
+      'This is how the right people find you \u2014 and how we find the right people for you.',
+      'Volunteering, clubs, sports, side projects \u2014 often the best conversation starters. Totally optional.',
+      'All optional. \u201cOpen to helping\u201d just means we may show you asks that fit \u2014 never a commitment.',
+      'Three quick ways to start with a full circle instead of an empty one. Skip any of them.',
+      ''];
+
+    const phase = s; // one segment per step
+    const segOn = (i) => i <= phase;
+
+    const updAct = (i, j, field, val) => {
+      this.setState({ schools: this.state.schools.map((e, idx) => idx === i ? { ...e, acts: e.acts.map((a, jdx) => jdx === j ? { ...a, [field]: val } : a) } : e) });
+    };
+    const schools = this.state.schools.map((e, i) => ({
+      school: e.school, degree: e.degree, field: e.field, start: e.start, end: e.end,
+      onSchool: (ev) => this.updList('schools', i, 'school', ev.target.value),
+      onDegree: (ev) => this.updList('schools', i, 'degree', ev.target.value),
+      onField: (ev) => this.updList('schools', i, 'field', ev.target.value),
+      onStart: (ev) => this.updList('schools', i, 'start', ev.target.value),
+      onEnd: (ev) => this.updList('schools', i, 'end', ev.target.value),
+      remove: () => this.removeAndToast('school', { schools: this.state.schools.filter((_, idx) => idx !== i) }, { schools: this.state.schools }),
+      acts: e.acts.map((a, j) => ({
+        name: a.name, desc: a.desc,
+        notFirst: j > 0,
+        showDesc: !!a.more || !!a.desc,
+        noDesc: !a.more && !a.desc,
+        addDetails: () => updAct(i, j, 'more', true),
+        onName: (ev) => updAct(i, j, 'name', ev.target.value),
+        onDesc: (ev) => updAct(i, j, 'desc', ev.target.value),
+        remove: () => this.removeAndToast('activity', { schools: this.state.schools.map((se, idx) => idx === i ? { ...se, acts: se.acts.filter((_, jdx) => jdx !== j) } : se) }, { schools: this.state.schools }),
+      })),
+      addAct: () => this.setState({ schools: this.state.schools.map((se, idx) => idx === i ? { ...se, acts: [...se.acts, { name: '', desc: '' }] } : se) }),
+    }));
+
+    const pastRoles = this.state.pastRoles.map((e, i) => ({
+      title: e.title, company: e.company, location: e.location, start: e.start, end: e.end, desc: e.desc,
+      onTitle: (ev) => this.updList('pastRoles', i, 'title', ev.target.value),
+      onCompany: (ev) => this.updList('pastRoles', i, 'company', ev.target.value),
+      onLocation: (ev) => this.updList('pastRoles', i, 'location', ev.target.value),
+      onStart: (ev) => this.updList('pastRoles', i, 'start', ev.target.value),
+      onEnd: (ev) => this.updList('pastRoles', i, 'end', ev.target.value),
+      onDesc: (ev) => this.updList('pastRoles', i, 'desc', ev.target.value),
+      remove: () => this.removeAndToast('past role', { pastRoles: this.state.pastRoles.filter((_, idx) => idx !== i) }, { pastRoles: this.state.pastRoles }),
+    }));
+
+    const skills = this.state.skills.map((label, i) => ({
+      label,
+      remove: () => this.setState({ skills: this.state.skills.filter((_, idx) => idx !== i) }),
+    }));
+
+    const activities = this.state.activities.map((e, i) => ({
+      name: e.name, org: e.org, desc: e.desc,
+      notFirst: i > 0,
+      onName: (ev) => this.updList('activities', i, 'name', ev.target.value),
+      onOrg: (ev) => this.updList('activities', i, 'org', ev.target.value),
+      onDesc: (ev) => this.updList('activities', i, 'desc', ev.target.value),
+      remove: () => this.removeAndToast('activity', { activities: this.state.activities.filter((_, idx) => idx !== i) }, { activities: this.state.activities }),
+      cats: this.actPool.map((label) => ({
+        label,
+        on: e.cat === label,
+        off: e.cat !== label,
+        pick: () => this.updList('activities', i, 'cat', e.cat === label ? '' : label),
+      })),
+    }));
+
+    const openAsks = this.askPool.map((a, i) => {
+      const offered = !!this.state.offers[a.id];
+      return {
+        initials: a.initials, q: a.q, meta: a.meta,
+        av3: a.av === 3, av4: a.av === 4,
+        mt: i === 0 ? '8px' : '0',
+        offered, notOffered: !offered,
+        offer: () => this.setState({ offers: { ...this.state.offers, [a.id]: !offered } }),
+      };
+    });
+
+    const checked = this.state.checked;
+    const cohort = this.cohortPool.map((m) => {
+      const on = !!checked[m.name];
+      return {
+        name: m.name, initials: m.initials, line: m.line, on, off: !on,
+        aria: on ? 'true' : 'false',
+        av2: m.av === 2, av3: m.av === 3, av4: m.av === 4, av5: m.av === 5, av6: m.av === 6,
+        toggle: () => {
+          const c = { ...this.state.checked };
+          if (c[m.name]) delete c[m.name];
+          else c[m.name] = true;
+          this.setState({ checked: c });
+        },
+      };
+    });
+    const helloCount = cohort.filter((c) => c.on).length;
+
+    const continueLabels = ['', 'Looks right \u2014 continue', this.state.imported ? 'Continue' : (this.state.importing ? 'Importing\u2026' : 'I\u2019ll type it in myself'), 'Continue', 'Continue', 'Continue', 'Continue', helloCount > 0 ? 'Send ' + helloCount + (helloCount === 1 ? ' hello & finish' : ' hellos & finish') : 'Finish'];
+    const footnotes = ['', '',
+      'You review everything before it\u2019s saved.',
+      'Only Chadwick is required \u2014 and it\u2019s already done.',
+      'Everything here is editable later on your profile.',
+      'These show on your profile as conversation starters.',
+      'You can change any of this later on Help \u00b7 Give.',
+      helloCount === 0 ? 'No pressure \u2014 you can say hi anytime from People.' : ''];
+
+    return {
+      sWelcome: s === 0,
+      sWorking: s >= 1 && s <= 7,
+      sYou: s === 1, sImport: s === 2, sEdu: s === 3, sCareer: s === 4, sAct: s === 5, sHelp: s === 6, sCold: s === 7,
+      sDone: s === 8,
+      seg1On: segOn(1), seg2On: segOn(2), seg3On: segOn(3), seg4On: segOn(4), seg5On: segOn(5), seg6On: segOn(6), seg7On: segOn(7),
+      goSeg1: () => this.goVisited(1), goSeg2: () => this.goVisited(2), goSeg3: () => this.goVisited(3), goSeg4: () => this.goVisited(4), goSeg5: () => this.goVisited(5), goSeg6: () => this.goVisited(6), goSeg7: () => this.goVisited(7),
+      toastOn: !!this.state.toast,
+      toastLabel: this.state.toast ? this.state.toast.label : '',
+      toastUndo: () => { clearTimeout(this._toastT); this.setState({ ...(this._restore || {}), toast: null }); },
+      akaOpen: this.state.akaOpen,
+      akaClosed: !this.state.akaOpen,
+      openAka: () => this.setState({ akaOpen: true }),
+      enrichOn: this.state.enrichOn,
+      enrichOff: !this.state.enrichOn,
+      toggleEnrich: () => this.setState({ enrichOn: !this.state.enrichOn }),
+      liDraft: this.state.liDraft,
+      onLiDraft: (ev) => this.setState({ liDraft: ev.target.value }),
+      onLiKey: (ev) => { if (ev.key === 'Enter' && this.state.liDraft.trim()) { ev.preventDefault(); this.doImport('linkedin'); } },
+      importLinkedIn: () => { if (this.state.liDraft.trim()) this.doImport('linkedin'); },
+      uploadResume: () => this.doImport('resume'),
+      undoImport: () => this.undoImport(),
+      importedFlag: !!this.state.imported,
+      notImported: !this.state.imported && !this.state.importing,
+      importingFlag: !!this.state.importing,
+      importingLine: this.state.importing === 'resume' ? 'Reading your r\u00e9sum\u00e9\u2026' : 'Reading your LinkedIn profile\u2026',
+      importedLine: this.state.imported === 'resume' ? 'Prefilled from your r\u00e9sum\u00e9 \u2014 check it over and fix anything.' : 'Prefilled from your LinkedIn \u2014 check it over and fix anything.',
+      importedBannerLine: this.state.imported === 'resume' ? 'Imported from your r\u00e9sum\u00e9 \u2014 Education and Career are prefilled.' : 'Imported from LinkedIn \u2014 Education and Career are prefilled.',
+      goImport: () => this.go(2),
+      curTitle: this.state.cur.title,
+      onCurTitle: (ev) => this.setState({ cur: { ...this.state.cur, title: ev.target.value } }),
+      curCompany: this.state.cur.company,
+      onCurCompany: (ev) => this.setState({ cur: { ...this.state.cur, company: ev.target.value } }),
+      curLocation: this.state.cur.location,
+      onCurLocation: (ev) => this.setState({ cur: { ...this.state.cur, location: ev.target.value } }),
+      curStart: this.state.cur.start,
+      onCurStart: (ev) => this.setState({ cur: { ...this.state.cur, start: ev.target.value } }),
+      curDesc: this.state.cur.desc,
+      onCurDesc: (ev) => this.setState({ cur: { ...this.state.cur, desc: ev.target.value } }),
+      kicker: kickers[s] || '', heading: headings[s] || '', whyLine: whys[s] || '',
+      continueLabel: continueLabels[s] || 'Continue',
+      footnote: footnotes[s] || '',
+      next: () => this.go(s + 1),
+      back: () => this.go(s - 1),
+      skip: () => this.go(s + 1),
+      schools,
+      addSchool: () => this.setState({ schools: [...this.state.schools, { school: '', degree: '', field: '', start: '', end: '', acts: [{ name: '', desc: '' }] }] }),
+      addSchoolLabel: this.state.schools.length === 0 ? '+ Add a college or program' : '+ Add another school',
+      pastRoles,
+      addPastRole: () => this.setState({ pastRoles: [...this.state.pastRoles, { title: '', company: '', location: '', start: '', end: '', desc: '' }] }),
+      skills,
+      hasSkills: skills.length > 0,
+      skillDraft: this.state.skillDraft,
+      onSkillDraft: (ev) => this.setState({ skillDraft: ev.target.value }),
+      onSkillKey: (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); this.addSkill(); } },
+      addSkill: () => this.addSkill(),
+      activities,
+      addActivity: () => this.setState({ activities: [...this.state.activities, { cat: '', name: '', org: '', desc: '' }] }),
+      helping: this.state.helping,
+      helpingOff: !this.state.helping,
+      toggleHelping: () => this.setState({ helping: !this.state.helping }),
+      topicsText: this.state.topicsText,
+      onTopicsText: (ev) => this.setState({ topicsText: ev.target.value }),
+      askDraft: this.state.askDraft,
+      onAskDraft: (ev) => this.setState({ askDraft: ev.target.value }),
+      onAskKey: (ev) => { if (ev.key === 'Enter' && this.state.askDraft.trim()) { ev.preventDefault(); this.setState({ askSent: true }); } },
+      askIt: () => { if (this.state.askDraft.trim()) this.setState({ askSent: true }); },
+      editAsk: () => this.setState({ askSent: false }),
+      asked: this.state.askSent,
+      notAsked: !this.state.askSent,
+      askText: this.state.askDraft.trim(),
+      openAsks,
+      cohort,
+      doneLine: helloCount > 0 ? 'Your ' + helloCount + (helloCount === 1 ? ' hello is' : ' hellos are') + ' on their way.' : 'Home already has a few things waiting for you.',
+    };
+  }
+}
+
+</script>
+</body>
+</html>

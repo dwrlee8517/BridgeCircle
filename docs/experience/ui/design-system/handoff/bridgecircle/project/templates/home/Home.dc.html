@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Home page" description="Home — the dashboard (FLOWS §2). This-week-in-the-circle rotating spotlight, live ask entry, Waiting on you (same group as Messages), open asks with slot count; rail = school pulse + profile freshness. Nothing completes here except connect accept/decline." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./home-data.js"></script>
+  <script src="../notifications/notifications-data.js"></script>
+  <script src="../help/help-data.js"></script>
+  <script src="../school/school-data.js"></script>
+  <script src="../messages/messages-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}
+  @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+  @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;max-width:var(--container-shell);margin:0 auto" data-screen-label="Home">
+
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 26px;z-index:2">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Home</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span style="position:relative;display:inline-flex">
+          <button onClick="{{ bellToggle }}" aria-label="Notifications" aria-expanded="{{ popOpen }}" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+            <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+            <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+              <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+            </sc-if>
+          </button>
+          <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}">
+            <span onClick="{{ popClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
+            <div role="dialog" aria-label="Notifications" style="position:absolute;top:50px;right:0;z-index:31;width:390px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden">
+              <span style="display:flex;align-items:baseline;gap:8px;padding:14px 18px 10px">
+                <b style="font-size:14px;font-weight:800;letter-spacing:-0.02em">Notifications</b>
+                <a href="../notifications/Notifications.dc.html" style="margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">See all &rarr;</a>
+              </span>
+              <sc-if value="{{ popEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;padding:6px 18px 16px;font-size:12.5px;line-height:1.5;color:var(--text-faint);font-weight:500;text-align:left">You&rsquo;re caught up &mdash; the full record lives in <a href="../notifications/Notifications.dc.html" style="color:var(--action-primary);font-weight:700">Notifications</a>.</p>
+              </sc-if>
+              <sc-for list="{{ popItems }}" as="n" hint-placeholder-count="3">
+                <a href="{{ n.href }}" onClick="{{ n.markRead }}" style="display:flex;align-items:center;gap:11px;padding:11px 18px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <sc-if value="{{ n.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <span style="flex:1;min-width:0">
+                    <span style="display:block;font-size:13px;font-weight:800;line-height:1.4">{{ n.actor }} <span style="font-weight:600">{{ n.line }}</span></span>
+                    <sc-if value="{{ n.subShow }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.sub }}</span></sc-if>
+                  </span>
+                  <span style="flex:none;font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ n.when }}</span>
+                </a>
+              </sc-for>
+              <p style="margin:0;padding:10px 18px 12px;border-top:1px solid var(--divider-row);font-size:11px;color:var(--text-faint);font-weight:500;text-align:left">A tap on the shoulder, once &mdash; after this, these live only in Notifications.</p>
+            </div>
+          </sc-if>
+        </span>
+        <span style="position:relative;display:inline-flex">
+          <button onClick="{{ gearToggle }}" aria-label="Account menu" aria-expanded="{{ sPopOpen }}" style="width:40px;height:40px;border-radius:50%;border:0;padding:0;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);color:#fff;font-family:var(--font-sans);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">IL</button>
+          <sc-if value="{{ sPopOpen }}" hint-placeholder-val="{{ false }}">
+            <span onClick="{{ sPopClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
+            <div role="dialog" aria-label="Account" style="position:absolute;top:48px;right:0;z-index:31;width:300px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden;text-align:left">
+              <a href="../profile-self/ProfileSelf.dc.html" style="display:flex;align-items:center;gap:12px;padding:16px 18px 14px;text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                <span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff">IL</span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font-size:14px;font-weight:800;letter-spacing:-0.01em">Iris Lau</span>
+                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">iris.lau@alum.chadwick.edu</span>
+                </span>
+                <span style="flex:none;color:var(--text-faint);font-size:14px">&rsaquo;</span>
+              </a>
+
+              <span style="display:block;border-top:1px solid var(--divider-row);padding:6px 0">
+                <a href="../profile-self/ProfileSelf.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">View profile</a>
+                <a href="../my-circle/MyCircle.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">My circle</a>
+                <a href="../help/AskHistory.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Your asks</a>
+                <a href="../notifications/Notifications.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Notifications</a>
+                <a href="../settings/Settings.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Settings</a>
+              </span>
+
+              <span style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--divider-row)">
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font-size:13px;font-weight:700">Open to helping</span>
+                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Pausing stops matching &mdash; never announced</span>
+                </span>
+                <sc-if value="{{ qpPauseOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="true" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+                <sc-if value="{{ qpPauseOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="false" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:#c8cfd8;position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+              </span>
+
+              <span style="display:flex;align-items:center;gap:14px;padding:11px 18px 13px;border-top:1px solid var(--divider-row);background:#fbfcfd">
+                <a href="mailto:bridgecircle@chadwick.edu" style="font-size:12.5px;color:var(--text-secondary);font-weight:700;text-decoration:none" style-hover="color:var(--text-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Send feedback</a>
+                <a href="../settings/SignedOut.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--text-secondary);font-weight:700;text-decoration:none" style-hover="color:var(--text-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Sign out</a>
+              </span>
+            </div>
+          </sc-if>
+        </span>
+      </span>
+    </header>
+
+    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
+      <div style="max-width:1040px;margin:0 auto;padding:26px 34px 40px;display:grid;gap:14px">
+
+        <sc-if value="{{ pageLoading }}" hint-placeholder-val="{{ false }}">
+          <div aria-label="Loading" role="status" style="display:grid;gap:14px">
+            <div>
+              <span data-skel="" style="display:block;width:300px;max-width:60%;height:26px;border-radius:9px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;width:420px;max-width:80%;height:13px;margin-top:9px;border-radius:7px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            </div>
+            <span data-skel="" style="display:block;height:150px;border-radius:var(--radius-card-xl);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <span data-skel="" style="display:block;height:52px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <div style="display:grid;grid-template-columns:1fr 320px;gap:14px">
+              <div style="display:grid;gap:12px;align-content:start">
+                <span data-skel="" style="display:block;height:84px;border-radius:16px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;height:84px;border-radius:16px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              </div>
+              <span data-skel="" style="display:block;height:180px;border-radius:16px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ coldStart }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <h1 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-0.03em">Welcome, Iris.</h1>
+            <p style="margin:6px 0 0;font-size:13.5px;color:var(--grey-600);font-weight:500">You&rsquo;re in. A quiet start is normal &mdash; here are three ways to make the circle yours.</p>
+          </div>
+          <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);overflow:hidden">
+            <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:14px;padding:18px 24px;text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+              <span style="flex:1;min-width:0">
+                <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.01em">Anything you&rsquo;re trying to figure out?</b>
+                <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">Ask it the way it comes out &mdash; we&rsquo;ll find who can speak to it.</span>
+              </span>
+              <span style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700">Ask &rarr;</span>
+            </a>
+            <a href="../help/Help.dc.html?mode=give" style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-top:1px solid var(--divider-row);text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+              <span style="flex:1;min-width:0">
+                <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.01em">Want to help someone?</b>
+                <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">A few open asks already match what you told us you know.</span>
+              </span>
+              <span style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700">See asks &rarr;</span>
+            </a>
+            <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-top:1px solid var(--divider-row);text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+              <span style="flex:1;min-width:0">
+                <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.01em">Say hi to your class</b>
+                <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">Class of &rsquo;22 is here &mdash; one hello starts your circle and your Messages.</span>
+              </span>
+              <span style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700">See your class &rarr;</span>
+            </a>
+          </div>
+          <p style="margin:2px 0 0;font-size:12px;color:var(--text-faint);font-weight:500;padding:0 2px">Nothing here is required &mdash; the dashboard fills in as the circle does. The school&rsquo;s events live on <a href="../school/School.dc.html" style="color:var(--action-primary);font-weight:700">School</a>.</p>
+        </sc-if>
+
+        <sc-if value="{{ pageNormal }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <h1 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-0.03em">Welcome back, Iris.</h1>
+          <p style="margin:6px 0 0;font-size:13.5px;color:var(--grey-600);font-weight:500">{{ pulseLine }}</p>
+        </div>
+
+        <section aria-label="This week in the circle" onMouseEnter="{{ deckEnter }}" onMouseLeave="{{ deckLeave }}" onFocus="{{ deckFocus }}" onBlur="{{ deckBlur }}" style="display:grid;gap:8px">
+          <span style="display:flex;align-items:baseline;gap:8px;padding:0 2px">
+            <b style="font-size:13px;font-weight:800;letter-spacing:0.02em;color:var(--text-secondary)">This week in the circle</b>
+            <span style="font-size:11.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ dkCount }}</span>
+          </span>
+          <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 26px 18px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <sc-if value="{{ dkPillGreen }}" hint-placeholder-val="{{ true }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:#029a5e;background:rgb(3 178 108 / 0.12)">{{ dkPill }}</span></sc-if>
+              <sc-if value="{{ dkPillBlue }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--blue-600);background:var(--blue-50)">{{ dkPill }}</span></sc-if>
+              <sc-if value="{{ dkPillGrey }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--text-secondary);background:var(--surface-subtle)">{{ dkPill }}</span></sc-if>
+              <span style="font-size:12px;color:var(--text-faint);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dkMeta }}</span>
+              <span style="margin-left:auto;display:flex;gap:6px;flex:none">
+                <button onClick="{{ dkPrev }}" aria-label="Previous" style="width:30px;height:30px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);color:var(--text-secondary);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding-bottom:2px" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&lsaquo;</button>
+                <button onClick="{{ dkNext }}" aria-label="Next" style="width:30px;height:30px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);color:var(--text-secondary);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding-bottom:2px" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</button>
+              </span>
+            </div>
+            <div style="min-height:88px;margin-top:13px">
+              <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-0.02em;line-height:1.25;text-wrap:pretty">{{ dkTitle }}</h2>
+              <sc-if value="{{ dkBodyShow }}" hint-placeholder-val="{{ true }}">
+                <p style="margin:7px 0 0;font-size:13.5px;line-height:1.55;color:var(--grey-600);font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty">{{ dkBody }}</p>
+              </sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;margin-top:14px">
+              <sc-if value="{{ dkCtaGreen }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ dkCtaHref }}" style="flex:none;display:inline-flex;align-items:center;background:rgb(3 178 108 / 0.12);color:#029a5e;border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dkCtaLabel }}</a>
+              </sc-if>
+              <sc-if value="{{ dkCtaBlue }}" hint-placeholder-val="{{ false }}">
+                <a href="{{ dkCtaHref }}" style="flex:none;display:inline-flex;align-items:center;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dkCtaLabel }}</a>
+              </sc-if>
+              <sc-if value="{{ dkAct }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ dkActGo }}" style="flex:none;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dkCtaLabel }}</button>
+              </sc-if>
+              <sc-if value="{{ dkMoreShow }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ dkMoreHref }}" style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">{{ dkMoreLabel }} &rarr;</a>
+              </sc-if>
+              <span style="margin-left:auto;display:flex;align-items:center;gap:5px;flex:none">
+                <sc-for list="{{ dkDots }}" as="d" hint-placeholder-count="6">
+                  <sc-if value="{{ d.on }}" hint-placeholder-val="{{ false }}"><button onClick="{{ d.pick }}" aria-label="{{ d.label }}" aria-current="true" style="width:18px;height:7px;border-radius:var(--radius-pill);border:0;background:var(--blue-600);cursor:pointer;padding:0" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"></button></sc-if>
+                  <sc-if value="{{ d.off }}" hint-placeholder-val="{{ true }}"><button onClick="{{ d.pick }}" aria-label="{{ d.label }}" style="width:7px;height:7px;border-radius:50%;border:0;background:var(--grey-300);cursor:pointer;padding:0" style-hover="background:var(--grey-400)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"></button></sc-if>
+                </sc-for>
+              </span>
+            </div>
+          </div>
+          <sc-if value="{{ pausedShow }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:0 2px;font-size:12px;color:var(--text-faint);font-weight:500">You&rsquo;re paused &mdash; flip the switch on <a href="../help/Help.dc.html" style="color:var(--action-primary);font-weight:700">Help&thinsp;&middot;&thinsp;Give</a> when you&rsquo;re ready.</p>
+          </sc-if>
+        </section>
+
+        <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start;margin-top:4px">
+
+          <div style="display:grid;gap:16px">
+
+            <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:18px 20px">
+              <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.02em">What do you need?</b>
+              <span style="display:flex;gap:8px;margin-top:11px">
+                <input ref="{{ askRef }}" value="{{ askText }}" onChange="{{ onAskText }}" onKeyDown="{{ onAskKey }}" placeholder="Ask it the way it comes out&hellip;" style="flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:14px;padding:12px 15px;font-size:14px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+                <sc-if value="{{ askReady }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ askGo }}" style="flex:none;border:0;background:var(--gradient-primary-btn);box-shadow:var(--shadow-primary-btn);color:#fff;border-radius:14px;padding:0 19px;font-size:13.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Find people</button>
+                </sc-if>
+                <sc-if value="{{ askEmpty }}" hint-placeholder-val="{{ false }}">
+                  <span style="flex:none;display:inline-flex;align-items:center;background:var(--surface-subtle);color:var(--text-faint);border-radius:14px;padding:0 19px;font-size:13.5px;font-weight:700">Find people</span>
+                </sc-if>
+              </span>
+              <p style="margin:9px 0 0;font-size:12px;color:var(--text-faint);font-weight:500">Typing carries it to Help &mdash; matches load as you go. Nothing is sent to anyone.</p>
+            </div>
+
+            <sc-if value="{{ showWaiting }}" hint-placeholder-val="{{ true }}">
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                <button onClick="{{ toggleWait }}" aria-expanded="{{ waitOpen }}" style="width:100%;display:flex;align-items:center;gap:9px;border:0;background:transparent;padding:15px 20px 13px;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Waiting on you</b>
+                  <span style="min-width:12px;height:18px;padding:0 6px;border-radius:var(--radius-pill);background:var(--error);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ waitCount }}</span>
+                  <span style="font-size:12px;color:var(--text-faint);font-weight:600">also in Messages</span>
+                  <sc-if value="{{ waitOpen }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="margin-left:auto;color:var(--grey-400);font-size:14px;font-weight:700;transform:rotate(90deg)">&rsaquo;</span></sc-if>
+                  <sc-if value="{{ waitFolded }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="margin-left:auto;color:var(--grey-400);font-size:14px;font-weight:700">&rsaquo;</span></sc-if>
+                </button>
+                <sc-if value="{{ waitOpen }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid;gap:8px;padding:2px 12px 14px">
+                    <sc-for list="{{ waitItems }}" as="w" hint-placeholder-count="2">
+                      <div style="background:var(--surface-card);border-radius:14px;box-shadow:var(--ring-card);padding:12px 14px">
+                        <span style="display:flex;align-items:center;gap:10px">
+                          <sc-if value="{{ w.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                          <sc-if value="{{ w.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                          <sc-if value="{{ w.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                          <sc-if value="{{ w.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                          <sc-if value="{{ w.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ w.i }}</span></sc-if>
+                          <span style="flex:1;min-width:0"><span style="display:block;font-size:13.5px;font-weight:700">{{ w.name }} <span style="color:var(--text-faint);font-weight:600;font-size:11.5px">&rsquo;{{ w.yr }}</span></span><span style="display:block;font-size:11.5px;color:var(--grey-600);font-weight:600">{{ w.line }}</span></span>
+                          <span style="font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ w.time }}</span>
+                        </span>
+                        <p style="margin:8px 0 0;font-size:12.5px;line-height:1.5;color:var(--text-secondary);font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ w.note }}</p>
+                        <span style="display:flex;gap:7px;margin-top:10px">
+                          <sc-if value="{{ w.isAsk }}" hint-placeholder-val="{{ true }}">
+                            <button onClick="{{ w.viewAsk }}" style="border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">View ask</button>
+                          </sc-if>
+                          <sc-if value="{{ w.isConnect }}" hint-placeholder-val="{{ false }}">
+                            <button onClick="{{ w.accept }}" style="border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Accept</button>
+                            <button onClick="{{ w.decline }}" style="border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Decline</button>
+                          </sc-if>
+                        </span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+              <div style="display:flex;align-items:baseline;gap:9px;padding:15px 20px 11px">
+                <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Your open asks</b>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ slotLabel }}</span>
+                <a href="../help/AskHistory.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">View all &rarr;</a>
+              </div>
+              <sc-for list="{{ openAsks }}" as="a" hint-placeholder-count="4">
+                <a href="{{ a.href }}" style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <span style="flex:1;min-width:0">
+                    <span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+                      <b style="font-size:14px;font-weight:700;color:var(--text-primary)">{{ a.title }}</b>
+                      <sc-if value="{{ a.pillWaiting }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Waiting</span></sc-if>
+                      <sc-if value="{{ a.pillOffers }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">{{ a.offersLabel }}</span></sc-if>
+                      <sc-if value="{{ a.pillDeclined }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Declined</span></sc-if>
+                      <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.12)">Answered</span></sc-if>
+                      <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#b26f00;background:rgb(254 152 0 / 0.14)">{{ a.closesLabel }}</span></sc-if>
+                    </span>
+                    <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ a.meta }}</span>
+                  </span>
+                  <span aria-hidden="true" style="flex:none;color:var(--grey-400);font-size:16px;font-weight:700">&rsaquo;</span>
+                </a>
+              </sc-for>
+            </div>
+
+          </div>
+
+          <div style="display:grid;gap:16px">
+
+            <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+              <div style="display:flex;align-items:center;gap:9px;padding:15px 20px 11px">
+                <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">From the school</b>
+                <a href="../school/School.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">School &rarr;</a>
+              </div>
+              <sc-for list="{{ railEvents }}" as="e" hint-placeholder-count="2">
+                <a href="{{ e.href }}" style="display:flex;align-items:center;gap:12px;padding:11px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <span style="flex:none;width:40px;height:40px;border-radius:var(--radius-comfortable);background:linear-gradient(180deg,#eef5ff,#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
+                    <span style="font-size:9px;font-weight:800;color:var(--blue-600);letter-spacing:0.05em">{{ e.mo }}</span>
+                    <span style="font-size:15px;font-weight:800;color:var(--text-primary)">{{ e.dd }}</span>
+                  </span>
+                  <span style="flex:1;min-width:0">
+                    <span style="display:block;font-size:13.5px;font-weight:700;color:var(--text-primary)">{{ e.t }}</span>
+                    <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ e.m }}</span>
+                  </span>
+                  <sc-if value="{{ e.going }}" hint-placeholder-val="{{ false }}">
+                    <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#029a5e;background:rgb(3 178 108 / 0.12);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
+                  </sc-if>
+                  <span aria-hidden="true" style="flex:none;color:var(--grey-400);font-size:16px;font-weight:700">&rsaquo;</span>
+                </a>
+              </sc-for>
+              <sc-if value="{{ pinnedShow }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ pinnedHref }}" style="display:block;padding:12px 20px 14px 18px;border-top:1px solid var(--divider-row);background:linear-gradient(90deg,#eaf3ff,#fbfdff);box-shadow:inset 3px 0 0 var(--action-primary);color:inherit;text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--blue-600)"><svg viewBox="0 0 24 24" style="width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M9 4h6l-.8 5.2 3.3 3.3H6.5l3.3-3.3L9 4z"></path><path d="M12 12.5V20"></path></svg>Pinned</span>
+                  <span style="display:block;font-size:13.5px;font-weight:700;line-height:1.35;margin-top:4px;color:var(--text-primary)">{{ pinnedTitle }}</span>
+                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:3px">{{ pinnedMeta }}</span>
+                </a>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ freshShow }}" hint-placeholder-val="{{ true }}">
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:16px 20px 17px">
+                <b style="display:block;font-size:14px;font-weight:800;letter-spacing:-0.02em">Your profile found 2 updates</b>
+                <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--grey-600);font-weight:500">Enrichment spotted a new role and a talk. Only you see this &mdash; approve what&rsquo;s right, ignore the rest.</p>
+                <a href="../profile/Profile.dc.html" style="display:inline-block;margin-top:9px;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Review updates &rarr;</a>
+              </div>
+            </sc-if>
+
+          </div>
+
+        </div>
+        </sc-if>
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ dlgShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ closeDlg }}" style="position:absolute;inset:0;background:rgb(25 31 40 / 0.4)"></div>
+    <div role="dialog" aria-label="Direct ask" style="position:relative;width:480px;max-width:92vw;background:var(--surface-card);border-radius:20px;box-shadow:0 24px 64px -16px rgb(25 31 40 / 0.4);padding:22px 24px">
+      <span style="display:flex;align-items:center;gap:10px">
+        <span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ dlgI }}</span>
+        <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:700">{{ dlgName }} <span style="color:var(--text-faint);font-weight:600;font-size:11.5px">&rsquo;{{ dlgYr }}</span></span><span style="display:block;font-size:11.5px;color:var(--grey-600);font-weight:600">{{ dlgRole }}</span></span>
+        <button onClick="{{ closeDlg }}" aria-label="Close" style="flex:none;width:30px;height:30px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);color:var(--text-secondary);font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&times;</button>
+      </span>
+      <b style="display:block;margin-top:14px;font-size:16px;font-weight:800;letter-spacing:-0.02em">{{ dlgTitle }}</b>
+      <p style="margin:7px 0 0;font-size:13px;line-height:1.6;color:var(--text-secondary);font-weight:500">{{ dlgText }}</p>
+
+      <sc-if value="{{ dlgChoose }}" hint-placeholder-val="{{ true }}">
+        <span style="display:flex;gap:8px;margin-top:16px">
+          <button onClick="{{ toAccept }}" style="border:0;background:var(--action-primary);color:#fff;border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Accept &mdash; reply now</button>
+          <button onClick="{{ toDecline }}" style="border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Decline with a note</button>
+        </span>
+        <p style="margin:11px 0 0;font-size:11.5px;color:var(--text-faint);font-weight:500">{{ dlgFirst }} hears either way &mdash; a yes, or a kind note.</p>
+      </sc-if>
+
+      <sc-if value="{{ dlgAccept }}" hint-placeholder-val="{{ false }}">
+        <textarea value="{{ dlgReply }}" onChange="{{ onDlgReply }}" rows="4" style="width:100%;box-sizing:border-box;margin-top:14px;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+        <span style="display:flex;align-items:center;gap:10px;margin-top:12px">
+          <button onClick="{{ sendReply }}" style="border:0;background:var(--action-primary);color:#fff;border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send &mdash; start the thread</button>
+          <button onClick="{{ backToAsk }}" style="border:0;background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 4px" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Back</button>
+          <span style="margin-left:auto;font-size:11.5px;color:var(--text-faint);font-weight:500">The thread lives in Messages.</span>
+        </span>
+      </sc-if>
+
+      <sc-if value="{{ dlgDecline }}" hint-placeholder-val="{{ false }}">
+        <textarea value="{{ dlgNote }}" onChange="{{ onDlgNote }}" rows="4" style="width:100%;box-sizing:border-box;margin-top:14px;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+        <span style="display:flex;align-items:center;gap:10px;margin-top:12px">
+          <button onClick="{{ sendNote }}" style="border:0;background:var(--action-primary);color:#fff;border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send the note</button>
+          <button onClick="{{ backToAsk }}" style="border:0;background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 4px" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Back</button>
+          <span style="margin-left:auto;font-size:11.5px;color:var(--text-faint);font-weight:500">Edit anything &mdash; it should sound like you.</span>
+        </span>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;demo&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;as-is&quot;, &quot;tsType&quot;: &quot;'as-is' | 'paused' | 'all-clear' | 'first-session' | 'loading'&quot;, &quot;options&quot;: [&quot;as-is&quot;, &quot;paused&quot;, &quot;all-clear&quot;, &quot;first-session&quot;, &quot;loading&quot;], &quot;section&quot;: &quot;Demo states&quot;},
+  &quot;profileFreshness&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo states&quot;},
+  &quot;notificationDot&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = {
+    slide: 0, hold: false,
+    ask: '',
+    waitOpen: true, waitDone: {},
+    dlg: null, dlgId: null, reply: '', note: '',
+    pop: false, notifRead: {}, notifSeen: {},
+    sPop: false, openTo: true, qPrefs: null,
+    sentAsks: [], overrides: {}, rsvp: {},
+    toast: ''
+  };
+
+  _askRef = React.createRef();
+
+  componentDidMount() {
+    try {
+      this.setState({
+        waitDone: JSON.parse(sessionStorage.getItem('bcHomeWaitDone') || '{}'),
+        sentAsks: (JSON.parse(sessionStorage.getItem('bcSentAsks') || '[]') || []).filter((a) => a && typeof a.text === 'string' && (a.kind === 'direct' || a.kind === 'open')),
+        overrides: JSON.parse(sessionStorage.getItem('bcAskOverrides') || '{}'),
+        rsvp: JSON.parse(sessionStorage.getItem('bcRsvp') || '{}'),
+        notifRead: JSON.parse(sessionStorage.getItem('bcNotifRead') || '{}'),
+        notifSeen: JSON.parse(sessionStorage.getItem('bcNotifSeen') || '{}')
+      });
+      const help = JSON.parse(sessionStorage.getItem('bcHelpPageState') || 'null');
+      if (help && typeof help.openTo === 'boolean') this.setState({ openTo: help.openTo });
+      const sp = JSON.parse(sessionStorage.getItem('bcSettingsPrefs') || 'null');
+      if (sp && typeof sp === 'object') this.setState({ qPrefs: sp });
+    } catch (e) { /* ignore corrupt state */ }
+
+    if (!this.ready()) {
+      this._poll = setInterval(() => { if (this.ready()) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+
+    // The one motion Home allows: the deck auto-advances every ~6s — paused
+    // on hover/focus/dialog, off entirely under prefers-reduced-motion.
+    this._reduced = false;
+    try { this._reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* ignore */ }
+    this._tick = setInterval(() => {
+      if (this._reduced || this.state.hold || this.state.dlg) return;
+      const n = this.deck().length;
+      if (n > 1) this.setState((s) => ({ slide: (s.slide + 1) % n }));
+    }, 6000);
+
+    this._esc = (e) => { if (e.key === 'Escape' && this.state.dlg) this.setState({ dlg: null }); };
+    window.addEventListener('keydown', this._esc);
+  }
+
+  componentWillUnmount() {
+    if (this._poll) clearInterval(this._poll);
+    if (this._tick) clearInterval(this._tick);
+    if (this._toastT) clearTimeout(this._toastT);
+    window.removeEventListener('keydown', this._esc);
+  }
+
+  ready() { return !!(window.BCHomeData && window.BCHelpData && window.BCSchoolData && window.BCMessagesData && window.BCNotifData); }
+
+  // Bell popover — the unmissable few, each shown once (FLOWS §7d). Items are
+  // marked "seen" when the popover closes; unread state clears only on click
+  // or on the Notifications page.
+  popList() {
+    const items = (window.BCNotifData && window.BCNotifData.items) || [];
+    const s = this.state;
+    return items.filter((n) => n.unmissable && !n.read && !s.notifRead[n.id] && !s.notifSeen[n.id]);
+  }
+
+  closePop() {
+    const seen = { ...this.state.notifSeen };
+    for (const n of this.popList()) seen[n.id] = true;
+    this.setState({ pop: false, notifSeen: seen });
+    try { sessionStorage.setItem('bcNotifSeen', JSON.stringify(seen)); } catch (e) { /* ignore */ }
+  }
+  demo() { return this.props.demo ?? 'as-is'; }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  saveWaitDone(id, v) {
+    const waitDone = { ...this.state.waitDone, [id]: v };
+    this.setState({ waitDone, dlg: null });
+    try { sessionStorage.setItem('bcHomeWaitDone', JSON.stringify(waitDone)); } catch (e) { /* ignore */ }
+  }
+
+  saveQuickPref(key) {
+    const cur = this.state.qPrefs || {};
+    const prefs = { ...(cur.prefs || { asksB: true, asksE: true, notesB: true, notesE: false, connectB: true, connectE: true, eventsB: true, eventsE: true, expiryB: true, expiryE: false }) };
+    prefs[key] = prefs[key] === false;
+    const next = { ...cur, prefs };
+    this.setState({ qPrefs: next });
+    try { sessionStorage.setItem('bcSettingsPrefs', JSON.stringify(next)); } catch (e) { /* ignore */ }
+  }
+
+  goAsk() {
+    const q = this.state.ask.trim();
+    if (!q) return;
+    try { sessionStorage.setItem('bcQuestion', q); } catch (e) { /* ignore */ }
+    window.location.href = '../help/Help.dc.html';
+  }
+
+  // The deck — one rotating spotlight over tagged items, ~6-item cap.
+  // Paused members see no You-could-help items (FLOWS §2.1).
+  deck() {
+    const home = window.BCHomeData || {};
+    const help = window.BCHelpData || {};
+    const school = window.BCSchoolData || {};
+    const items = [];
+
+    const asks = (help.give && help.give.asks) || [];
+    const m = asks.find((a) => a.source === 'match');
+    if (m && this.demo() !== 'paused' && this.state.openTo) {
+      items.push({
+        pill: 'You could help', tone: 'green',
+        meta: m.asker.name + ' \u00b7 ' + m.asker.role + ' \u00b7 ' + m.time,
+        title: m.q, body: (m.full || [])[0] || '',
+        ctaHref: '../help/GiveOffer.dc.html?id=' + m.id, ctaLabel: 'Offer to help', ctaTone: 'green',
+        moreHref: '../help/Help.dc.html', moreLabel: 'More you could help with'
+      });
+    }
+
+    const s2 = asks.find((a) => a.anon);
+    if (s2) {
+      items.push({
+        pill: 'People are asking', tone: 'blue',
+        meta: 'A member \u00b7 Class of \u2019' + s2.asker.yr + ' \u00b7 ' + s2.time,
+        title: s2.q,
+        body: 'Asked to the whole circle, name held back. Questions land here every week \u2014 yours can too.',
+        act: true, ctaLabel: 'Ask yours',
+        moreHref: '../help/Help.dc.html', moreLabel: 'Help'
+      });
+    }
+
+    const ev = (school.events || [])[0];
+    if (ev) {
+      items.push({
+        pill: 'Events', tone: 'grey',
+        meta: ev.mo + ' ' + ev.dd + ' \u00b7 ' + ev.listTime + ' \u00b7 ' + ev.place,
+        title: ev.title, body: ev.desc || '',
+        ctaHref: '../school/SchoolEvent.dc.html?id=' + ev.id, ctaLabel: 'See the event', ctaTone: 'blue',
+        moreHref: '../school/School.dc.html', moreLabel: 'All events'
+      });
+    }
+
+    if (home.recognition) {
+      const r = home.recognition;
+      items.push({
+        pill: 'Recognition', tone: 'grey', meta: r.meta, title: r.title, body: r.body,
+        ctaHref: r.href, ctaLabel: r.label, ctaTone: 'blue',
+        moreHref: '../people/People.dc.html', moreLabel: 'People'
+      });
+    }
+
+    const pinned = (school.announcements || []).find((a) => a.pinned);
+    if (pinned) {
+      items.push({
+        pill: 'School news', tone: 'grey',
+        meta: pinned.tag + ' \u00b7 ' + pinned.time,
+        title: pinned.title, body: '',
+        ctaHref: '../school/AnnouncementRead.dc.html?id=' + pinned.id, ctaLabel: 'Read it', ctaTone: 'blue',
+        moreHref: '../school/Announcements.dc.html', moreLabel: 'All announcements'
+      });
+    }
+
+    if (home.itWorked) {
+      const w = home.itWorked;
+      items.push({ pill: 'It worked', tone: 'grey', meta: w.meta, title: w.title, body: w.body });
+    }
+
+    return items.slice(0, 6);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const home = window.BCHomeData || {};
+    const help = window.BCHelpData || {};
+    const school = window.BCSchoolData || {};
+    const msgs = window.BCMessagesData || {};
+    const demo = this.demo();
+
+    // Deck
+    const deck = this.deck();
+    const idx = deck.length ? s.slide % deck.length : 0;
+    const cur = deck[idx] || { pill: '', tone: 'grey', meta: '', title: '', body: '' };
+    const go = (i) => this.setState({ slide: (i + deck.length) % (deck.length || 1) });
+
+    // Waiting on you — same group, same data as Messages §5.1.
+    const waitingRaw = demo === 'all-clear' ? [] : (msgs.waiting || []).filter((w) => !s.waitDone[w.id]);
+    const waitItems = waitingRaw.map((w) => ({
+      i: w.i, name: w.name, yr: w.yr, time: w.time,
+      av1: w.av === 1, av2: w.av === 2, av3: w.av === 3, av4: w.av === 4, av5: w.av === 5,
+      line: w.kind === 'ask' ? 'Asked you directly \u00b7 ' + w.title : 'Wants to connect',
+      note: w.kind === 'ask' ? w.text : w.note,
+      isAsk: w.kind === 'ask', isConnect: w.kind === 'connect',
+      viewAsk: () => this.setState({ dlg: 'ask', dlgId: w.id, reply: w.defaultReply || '', note: w.declineNote || '' }),
+      accept: () => { this.saveWaitDone(w.id, 'connected'); this.showToast('You\u2019re connected \u2014 ' + w.name.split(' ')[0] + ' can message you now.'); },
+      decline: () => this.saveWaitDone(w.id, 'declined') // connect declines stay quiet
+    }));
+
+    // Your open asks — shared seed + session overrides, like Help/AskHistory.
+    const all = [...s.sentAsks, ...(help.yourAsks || [])];
+    const ov = s.overrides;
+    const stOf = (a) => (ov[a.id] && ov[a.id].status) || a.status;
+    const liveRows = all.filter((a) => ['waiting', 'offers', 'quiet', 'declined', 'accepted'].includes(stOf(a)));
+    const openAsks = liveRows.slice(0, 4).map((a) => {
+      const st = stOf(a);
+      const offersN = (a.offers || []).length;
+      return {
+        title: a.text.length > 58 ? a.text.slice(0, 58).trimEnd() + '\u2026' : a.text,
+        meta: a.kind === 'direct'
+          ? 'To ' + (a.to ? a.to.name : '') + ' \u00b7 sent ' + a.sent
+          : (a.anon ? 'Anonymous \u00b7 ' : '') + (a.reach === 'school' ? 'Anyone at Chadwick' : 'Good matches') + ' \u00b7 posted ' + a.sent,
+        href: '../help/AskStatus.dc.html?id=' + a.id,
+        pillWaiting: st === 'waiting' || (st === 'quiet' && a.daysLeft > 3),
+        pillOffers: st === 'offers' && offersN > 0,
+        offersLabel: offersN === 1 ? '1 offer' : offersN + ' offers',
+        pillDeclined: st === 'declined',
+        pillAnswered: st === 'accepted',
+        pillCloses: (st === 'quiet' || st === 'waiting' || st === 'offers') && a.daysLeft > 0 && a.daysLeft <= 3,
+        closesLabel: 'Closes in ' + a.daysLeft + 'd'
+      };
+    });
+    const openN = all.filter((a) => ['waiting', 'offers', 'quiet', 'accepted'].includes(stOf(a))).length;
+
+    // Rail — next 2 events + pinned announcement (School's data, School's rows).
+    const railEvents = (school.events || []).slice(0, 2).map((e) => ({
+      mo: e.mo, dd: e.dd, t: e.short,
+      m: e.listTime + ' \u00b7 ' + e.place,
+      going: s.rsvp[e.id] !== undefined ? !!s.rsvp[e.id] : !!e.going,
+      href: '../school/SchoolEvent.dc.html?id=' + e.id
+    }));
+    const pinned = (school.announcements || []).find((a) => a.pinned);
+
+    // Dialog
+    const w = (msgs.waiting || []).find((x) => x.id === s.dlgId) || null;
+    const first = w ? w.name.split(' ')[0] : '';
+
+    // Bell — dot reflects unread; popover shows the unmissable few once.
+    const notifItems = (window.BCNotifData && window.BCNotifData.items) || [];
+    const unreadNotifs = notifItems.filter((n) => !n.read && !s.notifRead[n.id]).length;
+    const popRaw = this.popList();
+    const popItems = popRaw.map((n) => ({
+      href: n.href, when: n.when, i: n.i || '',
+      actor: n.actor, line: n.line || '',
+      subShow: !!n.sub, sub: n.sub || '',
+      av1: n.av === 1, av2: n.av === 2, av3: n.av === 3, av4: n.av === 4, av5: n.av === 5,
+      markRead: () => {
+        const notifRead = { ...this.state.notifRead, [n.id]: true };
+        this.setState({ notifRead });
+        try { sessionStorage.setItem('bcNotifRead', JSON.stringify(notifRead)); } catch (e) { /* ignore */ }
+      }
+    }));
+
+    return {
+      showDot: (this.props.notificationDot ?? true) && unreadNotifs > 0,
+      popOpen: s.pop, popItems, popEmpty: popItems.length === 0,
+      bellToggle: () => { if (s.pop) { this.closePop(); } else { this.setState({ pop: true }); } },
+      popClose: () => this.closePop(),
+      pageLoading: demo === 'loading',
+      coldStart: demo === 'first-session',
+      pageNormal: demo !== 'loading' && demo !== 'first-session',
+      pulseLine: demo === 'all-clear' ? (home.pulseAllClear || '') : (home.pulse || ''),
+
+      // deck
+      dkCount: deck.length ? (idx + 1) + ' of ' + deck.length : '',
+      dkPill: cur.pill, dkMeta: cur.meta, dkTitle: cur.title,
+      dkPillGreen: cur.tone === 'green', dkPillBlue: cur.tone === 'blue', dkPillGrey: cur.tone === 'grey',
+      dkBodyShow: !!cur.body, dkBody: cur.body,
+      dkCtaGreen: !!cur.ctaHref && cur.ctaTone === 'green',
+      dkCtaBlue: !!cur.ctaHref && cur.ctaTone === 'blue',
+      dkAct: !!cur.act,
+      dkCtaHref: cur.ctaHref || '#', dkCtaLabel: cur.ctaLabel || '',
+      dkActGo: () => { if (this._askRef.current) this._askRef.current.focus(); },
+      dkMoreShow: !!cur.moreHref, dkMoreHref: cur.moreHref || '#', dkMoreLabel: cur.moreLabel || 'More',
+      dkPrev: () => go(idx - 1), dkNext: () => go(idx + 1),
+      dkDots: deck.map((d, i) => ({ on: i === idx, off: i !== idx, label: d.pill, pick: () => go(i) })),
+      deckEnter: () => this.setState({ hold: true }),
+      deckLeave: () => this.setState({ hold: false }),
+      deckFocus: () => this.setState({ hold: true }),
+      deckBlur: () => this.setState({ hold: false }),
+      pausedShow: demo === 'paused' || !s.openTo,
+
+      // Quick settings popover — the few most-flipped switches, same session
+      // keys as the Settings page (one source of truth).
+      sPopOpen: s.sPop,
+      gearToggle: () => this.setState({ sPop: !s.sPop }),
+      sPopClose: () => this.setState({ sPop: false }),
+      qpPauseOn: s.openTo, qpPauseOff: !s.openTo,
+      qpTogglePause: () => {
+        const openTo = !s.openTo;
+        this.setState({ openTo, slide: 0 });
+        try {
+          const help = JSON.parse(sessionStorage.getItem('bcHelpPageState') || '{}') || {};
+          help.openTo = openTo;
+          sessionStorage.setItem('bcHelpPageState', JSON.stringify(help));
+        } catch (e) { /* ignore */ }
+      },
+      qpAsksOn: !s.qPrefs || !s.qPrefs.prefs || s.qPrefs.prefs.asksE !== false,
+      qpAsksOff: !!(s.qPrefs && s.qPrefs.prefs && s.qPrefs.prefs.asksE === false),
+      qpToggleAsks: () => this.saveQuickPref('asksE'),
+      qpNlOn: !s.qPrefs || s.qPrefs.nl !== false,
+      qpNlOff: !!(s.qPrefs && s.qPrefs.nl === false),
+      qpToggleNl: () => {
+        const on = s.qPrefs ? s.qPrefs.nl !== false : true;
+        const next = { ...(s.qPrefs || {}), nl: !on };
+        this.setState({ qPrefs: next });
+        try { sessionStorage.setItem('bcSettingsPrefs', JSON.stringify(next)); } catch (e) { /* ignore */ }
+      },
+
+      // ask entry
+      askRef: this._askRef,
+      askText: s.ask,
+      onAskText: (e) => this.setState({ ask: e.target.value }),
+      onAskKey: (e) => { if (e.key === 'Enter') this.goAsk(); },
+      askReady: !!s.ask.trim(), askEmpty: !s.ask.trim(),
+      askGo: () => this.goAsk(),
+
+      // waiting on you
+      showWaiting: waitItems.length > 0,
+      waitCount: waitItems.length,
+      waitOpen: s.waitOpen, waitFolded: !s.waitOpen,
+      toggleWait: () => this.setState({ waitOpen: !s.waitOpen }),
+      waitItems,
+
+      // open asks
+      slotLabel: openN + ' of 5 open',
+      openAsks,
+
+      // rail
+      railEvents,
+      pinnedShow: !!pinned,
+      pinnedTitle: pinned ? pinned.title : '',
+      pinnedMeta: pinned ? pinned.tag + ' \u00b7 ' + pinned.time : '',
+      pinnedHref: pinned ? '../school/AnnouncementRead.dc.html?id=' + pinned.id : '#',
+      freshShow: (this.props.profileFreshness ?? true) && demo !== 'all-clear',
+
+      // dialog
+      dlgShow: !!s.dlg && !!w,
+      dlgChoose: s.dlg === 'ask', dlgAccept: s.dlg === 'accept', dlgDecline: s.dlg === 'decline',
+      dlgI: w ? w.i : '', dlgName: w ? w.name : '', dlgYr: w ? w.yr : '', dlgRole: w ? w.role : '',
+      dlgTitle: w ? w.title : '', dlgText: w ? w.text : '', dlgFirst: first,
+      closeDlg: () => this.setState({ dlg: null }),
+      toAccept: () => this.setState({ dlg: 'accept' }),
+      toDecline: () => this.setState({ dlg: 'decline' }),
+      backToAsk: () => this.setState({ dlg: 'ask' }),
+      dlgReply: s.reply, onDlgReply: (e) => this.setState({ reply: e.target.value }),
+      dlgNote: s.note, onDlgNote: (e) => this.setState({ note: e.target.value }),
+      sendReply: () => {
+        if (!s.reply.trim()) { this.showToast('Add a first line \u2014 the thread never starts cold.'); return; }
+        this.saveWaitDone(s.dlgId, 'accepted');
+        this.showToast('Reply sent \u2014 the thread starts in Messages.');
+      },
+      sendNote: () => {
+        if (!s.note.trim()) { this.showToast('The note can\u2019t be empty \u2014 it\u2019s what softens the no.'); return; }
+        this.saveWaitDone(s.dlgId, 'declined');
+        this.showToast('Your note went to ' + first + ' \u2014 declined kindly.');
+      },
+
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
