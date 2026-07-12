@@ -1,0 +1,164 @@
+<!-- @dsCard group="Patterns" name="Profile slide-over" subtitle="Overlay profile rail (§7b) · scrim over Messages · 460px panel · two verbs · can-speak-to preview" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;max-width:1040px;margin-inline:auto}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+
+  /* stage: page content dimmed under the scrim, panel open on the right */
+  .stage{position:relative;border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);background:var(--surface-card);min-height:620px}
+
+  /* backdrop — the Messages thread the profile opened from */
+  .thread{display:flex;flex-direction:column;min-height:620px;background:var(--surface-thread)}
+  .thead{flex:none;display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)}
+  .cav{width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .thead .nm{font-size:14.5px;font-weight:700}
+  .thead .yr{font-size:11.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums;margin-left:8px}
+  .thead .st{display:block;font-size:11.5px;color:var(--text-faint);font-weight:500}
+  .msgs{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:14px;max-width:720px;box-sizing:border-box}
+  .sysline{align-self:center;font-size:11px;color:var(--text-faint);font-weight:600;background:#fff;box-shadow:var(--ring-card);border-radius:var(--radius-pill);padding:5px 14px}
+  .m{max-width:75%;padding:11px 15px;font-size:13.5px;line-height:1.6;font-weight:500}
+  .m.them{align-self:flex-start;background:#fff;box-shadow:var(--ring-card);border-radius:18px 18px 18px 6px;color:var(--text-primary)}
+  .m.me{align-self:flex-end;background:var(--gradient-primary-btn);color:#fff;border-radius:18px 18px 6px 18px}
+  .cbar{flex:none;padding:14px 28px 20px;max-width:720px;box-sizing:border-box;width:100%}
+  .cfield{display:flex;align-items:center;gap:10px;background:#fff;box-shadow:var(--ring-card);border-radius:var(--radius-pill);padding:8px 8px 8px 18px}
+  .cfield .ph{flex:1;font-size:13px;color:var(--text-faint);font-weight:500}
+  .cfield .send{width:36px;height:36px;border-radius:50%;background:var(--gradient-primary-btn);display:flex;align-items:center;justify-content:center}
+
+  /* scrim + panel (template: rgb(25 31 40 / 0.35); token --scrim is the canonical backdrop) */
+  .scrim{position:absolute;inset:0;background:var(--scrim)}
+  .panel{position:absolute;top:0;right:0;bottom:0;width:460px;max-width:92%;background:#fff;box-shadow:-24px 0 60px rgb(25 31 40 / 0.2);display:flex;flex-direction:column;box-sizing:border-box;overflow-y:auto}
+
+  .phead{display:flex;align-items:flex-start;gap:16px;padding:26px 28px 20px}
+  .pav{width:64px;height:64px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:21px}
+  .phead h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-0.02em}
+  .chip-circle{font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--blue-600);background:var(--blue-50)}
+  .pmeta{display:block;font-size:13px;color:var(--grey-600);margin-top:4px;font-weight:500}
+  .chip-open{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--action-give-text);background:rgb(3 178 108 / 0.1)}
+  .chip-open i{width:5px;height:5px;border-radius:50%;background:var(--green-500)}
+  .pclose{flex:none;width:34px;height:34px;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);color:var(--text-secondary);font-size:15px;font-family:var(--font-sans);display:flex;align-items:center;justify-content:center}
+
+  .verbs{display:flex;gap:8px;padding:0 28px 22px}
+  .verbs .primary{flex:1;text-align:center;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:12px;font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn)}
+  .verbs .weak{flex:1;text-align:center;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px;font-size:13px;font-weight:700}
+  .pdiv{height:1px;background:var(--divider-row);margin:0 28px}
+
+  .pbody{padding:20px 28px;display:grid;gap:22px}
+  .pbody h3{margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase}
+  .pbody .about{margin:9px 0 0;font-size:13px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty}
+  .topics{display:grid;gap:12px;margin-top:11px}
+  .topic{display:flex;gap:10px;align-items:flex-start}
+  .topic .dot{width:6px;height:6px;flex:none;border-radius:50%;background:var(--action-primary);margin-top:6px}
+  .topic .tt{display:block;font-size:13px;font-weight:700}
+  .topic .tc{display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px}
+  .topic .ask{flex:none;font-size:11.5px;color:var(--action-primary);font-weight:700;padding:5px 11px;border-radius:var(--radius-pill);background:var(--blue-50)}
+  .share{display:grid;gap:11px;margin-top:11px}
+  .share .tt{display:block;font-size:13px;font-weight:700}
+  .share .tc{display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px}
+
+  .pfoot{margin-top:auto;padding:16px 28px 22px;border-top:1px solid var(--divider-row)}
+  .quiet-acts{display:flex;justify-content:center;gap:14px;padding-bottom:8px}
+  .quiet-acts span{color:var(--text-faint);font-size:11.5px;font-weight:600;padding:4px 6px}
+  .fullprofile{display:block;text-align:center;font-size:12.5px;color:var(--action-primary);font-weight:700;padding:8px;border-radius:10px}
+  .pfoot .cap{margin:8px 0 0;text-align:center;font-size:10.5px;color:var(--text-faint);font-weight:500}
+</style>
+</head>
+<body>
+
+  <p class="label">Profile slide-over — open over a Messages thread (close returns you exactly where you were)</p>
+
+  <div class="stage">
+
+    <div class="thread" aria-hidden="true">
+      <div class="thead">
+        <span class="cav">MC</span>
+        <span>
+          <span><b class="nm">Maya Chen</b><span class="yr">Class of &rsquo;14</span></span>
+          <span class="st">Design Lead &middot; Figma &middot; tap for profile</span>
+        </span>
+      </div>
+      <div class="msgs">
+        <span class="sysline">Maya accepted your ask &middot; &ldquo;How did you know it was time to move in-house?&rdquo;</span>
+        <span class="m them">Happy to talk it through! For me the tell was when client work stopped teaching me anything new. What&rsquo;s pulling you in-house?</span>
+        <span class="m me">Mostly wanting to own something longer than a campaign cycle. Did you feel ready when you jumped, or did you just go?</span>
+        <span class="m them">Honestly? I just went. Want me to look at your portfolio through an in-house hiring lens? Send it over.</span>
+      </div>
+      <div class="cbar">
+        <div class="cfield">
+          <span class="ph">Message Maya&hellip;</span>
+          <span class="send"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m5 12 14-7-4 14-3.5-5.5L5 12z"></path></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <span class="scrim"></span>
+
+    <div class="panel" role="dialog" aria-modal="true" aria-label="Maya Chen's profile">
+
+      <div class="phead">
+        <span class="pav">MC</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <h2>Maya Chen</h2>
+            <span class="chip-circle">In your circle</span>
+          </span>
+          <span class="pmeta">Design Lead &middot; Figma &middot; San Francisco &middot; Class of &rsquo;14</span>
+          <span class="chip-open"><i></i>Open to help</span>
+        </span>
+        <button class="pclose" aria-label="Close profile">&#10005;</button>
+      </div>
+
+      <div class="verbs">
+        <span class="primary">Ask for help</span>
+        <span class="weak">Message</span>
+      </div>
+
+      <div class="pdiv"></div>
+
+      <div class="pbody">
+        <section>
+          <h3>About</h3>
+          <p class="about">Design lead focused on collaboration tools. Four years in agencies before moving in-house in 2018 &mdash; now helps designers make the same jump, reviewing 2&ndash;3 portfolios a month for members.</p>
+        </section>
+
+        <section>
+          <h3>Can help with</h3>
+          <div class="topics">
+            <div class="topic">
+              <span class="dot"></span>
+              <span style="flex:1;min-width:0"><span class="tt">Agency &rarr; in-house moves</span><span class="tc">Made the jump in 2018; 20+ portfolios reviewed</span></span>
+              <span class="ask">Ask</span>
+            </div>
+            <div class="topic">
+              <span class="dot"></span>
+              <span style="flex:1;min-width:0"><span class="tt">Design interview prep</span><span class="tc">Runs interview loops at Figma</span></span>
+              <span class="ask">Ask</span>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3>You share</h3>
+          <div class="share">
+            <div><span class="tt">Prof. Whitman&rsquo;s studio</span><span class="tc">RISD &middot; 8 years apart</span></div>
+            <div><span class="tt">3 mutual connections</span><span class="tc">Jordan, Priya, and Tom</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="pfoot">
+        <span class="quiet-acts"><span>Report</span><span>Block</span><span>Disconnect</span></span>
+        <span class="fullprofile">Open full profile &rarr;</span>
+        <p class="cap">Closing returns you to your conversation &mdash; nothing navigates.</p>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

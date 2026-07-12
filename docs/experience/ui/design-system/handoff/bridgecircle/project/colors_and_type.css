@@ -6,7 +6,7 @@
    entries in uploads/OVERRIDES.md. Applied in this file:
      O1 Pretendard (inherited substitute)         O6 softer radii (card 20 …)
      O2 green give action (--action-give*)        O7 hairline #e6e9ee + ring-card
-     O3 section identity + gradient bands         E2 avatar palette (decoupled)
+     O3 wash heroes + navy covers (bands retired) E2 avatar palette (decoupled)
      O4 display-xl 40/800, 12px floor
    O5 (ochre warning) was applied then REJECTED 2026-07-05 — TDS orange stays.
    Every divergence below carries an [O#]/[E#] tag. Unlogged divergence = drift.
@@ -15,9 +15,15 @@
      1. Ramps      --{hue}-{stop}      8 families × 10 stops, literal hex
         + greyOpacity scrims, + semantic anchors
      2. Roles      --surface/text/border/action/state-*
-     3. Identity   --identity-* + --gradient-band-*        [O3]
+     3. Identity   --wash-* / --cover-* (+ --gradient-band-dark)   [O3]
      4. Type/shape --font-* --radius-* --space-* --shadow-* --motion-*
    Components consume layers 2–4. Dark mode overrides at the end (provisional).
+
+   POLICY (2026-07-12): the Claude Design DC templates inline literal values
+   instead of var() — that is intent, not drift; the token ratchet reads the
+   templates as renderings, not sources. Literals the templates settled are
+   minted below ([E1]/[E5]/[E6]) and get swapped back into the templates in a
+   later mechanical pass.
    ========================================================================= */
 
 :root {
@@ -160,6 +166,11 @@
   --surface-card:   #ffffff;
   --surface-panel:  var(--grey-50);
   --surface-subtle: var(--grey-100);
+  /* [E5] template-settled surfaces (2026-07-12, values verbatim from the
+     DC templates): the app-shell page canvas (×71) and quiet inset panels
+     inside cards (×13). */
+  --surface-canvas: #f6f8fa;
+  --surface-inset:  #f7f9fc;
 
   /* Text */
   --text-primary:   var(--grey-900);
@@ -168,10 +179,14 @@
   --text-faint:     var(--grey-500);
   --text-disabled:  var(--grey-400);
   --text-on-fill:   #ffffff;
+  --icon-muted:     #c8cfd8; /* [E5] muted icon strokes (templates ×8) */
 
   /* Borders — hairline is grey-200; rules stay sparing. */
   --border:        var(--grey-200); /* #e6e9ee [O7] */
-  --border-subtle: #edf0f2; /* [O7] lighter divider — nav rails, card row splits */
+  --border-subtle: #eef1f5; /* [O7 amended 2026-07-12] was #edf0f2 — templates used
+     #eef1f5 as the hairline ×149, unanimously across 6 groups. The grey trio is
+     now: ramp --grey-200 #e6e9ee · hairline --border-subtle #eef1f5 · row split
+     --divider-row #f4f5f7. */
   --border-strong: var(--grey-300);
   --divider:       var(--grey-100);
 
@@ -202,6 +217,8 @@
   --action-on-give:        #ffffff;
   --action-give-weak:      #e7f8f0; /* weak give button / status pill tint */
   --action-give-weak-text: var(--green-500); /* #03b26c */
+  --action-give-text:      #029a5e; /* [E5] "Open to help" green TEXT (templates
+     ×34; named in the E2 ledger prose since 2026-07-05, minted 2026-07-12) */
 
   --link:            var(--blue-500);
   --link-hover:      var(--blue-700);
@@ -225,49 +242,40 @@
   --state-premium-text:  var(--purple-600);
   --state-premium-tint:  var(--purple-50);
 
+  /* [E1 — applied 2026-07-12] Neutral-pending: "waiting, and that's okay" —
+     distinct from warning (alarms) and disabled grey. The templates settled
+     Waiting as grey-quiet everywhere; values verbatim. */
+  --pending-text: var(--text-secondary); /* grey-700 */
+  --pending-tint: var(--surface-subtle); /* grey-100 */
+
+  /* [E6 — 2026-07-12] Closing-soon expiry pill ("Closes in 3d"). A NEW role,
+     NOT a reopening of O5: --warning stays TDS orange; this is the calmer
+     expiry hue the templates chose (calm-not-urgent), orange-500 at 14%. */
+  --closing-soon-text: #b26f00;
+  --closing-soon-tint: rgb(254 152 0 / 0.14);
+
   /* Skeleton / loading */
   --skeleton-base:  var(--grey-100);
   --skeleton-pulse: var(--grey-200);
 
   /* ---------------------------------------------------------------- */
-  /* 3 · SECTION IDENTITY + GRADATION  [O3]                            */
+  /* 3 · SECTION IDENTITY  [O3 — band anatomy RETIRED 2026-07-12]      */
   /* Sections carry an ambient hue (FL-1: mode must be visible beyond  */
-  /* the toggle) — in bands, tints, dots, badges, and, on its OWN      */
-  /* surface, the single lead action (give = --action-give). Gradients */
-  /* are SAME-HUE only, hero/section bands only. Literal stops — band- */
-  /* specific and off-ramp — so ramp edits can't silently shift them.  */
+  /* the toggle) — via the light WASH heroes, tints, dots, badges, and, */
+  /* on its OWN surface, the single lead action (give = --action-give).*/
+  /* The saturated identity bands (--identity-*, --gradient-band-blue/ */
+  /* -green/-school, --band-glow, --band-toggle-track) were confirmed  */
+  /* unused (Richard 2026-07-12) and removed: Help hero = the 1i wash; */
+  /* School + onboarding = navy --cover-event. Only the plain dark     */
+  /* band survives — Entry-page backdrop, footers, feature moments.    */
   /* ---------------------------------------------------------------- */
 
-  /* Identity mapping CORRECTED against the byte-complete reference
-     (2026-07-05): the blue band is the HELP page's GET/ASK mode band; the
-     give band is green; SCHOOL uses the dark band WITH radial glows. */
-  --identity-ask:    var(--blue-500); /* Ask / default — #3182f6 */
-  --identity-give:   var(--green-500); /* Give help — #03b26c */
-  --identity-school: #2f73e6; /* School accent blue (chips, links on School) */
-
-  --gradient-band-blue:  linear-gradient(162deg, #3f88f1 0%, #2f73e6 48%, #1f5bcc 100%); /* GET/ASK band */
-  --gradient-band-green: linear-gradient(160deg, #23c386 0%, #15a368 50%, #0b8a57 100%); /* GIVE band */
-  --gradient-band-dark:  linear-gradient(157deg, #2a3340 0%, #191f28 62%); /* plain dark — footers/features */
-  /* SCHOOL band: the dark band with blue + violet radial glows (reference-
-     exact; the retired Mentor violet survives only as this ambient glow). */
-  --gradient-band-school:
-    radial-gradient(95% 130% at 90% 2%, rgb(73 147 252 / 0.5) 0%, rgb(73 147 252 / 0) 55%),
-    radial-gradient(80% 120% at 2% 112%, rgb(114 47 200 / 0.4) 0%, rgb(114 47 200 / 0) 55%),
-    linear-gradient(157deg, #2a3340 0%, #191f28 62%);
-  /* Band anatomy (reference): compose --band-glow OVER the gradient; the
-     two-circle watermark sits top-right at ~16% white; the mode toggle lives
-     ON the band (white active pill on a translucent track); composer/content
-     cards float on the band with --shadow-band-card. */
-  --band-glow: radial-gradient(150% 120% at 50% -40%, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0) 55%);
-  --band-toggle-track: rgb(255 255 255 / 0.18);
+  --gradient-band-dark: linear-gradient(157deg, #2a3340 0%, #191f28 62%); /* Entry backdrop / footers */
   /* [O3] HELP HERO DECIDED (Richard, 2026-07-05): the 1i WASH with the band
      variant's PILL toggle geometry (icons, 13px/9-17 padding, white active
-     pill w/ mode-colored text) on a soft white track. Saturated bands are
-     reserved for onboarding/marketing moments. */
+     pill w/ mode-colored text) on a soft white track. */
   --wash-toggle-track: rgb(255 255 255 / 0.7);
-  --shadow-band-card: 0 20px 44px -14px rgb(8 17 38 / 0.40);
-  /* Text on bands: #ffffff (measured — blue mid ~4.6:1, deep ~6.6:1;
-     give deep ~4.8:1). */
+  --shadow-band-card: 0 20px 44px -14px rgb(8 17 38 / 0.40); /* cards floating on dark/cover surfaces */
 
   /* Self/brand avatar + icon tiles: the recurring blue gradient the
      reference uses for the signed-in member's avatar (A5 diff item #4). */
@@ -287,7 +295,7 @@
 
   /* [O8] Primary action FINISH: vertical blue gradient + soft glow
      (A5 diff item #9, embraced by every alternative: Search, Send,
-     Ask for advice). Flat blue-500 remains valid for small buttons. */
+     Ask for help). Flat blue-500 remains valid for small buttons. */
   --gradient-primary-btn: linear-gradient(180deg, #3b8bf7, #2f7ce9);
   --shadow-primary-btn: 0 2px 6px -1px rgb(49 130 246 / 0.4);
   --gradient-bubble-me: var(--gradient-primary-btn); /* chat me-bubble (1e) */
@@ -302,18 +310,18 @@
   --radius-card-xl: 22px;
   --divider-row: #f4f5f7;
 
-  /* [O3 amended] Wash heroes (1i "open hero") — the LIGHT identity
-     treatment: a color wash that fades into the canvas, dark ink text on
-     it. The saturated bands above remain the ALTERNATIVE treatment;
-     Help hero decision (band vs wash) is deferred to design. */
+  /* [O3 amended] Wash heroes (1i "open hero") — THE identity treatment
+     (decided; the saturated bands are retired): a color wash that fades
+     into the canvas, dark ink text on it. */
   --wash-get:  linear-gradient(180deg, #e3effd 0%, rgb(227 239 253 / 0) 100%);
   --wash-give: linear-gradient(180deg, #e0f5ea 0%, rgb(224 245 234 / 0) 100%);
   --wash-page: radial-gradient(85% 42% at 50% 0%, rgb(49 130 246 / 0.055) 0%, rgb(49 130 246 / 0) 72%); /* ambient canvas-top wash (1a/1h) */
 
-  /* [O3 amended] School event COVER (1h "punchy cover"): deep navy with
-     blue glows + dot-grid texture + glass tiles. Deliberately crosses the
-     old "no navy" line — sanctioned for EVENT COVERS only. School's page
-     canvas stays light (grey-100 + --wash-page). */
+  /* [O3 amended ×2] Navy COVER (1h "punchy cover"): deep navy with blue
+     glows + dot-grid texture + glass tiles. Deliberately crosses the old
+     "no navy" line — sanctioned for EVENT COVERS and ONBOARDING BOOKENDS
+     (scope widened 2026-07-12; the templates' Welcome/all-set screens).
+     School's page canvas stays light (grey-100 + --wash-page). */
   --cover-event:
     radial-gradient(95% 130% at 88% -10%, rgb(73 147 252 / 0.55) 0%, rgb(73 147 252 / 0) 55%),
     radial-gradient(80% 120% at 0% 115%, rgb(49 130 246 / 0.35) 0%, rgb(49 130 246 / 0) 60%),
@@ -323,7 +331,8 @@
   --cover-accent: #9cc3ff;     /* kickers/labels on the cover */
   --glass-tile: rgb(255 255 255 / 0.12);
   --ring-glass: inset 0 0 0 1px rgb(255 255 255 / 0.25);
-  --gradient-capacity: linear-gradient(90deg, #12c07a, #03a763); /* give capacity meter (1i) */
+  /* --gradient-capacity removed 2026-07-12 — sole consumer was the give
+     capacity meter, rejected 2026-07-05. */
 
   /* [E3 amended] Selection + nav-active per the alternatives */
   --selected-tint: #eef5ff;                     /* selected list item bg */

@@ -29,10 +29,10 @@ bridgecircle/
     uploads/OVERRIDES.md       ← THE DIVERGENCE LEDGER (read first)
     uploads/DESIGN.md          ← fork framing; baseline spec stays in toss-base
     preview/  ui_kits/         ← component and pattern specimens
-    screens/                   ← canonical page + flow mockups and coverage map
+    templates/                 ← page + flow mockups (Claude Design DC templates)
     Help Hub.html              ← baseline-test evidence (Ask/Give + friction log)
   README.md                    ← this file (repo-facing; NOT pushed)
-  .design-sync/                ← sync notes; project not yet created
+  .design-sync/                ← sync notes + the project pin
 ```
 
 ## First sync (Richard, interactive `claude` session)
@@ -50,8 +50,9 @@ bridgecircle/
   a ledger entry.
 - **Unlogged divergence is drift.** If the fork's tokens differ from the
   baseline without an OVERRIDES.md entry, that's a bug.
-- Complete page work belongs in `project/screens/`; `project/preview/` remains
-  the component/pattern specimen layer. Start reviews at
-  `project/screens/index.html` and track coverage in `SCREEN-MAP.md`.
+- Complete page work is designed in the `bridgecircle` Claude Design project
+  and synced down to `project/templates/`; `project/preview/` remains the
+  component/pattern specimen layer. (The earlier Codex `screens/` slice was
+  removed 2026-07-12 as redundant with the templates.)
 - Production translation: `app/src/app/globals.css` uses
   `@layer base, brand` — the brand layer carries only **applied** entries.

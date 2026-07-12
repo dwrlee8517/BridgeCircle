@@ -90,6 +90,27 @@ No deletes; `_ds_needs_recompile` armed. Templates deliberately NOT pushed —
 remote is their source of truth (per DESYNC-TODO: DS sources read-only there,
 templates authored there).
 
+**Re-sync log — 2026-07-12 (third run: DESYNC-TODO applied).** The remote
+audit plan was executed in-repo the same day: tokens minted/changed/removed
+per §3 (E1 applied; E5/E6 new; `--border-subtle` → #eef1f5; band anatomy
+retired — see the OVERRIDES O3/O7 amendments), §1 specimens reworked
+(school-events, messages, help-heroes + the v3 search-first get hero,
+desktop-patterns — an unlisted consumer of the removed green band — and
+spacing-radius's stale body), §3b brand card rebuilt, §2's ten new "Patterns"
+specimens authored from the templates (waiting-on-you · ask-status ·
+home-spotlight · notifications · profile-slideover · profile-patterns ·
+decision-dialogs · system-states · onboarding-chrome · settings-circle).
+Validation: all 30 preview specimens grep-verified (every var() resolves; no
+removed token remains; @dsCard first lines intact) + browser render-check via
+the static-docs server. Push: 37 writes + sentinel. **Deleted `screens/**`
+(11 files) local + remote** — Richard's call: the Codex People/Profile slice
+is redundant with `templates/**`; references fixed in README/SKILL/FLOWS/
+templates-README. New ledger items for the NEXT pass: **E7 proposed** (the
+templates' translucent green tint pair) and a parked template↔token drift
+list (scrim value, skeleton greys, expiry-pill copy variants, can-speak-to
+naming, School dropping --cover-texture, dialog radius/shadow, #f4f6f9).
+§5's template-literal swap pass is still deferred (template-side).
+
 ## Help Hub.html provenance
 
 Originally designed by Richard **in the `toss-base` Claude Design project**

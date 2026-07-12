@@ -1,5 +1,17 @@
 # DesignSync — decided reconciliation (apply in repo, re-sync)
 
+> **STATUS: APPLIED 2026-07-12** (same-day, second re-sync run). §1 specimens
+> reworked (school-events · messages · help-heroes — plus desktop-patterns,
+> whose hero consumed the removed green band, and spacing-radius's stale card
+> body; help-heroes' get hero also moved to the v3 search-first flow); §2 all
+> ten specimens authored under `preview/` group "Patterns"; §3 tokens minted /
+> changed / removed as listed (E1 applied); §3b brand card rebuilt; §4 ledger
+> updated (see OVERRIDES.md — plus a new **E7 proposed**: the templates'
+> translucent green tint, and a parked template↔token drift list). §5's
+> template-literal swap pass remains DEFERRED (template-side, next pass).
+> Also this run: the Codex `screens/**` slice was removed (Richard,
+> 2026-07-12) as redundant with `templates/**`.
+
 2026-07-12 · Audit of `templates/*` (35 files) vs DS sources, with verdicts applied.
 Rules used: unused-but-plausibly-needed → **keep**; unused + superseded by a decision →
 **remove**; where templates diverged and the newer treatment is better → **templates win**.

@@ -1,0 +1,168 @@
+<!-- @dsCard group="Patterns" name="Settings & circle management" subtitle="Settings section groups (rows with right-hand controls, destructive zone, BELL/EMAIL toggle matrix) · blocked-users list · My-circle member rows" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:14px;max-width:1040px;margin-inline:auto}
+  .sh{font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase;margin:10px 0 -4px}
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  .card{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)}
+  .gh{padding:15px 20px 11px}
+  .gh b{font-size:15px;font-weight:800;letter-spacing:-0.02em}
+  /* settings rows */
+  .srow{display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row)}
+  .srow .m{flex:1;min-width:0}
+  .srow .m .t{display:block;font-size:13.5px;font-weight:700}
+  .srow .m .s{display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px}
+  .btn-quiet{flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-family:var(--font-sans);font-size:12px;font-weight:600}
+  .btn-danger{flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--error);border-radius:var(--radius-pill);padding:7px 14px;font-family:var(--font-sans);font-size:12px;font-weight:600}
+  /* toggle matrix */
+  .mh{display:flex;align-items:baseline;gap:8px;padding:15px 20px 11px}
+  .mh b{flex:1;font-size:15px;font-weight:800;letter-spacing:-0.02em}
+  .mh .col{width:52px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.02em;color:var(--text-faint)}
+  .prow{display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--divider-row)}
+  .prow .m{flex:1;min-width:0}
+  .prow .m .t{display:block;font-size:13.5px;font-weight:700}
+  .prow .m .s{display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px}
+  .tcell{width:52px;display:flex;justify-content:center}
+  .tgl{width:34px;height:20px;border-radius:var(--radius-pill);position:relative;border:0;padding:0;display:inline-block}
+  .tgl i{position:absolute;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)}
+  .tgl.on{background:var(--action-primary)} .tgl.on i{right:2px}
+  .tgl.off{background:var(--icon-muted)} .tgl.off i{left:2px}
+  .fineprint{margin:0;padding:11px 20px 14px;border-top:1px solid var(--divider-row);font-size:12px;color:var(--text-faint);font-weight:500}
+  /* blocked */
+  .brow{display:flex;align-items:center;gap:11px;padding:12px 20px;border-top:1px solid var(--divider-row)}
+  .bav{width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .brow .m{flex:1;min-width:0}
+  .brow .m .t{display:block;font-size:13.5px;font-weight:700}
+  .brow .m .t em{font-style:normal;color:var(--text-faint);font-weight:600;font-size:11.5px}
+  .brow .m .s{display:block;font-size:12px;color:var(--text-faint);font-weight:500}
+  .bempty{margin:0;padding:4px 20px 16px;font-size:12.5px;color:var(--text-faint);font-weight:500}
+  /* my-circle rows */
+  .crow{display:flex;align-items:center;gap:14px;padding:15px 20px;border-top:1px solid var(--divider-row)}
+  .crow:hover{background:var(--row-hover)}
+  .cav{width:42px;height:42px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:var(--ring-avatar)}
+  .crow .m{flex:1;min-width:0}
+  .crow .nm{display:flex;align-items:baseline;gap:8px}
+  .crow .nm b{font-size:14px;font-weight:700}
+  .crow .nm i{font-style:normal;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .crow .role{display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .crow .since{display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px}
+  .msgbtn{flex:none;display:inline-flex;align-items:center;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 16px;font-family:var(--font-sans);font-size:12.5px;font-weight:700;text-decoration:none}
+  .discbtn{flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:8px 15px;font-family:var(--font-sans);font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+
+  <p class="sh">Settings anatomy &mdash; section group, rows with right-hand control, destructive zone</p>
+  <div class="cols2">
+    <div class="card">
+      <div class="gh"><b>Account</b></div>
+      <div class="srow">
+        <span class="m"><span class="t">Email</span><span class="s">iris.lau@alum.chadwick.edu</span></span>
+        <button class="btn-quiet">Change</button>
+      </div>
+      <div class="srow">
+        <span class="m"><span class="t">Export your data</span><span class="s">A copy of your profile, asks, and messages &mdash; yours to keep.</span></span>
+        <button class="btn-quiet">Request export</button>
+      </div>
+      <div class="srow">
+        <span class="m"><span class="t">Sign out</span><span class="s">Joined March 2026 &middot; invited through Chadwick</span></span>
+        <button class="btn-quiet">Sign out</button>
+      </div>
+      <div class="srow">
+        <span class="m"><span class="t" style="color:var(--error)">Delete account</span><span class="s">Profile, asks, and messages leave BridgeCircle within 30 days.</span></span>
+        <button class="btn-danger">Delete&hellip;</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="mh"><b>Notifications &amp; email</b><span class="col">BELL</span><span class="col">EMAIL</span></div>
+      <div class="prow">
+        <span class="m"><span class="t">Asks &amp; offers</span><span class="s">Someone asks you, offers on your ask, or a thread opens</span></span>
+        <span class="tcell"><span class="tgl on"><i></i></span></span>
+        <span class="tcell"><span class="tgl on"><i></i></span></span>
+      </div>
+      <div class="prow">
+        <span class="m"><span class="t">Decline notes</span><span class="s">A no, cushioned &mdash; you&rsquo;ll never get silence instead</span></span>
+        <span class="tcell"><span class="tgl on"><i></i></span></span>
+        <span class="tcell"><span class="tgl off"><i></i></span></span>
+      </div>
+      <div class="prow">
+        <span class="m"><span class="t">Ask expiry warnings</span><span class="s">A heads-up before an ask closes at day 14</span></span>
+        <span class="tcell"><span class="tgl on"><i></i></span></span>
+        <span class="tcell"><span class="tgl off"><i></i></span></span>
+      </div>
+      <p class="fineprint">Transactional only &mdash; there&rsquo;s no weekly digest, and nothing here is promotional.</p>
+    </div>
+  </div>
+
+  <p class="sh">Blocked users &mdash; row with quiet unblock, plus the empty line</p>
+  <div class="cols2">
+    <div class="card">
+      <div class="gh"><b>Blocked</b></div>
+      <div class="brow">
+        <span class="bav">MW</span>
+        <span class="m">
+          <span class="t">Marcus Webb <em>&rsquo;13</em></span>
+          <span class="s">Blocked April 12 &middot; they can&rsquo;t see you, and were never told</span>
+        </span>
+        <button class="btn-quiet">Unblock&hellip;</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="gh"><b>Blocked</b></div>
+      <p class="bempty">No one is blocked. If you ever block someone, you can lift it here.</p>
+    </div>
+  </div>
+
+  <p class="sh">My-circle rows &mdash; class year, connection provenance, Message / Disconnect</p>
+  <div class="card">
+    <div class="crow">
+      <span class="cav" style="background:var(--avatar-1-bg);color:var(--avatar-1-fg)">MC</span>
+      <span class="m">
+        <span class="nm"><b>Maya Chen</b><i>&rsquo;14</i></span>
+        <span class="role">Design Lead &middot; Figma &middot; San Francisco</span>
+        <span class="since">Connected March 2026 &middot; from an ask about portfolios</span>
+      </span>
+      <a class="msgbtn" href="#" onclick="return false">Message</a>
+      <button class="discbtn">Disconnect&hellip;</button>
+    </div>
+    <div class="crow">
+      <span class="cav" style="background:var(--avatar-2-bg);color:var(--avatar-2-fg)">NR</span>
+      <span class="m">
+        <span class="nm"><b>Noah Reyes</b><i>&rsquo;22</i></span>
+        <span class="role">Engineering student &middot; UCLA</span>
+        <span class="since">Connected February 2026 &middot; classmates</span>
+      </span>
+      <a class="msgbtn" href="#" onclick="return false">Message</a>
+      <button class="discbtn">Disconnect&hellip;</button>
+    </div>
+    <div class="crow">
+      <span class="cav" style="background:var(--avatar-4-bg);color:var(--avatar-4-fg)">JB</span>
+      <span class="m">
+        <span class="nm"><b>Jordan Bell</b><i>&rsquo;17</i></span>
+        <span class="role">Product Manager &middot; Stripe &middot; Seattle</span>
+        <span class="since">Connected May 2026 &middot; from a reunion event</span>
+      </span>
+      <a class="msgbtn" href="#" onclick="return false">Message</a>
+      <button class="discbtn">Disconnect&hellip;</button>
+    </div>
+    <div class="crow">
+      <span class="cav" style="background:var(--avatar-5-bg);color:var(--avatar-5-fg)">PR</span>
+      <span class="m">
+        <span class="nm"><b>Priya Raman</b><i>&rsquo;19</i></span>
+        <span class="role">Med student &middot; UCSF</span>
+        <span class="since">Connected June 2026 &middot; they said hi</span>
+      </span>
+      <a class="msgbtn" href="#" onclick="return false">Message</a>
+      <button class="discbtn">Disconnect&hellip;</button>
+    </div>
+  </div>
+
+</body>
+</html>

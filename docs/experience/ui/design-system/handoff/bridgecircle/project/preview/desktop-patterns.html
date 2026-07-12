@@ -1,4 +1,4 @@
-<!-- @dsCard group="Desktop" name="Wide-viewport patterns" subtitle="Two-column list+detail · wide band hero · hover & focus states [E3]" viewport-width="1100" -->
+<!-- @dsCard group="Desktop" name="Wide-viewport patterns" subtitle="Two-column list+detail · wide wash hero (--wash-give, ink text) · hover & focus states [E3]" viewport-width="1100" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,13 +11,14 @@
   .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
   .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:20px 22px}
 
-  /* wide band hero */
-  .hero{border-radius:var(--radius-large);background:var(--gradient-band-green);color:#fff;padding:36px 40px;display:flex;align-items:flex-end;gap:24px}
+  /* wide wash hero — the decided identity treatment (give mode): --wash-give
+     fades into the canvas, ink text on it */
+  .hero{border-radius:var(--radius-large) var(--radius-large) 0 0;background:var(--wash-give);color:var(--text-primary);padding:36px 40px;display:flex;align-items:flex-end;gap:24px}
   .hero .txt{flex:1}
-  .hero .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:0 0 6px}
+  .hero .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--action-give-text);margin:0 0 6px}
   .hero h2{font-size:var(--font-size-display-xl);line-height:var(--lh-display-xl);font-weight:800;letter-spacing:-0.025em;margin:0 0 4px}
-  .hero p{font-size:15px;opacity:.9;margin:0;max-width:52ch}
-  .hero .cta{flex:none;background:#fff;border:0;border-radius:var(--radius-pill);padding:13px 24px;font-family:var(--font-sans);font-size:15px;font-weight:700;color:#0b8a57;cursor:default}
+  .hero p{font-size:15px;color:var(--grey-600);font-weight:500;margin:0;max-width:52ch}
+  .hero .cta{flex:none;background:var(--action-give);border:0;border-radius:var(--radius-pill);padding:13px 24px;font-family:var(--font-sans);font-size:15px;font-weight:700;color:var(--action-on-give);cursor:default}
 
   /* two-column list + detail */
   .split{display:grid;grid-template-columns:340px 1fr;gap:16px;align-items:start}
@@ -53,7 +54,7 @@
     <div class="txt">
       <p class="eyebrow">Give help</p>
       <h2>Three people could use you</h2>
-      <p>The O3 band at desktop scale — Display XL carries the landing moment, and the band owns the full shell width so the canvas never feels empty.</p>
+      <p>The give wash at desktop scale — Display XL carries the landing moment, and the wash fades into the canvas so the full shell width never feels empty.</p>
     </div>
     <button class="cta">Browse asks</button>
   </div>

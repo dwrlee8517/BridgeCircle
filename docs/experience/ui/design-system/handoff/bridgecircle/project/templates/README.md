@@ -3,8 +3,8 @@
 The target-redesign mockups for **every flow and page** in
 [`../uploads/FLOWS.md`](../uploads/FLOWS.md), synced down from the `bridgecircle`
 Claude Design project. This is the page-and-flow layer that sits beside the
-component specimens in [`../preview/`](../preview/); it supersedes the earlier
-People/Profile-only slice in [`../screens/`](../screens/).
+component specimens in [`../preview/`](../preview/). (It superseded the earlier
+Codex People/Profile-only `screens/` slice, removed 2026-07-12.)
 
 ## What's here
 

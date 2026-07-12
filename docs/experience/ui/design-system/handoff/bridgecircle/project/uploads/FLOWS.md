@@ -837,5 +837,7 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
 
 All member flows are now specced. Mobile remains deferred (desktop-first).
 
-Each screen designed as `screens/<name>.html` in this project (with
-`<!-- @dsCard group="Screens" -->`), checkpoint-synced to the repo.
+Each flow designed in the `bridgecircle` Claude Design project as a
+`templates/<section>/<Name>.dc.html` DesignComponent, checkpoint-synced to the
+repo. (The earlier `screens/<name>.html` plan and its Codex People/Profile
+slice were superseded by the templates and removed 2026-07-12.)

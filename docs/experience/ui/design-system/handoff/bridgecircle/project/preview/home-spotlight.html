@@ -1,0 +1,106 @@
+<!-- @dsCard group="Patterns" name="Home spotlight deck" subtitle="This week in the circle · 6s auto-advance · dots + arrows · reduced-motion → manual" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;max-width:1040px;margin-inline:auto;display:grid;gap:14px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 2px}
+  .frames{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+  /* deck section = header line + elevated card (anatomy verbatim from Home.dc.html) */
+  .deck{display:grid;gap:8px}
+  .dhead{display:flex;align-items:baseline;gap:8px;padding:0 2px}
+  .dhead b{font-size:13px;font-weight:800;letter-spacing:0.02em;color:var(--text-secondary)}
+  .dhead .n{font-size:11.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .card{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 26px 18px}
+  .top{display:flex;align-items:center;gap:9px}
+  .pill{flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px}
+  .p-green{color:var(--action-give-text);background:rgb(3 178 108 / 0.12)}
+  .p-blue{color:var(--blue-600);background:var(--blue-50)}
+  .p-grey{color:var(--text-secondary);background:var(--surface-subtle)}
+  .meta{font-size:12px;color:var(--text-faint);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .arrows{margin-left:auto;display:flex;gap:6px;flex:none}
+  .arrows button{width:30px;height:30px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);color:var(--text-secondary);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 0 2px;font-family:var(--font-sans)}
+  .arrows button:hover{background:var(--grey-200)}
+  .bodyzone{min-height:88px;margin-top:13px}
+  .bodyzone h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-0.02em;line-height:1.25;text-wrap:pretty}
+  .bodyzone p{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:var(--grey-600);font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty}
+  .foot{display:flex;align-items:center;gap:14px;margin-top:14px}
+  .cta{flex:none;display:inline-flex;align-items:center;border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;text-decoration:none}
+  .cta.green{background:rgb(3 178 108 / 0.12);color:var(--action-give-text)}
+  .cta.blue{background:var(--action-weak);color:var(--blue-600)}
+  .more{flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none}
+  .dots{margin-left:auto;display:flex;align-items:center;gap:5px;flex:none}
+  .dots i{display:block;width:7px;height:7px;border-radius:50%;background:var(--grey-300)}
+  .dots i.on{width:18px;border-radius:var(--radius-pill);background:var(--blue-600)}
+  /* behavior contract strip */
+  .contract{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:14px 20px;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
+  .contract .t{font-size:12px;font-weight:800;letter-spacing:0.02em;color:var(--text-secondary);margin-right:2px}
+  .rule{font-size:11.5px;font-weight:700;color:var(--text-secondary);background:var(--surface-inset);border-radius:var(--radius-pill);padding:4px 11px;box-shadow:inset 0 0 0 1px var(--border-subtle)}
+  .fine{font-size:12px;color:var(--text-faint);font-weight:500;margin:0;padding:0 2px}
+</style>
+</head>
+<body>
+
+  <p class="label">Frame A — slide 1 of 6 (You could help · green) &nbsp;·&nbsp; Frame B — slide 4 of 6 (Recognition · grey)</p>
+  <div class="frames">
+
+    <!-- Frame A: first slide active, green identity -->
+    <section class="deck" aria-label="This week in the circle">
+      <span class="dhead"><b>This week in the circle</b><span class="n">1 of 6</span></span>
+      <div class="card">
+        <div class="top">
+          <span class="pill p-green">You could help</span>
+          <span class="meta">Sam Okafor &middot; CS &rsquo;27 &middot; 5h ago</span>
+          <span class="arrows"><button aria-label="Previous">&lsaquo;</button><button aria-label="Next">&rsaquo;</button></span>
+        </div>
+        <div class="bodyzone">
+          <h2>How risky is going into design instead of SWE?</h2>
+          <p>I&rsquo;m two years into CS and keep gravitating to the design side of every project &mdash; I took the intro studio, redid our club&rsquo;s site, and it&rsquo;s the only work where I lose track of time.</p>
+        </div>
+        <div class="foot">
+          <a class="cta green" href="#" onclick="return false">Offer to help</a>
+          <a class="more" href="#" onclick="return false">More you could help with &rarr;</a>
+          <span class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Frame B: fourth slide active, grey identity -->
+    <section class="deck" aria-label="This week in the circle">
+      <span class="dhead"><b>This week in the circle</b><span class="n">4 of 6</span></span>
+      <div class="card">
+        <div class="top">
+          <span class="pill p-grey">Recognition</span>
+          <span class="meta">Class of &rsquo;14</span>
+          <span class="arrows"><button aria-label="Previous">&lsaquo;</button><button aria-label="Next">&rsaquo;</button></span>
+        </div>
+        <div class="bodyzone">
+          <h2>Maya Chen just started at Figma.</h2>
+          <p>A quiet congratulations goes a long way &mdash; she&rsquo;d hear it from you first.</p>
+        </div>
+        <div class="foot">
+          <a class="cta blue" href="#" onclick="return false">Say congrats</a>
+          <a class="more" href="#" onclick="return false">People &rarr;</a>
+          <span class="dots"><i></i><i></i><i></i><i class="on"></i><i></i><i></i></span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="contract">
+    <span class="t">BEHAVIOR CONTRACT</span>
+    <span class="rule">Auto-advance every ~6s</span>
+    <span class="rule">Pause on hover / focus / open dialog</span>
+    <span class="rule">prefers-reduced-motion &rarr; manual only</span>
+    <span class="rule">Deck capped at 6 items</span>
+    <span class="rule">Dots + arrows always usable</span>
+  </div>
+  <p class="fine">Composition order (Home.dc.html): You could help &middot; People are asking &middot; Events &middot; Recognition &middot; School news &middot; It worked. Pill tone carries section identity &mdash; green for give, blue for ask, grey for everything else. Paused members never see &ldquo;You could help&rdquo; cards (FLOWS &sect;2.1). Active dot is an 18&times;7 blue pill; inactive dots are 7px grey-300 circles, each a button that jumps to its slide.</p>
+
+</body>
+</html>

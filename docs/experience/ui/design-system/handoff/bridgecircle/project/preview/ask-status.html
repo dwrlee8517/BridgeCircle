@@ -1,0 +1,122 @@
+<!-- @dsCard group="Patterns" name="Ask status pills" subtitle="Waiting · N offers · Declined · Answered · Closes-soon — vocabulary + in-context ask rows" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:14px;max-width:640px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .note{font-size:12px;color:var(--text-faint);font-weight:500;margin:0}
+
+  /* The pill — one shape everywhere: 11px/700, 2px 8px, full radius */
+  .pill{font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px}
+  .p-waiting{color:var(--pending-text);background:var(--pending-tint)}
+  .p-offers{color:var(--blue-600);background:var(--blue-50)}
+  .p-declined{color:var(--pending-text);background:var(--pending-tint)}
+  .p-answered{color:var(--action-give-text);background:rgb(3 178 108 / 0.12)}
+  .p-closes{color:var(--closing-soon-text);background:var(--closing-soon-tint)}
+  .p-ended{color:var(--text-faint);background:var(--surface-subtle)}
+
+  .vocab{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:12px}
+  .v{display:grid;justify-items:start;gap:6px}
+  .v .cap{font-size:11px;color:var(--text-faint);font-weight:500;line-height:1.45}
+
+  /* Ask rows — the elevated list card from Help / AskHistory / Home */
+  .lcard{background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)}
+  .arow{display:flex;align-items:center;gap:12px;padding:13px 20px;color:inherit;text-decoration:none;cursor:pointer}
+  .arow + .arow{border-top:1px solid var(--divider-row)}
+  .arow:hover{background:var(--row-hover)}
+  .arow .tt{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+  .arow .tt b{font-size:14px;font-weight:700;color:var(--text-primary)}
+  .arow .meta{display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px}
+  .arow .go{flex:none;color:var(--grey-400);font-size:16px;font-weight:700}
+  .hrow .tt b{font-size:13.5px;font-weight:600;color:var(--text-secondary)}
+  .hrow .meta{font-size:12px;color:var(--text-faint)}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Vocabulary — live asks</p>
+    <div class="vocab">
+      <div class="v"><span class="pill p-waiting">Waiting</span><span class="cap">Sent, no response yet. Neutral-pending grey &mdash; waiting, and that&rsquo;s okay.</span></div>
+      <div class="v"><span class="pill p-offers">2 offers</span><span class="cap">Open ask with offers in. Blue &mdash; something to act on. Singular: &ldquo;1 offer&rdquo;.</span></div>
+      <div class="v"><span class="pill p-declined">Declined</span><span class="cap">Declined with a note; the ask closed early. Same quiet grey as Waiting.</span></div>
+      <div class="v"><span class="pill p-answered">Answered</span><span class="cap">Someone accepted &mdash; the conversation is live in Messages.</span></div>
+      <div class="v"><span class="pill p-closes">Closes in 3d</span><span class="cap">Expiry, shown only in the last 3 days of the 14-day window. Calm, not urgent.</span></div>
+    </div>
+    <p class="note" style="margin-top:12px">Closes-soon stacks after the state pill on a live row; the others are exclusive. One shape everywhere: 11px/700, 2px&thinsp;8px, full radius.</p>
+  </div>
+
+  <div class="card">
+    <p class="label">Vocabulary — history end-states</p>
+    <div class="vocab">
+      <div class="v"><span class="pill p-answered">Resolved</span><span class="cap">You marked it resolved &mdash; the good ending.</span></div>
+      <div class="v"><span class="pill p-ended">Closed</span><span class="cap">The 14 days ran out. Faint grey &mdash; no blame.</span></div>
+      <div class="v"><span class="pill p-ended">Retracted</span><span class="cap">You took it back. Same faint grey.</span></div>
+    </div>
+  </div>
+
+  <!-- In context: the open-asks list rows shared by Help "Your asks",
+       AskHistory "Open", and Home "Your open asks". -->
+  <section>
+    <p class="label" style="margin-bottom:10px">In context — open ask rows</p>
+    <div class="lcard">
+      <a class="arow" href="#" onclick="return false">
+        <span style="flex:1;min-width:0">
+          <span class="tt"><b>How did you know it was time to move in-house? I&rsquo;m weighing it&hellip;</b><span class="pill p-waiting">Waiting</span></span>
+          <span class="meta">To Maya Chen &middot; sent 2 days ago</span>
+        </span>
+        <span class="go" aria-hidden="true">&rsaquo;</span>
+      </a>
+      <a class="arow" href="#" onclick="return false">
+        <span style="flex:1;min-width:0">
+          <span class="tt"><b>Could someone intro me to a design-led startup that takes junior&hellip;</b><span class="pill p-offers">2 offers</span></span>
+          <span class="meta">Private &mdash; good matches &middot; without your name &middot; sent 5 days ago</span>
+        </span>
+        <span class="go" aria-hidden="true">&rsaquo;</span>
+      </a>
+      <a class="arow" href="#" onclick="return false">
+        <span style="flex:1;min-width:0">
+          <span class="tt"><b>Would you look over my case-study draft before Friday?</b><span class="pill p-declined">Declined</span></span>
+          <span class="meta">To Ravi Shah &middot; sent 1 day ago</span>
+        </span>
+        <span class="go" aria-hidden="true">&rsaquo;</span>
+      </a>
+      <a class="arow" href="#" onclick="return false">
+        <span style="flex:1;min-width:0">
+          <span class="tt"><b>Is a coding bootcamp worth it alongside a design degree?</b><span class="pill p-closes">Closes in 2d</span></span>
+          <span class="meta">Public &mdash; anyone at Chadwick &middot; sent 12 days ago</span>
+        </span>
+        <span class="go" aria-hidden="true">&rsaquo;</span>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <p class="label" style="margin-bottom:10px">In context — history rows</p>
+    <div class="lcard">
+      <a class="arow hrow" href="#" onclick="return false">
+        <span style="flex:1;min-width:0">
+          <span class="tt"><b>Choosing between two summer offers</b><span class="pill p-answered">Resolved</span></span>
+          <span class="meta">Resolved with Jordan Blake &middot; took the in-house offer &middot; May</span>
+        </span>
+        <span class="go" aria-hidden="true">&rsaquo;</span>
+      </a>
+      <a class="arow hrow" href="#" onclick="return false">
+        <span style="flex:1;min-width:0">
+          <span class="tt"><b>Feedback on my first client contract</b><span class="pill p-ended">Closed</span></span>
+          <span class="meta">Closed after 14 days &middot; April</span>
+        </span>
+        <span class="go" aria-hidden="true">&rsaquo;</span>
+      </a>
+    </div>
+  </section>
+
+  <p class="note">Where they live: ask rows on Help &ldquo;Your asks&rdquo;, AskHistory, and Home &ldquo;Your open asks&rdquo; (identical anatomy); the AskStatus header reuses the same pills as chips (&ldquo;Open&rdquo; blue, plus Declined / Answered / ended states). A quiet open ask with more than 3 days left also reads &ldquo;Waiting&rdquo; &mdash; the member never sees a zero-offer count.</p>
+
+</body>
+</html>

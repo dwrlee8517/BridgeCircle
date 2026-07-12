@@ -1,0 +1,119 @@
+<!-- @dsCard group="Patterns" name="System states" subtitle="Not-found · permission-denied · offline · module-shaped skeletons" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .canvas{background:var(--surface-canvas);border-radius:var(--radius-comfortable);padding:36px 24px;display:flex;align-items:center;justify-content:center}
+  /* Skeleton shimmer — SystemStates.dc.html keyframes, tokenised to
+     --skeleton-base / --skeleton-pulse */
+  [data-skel]{background:linear-gradient(90deg,var(--skeleton-pulse) 25%,var(--skeleton-base) 50%,var(--skeleton-pulse) 75%);background-size:200% 100%}
+  @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+  @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       All four states extracted verbatim from
+       templates/system-states/SystemStates.dc.html (FLOWS §8 —
+       the calm state set). Icon marks: intertwined circles motif
+       in --grey-400 / --grey-300 strokes.
+       ============================================================ -->
+
+  <div class="card">
+    <p class="label">Not-found / gone — &ldquo;This isn&rsquo;t here anymore.&rdquo;</p>
+    <div class="canvas">
+      <div style="max-width:400px;text-align:center;display:grid;justify-items:center;gap:0">
+        <svg width="44" height="44" viewBox="0 0 28 28"><circle cx="11" cy="14" r="9" fill="none" stroke="var(--grey-400)" stroke-width="1.6"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="var(--grey-300)" stroke-width="1.6"></circle></svg>
+        <h1 style="margin:18px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em">This isn&rsquo;t here anymore.</h1>
+        <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--grey-600);font-weight:500;text-wrap:pretty">The ask you followed was retracted, or it closed on its own. Nothing you did &mdash; things just move.</p>
+        <a href="#" onclick="return false" style="margin-top:20px;display:inline-block;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px 24px;font-size:13.5px;font-weight:700;text-decoration:none">&larr; Back to Help</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Permission denied — &ldquo;This isn&rsquo;t here for you.&rdquo;</p>
+    <div class="canvas">
+      <div style="max-width:400px;text-align:center;display:grid;justify-items:center;gap:0">
+        <svg width="44" height="44" viewBox="0 0 28 28"><circle cx="14" cy="14" r="9" fill="none" stroke="var(--grey-400)" stroke-width="1.6"></circle><circle cx="14" cy="14" r="3.5" fill="none" stroke="var(--grey-300)" stroke-width="1.6"></circle></svg>
+        <h1 style="margin:18px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em">This isn&rsquo;t here for you.</h1>
+        <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--grey-600);font-weight:500;text-wrap:pretty">That link points to something private. If someone meant to share it, ask them to send it another way.</p>
+        <a href="#" onclick="return false" style="margin-top:20px;display:inline-block;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px 24px;font-size:13.5px;font-weight:700;text-decoration:none">&larr; Back to Help</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="label">Offline / failed load — dashed circle, honest retry</p>
+    <div class="canvas">
+      <div style="max-width:400px;text-align:center;display:grid;justify-items:center;gap:0">
+        <svg width="44" height="44" viewBox="0 0 28 28"><circle cx="14" cy="14" r="9" fill="none" stroke="var(--grey-400)" stroke-width="1.6" stroke-dasharray="3.5 4"></circle></svg>
+        <h1 style="margin:18px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em">Couldn&rsquo;t load that.</h1>
+        <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--grey-600);font-weight:500;text-wrap:pretty">Check your connection and try again &mdash; nothing was lost.</p>
+        <button style="margin-top:20px;border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:12px 26px;font-family:var(--font-sans);font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)">Try again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skeletons mirror the shape of the module they replace —
+       heading, sub-line, hero card, then avatar rows, exactly as
+       the loaded module lays out. Never a spinner on page canvas. -->
+  <div class="card">
+    <p class="label">Module-shaped skeleton — Help list module (SystemStates.dc.html, loading)</p>
+    <div style="background:var(--surface-canvas);border-radius:var(--radius-comfortable);padding:26px 24px">
+      <div style="max-width:820px" aria-label="Loading" role="status">
+        <span data-skel="" style="display:block;width:340px;max-width:70%;height:26px;border-radius:9px"></span>
+        <span data-skel="" style="display:block;width:220px;height:14px;margin-top:10px;border-radius:7px"></span>
+        <span data-skel="" style="display:block;height:120px;margin-top:22px;border-radius:var(--radius-card-xl)"></span>
+        <div style="display:grid;gap:12px;margin-top:22px">
+          <div style="display:flex;align-items:center;gap:14px;background:var(--surface-card);box-shadow:var(--ring-card);border-radius:16px;padding:16px 18px">
+            <span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%"></span>
+            <span style="flex:1;display:grid;gap:8px">
+              <span data-skel="" style="display:block;width:45%;height:13px;border-radius:6px"></span>
+              <span data-skel="" style="display:block;width:70%;height:11px;border-radius:6px"></span>
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:var(--surface-card);box-shadow:var(--ring-card);border-radius:16px;padding:16px 18px">
+            <span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%"></span>
+            <span style="flex:1;display:grid;gap:8px">
+              <span data-skel="" style="display:block;width:38%;height:13px;border-radius:6px"></span>
+              <span data-skel="" style="display:block;width:62%;height:11px;border-radius:6px"></span>
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:var(--surface-card);box-shadow:var(--ring-card);border-radius:16px;padding:16px 18px">
+            <span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%"></span>
+            <span style="flex:1;display:grid;gap:8px">
+              <span data-skel="" style="display:block;width:50%;height:13px;border-radius:6px"></span>
+              <span data-skel="" style="display:block;width:66%;height:11px;border-radius:6px"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Same principle in a second module: the Messages inbox skeleton
+       (search pill, then avatar + two-line conversation rows), from
+       templates/messages/Messages.dc.html loading state. -->
+  <div class="card">
+    <p class="label">Module-shaped skeleton — Messages inbox (messages/Messages.dc.html, loading)</p>
+    <div style="background:var(--surface-canvas);border-radius:var(--radius-comfortable);padding:26px 24px">
+      <div style="max-width:360px;display:grid;gap:14px" aria-label="Loading" role="status">
+        <span data-skel="" style="display:block;height:38px;border-radius:11px"></span>
+        <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:55%;height:12px;border-radius:6px"></span><span data-skel="" style="display:block;width:80%;height:10px;border-radius:5px"></span></span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:45%;height:12px;border-radius:6px"></span><span data-skel="" style="display:block;width:70%;height:10px;border-radius:5px"></span></span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:60%;height:12px;border-radius:6px"></span><span data-skel="" style="display:block;width:75%;height:10px;border-radius:5px"></span></span></div>
+        <div style="display:flex;align-items:center;gap:11px"><span data-skel="" style="width:38px;height:38px;flex:none;border-radius:50%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:50%;height:12px;border-radius:6px"></span><span data-skel="" style="display:block;width:65%;height:10px;border-radius:5px"></span></span></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
