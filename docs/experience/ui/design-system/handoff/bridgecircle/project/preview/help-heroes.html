@@ -1,4 +1,4 @@
-<!-- @dsCard group="Pages" name="Help — open hero (DECIDED: 1i wash + pill toggle)" subtitle="Wash hero with the band's pill toggle · composer · recipient picker · give status strip · band reserved for onboarding/marketing" viewport-width="1100" -->
+<!-- @dsCard group="Pages" name="Help — open hero (DECIDED: 1i wash + pill toggle)" subtitle="Wash hero (--wash-get / --wash-give) with the white-pill mode toggle · search-first question box (Ask the circle / Find people) · match results · give status strip. Saturated bands retired — only --gradient-band-dark survives (Entry backdrop / footers)" viewport-width="1100" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,29 +11,18 @@
   .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0}
   .frame{border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);background:var(--surface-card)}
 
-  /* ---- Variant A: saturated band (Current) ---- */
-  .band{position:relative;overflow:hidden;background:var(--band-glow),var(--gradient-band-blue);color:#fff;padding:24px 30px 28px}
-  .band .wm{position:absolute;top:-54px;right:-26px;width:300px;height:210px;opacity:.16}
-  .btoggle{display:inline-flex;padding:3px;background:var(--band-toggle-track);border-radius:var(--radius-pill);gap:2px;position:relative}
-  .btoggle span{font-size:13px;font-weight:600;color:rgb(255 255 255 / 0.92);padding:9px 17px;border-radius:var(--radius-pill)}
-  .btoggle .on{background:#fff;color:#2f73e6;font-weight:700}
-  .band h2{margin:16px 0 0;font-weight:800;font-size:29px;line-height:1.05;letter-spacing:-0.03em;position:relative}
-  .band p{margin:7px 0 0;font-size:14px;color:rgb(255 255 255 / 0.86);font-weight:500;position:relative}
-  .bandcard{margin-top:16px;background:#fff;border-radius:18px;padding:18px 20px;box-shadow:var(--shadow-band-card);position:relative;color:var(--text-primary)}
-
-  /* ---- Variant B: open-hero wash (1i) ---- */
+  /* ---- The open-hero wash (1i) — THE identity treatment ---- */
   .wash{padding:26px 30px 28px;background:var(--wash-get)}
   .wash.give{background:var(--wash-give)}
-  /* Mode toggle — DECIDED (Richard, 2026-07-05): the band variant's PILL
-     toggle geometry, adapted to the light wash: soft white track
-     (--wash-toggle-track) + hairline ring instead of translucent-on-color;
+  /* Mode toggle — DECIDED (Richard, 2026-07-05): PILL toggle geometry on the
+     light wash: soft white track (--wash-toggle-track) + hairline ring;
      white active pill, mode-colored text, 15px icons. */
   .wtoggle{display:inline-flex;background:var(--wash-toggle-track);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-pill);padding:3px;gap:2px}
   .wtoggle span{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--grey-600);padding:9px 17px;border-radius:var(--radius-pill)}
   .wtoggle svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
   .wtoggle .on{font-weight:700;background:#fff;box-shadow:0 1px 3px rgb(25 31 40 / 0.1)}
   .wtoggle .on.get{color:var(--blue-600)}
-  .wtoggle .on.give{color:#029a5e}
+  .wtoggle .on.give{color:var(--action-give-text)}
   .wnote{margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:600}
   .wash h2{margin:20px 0 0;font-weight:800;font-size:30px;letter-spacing:-0.035em}
   .wash .sub{margin:8px 0 0;font-size:14px;color:var(--grey-600);font-weight:500}
@@ -42,43 +31,42 @@
   .caret{display:inline-block;width:2px;height:17px;background:var(--action-primary);margin-left:2px;vertical-align:-3px}
   .composer .foot{display:flex;align-items:center;gap:12px;border-top:1px solid var(--divider);padding-top:11px}
   .coach{font-size:12px;color:var(--text-faint);font-weight:500}
-  .gbtn{margin-left:auto;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:11px 22px;font-family:var(--font-sans);font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);flex:none}
-  .tags{display:flex;align-items:center;gap:7px;margin-top:13px;flex-wrap:wrap}
-  .tag-on{font-size:12px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border-radius:var(--radius-pill);padding:5px 12px}
-  .tag{font-size:12px;font-weight:600;color:var(--text-secondary);background:rgb(255 255 255 / 0.8);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-pill);padding:5px 12px}
-  .tag-add{font-size:12px;font-weight:700;color:var(--text-faint);border:1.5px dashed #c8cfd8;border-radius:var(--radius-pill);padding:4px 11px}
-  .aud{margin-left:auto;font-size:12px;font-weight:600;color:var(--text-secondary)}
+  .gbtn{background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:11px 22px;font-family:var(--font-sans);font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);flex:none}
+  .obtn{background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);border:0;border-radius:11px;padding:11px 18px;font-family:var(--font-sans);font-size:13px;font-weight:700;flex:none}
 
-  /* recipient picker */
+  /* search results — "People who can speak to it" (v3 search-first ask) */
   .picker{padding:18px 30px 26px}
-  .pickhead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+  .pickhead{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
   .pickhead b{font-size:15px;font-weight:800;letter-spacing:-0.02em}
   .pickhead .s{font-size:12px;color:var(--text-faint);font-weight:600}
-  .pickhead .r{margin-left:auto;font-size:12px;color:var(--text-secondary);font-weight:600}
+  .filters{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .f{font-size:12px;font-weight:600;color:var(--text-secondary);background:var(--surface-subtle);border-radius:var(--radius-pill);padding:6px 12px}
+  .f.on{font-weight:700;color:var(--blue-600);background:rgb(49 130 246 / 0.12)}
   .plist{background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)}
   .pr{display:flex;align-items:center;gap:12px;padding:12px 20px}
   .pr + .pr{border-top:1px solid var(--divider-row)}
   .pav{width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-neutral);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--text-secondary)}
   .pr b{font-size:14px;font-weight:700}
   .pr .why{font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:1px}
+  .yr{font-size:11px;color:var(--text-faint);font-weight:600}
+  .strong{font-size:11px;color:var(--blue-600);font-weight:700}
+  .whybox{display:block;margin-top:9px;background:#f4f6f9;border-radius:11px;padding:10px 13px}
+  .whybox .k{display:block;font-size:10.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em}
+  .whybox .t{display:block;font-size:12.5px;line-height:1.55;color:var(--text-primary);font-weight:500;margin-top:3px}
+  .chev{flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:var(--grey-400);font-size:15px;font-weight:700}
   .chip{font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px}
   .c-circle{color:var(--blue-600);background:var(--blue-50)}
-  .c-open{display:inline-flex;align-items:center;gap:5px;color:#029a5e;background:rgb(3 178 108 / 0.1)}
+  .c-open{display:inline-flex;align-items:center;gap:5px;color:var(--action-give-text);background:var(--give-tint-weak)}
   .c-open i{width:5px;height:5px;border-radius:50%;background:var(--green-500)}
   .inc{flex:none;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:7px 15px;font-family:var(--font-sans);font-size:12px;font-weight:700}
-  .inc.off{background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline)}
 
   /* give status strip + matched asks */
   .strip{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
   .sw{width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;flex:none}
   .sw::after{content:"";position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)}
   .strip b{font-size:13px;font-weight:700}
-  .cap{display:inline-flex;align-items:center;gap:8px}
-  .cap .n{font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums}
-  .cap .track{width:90px;height:5px;border-radius:var(--radius-pill);background:rgb(25 31 40 / 0.1);overflow:hidden;display:inline-block}
-  .cap .fill{display:block;width:33%;height:100%;background:var(--gradient-capacity);border-radius:var(--radius-pill)}
   .exp{font-size:12px;color:var(--text-faint);font-weight:600}
-  .offer{flex:none;background:rgb(3 178 108 / 0.12);color:#029a5e;border:0;border-radius:var(--radius-pill);padding:8px 17px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
+  .offer{flex:none;background:var(--give-tint);color:var(--action-give-text);border:0;border-radius:var(--radius-pill);padding:8px 17px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
 
   /* E2 default: rotating colored pairs (Richard, 2026-07-05) */
   .av-1{background:var(--avatar-1-bg);color:var(--avatar-1-fg)}
@@ -91,19 +79,6 @@
 </head>
 <body>
 
-  <p class="label">Band vocabulary — NOT the Help hero (retained for onboarding / marketing moments)</p>
-  <div class="frame">
-    <div class="band">
-      <svg class="wm" viewBox="0 0 400 240"><circle cx="160" cy="120" r="100" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="232" cy="120" r="100" fill="none" stroke="#fff" stroke-width="1.6"/></svg>
-      <span class="btoggle"><span class="on">Get help</span><span>Give help</span></span>
-      <h2>Hi Alex. Who do you want to ask?</h2>
-      <p>Ask privately — it reaches the few people who can actually help.</p>
-      <div class="bandcard">
-        <span style="font-size:17px;line-height:1.45;font-weight:500">I&rsquo;m a designer weighing an in-house move and trying to time it right. Anyone who&rsquo;s made that jump — how did you know when?<span class="caret"></span></span>
-      </div>
-    </div>
-  </div>
-
   <p class="label">THE Help hero (decided) — 1i wash + pill toggle · get mode</p>
   <div class="frame">
     <div class="wash">
@@ -114,23 +89,20 @@
         </span>
         <span class="wnote">Asks stay open 14 days</span>
       </div>
-      <h2>Who do you want to ask?</h2>
-      <p class="sub">Ask privately — it reaches only the people you pick below.</p>
+      <h2>What do you need?</h2>
+      <p class="sub">Ask it the way it comes out &mdash; we&rsquo;ll find who can help. Nothing here is sent to anyone.</p>
       <div class="composer">
         <span class="txt">I&rsquo;m a product design student weighing an in-house move after two agency internships. How did you know when it was time?<span class="caret"></span></span>
-        <span class="foot"><span class="coach">Write it like you&rsquo;d ask a friend — detail helps us match the right people.</span><button class="gbtn">Ask for advice</button></span>
-      </div>
-      <div class="tags">
-        <span class="tag-on">Career switch</span><span class="tag">Portfolio</span><span class="tag-add">+ Add</span>
-        <span class="aud">Only people I pick ▾</span>
+        <span class="foot"><span class="coach">Searches are private &mdash; members never know they matched.</span><span style="margin-left:auto;display:flex;gap:8px;flex:none"><button class="obtn">Ask the circle</button><button class="gbtn">Find people</button></span></span>
       </div>
     </div>
     <div class="picker">
-      <div class="pickhead"><b>Send it to the right people</b><span class="s">you choose who sees it</span><span class="r">Reaching <b style="font-size:12px">2 people</b></span></div>
+      <div class="pickhead"><b>People who can speak to it</b><span class="s">3 &middot; strongest first &middot; fit isn&rsquo;t a promise</span></div>
+      <div class="filters"><span class="f on">All</span><span class="f">Open to help</span><span class="f">In your circle</span></div>
       <div class="plist">
-        <div class="pr"><span class="pav av-1">MC</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Maya Chen</b><span class="chip c-circle">In your circle</span></span><span class="why" style="display:block">Made the agency → in-house jump in 2018</span></span><button class="inc">✓ Included</button></div>
-        <div class="pr"><span class="pav av-5">JB</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Jordan Blake</b><span class="chip c-open"><i></i>Open to help</span></span><span class="why" style="display:block">Hires in-house designers from agencies</span></span><button class="inc">✓ Included</button></div>
-        <div class="pr"><span class="pav av-2">DO</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center"><b>Daniel Osei</b><span class="chip c-open"><i></i>Open to help</span></span><span class="why" style="display:block">Mentors people switching tracks</span></span><button class="inc off">Include</button></div>
+        <div class="pr"><span class="pav av-1">MC</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><b>Maya Chen</b><span class="yr">&rsquo;15</span><span class="chip c-circle">In your circle</span><span class="strong">Strong match</span></span><span class="whybox"><span class="k">Why this match</span><span class="t">Made the agency &rarr; in-house jump in 2018</span></span></span><button class="inc">Ask Maya</button><span class="chev">&rsaquo;</span></div>
+        <div class="pr"><span class="pav av-5">JB</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><b>Jordan Blake</b><span class="yr">&rsquo;09</span><span class="chip c-open"><i></i>Open to help</span></span><span class="whybox"><span class="k">Why this match</span><span class="t">Hires in-house designers from agencies</span></span></span><button class="inc">Ask Jordan</button><span class="chev">&rsaquo;</span></div>
+        <div class="pr"><span class="pav av-2">DO</span><span style="flex:1;min-width:0"><span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><b>Daniel Osei</b><span class="yr">&rsquo;12</span><span class="chip c-open"><i></i>Open to help</span></span><span class="whybox"><span class="k">Why this match</span><span class="t">Mentors people switching tracks</span></span></span><button class="inc">Ask Daniel</button><span class="chev">&rsaquo;</span></div>
       </div>
     </div>
   </div>
@@ -149,8 +121,7 @@
       <p class="sub">3 open asks match your background — a quick pointer can save someone weeks.</p>
       <div class="strip">
         <span style="display:inline-flex;align-items:center;gap:8px"><span class="sw"></span><b>Open to helping</b></span>
-        <span class="cap"><span class="n">1 of 3 slots used</span><span class="track"><span class="fill"></span></span></span>
-        <span class="exp">· status expires in 14 days</span>
+        <span class="exp">We stop matching you when you&rsquo;re busy &mdash; pausing is never announced.</span>
       </div>
     </div>
     <div class="picker">

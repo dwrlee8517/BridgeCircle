@@ -96,7 +96,7 @@ export async function decideMembership(input: DecideInput): Promise<DecideResult
   const orgName = org?.name ?? 'BridgeCircle'
 
   if (email) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3001'
     if (input.decision === 'approve') {
       await sendMembershipApprovedEmail({
         to: email,

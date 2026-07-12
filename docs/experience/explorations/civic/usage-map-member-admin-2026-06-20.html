@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<title>How BridgeCircle is used — member &amp; admin (usage map)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --background:#fafaf9; --foreground:#0c0c0b; --card:#ffffff;
+    --primary:#2563eb; --primary-hover:#1d4ed8; --primary-on-dark:#93c5fd;
+    --cta:#f59e0b; --cta-hover:#d97706; --cta-foreground:#0c0c0b;
+    --ink:#1b1813; --ink-foreground:#fafaf9; --ink-muted:rgb(250 250 249 / 68%);
+    --secondary:#f4f3ee; --muted:#ebebe5; --muted-foreground:#4d4d4a; --border:#dcdcd6;
+    --destructive:#9b2c1f; --ochre:#a16207; --rust:#c4314b; --sage:#15a05f; --plum:#7c3aed;
+    --primary-tint:rgb(37 99 235 / 10%); --success-tint:rgb(21 160 95 / 10%);
+    --warning-tint:rgb(161 98 7 / 12%); --plum-tint:rgb(124 58 237 / 10%);
+    --cta-tint:rgb(245 158 11 / 12%);
+    --radius:10px;
+    --shadow-card:0 1px 0 rgb(12 12 11 / 0.03);
+    --shadow-hover:0 4px 12px -2px rgb(12 12 11 / 0.06);
+    --shadow-hero:0 12px 34px -8px rgb(12 12 11 / 0.10);
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --display:"Inter Tight",var(--sans);
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--background); color:var(--foreground);
+    font-family:var(--sans); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1120px; margin:0 auto; padding:0 24px 120px; }
+  h1,h2,h3,h4 { font-family:var(--display); font-weight:600; letter-spacing:-0.01em; margin:0; }
+  .mono { font-family:var(--mono); }
+
+  /* icons */
+  .ic { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8;
+    stroke-linecap:round; stroke-linejoin:round; flex:none; }
+  .ic.sm { width:14px; height:14px; }
+  .ic.lg { width:22px; height:22px; }
+
+  .kicker { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.12em;
+    color:var(--primary-on-dark); display:inline-flex; align-items:center; gap:8px; }
+  .kicker::before { content:""; width:26px; height:2px; border-radius:2px; background:var(--primary-on-dark); }
+  .card-label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--muted-foreground); margin:0 0 12px; }
+
+  /* ---- HERO ---- */
+  .hero { position:relative; overflow:hidden; background:var(--ink); color:var(--ink-foreground);
+    border-radius:0 0 var(--radius) var(--radius); margin-bottom:36px; }
+  .hero-inner { position:relative; max-width:1120px; margin:0 auto; padding:42px 24px 46px; }
+  .hero svg.motif { position:absolute; top:-70px; right:-50px; width:430px; height:300px; opacity:0.16; }
+  .hero h1 { font-size:34px; line-height:1.12; margin:14px 0 0; max-width:760px; }
+  .hero .lede { color:var(--ink-muted); font-size:17px; line-height:1.55; max-width:720px; margin:12px 0 0; }
+  .hero .frame { margin-top:20px; padding:14px 18px; border-left:2px solid var(--primary-on-dark);
+    background:rgb(250 250 249 / 6%); border-radius:6px; max-width:760px; font-size:14px; line-height:1.55; }
+  .hero-meta { margin-top:20px; display:flex; flex-wrap:wrap; gap:10px; }
+  .pill { font-family:var(--mono); font-size:11px; padding:4px 10px; border-radius:999px;
+    border:1px solid rgb(250 250 249 / 22%); color:var(--ink-muted); }
+
+  .how-to { margin:0 auto 30px; max-width:1120px; background:var(--cta-tint);
+    border:1px solid rgb(245 158 11 / 35%); border-radius:var(--radius); padding:13px 16px;
+    font-size:14px; display:flex; gap:11px; align-items:flex-start; }
+  .how-to .ic { color:var(--cta-hover); margin-top:1px; }
+  .how-to b { font-weight:600; }
+
+  /* ---- LEGEND ---- */
+  .legend { display:flex; flex-wrap:wrap; gap:12px 22px; margin:0 0 14px; padding:14px 18px;
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-card); }
+  .legend .item { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted-foreground); }
+  .swatch { width:13px; height:13px; border-radius:4px; flex:none; }
+
+  /* ---- SECTION HEADS ---- */
+  .section-head { display:flex; align-items:center; gap:12px; margin:50px 0 6px; }
+  .sh-badge { width:34px; height:34px; border-radius:9px; display:grid; place-items:center; flex:none;
+    background:var(--secondary); color:var(--foreground); border:1px solid var(--border); }
+  .section-head h2 { font-size:24px; flex:1 1 auto; }
+  .section-head .tag { font-family:var(--mono); font-size:12px; color:var(--primary); }
+  .section-sub { color:var(--muted-foreground); font-size:14px; margin:2px 0 22px; max-width:760px; }
+
+  /* ---- FLYWHEEL ---- */
+  .ring-wrap { display:grid; justify-items:center; margin:4px 0; }
+  .ring { position:relative; width:min(600px,94vw); aspect-ratio:1/1; }
+  .ring svg.track { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .ring .center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:39%; text-align:center; }
+  .ring .center .glyph { width:30px; height:30px; color:var(--primary); margin:0 auto 4px; display:block; }
+  .ring .center h3 { font-size:18px; margin:0 0 4px; }
+  .ring .center p { font-size:12px; color:var(--muted-foreground); margin:0; line-height:1.4; }
+  .node { position:absolute; transform:translate(-50%,-50%); width:150px; background:var(--card);
+    border:1px solid var(--border); border-top:3px solid var(--nodec,var(--primary)); border-radius:var(--radius);
+    box-shadow:var(--shadow-card); padding:10px 12px; transition:box-shadow .15s ease, transform .15s ease; }
+  .node:hover { box-shadow:var(--shadow-hover); transform:translate(-50%,-50%) translateY(-2px); }
+  .node .nr { display:flex; align-items:center; gap:6px; color:var(--nodec,var(--primary)); }
+  .node .nr .ic { width:15px; height:15px; }
+  .node .nr .n { font-family:var(--mono); font-size:11px; color:var(--muted-foreground); }
+  .node h4 { font-size:14px; margin:3px 0 4px; }
+  .node p { font-size:11.5px; color:var(--muted-foreground); margin:0; line-height:1.35; }
+  .node .who { display:inline-block; margin-top:7px; font-size:10px; font-weight:600; text-transform:uppercase;
+    letter-spacing:0.05em; padding:2px 7px; border-radius:999px; }
+  .who.member { background:var(--cta-tint); color:var(--cta-hover); }
+  .who.admin { background:var(--primary-tint); color:var(--primary); }
+  .who.both { background:var(--success-tint); color:var(--sage); }
+
+  /* ---- LANE GROUP RAIL ---- */
+  .lane-group { padding-left:18px; border-left:2px solid var(--rail,var(--border)); margin-bottom:8px; }
+  .lane-group.member { --rail:rgb(245 158 11 / 38%); }
+  .lane-group.admin { --rail:rgb(37 99 235 / 32%); }
+
+  /* ---- LANES ---- */
+  .lane { position:relative; background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--shadow-card); padding:18px 20px; margin:0 0 14px; transition:box-shadow .15s ease, transform .15s ease, border-color .15s ease; }
+  .lane:hover { box-shadow:var(--shadow-hover); transform:translateY(-1px); }
+  .lane.has-note { border-left:3px solid var(--cta); }
+  .lane-head { display:flex; align-items:center; gap:11px; flex-wrap:wrap; }
+  .lane-badge { width:30px; height:30px; border-radius:8px; display:grid; place-items:center; flex:none; }
+  .lane.memberlane .lane-badge { background:var(--cta-tint); color:var(--cta-hover); }
+  .lane.adminlane .lane-badge { background:var(--primary-tint); color:var(--primary); }
+  .lane-num { font-family:var(--mono); font-size:11px; font-weight:500; color:var(--muted-foreground); flex:none; }
+  .lane-head h3 { font-size:17px; }
+  .lane-sub { font-size:13px; color:var(--muted-foreground); }
+  .lane-head .spacer { flex:1; }
+
+  .flow { display:flex; flex-wrap:wrap; align-items:stretch; gap:7px; margin-top:14px; }
+  .step { flex:1 1 124px; min-width:124px; background:var(--background); border:1px solid var(--border);
+    border-left:3px solid var(--border); border-radius:8px; padding:9px 11px; font-size:12.5px;
+    line-height:1.38; display:flex; flex-direction:column; gap:3px; }
+  .step .st-k { display:flex; align-items:center; gap:5px; font-family:var(--mono); font-size:9.5px;
+    text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-foreground); }
+  .step .st-k .ic { width:12px; height:12px; }
+  .step.info { border-left-color:var(--primary); }
+  .step.info .st-k { color:var(--primary); }
+  .step.attention { border-left-color:var(--ochre); }
+  .step.attention .st-k { color:var(--ochre); }
+  .step.cta { background:var(--cta-tint); border-color:rgb(245 158 11 / 42%); border-left-color:var(--cta); }
+  .step.cta .st-k { color:var(--cta-hover); }
+  .step.offer { background:var(--success-tint); border-color:rgb(21 160 95 / 40%); border-left-color:var(--sage); }
+  .step.offer .st-k { color:var(--sage); }
+  .step.ink { background:var(--ink); color:var(--ink-foreground); border-color:var(--ink); border-left-color:var(--primary-on-dark); }
+  .step.ink .st-k { color:var(--primary-on-dark); }
+  .arrow { align-self:center; color:var(--border); flex:none; display:flex; }
+  .arrow .ic { width:16px; height:16px; stroke-width:2.4; }
+  .lane-foot { margin-top:13px; font-size:12.5px; color:var(--muted-foreground); border-top:1px dashed var(--border);
+    padding-top:11px; display:flex; gap:8px; align-items:flex-start; }
+  .lane-foot .lf-k { font-weight:600; color:var(--foreground); flex:none; }
+  .branch { margin-top:7px; }
+
+  /* ---- CALLOUTS ---- */
+  .callout { position:relative; background:var(--plum-tint); border:1px solid rgb(124 58 237 / 30%);
+    border-radius:var(--radius); padding:18px 20px; margin:8px 0 16px; }
+  .callout h3 { font-size:16px; margin:0 0 6px; }
+  .callout p { font-size:14px; margin:0; line-height:1.55; }
+  .callout.sage { background:var(--success-tint); border-color:rgb(21 160 95 / 30%); }
+
+  /* ---- MESSAGING FLOW ---- */
+  .msg { margin:4px 0 8px; }
+  .msg .spacer { flex:1; }
+  .msg-row { display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; }
+  .msg-openers { display:flex; flex-direction:column; gap:10px; flex:1 1 250px; min-width:230px; }
+  .opener { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--oc,var(--muted-foreground));
+    border-radius:var(--radius); box-shadow:var(--shadow-card); padding:12px 14px; transition:box-shadow .15s ease; }
+  .opener:hover { box-shadow:var(--shadow-hover); }
+  .opener.ask { --oc:var(--cta); }
+  .opener.connect { --oc:var(--sage); }
+  .opener .oh { display:flex; align-items:center; gap:7px; }
+  .opener.ask .oh > .ic:first-child { color:var(--cta-hover); }
+  .opener.connect .oh > .ic:first-child { color:var(--sage); }
+  .opener h4 { font-size:14px; }
+  .opener .gate { margin:6px 0 0; font-size:11.5px; color:var(--muted-foreground); line-height:1.45; }
+  .opener .gate b { color:var(--foreground); font-weight:600; }
+  .msg-arrow { align-self:center; display:flex; flex-direction:column; align-items:center; gap:4px; flex:none; width:98px; }
+  .msg-arrow .lab { font-family:var(--mono); font-size:9px; text-transform:uppercase; letter-spacing:0.04em;
+    text-align:center; line-height:1.3; color:var(--muted-foreground); }
+  .msg-arrow > .ic { width:22px; height:22px; color:var(--border); stroke-width:2.6; }
+  .thread-card { flex:1 1 210px; min-width:210px; background:var(--ink); color:var(--ink-foreground);
+    border-radius:var(--radius); box-shadow:var(--shadow-hero); padding:16px; display:flex; flex-direction:column; justify-content:center; }
+  .thread-card .th { display:flex; align-items:center; gap:8px; }
+  .thread-card .th > .ic:first-child { color:var(--primary-on-dark); }
+  .thread-card h3 { font-size:18px; }
+  .thread-card p { font-size:12.5px; color:var(--ink-muted); margin:8px 0 0; line-height:1.45; }
+  .thread-card .note-btn { background:rgb(250 250 249 / 12%); border-color:rgb(250 250 249 / 24%); color:var(--ink-foreground); }
+  .thread-card .note-btn:hover { background:rgb(250 250 249 / 20%); }
+  .conn-card { flex:1 1 200px; min-width:200px; background:var(--plum-tint); border:1px solid rgb(124 58 237 / 30%);
+    border-radius:var(--radius); padding:14px; }
+  .conn-card .ch { display:flex; align-items:center; gap:7px; }
+  .conn-card .ch > .ic:first-child { color:var(--plum); }
+  .conn-card h4 { font-size:15px; }
+  .conn-card p { font-size:12px; color:var(--muted-foreground); margin:6px 0 0; line-height:1.45; }
+  .rule-strip { margin-top:12px; display:flex; align-items:flex-start; gap:9px; background:var(--primary-tint);
+    border:1px solid rgb(37 99 235 / 26%); border-radius:var(--radius); padding:11px 14px; font-size:13px; line-height:1.5; }
+  .rule-strip > .ic { color:var(--primary); flex:none; margin-top:1px; }
+  .rule-strip b { font-weight:600; }
+  .msg-sub { margin-top:16px; }
+  .msg-sub-head { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .tc-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .tc { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-card); padding:14px 16px; }
+  .tc .tc-h { display:flex; align-items:center; gap:8px; }
+  .tc.thread .tc-h > .ic:first-child { color:var(--foreground); }
+  .tc.conn .tc-h > .ic:first-child { color:var(--plum); }
+  .tc h4 { font-size:15px; }
+  .tc .tc-k { font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-foreground); margin-left:auto; }
+  .tc ul { margin:9px 0 0; padding-left:16px; }
+  .tc li { font-size:12.5px; color:var(--muted-foreground); line-height:1.5; margin-bottom:3px; }
+  @media (max-width:680px){ .tc-grid { grid-template-columns:1fr; } }
+  @media (max-width:720px){
+    .msg-row { flex-direction:column; align-items:stretch; }
+    .msg-openers, .thread-card, .conn-card { flex:none; }
+    .msg-arrow { width:auto; flex-direction:row; gap:8px; padding:2px 0; }
+    .msg-arrow > .ic { transform:rotate(90deg); }
+  }
+
+  /* ---- NOTE BUTTON ---- */
+  .note-btn { font-family:var(--sans); font-size:12px; font-weight:600; cursor:pointer; color:var(--primary);
+    background:var(--primary-tint); border:1px solid rgb(37 99 235 / 28%); border-radius:999px; padding:4px 11px;
+    display:inline-flex; align-items:center; gap:5px; transition:background .12s ease; }
+  .note-btn .ic { width:13px; height:13px; }
+  .note-btn:hover { background:rgb(37 99 235 / 16%); }
+  .note-btn .cnt { font-family:var(--mono); font-size:11px; background:var(--primary); color:#fff;
+    border-radius:999px; padding:0 6px; line-height:16px; }
+  .note-btn.none .cnt { display:none; }
+
+  /* ---- POPOVER ---- */
+  .pop-back { position:fixed; inset:0; background:rgb(12 12 11 / 0.28); z-index:40; display:none; }
+  .pop-back.open { display:block; }
+  .popover { position:fixed; z-index:50; width:min(420px,92vw); background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow-hero); padding:16px; display:none; }
+  .popover.open { display:block; }
+  .popover .ttl { font-family:var(--display); font-weight:600; font-size:14px; margin:0 0 3px; }
+  .popover .sub { font-size:12px; color:var(--muted-foreground); margin:0 0 10px; }
+  .popover textarea { width:100%; min-height:96px; resize:vertical; font-family:var(--sans); font-size:14px;
+    border:1px solid var(--border); border-radius:8px; padding:10px; color:var(--foreground); background:var(--background); }
+  .popover textarea:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-tint); }
+  .pop-actions { display:flex; gap:8px; margin-top:12px; }
+  .btn { font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; border-radius:8px;
+    padding:8px 14px; border:1px solid transparent; transition:background .12s ease; }
+  .btn-primary { background:var(--cta); color:var(--cta-foreground); }
+  .btn-primary:hover { background:var(--cta-hover); }
+  .btn-ghost { background:transparent; color:var(--muted-foreground); border-color:var(--border); }
+  .btn-ghost:hover { background:var(--secondary); }
+  .btn-danger { background:transparent; color:var(--destructive); border-color:rgb(155 44 31 / 30%); margin-left:auto; }
+  .btn-danger:hover { background:var(--destructive); color:#fff; }
+
+  /* ---- FAB + DRAWER ---- */
+  .fab { position:fixed; right:24px; bottom:24px; z-index:35; cursor:pointer; font-family:var(--sans);
+    font-weight:600; font-size:14px; color:#fff; background:var(--ink); border:none; border-radius:999px;
+    padding:12px 18px; box-shadow:var(--shadow-hero); display:inline-flex; align-items:center; gap:8px; }
+  .fab .ic { color:#fff; }
+  .fab .cnt { font-family:var(--mono); font-size:12px; background:var(--cta); color:var(--cta-foreground);
+    border-radius:999px; padding:0 7px; line-height:18px; }
+  .drawer-back { position:fixed; inset:0; background:rgb(12 12 11 / 0.28); z-index:45; display:none; }
+  .drawer-back.open { display:block; }
+  .drawer { position:fixed; top:0; right:0; height:100%; width:min(440px,94vw); z-index:46; background:var(--background);
+    border-left:1px solid var(--border); box-shadow:var(--shadow-hero); transform:translateX(100%);
+    transition:transform .2s cubic-bezier(0.2,0.8,0.2,1); display:flex; flex-direction:column; }
+  .drawer.open { transform:translateX(0); }
+  .drawer-head { padding:18px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+  .drawer-head h3 { font-size:17px; flex:1; }
+  .drawer-body { overflow-y:auto; padding:14px 20px; flex:1; }
+  .drawer-foot { padding:14px 20px; border-top:1px solid var(--border); display:flex; gap:8px; }
+  .cmt { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px; }
+  .cmt .cmt-label { font-family:var(--mono); font-size:11px; color:var(--primary); margin-bottom:5px; }
+  .cmt .cmt-text { font-size:13.5px; white-space:pre-wrap; }
+  .cmt .cmt-x { float:right; cursor:pointer; color:var(--muted-foreground); font-size:13px; border:none; background:none; }
+  .empty { color:var(--muted-foreground); font-size:14px; text-align:center; padding:40px 10px; }
+  .toast { position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px); background:var(--ink);
+    color:var(--ink-foreground); padding:11px 18px; border-radius:999px; font-size:13px; z-index:60; opacity:0;
+    transition:all .2s ease; pointer-events:none; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .xclose { cursor:pointer; border:none; background:none; color:var(--muted-foreground); line-height:1; padding:4px; display:flex; }
+
+  .footnote { color:var(--muted-foreground); font-size:13px; margin-top:42px; text-align:center; }
+
+  /* focus + motion */
+  .note-btn:focus-visible, .btn:focus-visible, .fab:focus-visible, .xclose:focus-visible {
+    outline:2px solid var(--primary); outline-offset:2px; }
+  .reveal { animation:rise .45s cubic-bezier(0.2,0.8,0.2,1) both; }
+  @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:0.001ms !important; animation-iteration-count:1 !important;
+      transition-duration:0.001ms !important; }
+    .reveal { animation:none; }
+    .drawer { transition:none; }
+  }
+  @media (max-width:760px){
+    .ring { width:97vw; }
+    .node { width:118px; }
+    .node p { display:none; }
+    .hero h1 { font-size:26px; }
+    .lane-group { padding-left:12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ICON SPRITE -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M11 12h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14"/><path d="m7 18 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 13 6 6"/></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-userplus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/><line x1="3" y1="20" x2="21" y2="20"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/></symbol>
+</svg>
+
+<!-- ========================= HERO ========================= -->
+<header class="hero">
+  <div class="hero-inner reveal">
+    <svg class="motif" viewBox="0 0 520 380" aria-hidden="true">
+      <circle cx="200" cy="190" r="140" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="320" cy="190" r="140" fill="none" stroke="#93c5fd" stroke-width="1.5"/>
+    </svg>
+    <span class="kicker">Usage map · ADR 0010 (proposed)</span>
+    <h1>How BridgeCircle is used — the member side and the admin side</h1>
+    <p class="lede">The main ways people use the app, drawn as one flywheel rather than three features.
+      Amber is an asker's moment of commitment; sage is a helper offering. Roles are never fixed.</p>
+    <div class="frame">
+      A school's warm network is real but inert — the data rots, the alumni drift, and even when the right
+      person is right there, asking feels too awkward to do. BridgeCircle keeps the circle alive and makes
+      asking and helping effortless on both sides.
+    </div>
+    <div class="hero-meta">
+      <span class="pill">member-first</span>
+      <span class="pill">horizontal help</span>
+      <span class="pill">self-maintaining data</span>
+      <span class="pill">activation layer, not a CRM</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="how-to">
+    <svg class="ic"><use href="#i-pencil"/></svg>
+    <span><b>To refine this:</b> click the <b>note</b> button on any flow to leave a comment or a change request.
+      When you're done, open <b>Comments</b> (bottom-right) and hit <b>Copy for Claude</b> — then paste it back into the chat and I'll revise the map and the ADR. Your notes are saved in this browser.</span>
+  </div>
+
+  <div class="legend">
+    <div class="item"><span class="swatch" style="background:var(--cta)"></span> Asker commitment (Send, RSVP)</div>
+    <div class="item"><span class="swatch" style="background:var(--sage)"></span> Helper / offer (Accept, Offer help)</div>
+    <div class="item"><span class="swatch" style="background:var(--primary)"></span> Navigate / info / match</div>
+    <div class="item"><span class="swatch" style="background:var(--ochre)"></span> Attention / stale / pending</div>
+    <div class="item"><span class="swatch" style="background:var(--ink)"></span> Works quietly in the background</div>
+  </div>
+
+  <!-- ========================= FLYWHEEL ========================= -->
+  <div class="section-head">
+    <span class="sh-badge"><svg class="ic lg"><use href="#i-refresh"/></svg></span>
+    <h2>The flywheel</h2><span class="tag">why these are one product</span>
+  </div>
+  <p class="section-sub">Each surface feeds the next, clockwise. Members experience the loop; admins operate it.
+    Break any arrow and the network goes inert — which is exactly how incumbent alumni tools die.</p>
+
+  <div class="ring-wrap">
+    <div class="ring reveal">
+      <svg class="track" viewBox="0 0 600 600" aria-hidden="true">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--primary)"/>
+          </marker>
+        </defs>
+        <circle cx="300" cy="300" r="210" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-opacity="0.7"/>
+        <g fill="none" stroke="var(--muted-foreground)" stroke-opacity="0.32" stroke-width="2.4" marker-end="url(#ah)">
+          <path d="M324.3 162.1 A140 140 0 0 1 423.6 234.3"/>
+          <path d="M438.6 280.5 A140 140 0 0 1 400.7 397.3"/>
+          <path d="M361.4 425.8 A140 140 0 0 1 238.6 425.8"/>
+          <path d="M199.3 397.3 A140 140 0 0 1 161.4 280.5"/>
+          <path d="M176.4 234.3 A140 140 0 0 1 275.7 162.1"/>
+        </g>
+      </svg>
+
+      <div class="center">
+        <svg class="ic glyph"><use href="#i-refresh"/></svg>
+        <h3>The loop</h3>
+        <p>Members experience it · admins operate it</p>
+      </div>
+
+      <div class="node" style="left:50%;top:15%;--nodec:var(--primary)" data-comment-id="F1" data-comment-label="Flywheel · 1 Return">
+        <div class="nr"><svg class="ic"><use href="#i-megaphone"/></svg><span class="n">01</span></div>
+        <h4>Return</h4><p>School news, events &amp; announcements pull alumni back.</p>
+        <span class="who admin">admin reaches</span>
+      </div>
+      <div class="node" style="left:83.3%;top:39.2%;--nodec:var(--cta)" data-comment-id="F2" data-comment-label="Flywheel · 2 Engage">
+        <div class="nr"><svg class="ic"><use href="#i-message"/></svg><span class="n">02</span></div>
+        <h4>Engage</h4><p>They open it, RSVP, ask, or offer help.</p>
+        <span class="who member">member acts</span>
+      </div>
+      <div class="node" style="left:70.6%;top:78.3%;--nodec:var(--sage)" data-comment-id="F3" data-comment-label="Flywheel · 3 Fresh data">
+        <div class="nr"><svg class="ic"><use href="#i-database"/></svg><span class="n">03</span></div>
+        <h4>Fresh data</h4><p>Activity + enrichment keep profiles current.</p>
+        <span class="who both">both + engine</span>
+      </div>
+      <div class="node" style="left:29.4%;top:78.3%;--nodec:var(--cta)" data-comment-id="F4" data-comment-label="Flywheel · 4 Good matches">
+        <div class="nr"><svg class="ic"><use href="#i-link"/></svg><span class="n">04</span></div>
+        <h4>Good matches</h4><p>Fresh data makes help land — in any direction.</p>
+        <span class="who member">member asks/helps</span>
+      </div>
+      <div class="node" style="left:16.7%;top:39.2%;--nodec:var(--plum)" data-comment-id="F5" data-comment-label="Flywheel · 5 Belonging">
+        <div class="nr"><svg class="ic"><use href="#i-users"/></svg><span class="n">05</span></div>
+        <h4>Belonging</h4><p>A good moment deepens the tie → they come back.</p>
+        <span class="who both">the payoff</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= MEMBER ========================= -->
+  <div class="section-head">
+    <span class="sh-badge"><svg class="ic lg"><use href="#i-users"/></svg></span>
+    <h2>How a member uses it</h2><span class="tag">demand &amp; supply are the same person</span>
+  </div>
+  <p class="section-sub">Five jobs. Asking and offering are two faces of one object, and the same person does both —
+    a senior can ask a junior; a peer can answer a peer. Nothing brands anyone a "mentor."</p>
+
+  <div class="lane-group member">
+
+  <section class="lane memberlane" data-comment-id="M1" data-comment-label="Member · M1 Ask for help">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-help"/></svg></span>
+      <span class="lane-num">M1</span><h3>Ask for help</h3>
+      <span class="lane-sub">· any direction · quick or ongoing</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="M1" aria-label="Add note to Ask for help"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step"><span class="st-k">Home</span>"What are you trying to figure out?"</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Describe</span>Plain words. Nothing sent yet — private.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k">See fit</span>Who fits &amp; <b>why</b>. No mystery score.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Choose</span>Quick question or ongoing — not seniority.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Draft</span>Guided composer helps the words.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step cta"><span class="st-k"><svg class="ic"><use href="#i-send"/></svg>Commit</span>Send a short note.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k"><svg class="ic"><use href="#i-hand"/></svg>They reply</span>Accept — or pass quietly.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Buffer:</span><span>A pass is low-friction and de-personalized ("not now" / "not my area") — no awkwardness on either side. Once it's a thread, either person can ask next.</span></div>
+    <div class="flow branch">
+      <div class="step attention"><span class="st-k"><svg class="ic"><use href="#i-spark"/></svg>No match yet?</span>AI suggests tweaks — "widen the city? loosen the field?"</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Keep open</span>You choose how long — 2 wks · 1 mo · until you close it.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step ink"><span class="st-k">Background</span>Re-checked weekly + when someone new joins or updates — not nightly.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k">Notify</span>"3 people now fit" — count only, no pressure.</div>
+    </div>
+  </section>
+
+  <section class="lane memberlane" data-comment-id="M2" data-comment-label="Member · M2 Offer help">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-hand"/></svg></span>
+      <span class="lane-num">M2</span><h3>Offer help</h3>
+      <span class="lane-sub">· the supply side, now first-class</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="M2" aria-label="Add note to Offer help"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step"><span class="st-k">Availability</span>"Open to quick questions / ongoing help" — a state, not a title.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k">Browse</span>People you could help &amp; asks that fit you.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k"><svg class="ic"><use href="#i-hand"/></svg>Offer</span>"I can help with this."</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k">Reach out</span>A warm, mediated first note.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Talk</span>It's just a conversation now.</div>
+    </div>
+    <div class="flow branch">
+      <div class="step ink"><span class="st-k">Or — pushed to you</span>Someone asks about your area.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k"><svg class="ic"><use href="#i-spark"/></svg>AI nudge</span>"You'd be great for this" — only when the fit is strong.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k"><svg class="ic"><use href="#i-hand"/></svg>One click</span>Offer to help.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Reverse is normal:</span><span>A '08 alum asking a current student about AI tooling or campus culture lives here. And the nudge is gentle and rare — strong-fit only, easy to ignore, never a guilt trip.</span></div>
+  </section>
+
+  <section class="lane memberlane" data-comment-id="M3" data-comment-label="Member · M3 Stay in the loop (school)">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-megaphone"/></svg></span>
+      <span class="lane-num">M3</span><h3>Stay in the loop with school</h3>
+      <span class="lane-sub">· the reason to come back</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="M3" aria-label="Add note to Stay in the loop"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step info"><span class="st-k">School pulse</span>Announcements · upcoming events · what's new with your circle.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Read</span>News &amp; announcements, in plain language.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step cta"><span class="st-k"><svg class="ic"><use href="#i-send"/></svg>Commit</span>RSVP to an event.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step attention"><span class="st-k">Reminder</span>"Starts in 24h" brings you back.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step ink"><span class="st-k">Effect</span>Showing up keeps your profile alive.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Living news:</span><span>Career &amp; location moves are surfaced from data already derived — "what's new with your class," not a CMS to maintain.</span></div>
+  </section>
+
+  <section class="lane memberlane" data-comment-id="M4" data-comment-label="Member · M4 Keep profile current">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-refresh"/></svg></span>
+      <span class="lane-num">M4</span><h3>Keep your profile current</h3>
+      <span class="lane-sub">· low effort, you stay in control</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="M4" aria-label="Add note to Keep profile current"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step"><span class="st-k">Onboard</span>Paste LinkedIn — we read it for you.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k">Review</span>See proposed fields.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k">Confirm</span>Accept, edit, or decline. Never silent.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step attention"><span class="st-k">Later</span>"Update from LinkedIn?" — a gentle proposal.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Privacy</span>Choose who sees what.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Principle:</span><span>Import &#8594; suggest &#8594; confirm. The member is always the source of truth for their own record.</span></div>
+  </section>
+
+  <section class="lane memberlane" data-comment-id="M5" data-comment-label="Member · M5 Connect & belong">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-users"/></svg></span>
+      <span class="lane-num">M5</span><h3>Connect &amp; belong</h3>
+      <span class="lane-sub">· peers, not just help</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="M5" aria-label="Add note to Connect and belong"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step info"><span class="st-k">Find</span>Search people by what they do &amp; where.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Profile</span>"Can help with · curious about" — both sides shown.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k"><svg class="ic"><use href="#i-users"/></svg>Connect</span>Add to your network — mutual, low-key.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Message</span>Direct messages unlock once mutual.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Gating stays split:</span><span>Connecting is two-sided (mutual &#8594; unlocks DM); asking is one-sided (helper opt-in). Keeping the two gates distinct is what protects the buffer.</span></div>
+  </section>
+
+  <div class="callout sage" data-comment-id="MX" data-comment-label="Member · role-reversal callout">
+    <button class="note-btn none" data-target="MX" aria-label="Add note to role-reversal callout" style="float:right"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    <h3>The whole point: no one is "the mentor"</h3>
+    <p>The same member is an asker in one thread and a helper in another — and the direction can flip inside a single
+      thread. "Mentorship" isn't a role here; it's just the name for help that happens to be ongoing.</p>
+  </div>
+
+  </div><!-- /lane-group member -->
+
+  <!-- ========================= MESSAGING FLOW ========================= -->
+  <div class="section-head">
+    <span class="sh-badge"><svg class="ic lg"><use href="#i-message"/></svg></span>
+    <h2>How conversations connect</h2><span class="tag">one thread · two openers · optional connection</span>
+  </div>
+  <p class="section-sub">Every conversation is <b>one thread</b>. You reach it two ways — an <b>ask</b> or a <b>hello</b> —
+    and accepting an ask opens the thread but does <b>not</b> auto-connect you. Connection is a separate, mutual
+    "let's keep this" you can add later.</p>
+
+  <div class="msg">
+    <div class="msg-row">
+      <div class="msg-openers">
+        <div class="opener ask" data-comment-id="D1" data-comment-label="Messaging · Ask opener">
+          <div class="oh"><svg class="ic"><use href="#i-help"/></svg><h4>Ask for help</h4>
+            <span class="spacer"></span>
+            <button class="note-btn none" data-target="D1" aria-label="Add note to Ask opener"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button></div>
+          <p class="gate"><b>One-sided</b> · passable · matchable · can stay open. The helper accepts, or passes quietly.</p>
+        </div>
+        <div class="opener connect" data-comment-id="D2" data-comment-label="Messaging · Connect opener">
+          <div class="oh"><svg class="ic"><use href="#i-users"/></svg><h4>Connect — a hello</h4>
+            <span class="spacer"></span>
+            <button class="note-btn none" data-target="D2" aria-label="Add note to Connect opener"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button></div>
+          <p class="gate"><b>Mutual</b> · guided. They accept &#8594; you're connected.</p>
+        </div>
+      </div>
+
+      <div class="msg-arrow"><span class="lab">accept · (ask: or pass)</span><svg class="ic"><use href="#i-chevron"/></svg></div>
+
+      <div class="thread-card" data-comment-id="D3" data-comment-label="Messaging · One thread">
+        <div class="th"><svg class="ic lg"><use href="#i-message"/></svg><h3>One thread</h3>
+          <span class="spacer"></span>
+          <button class="note-btn none" data-target="D3" aria-label="Add note to One thread"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button></div>
+        <p>A single conversation. Roles flip freely — either person can ask next. No separate ask-thread vs DM.</p>
+      </div>
+
+      <div class="msg-arrow"><span class="lab">keep it? · both opt in</span><svg class="ic"><use href="#i-chevron"/></svg></div>
+
+      <div class="conn-card" data-comment-id="D4" data-comment-label="Messaging · Connection upgrade">
+        <div class="ch"><svg class="ic"><use href="#i-link"/></svg><h4>Connection</h4>
+          <span class="spacer"></span>
+          <button class="note-btn none" data-target="D4" aria-label="Add note to Connection upgrade"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button></div>
+        <p>Durable, mutual, in your network — easy to reach again. The deliberate "this one's worth keeping."</p>
+      </div>
+    </div>
+
+    <div class="rule-strip">
+      <svg class="ic"><use href="#i-search"/></svg>
+      <span><b>No cold DMs.</b> You can't free-message a stranger — every thread starts from a consented opener (an ask or a hello). After acceptance, it's a normal conversation.</span>
+    </div>
+
+    <div class="msg-sub" data-comment-id="D5" data-comment-label="Messaging · Thread vs Connection">
+      <div class="msg-sub-head">
+        <p class="card-label" style="margin:0">Thread vs Connection</p>
+        <span class="spacer"></span>
+        <button class="note-btn none" data-target="D5" aria-label="Add note to Thread vs Connection"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+      </div>
+      <div class="tc-grid">
+        <div class="tc thread">
+          <div class="tc-h"><svg class="ic"><use href="#i-message"/></svg><h4>Thread</h4><span class="tc-k">the conversation</span></div>
+          <ul>
+            <li>Opened by an ask or a hello.</li>
+            <li>Lives in your Inbox; roles flip freely.</li>
+            <li>If nothing more happens, it can quietly fade — no obligation.</li>
+          </ul>
+        </div>
+        <div class="tc conn">
+          <div class="tc-h"><svg class="ic"><use href="#i-link"/></svg><h4>Connection</h4><span class="tc-k">the relationship</span></div>
+          <ul>
+            <li>A thread you both chose to keep.</li>
+            <li>Durable, mutual, shows in your network.</li>
+            <li>Helping once never forces it — you opt in.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="section-sub" style="margin-top:13px"><b>In one line:</b> a thread is a conversation; a connection is a thread you both chose to keep — like texting someone vs. saving their number.</p>
+    </div>
+  </div>
+
+  <!-- ========================= ADMIN ========================= -->
+  <div class="section-head">
+    <span class="sh-badge"><svg class="ic lg"><use href="#i-chart"/></svg></span>
+    <h2>How an admin uses it</h2><span class="tag">operator of the flywheel — not a CRM</span>
+  </div>
+  <p class="section-sub">The admin's job isn't to manage members; it's to keep the circle alive and activate it. They sit
+    <b>on top of</b> the school's existing system of record, never replace it.</p>
+
+  <div class="lane-group admin">
+
+  <section class="lane adminlane" data-comment-id="A1" data-comment-label="Admin · A1 Bring people in">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-userplus"/></svg></span>
+      <span class="lane-num">A1</span><h3>Bring people in</h3>
+      <span class="lane-sub">· grow the circle</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="A1" aria-label="Add note to Bring people in"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step ink"><span class="st-k">Phase 4</span>Import roster from existing CRM / connector.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Invite</span>Single, or CSV bulk.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step attention"><span class="st-k">Pending</span>New sign-ups arrive for review.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k">Context</span>See year, role, school, invite match.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k">Decide</span>Approve or decline.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Wedge:</span><span>Pull the roster in, write fresh consented data back — the school never rips out Raiser's Edge / Salesforce. Near-zero switching cost.</span></div>
+  </section>
+
+  <section class="lane adminlane" data-comment-id="A2" data-comment-label="Admin · A2 Find anyone instantly">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-search"/></svg></span>
+      <span class="lane-num">A2</span><h3>Find anyone instantly</h3>
+      <span class="lane-sub">· the gap that blocks everything else today</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="A2" aria-label="Add note to Find anyone"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step info"><span class="st-k"><svg class="ic"><use href="#i-search"/></svg>Search</span>Name, employer, city, year, freshness.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Filter / sort</span>By completeness, staleness, availability.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Open</span>One member's full record.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Act</span>Message, correct, deactivate.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Today:</span><span>There is no admin search at all — a 500-row dump. This is the single most-felt gap.</span></div>
+  </section>
+
+  <section class="lane adminlane" data-comment-id="A3" data-comment-label="Admin · A3 Keep the data alive">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-database"/></svg></span>
+      <span class="lane-num">A3</span><h3>Keep the data alive</h3>
+      <span class="lane-sub">· the moat</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="A3" aria-label="Add note to Keep the data alive"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step info"><span class="st-k">Freshness</span>Who's stale · last confirmed · pending proposals · cohort health.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step attention"><span class="st-k">Nudge</span>Bulk refresh a cohort.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step ink"><span class="st-k">Background</span>Enrichment sweep runs monthly (LinkdAPI · Bright Data · PDL).</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Weekly digest</span>"14 updated · 3 need you" — batched, never per-change.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k">Correct</span>Suggest or edit — with audit + member notice. Never silent.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Why we win:</span><span>CRMs rot because nobody wants to be in them. Our data stays fresh because members want to be in it — an engine tops it up, and the admin hears about it in one weekly digest, not a stream of pings.</span></div>
+  </section>
+
+  <section class="lane adminlane" data-comment-id="A4" data-comment-label="Admin · A4 Reach alumni">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-send"/></svg></span>
+      <span class="lane-num">A4</span><h3>Reach alumni</h3>
+      <span class="lane-sub">· the return engine</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="A4" aria-label="Add note to Reach alumni"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step cta"><span class="st-k"><svg class="ic"><use href="#i-send"/></svg>Post event</span>Capacity &amp; waitlist handled.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Post news</span>Announcement, optional email fan-out.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Campaign</span>One-click templates to all or a segment — e.g. annual "Is your info still right?"</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step info"><span class="st-k">Feedback</span>Read rate · RSVPs · attendance · confirmations.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step ink"><span class="st-k">Effect</span>Pulls alumni back — and tops up the data.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Closes the loop:</span><span>A one-click "confirm your info" campaign is comms that directly feeds freshness (A3) — engagement and living data from the same gentle touch. Today engagement is unmeasured; instrumenting it is what lets an admin learn what works.</span></div>
+  </section>
+
+  <section class="lane adminlane" data-comment-id="A5" data-comment-label="Admin · A5 Understand & activate">
+    <div class="lane-head">
+      <span class="lane-badge"><svg class="ic"><use href="#i-chart"/></svg></span>
+      <span class="lane-num">A5</span><h3>Understand &amp; activate</h3>
+      <span class="lane-sub">· steer the network</span>
+      <span class="spacer"></span><button class="note-btn none" data-target="A5" aria-label="Add note to Understand and activate"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    </div>
+    <div class="flow">
+      <div class="step info"><span class="st-k">Dashboard</span>Signups · activity · help req/response · freshness · RSVPs.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step"><span class="st-k">Spot</span>A good connection worth making.</div>
+      <span class="arrow"><svg class="ic"><use href="#i-chevron"/></svg></span>
+      <div class="step offer"><span class="st-k"><svg class="ic"><use href="#i-link"/></svg>Bridge</span>Nudge it, or open a temporary cross-circle bridge — admin-led.</div>
+    </div>
+    <div class="lane-foot"><span class="lf-k">Guardrail:</span><span>Search + bulk actions look CRM-ish. The "activation layer, not a CRM" line is what keeps this from drifting into the loss condition.</span></div>
+  </section>
+
+  <div class="callout" data-comment-id="AX" data-comment-label="Admin · positioning callout">
+    <button class="note-btn none" data-target="AX" aria-label="Add note to positioning callout" style="float:right"><svg class="ic"><use href="#i-message"/></svg> note <span class="cnt">0</span></button>
+    <h3>"Better than a CRM" = living data, not more features</h3>
+    <p>We don't out-feature Salesforce — that's unwinnable and off-brand. We win the one axis incumbents can't:
+      consented, self-maintaining data and member-first warmth, sitting on top of the system of record they already own.
+      Even the simplest tool serves that — a one-click annual "confirm your info" campaign keeps the record alive without anyone touching a CRM.</p>
+  </div>
+
+  </div><!-- /lane-group admin -->
+
+  <p class="footnote">Saved locally in this browser · ADR <span class="mono">0010</span> · this map is a draft for refinement, not a spec.</p>
+
+</div>
+
+<!-- ========================= COMMENT MACHINERY ========================= -->
+<button class="fab" id="fab"><svg class="ic"><use href="#i-message"/></svg> Comments <span class="cnt" id="fabCnt">0</span></button>
+
+<div class="pop-back" id="popBack"></div>
+<div class="popover" id="popover">
+  <p class="ttl" id="popTtl">Add a note</p>
+  <p class="sub" id="popSub"></p>
+  <textarea id="popText" placeholder="A comment or a change request — e.g. 'split this step in two' or 'wrong order: privacy comes first'."></textarea>
+  <div class="pop-actions">
+    <button class="btn btn-primary" id="popSave">Save note</button>
+    <button class="btn btn-ghost" id="popCancel">Cancel</button>
+    <button class="btn btn-danger" id="popDelete">Delete</button>
+  </div>
+</div>
+
+<div class="drawer-back" id="drawerBack"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Your notes</h3>
+    <button class="xclose" id="drawerClose" aria-label="Close notes"><svg class="ic lg"><use href="#i-chevron"/></svg></button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot">
+    <button class="btn btn-primary" id="copyBtn" style="flex:1">Copy for Claude</button>
+    <button class="btn btn-ghost" id="clearBtn">Clear all</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var KEY = "bc-usage-comments-v1";
+  var data = {};
+  try { data = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e){ data = {}; }
+
+  var labels = {};
+  document.querySelectorAll("[data-comment-id]").forEach(function(el){
+    labels[el.getAttribute("data-comment-id")] = el.getAttribute("data-comment-label");
+  });
+
+  function save(){ localStorage.setItem(KEY, JSON.stringify(data)); }
+  function count(){ return Object.keys(data).filter(function(k){ return data[k] && data[k].text && data[k].text.trim(); }).length; }
+
+  function refresh(){
+    document.querySelectorAll(".note-btn").forEach(function(btn){
+      var id = btn.getAttribute("data-target");
+      var has = data[id] && data[id].text && data[id].text.trim();
+      var cnt = btn.querySelector(".cnt");
+      if(has){ btn.classList.remove("none"); cnt.textContent = "1"; }
+      else { btn.classList.add("none"); cnt.textContent = "0"; }
+      var lane = document.querySelector('[data-comment-id="'+id+'"]');
+      if(lane){ lane.classList.toggle("has-note", !!has); }
+    });
+    document.getElementById("fabCnt").textContent = count();
+  }
+
+  /* ---- popover ---- */
+  var pop = document.getElementById("popover"), popBack = document.getElementById("popBack");
+  var popText = document.getElementById("popText"), popTtl = document.getElementById("popTtl"), popSub = document.getElementById("popSub");
+  var current = null;
+
+  function openPop(id, anchor){
+    current = id;
+    popTtl.textContent = (data[id] && data[id].text) ? "Edit note" : "Add a note";
+    popSub.textContent = labels[id] || "";
+    popText.value = (data[id] && data[id].text) ? data[id].text : "";
+    popBack.classList.add("open"); pop.classList.add("open");
+    var r = anchor.getBoundingClientRect();
+    var top = Math.min(r.bottom + 8, window.innerHeight - 280);
+    var left = Math.min(Math.max(12, r.left), window.innerWidth - Math.min(420, window.innerWidth*0.92) - 12);
+    pop.style.top = Math.max(12, top) + "px";
+    pop.style.left = left + "px";
+    setTimeout(function(){ popText.focus(); }, 30);
+  }
+  function closePop(){ pop.classList.remove("open"); popBack.classList.remove("open"); current = null; }
+
+  document.querySelectorAll(".note-btn").forEach(function(btn){
+    btn.addEventListener("click", function(e){ e.stopPropagation(); openPop(btn.getAttribute("data-target"), btn); });
+  });
+  document.getElementById("popSave").addEventListener("click", function(){
+    if(!current) return;
+    var t = popText.value.trim();
+    if(t){ data[current] = { label: labels[current], text: t }; }
+    else { delete data[current]; }
+    save(); refresh(); closePop(); toast(t ? "Note saved" : "Note removed");
+  });
+  document.getElementById("popDelete").addEventListener("click", function(){
+    if(current){ delete data[current]; save(); refresh(); }
+    closePop(); toast("Note removed");
+  });
+  document.getElementById("popCancel").addEventListener("click", closePop);
+  popBack.addEventListener("click", closePop);
+  popText.addEventListener("keydown", function(e){ if((e.metaKey||e.ctrlKey) && e.key==="Enter"){ document.getElementById("popSave").click(); } });
+
+  /* ---- drawer ---- */
+  var drawer = document.getElementById("drawer"), drawerBack = document.getElementById("drawerBack"), drawerBody = document.getElementById("drawerBody");
+  function renderDrawer(){
+    var ids = Object.keys(data).filter(function(k){ return data[k] && data[k].text && data[k].text.trim(); });
+    if(!ids.length){ drawerBody.innerHTML = '<div class="empty">No notes yet.<br>Click <b>+ note</b> on any flow to start.</div>'; return; }
+    drawerBody.innerHTML = ids.map(function(id){
+      var c = data[id];
+      return '<div class="cmt"><button class="cmt-x" data-del="'+id+'">&times;</button>'
+        + '<div class="cmt-label">'+escapeHtml(c.label||id)+'</div>'
+        + '<div class="cmt-text">'+escapeHtml(c.text)+'</div></div>';
+    }).join("");
+    drawerBody.querySelectorAll("[data-del]").forEach(function(x){
+      x.addEventListener("click", function(){ delete data[x.getAttribute("data-del")]; save(); refresh(); renderDrawer(); });
+    });
+  }
+  function openDrawer(){ renderDrawer(); drawer.classList.add("open"); drawerBack.classList.add("open"); }
+  function closeDrawer(){ drawer.classList.remove("open"); drawerBack.classList.remove("open"); }
+  document.getElementById("fab").addEventListener("click", openDrawer);
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  drawerBack.addEventListener("click", closeDrawer);
+
+  document.getElementById("clearBtn").addEventListener("click", function(){
+    if(confirm("Delete all notes?")){ data = {}; save(); refresh(); renderDrawer(); }
+  });
+  document.getElementById("copyBtn").addEventListener("click", function(){
+    var ids = Object.keys(data).filter(function(k){ return data[k] && data[k].text && data[k].text.trim(); });
+    if(!ids.length){ toast("No notes to copy"); return; }
+    var md = "## Comments on the BridgeCircle usage map (2026-06-20)\n\n"
+      + ids.map(function(id){ return "- **[" + (data[id].label||id) + "]** " + data[id].text.replace(/\n/g," "); }).join("\n");
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(md).then(function(){ toast("Copied "+ids.length+" note"+(ids.length>1?"s":"")+" — paste to Claude"); },
+        function(){ fallbackCopy(md); });
+    } else { fallbackCopy(md); }
+  });
+  function fallbackCopy(md){
+    var ta = document.createElement("textarea"); ta.value = md; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast("Copied — paste to Claude"); }catch(e){ prompt("Copy these notes:", md); }
+    document.body.removeChild(ta);
+  }
+
+  /* ---- toast ---- */
+  var toastEl = document.getElementById("toast"), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove("show"); }, 2200); }
+  function escapeHtml(s){ return (s||"").replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape"){ closePop(); closeDrawer(); } });
+  refresh();
+})();
+</script>
+</body>
+</html>

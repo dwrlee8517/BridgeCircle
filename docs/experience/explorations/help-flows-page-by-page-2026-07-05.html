@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Recovered from the Claude Code artifact (claude.ai/code/artifact/c691817b) built 2026-07-05/06 during the flow reviews.
+     Companion desktop edition: help-people-flows-desktop-2026-07-06.html. Source of truth for decisions: uploads/FLOWS.md. -->
+<title>BridgeCircle · Help, page by page</title>
+<style>
+  :root{
+    --ink:#1c2733; --mut:#5d6b79; --faint:#8b97a3;
+    --paper:#f4f6f8; --card:#ffffff; --line:#dce3e9; --line-soft:#e8edf1;
+    --get:#1f5ed6; --get-deep:#174aa8; --get-wash:#e9f0fc; --get-wash-deep:#d9e6fa;
+    --give:#177a4b; --give-deep:#0f5c37; --give-wash:#e7f3ec; --give-wash-deep:#d5ebde;
+    --amber:#a05f14; --amber-wash:#faf1e1;
+    --sys:#64707c; --sys-wash:#eef1f4;
+    --sans:"Avenir Next","Helvetica Neue",-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --r:10px;
+  }
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--paper);
+    font-size:15.5px; line-height:1.65; margin:0;
+  }
+  .wrap{max-width:1060px; margin:0 auto; padding:0 28px 96px}
+  a{color:var(--get-deep)}
+
+  /* ---------- masthead ---------- */
+  .masthead{padding:64px 0 8px}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--mut); margin:0 0 14px;
+  }
+  h1{
+    font-size:clamp(30px,4.4vw,42px); line-height:1.12; letter-spacing:-.015em;
+    font-weight:700; margin:0 0 14px; text-wrap:balance;
+  }
+  .meta{font-size:13.5px; color:var(--mut); margin:0 0 26px}
+  .meta code{font-family:var(--mono); font-size:12px; background:var(--sys-wash); padding:1px 6px; border-radius:5px}
+  .model{
+    border-left:3px solid var(--ink); padding:6px 0 6px 20px; max-width:62ch;
+    font-size:17px; line-height:1.55; margin:0 0 12px; text-wrap:balance;
+  }
+  .model em{font-style:normal; font-weight:600}
+
+  /* ---------- jump nav ---------- */
+  .jump{
+    position:sticky; top:0; z-index:40; background:color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter:blur(6px); border-bottom:1px solid var(--line);
+    margin:26px -28px 0; padding:10px 28px; display:flex; gap:4px; flex-wrap:wrap;
+  }
+  .jump a{
+    font-size:13px; font-weight:600; color:var(--mut); text-decoration:none;
+    padding:5px 11px; border-radius:999px;
+  }
+  .jump a:hover{background:var(--sys-wash); color:var(--ink)}
+  .jump a:focus-visible{outline:2px solid var(--get); outline-offset:1px}
+  .jump a.j-get:hover{background:var(--get-wash); color:var(--get-deep)}
+  .jump a.j-give:hover{background:var(--give-wash); color:var(--give-deep)}
+
+  /* ---------- section chrome ---------- */
+  section{margin-top:72px; scroll-margin-top:64px}
+  .sec-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--mut); margin:0 0 8px; display:flex; align-items:center; gap:10px;
+  }
+  .sec-eyebrow::after{content:""; height:1px; background:var(--line); flex:1}
+  h2{font-size:26px; letter-spacing:-.01em; margin:0 0 10px; text-wrap:balance}
+  h3{font-size:17px; margin:0 0 8px}
+  .lede{color:var(--mut); max-width:68ch; margin:0 0 28px}
+  .lede b{color:var(--ink)}
+
+  /* mode-tinted section headers */
+  .journey-get h2{color:var(--get-deep)}
+  .journey-give h2{color:var(--give-deep)}
+  .journey-get .sec-eyebrow{color:var(--get)}
+  .journey-give .sec-eyebrow{color:var(--give)}
+  .g-ppl .pc-head{background:var(--sys-wash)}
+  .g-ppl .pc-num{color:var(--ink)}
+  .g-ppl .co, .g-ppl .steps>li::before{background:var(--sys)}
+  .g-ppl .w-btn.pri{background:var(--ink)}
+  .g-ppl .w-btn.soft{background:var(--sys-wash); color:var(--ink); border:none}
+  .g-ppl .w-cta{background:var(--ink)}
+  .g-ppl .uistr{background:var(--sys-wash)}
+  .g-ppl .w-chip.sel{color:var(--ink); background:var(--sys-wash); border-color:var(--sys)}
+  .g-ppl .w-seg .on{background:var(--ink)}
+
+  /* ---------- tags & chips ---------- */
+  .tag{
+    display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em;
+    text-transform:uppercase; font-weight:600; padding:2px 8px; border-radius:5px; vertical-align:2px;
+  }
+  .tag-decided{background:var(--give-wash); color:var(--give-deep)}
+  .tag-open{background:var(--amber-wash); color:var(--amber)}
+  .tag-rec{background:var(--get-wash); color:var(--get-deep)}
+  .tag-adr{background:var(--sys-wash); color:var(--sys)}
+  .route{font-family:var(--mono); font-size:12.5px; background:var(--sys-wash); padding:1px 7px; border-radius:5px; white-space:nowrap}
+
+  /* product copy strings */
+  .uistr{
+    background:var(--sys-wash); border-radius:6px; padding:1px 7px;
+    font-size:.94em; font-style:italic; color:var(--ink); box-decoration-break:clone; -webkit-box-decoration-break:clone;
+  }
+  .journey-get .uistr, .g-get .uistr{background:var(--get-wash)}
+  .journey-give .uistr, .g-give .uistr{background:var(--give-wash)}
+
+  /* ---------- overview map ---------- */
+  .map-scroll{overflow-x:auto; padding-bottom:6px}
+  .map{min-width:760px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px 0; align-items:stretch}
+  .map-node{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    padding:12px 16px; position:relative; margin-right:44px;
+  }
+  .map-node .mn-k{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+  .map-node .mn-t{font-weight:600; font-size:14.5px}
+  .map-node .mn-s{font-size:12.5px; color:var(--mut)}
+  .map-node.get{border-top:3px solid var(--get)}
+  .map-node.give{border-top:3px solid var(--give)}
+  .map-node.shared{border-top:3px solid var(--ink); margin-right:0}
+  .map-arrow{position:absolute; right:-34px; top:50%; transform:translateY(-50%); color:var(--faint); font-size:17px}
+  .map-span2{grid-row:span 2; display:flex; flex-direction:column; justify-content:center}
+  .map-note{font-size:13px; color:var(--mut); margin-top:14px; max-width:70ch}
+
+  /* ---------- entry point chips ---------- */
+  .entries{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 30px}
+  .entry{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    padding:10px 14px; font-size:13.5px; max-width:240px;
+  }
+  .entry b{display:block; font-size:13.5px}
+  .entry span{color:var(--mut); font-size:12.5px; line-height:1.45; display:block}
+
+  /* ---------- page card ---------- */
+  .page-card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    overflow:hidden; margin:0 0 0;
+  }
+  .pc-head{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+    padding:16px 24px; border-bottom:1px solid var(--line-soft);
+  }
+  .g-get .pc-head{background:var(--get-wash)}
+  .g-give .pc-head{background:var(--give-wash)}
+  .pc-num{
+    font-family:var(--mono); font-weight:700; font-size:13px; letter-spacing:.06em;
+  }
+  .g-get .pc-num{color:var(--get-deep)} .g-give .pc-num{color:var(--give-deep)}
+  .pc-title{font-size:18px; font-weight:700; letter-spacing:-.01em}
+  .pc-sub{font-size:13px; color:var(--mut); flex-basis:100%;}
+  .pc-body{display:grid; grid-template-columns:minmax(280px,360px) 1fr; gap:0}
+  .pc-wire{padding:24px; border-right:1px solid var(--line-soft); background:#fbfcfd}
+  .pc-steps{padding:22px 26px 26px}
+  @media (max-width:880px){
+    .pc-body{grid-template-columns:1fr}
+    .pc-wire{border-right:none; border-bottom:1px solid var(--line-soft)}
+  }
+
+  /* connector between pages */
+  .flow-next{display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px 0}
+  .flow-next .fl-line{width:2px; height:22px; background:var(--line)}
+  .flow-next .fl-evt{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.06em; color:var(--mut);
+    background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 14px;
+  }
+
+  /* ---------- wireframe DSL ---------- */
+  .wire{border:1px solid var(--line); border-radius:12px; background:var(--card); overflow:hidden; font-size:12px}
+  .w-hero{padding:14px 14px 12px}
+  .g-get .w-hero{background:linear-gradient(180deg,var(--get-wash),color-mix(in srgb,var(--get-wash) 40%,#fff))}
+  .g-give .w-hero{background:linear-gradient(180deg,var(--give-wash),color-mix(in srgb,var(--give-wash) 40%,#fff))}
+  .w-pill{display:inline-flex; background:#fff; border:1px solid var(--line); border-radius:999px; padding:2px; margin-bottom:10px}
+  .w-pill span{padding:3px 12px; border-radius:999px; font-weight:600; color:var(--mut); font-size:11.5px}
+  .w-pill .on{color:#fff}
+  .g-get .w-pill .on{background:var(--get)} .g-give .w-pill .on{background:var(--give)}
+  .w-h{font-weight:700; font-size:14px; letter-spacing:-.01em; color:var(--ink)}
+  .w-sec{padding:12px 14px; border-top:1px solid var(--line-soft); position:relative}
+  .w-card{border:1px solid var(--line); border-radius:9px; background:#fff; padding:10px 12px; position:relative}
+  .w-coach{font-size:11px; color:var(--faint); font-style:italic; margin-bottom:8px}
+  .w-line{height:7px; border-radius:4px; background:var(--line-soft); margin:6px 0}
+  .w-line.dk{background:var(--line)}
+  .w-40{width:40%}.w-55{width:55%}.w-70{width:70%}.w-85{width:85%}
+  .w-chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px}
+  .w-chip{border:1px solid var(--line); border-radius:999px; padding:1px 9px; font-size:10.5px; color:var(--mut); background:#fff}
+  .w-chip.sel{border-color:currentColor}
+  .g-get .w-chip.sel{color:var(--get-deep); background:var(--get-wash)}
+  .g-give .w-chip.sel{color:var(--give-deep); background:var(--give-wash)}
+  .w-label{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:7px}
+  .w-seg{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .w-seg span{flex:1; text-align:center; padding:5px 4px; font-size:10.5px; font-weight:600; color:var(--mut); border-right:1px solid var(--line)}
+  .w-seg span:last-child{border-right:none}
+  .w-seg .on{color:#fff}
+  .g-get .w-seg .on{background:var(--get)}
+  .w-row{display:flex; align-items:center; gap:9px; padding:7px 0}
+  .w-row + .w-row{border-top:1px solid var(--line-soft)}
+  .w-ava{width:24px; height:24px; border-radius:50%; flex:none;
+    background:linear-gradient(135deg,#c9d6ea,#a8bcd8)}
+  .w-ava.anon{background:repeating-linear-gradient(45deg,var(--line-soft),var(--line-soft) 3px,#fff 3px,#fff 6px); border:1px dashed var(--line)}
+  .w-who{flex:1; min-width:0}
+  .w-name{font-weight:600; font-size:11.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .w-ev{font-size:10px; color:var(--mut); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .w-btn{border-radius:7px; padding:4px 10px; font-size:10.5px; font-weight:600; white-space:nowrap; flex:none; border:1px solid var(--line); color:var(--mut); background:#fff}
+  .w-btn.pri{color:#fff; border:none}
+  .g-get .w-btn.pri{background:var(--get)} .g-give .w-btn.pri{background:var(--give)}
+  .w-btn.soft{border:none}
+  .g-get .w-btn.soft{background:var(--get-wash); color:var(--get-deep)}
+  .g-give .w-btn.soft{background:var(--give-wash); color:var(--give-deep)}
+  .w-cta{display:block; width:100%; text-align:center; border-radius:8px; padding:8px; font-weight:700; font-size:12px; color:#fff; border:none; margin-top:4px}
+  .g-get .w-cta{background:var(--get)} .g-give .w-cta{background:var(--give)}
+  .w-toggle{display:flex; align-items:center; gap:7px; font-size:11px; color:var(--mut)}
+  .w-knob{width:26px; height:15px; border-radius:999px; background:var(--line); position:relative; flex:none}
+  .w-knob::after{content:""; position:absolute; width:11px; height:11px; border-radius:50%; background:#fff; top:2px; left:2px; box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .w-knob.on{background:var(--give)}
+  .w-knob.on::after{left:auto; right:2px}
+  .g-get .w-knob.on{background:var(--get)}
+  .w-sys{font-size:10.5px; color:var(--sys); text-align:center; font-style:italic; padding:5px 0}
+  .w-state{font-family:var(--mono); font-size:9.5px; letter-spacing:.06em; color:var(--faint); text-transform:uppercase; flex:none}
+  .w-count{font-family:var(--mono); font-size:10px; color:var(--mut)}
+  .w-bubble{border-radius:10px; padding:7px 10px; margin:5px 0; max-width:78%; background:var(--sys-wash)}
+  .w-bubble.me{margin-left:auto; color:#fff}
+  .g-get .w-bubble.me{background:var(--get)}
+  .w-rail{border-left:1px solid var(--line-soft); padding-left:10px}
+  .w-lane{border-top:1px solid var(--line-soft)}
+  .w-lane-h{display:flex; align-items:center; gap:8px; padding:9px 14px 0}
+  .w-lane-h .w-label{margin:0}
+  .w-lane-b{padding:8px 14px 12px; position:relative}
+
+  /* callout badges */
+  .co{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:18px; height:18px; border-radius:50%; color:#fff; font-size:10.5px; font-weight:700;
+    font-family:var(--mono); flex:none; line-height:1;
+  }
+  .g-get .co, .co.get{background:var(--get)}
+  .g-give .co, .co.give{background:var(--give)}
+  .co-float{position:absolute; top:10px; right:10px}
+
+  /* ---------- steps list ---------- */
+  .steps{list-style:none; margin:0; padding:0; counter-reset:step}
+  .steps>li{
+    counter-increment:step; position:relative; padding:0 0 16px 34px; font-size:14px;
+  }
+  .steps>li:last-child{padding-bottom:0}
+  .steps>li::before{
+    content:counter(step); position:absolute; left:0; top:1px;
+    width:19px; height:19px; border-radius:50%; color:#fff; font-size:11px; font-weight:700;
+    font-family:var(--mono); display:flex; align-items:center; justify-content:center;
+  }
+  .g-get .steps>li::before{background:var(--get)}
+  .g-give .steps>li::before{background:var(--give)}
+  .steps>li:not(:last-child)::after{
+    content:""; position:absolute; left:9px; top:24px; bottom:2px; width:1px; background:var(--line-soft);
+  }
+  .steps b{font-weight:700}
+  .steps .sub{color:var(--mut); font-size:13px; margin-top:3px}
+
+  /* ---------- branch panels (reach control) ---------- */
+  .branches{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:8px 0 4px}
+  @media (max-width:880px){.branches{grid-template-columns:1fr}}
+  .branch{
+    border:1px solid var(--line); border-radius:var(--r); background:var(--card); padding:14px 16px; font-size:13px;
+  }
+  .branch .b-k{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px}
+  .branch .b-t{font-weight:700; font-size:14px; margin-bottom:6px}
+  .branch p{margin:6px 0; color:var(--mut); font-size:12.5px; line-height:1.55}
+  .branch.b-direct{border-top:3px solid var(--get)}
+  .branch.b-private{border-top:3px solid var(--get-deep)}
+  .branch.b-public{border-top:3px solid var(--ink)}
+
+  /* callout asides */
+  .aside{
+    border:1px solid var(--line); border-left-width:3px; border-radius:0 var(--r) var(--r) 0;
+    background:var(--card); padding:14px 18px; margin:22px 0; font-size:13.5px; max-width:76ch;
+  }
+  .aside.a-buffer{border-left-color:var(--give)}
+  .aside.a-open{border-left-color:var(--amber); background:linear-gradient(180deg,var(--amber-wash),var(--card) 120%)}
+  .aside.a-sys{border-left-color:var(--sys)}
+  .aside b:first-child{display:block; margin-bottom:2px}
+  .aside p{margin:4px 0; color:var(--mut)}
+  .aside p b{color:var(--ink); display:inline}
+
+  /* ---------- lifecycle state map ---------- */
+  .state-scroll{overflow-x:auto; padding:4px 0 10px}
+  .statemap{min-width:880px; display:flex; align-items:center; gap:0}
+  .st{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+    padding:10px 14px; min-width:128px; flex:none;
+  }
+  .st .st-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+  .st .st-t{font-weight:700; font-size:13.5px}
+  .st .st-s{font-size:11.5px; color:var(--mut); line-height:1.45}
+  .st.term{border-style:dashed; background:var(--paper)}
+  .st.hot{border-color:var(--get); box-shadow:0 0 0 1px var(--get) inset}
+  .st-arrow{flex:none; padding:0 8px; color:var(--faint); font-family:var(--mono); font-size:10.5px; text-align:center; line-height:1.4; max-width:120px}
+  .st-arrow .ar{font-size:16px; color:var(--mut); display:block}
+  .st-stack{display:flex; flex-direction:column; gap:8px; flex:none}
+
+  /* ---------- day timeline ---------- */
+  .tl-scroll{overflow-x:auto; padding-bottom:8px}
+  .timeline{min-width:840px; display:grid; grid-template-columns:88px repeat(4,1fr); border:1px solid var(--line); border-radius:12px; background:var(--card); overflow:hidden}
+  .tl-cell{padding:12px 14px; border-top:1px solid var(--line-soft); border-left:1px solid var(--line-soft); font-size:12.5px; min-height:52px}
+  .tl-day{border-top:none; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); font-weight:600; background:var(--paper)}
+  .tl-day b{display:block; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums}
+  .tl-role{border-left:none; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; display:flex; align-items:center}
+  .tl-role.r-ask{color:var(--get-deep)} .tl-role.r-sys{color:var(--sys)} .tl-role.r-help{color:var(--give-deep)}
+  .tl-cell .evt{border-radius:7px; padding:5px 9px; font-size:11.5px; line-height:1.45; margin:2px 0; display:block}
+  .evt.e-get{background:var(--get-wash); color:var(--get-deep)}
+  .evt.e-give{background:var(--give-wash); color:var(--give-deep)}
+  .evt.e-sys{background:var(--sys-wash); color:var(--sys)}
+  .evt.e-hot{outline:1.5px solid var(--get); outline-offset:1px}
+  .tl-cell .quiet{color:var(--faint); font-style:italic; font-size:11.5px}
+
+  /* ---------- buffer audit table ---------- */
+  .tbl-scroll{overflow-x:auto}
+  table.audit{border-collapse:collapse; width:100%; min-width:720px; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:13.5px}
+  .audit th{
+    text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--mut); font-weight:600; padding:11px 16px; background:var(--paper); border-bottom:1px solid var(--line);
+  }
+  .audit td{padding:11px 16px; border-bottom:1px solid var(--line-soft); vertical-align:top; line-height:1.5}
+  .audit tr:last-child td{border-bottom:none}
+  .audit td:first-child{font-weight:600; white-space:nowrap}
+  .audit .see-ask{color:var(--get-deep)} .audit .see-help{color:var(--give-deep)}
+  .audit .none{color:var(--faint); font-style:italic}
+  .audit .mech{font-family:var(--mono); font-size:11px; color:var(--sys)}
+
+  /* ---------- open calls ---------- */
+  .qgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px}
+  .qcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; font-size:13.5px}
+  .qcard .q{font-weight:700; margin:6px 0 6px}
+  .qcard p{margin:5px 0; color:var(--mut); font-size:13px}
+  .qcard p b{color:var(--ink)}
+
+  footer{margin-top:80px; border-top:1px solid var(--line); padding-top:18px; font-size:12.5px; color:var(--mut)}
+  footer code{font-family:var(--mono); font-size:11.5px}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">BridgeCircle · Member webapp redesign · Help flows</p>
+  <h1>Asking for help &amp; giving help, page by page</h1>
+  <p class="meta">
+    Draft v3 · 2026-07-06 · distilled from <code>FLOWS.md</code> +
+    <code>ADR 0011</code> (two verbs, one inbox) · v2 reworked the ask entry to search-first;
+    v3 folds in Richard's 2026-07-06 review: reach immutable once published, a five-open-ask cap,
+    the give page rebuilt on three arms with capped topics and responsiveness-based auto-pause,
+    AI-helped default/custom messages, and — superseding the quiet pass — declines that always
+    carry a cushioned note. v5 adds Journey C: the People page (directory, profile, connect).
+  </p>
+  <p class="model">A member can do two things to another member — <em>Connect</em> or <em>Ask</em>.
+  If you don't know who to ask, <em>ask the circle</em>. Every accepted intro becomes an ordinary
+  conversation in Messages.</p>
+</header>
+
+<nav class="jump" aria-label="Sections">
+  <a href="#map">The map</a>
+  <a href="#ask" class="j-get">Asking for help</a>
+  <a href="#give" class="j-give">Giving help</a>
+  <a href="#people">People</a>
+  <a href="#lifecycle">Lifecycle &amp; the 14-day close</a>
+  <a href="#buffer">Buffer audit</a>
+  <a href="#calls">Decisions</a>
+</nav>
+
+<!-- ============================================================ MAP -->
+<section id="map">
+  <p class="sec-eyebrow">Overview</p>
+  <h2>The map — three pages per side, one shared room</h2>
+  <p class="lede">The whole Help experience lives on remarkably few surfaces. The asker's road is
+  <b>three pages</b>: find &amp; compose (one page, two branches out of the search), status, thread.
+  The helper's road is <b>one page with three arms</b>,
+  then the same thread. Both roads end in Messages, where an ask becomes an ordinary conversation
+  <span class="tag tag-adr">ADR 0011 · D4</span>.</p>
+
+  <div class="map-scroll">
+    <div class="map">
+      <div class="map-node get">
+        <div class="mn-k">Ask · page 1</div>
+        <div class="mn-t">Help · Get — find &amp; compose</div>
+        <div class="mn-s">Search the question → people + reasons → pick a person, or ask the circle</div>
+        <span class="map-arrow">→</span>
+      </div>
+      <div class="map-node get">
+        <div class="mn-k">Ask · page 2</div>
+        <div class="mn-t">Ask status view</div>
+        <div class="mn-s">Recipients waiting · offers arriving · countdown</div>
+        <span class="map-arrow">→</span>
+      </div>
+      <div class="map-node shared map-span2">
+        <div class="mn-k">Both · page 3</div>
+        <div class="mn-t">The thread — Messages</div>
+        <div class="mn-s">Origin line, day clock, resolve, connect nudge. Identical to every other conversation.</div>
+      </div>
+      <div class="map-node give">
+        <div class="mn-k">Give · one page</div>
+        <div class="mn-t">Help · Give — three arms</div>
+        <div class="mn-s">Topics → AI suggestions · search open asks · asked you directly</div>
+        <span class="map-arrow">→</span>
+      </div>
+      <div class="map-node give">
+        <div class="mn-k">Give · moment</div>
+        <div class="mn-t">Offer / Accept</div>
+        <div class="mn-s">Optional note → asker holds the accept (open) · helper holds the accept (direct)</div>
+        <span class="map-arrow">→</span>
+      </div>
+    </div>
+  </div>
+  <p class="map-note">Both modes are one route — <span class="route">/help</span> with a pill toggle
+  (<b style="color:var(--get-deep)">Get</b> blue wash / <b style="color:var(--give-deep)">Give</b> green wash),
+  deep-linkable as <span class="route">/help?mode=give</span>. Default mode: Get for first-timers,
+  remember last mode after that <span class="tag tag-decided">Decided 2026-07-06</span>.</p>
+</section>
+
+<!-- ============================================================ ASK JOURNEY -->
+<section id="ask" class="journey-get g-get">
+  <p class="sec-eyebrow">Journey A · the asker</p>
+  <h2>Asking for help</h2>
+  <p class="lede">Search-first (Richard, 2026-07-05): the member types the <b>question</b>, sees
+  <b>who could answer it and why</b>, and only then commits — to one person (the composer drafts a
+  note tailored to both) or to the circle (reach and anonymity live on that branch). The question is
+  typed once and travels everywhere. After send, the ask lives in exactly two places: its
+  <b>status view</b> and, once accepted, <b>Messages</b>.</p>
+
+  <h3>Where an ask starts</h3>
+  <div class="entries">
+    <div class="entry"><b>Sidebar → Help</b><span>Blank composer, Get mode.</span></div>
+    <div class="entry"><b>Home ask entry</b><span><span class="uistr">"What do you need?"</span> — arrives with the composer focused.</span></div>
+    <div class="entry"><b>Profile → "Ask for help"</b><span>Skips search — lands in the composer with that person already chosen.</span></div>
+  </div>
+
+  <!-- ---------- PAGE 1 · FIND ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1 · FIND</span>
+      <span class="pc-title">Help · Get — search the question</span>
+      <span class="route">/help</span>
+      <span class="pc-sub">Blue wash. One box. The page answers "who could answer this?" before anything is written to anyone.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-hero">
+            <span class="co co-float">1</span>
+            <div class="w-pill"><span class="on">Get help</span><span>Give help</span></div>
+            <div class="w-h">What do you need?</div>
+          </div>
+          <div class="w-sec">
+            <div class="w-card">
+              <div class="w-coach">Ask it the way it comes out — we'll find who can help</div>
+              <div style="font-size:11.5px; color:var(--ink); line-height:1.5">How do I move from an agency to an in-house product role without a referral?</div>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">2</span>
+            <div class="w-label">People who can speak to it</div>
+            <div class="w-row">
+              <div class="w-ava"></div>
+              <div class="w-who"><div class="w-name">Maya Chen · '14 · ● Open to help</div><div class="w-ev">Made the agency → in-house jump in 2018</div></div>
+              <button class="w-btn pri" type="button">Ask Maya</button>
+            </div>
+            <div class="w-row">
+              <div class="w-ava" style="background:linear-gradient(135deg,#d8cfc0,#c2b49d)"></div>
+              <div class="w-who"><div class="w-name">Jordan Park · '11 · In your circle</div><div class="w-ev">Hires designers at a Series B — moved without a referral herself</div></div>
+              <button class="w-btn" type="button">Ask</button>
+            </div>
+            <div class="w-row">
+              <div class="w-ava" style="background:linear-gradient(135deg,#cfe0d4,#a9c9b4)"></div>
+              <div class="w-who"><div class="w-name">Sam Okafor · '09</div><div class="w-ev">Ran design at two startups; hired from agencies</div></div>
+              <button class="w-btn" type="button">Ask</button>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">3</span>
+            <div class="w-card" style="text-align:center">
+              <div style="font-size:11px; color:var(--mut); margin-bottom:6px">Don't see the right person?</div>
+              <button class="w-btn soft" type="button">Ask the circle — we'll show it to people who can help</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>One box, question-first.</b> Pill toggle on the wash hero, Get active. Headline: <span class="uistr">"What do you need?"</span> Coach line: <span class="uistr">"Ask it the way it comes out — we'll find who can help."</span> The member types a <b>question</b>, not a message — nothing on this page is sent to anyone.</li>
+          <li><b>Matches, with reasons.</b> Debounced as they type: members who can speak to this question, each with a question-specific evidence line (<span class="uistr">"Made the agency → in-house jump in 2018"</span>) and status chips (● Open to help / In your circle).
+            <div class="sub">Copy discipline: <i>"can speak to it,"</i> never <i>"will help"</i> — fit is not a promise. And results are <b>private to the asker</b>: a member never learns they appeared in a search and weren't asked.</div></li>
+          <li><b>The circle door, from the start.</b> <span class="uistr">"Ask the circle"</span> sits beside the results — a first-class door, never a fallback after browsing fails. When matching runs thin it becomes the empty state's primary action: <span class="uistr">"No one obvious — ask the circle and we'll show it to the right people."</span></li>
+          <li><b>Choose the road.</b> Tap a person → <b>Branch A</b>, the composer with that person chosen (more people can be added there). Tap the circle → <b>Branch B</b>, reach &amp; cover. The question travels into either branch — it is never retyped.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">Branch A — tapped a person</span><div class="fl-line"></div></div>
+
+  <!-- ---------- PAGE 1A · PERSON ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1A · PERSON BRANCH</span>
+      <span class="pc-title">The composer — drafting together</span>
+      <span class="route">/help · composer state</span>
+      <span class="pc-sub">"The AI's job is the first message; after that the product gets out of the way" (ADR 0011). Also the landing state of Profile → "Ask for help".</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <span class="co co-float">1</span>
+            <div class="w-label">Ask Maya · drafting together</div>
+            <div class="w-bubble" style="font-size:10.5px; color:var(--mut)">I brought your question over. Anything you want Maya to know — where you are now, what you've tried?</div>
+            <div class="w-bubble me"><div class="w-line w-70" style="margin:2px 0; background:rgba(255,255,255,.45)"></div><div class="w-line w-40" style="margin:2px 0; background:rgba(255,255,255,.45)"></div></div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">2</span>
+            <div class="w-label">Draft — tailored to you both</div>
+            <div class="w-card">
+              <div class="w-line dk w-85"></div>
+              <div class="w-line dk w-70"></div>
+              <div class="w-line dk w-55"></div>
+            </div>
+            <div class="w-chips"><span class="co" style="margin-right:2px">3</span><span class="w-chip">Warmer</span><span class="w-chip">Shorter</span><span class="w-chip">+ Add another person</span></div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float" style="top:16px">4</span>
+            <button class="w-cta" type="button">Send to Maya</button>
+            <div class="w-sys">Maya will answer either way — a yes, or a kind note</div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>The question carries in.</b> It opens the drafting conversation as the member's first turn — write once, everywhere. The AI asks one shaping question at most; it helps, it never gates. The plain form survives at <span class="route">?skip=1</span>.</li>
+          <li><b>The AI drafts the note, tailored to both.</b> The member's situation + Maya's profile facts — the specific worry named, something concrete to say yes to (the Door-1 scene from the Toss exploration, now the only composer). Everything is editable before sending.</li>
+          <li><b>Tone lenses</b> survive as one-tap refinements: <span class="uistr">Warmer</span> / <span class="uistr">Shorter</span>. No types, no steps, no chips ceremony <span class="tag tag-adr">ADR 0011 · D1</span>.</li>
+          <li><b>Send.</b> The button says who: <span class="uistr">"Send to Maya"</span> / <span class="uistr">"Send to 2 people."</span> Inline confirmation replaces the composer: <span class="uistr">"She'll see it today. Asks stay open 14 days."</span> + <span class="uistr">"View your ask"</span> → status view. The promise is stated right at the button: <span class="uistr">"Maya will answer either way — a yes, or a kind note."</span>
+            <div class="sub"><b>One or several recipients — asker's choice</b> <span class="tag tag-decided">Decided 2026-07-06</span>. Spam is handled by the five-slot rule (below), not by capping recipients. With one recipient the note is tailored to both; with several it stays personal but recipient-neutral. If nobody gets to it, the 14-day close ships with <span class="uistr">"Ask someone else"</span> and <span class="uistr">"Open it to the circle."</span></div></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">Branch B — tapped "Ask the circle" (from the door, or the empty state)</span><div class="fl-line"></div></div>
+
+  <!-- ---------- PAGE 1B · CIRCLE ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1B · CIRCLE BRANCH</span>
+      <span class="pc-title">The open ask — reach &amp; cover</span>
+      <span class="route">/help · open-ask state</span>
+      <span class="pc-sub">Reach and anonymity live only here — the controls appear exactly when they mean something.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <span class="co co-float">1</span>
+            <div class="w-bubble" style="font-size:10.5px; color:var(--mut)">Good question for the circle. One line on what you've tried would help the matching — want to add it?</div>
+            <div class="w-card" style="margin-top:6px">
+              <div class="w-line dk w-85"></div>
+              <div class="w-line dk w-55"></div>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">2</span>
+            <div class="w-label">Who can find this?</div>
+            <div class="w-seg"><span class="on">Good matches</span><span>Anyone at Chadwick</span></div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">3</span>
+            <div class="w-toggle"><span class="w-knob on"></span> Post without your name</div>
+            <div style="font-size:10px; color:var(--faint); margin-top:5px">Your class year still shows — in a small circle, people may guess</div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float" style="top:16px">4</span>
+            <button class="w-cta" type="button">Post your ask</button>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>A quick shaping beat.</b> Search queries run thinner than written asks, and matching quality rides on the text — so the AI offers one firming-up suggestion before posting. A suggestion, never a form.</li>
+          <li><b>Reach — two tiers, one toggle.</b> <span class="tag tag-decided">Decided 2026-07-05</span> <b>Good matches</b> (default, private): <span class="uistr">"Only people whose experience fits will see this"</span> — routed by suggestion + the helpers' competence query, browsable by no one. <b>Anyone at Chadwick</b> (public): <span class="uistr">"Anyone at [school] can find this"</span> — also findable in Give's browse lane. No "My circle" middle tier; the embarrassed-asker default stays the narrowest.</li>
+          <li><b>Cover — anonymous-until-accept.</b> <span class="tag tag-decided">Decided 2026-07-05</span> <span class="uistr">"Post without your name"</span>: helpers see <span class="uistr">"A member · Class of '27"</span>; name + profile are revealed only to the helper whose offer the asker accepts. Match-evidence lines derive from the ask's text only — never profile facts, which would leak identity. Honest copy at the toggle: <span class="uistr">"Your class year still shows — in a small circle, people may guess."</span> Public + anonymous = maximum reach with maximum cover.</li>
+          <li><b>Post.</b> <span class="uistr">"Post your ask"</span> → inline confirmation: <span class="uistr">"Your question is shown to people who can help — you'll only hear from members who offer."</span> → status view.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">either branch: sent / posted → every notification about this ask deep-links to…</span><div class="fl-line"></div></div>
+
+  <!-- ---------- PAGE 2 ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · STATUS</span>
+      <span class="pc-title">Ask status view</span>
+      <span class="route">/help/asks/[id]</span>
+      <span class="pc-sub">The ask's single home while it's open. Calm by design: waiting is honest but informationless.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <span class="co co-float">1</span>
+            <div class="w-line dk w-85"></div>
+            <div class="w-line dk w-55"></div>
+            <div style="display:flex; gap:6px; align-items:center; margin-top:9px; flex-wrap:wrap">
+              <span class="w-chip">Sent to Maya</span>
+              <span class="w-chip" style="font-variant-numeric:tabular-nums">Closes in 9 days</span>
+            </div>
+            <div class="w-chips" style="margin-top:7px"><span class="co" style="margin-right:2px">2</span>
+              <span class="w-chip">Retract this ask</span>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">3</span>
+            <div class="w-label">Direct road — recipients</div>
+            <div class="w-row">
+              <div class="w-ava"></div>
+              <div class="w-who"><div class="w-name">Maya Chen · '14</div></div>
+              <span class="w-state">Waiting</span>
+            </div>
+            <div class="w-row">
+              <div class="w-ava" style="background:linear-gradient(135deg,#d8cfc0,#c2b49d)"></div>
+              <div class="w-who"><div class="w-name">Jordan Park · '11</div><div class="w-ev">"I can't take this on right now — good luck with it."</div></div>
+              <span class="w-state">Declined</span>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">4</span>
+            <div class="w-label">Open road — offers</div>
+            <div class="w-row">
+              <div class="w-ava" style="background:linear-gradient(135deg,#cfe0d4,#a9c9b4)"></div>
+              <div class="w-who"><div class="w-name">Sam Okafor · '09</div><div class="w-ev">"Happy to talk through the in-house move — did it twice."</div></div>
+            </div>
+            <div style="display:flex; gap:6px; padding:2px 0 4px 33px">
+              <button class="w-btn pri" type="button">Accept</button>
+              <button class="w-btn" type="button">Decline</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>Header anatomy.</b> The ask text · a reach line (<span class="uistr">"Sent to Maya"</span> / <span class="uistr">"Private — suggested to good matches"</span> / <span class="uistr">"Public — anyone can find it"</span>) · a countdown (<span class="uistr">"Closes in 9 days"</span>) · for open asks, the anonymity state.</li>
+          <li><b>One control: Retract.</b> <span class="tag tag-decided">Decided 2026-07-06</span> Once published, an ask is <b>immutable</b> — no reach edits, no audience changes mid-flight. The asker can retract it anytime (recipients' pending items and matched suggestions vanish quietly; the slot frees), or let it run to the 14-day close. Widening happens only through the post-close recovery action <span class="uistr">"Open it to the circle"</span> — a new ask, not an edit.</li>
+          <li><b>The direct road.</b> One row per recipient, two honest states: <span class="uistr">"Waiting"</span> (no read receipts, no last-seen) or <span class="uistr">"Declined"</span> with the recipient's cushioned note <span class="tag tag-decided">Decided 2026-07-06 · supersedes the quiet pass, ADR 0011 · D5</span>. A decline frees that recipient's part of the ask; when every recipient has declined, the ask closes early with the same recovery actions as the 14-day close. Silence stays informationless until day 14.</li>
+          <li><b>The open road.</b> Offer rows arrive as helpers raise a hand: helper preview + their note + <b>Accept / Decline</b>. The asker holds the accept. Declining an offer sends the helper a cushioned note too — default reason or custom, AI-helped, symmetric with the helper's side. Accept → thread; every remaining offer gets <span class="uistr">"This ask has been answered."</span></li>
+          <li><b>Echoes elsewhere.</b> Home's "Your open asks" pills (<span class="uistr">2 offers</span> / <span class="uistr">Waiting</span> / <span class="uistr">Expires in 3d</span>) land here; Messages' "Waiting" group shows a compact echo row → here. One canonical surface, two doorways.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">recipient accepts · or asker accepts an offer</span><div class="fl-line"></div></div>
+
+  <!-- ---------- PAGE 3 ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 3 · THREAD</span>
+      <span class="pc-title">The thread — Messages</span>
+      <span class="route">/messages/[id]</span>
+      <span class="pc-sub">Identical to every other conversation. From here, the ask is just people talking.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <div class="w-sys"><span class="co" style="margin-right:4px">1</span>Maya accepted your ask · Tue</div>
+            <div class="w-bubble"><div class="w-line w-70" style="margin:2px 0"></div><div class="w-line w-40" style="margin:2px 0"></div></div>
+            <div class="w-bubble me"><div class="w-line w-55" style="margin:2px 0; background:rgba(255,255,255,.45)"></div></div>
+            <div class="w-bubble"><div class="w-line w-85" style="margin:2px 0"></div></div>
+            <div class="w-sys" style="color:var(--faint)"><span class="co" style="margin-right:4px">4</span>Getting somewhere? Add Maya to your circle</div>
+          </div>
+          <div class="w-sec">
+            <div class="w-rail">
+              <div class="w-label">About this conversation</div>
+              <div style="display:flex; align-items:center; gap:8px">
+                <span class="co">2</span>
+                <span class="w-count" style="font-size:11px">Your ask · Day 5 of 14</span>
+              </div>
+              <div style="margin-top:8px; display:flex; gap:6px; align-items:center">
+                <span class="co">3</span>
+                <button class="w-btn soft" type="button">Mark resolved</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>Origin as a quiet system line</b> — <span class="uistr">"Maya accepted your ask"</span> (or, on the helper's side, <span class="uistr">"You offered to help with…"</span>). Never different chrome, never a different interface <span class="tag tag-adr">ADR 0011 · D4</span>. Names carry class year + circle mark.</li>
+          <li><b>Context rail.</b> Who this is (Verified '14, ● Open to help) and <b>About this conversation</b>: which ask, a day clock (<span class="uistr" style="font-variant-numeric:tabular-nums">"Day 5 of 14"</span>), progress. The clock is shared context, not a deadline threat.</li>
+          <li><b>Mark resolved</b> — either side can. Thread stays; the ask closes; the asker gets a gentle <span class="uistr">"did this help?"</span> with one optional outcome line, skippable <span class="tag tag-decided">Decided 2026-07-06</span> — it feeds the warm-data flywheel (ADR 0010 · D4) without ever being homework.</li>
+          <li><b>The connect nudge.</b> After both sides have written: one quiet <span class="uistr">"Add to your circle"</span> line in-thread, once per pair, either side may tap, the other still accepts. The ask's happy ending is a relationship, not a ticket closed.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="aside a-sys">
+    <b>The five-slot rule <span class="tag tag-decided">Decided 2026-07-06</span></b>
+    <p>A member can hold <b>five open asks at once</b> — direct or circle. The sixth waits until a slot
+    frees. Slots return when an ask <b>ends</b>: resolved, retracted, declined by every recipient, or
+    closed at day 14. With declines now visible notes, a slot freeing on decline leaks nothing — the
+    note itself is the event.</p>
+  </div>
+
+  <div class="aside a-buffer">
+    <b>Buffer check, asker side</b>
+    <p>The asker sees <b>who could answer, and why</b>, before writing a word · search results are
+    private — a member never learns they appeared and weren't asked · a no arrives as one kind,
+    cushioned note, never silence and never a bare rejection · no read states, no timelines · the
+    asker holds the accept on every offer · and the private tier is the open-ask default. Asking
+    never costs face.</p>
+  </div>
+</section>
+
+<!-- ============================================================ GIVE JOURNEY -->
+<section id="give" class="journey-give g-give">
+  <p class="sec-eyebrow">Journey B · the helper</p>
+  <h2>Giving help</h2>
+  <p class="lede">One page: the switch and your topics on top, then <b>three arms</b> — AI
+  suggestions from your topics, search, and the asks that name you. Helping is a mood, not a
+  contract: the switch pauses everything, there is no clock on your status, and the only thing that
+  pauses you automatically is leaving people waiting.</p>
+
+  <h3>Where giving starts</h3>
+  <div class="entries">
+    <div class="entry"><b>Home · "Needs you this week"</b><span>Up to 3 matched open asks, weak-green <span class="uistr">Offer to help</span>.</span></div>
+    <div class="entry"><b>Help toggle → Give</b><span><span class="route">/help?mode=give</span>, green wash.</span></div>
+    <div class="entry"><b>Notification / email</b><span>A matched open ask, or a direct ask naming you.</span></div>
+    <div class="entry"><b>Messages · "Waiting on you"</b><span>Direct asks' canonical home, pinned above conversations.</span></div>
+  </div>
+
+  <!-- ---------- GIVE PAGE ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">ONE PAGE · 3 ARMS</span>
+      <span class="pc-title">Help · Give</span>
+      <span class="route">/help?mode=give</span>
+      <span class="pc-sub">Green wash. A quiet list, never a feed — no view counts, no public replies, no popularity ranking.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-hero">
+            <div class="w-pill"><span>Get help</span><span class="on">Give help</span></div>
+            <div class="w-h">What can you speak to?</div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">1</span>
+            <div class="w-toggle"><span class="w-knob on"></span> Open to helping</div>
+            <div class="w-label" style="margin-top:9px">Your topics · 3 of 5</div>
+            <div class="w-chips"><span class="w-chip sel">design careers ×</span><span class="w-chip sel">going in-house ×</span><span class="w-chip sel">portfolios ×</span><span class="w-chip">+ Add</span></div>
+          </div>
+          <div class="w-lane">
+            <div class="w-lane-h"><span class="co">2</span><div class="w-label">Suggested for your topics</div></div>
+            <div class="w-lane-b">
+              <div class="w-row" style="border-top:none">
+                <div class="w-ava anon"></div>
+                <div class="w-who"><div class="w-name">A member · Class of '27</div><div class="w-ev">Breaking into design — fits your "design careers" topic</div></div>
+                <button class="w-btn pri" type="button">Offer</button>
+              </div>
+            </div>
+          </div>
+          <div class="w-lane">
+            <div class="w-lane-h"><span class="co">3</span><div class="w-label">Search open asks</div></div>
+            <div class="w-lane-b">
+              <div class="w-card" style="padding:7px 11px"><span style="color:var(--faint); font-size:11px">e.g. "moving abroad", "career change"…</span></div>
+              <div class="w-row" style="margin-top:6px">
+                <div class="w-ava" style="background:linear-gradient(135deg,#e0d2e8,#c3aed3)"></div>
+                <div class="w-who"><div class="w-name">Priya Nair · '19</div><div class="w-ev">Moving to Seoul in the fall — who's lived there?</div></div>
+                <button class="w-btn pri" type="button">Offer</button>
+              </div>
+            </div>
+          </div>
+          <div class="w-lane">
+            <div class="w-lane-h"><span class="co">4</span><div class="w-label">● Asked you directly</div></div>
+            <div class="w-lane-b">
+              <div class="w-row" style="border-top:none">
+                <div class="w-ava"></div>
+                <div class="w-who"><div class="w-name">Alex Rivera · '21</div><div class="w-ev">"Could I get 20 minutes on your agency years?"</div></div>
+                <button class="w-btn pri" type="button">View ask</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>The switch and your topics.</b> An <span class="uistr">"Open to helping"</span> switch with <b>no clock expiry</b> <span class="tag tag-decided">Decided 2026-07-06</span> — the status never lapses on a timer. It auto-pauses only on unresponsiveness: <b>three direct asks that time out unanswered</b> (the day-14 close) quietly pause matching until the helper flips it back. Any response — accept <i>or</i> decline — resets the count; only pure silence counts.
+            <div class="sub"><b>Topics: up to 5</b> <span class="tag tag-decided">Decided 2026-07-06</span> — chips with add/remove (× on each, <span class="uistr">+ Add</span> until full), the same data as onboarding step 4. They drive arm 1 and Home's "Needs you this week." <b>No capacity meter</b> <span class="tag tag-decided">Decided 2026-07-05</span> — <span class="route">max_pending_requests</span> stays as the invisible abuse valve.</div></li>
+          <li><b>Arm 1 — AI suggestions from your topics.</b> Standing suggestions: open asks that fit the helper's topic chips, each with a match-evidence line naming which topic fits. Below threshold, an honest empty state: <span class="uistr">"Nothing needs you right now — we'll nudge you when something does."</span></li>
+          <li><b>Arm 2 — search.</b> The giver searches a topic they'd like to help with (<span class="uistr">"career change"</span>, <span class="uistr">"moving abroad"</span>) → open asks they think they can take. Public asks are freely searchable; private-tier asks appear only where relevance already gates them (arm 1 and matched search results) — matched, never browsed. Quiet-list rules throughout.</li>
+          <li><b>Arm 3 — asked you directly.</b> Direct asks naming this helper, <b>flagged and impossible to miss</b> — a marked row that opens the full detail view: the ask text, who's asking, accept / decline. Canonical home is Messages' "Waiting on you" group; this arm is the echo, so the give page tells the whole story in one scroll.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">"Offer to help" from any lane</span><div class="fl-line"></div></div>
+
+  <!-- ---------- OFFER FLOW ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">MOMENT A</span>
+      <span class="pc-title">Making an offer on an open ask</span>
+      <span class="pc-sub">Three beats. The asker holds the accept — an offer is a raised hand, not a claim.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <div class="w-label">Offer to help</div>
+            <div class="w-card" style="padding:8px 11px">
+              <div class="w-coach" style="margin-bottom:4px">Why you're the right person — we drafted a line; keep it or make it yours</div>
+              <div class="w-line dk w-70"></div>
+            </div>
+            <div class="w-chips"><span class="w-chip sel">Use the suggested note</span><span class="w-chip">Write my own · AI helps</span></div>
+            <button class="w-cta" type="button" style="margin-top:10px">Send your offer</button>
+          </div>
+          <div class="w-sec">
+            <div class="w-sys">Offer sent — we'll let you know if they take you up on it</div>
+          </div>
+          <div class="w-sec">
+            <div class="w-label">If accepted</div>
+            <div class="w-sys">You offered to help with Priya's move to Seoul</div>
+            <div class="w-bubble"><div class="w-line w-55" style="margin:2px 0"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>Offer, with a note that writes itself.</b> <span class="tag tag-decided">Decided 2026-07-06</span> One tap from any arm; the note comes as a <b>default line</b> (<span class="uistr">"Happy to talk through the in-house move — did it twice."</span>) or the helper writes their own, with AI help either way. No form, no screening — D1 killed the ceremony.</li>
+          <li><b>Sent.</b> The asker gets an offer row on their status view plus a notification/email. The helper sees a calm sent state and can withdraw quietly while it's pending.</li>
+          <li><b>Asker accepts</b> → thread in Messages, origin line <span class="uistr">"You offered to help with…"</span>. On an anonymous ask, this is the moment the asker's name and profile are revealed — to this helper only.</li>
+          <li><b>Asker declines</b> → the helper gets a cushioned note too — a default reason (<span class="uistr">"Went another way on this one — thank you for raising your hand"</span>) or custom, AI-helped <span class="tag tag-decided">Decided 2026-07-06</span>. If someone else was accepted, the remaining offers get the no-fault <span class="uistr">"This ask has been answered."</span> Offering still never costs face: the answer is always kind, and it always comes.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">meanwhile, when an ask names you…</span><div class="fl-line"></div></div>
+
+  <!-- ---------- RECEIVE DIRECT ASK ---------- -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">MOMENT B</span>
+      <span class="pc-title">Receiving a direct ask</span>
+      <span class="pc-sub">The helper holds the accept. Every exit — accept, decline, or silence — ends with dignity on both sides.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <div class="w-label">Messages · Waiting on you</div>
+            <div class="w-row" style="border-top:none">
+              <div class="w-ava"></div>
+              <div class="w-who"><div class="w-name">Alex Rivera · '21 · asked you</div><div class="w-ev">"Could I get 20 minutes on your agency years?"</div></div>
+            </div>
+            <div style="display:flex; gap:6px; padding:2px 0 4px 33px">
+              <button class="w-btn pri" type="button">Accept</button>
+              <button class="w-btn" type="button">Decline</button>
+            </div>
+            <div class="w-chips" style="padding-left:33px"><span class="w-chip">Can't right now</span><span class="w-chip">Not my area</span><span class="w-chip">Write my own · AI helps</span></div>
+          </div>
+          <div class="w-sec">
+            <div class="w-label">Day 5 · one gentle reminder</div>
+            <div class="w-sys">Alex is waiting on an ask — take a look?</div>
+          </div>
+          <div class="w-sec">
+            <div class="w-label">Day 14 · if untouched</div>
+            <div class="w-sys" style="color:var(--faint)">the item simply disappears — no guilt screen</div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>It arrives named and personal.</b> Notification + email deep-link to the ask; it sits in Messages' "Waiting on you" group and echoes in Give lane 4. Direct asks always show the asker — anonymity belongs to open asks only.</li>
+          <li><b>Accept — with a first word.</b> <span class="tag tag-decided">Decided 2026-07-06</span> Accepting offers a <b>default opening message or a custom one</b> (AI helps either way), so the thread never starts cold. The asker's status row flips via the origin line <span class="uistr">"Maya accepted your ask."</span></li>
+          <li><b>Decline — always with a note.</b> <span class="tag tag-decided">Decided 2026-07-06</span> There is no silent pass. Declining sends the asker a cushioned note: pick a <b>default reason</b> (<span class="uistr">"I can't take this on right now"</span> · <span class="uistr">"This one's outside what I can speak to"</span>) or write your own — AI helps either way. The item leaves the helper's list at once; the asker's recipient row flips to the note; a decline counts as a response and resets the strike count.
+            <div class="sub"><b>Supersedes the quiet pass (ADR 0011 · D5)</b> — record the divergence when implementation starts. The buffer moves from invisibility to cushioning: nobody writes a rejection from scratch, nobody reads a bare one, and silence is never the answer an asker is left with.</div></li>
+          <li><b>Silence is also an answer.</b> Day 5: one gentle reminder (<span class="uistr">"Alex is waiting on an ask — take a look?"</span> — existing <span class="route">reminder_sent_at</span> plumbing). Never a second one.</li>
+          <li><b>Day 14, untouched:</b> the backend closes the ask. The helper's pending item silently disappears — no guilt screen, no "you missed this." The asker gets the no-fault closure — <span class="uistr">"[name] wasn't able to get to it"</span> — now reserved for pure silence. Quietly, the timeout counts <b>one of three strikes</b> toward the helper's auto-pause; any response, accept or decline, resets the count.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="aside a-buffer">
+    <b>Buffer check, helper side</b>
+    <p>Availability is a mood, not a contract — the switch is the only control, no clock ever expires
+    it, and only leaving three asks unanswered pauses it (quietly, reversibly) · declining is two
+    taps — pick a kind default reason or let AI shape your own — so saying no never means writing a
+    rejection · silence still resolves itself at day 14, no guilt screen · offers that aren't taken
+    up close no-fault · and there is no meter, streak, or slot count anywhere on this page. Saying no
+    never costs face — and the asker is never left guessing.</p>
+  </div>
+</section>
+
+<!-- ============================================================ PEOPLE -->
+<section id="people" class="g-ppl">
+  <p class="sec-eyebrow">Journey C · finding people</p>
+  <h2>People — the directory</h2>
+  <p class="lede">Job: find the right person, decide whether to reach out, one action per row.
+  Person-shaped queries live here; need-shaped ones belong to Help <span class="tag tag-decided">Decided 2026-07-06</span> —
+  and the two cross-route quietly, so nobody has to know which box was "right."</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1 · DIRECTORY</span>
+      <span class="pc-title">People — search, rows, rail</span>
+      <span class="route">/people</span>
+      <span class="pc-sub">Refined against the 1a-derived specimen (<code style="font-size:11px">preview/people-directory.html</code>). The row decides the verb by relationship state; the chevron opens depth.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <div class="w-label">Directory · 2,412 members</div>
+            <div class="w-h" style="font-size:13px">Find people to connect with.</div>
+            <div class="w-card" style="padding:7px 10px; margin-top:8px; display:flex; align-items:center; gap:7px">
+              <span class="co" style="flex:none">1</span>
+              <span style="font-size:10.5px; color:var(--ink); flex:1">designers who moved in-house in the Bay Area</span>
+              <button class="w-btn pri" type="button">Search</button>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">2</span>
+            <div class="w-seg"><span class="on">All</span><span>● Open to help</span><span>In your circle</span></div>
+            <div class="w-chips" style="margin-top:8px; align-items:center"><span class="w-chip">Industry ▾</span><span class="w-chip">Class year ▾</span><span class="w-chip">Location ▾</span><span class="w-count" style="margin-left:auto">248 people · Best match</span></div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">3</span>
+            <div class="w-row">
+              <div class="w-ava" style="display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#1b64da;background:#e8f3ff">MC</div>
+              <div class="w-who"><div class="w-name">Maya Chen · In your circle · Strong match</div><div class="w-ev">Design Lead · Figma · San Francisco · '14</div></div>
+              <button class="w-btn soft" type="button">Message</button>
+              <span class="w-chip" style="padding:1px 7px">›</span>
+            </div>
+            <div class="w-row">
+              <div class="w-ava" style="display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#8a5c11;background:#fef3e2">JB</div>
+              <div class="w-who"><div class="w-name">Jordan Blake · ● Open to help</div><div class="w-ev">Design Manager · Airbnb · New York · '12</div></div>
+              <button class="w-btn soft" type="button">Connect</button>
+              <span class="w-chip" style="padding:1px 7px">›</span>
+            </div>
+            <div class="w-row">
+              <div class="w-ava" style="display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#b01824;background:#fdebee">PN</div>
+              <div class="w-who"><div class="w-name">Priya Nair · Requested</div><div class="w-ev">PM · Notion · Remote · '17</div></div>
+              <button class="w-btn" type="button" style="opacity:.5">Pending</button>
+              <span class="w-chip" style="padding:1px 7px">›</span>
+            </div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">4</span>
+            <div class="w-label">Profile preview · docked rail</div>
+            <div class="w-card" style="background:#f3f8ff">
+              <div style="font-size:9.5px; font-weight:700; color:#174aa8">◎ Why this match</div>
+              <div class="w-ev" style="white-space:normal; margin-top:3px">Made the agency → in-house jump in 2018 · has reviewed 20+ portfolios for the same move</div>
+              <div class="w-chips" style="margin-top:5px"><span class="w-chip">In-house since 2018</span><span class="w-chip">Reviews portfolios</span></div>
+              <div style="font-size:9px; color:var(--faint); margin-top:5px">From verified profile facts · ranked for "designers who moved in-house"</div>
+            </div>
+            <div class="w-ev" style="margin-top:7px; white-space:normal">You share: Prof. Whitman's studio — 8 years apart</div>
+            <div style="display:flex; gap:6px; margin-top:8px">
+              <button class="w-btn pri" type="button">Ask for help</button>
+              <button class="w-btn soft" type="button">Message</button>
+            </div>
+            <div style="font-size:9px; color:var(--faint); margin-top:7px">Profile auto-updated from public sources · last checked May 2026</div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>Person-shaped search, sized honestly.</b> The kicker states the room (<span class="uistr">"Directory · 2,412 members"</span>), the headline states the job (<span class="uistr">"Find people to connect with."</span>). The capsule takes person-shaped queries (<span class="uistr">"designers who moved in-house in the Bay Area"</span>) — the directory's own search field (no global palette; ⌘K removed 2026-07-06). Cross-route: a need-shaped question gets a quiet <span class="uistr">"Sounds like an ask — ask the circle?"</span></li>
+          <li><b>Scope, filters, honest count.</b> Segmented All / ● Open to help / In your circle; pills Industry · Class year · Location; and the results meta says exactly what you're looking at — <span class="uistr">"248 people · Best match"</span>. Count and sort are always stated; the directory is never a mystery feed.</li>
+          <li><b>One action per row, a chevron for depth.</b> Row anatomy: rotation-pair initials avatar (identity only, never status — E2), name + status chip (In your circle / ● Open to help / Requested), <span class="uistr">"Strong match"</span> as quiet blue text only when true, role line (role · company · city · class year), topic chips. The action pill follows relationship state — Message / Connect / Pending (disabled) — and the chevron (or row click) opens the rail without hijacking the action.</li>
+          <li><b>The preview rail — docked, not a detour.</b> 340px right rail on desktop, persistent as you move through rows: <b>Why this match</b> (prose evidence + fact chips + double provenance: <span class="uistr">"From verified profile facts · ranked for 'designers who moved in-house'"</span>), <b>Career</b>, <b>You share</b> (<span class="uistr">"Prof. Whitman's studio — 8 years apart"</span> — the warm-network receipt), then <b>Ask for help</b> (primary) beside Message/Connect, and the enrichment honesty line (<span class="uistr">"Profile auto-updated from public sources · last checked May 2026"</span>).
+            <div class="sub"><b>Copy drift to fix at the next DesignSync push:</b> the specimen's CTAs still read <span class="uistr">"Ask for advice"</span> — Phase-1 vocabulary and these decisions make it <span class="uistr">"Ask for help"</span> (O8's CTA list should be updated with it).</div></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">open a profile</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · PROFILE + CONNECT</span>
+      <span class="pc-title">The profile — two buttons, two intro modes</span>
+      <span class="route">/people/[id]</span>
+      <span class="pc-sub">Exactly two things you can do to a person (ADR 0011): Ask, or Connect. Everything else is reading.</span>
+    </div>
+    <div class="pc-body">
+      <div class="pc-wire" aria-hidden="true">
+        <div class="wire">
+          <div class="w-sec" style="border-top:none">
+            <span class="co co-float">1</span>
+            <div class="w-row" style="border-top:none">
+              <div class="w-ava" style="width:34px; height:34px"></div>
+              <div class="w-who"><div class="w-name">Maya Chen · '14 · Verified</div><div class="w-ev">Design manager, Figma · Brooklyn · ● Open to help</div></div>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:6px">
+              <button class="w-btn pri" type="button">Ask for help</button>
+              <button class="w-btn" type="button">Connect</button>
+            </div>
+            <div class="w-ev" style="margin-top:6px">Not in your circle yet</div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">2</span>
+            <div class="w-label">Connect · shaping the intro</div>
+            <div class="w-bubble" style="font-size:10.5px; color:var(--mut)">Why Maya? Say it however it comes out — I'll shape the hello.</div>
+            <div class="w-bubble me"><div class="w-line w-70" style="margin:2px 0; background:rgba(255,255,255,.45)"></div></div>
+            <div class="w-card" style="margin-top:6px"><div class="w-line dk w-85"></div><div class="w-line dk w-55"></div></div>
+            <button class="w-cta" type="button" style="margin-top:8px">Send request</button>
+            <div class="w-sys">A pass goes to BridgeCircle — never to you</div>
+          </div>
+          <div class="w-sec">
+            <span class="co co-float">3</span>
+            <div class="w-sys">You connected · Jul 6</div>
+            <div class="w-bubble"><div class="w-line w-55" style="margin:2px 0"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pc-steps">
+        <ol class="steps">
+          <li><b>Exactly two buttons.</b> <b>Ask for help</b> (primary) — skips Help's search and lands in the composer with this person already chosen (Journey A, page 1A) · <b>Connect</b> (or Message, once connected) · plus one honest circle-state line. About / Career / "open to help with" chips / provenance line below — all reading, no more verbs.</li>
+          <li><b>Connect, two intro modes</b> <span class="tag tag-adr">ADR 0011 · D2</span>. Know them? Quick-hello chips, one tap. Reaching someone new? Say why in your own words and the AI shapes it into the request message. Mutual accept, always — connect stays two-sided.</li>
+          <li><b>Accept → an ordinary conversation.</b> DM thread in Messages with the quiet <span class="uistr">"You connected"</span> origin line; the circle mark appears on their name everywhere from then on.</li>
+          <li><b>Connect declines stay quiet.</b> <span class="tag tag-decided">Scoped 2026-07-06</span> The decline-with-note decision covers asks only. A connect pass goes to BridgeCircle, never to the requester; the row shows a calm <span class="uistr">"Requested"</span> and the request expires without ceremony. Rationale: an ask declined is about the ask; a connection declined is about <i>you</i> — that one still needs the cover.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ LIFECYCLE -->
+<section id="lifecycle">
+  <p class="sec-eyebrow">Shared mechanics</p>
+  <h2>The ask lifecycle &amp; the 14-day close</h2>
+  <p class="lede">Every ask, whatever its reach, moves through the same states and ends in one of
+  four terminal states. Declines arrive in real time as cushioned notes — visible, kind, symmetric.
+  The <b>no-fault 14-day close</b> now covers exactly one case, pure silence, and its wording
+  (<span class="uistr g-get">"wasn't able to get to it"</span>) keeps even that ending kind.</p>
+
+  <div class="state-scroll">
+    <div class="statemap">
+      <div class="st"><div class="st-k">State</div><div class="st-t">Composing</div><div class="st-s">Page 1, nothing committed</div></div>
+      <div class="st-arrow"><span class="ar">→</span>send / post</div>
+      <div class="st-stack">
+        <div class="st"><div class="st-k">Open · direct</div><div class="st-t">Waiting on the recipient</div><div class="st-s">named, tailored note · no read state</div></div>
+        <div class="st"><div class="st-k">Open · private / public</div><div class="st-t">Collecting offers</div><div class="st-s">matched or browsed; may be anonymous</div></div>
+      </div>
+      <div class="st-arrow"><span class="ar">→</span>accept<br>(helper on direct · asker on offers)</div>
+      <div class="st hot"><div class="st-k">State</div><div class="st-t">In conversation</div><div class="st-s">a thread in Messages · day clock runs</div></div>
+      <div class="st-arrow"><span class="ar">→</span>resolve · retract · declines · day 14</div>
+      <div class="st-stack">
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Resolved</div><div class="st-s">"did this help?" + optional note</div></div>
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Retracted by asker</div><div class="st-s">anytime, no questions · slot frees</div></div>
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Declined by all</div><div class="st-s">cushioned notes → early close + recovery</div></div>
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Closed at day 14</div><div class="st-s">no-fault, for pure silence → recovery</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="map-note">Every path ends with the status view in a terminal state — reachable from
+  history, never nagging. The day-14 close always ships with a <b>recovery action</b>:
+  <span class="uistr g-get">"Ask someone else"</span> (picker reopens, that recipient excluded) or
+  <span class="uistr g-get">"Open it to the circle"</span> (one tap converts to an open ask, text intact).
+  Open asks close with <span class="uistr g-get">"Your ask has closed — want to renew it, or let it rest?"</span></p>
+
+  <h3 style="margin-top:36px">Fourteen days, three lanes</h3>
+  <div class="tl-scroll">
+    <div class="timeline">
+      <div class="tl-cell tl-day tl-role" style="border-top:none"></div>
+      <div class="tl-cell tl-day"><b>Day 0</b>sent</div>
+      <div class="tl-cell tl-day"><b>Day 5</b>reminder</div>
+      <div class="tl-cell tl-day"><b>Day 11</b>warning</div>
+      <div class="tl-cell tl-day"><b>Day 14</b>close</div>
+
+      <div class="tl-cell tl-role r-ask">Asker</div>
+      <div class="tl-cell"><span class="evt e-get">Inline confirm: "They'll see it today. Asks stay open 14 days."</span></div>
+      <div class="tl-cell"><span class="quiet">"Waiting" — or a cushioned decline note, the moment one is sent</span></div>
+      <div class="tl-cell"><span class="evt e-get">Home pill: "Expires in 3d" · expiry-warning email (existing plumbing)</span></div>
+      <div class="tl-cell"><span class="evt e-get e-hot">"This ask has closed — [name] wasn't able to get to it." + Ask someone else / Open it to the circle</span></div>
+
+      <div class="tl-cell tl-role r-sys">System</div>
+      <div class="tl-cell"><span class="evt e-sys">notify recipients / run matching · start the clock</span></div>
+      <div class="tl-cell"><span class="evt e-sys">one gentle helper reminder (reminder_sent_at) — never a second</span></div>
+      <div class="tl-cell"><span class="evt e-sys">asker-side expiry warning</span></div>
+      <div class="tl-cell"><span class="evt e-sys">backend closes whatever is still unanswered · no-fault wording, reserved for pure silence</span></div>
+
+      <div class="tl-cell tl-role r-help">Helper</div>
+      <div class="tl-cell"><span class="evt e-give">ask lands in "Waiting on you" (direct) · or surfaces via match / browse (open)</span></div>
+      <div class="tl-cell"><span class="evt e-give">"Alex is waiting on an ask — take a look?"</span></div>
+      <div class="tl-cell"><span class="quiet">nothing — no escalation, no countdown shown</span></div>
+      <div class="tl-cell"><span class="evt e-give">pending item silently disappears — no guilt screen · counts one of three strikes toward auto-pause</span></div>
+    </div>
+  </div>
+  <p class="map-note">Accepts, offers, and declines can happen at <b>any</b> point on this line —
+  declines land as cushioned notes in real time, and each one is a response, not a strike. The clock
+  only matters for pure silence, and the day-14 wording keeps that one ending no-fault.</p>
+</section>
+
+<!-- ============================================================ BUFFER AUDIT -->
+<section id="buffer">
+  <p class="sec-eyebrow">The brand mechanism, audited</p>
+  <h2>Two-sided buffer — what each side sees, moment by moment</h2>
+  <p class="lede">The rule, revised in this review: every decline is <b>cushioned and symmetric</b> —
+  default reasons and AI help on both sides, so saying no never means drafting a rejection and
+  hearing no never means silence. Every send path shows the sender exactly who will see it; every
+  waiting state is honest but calm. <b>Any screen that violates this table is wrong regardless of
+  how it looks.</b></p>
+
+  <div class="tbl-scroll">
+    <table class="audit">
+      <thead><tr><th>Moment</th><th>Asker sees</th><th>Helper sees</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>Searching who to ask</td><td class="see-ask">People + question-specific reasons, before writing a word</td><td class="none">never told they appeared in results</td><td class="mech">search results private to the asker</td></tr>
+        <tr><td>Direct ask sent</td><td class="see-ask">"Waiting" — no read state, no last-seen</td><td class="see-help">Named, personal ask in "Waiting on you"</td><td class="mech">informationless waiting</td></tr>
+        <tr><td>Helper declines a direct ask</td><td class="see-ask">"Declined" + one kind note, in real time</td><td class="see-help">default reason or custom, AI-helped · item leaves their list</td><td class="mech">decline-with-note (supersedes D5) · resets strikes</td></tr>
+        <tr><td>Offer made</td><td class="see-ask">Offer row: preview + note · Accept / Decline</td><td class="see-help">calm sent state</td><td class="mech">asker holds the accept</td></tr>
+        <tr><td>Asker declines an offer</td><td class="see-ask">row clears</td><td class="see-help">cushioned note — default or custom, AI-helped</td><td class="mech">symmetric decline · "answered" if another offer won</td></tr>
+        <tr><td>Anonymous open ask</td><td class="see-ask">full control; name hidden until they accept someone</td><td class="see-help">"A member · Class of '27" + text-only evidence</td><td class="mech">anonymous-until-accept · evidence from ask text only</td></tr>
+        <tr><td>Day-14 close</td><td class="see-ask">No-fault notice + recovery action</td><td class="see-help">pending item silently disappears · counts a strike</td><td class="mech">covers pure silence only · wording stays no-fault</td></tr>
+        <tr><td>Helper pauses / auto-pause</td><td class="none">never announced</td><td class="see-help">switch off, or three timed-out asks pause matching</td><td class="mech">paused_until · 3-strike rule, any response resets</td></tr>
+        <tr><td>Ask retracted</td><td class="see-ask">gone from status view · slot frees</td><td class="see-help">pending item / suggestion vanishes quietly</td><td class="mech">retract only — no mid-flight edits</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ OPEN CALLS -->
+<section id="calls">
+  <p class="sec-eyebrow">Decision record</p>
+  <h2>Decided in review — Richard, 2026-07-06</h2>
+  <p class="lede">Every open call from v1–v2 is now resolved. This is the record the screens get
+  designed against; the two seams flagged at the end are the only things left to watch in the pilot.</p>
+
+  <div class="qgrid">
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Reach is immutable once published</div>
+      <p>No edits mid-flight — not audience, not tier. The asker can <b>retract</b> anytime
+      (everything vanishes quietly, the slot frees) or let the 14-day close run. Widening happens
+      only through the post-close <span class="uistr">"Open it to the circle"</span> — a new ask, not an edit.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Five open asks at once</div>
+      <p>The anti-spam valve is a total cap, not a per-ask recipient limit. Slots return when an ask
+      ends — resolved, retracted, declined by every recipient, or closed at day 14.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Recipients: asker's choice</div>
+      <p>One or several people per direct ask — the five-slot rule carries the abuse case. One
+      recipient keeps the fully tailored note; several stay personal but recipient-neutral.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Anonymity, per open ask, in v1</div>
+      <p>Each open ask chooses anonymous or named at post time. Anonymous = revealed only to the
+      helper whose offer is accepted; evidence lines derive from the ask's text only.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Give status: no clock, three strikes</div>
+      <p>"Open to helping" never expires on a timer. Three direct asks left to time out unanswered
+      → quiet auto-pause until the helper returns. Any response, accept or decline, resets the count.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Topics: five, editable</div>
+      <p>Up to 5 standing topic chips on Give, add/remove anytime. They drive the AI-suggestion arm
+      and Home's "Needs you this week."</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Messages everywhere have a default</div>
+      <p>Offer notes, accept openers, and decline notes all come as a default line or custom text,
+      AI-helped either way. Declines always carry one — there is no silent pass (next card).</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">No quiet pass — every decline carries a note</div>
+      <p>Declining, on either side, sends a cushioned note: common default reasons
+      (<span class="uistr">"I can't take this on right now"</span>, <span class="uistr">"This one's
+      outside what I can speak to"</span>), custom text, or an AI-shaped line. Supersedes
+      ADR 0011 · D5's invisible pass — record the divergence in the ADR when implementation starts.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Notification popover ships v1</div>
+      <p>The bell surfaces the moments neither side may miss — ask received, offer received,
+      accepted — <b>each shown once</b>. After that they live only in the notification section and
+      Messages; the popover is a tap on the shoulder, not a second inbox.</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Smaller calls</div>
+      <p>Outcome note on resolve: <b>yes</b> — one optional, skippable line. Default Help mode:
+      <b>remember last, Get for first-timers</b>. Weekly digest: <b>not yet</b> — transactional only.
+      global search / ⌘K: <b>removed entirely</b> (search lives per-surface).</p>
+    </div>
+    <div class="qcard">
+      <span class="tag tag-decided">Decided</span>
+      <div class="q">Help and People both stay</div>
+      <p>Split by query shape: People takes person-shaped queries (<span class="uistr">"people who
+      graduated from the West Coast"</span>, <span class="uistr">"working in tech"</span>,
+      <span class="uistr">"with a graduate degree"</span>) → profile, Connect, Message. Help takes
+      need-shaped ones (<span class="uistr">"I'm trying to move from marketing to HR"</span>) →
+      evidence, Ask, and the circle door.</p>
+    </div>
+  </div>
+
+  <div class="aside a-open" style="margin-top:22px">
+    <b>The two seams to watch</b>
+    <p><b>1 · Decline copy is the buffer now.</b> With invisible passes gone, the default reasons
+    carry the whole two-sided mechanism: they must stay no-fault and unranked ("can't right now,"
+    never graded excuses), and the AI must cushion custom notes toward kindness. Watch the pilot for
+    whether visible declines make hesitant members ask less — that fear is why the quiet pass
+    existed. If asking drops, revisit.</p>
+    <p><b>2 · The ADR drift.</b> This supersedes ADR 0011 · D5 (the invisible pass) and narrows the
+    uniform-close mechanic to silence only. Update the ADR in the same change that implements
+    declines, per the code-wins-fix-the-docs rule.</p>
+  </div>
+</section>
+
+<footer>
+  Sources: <code>docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md</code> (draft v1, incl. Richard's
+  2026-07-05 decisions: two-tier reach · anonymous-until-accept · uniform 14-day close · no capacity meter) ·
+  <code>docs/decisions/0011-two-verbs-one-inbox.md</code> (D1–D5) ·
+  <code>docs/experience/explorations/simple-connect-ask-toss-2026-07-02.html</code> (the Door-1 drafting scene).
+  Draft v2 reworked the ask entry to search-first (2026-07-05); draft v3 records Richard's review decisions
+  (2026-07-06): immutable reach, five-slot cap, three-arm give page, capped topics, 3-strike auto-pause,
+  AI-helped default/custom messages, notification popover in v1. Quoted strings follow FLOWS.md's voice-passed
+  copy where they exist; new strings need a voice pass. ADR 0011 amended 2026-07-06 (D5 superseded in part).
+Suggested design order: Help (both modes) → Messages → Home → People → School.
+</footer>
+
+</div>
+
+</html>

@@ -21,10 +21,10 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 **Specs:**
 - `../docs/product/feature-roadmap.md` — phase sequencing and pricing
 - `../docs/decisions/0002-web-first-defer-native.md` — web-first decision and mobile gating criteria
-- `../docs/specs/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
-- `../docs/specs/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
-- `../docs/specs/phase-1/week-3-4.md` — week 3–4 additive features
-- `../docs/specs/phase-1/user-flows.md` — member, mentor, and admin flows with analytics events
+- `../product-spec-obsidian-vault/Production/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
+- `../product-spec-obsidian-vault/Production/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
+- `../product-spec-obsidian-vault/Production/phase-1/week-3-4.md` — week 3–4 additive features
+- `../product-spec-obsidian-vault/Production/phase-1/user-flows.md` — member, mentor, and admin flows with analytics events
 - `../docs/architecture/information-architecture.md` — navigation model, route map, screen-by-screen responsibilities
 
 **Runbooks (read when touching the relevant area):**
@@ -34,8 +34,8 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 - `../docs/presentations/lib-pattern-slides.html` — the `/lib` pattern walkthrough
 
 **Phase 1 launch:**
-- `../docs/specs/phase-1/launch-checklist.md` — end-of-week-2 readiness criteria
-- `../docs/specs/phase-1/post-launch-backlog.md` — deferred items, revisit post-launch
+- `../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md` — end-of-week-2 readiness criteria
+- `../product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md` — deferred items, revisit post-launch
 
 ## Where Things Go
 
@@ -141,7 +141,7 @@ Before declaring a task done:
 - Friendship, asks, and direct messages are separate tracks at the data layer. They share a unified surface on /inbox but the gates differ: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
 - There is ONE ask type (ADR 0011 Phase 2). The `asks.ask_type` enum column still exists until the Phase 6 contract migration; `createAsk` writes the constant `'advice'`. Helper availability is one state: saves write `open_to_advice` and `open_to_mentorship` together, and reads treat either flag as open (`isOpenToHelp` in `lib/utils`). `max_pending_requests` is enforced invisibly in `createAsk` (the abuse valve); `max_active_mentees`, `commitment`, and `screening_prompt`/`screening_answer` are no longer written or read — they drop in Phase 6. The composer is the conversational `chat-composer.tsx` (default) + `request-form.tsx` (`?skip=1`).
 - Use one combined profile in the UI for now. The `base_profile` / `organization_profile` separation lives in the schema for multi-org later (unlocks when Chadwick International onboards as org #2).
-- Field-level privacy UI is week 3+. Until then, hardcode the defaults from `../docs/specs/phase-1/spec.md` (name/year/city/employer/title/university/major org-visible; contact links friends-only) on the read path.
+- Field-level privacy UI is week 3+. Until then, hardcode the defaults from `../product-spec-obsidian-vault/Production/phase-1/spec.md` (name/year/city/employer/title/university/major org-visible; contact links friends-only) on the read path.
 - Mentor inactivity auto-pause: 14 days without responding to any pending request → "paused while away", unpause on next login.
 - Default to web-friendly responsive layouts. Admin tables can be desktop-primary.
 

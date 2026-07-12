@@ -101,7 +101,7 @@ Plus three mentorship requests (one in each of pending, accepted, declined state
 
 All seeded personas are marked as onboarding-complete so signing in lands in the member/admin app instead of the onboarding flow. Iris still keeps intentionally sparse profile fields; use her for profile-completion prompts, not first-run onboarding-step testing.
 
-All passwords are `devseed-password-N` where N is the persona's index in the script, so you can sign in as anyone from `localhost:3000`.
+All passwords are `devseed-password-N` where N is the persona's index in the script, so you can sign in as anyone from `localhost:3001`.
 
 The personas are deliberately recognizable — names like "Felix Atcapacity" and "Iris Incomplete" hint at the scenario they cover. This is more useful than randomly generated names because it lets you remember "ah, that's the at-capacity mentor I'm trying to test" without consulting a key.
 

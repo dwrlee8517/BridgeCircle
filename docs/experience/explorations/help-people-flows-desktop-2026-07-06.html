@@ -1,0 +1,2171 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Recovered from the Claude Code artifact (claude.ai/code/artifact/b4d35575) built 2026-07-06, last revised 2026-07-08.
+     Source of truth for decisions: uploads/FLOWS.md in the bridgecircle design-sync project. -->
+<title>BridgeCircle · Help &amp; People flows — desktop</title>
+<style>
+  :root{
+    --ink:#1c2733; --mut:#5d6b79; --faint:#8b97a3;
+    --paper:#f4f6f8; --card:#ffffff; --line:#dce3e9; --line-soft:#e8edf1;
+    --get:#1f5ed6; --get-deep:#174aa8; --get-wash:#e9f0fc;
+    --give:#177a4b; --give-deep:#0f5c37; --give-wash:#e7f3ec;
+    --amber:#a05f14; --amber-wash:#faf1e1;
+    --sys:#64707c; --sys-wash:#eef1f4;
+    --sans:"Avenir Next","Helvetica Neue",-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --r:10px;
+  }
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+  body{font-family:var(--sans); color:var(--ink); background:var(--paper); font-size:15.5px; line-height:1.65; margin:0}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px 96px}
+  a{color:var(--get-deep)}
+
+  .masthead{padding:64px 0 8px}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); margin:0 0 14px}
+  h1{font-size:clamp(30px,4.4vw,42px); line-height:1.12; letter-spacing:-.015em; font-weight:700; margin:0 0 14px; text-wrap:balance}
+  .meta{font-size:13.5px; color:var(--mut); margin:0 0 26px}
+  .meta code{font-family:var(--mono); font-size:12px; background:var(--sys-wash); padding:1px 6px; border-radius:5px}
+  .model{border-left:3px solid var(--ink); padding:6px 0 6px 20px; max-width:66ch; font-size:17px; line-height:1.55; margin:0 0 12px; text-wrap:balance}
+  .model em{font-style:normal; font-weight:600}
+
+  .jump{position:sticky; top:0; z-index:40; background:color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); margin:26px -28px 0; padding:10px 28px; display:flex; gap:4px; flex-wrap:wrap}
+  .jump a{font-size:13px; font-weight:600; color:var(--mut); text-decoration:none; padding:5px 11px; border-radius:999px}
+  .jump a:hover{background:var(--sys-wash); color:var(--ink)}
+  .jump a:focus-visible{outline:2px solid var(--get); outline-offset:1px}
+
+  section{margin-top:72px; scroll-margin-top:64px}
+  .sec-eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); margin:0 0 8px; display:flex; align-items:center; gap:10px}
+  .sec-eyebrow::after{content:""; height:1px; background:var(--line); flex:1}
+  h2{font-size:26px; letter-spacing:-.01em; margin:0 0 10px; text-wrap:balance}
+  h3{font-size:17px; margin:0 0 8px}
+  .lede{color:var(--mut); max-width:70ch; margin:0 0 28px}
+  .lede b{color:var(--ink)}
+  .journey-get h2{color:var(--get-deep)} .journey-give h2{color:var(--give-deep)}
+  .journey-get .sec-eyebrow{color:var(--get)} .journey-give .sec-eyebrow{color:var(--give)}
+
+  .tag{display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:600; padding:2px 8px; border-radius:5px; vertical-align:2px}
+  .tag-decided{background:var(--give-wash); color:var(--give-deep)}
+  .tag-open{background:var(--amber-wash); color:var(--amber)}
+  .tag-adr{background:var(--sys-wash); color:var(--sys)}
+  .tag-desk{background:#e9eefb; color:#3b4a8f}
+  .route{font-family:var(--mono); font-size:12.5px; background:var(--sys-wash); padding:1px 7px; border-radius:5px; white-space:nowrap}
+  .uistr{background:var(--sys-wash); border-radius:6px; padding:1px 7px; font-size:.94em; font-style:italic; color:var(--ink); box-decoration-break:clone; -webkit-box-decoration-break:clone}
+  .g-get .uistr{background:var(--get-wash)} .g-give .uistr{background:var(--give-wash)}
+
+  /* ------- page card (desktop layout: frame on top, steps below) ------- */
+  .page-card{background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  .pc-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; padding:16px 24px; border-bottom:1px solid var(--line-soft)}
+  .g-get .pc-head{background:var(--get-wash)} .g-give .pc-head{background:var(--give-wash)} .g-ppl .pc-head{background:var(--sys-wash)}
+  .pc-num{font-family:var(--mono); font-weight:700; font-size:13px; letter-spacing:.06em}
+  .g-get .pc-num{color:var(--get-deep)} .g-give .pc-num{color:var(--give-deep)} .g-ppl .pc-num{color:var(--ink)}
+  .pc-title{font-size:18px; font-weight:700; letter-spacing:-.01em}
+  .pc-sub{font-size:13px; color:var(--mut); flex-basis:100%}
+  .pc-wire{padding:18px; background:#fbfcfd; border-bottom:1px solid var(--line-soft)}
+  .pc-steps{padding:20px 26px 24px}
+  .flow-next{display:flex; flex-direction:column; align-items:center; gap:6px; padding:20px 0}
+  .flow-next .fl-line{width:2px; height:22px; background:var(--line)}
+  .flow-next .fl-evt{font-family:var(--mono); font-size:11.5px; letter-spacing:.06em; color:var(--mut); background:var(--card); border:1px solid var(--line); border-radius:999px; padding:4px 14px}
+
+  /* ------- desktop frame ------- */
+  .frame{border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff; display:flex; font-size:10.5px; box-shadow:0 1px 3px rgba(25,31,40,.05); position:relative}
+  .f-side{width:128px; flex:none; background:#fbfcfd; border-right:1px solid var(--line-soft); padding:10px 8px; display:flex; flex-direction:column; gap:2px}
+  .f-side.rail{width:36px; align-items:center}
+  .f-side.rail .f-nav{width:20px; height:20px; padding:0; border-radius:6px}
+  .f-logo{font-weight:800; font-size:11px; padding:0 8px 8px; letter-spacing:-.02em}
+  .f-logo i{color:var(--get); font-style:normal}
+  .f-nav{padding:5px 9px; border-radius:7px; color:var(--mut); font-weight:600; display:flex; align-items:center; gap:6px}
+  .f-nav.on{background:linear-gradient(180deg,#eaf4ff,#e2efff); color:var(--get-deep)}
+  .g-give .f-nav.on{background:linear-gradient(180deg,#e0f5ea,#d5efe2); color:var(--give-deep)}
+  .f-nav .cnt{margin-left:auto; background:var(--get); color:#fff; border-radius:8px; padding:0 5px; font-size:8px; font-weight:700}
+  .f-me{margin-top:auto; display:flex; gap:6px; align-items:center; padding:8px 8px 0; border-top:1px solid var(--line-soft); font-weight:600; font-size:9.5px; color:var(--mut)}
+  .f-me i{width:16px; height:16px; border-radius:50%; background:linear-gradient(135deg,#3b8bf7,#2272eb); flex:none; font-style:normal}
+  .f-main{flex:1; display:flex; flex-direction:column; min-width:0}
+  .f-top{height:30px; border-bottom:1px solid var(--line-soft); display:flex; align-items:center; gap:8px; padding:0 12px; background:#fff}
+  .f-title{font-weight:700; font-size:11px}
+  .f-search{margin-left:auto; background:var(--sys-wash); border-radius:999px; padding:3px 10px; color:var(--faint); font-size:9px; display:flex; gap:6px; align-items:center}
+  .f-search b{font-family:var(--mono); font-weight:600; font-size:8px; background:#fff; border-radius:4px; padding:0 4px; color:var(--mut)}
+  .f-bell{width:18px; height:18px; border-radius:50%; box-shadow:inset 0 0 0 1px var(--line); position:relative; flex:none}
+  .f-bell::after{content:""; position:absolute; top:2px; right:2px; width:5px; height:5px; border-radius:50%; background:#e0245e}
+  .f-body{flex:1; padding:12px 14px; min-width:0; position:relative}
+  .f-hero{border-radius:9px; padding:9px 12px; margin-bottom:10px; display:flex; align-items:center; gap:10px}
+  .g-get .f-hero{background:linear-gradient(180deg,var(--get-wash),#fff)}
+  .g-give .f-hero{background:linear-gradient(180deg,var(--give-wash),#fff)}
+  .f-cols{display:flex; gap:12px; align-items:flex-start}
+  .f-col-main{flex:1; min-width:0}
+  .f-col-rail{width:33%; flex:none}
+  .f-dim{position:absolute; inset:0; background:rgba(28,39,51,.28); display:flex; align-items:center; justify-content:center; border-radius:0}
+  .f-modal{background:#fff; border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.2); padding:13px 15px; width:56%}
+  .f-list{width:34%; flex:none; border-right:1px solid var(--line-soft); padding-right:10px}
+  .f-thread{flex:1; min-width:0; padding:0 10px}
+  .f-ctx{width:27%; flex:none; border-left:1px solid var(--line-soft); padding-left:10px}
+
+  /* ------- wire atoms (shared with the narrow edition) ------- */
+  .w-card{border:1px solid var(--line); border-radius:9px; background:#fff; padding:9px 11px; position:relative}
+  .w-coach{font-size:10px; color:var(--faint); font-style:italic; margin-bottom:6px}
+  .w-line{height:6px; border-radius:4px; background:var(--line-soft); margin:5px 0}
+  .w-line.dk{background:var(--line)}
+  .w-40{width:40%}.w-55{width:55%}.w-70{width:70%}.w-85{width:85%}
+  .w-chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:7px}
+  .w-chip{border:1px solid var(--line); border-radius:999px; padding:1px 8px; font-size:9.5px; color:var(--mut); background:#fff}
+  .w-chip.sel{border-color:currentColor}
+  .g-get .w-chip.sel{color:var(--get-deep); background:var(--get-wash)}
+  .g-give .w-chip.sel{color:var(--give-deep); background:var(--give-wash)}
+  .g-ppl .w-chip.sel{color:var(--ink); background:var(--sys-wash); border-color:var(--sys)}
+  .w-label{font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:6px}
+  .w-seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+  .w-seg span{text-align:center; padding:4px 10px; font-size:9.5px; font-weight:600; color:var(--mut); border-right:1px solid var(--line)}
+  .w-seg span:last-child{border-right:none}
+  .w-seg .on{color:#fff}
+  .g-get .w-seg .on{background:var(--get)} .g-ppl .w-seg .on{background:var(--ink)}
+  .w-row{display:flex; align-items:center; gap:8px; padding:6px 0}
+  .w-row + .w-row{border-top:1px solid var(--line-soft)}
+  .w-ava{width:22px; height:22px; border-radius:50%; flex:none; background:linear-gradient(135deg,#c9d6ea,#a8bcd8); display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700}
+  .w-ava.anon{background:repeating-linear-gradient(45deg,var(--line-soft),var(--line-soft) 3px,#fff 3px,#fff 6px); border:1px dashed var(--line)}
+  .w-who{flex:1; min-width:0}
+  .w-name{font-weight:600; font-size:10.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .w-ev{font-size:9.5px; color:var(--mut); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .w-btn{border-radius:7px; padding:3px 9px; font-size:9.5px; font-weight:600; white-space:nowrap; flex:none; border:1px solid var(--line); color:var(--mut); background:#fff}
+  .w-btn.pri{color:#fff; border:none}
+  .g-get .w-btn.pri{background:var(--get)} .g-give .w-btn.pri{background:var(--give)} .g-ppl .w-btn.pri{background:var(--ink)}
+  .w-btn.soft{border:none}
+  .g-get .w-btn.soft{background:var(--get-wash); color:var(--get-deep)}
+  .g-give .w-btn.soft{background:var(--give-wash); color:var(--give-deep)}
+  .g-ppl .w-btn.soft{background:var(--sys-wash); color:var(--ink)}
+  .w-cta{display:inline-block; border-radius:8px; padding:6px 16px; font-weight:700; font-size:10.5px; color:#fff; border:none}
+  .g-get .w-cta{background:var(--get)} .g-give .w-cta{background:var(--give)} .g-ppl .w-cta{background:var(--ink)}
+  .w-toggle{display:flex; align-items:center; gap:6px; font-size:10px; color:var(--mut)}
+  .w-knob{width:24px; height:14px; border-radius:999px; background:var(--line); position:relative; flex:none}
+  .w-knob::after{content:""; position:absolute; width:10px; height:10px; border-radius:50%; background:#fff; top:2px; left:2px; box-shadow:0 1px 2px rgba(0,0,0,.2)}
+  .w-knob.on::after{left:auto; right:2px}
+  .g-get .w-knob.on{background:var(--get)} .g-give .w-knob.on{background:var(--give)}
+  .w-sys{font-size:9.5px; color:var(--sys); text-align:center; font-style:italic; padding:4px 0}
+  .w-state{font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; color:var(--faint); text-transform:uppercase; flex:none}
+  .w-count{font-family:var(--mono); font-size:9px; color:var(--mut)}
+  .w-bubble{border-radius:9px; padding:6px 9px; margin:4px 0; max-width:80%; background:var(--sys-wash); font-size:9.5px; color:var(--mut)}
+  .w-bubble.me{margin-left:auto; color:#fff}
+  .g-get .w-bubble.me{background:var(--get)}
+  .co{display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; border-radius:50%; color:#fff; font-size:10px; font-weight:700; font-family:var(--mono); flex:none; line-height:1}
+  .g-get .co{background:var(--get)} .g-give .co{background:var(--give)} .g-ppl .co, .g-sys .co, .co.sys{background:var(--sys)}
+  .co-float{position:absolute; top:8px; right:8px; z-index:2}
+
+  /* ------- steps (two-column on wide) ------- */
+  .steps{list-style:none; margin:0; padding:0; counter-reset:step; display:grid; grid-template-columns:1fr 1fr; gap:14px 36px}
+  @media (max-width:880px){.steps{grid-template-columns:1fr}}
+  .steps>li{counter-increment:step; position:relative; padding:0 0 0 32px; font-size:14px}
+  .steps>li::before{content:counter(step); position:absolute; left:0; top:1px; width:19px; height:19px; border-radius:50%; color:#fff; font-size:11px; font-weight:700; font-family:var(--mono); display:flex; align-items:center; justify-content:center}
+  .g-get .steps>li::before{background:var(--get)} .g-give .steps>li::before{background:var(--give)} .g-ppl .steps>li::before{background:var(--sys)} .g-sys .steps>li::before{background:var(--sys)}
+  .steps b{font-weight:700}
+  .steps .sub{color:var(--mut); font-size:13px; margin-top:3px}
+
+  .aside{border:1px solid var(--line); border-left-width:3px; border-radius:0 var(--r) var(--r) 0; background:var(--card); padding:14px 18px; margin:22px 0; font-size:13.5px; max-width:80ch}
+  .aside.a-buffer{border-left-color:var(--give)}
+  .aside.a-open{border-left-color:var(--amber); background:linear-gradient(180deg,var(--amber-wash),var(--card) 120%)}
+  .aside.a-sys{border-left-color:var(--sys)}
+  .aside b:first-child{display:block; margin-bottom:2px}
+  .aside p{margin:4px 0; color:var(--mut)}
+  .aside p b{color:var(--ink); display:inline}
+
+  /* ------- lifecycle / timeline / audit / decisions (ported) ------- */
+  .state-scroll{overflow-x:auto; padding:4px 0 10px}
+  .statemap{min-width:900px; display:flex; align-items:center}
+  .st{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:10px 14px; min-width:128px; flex:none}
+  .st .st-k{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+  .st .st-t{font-weight:700; font-size:13.5px}
+  .st .st-s{font-size:11.5px; color:var(--mut); line-height:1.45}
+  .st.term{border-style:dashed; background:var(--paper)}
+  .st.hot{border-color:var(--get); box-shadow:0 0 0 1px var(--get) inset}
+  .st-arrow{flex:none; padding:0 8px; color:var(--faint); font-family:var(--mono); font-size:10.5px; text-align:center; line-height:1.4; max-width:120px}
+  .st-arrow .ar{font-size:16px; color:var(--mut); display:block}
+  .st-stack{display:flex; flex-direction:column; gap:8px; flex:none}
+  .tl-scroll{overflow-x:auto; padding-bottom:8px}
+  .timeline{min-width:840px; display:grid; grid-template-columns:88px repeat(4,1fr); border:1px solid var(--line); border-radius:12px; background:var(--card); overflow:hidden}
+  .tl-cell{padding:12px 14px; border-top:1px solid var(--line-soft); border-left:1px solid var(--line-soft); font-size:12.5px; min-height:52px}
+  .tl-day{border-top:none; font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); font-weight:600; background:var(--paper)}
+  .tl-day b{display:block; font-size:14px; color:var(--ink); font-variant-numeric:tabular-nums}
+  .tl-role{border-left:none; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; display:flex; align-items:center}
+  .tl-role.r-ask{color:var(--get-deep)} .tl-role.r-sys{color:var(--sys)} .tl-role.r-help{color:var(--give-deep)}
+  .tl-cell .evt{border-radius:7px; padding:5px 9px; font-size:11.5px; line-height:1.45; margin:2px 0; display:block}
+  .evt.e-get{background:var(--get-wash); color:var(--get-deep)}
+  .evt.e-give{background:var(--give-wash); color:var(--give-deep)}
+  .evt.e-sys{background:var(--sys-wash); color:var(--sys)}
+  .evt.e-hot{outline:1.5px solid var(--get); outline-offset:1px}
+  .tl-cell .quiet{color:var(--faint); font-style:italic; font-size:11.5px}
+  .tbl-scroll{overflow-x:auto}
+  table.audit{border-collapse:collapse; width:100%; min-width:720px; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:13.5px}
+  .audit th{text-align:left; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--mut); font-weight:600; padding:11px 16px; background:var(--paper); border-bottom:1px solid var(--line)}
+  .audit td{padding:11px 16px; border-bottom:1px solid var(--line-soft); vertical-align:top; line-height:1.5}
+  .audit tr:last-child td{border-bottom:none}
+  .audit td:first-child{font-weight:600; white-space:nowrap}
+  .audit .see-ask{color:var(--get-deep)} .audit .see-help{color:var(--give-deep)}
+  .audit .none{color:var(--faint); font-style:italic}
+  .audit .mech{font-family:var(--mono); font-size:11px; color:var(--sys)}
+  .qgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px}
+  .qcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; font-size:13.5px}
+  .qcard .q{font-weight:700; margin:6px 0 6px}
+  .qcard p{margin:5px 0; color:var(--mut); font-size:13px}
+  .qcard p b{color:var(--ink)}
+  footer{margin-top:80px; border-top:1px solid var(--line); padding-top:18px; font-size:12.5px; color:var(--mut)}
+  footer code{font-family:var(--mono); font-size:11.5px}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">BridgeCircle · Member webapp redesign · Help &amp; People flows · Desktop edition</p>
+  <h1>The flows at desktop width — what the wide screen changes</h1>
+  <p class="meta">
+    Companion to the page-by-page flow spec (same decisions, draft v3 record, 2026-07-06). This
+    edition draws every page inside the member shell — <code>E3</code>: 240px sidebar (72px icon
+    rail), 66px topbar (title + bell, no global search), 1320px container — because the pilot is a
+    <b>desktop-first web app</b>. It now covers <b>all member flows</b>: Home, Help, People,
+    Messages, School, Profile, plus <b>Journey G</b> — onboarding, cold-start, notifications,
+    settings, trust &amp; safety, circle, ask history — and one <b>navigation model</b>. The narrow
+    edition remains the step-by-step spec; this one answers <b>what sits beside what</b>.
+  </p>
+  <p class="model">A member can do two things to another member — <em>Connect</em> or <em>Ask</em>.
+  If you don't know who to ask, <em>ask the circle</em>. Every accepted intro becomes an ordinary
+  conversation in Messages.</p>
+</header>
+
+<nav class="jump" aria-label="Sections">
+  <a href="#shell">The shell</a>
+  <a href="#home">Home</a>
+  <a href="#ask">Asking</a>
+  <a href="#give">Giving</a>
+  <a href="#people">People</a>
+  <a href="#messages">Messages</a>
+  <a href="#school">School</a>
+  <a href="#tissue">Onboarding &amp; connective tissue</a>
+  <a href="#nav">Navigation model</a>
+  <a href="#lifecycle">Lifecycle</a>
+  <a href="#buffer">Buffer audit</a>
+  <a href="#calls">Decisions</a>
+</nav>
+
+<!-- ============================================================ SHELL -->
+<section id="shell" class="g-sys">
+  <p class="sec-eyebrow">Section 0 · every signed-in screen</p>
+  <h2>The shell — sidebar, topbar, and the bell</h2>
+  <p class="lede">Everything below lives inside this frame. The sidebar is the constant; the topbar
+  carries the page title, the one global search, and the bell. Nothing else competes for chrome.</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">SHELL</span>
+      <span class="pc-title">The member shell</span>
+      <span class="route">E3 · 240px sidebar · 66px topbar · 1320 container</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame" style="min-height:240px">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle <span class="co">1</span></div>
+          <div class="f-nav on">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Home</span><span class="co">2</span><span style="flex:1"></span><span class="f-bell"></span><span class="co">3</span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-card"><span class="co co-float">4</span><div class="w-label">What do you need?</div><div class="w-line dk w-55"></div></div>
+                <div class="w-card" style="margin-top:8px"><div class="w-label">Needs you this week</div><div class="w-line w-70"></div><div class="w-line w-55"></div></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card"><div class="w-label">Waiting on you</div><div class="w-line w-70"></div></div>
+                <div class="w-card" style="margin-top:8px"><div class="w-label">Your open asks · 3 of 5</div><div class="w-line w-55"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Sidebar, 240px.</b> Home · Help · People · Messages (unread count) · School, member card at the bottom (→ own profile &amp; settings). Collapses to a 72px icon rail when a context rail needs the room (Messages).</li>
+        <li><b>Topbar, 66px.</b> <span class="tag tag-decided">Global search / ⌘K removed 2026-07-06</span> Page title · the bell · self avatar — nothing else. No global command palette; search lives on the surfaces that need it (People's capsule, Help's question box), not as a topbar-wide feature.</li>
+        <li><b>The bell popover.</b> <span class="tag tag-decided">Decided 2026-07-06</span> Surfaces the moments neither side may miss — ask received, offer received, accepted, decline notes — <b>each shown once</b>, deep-linking. Then they live only in notifications and Messages.</li>
+        <li><b>Home is a doorway, not a destination.</b> Ask entry, "Needs you this week", "Waiting on you", "Your open asks" (with the ambient <span class="uistr">3 of 5</span> slot count), school pulse. Nothing completes on Home except accept/decline on connect requests.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ HOME -->
+<section id="home" class="g-sys">
+  <p class="sec-eyebrow">Journey F · the landing</p>
+  <h2>Home — the dashboard</h2>
+  <p class="lede">Home is <b>pure composition</b>: every module is specced elsewhere; here they're
+  arranged. Its job is to orient and hand you the next useful relationship action — <b>not a feed,
+  not analytics, not a second inbox</b>. Everything is a doorway; the only thing that completes on
+  Home is accept/decline on a connect request. <span class="tag tag-decided">Decided 2026-07-06 · IA locked: Home = dashboard, Help = ask/give page — the two never merge</span></p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">ONE PAGE · 2 COLUMNS</span>
+      <span class="pc-title">Home</span>
+      <span class="route">/</span>
+      <span class="pc-sub">Revised order (Richard 2026-07-06): the circle's pulse first — one rotating "This week in the circle" spotlight tops the page — then act (ask entry, waiting, open asks), rail = context.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav on">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Home</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div style="position:relative"><span class="co co-float">1</span>
+              <div style="font-size:13px; font-weight:800; letter-spacing:-.01em">Welcome back, Maren.</div>
+              <div style="font-size:10px; color:var(--mut); font-style:italic">Quiet week. 3 new alumni joined and 1 mentor refreshed their profile.</div>
+            </div>
+            <div style="margin-top:10px; position:relative"><span class="co co-float">2</span>
+              <div class="w-label" style="display:flex; align-items:center">This week in the circle</div>
+              <div class="w-card" style="border-top:3px solid var(--give); position:relative; padding-bottom:14px">
+                <div style="display:flex; align-items:center; gap:7px">
+                  <span style="font-size:8px; font-weight:700; color:var(--give-deep); letter-spacing:.08em; background:var(--give-wash); border-radius:5px; padding:2px 7px">YOU COULD HELP</span>
+                  <span style="margin-left:auto; font-size:8px; color:var(--faint)">⏸ pauses on hover · ‹ › · More →</span>
+                </div>
+                <div style="font-size:11px; margin-top:6px; line-height:1.4; font-weight:600">"Breaking into design — is a portfolio review worth it?"</div>
+                <div class="w-ev" style="margin-top:2px">A member · '27 · fits your "hiring" topic</div>
+                <button class="w-btn" type="button" style="background:var(--give-wash); color:var(--give-deep); border:none; margin-top:7px">Offer to help</button>
+                <div style="position:absolute; bottom:7px; left:0; right:0; display:flex; justify-content:center; gap:4px">
+                  <span style="width:12px; height:3px; border-radius:2px; background:var(--give)"></span>
+                  <span style="width:3px; height:3px; border-radius:2px; background:var(--line)"></span>
+                  <span style="width:3px; height:3px; border-radius:2px; background:var(--line)"></span>
+                  <span style="width:3px; height:3px; border-radius:2px; background:var(--line)"></span>
+                  <span style="width:3px; height:3px; border-radius:2px; background:var(--line)"></span>
+                  <span style="width:3px; height:3px; border-radius:2px; background:var(--line)"></span>
+                </div>
+              </div>
+              <div style="display:flex; gap:5px; margin-top:6px; flex-wrap:wrap">
+                <span class="w-chip" style="font-size:8px; color:var(--get-deep); border-color:var(--get)">People are asking</span>
+                <span class="w-chip" style="font-size:8px">School news</span>
+                <span class="w-chip" style="font-size:8px">Events</span>
+                <span class="w-chip" style="font-size:8px">Recognition</span>
+                <span class="w-chip" style="font-size:8px">From your circle</span>
+                <span class="w-chip" style="font-size:8px; color:var(--sys)">It worked</span>
+              </div>
+            </div>
+            <div class="f-cols" style="margin-top:11px">
+              <div class="f-col-main">
+                <div class="w-card" style="position:relative; display:flex; align-items:center; gap:8px"><span class="co co-float">3</span>
+                  <span style="flex:1; color:var(--faint); font-size:10.5px">What do you need?</span>
+                  <button class="w-btn pri" type="button" style="background:var(--get)">Ask</button>
+                </div>
+                <div class="w-card" style="margin-top:9px; position:relative"><span class="co co-float">4</span>
+                  <div class="w-label" style="display:flex; align-items:center; gap:5px">Waiting on you <span style="background:#e0245e; color:#fff; border-radius:8px; padding:0 5px; font-size:8px; font-weight:700">2</span><span style="margin-left:auto; color:var(--faint)">▾</span></div>
+                  <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#b01824;background:#fdebee">AR</div><div class="w-who"><div class="w-name">● Alex Rivera · asked you</div></div><button class="w-btn soft" type="button" style="background:var(--sys-wash); color:var(--ink)">View ask</button></div>
+                  <div class="w-row"><div class="w-ava" style="color:#4e5968;background:#f2f4f6">PN</div><div class="w-who"><div class="w-name">Priya Nair · wants to connect</div></div><button class="w-btn pri" type="button" style="background:var(--ink)">Accept</button><button class="w-btn" type="button">Decline</button></div>
+                </div>
+                <div class="w-card" style="margin-top:9px; position:relative"><span class="co co-float">5</span>
+                  <div class="w-label" style="display:flex; align-items:center">Your open asks <span style="margin-left:auto; color:var(--faint)">3 of 5</span></div>
+                  <div class="w-row" style="border-top:none"><div class="w-who"><div class="w-name">Portfolio feedback</div><div class="w-ev">Sent Tuesday</div></div><span class="w-chip sel" style="color:var(--get-deep); background:var(--get-wash); border-color:var(--get)">2 offers</span></div>
+                  <div class="w-row"><div class="w-who"><div class="w-name">Sublet advice</div><div class="w-ev">Sent yesterday</div></div><span class="w-chip">Waiting</span></div>
+                  <div class="w-row"><div class="w-who"><div class="w-name">Intro to a PM</div><div class="w-ev">Sent last week</div></div><span class="w-chip" style="color:var(--amber); background:var(--amber-wash)">Closes in 3d</span></div>
+                </div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">6</span>
+                  <div class="w-label" style="display:flex; align-items:center">From the school <span style="margin-left:auto; color:var(--get-deep); font-weight:700">School →</span></div>
+                  <div class="w-row" style="border-top:none"><div style="flex:none; width:26px; text-align:center; background:linear-gradient(180deg,#eef5ff,#e2eeff); box-shadow:inset 0 0 0 1px rgba(49,130,246,.16); border-radius:6px; padding:2px 0; line-height:1.05"><div style="font-size:6.5px; font-weight:800; color:var(--get)">MAY</div><div style="font-size:11px; font-weight:800">14</div></div><div class="w-who"><div class="w-name">Spring Mixer</div><div class="w-ev">Thu 6 PM · Main Court</div></div><span class="w-chip" style="color:var(--give-deep); background:var(--give-wash)">Going</span></div>
+                  <div class="w-row"><div style="flex:none; width:26px; text-align:center; background:linear-gradient(180deg,#eef5ff,#e2eeff); box-shadow:inset 0 0 0 1px rgba(49,130,246,.16); border-radius:6px; padding:2px 0; line-height:1.05"><div style="font-size:6.5px; font-weight:800; color:var(--get)">MAY</div><div style="font-size:11px; font-weight:800">19</div></div><div class="w-who"><div class="w-name">Founders Dinner</div><div class="w-ev">Tue 7 PM · The Riviera</div></div></div>
+                  <div style="border-top:1px solid var(--line-soft); margin-top:6px; padding-top:6px"><div style="font-size:9.5px; font-weight:700">Mentorship cohort opens Friday</div><div class="w-ev">Announcement · pinned</div></div>
+                </div>
+                <div class="w-card" style="margin-top:9px; position:relative"><span class="co co-float">7</span>
+                  <div class="w-label">Profile freshness</div>
+                  <div class="w-ev" style="white-space:normal">We found a change — a new role at Figma. Approve?</div>
+                  <div style="display:flex; gap:5px; margin-top:6px"><button class="w-btn pri" type="button" style="background:var(--ink)">Review</button><button class="w-btn" type="button">Dismiss</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Greeting + the coordinator's line.</b> <span class="tag tag-decided">Decided 2026-07-06</span> <span class="uistr">"Welcome back, Maren."</span> then one warm templated sentence of network pulse — <span class="uistr">"Quiet week. 3 new alumni joined and 1 mentor refreshed their profile."</span> A single narrator sentence over weekly counts, never a stream — and it reads as the deck's caption: the line says what kind of week it is, the cards show it.</li>
+        <li><b>"This week in the circle" — one rotating spotlight, the first component.</b> <span class="tag tag-decided">Decided 2026-07-06 · single wide card, not three</span> A single wide card that auto-advances every ~6s through tagged items — one focal object carrying the whole pulse of the circle, far more variety than asks alone: <b style="color:var(--give-deep)">You could help</b> (topic-matched open asks, Offer — absorbs "Needs you this week") · <b style="color:var(--get-deep)">People are asking</b> (public/anonymous asks near your cohort — the <i>permission mechanic</i>: seeing a '24 ask about salary anonymously answers "is it okay to ask this here?"; action <span class="uistr">"Ask yours"</span> → seeds Help·Get) · <b>School news</b> · <b>Events</b> · <b>Recognition</b> (warm milestones only — <span class="uistr">"Maya just started at Figma — congratulate her"</span>; <b>never a helper leaderboard</b>, no counts/ranking — that's the scoreboard we banned) · <b>From your circle</b> (a connected member's update) · <b style="color:var(--sys)">It worked</b> (consented outcome stories, names hidden unless both said so).
+          <div class="sub"><b>Making the rotation safe (not a feed):</b> <b>pauses on hover/focus</b> so an action never slides away mid-reach · <b>respects <span class="route">prefers-reduced-motion</span></b> — no auto-advance, manual only · dot indicators + ‹ › arrows for manual control · <b>~6-item cap</b>, <span class="uistr">"More →"</span> exits to the relevant page (Help·Give browse, School), never infinite · public-tier asks only, anonymity as specced · no popularity ranking. It optimizes <i>time-to-action</i>, not time-on-page. <b>Paused members</b> see no You-could-help items; a quiet one-liner sits beneath (<span class="uistr">"You're paused — flip the switch on Help·Give when you're ready"</span>).</div></li>
+        <li><b>Ask entry — a live input, directly beneath the deck.</b> <span class="tag tag-decided">Decided 2026-07-06</span> <span class="uistr">"What do you need?"</span> as a real one-line field: typing carries the text into Help·Get's question box with matches already loading — write once, everywhere. A deck card's <span class="uistr">"Ask yours"</span> lands here too, pre-seeded.</li>
+        <li><b>Waiting on you</b> — the <b>same</b> foldable, red-badged group as Messages (same name, same data): direct asks (<span class="uistr">"View ask"</span> → the accept/decline dialog) and connect requests (Accept / Decline inline — the one thing that completes on Home). Empty → the whole module disappears, never an empty shell.</li>
+        <li><b>Your open asks</b> — status pills in the vocabulary the redesign settled: <span class="uistr">2 offers</span> / <span class="uistr">Waiting</span> / <span class="uistr">1 declined</span> / <span class="uistr">Closes in 3d</span>, header carrying the ambient <span class="uistr">3 of 5</span> slot count. Row → the ask's status view.</li>
+        <li><b>From the school (rail)</b> — next 2 events (date tile, Going chip, → event page) + newest/pinned announcement (→ reading page). No newsletter here — School's card owns it. Everything clicks straight through.</li>
+        <li><b>Profile freshness (rail)</b> — appears only when enrichment has something to approve; one card → the owner-only review queue. Absent otherwise — never a standing chore.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="aside a-sys">
+    <b>What Home deliberately doesn't have</b>
+    <p>No activity feed or stream (the loss condition in miniature) · no stats or "you've helped N
+    people" (the same scoreboard rule as profiles) · no "members you may know" carousel (that's
+    People's job — Home shows people only when attached to an action) · no notifications list (the
+    bell exists; duplicating it makes both untrustworthy) · no lingering onboarding checklist · no
+    second search box (the ask entry is need-shaped, and per-surface search lives on People and
+    Help; there's no global palette). Home earns trust by holding only what's <b>true and actionable
+    this week</b>.</p>
+    <p><b>Why the rotating spotlight isn't a feed:</b> it auto-advances — the one motion we allow —
+    but it's fenced so the motion serves glancing, not capture: it pauses on hover/focus (so an
+    action never slides out from under you), honors reduced-motion, is manually steerable, capped at
+    ~6 items, ranked by nothing, and every "More →" exits to a real page instead of scrolling
+    deeper. A feed optimizes time-on-page; the spotlight optimizes <b>time-to-action</b>. Any tag
+    that stops producing offers, asks, or clicks comes out.</p>
+  </div>
+</section>
+
+<!-- ============================================================ ASK -->
+<section id="ask" class="journey-get g-get">
+  <p class="sec-eyebrow">Journey A · the asker</p>
+  <h2>Asking for help</h2>
+  <p class="lede">Search-first: question → people + reasons → one person (tailored note) or the
+  circle (reach + cover). <b>What desktop changes:</b> the question, the matches, and the circle
+  door share one screen — the asker never commits blind, and never scrolls to find the exit.</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1 · FIND</span>
+      <span class="pc-title">Help · Get — search the question</span>
+      <span class="route">/help</span>
+      <span class="pc-sub">Everything visible at once: box, matches with reasons, and the circle door as a persistent right card.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav on">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Help</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-hero"><span class="w-seg"><span class="on">Get help</span><span>Give help</span></span><b style="font-size:12px">What do you need?</b><span class="co" style="margin-left:auto">1</span></div>
+            <div class="w-card" style="display:flex; align-items:center; gap:8px">
+              <span style="flex:1; font-size:10.5px">How do I move from an agency to an in-house product role without a referral?</span>
+              <button class="w-btn pri" type="button">Search</button>
+            </div>
+            <div class="f-cols" style="margin-top:10px">
+              <div class="f-col-main">
+                <div class="w-label"><span class="co" style="margin-right:4px">2</span> People who can speak to it</div>
+                <div class="w-row"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14 · ● Open to help</div><div class="w-ev">Made the agency → in-house jump in 2018</div></div><button class="w-btn pri" type="button">Ask Maya</button><span class="co">4</span></div>
+                <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">JP</div><div class="w-who"><div class="w-name">Jordan Park · '11 · In your circle</div><div class="w-ev">Hires designers at a Series B — moved without a referral herself</div></div><button class="w-btn" type="button">Ask</button></div>
+                <div class="w-row"><div class="w-ava" style="color:#0b8a57;background:#e7f8f0">SO</div><div class="w-who"><div class="w-name">Sam Okafor · '09</div><div class="w-ev">Ran design at two startups; hired from agencies</div></div><button class="w-btn" type="button">Ask</button></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="text-align:center; position:relative"><span class="co co-float">3</span>
+                  <div style="font-size:10px; color:var(--mut); margin:4px 0 6px">Don't see the right person?</div>
+                  <button class="w-btn soft" type="button">Ask the circle</button>
+                  <div style="font-size:9px; color:var(--faint); margin-top:6px">We'll show it to people who can help</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>One box, question-first.</b> Headline <span class="uistr">"What do you need?"</span>, coach line <span class="uistr">"Ask it the way it comes out — we'll find who can help."</span> Nothing on this page is sent to anyone.</li>
+        <li><b>Matches, with reasons</b> — question-specific evidence lines, status chips. Copy says <i>"can speak to it,"</i> never <i>"will help."</i> Results are private to the asker: nobody learns they appeared and weren't asked.</li>
+        <li><b>The circle door is a persistent card</b>, not a bottom-of-scroll fallback. <span class="tag tag-desk">Desktop</span> It sits beside the results the whole time, and becomes the primary action when matching runs thin.</li>
+        <li><b>Choose the road.</b> Tap a person → Branch A composer (more people can be added there). Tap the circle → Branch B. The question travels either way — never retyped.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">Branch A — tapped a person</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1A · PERSON BRANCH</span>
+      <span class="pc-title">The composer — drafting together</span>
+      <span class="route">/help · composer state</span>
+      <span class="pc-sub">Desktop keeps who-you're-asking beside what-you're-writing — the note is tailored, and you can see to whom, the whole time.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav on">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Help · Ask Maya</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-label"><span class="co" style="margin-right:4px">1</span> Drafting together</div>
+                <div class="w-bubble">I brought your question over. Anything you want Maya to know — where you are now, what you've tried?</div>
+                <div class="w-bubble me"><div class="w-line w-70" style="margin:2px 0; background:rgba(255,255,255,.45)"></div></div>
+                <div class="w-card" style="margin-top:6px; position:relative"><span class="co co-float">2</span>
+                  <div class="w-label">Draft — tailored to you both</div>
+                  <div class="w-line dk w-85"></div><div class="w-line dk w-70"></div><div class="w-line dk w-55"></div>
+                </div>
+                <div class="w-chips"><span class="w-chip">Warmer</span><span class="w-chip">Shorter</span><span class="w-chip">+ Add another person</span></div>
+                <div style="margin-top:10px; display:flex; align-items:center; gap:10px"><span class="co">3</span><button class="w-cta" type="button">Send to Maya</button><span style="font-size:9.5px; color:var(--sys); font-style:italic">Maya will answer either way — a yes, or a kind note</span></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">Who you're asking</div>
+                  <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14</div><div class="w-ev">Design Lead · Figma</div></div></div>
+                  <div class="w-ev" style="white-space:normal; margin-top:4px">Made the agency → in-house jump in 2018 · reviews portfolios</div>
+                  <div class="w-ev" style="white-space:normal; margin-top:4px">You share: Prof. Whitman's studio</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The question carries in</b> as the member's first turn — write once, everywhere. One shaping question at most; the AI helps, never gates. <span class="route">?skip=1</span> plain form survives.</li>
+        <li><b>The AI drafts the note tailored to both</b> — the specific worry named, something concrete to say yes to. Everything editable; tone lenses one tap. <b>One recipient per ask — always</b> <span class="tag tag-decided">Decided 2026-07-06 · reversed from "one or several"</span>: to ask several people, send each their own tailored ask from the results; the five-slot cap carries anti-spam.</li>
+        <li><b>Send.</b> Button says who. Inline confirmation replaces the composer (<span class="uistr">"She'll see it today. Asks stay open 14 days."</span>) with the promise at the button: <span class="uistr">"Maya will answer either way — a yes, or a kind note."</span></li>
+        <li><b>The recipient context rail.</b> <span class="tag tag-desk">Desktop</span> Evidence and shared history stay visible while writing — the reason you picked Maya never scrolls away from the note you're writing her.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">Branch B — tapped "Ask the circle"</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1B · CIRCLE BRANCH</span>
+      <span class="pc-title">The open ask — reach &amp; cover</span>
+      <span class="route">/help · open-ask state</span>
+      <span class="pc-sub">Reach and anonymity appear only here. Desktop shows who "Good matches" means, live, beside the controls.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav on">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Help · Ask the circle</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-bubble" style="position:relative">Good question for the circle. One line on what you've tried would help the matching — want to add it?</div>
+                <div class="w-card" style="margin-top:6px"><div class="w-line dk w-85"></div><div class="w-line dk w-55"></div></div>
+                <div style="margin-top:10px; position:relative"><span class="co" style="margin-right:4px">2</span><span class="w-label" style="display:inline-block">Who can find this?</span><br>
+                  <span class="w-seg"><span class="on">Good matches</span><span>Anyone at Chadwick</span></span>
+                </div>
+                <div style="margin-top:10px; display:flex; align-items:center; gap:8px"><span class="co">3</span><span class="w-toggle"><span class="w-knob on"></span> Post without your name</span></div>
+                <div style="font-size:9px; color:var(--faint); margin:4px 0 10px 25px">Your class year still shows — in a small circle, people may guess</div>
+                <div style="display:flex; align-items:center; gap:10px"><span class="co">4</span><button class="w-cta" type="button">Post your ask</button></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">1</span>
+                  <div class="w-label">Who this reaches · preview</div>
+                  <div class="w-row" style="border-top:none"><div class="w-ava anon"></div><div class="w-who"><div class="w-name">People like these</div><div class="w-ev">suggested by fit — not browsable</div></div></div>
+                  <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">JP</div><div class="w-who"><div class="w-ev">Hiring-side experience</div></div></div>
+                  <div class="w-row"><div class="w-ava" style="color:#0b8a57;background:#e7f8f0">SO</div><div class="w-who"><div class="w-ev">Made the same move</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The reach preview rides beside the controls.</b> <span class="tag tag-desk">Desktop</span> "Good matches" is never abstract — the rail shows people like those who'd be suggested the ask, before posting. The AI shaping beat firms thin queries up for matching.</li>
+        <li><b>Reach — two tiers, one toggle</b> <span class="tag tag-decided">Decided 2026-07-05</span>: <b>Good matches</b> (default, private — <span class="uistr">"Only people whose experience fits will see this"</span>) · <b>Anyone at Chadwick</b> (public, searchable in Give). The embarrassed-asker default stays narrowest.</li>
+        <li><b>Cover — anonymous-until-accept</b> <span class="tag tag-decided">v1</span>: helpers see <span class="uistr">"A member · Class of '27"</span>; the name is revealed only to the accepted helper; evidence derives from the ask's text only; honest small-circle copy at the toggle.</li>
+        <li><b>Post</b> → <span class="uistr">"Your question is shown to people who can help — you'll only hear from members who offer."</span> → status view.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">either branch: sent / posted →</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · STATUS</span>
+      <span class="pc-title">Ask status view</span>
+      <span class="route">/help/asks/[id]</span>
+      <span class="pc-sub">Roads on the left, the ask's vitals docked right — countdown, slots, anonymity state, retract.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav on">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Your ask</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-card" style="position:relative"><span class="co co-float">1</span><div class="w-line dk w-85"></div><div class="w-line dk w-55"></div></div>
+                <div class="w-label" style="margin-top:10px"><span class="co" style="margin-right:4px">2</span> Direct ask · one recipient</div>
+                <div class="w-row"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14</div></div><span class="w-state">Waiting</span></div>
+                <div style="font-size:8.5px; color:var(--faint); margin-top:3px">One recipient per ask — to ask more people, send each their own. A decline shows the cushioned note in place; open (circle) asks collect offer rows instead ↓</div>
+                <div class="w-label" style="margin-top:10px"><span class="co" style="margin-right:4px">3</span> Open-ask variant · offers arrive</div>
+                <div class="w-row"><div class="w-ava" style="color:#0b8a57;background:#e7f8f0">SO</div><div class="w-who"><div class="w-name">Sam Okafor · '09</div><div class="w-ev">"Happy to talk through the in-house move — did it twice."</div></div><button class="w-btn pri" type="button">Accept</button><button class="w-btn" type="button">Decline</button></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">About this ask</div>
+                  <div class="w-ev">Sent to Maya · open</div>
+                  <div class="w-ev">Slots: 3 of 5 in use</div>
+                  <div style="border-left:2px solid var(--amber); background:var(--amber-wash); border-radius:4px; padding:3px 7px; font-size:9px; margin-top:5px">3 days left before it closes</div>
+                  <div style="font-size:8px; color:var(--faint); margin-top:3px">no running countdown — this flag appears only in the final 3 days</div>
+                  <div style="margin-top:8px"><button class="w-btn" type="button">Retract this ask</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The ask, verbatim, on top.</b> Every notification about this ask deep-links here.</li>
+        <li><b>The direct road</b> — one row per recipient, two honest states: <span class="uistr">"Waiting"</span> (no read receipts, no last-seen) or <span class="uistr">"Declined"</span> + the cushioned note, in real time. All declined → early close + recovery.</li>
+        <li><b>The open road</b> — offer rows: preview + note + Accept / Decline. The asker holds the accept; declining an offer sends the helper a cushioned note too. Accept → thread; the rest get <span class="uistr">"This ask has been answered."</span></li>
+        <li><b>The vitals rail.</b> <span class="tag tag-desk">Desktop</span> Countdown, reach line, anonymity state, the ambient <span class="uistr">3 of 5</span> slot count, and the one control: <b>Retract</b>. No mid-flight edits <span class="tag tag-decided">Decided 2026-07-06</span> — widening happens only via the post-close <span class="uistr">"Open it to the circle."</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">accepted →</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 3 · THREAD</span>
+      <span class="pc-title">Messages — three panes</span>
+      <span class="route">/messages/[id]</span>
+      <span class="pc-sub">List · thread · context rail. The rail opens ⇒ the sidebar collapses to the 72px icon rail.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side rail">
+          <div class="f-nav" title="Home">○</div>
+          <div class="f-nav" title="Help">○</div>
+          <div class="f-nav" title="People">○</div>
+          <div class="f-nav on" title="Messages">●</div>
+          <div class="f-nav" title="School">○</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Messages</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-list">
+                <div class="w-label"><span class="co" style="margin-right:4px">1</span> Waiting on you</div>
+                <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#b01824;background:#fdebee">AR</div><div class="w-who"><div class="w-name">● Alex Rivera · asked you</div></div></div>
+                <div class="w-label" style="margin-top:8px">Conversations</div>
+                <div class="w-row" style="border-top:none; background:var(--get-wash); border-radius:7px; padding-left:4px"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14</div><div class="w-ev">First pass: lead with the checkout…</div></div></div>
+                <div class="w-row"><div class="w-ava" style="color:#0b8a57;background:#e7f8f0">SO</div><div class="w-who"><div class="w-name">Sam Okafor · '09</div><div class="w-ev">Sure — send the portfolio over</div></div></div>
+              </div>
+              <div class="f-thread">
+                <div class="w-sys"><span class="co" style="margin-right:4px">2</span>Maya accepted your ask · Tue</div>
+                <div class="w-bubble"><div class="w-line w-70" style="margin:2px 0"></div></div>
+                <div class="w-bubble me"><div class="w-line w-55" style="margin:2px 0; background:rgba(255,255,255,.45)"></div></div>
+                <div class="w-bubble"><div class="w-line w-85" style="margin:2px 0"></div></div>
+                <div class="w-sys" style="color:var(--faint)">Getting somewhere? Add Maya to your circle</div>
+              </div>
+              <div class="f-ctx">
+                <div class="w-label"><span class="co" style="margin-right:4px">3</span> About this conversation</div>
+                <div style="font-size:10px; font-weight:700">Your ask · open</div>
+                <div class="w-ev" style="white-space:normal; margin-top:3px">Maya Chen · Verified '14 · ● Open to help</div>
+                <div style="margin-top:8px"><button class="w-btn soft" type="button">Mark resolved</button></div>
+                <div style="font-size:8.5px; color:var(--faint); margin-top:8px"><span class="co" style="margin-right:4px; vertical-align:-3px">4</span>Rail open ⇒ the sidebar is the 72px icon rail (left edge)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The list, priorities intact.</b> "Waiting on you" pinned above conversations — pending direct asks and connect requests, flagged. Filters as chips, not tabs.</li>
+        <li><b>The thread is ordinary on purpose</b> <span class="tag tag-adr">ADR 0011 · D4</span> — origin as a quiet system line, class year + circle mark on names, then just conversation. The connect nudge appears once per pair after both sides have written.</li>
+        <li><b>The context rail</b> carries which ask this is, who this is, and <b>Mark resolved</b> — either side; the asker then gets <span class="uistr">"did this help?"</span> + one optional outcome line <span class="tag tag-decided">Decided</span>. <span class="tag tag-decided">Changed 2026-07-06</span> <b>No running day-clock</b> — a countdown on an active conversation reads as pressure; only a quiet <span class="uistr">"3 days left before this ask closes"</span> flag appears in the final 3 days.</li>
+        <li><b>Space is honest.</b> <span class="tag tag-desk">Desktop</span> Rail open ⇒ sidebar collapses to the icon rail — the conversation keeps the width; chrome yields, content doesn't.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="aside a-sys">
+    <b>The five-slot rule <span class="tag tag-decided">Decided 2026-07-06</span></b>
+    <p>Five open asks at once — direct or circle; the sixth waits. Slots return when an ask ends:
+    resolved, retracted, declined by every recipient, or closed at day 14. On desktop the count is
+    ambient — Home's module and the status rail show <b>3 of 5</b>; it never interrupts.</p>
+  </div>
+
+  <div class="aside a-buffer">
+    <b>Buffer check, asker side</b>
+    <p>The asker sees <b>who could answer, and why</b>, before writing a word · search results are
+    private — a member never learns they appeared and weren't asked · a no arrives as one kind,
+    cushioned note, never silence and never a bare rejection · no read states, no timelines · the
+    asker holds the accept on every offer · and the private tier is the open-ask default. Asking
+    never costs face.</p>
+  </div>
+</section>
+
+<!-- ============================================================ GIVE -->
+<section id="give" class="journey-give g-give">
+  <p class="sec-eyebrow">Journey B · the helper</p>
+  <h2>Giving help</h2>
+  <p class="lede">The switch and your topics on top, then three arms. <b>What desktop changes:</b>
+  the suggestion and search arms share the main column while "Asked you directly" holds a
+  persistent right rail — impossible to miss while browsing. Offers and responses are dialogs, not
+  page changes.</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">ONE PAGE · 3 ARMS</span>
+      <span class="pc-title">Help · Give</span>
+      <span class="route">/help?mode=give</span>
+      <span class="pc-sub">Green wash. A quiet list, never a feed — no view counts, no public replies, no popularity ranking.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav on">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> David Okafor '98</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Help</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-hero"><span class="w-seg" style="border-color:var(--line)"><span>Get help</span><span class="on" style="background:var(--give)">Give help</span></span><b style="font-size:12px">What can you speak to?</b><span class="co" style="margin-left:auto">1</span></div>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px">
+              <span class="w-toggle"><span class="w-knob on"></span> Open to helping</span>
+              <span class="w-label" style="margin:0">Your topics · 3 of 5</span>
+              <span class="w-chips" style="margin:0"><span class="w-chip sel">hiring ×</span><span class="w-chip sel">portfolios ×</span><span class="w-chip sel">startups ×</span><span class="w-chip">+ Add</span></span>
+            </div>
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-label"><span class="co" style="margin-right:4px">2</span> Suggested for your topics</div>
+                <div class="w-row" style="border-top:none"><div class="w-ava anon"></div><div class="w-who"><div class="w-name">A member · Class of '27</div><div class="w-ev">Breaking into design — fits your "hiring" topic</div></div><button class="w-btn pri" type="button">Offer</button></div>
+                <div class="w-label" style="margin-top:10px"><span class="co" style="margin-right:4px">3</span> Search open asks</div>
+                <div class="w-card" style="padding:6px 10px"><span style="color:var(--faint); font-size:9.5px">e.g. "moving abroad", "career change"…</span></div>
+                <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">PN</div><div class="w-who"><div class="w-name">Priya Nair · '19</div><div class="w-ev">Moving to Seoul in the fall — who's lived there?</div></div><button class="w-btn pri" type="button">Offer</button></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">● Asked you directly</div>
+                  <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#b01824;background:#fdebee">AR</div><div class="w-who"><div class="w-name">Alex Rivera · '21</div><div class="w-ev">"20 minutes on your agency years?"</div></div></div>
+                  <button class="w-btn soft" type="button" style="width:100%; margin-top:4px">View ask</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The switch and your topics.</b> No clock expiry <span class="tag tag-decided">Decided 2026-07-06</span> — auto-pause only after three direct asks time out unanswered (any response, accept or decline, resets). Up to 5 topic chips, add/remove anytime; they drive arm 1 and Home's module. No capacity meter; <span class="route">max_pending_requests</span> stays invisible.</li>
+        <li><b>Arm 1 — AI suggestions from your topics</b>, each with an evidence line naming which topic fits. Honest empty state: <span class="uistr">"Nothing needs you right now — we'll nudge you when something does."</span></li>
+        <li><b>Arm 2 — search.</b> Topic in, open asks out. Public asks freely searchable; private-tier asks appear only where relevance already gates them — matched, never browsed.</li>
+        <li><b>Arm 3 — asked you directly, docked right.</b> <span class="tag tag-desk">Desktop</span> The flagged rail is on screen no matter which arm you're in. Canonical home stays Messages' "Waiting on you"; this is the echo.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">"Offer" · or "View ask" — both are dialogs, not page changes</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">MOMENTS · DIALOGS</span>
+      <span class="pc-title">Offer · accept · decline — over the page, never off it</span>
+      <span class="pc-sub">Desktop treats commitment moments as focused dialogs; the page waits behind them.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame" style="min-height:250px">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav on">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> David Okafor '98</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Help</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="w-line w-85"></div><div class="w-line w-55"></div><div class="w-line w-70"></div>
+            <div class="f-dim">
+              <div class="f-modal">
+                <div class="w-label">Alex Rivera · '21 · asked you</div>
+                <div style="font-size:10px; margin:4px 0 8px">"Could I get 20 minutes on your agency years?"</div>
+                <div style="display:flex; gap:6px; align-items:center"><span class="co">2</span><button class="w-btn pri" type="button">Accept</button><button class="w-btn" type="button">Decline</button><span class="co">3</span></div>
+                <div class="w-label" style="margin-top:8px">Decline — three ways, escalating cushion</div>
+                <div class="w-chips"><span class="w-chip">Can't right now</span><span class="w-chip">Not my area</span><span class="w-chip">Write my own · AI polishes</span><span class="w-chip sel" style="color:var(--give-deep); background:var(--give-wash); border-color:var(--give)">Let AI handle it →</span></div>
+                <div style="font-size:8px; color:var(--faint); margin-top:5px"><b>Let AI handle it:</b> just tell the AI casually ("slammed this month") — it composes &amp; sends the kind note for you; you never address the asker directly</div>
+                <div style="font-size:8px; color:var(--faint); margin-top:6px"><span class="co" style="margin-right:3px; vertical-align:-3px">1</span>Offers open this same dialog, with a suggested note · <span class="co" style="margin:0 3px; vertical-align:-3px">4</span>silence: one day-5 nudge, then the quiet day-14 close</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Offer, with a note that writes itself</b> <span class="tag tag-decided">Decided 2026-07-06</span> — a default line or your own, AI-helped either way. Sent state is calm; withdrawing while pending is quiet.</li>
+        <li><b>Accept — with a first word.</b> Default opening message or custom, AI-helped; the thread never starts cold. Origin line on the asker's side: <span class="uistr">"Maya accepted your ask."</span></li>
+        <li><b>Decline — always with a note, three ways</b> <span class="tag tag-decided">Decided 2026-07-06 · supersedes ADR 0011 D5</span>. Escalating cushion: a <b>default reason</b> · <b>write your own</b> (AI polishes) · or <b>let the AI handle it</b> — tell it casually what's going on and it composes &amp; sends the kind note for you, so you never address the asker in your own voice. The item leaves your list; the note reaches the asker in real time; a decline resets the strike count.</li>
+        <li><b>Silence still resolves itself.</b> Day 5: one gentle reminder. Day 14: the pending item disappears — no guilt screen — and the timeout counts one of three strikes toward auto-pause.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="aside a-buffer">
+    <b>Buffer check, helper side</b>
+    <p>Availability is a mood, not a contract — the switch is the only control, no clock ever expires
+    it, and only leaving three asks unanswered pauses it (quietly, reversibly) · declining is two
+    taps — pick a kind default reason or let AI shape your own — so saying no never means writing a
+    rejection · silence still resolves itself at day 14, no guilt screen · offers that aren't taken
+    up close no-fault · and there is no meter, streak, or slot count anywhere on this page. Saying no
+    never costs face — and the asker is never left guessing.</p>
+  </div>
+</section>
+
+<!-- ============================================================ PEOPLE -->
+<section id="people" class="g-ppl">
+  <p class="sec-eyebrow">Journey C · finding people</p>
+  <h2>People — the directory</h2>
+  <p class="lede">Person-shaped queries live here; need-shaped ones belong to Help, and the two
+  cross-route quietly. <b>What desktop changes:</b> this page was designed wide first — the
+  1a-derived specimen's docked 340px rail is the canonical layout, not an adaptation.</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1 · DIRECTORY</span>
+      <span class="pc-title">People — search, rows, rail</span>
+      <span class="route">/people</span>
+      <span class="pc-sub">Matches the 1a-derived specimen (preview/people-directory.html): elevated card, one action + chevron, rail always docked.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav on" style="background:linear-gradient(180deg,#eef1f4,#e8ecf0); color:var(--ink)">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">People</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="w-label">Directory · 2,412 members</div>
+            <b style="font-size:12px">Find people to connect with.</b>
+            <div class="w-card" style="display:flex; align-items:center; gap:8px; margin-top:8px">
+              <span class="co" style="flex:none">1</span>
+              <span style="flex:1; font-size:10.5px">designers who moved in-house in the Bay Area</span>
+              <button class="w-btn pri" type="button">Search</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:8px">
+              <span class="co">2</span>
+              <span class="w-seg"><span class="on">All</span><span>● Open to help</span><span>In your circle</span></span>
+              <span class="w-chip">Industry ▾</span><span class="w-chip">Class year ▾</span><span class="w-chip">Location ▾</span>
+              <span class="w-count" style="margin-left:auto">248 people · Best match</span>
+            </div>
+            <div class="f-cols" style="margin-top:10px">
+              <div class="f-col-main">
+                <div class="w-row" style="border-top:none; position:relative"><span class="co co-float" style="top:6px">3</span><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · In your circle · Strong match</div><div class="w-ev">Design Lead · Figma · San Francisco · '14</div></div><button class="w-btn soft" type="button">Message</button><span class="w-chip" style="padding:1px 6px">›</span></div>
+                <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">JB</div><div class="w-who"><div class="w-name">Jordan Blake · ● Open to help</div><div class="w-ev">Design Manager · Airbnb · New York · '12</div></div><button class="w-btn soft" type="button">Connect</button><span class="w-chip" style="padding:1px 6px">›</span></div>
+                <div class="w-row"><div class="w-ava" style="color:#b01824;background:#fdebee">PN</div><div class="w-who"><div class="w-name">Priya Nair · Requested</div><div class="w-ev">PM · Notion · Remote · '17</div></div><button class="w-btn" type="button" style="opacity:.5">Pending</button><span class="w-chip" style="padding:1px 6px">›</span></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">Profile preview</div>
+                  <div class="w-card" style="background:#f3f8ff; margin-top:2px">
+                    <div style="font-size:9px; font-weight:700; color:#174aa8">◎ Why this match</div>
+                    <div class="w-ev" style="white-space:normal; margin-top:3px">Agency → in-house in 2018 · reviewed 20+ portfolios for the same move</div>
+                    <div style="font-size:8.5px; color:var(--faint); margin-top:4px">From verified profile facts · ranked for "designers who moved in-house"</div>
+                  </div>
+                  <div class="w-ev" style="white-space:normal; margin-top:6px">You share: Prof. Whitman's studio — 8 years apart</div>
+                  <div style="display:flex; gap:5px; margin-top:7px"><button class="w-btn pri" type="button">Ask for help</button><button class="w-btn soft" type="button">Message</button></div>
+                  <div style="font-size:8.5px; color:var(--faint); margin-top:6px">Auto-updated from public sources · checked May 2026</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Person-shaped search — the backend routes, the user never toggles.</b> <span class="tag tag-decided">Richard 2026-07-06</span> No visible "AI on/off" mode. A cheap rules-first classifier parses the typed query (extending ADR 0006's entity extraction): if it reduces to structured fields (<span class="uistr">"class of '14 in tech"</span>) it runs filters-only — no vectors, near-zero cost; only residual semantic intent (<span class="uistr">"people who reinvented themselves after a layoff"</span>) escalates to the vector path (0009). A thin fallback catches misclassification — thin results show <span class="uistr">"Not quite? Try describing what you're looking for"</span>, re-running the semantic path. Kicker states the room; this is the directory's own search field (no global palette); a need-shaped question cross-routes with <span class="uistr">"Sounds like an ask — ask the circle?"</span></li>
+        <li><b>The filter pills ARE the simple path.</b> Industry / Class year / Location are pure structured search — the "without AI" mode already exists as an input style, no toggle needed. Scope segmented All / ● Open to help / In your circle; the count + sort is always stated (<span class="uistr">"248 people · Best match"</span>) — never a mystery feed.</li>
+        <li><b>One action per row, a chevron for depth.</b> Rotation-pair initials avatars (identity only, never status — E2) · status chip · <span class="uistr">"Strong match"</span> only when true · role line · topic chips. Action by relationship state: Message / Connect / Pending. The chevron selects the row for the rail without hijacking the action.</li>
+        <li><b>The rail is docked, persistent, honest.</b> <span class="tag tag-desk">Desktop</span> Why-this-match with double provenance (<span class="uistr">"…· ranked for '[query]'"</span>), Career, <b>You share</b>, then <b>Ask for help</b> (primary) — and the enrichment line. <span class="tag tag-open">Drift</span> The specimen's CTAs still read "Ask for advice" — rename at the next DesignSync push.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">open a profile</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · PROFILE</span>
+      <span class="pc-title">Another member's profile — context for one decision</span>
+      <span class="route">/people/[id]</span>
+      <span class="pc-sub">Everything on this page serves one decision: reach out, or not. Facts in the main column, warmth in the rail, exactly two verbs.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav on" style="background:linear-gradient(180deg,#eef1f4,#e8ecf0); color:var(--ink)">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Maya Chen</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-row" style="border-top:none; position:relative"><span class="co co-float" style="top:4px">1</span>
+                  <div class="w-ava" style="width:30px;height:30px;color:#1b64da;background:#e8f3ff">MC</div>
+                  <div class="w-who"><div class="w-name">Maya Chen · '14 · Verified · ● Open to help</div><div class="w-ev">Design Lead, Figma · Brooklyn</div></div>
+                </div>
+                <div style="display:flex; gap:6px; margin:6px 0; align-items:center"><button class="w-btn pri" type="button">Ask for help</button><button class="w-btn" type="button">Connect</button><span class="w-ev" style="margin-left:4px">Not in your circle yet</span></div>
+                <div class="w-label" style="margin-top:8px"><span class="co" style="margin-right:4px">2</span> About</div>
+                <div class="w-line w-85"></div><div class="w-line w-70"></div>
+                <div class="w-label" style="margin-top:8px">Career</div>
+                <div class="w-row" style="border-top:none"><div class="w-who"><div class="w-name">Design Lead · Figma</div></div><span class="w-count">2021 — now</span></div>
+                <div class="w-row"><div class="w-who"><div class="w-name" style="color:var(--mut)">Product Designer · IDEO</div></div><span class="w-count">2016 – 2021</span></div>
+                <div class="w-row"><div class="w-who"><div class="w-name" style="color:var(--mut)">Designer · Studio MFG</div></div><span class="w-count">2014 – 2016</span></div>
+                <div class="w-label" style="margin-top:8px">Education</div>
+                <div class="w-row" style="border-top:none"><div class="w-who"><div class="w-name">Chadwick School · Class of '14 ◎</div></div></div>
+                <div class="w-row"><div class="w-who"><div class="w-name" style="color:var(--mut)">RISD · BFA, Graphic Design</div></div><span class="w-count">2018</span></div>
+                <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">3</span>
+                  <div class="w-label">Can speak to</div>
+                  <div class="w-row" style="border-top:none; padding:4px 0"><div class="w-who"><div class="w-name">Building a product-design portfolio</div><div class="w-ev">what reads as "product" vs "visual" for in-house roles</div></div><button class="w-btn soft" type="button" style="background:var(--sys-wash); color:var(--ink)">Ask</button></div>
+                  <div class="w-row" style="padding:4px 0"><div class="w-who"><div class="w-name">Making the agency → in-house jump</div><div class="w-ev">did it in 2018, hires for it now</div></div><button class="w-btn soft" type="button" style="background:var(--sys-wash); color:var(--ink)">Ask</button></div>
+                </div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">Links &amp; contact</div>
+                  <div class="w-ev" style="white-space:normal">in LinkedIn · maren.design · hi@maren.design</div>
+                  <div style="font-size:8px; color:var(--faint); margin-top:3px">only what Maya chose to show you</div>
+                </div>
+                <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">5</span>
+                  <div class="w-label">You share</div>
+                  <div class="w-ev" style="white-space:normal">Prof. Whitman's studio — 8 years apart · both in Brooklyn</div>
+                </div>
+                <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">6</span>
+                  <div style="font-size:8.5px; color:var(--faint)">Profile last updated May 2026</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The header carries identity and the only verbs.</b> Avatar (rotation pair) · name + class year + Verified + ● Open to help chips · role line (role, company, city). Exactly two buttons <span class="tag tag-adr">ADR 0011</span>: <b>Ask for help</b> (primary — straight into the composer with Maya chosen) · <b>Connect</b> (Message once connected; Requested disables while pending), with one honest circle-state line beside them (<span class="uistr">"Not in your circle yet"</span> / <span class="uistr">"In your circle since May"</span>).</li>
+        <li><b>The facts read now → history → the shared root.</b> About (a short paragraph, member-written or enrichment-drafted) · Career, reverse-chron with dates, current role heavy · Education, always ending at <span class="uistr">"Chadwick School · Class of '14"</span> with the circle motif — the one line every member shares, and the reason this profile is here at all.</li>
+        <li><b>"Can speak to" is a section, not chips.</b> <span class="tag tag-decided">Richard 2026-07-06</span> Members phrase what they can help with in their own words — a line or two each, not a one-word tag — so it reads as a titled card of short entries, each with its own <b>Ask</b> button that opens the composer pre-seeded with that topic. Shown only when the member is open to helping; same data as their Give topics, one source of truth. The profile is an ask surface, not a brochure.</li>
+        <li><b>The rail is the warm layer.</b> <b>Links &amp; contact</b> shows only what this member chose to share with you (below). <b>You share</b> — shared-history receipts (the studio, the city), mutual and always true. <span class="tag tag-decided">Richard 2026-07-06</span> <b>"Why this match" does not live here</b> — it answers "why is this row in front of me?", a question for the directory's scanning rail, not for a page you've already committed to opening. On the profile, the facts themselves (Career, Can speak to, You share) are the richer answer.</li>
+        <li><b>Staleness hint, not machinery.</b> <span class="tag tag-decided">Richard 2026-07-06</span> On someone else's page you see one quiet line — <span class="uistr">"Profile last updated May 2026"</span> — enough to judge whether a fact might be stale, nothing more. The enrichment review machinery (approve/dismiss alarms) is the <i>owner's</i> alone (page 3). No "Suggest a fix" from visitors.</li>
+        <li><b>Always off the page:</b> no "helped 12 people" stats, no endorsements, no followers, no activity feed — numbers turn helping into a scoreboard. The profile exists to answer one question well: is this the right person to reach?</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">"Connect" on the profile header</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2B · CONNECT</span>
+      <span class="pc-title">The connect moment — two intro modes</span>
+      <span class="route">/people/[id] · intro panel</span>
+      <span class="pc-sub">The intro drafts in a side panel — the profile stays visible while you say why.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame" style="min-height:220px">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav on" style="background:linear-gradient(180deg,#eef1f4,#e8ecf0); color:var(--ink)">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Maya Chen</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-line w-70"></div><div class="w-line w-85"></div><div class="w-line w-55"></div>
+              </div>
+              <div class="f-col-rail" style="width:44%">
+                <div class="w-card" style="position:relative"><span class="co co-float">1</span>
+                  <div class="w-label">Connect · shaping the intro</div>
+                  <div class="w-chips" style="margin:0 0 5px"><span class="w-chip">Know each other? Quick hello</span></div>
+                  <div class="w-bubble" style="max-width:100%">Why Maya? Say it however it comes out — I'll shape the hello.</div>
+                  <div class="w-card" style="margin-top:5px"><div class="w-line dk w-85"></div><div class="w-line dk w-55"></div></div>
+                  <button class="w-cta" type="button" style="margin-top:7px">Send request</button>
+                  <div class="w-sys"><span class="co" style="margin-right:4px; vertical-align:-3px">3</span>A pass goes to BridgeCircle — never to you</div>
+                </div>
+                <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">2</span>
+                  <div class="w-sys" style="text-align:left; padding:0">You connected · Jul 6 — a plain thread in Messages</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Two intro modes</b> <span class="tag tag-adr">ADR 0011 · D2</span>: quick-hello chips for someone you know — one tap and it's sent; conversational AI intro for a stranger — say why in your own words, the AI shapes it into the request message. Mutual accept, always: connect stays two-sided.</li>
+        <li><b>Accept → an ordinary conversation.</b> DM thread in Messages with the quiet <span class="uistr">"You connected"</span> origin line; the circle mark ◎ appears on their name everywhere from then on.</li>
+        <li><b>Connect declines stay quiet</b> <span class="tag tag-decided">Scoped 2026-07-06</span> — decline-with-note covers asks only. An ask declined is about the ask; a connection declined is about <i>you</i> — that one keeps the cover. The row shows a calm <span class="uistr">"Requested"</span>; the request expires without ceremony.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">the member card at the sidebar's bottom → your own profile</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 3 · YOUR OWN PROFILE</span>
+      <span class="pc-title">Self view — same page, plus the controls</span>
+      <span class="route">/profile</span>
+      <span class="pc-sub">Proposed — for review. What others see is exactly what you edit; the controls live beside the content, not in a settings maze.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav">School</div>
+          <div class="f-me" style="background:var(--sys-wash); border-radius:7px; padding:8px"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Your profile</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-col-main">
+                <div class="w-row" style="border-top:none; position:relative"><span class="co co-float" style="top:4px">1</span>
+                  <div class="w-ava" style="width:30px;height:30px;color:#0b8a57;background:#e7f8f0">MC</div>
+                  <div class="w-who"><div class="w-name">Maren Cho · '22 · Verified</div><div class="w-ev">Product Designer · Brooklyn</div></div>
+                  <span class="w-chip">✎</span>
+                </div>
+                <div class="w-label" style="margin-top:8px">About ✎ · Career ✎ · Education ✎</div>
+                <div class="w-line w-85"></div><div class="w-line w-70"></div>
+                <div class="w-card" style="margin-top:8px; background:var(--amber-wash); position:relative"><span class="co co-float">2</span>
+                  <div class="w-label" style="color:var(--amber)">We found a change — approve? · 1 alarm</div>
+                  <div style="font-size:9.5px">Role: Product Designer → <b>Senior Product Designer</b> at Arc</div>
+                  <div style="display:flex; gap:5px; margin-top:5px"><button class="w-btn pri" type="button" style="background:var(--ink)">Approve</button><button class="w-btn" type="button">Dismiss</button></div>
+                </div>
+                <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">3</span>
+                  <div class="w-label">Links &amp; contact</div>
+                  <div class="w-row" style="border-top:none; padding:4px 0"><div class="w-who"><div class="w-name">in LinkedIn</div></div><span class="w-seg" style="transform:scale(.82); transform-origin:right"><span class="on" style="background:var(--sys)">Public</span><span>Circle</span><span>Private</span></span></div>
+                  <div class="w-row" style="padding:4px 0"><div class="w-who"><div class="w-name">hi@maren.design</div></div><span class="w-seg" style="transform:scale(.82); transform-origin:right"><span>Public</span><span class="on" style="background:var(--sys)">Circle</span><span>Private</span></span></div>
+                  <div class="w-row" style="padding:4px 0"><div class="w-who"><div class="w-name">Instagram</div></div><span class="w-seg" style="transform:scale(.82); transform-origin:right"><span>Public</span><span>Circle</span><span class="on" style="background:var(--sys)">Private</span></span></div>
+                  <div style="font-size:8px; color:var(--get-deep); margin-top:3px">+ Add a link</div>
+                </div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">Helping</div>
+                  <div class="w-toggle"><span class="w-knob on" style="background:var(--give)"></span> Open to helping · 3 topics</div>
+                  <div style="font-size:8.5px; color:var(--get-deep); margin-top:4px">Managed on Help · Give →</div>
+                </div>
+                <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">5</span>
+                  <div class="w-label">Email &amp; quiet</div>
+                  <div class="w-toggle" style="margin-top:2px"><span class="w-knob on" style="background:var(--sys)"></span> Newsletter by email</div>
+                  <div class="w-toggle" style="margin-top:4px"><span class="w-knob"></span> Pause everything for a while</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Same layout, edit in place.</b> A quiet ✎ per block — what others see is exactly what you edit; there is no separate "edit mode" page to get lost in. Photo nudge from onboarding survives here (<span class="uistr">"members with a photo hear back faster"</span>), stated once, never nagging.</li>
+        <li><b>The enrichment review queue — the owner's alone.</b> <span class="tag tag-decided">Richard 2026-07-06</span> <span class="uistr">"We found a change — approve? · 1 alarm"</span> — one card per auto-detected fact, Approve / Dismiss, nothing publishes without approval. This machinery lives only here; a visitor to your page sees just the "last updated" line. Home's "profile freshness" module points here.</li>
+        <li><b>Links &amp; contact, visibility per item.</b> <span class="tag tag-decided">Richard 2026-07-06</span> Add a LinkedIn URL, a portfolio, an email, socials — each with its own audience: <b>Public</b> (any member) · <b>Circle</b> (connected only) · <b>Private</b> (just you) · or simply don't add it. The other-member rail renders exactly the subset the viewer is entitled to — a circle-only email is invisible to a stranger, present to a connection. Nothing is shared by default; every link is an opt-in.</li>
+        <li><b>Helping has one home.</b> <span class="tag tag-open">Proposed — for review</span> The availability switch and topics are <i>managed</i> on Help·Give (per ADR 0011's folding of settings into <span class="route">/help</span>); the profile shows a read-only mirror with a link — one source of truth, no divergent settings. This resolves FLOWS.md §7's open ❓.</li>
+        <li><b>Email &amp; quiet.</b> Newsletter-by-email lives here (the settled Subscribe question) alongside transactional prefs — and the <b>pause switch</b>: stepping away is a setting, not a support ticket, and it's never announced to anyone.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ MESSAGES -->
+<section id="messages" class="g-sys">
+  <p class="sec-eyebrow">Journey D · the room</p>
+  <h2>Messages — every conversation, one room</h2>
+  <p class="lede">Job: the relationship lifecycle. Every accepted ask, offer, and connection lands
+  here and becomes an ordinary conversation <span class="tag tag-adr">ADR 0011 · D4</span>.
+  <b>What desktop changes:</b> the three panes are always co-present — pending items, the
+  conversation, and its context never hide behind navigation.</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1 · THE LIST</span>
+      <span class="pc-title">Conversation list — waiting first, then the room</span>
+      <span class="route">/messages</span>
+      <span class="pc-sub">Priorities: ① needs reply ② active ③ history. Filters are chips, never tabs.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side rail">
+          <div class="f-nav" title="Home">○</div>
+          <div class="f-nav" title="Help">○</div>
+          <div class="f-nav" title="People">○</div>
+          <div class="f-nav on" title="Messages">●</div>
+          <div class="f-nav" title="School">○</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Messages</span><span style="flex:1"></span><span class="f-bell" style="position:relative"><span class="co co-float" style="top:-8px; right:-10px">4</span></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-list" style="width:44%">
+                <div class="w-chips" style="margin:0 0 8px"><span class="co" style="margin-right:2px">1</span><span class="w-chip sel" style="color:var(--ink); background:var(--sys-wash); border-color:var(--sys)">All</span><span class="w-chip">Unread</span><span class="w-chip">My circle</span><span class="w-chip">Open asks</span></div>
+                <div class="w-label" style="display:flex; align-items:center; gap:5px"><span class="co">2</span> Waiting on you <span style="background:#e0245e; color:#fff; border-radius:8px; padding:0 5px; font-size:8px; font-weight:700">2</span><span style="margin-left:auto; color:var(--faint)">▾</span></div>
+                <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#b01824;background:#fdebee">AR</div><div class="w-who"><div class="w-name">● Alex Rivera · '21 · asked you</div><div class="w-ev">"20 minutes on your agency years?"</div></div><button class="w-btn soft" type="button">View ask</button></div>
+                <div class="w-row"><div class="w-ava" style="color:#4e5968;background:#f2f4f6">PN</div><div class="w-who"><div class="w-name">Priya Nair · '17 · wants to connect</div><div class="w-ev">"We overlapped in Whitman's studio…"</div></div><button class="w-btn pri" type="button" style="background:var(--ink)">Accept</button><button class="w-btn" type="button">Decline</button></div>
+                <div class="w-label" style="margin-top:10px"><span class="co" style="margin-right:4px">3</span> Conversations</div>
+                <div class="w-row" style="border-top:none; background:var(--get-wash); border-radius:7px; padding-left:5px; box-shadow:inset 2px 0 0 var(--get)"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14 ◎</div><div class="w-ev">First pass: lead with the checkout…</div></div><span class="w-count">2:04p</span></div>
+                <div class="w-row"><div class="w-ava" style="color:#0b8a57;background:#e7f8f0">SO</div><div class="w-who"><div class="w-name" style="font-weight:800">Sam Okafor · '09 <i style="font-style:normal; color:var(--get)">•</i></div><div class="w-ev" style="color:var(--ink); font-weight:600">Sure — send the portfolio over</div></div><span class="w-count">Mon</span></div>
+                <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">JP</div><div class="w-who"><div class="w-name">Jordan Park · '11 ◎</div><div class="w-ev">Thanks again for the intro!</div></div><span class="w-count">Jun 28</span></div>
+              </div>
+              <div class="f-thread">
+                <div class="w-sys" style="margin-top:40px; color:var(--faint)">Select a conversation — or clear what's waiting on you first</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Filters are chips, not tabs</b> — All / Unread / My circle / Open asks. One room, lenses over it; a tab would imply the conversations live in different places, and they don't.</li>
+        <li><b>"Waiting on you" is a pinned, foldable group.</b> <span class="tag tag-decided">Decided 2026-07-06</span> A red alert badge carries the count and stays visible when the group is folded — pending things can be put away without losing the number. Contents: pending direct asks (flagged ●, <span class="uistr">View ask</span> opens the accept/decline dialog from Journey B) and connect requests (Accept / Decline inline; connect declines stay quiet). Empty → the group disappears entirely, badge and all.</li>
+        <li><b>Conversation rows carry state in form</b> — unread is heavy + blue dot; selected is tint + 2px left accent; the circle mark ◎ sits on connected members' names; class year on every name. Preview line + time, nothing else.</li>
+        <li><b>The bell and this room.</b> The popover surfaces each critical moment <b>once</b> (ask received, offer received, accepted, decline notes), deep-linking here or to the ask's status view — a tap on the shoulder, and then this list is the record. No second inbox.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">open a conversation</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · THE THREAD</span>
+      <span class="pc-title">Thread anatomy &amp; the resolve moment</span>
+      <span class="route">/messages/[id]</span>
+      <span class="pc-sub">Identical chrome for every origin. The ask's whole apparatus lives in the rail; the thread is just people talking.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side rail">
+          <div class="f-nav" title="Home">○</div>
+          <div class="f-nav" title="Help">○</div>
+          <div class="f-nav" title="People">○</div>
+          <div class="f-nav on" title="Messages">●</div>
+          <div class="f-nav" title="School">○</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Maya Chen · '14 ◎</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="f-list"><div class="w-line w-85"></div><div class="w-line w-70"></div><div class="w-line w-85"></div></div>
+              <div class="f-thread">
+                <div class="w-sys"><span class="co" style="margin-right:4px">1</span>Maya accepted your ask · Tue</div>
+                <div class="w-bubble"><div class="w-line w-70" style="margin:2px 0"></div></div>
+                <div class="w-bubble me" style="background:var(--get)"><div class="w-line w-55" style="margin:2px 0; background:rgba(255,255,255,.45)"></div></div>
+                <div class="w-sys" style="color:var(--faint)">— Friday —</div>
+                <div class="w-bubble"><div class="w-line w-85" style="margin:2px 0"></div></div>
+                <div class="w-sys" style="color:var(--faint)"><span class="co" style="margin-right:4px">4</span>Getting somewhere? Add Maya to your circle</div>
+              </div>
+              <div class="f-ctx">
+                <div class="w-label" style="display:flex; align-items:center; gap:5px"><span class="co">2</span> About this conversation <span style="margin-left:auto; color:var(--faint)">»</span></div>
+                <div style="font-size:10px; font-weight:700">Your ask · open</div>
+                <div class="w-ev" style="white-space:normal; margin-top:3px">Maya Chen · Verified '14 · ● Open to help</div>
+                <div style="margin-top:8px">
+                  <button class="w-btn soft" type="button" style="background:var(--sys-wash); color:var(--ink)">Mark resolved</button>
+                </div>
+                <div class="w-label" style="margin-top:10px">Shared</div>
+                <div class="w-ev">maren.design · portfolio.pdf</div>
+              </div>
+            </div>
+            <div class="f-dim">
+              <div class="f-modal" style="position:relative"><span class="co co-float">3</span>
+                <div class="w-label">Mark resolved</div>
+                <div style="font-size:10.5px; font-weight:700; margin:2px 0 6px">Did this help?</div>
+                <div class="w-card" style="padding:6px 10px"><span style="color:var(--faint); font-size:9.5px">One line for Maya, if you like — what came of it (optional)</span></div>
+                <div style="font-size:9px; color:var(--mut); margin-top:6px">☐ Share this win with the circle — names hidden unless you both say so</div>
+                <div style="display:flex; gap:6px; margin-top:8px"><button class="w-btn pri" type="button" style="background:var(--sys)">Resolve</button><button class="w-btn" type="button">Skip the note</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Origin is one quiet line, three variants</b> — <span class="uistr">"Maya accepted your ask"</span> · <span class="uistr">"You offered to help with…"</span> · <span class="uistr">"You connected"</span>. Same thread chrome for all of them; day dividers; read receipts and typing exist <i>here</i> — inside a mutually accepted conversation — and nowhere before it.</li>
+        <li><b>The context rail folds and expands within the chat.</b> <span class="tag tag-decided">Decided 2026-07-06</span> The » chevron collapses it so the conversation takes the full width; the state is remembered per member. Expanded ⇒ the sidebar drops to the icon rail — chrome yields first, content never. Contents: who this is, the day clock, shared files/links, and one action — <b>Mark resolved</b>. No "Schedule a call" button (removed 2026-07-06): scheduling happens in the conversation itself.</li>
+        <li><b>Resolve is a dialog, not a page.</b> Either side can mark resolved → <span class="uistr">"Did this help?"</span> with one optional outcome line <span class="tag tag-decided">Decided</span>, skippable in the same breath. Plus one opt-in checkbox <span class="tag tag-decided">Decided 2026-07-06</span>: <span class="uistr">"Share this win with the circle — names hidden unless you both say so"</span> — the consented source of Home's "It worked" cards; unchecked means it never appears anywhere. Thread stays as history; the ask closes; the slot frees.</li>
+        <li><b>The connect nudge</b> — after both sides have written, one quiet in-thread line, once per pair, either side may tap, the other still accepts. The room's whole purpose in one sentence: conversations that outlive their asks.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="aside a-sys">
+    <b>What never enters this room</b>
+    <p><b>Decline notes don't create threads.</b> They land on the ask's status view and surface once
+    via the bell — a declined ask is an ended request, not a relationship to manage. Match
+    suggestions, expiry notices, and system events stay out too. Messages holds exactly two kinds of
+    thing: <b>real conversations</b> and <b>the requests waiting on you</b>. That scarcity is what
+    makes the unread count worth trusting.</p>
+  </div>
+</section>
+
+<!-- ============================================================ SCHOOL -->
+<section id="school" class="g-sys">
+  <p class="sec-eyebrow">Journey E · the pulse</p>
+  <h2>School — the school's dashboard, 1h refined</h2>
+  <p class="lede">Job: keep the school pulse close without becoming the product's center. 1h's
+  layout survives; the refinement is pruning — the capacity bar, "Manage →", the "Viewing" chip,
+  and the second navy all go — plus two additions: a <b>separate event page</b> for real details
+  <span class="tag tag-decided">Decided 2026-07-06</span> and a <b>circle-aware going line</b>.
+  Pages 2–4 below carry the click-through surfaces, tagged
+  <span class="tag tag-open">Proposed — for review</span>. Reading pages are <b>final
+  destinations</b> (Richard 2026-07-06): everything lives in the body or as inline links — no CTA
+  blocks, no onward modules. The content is the destination.</p>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 1 · DASHBOARD</span>
+      <span class="pc-title">School — strip, cover, pulse</span>
+      <span class="route">/school</span>
+      <span class="pc-sub">The cover is the glance layer; the event page holds the depth. One navy block on the page, ever.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">School</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="w-label">Chadwick</div>
+            <b style="font-size:12px">What's on at Chadwick.</b>
+            <div class="w-card" style="display:flex; align-items:center; gap:10px; margin-top:8px; padding:6px 10px; position:relative"><span class="co co-float">1</span>
+              <span style="display:flex; align-items:center; gap:5px; font-weight:700; font-size:9.5px"><i style="width:6px;height:6px;border-radius:50%;background:var(--give);display:inline-block"></i> Attending · 2</span>
+              <span class="w-ev">MAY 14 · Spring Mixer · Thu 6:00 PM</span>
+              <span class="w-ev">MAY 19 · Founders Dinner · Tue 7:00 PM</span>
+            </div>
+            <div style="margin-top:10px; border-radius:11px; padding:12px 14px; background:linear-gradient(135deg,#0d1b36,#122a52); color:#fff; position:relative">
+              <span class="co co-float" style="background:#fff; color:#12315e">2</span>
+              <div style="display:flex; gap:10px; align-items:flex-start">
+                <div style="flex:none; width:34px; text-align:center; background:rgba(255,255,255,.1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); border-radius:8px; padding:4px 0; line-height:1.1"><div style="font-size:7.5px; font-weight:800; color:#9cc3ff">MAY</div><div style="font-size:14px; font-weight:800">14</div></div>
+                <div style="min-width:0">
+                  <div style="font-size:8.5px; font-weight:700; color:#9cc3ff">Social · hosted by the Alumni Office</div>
+                  <div style="font-size:11.5px; font-weight:800">Spring Mixer on the Main Court Patio</div>
+                  <div style="font-size:9px; color:rgba(255,255,255,.75)">Casual evening for the design + founder crowd — all classes welcome.</div>
+                </div>
+                <span style="margin-left:auto; flex:none; background:#fff; color:#12315e; border-radius:999px; padding:3px 10px; font-size:9px; font-weight:700">I'm going</span>
+              </div>
+              <div style="display:flex; gap:0; margin-top:9px; background:rgba(255,255,255,.07); border-radius:8px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); font-size:8.5px">
+                <div style="flex:1; padding:6px 10px"><div style="color:#9cc3ff; font-weight:700">When</div><div>Thu 6–9 PM PT · Fri 10 AM KST</div></div>
+                <div style="flex:1; padding:6px 10px; border-left:1px solid rgba(255,255,255,.12)"><div style="color:#9cc3ff; font-weight:700">Where</div><div>Main Court Patio · PV campus</div></div>
+                <div style="flex:1; padding:6px 10px; border-left:1px solid rgba(255,255,255,.12)"><div style="color:#9cc3ff; font-weight:700">Format</div><div>In person · casual</div></div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:9px; font-size:8.5px; color:rgba(255,255,255,.85)">
+                <span class="co" style="background:#fff; color:#12315e">3</span>
+                <span>Maya, Jordan and 42 others · <b>3 from your circle are going</b></span>
+                <span style="color:rgba(255,255,255,.6)">· 16 spots left</span>
+                <span style="margin-left:auto; box-shadow:inset 0 0 0 1px rgba(255,255,255,.28); border-radius:7px; padding:2px 8px">Add to calendar</span>
+                <span style="color:#9cc3ff; font-weight:700">View details →</span>
+              </div>
+            </div>
+            <div class="f-cols" style="margin-top:10px">
+              <div class="f-col-main">
+                <div class="w-label"><span class="co" style="margin-right:4px">4</span> Upcoming · 6 events</div>
+                <div class="w-row" style="border-top:none; background:var(--sys-wash); border-radius:7px; padding-left:5px; box-shadow:inset 2px 0 0 var(--sys)"><span class="w-count">MAY 14</span><div class="w-who"><div class="w-name">Spring Mixer</div><div class="w-ev">Thu 6:00 PM PT · Main Court Patio · Social</div></div><span class="w-chip" style="padding:1px 6px">›</span></div>
+                <div class="w-row"><span class="w-count">MAY 19</span><div class="w-who"><div class="w-name">Founders Dinner</div><div class="w-ev">Tue 7:00 PM PT · The Riviera · Dinner</div></div><span class="w-chip sel" style="color:var(--give-deep); background:var(--give-wash); border-color:var(--give)">✓ Going</span><span class="w-chip" style="padding:1px 6px">›</span></div>
+                <div class="w-row"><span class="w-count">JUN 02</span><div class="w-who"><div class="w-name">Resume &amp; portfolio clinic</div><div class="w-ev">Tue 5:30 PM PT · 9:30 AM KST, Wed · Online · Career</div></div><span class="w-chip" style="padding:1px 6px">›</span></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">5</span>
+                  <div class="w-label" style="display:flex; align-items:center">Announcements · 2 new <span style="margin-left:auto; color:var(--get-deep); font-weight:700">View all →</span></div>
+                  <div style="border-left:2px solid var(--get); background:var(--get-wash); border-radius:4px; padding:4px 8px; font-size:9.5px; font-weight:600">Class of '26 mentorship cohort opens Friday</div>
+                  <div class="w-ev" style="margin-top:5px; white-space:normal">12 alumni added recruiting roles this week · 1d</div>
+                  <div class="w-ev" style="white-space:normal">Reunion weekend set for Oct 17–19 · yesterday</div>
+                </div>
+                <div class="w-card" style="margin-top:8px">
+                  <div class="w-label" style="display:flex; align-items:center">Newsletter <span style="margin-left:auto; color:var(--get-deep); font-weight:700">View more →</span></div>
+                  <div class="w-name" style="white-space:normal">Issue 14 — This month in the network ›</div>
+                  <div class="w-ev" style="white-space:normal">Spring hiring · three mentors to meet · reunion first details</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The attending strip is the manage surface.</b> <span class="tag tag-decided">Decided 2026-07-06</span> Your going events, always on top, chronological — a chip selects its event into the cover. 1h's "Manage →" is dropped; there is no second RSVP surface. Empty → one line + <span class="uistr">"Browse events"</span>; the strip hides entirely.</li>
+        <li><b>The cover is the glance layer.</b> <span class="tag tag-decided">Decided 2026-07-06</span> Essentials without leaving the page: date tile, category + host, title, <b>one description line</b>, When/Where/Format, RSVP, Add to calendar (ICS), and <span class="uistr">"View details →"</span> into the event page. Pre-RSVP the cover leads with one-tap <span class="uistr">"I'm going"</span>; after, <span class="uistr">"✓ You're going · Change"</span> — and un-RSVP is silent: no departure signal, the count just recounts. Navy is reserved for this cover alone.</li>
+        <li><b>The going line is warm, the capacity is calm.</b> <span class="uistr">"Maya, Jordan and 42 others · 3 from your circle are going"</span> — the member's graph first; the stack opens who's-going (directory privacy). 1h's fill bar is <b>dropped</b> (scarcity mechanics); capacity is quiet text only when it matters (<span class="uistr">"16 spots left"</span>), full → <span class="uistr">"This one's full — join the waitlist?"</span></li>
+        <li><b>The list: selection, not status.</b> "Viewing" chip dropped — the cover's current event carries the tint + left-accent selection treatment (same as Messages). <span class="uistr">"✓ Going"</span> is the only chip. Chevron → event page. <b>Times are member-local first, campus second</b> (<span class="uistr">"5:30 PM PT · 9:30 AM KST, Wed"</span>) — the two-campus rule; the event model needs an explicit zone/campus field. Full calendar: deferred.</li>
+        <li><b>The pulse rail, all light — and everything clickable.</b> <span class="tag tag-decided">Decided 2026-07-06</span> Every announcement row and the latest newsletter issue click straight through to their reading pages; <span class="uistr">"View all →"</span> / <span class="uistr">"View more →"</span> open the index pages, whose rows land on the same destinations. Two routes, one destination. <b>The newsletter sits in a light card and is just called "Newsletter"</b> — no "The Bridge" branding <span class="tag tag-decided">Decided 2026-07-06</span>; two dark blocks fought for the eye, and the cover owns the navy. Kicker reads "Chadwick", not "Class of '26" — events are all-classes.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">"View details" · list chevron · any event notification</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · EVENT PAGE</span>
+      <span class="pc-title">One page per event — the real details</span>
+      <span class="route">/school/events/[id]</span>
+      <span class="pc-sub">Decided 2026-07-06 (page exists) · proposed refinements for review: the cover travels, blocks appear only when filled, RSVP-gated join links.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">← School · Spring Mixer</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div style="border-radius:11px; padding:9px 12px; background:linear-gradient(135deg,#0d1b36,#122a52); color:#fff; display:flex; align-items:center; gap:10px; position:relative"><span class="co co-float" style="background:#fff; color:#12315e">1</span>
+              <div style="flex:none; width:30px; text-align:center; background:rgba(255,255,255,.1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); border-radius:7px; padding:3px 0; line-height:1.1"><div style="font-size:7px; font-weight:800; color:#9cc3ff">MAY</div><div style="font-size:12px; font-weight:800">14</div></div>
+              <div style="min-width:0"><div style="font-size:11px; font-weight:800">Spring Mixer on the Main Court Patio</div><div style="font-size:8.5px; color:rgba(255,255,255,.75)">Thu, May 14 · 6–9 PM PT · Fri 10 AM KST · Maya, Jordan + 42 · 3 from your circle</div></div>
+              <span style="margin-left:auto; flex:none; background:#fff; color:#12315e; border-radius:999px; padding:3px 10px; font-size:9px; font-weight:700">I'm going</span>
+              <span style="flex:none; box-shadow:inset 0 0 0 1px rgba(255,255,255,.28); border-radius:7px; padding:2px 8px; font-size:8.5px">Add to calendar</span>
+            </div>
+            <div class="f-cols" style="margin-top:10px">
+              <div class="f-col-main">
+                <div class="w-label"><span class="co" style="margin-right:4px">2</span> About</div>
+                <div class="w-line w-85"></div><div class="w-line w-70"></div>
+                <div class="w-label" style="margin-top:9px">Itinerary</div>
+                <div class="w-row" style="border-top:none"><span class="w-count">6:00</span><div class="w-who"><div class="w-ev">Doors + drinks on the patio</div></div></div>
+                <div class="w-row"><span class="w-count">6:45</span><div class="w-who"><div class="w-ev">Welcome from the Alumni Office</div></div></div>
+                <div class="w-row"><span class="w-count">7:15</span><div class="w-who"><div class="w-ev">Open mixer · name tags by class year</div></div></div>
+                <div class="w-label" style="margin-top:9px">Good to know</div>
+                <div style="display:flex; gap:8px">
+                  <div class="w-card" style="flex:1; padding:6px 9px"><div class="w-label" style="margin:0">Parking</div><div class="w-ev" style="white-space:normal">Main lot, enter on Academy Dr</div></div>
+                  <div class="w-card" style="flex:1; padding:6px 9px"><div class="w-label" style="margin:0">Cost</div><div class="w-ev">Free for members</div></div>
+                  <div class="w-card" style="flex:1; padding:6px 9px"><div class="w-label" style="margin:0">Host</div><div class="w-ev">Alumni Office · J. Park</div></div>
+                </div>
+                <div class="w-card" style="margin-top:8px; padding:6px 9px; position:relative"><span class="co co-float" style="top:5px; right:6px">3</span><div class="w-ev" style="white-space:normal">Online events: a "Join now" button appears in the cover — RSVP'd members only, ~1 hour before start</div></div>
+              </div>
+              <div class="f-col-rail">
+                <div class="w-card" style="position:relative"><span class="co co-float">4</span>
+                  <div class="w-label">Who's going · 44</div>
+                  <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14 ◎</div></div></div>
+                  <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">JP</div><div class="w-who"><div class="w-name">Jordan Park · '11 ◎</div></div></div>
+                  <div class="w-row"><div class="w-ava" style="color:#0b8a57;background:#e7f8f0">+</div><div class="w-who"><div class="w-ev">41 more members</div></div></div>
+                  <div style="font-size:8.5px; color:var(--faint); margin-top:5px">Shows what the directory shows — nothing more</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The cover travels — and repeats the commitments.</b> <span class="tag tag-open">Proposed — for review</span> "View details" carries the same navy cover over as the page's hero (O3 sanctions navy for event covers specifically) — the click feels like the cover expanding, not navigating away; details unfold on light canvas beneath. RSVP + Add to calendar live in it, so a member arriving from an email acts without scrolling. RSVP → strip + Home update · reminder T-1d · un-RSVP silent. Routes in: cover <span class="uistr">"View details"</span> · list chevron · every event notification. Back → School with this event selected.</li>
+        <li><b>Blocks appear only when filled.</b> <span class="tag tag-open">Proposed — for review</span> About + host (member host → their profile; institutional host stays text) · itinerary · "Good to know" fact cards (parking/directions as a maps link-out, cost, dress, +1 policy). A casual mixer shows two blocks; a reunion dinner shows five. Never a template with empty sections.</li>
+        <li><b>Online events: the join link earns its place.</b> <span class="tag tag-open">Proposed — for review</span> Visible to RSVP'd members only, and promoted into the cover as <span class="uistr">"Join now"</span> near event time (~T-1h). Stops link leakage; gives RSVP a real function for online events.</li>
+        <li><b>Who's going — circle first, expands in place.</b> <span class="uistr">"41 more members"</span> expands the panel (no navigation), reusing the People row wholesale: avatar, name + year, circle mark, one relationship-state action (Message / Connect); row click → profile. Shows exactly what the directory would show — nothing more.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">the same page, in its other states</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 2 · STATES</span>
+      <span class="pc-title">Full · changed · past — the event page over time</span>
+      <span class="route">/school/events/[id]</span>
+      <span class="pc-sub">Proposed — for review. Most of the event page's design is its states; the happy path is the easy part.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame" style="min-height:210px">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">Event states</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="f-cols">
+              <div class="w-card" style="flex:1; position:relative"><span class="co co-float">1</span>
+                <div class="w-label">Full</div>
+                <div style="font-size:9.5px; color:var(--mut)">This one's full — join the waitlist?</div>
+                <button class="w-btn" type="button" style="margin-top:5px">Join the waitlist</button>
+                <div style="font-size:8.5px; color:var(--faint); margin-top:5px">A spot opens → "Still want in?" — asks, never auto-commits</div>
+              </div>
+              <div class="w-card" style="flex:1; position:relative"><span class="co co-float">2</span>
+                <div class="w-label">Changed</div>
+                <div style="border-left:2px solid var(--amber); background:var(--amber-wash); border-radius:4px; padding:4px 8px; font-size:9px">Time changed — was Thu 6:00 PM</div>
+                <div style="font-size:8.5px; color:var(--faint); margin-top:5px">RSVP'd members notified once · bell + email</div>
+              </div>
+              <div class="w-card" style="flex:1; position:relative"><span class="co co-float">3</span>
+                <div class="w-label">Past</div>
+                <div style="font-size:9.5px; font-weight:700">You went · 44 attended</div>
+                <div style="font-size:8.5px; color:var(--faint); margin-top:5px">RSVP controls gone · who-was-there keeps directory rules</div>
+              </div>
+              <div class="w-card" style="flex:1; position:relative"><span class="co co-float">4</span>
+                <div class="w-label">Always off the page</div>
+                <div style="font-size:8.5px; color:var(--faint); margin-top:2px">No comments · no view counts · no share-to-social — logistics + people only</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Full → waitlist, and promotion asks.</b> When a spot opens: <span class="uistr">"A spot opened for the Founders Dinner — still want in?"</span> Confirm, never auto-commit — someone who waitlisted two weeks ago hasn't promised tonight. The no-surprise-commitments posture applies to events too.</li>
+        <li><b>Changed — say it once, plainly.</b> A quiet change line on the page (<span class="uistr">"Time changed — was Thu 6:00 PM"</span>) and one notification to RSVP'd members (bell + email). Un-notified changes are how members stop trusting RSVPs. <b>Cancelled</b> works the same: the page stays reachable, states it plainly, notifies once — no tombstone drama.</li>
+        <li><b>Past — a quiet recap.</b> <span class="uistr">"You went · 44 attended"</span>, controls gone, who's-going becomes who-was-there under the same privacy. Shared attendance feeds connect-intro suggestions quietly (<span class="uistr">"You were both at the Spring Mixer"</span> as a quick-hello chip) — signal in the plumbing, not nudges on the page.</li>
+        <li><b>What stays off the event page, in every state:</b> comments and discussion walls (no public replies anywhere in the product), view counts, share-to-social. Logistics + people; the only social mechanics are RSVP and who's-going.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">"View all →" on the dashboard rail</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 3A · ANNOUNCEMENTS INDEX</span>
+      <span class="pc-title">Announcements — the list</span>
+      <span class="route">/school/announcements</span>
+      <span class="pc-sub">Pinned on top, then reverse-chron. Every row is a door to its reading page.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame" style="min-height:230px">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">← School · Announcements</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="w-chips" style="margin:0 0 8px"><span class="co" style="margin-right:2px">1</span><span class="w-chip sel" style="color:var(--ink); background:var(--sys-wash); border-color:var(--sys)">All</span><span class="w-chip">Mentorship</span><span class="w-chip">Hiring</span><span class="w-chip">Reunion</span><span class="w-chip">General</span></div>
+            <div style="border-left:2px solid var(--get); background:var(--get-wash); border-radius:6px; padding:6px 10px; position:relative"><span class="co co-float" style="top:6px">2</span>
+              <div style="font-size:8.5px; font-weight:700; color:var(--get-deep)">Pinned · Mentorship</div>
+              <div class="w-name" style="white-space:normal">Class of '26 mentorship cohort opens Friday</div>
+            </div>
+            <div class="w-row" style="margin-top:6px; border-top:none"><span class="co">3</span><div class="w-who"><div class="w-name" style="font-weight:800">12 alumni added recruiting roles this week <i style="font-style:normal; color:var(--get)">•</i></div><div class="w-ev">Hiring · 1d ago</div></div><span class="w-chip" style="padding:1px 7px">›</span></div>
+            <div class="w-row"><div class="w-who"><div class="w-name" style="color:var(--mut); font-weight:600">Reunion weekend set for Oct 17–19</div><div class="w-ev">Reunion · yesterday</div></div><span class="w-chip" style="padding:1px 7px">›</span></div>
+            <div class="w-row"><div class="w-who"><div class="w-name" style="color:var(--mut); font-weight:600">Spring gala photos — thank you</div><div class="w-ev">General · Jun 20</div></div><span class="w-chip" style="padding:1px 7px">›</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Tag chips filter, never tabs</b> — All / Mentorship / Hiring / Reunion / General. One list, lenses over it.</li>
+        <li><b>Pinned stays on top</b> regardless of filter — the one that matters keeps its place until the office unpins it.</li>
+        <li><b>Rows are doors.</b> Title · tag · date; unread = heavy + blue dot, read = lighter. Click anywhere on the row (or the chevron) → the reading page. Month dividers only when volume earns them. Rows on the School dashboard and Home skip this page and jump straight to reading.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">click a row → its reading page · (dashboard and Home rows jump straight there)</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 3B · ANNOUNCEMENT</span>
+      <span class="pc-title">The reading page</span>
+      <span class="route">/school/announcements/[id]</span>
+      <span class="pc-sub">Proposed — for review. The calmest layout in the app: one column, no rails, nothing further to click through to — this is the final page.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">← School · Announcement</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div style="max-width:58%; margin:0 auto; position:relative"><span class="co co-float">1</span>
+              <span class="w-chip" style="color:var(--get-deep); background:var(--get-wash); border-color:var(--get)">Hiring</span>
+              <div style="font-size:12.5px; font-weight:800; margin-top:5px">12 alumni added recruiting roles this week</div>
+              <div class="w-ev" style="margin-top:2px">Alumni Office · Jul 2</div>
+              <div class="w-line w-85" style="margin-top:9px"></div>
+              <div class="w-line w-85"></div>
+              <div class="w-line w-70"></div>
+              <div class="w-line w-85"></div>
+              <div class="w-line w-40"></div>
+              <div style="font-size:10px; margin-top:8px; position:relative"><span class="co" style="margin-right:6px; vertical-align:-3px">2</span>The full list is in the directory under <u style="color:var(--get-deep)">open roles</u>, and <u style="color:var(--get-deep)">here's how referrals work</u> this cycle.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>The reading column — and the final page.</b> <span class="tag tag-decided">Richard 2026-07-06</span> Tag · title · byline + date · body (rich text, maybe one image), centered at reading width (<span class="route">--container-reading 680</span>), no rails. This page is the end of the road: no CTA block, no "next" module, no onward routing — reading is the destination. Arriving marks it read, so the "2 new" chip stays honest.</li>
+        <li><b>Everything lives in the body, or as a link.</b> Anything actionable is written into the text or carried by inline links (in-product or external), the way a well-written school email would do it — never a button appended to the bottom.
+          <div class="sub"><b>Two routes here</b> (Richard 2026-07-06): any announcement row on School or Home → straight in; or the index page (3A) → any row.</div></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">"View more →" on the newsletter card</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 4A · NEWSLETTER ARCHIVE</span>
+      <span class="pc-title">Newsletter — the issue list</span>
+      <span class="route">/school/newsletter</span>
+      <span class="pc-sub">A blog archive: reverse-chron issues, each clickable. That's the whole page.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame" style="min-height:230px">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">← School · Newsletter</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div class="w-card" style="position:relative"><span class="co co-float">1</span>
+              <div class="w-label">Issue 14 · June 2026</div>
+              <div class="w-name" style="white-space:normal">This month in the network ›</div>
+              <div class="w-ev" style="white-space:normal">Spring hiring · three mentors to meet · reunion first details</div>
+            </div>
+            <div class="w-card" style="margin-top:8px; position:relative"><span class="co co-float">2</span>
+              <div class="w-label">Issue 13 · May 2026</div>
+              <div class="w-name" style="white-space:normal; color:var(--mut)">Commencement season ›</div>
+              <div class="w-ev" style="white-space:normal">Graduation notes · summer plans · two new circles</div>
+            </div>
+            <div class="w-card" style="margin-top:8px">
+              <div class="w-label">Issue 12 · April 2026</div>
+              <div class="w-name" style="white-space:normal; color:var(--mut)">Spring openings ›</div>
+              <div class="w-ev" style="white-space:normal">Early hiring signals · the mixer announced · campus notes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Reverse-chron issue cards</b> — number, month, headline, three-line contents. A blog archive, nothing else: no search, no tags, no featured block; pilot volume is a dozen issues a year.</li>
+        <li><b>Each card is a door</b> → its issue page. School's newsletter card jumps straight to the latest issue, skipping this page; the archive is for everything older.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">click an issue → its reading page · (School's card jumps straight to the latest)</span><div class="fl-line"></div></div>
+
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE 4B · NEWSLETTER ISSUE</span>
+      <span class="pc-title">The newsletter issue — just news</span>
+      <span class="route">/school/newsletter/[issue]</span>
+      <span class="pc-sub">Reads like a blog post of the month's news: plain sections, links only where the text carries them, no actions anywhere.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div class="frame">
+        <div class="f-side">
+          <div class="f-logo"><i>●●</i> BridgeCircle</div>
+          <div class="f-nav">Home</div>
+          <div class="f-nav">Help</div>
+          <div class="f-nav">People</div>
+          <div class="f-nav">Messages <span class="cnt">3</span></div>
+          <div class="f-nav on">School</div>
+          <div class="f-me"><i></i> Maren Cho '22</div>
+        </div>
+        <div class="f-main">
+          <div class="f-top"><span class="f-title">← Newsletter · Issue 14</span><span style="flex:1"></span><span class="f-bell"></span></div>
+          <div class="f-body">
+            <div style="max-width:58%; margin:0 auto; position:relative"><span class="co co-float">1</span>
+              <div class="w-label">Newsletter · Issue 14 · June 2026</div>
+              <div style="font-size:12.5px; font-weight:800">This month in the network</div>
+              <div class="w-row" style="margin-top:8px; border-top:none"><div class="w-who"><div class="w-name">Spring hiring — 12 new alumni roles</div><div class="w-ev">a busy month for the class of '19 in particular</div></div></div>
+              <div class="w-row"><div class="w-who"><div class="w-name">Three mentors to meet this month</div><div class="w-ev">chosen with the classes of '24–'27 in mind</div></div></div>
+              <div class="w-row"><div class="w-who"><div class="w-name">Reunion weekend — first details</div><div class="w-ev">Oct 17–19 · Palos Verdes campus</div></div></div>
+              <div style="font-size:8.5px; color:var(--faint); margin-top:8px"><span class="co" style="margin-right:5px">2</span>Email delivery is a preference in your profile — not a button here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>It's just news.</b> <span class="tag tag-decided">Richard 2026-07-06</span> The issue reads in-product like a good email newsletter — sections of plain news in the same reading column as announcements, links only where the text naturally carries them, <b>no actions anywhere</b>. Read it, close it.
+          <div class="sub"><b>Two routes here</b> (Richard 2026-07-06): the latest issue on School's card → straight in; or the archive page (4A) → any issue.</div></li>
+        <li><b>No buttons here either.</b> Email delivery of the newsletter is a preference in profile → email settings — which closes the earlier Subscribe ❓ without putting a subscription button on a news page. And it's just called <b>"Newsletter"</b> <span class="tag tag-decided">Richard 2026-07-06</span> — the "The Bridge" name is dropped.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CONNECTIVE TISSUE -->
+<section id="tissue" class="g-sys">
+  <p class="sec-eyebrow">Journey G · the connective tissue</p>
+  <h2>Onboarding, cold-start &amp; the surfaces the flows point at</h2>
+  <p class="lede">Bare-minimum mockups for everything the core loop referenced but hadn't mapped —
+  the first session, the notification record, settings, trust &amp; safety, your circle, and your
+  ask history. <b>Scope now fixed (Richard 2026-07-06):</b> one organization; members are alumni +
+  students within 4 years of graduating.</p>
+
+  <!-- ONBOARDING + COLD START -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGE · ONBOARDING</span>
+      <span class="pc-title">The seamless arc — navy → light → navy, prefilled, three phases</span>
+      <span class="route">/welcome</span>
+      <span class="pc-sub">Rendered at desktop fidelity from the Field Pro v2 reference (`Toss Style - Field Pro v2.dc.html` desktop onboarding): navy welcome/all-set bookends, light steps as a centered column, prefill-from-roster, the import accelerator, a persistent progress bar, Skip on everything, and the 3-way freshness radio — with our cold-start folded into Phase 3.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+     <div style="display:flex; flex-direction:column; gap:10px">
+      <!-- SCREEN 1 · Welcome (navy, full) -->
+      <div>
+        <div style="font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px">Screen 1 · Welcome</div>
+        <div class="frame" style="min-height:200px; background:radial-gradient(95% 130% at 90% -10%, rgba(73,147,252,.5), rgba(73,147,252,0) 55%), radial-gradient(80% 120% at 5% 112%, rgba(114,47,200,.4), rgba(114,47,200,0) 55%), linear-gradient(157deg,#2a3340,#191f28); color:#fff; border:none; position:relative"><span class="co co-float">1</span>
+          <div style="padding:14px 20px; display:flex; align-items:center; gap:7px"><span style="font-size:13px">◎◎</span><span style="font-weight:800; font-size:12px; letter-spacing:-.02em">BridgeCircle</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:14px 20px 26px">
+            <div style="max-width:340px">
+              <div style="font-size:8.5px; font-weight:700; letter-spacing:.08em; color:#8fc0ff">THE CHADWICK NETWORK</div>
+              <div style="font-size:22px; font-weight:800; letter-spacing:-.03em; margin-top:7px">Welcome, Alex.</div>
+              <div style="font-size:10px; line-height:1.6; color:rgba(255,255,255,.75); margin-top:7px">Set up your profile so classmates can find you — and you can find them. A few quick steps, about two minutes.</div>
+              <div style="display:flex; justify-content:center; gap:5px; margin-top:12px">
+                <span style="font-size:8.5px; background:rgba(100,168,255,.16); border:1px solid rgba(100,168,255,.28); border-radius:999px; padding:4px 10px"><b style="color:#8fc0ff">1</b> You</span>
+                <span style="font-size:8.5px; background:rgba(100,168,255,.16); border:1px solid rgba(100,168,255,.28); border-radius:999px; padding:4px 10px"><b style="color:#8fc0ff">2</b> Your experience</span>
+                <span style="font-size:8.5px; background:rgba(100,168,255,.16); border:1px solid rgba(100,168,255,.28); border-radius:999px; padding:4px 10px"><b style="color:#8fc0ff">3</b> Help &amp; connect</span>
+              </div>
+              <button style="background:#fff; color:var(--get-deep); border:none; border-radius:11px; padding:9px 22px; font-size:10.5px; font-weight:700; margin-top:14px">Get started →</button>
+              <div style="font-size:8px; color:rgba(255,255,255,.55); margin-top:9px">Your details stay within Chadwick.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- SCREEN 2 · Phase 2 Experience (light, centered column, faithful) -->
+      <div>
+        <div style="font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px">Screen 2 · Phase 2 (representative light step) — centered column, import accelerator</div>
+        <div class="frame" style="background:#eef1f4; border:none; justify-content:center; position:relative"><span class="co co-float">2</span>
+          <div style="width:100%; max-width:440px; padding:18px 16px">
+            <div style="display:flex; align-items:center; justify-content:space-between"><span style="font-weight:800; font-size:11px">◎◎ BridgeCircle</span><span style="font-size:9px; color:var(--faint); font-weight:600">Phase 2 of 3</span></div>
+            <div style="display:flex; gap:5px; margin-top:12px"><span style="flex:1;height:5px;border-radius:3px;background:var(--get)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--get)"></span><span style="flex:1;height:5px;border-radius:3px;background:#dfe4ea"></span></div>
+            <div style="font-size:9px; color:var(--faint); font-weight:600; margin-top:10px">← Back</div>
+            <div style="font-size:9px; font-weight:700; color:var(--get-deep); margin-top:8px">YOUR EXPERIENCE</div>
+            <div style="font-size:17px; font-weight:800; letter-spacing:-.02em; margin-top:3px">Education &amp; career.</div>
+            <div style="font-size:9.5px; color:var(--mut); margin-top:4px; line-height:1.5">Other members search by school, company, and field when they're looking for someone to ask.</div>
+            <div style="background:#f0f6ff; border:1px solid #d6e6ff; border-radius:12px; padding:11px; margin-top:12px">
+              <div style="font-size:10px; font-weight:700; color:var(--get-deep)">⚡ Want to fill this faster?</div>
+              <div style="font-size:8.5px; color:var(--mut); margin-top:3px; line-height:1.45">Import once to pre-fill education, roles &amp; skills. You review every field first.</div>
+              <div style="display:flex; gap:7px; margin-top:8px"><span style="flex:1; text-align:center; background:#fff; border:1px solid #d6e6ff; border-radius:9px; padding:8px; font-size:9px; font-weight:700">Import from LinkedIn</span><span style="flex:1; text-align:center; background:#fff; border:1px solid #d6e6ff; border-radius:9px; padding:8px; font-size:9px; font-weight:700">Upload résumé</span></div>
+            </div>
+            <div style="margin-top:12px"><div style="font-size:8px; font-weight:700; color:var(--faint); letter-spacing:.04em">UNIVERSITY</div><div style="background:#fff; border-radius:10px; padding:9px 11px; font-size:9.5px; color:var(--faint); margin-top:4px">Where you studied</div></div>
+            <div style="margin-top:8px"><div style="font-size:8px; font-weight:700; color:var(--faint); letter-spacing:.04em">CURRENT ROLE &amp; CITY</div><div style="background:#fff; border-radius:10px; padding:9px 11px; font-size:9.5px; color:var(--faint); margin-top:4px">What you do today · where you're based</div></div>
+            <div style="margin-top:8px"><div style="font-size:8px; font-weight:700; color:var(--faint); letter-spacing:.04em">SKILLS</div>
+              <div style="display:flex; flex-wrap:wrap; gap:5px; margin-top:5px"><span style="background:#e4e8ee; color:var(--mut); border-radius:999px; padding:4px 10px; font-size:9px; font-weight:700">Product strategy</span><span style="background:#e4e8ee; color:var(--mut); border-radius:999px; padding:4px 10px; font-size:9px; font-weight:700">Fintech</span><span style="background:#fff; border:1.5px dashed var(--line); color:var(--faint); border-radius:999px; padding:4px 10px; font-size:9px; font-weight:700">+ Add</span></div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:14px"><button style="flex:1; background:#fff; color:var(--mut); border:1px solid var(--line); border-radius:11px; padding:9px; font-size:9.5px; font-weight:700">Skip for now</button><button class="w-cta" type="button" style="flex:1; background:var(--get); padding:9px; border-radius:11px">Save and continue</button></div>
+          </div>
+        </div>
+      </div>
+      <!-- SCREEN 3 · Phase 3 Help & connect (light, faithful: toggle + freshness radios + cold-start) -->
+      <div>
+        <div style="font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px">Screen 3 · Phase 3 — help opt-in · freshness preference · cold-start folded in</div>
+        <div class="frame" style="background:#eef1f4; border:none; justify-content:center; position:relative"><span class="co co-float">3</span>
+          <div style="width:100%; max-width:440px; padding:18px 16px">
+            <div style="display:flex; align-items:center; justify-content:space-between"><span style="font-weight:800; font-size:11px">◎◎ BridgeCircle</span><span style="font-size:9px; color:var(--faint); font-weight:600">Phase 3 of 3</span></div>
+            <div style="display:flex; gap:5px; margin-top:12px"><span style="flex:1;height:5px;border-radius:3px;background:var(--get)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--get)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--get)"></span></div>
+            <div style="font-size:9px; font-weight:700; color:var(--get-deep); margin-top:10px">HELP &amp; CONNECT</div>
+            <div style="font-size:17px; font-weight:800; letter-spacing:-.02em; margin-top:3px">How you can help — and who to meet.</div>
+            <div style="background:#fff; border-radius:12px; padding:11px; margin-top:11px">
+              <div style="display:flex; align-items:flex-start; gap:9px"><span class="w-knob on" style="background:var(--give); margin-top:1px"></span><div><div style="font-size:10px; font-weight:700">I'm open to helping fellow members</div><div style="font-size:8.5px; color:var(--mut); margin-top:1px">Members can ask you. Pause or change any time.</div></div></div>
+              <div class="w-chips" style="margin-top:8px"><span class="w-chip sel" style="font-size:8.5px; color:var(--give-deep); background:var(--give-wash); border-color:var(--give)">hiring</span><span class="w-chip" style="font-size:8.5px">portfolios</span><span class="w-chip" style="font-size:8.5px">returning to Korea</span><span class="w-chip" style="font-size:8.5px">+ topic</span></div>
+            </div>
+            <div style="background:#fff; border-radius:12px; padding:11px; margin-top:9px">
+              <div style="font-size:10px; font-weight:700">Keep my profile fresh</div>
+              <div style="font-size:8.5px; color:var(--mut)">How should we handle LinkedIn changes later?</div>
+              <div style="display:flex; align-items:flex-start; gap:8px; background:var(--paper); border:1.5px solid var(--ink); border-radius:9px; padding:8px; margin-top:7px"><span style="width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);background:var(--ink);flex:none;margin-top:1px"></span><div><div style="font-size:9px; font-weight:700">Email me proposed changes <span style="color:var(--faint); font-weight:500">· recommended</span></div><div style="font-size:8px; color:var(--mut)">You confirm before anything lands.</div></div></div>
+              <div style="display:flex; gap:6px; margin-top:6px"><span style="flex:1; font-size:8px; color:var(--mut); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 8px">○ Apply, then email me</span><span style="flex:1; font-size:8px; color:var(--mut); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 8px">○ Don't check</span></div>
+            </div>
+            <div style="background:#fff; border-radius:12px; padding:11px; margin-top:9px; border-top:3px solid var(--sys)">
+              <div style="display:flex; align-items:center"><div style="font-size:9px; font-weight:700; color:var(--sys); letter-spacing:.04em">SAY HI TO YOUR CLASS OF '26</div><span style="margin-left:auto; font-size:9px; font-weight:700; color:var(--get-deep)">Select all</span></div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:7px"><span style="font-size:9px; background:var(--paper); border-radius:999px; padding:4px 10px; font-weight:600">☑ Tara Kim</span><span style="font-size:9px; background:var(--paper); border-radius:999px; padding:4px 10px; font-weight:600">☑ Ravi Lall</span><span style="font-size:9px; background:var(--paper); border-radius:999px; padding:4px 10px; color:var(--faint)">☐ Jules Barr</span><span style="font-size:9px; color:var(--faint)">+ 24 more</span></div>
+              <div style="font-size:8.5px; color:var(--faint); margin-top:8px; border-top:1px solid var(--line-soft); padding-top:7px">Anything you're trying to figure out? <span style="color:var(--get-deep); font-weight:600">→ ask now, or later</span></div>
+            </div>
+            <button class="w-cta" type="button" style="background:var(--ink); width:100%; margin-top:12px; padding:10px; border-radius:11px">Finish · connect with 2 classmates</button>
+          </div>
+        </div>
+      </div>
+      <!-- SCREEN 4 · All set (navy) -->
+      <div>
+        <div style="font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint); margin-bottom:4px">Screen 4 · All set</div>
+        <div class="frame" style="min-height:170px; background:radial-gradient(95% 130% at 90% -10%, rgba(73,147,252,.5), rgba(73,147,252,0) 55%), radial-gradient(80% 120% at 5% 112%, rgba(114,47,200,.4), rgba(114,47,200,0) 55%), linear-gradient(157deg,#2a3340,#191f28); color:#fff; border:none; position:relative; text-align:center"><span class="co co-float">4</span>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:22px 20px">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(100,168,255,.18);border:1px solid rgba(100,168,255,.32);display:flex;align-items:center;justify-content:center;font-size:19px;color:#8fc0ff">✓</div>
+            <div style="font-size:8.5px; font-weight:700; color:#8fc0ff; margin-top:11px">YOU'RE IN</div>
+            <div style="font-size:19px; font-weight:800; letter-spacing:-.03em; margin-top:5px">You're all set, Alex.</div>
+            <div style="font-size:9.5px; color:rgba(255,255,255,.75); margin-top:5px; max-width:300px; line-height:1.55">Your profile is live in the Chadwick network — and we've lined up a few classmates worth meeting.</div>
+            <div style="display:flex; gap:9px; margin-top:14px"><button style="background:#fff; color:var(--get-deep); border:none; border-radius:11px; padding:9px 20px; font-size:10px; font-weight:700">Go to your dashboard →</button><button style="background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.26); border-radius:11px; padding:9px 16px; font-size:9.5px; font-weight:600">Review profile</button></div>
+          </div>
+        </div>
+      </div>
+     </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Welcome (navy).</b> The warm open of a bookended arc — kicker, "Welcome, [name]", a two-minute promise, and the three-phase preview so the length is honest up front. Vocabulary fixed to <b>the Chadwick network</b> (alumni + students), not "alumni-only."</li>
+        <li><b>Phase 1 · You — prefilled.</b> Because members are invited through the school, name / class year / email arrive <b>already filled from the roster</b>; this step is a <i>confirm</i>, not a blank form. The single biggest anti-friction move. A shared progress bar rides every step.</li>
+        <li><b>Phase 2 · Your experience — the import accelerator.</b> <span class="tag tag-decided">From the reference</span> Opens with <span class="uistr">"Import from LinkedIn / Upload résumé — you review every field first,"</span> so the tedious part is one click. It's the same enrichment pipeline that keeps profiles fresh later, surfaced up front. <b>Skip for now</b> sits on every step — never trapped.</li>
+        <li><b>Phase 3 · Help &amp; connect — the give opt-in and the cold-start, folded into one finish.</b> The "open to helping" toggle + topics, the freshness preference (sets the §7 review-queue default), and then — without a separate wizard — the cold-start: <span class="uistr">"Anything you're trying to figure out?"</span>, matched asks to offer on, and the <b>class checklist</b> (Select all / individuals) → a connect each. "Mentoring" is gone — it's <b>helping</b> (ADR 0011).</li>
+        <li><b>All set (navy).</b> The arc closes where it opened. Because Phase 3 seeded asks / offers / connects, <b>Home already has content</b> — the empty-first-session problem is solved before it starts.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">the surfaces the core loop kept referencing</span><div class="fl-line"></div></div>
+
+  <!-- NOTIFICATIONS + SETTINGS side by side -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">PAGES · RECORD &amp; CONTROL</span>
+      <span class="pc-title">Notification section · Settings · Your asks (history) · My circle</span>
+      <span class="route">/notifications · /settings · /help/asks · circle</span>
+      <span class="pc-sub">The durable lists behind the popover, chip, and filters. Bare-minimum — same row/list vocabulary as everywhere else, nothing new invented.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+        <div class="frame" style="min-height:0"><div class="f-main" style="border-radius:12px">
+          <div class="f-top"><span class="f-title">Notifications</span><span style="flex:1"></span><span class="w-count">Mark all read</span></div>
+          <div class="f-body">
+            <div style="font-size:8px; color:var(--faint); margin-bottom:5px">The full record behind the bell — each deep-links to its section (§ nav model)</div>
+            <div class="w-row" style="border-top:none"><span style="width:6px;height:6px;border-radius:50%;background:var(--get);flex:none"></span><div class="w-who"><div class="w-name">Maya accepted your ask</div><div class="w-ev">2h ago → the thread</div></div></div>
+            <div class="w-row"><span style="width:6px;height:6px;border-radius:50%;background:var(--give);flex:none"></span><div class="w-who"><div class="w-name">David offered to help</div><div class="w-ev">5h ago → your ask</div></div></div>
+            <div class="w-row"><span style="width:6px;height:6px;border-radius:50%;background:var(--line);flex:none"></span><div class="w-who"><div class="w-name">Spring Mixer — time changed</div><div class="w-ev">yesterday → the event</div></div></div>
+          </div>
+        </div></div>
+        <div class="frame" style="min-height:0"><div class="f-main" style="border-radius:12px">
+          <div class="f-top"><span class="f-title">Settings</span><span style="flex:1"></span></div>
+          <div class="f-body">
+            <div class="w-label">Account</div>
+            <div class="w-ev">Email · Sign out · <b>Delete account &amp; export data</b></div>
+            <div class="w-label" style="margin-top:7px">Notifications &amp; email</div>
+            <div class="w-ev">Per-type toggles · Newsletter by email</div>
+            <div class="w-label" style="margin-top:7px">Blocked</div>
+            <div class="w-row" style="border-top:none; padding:4px 0"><div class="w-ava" style="color:#b01824;background:#fdebee">··</div><div class="w-who"><div class="w-name">A blocked member</div></div><button class="w-btn" type="button">Unblock</button></div>
+            <div class="w-label" style="margin-top:7px">Availability</div>
+            <div class="w-ev">Pause · (topics live on Help·Give)</div>
+          </div>
+        </div></div>
+        <div class="frame" style="min-height:0"><div class="f-main" style="border-radius:12px">
+          <div class="f-top"><span class="f-title">← Help · Your asks</span><span style="flex:1"></span></div>
+          <div class="f-body">
+            <div class="w-label">Open · 3 of 5</div>
+            <div class="w-row" style="border-top:none"><div class="w-who"><div class="w-name">Portfolio feedback</div></div><span class="w-chip sel" style="color:var(--get-deep); background:var(--get-wash); border-color:var(--get)">2 offers</span></div>
+            <div class="w-row"><div class="w-who"><div class="w-name">Sublet advice</div></div><span class="w-chip">Waiting</span></div>
+            <div class="w-label" style="margin-top:7px">History</div>
+            <div class="w-row" style="border-top:none"><div class="w-who"><div class="w-name">Intro to a PM</div><div class="w-ev">Resolved · Jun</div></div></div>
+            <div class="w-row"><div class="w-who"><div class="w-name">Resume review</div><div class="w-ev">Closed · May</div></div></div>
+          </div>
+        </div></div>
+        <div class="frame" style="min-height:0"><div class="f-main" style="border-radius:12px">
+          <div class="f-top"><span class="f-title">My circle · 12</span><span style="flex:1"></span></div>
+          <div class="f-body">
+            <div style="font-size:8px; color:var(--faint); margin-bottom:5px">Who you're connected to — Message or Disconnect per row</div>
+            <div class="w-row" style="border-top:none"><div class="w-ava" style="color:#1b64da;background:#e8f3ff">MC</div><div class="w-who"><div class="w-name">Maya Chen · '14 ◎</div></div><button class="w-btn soft" type="button" style="background:var(--sys-wash); color:var(--ink)">Message</button><button class="w-btn" type="button">Disconnect</button></div>
+            <div class="w-row"><div class="w-ava" style="color:#8a5c11;background:#fef3e2">JP</div><div class="w-who"><div class="w-name">Jordan Park · '11 ◎</div></div><button class="w-btn soft" type="button" style="background:var(--sys-wash); color:var(--ink)">Message</button><button class="w-btn" type="button">Disconnect</button></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Notification section</b> (`/notifications`) — the durable list behind the bell's "see all." Every notification, reverse-chron, each deep-linking to its target per the nav model. The popover shows the unmissable few once; this is the full record; read-state clears the bell dot.</li>
+        <li><b>Settings</b> — one quiet page from the member card: account (incl. <b>delete + data export</b>, a school-community compliance need), notification/email prefs, the <b>blocked-users list</b> (unblock here), and pause. No sub-maze.</li>
+        <li><b>Your asks — history</b> (`/help/asks`) — the "reachable from history but never nagging" surface: your ≤5 open asks with status pills, then resolved/retracted/closed as quiet history. Reached from Home's "See all" and Help.</li>
+        <li><b>My circle</b> — who you're connected to, Message or <b>Disconnect</b> per row. Reached from the "My circle" filter in Messages and People's "In your circle" scope. Disconnect is mutual + silent (§ trust &amp; safety).</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="flow-next"><div class="fl-line"></div><span class="fl-evt">trust &amp; safety — report · block · disconnect</span><div class="fl-line"></div></div>
+
+  <!-- TRUST & SAFETY -->
+  <div class="page-card">
+    <div class="pc-head">
+      <span class="pc-num">DIALOGS · TRUST &amp; SAFETY</span>
+      <span class="pc-title">Report · Block · Disconnect</span>
+      <span class="pc-sub">Decided 2026-07-06. Moderation runs through the report pipeline (admin queue); the member app carries report, block, and disconnect.</span>
+    </div>
+    <div class="pc-wire" aria-hidden="true">
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px">
+        <div class="w-card" style="position:relative"><span class="co co-float">1</span>
+          <div class="w-label">Report</div>
+          <div style="font-size:9px; color:var(--mut)">On any ask, offer, message, or profile.</div>
+          <div class="w-chips" style="margin-top:5px"><span class="w-chip">Harassment</span><span class="w-chip">Spam</span><span class="w-chip">Inappropriate</span><span class="w-chip">Impersonation</span></div>
+          <div class="w-card" style="padding:5px 8px; margin-top:5px"><span style="font-size:8.5px; color:var(--faint)">Add a note (optional)</span></div>
+          <button class="w-cta" type="button" style="background:var(--ink); margin-top:6px; width:100%">Send report</button>
+          <div style="font-size:8px; color:var(--faint); margin-top:5px">→ admin moderation queue · "Thanks — we'll look into it" · private to you</div>
+        </div>
+        <div class="w-card" style="position:relative"><span class="co co-float">2</span>
+          <div class="w-label">Block · confirms first</div>
+          <div style="font-size:9px; color:var(--mut); line-height:1.5">From a profile or thread. You two can't see each other's asks, offer, appear in results, or message. <b>Anonymity doesn't defeat it</b> — filtered on real identity, server-side. Silent to them. Lift in Settings.</div>
+          <div style="border:1px solid var(--line); border-radius:7px; padding:6px 8px; margin-top:6px; background:var(--paper)">
+            <div style="font-size:8.5px; font-weight:700">Block Alex?</div>
+            <div style="font-size:7.5px; color:var(--faint); margin-top:1px">You won't see each other's asks or messages. Undo in Settings.</div>
+            <div style="display:flex; gap:5px; margin-top:5px"><span style="flex:1; text-align:center; font-size:8px; font-weight:700; background:#fff; border:1px solid var(--line); border-radius:6px; padding:4px">Cancel</span><span style="flex:1; text-align:center; font-size:8px; font-weight:700; background:#b01824; color:#fff; border-radius:6px; padding:4px">Block</span></div>
+          </div>
+        </div>
+        <div class="w-card" style="position:relative"><span class="co co-float">3</span>
+          <div class="w-label">Disconnect · confirms first</div>
+          <div style="font-size:9px; color:var(--mut); line-height:1.5">Remove from your circle. Mutual, <b>silent</b> (the buffer). Message history stays — it's not a block; you simply return to ordinary members. From a profile or My circle.</div>
+          <div style="border:1px solid var(--line); border-radius:7px; padding:6px 8px; margin-top:6px; background:var(--paper)">
+            <div style="font-size:8.5px; font-weight:700">Disconnect from Maya?</div>
+            <div style="font-size:7.5px; color:var(--faint); margin-top:1px">You'll both leave each other's circle. Messages stay; no one's notified.</div>
+            <div style="display:flex; gap:5px; margin-top:5px"><span style="flex:1; text-align:center; font-size:8px; font-weight:700; background:#fff; border:1px solid var(--line); border-radius:6px; padding:4px">Cancel</span><span style="flex:1; text-align:center; font-size:8px; font-weight:700; background:var(--ink); color:#fff; border-radius:6px; padding:4px">Disconnect</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pc-steps">
+      <ol class="steps">
+        <li><b>Report → the pipeline.</b> Available on every member-authored surface. Reason chips + optional note → the admin moderation queue (no separate in-app console). The reporter gets a quiet acknowledgment, never a status thread; reporting is always private.</li>
+        <li><b>Block — the hard wall, with a confirm.</b> <span class="tag tag-decided">Confirmation added 2026-07-06</span> Always takes a warning step first ("Block Alex? … Undo in Settings.", Cancel default). On confirm: mutual-invisible across every surface, evaluated on real identity so <b>anonymous asks obey it too</b> (the cover protects the vulnerable asker, never a bad actor). Silent to the blocked person; reversible from the settings blocked-list.</li>
+        <li><b>Disconnect — the soft exit, with a confirm.</b> <span class="tag tag-decided">Confirmation added 2026-07-06</span> Also warns first ("Disconnect from Maya? … no one's notified.", Cancel default). The buffer-friendly middle option between "connected" and "blocked": leave someone's circle quietly, keep the history, no signal sent. Both confirmations are overlay dialogs (nav model §7b), Cancel as the calm default — the standard destructive-action guard. (Report needs none — it isn't destructive to you.)</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ NAV MODEL -->
+<section id="nav" class="g-sys">
+  <p class="sec-eyebrow">The rule that ties it together</p>
+  <h2>Navigation &amp; back-behavior — one model, no exceptions</h2>
+  <p class="lede">Every page above obeys the same rule, so "back" is never a guess.
+  <b>Two planes plus overlays.</b></p>
+
+  <div class="state-scroll">
+    <div class="statemap" style="min-width:820px">
+      <div class="st hot"><div class="st-k">Plane 1</div><div class="st-t">5 section roots</div><div class="st-s">Home · Help · People · Messages · School — sidebar, one click, top-level, never a back target</div></div>
+      <div class="st-arrow"><span class="ar">↓</span>open a detail</div>
+      <div class="st-stack">
+        <div class="st"><div class="st-k">Plane 2 · Help</div><div class="st-t">composer · ask status · your asks</div><div class="st-s">back → ← Help</div></div>
+        <div class="st"><div class="st-k">Plane 2 · Messages</div><div class="st-t">threads</div><div class="st-s">back → ← Messages</div></div>
+        <div class="st"><div class="st-k">Plane 2 · School</div><div class="st-t">event · announcement · newsletter</div><div class="st-s">back → ← School</div></div>
+      </div>
+      <div class="st-arrow"><span class="ar">·</span>overlays</div>
+      <div class="st-stack">
+        <div class="st term"><div class="st-k">Overlay</div><div class="st-t">Profiles (slide-over)</div><div class="st-s">close → exactly where you were</div></div>
+        <div class="st term"><div class="st-k">Overlay</div><div class="st-t">Dialogs · rails · folds</div><div class="st-s">dismiss in place · not navigation</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-top:16px">
+    <div class="qcard"><div class="q">The one back rule</div><p>Back always means <b>up one level to the current section's root</b> — never "the previous arbitrary screen," never browser-history-dependent. Predictable no matter how you arrived.</p></div>
+    <div class="qcard"><div class="q">Deep links adopt their section</div><p>A bell/email/spotlight link opens a detail with its <b>section lit and "← Section" back</b>. Ask link → Help; thread link → Messages; event link → School. Never an orphan.</p></div>
+    <div class="qcard"><div class="q">Profiles never break your place</div><p>Other-member profiles are a <b>slide-over panel</b> (the docked rail on People, a slide-over elsewhere), so opening one from a thread or who's-going returns you exactly where you stood.</p></div>
+    <div class="qcard"><div class="q">Dialogs overlay, return in place</div><p>Accept / decline / resolve / connect / report / RSVP-confirm overlay the current view and dismiss back to it. They never navigate.</p></div>
+  </div>
+  <p class="lede" style="font-size:13px; margin-top:14px">Net: 5 roots, each detail page has one unambiguous
+  back target, profiles + dialogs are overlays. No history-dependence, no orphan states, no special cases.</p>
+</section>
+
+<!-- ============================================================ LIFECYCLE -->
+<section id="lifecycle">
+  <p class="sec-eyebrow">Shared mechanics</p>
+  <h2>The ask lifecycle &amp; the 14-day close</h2>
+  <p class="lede">Every ask, whatever its reach, moves through the same states and ends in one of
+  four terminal states. Declines arrive in real time as cushioned notes — visible, kind, symmetric.
+  The <b>no-fault 14-day close</b> covers exactly one case, pure silence, and its wording
+  (<span class="uistr g-get">"wasn't able to get to it"</span>) keeps even that ending kind.</p>
+
+  <div class="state-scroll">
+    <div class="statemap">
+      <div class="st"><div class="st-k">State</div><div class="st-t">Composing</div><div class="st-s">Page 1, nothing committed</div></div>
+      <div class="st-arrow"><span class="ar">→</span>send / post</div>
+      <div class="st-stack">
+        <div class="st"><div class="st-k">Open · direct</div><div class="st-t">Waiting on the recipient</div><div class="st-s">named, tailored note · no read state</div></div>
+        <div class="st"><div class="st-k">Open · private / public</div><div class="st-t">Collecting offers</div><div class="st-s">matched or browsed; may be anonymous</div></div>
+      </div>
+      <div class="st-arrow"><span class="ar">→</span>accept<br>(helper on direct · asker on offers)</div>
+      <div class="st hot"><div class="st-k">State</div><div class="st-t">In conversation</div><div class="st-s">a thread in Messages · day clock runs</div></div>
+      <div class="st-arrow"><span class="ar">→</span>resolve · retract · declines · day 14</div>
+      <div class="st-stack">
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Resolved</div><div class="st-s">"did this help?" + optional note</div></div>
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Retracted by asker</div><div class="st-s">anytime, no questions · slot frees</div></div>
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Declined by all</div><div class="st-s">cushioned notes → early close + recovery</div></div>
+        <div class="st term"><div class="st-k">Terminal</div><div class="st-t">Closed at day 14</div><div class="st-s">no-fault, for pure silence → recovery</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="lede" style="font-size:13px; margin-top:14px">Every path ends with the status view in a
+  terminal state — reachable from history, never nagging. The day-14 close always ships with a
+  recovery action: <span class="uistr g-get">"Ask someone else"</span> (search reopens, prior
+  recipients excluded) or <span class="uistr g-get">"Open it to the circle"</span> (one tap, text
+  intact). Open asks close with <span class="uistr g-get">"Your ask has closed — want to renew it,
+  or let it rest?"</span></p>
+
+  <h3 style="margin-top:36px">Fourteen days, three lanes</h3>
+  <div class="tl-scroll">
+    <div class="timeline">
+      <div class="tl-cell tl-day tl-role" style="border-top:none"></div>
+      <div class="tl-cell tl-day"><b>Day 0</b>sent</div>
+      <div class="tl-cell tl-day"><b>Day 5</b>reminder</div>
+      <div class="tl-cell tl-day"><b>Day 11</b>warning</div>
+      <div class="tl-cell tl-day"><b>Day 14</b>close</div>
+
+      <div class="tl-cell tl-role r-ask">Asker</div>
+      <div class="tl-cell"><span class="evt e-get">Inline confirm: "They'll see it today. Asks stay open 14 days."</span></div>
+      <div class="tl-cell"><span class="quiet">"Waiting" — or a cushioned decline note, the moment one is sent</span></div>
+      <div class="tl-cell"><span class="evt e-get">Home pill: "Expires in 3d" · expiry-warning email (existing plumbing)</span></div>
+      <div class="tl-cell"><span class="evt e-get e-hot">"This ask has closed — [name] wasn't able to get to it." + Ask someone else / Open it to the circle</span></div>
+
+      <div class="tl-cell tl-role r-sys">System</div>
+      <div class="tl-cell"><span class="evt e-sys">notify recipients / run matching · start the clock</span></div>
+      <div class="tl-cell"><span class="evt e-sys">one gentle helper reminder (reminder_sent_at) — never a second</span></div>
+      <div class="tl-cell"><span class="evt e-sys">asker-side expiry warning</span></div>
+      <div class="tl-cell"><span class="evt e-sys">backend closes whatever is still unanswered · no-fault wording, reserved for pure silence</span></div>
+
+      <div class="tl-cell tl-role r-help">Helper</div>
+      <div class="tl-cell"><span class="evt e-give">ask lands in "Waiting on you" (direct) · or surfaces via match / browse (open)</span></div>
+      <div class="tl-cell"><span class="evt e-give">"Alex is waiting on an ask — take a look?"</span></div>
+      <div class="tl-cell"><span class="quiet">nothing — no escalation, no countdown shown</span></div>
+      <div class="tl-cell"><span class="evt e-give">pending item silently disappears — no guilt screen · counts one of three strikes toward auto-pause</span></div>
+    </div>
+  </div>
+  <p class="lede" style="font-size:13px; margin-top:14px">Accepts, offers, and declines can happen at
+  <b>any</b> point on this line — declines land as cushioned notes in real time, and each one is a
+  response, not a strike. The clock only matters for pure silence, and the day-14 wording keeps that
+  one ending no-fault.</p>
+</section>
+
+<!-- ============================================================ BUFFER -->
+<section id="buffer">
+  <p class="sec-eyebrow">The brand mechanism, audited</p>
+  <h2>Two-sided buffer — what each side sees, moment by moment</h2>
+  <p class="lede">The rule: every decline is <b>cushioned and symmetric</b> — default reasons and AI
+  help on both sides, so saying no never means drafting a rejection and hearing no never means
+  silence. Every send path shows the sender exactly who will see it; every waiting state is honest
+  but calm. <b>Any screen that violates this table is wrong regardless of how it looks.</b></p>
+
+  <div class="tbl-scroll">
+    <table class="audit">
+      <thead><tr><th>Moment</th><th>Asker sees</th><th>Helper sees</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>Searching who to ask</td><td class="see-ask">People + question-specific reasons, before writing a word</td><td class="none">never told they appeared in results</td><td class="mech">search results private to the asker</td></tr>
+        <tr><td>Direct ask sent</td><td class="see-ask">"Waiting" — no read state, no last-seen</td><td class="see-help">Named, personal ask in "Waiting on you"</td><td class="mech">informationless waiting</td></tr>
+        <tr><td>Helper declines a direct ask</td><td class="see-ask">"Declined" + one kind note, in real time</td><td class="see-help">default reason or custom, AI-helped · item leaves their list</td><td class="mech">decline-with-note (supersedes D5) · resets strikes</td></tr>
+        <tr><td>Offer made</td><td class="see-ask">Offer row: preview + note · Accept / Decline</td><td class="see-help">calm sent state</td><td class="mech">asker holds the accept</td></tr>
+        <tr><td>Asker declines an offer</td><td class="see-ask">row clears</td><td class="see-help">cushioned note — default or custom, AI-helped</td><td class="mech">symmetric decline · "answered" if another offer won</td></tr>
+        <tr><td>Anonymous open ask</td><td class="see-ask">full control; name hidden until they accept someone</td><td class="see-help">"A member · Class of '27" + text-only evidence</td><td class="mech">anonymous-until-accept · evidence from ask text only</td></tr>
+        <tr><td>Day-14 close</td><td class="see-ask">No-fault notice + recovery action</td><td class="see-help">pending item silently disappears · counts a strike</td><td class="mech">covers pure silence only · wording stays no-fault</td></tr>
+        <tr><td>Helper pauses / auto-pause</td><td class="none">never announced</td><td class="see-help">switch off, or three timed-out asks pause matching</td><td class="mech">paused_until · 3-strike rule, any response resets</td></tr>
+        <tr><td>Ask retracted</td><td class="see-ask">gone from status view · slot frees</td><td class="see-help">pending item / suggestion vanishes quietly</td><td class="mech">retract only — no mid-flight edits</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ DECISIONS -->
+<section id="calls">
+  <p class="sec-eyebrow">Decision record</p>
+  <h2>Decided in review — Richard, 2026-07-05/06</h2>
+  <p class="lede">The record the screens get designed against. The two seams at the end are the only
+  things left to watch in the pilot.</p>
+
+  <div class="qgrid">
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Reach is immutable once published</div>
+      <p>No edits mid-flight. Retract anytime (everything vanishes quietly, the slot frees) or let the
+      14-day close run. Widening = the post-close <span class="uistr">"Open it to the circle"</span> — a new ask, not an edit.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Five open asks at once</div>
+      <p>Total cap, not a recipient limit. Slots return when an ask ends — resolved, retracted,
+      declined by every recipient, or closed at day 14.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided · reversed 07-06</span><div class="q">One recipient per ask</div>
+      <p>No multi-select. To ask several people, send each their own tailored ask from the results —
+      every note stays genuinely 1:1, and the five-slot cap prevents spam.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Anonymity, per open ask, in v1</div>
+      <p>Anonymous or named at post time. Anonymous = revealed only to the accepted helper; evidence
+      lines derive from the ask's text only.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">No quiet pass — every decline carries a note</div>
+      <p>Both directions: default reasons (<span class="uistr">"I can't take this on right now"</span>,
+      <span class="uistr">"This one's outside what I can speak to"</span>), custom, or AI-shaped.
+      Supersedes ADR 0011 · D5 (ADR amended 2026-07-06).</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Give status: no clock, three strikes</div>
+      <p>"Open to helping" never expires on a timer. Three timed-out direct asks → quiet auto-pause.
+      Any response, accept or decline, resets the count.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Topics: five, editable</div>
+      <p>Up to 5 standing topic chips on Give, add/remove anytime. They drive the suggestion arm and
+      Home's "Needs you this week."</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Messages everywhere have a default</div>
+      <p>Offer notes, accept openers, and decline notes: default line or custom, AI-helped either way.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Notification popover ships v1</div>
+      <p>Ask received, offer received, accepted, decline notes — each shown once, deep-linking; then
+      they live only in notifications and Messages.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">Smaller calls</div>
+      <p>Outcome note on resolve: <b>yes</b>, optional + skippable. Default Help mode: <b>remember
+      last, Get for first-timers</b>. Weekly digest: <b>not yet</b>. Global search / ⌘K: <b>removed
+      entirely</b> — search lives per-surface (People, Help). Messages: <b>"Waiting on you" is a foldable pinned group with
+      a red count badge</b>; <b>the context rail folds/expands within the chat</b>; <b>no Schedule a
+      call button</b>.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided</span><div class="q">School: glance cover + event page</div>
+      <p>The navy cover holds the quick-glance essentials (description line, host, When/Where/Format,
+      RSVP); a <b>separate event page</b> holds itinerary, parking, cost, host contact, who's-going.
+      Attending strip stays as the one my-RSVPs surface ("Manage →" dropped). Capacity fill bar →
+      calm text + waitlist. "Viewing" chip → selection styling. Newsletter → light card. Times
+      member-local first, campus second.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided · clarified 07-06</span><div class="q">People &amp; Help — no cross-routing</div>
+      <p>People always returns people; Help always asks. The only variation is <b>invisible backend</b>
+      — keyword search vs the NL/vector pipeline, auto-picked, same result shape + explanation either
+      way. <b>No</b> "sounds like an ask?" nudge, no name-jump. Each surface owns its lane.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided 07-06</span><div class="q">Scope &amp; membership</div>
+      <p><b>One organization</b> to start (multi-school later possible). Members = <b>alumni + students
+      within 4 years of graduating</b> — middle-school and younger can't join.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided 07-06</span><div class="q">Decline gains an AI-relay layer</div>
+      <p>Three ways, escalating cushion: default reason · write-your-own (AI polishes) · <b>let the AI
+      handle it</b> — tell it casually ("slammed this month") and it composes &amp; sends the kind note,
+      so you never address the asker in your own voice.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided 07-06</span><div class="q">14-day clock → a late warning</div>
+      <p>No running "Day N of 14" countdown anywhere (against calm-not-urgent). A quiet <span class="uistr">"3 days left before this ask closes"</span> flag appears only in the final 3 days — status view and the thread rail.</p></div>
+    <div class="qcard"><span class="tag tag-decided">Decided 07-06</span><div class="q">Trust &amp; safety</div>
+      <p><b>Report</b> (→ admin moderation pipeline, private), <b>Block</b> (mutual-invisible; anonymity
+      doesn't defeat it), <b>Disconnect</b> (leave a circle quietly, keep history). Plus the cold-start
+      hand-off, notifications section, settings, ask-history, and my-circle surfaces — all mapped.</p></div>
+  </div>
+
+  <div class="aside a-open" style="margin-top:22px">
+    <b>The two seams to watch</b>
+    <p><b>1 · Decline copy is the buffer now.</b> With invisible passes gone, the default reasons
+    carry the whole two-sided mechanism: no-fault and unranked, and the AI cushions custom notes
+    toward kindness. Watch the pilot for whether visible declines make hesitant members ask less —
+    that fear is why the quiet pass existed. If asking drops, revisit.</p>
+    <p><b>2 · The ADR drift.</b> ADR 0011 was amended 2026-07-06 (D5 superseded in part); the
+    implementation phases (2, 5, 6) must be re-read against FLOWS.md v2 §3 before build.</p>
+  </div>
+</section>
+
+<footer>
+  Desktop edition · companion to the page-by-page flow spec (same decisions, same terminology).
+  Sources: <code>FLOWS.md</code> draft v2 · <code>ADR 0011</code> (amended 2026-07-06) ·
+  <code>OVERRIDES.md</code> E3 (desktop shell) / E2 (avatars) / O8–O9 (CTA + card treatments) ·
+  <code>preview/people-directory.html</code> (1a-derived). Layout rules drawn here: sidebar 240/72 ·
+  topbar 66 · rails dock at ~340px · commitment moments are dialogs · content yields never, chrome
+  yields first. Journey D (Messages) decided 2026-07-06: foldable "Waiting on you" group with red
+  count badge · fold/expandable context rail · no Schedule-a-call button. Journey E (School, 1h
+  refined) decided 2026-07-06: glance cover + separate event page · strip as the one RSVP surface ·
+  capacity bar dropped · circle-aware going line · dual time zones · newsletter light — specimen
+  edits due at the next DesignSync push. School click-throughs added 2026-07-06, pending Richard's
+  manual review: cover-travels event hero · blocks-when-filled · RSVP-gated join links · event
+  states (full/waitlist-confirm, changed, past). Decided in review: reading pages are FINAL
+  (everything in the body or inline links, no CTA blocks); the newsletter is news-only and named
+  plainly "Newsletter" ("The Bridge" dropped); both announcement and newsletter flows have two
+  pages each — index/archive + reading — with dashboard rows jumping straight to reading. FLOWS.md
+  §6 sync held until the manual review completes. Journey C expanded 2026-07-06: detailed
+  other-member profile (facts main / warm rail / two verbs / no stats ever), connect moment as its
+  own card, and the self profile (edit-in-place, owner-only enrichment alarms, per-item link
+  visibility public/circle/private, Help·Give as the one home for availability, email + pause).
+  "Can speak to" is a section of member-written entries (not chips); visitors see only a "last
+  updated" staleness hint. People search auto-routes (rules-first classifier per ADR 0006 →
+  structured by default, vector only on residual semantic intent) — no visible AI toggle; filter
+  pills are the structured path. "Why this match" stays on the directory rail, dropped from the
+  profile page. Home (Journey F) added 2026-07-06: dashboard not a second ask page (IA locked),
+  live ask-entry input, coordinator's pulse line, paused one-liner. Journey G (connective tissue)
+  added 2026-07-06: onboarding + cold-start hand-off (ask? · help? · check-box classmate connects),
+  notification section, settings (incl. delete/export + blocked list), your-asks history, my circle,
+  and trust &amp; safety (report → moderation pipeline · block · disconnect). Also 2026-07-06: scope
+  fixed to one org + alumni/students-within-4-years; one recipient per ask (no multi-send); decline
+  gains an AI-relay layer; the 14-day countdown became a "3 days left" late warning; People/Help do
+  not cross-route (invisible keyword-vs-NL backend only). Plus a single navigation/back model (5
+  section roots · one back rule · profiles &amp; dialogs as overlays). <b>All member flows now mapped;
+  every prior open item is decided.</b> Mobile remains deferred. Design-system source reconciliations
+  (⌘K, nav-ring, School specimen, "Ask for advice"→"Ask for help") await the next DesignSync push.
+</footer>
+
+</div>
+
+</html>

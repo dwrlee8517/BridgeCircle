@@ -1,0 +1,13 @@
+/* Pretendard (OFL) — self-hosted variable font for --font-sans (O1).
+   Sourced from github.com/orioncactus/pretendard (dist/web/variable/woff2).
+   Registered here additively; the synced token file colors_and_type.css is
+   untouched. Template previews keep loading the CDN dynamic-subset CSS
+   (lighter than this single 2 MB file); this file resolves the family for
+   the design system itself. */
+@font-face {
+  font-family: 'Pretendard';
+  src: url('fonts/PretendardVariable.woff2') format('woff2-variations');
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}

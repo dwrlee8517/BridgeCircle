@@ -548,7 +548,7 @@ async function dispatchEmail(
   if (!email) return // can't email — silently skip; the proposal still stands
   const recipientName = base?.name ?? null
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
   const reviewUrl = `${baseUrl}/proposals/${input.proposalId}?token=${encodeURIComponent(input.token)}`
   const confirmUrl = `${reviewUrl}&action=confirm`
   const declineUrl = `${reviewUrl}&action=decline`

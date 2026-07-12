@@ -7,8 +7,8 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 - [Brand & product strategy](product/brand-strategy.md) — positioning and north star
 - [Voice guidelines](product/voice-guidelines.md) — voice and copy rules
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
-- [Phase 1 launch cut](specs/phase-1/launch-cut.md) — what ships in the launch cut
-- [Phase 1 launch checklist](specs/phase-1/launch-checklist.md) — readiness criteria
+- [Phase 1 launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what ships in the launch cut
+- [Phase 1 launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md) — readiness criteria
 
 ## Product
 
@@ -25,21 +25,22 @@ Superseded product docs live under [`_archive/`](_archive/) — see [`_archive/R
 
 ## Specs
 
-What we're building. Feature-sliced — one folder per phase.
+What we're building. These now live in the [product-spec Obsidian vault](../product-spec-obsidian-vault/), split by implementation status: `Production/` = shipped in mainline, `Prototype/` = not yet built.
 
-**Phase 1 (active build):**
+**Phase 1 (active build) — [`Production/phase-1/`](../product-spec-obsidian-vault/Production/phase-1/):**
 
-- [Full spec](specs/phase-1/spec.md)
-- [Launch cut](specs/phase-1/launch-cut.md) — week 1–2 narrowed scope
-- [Week 3–4 additive features](specs/phase-1/week-3-4.md)
-- [User flows](specs/phase-1/user-flows.md)
-- [Launch checklist](specs/phase-1/launch-checklist.md)
-- [Post-launch backlog](specs/phase-1/post-launch-backlog.md)
+- [Full spec](../product-spec-obsidian-vault/Production/phase-1/spec.md)
+- [Launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — week 1–2 narrowed scope
+- [Week 3–4 additive features](../product-spec-obsidian-vault/Production/phase-1/week-3-4.md)
+- [User flows](../product-spec-obsidian-vault/Production/phase-1/user-flows.md)
+- [Launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md)
+- [Post-launch backlog](../product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md)
 
 **Phase 2 drafts:**
 
-- [Events — conditional RSVP ("I'll go if…")](specs/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
-- [Ask mediator ("Let BridgeCircle ask for you")](specs/ask-mediator.md) — extends the guided ask composer with a mediated send option
+- [Events — conditional RSVP ("I'll go if…")](../product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md) — sequenced peer / profile-filter / help-need match types
+- [Ask mediator ("Let BridgeCircle ask for you")](../product-spec-obsidian-vault/Prototype/ask-mediator.md) — extends the guided ask composer with a mediated send option
+- [No-invite landing](../product-spec-obsidian-vault/Prototype/no-invite-landing.md) — replaces the sign-in rejection (sign-out + red banner) with a stay-signed-in landing page and an admin-reviewed invite-request queue
 
 ## Architecture
 
@@ -50,7 +51,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
-- [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow
+- [Dev stage + CD rollout](architecture/dev-stage-cd-rollout.md) — phased plan for ADR 0014: dev.bridgecircle.org, integ gate, scripted promote
+- [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow — *prod side superseded by ADR 0014*
 - [Data model (interactive)](architecture/data-model.html)
 
 ## Runbooks
@@ -63,6 +65,7 @@ How-to guides. Read when touching the relevant area.
 - [Migration workflow](runbooks/migration-workflow.md) — branching + db push + prod safety
 - [E2E testing](runbooks/e2e-testing.md)
 - [Doppler](runbooks/doppler.md) — secrets management
+- [Supabase custom domain](runbooks/supabase-custom-domain.md) — `auth.bridgecircle.org` for the Google consent screen (planned)
 
 ## Decisions
 
@@ -82,6 +85,7 @@ Locked architectural decisions in MADR format.
 - [0011 — Two verbs, one inbox](decisions/0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics
 - [0012 — TDS design system ("Field Pro")](decisions/0012-tds-design-system.md) — *superseded by 0013*
 - [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer `toss-base` + `bridgecircle` fork
+- [0014 — Scripted CD pipeline](decisions/0014-scripted-cd-pipeline.md) — dev stage → integ gate → prod promote; supersedes the prod side of 0005 + 0008
 
 ## UI
 

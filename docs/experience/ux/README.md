@@ -4,7 +4,7 @@ This folder collects the active UX interpretation for BridgeCircle: how members 
 
 Canonical product behavior remains in the product specs and architecture docs:
 
-- [Phase 1 user flows](../../specs/phase-1/user-flows.md)
+- [Phase 1 user flows](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md)
 - [Information architecture](../../architecture/information-architecture.md)
 
 Local UX entry points:

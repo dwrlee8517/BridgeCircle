@@ -65,7 +65,7 @@ export async function sendInvite(input: SendInviteInput): Promise<SendInviteResu
   }
   if (!invite) return { ok: false, error: 'db_error' }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3001'
   const joinUrl = `${baseUrl}/join?token=${encodeURIComponent(token)}`
 
   const send = await sendInviteEmail({

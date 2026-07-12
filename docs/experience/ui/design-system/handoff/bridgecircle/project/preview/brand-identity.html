@@ -1,4 +1,4 @@
-<!-- @dsCard group="Brand" name="Section identity & give action" subtitle="Gradient bands · green give lead · avatar palette [O2 O3 E2]" -->
+<!-- @dsCard group="Brand" name="Section identity & give action" subtitle="Wash heroes & navy cover · dark band · green give lead · real ask pills · avatar palette [O2 O3 E2]" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,18 +9,26 @@
   body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
   .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
   .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
-  .band{border-radius:var(--radius-large);padding:22px 22px 18px;color:#fff;margin-bottom:10px}
-  .band:last-of-type{margin-bottom:0}
+  .washrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+  .wash{border-radius:var(--radius-large);background-color:var(--surface-canvas);padding:20px 18px 26px}
+  .wash .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin:0 0 4px}
+  .wash h3{font-size:19px;font-weight:700;letter-spacing:-0.02em;margin:0 0 2px;color:var(--text-primary)}
+  .wash p{font-size:13px;color:var(--text-secondary);margin:0}
+  .cover{position:relative;overflow:hidden;border-radius:var(--radius-large);background:var(--cover-event);color:#fff;padding:22px 22px 18px;margin-bottom:10px}
+  .cover .tex{position:absolute;inset:0;background:var(--cover-texture);background-size:18px 18px;pointer-events:none}
+  .cover .eyebrow{position:relative;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--cover-accent);margin:0 0 4px}
+  .cover h3{position:relative;font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 2px}
+  .cover p{position:relative;font-size:14px;opacity:.9;margin:0}
+  .band{border-radius:var(--radius-large);padding:22px 22px 18px;color:#fff;background:var(--gradient-band-dark)}
   .band .eyebrow{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.85;margin:0 0 4px}
   .band h3{font-size:22px;font-weight:700;letter-spacing:-0.02em;margin:0 0 2px}
   .band p{font-size:14px;opacity:.9;margin:0}
-  .band .whitebtn{display:inline-block;margin-top:14px;background:#fff;border-radius:var(--radius-pill);padding:9px 18px;font-size:14px;font-weight:700}
   .btn{display:inline-flex;align-items:center;border:0;border-radius:var(--radius-comfortable);padding:11px 18px;font-family:var(--font-sans);font-size:14px;font-weight:600;cursor:default}
   .btn.give{background:var(--action-give);color:var(--action-on-give)}
   .btn.give-weak{background:var(--action-give-weak);color:var(--action-give-weak-text)}
   .btn.fill{background:var(--action-primary);color:var(--action-on-primary)}
   .btn.quiet{background:var(--action-quiet);color:var(--action-quiet-text)}
-  .pill{border-radius:var(--radius-pill);padding:5px 12px;font-size:12px;font-weight:600}
+  .pill{border-radius:var(--radius-pill);padding:2px 8px;font-size:11px;font-weight:700}
   .avrow{display:flex;gap:14px;flex-wrap:wrap}
   .av{text-align:center}
   .av .c{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;margin:0 auto 6px}
@@ -30,29 +38,29 @@
 <body>
 
   <div class="card">
-    <p class="label">Section identity bands [O3] — mapping corrected against the reference (2026-07-05)</p>
-    <div class="band" style="background:var(--band-glow), var(--gradient-band-blue)">
-      <p class="eyebrow">Help · Get / Ask</p>
-      <h3>Who do you want to ask?</h3>
-      <p>The blue band is the Help page&rsquo;s get-mode field — with the radial glow overlay (--band-glow).</p>
-      <span class="whitebtn" style="color:#2f73e6">Start an ask</span>
+    <p class="label">Section identity [O3] — wash heroes, navy cover, plain dark band (bands retired 2026-07-12)</p>
+    <div class="washrow">
+      <div class="wash" style="background-image:var(--wash-get)">
+        <p class="eyebrow">Help · Get</p>
+        <h3>What do you need?</h3>
+        <p>GET hero wash (--wash-get) — a blue wash fading into the canvas, dark ink text on it.</p>
+      </div>
+      <div class="wash" style="background-image:var(--wash-give)">
+        <p class="eyebrow">Help · Give</p>
+        <h3>Three people could use you</h3>
+        <p>GIVE hero wash (--wash-give) — same 1i treatment, green.</p>
+      </div>
     </div>
-    <div class="band" style="background:var(--band-glow), var(--gradient-band-green)">
-      <p class="eyebrow">Help · Give</p>
-      <h3>Three people could use you this week</h3>
-      <p>Green is the give mode&rsquo;s identity — ambient here, operative once below.</p>
-      <span class="whitebtn" style="color:#0b8a57">Browse asks</span>
-    </div>
-    <div class="band" style="background:var(--gradient-band-school)">
-      <p class="eyebrow">School</p>
+    <div class="cover">
+      <span class="tex"></span>
+      <p class="eyebrow">Event covers · onboarding bookends</p>
       <h3>Chadwick, wherever you are</h3>
-      <p>The dark band with blue + violet radial glows — School&rsquo;s identity (the retired Mentor violet survives only as this ambient glow).</p>
-      <span class="whitebtn" style="color:#191f28">See what&rsquo;s on</span>
+      <p>Navy --cover-event with the --cover-texture dot grid (background-size:18px 18px) — sanctioned only here; School&rsquo;s page canvas stays light.</p>
     </div>
-    <div class="band" style="background:var(--gradient-band-dark)">
-      <p class="eyebrow">Feature</p>
+    <div class="band">
+      <p class="eyebrow">Entry backdrop / footers</p>
       <h3>Quiet by design</h3>
-      <p>The plain grey-ink band for footers and feature moments.</p>
+      <p>--gradient-band-dark — the only surviving band: Entry-page backdrop, footers, feature moments.</p>
     </div>
   </div>
 
@@ -71,13 +79,15 @@
   </div>
 
   <div class="card">
-    <p class="label">Status pills — warning stays TDS orange (O5 rejected) + give pills</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <span class="pill" style="background:var(--state-warning-tint);color:var(--state-warning-text)">Ask expiring</span>
-      <span class="pill" style="background:var(--action-give-weak);color:var(--action-give-weak-text)">Open to help</span>
-      <span class="pill" style="background:var(--state-info-tint);color:var(--state-info-text)">Info</span>
-      <span class="pill" style="background:var(--state-danger-tint);color:var(--state-danger-text)">Expired</span>
+    <p class="label">Ask status pills — the templates&rsquo; real vocabulary (Home &amp; AskStatus)</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span class="pill" style="color:var(--pending-text);background:var(--pending-tint)">Waiting</span>
+      <span class="pill" style="color:var(--blue-600);background:var(--blue-50)">3 offers</span>
+      <span class="pill" style="color:var(--pending-text);background:var(--pending-tint)">Declined</span>
+      <span class="pill" style="color:var(--action-give-text);background:var(--give-tint)">Answered</span>
+      <span class="pill" style="color:var(--closing-soon-text);background:var(--closing-soon-tint)">Closes in 3d</span>
     </div>
+    <p style="font-size:12px;color:var(--text-faint);margin:12px 0 0">Waiting and Declined share the quiet grey pending pair; offers ride the blue-50/blue-600 info pair; Answered is the give-text green on var(--give-tint) [E7]; closing-soon is the only amber.</p>
   </div>
 
   <div class="card">

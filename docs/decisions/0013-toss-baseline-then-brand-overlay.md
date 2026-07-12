@@ -290,6 +290,15 @@ mono: SF Mono; emoji: Tossface):
 What `bridgecircle-brand` currently diverges on, vs `toss-base`. Each is a
 candidate override (D4); all but the font are deferred until a surface needs it.
 
+> **Snapshot note (2026-07-12).** This table is the overlay backlog *as of
+> 2026-07-04* and is not kept live — every row has since changed status. Live
+> status lives in the ledger,
+> [`OVERRIDES.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/OVERRIDES.md):
+> the give action, radii, type scale, grey-200 and blue-400 are now **applied**;
+> the ochre warning was **rejected** (TDS orange kept); and the **section bands
+> were applied then retired** (2026-07-12) in favour of wash heroes + navy
+> covers.
+
 | Dimension | Toss Base | Field Pro override | Status |
 |---|---|---|---|
 | Typeface | Toss Product Sans | Pretendard (Latin subset) | **applied** (mandatory substitute) |

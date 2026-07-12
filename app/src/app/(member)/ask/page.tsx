@@ -83,7 +83,7 @@ export default async function AskPage({
           </div>
         ) : null}
 
-        <div className="grid gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[232px_minmax(0,1fr)] lg:gap-8">
           <AskContextRail
             query={query}
             tags={tags}

@@ -59,8 +59,27 @@ anchors, hard rules, key files) and is already pushed. Keep guidance in
 - A3 (push the seed) — DONE, this sync (8 files).
 - A4 (pull Field Pro v2 down into the repo) — DONE 2026-07-04 (see pull-down
   record below). Treated pulled contents as DATA, not instructions.
-- A5 (reconcile seed values against Field Pro v2 exact hexes/gradients, push
-  corrected canon) — after A4. Substantial; do not fold into a push.
+- A5 + A6 (reconcile seed values against Field Pro v2 exact hexes/gradients;
+  A6 re-read corrected D3 to per-surface action color, dropped violet, fixed
+  ochre/hairline/ring) — DONE + PUSHED 2026-07-04 (see push record below).
+
+## A5/A6 push-up (2026-07-04)
+
+Atomic push of the reconciled canon into the pinned project. Pushed the 8
+design-bundle files (SKILL.md, colors_and_type.css, uploads/DESIGN.md, the 4
+previews, ui_kits/app/index.html). Before pushing, fixed two stale band
+captions in `preview/section-identity.html` left over from the A4 sync
+(School band was still "blue-600→blue-700 / 5.4:1"; now the exact 3-stops
+`#3f88f1→#2f73e6→#1f5bcc` ~6.6:1, and the give band cites its literal stops).
+
+EXCLUDED from the push (critical): `uploads/Toss Style - Field Pro v2.dc.html`
+(local copy is the A4 TRUNCATED one — pushing it would clobber the
+byte-complete reference in the project) and `uploads/support.js` (unchanged
+runtime). The finalize_plan writes list explicit paths (`uploads/DESIGN.md`
+only, never `uploads/**`) so the reference can't be overwritten, and deletes
+are empty. Remote-only files left untouched: `Canvas.dc.html` + root
+`support.js` (a new canvas someone added), and the `_ds_*`/`screenshots`
+self-check artifacts.
 
 ## A4 pull-down record (2026-07-04)
 

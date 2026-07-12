@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Help page" description="Help — one page, two modes (FLOWS §3). Get: search-first question box, matches with evidence, ask-the-circle door, 5-slot cap, status pills. Give: switch + up-to-5 topics, three arms (suggestions / search / asked-you-directly)." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <script src="./help-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)} @media (prefers-reduced-motion: no-preference){@keyframes bcSlide{from{transform:translateX(28px);opacity:0}to{transform:none;opacity:1}}}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;max-width:var(--container-shell);margin:0 auto" data-screen-label="Help">
+
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 26px;z-index:2">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Help</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+            <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+          </sc-if>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;min-height:0;overflow-y:auto">
+
+      <sc-if value="{{ isGet }}" hint-placeholder-val="{{ true }}">
+        <div style="background:var(--wash-get);padding:28px 34px 30px">
+          <div style="max-width:860px;margin:0 auto">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <span style="display:inline-flex;background:var(--wash-toggle-track);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-pill);padding:3px;gap:2px">
+                <button style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--blue-600);padding:9px 17px;border-radius:var(--radius-pill);border:0;background:#fff;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);cursor:pointer">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 2.4"></path><path d="M12 17h.01"></path></svg>
+                  Get help
+                </button>
+                <button onClick="{{ toGive }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--grey-600);padding:9px 17px;border-radius:var(--radius-pill);border:0;background:transparent;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                  Give help
+                </button>
+              </span>
+              <span style="margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:600">Asks stay open 14 days</span>
+            </div>
+            <h2 style="margin:20px 0 0;font-weight:800;font-size:30px;letter-spacing:-0.035em">What do you need?</h2>
+            <p style="margin:8px 0 0;font-size:14px;color:var(--grey-600);font-weight:500">Ask it the way it comes out &mdash; we&rsquo;ll find who can help. Nothing here is sent to anyone.</p>
+            <sc-if value="{{ editingShow }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px;padding:18px 18px 12px 20px;background:#fff;border-radius:var(--radius-large);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.2), 0 10px 30px -14px rgb(25 31 40 / 0.25)">
+                <textarea value="{{ question }}" onChange="{{ onQuestion }}" rows="3" placeholder="I&rsquo;m trying to figure out&hellip;" style="border:0;outline:none;resize:vertical;min-height:64px;font-size:15px;line-height:1.65;font-weight:500;color:var(--text-primary);background:transparent"></textarea>
+                <sc-if value="{{ qError }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:block;font-size:11.5px;font-weight:600;color:var(--error)">Type your question first &mdash; it carries into everything from here.</span>
+                </sc-if>
+                <span style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--divider);padding-top:11px;flex-wrap:wrap">
+                  <span style="font-size:12px;color:var(--text-faint);font-weight:500">Searches are private &mdash; members never know they matched.</span>
+                  <span style="margin-left:auto;display:flex;gap:8px;flex:none">
+                    <button onClick="{{ askCircle }}" style="background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);border:0;border-radius:11px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask the circle</button>
+                    <button onClick="{{ findPeople }}" style="background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:11px 22px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Find people</button>
+                  </span>
+                </span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ askedShow }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:18px;padding:16px 20px 13px;background:#fff;border-radius:var(--radius-large);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.2), 0 10px 30px -14px rgb(25 31 40 / 0.25)">
+                <span style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.04em">Your question</span>
+                <p style="margin:7px 0 0;font-size:15px;line-height:1.6;font-weight:500;color:var(--text-primary)">{{ question }}</p>
+                <span style="display:flex;align-items:center;gap:10px;margin-top:12px;border-top:1px solid var(--divider);padding-top:11px;flex-wrap:wrap">
+                  <span style="font-size:12px;color:var(--text-faint);font-weight:500">Searches are private &mdash; members never know they matched.</span>
+                  <span style="margin-left:auto;display:flex;gap:8px;flex:none">
+                    <button onClick="{{ changeQuestion }}" style="background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);border:0;border-radius:11px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask a different question</button>
+                    <button onClick="{{ askCircle }}" style="background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:11px 22px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask the circle</button>
+                  </span>
+                </span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ capShow }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;background:#fff;border-radius:14px;box-shadow:var(--ring-card);padding:13px 16px">
+                <span style="flex:none;width:8px;height:8px;border-radius:50%;background:var(--grey-400);margin-top:5px"></span>
+                <span style="font-size:12.5px;font-weight:500;color:var(--text-secondary);line-height:1.6">All {{ capLabel }} ask slots are in use &mdash; the next one waits. A slot frees when an ask ends: answered, declined, retracted, or the 14-day close. <a href="./AskHistory.dc.html" style="color:var(--action-primary);font-weight:700">See your asks &rarr;</a></span>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <sc-if value="{{ searching }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:22px 34px 6px">
+            <div style="max-width:860px;margin:0 auto">
+              <p style="margin:0 0 10px;font-size:13px;color:var(--grey-600);font-weight:600">Reading your question &mdash; finding people who can speak to it&hellip;</p>
+              <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--border-subtle)"></span><span style="flex:1;display:grid;gap:7px"><span style="width:38%;height:11px;border-radius:6px;background:var(--border-subtle)"></span><span style="width:62%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid var(--divider-row)"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--border-subtle)"></span><span style="flex:1;display:grid;gap:7px"><span style="width:30%;height:11px;border-radius:6px;background:var(--border-subtle)"></span><span style="width:52%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid var(--divider-row)"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--border-subtle)"></span><span style="flex:1;display:grid;gap:7px"><span style="width:44%;height:11px;border-radius:6px;background:var(--border-subtle)"></span><span style="width:58%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ resultsShow }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:22px 34px 6px">
+            <div style="max-width:860px;margin:0 auto">
+              <div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:9px">
+                  <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">People who can speak to it</span>
+                  <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ resultCount }} &middot; strongest first &middot; fit isn&rsquo;t a promise</span>
+                </div>
+                <span style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+                  <sc-if value="{{ fAllOn }}" hint-placeholder-val="{{ true }}"><button style="border:0;background:rgb(49 130 246 / 0.12);color:var(--blue-600);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">All</button></sc-if>
+                  <sc-if value="{{ fAllOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ pickAll }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">All</button></sc-if>
+                  <sc-if value="{{ fOpenOn }}" hint-placeholder-val="{{ false }}"><button style="border:0;background:rgb(49 130 246 / 0.12);color:var(--blue-600);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">Open to help</button></sc-if>
+                  <sc-if value="{{ fOpenOff }}" hint-placeholder-val="{{ true }}"><button onClick="{{ pickOpen }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Open to help</button></sc-if>
+                  <sc-if value="{{ fCircleOn }}" hint-placeholder-val="{{ false }}"><button style="border:0;background:rgb(49 130 246 / 0.12);color:var(--blue-600);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">In your circle</button></sc-if>
+                  <sc-if value="{{ fCircleOff }}" hint-placeholder-val="{{ true }}"><button onClick="{{ pickCircle }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">In your circle</button></sc-if>
+                </span>
+                <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                  <sc-for list="{{ matches }}" as="r" hint-placeholder-count="4">
+                    <div style="border-top:1px solid var(--divider-row)">
+                      <div onClick="{{ r.profile }}" style="display:flex;align-items:center;gap:13px;padding:16px 16px 16px 20px;cursor:pointer" style-hover="background:var(--row-hover)">
+                        <sc-if value="{{ r.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ r.i }}</span></sc-if>
+                        <sc-if value="{{ r.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ r.i }}</span></sc-if>
+                        <sc-if value="{{ r.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ r.i }}</span></sc-if>
+                        <sc-if value="{{ r.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ r.i }}</span></sc-if>
+                        <span style="flex:1;min-width:0">
+                          <span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+                            <b style="font-size:14px;font-weight:700">{{ r.name }}</b>
+                            <span style="font-size:11px;color:var(--text-faint);font-weight:600">&rsquo;{{ r.yr }}</span>
+                            <sc-if value="{{ r.chipCircle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">In your circle</span></sc-if>
+                            <sc-if value="{{ r.chipOpen }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
+                            <sc-if value="{{ r.strong }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:var(--blue-600);font-weight:700">Strong match</span></sc-if>
+                          </span>
+                          <span style="display:block;margin-top:9px;background:#f4f6f9;border-radius:11px;padding:10px 13px">
+                            <span style="display:block;font-size:10.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em">Why this match</span>
+                            <span style="display:block;font-size:12.5px;line-height:1.55;color:var(--text-primary);font-weight:500;margin-top:3px">{{ r.why }}</span>
+                          </span>
+                        </span>
+                        <button onClick="{{ r.ask }}" style="flex:none;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:7px 15px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask {{ r.first }}</button>
+                        <button onClick="{{ r.profile }}" aria-label="Full profile" style="flex:none;width:30px;height:30px;border:0;background:transparent;border-radius:8px;color:var(--grey-400);font-size:15px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</button>
+                      </div>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ filterEmpty }}" hint-placeholder-val="{{ false }}">
+                    <p style="margin:0;padding:20px;text-align:center;font-size:12.5px;color:var(--text-faint);font-weight:600">No one under that filter &mdash; switch back to All.</p>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ showMoreShow }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ showMore }}" style="width:100%;margin-top:10px;border:0;border-radius:12px;padding:11px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:12.5px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ moreLabel }}</button>
+                </sc-if>
+                <sc-if value="{{ lotsShow }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:12px 0 0;text-align:center;font-size:12px;color:var(--text-faint);font-weight:500">A lot to pick through &mdash; <button onClick="{{ askCircle }}" style="border:0;background:transparent;padding:0;font-size:12px;color:var(--action-primary);font-weight:700;cursor:pointer;text-decoration:underline" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">ask the circle</button> and let it route to the best fits.</p>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noneShow }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:22px 34px 6px">
+            <div style="max-width:860px;margin:0 auto">
+              <div style="background:var(--surface-card-elevated);border-radius:18px;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:28px 24px;text-align:center">
+                <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">No one obvious &mdash; and that&rsquo;s okay.</b>
+                <p style="margin:7px auto 0;max-width:400px;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.6">Ask the circle and we&rsquo;ll show it to the right people. You choose how far it reaches, and whether your name is on it.</p>
+                <button onClick="{{ askCircle }}" style="margin-top:16px;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:12px 24px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask the circle</button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="padding:22px 34px 34px">
+          <div style="max-width:860px;margin:0 auto">
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+              <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Your asks</span>
+              <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ slotLabel }}</span>
+              <a href="./AskHistory.dc.html" style="margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700;padding:3px 8px;border-radius:7px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">See all &rarr;</a>
+            </div>
+            <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+              <sc-for list="{{ openAsks }}" as="a" hint-placeholder-count="4">
+                <a href="{{ a.href }}" style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <span style="flex:1;min-width:0">
+                    <span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+                      <b style="font-size:14px;font-weight:700;color:var(--text-primary)">{{ a.title }}</b>
+                      <sc-if value="{{ a.pillWaiting }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Waiting</span></sc-if>
+                      <sc-if value="{{ a.pillOffers }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">{{ a.offersLabel }}</span></sc-if>
+                      <sc-if value="{{ a.pillDeclined }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Declined</span></sc-if>
+                      <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint)">Answered</span></sc-if>
+                      <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--closing-soon-text);background:var(--closing-soon-tint)">{{ a.closesLabel }}</span></sc-if>
+                    </span>
+                    <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ a.meta }}</span>
+                  </span>
+                  <span aria-hidden="true" style="flex:none;color:var(--grey-400);font-size:16px;font-weight:700">&rsaquo;</span>
+                </a>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isGive }}" hint-placeholder-val="{{ false }}">
+        <div style="background:var(--wash-give);padding:28px 34px 30px">
+          <div style="max-width:860px;margin:0 auto">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <span style="display:inline-flex;background:var(--wash-toggle-track);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.06);border-radius:var(--radius-pill);padding:3px;gap:2px">
+                <button onClick="{{ toGet }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--grey-600);padding:9px 17px;border-radius:var(--radius-pill);border:0;background:transparent;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 2.4"></path><path d="M12 17h.01"></path></svg>
+                  Get help
+                </button>
+                <button style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--action-give-text);padding:9px 17px;border-radius:var(--radius-pill);border:0;background:#fff;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);cursor:pointer">
+                  <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                  Give help
+                </button>
+              </span>
+              <span style="margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:600">{{ helpedNote }}</span>
+            </div>
+            <h2 style="margin:20px 0 0;font-weight:800;font-size:30px;letter-spacing:-0.035em">Where your experience matters.</h2>
+            <p style="margin:8px 0 0;font-size:14px;color:var(--grey-600);font-weight:500">Three ways in: asks matched to your topics, a search, and asks that name you.</p>
+            <div style="display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap">
+              <sc-if value="{{ openOn }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ toggleOpen }}" role="switch" aria-checked="true" aria-label="Open to helping" style="display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--radius-pill)">
+                  <span style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;flex:none;display:inline-block"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></span>
+                  <b style="font-size:13px;font-weight:700;color:var(--text-primary)">Open to helping</b>
+                </button>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600">We stop matching you when you&rsquo;re busy &mdash; pausing is never announced.</span>
+              </sc-if>
+              <sc-if value="{{ openOff }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ toggleOpen }}" role="switch" aria-checked="false" aria-label="Open to helping" style="display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--radius-pill)">
+                  <span style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;flex:none;display:inline-block"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></span>
+                  <b style="font-size:13px;font-weight:700;color:var(--text-secondary)">Not right now</b>
+                </button>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600">Matching is paused &mdash; no one is told.</span>
+              </sc-if>
+            </div>
+            <sc-if value="{{ autoPausedShow }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;max-width:640px;background:#fff;border-radius:14px;box-shadow:var(--ring-card);padding:13px 16px">
+                <span style="flex:none;width:8px;height:8px;border-radius:50%;background:#fe9800;margin-top:5px"></span>
+                <span style="font-size:12.5px;font-weight:500;color:var(--text-secondary);line-height:1.6">We paused matching for you &mdash; three direct asks timed out unanswered. No one was told, and any response resets the count. Flip the switch back on whenever you&rsquo;re ready.</span>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+
+        <div style="padding:20px 34px 6px">
+          <div style="max-width:860px;margin:0 auto">
+            <div style="margin-bottom:22px">
+              <div style="display:flex;align-items:baseline;gap:8px;margin:0 0 10px">
+                <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Browse public asks</span>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600">a quiet list &mdash; offers are private, no counts</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 15px;background:var(--surface-card);border-radius:12px;box-shadow:var(--ring-outline)">
+                <svg viewBox="0 0 24 24" style="width:15px;height:15px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:2.2;stroke-linecap:round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+                <input type="text" value="{{ giveQ }}" onChange="{{ onGiveQ }}" placeholder="Try a topic you&rsquo;d like to help with &mdash; &ldquo;career change&rdquo;, &ldquo;moving abroad&rdquo;&hellip;" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:13px;font-weight:500;color:var(--text-primary)"></input>
+              </div>
+              <sc-if value="{{ searchShow }}" hint-placeholder-val="{{ false }}">
+                <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);margin-top:12px">
+                  <sc-for list="{{ searchResults }}" as="s" hint-placeholder-count="2">
+                    <a href="{{ s.href }}" style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                      <sc-if value="{{ s.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ s.i }}</span></sc-if>
+                      <sc-if value="{{ s.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ s.i }}</span></sc-if>
+                      <sc-if value="{{ s.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ s.i }}</span></sc-if>
+                      <sc-if value="{{ s.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ s.i }}</span></sc-if>
+                      <span style="flex:1;min-width:0">
+                        <b style="font-size:14.5px;font-weight:700;color:var(--text-primary)">&ldquo;{{ s.q }}&rdquo;</b>
+                        <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:1px">{{ s.meta }}</span>
+                      </span>
+                      <span style="flex:none;background:var(--give-tint);color:var(--action-give-text);border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">Read &amp; offer &rarr;</span>
+                    </a>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ searchEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:12px 0 0;padding:18px;text-align:center;font-size:12.5px;color:var(--text-faint);font-weight:600;background:var(--surface-card-elevated);border-radius:14px;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">No open asks match that &mdash; try a broader word.</p>
+              </sc-if>
+            </div>
+
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+              <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">What you can speak to</span>
+              <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ topicCount }} &middot; in your own words &middot; drives matching</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:500">shown on your profile as &ldquo;Can help with&rdquo;</span>
+            </div>
+            <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);margin-bottom:22px">
+              <sc-for list="{{ topics }}" as="t" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row)">
+                  <span style="flex:none;width:7px;height:7px;border-radius:50%;background:var(--green-500)"></span>
+                  <span style="flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.5;color:var(--text-primary)">{{ t.label }}</span>
+                  <button onClick="{{ t.remove }}" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:12px;font-weight:600;cursor:pointer;padding:6px 10px;border-radius:8px" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Remove</button>
+                </div>
+              </sc-for>
+              <sc-if value="{{ addClosed }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ canAdd }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ openAdd }}" style="width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:13px 20px;border-top:1px solid var(--divider-row);cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                    <span style="flex:none;width:7px;height:7px;border-radius:50%;border:1.5px dashed #9bb8a8;box-sizing:border-box"></span>
+                    <span style="font-size:13px;font-weight:700;color:var(--action-give-text)">+ Add a topic</span>
+                    <span style="font-size:12px;color:var(--text-faint);font-weight:500">a line in your own words &mdash; &ldquo;pricing freelance work as a student&rdquo;</span>
+                  </button>
+                </sc-if>
+                <sc-if value="{{ atCap }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:0;padding:12px 20px;border-top:1px solid var(--divider-row);font-size:12px;color:var(--text-faint);font-weight:500">That&rsquo;s your five &mdash; remove one to add another.</p>
+                </sc-if>
+              </sc-if>
+              <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+                <span style="display:flex;align-items:center;gap:8px;padding:11px 20px;border-top:1px solid var(--divider-row)">
+                  <input type="text" value="{{ newTopic }}" onChange="{{ onNewTopic }}" onKeyDown="{{ onNewTopicKey }}" placeholder="What can you speak to? A line is plenty&hellip;" style="flex:1;min-width:0;height:40px;box-sizing:border-box;padding:0 13px;background:#fff;border:0;box-shadow:var(--ring-outline);border-radius:10px;font-size:13px;color:var(--text-primary);font-weight:500;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+                  <button onClick="{{ confirmAdd }}" style="flex:none;border:0;background:var(--give-tint);color:var(--action-give-text);border-radius:10px;padding:11px 16px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Add</button>
+                  <button onClick="{{ cancelAdd }}" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:12.5px;font-weight:600;cursor:pointer;padding:11px 10px;border-radius:10px" style-hover="color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+                </span>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{ directShow }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Asked you directly</span>
+                <span style="min-width:12px;height:18px;padding:0 6px;border-radius:var(--radius-pill);background:var(--error);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ directCount }}</span>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600">also in Messages &middot; Waiting on you</span>
+              </div>
+              <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);margin-bottom:22px">
+                <sc-for list="{{ direct }}" as="d" hint-placeholder-count="1">
+                  <a href="{{ d.href }}" style="display:flex;align-items:center;gap:12px;padding:13px 16px 13px 20px;border-top:1px solid var(--divider-row);box-shadow:inset 3px 0 0 var(--action-primary);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                    <sc-if value="{{ d.av1 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ d.i }}</span></sc-if>
+                    <sc-if value="{{ d.av2 }}" hint-placeholder-val="{{ true }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ d.i }}</span></sc-if>
+                    <sc-if value="{{ d.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ d.i }}</span></sc-if>
+                    <sc-if value="{{ d.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ d.i }}</span></sc-if>
+                    <span style="flex:1;min-width:0">
+                      <b style="font-size:14.5px;font-weight:700;color:var(--text-primary)">&ldquo;{{ d.q }}&rdquo;</b>
+                      <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:1px">{{ d.meta }} &middot; asked you by name</span>
+                    </span>
+                    <span style="flex:none;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">View ask</span>
+                  </a>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ pausedShow }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:0 0 22px;padding:22px;text-align:center;font-size:12.5px;color:var(--text-faint);font-weight:600;background:var(--surface-card-elevated);border-radius:18px;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">Matching is off &mdash; topic suggestions are resting. Browsing stays open, and asks that name you still arrive above.</p>
+            </sc-if>
+
+            <sc-if value="{{ armsShow }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+                <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Matched to your topics</span>
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600">from your standing topics above</span>
+              </div>
+              <sc-if value="{{ matchedShow }}" hint-placeholder-val="{{ true }}">
+                <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                  <sc-for list="{{ matched }}" as="m" hint-placeholder-count="2">
+                    <a href="{{ m.href }}" style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                      <sc-if value="{{ m.av1 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ m.i }}</span></sc-if>
+                      <sc-if value="{{ m.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ m.i }}</span></sc-if>
+                      <sc-if value="{{ m.av3 }}" hint-placeholder-val="{{ true }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ m.i }}</span></sc-if>
+                      <sc-if value="{{ m.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ m.i }}</span></sc-if>
+                      <span style="flex:1;min-width:0">
+                        <b style="font-size:14.5px;font-weight:700;color:var(--text-primary)">&ldquo;{{ m.q }}&rdquo;</b>
+                        <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:1px">{{ m.meta }} &middot; matched on <b style="font-weight:700">{{ m.topic }}</b></span>
+                      </span>
+                      <span style="flex:none;background:var(--give-tint);color:var(--action-give-text);border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">Read &amp; offer &rarr;</span>
+                    </a>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ matchedEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;padding:22px;text-align:center;font-size:12.5px;color:var(--text-faint);font-weight:600;background:var(--surface-card-elevated);border-radius:18px;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">Nothing needs you right now &mdash; we&rsquo;ll nudge you when something does.</p>
+              </sc-if>
+
+              
+            </sc-if>
+
+            <div style="height:34px"></div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ profShow }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeProf }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.35)"></div>
+  <div role="dialog" aria-label="Profile" style="position:fixed;top:0;right:0;bottom:0;width:760px;max-width:96vw;z-index:51;background:var(--surface-card);box-shadow:-18px 0 50px rgb(25 31 40 / 0.18);display:flex;flex-direction:column;animation:bcSlide 0.22s ease">
+    <span style="flex:none;display:flex;align-items:center;gap:10px;padding:14px 24px;border-bottom:1px solid var(--border-subtle)">
+      <span style="font-size:13px;font-weight:800;letter-spacing:-0.01em">Profile</span>
+      <span style="font-size:11.5px;color:var(--text-faint);font-weight:500">closes back to your results</span>
+      <sc-if value="{{ profLinkShow }}" hint-placeholder-val="{{ true }}">
+        <a href="{{ profHref }}" style="margin-left:auto;display:flex;align-items:center;border-radius:10px;padding:8px 14px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:12px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Open as a page &rarr;</a>
+      </sc-if>
+      <sc-if value="{{ profLinkOff }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto"></span></sc-if>
+      <button onClick="{{ closeProf }}" aria-label="Close profile" style="width:34px;height:34px;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:var(--text-secondary);stroke-width:2.4;stroke-linecap:round"><path d="m6 6 12 12"></path><path d="m18 6-12 12"></path></svg>
+      </button>
+    </span>
+
+    <div style="flex:1;min-height:0;overflow-y:auto">
+      <div style="display:flex;gap:20px;align-items:flex-start;padding:26px 28px 22px">
+        <sc-if value="{{ profAv1 }}" hint-placeholder-val="{{ true }}"><span style="width:76px;height:76px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px">{{ profI }}</span></sc-if>
+        <sc-if value="{{ profAv2 }}" hint-placeholder-val="{{ false }}"><span style="width:76px;height:76px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px">{{ profI }}</span></sc-if>
+        <sc-if value="{{ profAv3 }}" hint-placeholder-val="{{ false }}"><span style="width:76px;height:76px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px">{{ profI }}</span></sc-if>
+        <sc-if value="{{ profAv4 }}" hint-placeholder-val="{{ false }}"><span style="width:76px;height:76px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px">{{ profI }}</span></sc-if>
+        <span style="flex:1;min-width:0">
+          <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h1 style="margin:0;font-size:23px;font-weight:800;letter-spacing:-0.03em">{{ profName }}</h1>
+            <sc-if value="{{ profChipCircle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--blue-600);background:var(--blue-50)">In your circle</span></sc-if>
+            <sc-if value="{{ profChipOpen }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
+          </span>
+          <span style="display:block;font-size:13.5px;color:var(--grey-600);margin-top:5px;font-weight:500">{{ profRole }} &middot; Class of &rsquo;{{ profYr }}</span>
+        </span>
+        <button onClick="{{ profAsk }}" style="flex:none;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:12px 24px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask {{ profFirst }}</button>
+      </div>
+
+      <div style="height:1px;background:var(--divider-row);margin:0 28px"></div>
+
+      <div style="display:flex;padding:22px 28px 30px">
+        <div style="flex:1;min-width:0;padding-right:30px;display:grid;gap:22px;align-content:start">
+          <sc-if value="{{ profAboutShow }}" hint-placeholder-val="{{ true }}">
+            <section>
+              <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary)">About</h2>
+              <p style="margin:9px 0 0;font-size:13.5px;line-height:1.7;color:var(--text-secondary);font-weight:500;text-wrap:pretty">{{ profAbout }}</p>
+            </section>
+          </sc-if>
+          <sc-if value="{{ profCareerShow }}" hint-placeholder-val="{{ true }}">
+            <section style="border-top:1px solid var(--divider-row);padding-top:20px">
+              <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary)">Career</h2>
+              <div style="margin-top:12px;display:grid;gap:10px">
+                <sc-for list="{{ profCareer }}" as="c" hint-placeholder-count="2">
+                  <span style="display:flex;align-items:center;gap:12px"><i style="flex:none;width:8px;height:8px;border-radius:50%;background:var(--action-primary);opacity:0.75"></i><span style="font-size:13px;color:var(--text-secondary);font-weight:600">{{ c.t }}</span></span>
+                </sc-for>
+              </div>
+            </section>
+          </sc-if>
+          <section style="border-top:1px solid var(--divider-row);padding-top:20px">
+            <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary)">Education</h2>
+            <span style="display:flex;align-items:center;gap:12px;margin-top:12px"><i style="flex:none;width:8px;height:8px;border-radius:50%;background:var(--grey-300)"></i><span style="font-size:13px;color:var(--text-secondary);font-weight:600">Chadwick School &middot; Class of &rsquo;{{ profYr }}</span></span>
+          </section>
+        </div>
+
+        <div style="width:240px;flex:none;border-left:1px solid var(--divider-row);padding-left:26px;display:grid;gap:20px;align-content:start">
+          <section>
+            <h2 style="margin:0;font-size:12px;font-weight:700;color:var(--blue-600);letter-spacing:0.04em;text-transform:uppercase">Why this match</h2>
+            <p style="margin:9px 0 0;font-size:12.5px;line-height:1.6;color:var(--text-primary);font-weight:500">{{ profWhy }}</p>
+            <p style="margin:8px 0 0;font-size:11px;color:var(--text-faint);font-weight:500">From verified profile facts &middot; ranked for your question &middot; only you see this</p>
+          </section>
+          <sc-if value="{{ profShareShow }}" hint-placeholder-val="{{ false }}">
+            <section style="border-top:1px solid var(--divider-row);padding-top:18px">
+              <h2 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">You share</h2>
+              <p style="margin:9px 0 0;font-size:12.5px;color:var(--text-secondary);font-weight:600;line-height:1.55">{{ profShare }}</p>
+            </section>
+          </sc-if>
+          <section style="border-top:1px solid var(--divider-row);padding-top:18px">
+            <p style="margin:0;font-size:11px;color:var(--text-faint);font-weight:500;line-height:1.6">Profile auto-updated from public sources &middot; last checked May 2026</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;startMode&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;get&quot;, &quot;tsType&quot;: &quot;'get' | 'give'&quot;, &quot;options&quot;: [&quot;get&quot;, &quot;give&quot;], &quot;section&quot;: &quot;Mode&quot;},
+  &quot;askCap&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 5, &quot;tsType&quot;: &quot;number&quot;, &quot;min&quot;: 1, &quot;max&quot;: 10, &quot;section&quot;: &quot;Get&quot;},
+  &quot;demoAutoPaused&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Give&quot;},
+  &quot;notificationDot&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = {
+    mode: null, openTo: null,
+    question: '', giveQ: '',
+    searching: false, searched: false, expandedId: null, shown: 5, matchFilter: 'all',
+    topics: null, addOpen: false, newTopic: '',
+    sentAsks: [], overrides: {}, offered: {}, directDone: {},
+    toast: ''
+  };
+
+  componentDidMount() {
+    this._esc = (e) => { if (e.key === 'Escape' && this.state.expandedId) this.setState({ expandedId: null }); };
+    window.addEventListener('keydown', this._esc);
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('bcHelpPageState') || 'null');
+      if (saved && typeof saved === 'object') {
+        this.setState({ mode: saved.mode || null, openTo: typeof saved.openTo === 'boolean' ? saved.openTo : null });
+      }
+      const um = new URLSearchParams(window.location.search).get('mode');
+      if (um === 'give' || um === 'get') this.setState({ mode: um });
+      this.setState({
+        question: sessionStorage.getItem('bcQuestion') || '',
+        topics: JSON.parse(sessionStorage.getItem('bcTopics2') || 'null'),
+        sentAsks: (JSON.parse(sessionStorage.getItem('bcSentAsks') || '[]') || []).filter((a) => a && typeof a.text === 'string' && (a.kind === 'direct' || a.kind === 'open')),
+        overrides: JSON.parse(sessionStorage.getItem('bcAskOverrides') || '{}'),
+        offered: JSON.parse(sessionStorage.getItem('bcOffered') || '{}'),
+        directDone: JSON.parse(sessionStorage.getItem('bcDirectDone') || '{}')
+      });
+    } catch (e) { /* ignore corrupt state */ }
+    try {
+      const m = new URLSearchParams(window.location.search).get('mode');
+      if (m === 'give' || m === 'get') this.setMode(m);
+    } catch (e) { /* ignore */ }
+    if (!window.BCHelpData) {
+      this._poll = setInterval(() => { if (window.BCHelpData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._esc);
+    if (this._poll) clearInterval(this._poll);
+    if (this._toastT) clearTimeout(this._toastT);
+    if (this._searchT) clearTimeout(this._searchT);
+  }
+
+  data() { return window.BCHelpData || { people: [], yourAsks: [], historyAsks: [], give: { topics: [], asks: [] } }; }
+  mode() { return this.state.mode || (this.props.startMode ?? 'get'); }
+  openTo() {
+    // demoAutoPaused: the 3-strike auto-pause moment (FLOWS §3b.1) — starts
+    // paused with the explanation banner; flipping the switch resumes.
+    if (this.state.openTo === null) return !(this.props.demoAutoPaused ?? false);
+    return this.state.openTo;
+  }
+  topics() { return this.state.topics || this.data().give.topics || []; }
+
+  setMode(mode) {
+    this.setState({ mode });
+    try { sessionStorage.setItem('bcHelpPageState', JSON.stringify({ mode, openTo: this.state.openTo })); } catch (e) { /* ignore */ }
+  }
+
+  setOpenTo(openTo) {
+    this.setState({ openTo });
+    try { sessionStorage.setItem('bcHelpPageState', JSON.stringify({ mode: this.mode(), openTo })); } catch (e) { /* ignore */ }
+  }
+
+  setTopics(topics) {
+    this.setState({ topics });
+    try { sessionStorage.setItem('bcTopics2', JSON.stringify(topics)); } catch (e) { /* ignore */ }
+  }
+
+  setQuestion(q) {
+    this.setState({ question: q, searching: false, searched: false });
+    try { sessionStorage.setItem('bcQuestion', q); } catch (e) { /* ignore */ }
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  // Open-slot accounting: waiting / offers / quiet asks + session-sent ones,
+  // minus retracted. Cap: 5 (FLOWS §3a.6).
+  openList() {
+    const ov = this.state.overrides;
+    const base = (this.data().yourAsks || []).filter((a) => !(ov[a.id] && ov[a.id].status === 'retracted'));
+    const sent = this.state.sentAsks.filter((a) => !(ov[a.id] && ov[a.id].status === 'retracted'));
+    return [...sent, ...base];
+  }
+  openCount() {
+    const ov = this.state.overrides;
+    return this.openList().filter((a) => {
+      const st = (ov[a.id] && ov[a.id].status) || a.status;
+      return st === 'waiting' || st === 'offers' || st === 'quiet' || st === 'accepted';
+    }).length;
+  }
+  cap() { return this.props.askCap ?? 5; }
+
+  guardSlots() {
+    if (this.openCount() >= this.cap()) {
+      this.showToast('You have ' + this.cap() + ' asks open \u2014 the sixth waits for a slot.');
+      return false;
+    }
+    return true;
+  }
+
+  askPerson(p) {
+    if (!this.state.question.trim()) { this.setState({ qError: true }); return; }
+    if (!this.guardSlots()) return;
+    window.location.href = './AskCompose.dc.html?person=' + p.id;
+  }
+
+  askCircle() {
+    if (!this.state.question.trim()) { this.setState({ qError: true }); return; }
+    if (!this.guardSlots()) return;
+    window.location.href = './AskCircle.dc.html';
+  }
+
+  // NL search kicks in only when asked for — never as-you-type.
+  findPeople() {
+    if (!this.state.question.trim()) { this.showToast('Type your question first \u2014 that\u2019s what we match on.'); return; }
+    this.setState({ searching: true, searched: false, expandedId: null, shown: 5, matchFilter: 'all' });
+    if (this._searchT) clearTimeout(this._searchT);
+    this._searchT = setTimeout(() => this.setState({ searching: false, searched: true }), 900);
+  }
+
+  matchedPeople() {
+    const q = this.state.question.toLowerCase();
+    return (this.data().people || [])
+      .map((p) => ({ p, hits: (p.keywords || []).filter((k) => q.includes(k)).length }))
+      .filter((x) => x.hits > 0)
+      .sort((a, b) => b.hits - a.hits);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const d = this.data();
+    const mode = this.mode();
+    const openTo = this.openTo();
+    const ov = s.overrides;
+
+    // ---- get: matches (shown only after "Find people"; ranked shortlist) ----
+    const scored = s.searched ? this.matchedPeople() : [];
+    const filtered = scored.filter((x) => s.matchFilter === 'circle' ? !!x.p.circle : s.matchFilter === 'open' ? !!x.p.open : true);
+    const visible = filtered.slice(0, s.shown);
+    const matches = visible.map(({ p, hits }) => ({
+      i: p.i, name: p.name, first: p.first, yr: p.yr, evidence: p.evidence,
+      why: p.why || p.evidence,
+      strong: hits >= 2,
+      av1: p.av === 1, av2: p.av === 2, av3: p.av === 3, av4: p.av === 4,
+      chipCircle: !!p.circle, chipOpen: !!p.open && !p.circle,
+      profile: () => this.setState({ expandedId: p.id }),
+      ask: (e) => { if (e) e.stopPropagation(); this.askPerson(p); }
+    }));
+    const moreLeft = filtered.length - visible.length;
+    const pickFilter = (f) => this.setState({ matchFilter: f, shown: 5, expandedId: null });
+
+    // full profile slide-over (right \u2192 left; \u00a77b overlays return in place)
+    const prof = s.expandedId ? (d.people || []).find((p) => p.id === s.expandedId) : null;
+
+    // ---- get: your asks with status pills ----
+    const openAsks = this.openList().map((a) => {
+      const st = (ov[a.id] && ov[a.id].status) || a.status;
+      const offersN = (a.offers || []).length;
+      const meta = a.kind === 'direct'
+        ? 'To ' + (a.to ? a.to.name : '') + ' \u00b7 sent ' + a.sent
+        : (a.reach === 'school' ? 'Public \u2014 anyone at Chadwick' : 'Private \u2014 good matches') + (a.anon ? ' \u00b7 without your name' : '') + ' \u00b7 sent ' + a.sent;
+      return {
+        title: a.text.length > 64 ? a.text.slice(0, 64).trimEnd() + '\u2026' : a.text,
+        meta,
+        href: './AskStatus.dc.html?id=' + a.id,
+        pillWaiting: st === 'waiting' || (st === 'quiet' && a.daysLeft > 3),
+        pillOffers: st === 'offers' && offersN > 0,
+        offersLabel: offersN === 1 ? '1 offer' : offersN + ' offers',
+        pillDeclined: st === 'declined',
+        pillAnswered: st === 'accepted',
+        pillCloses: (st === 'quiet' || st === 'waiting' || st === 'offers') && a.daysLeft > 0 && a.daysLeft <= 3,
+        closesLabel: 'Closes in ' + a.daysLeft + 'd'
+      };
+    });
+
+    // ---- give ----
+    const topics = this.topics();
+    const topicRows = topics.map((label) => ({
+      label,
+      remove: () => this.setTopics(topics.filter((t) => t !== label))
+    }));
+    const giveAsks = (d.give.asks || []);
+    const direct = giveAsks.filter((m) => m.source === 'direct' && !s.directDone[m.id]).map((m) => ({
+      i: m.asker.i, q: m.q, meta: m.asker.name + ' \u00b7 ' + m.asker.role + ' \u00b7 ' + m.time,
+      av1: m.asker.av === 1, av2: m.asker.av === 2, av3: m.asker.av === 3, av4: m.asker.av === 4,
+      href: './GiveDirect.dc.html?id=' + m.id
+    }));
+    const matched = giveAsks.filter((m) => m.source === 'match' && !s.offered[m.id] && topics.includes(m.topic)).map((m) => ({
+      i: m.asker.i, q: m.q,
+      topic: m.topic && m.topic.length > 46 ? m.topic.slice(0, 46).trimEnd() + '\u2026' : m.topic,
+      meta: m.asker.name + ' \u00b7 ' + m.asker.role + ' \u00b7 ' + m.time,
+      av1: m.asker.av === 1, av2: m.asker.av === 2, av3: m.asker.av === 3, av4: m.asker.av === 4,
+      href: './GiveOffer.dc.html?id=' + m.id
+    }));
+    const gq = s.giveQ.trim().toLowerCase();
+    const searchResults = gq ? giveAsks.filter((m) => m.source !== 'direct' && !s.offered[m.id] && (m.q.toLowerCase().includes(gq) || (m.full || []).join(' ').toLowerCase().includes(gq))).map((m) => ({
+      i: m.asker.i, q: m.q,
+      meta: (m.anon ? 'A member \u00b7 Class of \u2019' + m.asker.yr : m.asker.name + ' \u00b7 ' + m.asker.role) + ' \u00b7 ' + m.time,
+      av1: m.asker.av === 1, av2: m.asker.av === 2, av3: m.asker.av === 3, av4: m.asker.av === 4,
+      href: './GiveOffer.dc.html?id=' + m.id
+    })) : [];
+
+    return {
+      showDot: this.props.notificationDot ?? true,
+      isGet: mode === 'get', isGive: mode === 'give',
+      toGet: () => this.setMode('get'), toGive: () => this.setMode('give'),
+
+      // get
+      question: s.question,
+      qError: !!s.qError,
+      onQuestion: (e) => { this.setQuestion(e.target.value); if (this.state.qError) this.setState({ qError: false }); },
+      matches,
+      searching: s.searching,
+      resultsShow: s.searched && scored.length > 0,
+      noneShow: s.searched && scored.length === 0,
+      resultCount: filtered.length === 1 ? '1 person' : filtered.length + ' people',
+      fAllOn: s.matchFilter === 'all', fAllOff: s.matchFilter !== 'all',
+      fOpenOn: s.matchFilter === 'open', fOpenOff: s.matchFilter !== 'open',
+      fCircleOn: s.matchFilter === 'circle', fCircleOff: s.matchFilter !== 'circle',
+      pickAll: () => pickFilter('all'), pickOpen: () => pickFilter('open'), pickCircle: () => pickFilter('circle'),
+      filterEmpty: s.searched && scored.length > 0 && filtered.length === 0,
+      showMoreShow: moreLeft > 0,
+      showMore: () => this.setState((st) => ({ shown: st.shown + 10 })),
+      moreLabel: 'Show ' + Math.min(10, moreLeft) + ' more \u00b7 ' + moreLeft + ' left',
+      lotsShow: filtered.length >= 12,
+      findPeople: () => this.findPeople(),
+      askCircle: () => this.askCircle(),
+      editingShow: !s.searched && !s.searching,
+      askedShow: s.searched || s.searching,
+      changeQuestion: () => this.setState({ searched: false, searching: false, expandedId: null }),
+
+      // profile slide-over
+      profShow: !!prof,
+      closeProf: () => this.setState({ expandedId: null }),
+      profI: prof ? prof.i : '', profName: prof ? prof.name : '', profFirst: prof ? prof.first : '',
+      profYr: prof ? prof.yr : '',
+      profRole: prof ? (prof.role || prof.evidence) : '',
+      profWhy: prof ? (prof.why || prof.evidence) : '',
+      profAv1: prof ? prof.av === 1 : true, profAv2: prof ? prof.av === 2 : false, profAv3: prof ? prof.av === 3 : false, profAv4: prof ? prof.av === 4 : false,
+      profChipCircle: prof ? !!prof.circle : false, profChipOpen: prof ? (!!prof.open && !prof.circle) : false,
+      profAboutShow: !!(prof && prof.about), profAbout: prof ? (prof.about || '') : '',
+      profCareerShow: !!(prof && prof.career && prof.career.length), profCareer: prof && prof.career ? prof.career.map((t) => ({ t })) : [],
+      profShareShow: !!(prof && prof.share), profShare: prof ? (prof.share || '') : '',
+      profLinkShow: !!(prof && prof.pid),
+      profLinkOff: !(prof && prof.pid),
+      profHref: prof && prof.pid ? '../profile/Profile.dc.html?id=' + prof.pid + '&from=help' : '#',
+      profAsk: () => { if (prof) this.askPerson(prof); },
+      openAsks,
+      slotLabel: this.openCount() + ' of ' + this.cap() + ' open',
+      capShow: this.openCount() >= this.cap(),
+      capLabel: String(this.cap()),
+
+      // give
+      helpedNote: d.give.helpedNote || '',
+      openOn: openTo, openOff: !openTo,
+      autoPausedShow: (this.props.demoAutoPaused ?? false) && !openTo,
+      toggleOpen: () => this.setOpenTo(!openTo),
+      topics: topicRows,
+      topicCount: topics.length + ' of 5',
+      canAdd: topics.length < 5,
+      atCap: topics.length >= 5,
+      addOpen: s.addOpen, addClosed: !s.addOpen,
+      openAdd: () => this.setState({ addOpen: true, newTopic: '' }),
+      cancelAdd: () => this.setState({ addOpen: false, newTopic: '' }),
+      newTopic: s.newTopic,
+      onNewTopic: (e) => this.setState({ newTopic: e.target.value }),
+      onNewTopicKey: (e) => { if (e.key === 'Enter') this.confirmAddTopic(); },
+      confirmAdd: () => this.confirmAddTopic(),
+      directShow: direct.length > 0, direct, directCount: direct.length,
+      armsShow: openTo, pausedShow: !openTo,
+      matchedShow: matched.length > 0, matchedEmpty: matched.length === 0, matched,
+      giveQ: s.giveQ, onGiveQ: (e) => this.setState({ giveQ: e.target.value }),
+      searchShow: gq.length > 0 && searchResults.length > 0,
+      searchEmpty: gq.length > 0 && searchResults.length === 0,
+      searchResults,
+
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+
+  confirmAddTopic() {
+    const t = this.state.newTopic.trim();
+    const topics = this.topics();
+    if (!t) { this.setState({ addOpen: false }); return; }
+    if (topics.length >= 5 || topics.includes(t)) { this.setState({ addOpen: false, newTopic: '' }); return; }
+    this.setTopics([...topics, t]);
+    this.setState({ addOpen: false, newTopic: '' });
+  }
+}
+</script>
+</body>
+</html>

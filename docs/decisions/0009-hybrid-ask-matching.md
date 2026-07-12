@@ -17,9 +17,10 @@ structured search is interpretable and cheap, but it can miss helpers whose
 career history, skills, bio, or mentoring topics are semantically relevant
 without exact filter overlap.
 
-Current production code still implements the ADR 0006-style baseline:
-structured/entity retrieval plus Claude Haiku reranking. This ADR defines the
-accepted target architecture for the next Ask matching upgrade.
+Current code includes both the ADR 0006-style baseline and a feature-gated
+Voyage hybrid path. The default remains legacy unless
+`ASK_MATCHING_PIPELINE=voyage_hybrid` and `VOYAGE_API_KEY` are configured. This
+ADR defines the accepted architecture for that gated Ask matching upgrade.
 
 The embedding and reranker provider analysis in
 [Ask matching model research](../architecture/ask-matching-model-research.md)

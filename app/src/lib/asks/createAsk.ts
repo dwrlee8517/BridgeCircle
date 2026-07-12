@@ -86,8 +86,12 @@ export async function createAsk(
 
   // The invisible abuse valve: cap pending asks per helper. Never surfaced
   // in the UI (decided 2026-07-02); max_active_mentees is no longer checked.
+  // Counted with the admin client: asks RLS only shows the caller their own
+  // rows, so the asker's client can never see other askers' pending asks and
+  // the cap would never trip against the pile-on it exists to stop.
   if (pref) {
-    const { count: pendingCount } = await supabase
+    const { createAdminClient } = await import('@/db/admin')
+    const { count: pendingCount } = await createAdminClient()
       .from('asks')
       .select('id', { count: 'exact', head: true })
       .eq('helper_id', input.helperId)

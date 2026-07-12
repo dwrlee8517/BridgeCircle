@@ -1,10 +1,26 @@
 name: CI
 
+# Docs-only changes don't affect lint/test/build outcomes, so skip the
+# pipeline when a push or PR touches nothing but docs. `paths-ignore` skips
+# the run only when EVERY changed file matches — any code change still runs
+# the full suite. These checks are not required for merge, so a skipped run
+# leaves no PR stuck "pending"; if they're ever made required, this needs the
+# always-report gate-job pattern instead.
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'product-spec-obsidian-vault/**'
+      - '.gitignore'
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'product-spec-obsidian-vault/**'
+      - '.gitignore'
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

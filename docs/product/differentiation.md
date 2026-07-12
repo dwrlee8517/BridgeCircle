@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document is the strategic plan for how BridgeCircle wins against the alumni-network incumbents identified in `competitive-research.md`. It is not a roadmap of features (those live in `../specs/phase-1/spec.md`, `../specs/phase-1/launch-cut.md`, `../specs/phase-1/week-3-4.md`). It is a set of decisions about positioning, pricing, go-to-market, and what we deliberately will not do — so that every product and sales decision through Phase 1 and into the next 5–10 customers is consistent.
+This document is the strategic plan for how BridgeCircle wins against the alumni-network incumbents identified in `competitive-research.md`. It is not a roadmap of features (those live in `../../product-spec-obsidian-vault/Production/phase-1/spec.md`, `../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md`, `../../product-spec-obsidian-vault/Production/phase-1/week-3-4.md`). It is a set of decisions about positioning, pricing, go-to-market, and what we deliberately will not do — so that every product and sales decision through Phase 1 and into the next 5–10 customers is consistent.
 
 If something in this doc disagrees with later docs, this one wins on positioning questions; later docs win on implementation specifics.
 
@@ -203,7 +203,7 @@ Protopia's email/SMS routing is a parallel wedge to ours. If they add a director
 The 62% "no career value" stat applies to alumni networks broadly. We could ship a great product and still get 12% activation, which would be a fine product but a mediocre case study.
 
 **Mitigation:**
-- Pre-seed mentor supply. Personal outreach to recruit 20–30 mentors *before* launch day, so the product has answers when the first mentees ask. This is in `../specs/phase-1/launch-cut.md` already — treat it as the most important non-code work of the next 30 days.
+- Pre-seed mentor supply. Personal outreach to recruit 20–30 mentors *before* launch day, so the product has answers when the first mentees ask. This is in `../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md` already — treat it as the most important non-code work of the next 30 days.
 - Manage stakeholder expectations. Sell "credible signal in the first cohort" not "magic out of the gate." A "27% of invited alumni completed a profile" early metric is excellent for the category and won't be mistaken for failure if we frame it right.
 - Have a fallback narrative if engagement is low. "We learned that the activation cliff happens between profile completion and first request. Here's the specific UX change in the next sprint." Loss-of-momentum stories with a clear next step beat silent failure.
 

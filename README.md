@@ -20,7 +20,7 @@ Start here depending on what you need:
 | --- | --- |
 | Product thesis, MVP scope, market framing | [project-summary.md](project-summary.md) |
 | Experience docs and active design system | [docs/experience/README.md](docs/experience/README.md) |
-| What ships in Phase 1 | [docs/specs/phase-1/launch-cut.md](docs/specs/phase-1/launch-cut.md) |
+| What ships in Phase 1 | [product-spec-obsidian-vault/Production/phase-1/launch-cut.md](product-spec-obsidian-vault/Production/phase-1/launch-cut.md) |
 | Why the schema is shaped the way it is | [docs/architecture/data-model.md](docs/architecture/data-model.md) |
 | Where dev/prod live and how schema changes flow | [docs/architecture/environments.md](docs/architecture/environments.md) |
 | Secrets management with Doppler | [docs/runbooks/doppler.md](docs/runbooks/doppler.md) |
@@ -36,7 +36,7 @@ Local dev runs against `bridgecircle-dev`, a separate Supabase project from prod
 ```bash
 cd app
 pnpm install
-pnpm dev   # http://localhost:3000
+pnpm dev   # http://localhost:3001
 ```
 
 The dev project is seeded with 9 hand-curated personas covering the main user roles. Sign in with any of them to test specific flows:

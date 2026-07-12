@@ -1,6 +1,7 @@
 # 0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface
 
-- **Status:** proposed
+- **Status:** proposed · amended 2026-07-06 (D5 superseded in part by the Help-flow
+  review — see [Amendment](#amendment--2026-07-06-flow-review-richard))
 - **Date:** 2026-07-02
 - **Decider:** Richard
 
@@ -67,6 +68,9 @@ Collapse the member-facing model to **two verbs and one room**:
 - **D5 — The buffer goes invisible, not away.** Quiet pass (`decline_reason`
   never facing the asker), pause (`paused_until`, inactivity auto-pause), and
   ask expiry/reminders all survive as plumbing.
+  **⚠ Superseded in part, 2026-07-06:** the quiet pass is replaced by
+  decline-with-note for asks in both directions; pause and expiry/reminder
+  plumbing survive with revised triggers. See the Amendment below.
 
 This supersedes 0010's D1 mechanics (visible commitment axis, screening,
 reverse/peer *lanes* — direction-neutral matching now falls out of the single
@@ -172,7 +176,7 @@ Each destructive step split expand → contract across deploys per 0008:
   "Asks are polymorphic" bullet + scope-fence line;
   `docs/architecture/information-architecture.md`;
   `docs/product/feature-roadmap.md`; voice-guidelines avoid/prefer row for
-  mentor/mentee and friend→connect; `docs/specs/phase-1/spec.md` drift flag.
+  mentor/mentee and friend→connect; `product-spec-obsidian-vault/Production/phase-1/spec.md` drift flag.
 
 **Verify:** grep gate — zero `ask_type|open_to_mentorship|screening_prompt`
 identifiers outside migrations; full pre-PR stack (`/ship`); e2e smoke.
@@ -182,6 +186,39 @@ identifiers outside migrations; full pre-PR stack (`/ship`); e2e smoke.
 Phases 1–2 are independent of 3–5 and can ship first (they're the visible
 simplification). Phase 3 before 4 and 5 (both land conversations in the
 unified surface). Phase 6 last, after pilot-stable.
+
+## Amendment — 2026-07-06 flow review (Richard)
+
+The Help-flow review (recorded in FLOWS.md draft v2,
+`docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md` §3)
+supersedes parts of this ADR:
+
+- **D5's quiet pass → decline-with-note, for asks in both directions.**
+  Declining always sends the other side a cushioned note — default reasons
+  ("I can't take this on right now", "This one's outside what I can speak
+  to"), custom text, or an AI-drafted line. This applies to a recipient
+  declining a direct ask *and* an asker declining an offer. `decline_reason`
+  (or a successor column) becomes asker-facing message content, no longer
+  private plumbing. **Connect-request declines stay quiet** — D2's two-sided
+  gate is untouched.
+- **The 14-day close narrows to pure silence.** No-fault wording and the
+  recovery actions stay; the close no longer needs to mask passes, because
+  passes no longer exist.
+- **Availability triggers change.** "Open to helping" has no clock expiry;
+  auto-pause fires after three direct asks time out unanswered (any response,
+  accept or decline, resets the count). `paused_until` survives; the
+  inactivity trigger is replaced by the 3-strike rule.
+- **New asker-side valve:** five open asks per member at once; slots free on
+  resolve / retract / declined-by-all / day-14 close. `max_pending_requests`
+  stays as the invisible per-helper valve.
+- **D1's composer is search-first:** question → matched people (tailored-note
+  composer, one or several recipients — asker's choice) or an open ask
+  (two-tier reach + anonymous-until-accept, shipping v1).
+
+Phases 1–6 remain directionally valid. Re-read against FLOWS.md v2 §3 before
+implementing: **Phase 2** (composer shape), **Phase 5** (offer lifecycle — an
+asker's decline now notifies the helper; add the decline-note email), and
+**Phase 6** (`decline_reason` disposition).
 
 ## Consequences
 

@@ -1,7 +1,7 @@
 # BridgeCircle Feature Roadmap
 
 **Status:** v1 · 2026-05-24
-**Companion docs:** [brand-strategy.md](./brand-strategy.md) (positioning), [voice-guidelines.md](./voice-guidelines.md) (voice)
+**Companion docs:** [brand-strategy.md](./brand-strategy.md) (positioning), [voice-guidelines.md](./voice-guidelines.md) (voice), [North Star and Long-Horizon Roadmap](../../product-spec-obsidian-vault/Vision/North%20Star%20and%20Long-Horizon%20Roadmap.md) (the distilled long-horizon vision this roadmap operationalizes)
 
 ---
 
@@ -56,7 +56,7 @@ The assistant helps with: a short subject line · a 3-5 sentence request · why 
 
 The product must never make requests feel mass-generated. It helps members express a real need clearly. See [voice-guidelines.md §10.3](./voice-guidelines.md) for AI-drafted message style rules.
 
-**Mediator extension (Phase 2 — "Let BridgeCircle ask for you"):** at the draft step of the guided ask composer, the member chooses between sending directly or letting BridgeCircle reach out on their behalf in the coordinator's voice. The system approaches potential helpers sequentially (one at a time, 48h silent timeout); helpers accept or decline; when a helper accepts, the member is notified and the conversation begins. Helper declines are never surfaced to the asker. The AI remains unnamed and quietly disclosed via a persistent badge. Full design in [specs/ask-mediator.md](../specs/ask-mediator.md).
+**Mediator extension (Phase 2 — "Let BridgeCircle ask for you"):** at the draft step of the guided ask composer, the member chooses between sending directly or letting BridgeCircle reach out on their behalf in the coordinator's voice. The system approaches potential helpers sequentially (one at a time, 48h silent timeout); helpers accept or decline; when a helper accepts, the member is notified and the conversation begins. Helper declines are never surfaced to the asker. The AI remains unnamed and quietly disclosed via a persistent badge. Full design in [ask-mediator.md](../../product-spec-obsidian-vault/Prototype/ask-mediator.md).
 
 ### C. Easier profile freshness
 
@@ -142,7 +142,7 @@ Three match types, sequenced:
 - **Profile-filter** — "I'll go if there are people in software engineering" matches when a member whose profile satisfies the filter RSVPs.
 - **Help-need** — "I'll go if there are people who want to learn software engineering" matches a helper to a learner whose open ask is on the same topic. Bridges into the asks system.
 
-The brand-fit value: this directly addresses the embarrassed asker ([voice-guidelines.md §3](./voice-guidelines.md)), whose silent reason for skipping events is "I won't know anyone." Privacy stays default-private with a per-RSVP public toggle; matches are notify-and-ask, never auto-flip. Full design in [specs/events-conditional-rsvp.md](../specs/events-conditional-rsvp.md).
+The brand-fit value: this directly addresses the embarrassed asker ([voice-guidelines.md §3](./voice-guidelines.md)), whose silent reason for skipping events is "I won't know anyone." Privacy stays default-private with a per-RSVP public toggle; matches are notify-and-ask, never auto-flip. Full design in [events-conditional-rsvp.md](../../product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md).
 
 ### H. Partner-hosted opportunities
 
@@ -184,8 +184,8 @@ Good examples: product careers session hosted by an alumni-led company · biotec
 - mentor response nudges
 - in-app and email notification improvements
 - admin insights for weak cohorts or inactive regions
-- conditional event RSVP — "I'll go if…" with peer matching ([spec](../specs/events-conditional-rsvp.md)); profile-filter and help-need variants follow in v1.1 / v1.2
-- ask mediator — "Let BridgeCircle ask for you" send option in the guided ask composer ([spec](../specs/ask-mediator.md)); sequential helper outreach with silent declines, AI stays unnamed and disclosed via badge
+- conditional event RSVP — "I'll go if…" with peer matching ([spec](../../product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md)); profile-filter and help-need variants follow in v1.1 / v1.2
+- ask mediator — "Let BridgeCircle ask for you" send option in the guided ask composer ([spec](../../product-spec-obsidian-vault/Prototype/ask-mediator.md)); sequential helper outreach with silent declines, AI stays unnamed and disclosed via badge
 
 ## Phase 3 — Turn data into gatherings
 
