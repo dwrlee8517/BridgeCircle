@@ -22,14 +22,19 @@ duplicated here — this document only frames what's different.
    `OVERRIDES.md` with evidence and status. Unlogged divergence is drift.
 3. **Applied vs proposed.** Only *applied* entries exist in the tokens and
    specimens. **2026-07-04 brand batch applied:** O1–O4, O6, O7 + E2 (green
-   give action, section bands, Display XL, softer radii, hairline + card ring,
-   avatar palette) — the fork now renders visibly differently from the
+   give action, section identity, Display XL, softer radii, hairline + card
+   ring, avatar palette) — the fork now renders visibly differently from the
    baseline. **2026-07-05:** E3 desktop extension applied (breakpoints,
-   1140px shell, sidebar nav, hover/focus states, operator table — all
-   invention in the Toss spirit; TDS is mobile-only). **Rejected:** O5
-   (warning stays TDS orange `#fe9800`, 2026-07-05). Still proposed: E1
-   (pending hue), E4 (CircleMark). Every entry stays adjustable or revertible
-   via the ledger.
+   1320px shell, sidebar nav, hover/focus states, operator table — all
+   invention in the Toss spirit; TDS is mobile-only). **2026-07-12 template
+   reconciliation:** the full `templates/**` set landed; the saturated section
+   bands were retired for **wash heroes + navy covers**; E1 (pending) applied
+   and E5/E6/E7 minted (template surfaces, closing-soon amber, give-tint);
+   `--border-subtle` → `#eef1f5`; **dark mode parked (v1 light-only)**; the
+   profile helping section is titled "Can help with". **Rejected:** O5
+   (warning stays TDS orange `#fe9800`, 2026-07-05). Still proposed: E4
+   (CircleMark; v1 chips carry circle state). Every entry stays adjustable or
+   revertible via the ledger.
 4. **Evidence over taste.** Entries cite the friction log
    ([`../Help Hub.html`](../Help%20Hub.html), the 2026-07-04 pristine-baseline
    test) and ADR 0013 Appendix C (the Field Pro reconciliation). New entries

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Profile slide-over" description="Other-member profile as a slide-over overlay (FLOWS §7b) — opens over a Messages thread from a name click; close returns you exactly where you were. Compact facts, two verbs, open-full-profile route" -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)}
+  @keyframes bcSlideIn{from{transform:translateX(28px);opacity:0}to{transform:translateX(0);opacity:1}}
+  @media (prefers-reduced-motion: no-preference){[data-slidein]{animation:bcSlideIn .22s ease both}}</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh;max-width:var(--container-shell);margin:0 auto">
+
+  <aside style="width:var(--sidebar-width);flex:none;align-self:flex-start;position:sticky;top:0;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:#fff;color:var(--blue-600);font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="flex:none;position:sticky;top:0;z-index:10;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 30px">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Messages</span>
+      <span style="margin-left:auto"><bc-account-menu></bc-account-menu></span>
+    </header>
+
+    <div style="flex:1;display:flex;flex-direction:column;background:var(--surface-thread,var(--surface-inset))">
+      <div style="flex:none;display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)">
+        <button onClick="{{ openPanel }}" aria-label="Open Maya's profile" style="display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:4px 8px 4px 4px;border-radius:12px;cursor:pointer;text-align:left;font-family:var(--font-sans)" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">MC</span>
+          <span>
+            <span style="display:flex;align-items:center;gap:8px"><b style="font-size:14.5px;font-weight:700">Maya Chen</b><span style="font-size:11.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;14</span></span>
+            <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500">Design Lead &middot; Figma &middot; tap for profile</span>
+          </span>
+        </button>
+      </div>
+
+      <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:14px;max-width:720px;box-sizing:border-box">
+        <span style="align-self:center;font-size:11px;color:var(--text-faint);font-weight:600;background:#fff;box-shadow:var(--ring-card);border-radius:var(--radius-pill);padding:5px 14px">Maya accepted your ask &middot; &ldquo;How did you know it was time to move in-house?&rdquo;</span>
+        <span style="align-self:flex-start;max-width:75%;background:#fff;box-shadow:var(--ring-card);border-radius:18px 18px 18px 6px;padding:11px 15px;font-size:13.5px;line-height:1.6;font-weight:500;color:var(--text-primary)">Happy to talk it through! For me the tell was when client work stopped teaching me anything new. What&rsquo;s pulling you in-house?</span>
+        <span style="align-self:flex-end;max-width:75%;background:var(--gradient-primary-btn);color:#fff;border-radius:18px 18px 6px 18px;padding:11px 15px;font-size:13.5px;line-height:1.6;font-weight:500">Mostly wanting to own something longer than a campaign cycle. Did you feel ready when you jumped, or did you just go?</span>
+        <span style="align-self:flex-start;max-width:75%;background:#fff;box-shadow:var(--ring-card);border-radius:18px 18px 18px 6px;padding:11px 15px;font-size:13.5px;line-height:1.6;font-weight:500;color:var(--text-primary)">Honestly? I just went. Want me to look at your portfolio through an in-house hiring lens? Send it over.</span>
+      </div>
+
+      <div style="flex:none;padding:14px 28px 20px;max-width:720px;box-sizing:border-box;width:100%">
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;box-shadow:var(--ring-card);border-radius:var(--radius-pill);padding:8px 8px 8px 18px">
+          <span style="flex:1;font-size:13px;color:var(--text-faint);font-weight:500">Message Maya&hellip;</span>
+          <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-primary-btn);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m5 12 14-7-4 14-3.5-5.5L5 12z"></path></svg></span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ true }}">
+  <div style="position:fixed;inset:0;z-index:40">
+    <span onClick="{{ closePanel }}" style="position:absolute;inset:0;background:rgb(25 31 40 / 0.35);display:block"></span>
+    <div data-slidein="" role="dialog" aria-modal="true" aria-label="Maya Chen's profile" style="position:absolute;top:0;right:0;bottom:0;width:460px;max-width:92vw;background:#fff;box-shadow:-24px 0 60px rgb(25 31 40 / 0.2);display:flex;flex-direction:column;box-sizing:border-box;overflow-y:auto">
+
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:26px 28px 20px">
+        <span style="width:64px;height:64px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:21px">MC</span>
+        <span style="flex:1;min-width:0">
+          <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <h2 style="margin:0;font-size:20px;font-weight:800;letter-spacing:-0.02em">Maya Chen</h2>
+            <sc-if value="{{ inCircle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--blue-600);background:var(--blue-50)">In your circle</span></sc-if>
+          </span>
+          <span style="display:block;font-size:13px;color:var(--grey-600);margin-top:4px;font-weight:500">Design Lead &middot; Figma &middot; San Francisco &middot; Class of &rsquo;14</span>
+          <sc-if value="{{ openToHelp }}" hint-placeholder-val="{{ true }}">
+            <span style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
+          </sc-if>
+        </span>
+        <button onClick="{{ closePanel }}" aria-label="Close profile" style="flex:none;width:34px;height:34px;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);color:var(--text-secondary);font-size:15px;cursor:pointer;font-family:var(--font-sans)" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&#10005;</button>
+      </div>
+
+      <div style="display:flex;gap:8px;padding:0 28px 22px">
+        <a href="../help/AskCompose.dc.html" style="flex:1;text-align:center;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:12px;font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn);text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask for help</a>
+        <sc-if value="{{ inCircle }}" hint-placeholder-val="{{ true }}">
+          <a href="../messages/Messages.dc.html" style="flex:1;text-align:center;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px;font-size:13px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Message</a>
+        </sc-if>
+        <sc-if value="{{ showConnect }}" hint-placeholder-val="{{ false }}">
+          <a href="../profile/Profile.dc.html" style="flex:1;text-align:center;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px;font-size:13px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Connect</a>
+        </sc-if>
+      </div>
+
+      <div style="height:1px;background:var(--divider-row);margin:0 28px"></div>
+
+      <div style="padding:20px 28px;display:grid;gap:22px">
+        <section>
+          <h3 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">About</h3>
+          <p style="margin:9px 0 0;font-size:13px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Design lead focused on collaboration tools. Four years in agencies before moving in-house in 2018 &mdash; now helps designers make the same jump, reviewing 2&ndash;3 portfolios a month for members.</p>
+        </section>
+
+        <section>
+          <h3 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">Can help with</h3>
+          <div style="display:grid;gap:12px;margin-top:11px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="width:6px;height:6px;flex:none;border-radius:50%;background:var(--action-primary);margin-top:6px"></span>
+              <span style="flex:1;min-width:0"><span style="display:block;font-size:13px;font-weight:700">Agency &rarr; in-house moves</span><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Made the jump in 2018; 20+ portfolios reviewed</span></span>
+              <a href="../help/AskCompose.dc.html" style="flex:none;font-size:11.5px;color:var(--action-primary);font-weight:700;padding:5px 11px;border-radius:var(--radius-pill);background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask</a>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="width:6px;height:6px;flex:none;border-radius:50%;background:var(--action-primary);margin-top:6px"></span>
+              <span style="flex:1;min-width:0"><span style="display:block;font-size:13px;font-weight:700">Design interview prep</span><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Runs interview loops at Figma</span></span>
+              <a href="../help/AskCompose.dc.html" style="flex:none;font-size:11.5px;color:var(--action-primary);font-weight:700;padding:5px 11px;border-radius:var(--radius-pill);background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask</a>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">You share</h3>
+          <div style="display:grid;gap:11px;margin-top:11px">
+            <div><span style="display:block;font-size:13px;font-weight:700">Prof. Whitman&rsquo;s studio</span><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">RISD &middot; 8 years apart</span></div>
+            <div><span style="display:block;font-size:13px;font-weight:700">3 mutual connections</span><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Jordan, Priya, and Tom</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div style="margin-top:auto;padding:16px 28px 22px;border-top:1px solid var(--divider-row)">
+        <span style="display:flex;justify-content:center;gap:14px;padding-bottom:8px">
+          <button onClick="{{ openReport }}" style="border:0;background:transparent;color:var(--text-faint);font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:7px" style-hover="color:var(--text-secondary);background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Report</button>
+          <button onClick="{{ openBlock }}" style="border:0;background:transparent;color:var(--text-faint);font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:7px" style-hover="color:var(--text-secondary);background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Block</button>
+          <sc-if value="{{ inCircle }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ openDisconnect }}" style="border:0;background:transparent;color:var(--text-faint);font-size:11.5px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:7px" style-hover="color:var(--text-secondary);background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Disconnect</button>
+          </sc-if>
+        </span>
+        <a href="../profile/Profile.dc.html?from=messages" style="display:block;text-align:center;font-size:12.5px;color:var(--action-primary);font-weight:700;padding:8px;border-radius:10px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Open full profile &rarr;</a>
+        <p style="margin:8px 0 0;text-align:center;font-size:10.5px;color:var(--text-faint);font-weight:500">Closing returns you to your conversation &mdash; nothing navigates.</p>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgReport }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stopClick }}" role="dialog" aria-label="Report" style="width:400px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Report Maya Chen</h3>
+      <p style="margin:6px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.5">This goes to the moderation team, privately. Maya won&rsquo;t know.</p>
+      <span style="display:grid;gap:4px;margin-top:14px">
+        <sc-for list="{{ reportReasons }}" as="r" hint-placeholder-count="5">
+          <sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ r.pick }}" style="display:flex;align-items:center;gap:9px;border:0;background:var(--selected-tint);box-shadow:var(--selected-accent);border-radius:10px;padding:9px 12px;font-family:var(--font-sans);font-size:12.5px;font-weight:700;color:var(--text-primary);cursor:pointer;text-align:left"><span style="flex:none;width:14px;height:14px;border-radius:50%;border:4px solid var(--action-primary);box-sizing:border-box;background:#fff"></span>{{ r.label }}</button>
+          </sc-if>
+          <sc-if value="{{ r.off }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ r.pick }}" style="display:flex;align-items:center;gap:9px;border:0;background:transparent;border-radius:10px;padding:9px 12px;font-family:var(--font-sans);font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;text-align:left" style-hover="background:var(--row-hover)"><span style="flex:none;width:14px;height:14px;border-radius:50%;box-shadow:var(--ring-outline);box-sizing:border-box;background:#fff"></span>{{ r.label }}</button>
+          </sc-if>
+        </sc-for>
+      </span>
+      <textarea value="{{ reportNote }}" onChange="{{ onReportNote }}" rows="2" placeholder="Anything that helps us look into it (optional)" style="width:100%;box-sizing:border-box;margin-top:10px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-family:var(--font-sans);font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+      <span style="display:flex;gap:8px;margin-top:14px">
+        <button onClick="{{ closeDlg }}" style="border:0;border-radius:12px;padding:12px 16px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ confirmReport }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send report</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgBlock }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stopClick }}" role="dialog" aria-label="Block" style="width:400px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Block Maya Chen?</h3>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.6">You won&rsquo;t see each other&rsquo;s asks or messages, and neither of you can reach the other. You can undo this in Settings.</p>
+      <span style="display:flex;gap:8px;margin-top:18px">
+        <button onClick="{{ closeDlg }}" autoFocus="{{ true }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ confirmBlock }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--error);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Block</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ dlgDisconnect }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ stopClick }}" role="dialog" aria-label="Disconnect confirmation" style="width:400px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Disconnect from Maya Chen?</h3>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.6">You&rsquo;ll both leave each other&rsquo;s circle. Your messages stay, and neither of you is notified.</p>
+      <span style="display:flex;gap:8px;margin-top:18px">
+        <button onClick="{{ closeDlg }}" autoFocus="{{ true }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ confirmDisconnect }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--red-200);color:var(--error);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Disconnect</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;startOpen&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Panel&quot;},
+  &quot;inCircle&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Person&quot;},
+  &quot;openToHelp&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Person&quot;}
+}">
+class Component extends DCLogic {
+  state = { open: null, dlg: null, reportReason: 'Harassment', reportNote: '', disconnected: false, toast: '' };
+
+  componentDidMount() {
+    this._esc = (e) => {
+      if (e.key !== 'Escape') return;
+      if (this.state.dlg) this.setState({ dlg: null });
+      else if (this.isOpen()) this.setState({ open: false });
+    };
+    window.addEventListener('keydown', this._esc);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._esc);
+    if (this._toastT) clearTimeout(this._toastT);
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  isOpen() {
+    return this.state.open === null ? (this.props.startOpen ?? true) : this.state.open;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const inCircle = (this.props.inCircle ?? true) && !s.disconnected;
+    return {
+      panelOpen: this.isOpen(),
+      openPanel: () => this.setState({ open: true }),
+      closePanel: () => this.setState({ open: false }),
+      inCircle,
+      showConnect: !inCircle,
+      openToHelp: this.props.openToHelp ?? true,
+
+      // Trust & safety (FLOWS §7c) — same dialogs as the full profile page.
+      openReport: () => this.setState({ dlg: 'report', reportReason: 'Harassment', reportNote: '' }),
+      openBlock: () => this.setState({ dlg: 'block' }),
+      openDisconnect: () => this.setState({ dlg: 'disconnect' }),
+      dlgReport: s.dlg === 'report',
+      dlgBlock: s.dlg === 'block',
+      dlgDisconnect: s.dlg === 'disconnect',
+      closeDlg: () => this.setState({ dlg: null }),
+      stopClick: (e) => e.stopPropagation(),
+      reportReasons: ['Harassment', 'Spam', 'Inappropriate', 'Impersonation', 'Something else'].map((label) => ({
+        label, on: s.reportReason === label, off: s.reportReason !== label,
+        pick: () => this.setState({ reportReason: label })
+      })),
+      reportNote: s.reportNote,
+      onReportNote: (e) => this.setState({ reportNote: e.target.value }),
+      confirmReport: () => { this.setState({ dlg: null }); this.showToast('Thanks \u2014 we\u2019ll look into it.'); },
+      confirmBlock: () => {
+        this.setState({ dlg: null, open: false });
+        // Shared bcBlocked key — filters this pair out of People and Messages; Settings can lift it.
+        try {
+          const b = JSON.parse(sessionStorage.getItem('bcBlocked') || '{}');
+          b[1] = { n: 'Maya Chen', yr: '14', i: 'MC' };
+          sessionStorage.setItem('bcBlocked', JSON.stringify(b));
+        } catch (e) { /* storage unavailable */ }
+        this.showToast('Maya is blocked \u2014 she was never told. You can undo this in Settings.');
+      },
+      confirmDisconnect: () => {
+        this.setState({ dlg: null, disconnected: true });
+        this.showToast('You\u2019ve left each other\u2019s circle \u2014 quietly.');
+      },
+      toastShow: !!s.toast, toastText: s.toast,
+    };
+  }
+}
+</script>
+</body>
+</html>

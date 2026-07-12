@@ -2,11 +2,12 @@
  * Sweep script: finalize every user account whose deletion grace period has
  * expired.
  *
- * Run from app/:
- *   pnpm dlx tsx --env-file=.env.local scripts/sweep-deletions.ts
+ * Run from app/ (the react-server condition is required because the lib
+ * modules import 'server-only'):
+ *   pnpm dlx tsx --conditions react-server --env-file=.env.local scripts/sweep-deletions.ts
  *
  * Or with a dry-run preview first:
- *   DRY_RUN=YES pnpm dlx tsx --env-file=.env.local scripts/sweep-deletions.ts
+ *   DRY_RUN=YES pnpm dlx tsx --conditions react-server --env-file=.env.local scripts/sweep-deletions.ts
  *
  * What it does:
  *   - Selects every users row where delete_scheduled_for < now() AND

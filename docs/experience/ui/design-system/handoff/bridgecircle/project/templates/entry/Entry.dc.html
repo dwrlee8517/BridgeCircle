@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Invite entry" description="The pre-onboarding entry moment (FLOWS §1) — invite link lands here. Valid-link verify flow plus the two error states: expired link and already-used link. Navy band is sanctioned for onboarding moments (O3)" -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--gradient-band-dark,#141c27);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)}</style>
+</helmet>
+
+<div style="min-height:100vh;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;position:relative;overflow:hidden">
+  <svg width="520" height="520" viewBox="0 0 28 28" aria-hidden="true" style="position:absolute;right:-140px;bottom:-160px;opacity:0.16;pointer-events:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#fff" stroke-width="0.6"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#fff" stroke-width="0.6"></circle></svg>
+
+  <span style="display:flex;align-items:center;gap:10px;font-size:19px;font-weight:800;letter-spacing:-0.02em;color:#fff">
+    <svg width="28" height="28" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#fff" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#7db4ff" stroke-width="1.7"></circle></svg>
+    BridgeCircle
+  </span>
+  <span style="margin-top:8px;font-size:12.5px;font-weight:600;color:rgb(255 255 255 / 0.65)">The Chadwick network &mdash; alumni and students, one circle.</span>
+
+  <div style="width:440px;max-width:100%;background:#fff;border-radius:22px;box-shadow:var(--shadow-band-card,0 24px 60px rgb(0 0 0 / 0.35));padding:30px 32px;box-sizing:border-box;margin-top:26px">
+
+    <sc-if value="{{ stInvite }}" hint-placeholder-val="{{ true }}">
+      <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.025em">You&rsquo;re invited.</h1>
+      <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Chadwick School invited you to join the network. This link was sent to <b style="font-weight:700;color:var(--text-primary)">iris.lau@alum.chadwick.edu</b> &mdash; confirming it proves it&rsquo;s you.</p>
+      <sc-if value="{{ verifyIdle }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ verify }}" style="width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;background:var(--gradient-primary-btn);color:#fff;font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Verify &amp; continue</button>
+      </sc-if>
+      <sc-if value="{{ verifyBusy }}" hint-placeholder-val="{{ false }}">
+        <button disabled="{{ true }}" style="width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;background:var(--surface-subtle);color:var(--grey-400);font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:default">Verifying&hellip;</button>
+      </sc-if>
+      <p style="margin:14px 0 0;font-size:11.5px;color:var(--text-faint);font-weight:500;text-align:center">Your details stay within Chadwick. About two minutes to set up.</p>
+    </sc-if>
+
+    <sc-if value="{{ stVerified }}" hint-placeholder-val="{{ false }}">
+      <span style="width:48px;height:48px;border-radius:50%;background:var(--gradient-primary-btn);box-shadow:var(--shadow-primary-btn);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg>
+      </span>
+      <h1 style="margin:16px 0 0;font-size:22px;font-weight:800;letter-spacing:-0.025em">That&rsquo;s you &mdash; welcome.</h1>
+      <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Your profile starts prefilled from the school roster, so setup is mostly confirming what&rsquo;s already there.</p>
+      <a href="../onboarding/Onboarding.dc.html" style="display:block;text-align:center;margin-top:20px;border-radius:12px;padding:14px;background:var(--gradient-primary-btn);color:#fff;font-size:14px;font-weight:700;box-shadow:var(--shadow-primary-btn);text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Get started</a>
+    </sc-if>
+
+    <sc-if value="{{ stExpired }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.025em">This invite has expired.</h1>
+      <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Invite links last 14 days, and this one ran out. Your spot didn&rsquo;t &mdash; a fresh link takes a minute.</p>
+      <sc-if value="{{ resendIdle }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ resend }}" style="width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;background:var(--gradient-primary-btn);color:#fff;font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send me a new link</button>
+      </sc-if>
+      <sc-if value="{{ resendDone }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;margin-top:20px;background:var(--surface-inset);border-radius:12px;padding:13px 16px">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex:none;fill:none;stroke:var(--action-give-text);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg>
+          <span style="font-size:12.5px;font-weight:600;color:var(--text-secondary);line-height:1.5">A new link is on its way to iris.lau@alum.chadwick.edu &mdash; check your inbox in a minute.</span>
+        </div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ stUsed }}" hint-placeholder-val="{{ false }}">
+      <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.025em">This link was already used.</h1>
+      <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--text-secondary);font-weight:500;text-wrap:pretty">If that was you, your account is ready &mdash; just sign in. Invite links work once, so no one else can use yours.</p>
+      <a href="../home/Home.dc.html" style="display:block;text-align:center;margin-top:20px;border-radius:12px;padding:14px;background:var(--gradient-primary-btn);color:#fff;font-size:14px;font-weight:700;box-shadow:var(--shadow-primary-btn);text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Sign in</a>
+      <p style="margin:14px 0 0;font-size:11.5px;color:var(--text-faint);font-weight:500;text-align:center;line-height:1.5">Wasn&rsquo;t you? Tell the alumni office &mdash; they can reset it.</p>
+    </sc-if>
+
+  </div>
+
+  <span style="margin-top:22px;font-size:11.5px;font-weight:500;color:rgb(255 255 255 / 0.5)">Invited through Chadwick School &middot; members are alumni and students within four years of graduating.</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;state&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;invite&quot;, &quot;options&quot;: [&quot;invite&quot;, &quot;expired&quot;, &quot;used&quot;], &quot;tsType&quot;: &quot;'invite' | 'expired' | 'used'&quot;, &quot;section&quot;: &quot;Link state&quot;}
+}">
+class Component extends DCLogic {
+  state = { verifying: false, verified: false, resent: false };
+
+  componentWillUnmount() {
+    if (this._t) clearTimeout(this._t);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const st = this.props.state ?? 'invite';
+    return {
+      stInvite: st === 'invite' && !s.verified,
+      stVerified: st === 'invite' && s.verified,
+      stExpired: st === 'expired',
+      stUsed: st === 'used',
+      verifyIdle: !s.verifying,
+      verifyBusy: s.verifying,
+      verify: () => {
+        if (s.verifying) return;
+        this.setState({ verifying: true });
+        this._t = setTimeout(() => this.setState({ verifying: false, verified: true }), 1100);
+      },
+      resendIdle: !s.resent,
+      resendDone: s.resent,
+      resend: () => this.setState({ resent: true }),
+    };
+  }
+}
+</script>
+</body>
+</html>

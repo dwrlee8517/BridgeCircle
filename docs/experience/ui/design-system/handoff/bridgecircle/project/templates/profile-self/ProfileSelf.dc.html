@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Self profile" description="Your own profile (FLOWS §7 Self) — same layout others see, edit-in-place ✎ per block, owner-only enrichment review queue, links & contact with per-item visibility (Public / Circle / Private), read-only helping mirror pointing at Help·Give." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh;max-width:var(--container-shell);margin:0 auto" data-screen-label="Your profile">
+
+  <aside style="width:var(--sidebar-width);flex:none;align-self:flex-start;position:sticky;top:0;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <sc-if value="{{ showBadge }}" hint-placeholder-val="{{ true }}">
+          <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+        </sc-if>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span aria-current="page" style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:12px 10px;border-radius:var(--radius-box);background:var(--nav-active-bg)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="flex:none;position:sticky;top:0;z-index:10;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:14px;padding:0 30px">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Your profile</span>
+      <span style="font-size:12.5px;font-weight:600;color:var(--text-faint)">What you edit here is exactly what other members see.</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;text-decoration:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;padding:26px 30px;background:var(--wash-page);display:grid;gap:14px;align-content:start">
+
+      <sc-if value="{{ hasAlarms }}" hint-placeholder-val="{{ true }}">
+      <div style="background:linear-gradient(180deg,#f3f8ff,#eef5ff);border-radius:var(--radius-card-xl);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.14);padding:18px 22px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:34px;height:34px;flex:none;border-radius:50%;background:#fff;box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--blue-600);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3v3"></path><path d="m18.4 5.6-2.1 2.1"></path><path d="M21 12h-3"></path><circle cx="12" cy="14" r="5"></circle></svg></span>
+          <span style="flex:1;min-width:0"><span style="display:block;font-size:14.5px;font-weight:800;letter-spacing:-0.01em">We found {{ alarmCountLine }} &mdash; approve?</span><span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">Only you see this. Nothing publishes without your OK.</span></span>
+        </div>
+        <div style="display:grid;gap:8px;margin-top:14px">
+          <sc-for list="{{ alarms }}" as="al" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:13px;background:#fff;border-radius:var(--radius-box);box-shadow:var(--ring-card);padding:12px 16px">
+              <span style="flex:1;min-width:0"><span style="display:block;font-size:13px;font-weight:700">{{ al.title }}</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">{{ al.source }}</span></span>
+              <button onClick="{{ al.approve }}" style="flex:none;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:7px 15px;font-size:12px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Approve</button>
+              <button onClick="{{ al.dismiss }}" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:12px;font-weight:600;cursor:pointer;padding:7px 6px;border-radius:6px" style-hover="color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Dismiss</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+
+        <div style="display:flex;gap:22px;align-items:flex-start;padding:30px 34px 26px">
+          <span style="position:relative;flex:none">
+            <span style="width:84px;height:84px;display:flex;border-radius:50%;background:var(--gradient-avatar);box-shadow:0 0 0 3px #fff, 0 0 0 5px rgb(49 130 246 / 0.28);align-items:center;justify-content:center;font-weight:700;font-size:26px;color:#fff">IL</span>
+            <button aria-label="Change photo" style="position:absolute;right:-2px;bottom:-2px;width:28px;height:28px;border:0;border-radius:50%;background:#fff;box-shadow:var(--ring-outline),var(--shadow-card);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:var(--text-secondary);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+          </span>
+          <span style="flex:1;min-width:0">
+            <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.03em">Iris Lau</h1>
+              <span style="font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--blue-600);background:var(--blue-50)">Verified &rsquo;22</span>
+              <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
+              </sc-if>
+            </span>
+            <span style="display:block;font-size:14px;color:var(--grey-600);margin-top:5px;font-weight:500">Design Intern &middot; Studio Loop &middot; Los Angeles &middot; Class of &rsquo;22</span>
+            <span style="display:block;font-size:12.5px;color:var(--text-faint);margin-top:9px;font-weight:500;line-height:1.55;max-width:56ch">UCLA design senior, interning in brand and product. Happy to compare notes on college apps and early portfolios.</span>
+          </span>
+          <button style="flex:none;display:inline-flex;align-items:center;gap:7px;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:12px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>Edit header</button>
+        </div>
+
+        <div style="height:1px;background:var(--divider-row);margin:0 34px"></div>
+
+        <div style="display:flex;gap:0;padding:26px 34px 34px">
+
+          <div style="flex:1;min-width:0;padding-right:36px;display:grid;gap:26px;align-content:start">
+
+            <section>
+              <div style="display:flex;align-items:center;gap:10px">
+                <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;flex:1">About</h2>
+                <sc-if value="{{ aboutStill }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ aboutEdit }}" aria-label="Edit About" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-faint);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ aboutStill }}" hint-placeholder-val="{{ true }}">
+                <p style="margin:10px 0 0;font-size:14px;line-height:1.7;color:var(--text-secondary);font-weight:500;max-width:60ch;text-wrap:pretty">{{ aboutText }}</p>
+              </sc-if>
+              <sc-if value="{{ aboutEditing }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid;gap:9px;margin-top:10px">
+                  <textarea rows="3" value="{{ aboutDraft }}" onChange="{{ onAboutDraft }}" style="resize:vertical;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:500;color:var(--text-primary);outline:none;line-height:1.6" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+                  <span style="display:flex;gap:8px">
+                    <button onClick="{{ aboutSave }}" style="border:0;background:var(--action-primary);color:#fff;border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Save</button>
+                    <button onClick="{{ aboutCancel }}" style="border:0;background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 8px;border-radius:6px" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+                  </span>
+                </div>
+              </sc-if>
+            </section>
+
+            <section style="border-top:1px solid var(--divider-row);padding-top:26px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;flex:1">Career</h2>
+                <button aria-label="Edit Career" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-faint);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+              </div>
+              <div style="margin-top:14px">
+                <div style="display:flex;gap:16px">
+                  <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:14px"><span style="width:12px;height:12px;border-radius:50%;background:var(--action-primary);box-shadow:0 0 0 4px var(--blue-50);margin-top:3px"></span><span style="flex:1;width:2px;background:var(--blue-50);margin-top:6px"></span></span>
+                  <span style="flex:none;width:96px"><span style="display:block;font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">2025 &mdash; now</span></span>
+                  <span style="flex:1;min-width:0;padding-bottom:22px">
+                    <span style="display:block;font-size:14px;font-weight:700">Design Intern &middot; Studio Loop</span>
+                    <span style="display:block;font-size:12px;color:var(--text-faint);margin-top:2px;font-weight:500">Part-time &middot; Los Angeles, CA</span>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Brand and product work for early-stage clients &mdash; identity systems, marketing sites, and the occasional app screen.</p>
+                  </span>
+                </div>
+                <div style="display:flex;gap:16px">
+                  <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:14px"><span style="width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px var(--grey-400);margin-top:4px"></span></span>
+                  <span style="flex:none;width:96px"><span style="display:block;font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">2024 &mdash; 2025</span></span>
+                  <span style="flex:1;min-width:0">
+                    <span style="display:block;font-size:14px;font-weight:700">Design Lab TA &middot; UCLA DMA</span>
+                    <span style="display:block;font-size:12px;color:var(--text-faint);margin-top:2px;font-weight:500">Part-time &middot; Los Angeles, CA</span>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Ran weekly crit sections for the intro typography studio; reviewed ~40 student portfolios a quarter.</p>
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <section style="border-top:1px solid var(--divider-row);padding-top:26px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;flex:1">Education</h2>
+                <button aria-label="Edit Education" style="width:30px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--text-faint);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+              </div>
+              <div style="margin-top:14px">
+                <div style="display:flex;gap:16px">
+                  <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:14px"><span style="width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px var(--grey-400);margin-top:4px"></span><span style="flex:1;width:2px;background:var(--blue-50);margin-top:6px"></span></span>
+                  <span style="flex:none;width:96px"><span style="display:block;font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">2022 &mdash; 2026</span></span>
+                  <span style="flex:1;min-width:0;padding-bottom:22px">
+                    <span style="display:block;font-size:14px;font-weight:700">UCLA &middot; BA Design Media Arts</span>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Senior year; thesis on accessible type systems for small screens.</p>
+                  </span>
+                </div>
+                <div style="display:flex;gap:16px">
+                  <span style="display:flex;flex-direction:column;align-items:center;flex:none;width:14px"><span style="width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 2px var(--grey-400);margin-top:4px"></span></span>
+                  <span style="flex:none;width:96px"><span style="display:block;font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">2018 &mdash; 2022</span></span>
+                  <span style="flex:1;min-width:0">
+                    <span style="display:block;font-size:14px;font-weight:700">Chadwick School</span>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:var(--text-secondary);font-weight:500;text-wrap:pretty">Palos Verdes, CA &mdash; yearbook design editor and studio-art club.</p>
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <section style="border-top:1px solid var(--divider-row);padding-top:26px">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;flex:1">Can help with</h2>
+                <a href="../help/Help.dc.html" style="font-size:12px;font-weight:700;color:var(--action-primary)">Manage on Help &middot; Give &rarr;</a>
+              </div>
+              <p style="margin:8px 0 0;font-size:12px;color:var(--text-faint);font-weight:500">A read-only mirror of your helping topics &mdash; one source of truth, managed on Help &middot; Give.</p>
+              <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 28px;margin-top:14px">
+                <div style="display:flex;gap:10px"><span style="width:6px;height:6px;flex:none;border-radius:50%;background:var(--action-primary);margin-top:6px"></span><span><span style="display:block;font-size:13.5px;font-weight:700">College applications</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Went through it in 2022 &mdash; essays, portfolios, the waiting</span></span></div>
+                <div style="display:flex;gap:10px"><span style="width:6px;height:6px;flex:none;border-radius:50%;background:var(--action-primary);margin-top:6px"></span><span><span style="display:block;font-size:13.5px;font-weight:700">Design portfolios</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Reviews student work weekly as a design-lab TA</span></span></div>
+              </div>
+              </sc-if>
+              <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:14px 0 0;font-size:13px;color:var(--text-faint);font-weight:500">You&rsquo;re paused &mdash; members don&rsquo;t see this section right now. Flip the switch on <a href="../help/Help.dc.html" style="font-weight:700">Help &middot; Give</a> when you&rsquo;re ready.</p>
+              </sc-if>
+            </section>
+
+          </div>
+
+          <div style="width:312px;flex:none;box-sizing:border-box;border-left:1px solid var(--divider-row);padding-left:32px;display:grid;gap:26px;align-content:start">
+
+            <section>
+              <div style="display:flex;align-items:center;gap:8px">
+                <h2 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase;flex:1">Links &amp; contact</h2>
+                <button style="border:0;background:transparent;color:var(--action-primary);font-size:12px;font-weight:700;cursor:pointer;padding:2px 4px;border-radius:6px" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">+ Add</button>
+              </div>
+              <p style="margin:9px 0 0;font-size:11.5px;color:var(--text-faint);font-weight:500;line-height:1.5">Each link has its own audience. Others see only what they&rsquo;re entitled to.</p>
+              <div style="display:grid;gap:10px;margin-top:13px">
+                <sc-for list="{{ links }}" as="lk" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <span style="flex:1;min-width:0"><span style="display:block;font-size:13px;font-weight:700">{{ lk.label }}</span><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lk.value }}</span></span>
+                    <sc-if value="{{ lk.pub }}" hint-placeholder-val="{{ true }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--blue-50);color:var(--blue-600)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Public</button></sc-if>
+                    <sc-if value="{{ lk.cir }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--give-tint-weak);color:var(--action-give-text)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Circle</button></sc-if>
+                    <sc-if value="{{ lk.pri }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface-subtle);color:var(--text-faint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Private</button></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+              <p style="margin:12px 0 0;font-size:11px;color:var(--text-faint);font-weight:500;line-height:1.5">Public &mdash; any member &middot; Circle &mdash; connections only &middot; Private &mdash; just you.</p>
+            </section>
+
+            <section style="border-top:1px solid var(--divider-row);padding-top:22px">
+              <h2 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">Helping</h2>
+              <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}">
+                <span style="display:flex;align-items:center;gap:7px;margin-top:11px;font-size:13px;font-weight:700;color:var(--action-give-text)"><i style="width:6px;height:6px;border-radius:50%;background:var(--green-500)"></i>Open to help &middot; 2 topics</span>
+              </sc-if>
+              <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
+                <span style="display:flex;align-items:center;gap:7px;margin-top:11px;font-size:13px;font-weight:700;color:var(--text-faint)"><i style="width:6px;height:6px;border-radius:50%;background:var(--grey-400)"></i>Paused &mdash; not announced to anyone</span>
+              </sc-if>
+              <span style="display:block;font-size:12px;color:var(--text-faint);margin-top:7px;font-weight:500;line-height:1.55">The switch and topics live on <a href="../help/Help.dc.html" style="font-weight:700">Help &middot; Give</a>.</span>
+            </section>
+
+            <section style="border-top:1px solid var(--divider-row);padding-top:22px">
+              <h2 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">Email &amp; quiet</h2>
+              <span style="display:block;font-size:12px;color:var(--text-faint);margin-top:10px;font-weight:500;line-height:1.6">Newsletter by email, notification preferences, and the pause switch live in <a href="../settings/Settings.dc.html" style="font-weight:700">Settings</a>.</span>
+            </section>
+
+            <p style="margin:0;font-size:10.5px;color:var(--text-faint);font-weight:500;line-height:1.5">Visitors see: &ldquo;Profile last updated {{ lastUpdated }}&rdquo;</p>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 900},
+  &quot;openToHelping&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Profile&quot;},
+  &quot;showEnrichmentQueue&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Profile&quot;},
+  &quot;messagesUnread&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;min&quot;: 0, &quot;max&quot;: 99, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = {
+    alarms: [
+      { id: 1, title: 'Role: Design Intern \u2192 Junior Designer at Studio Loop', source: 'From LinkedIn \u00b7 spotted this week' },
+      { id: 2, title: 'New skill: Webflow', source: 'From your portfolio site \u00b7 spotted this week' },
+    ],
+    aboutEditing: false,
+    aboutText: 'UCLA design senior and Studio Loop intern. Went through the college-application maze recently enough to remember every step \u2014 happy to read essays, look at early portfolios, or just compare notes on figuring out what kind of design you want to do.',
+    aboutDraft: '',
+    vis: { linkedin: 'public', portfolio: 'public', email: 'circle', instagram: 'private' },
+  };
+
+  visOrder = ['public', 'circle', 'private'];
+  visMeta = {
+    public:  { label: 'Public',  bg: 'var(--blue-50)',        fg: 'var(--blue-600)' },
+    circle:  { label: 'Circle',  bg: 'var(--give-tint-weak)',  fg: 'var(--action-give-text)' },
+    private: { label: 'Private', bg: 'var(--surface-subtle)', fg: 'var(--text-faint)' },
+  };
+
+  linkDefs = [
+    { id: 'linkedin', label: 'LinkedIn', value: 'linkedin.com/in/irislau' },
+    { id: 'portfolio', label: 'Portfolio', value: 'irislau.design' },
+    { id: 'email', label: 'Email', value: 'iris@irislau.design' },
+    { id: 'instagram', label: 'Instagram', value: '@iris.makes.things' },
+  ];
+
+  renderVals() {
+    const helping = this.props.openToHelping ?? true;
+    const showQueue = (this.props.showEnrichmentQueue ?? true) && this.state.alarms.length > 0;
+    const n = this.state.alarms.length;
+
+    const alarms = this.state.alarms.map((a) => ({
+      title: a.title,
+      source: a.source,
+      approve: () => this.setState({ alarms: this.state.alarms.filter((x) => x.id !== a.id) }),
+      dismiss: () => this.setState({ alarms: this.state.alarms.filter((x) => x.id !== a.id) }),
+    }));
+
+    const links = this.linkDefs.map((d) => {
+      const v = this.state.vis[d.id];
+      return {
+        label: d.label, value: d.value,
+        pub: v === 'public', cir: v === 'circle', pri: v === 'private',
+        cycle: () => {
+          const next = this.visOrder[(this.visOrder.indexOf(v) + 1) % 3];
+          this.setState({ vis: { ...this.state.vis, [d.id]: next } });
+        },
+      };
+    });
+
+    const unread = this.props.messagesUnread ?? 3;
+    return {
+      hasAlarms: showQueue,
+      alarmCountLine: n === 1 ? 'a change' : n + ' changes',
+      alarms,
+      helping,
+      paused: !helping,
+      links,
+      lastUpdated: 'July 2026',
+      aboutStill: !this.state.aboutEditing,
+      aboutEditing: this.state.aboutEditing,
+      aboutText: this.state.aboutText,
+      aboutDraft: this.state.aboutDraft,
+      aboutEdit: () => this.setState({ aboutEditing: true, aboutDraft: this.state.aboutText }),
+      onAboutDraft: (e) => this.setState({ aboutDraft: e.target.value }),
+      aboutSave: () => this.setState({ aboutEditing: false, aboutText: this.state.aboutDraft || this.state.aboutText }),
+      aboutCancel: () => this.setState({ aboutEditing: false }),
+      showBadge: unread > 0,
+      badgeCount: unread,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

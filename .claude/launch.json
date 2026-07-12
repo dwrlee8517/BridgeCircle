@@ -14,6 +14,13 @@
       "runtimeArgs": ["-c", "pnpm exec next dev --port $PORT"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "static-docs",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "python3 -m http.server $PORT"],
+      "port": 8137,
+      "autoPort": true
     }
   ]
 }

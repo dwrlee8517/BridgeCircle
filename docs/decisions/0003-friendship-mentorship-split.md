@@ -1,6 +1,6 @@
 # 0003 — Friendship and mentorship are separate tracks
 
-- **Status:** accepted
+- **Status:** accepted — amendment proposed in [0010](0010-horizontal-help-warm-data-flywheel.md) (mentorship reframed as a commitment tier within a horizontal help model; the friendship/asks gating split defined here is preserved)
 - **Date:** 2026-04-23
 - **Decider:** Richard
 
