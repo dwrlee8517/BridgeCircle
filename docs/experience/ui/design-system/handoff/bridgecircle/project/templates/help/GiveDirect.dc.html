@@ -96,7 +96,7 @@
             <span style="display:flex;align-items:center;gap:8px">
               <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Accept &amp; reply</span>
               <span style="font-size:12px;color:var(--text-faint);font-weight:600">the thread never starts cold</span>
-              <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:#029a5e;background:rgb(3 178 108 / 0.1)">AI updated</span></sc-if>
+              <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--action-give-text);background:var(--give-tint-weak)">AI updated</span></sc-if>
               <sc-if value="{{ editedByYou }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--text-secondary);background:var(--surface-subtle)">Edited by you</span></sc-if>
             </span>
             <sc-if value="{{ replyOk }}" hint-placeholder-val="{{ true }}">
@@ -127,7 +127,7 @@
               <button onClick="{{ backToMain }}" style="margin-left:auto;border:0;background:transparent;color:var(--action-primary);font-size:12px;font-weight:700;cursor:pointer;padding:3px 8px;border-radius:7px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Back</button>
             </span>
 
-            <div style="margin-top:14px;padding:14px 16px;background:#f7f9fc;border-radius:14px">
+            <div style="margin-top:14px;padding:14px 16px;background:var(--surface-inset);border-radius:14px">
               <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">One tap &mdash; pick a reason</b>
               <span style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap">
                 <sc-for list="{{ reasons }}" as="r" hint-placeholder-count="2">
@@ -136,7 +136,7 @@
               </span>
             </div>
 
-            <div style="margin-top:10px;padding:14px 16px;background:#f7f9fc;border-radius:14px">
+            <div style="margin-top:10px;padding:14px 16px;background:var(--surface-inset);border-radius:14px">
               <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Write your own</b>
               <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px">The AI polishes it toward kindness before it sends.</span>
               <sc-if value="{{ ownOk }}" hint-placeholder-val="{{ true }}">
@@ -149,7 +149,7 @@
               <button onClick="{{ sendOwn }}" style="margin-top:9px;border:0;border-radius:11px;padding:9px 16px;background:var(--gradient-primary-btn);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send note &amp; decline</button>
             </div>
 
-            <div style="margin-top:10px;padding:14px 16px;background:#f7f9fc;border-radius:14px">
+            <div style="margin-top:10px;padding:14px 16px;background:var(--surface-inset);border-radius:14px">
               <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Or just tell the AI &mdash; it relays the no for you</b>
               <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px">Say it casually. The AI composes and sends the kind note on your behalf &mdash; you never have to write the rejection yourself.</span>
               <sc-if value="{{ relayOk }}" hint-placeholder-val="{{ true }}">

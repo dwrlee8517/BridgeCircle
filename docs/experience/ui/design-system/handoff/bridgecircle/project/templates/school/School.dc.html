@@ -111,7 +111,7 @@
               <span style="flex:none;display:flex;align-items:center;gap:8px;padding:0 18px;border-right:1px solid var(--divider);background:linear-gradient(180deg,#fbfefc,#f4fcf8)">
                 <i style="width:7px;height:7px;border-radius:50%;background:var(--green-500);box-shadow:0 0 0 3px rgb(3 178 108 / 0.14)"></i>
                 <b style="font-size:12px;font-weight:800">Attending</b>
-                <span style="font-size:11px;font-weight:800;color:#029a5e;font-variant-numeric:tabular-nums">{{ attendCount }}</span>
+                <span style="font-size:11px;font-weight:800;color:var(--action-give-text);font-variant-numeric:tabular-nums">{{ attendCount }}</span>
               </span>
               <sc-for list="{{ goingChips }}" as="g" hint-placeholder-count="2">
                 <button onClick="{{ g.pick }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;border:0;border-right:1px solid var(--divider);background:transparent;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
@@ -226,7 +226,7 @@
                         <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ e.m }}</span>
                       </span>
                       <sc-if value="{{ e.going }}" hint-placeholder-val="{{ false }}">
-                        <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#029a5e;background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
+                        <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--action-give-text);background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
                       </sc-if>
                       <a href="{{ e.href }}" aria-label="Event page" style="flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--grey-400);font-size:16px;font-weight:700;text-decoration:none" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</a>
                     </div>
@@ -242,7 +242,7 @@
                         <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ e.m }}</span>
                       </span>
                       <sc-if value="{{ e.going }}" hint-placeholder-val="{{ false }}">
-                        <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#029a5e;background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
+                        <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--action-give-text);background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
                       </sc-if>
                       <a href="{{ e.href }}" aria-label="Event page" style="flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--grey-400);font-size:16px;font-weight:700;text-decoration:none" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</a>
                     </div>

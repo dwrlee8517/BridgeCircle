@@ -111,6 +111,22 @@ list (scrim value, skeleton greys, expiry-pill copy variants, can-speak-to
 naming, School dropping --cover-texture, dialog radius/shadow, #f4f6f9).
 §5's template-literal swap pass is still deferred (template-side).
 
+**Re-sync log — 2026-07-12 (fourth run: pre-build ratchet + DESYNC §5).**
+Richard's calls: **E7 minted** (`--give-tint` .12 / `--give-tint-weak` .1 —
+comparison artifact 8cfd6a36); **dark mode parked, v1 light-only**; expiry
+copy = both variants by context; **"Can help with" canonical** (renamed in
+FLOWS §7, ProfileSelf + Help templates, profile-patterns specimen).
+**`preview/ask-composer.html` added** (the last pattern-layer hole; browser-
+verified). **DESYNC §5 DONE:** scripted literal→var swap — 99 hex/tint swaps
+across 18 `.dc.html` templates + 10 tint swaps in specimens; skeleton-shimmer
+gradients and SVG presentation attributes deliberately excluded; the 0.14
+dot-halo left as a one-off. Evidence correction logged on E5: the audit's
+"×71 page canvas" for `--surface-canvas` was the shimmer mid-stop. Validated:
+all template var() resolve, `node --check` clean (files + dc-scripts), live
+dc-runtime render of Help.dc.html clean. Push: 31 files + sentinel (this run
+DOES push templates — a sanctioned one-off inversion for the mechanical swap;
+remote remains the design origin, now byte-equal to the repo).
+
 ## Help Hub.html provenance
 
 Originally designed by Richard **in the `toss-base` Claude Design project**

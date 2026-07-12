@@ -51,9 +51,9 @@ PRs #115–#117).
 | E2 | Avatar identity | dedicated **`--avatar-1..6-bg/-fg` pairs decoupled from semantic ramps**, rotation-assigned, no status meaning: blue `#e8f3ff/#1b64da` · slate `#f2f4f6/#4e5968` · sand `#fef3e2/#8a5c11` · rose `#fdebee/#b01824` · sea `#e7f8f0/#0b8a57` · ink `#333d4b/#fff` (all fg-on-bg ≥4.5:1). **+ `--gradient-avatar` `linear-gradient(135deg,#3b8bf7,#2272eb)`** — the signed-in member's avatar / brand icon tiles (the recurring gradient A5 diff item #4 flagged; reference-exact, added 2026-07-05). **Richard's call (2026-07-05): the 6 rotating colored pairs are the DEFAULT** — the alternatives' neutral-gradient avatars were evaluated and demoted to `--avatar-neutral`, an option for dense operator surfaces (admin tables). Status chips ("In your circle" blue-tint · "Open to help" green-dot `#029a5e` on `rgb(3 178 108/.1)` · "Requested" grey) carry status regardless; avatar color is identity-only, per FL-6 | FL-6 · Field Pro's 6 `avatarColorClasses` pairs · reference · alternatives evaluated | **applied 2026-07-04 · rotation confirmed default 2026-07-05** |
 | E3 | Desktop / wide viewport | **desktop token layer + 3 specimens** — breakpoints 768/1024/1280; containers `--container-reading 680` / **`--container-shell 1320` MAX, fluid below** (reference-aligned 2026-07-05; the reference's radius-24 outer frame is a mockup artifact — real shells are full-bleed); **sidebar shell** 240px (+72 rail): **icon nav** (20px strokes, grey-400 inactive / currentColor active — reference; replaces the earlier identity-dot idea), item radius `--radius-box` 14, 15px/600→700, count badge; **two-tone wordmark** (ink + blue circles); member card with `--gradient-avatar`; **topbar `--topbar-height 66`** — blurred white, page title 18/700, ~~global search pill (440 max, ⌘K kbd chip)~~ **REMOVED 2026-07-06 (Richard — "not needed"; no cross-surface command palette, search is per-surface: People capsule + Help question box)**, 42px round icon actions + notification dot; pointer states (`--hover-tint` ink 4% ≈ grey-100 on white — chosen over a literal grey-100 so it stays visible on panel surfaces; `--row-hover`, `--nav-active-*` — **active nav amended 2026-07-05 to the gradient treatment** `#eaf4ff→#e2efff` ~~+ inset blue ring~~ **(ring REMOVED 2026-07-06, Richard — "remove the border"; gradient fill only, `--nav-active-ring: none`)**; selection = `--selected-tint #eef5ff` + `--selected-accent` 2px left bar; outline pills `--ring-outline`; hover is a background shift, never a lift); operator **data table** (`--table-row-height 44`, header bg, sortable/hover/pagination); two-column list+detail; wide band hero; `:focus-visible` reuses `--focus-ring`. Invention in the Toss spirit — TDS ships no desktop — seeded from production + the Field Pro v2 reference shells (1320×880). Nav: **sidebar for the member shell**, top-nav for auth/marketing. **Redesign IA (Richard, final 2026-07-05): Home (dashboard) · Help (ONE page, ask/give toggle in-page) · People (directory) · Messages — *not "Chat"* — (all member communication, ADR 0011 one-inbox) · School (events + announcements), in that order** (reference had People before Help and "Chat"; Richard's order + label win). | FL-8 · Field Pro v2 reference desktop shells | **applied 2026-07-05 · amended 2026-07-06 (⌘K/global search + active-nav ring removed)** |
 | E4 | Brand marks | **CircleMark** (two overlapping circles, `currentColor`, connected members only) + wordmark treatment. **v1 decision (2026-07-12): "In your circle" chips carry circle state in v1; the mark stays proposed for a future brand pass** (the wordmark already draws the two-circle motif) | brand, not skin — persists across systems | proposed (chips carry it in v1) |
-| E5 | Template-settled roles | four literals the DC templates settled unanimously, minted verbatim (2026-07-12): **`--surface-canvas #f6f8fa`** app-shell page canvas (×71) · **`--surface-inset #f7f9fc`** quiet inset panels (×13) · **`--icon-muted #c8cfd8`** muted icon strokes (×8) · **`--action-give-text #029a5e`** "Open to help" green text (×34; named in E2 prose since 2026-07-05, never minted). Blue tints `#e2eeff/#eaf3ff/#fbfdff/#f3f8ff` deliberately NOT minted — fold toward `--blue-50`/`--selected-tint` at the next template pass | 2026-07-12 template audit (DESYNC-TODO) | **applied 2026-07-12** |
+| E5 | Template-settled roles | four literals the DC templates settled unanimously, minted verbatim (2026-07-12): **`--surface-canvas #f6f8fa`** · **`--surface-inset #f7f9fc`** quiet inset panels (×13) · **`--icon-muted #c8cfd8`** muted icon strokes (×8) · **`--action-give-text #029a5e`** "Open to help" green text (×34; named in E2 prose since 2026-07-05, never minted). **Evidence correction (§5 pass):** the audit's "×71 page canvas" for `--surface-canvas` was actually the skeleton-shimmer MID-STOP (all 71 occurrences sit inside `linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%)`); templates use `--surface-page` for page canvas. The token stays minted but its real consumer is the shimmer — resolve together with the parked skeleton-drift item. Blue tints `#e2eeff/#eaf3ff/#fbfdff/#f3f8ff` deliberately NOT minted — fold toward `--blue-50`/`--selected-tint` at the next template pass | 2026-07-12 template audit (DESYNC-TODO) · §5 correction | **applied 2026-07-12** |
 | E6 | Closing-soon expiry | **`--closing-soon-text #b26f00` on `--closing-soon-tint rgb(254 152 0 / 0.14)`** — the "Closes in 3d" pill (last-3-days flag). A NEW role, NOT a reopening of O5: `--warning` stays TDS orange; this is the calm expiry hue the templates chose (calm-not-urgent; ×6 template groups, unanimous) | 2026-07-12 template audit · FLOWS §3 uniform 14-day close | **applied 2026-07-12** |
-| E7 | Green translucent tint | the templates pair `--action-give-text` with a **translucent green tint** — `rgb(3 178 108 / 0.12)` (Answered / Resolved / Going pills, green CTA tints, ×8+ across Help·AskHistory·AskStatus·Home) and `rgb(3 178 108 / 0.1)` ("Open to help" chips) — where `--action-give-weak #e7f8f0` is close but not identical. Candidate mint (`--give-tint` pair or fold to one alpha); NOT minted in the 2026-07-12 pass because the decided mint list was explicit — specimens keep the literals verbatim meanwhile | 2026-07-12 specimen authoring (recurred across 4 independent extractions) | proposed |
+| E7 | Green translucent tint | **`--give-tint rgb(3 178 108 / 0.12)`** (Answered / Resolved / Going pills, green CTA tints, ×8+ across Help·AskHistory·AskStatus·Home) + **`--give-tint-weak rgb(3 178 108 / 0.1)`** ("Open to help" chips). Alpha on purpose — the tint picks up the surface beneath (inset panels, selected rows) where opaque `--action-give-weak #e7f8f0` reads as a sticker; give-weak keeps its separate weak-BUTTON job (O2). Richard: "mint the pair" (comparison artifact 8cfd6a36); templates + specimens swapped to the vars in the §5 pass | 2026-07-12 specimen authoring (×4 independent extractions) · Richard 2026-07-12 | **applied 2026-07-12** |
 
 ## Pattern guidance (not tokens)
 
@@ -68,17 +68,31 @@ PRs #115–#117).
   not drift; the ratchet reads templates as renderings, not sources. Settled
   literals get minted here (E5/E6/E1) and swapped back into the templates in
   a later mechanical pass.
-- **Template↔token drift parked for the next pass (2026-07-12 extraction
-  findings, none applied):** scrim — templates use `rgb(25 31 40 / 0.35–0.45)`
-  vs token `--scrim rgb(3 24 50 / 0.46)`; skeleton — templates shimmer
-  `#eef1f5/#f6f8fa` vs tokens `#e6e9ee/#f2f4f6`; expiry-pill copy has two
-  variants ("Closes in 3d" on Home/Help vs "N days left before this ask
-  closes" in Messages); profile section naming ("Can speak to" in decisions/
-  ProfileSelf vs "Can help with" viewer-facing); School templates dropped the
-  `--cover-texture` dot grid (Onboarding's bookends still use it); dialog
-  radius 20 + shadow `0 24px 60px rgb(25 31 40 / 0.25)` recur untokenized;
-  "Why this match" inset `#f4f6f9` is a fourth near-grey. Reconcile
-  template-side or mint deliberately — don't let these in by accident.
+- **Dark mode PARKED (Richard, 2026-07-12): v1 ships LIGHT-ONLY.** The
+  `.dark` block in `colors_and_type.css` is an unverified derived guess and
+  the 2026-07 tokens have no dark values; it stays as raw material for a
+  future dark iteration. Nothing in v1 builds against it.
+- **Expiry-pill copy rule (Richard, 2026-07-12): both variants, by context.**
+  Short "Closes in 3d" in dense rows/pills (Home, Help, ask rows); long
+  "N days left before this ask closes" in the Messages about-rail, where
+  there's room and the register is conversational. Same `--closing-soon-*`
+  treatment either way.
+- **Section name canonical (Richard, 2026-07-12): "Can help with"** — the
+  viewer-facing templates settled it and it reads as an offer (two-sided
+  buffer). Renamed in FLOWS §7, ProfileSelf template, Help give-arm hint,
+  and the profile-patterns specimen. "Can speak to it" survives only as
+  match-language copy discipline (FLOWS §3), never as a section title.
+- **Template↔token drift still parked (2026-07-12 findings, undecided):**
+  scrim — templates use `rgb(25 31 40 / 0.35–0.45)` vs token `--scrim
+  rgb(3 24 50 / 0.46)`; skeleton — templates shimmer `#eef1f5/#f6f8fa` vs
+  tokens `#e6e9ee/#f2f4f6` (shimmer gradients deliberately EXCLUDED from the
+  §5 swap for this reason); blue tints `#e2eeff/#eaf3ff/#fbfdff/#f3f8ff`
+  (fold toward `--blue-50`/`--selected-tint` later, per DESYNC); School
+  templates dropped the `--cover-texture` dot grid (Onboarding's bookends
+  still use it); dialog radius 20 + shadow `0 24px 60px rgb(25 31 40 /
+  0.25)` recur untokenized; "Why this match" inset `#f4f6f9` is a fourth
+  near-grey. Reconcile template-side or mint deliberately — don't let these
+  in by accident.
 
 ## Rejected
 

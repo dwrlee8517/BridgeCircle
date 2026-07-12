@@ -1,4 +1,4 @@
-<!-- @dsCard group="Patterns" name="Profile patterns" subtitle="Can-speak-to entry cards · enrichment review queue (owner-only) · per-item link visibility" viewport-width="1100" -->
+<!-- @dsCard group="Patterns" name="Profile patterns" subtitle="Can-help-with entry cards · enrichment review queue (owner-only) · per-item link visibility" viewport-width="1100" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -47,7 +47,7 @@
   .vis{flex:none;display:inline-flex;align-items:center;gap:5px;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700}
   .vis i{width:5px;height:5px;border-radius:50%;background:currentColor}
   .vis.pub{background:var(--blue-50);color:var(--blue-600)}
-  .vis.cir{background:rgb(3 178 108 / 0.1);color:var(--action-give-text)}
+  .vis.cir{background:var(--give-tint-weak);color:var(--action-give-text)}
   .vis.pri{background:var(--surface-subtle);color:var(--text-faint)}
   .legend{margin:12px 0 0;font-size:11px;color:var(--text-faint);font-weight:500;line-height:1.5}
 </style>
@@ -55,7 +55,7 @@
 <body>
 
   <section>
-    <p class="label">(a) &ldquo;Can speak to&rdquo; entry cards &mdash; viewer-facing helping topics (Profile.dc.html)</p>
+    <p class="label">(a) &ldquo;Can help with&rdquo; entry cards &mdash; viewer-facing helping topics (Profile.dc.html)</p>
     <div class="card">
       <h2 class="sec-h2">Can help with</h2>
       <div class="topics">
@@ -66,10 +66,10 @@
       </div>
     </div>
 
-    <p class="label" style="margin-top:14px">(a&prime;) owner&rsquo;s read-only mirror &mdash; &ldquo;Can speak to&rdquo; on the self profile (ProfileSelf.dc.html)</p>
+    <p class="label" style="margin-top:14px">(a&prime;) owner&rsquo;s read-only mirror on the self profile (ProfileSelf.dc.html)</p>
     <div class="card">
       <div class="mirror-h">
-        <h2 class="sec-h2">Can speak to</h2>
+        <h2 class="sec-h2">Can help with</h2>
         <span class="manage">Manage on Help &middot; Give &rarr;</span>
       </div>
       <p class="mirror-cap">A read-only mirror of your helping topics &mdash; one source of truth, managed on Help &middot; Give.</p>

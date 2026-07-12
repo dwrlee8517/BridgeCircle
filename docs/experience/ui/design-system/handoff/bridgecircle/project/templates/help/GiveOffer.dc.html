@@ -64,7 +64,7 @@
 
       <div style="background:var(--wash-give);padding:24px 34px 22px">
         <div style="max-width:1140px;margin:0 auto">
-          <span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>{{ whyLabel }}</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>{{ whyLabel }}</span>
           <h2 style="margin:13px 0 0;font-weight:800;font-size:25px;letter-spacing:-0.03em;line-height:1.25">&ldquo;{{ q }}&rdquo;</h2>
           <span style="display:flex;align-items:center;gap:10px;margin-top:13px">
             <sc-if value="{{ av1 }}" hint-placeholder-val="{{ false }}"><span style="width:38px;height:38px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ i }}</span></sc-if>
@@ -150,7 +150,7 @@
           <aside aria-label="Your offer" style="width:398px;flex:none;box-sizing:border-box;position:sticky;top:0;display:flex;flex-direction:column;background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:16px 20px 18px">
             <span style="flex:none;display:flex;align-items:center;gap:8px">
               <span style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.04em">Your offer to {{ first }}</span>
-              <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:#029a5e;background:rgb(3 178 108 / 0.1)">AI updated</span></sc-if>
+              <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--action-give-text);background:var(--give-tint-weak)">AI updated</span></sc-if>
               <sc-if value="{{ editedByYou }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--text-secondary);background:var(--surface-subtle)">Edited by you</span></sc-if>
             </span>
 

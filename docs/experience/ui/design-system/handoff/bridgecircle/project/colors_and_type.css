@@ -219,6 +219,13 @@
   --action-give-weak-text: var(--green-500); /* #03b26c */
   --action-give-text:      #029a5e; /* [E5] "Open to help" green TEXT (templates
      ×34; named in the E2 ledger prose since 2026-07-05, minted 2026-07-12) */
+  /* [E7 — applied 2026-07-12, Richard: "mint the pair"] The translucent green
+     tint behind positive/give pills and chips. Alpha (not opaque) on purpose:
+     the tint picks up the surface under it, so pills sit IN inset panels and
+     selected rows instead of reading as stickers. --action-give-weak #e7f8f0
+     keeps its separate job (weak give BUTTON fill, O2). */
+  --give-tint:      rgb(3 178 108 / 0.12); /* Answered · Resolved · Going pills */
+  --give-tint-weak: rgb(3 178 108 / 0.1);  /* "Open to help" chips */
 
   --link:            var(--blue-500);
   --link-hover:      var(--blue-700);
@@ -465,10 +472,12 @@
 }
 
 /* ---------------------------------------------------------------------
-   DARK MODE — PROVISIONAL. TDS ships its own dark theme; the fetched docs
-   did not include the dark token values, so the block below is DERIVED
-   (grey-ramp flip + tint reductions) and must be reconciled once we have
-   the real TDS dark tokens. Flagged in DESIGN.md.
+   DARK MODE — PARKED (Richard, 2026-07-12): v1 SHIPS LIGHT-ONLY. The block
+   below is the old DERIVED guess (grey-ramp flip + tint reductions, never
+   verified against real TDS dark), and none of the 2026-07 tokens (washes,
+   --cover-event, --surface-canvas/-inset, --pending-*, --closing-soon-*,
+   --give-tint*) have dark values. Kept as raw material for the future dark
+   iteration — do NOT build against it; nothing in v1 should emit `.dark`.
    ------------------------------------------------------------------- */
 .dark {
   --surface-page:   #17171c;

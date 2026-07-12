@@ -128,9 +128,9 @@
             <div style="max-width:860px;margin:0 auto">
               <p style="margin:0 0 10px;font-size:13px;color:var(--grey-600);font-weight:600">Reading your question &mdash; finding people who can speak to it&hellip;</p>
               <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
-                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:#eef1f5"></span><span style="flex:1;display:grid;gap:7px"><span style="width:38%;height:11px;border-radius:6px;background:#eef1f5"></span><span style="width:62%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
-                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid var(--divider-row)"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:#eef1f5"></span><span style="flex:1;display:grid;gap:7px"><span style="width:30%;height:11px;border-radius:6px;background:#eef1f5"></span><span style="width:52%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
-                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid var(--divider-row)"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:#eef1f5"></span><span style="flex:1;display:grid;gap:7px"><span style="width:44%;height:11px;border-radius:6px;background:#eef1f5"></span><span style="width:58%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--border-subtle)"></span><span style="flex:1;display:grid;gap:7px"><span style="width:38%;height:11px;border-radius:6px;background:var(--border-subtle)"></span><span style="width:62%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid var(--divider-row)"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--border-subtle)"></span><span style="flex:1;display:grid;gap:7px"><span style="width:30%;height:11px;border-radius:6px;background:var(--border-subtle)"></span><span style="width:52%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px;padding:15px 20px;border-top:1px solid var(--divider-row)"><span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--border-subtle)"></span><span style="flex:1;display:grid;gap:7px"><span style="width:44%;height:11px;border-radius:6px;background:var(--border-subtle)"></span><span style="width:58%;height:9px;border-radius:6px;background:#f2f4f7"></span></span></div>
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@
                             <b style="font-size:14px;font-weight:700">{{ r.name }}</b>
                             <span style="font-size:11px;color:var(--text-faint);font-weight:600">&rsquo;{{ r.yr }}</span>
                             <sc-if value="{{ r.chipCircle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">In your circle</span></sc-if>
-                            <sc-if value="{{ r.chipOpen }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
+                            <sc-if value="{{ r.chipOpen }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
                             <sc-if value="{{ r.strong }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:var(--blue-600);font-weight:700">Strong match</span></sc-if>
                           </span>
                           <span style="display:block;margin-top:9px;background:#f4f6f9;border-radius:11px;padding:10px 13px">
@@ -221,8 +221,8 @@
                       <sc-if value="{{ a.pillWaiting }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Waiting</span></sc-if>
                       <sc-if value="{{ a.pillOffers }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">{{ a.offersLabel }}</span></sc-if>
                       <sc-if value="{{ a.pillDeclined }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Declined</span></sc-if>
-                      <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.12)">Answered</span></sc-if>
-                      <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#b26f00;background:rgb(254 152 0 / 0.14)">{{ a.closesLabel }}</span></sc-if>
+                      <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint)">Answered</span></sc-if>
+                      <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--closing-soon-text);background:var(--closing-soon-tint)">{{ a.closesLabel }}</span></sc-if>
                     </span>
                     <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ a.meta }}</span>
                   </span>
@@ -243,7 +243,7 @@
                   <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M9.3 9.3a2.7 2.7 0 0 1 5.2 1c0 1.8-2.6 2.4-2.6 2.4"></path><path d="M12 17h.01"></path></svg>
                   Get help
                 </button>
-                <button style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#029a5e;padding:9px 17px;border-radius:var(--radius-pill);border:0;background:#fff;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);cursor:pointer">
+                <button style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--action-give-text);padding:9px 17px;border-radius:var(--radius-pill);border:0;background:#fff;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);cursor:pointer">
                   <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
                   Give help
                 </button>
@@ -262,7 +262,7 @@
               </sc-if>
               <sc-if value="{{ openOff }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ toggleOpen }}" role="switch" aria-checked="false" aria-label="Open to helping" style="display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--radius-pill)">
-                  <span style="width:34px;height:20px;border-radius:var(--radius-pill);background:#c8cfd8;position:relative;flex:none;display:inline-block"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></span>
+                  <span style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;flex:none;display:inline-block"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></span>
                   <b style="font-size:13px;font-weight:700;color:var(--text-secondary)">Not right now</b>
                 </button>
                 <span style="font-size:12px;color:var(--text-faint);font-weight:600">Matching is paused &mdash; no one is told.</span>
@@ -301,7 +301,7 @@
                         <b style="font-size:14.5px;font-weight:700;color:var(--text-primary)">&ldquo;{{ s.q }}&rdquo;</b>
                         <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:1px">{{ s.meta }}</span>
                       </span>
-                      <span style="flex:none;background:rgb(3 178 108 / 0.12);color:#029a5e;border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">Read &amp; offer &rarr;</span>
+                      <span style="flex:none;background:var(--give-tint);color:var(--action-give-text);border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">Read &amp; offer &rarr;</span>
                     </a>
                   </sc-for>
                 </div>
@@ -314,7 +314,7 @@
             <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap">
               <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">What you can speak to</span>
               <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ topicCount }} &middot; in your own words &middot; drives matching</span>
-              <span style="margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:500">shown on your profile as &ldquo;Can speak to&rdquo;</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:500">shown on your profile as &ldquo;Can help with&rdquo;</span>
             </div>
             <div style="background:var(--surface-card-elevated);border-radius:18px;overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);margin-bottom:22px">
               <sc-for list="{{ topics }}" as="t" hint-placeholder-count="3">
@@ -328,7 +328,7 @@
                 <sc-if value="{{ canAdd }}" hint-placeholder-val="{{ true }}">
                   <button onClick="{{ openAdd }}" style="width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:13px 20px;border-top:1px solid var(--divider-row);cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
                     <span style="flex:none;width:7px;height:7px;border-radius:50%;border:1.5px dashed #9bb8a8;box-sizing:border-box"></span>
-                    <span style="font-size:13px;font-weight:700;color:#029a5e">+ Add a topic</span>
+                    <span style="font-size:13px;font-weight:700;color:var(--action-give-text)">+ Add a topic</span>
                     <span style="font-size:12px;color:var(--text-faint);font-weight:500">a line in your own words &mdash; &ldquo;pricing freelance work as a student&rdquo;</span>
                   </button>
                 </sc-if>
@@ -339,7 +339,7 @@
               <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
                 <span style="display:flex;align-items:center;gap:8px;padding:11px 20px;border-top:1px solid var(--divider-row)">
                   <input type="text" value="{{ newTopic }}" onChange="{{ onNewTopic }}" onKeyDown="{{ onNewTopicKey }}" placeholder="What can you speak to? A line is plenty&hellip;" style="flex:1;min-width:0;height:40px;box-sizing:border-box;padding:0 13px;background:#fff;border:0;box-shadow:var(--ring-outline);border-radius:10px;font-size:13px;color:var(--text-primary);font-weight:500;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
-                  <button onClick="{{ confirmAdd }}" style="flex:none;border:0;background:rgb(3 178 108 / 0.12);color:#029a5e;border-radius:10px;padding:11px 16px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Add</button>
+                  <button onClick="{{ confirmAdd }}" style="flex:none;border:0;background:var(--give-tint);color:var(--action-give-text);border-radius:10px;padding:11px 16px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Add</button>
                   <button onClick="{{ cancelAdd }}" style="flex:none;border:0;background:transparent;color:var(--text-faint);font-size:12.5px;font-weight:600;cursor:pointer;padding:11px 10px;border-radius:10px" style-hover="color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
                 </span>
               </sc-if>
@@ -389,7 +389,7 @@
                         <b style="font-size:14.5px;font-weight:700;color:var(--text-primary)">&ldquo;{{ m.q }}&rdquo;</b>
                         <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:1px">{{ m.meta }} &middot; matched on <b style="font-weight:700">{{ m.topic }}</b></span>
                       </span>
-                      <span style="flex:none;background:rgb(3 178 108 / 0.12);color:#029a5e;border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">Read &amp; offer &rarr;</span>
+                      <span style="flex:none;background:var(--give-tint);color:var(--action-give-text);border-radius:var(--radius-pill);padding:8px 17px;font-size:12.5px;font-weight:700">Read &amp; offer &rarr;</span>
                     </a>
                   </sc-for>
                 </div>
@@ -435,7 +435,7 @@
           <span style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <h1 style="margin:0;font-size:23px;font-weight:800;letter-spacing:-0.03em">{{ profName }}</h1>
             <sc-if value="{{ profChipCircle }}" hint-placeholder-val="{{ true }}"><span style="font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--blue-600);background:var(--blue-50)">In your circle</span></sc-if>
-            <sc-if value="{{ profChipOpen }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
+            <sc-if value="{{ profChipOpen }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span></sc-if>
           </span>
           <span style="display:block;font-size:13.5px;color:var(--grey-600);margin-top:5px;font-weight:500">{{ profRole }} &middot; Class of &rsquo;{{ profYr }}</span>
         </span>

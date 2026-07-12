@@ -152,7 +152,7 @@
                       <span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--blue-600);background:var(--blue-50)">In your circle</span>
                     </sc-if>
                     <sc-if value="{{ p.isOpen }}" hint-placeholder-val="{{ false }}">
-                      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
+                      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
                     </sc-if>
                     <sc-if value="{{ p.isRequested }}" hint-placeholder-val="{{ false }}">
                       <span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--grey-600);background:var(--surface-subtle)">Requested</span>
@@ -230,14 +230,14 @@
                 </div>
               </sc-if>
               <sc-if value="{{ sel.showShare }}" hint-placeholder-val="{{ false }}">
-                <div style="background:#f7f9fc;border-radius:13px;padding:12px 14px;margin-top:12px">
+                <div style="background:var(--surface-inset);border-radius:13px;padding:12px 14px;margin-top:12px">
                   <span style="font-size:11px;font-weight:700;color:var(--text-faint)">You share</span>
                   <sc-for list="{{ sel.shared }}" as="sh" hint-placeholder-count="2">
                     <span style="display:block;margin-top:8px"><span style="display:block;font-size:12.5px;font-weight:700">{{ sh.t }}</span><span style="font-size:11px;color:var(--text-faint);font-weight:500">{{ sh.s }}</span></span>
                   </sc-for>
                 </div>
               </sc-if>
-              <div style="background:#f7f9fc;border-radius:13px;padding:12px 14px;margin-top:12px"><span style="font-size:11px;font-weight:700;color:var(--text-faint)">Career</span><span style="display:block;font-size:12.5px;font-weight:700;margin-top:6px">{{ sel.careerTitle }}</span><span style="font-size:11px;color:var(--text-faint);font-weight:500">{{ sel.careerYears }}</span></div>
+              <div style="background:var(--surface-inset);border-radius:13px;padding:12px 14px;margin-top:12px"><span style="font-size:11px;font-weight:700;color:var(--text-faint)">Career</span><span style="display:block;font-size:12.5px;font-weight:700;margin-top:6px">{{ sel.careerTitle }}</span><span style="font-size:11px;color:var(--text-faint);font-weight:500">{{ sel.careerYears }}</span></div>
               <div style="display:flex;gap:8px;margin-top:16px">
                 <button style="flex:1;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask for help</button>
                 <sc-if value="{{ sel.isRequested }}" hint-placeholder-val="{{ false }}">

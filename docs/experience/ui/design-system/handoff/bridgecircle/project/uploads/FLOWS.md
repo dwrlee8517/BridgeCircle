@@ -11,7 +11,7 @@ topics, 3-strike auto-pause, AI-helped default/custom messages, notification pop
 Messages: foldable "Waiting on you" group with red badge, fold/expand context rail, no
 Schedule-a-call. §6 School: 1h refined + click-through pages (event page + states,
 announcements index/reading, newsletter archive/issue — newsletter renamed from "The
-Bridge"; reading pages are final destinations). §7 Profile: detailed layout, "can speak to"
+Bridge"; reading pages are final destinations). §7 Profile: detailed layout, "can help with"
 as a section, owner-only enrichment alarms, per-item link visibility (public/circle/private),
 "why this match" dropped from the profile. §1 adds the **cold-start hand-off** (ask? ·
 help? · check-box classmate connects). New §7b **navigation/back model** (5 section roots,
@@ -636,7 +636,7 @@ activity feed — numbers turn helping into a scoreboard.
   **Career** (reverse-chron with dates, current role heavy) · **Education**,
   always ending at "Chadwick School · Class of '14" with the circle motif —
   the one line every member shares.
-- **"Can speak to" — a section, not chips (DECIDED, Richard 2026-07-06):**
+- **"Can help with" — a section, not chips (DECIDED, Richard 2026-07-06; renamed from "Can speak to" 2026-07-12 — the viewer-facing templates settled on "Can help with" and it reads as an offer, matching the two-sided buffer; "can speak to it" survives as match-language copy discipline, not as the section title):**
   members phrase what they help with in their own words (a line or two each,
   not one-word tags), so it reads as a titled card of short entries, each with
   its own **Ask** button that opens the composer pre-seeded with that topic.

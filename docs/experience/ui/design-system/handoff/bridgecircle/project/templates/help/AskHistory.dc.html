@@ -77,8 +77,8 @@
                   <sc-if value="{{ a.pillWaiting }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Waiting</span></sc-if>
                   <sc-if value="{{ a.pillOffers }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">{{ a.offersLabel }}</span></sc-if>
                   <sc-if value="{{ a.pillDeclined }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Declined</span></sc-if>
-                  <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.12)">Answered</span></sc-if>
-                  <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#b26f00;background:rgb(254 152 0 / 0.14)">{{ a.closesLabel }}</span></sc-if>
+                  <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint)">Answered</span></sc-if>
+                  <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--closing-soon-text);background:var(--closing-soon-tint)">{{ a.closesLabel }}</span></sc-if>
                 </span>
                 <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ a.meta }}</span>
               </span>
@@ -97,7 +97,7 @@
               <span style="flex:1;min-width:0">
                 <span style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
                   <b style="font-size:13.5px;font-weight:600;color:var(--text-secondary)">{{ h.text }}</b>
-                  <sc-if value="{{ h.resolved }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.12)">Resolved</span></sc-if>
+                  <sc-if value="{{ h.resolved }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint)">Resolved</span></sc-if>
                   <sc-if value="{{ h.other }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-faint);background:var(--surface-subtle)">{{ h.end }}</span></sc-if>
                 </span>
                 <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">{{ h.meta }}</span>

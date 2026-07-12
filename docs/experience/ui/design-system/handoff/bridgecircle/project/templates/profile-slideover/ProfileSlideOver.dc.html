@@ -59,7 +59,7 @@
       <span style="margin-left:auto"><bc-account-menu></bc-account-menu></span>
     </header>
 
-    <div style="flex:1;display:flex;flex-direction:column;background:var(--surface-thread,#f7f9fc)">
+    <div style="flex:1;display:flex;flex-direction:column;background:var(--surface-thread,var(--surface-inset))">
       <div style="flex:none;display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)">
         <button onClick="{{ openPanel }}" aria-label="Open Maya's profile" style="display:flex;align-items:center;gap:12px;border:0;background:transparent;padding:4px 8px 4px 4px;border-radius:12px;cursor:pointer;text-align:left;font-family:var(--font-sans)" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
           <span style="width:40px;height:40px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">MC</span>
@@ -101,7 +101,7 @@
           </span>
           <span style="display:block;font-size:13px;color:var(--grey-600);margin-top:4px;font-weight:500">Design Lead &middot; Figma &middot; San Francisco &middot; Class of &rsquo;14</span>
           <sc-if value="{{ openToHelp }}" hint-placeholder-val="{{ true }}">
-            <span style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
           </sc-if>
         </span>
         <button onClick="{{ closePanel }}" aria-label="Close profile" style="flex:none;width:34px;height:34px;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);color:var(--text-secondary);font-size:15px;cursor:pointer;font-family:var(--font-sans)" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&#10005;</button>

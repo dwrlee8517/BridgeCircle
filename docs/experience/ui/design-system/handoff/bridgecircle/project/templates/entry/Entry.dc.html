@@ -53,8 +53,8 @@
         <button onClick="{{ resend }}" style="width:100%;margin-top:20px;border:0;border-radius:12px;padding:14px;background:var(--gradient-primary-btn);color:#fff;font-family:var(--font-sans);font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send me a new link</button>
       </sc-if>
       <sc-if value="{{ resendDone }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex;align-items:center;gap:10px;margin-top:20px;background:#f7f9fc;border-radius:12px;padding:13px 16px">
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex:none;fill:none;stroke:#029a5e;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:20px;background:var(--surface-inset);border-radius:12px;padding:13px 16px">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;flex:none;fill:none;stroke:var(--action-give-text);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg>
           <span style="font-size:12.5px;font-weight:600;color:var(--text-secondary);line-height:1.5">A new link is on its way to iris.lau@alum.chadwick.edu &mdash; check your inbox in a minute.</span>
         </div>
       </sc-if>

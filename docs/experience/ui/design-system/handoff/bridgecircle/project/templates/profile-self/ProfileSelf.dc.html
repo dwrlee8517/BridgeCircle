@@ -97,7 +97,7 @@
               <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.03em">Iris Lau</h1>
               <span style="font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--blue-600);background:var(--blue-50)">Verified &rsquo;22</span>
               <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}">
-                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:#029a5e;background:rgb(3 178 108 / 0.1)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:var(--radius-pill);padding:3px 11px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
               </sc-if>
             </span>
             <span style="display:block;font-size:14px;color:var(--grey-600);margin-top:5px;font-weight:500">Design Intern &middot; Studio Loop &middot; Los Angeles &middot; Class of &rsquo;22</span>
@@ -187,7 +187,7 @@
 
             <section style="border-top:1px solid var(--divider-row);padding-top:26px">
               <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-                <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;flex:1">Can speak to</h2>
+                <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;flex:1">Can help with</h2>
                 <a href="../help/Help.dc.html" style="font-size:12px;font-weight:700;color:var(--action-primary)">Manage on Help &middot; Give &rarr;</a>
               </div>
               <p style="margin:8px 0 0;font-size:12px;color:var(--text-faint);font-weight:500">A read-only mirror of your helping topics &mdash; one source of truth, managed on Help &middot; Give.</p>
@@ -217,7 +217,7 @@
                   <div style="display:flex;align-items:center;gap:10px">
                     <span style="flex:1;min-width:0"><span style="display:block;font-size:13px;font-weight:700">{{ lk.label }}</span><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ lk.value }}</span></span>
                     <sc-if value="{{ lk.pub }}" hint-placeholder-val="{{ true }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--blue-50);color:var(--blue-600)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Public</button></sc-if>
-                    <sc-if value="{{ lk.cir }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:rgb(3 178 108 / 0.1);color:#029a5e" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Circle</button></sc-if>
+                    <sc-if value="{{ lk.cir }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--give-tint-weak);color:var(--action-give-text)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Circle</button></sc-if>
                     <sc-if value="{{ lk.pri }}" hint-placeholder-val="{{ false }}"><button onClick="{{ lk.cycle }}" title="Who can see this — click to change" style="flex:none;display:inline-flex;align-items:center;gap:5px;border:0;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;background:var(--surface-subtle);color:var(--text-faint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><i style="width:5px;height:5px;border-radius:50%;background:currentColor"></i>Private</button></sc-if>
                   </div>
                 </sc-for>
@@ -228,7 +228,7 @@
             <section style="border-top:1px solid var(--divider-row);padding-top:22px">
               <h2 style="margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">Helping</h2>
               <sc-if value="{{ helping }}" hint-placeholder-val="{{ true }}">
-                <span style="display:flex;align-items:center;gap:7px;margin-top:11px;font-size:13px;font-weight:700;color:#029a5e"><i style="width:6px;height:6px;border-radius:50%;background:var(--green-500)"></i>Open to help &middot; 2 topics</span>
+                <span style="display:flex;align-items:center;gap:7px;margin-top:11px;font-size:13px;font-weight:700;color:var(--action-give-text)"><i style="width:6px;height:6px;border-radius:50%;background:var(--green-500)"></i>Open to help &middot; 2 topics</span>
               </sc-if>
               <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}">
                 <span style="display:flex;align-items:center;gap:7px;margin-top:11px;font-size:13px;font-weight:700;color:var(--text-faint)"><i style="width:6px;height:6px;border-radius:50%;background:var(--grey-400)"></i>Paused &mdash; not announced to anyone</span>
@@ -274,7 +274,7 @@ class Component extends DCLogic {
   visOrder = ['public', 'circle', 'private'];
   visMeta = {
     public:  { label: 'Public',  bg: 'var(--blue-50)',        fg: 'var(--blue-600)' },
-    circle:  { label: 'Circle',  bg: 'rgb(3 178 108 / 0.1)',  fg: '#029a5e' },
+    circle:  { label: 'Circle',  bg: 'var(--give-tint-weak)',  fg: 'var(--action-give-text)' },
     private: { label: 'Private', bg: 'var(--surface-subtle)', fg: 'var(--text-faint)' },
   };
 

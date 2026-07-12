@@ -6,9 +6,14 @@
 > body; help-heroes' get hero also moved to the v3 search-first flow); §2 all
 > ten specimens authored under `preview/` group "Patterns"; §3 tokens minted /
 > changed / removed as listed (E1 applied); §3b brand card rebuilt; §4 ledger
-> updated (see OVERRIDES.md — plus a new **E7 proposed**: the templates'
-> translucent green tint, and a parked template↔token drift list). §5's
-> template-literal swap pass remains DEFERRED (template-side, next pass).
+> updated (see OVERRIDES.md). **Second pass (same day): E7 MINTED**
+> (--give-tint / --give-tint-weak, Richard: "mint the pair"), dark mode
+> PARKED (v1 light-only), expiry copy = both-by-context, "Can help with"
+> canonical, ask-composer specimen added — **and §5's literal→var swap is
+> DONE** (100 swaps across the .dc.html templates + specimen tints; skeleton
+> shimmer + SVG attrs deliberately excluded; templates re-verified via node
+> --check and a live dc-runtime render). Remaining parked: skeleton/scrim/
+> blue-tint drift list in OVERRIDES pattern guidance.
 > Also this run: the Codex `screens/**` slice was removed (Richard,
 > 2026-07-12) as redundant with `templates/**`.
 
@@ -125,6 +130,8 @@ The Brand card is half-dead — rebuild it around what the product actually uses
   `--error`; `--danger` never existed)
 - NOT changed: `#191f28`/`#b0b8c1` in SVG `stroke=` attributes (wordmark/CircleMark) —
   var() doesn't resolve in SVG presentation attributes; literals are intentional.
-- Deferred until tokens exist in the repo: swapping template literals
-  (`#029a5e`, `#f6f8fa`, `#eef1f5`, `#b26f00`, `#f7f9fc`, `#c8cfd8`) to the new vars —
-  one mechanical pass after the next sync.
+- ~~Deferred until tokens exist in the repo: swapping template literals to the
+  new vars.~~ **DONE 2026-07-12 (second pass)** — `#029a5e`(34) `#f7f9fc`(13)
+  `#c8cfd8`(7) `#b26f00`(6) + closing/give tints swapped to vars; `#eef1f5`(7
+  non-shimmer) swapped; the 71 `#f6f8fa` + 142 `#eef1f5` inside the skeleton
+  shimmer gradient were EXCLUDED on purpose (parked skeleton-drift item).

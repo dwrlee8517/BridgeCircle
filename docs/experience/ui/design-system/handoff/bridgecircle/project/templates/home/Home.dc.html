@@ -124,7 +124,7 @@
                   <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Pausing stops matching &mdash; never announced</span>
                 </span>
                 <sc-if value="{{ qpPauseOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="true" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
-                <sc-if value="{{ qpPauseOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="false" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:#c8cfd8;position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+                <sc-if value="{{ qpPauseOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="false" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
               </span>
 
               <span style="display:flex;align-items:center;gap:14px;padding:11px 18px 13px;border-top:1px solid var(--divider-row);background:#fbfcfd">
@@ -202,7 +202,7 @@
           </span>
           <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 26px 18px">
             <div style="display:flex;align-items:center;gap:9px">
-              <sc-if value="{{ dkPillGreen }}" hint-placeholder-val="{{ true }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:#029a5e;background:rgb(3 178 108 / 0.12)">{{ dkPill }}</span></sc-if>
+              <sc-if value="{{ dkPillGreen }}" hint-placeholder-val="{{ true }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--action-give-text);background:var(--give-tint)">{{ dkPill }}</span></sc-if>
               <sc-if value="{{ dkPillBlue }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--blue-600);background:var(--blue-50)">{{ dkPill }}</span></sc-if>
               <sc-if value="{{ dkPillGrey }}" hint-placeholder-val="{{ false }}"><span style="flex:none;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:3px 10px;color:var(--text-secondary);background:var(--surface-subtle)">{{ dkPill }}</span></sc-if>
               <span style="font-size:12px;color:var(--text-faint);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dkMeta }}</span>
@@ -219,7 +219,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:14px;margin-top:14px">
               <sc-if value="{{ dkCtaGreen }}" hint-placeholder-val="{{ true }}">
-                <a href="{{ dkCtaHref }}" style="flex:none;display:inline-flex;align-items:center;background:rgb(3 178 108 / 0.12);color:#029a5e;border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dkCtaLabel }}</a>
+                <a href="{{ dkCtaHref }}" style="flex:none;display:inline-flex;align-items:center;background:var(--give-tint);color:var(--action-give-text);border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dkCtaLabel }}</a>
               </sc-if>
               <sc-if value="{{ dkCtaBlue }}" hint-placeholder-val="{{ false }}">
                 <a href="{{ dkCtaHref }}" style="flex:none;display:inline-flex;align-items:center;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dkCtaLabel }}</a>
@@ -314,8 +314,8 @@
                       <sc-if value="{{ a.pillWaiting }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Waiting</span></sc-if>
                       <sc-if value="{{ a.pillOffers }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">{{ a.offersLabel }}</span></sc-if>
                       <sc-if value="{{ a.pillDeclined }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--text-secondary);background:var(--surface-subtle)">Declined</span></sc-if>
-                      <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#029a5e;background:rgb(3 178 108 / 0.12)">Answered</span></sc-if>
-                      <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:#b26f00;background:rgb(254 152 0 / 0.14)">{{ a.closesLabel }}</span></sc-if>
+                      <sc-if value="{{ a.pillAnswered }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--action-give-text);background:var(--give-tint)">Answered</span></sc-if>
+                      <sc-if value="{{ a.pillCloses }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--closing-soon-text);background:var(--closing-soon-tint)">{{ a.closesLabel }}</span></sc-if>
                     </span>
                     <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ a.meta }}</span>
                   </span>
@@ -344,7 +344,7 @@
                     <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ e.m }}</span>
                   </span>
                   <sc-if value="{{ e.going }}" hint-placeholder-val="{{ false }}">
-                    <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#029a5e;background:rgb(3 178 108 / 0.12);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
+                    <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--action-give-text);background:var(--give-tint);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
                   </sc-if>
                   <span aria-hidden="true" style="flex:none;color:var(--grey-400);font-size:16px;font-weight:700">&rsaquo;</span>
                 </a>
