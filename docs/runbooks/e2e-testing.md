@@ -26,7 +26,7 @@ One local stack, one seed, one reset command — shared by local development and
 
 ```bash
 cd app
-pnpm db:start    # supabase start — boots the local stack (requires Docker)
+pnpm db:start    # boots the local stack — starts Docker Desktop first if needed
 pnpm db:reset    # wipe → re-apply all migrations → load supabase/seeds/*.sql
 pnpm db:stop     # shut the stack down
 pnpm dev:local   # run the app at :3001 against the local stack (Doppler dev_local)
@@ -124,7 +124,7 @@ Project-specific notes:
 
 **`supabase db reset` fails in global setup**
 
-The local stack isn't running. `pnpm db:start` (requires Docker Desktop). First boot pulls container images and takes a few minutes.
+The local stack isn't running. `pnpm db:start` boots it — and launches Docker Desktop and waits for the daemon first if it isn't already up (`scripts/db-start.sh`). Docker Desktop must be installed (`brew install --cask docker`). First boot pulls container images and takes a few minutes.
 
 **"Error: connect ECONNREFUSED 127.0.0.1:3002"**
 
