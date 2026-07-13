@@ -10,7 +10,7 @@ This document covers how the project is structured in Doppler, how to wire up yo
 
 ## Project And Config Structure
 
-There is one Doppler project for the application: **`bridgecircle`** (renamed from `bridgecircle-dev` on 2026-07-11). It owns all environments (dev, staging, prod).
+There is one Doppler project for the application: **`bridgecircle`** (renamed from `bridgecircle-dev` on 2026-07-11). It owns the dev and prod configs (a `stg` config exists but is unused — there is no staging deploy; see [environments.md](../architecture/environments.md)).
 
 The project has these configs, all under the `dev` environment except staging and prod:
 
@@ -18,8 +18,8 @@ The project has these configs, all under the `dev` environment except staging an
 - **`dev_personal`** — branch off `dev`. Each developer overrides values here for personal local development without affecting the team's `dev`. Talks to the **real** dev Supabase and real services. This is the config your repo binding should point to for `doppler run -- pnpm dev`.
 - **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty `ANTHROPIC_API_KEY`, `ASK_MATCHING_PIPELINE=legacy`) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
 - **`dev_local_live`** — branch off `dev`. Local Supabase like `dev_local`, but **real** Anthropic/Voyage so you can develop AI features against a wipeable local DB. Used by `pnpm dev:local:live`. See "Local dev against real services" below. Not read by CI or the pipeline.
-- **`stg`** — staging. Root config. Used by the staging deploy.
-- **`prd`** — production. Root config. Used by the production deploy on Railway.
+- **`stg`** — staging. Root config, **currently unused** — there is no staging environment on Railway (the pipeline goes dev → prod). Kept as a placeholder for a future staging tier.
+- **`prd`** — production. Root config. Syncs to the Railway `production` environment; read by the CD pipeline's promote job.
 
 Branched configs inherit from their root. So the `dev_*` branches automatically pick up everything from `dev`, and you only override the keys where your local setup diverges from the team default.
 
