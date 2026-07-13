@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "NODE_ENV=development next dev -p 3001",
     "dev:local": "doppler run -p bridgecircle -c dev_local -- next dev -p 3001",
+    "dev:local:live": "doppler run -p bridgecircle -c dev_local_live -- next dev -p 3001",
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production next start",
     "lint": "eslint",

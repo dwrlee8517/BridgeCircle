@@ -12,14 +12,16 @@ This document covers how the project is structured in Doppler, how to wire up yo
 
 There is one Doppler project for the application: **`bridgecircle`** (renamed from `bridgecircle-dev` on 2026-07-11). It owns all environments (dev, staging, prod).
 
-The project has four configs:
+The project has these configs, all under the `dev` environment except staging and prod:
 
-- **`dev`** — root config. The team-shared dev secret values. Whenever a new shared dev secret is added (e.g. a new third-party API key for local development), it goes here.
-- **`dev_personal`** — branch off `dev`. Each developer overrides values here for personal local development without affecting the team's `dev`. This is the config your repo binding should point to.
+- **`dev`** — root config. The team-shared dev secret values. Whenever a new shared dev secret is added (e.g. a new third-party API key for local development), it goes here. Real Supabase (cloud dev project) and real third-party keys. This is the config the CI/CD pipeline reads for the dev stage.
+- **`dev_personal`** — branch off `dev`. Each developer overrides values here for personal local development without affecting the team's `dev`. Talks to the **real** dev Supabase and real services. This is the config your repo binding should point to for `doppler run -- pnpm dev`.
+- **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty `ANTHROPIC_API_KEY`, `ASK_MATCHING_PIPELINE=legacy`) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
+- **`dev_local_live`** — branch off `dev`. Local Supabase like `dev_local`, but **real** Anthropic/Voyage so you can develop AI features against a wipeable local DB. Used by `pnpm dev:local:live`. See "Local dev against real services" below. Not read by CI or the pipeline.
 - **`stg`** — staging. Root config. Used by the staging deploy.
 - **`prd`** — production. Root config. Used by the production deploy on Railway.
 
-Branched configs inherit from their root. So `dev_personal` automatically picks up everything from `dev`, and you only need to override the keys where your local setup diverges from the team default.
+Branched configs inherit from their root. So the `dev_*` branches automatically pick up everything from `dev`, and you only override the keys where your local setup diverges from the team default.
 
 ## One-Time CLI Setup
 
@@ -100,21 +102,66 @@ Background: Doppler also *infers* a `NODE_ENV` from the config slug (`dev` → `
 
 ## APP_ENV — the environment identity
 
-`APP_ENV` says *which tier* the process belongs to; code branches on it for Sentry environment, robots/noindex, cron gating, and the dev email allowlist. Set explicitly in every config (2026-07-11):
+`APP_ENV` says *which tier* the process belongs to; code branches on it for Sentry environment, robots/noindex, and cron gating. Set explicitly in every config (2026-07-11):
 
 | Config | `APP_ENV` | Tier |
 |---|---|---|
-| `dev_personal` | `local` | laptop dev server, dev Supabase |
+| `dev_personal` | `local` | laptop dev server → real dev Supabase |
+| `dev_local` | `local` | laptop / CI → local Supabase, services dummied |
+| `dev_local_live` | `local` | laptop → local Supabase, real Anthropic/Voyage |
 | `dev` | `dev` | Railway dev stage (production build), dev Supabase |
 | `prd` | `prod` | Railway production |
 
 Never branch on `NODE_ENV` for environment identity — the dev stage and production are both `NODE_ENV=production` on purpose.
+
+> **No email allowlist yet.** Despite what you might expect, nothing gates
+> outbound email by tier — [`src/notify/resend.ts`](../../app/src/notify/resend.ts)
+> sends to whatever address it's given whenever `RESEND_API_KEY` is set (it's
+> only faked when the key is *absent*). So any config with a real Resend key
+> sends real email. Keep `RESEND_API_KEY` dummied outside `dev`/`prd` until a
+> non-prod `to`-allowlist (or `delivered@resend.dev` redirect for
+> `APP_ENV !== 'prod'`) is added. Tracked as a follow-up.
 
 ### Why `--preserve-env` Is A Trap Here
 
 `doppler run --preserve-env` tells Doppler not to overwrite env vars that are already present in the parent shell. This sounds useful but bites in environments where the parent process inherits `NODE_ENV=production` from somewhere (Node-based MCP servers, some CI runners, and parent processes that hardcode `NODE_ENV` for their own reasons).
 
 When the parent has `NODE_ENV=production`, `--preserve-env` keeps that value and silently ignores the config's. The package.json script pins make this harmless for Next.js itself, but ad-hoc `doppler run` invocations of other tools can still be surprised — avoid `--preserve-env` unless you need it for a specific variable.
+
+## Local Dev Against Real Services (`dev_local_live`)
+
+`dev_local` fakes the outbound services so tests stay deterministic — which means you can't exercise AI features (resume extraction, Ask matching, explanation polish) locally against it. When you need real Anthropic/Voyage output while keeping a wipeable local database, use the **`dev_local_live`** config and `pnpm dev:local:live`.
+
+It does **not** affect CI or the pipeline — nothing there references it, and `dev_local` (the config CI reads) is untouched, so the hermetic suite stays deterministic.
+
+**One-time setup** (branch it off `dev` so the real Anthropic/Voyage keys inherit automatically — you never copy a raw secret):
+
+```bash
+# 1. create the branch config (Doppler dashboard: bridgecircle → dev → branch "dev_local_live",
+#    or CLI if your Doppler version supports `doppler configs create`)
+
+# 2. get the local stack's values (these are non-secret local-dev constants)
+cd app
+pnpm dlx supabase status
+
+# 3. override ONLY the local-diverging keys; everything else inherits from dev
+doppler secrets set -p bridgecircle -c dev_local_live \
+  NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321" \
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="<Publishable key from supabase status>" \
+  SUPABASE_SECRET_KEY="<Secret key from supabase status>" \
+  APP_ENV="local" \
+  NODE_ENV="development" \
+  RESEND_API_KEY="local-live-dummy"
+```
+
+That last override is the safety line: **keep `RESEND_API_KEY` dummied** here (see the "No email allowlist yet" note above) so a triggered email flow can't send real mail from your laptop. Real Anthropic/Voyage flow in from `dev` untouched. If you specifically need to test an email, flip `RESEND_API_KEY` to the real value **temporarily** and only exercise flows addressed to your own inbox.
+
+Then run it:
+
+```bash
+pnpm db:start && pnpm db:reset   # fresh local DB
+pnpm dev:local:live              # app at :3001, local DB + real AI
+```
 
 ## Adding A New Secret
 
@@ -149,16 +196,17 @@ For prod and staging, do this through the dashboard so there's an audit trail.
 
 After rotation, restart any running processes that read the secret. Doppler doesn't push updates into a running process — `doppler run` reads the current values once at process start.
 
-## CI
+## CI / CD
 
-CI is not wired up yet. When it is, the pattern will be:
+CI and CD are wired (see [`.github/workflows/`](../../.github/workflows/) and [environments.md](../architecture/environments.md)). GitHub holds **only Doppler service tokens** as repo/environment secrets; everything else is injected at runtime via `doppler run`. Each token is scoped to exactly one config:
 
-- A Doppler service token (issued from the dashboard, scoped to a single config) lives as a GitHub Actions secret named `DOPPLER_TOKEN`.
-- The job runs commands as `doppler run -- <command>` exactly as you do locally. Doppler reads the token from the env and authenticates non-interactively.
-- For E2E tests, the token should be scoped to a `ci` config — a sibling of `dev` — so that test runs don't accidentally pick up secrets that are only meant for human developers.
-- Tokens are rotated through the Doppler dashboard. Rotating the token in Doppler and updating the GitHub secret are the same operation from the user's perspective.
+| GitHub secret | Doppler config | Used by |
+|---|---|---|
+| `DOPPLER_TOKEN` | `dev` | `ci.yml` (build), `cd.yml` deploy-dev + integ |
+| `DOPPLER_TOKEN_LOCAL` | `dev_local` | `e2e.yml` (PR hermetic suite) — local-stack + dummy values only, never real secrets |
+| `DOPPLER_TOKEN_PRD` | `prd` | `cd.yml` promote job (only that job, gated behind the `production` environment) |
 
-When CI is added, this section gets the actual workflow file path and any project-specific tweaks.
+Jobs run `doppler run -- <command>` exactly as you do locally; the token in the env authenticates non-interactively. The `DOPPLER_TOKEN_LOCAL` scoping is deliberate — the E2E runner can read local-stack values and dummies but **never** real dev/prod secrets. Rotate any token through the Doppler dashboard and update the matching GitHub secret in the same step.
 
 ## Troubleshooting
 
