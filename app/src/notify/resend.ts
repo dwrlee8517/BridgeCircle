@@ -1,6 +1,7 @@
 import { render } from '@react-email/components'
 import type * as React from 'react'
 import { Resend } from 'resend'
+import { resolveDevRecipient } from './devGuard'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
 import { AnnouncementEmail } from './emails/announcement-email'
 import { AskAcceptedEmail } from './emails/ask-accepted-email'
@@ -51,11 +52,21 @@ async function sendRenderedEmail({
 }): Promise<NotifyResult> {
   if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
 
+  // Non-prod guard: never let a dev/local box send real mail to real (or
+  // bouncing) addresses. Redirects to a safe sink unless APP_ENV=prod. See
+  // ./devGuard.
+  const { to: recipient, redirectedFrom } = resolveDevRecipient(to)
+  if (redirectedFrom) {
+    console.info(
+      `[notify] APP_ENV=${process.env.APP_ENV ?? 'unset'}: redirected "${subject}" ${redirectedFrom} → ${recipient}`,
+    )
+  }
+
   const [html, text] = await Promise.all([render(email), render(email, { plainText: true })])
 
   const { data, error } = await resend.emails.send({
     from: FROM,
-    to: [to],
+    to: [recipient],
     subject,
     html,
     text,
