@@ -54,7 +54,7 @@ Global utilities (header right-rail):
 
 - inline search field (submits to `/people?q=`)
 - notifications bell (toast + popover, deep-links into the relevant detail surface)
-- helper settings (gear icon → `/mentorship/settings`)
+- helper settings (gear icon → `/help/settings`)
 - account menu (sign out, organization switcher when multi-org)
 
 ### How we got here (post-launch IA reorg)
@@ -484,7 +484,7 @@ Main elements:
 - freshness prompts when the data hasn't been confirmed in N days
 - edit actions
 
-### 19. Helper Settings (`/mentorship/settings`)
+### 19. Helper Settings (`/help/settings`)
 
 Purpose:
 
@@ -498,7 +498,7 @@ Main elements:
 - mentorship-only fieldset: max active mentees, max pending requests, screening questions; dimmed when `open_to_mentorship` is off
 - inactivity auto-pause status (paused-while-away)
 
-URL note: the URL is still `/mentorship/settings` for now even though the surface covers both ask types — renaming it (e.g. to `/me/helping`) is deferred until we revisit settings UX.
+URL note: renamed from `/mentorship/settings` to `/help/settings` (ADR 0011; the old URL 308-redirects in `next.config.ts`). Folding the form into `/help` itself is deferred to the redesign.
 
 ### 20. Privacy Settings
 
@@ -703,11 +703,11 @@ These were the original Open IA Questions. Each is now answered.
 2. **Should `Inbox` include notifications, or should notifications live in a separate tray?** Both. The notifications popover (bell icon, header right-rail) is the realtime tray; `/inbox` is the durable, sectioned list of things still requiring action — friend requests, incoming asks, active threads, DMs, outgoing asks.
 3. **Should meetup proposal status live in Events / Inbox / both?** N/A — meetups deferred post-launch.
 4. **One combined profile editor or separate base / org editors?** Combined, for now. The `base_profile` / `organization_profile` schema split is preserved server-side for the multi-org future (when Chadwick International onboards as org #2).
-5. **How much of mentorship settings in onboarding vs later in Profile?** Settings live at `/mentorship/settings` (helper-side, two checkboxes covering advice + mentorship; both default on with friction-on-leave). Onboarding does not gate on these — the defaults make every new member discoverable as a helper unless they opt out.
+5. **How much of mentorship settings in onboarding vs later in Profile?** Settings live at `/help/settings` (helper-side, two checkboxes covering advice + mentorship; both default on with friction-on-leave). Onboarding does not gate on these — the defaults make every new member discoverable as a helper unless they opt out.
 
 ## Open Questions (next phase)
 
-- Rename `/mentorship/settings` to something type-neutral (`/me/helping`?) once the helper UX gets a deeper revisit.
+- Fold the `/help/settings` form into `/help` itself (ADR 0011 Phase 2 — the rename from `/mentorship/settings` already happened).
 - Should `/inbox` get a unified "active conversations" section (combining ask threads + DMs into one polymorphic row)?
 - Backfill missing `helper_preferences` rows for existing members so default-on takes effect retroactively (currently 5/10 dev personas lack a row → no opt-in, no opt-out, invisible to the gating).
 
