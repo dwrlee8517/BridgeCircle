@@ -4,6 +4,7 @@
 - **Date:** 2026-07-13
 - **Decider:** Richard
 - **Contract:** [Database v2 contract](../architecture/database-v2-contract.md)
+- **Implementation:** local v2 baseline verified 2026-07-13; backend port and remote cutovers pending
 
 ## Context
 
@@ -173,9 +174,11 @@ After the first real member is admitted:
 
 ### 9. Retain shared history through a pseudonymized account tombstone
 
-Account deletion removes Supabase Auth credentials, profile PII, private
-files, active authored requests/offers, notifications, preferences, and
-connection edges. Memberships are revoked immediately. The application
+Account deletion removes Supabase Auth credentials, profile PII, active
+authored requests/offers, notifications, preferences, and connection edges.
+Private-file deletion is durably queued through the Supabase Storage API,
+rather than deleting Storage metadata directly. Memberships are revoked
+immediately. The application
 retains a non-PII `public.users` tombstone plus accepted Ask, conversation,
 message, audit, and moderation history so deletion does not erase a
 counterpart member's shared history or safety evidence.

@@ -1,12 +1,62 @@
 # Migration Workflow
 
-How to author and ship a Supabase migration in BridgeCircle. Effective post-2026-04-29.
+How to author and ship a Supabase migration in BridgeCircle. Updated
+2026-07-13 for the one-time database-v2 reset.
 
 ## Setup
 
-We use a **hybrid branching setup**: `bridgecircle-dev` is still a separate Free project for daily local development, but the prod project (`bridgecircle`) has the Supabase + GitHub branching integration enabled. See [`../architecture/branching-strategy.html`](../architecture/branching-strategy.html) for the full rationale.
+We currently use a **hybrid branching setup**: `bridgecircle-dev` is a separate
+project for shared development, while the prod project (`bridgecircle`) still
+uses the Supabase + GitHub branching integration. ADR 0014 is replacing that
+prod automation with the gated scripted pipeline in phases; do not assume its
+database phase is live until the rollout checklist says so. See
+[`../architecture/dev-stage-cd-rollout.md`](../architecture/dev-stage-cd-rollout.md)
+and [ADR 0014](../decisions/0014-scripted-cd-pipeline.md).
+
+## Database-v2 transition exception
+
+[ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) authorizes one
+pre-launch replacement of the active application migration history. The
+exception is narrow:
+
+- legacy migrations, the old seed, and a schema-only dump live under
+  `app/supabase/legacy/`;
+- active history starts with the CLI-generated
+  `20260713231344_v2_init.sql` baseline;
+- the baseline, seed, pgTAP suite, and generated types are developed only in
+  the isolated `codex/database-v2-baseline` worktree until the backend port is
+  compatible;
+- no one may push the baseline to shared development or production merely
+  because it passes locally;
+- each remote reset still requires its own approved snapshot and cutover
+  runbook.
+
+During this transition, validate from `app/` with:
+
+```bash
+pnpm dlx supabase db reset --local
+pnpm db:test
+pnpm dlx supabase db lint --local --level warning --fail-on warning
+pnpm dlx supabase db diff --local --schema public,api,private
+pnpm db:types:local
+```
+
+An empty diff, clean lint, passing pgTAP suite, and deterministic types prove
+the baseline can rebuild locally. They do not authorize a remote change. Do
+not run `supabase db push`, `pnpm db:types` (linked), or migration repair
+against either shared project until the matching development cutover step is
+approved.
+
+Once development and production have cut over, the exception is spent. The
+baseline is immutable and every later change follows the normal forward-only
+workflow below. After the first real signup, destructive changes always use
+expand/contract.
 
 ## Per-migration workflow
+
+This is the ordinary workflow outside the active v2 reset exception. It stays
+in force until ADR 0014 Phase 4 replaces the prod integration with the gated
+pipeline.
 
 ```
 1. edit / add SQL file in app/supabase/migrations/
@@ -25,6 +75,8 @@ We use a **hybrid branching setup**: `bridgecircle-dev` is still a separate Free
 - **Do not push to prod manually.** The integration owns the prod side; manual pushes risk drift. (Step 7 replaced the old manual `supabase link --project-ref <prod>` + `db push --dry-run` + `db push` + re-link dance.)
 - **Branch protection on `main` requires the Supabase Preview check to pass before merging.** Don't merge a PR with a failing migration check.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. Preview branches *can* be deleted destructively — they're throwaway by design — but prod's history is append-only.
+- **ADR 0015 is the sole migration-history exception.** Do not use its archive
+  or migration-repair procedure as precedent for an ordinary migration.
 - **Always run step 2 before opening the PR.** The local dev project (`bridgecircle-dev`) and prod stay in sync only because of this. If you skip step 2, dev will be behind main; harmless until you try to test a future feature locally that depends on the missed migration.
 - **Use expand/contract for any non-additive change.** See the next section. This is the single most important authoring rule in this runbook.
 

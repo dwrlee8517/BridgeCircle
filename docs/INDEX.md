@@ -9,7 +9,7 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
 - [Phase 1 launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what ships in the launch cut
 - [Phase 1 launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md) — readiness criteria
-- [Database v2 contract](architecture/database-v2-contract.md) — approved pre-launch rebuild target; not yet live
+- [Database v2 contract](architecture/database-v2-contract.md) — local baseline implemented and database-tested; backend port pending; not yet live
 
 ## Product
 
@@ -48,7 +48,7 @@ What we're building. These now live in the [product-spec Obsidian vault](../prod
 How the system is shaped. Reference material — facts, not how-to.
 
 - [Data model](architecture/data-model.md) — tables, relations, RLS posture
-- [Database v2 contract](architecture/database-v2-contract.md) — approved target schema, ERD, constraints, RLS matrix, baseline and cutover gates; not yet implemented
+- [Database v2 contract](architecture/database-v2-contract.md) — approved target schema, ERD, constraints, RLS matrix, verified local baseline, and cutover gates; backend port pending
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance

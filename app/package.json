@@ -19,7 +19,9 @@
     "db:start": "bash scripts/db-start.sh",
     "db:stop": "pnpm dlx supabase stop",
     "db:reset": "pnpm dlx supabase db reset",
-    "db:types": "pnpm dlx supabase gen types typescript --linked > src/db/database.types.ts"
+    "db:test": "pnpm dlx supabase test db --local",
+    "db:types:local": "pnpm dlx supabase gen types typescript --local --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts",
+    "db:types": "pnpm dlx supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

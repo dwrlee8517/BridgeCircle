@@ -1,14 +1,16 @@
 # BridgeCircle database v2 contract
 
-**Status:** approved target; not yet implemented
+**Status:** local baseline implemented and database-tested; backend port pending; not live
 **Decision:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md)
 **Current live schema:** [Data model — Phase 1 launch](data-model.md)
 **Approved product behavior:** [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 
 This document is the canonical implementation contract for the pre-launch
-database rebuild. Until its migration and backend land, code and generated
-database types remain authoritative for the current live schema. Nothing in
-this document authorizes a remote database reset.
+database rebuild. The isolated database-v2 worktree now contains the active
+v2 baseline, deterministic seed, generated types, and pgTAP suite. The current
+shared application and remote databases remain on the legacy contract until
+the backend port and separately approved cutovers land. Nothing in this
+document authorizes a remote database reset.
 
 ## Goal
 
@@ -886,7 +888,7 @@ private note, metadata, and timestamp. No client access.
 | Column | Contract |
 |---|---|
 | `id` | bigint identity PK |
-| `job_type` | `send_email`, `create_notification`, `run_ask_matching`, `index_profile`, or `process_account_deletion` |
+| `job_type` | `send_email`, `create_notification`, `run_ask_matching`, `index_profile`, `process_account_deletion`, or `delete_storage_objects` |
 | `payload` | JSONB, not null |
 | `dedupe_key` | nonblank unique text |
 | `status` | `pending`, `processing`, `completed`, or `failed` |
@@ -1118,7 +1120,7 @@ The v2 baseline is incomplete unless it also includes or configures:
 - Realtime publication membership for `messages` and `notifications`;
 - analytics views/functions;
 - local seed configuration and deterministic personas;
-- a separate remote-development seeder;
+- a separate remote-development seeder ported before the development cutover;
 - production bootstrap data only, never development personas;
 - generated TypeScript database types.
 
@@ -1244,7 +1246,7 @@ blocked user, and service worker. In particular:
 
 Supabase supports transactionally isolated pgTAP tests through
 `supabase test db`; use those for database invariants and Playwright for the
-member-visible flow. See the [CLI testing reference](https://supabase.com/docs/reference/cli/supabase-migration-fetch).
+member-visible flow. See the [database testing guide](https://supabase.com/docs/guides/database/testing).
 
 ## Application implementation sequence
 
@@ -1281,7 +1283,8 @@ Richard approved pseudonymized retention on 2026-07-13. Account deletion:
 1. revokes sessions and deletes the `auth.users` identity;
 2. retains `public.users.id` as a deleted-member tombstone with no profile PII;
 3. revokes memberships and removes profile, helper, preference, notification,
-   connection, active Ask/offer, and private Storage data;
+   connection, and active Ask/offer data, then durably queues private Storage
+   deletion through the Storage API;
 4. retains accepted Ask/conversation/message history for counterpart members;
 5. retains immutable moderation evidence and audit records under their normal
    retention controls; and
@@ -1298,7 +1301,9 @@ so administrative deletion cannot bypass application cleanup.
   review feedback.
 - [x] ADR and database contract written.
 - [x] Account deletion/retention decision approved: pseudonymized retention.
-- [ ] Exact baseline DDL implemented and database tests green locally.
+- [x] Exact baseline DDL implemented and database tests green locally (69
+  pgTAP assertions, warning-level lint clean, empty shadow diff, deterministic
+  `public` + `api` type generation on 2026-07-13).
 - [ ] Backend port and full local E2E green.
 - [ ] CD migration ownership proven with a harmless migration.
 - [ ] Development snapshot, reset, deploy, E2E, and stabilization complete.

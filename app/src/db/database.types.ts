@@ -1,12 +1,13 @@
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: '14.5'
-  }
-  graphql_public: {
+  api: {
     Tables: {
       [_ in never]: never
     }
@@ -14,14 +15,166 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      graphql: {
+      block_member: { Args: { p_blocked_user_id: string }; Returns: undefined }
+      create_circle_ask: {
         Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
+          p_anonymous_until_accepted: boolean
+          p_asker_membership_id: string
+          p_client_request_id: string
+          p_question: string
+          p_reach: string
         }
-        Returns: Json
+        Returns: string
+      }
+      create_direct_ask: {
+        Args: {
+          p_asker_membership_id: string
+          p_client_request_id: string
+          p_question: string
+          p_recipient_membership_id: string
+          p_request_message: string
+        }
+        Returns: string
+      }
+      decide_offer: {
+        Args: {
+          p_client_nonce?: string
+          p_decision: string
+          p_decline_note?: string
+          p_decline_reason_code?: string
+          p_offer_id: string
+          p_opening_message?: string
+        }
+        Returns: string
+      }
+      disconnect: { Args: { p_other_user_id: string }; Returns: undefined }
+      get_ask_detail: {
+        Args: { p_ask_id: string }
+        Returns: {
+          accepted_at: string
+          anonymous_until_accepted: boolean
+          ask_id: string
+          asker_user_id: string
+          closure_reason: string
+          created_at: string
+          decline_note: string
+          decline_reason_code: string
+          ended_at: string
+          expires_at: string
+          kind: string
+          organization_id: string
+          outcome_note: string
+          question: string
+          reach: string
+          recipient_user_id: string
+          request_message: string
+          status: string
+        }[]
+      }
+      get_or_create_direct_conversation: {
+        Args: { p_other_user_id: string }
+        Returns: string
+      }
+      list_give_help: {
+        Args: { p_before?: string; p_limit?: number }
+        Returns: {
+          anonymous_until_accepted: boolean
+          ask_id: string
+          asker_user_id: string
+          created_at: string
+          kind: string
+          match_reason: string
+          organization_id: string
+          question: string
+          reach: string
+        }[]
+      }
+      list_help_matches: {
+        Args: { p_ask_id: string }
+        Returns: {
+          display_name: string
+          headline: string
+          helper_membership_id: string
+          helper_user_id: string
+          rank: number
+          reason: string
+          score: number
+        }[]
+      }
+      mark_conversation_read: {
+        Args: { p_conversation_id: string; p_message_id: number }
+        Returns: undefined
+      }
+      mark_notifications_read: {
+        Args: { p_notification_ids: number[] }
+        Returns: number
+      }
+      offer_to_help: {
+        Args: {
+          p_ask_id: string
+          p_client_request_id: string
+          p_helper_membership_id: string
+          p_offer_note: string
+        }
+        Returns: string
+      }
+      resolve_ask: {
+        Args: { p_ask_id: string; p_outcome_note?: string }
+        Returns: undefined
+      }
+      respond_to_connection_request: {
+        Args: { p_decision: string; p_request_id: string }
+        Returns: string
+      }
+      respond_to_direct_ask: {
+        Args: {
+          p_ask_id: string
+          p_client_nonce?: string
+          p_decision: string
+          p_decline_note?: string
+          p_decline_reason_code?: string
+          p_opening_message?: string
+        }
+        Returns: string
+      }
+      retract_ask: { Args: { p_ask_id: string }; Returns: undefined }
+      save_helper_topics: {
+        Args: { p_membership_id: string; p_topics: string[] }
+        Returns: undefined
+      }
+      send_connection_request: {
+        Args: {
+          p_client_request_id: string
+          p_intro_message: string
+          p_origin_organization_id: string
+          p_recipient_user_id: string
+        }
+        Returns: string
+      }
+      send_message: {
+        Args: {
+          p_body: string
+          p_client_nonce: string
+          p_conversation_id: string
+        }
+        Returns: number
+      }
+      set_event_rsvp: {
+        Args: { p_event_id: string; p_membership_id: string; p_status: string }
+        Returns: string
+      }
+      submit_report: {
+        Args: {
+          p_note?: string
+          p_reason: string
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: string
+      }
+      unblock_member: {
+        Args: { p_blocked_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
@@ -36,454 +189,560 @@ export type Database = {
       admin_role_assignments: {
         Row: {
           granted_at: string
-          granted_by: string | null
+          granted_by_membership_id: string | null
+          id: string
           organization_id: string
-          role: Database['public']['Enums']['admin_role']
-          user_id: string
+          organization_membership_id: string
+          role: string
         }
         Insert: {
           granted_at?: string
-          granted_by?: string | null
+          granted_by_membership_id?: string | null
+          id?: string
           organization_id: string
-          role: Database['public']['Enums']['admin_role']
-          user_id: string
+          organization_membership_id: string
+          role: string
         }
         Update: {
           granted_at?: string
-          granted_by?: string | null
+          granted_by_membership_id?: string | null
+          id?: string
           organization_id?: string
-          role?: Database['public']['Enums']['admin_role']
-          user_id?: string
+          organization_membership_id?: string
+          role?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'admin_role_assignments_granted_by_fkey'
-            columns: ['granted_by']
+            foreignKeyName: "admin_role_assignments_granter_fk"
+            columns: ["organization_id", "granted_by_membership_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'admin_role_assignments_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "admin_role_assignments_member_fk"
+            columns: ["organization_id", "organization_membership_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'admin_role_assignments_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "admin_role_assignments_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
       announcements: {
         Row: {
-          body: string | null
+          author_membership_id: string | null
+          body: string
           created_at: string
-          created_by: string | null
           id: string
           organization_id: string
+          pinned: boolean
           published_at: string | null
+          status: string
           title: string
+          updated_at: string
         }
         Insert: {
-          body?: string | null
+          author_membership_id?: string | null
+          body: string
           created_at?: string
-          created_by?: string | null
           id?: string
           organization_id: string
+          pinned?: boolean
           published_at?: string | null
+          status?: string
           title: string
+          updated_at?: string
         }
         Update: {
-          body?: string | null
+          author_membership_id?: string | null
+          body?: string
           created_at?: string
-          created_by?: string | null
           id?: string
           organization_id?: string
+          pinned?: boolean
           published_at?: string | null
+          status?: string
           title?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'announcements_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "announcements_author_fk"
+            columns: ["organization_id", "author_membership_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'announcements_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "announcements_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
-      ask_threads: {
+      ask_offers: {
         Row: {
           ask_id: string
-          asker_id: string
+          client_request_id: string
+          closed_at: string | null
+          closure_reason: string | null
           created_at: string
-          helper_id: string
+          decline_note: string | null
+          decline_reason_code: string | null
+          helper_membership_id: string
           id: string
-          last_message_at: string | null
-          status: Database['public']['Enums']['ask_thread_status']
+          offer_note: string
+          organization_id: string
+          responded_at: string | null
+          status: string
+          updated_at: string
         }
         Insert: {
           ask_id: string
-          asker_id: string
+          client_request_id: string
+          closed_at?: string | null
+          closure_reason?: string | null
           created_at?: string
-          helper_id: string
+          decline_note?: string | null
+          decline_reason_code?: string | null
+          helper_membership_id: string
           id?: string
-          last_message_at?: string | null
-          status?: Database['public']['Enums']['ask_thread_status']
+          offer_note: string
+          organization_id: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
         }
         Update: {
           ask_id?: string
-          asker_id?: string
+          client_request_id?: string
+          closed_at?: string | null
+          closure_reason?: string | null
           created_at?: string
-          helper_id?: string
+          decline_note?: string | null
+          decline_reason_code?: string | null
+          helper_membership_id?: string
           id?: string
-          last_message_at?: string | null
-          status?: Database['public']['Enums']['ask_thread_status']
+          offer_note?: string
+          organization_id?: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'mentorship_threads_mentee_id_fkey'
-            columns: ['asker_id']
+            foreignKeyName: "ask_offers_ask_id_fkey"
+            columns: ["ask_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "asks"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'mentorship_threads_mentor_id_fkey'
-            columns: ['helper_id']
+            foreignKeyName: "ask_offers_helper_membership_fk"
+            columns: ["organization_id", "helper_membership_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'mentorship_threads_request_id_fkey'
-            columns: ['ask_id']
+            foreignKeyName: "ask_offers_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'asks'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
       asks: {
         Row: {
-          ask_type: Database['public']['Enums']['ask_type']
-          asker_id: string
-          background: string | null
-          commitment: string | null
+          accepted_at: string | null
+          anonymous_until_accepted: boolean
+          asker_membership_id: string
+          client_request_id: string
+          closure_reason: string | null
           created_at: string
-          decline_reason: string | null
-          help_needed: string | null
-          helper_id: string
+          decline_note: string | null
+          decline_reason_code: string | null
+          ended_at: string | null
+          expires_at: string
           id: string
+          kind: string
           organization_id: string
-          reason: string | null
+          outcome_note: string | null
+          question: string
+          reach: string | null
+          recipient_membership_id: string | null
           reminder_sent_at: string | null
+          reopened_from_ask_id: string | null
+          request_message: string | null
           responded_at: string | null
-          screening_answer: string | null
-          status: Database['public']['Enums']['ask_status']
-        }
-        Insert: {
-          ask_type?: Database['public']['Enums']['ask_type']
-          asker_id: string
-          background?: string | null
-          commitment?: string | null
-          created_at?: string
-          decline_reason?: string | null
-          help_needed?: string | null
-          helper_id: string
-          id?: string
-          organization_id: string
-          reason?: string | null
-          reminder_sent_at?: string | null
-          responded_at?: string | null
-          screening_answer?: string | null
-          status?: Database['public']['Enums']['ask_status']
-        }
-        Update: {
-          ask_type?: Database['public']['Enums']['ask_type']
-          asker_id?: string
-          background?: string | null
-          commitment?: string | null
-          created_at?: string
-          decline_reason?: string | null
-          help_needed?: string | null
-          helper_id?: string
-          id?: string
-          organization_id?: string
-          reason?: string | null
-          reminder_sent_at?: string | null
-          responded_at?: string | null
-          screening_answer?: string | null
-          status?: Database['public']['Enums']['ask_status']
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'mentorship_requests_mentee_id_fkey'
-            columns: ['asker_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'mentorship_requests_mentor_id_fkey'
-            columns: ['helper_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'mentorship_requests_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      audit_log: {
-        Row: {
-          action: string
-          actor_id: string | null
-          created_at: string
-          id: string
-          organization_id: string | null
-          payload: Json | null
-          target_id: string | null
-          target_type: string | null
-        }
-        Insert: {
-          action: string
-          actor_id?: string | null
-          created_at?: string
-          id?: string
-          organization_id?: string | null
-          payload?: Json | null
-          target_id?: string | null
-          target_type?: string | null
-        }
-        Update: {
-          action?: string
-          actor_id?: string | null
-          created_at?: string
-          id?: string
-          organization_id?: string | null
-          payload?: Json | null
-          target_id?: string | null
-          target_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'audit_log_actor_id_fkey'
-            columns: ['actor_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'audit_log_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      base_profiles: {
-        Row: {
-          avatar_url: string | null
-          career_history: Json | null
-          city: string | null
-          created_at: string
-          current_employer: string | null
-          current_title: string | null
-          education_history: Json | null
-          headline: string | null
-          linkedin_url: string | null
-          major: string | null
-          name: string | null
-          name_other: string | null
-          preferred_name: string | null
-          privacy_settings: Json
-          skills: string[] | null
-          university: string | null
+          status: string
           updated_at: string
-          user_id: string
         }
         Insert: {
-          avatar_url?: string | null
-          career_history?: Json | null
-          city?: string | null
+          accepted_at?: string | null
+          anonymous_until_accepted?: boolean
+          asker_membership_id: string
+          client_request_id: string
+          closure_reason?: string | null
           created_at?: string
-          current_employer?: string | null
-          current_title?: string | null
-          education_history?: Json | null
-          headline?: string | null
-          linkedin_url?: string | null
-          major?: string | null
-          name?: string | null
-          name_other?: string | null
-          preferred_name?: string | null
-          privacy_settings?: Json
-          skills?: string[] | null
-          university?: string | null
+          decline_note?: string | null
+          decline_reason_code?: string | null
+          ended_at?: string | null
+          expires_at?: string
+          id?: string
+          kind: string
+          organization_id: string
+          outcome_note?: string | null
+          question: string
+          reach?: string | null
+          recipient_membership_id?: string | null
+          reminder_sent_at?: string | null
+          reopened_from_ask_id?: string | null
+          request_message?: string | null
+          responded_at?: string | null
+          status: string
           updated_at?: string
-          user_id: string
         }
         Update: {
-          avatar_url?: string | null
-          career_history?: Json | null
-          city?: string | null
+          accepted_at?: string | null
+          anonymous_until_accepted?: boolean
+          asker_membership_id?: string
+          client_request_id?: string
+          closure_reason?: string | null
           created_at?: string
-          current_employer?: string | null
-          current_title?: string | null
-          education_history?: Json | null
-          headline?: string | null
-          linkedin_url?: string | null
-          major?: string | null
-          name?: string | null
-          name_other?: string | null
-          preferred_name?: string | null
-          privacy_settings?: Json
-          skills?: string[] | null
-          university?: string | null
+          decline_note?: string | null
+          decline_reason_code?: string | null
+          ended_at?: string | null
+          expires_at?: string
+          id?: string
+          kind?: string
+          organization_id?: string
+          outcome_note?: string | null
+          question?: string
+          reach?: string | null
+          recipient_membership_id?: string | null
+          reminder_sent_at?: string | null
+          reopened_from_ask_id?: string | null
+          request_message?: string | null
+          responded_at?: string | null
+          status?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'base_profiles_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: true
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            foreignKeyName: "asks_asker_membership_fk"
+            columns: ["organization_id", "asker_membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "asks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asks_recipient_membership_fk"
+            columns: ["organization_id", "recipient_membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "asks_reopened_from_ask_id_fkey"
+            columns: ["reopened_from_ask_id"]
+            isOneToOne: false
+            referencedRelation: "asks"
+            referencedColumns: ["id"]
           },
         ]
       }
-      direct_message_threads: {
+      connection_requests: {
         Row: {
+          client_request_id: string
           created_at: string
           id: string
+          intro_message: string | null
+          origin_organization_id: string | null
+          recipient_user_id: string
+          requester_user_id: string
+          responded_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_request_id: string
+          created_at?: string
+          id?: string
+          intro_message?: string | null
+          origin_organization_id?: string | null
+          recipient_user_id: string
+          requester_user_id: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_request_id?: string
+          created_at?: string
+          id?: string
+          intro_message?: string | null
+          origin_organization_id?: string | null
+          recipient_user_id?: string
+          requester_user_id?: string
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_requests_origin_organization_id_fkey"
+            columns: ["origin_organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connection_requests_requester_user_id_fkey"
+            columns: ["requester_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connections: {
+        Row: {
+          connection_request_id: string | null
+          created_at: string
+          id: string
+          origin_organization_id: string | null
           user_a_id: string
           user_b_id: string
         }
         Insert: {
+          connection_request_id?: string | null
           created_at?: string
           id?: string
+          origin_organization_id?: string | null
           user_a_id: string
           user_b_id: string
         }
         Update: {
+          connection_request_id?: string | null
           created_at?: string
           id?: string
+          origin_organization_id?: string | null
           user_a_id?: string
           user_b_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'direct_message_threads_user_a_id_fkey'
-            columns: ['user_a_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            foreignKeyName: "connections_connection_request_id_fkey"
+            columns: ["connection_request_id"]
+            isOneToOne: true
+            referencedRelation: "connection_requests"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'direct_message_threads_user_b_id_fkey'
-            columns: ['user_b_id']
+            foreignKeyName: "connections_origin_organization_id_fkey"
+            columns: ["origin_organization_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_user_a_id_fkey"
+            columns: ["user_a_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_user_b_id_fkey"
+            columns: ["user_b_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
-      enrichment_sweep_jobs: {
+      conversation_reads: {
         Row: {
-          completed_at: string | null
-          error: string | null
-          id: string
-          member_count: number
-          provider: string
-          snapshot_id: string | null
-          started_at: string
-          status: string
-          targets: Json
-        }
-        Insert: {
-          completed_at?: string | null
-          error?: string | null
-          id?: string
-          member_count: number
-          provider: string
-          snapshot_id?: string | null
-          started_at?: string
-          status?: string
-          targets?: Json
-        }
-        Update: {
-          completed_at?: string | null
-          error?: string | null
-          id?: string
-          member_count?: number
-          provider?: string
-          snapshot_id?: string | null
-          started_at?: string
-          status?: string
-          targets?: Json
-        }
-        Relationships: []
-      }
-      event_rsvps: {
-        Row: {
-          event_id: string
-          responded_at: string
-          status: Database['public']['Enums']['event_rsvp_status']
+          conversation_id: string
+          last_read_at: string
+          last_read_message_id: number | null
           user_id: string
         }
         Insert: {
-          event_id: string
-          responded_at?: string
-          status: Database['public']['Enums']['event_rsvp_status']
+          conversation_id: string
+          last_read_at?: string
+          last_read_message_id?: number | null
           user_id: string
         }
         Update: {
-          event_id?: string
-          responded_at?: string
-          status?: Database['public']['Enums']['event_rsvp_status']
+          conversation_id?: string
+          last_read_at?: string
+          last_read_message_id?: number | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'event_rsvps_event_id_fkey'
-            columns: ['event_id']
+            foreignKeyName: "conversation_reads_conversation_id_fkey"
+            columns: ["conversation_id"]
             isOneToOne: false
-            referencedRelation: 'events'
-            referencedColumns: ['id']
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'event_rsvps_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "conversation_reads_message_fk"
+            columns: ["conversation_id", "last_read_message_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "messages"
+            referencedColumns: ["conversation_id", "id"]
+          },
+          {
+            foreignKeyName: "conversation_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          ask_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          last_message_at: string | null
+          organization_id: string | null
+          user_a_id: string
+          user_b_id: string
+        }
+        Insert: {
+          ask_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          last_message_at?: string | null
+          organization_id?: string | null
+          user_a_id: string
+          user_b_id: string
+        }
+        Update: {
+          ask_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          last_message_at?: string | null
+          organization_id?: string | null
+          user_a_id?: string
+          user_b_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_ask_id_fkey"
+            columns: ["ask_id"]
+            isOneToOne: false
+            referencedRelation: "asks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_user_a_id_fkey"
+            columns: ["user_a_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_user_b_id_fkey"
+            columns: ["user_b_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_rsvps: {
+        Row: {
+          event_id: string
+          organization_id: string
+          organization_membership_id: string
+          responded_at: string
+          status: string
+        }
+        Insert: {
+          event_id: string
+          organization_id: string
+          organization_membership_id: string
+          responded_at?: string
+          status: string
+        }
+        Update: {
+          event_id?: string
+          organization_id?: string
+          organization_membership_id?: string
+          responded_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_rsvps_event_fk"
+            columns: ["organization_id", "event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "event_rsvps_membership_fk"
+            columns: ["organization_id", "organization_membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "event_rsvps_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
       events: {
         Row: {
+          cancelled_at: string | null
           capacity: number | null
           created_at: string
-          created_by: string | null
+          created_by_membership_id: string | null
           description: string | null
           ends_at: string | null
           id: string
@@ -491,12 +750,15 @@ export type Database = {
           organization_id: string
           published_at: string | null
           starts_at: string
+          status: string
           title: string
+          updated_at: string
         }
         Insert: {
+          cancelled_at?: string | null
           capacity?: number | null
           created_at?: string
-          created_by?: string | null
+          created_by_membership_id?: string | null
           description?: string | null
           ends_at?: string | null
           id?: string
@@ -504,12 +766,15 @@ export type Database = {
           organization_id: string
           published_at?: string | null
           starts_at: string
+          status?: string
           title: string
+          updated_at?: string
         }
         Update: {
+          cancelled_at?: string | null
           capacity?: number | null
           created_at?: string
-          created_by?: string | null
+          created_by_membership_id?: string | null
           description?: string | null
           ends_at?: string | null
           id?: string
@@ -517,463 +782,419 @@ export type Database = {
           organization_id?: string
           published_at?: string | null
           starts_at?: string
+          status?: string
           title?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'events_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: "events_creator_fk"
+            columns: ["organization_id", "created_by_membership_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'events_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "events_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      friend_requests: {
-        Row: {
-          created_at: string
-          id: string
-          message: string | null
-          receiver_id: string
-          responded_at: string | null
-          sender_id: string
-          status: Database['public']['Enums']['friend_request_status']
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          message?: string | null
-          receiver_id: string
-          responded_at?: string | null
-          sender_id: string
-          status?: Database['public']['Enums']['friend_request_status']
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          message?: string | null
-          receiver_id?: string
-          responded_at?: string | null
-          sender_id?: string
-          status?: Database['public']['Enums']['friend_request_status']
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'friend_requests_receiver_id_fkey'
-            columns: ['receiver_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'friend_requests_sender_id_fkey'
-            columns: ['sender_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      friendships: {
-        Row: {
-          created_at: string
-          id: string
-          user_a_id: string
-          user_b_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          user_a_id: string
-          user_b_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          user_a_id?: string
-          user_b_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'friendships_user_a_id_fkey'
-            columns: ['user_a_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'friendships_user_b_id_fkey'
-            columns: ['user_b_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
       helper_preferences: {
         Row: {
+          consecutive_timeouts: number
           created_at: string
-          max_active_mentees: number
           max_pending_requests: number
-          open_to_advice: boolean
-          open_to_mentorship: boolean
+          open_to_help: boolean
+          organization_id: string
           organization_membership_id: string
+          pause_reason: string | null
           paused_at: string | null
-          paused_until: string | null
-          screening_prompt: string | null
-          topics: string[] | null
           updated_at: string
         }
         Insert: {
+          consecutive_timeouts?: number
           created_at?: string
-          max_active_mentees?: number
           max_pending_requests?: number
-          open_to_advice?: boolean
-          open_to_mentorship?: boolean
+          open_to_help?: boolean
+          organization_id: string
           organization_membership_id: string
+          pause_reason?: string | null
           paused_at?: string | null
-          paused_until?: string | null
-          screening_prompt?: string | null
-          topics?: string[] | null
           updated_at?: string
         }
         Update: {
+          consecutive_timeouts?: number
           created_at?: string
-          max_active_mentees?: number
           max_pending_requests?: number
-          open_to_advice?: boolean
-          open_to_mentorship?: boolean
+          open_to_help?: boolean
+          organization_id?: string
           organization_membership_id?: string
+          pause_reason?: string | null
           paused_at?: string | null
-          paused_until?: string | null
-          screening_prompt?: string | null
-          topics?: string[] | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'mentorship_preferences_organization_membership_id_fkey'
-            columns: ['organization_membership_id']
-            isOneToOne: true
-            referencedRelation: 'organization_memberships'
-            referencedColumns: ['id']
+            foreignKeyName: "helper_preferences_membership_fk"
+            columns: ["organization_id", "organization_membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "helper_preferences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      helper_topics: {
+        Row: {
+          created_at: string
+          name: string
+          normalized_name: string
+          organization_id: string
+          organization_membership_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          name: string
+          normalized_name: string
+          organization_id: string
+          organization_membership_id: string
+          sort_order: number
+        }
+        Update: {
+          created_at?: string
+          name?: string
+          normalized_name?: string
+          organization_id?: string
+          organization_membership_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "helper_topics_membership_fk"
+            columns: ["organization_id", "organization_membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "helper_topics_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
       invites: {
         Row: {
           accepted_at: string | null
-          accepted_by: string | null
+          accepted_by_user_id: string | null
           created_at: string
           email: string
-          expires_at: string | null
+          email_normalized: string
+          expires_at: string
           full_name: string | null
           graduation_year: number | null
           id: string
           organization_id: string
-          sent_by: string | null
-          status: Database['public']['Enums']['invite_status']
-          token: string
+          sent_by_membership_id: string | null
+          status: string
+          token_hash: string
         }
         Insert: {
           accepted_at?: string | null
-          accepted_by?: string | null
+          accepted_by_user_id?: string | null
           created_at?: string
           email: string
-          expires_at?: string | null
+          email_normalized: string
+          expires_at: string
           full_name?: string | null
           graduation_year?: number | null
           id?: string
           organization_id: string
-          sent_by?: string | null
-          status?: Database['public']['Enums']['invite_status']
-          token: string
+          sent_by_membership_id?: string | null
+          status?: string
+          token_hash: string
         }
         Update: {
           accepted_at?: string | null
-          accepted_by?: string | null
+          accepted_by_user_id?: string | null
           created_at?: string
           email?: string
-          expires_at?: string | null
+          email_normalized?: string
+          expires_at?: string
           full_name?: string | null
           graduation_year?: number | null
           id?: string
           organization_id?: string
-          sent_by?: string | null
-          status?: Database['public']['Enums']['invite_status']
-          token?: string
+          sent_by_membership_id?: string | null
+          status?: string
+          token_hash?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'invites_accepted_by_fkey'
-            columns: ['accepted_by']
+            foreignKeyName: "invites_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'invites_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "invites_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'invites_sent_by_fkey'
-            columns: ['sent_by']
+            foreignKeyName: "invites_sender_fk"
+            columns: ["organization_id", "sent_by_membership_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      member_blocks: {
+        Row: {
+          blocked_user_id: string
+          blocker_user_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_user_id: string
+          blocker_user_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_user_id?: string
+          blocker_user_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_blocks_blocked_user_id_fkey"
+            columns: ["blocked_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_blocks_blocker_user_id_fkey"
+            columns: ["blocker_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
       messages: {
         Row: {
           body: string
+          client_nonce: string | null
+          conversation_id: string
           created_at: string
-          id: string
-          read_at: string | null
-          sender_id: string
-          thread_id: string
-          thread_type: Database['public']['Enums']['message_thread_type']
+          id: number
+          kind: string
+          sender_user_id: string | null
         }
         Insert: {
           body: string
+          client_nonce?: string | null
+          conversation_id: string
           created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id: string
-          thread_id: string
-          thread_type: Database['public']['Enums']['message_thread_type']
+          id?: never
+          kind?: string
+          sender_user_id?: string | null
         }
         Update: {
           body?: string
+          client_nonce?: string | null
+          conversation_id?: string
           created_at?: string
-          id?: string
-          read_at?: string | null
-          sender_id?: string
-          thread_id?: string
-          thread_type?: Database['public']['Enums']['message_thread_type']
+          id?: never
+          kind?: string
+          sender_user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'messages_sender_id_fkey'
-            columns: ['sender_id']
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_user_id_fkey"
+            columns: ["sender_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          email_enabled: boolean
+          in_app_enabled: boolean
+          notification_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          email_enabled?: boolean
+          in_app_enabled?: boolean
+          notification_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          email_enabled?: boolean
+          in_app_enabled?: boolean
+          notification_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
       notifications: {
         Row: {
+          actor_user_id: string | null
           created_at: string
-          id: string
+          dedupe_key: string
+          id: number
           organization_id: string | null
-          payload: Json | null
+          payload: Json
           read_at: string | null
+          recipient_user_id: string
           target_id: string | null
           target_type: string | null
           type: string
-          user_id: string
         }
         Insert: {
+          actor_user_id?: string | null
           created_at?: string
-          id?: string
+          dedupe_key: string
+          id?: never
           organization_id?: string | null
-          payload?: Json | null
+          payload?: Json
           read_at?: string | null
+          recipient_user_id: string
           target_id?: string | null
           target_type?: string | null
           type: string
-          user_id: string
         }
         Update: {
+          actor_user_id?: string | null
           created_at?: string
-          id?: string
+          dedupe_key?: string
+          id?: never
           organization_id?: string | null
-          payload?: Json | null
+          payload?: Json
           read_at?: string | null
+          recipient_user_id?: string
           target_id?: string | null
           target_type?: string | null
           type?: string
-          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'notifications_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "notifications_actor_user_id_fkey"
+            columns: ["actor_user_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'notifications_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      open_ask_matches: {
-        Row: {
-          created_at: string
-          helper_user_id: string
-          id: string
-          match_score: number | null
-          notified_at: string | null
-          open_ask_id: string
-          rationale: string | null
-        }
-        Insert: {
-          created_at?: string
-          helper_user_id: string
-          id?: string
-          match_score?: number | null
-          notified_at?: string | null
-          open_ask_id: string
-          rationale?: string | null
-        }
-        Update: {
-          created_at?: string
-          helper_user_id?: string
-          id?: string
-          match_score?: number | null
-          notified_at?: string | null
-          open_ask_id?: string
-          rationale?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'open_ask_matches_helper_user_id_fkey'
-            columns: ['helper_user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'open_ask_matches_open_ask_id_fkey'
-            columns: ['open_ask_id']
+            foreignKeyName: "notifications_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
             isOneToOne: false
-            referencedRelation: 'open_asks'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      open_asks: {
-        Row: {
-          close_reason: string | null
-          closed_at: string | null
-          created_at: string
-          expires_at: string
-          id: string
-          last_matched_at: string | null
-          organization_id: string
-          question: string
-          status: string
-          user_id: string
-        }
-        Insert: {
-          close_reason?: string | null
-          closed_at?: string | null
-          created_at?: string
-          expires_at: string
-          id?: string
-          last_matched_at?: string | null
-          organization_id: string
-          question: string
-          status?: string
-          user_id: string
-        }
-        Update: {
-          close_reason?: string | null
-          closed_at?: string | null
-          created_at?: string
-          expires_at?: string
-          id?: string
-          last_matched_at?: string | null
-          organization_id?: string
-          question?: string
-          status?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'open_asks_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'open_asks_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
       organization_memberships: {
         Row: {
           approved_at: string | null
-          approved_by: string | null
+          approved_by_membership_id: string | null
           created_at: string
           id: string
           joined_at: string | null
           organization_id: string
-          status: Database['public']['Enums']['membership_status']
+          status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           approved_at?: string | null
-          approved_by?: string | null
+          approved_by_membership_id?: string | null
           created_at?: string
           id?: string
           joined_at?: string | null
           organization_id: string
-          status?: Database['public']['Enums']['membership_status']
+          status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           approved_at?: string | null
-          approved_by?: string | null
+          approved_by_membership_id?: string | null
           created_at?: string
           id?: string
           joined_at?: string | null
           organization_id?: string
-          status?: Database['public']['Enums']['membership_status']
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'organization_memberships_approved_by_fkey'
-            columns: ['approved_by']
+            foreignKeyName: "organization_memberships_approver_fk"
+            columns: ["organization_id", "approved_by_membership_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'organization_memberships_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "organization_memberships_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'organization_memberships_user_id_fkey'
-            columns: ['user_id']
+            foreignKeyName: "organization_memberships_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -982,8 +1203,7 @@ export type Database = {
           bio: string | null
           created_at: string
           graduation_year: number | null
-          mentoring_topics: string[] | null
-          open_to_mentor: boolean
+          organization_id: string
           organization_membership_id: string
           updated_at: string
         }
@@ -991,8 +1211,7 @@ export type Database = {
           bio?: string | null
           created_at?: string
           graduation_year?: number | null
-          mentoring_topics?: string[] | null
-          open_to_mentor?: boolean
+          organization_id: string
           organization_membership_id: string
           updated_at?: string
         }
@@ -1000,18 +1219,24 @@ export type Database = {
           bio?: string | null
           created_at?: string
           graduation_year?: number | null
-          mentoring_topics?: string[] | null
-          open_to_mentor?: boolean
+          organization_id?: string
           organization_membership_id?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'organization_profiles_organization_membership_id_fkey'
-            columns: ['organization_membership_id']
-            isOneToOne: true
-            referencedRelation: 'organization_memberships'
-            referencedColumns: ['id']
+            foreignKeyName: "organization_profiles_membership_fk"
+            columns: ["organization_id", "organization_membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "organization_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1022,6 +1247,7 @@ export type Database = {
           name: string
           requires_admin_approval: boolean
           slug: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
@@ -1029,6 +1255,7 @@ export type Database = {
           name: string
           requires_admin_approval?: boolean
           slug: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
@@ -1036,406 +1263,255 @@ export type Database = {
           name?: string
           requires_admin_approval?: boolean
           slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
-      profile_change_proposals: {
+      profile_education: {
         Row: {
-          confidence: number | null
           created_at: string
-          current_snapshot: Json
-          diff: Json | null
-          expires_at: string
-          id: string
-          proposed_snapshot: Json
-          review_token: string
-          reviewed_at: string | null
-          source: string
-          source_run_id: string | null
-          status: string
+          degree: string | null
+          description: string | null
+          end_month: number | null
+          end_year: number | null
+          field: string | null
+          id: number
+          school: string
+          sort_order: number
+          start_month: number | null
+          start_year: number | null
+          updated_at: string
           user_id: string
         }
         Insert: {
-          confidence?: number | null
           created_at?: string
-          current_snapshot: Json
-          diff?: Json | null
-          expires_at: string
-          id?: string
-          proposed_snapshot: Json
-          review_token: string
-          reviewed_at?: string | null
-          source: string
-          source_run_id?: string | null
-          status?: string
+          degree?: string | null
+          description?: string | null
+          end_month?: number | null
+          end_year?: number | null
+          field?: string | null
+          id?: never
+          school: string
+          sort_order?: number
+          start_month?: number | null
+          start_year?: number | null
+          updated_at?: string
           user_id: string
         }
         Update: {
-          confidence?: number | null
           created_at?: string
-          current_snapshot?: Json
-          diff?: Json | null
-          expires_at?: string
-          id?: string
-          proposed_snapshot?: Json
-          review_token?: string
-          reviewed_at?: string | null
-          source?: string
-          source_run_id?: string | null
-          status?: string
+          degree?: string | null
+          description?: string | null
+          end_month?: number | null
+          end_year?: number | null
+          field?: string | null
+          id?: never
+          school?: string
+          sort_order?: number
+          start_month?: number | null
+          start_year?: number | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'profile_change_proposals_source_run_id_fkey'
-            columns: ['source_run_id']
+            foreignKeyName: "profile_education_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'profile_enrichment_runs'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'profile_change_proposals_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
-      profile_embedding_chunks: {
+      profile_experiences: {
         Row: {
-          chunk_kind: string
-          content: string
-          content_hash: string
           created_at: string
-          embedding: string
-          embedding_dim: number
-          embedding_model: string
-          id: string
-          organization_id: string
-          organization_membership_id: string
-          source_section: string
-          synthetic_prompt_version: string | null
+          description: string | null
+          employer: string
+          end_month: number | null
+          end_year: number | null
+          id: number
+          sort_order: number
+          start_month: number | null
+          start_year: number | null
+          title: string
           updated_at: string
           user_id: string
-          visibility_tier: string
         }
         Insert: {
-          chunk_kind: string
-          content: string
-          content_hash: string
           created_at?: string
-          embedding: string
-          embedding_dim?: number
-          embedding_model: string
-          id?: string
-          organization_id: string
-          organization_membership_id: string
-          source_section: string
-          synthetic_prompt_version?: string | null
+          description?: string | null
+          employer: string
+          end_month?: number | null
+          end_year?: number | null
+          id?: never
+          sort_order?: number
+          start_month?: number | null
+          start_year?: number | null
+          title: string
           updated_at?: string
           user_id: string
-          visibility_tier: string
         }
         Update: {
-          chunk_kind?: string
-          content?: string
-          content_hash?: string
           created_at?: string
-          embedding?: string
-          embedding_dim?: number
-          embedding_model?: string
-          id?: string
+          description?: string | null
+          employer?: string
+          end_month?: number | null
+          end_year?: number | null
+          id?: never
+          sort_order?: number
+          start_month?: number | null
+          start_year?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_experiences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_field_visibility: {
+        Row: {
+          audience: string
+          field_key: string
+          organization_id: string
+          organization_membership_id: string
+          updated_at: string
+        }
+        Insert: {
+          audience: string
+          field_key: string
+          organization_id: string
+          organization_membership_id: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          field_key?: string
           organization_id?: string
           organization_membership_id?: string
-          source_section?: string
-          synthetic_prompt_version?: string | null
           updated_at?: string
-          user_id?: string
-          visibility_tier?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'profile_embedding_chunks_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "profile_field_visibility_membership_fk"
+            columns: ["organization_id", "organization_membership_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["organization_id", "id"]
           },
           {
-            foreignKeyName: 'profile_embedding_chunks_organization_membership_id_fkey'
-            columns: ['organization_membership_id']
+            foreignKeyName: "profile_field_visibility_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: 'organization_memberships'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'profile_embedding_chunks_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
-      profile_embedding_index_status: {
+      profile_skills: {
         Row: {
-          attempt_count: number
-          created_at: string
-          dirty_reason: string | null
-          dirty_since: string | null
-          last_error: string | null
-          last_indexed_at: string | null
-          last_success_at: string | null
-          locked_at: string | null
-          locked_by: string | null
-          organization_id: string
-          organization_membership_id: string
-          status: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          attempt_count?: number
-          created_at?: string
-          dirty_reason?: string | null
-          dirty_since?: string | null
-          last_error?: string | null
-          last_indexed_at?: string | null
-          last_success_at?: string | null
-          locked_at?: string | null
-          locked_by?: string | null
-          organization_id: string
-          organization_membership_id: string
-          status: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          attempt_count?: number
-          created_at?: string
-          dirty_reason?: string | null
-          dirty_since?: string | null
-          last_error?: string | null
-          last_indexed_at?: string | null
-          last_success_at?: string | null
-          locked_at?: string | null
-          locked_by?: string | null
-          organization_id?: string
-          organization_membership_id?: string
-          status?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'profile_embedding_index_status_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'profile_embedding_index_status_organization_membership_id_fkey'
-            columns: ['organization_membership_id']
-            isOneToOne: false
-            referencedRelation: 'organization_memberships'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'profile_embedding_index_status_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      profile_enrichment_runs: {
-        Row: {
-          cost_units: number | null
-          created_at: string
-          error: string | null
-          fetched_at: string | null
-          fingerprint: string | null
-          id: string
-          provider: string
-          purpose: string
-          status: string
-          user_id: string
-        }
-        Insert: {
-          cost_units?: number | null
-          created_at?: string
-          error?: string | null
-          fetched_at?: string | null
-          fingerprint?: string | null
-          id?: string
-          provider: string
-          purpose: string
-          status: string
-          user_id: string
-        }
-        Update: {
-          cost_units?: number | null
-          created_at?: string
-          error?: string | null
-          fetched_at?: string | null
-          fingerprint?: string | null
-          id?: string
-          provider?: string
-          purpose?: string
-          status?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'profile_enrichment_runs_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      profile_enrichment_settings: {
-        Row: {
-          consecutive_sweep_misses: number
-          consented_at: string | null
-          created_at: string
-          last_checked_at: string | null
-          last_enriched_at: string | null
-          last_profile_fingerprint: string | null
-          linkedin_url: string | null
-          linkedin_username: string | null
-          primary_provider_id: string | null
-          primary_provider_name: string | null
-          refresh_interval: string
-          refresh_policy: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          consecutive_sweep_misses?: number
-          consented_at?: string | null
-          created_at?: string
-          last_checked_at?: string | null
-          last_enriched_at?: string | null
-          last_profile_fingerprint?: string | null
-          linkedin_url?: string | null
-          linkedin_username?: string | null
-          primary_provider_id?: string | null
-          primary_provider_name?: string | null
-          refresh_interval?: string
-          refresh_policy?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          consecutive_sweep_misses?: number
-          consented_at?: string | null
-          created_at?: string
-          last_checked_at?: string | null
-          last_enriched_at?: string | null
-          last_profile_fingerprint?: string | null
-          linkedin_url?: string | null
-          linkedin_username?: string | null
-          primary_provider_id?: string | null
-          primary_provider_name?: string | null
-          refresh_interval?: string
-          refresh_policy?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'profile_enrichment_settings_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: true
-            referencedRelation: 'users'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      profile_refresh_prompts: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          due_at: string
-          id: string
-          organization_membership_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          due_at: string
-          id?: string
-          organization_membership_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          due_at?: string
-          id?: string
-          organization_membership_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'profile_refresh_prompts_organization_membership_id_fkey'
-            columns: ['organization_membership_id']
-            isOneToOne: false
-            referencedRelation: 'organization_memberships'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      saved_searches: {
-        Row: {
-          created_at: string
-          filters: Json
-          id: string
           name: string
-          notify_cadence: string | null
-          organization_id: string
+          normalized_name: string
+          sort_order: number
           user_id: string
         }
         Insert: {
-          created_at?: string
-          filters: Json
-          id?: string
           name: string
-          notify_cadence?: string | null
-          organization_id: string
+          normalized_name: string
+          sort_order?: number
           user_id: string
         }
         Update: {
-          created_at?: string
-          filters?: Json
-          id?: string
           name?: string
-          notify_cadence?: string | null
-          organization_id?: string
+          normalized_name?: string
+          sort_order?: number
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'saved_searches_organization_id_fkey'
-            columns: ['organization_id']
+            foreignKeyName: "profile_skills_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_path: string | null
+          city: string | null
+          created_at: string
+          current_employer: string | null
+          current_title: string | null
+          display_name: string
+          headline: string | null
+          linkedin_url: string | null
+          major: string | null
+          name_other: string | null
+          preferred_name: string | null
+          resume_path: string | null
+          resume_uploaded_at: string | null
+          university: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          city?: string | null
+          created_at?: string
+          current_employer?: string | null
+          current_title?: string | null
+          display_name: string
+          headline?: string | null
+          linkedin_url?: string | null
+          major?: string | null
+          name_other?: string | null
+          preferred_name?: string | null
+          resume_path?: string | null
+          resume_uploaded_at?: string | null
+          university?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_path?: string | null
+          city?: string | null
+          created_at?: string
+          current_employer?: string | null
+          current_title?: string | null
+          display_name?: string
+          headline?: string | null
+          linkedin_url?: string | null
+          major?: string | null
+          name_other?: string | null
+          preferred_name?: string | null
+          resume_path?: string | null
+          resume_uploaded_at?: string | null
+          university?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: 'saved_searches_user_id_fkey'
-            columns: ['user_id']
-            isOneToOne: false
-            referencedRelation: 'users'
-            referencedColumns: ['id']
+            foreignKeyName: "profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
       users: {
         Row: {
+          account_state: string
           created_at: string
           delete_initiated_by_admin: boolean
           delete_reason: string | null
@@ -1446,6 +1522,7 @@ export type Database = {
           onboarding_completed_at: string | null
         }
         Insert: {
+          account_state?: string
           created_at?: string
           delete_initiated_by_admin?: boolean
           delete_reason?: string | null
@@ -1456,6 +1533,7 @@ export type Database = {
           onboarding_completed_at?: string | null
         }
         Update: {
+          account_state?: string
           created_at?: string
           delete_initiated_by_admin?: boolean
           delete_reason?: string | null
@@ -1469,126 +1547,13 @@ export type Database = {
       }
     }
     Views: {
-      analytics_active_membership_count: {
-        Row: {
-          active_members: number | null
-          organization_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'organization_memberships_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      analytics_invited_to_active: {
-        Row: {
-          became_active_30d: number | null
-          invited_30d: number | null
-          organization_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'invites_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      analytics_mentorship_30d: {
-        Row: {
-          eligible_for_response_check: number | null
-          organization_id: string | null
-          responded_within_7d: number | null
-          total_requests: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'mentorship_requests_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      analytics_profile_freshness: {
-        Row: {
-          fresh_profiles: number | null
-          organization_id: string | null
-          total_active: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'organization_memberships_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      analytics_upcoming_rsvps: {
-        Row: {
-          going_count: number | null
-          organization_id: string | null
-          upcoming_events: number | null
-          waitlist_count: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'events_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
-      analytics_active_signed_in_count: {
-        Args: { _org: string; _within?: string }
-        Returns: number
-      }
-      is_active_member_of: { Args: { org_id: string }; Returns: boolean }
-      is_admin_of: { Args: { org_id: string }; Returns: boolean }
-      match_profile_embedding_chunks: {
-        Args: {
-          p_friend_ids: string[]
-          p_limit?: number
-          p_organization_id: string
-          p_query_embedding: string
-          p_viewer_id: string
-        }
-        Returns: {
-          chunk_id: string
-          chunk_kind: string
-          content: string
-          organization_membership_id: string
-          similarity: number
-          source_section: string
-          user_id: string
-          visibility_tier: string
-        }[]
-      }
-      shares_org_with: { Args: { other_user_id: string }; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
-      admin_role: 'super_admin' | 'admin' | 'event_moderator' | 'ambassador'
-      ask_status: 'pending' | 'accepted' | 'declined' | 'expired'
-      ask_thread_status: 'active' | 'archived'
-      ask_type: 'advice' | 'mentorship'
-      event_rsvp_status: 'going' | 'not_going' | 'waitlisted'
-      friend_request_status: 'pending' | 'accepted' | 'declined'
-      invite_status: 'pending' | 'accepted' | 'expired' | 'revoked'
-      membership_status: 'pending' | 'active' | 'rejected' | 'revoked' | 'self_deactivated'
-      message_thread_type: 'ask' | 'direct'
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1596,31 +1561,33 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
-    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1629,23 +1596,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -1654,23 +1621,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema['Tables']
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
-    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -1679,53 +1646,43 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema['Enums']
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
-    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema['CompositeTypes']
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
-    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
-  graphql_public: {
+  api: {
     Enums: {},
   },
   public: {
-    Enums: {
-      admin_role: ['super_admin', 'admin', 'event_moderator', 'ambassador'],
-      ask_status: ['pending', 'accepted', 'declined', 'expired'],
-      ask_thread_status: ['active', 'archived'],
-      ask_type: ['advice', 'mentorship'],
-      event_rsvp_status: ['going', 'not_going', 'waitlisted'],
-      friend_request_status: ['pending', 'accepted', 'declined'],
-      invite_status: ['pending', 'accepted', 'expired', 'revoked'],
-      membership_status: ['pending', 'active', 'rejected', 'revoked', 'self_deactivated'],
-      message_thread_type: ['ask', 'direct'],
-    },
+    Enums: {},
   },
 } as const
