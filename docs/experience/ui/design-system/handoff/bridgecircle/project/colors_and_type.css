@@ -19,11 +19,11 @@
      4. Type/shape --font-* --radius-* --space-* --shadow-* --motion-*
    Components consume layers 2–4. Dark mode overrides at the end (provisional).
 
-   POLICY (2026-07-12): the Claude Design DC templates inline literal values
-   instead of var() — that is intent, not drift; the token ratchet reads the
-   templates as renderings, not sources. Literals the templates settled are
-   minted below ([E1]/[E5]/[E6]) and get swapped back into the templates in a
-   later mechanical pass.
+   POLICY (amended 2026-07-13): the token ratchet reads Claude Design DC
+   templates as renderings, not token sources. Repeated semantic roles were
+   minted below ([E5]/[E6]/[E7]) and swapped to vars where the indirection
+   earns its keep. Deliberate scrim/skeleton/blue-tint/dialog/inset literals
+   remain the explicitly parked reconciliation set in OVERRIDES.md.
    ========================================================================= */
 
 :root {
@@ -207,11 +207,13 @@
   --action-disabled:        var(--grey-200);
   --action-disabled-text:   var(--grey-400);
 
-  /* [O2] Give-side action. On the GIVE surface the single lead action is
-     green — the section identity carrying the commitment (FL-2, FL-3). Fill
-     is the literal #0b8a57 (Field Pro green-700, ~4.8:1 white text, AA), NOT
-     this fork's TDS green-700 — deliberate, contrast-led. Still ONE lead
-     action per surface: everywhere else, filled buttons stay blue. */
+  /* [O2 amended 2026-07-13] Give-side composition. The lead commitment CTA is
+     green — the section identity carrying the commitment (FL-2, FL-3). The
+     bounded offer-drafting surface may reuse the same solid hue for supporting
+     AI/draft/completion cues; Send offer remains its only lead CTA. Outside
+     that workflow, passive/status treatments use the weak/text roles. Fill is
+     literal #0b8a57 (Field Pro green-700, ~4.8:1 with white), NOT this fork's
+     TDS green-700 — deliberate, contrast-led. */
   --action-give:           #0b8a57;
   --action-give-hover:     #077046;
   --action-on-give:        #ffffff;
@@ -249,12 +251,6 @@
   --state-premium-text:  var(--purple-600);
   --state-premium-tint:  var(--purple-50);
 
-  /* [E1 — applied 2026-07-12] Neutral-pending: "waiting, and that's okay" —
-     distinct from warning (alarms) and disabled grey. The templates settled
-     Waiting as grey-quiet everywhere; values verbatim. */
-  --pending-text: var(--text-secondary); /* grey-700 */
-  --pending-tint: var(--surface-subtle); /* grey-100 */
-
   /* [E6 — 2026-07-12] Closing-soon expiry pill ("Closes in 3d"). A NEW role,
      NOT a reopening of O5: --warning stays TDS orange; this is the calmer
      expiry hue the templates chose (calm-not-urgent), orange-500 at 14%. */
@@ -269,7 +265,8 @@
   /* 3 · SECTION IDENTITY  [O3 — band anatomy RETIRED 2026-07-12]      */
   /* Sections carry an ambient hue (FL-1: mode must be visible beyond  */
   /* the toggle) — via the light WASH heroes, tints, dots, badges, and, */
-  /* on its OWN surface, the single lead action (give = --action-give).*/
+  /* inside its bounded workflow, give composition uses --action-give while */
+  /* preserving one lead commitment CTA.                                 */
   /* The saturated identity bands (--identity-*, --gradient-band-blue/ */
   /* -green/-school, --band-glow, --band-toggle-track) were confirmed  */
   /* unused (Richard 2026-07-12) and removed: Help hero = the 1i wash; */
@@ -305,7 +302,7 @@
      Ask for help). Flat blue-500 remains valid for small buttons. */
   --gradient-primary-btn: linear-gradient(180deg, #3b8bf7, #2f7ce9);
   --shadow-primary-btn: 0 2px 6px -1px rgb(49 130 246 / 0.4);
-  --gradient-bubble-me: var(--gradient-primary-btn); /* chat me-bubble (1e) */
+  --gradient-bubble-me: var(--gradient-primary-btn); /* Messages + ask me-bubble; GiveOffer is O2 exception */
   --shadow-bubble-me: 0 3px 10px -3px rgb(49 130 246 / 0.4);
 
   /* [O9] Elevated card treatment (major content cards in 1a/1i/1e/1h):
@@ -475,7 +472,7 @@
    DARK MODE — PARKED (Richard, 2026-07-12): v1 SHIPS LIGHT-ONLY. The block
    below is the old DERIVED guess (grey-ramp flip + tint reductions, never
    verified against real TDS dark), and none of the 2026-07 tokens (washes,
-   --cover-event, --surface-canvas/-inset, --pending-*, --closing-soon-*,
+   --cover-event, --surface-canvas/-inset, --closing-soon-*,
    --give-tint*) have dark values. Kept as raw material for the future dark
    iteration — do NOT build against it; nothing in v1 should emit `.dark`.
    ------------------------------------------------------------------- */

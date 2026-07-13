@@ -794,8 +794,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
 ## 8 · Cross-cutting
 
 - **Empty states** — every module: one warm line + one useful action, no
-  illustration theater. (E1 neutral-pending hue is the ledger entry that will
-  cover "Waiting" states — promote when designing these.)
+  illustration theater. Waiting and Declined use the calm neutral base roles
+  directly (`--text-secondary` on `--surface-subtle`); E1's redundant aliases
+  were retired 2026-07-13 after the templates settled that treatment.
 - **System states (NEW 2026-07-06)** — a consistent, calm set: **not-found /
   gone** (a retracted ask, a cancelled event, a deleted profile you followed a
   stale link to → "This isn't here anymore" + a way back to the section root,
@@ -819,8 +820,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
   path shows the sender exactly who will see it; search results are private
   to the asker; every "waiting" state is honest but calm. Any screen that
   violates this is wrong regardless of how it looks.
-- **CircleMark (E4)** — promote the ledger entry when Messages/People screens
-  are designed (names of connected members carry the mark).
+- **CircleMark (E4)** — stays proposed for a future brand pass. In v1,
+  "In your circle" chips carry the relationship state; do not add the mark to
+  Messages or People names.
 
 ## 9 · Suggested design order (Claude Design)
 

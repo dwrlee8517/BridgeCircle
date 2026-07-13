@@ -73,8 +73,9 @@ it is now defined as **Toss Base + BridgeCircle Brand**.
 - **D4 — The existing Field Pro divergences become the *candidate* overlay
   backlog, not the baseline.** The brand mechanics 0012 established are
   preserved as **proposed overrides**, each applied only when we decide to:
-  per-surface action color (**green give button**, `--action-give` green-700
-  `#0b8a57`), **section-identity bands** (School blue, give green, dark grey-
+  per-workflow action composition (**green give commitment**, `--action-give`
+  green-700 `#0b8a57`, plus scoped supporting cues inside offer drafting),
+  **section-identity bands** (School blue, give green, dark grey-
   ink), **ochre warning** `#c98a1a`, **softer radii** (card 20 / bubble 18),
   **heavier/larger type** (display 40/800), and the **CircleMark + two-sided-
   buffer copy**. These are BridgeCircle's, not Toss's — so they live in
