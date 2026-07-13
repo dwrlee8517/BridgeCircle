@@ -1,5 +1,14 @@
 # BridgeCircle Phase 1 Spec
 
+> **Product-model notice (2026-07-13):** The mentorship terminology and data
+> model later in this document describe the current legacy application. The
+> approved redesigned Help/Connection/Messages behavior lives in
+> [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
+> and the approved, not-yet-implemented schema target is the
+> [database v2 contract](../../../docs/architecture/database-v2-contract.md)
+> under [ADR 0015](../../../docs/decisions/0015-prelaunch-v2-database-reset.md).
+> Code remains canonical until that rebuild lands.
+
 ## Purpose
 
 This document defines the Phase 1 product spec for BridgeCircle's first pilot.

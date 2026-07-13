@@ -9,6 +9,7 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
 - [Phase 1 launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what ships in the launch cut
 - [Phase 1 launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md) — readiness criteria
+- [Database v2 contract](architecture/database-v2-contract.md) — approved pre-launch rebuild target; not yet live
 
 ## Product
 
@@ -47,6 +48,7 @@ What we're building. These now live in the [product-spec Obsidian vault](../prod
 How the system is shaped. Reference material — facts, not how-to.
 
 - [Data model](architecture/data-model.md) — tables, relations, RLS posture
+- [Database v2 contract](architecture/database-v2-contract.md) — approved target schema, ERD, constraints, RLS matrix, baseline and cutover gates; not yet implemented
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
@@ -86,6 +88,7 @@ Locked architectural decisions in MADR format.
 - [0012 — TDS design system ("Field Pro")](decisions/0012-tds-design-system.md) — *superseded by 0013*
 - [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer `toss-base` + `bridgecircle` fork
 - [0014 — Scripted CD pipeline](decisions/0014-scripted-cd-pipeline.md) — dev stage → integ gate → prod promote; supersedes the prod side of 0005 + 0008
+- [0015 — Pre-launch v2 database reset](decisions/0015-prelaunch-v2-database-reset.md) — accepted one-time application-schema rebuild and fresh migration baseline
 
 ## UI
 

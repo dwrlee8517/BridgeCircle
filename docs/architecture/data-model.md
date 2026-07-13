@@ -1,5 +1,12 @@
 # BridgeCircle Data Model — Phase 1 Launch
 
+> **Current/legacy schema notice (2026-07-13):** This document explains the
+> schema currently represented by the existing migration history and generated
+> types. The approved, not-yet-implemented rebuild target is the
+> [database v2 contract](database-v2-contract.md), governed by
+> [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md). Keep this file
+> until the v2 cutover is complete; code remains canonical in the meantime.
+
 This document explains the schema that ships in `0001_init.sql`. It covers every table from [phase-1-launch-spec.md](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) "Data Model At Launch" and the rationale behind each design choice.
 
 For a clickable visual map, open [data-model.html](data-model.html).

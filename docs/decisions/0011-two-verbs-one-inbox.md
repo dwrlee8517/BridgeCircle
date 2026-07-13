@@ -1,9 +1,17 @@
 # 0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface
 
-- **Status:** proposed · amended 2026-07-06 (D5 superseded in part by the Help-flow
-  review — see [Amendment](#amendment--2026-07-06-flow-review-richard))
+- **Status:** proposed · amended 2026-07-06; persistence choices superseded in
+  part by [0015](0015-prelaunch-v2-database-reset.md)
 - **Date:** 2026-07-02
 - **Decider:** Richard
+
+> **Persistence amendment (2026-07-13):** ADR 0015 now approves one unified
+> `asks` table, one `conversations` table, real message foreign keys, and
+> Connection naming in the schema. This supersedes this ADR's decisions to
+> defer the thread-table merge, retain `friend_*` database names indefinitely,
+> and layer offers onto separate `open_asks`. The product gates remain:
+> Connections are mutual, Asks are one-sided, and accepted interactions land
+> in Messages.
 
 ## Context
 
