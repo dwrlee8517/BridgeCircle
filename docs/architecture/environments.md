@@ -4,6 +4,13 @@
 
 This document explains the current BridgeCircle environment setup, how to develop against it day-to-day, and the rules that keep production safe. Read this before pushing any change that touches infrastructure, env vars, or the database.
 
+> **Status (2026-07) — two shifts postdate parts of this doc; read these first:**
+>
+> 1. **Secrets moved to Doppler.** [`../runbooks/doppler.md`](../runbooks/doppler.md) is now the source of truth for every env var. The `.env.local` references throughout this doc are **legacy** — local dev pulls env from Doppler (`doppler run -- pnpm dev` against the real dev DB, or `pnpm dev:local` against a local Docker stack). Prod/dev env vars are edited in the Doppler `prd`/`dev` configs and **synced to Railway**, not hand-typed into Railway's Variables tab.
+> 2. **There is now a Railway `dev` stage.** [ADR 0014](../decisions/0014-scripted-cd-pipeline.md) added a deployed dev environment at **`https://dev.bridgecircle.org`** plus a scripted CD pipeline (`.github/workflows/cd.yml`: deploy-dev → integ tests → **manual prod gate** → promote). It currently runs *alongside* Railway's built-in auto-deploy (both fire on merge to `main` — harmless, same commit) until rollout **Phase 3** turns auto-deploy off; prod DB migrations still auto-apply via the Supabase GitHub integration until pipeline **Phase 4**. Canonical: [`dev-stage-cd-rollout.md`](dev-stage-cd-rollout.md).
+>
+> So the current topology is **three runtime contexts** — your laptop, the Railway `dev` stage, and Railway `production` — with **no staging tier**. The sections below are being reconciled; where they say "`.env.local`" read "Doppler", and where they imply only prod is on Railway, add the `dev` stage.
+
 ## The Two Supabase Projects
 
 BridgeCircle uses two Supabase cloud projects, both under the **`bridgecircle` organization (Pro plan)**. Supabase billing is per-organization, not per-project — so the Pro plan applies to both projects.
@@ -28,7 +35,7 @@ Both live in `us-west-1` on Postgres 17. Confirm at any time via `list_projects`
 
 - A second Supabase project created specifically for development.
 - Holds throwaway test data only — fake users, fake mentorship requests, fake events.
-- Connected to **your laptop** via env vars in `app/.env.local`.
+- Two runtime contexts read it: **your laptop** (via Doppler `dev_personal` — `doppler run -- pnpm dev`) and the **Railway `dev` stage** at `dev.bridgecircle.org` (via Doppler `dev`). (Your laptop can also skip it entirely and run against a local Docker Supabase via `pnpm dev:local` / Doppler `dev_local`.)
 - The same Google OAuth client knows about both projects' callback URLs.
 - Safe to reset, truncate, or experiment against.
 - Sits in the same Pro org as prod (so it inherits Pro features), but is otherwise runtime-isolated.
@@ -38,21 +45,23 @@ The two projects share nothing at runtime. Data created in one never appears in 
 ## What Talks To What
 
 ```
-                                Supabase cloud
-                                ──────────────
-                                 bridgecircle-dev    ◀── Your laptop (pnpm dev)
-                                 (test data)               reads .env.local
+  Runtime context              →  Supabase project        Env source (Doppler)
+  ───────────────────────────────────────────────────────────────────────────
+  Your laptop (pnpm dev:local) →  local Docker stack       dev_local
+  Your laptop (…-- pnpm dev)   →  bridgecircle-dev (cloud) dev_personal
+  Railway "dev" stage          →  bridgecircle-dev (cloud) dev
+    dev.bridgecircle.org
+  Railway "production"         →  bridgecircle (prod)      prd
+    bridgecircle.org
 
-                                 bridgecircle (prod) ◀── Railway production
-                                 (real alumni)             reads Railway Variables
-
-Other shared services (one of each, used by both):
+Other shared services (one of each, used by all tiers):
   - Google OAuth client (same client, two redirect URIs)
-  - Resend (one account, optionally separate "From" senders)
-  - Sentry (one project, environments tagged dev / production)
+  - Resend (one account; non-prod sends are caught by the email guard — see doppler.md)
+  - Sentry (one project, environments tagged by APP_ENV)
+  - Anthropic + Voyage (shared keys; dummied in dev_local, real elsewhere)
 ```
 
-Local development never touches the production database. Production never touches the dev database. Both can talk to Resend and Sentry, but each tags its own activity so you can filter.
+Neither the laptop nor the `dev` stage ever touches the production database; production never touches the dev database. All tiers can talk to Resend/Sentry, but each tags its own activity — and outside prod (`APP_ENV ≠ prod`) the email guard redirects sends to a sink so dev never mails real people.
 
 ## Manual Production Configuration
 
@@ -115,7 +124,7 @@ Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway veri
 
 ### Railway environment variables
 
-Set in **Railway → BridgeCircle service → Variables tab**. Production secrets live here (and only here outside your password manager).
+**Source of truth is now Doppler**, not Railway's Variables tab. The Doppler `prd` config syncs to the Railway `production` environment and `dev` syncs to the Railway `dev` environment (native Doppler↔Railway sync, per-env). **Edit these values in Doppler**, not in Railway — a hand-edit in Railway's tab gets overwritten on the next sync. The variables below are the prod inventory (what ends up in Railway `production`); see [`../runbooks/doppler.md`](../runbooks/doppler.md) for the config structure.
 
 | Variable | Purpose | Example value (NOT actual) |
 |---|---|---|
@@ -131,7 +140,7 @@ Set in **Railway → BridgeCircle service → Variables tab**. Production secret
 | `NEXT_PUBLIC_APP_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
 | `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
 
-Local `.env.local` values point at `bridgecircle-dev` for the Supabase keys and use the same Resend/Anthropic/Sentry keys as prod (they're cheap and the activity is environment-tagged on the provider side). **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@` and you can tell at a glance whether an email was sent from your laptop or from prod.
+Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points the Supabase keys at `bridgecircle-dev` and inherits the shared Resend/Anthropic/Voyage/Sentry keys from `dev` (they're cheap and activity is environment-tagged provider-side); `dev_local` instead points at the local Docker stack and dummies the outbound services. **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@`. Note real dev sends can't reach real inboxes anyway: outside prod the email guard (`app/src/notify/devGuard.ts`) redirects to a sink unless the address is on `EMAIL_DEV_ALLOWLIST` (see [doppler.md](../runbooks/doppler.md)).
 
 ### Third-party services
 
@@ -233,10 +242,11 @@ The `src/db/` folder enforces this split:
 
 ```bash
 cd app
-pnpm dev
+doppler run -- pnpm dev      # real dev DB (bridgecircle-dev), via Doppler dev_personal
+# or: pnpm dev:local          # local Docker Supabase, fully offline
 ```
 
-Open http://localhost:3001. The dev server reads `.env.local`, which points at `bridgecircle-dev`. Any signup, profile edit, or other write goes to the dev project.
+Open http://localhost:3001. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md). With `doppler run -- pnpm dev`, any signup, profile edit, or other write goes to the `bridgecircle-dev` project; with `pnpm dev:local` it goes to your throwaway local stack.
 
 ### Useful commands
 
@@ -348,14 +358,13 @@ If a migration ever needs to be rolled back: write a forward-only "revert" migra
 
 ### Env var changes
 
-If you add or change an env var:
+If you add or change an env var, do it in **Doppler** (not `.env.local`, not Railway's tab):
 
-1. Update `.env.local` (your laptop).
-2. Update **Railway → Variables** (production).
-3. Restart `pnpm dev` locally — env vars are read at startup.
-4. Trigger a redeploy on Railway — its container also reads env vars only at startup. (Railway has a "Redeploy" button for this; otherwise the next push to `main` picks up the new value.)
+1. Add it to the **`dev`** config (`doppler secrets set KEY=value --config dev`) so the whole team + the dev stage get it; override in `dev_personal` only if your local value must differ. Add the prod value to the **`prd`** config.
+2. Restart your local process — `doppler run` reads secrets once at startup.
+3. Railway picks up the `dev`/`prd` change on the next sync + redeploy (env vars are read at container startup). Full procedure and the `set`-replaces-not-appends caveat are in [`../runbooks/doppler.md`](../runbooks/doppler.md).
 
-Env var drift between laptop and Railway is the #1 source of "works locally, fails in prod" surprises.
+Because Doppler is the single source of truth synced to every tier, the old "laptop `.env.local` vs Railway tab drift" failure mode is largely gone — but a value present in `dev` and missing from `prd` (or vice versa) still bites, so set both.
 
 ## Things To Be Careful About
 
@@ -462,7 +471,7 @@ If the deploy succeeds but a bug shows up:
 
 These exist as concepts in the broader docs but are **not** in the current setup:
 
-- **No staging environment.** Just dev (laptop) and prod (Railway). Add a third tier only when production has real users and a regression has real cost.
+- **No staging environment.** There are three runtime contexts — your **laptop**, the Railway **`dev` stage** (`dev.bridgecircle.org`, added by [ADR 0014](../decisions/0014-scripted-cd-pipeline.md)), and Railway **`production`** (`bridgecircle.org`) — but no separate *staging* tier between dev and prod. The scripted CD pipeline's integ gate runs against the `dev` stage before the manual prod promote, which covers the "catch it before prod" role a staging tier would play. Add a real staging tier only when production has real users and a regression has real cost.
 - **CI checks on PRs are now wired** (was previously listed as out-of-scope). `.github/workflows/ci.yml` runs biome, vitest, and `next build` on every PR. `.github/workflows/e2e.yml` runs Playwright. The Supabase Preview check still validates the migration itself on a real preview branch — together this gives three layers of migration safety: schema replay (Supabase), type compatibility (build), runtime behavior (E2E).
 - **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
 - **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
@@ -476,12 +485,13 @@ These are all good upgrades to make incrementally. None are urgent for launch.
 
 | Question | Answer |
 |---|---|
-| Which database does `pnpm dev` write to? | `bridgecircle-dev` (via `.env.local`) |
-| Which database does the live site write to? | `bridgecircle` (via Railway Variables) |
+| Which database does local dev write to? | `bridgecircle-dev` via Doppler `dev_personal` (`doppler run -- pnpm dev`), or a local Docker stack via `pnpm dev:local` |
+| Which database does `dev.bridgecircle.org` write to? | `bridgecircle-dev` (Railway `dev` stage, via Doppler `dev`) |
+| Which database does the live site write to? | `bridgecircle` (Railway `production`, via Doppler `prd`) |
 | What triggers a production deploy? | Push or merge to `main` |
 | What triggers a production migration? | Merge to `main` — Supabase auto-applies via the GitHub integration |
-| Where are env vars set for prod? | Railway dashboard → Variables tab |
-| Where are env vars set for local dev? | `app/.env.local` (gitignored) |
+| Where are env vars set for prod? | Doppler `prd` config (synced to Railway `production`) — edit in Doppler, not Railway |
+| Where are env vars set for local dev? | Doppler `dev_personal` / `dev_local` — see [doppler.md](../runbooks/doppler.md) |
 | What's the source of truth for schema? | `supabase/migrations/` files in the repo |
 | What's the source of truth for prod env vars + DNS? | This file's "Manual Production Configuration" section |
 | Can I edit the schema in the Supabase dashboard? | No. Always write a migration. |
