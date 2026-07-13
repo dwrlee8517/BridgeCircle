@@ -102,7 +102,7 @@ Background: Doppler also *infers* a `NODE_ENV` from the config slug (`dev` → `
 
 ## APP_ENV — the environment identity
 
-`APP_ENV` says *which tier* the process belongs to; code branches on it for Sentry environment, robots/noindex, and cron gating. Set explicitly in every config (2026-07-11):
+`APP_ENV` says *which tier* the process belongs to; code branches on it for Sentry environment, robots/noindex, cron gating, and the non-prod email guard (below). Set explicitly in every config (2026-07-11):
 
 | Config | `APP_ENV` | Tier |
 |---|---|---|
@@ -114,13 +114,33 @@ Background: Doppler also *infers* a `NODE_ENV` from the config slug (`dev` → `
 
 Never branch on `NODE_ENV` for environment identity — the dev stage and production are both `NODE_ENV=production` on purpose.
 
-> **No email allowlist yet.** Despite what you might expect, nothing gates
-> outbound email by tier — [`src/notify/resend.ts`](../../app/src/notify/resend.ts)
-> sends to whatever address it's given whenever `RESEND_API_KEY` is set (it's
-> only faked when the key is *absent*). So any config with a real Resend key
-> sends real email. Keep `RESEND_API_KEY` dummied outside `dev`/`prd` until a
-> non-prod `to`-allowlist (or `delivered@resend.dev` redirect for
-> `APP_ENV !== 'prod'`) is added. Tracked as a follow-up.
+### The non-prod email guard
+
+There *is* now an email guard (this used to read "no allowlist yet"). It lives in [`app/src/notify/devGuard.ts`](../../app/src/notify/devGuard.ts) and runs inside `sendRenderedEmail` — the single Resend send choke point in `app/src/notify/resend.ts`.
+
+Whenever `APP_ENV !== 'prod'`, a recipient is delivered as-is only if it is a known-safe address (a `@resend.dev` sink, or one you put on the dev allowlist); **everything else is redirected to a single safe sink** (`delivered@resend.dev`) before the send, and the redirect is logged (`[notify] APP_ENV=… redirected …`). This exists because non-prod now runs against real Resend keys — the `dev_local_live` config and remote-dev both use a live key — so without the guard the dev seed's `@example.com` addresses would bounce (denting sender reputation) and any triggered flow would mail real people from a dev box.
+
+Resolution order in non-prod:
+
+- **`prod`** — no redirect; mail goes to the real recipient. Prod ignores the sink and allowlist entirely.
+- **`@resend.dev` recipients pass through untouched** — the E2E factory ([`tests/e2e/helpers/factory.ts`](../../app/tests/e2e/helpers/factory.ts)) already routes to `delivered+<label>@resend.dev`, and the guard leaves the `+label` intact so integ specs can still assert per-recipient.
+- **Allowlisted recipients pass through** to their real inbox (see `EMAIL_DEV_ALLOWLIST` below).
+- **Everything else → the sink.** `dev`, `local`, and an *unset* `APP_ENV` all redirect; unset is treated as non-prod on purpose (fail safe), so only an explicit `prod` sends for real.
+
+Two optional knobs, both set per Doppler config:
+
+- **`EMAIL_DEV_REDIRECT`** — change the sink. Point it at your own inbox (e.g. `you@gmail.com`) to catch *all* non-allowlisted dev mail (including fake seed users) in one place. Unset → `delivered@resend.dev`.
+- **`EMAIL_DEV_ALLOWLIST`** — comma-separated **exact** addresses that may receive their own mail in non-prod (e.g. `you@gmail.com,daniel@bridgecircle.org`). Matching is case-insensitive and whitespace-trimmed. Default empty → nothing is allowlisted, so the feature is inert until you opt in.
+
+⚠️ The allowlist is a deliberate hole in "non-prod never mails a real address," so keep it curated: **exact addresses only — never a domain wildcard**, never a real member/alum address, and prune stale entries. It only changes *routing* — an allowlisted Gmail address still receives cold-domain mail that can land in spam, so it does not improve deliverability.
+
+**Managing the allowlist.** It's set on the **`dev` root config** and inherited by `dev_personal`, so a single write covers the shared Railway dev stage *and* every laptop that binds to `dev_personal`. Add or remove a developer by rewriting the whole list (`set` replaces, it does not append):
+
+```bash
+doppler secrets set EMAIL_DEV_ALLOWLIST="rlee8517@gmail.com,dkoo.dev@gmail.com" --config dev
+```
+
+The `dev` config is the source of truth — check the current value with `doppler secrets get EMAIL_DEV_ALLOWLIST --config dev --plain` rather than trusting any list written into docs. As of first setup it holds the two maintainers' personal inboxes. `prd` intentionally has no value (prod ignores the allowlist). Because the Doppler → Railway sync does **not** auto-redeploy, a change to `dev` reaches the running dev stage only on its next deploy; a laptop picks it up on the next `doppler run -- pnpm dev`.
 
 ### Why `--preserve-env` Is A Trap Here
 

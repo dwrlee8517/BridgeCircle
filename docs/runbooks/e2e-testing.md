@@ -67,6 +67,8 @@ Isolation rules:
 - Don't re-test what a Vitest suite already covers — E2E is for integration truth.
 - **Fully self-seeding suites** (the strongest isolation, and the only kind that also runs in integ mode against the persistent dev database): construct one `TestScenario` from `helpers/factory.ts` per spec file. It seeds a per-run org + `test_`-prefixed members through the admin client (emails go to the `delivered+…@resend.dev` sink so nothing bounces), lets specs assert against both the UI and the database via `scenario.admin`, and `scenario.destroy()` in `afterAll` removes everything by cascade. These suites never touch the seeded personas, so they need no `test.skip(isRemote, …)`.
 
+  Those `delivered+<label>@resend.dev` factory addresses survive on purpose: the non-prod email guard (`app/src/notify/devGuard.ts`, applied at the `sendRenderedEmail` choke point) **passes any `@resend.dev` recipient through untouched**, so your `+label` reaches Resend intact and specs can assert per-recipient. Every *other* non-prod recipient (real or `@example.com`) is redirected to a safe sink instead — which is why a stray non-`resend.dev` address in a factory seed silently lands in the sink rather than where you addressed it. Full behavior, env knobs (`EMAIL_DEV_REDIRECT`, `EMAIL_DEV_ALLOWLIST`), and the developer allowlist are documented in [doppler.md → "The non-prod email guard"](doppler.md#the-non-prod-email-guard).
+
 To run one suite or spec:
 
 ```bash
