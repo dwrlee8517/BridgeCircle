@@ -50,4 +50,5 @@ Before promoting anything from this folder:
    component or reusable pattern.
 3. Implement through `app/src/components/ui/` or a route-local component that
    uses shared primitives.
-4. Verify against current screenshots under `docs/experience/ui/screenshots/`.
+4. Verify against fresh screenshots of the live app (Playwright captures
+   under `output/playwright/`, gitignored).

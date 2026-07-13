@@ -7,21 +7,24 @@ remain canonical in [`../ui/design-system/`](../ui/design-system/).
 ## Current Member Surfaces
 
 The current member navigation is defined by
-`app/src/app/(member)/nav-links.ts` and contains five visible items:
-**Ask, Help, People, School, Inbox**. The BridgeCircle wordmark links to Home
-(`/`).
+`app/src/app/(member)/nav-links.ts` and contains four visible items:
+**Help, People, School, Messages** (ADR
+[0011](../../decisions/0011-two-verbs-one-inbox.md)). Help is the hub at `/`
+— the former separate Ask and Help tabs collapsed into a segmented ask/give
+toggle there, and `/ask` and `/help` light the same tab. Messages (route
+still `/inbox`) absorbs direct messages.
 
 | Surface | Route | Behavior source | UI source |
 |---|---|---|---|
-| Home | `/` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Ask | `/ask` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Help | `/help` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
+| Help hub (home) | `/` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
+| Ask (get help) | `/ask` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
+| Give help | `/help` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
 | People | `/people` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
 | School | `/school` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Inbox | `/inbox` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
+| Messages | `/inbox` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
 
 Supporting routes such as `/profile/*`, `/events/*`, `/announcements/*`,
-`/mentorship/settings`, `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`, auth, and
+`/help/settings`, `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`, auth, and
 `/admin/*` remain important, but they are not top-level member navigation.
 
 ## Cross-Screen Rules
@@ -146,6 +149,6 @@ primary member surfaces when evaluating navigation-level UI quality:
 | Surface | Routes | Notes |
 |---|---|---|
 | Profile | `/profile/[id]`, `/profile/me/*` | Detail and editing surfaces reached from People, Home, Inbox, and account actions |
-| Helper settings | `/mentorship/settings` | Supply-side preferences reached from Help, Home, and account/header utilities |
+| Helper settings | `/help/settings` | Supply-side preferences reached from Help, Home, and account/header utilities (`/mentorship/settings` 308-redirects here) |
 | Auth and join | `/sign-in`, `/join` | Entry surfaces, not authenticated member navigation |
 | Admin | `/admin/*` | Admin-only operational area |
