@@ -17,11 +17,27 @@ The project has these configs, all under the `dev` environment except staging an
 - **`dev`** — root config. The team-shared dev secret values. Whenever a new shared dev secret is added (e.g. a new third-party API key for local development), it goes here. Real Supabase (cloud dev project) and real third-party keys. This is the config the CI/CD pipeline reads for the dev stage.
 - **`dev_personal`** — branch off `dev`. Each developer overrides values here for personal local development without affecting the team's `dev`. Talks to the **real** dev Supabase and real services. This is the config your repo binding should point to for `doppler run -- pnpm dev`.
 - **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty `ANTHROPIC_API_KEY`, `ASK_MATCHING_PIPELINE=legacy`) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
-- **`dev_local_live`** — branch off `dev`. Local Supabase like `dev_local`, but **real** Anthropic/Voyage so you can develop AI features against a wipeable local DB. Used by `pnpm dev:local:live`. See "Local dev against real services" below. Not read by CI or the pipeline.
+- **`dev_local_live`** — branch off `dev`. Local Supabase like `dev_local`, but **real** Anthropic/Voyage **and real Resend** (safe because the [non-prod email guard](#the-non-prod-email-guard) redirects everything not allowlisted to a sink) — so you can develop AI and email features against a wipeable local DB. Used by `pnpm dev:local:live`. See "Local dev against real services" below. Not read by CI or the pipeline.
 - **`stg`** — staging. Root config, **currently unused** — there is no staging environment on Railway (the pipeline goes dev → prod). Kept as a placeholder for a future staging tier.
 - **`prd`** — production. Root config. Syncs to the Railway `production` environment; read by the CD pipeline's promote job.
 
-Branched configs inherit from their root. So the `dev_*` branches automatically pick up everything from `dev`, and you only override the keys where your local setup diverges from the team default.
+### Which config, when
+
+| You want to… | Use | Command |
+|---|---|---|
+| Daily local dev — build features, incl. AI + email, against a throwaway DB | `dev_local_live` | `pnpm dev:local:live` |
+| Run/write E2E tests, or anything that must be deterministic | `dev_local` | `pnpm test:e2e` / `pnpm dev:local` — **don't repurpose this config; CI reads it** |
+| Reach the **shared cloud dev world** — reproduce a dev-stage bug, inspect data Daniel also sees, test against the DB the integ suite hits | `dev_personal` | `doppler run -- pnpm dev` |
+| (machines only) Deployed dev stage + CI/CD jobs | `dev` | never bind your laptop to it — it carries `NODE_ENV=production` / `APP_ENV=dev` for the deployed production build, and edits ripple to `dev.bridgecircle.org` |
+
+### How branch inheritance behaves
+
+Branch configs inherit every root key they don't override. In the dashboard, an inherited secret shows a **"synced with dev"** badge — that's a **live link, not a snapshot**: change the value in `dev` (e.g. rotate a key) and every branch showing that badge follows automatically. Only **overridden** keys (the ones a branch sets itself — the local Supabase pointer, `APP_ENV`, `NODE_ENV`, dummied services) shadow the root and do *not* follow it.
+
+Two gotchas, both learned the hard way:
+
+- **`doppler secrets delete` on a branch does NOT "restore inheritance"** — it removes the key from that branch outright, masking the root value (`get` then errors with "Could not find requested secret"). To un-override a key, set it back to the root's value — Doppler recognizes the match and re-links it as inherited — or use the dashboard's revert on that secret.
+- **`doppler secrets set` replaces, never appends.** Overwriting a list-valued secret (e.g. `EMAIL_DEV_ALLOWLIST`) with one new entry silently drops the others — always include the full list.
 
 ## One-Time CLI Setup
 
@@ -150,38 +166,42 @@ When the parent has `NODE_ENV=production`, `--preserve-env` keeps that value and
 
 ## Local Dev Against Real Services (`dev_local_live`)
 
-`dev_local` fakes the outbound services so tests stay deterministic — which means you can't exercise AI features (resume extraction, Ask matching, explanation polish) locally against it. When you need real Anthropic/Voyage output while keeping a wipeable local database, use the **`dev_local_live`** config and `pnpm dev:local:live`.
+`dev_local` fakes the outbound services so tests stay deterministic — which means you can't exercise AI or email features (resume extraction, Ask matching, invite/notification emails) locally against it. When you need real service output while keeping a wipeable local database, use the **`dev_local_live`** config and `pnpm dev:local:live`.
 
 It does **not** affect CI or the pipeline — nothing there references it, and `dev_local` (the config CI reads) is untouched, so the hermetic suite stays deterministic.
 
-**One-time setup** (branch it off `dev` so the real Anthropic/Voyage keys inherit automatically — you never copy a raw secret):
+**Current shape** (created 2026-07-13; a branch off `dev`, so real service keys inherit as live links):
+
+| Key | State |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` + Supabase keys | **overridden** → local stack (`http://127.0.0.1:54321`) |
+| `APP_ENV` / `NODE_ENV` | **overridden** → `local` / `development` |
+| `ANTHROPIC_API_KEY`, `VOYAGE_API_KEY` | inherited (real) — AI features work for real |
+| `RESEND_API_KEY` | inherited (real) — **safe because of the [non-prod email guard](#the-non-prod-email-guard)**: with `APP_ENV=local`, only `EMAIL_DEV_ALLOWLIST` addresses receive real mail; every other recipient (incl. all `@example.com` seed personas) is redirected to `delivered@resend.dev` and the redirect logged |
+| everything else | inherited from `dev` |
+
+Run it:
 
 ```bash
-# 1. create the branch config (Doppler dashboard: bridgecircle → dev → branch "dev_local_live",
-#    or CLI if your Doppler version supports `doppler configs create`)
+pnpm db:start && pnpm db:reset   # fresh local DB
+pnpm dev:local:live              # app at :3001, local DB + real AI + guarded real email
+```
 
-# 2. get the local stack's values (these are non-secret local-dev constants)
-cd app
-pnpm dlx supabase status
+**If the local Supabase keys drift** (a Supabase CLI upgrade can change the local stack's well-known keys): compare with `pnpm dlx supabase status` and re-set the two key overrides here, same as the `dev_local` procedure in [e2e-testing.md](e2e-testing.md).
 
-# 3. override ONLY the local-diverging keys; everything else inherits from dev
+**Recreating from scratch** (if the config is ever deleted): branch `dev_local_live` off `dev` in the dashboard, then override only the local-diverging keys:
+
+```bash
+cd app && pnpm dlx supabase status   # local values (non-secret dev constants)
 doppler secrets set -p bridgecircle -c dev_local_live \
   NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321" \
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="<Publishable key from supabase status>" \
   SUPABASE_SECRET_KEY="<Secret key from supabase status>" \
   APP_ENV="local" \
-  NODE_ENV="development" \
-  RESEND_API_KEY="local-live-dummy"
+  NODE_ENV="development"
 ```
 
-That last override is the safety line: **keep `RESEND_API_KEY` dummied** here (see the "No email allowlist yet" note above) so a triggered email flow can't send real mail from your laptop. Real Anthropic/Voyage flow in from `dev` untouched. If you specifically need to test an email, flip `RESEND_API_KEY` to the real value **temporarily** and only exercise flows addressed to your own inbox.
-
-Then run it:
-
-```bash
-pnpm db:start && pnpm db:reset   # fresh local DB
-pnpm dev:local:live              # app at :3001, local DB + real AI
-```
+Leave `RESEND_API_KEY` alone so it inherits the real key — the guard is what makes that safe, not a dummy. (History: the config originally dummied Resend because it predated the guard; that override was removed once #146 landed.)
 
 ## Adding A New Secret
 
