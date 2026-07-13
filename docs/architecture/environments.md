@@ -35,7 +35,7 @@ Both live in `us-west-1` on Postgres 17. Confirm at any time via `list_projects`
 
 - A second Supabase project created specifically for development.
 - Holds throwaway test data only — fake users, fake mentorship requests, fake events.
-- Two runtime contexts read it: **your laptop** (via Doppler `dev_personal` — `doppler run -- pnpm dev`) and the **Railway `dev` stage** at `dev.bridgecircle.org` (via Doppler `dev`). (Your laptop can also skip it entirely and run against a local Docker Supabase via `pnpm dev:local` / Doppler `dev_local`.)
+- Two runtime contexts read it: **your laptop** (via Doppler `dev_personal` — `doppler run -- pnpm dev`) and the **Railway `dev` stage** at `dev.bridgecircle.org` (via Doppler `dev`). (Your laptop can also skip it entirely and run against a local Docker Supabase — `pnpm dev:local:live` for daily dev, `pnpm dev:local` for the deterministic E2E config.)
 - The same Google OAuth client knows about both projects' callback URLs.
 - Safe to reset, truncate, or experiment against.
 - Sits in the same Pro org as prod (so it inherits Pro features), but is otherwise runtime-isolated.
@@ -47,7 +47,8 @@ The two projects share nothing at runtime. Data created in one never appears in 
 ```
   Runtime context              →  Supabase project        Env source (Doppler)
   ───────────────────────────────────────────────────────────────────────────
-  Your laptop (pnpm dev:local) →  local Docker stack       dev_local
+  Your laptop (pnpm dev:local) →  local Docker stack       dev_local  (E2E/CI; services dummied)
+  Your laptop (dev:local:live) →  local Docker stack       dev_local_live  (daily dev; real AI+email)
   Your laptop (…-- pnpm dev)   →  bridgecircle-dev (cloud) dev_personal
   Railway "dev" stage          →  bridgecircle-dev (cloud) dev
     dev.bridgecircle.org
@@ -58,7 +59,8 @@ Other shared services (one of each, used by all tiers):
   - Google OAuth client (same client, two redirect URIs)
   - Resend (one account; non-prod sends are caught by the email guard — see doppler.md)
   - Sentry (one project, environments tagged by APP_ENV)
-  - Anthropic + Voyage (shared keys; dummied in dev_local, real elsewhere)
+  - Anthropic + Voyage (shared keys; dummied in dev_local, real elsewhere
+    incl. dev_local_live)
 ```
 
 Neither the laptop nor the `dev` stage ever touches the production database; production never touches the dev database. All tiers can talk to Resend/Sentry, but each tags its own activity — and outside prod (`APP_ENV ≠ prod`) the email guard redirects sends to a sink so dev never mails real people.
@@ -242,11 +244,13 @@ The `src/db/` folder enforces this split:
 
 ```bash
 cd app
-doppler run -- pnpm dev      # real dev DB (bridgecircle-dev), via Doppler dev_personal
-# or: pnpm dev:local          # local Docker Supabase, fully offline
+pnpm db:start && pnpm db:reset   # boot + seed the local Docker Supabase
+pnpm dev:local:live              # daily driver: local DB, real AI, guarded email
+# or: doppler run -- pnpm dev    # real dev cloud DB (bridgecircle-dev), via dev_personal
+# or: pnpm dev:local             # the deterministic E2E config (services dummied)
 ```
 
-Open http://localhost:3001. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md). With `doppler run -- pnpm dev`, any signup, profile edit, or other write goes to the `bridgecircle-dev` project; with `pnpm dev:local` it goes to your throwaway local stack.
+Open http://localhost:3001. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md) "Which config, when". With the local configs, writes go to your throwaway Docker stack; with `doppler run -- pnpm dev` they go to the shared `bridgecircle-dev` cloud project.
 
 ### Useful commands
 
@@ -485,7 +489,7 @@ These are all good upgrades to make incrementally. None are urgent for launch.
 
 | Question | Answer |
 |---|---|
-| Which database does local dev write to? | `bridgecircle-dev` via Doppler `dev_personal` (`doppler run -- pnpm dev`), or a local Docker stack via `pnpm dev:local` |
+| Which database does local dev write to? | Local Docker stack via `pnpm dev:local:live` (daily driver) or `pnpm dev:local` (E2E config); `bridgecircle-dev` via `doppler run -- pnpm dev` (`dev_personal`) when you need shared cloud data |
 | Which database does `dev.bridgecircle.org` write to? | `bridgecircle-dev` (Railway `dev` stage, via Doppler `dev`) |
 | Which database does the live site write to? | `bridgecircle` (Railway `production`, via Doppler `prd`) |
 | What triggers a production deploy? | Push or merge to `main` |
