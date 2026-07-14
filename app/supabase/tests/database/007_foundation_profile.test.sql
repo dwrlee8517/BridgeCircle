@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(41);
+select extensions.plan(43);
 
 select (to_regprocedure('api.get_my_profile(uuid)') is not null)::integer
   as get_profile_exists \gset
@@ -247,6 +247,26 @@ select extensions.has_function(
 );
 
 \if :save_identity_exists
+select set_config('request.jwt.claim.sub', '70000000-0000-4000-8000-000000000043', true);
+set local role authenticated;
+select extensions.is(
+  private.owns_membership(
+    '61000000-0000-4000-8000-000000000043',
+    '60000000-0000-4000-8000-000000000030'
+  ),
+  false,
+  'the general ownership helper remains active-membership-only'
+);
+select extensions.is(
+  api.save_profile_identity(
+    '61000000-0000-4000-8000-000000000043',
+    'Profile Pending', null, null, null
+  ),
+  'saved',
+  'a pending owner can save onboarding profile fields'
+);
+reset role;
+
 select set_config('request.jwt.claim.sub', '70000000-0000-4000-8000-000000000044', true);
 set local role authenticated;
 select extensions.is(
@@ -300,7 +320,7 @@ select extensions.ok(
   'invalid identity input makes no partial update'
 );
 \else
-select * from extensions.skip(4, 'identity command is not implemented yet');
+select * from extensions.skip(6, 'identity command is not implemented yet');
 \endif
 
 select extensions.has_function(

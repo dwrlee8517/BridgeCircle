@@ -71,6 +71,11 @@ Isolation rules:
   scenario also fails on browser console or uncaught page errors. Run it
   directly with
   `pnpm exec playwright test tests/e2e/foundation/foundation-flow.spec.ts`.
+- The Foundation suite proves bounded invite-token validation and safe error
+  mapping, but it does not claim public-route rate limiting. Before either
+  remote cutover or public traffic, add the infrastructure-backed `/join` and
+  signup limit required by the v2 contract and an E2E that proves trusted
+  proxy handling plus the 429 path without recording raw tokens or IPs.
 - The seed provides the shared world. A suite that **mutates** state creates its own uniquely-identified entities (the core loop signs up a fresh `e2e-invitee-ivan@example.com`, which is not in the seed) or touches rows no other suite reads (the events suite RSVPs Richard to the one event he's seeded as *not* attending).
 - No suite depends on another suite having run. Every suite passes alone and the whole set passes in parallel.
 - Don't re-test what a Vitest suite already covers — E2E is for integration truth.

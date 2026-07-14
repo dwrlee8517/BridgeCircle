@@ -256,6 +256,35 @@ Constraints and indexes:
 - approval fields are present only for `active`, `rejected`, or `revoked`
   decisions; `active` requires `joined_at`.
 
+### Member context and circle selection
+
+`api.get_my_member_context(preferred_membership_id)` is the single
+self-routing projection. It derives the user from `auth.uid()` and returns the
+account lifecycle, selected membership, chooser flag, account-global unread
+notification count, and a fixed list of the caller's own memberships. Each
+membership entry includes its status, organization ID/slug/name/approval
+mode, the caller's own profile summary for that membership, and the caller's
+roles. It never returns another member or ordinary organization content to a
+non-active membership.
+
+The application stores the preferred ID in the HTTP-only, SameSite=Lax
+`bc_membership_id` cookie, with `Secure` enabled in production. The cookie is
+only a preference: the database
+accepts it only when it belongs to the caller and is `active` or `pending`.
+Without a valid preference, selection is deterministic:
+
+- exactly one active membership wins, regardless of pending memberships;
+- with zero active memberships, exactly one pending membership wins;
+- `requires_circle_choice` is true only for more than one active membership,
+  or zero active memberships with more than one pending membership;
+- rejected and revoked memberships remain in the self-context list for safe
+  routing but are never selectable.
+
+The unread count is deliberately person-scoped across organizations because
+notifications belong to a recipient user. The selected-circle shell therefore
+shows one account-global badge; per-circle badges require a later product
+decision and query contract.
+
 ### `public.invites`
 
 | Column | Contract |
@@ -317,6 +346,18 @@ One global reusable identity card per user.
 
 The table contains display data only. Provider snapshots and embeddings remain
 private. Profile writes are owner-only through validated business functions.
+
+The `avatars` bucket is deliberately public in the pre-launch baseline. A
+stored `avatar_path` is resolved to a stable public URL, so anyone who obtains
+that URL can continue fetching the bytes even after a block; block policies
+prevent in-product discovery but cannot revoke a leaked or cached public URL.
+This is an explicit performance and simplicity tradeoff for low-sensitivity
+profile photos, not a general privacy mechanism. Resumes and other private
+files must never use this bucket. If the product requires revocable avatar
+access, convert the bucket to private and use authenticated downloads or
+short-lived signed URLs as one coordinated migration. Supabase's
+[bucket access model](https://supabase.com/docs/guides/storage/buckets/fundamentals)
+is the operational reference for that change.
 
 ### `public.organization_profiles`
 
@@ -828,6 +869,10 @@ Indexes:
 The recipient may select rows. Read state changes only through
 `api.mark_notifications_read`; no raw UPDATE grant.
 
+`api.get_my_member_context` counts unread notification rows by
+`recipient_user_id` without filtering `organization_id`; the shell badge is
+account-global even when a circle is selected.
+
 Allowed notification types:
 
 ```text
@@ -1018,7 +1063,9 @@ Policy rules:
 - do not stack many permissive policies where one explicit policy is clearer;
 - a block filter applies before profile visibility, Ask visibility, matching,
   conversation access, or message access;
-- inactive, rejected, or revoked memberships receive no organization data;
+- pending, rejected, or revoked memberships receive no ordinary organization
+  data or other-member data; the only exception is the caller's bounded
+  self-context described above, used for onboarding and lifecycle routing;
 - service-role use is server-only and never imported into a client module.
 
 ## Function contract
@@ -1035,6 +1082,14 @@ Policy rules:
 | `private.can_access_conversation(conversation_id)` | participant, active session, not blocked |
 | `private.can_view_ask(ask_id)` | author, direct recipient, accepted helper, matched helper, or org-public eligibility |
 
+`private.owns_membership` is intentionally active-only and remains the helper
+for ordinary member-domain access. Foundation self-profile commands do not use
+it: they lock the target membership, verify caller ownership and active account
+state inline, and then allow `active` or `pending` so approval-required members
+can finish onboarding. The inline command check also preserves distinct
+`not_owned` and `membership_unavailable` results. Do not replace it with the
+active-only helper.
+
 All are security-definer, stable where valid, empty-search-path, fully
 qualified, and explicitly granted only to the roles/policies that need them.
 
@@ -1042,6 +1097,18 @@ qualified, and explicitly granted only to the roles/policies that need them.
 
 | Function | Atomic responsibility |
 |---|---|
+| `api.get_my_member_context` | caller-derived account and owned-membership routing; validate preferred circle; return global unread count |
+| `api.verify_invite` | service-only hashed-token lookup returning safe join fields and stable non-secret states |
+| `api.accept_invite` | email-bound, locked, idempotent membership/profile/invite/audit transaction |
+| `api.decide_membership` | active same-org admin approves or rejects one pending membership |
+| `api.get_my_profile` | owner-only active-or-pending self-edit projection with normalized children |
+| `api.save_profile_identity` | locked active-or-pending identity and organization-profile save |
+| `api.save_profile_education` | locked active-or-pending global fields plus ordered education replacement |
+| `api.save_profile_current` | locked active-or-pending current-profile save |
+| `api.save_profile_history` | locked active-or-pending experience and skill replacement |
+| `api.save_profile_preferences` | locked active-or-pending bio, helper, topic, and freshness save |
+| `api.set_my_avatar_path` | persist only the caller's owner-prefixed avatar object path |
+| `api.complete_onboarding` | validate required profile floor, timestamp once, audit, and enqueue indexing |
 | `api.create_direct_ask` | validate, slot lock/count, insert Ask, match/audit/outbox |
 | `api.create_circle_ask` | validate, slot lock/count, insert Ask, enqueue matching |
 | `api.respond_to_direct_ask` | accept with opening message or decline with cushioned note |
@@ -1061,6 +1128,10 @@ qualified, and explicitly granted only to the roles/policies that need them.
 | `api.mark_conversation_read` | monotonic read cursor |
 | `api.mark_notifications_read` | owner-only monotonic update |
 | `api.submit_report` | validate target, capture evidence, insert private report |
+| `api.claim_outbox_jobs` | service-only disjoint claim with stale-lock recovery and attempt accounting |
+| `api.complete_outbox_job` | service-only lock-owner completion |
+| `api.retry_outbox_job` | service-only bounded retry scheduling with sanitized error state |
+| `api.fail_outbox_job` | service-only durable terminal failure |
 
 Return contracts use named composite types or stable table-return signatures;
 never `setof record` with caller-supplied shape. Errors use stable internal
@@ -1166,17 +1237,21 @@ Before either remote reset:
 
 ### Development cutover
 
-1. Put the dev stage in maintenance mode.
-2. Pause workers, cron/sweep jobs, CD, and ordinary deploys.
-3. Take and restore-test the snapshot.
-4. Run the reviewed object-removal script against BridgeCircle-owned objects
+1. Synchronize `codex/redesign-v2` with the latest `main`, resolve any shared
+   app/Supabase/doc conflicts, and rerun the local gates.
+2. Put the dev stage in maintenance mode.
+3. Pause workers, cron/sweep jobs, CD, and ordinary deploys.
+4. Take and restore-test the snapshot.
+5. Run the reviewed object-removal script against BridgeCircle-owned objects
    only; never `drop schema public cascade`.
-5. Mark legacy remote migration records reverted.
-6. Run baseline dry-run, then baseline push.
-7. Deploy the exact backend SHA built against v2.
-8. Load only deterministic dev personas.
-9. Run database tests, advisors, application tests, and deployed E2E.
-10. Observe errors, Realtime, outbox, email safety, and worker retries before
+6. Mark legacy remote migration records reverted.
+7. Run baseline dry-run, then baseline push.
+8. Deploy the exact backend SHA built against v2.
+9. Load only deterministic dev personas.
+10. Verify the public `/join` and signup abuse control against trusted proxy
+    headers, including its 429 path, without logging raw tokens or IPs.
+11. Run database tests, advisors, application tests, and deployed E2E.
+12. Observe errors, Realtime, outbox, email safety, and worker retries before
     requesting production approval.
 
 ### Production cutover

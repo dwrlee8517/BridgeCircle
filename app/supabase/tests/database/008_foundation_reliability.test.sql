@@ -376,11 +376,11 @@ insert into private.outbox_jobs (
 ) overriding system value values
   (
     980001, 'index_profile', '{}', 'reliability:claim:1',
-    'pending', 0, 8, now() - interval '1 minute', null, null
+    'pending', 0, 8, '-infinity'::timestamptz, null, null
   ),
   (
     980002, 'index_profile', '{}', 'reliability:claim:2',
-    'pending', 0, 8, now() - interval '1 minute', null, null
+    'pending', 0, 8, '-infinity'::timestamptz, null, null
   ),
   (
     980003, 'index_profile', '{}', 'reliability:cap',
@@ -483,8 +483,8 @@ insert into private.outbox_jobs (
   available_at, locked_at, locked_by
 ) overriding system value values (
   980005, 'index_profile', '{}', 'reliability:stale',
-  'processing', 0, 8, now() - interval '1 hour',
-  now() - interval '1 hour', 'worker-stale-old'
+  'processing', 0, 8, '-infinity'::timestamptz,
+  '-infinity'::timestamptz, 'worker-stale-old'
 );
 
 set local role service_role;

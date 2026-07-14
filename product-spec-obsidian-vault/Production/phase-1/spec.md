@@ -1,13 +1,14 @@
 # BridgeCircle Phase 1 Spec
 
-> **Product-model notice (2026-07-13):** The mentorship terminology and data
-> model later in this document describe the current legacy application. The
+> **Product-model notice (2026-07-14):** The mentorship terminology and data
+> model later in this document describe unported legacy domains and both
+> remote databases. The
 > approved redesigned Help/Connection/Messages behavior lives in
 > [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
-> and the approved, not-yet-implemented schema target is the
+> and the locally implemented Foundation plus remaining schema target is the
 > [database v2 contract](../../../docs/architecture/database-v2-contract.md)
 > under [ADR 0015](../../../docs/decisions/0015-prelaunch-v2-database-reset.md).
-> Code remains canonical until that rebuild lands.
+> Code remains canonical as each remaining domain is ported.
 
 ## Purpose
 

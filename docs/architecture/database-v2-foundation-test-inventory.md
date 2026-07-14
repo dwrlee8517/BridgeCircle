@@ -2,7 +2,7 @@
 
 - **Status:** Foundation gates passed locally on 2026-07-14
 - **Plan:** [Database v2 Foundation implementation plan](database-v2-foundation-plan.md)
-- **Result:** 207 pgTAP assertions across eight database files, 22 Vitest
+- **Result:** 209 pgTAP assertions across eight database files, 22 Vitest
   assertions across nine files, and four local-only Playwright scenarios pass;
   focused TypeScript has zero errors
 - **Migration inventory:** full TypeScript is 1,257 errors across 98 unported
@@ -33,15 +33,17 @@
 | Authenticated API/private/sequence grants are exact allowlists | `004_foundation_security.test.sql` | Passing |
 | Raw profiles/invites/audit/outbox and service functions are denied | `004_foundation_security.test.sql` | Passing |
 | `private` omitted from Data API and generated schemas | `scripts/check-supabase-boundaries.sh` | Passing |
+| Boundary checker fails closed without `rg` | missing-tool shell invocation | Passing |
 | Zero/one/multiple/pending/revoked member context selection | `005_foundation_context_and_invites.test.sql` | Passing |
 | Invite verification and atomic/idempotent acceptance | `006_foundation_invites.test.sql` | Passing |
 | Concurrent locked invite acceptance | `scripts/test-invite-concurrency.sh` | Passing |
 | Same-org admin membership decisions | `006_foundation_invites.test.sql` | Passing |
 | Self-profile projection and normalized replacement commands | `007_foundation_profile.test.sql` | Passing |
+| Active-only ownership helper stays distinct from pending onboarding commands | `007_foundation_profile.test.sql` | Passing |
 | Avatar path, onboarding completion, audit, indexing dedupe | `007_foundation_profile.test.sql` | Passing |
 | Concurrent atomic profile-history replacement | `scripts/test-profile-history-concurrency.sh` | Passing |
 | Block matrix across Foundation and downstream helpers | `008_foundation_reliability.test.sql` | Passing |
-| Outbox ownership, stale locks, retry/failure limits | `008_foundation_reliability.test.sql` | Passing |
+| Outbox ownership, deterministic claim ordering against seeded jobs, stale locks, retry/failure limits | `008_foundation_reliability.test.sql` | Passing |
 | Parallel disjoint outbox workers | `scripts/test-outbox-concurrency.sh` | Passing |
 | Pseudonymization and Auth-delete regression | `003_rls_and_account_deletion.test.sql` | Passing, including repeat cleanup |
 

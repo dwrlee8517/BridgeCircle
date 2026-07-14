@@ -27,7 +27,7 @@ As of 2026-07-14:
 
 - the clean v2 baseline, deterministic seed, and generated `public` + `api`
   types are present on `codex/redesign-v2`;
-- the current local baseline has 207 passing pgTAP assertions;
+- the current local baseline has 209 passing pgTAP assertions;
 - the baseline has RLS, a centralized grant section, composite tenant foreign keys,
   supporting foreign-key indexes, block-aware helpers, audit storage, and an
   outbox claim primitive;
@@ -77,7 +77,8 @@ Milestones 0–6 completed locally on 2026-07-14:
   invite lock while the second caller retries, producing one membership, one
   organization profile, one accepted invite, and one audit event;
 - the owner-only self-profile projection and seven atomic profile/onboarding
-  commands pass 41 added assertions, including pending-member resume,
+  commands pass 43 added assertions, including pending-member resume and the
+  explicit active-only-helper versus pending-command distinction,
   invalid-aggregate rollback, path-scoped avatar persistence, and idempotent
   profile-index enqueue;
 - overlapping experience/skills replacements serialize on the membership lock
@@ -115,6 +116,38 @@ Milestones 0–6 completed locally on 2026-07-14:
   RLS, foreign-key/index, pgTAP, schema-diff, and deterministic-type gates are
   green;
 - no shared-development or production database was read, changed, or reset.
+
+## Post-implementation review remediation
+
+- **Status:** approved through Richard's 2026-07-14 request and implemented in
+  this follow-up slice
+- **Goal:** remove documentation ambiguity that could cause a later domain to
+  weaken pending onboarding, multi-circle routing, privacy, or verification
+- **Surfaces:** the v2 contract, Foundation plan/test inventory, active Phase 1
+  notices, ADR 0015 status, migration/E2E runbooks, the pgTAP regression suite,
+  and the static Supabase boundary checker
+- **Data model:** no new table, column, policy, function, grant, or migration;
+  the implemented SQL behavior remains authoritative
+- **Out of scope:** private-avatar conversion, a new rate-limit provider,
+  remote Supabase work, merging `main`, or porting the next product domain
+
+Remediation plan:
+
+1. [x] Correct the active-only ownership-helper wording and add regression
+   coverage proving pending onboarding commands remain available.
+2. [x] Add the implemented member-context and Foundation function contracts to
+   the higher-precedence database contract.
+3. [x] Record exact chooser behavior, account-global unread behavior, and the
+   public-avatar exposure tradeoff.
+4. [x] Define compiler-slice accounting, the public-join abuse-control gate,
+   and the long-lived branch synchronization cadence.
+5. [x] Make the static boundary checker fail closed when `rg` is unavailable.
+6. [x] Re-run the affected pgTAP/static checks, the full local database suite,
+   lint/diff, and documentation audit; then commit one remediation checkpoint.
+
+The review's earlier uncommitted-work concern was stale by the time this slice
+started: `b8d4a5b` already contains the 75-file Foundation checkpoint and the
+worktree was clean. No intermediate recovery commit is needed.
 
 ## Scope
 
@@ -200,14 +233,20 @@ boundary passes that UUID to the context RPC; the database—not the cookie—th
 validates that it belongs to the current user and is active or pending.
 
 Without a valid preference, the database selects the only active membership,
-or the only pending membership when there is no active one. If several usable
-memberships remain, it returns `requires_circle_choice = true` and the user
-chooses a circle before the member shell renders. Rejected and revoked rows
-remain visible in the account's context list for correct routing, but are not
-selectable.
+or the only pending membership when there is no active one. It requires the
+chooser only when more than one active membership exists, or when there are no
+active memberships and more than one pending membership. One active plus any
+number of pending memberships fast-paths to the active circle. Rejected and
+revoked rows remain visible in the account's context list for correct routing,
+but are not selectable.
 
 The cookie is a preference, not authorization. The database validates its
 membership ID on every context read.
+
+The context projection's unread count is deliberately account-global across
+all organizations. The shell therefore shows one total badge even while one
+circle is selected; per-circle filtering is deferred unless multi-circle use
+shows that the global badge is confusing.
 
 ### 6. Keep normalized profile children normalized
 
@@ -226,10 +265,12 @@ processing remain in their later domains.
 
 The integration branch remains intentionally non-mergeable while unported
 domains reference the legacy contract. Foundation gets a focused TypeScript
-configuration and focused tests. The global compiler error inventory must
-decrease monotonically and may never gain a new error outside the active
-domain. No `@ts-ignore`, `@ts-nocheck`, legacy `Database` alias, or untyped
-Supabase client is allowed.
+configuration and focused tests. Each later domain declares its focused files
+and direct importers before work begins. The raw global error count may move
+temporarily when a shared contract reveals legitimate importer failures, but
+every new error must be classified to that active slice and the slice must be
+green at its checkpoint. No unexplained out-of-slice drift, `@ts-ignore`,
+`@ts-nocheck`, legacy `Database` alias, or untyped Supabase client is allowed.
 
 Full `pnpm tsc --noEmit`, build, and E2E become mandatory zero-error gates
 before remote development cutover. Until then, the domain-specific green gate
@@ -289,7 +330,7 @@ including:
 - account state and onboarding completion;
 - validated selected membership ID, or null;
 - `requires_circle_choice`;
-- current unread-notification count;
+- account-global unread-notification count across every organization;
 - a fixed-shape `memberships` JSON array containing each owned membership's
   status, joined time, organization ID/slug/name/approval mode, self profile
   summary, and current roles.
@@ -312,6 +353,16 @@ Service role only. Hashes the raw high-entropy token inside the database and
 returns only safe join-page fields. It never returns `token_hash`. The public
 join route calls this through the server-only service repository; browser code
 does not receive a privileged client.
+
+Both the application and SQL reject tokens outside 32–512 characters before
+hash lookup, and invalid states return the same bounded, non-secret result.
+That makes token enumeration impractical but does not make an unbounded public
+route free. Before public traffic or either remote cutover, BridgeCircle must
+add an infrastructure-backed per-IP request limit or challenge at `/join` and
+the signup action, verify trusted-proxy header handling, and test the 429 path.
+Do not persist raw invite tokens or raw IP addresses to implement that limit.
+The existing Supabase Auth limits protect Auth endpoints; they do not by
+themselves limit the server-side invite-verification RPC.
 
 ### Member commands
 
@@ -353,8 +404,10 @@ Use command names based on data responsibility rather than UI component names:
 Each command:
 
 - derives the user from `auth.uid()`;
-- verifies the membership through `private.owns_membership`;
-- locks the smallest stable row set;
+- locks the membership row, verifies it belongs to the caller and an active
+  account, and then permits lifecycle status `active` or `pending`;
+- returns `not_owned` separately from `membership_unavailable` so callers do
+  not infer another member's state;
 - treats retries idempotently;
 - replaces ordered child rows inside one short transaction;
 - returns a stable result code for expected product states;
@@ -703,9 +756,19 @@ Stop and revise the contract before proceeding if:
 - a transaction would include email, Storage, enrichment, or AI work;
 - multi-org behavior would require an arbitrary first membership;
 - a schema change weakens block, tenant, or profile privacy behavior;
-- the global compiler inventory gains a new error outside the active slice;
+- the classified compiler inventory gains an unexplained error outside the
+  declared active slice;
 - a local command resolves to a linked/shared Supabase project;
 - any database test, focused typecheck, or focused E2E gate fails.
+
+For each domain port, the active slice is the files named by that domain's
+focused TypeScript configuration plus direct importers explicitly listed in
+its test inventory. Shared-contract refactors may reveal or move errors inside
+that declared slice during the red phase. They do not fail the gate merely
+because the raw global count rises temporarily. Before the domain checkpoint,
+the focused slice must return to zero errors and every new global error must be
+classified to the active slice; unexplained out-of-slice drift still stops
+work. Suppressions and untyped compatibility clients remain forbidden.
 
 ## Definition of done
 
@@ -721,7 +784,8 @@ Foundation is complete only when:
 - pending/revoked/cross-org/block personas are denied correctly;
 - outbox workers use service-only claim/complete/retry/fail commands;
 - focused typecheck, unit tests, and E2E are green without ignored errors;
-- the global legacy compiler inventory decreases without new drift;
+- every completed focused slice is green and the global legacy inventory has
+  no unexplained out-of-slice drift;
 - remote development and production remain untouched;
 - code and active documentation describe the same Foundation contract.
 
@@ -741,6 +805,15 @@ Proceed in the approved order:
 No partially ported v2 backend is merged to `main` or deployed to a shared
 environment.
 
+Because `codex/redesign-v2` is long-lived, synchronize it with local `main` at
+the start of each domain and again before that domain's checkpoint whenever
+`main` has advanced. If the incoming commits touch `app/`, Supabase, active
+architecture docs, or shared tests, merge them before implementation rather
+than after. Resolve conflicts deliberately and rerun that domain's focused
+gates plus the global compiler inventory. Always synchronize again before a
+remote-development cutover; this cadence authorizes no push, merge to `main`,
+or remote database change by itself.
+
 ## Signoff
 
 Richard approved this plan on 2026-07-14. The approval includes these
@@ -752,8 +825,8 @@ implementation choices for the Foundation milestone:
 - atomic invite acceptance;
 - normalized profile replacement commands;
 - narrow onboarding dependency carve-ins for helper/freshness settings;
-- focused green verification plus a monotonically shrinking global compiler
-  inventory during the long-lived port;
+- focused green verification plus classified global compiler accounting during
+  the long-lived port;
 - deferring full account-deletion request/confirmation orchestration to the
   Settings/account-lifecycle milestone;
 - no remote database or deployment changes.

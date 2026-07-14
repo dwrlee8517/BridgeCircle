@@ -49,11 +49,20 @@ against either shared project until the matching development cutover step is
 approved.
 
 As of 2026-07-14, the Foundation slice is complete locally on
-`codex/redesign-v2`: the single baseline rebuild, 207 pgTAP assertions,
+`codex/redesign-v2`: the single baseline rebuild, 209 pgTAP assertions,
 warning lint, empty schema diff, two-pass generated types, focused TypeScript,
 Vitest, concurrency harnesses, and local Playwright pass. Hosted Supabase
 advisor checks remain part of the separately approved development cutover;
 this local result does not authorize a remote command.
+
+`codex/redesign-v2` is a long-lived integration branch. At the start of each
+domain port and before its checkpoint, compare it with local `main`; if `main`
+advanced, merge it into the integration branch before continuing and rerun the
+domain's focused gates. Changes touching `app/`, Supabase, active architecture
+docs, or shared tests are synchronized before implementation, not left for a
+final conflict pile. Synchronize once more before any remote cutover. This is
+branch maintenance only—it does not authorize merging the integration branch
+to `main`, pushing it, or touching a remote database.
 
 Once development and production have cut over, the exception is spent. The
 baseline is immutable and every later change follows the normal forward-only

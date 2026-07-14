@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! command -v rg >/dev/null 2>&1; then
+  echo "ripgrep (rg) is required for Supabase boundary checks" >&2
+  exit 127
+fi
+
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 config_file="$root_dir/supabase/config.toml"
 migration_file="$root_dir/supabase/migrations/20260713231344_v2_init.sql"
