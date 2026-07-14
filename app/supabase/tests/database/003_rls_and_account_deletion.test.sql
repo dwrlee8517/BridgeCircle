@@ -27,16 +27,26 @@ select extensions.ok(
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
 set local role authenticated;
 select extensions.is(
-  (select count(*)::bigint from public.messages),
-  1::bigint,
-  'conversation participant can read their message history'
+  (
+    select count(*)::bigint
+    from api.list_conversation_messages_before(
+      '50000000-0000-4000-8000-000000000001', null, 100
+    )
+  ),
+  2::bigint,
+  'conversation participant can read the origin and user message history'
 );
 reset role;
 
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005', true);
 set local role authenticated;
 select extensions.is(
-  (select count(*)::bigint from public.messages),
+  (
+    select count(*)::bigint
+    from api.list_conversation_messages_before(
+      '50000000-0000-4000-8000-000000000001', null, 100
+    )
+  ),
   0::bigint,
   'non-participant cannot read another conversation messages'
 );

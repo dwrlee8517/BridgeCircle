@@ -40,6 +40,10 @@ supabase db lint --local --level warning --fail-on warning
 supabase db diff --local --schema public,api,private
 pnpm db:types:local
 pnpm typecheck:v2-foundation
+pnpm typecheck:v2-conversations
+pnpm test:db:conversation-concurrency
+pnpm test:db:conversation-realtime
+pnpm test:db:conversation-query-plans
 ```
 
 An empty diff, clean lint, passing pgTAP suite, and deterministic types prove
@@ -48,10 +52,11 @@ not run `supabase db push`, `pnpm db:types` (linked), or migration repair
 against either shared project until the matching development cutover step is
 approved.
 
-As of 2026-07-14, the Foundation slice is complete locally on
-`codex/redesign-v2`: the single baseline rebuild, 209 pgTAP assertions,
-warning lint, empty schema diff, two-pass generated types, focused TypeScript,
-Vitest, concurrency harnesses, and local Playwright pass. Hosted Supabase
+As of 2026-07-14, the Foundation and Conversation Primitive slices are
+complete locally on `codex/redesign-v2`: the single baseline rebuild, 315
+pgTAP assertions, warning lint, empty schema diff, two-pass generated types,
+focused TypeScript/Vitest, concurrency harnesses, private Realtime integration,
+query-plan contract, and Foundation local Playwright pass. Hosted Supabase
 advisor checks remain part of the separately approved development cutover;
 this local result does not authorize a remote command.
 

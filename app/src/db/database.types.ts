@@ -114,6 +114,27 @@ export type Database = {
           status: string
         }[]
       }
+      get_conversation_detail: {
+        Args: { p_conversation_id: string }
+        Returns: {
+          ask_id: string
+          can_send: boolean
+          conversation_id: string
+          counterpart_avatar_path: string
+          counterpart_display_name: string
+          counterpart_graduation_year: number
+          counterpart_last_read_at: string
+          counterpart_last_read_message_id: number
+          counterpart_user_id: string
+          created_at: string
+          kind: string
+          last_message_at: string
+          latest_message_id: number
+          organization_id: string
+          viewer_last_read_at: string
+          viewer_last_read_message_id: number
+        }[]
+      }
       get_my_member_context: {
         Args: { p_preferred_membership_id?: string }
         Returns: {
@@ -137,7 +158,44 @@ export type Database = {
       }
       get_or_create_direct_conversation: {
         Args: { p_other_user_id: string }
-        Returns: string
+        Returns: {
+          conversation_id: string
+          result_code: string
+        }[]
+      }
+      list_conversation_messages_after: {
+        Args: {
+          p_after_id?: number
+          p_conversation_id: string
+          p_limit?: number
+        }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: number
+          kind: string
+          sender_user_id: string
+          system_actor_user_id: string
+          system_event_type: string
+        }[]
+      }
+      list_conversation_messages_before: {
+        Args: {
+          p_before_id?: number
+          p_conversation_id: string
+          p_limit?: number
+        }
+        Returns: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: number
+          kind: string
+          sender_user_id: string
+          system_actor_user_id: string
+          system_event_type: string
+        }[]
       }
       list_give_help: {
         Args: { p_before?: string; p_limit?: number }
@@ -167,7 +225,11 @@ export type Database = {
       }
       mark_conversation_read: {
         Args: { p_conversation_id: string; p_message_id: number }
-        Returns: undefined
+        Returns: {
+          last_read_at: string
+          last_read_message_id: number
+          result_code: string
+        }[]
       }
       mark_notifications_read: {
         Args: { p_notification_ids: number[] }
@@ -181,6 +243,13 @@ export type Database = {
           p_offer_note: string
         }
         Returns: string
+      }
+      publish_conversation_typing: {
+        Args: { p_conversation_id: string; p_is_typing: boolean }
+        Returns: {
+          expires_at: string
+          result_code: string
+        }[]
       }
       resolve_ask: {
         Args: { p_ask_id: string; p_outcome_note?: string }
@@ -277,7 +346,11 @@ export type Database = {
           p_client_nonce: string
           p_conversation_id: string
         }
-        Returns: number
+        Returns: {
+          created_at: string
+          message_id: number
+          result_code: string
+        }[]
       }
       set_event_rsvp: {
         Args: { p_event_id: string; p_membership_id: string; p_status: string }
@@ -1146,6 +1219,9 @@ export type Database = {
           id: number
           kind: string
           sender_user_id: string | null
+          system_actor_user_id: string | null
+          system_event_key: string | null
+          system_event_type: string | null
         }
         Insert: {
           body: string
@@ -1155,6 +1231,9 @@ export type Database = {
           id?: never
           kind?: string
           sender_user_id?: string | null
+          system_actor_user_id?: string | null
+          system_event_key?: string | null
+          system_event_type?: string | null
         }
         Update: {
           body?: string
@@ -1164,6 +1243,9 @@ export type Database = {
           id?: never
           kind?: string
           sender_user_id?: string | null
+          system_actor_user_id?: string | null
+          system_event_key?: string | null
+          system_event_type?: string | null
         }
         Relationships: [
           {
@@ -1176,6 +1258,13 @@ export type Database = {
           {
             foreignKeyName: "messages_sender_user_id_fkey"
             columns: ["sender_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_system_actor_user_id_fkey"
+            columns: ["system_actor_user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]

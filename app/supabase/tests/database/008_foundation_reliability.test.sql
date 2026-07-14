@@ -200,8 +200,12 @@ select extensions.ok(
 );
 select extensions.is(
   (
-    select count(*)::bigint from public.messages
-    where conversation_id = '67000000-0000-4000-8000-000000000051'
+    select count(*)::bigint
+    from api.list_conversation_messages_before(
+      '67000000-0000-4000-8000-000000000051',
+      null,
+      100
+    )
   ),
   0::bigint,
   'block hides existing conversation messages in either direction'

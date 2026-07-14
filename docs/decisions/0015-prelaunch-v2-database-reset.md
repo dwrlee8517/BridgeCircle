@@ -4,7 +4,7 @@
 - **Date:** 2026-07-13
 - **Decider:** Richard
 - **Contract:** [Database v2 contract](../architecture/database-v2-contract.md)
-- **Implementation:** local Foundation schema and app boundary verified 2026-07-14; later domain ports and remote cutovers pending
+- **Implementation:** local Foundation and Conversation Primitive schema/app boundaries verified 2026-07-14; later domain ports and remote cutovers pending
 
 ## Context
 

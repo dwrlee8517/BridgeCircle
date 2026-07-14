@@ -1,6 +1,6 @@
 # Database v2 Conversation Primitive implementation plan
 
-- **Status:** approved — implementation pending
+- **Status:** complete locally — checkpoint ready; not deployed
 - **Prepared:** 2026-07-14
 - **Approved:** 2026-07-14 by Richard
 - **Branch:** `codex/redesign-v2`
@@ -168,6 +168,177 @@ The audit found these gaps to close before downstream domains depend on it:
 11. the legacy member pipeline uses service-role thread creation, N+1/bulk
     over-fetch patterns, per-message `read_at`, and two separate thread UIs.
 
+## Milestone 0 implementation record
+
+Recorded on 2026-07-14 before changing the v2 baseline migration:
+
+- Git relationship: `codex/redesign-v2` was zero commits behind and nine
+  commits ahead of local `main`; no merge was needed. The accepted plan was
+  committed separately as `e0a9bd1`.
+- Toolchain: Node `22.22.2`, pnpm `10.33.2`, Supabase CLI `2.109.1`, and local
+  PostgreSQL `17.6`.
+- Schema/test inventory: one active migration and eight Foundation pgTAP
+  files with 209 assertions.
+- Foundation recheck: local reset passed; all 209 pgTAP assertions passed;
+  all three Foundation concurrency scenarios passed; the Supabase boundary
+  checker passed; focused TypeScript had zero errors; and 22 focused Vitest
+  assertions across nine files passed.
+- Global compiler inventory remained the classified Foundation baseline of
+  1,257 errors across 98 unported legacy files.
+- The new Conversation TypeScript boundary compiled with zero errors before
+  its modules existed, proving that it does not silently pull in legacy
+  domains.
+- Red pgTAP baseline: 29 of 30 Conversation assertions failed for planned
+  columns, constraints, helpers, API projections, grants, Broadcast, and
+  origin behavior. The unchanged notifications-publication assertion passed.
+- Red concurrency baseline: an explicit insert barrier forced 20 simultaneous
+  sends with one nonce; one committed and 19 raised the existing
+  `messages_client_nonce_key` violation instead of returning the same durable
+  result.
+- Red Realtime baseline: seeded participants authenticated successfully, but
+  an authorized private `conversation:<uuid>` join returned `CHANNEL_ERROR`
+  because the receive policy/Broadcast contract does not exist yet.
+- Both shell harnesses pass syntax checks, the Realtime module passes Node's
+  syntax check, their cleanup is idempotent, and they refuse non-local URLs.
+  No remote project was read or changed.
+
+Milestone 1 completed on 2026-07-14:
+
+- structured system-message shape, allowed event types, per-conversation event
+  idempotency, actor deletion behavior, cursor-only `SET NULL`, and content-free
+  typing throttle storage all pass their behavioral assertions;
+- the canonical user-pair lock serializes both caller orders, is unavailable
+  to member roles, and the full view/send matrix passes for connected,
+  disconnected, blocked, outsider, inactive, and resolved-Ask states;
+- safe topic parsing returns false for malformed input without raising;
+- all eight Foundation files pass with 210 assertions after the new private
+  table and exact function allowlist were incorporated;
+- 39 of 54 Conversation assertions pass; the 15 remaining red assertions are
+  owned only by Milestones 2–4;
+- rollback-only EXPLAIN fixtures with 201 conversations and 40,200 interleaved
+  messages selected `messages_conversation_id_key` for both older and newer
+  keyset scans. The unused `(conversation_id, created_at, id)` index was
+  removed, while every foreign key retains a leading index;
+- warning-level database lint and a shadow-database diff both pass with no
+  schema drift.
+
+Milestone 2 completed on 2026-07-14:
+
+- one idempotent private helper owns structured system-message insertion;
+- direct creation, Connection acceptance, direct Ask acceptance, offer
+  acceptance, block/unblock, disconnect, and send all acquire the same
+  ascending user-pair lock before their root rows;
+- Connection acceptance creates or reuses the direct conversation and one
+  structured origin line; Ask/offer acceptance creates one origin plus one
+  opening user message in the same transaction;
+- user-message nonce insertion uses `ON CONFLICT DO NOTHING`, returns stable
+  `sent`/`duplicate`/denial result rows, and enqueues notification work only
+  for the winning insert with IDs-only payloads;
+- the sender-validation trigger independently enforces participant, block,
+  account, Connection, and accepted/resolved-Ask rules;
+- 70 of 82 Conversation assertions pass and all 210 Foundation assertions
+  remain green;
+- deterministic concurrency passes for both pair-lock orders, 20 same-nonce
+  sends, 20 direct creates, block-versus-send, disconnect-versus-send, and two
+  competing offer accepts. The harness then reaches the intentionally red
+  Milestone 3 read-result check without a deadlock or leaked lock.
+
+Milestone 3 completed on 2026-07-14:
+
+- fixed conversation-detail and before/after message projections expose only
+  bounded participant data and preserve disconnected conversations as
+  read-only while denying blocked, inactive, and outsider access;
+- older and gap history use ID keysets with limits clamped to 1–100 and no
+  OFFSET path; adjacent 100-row fixture pages contain no duplicate IDs;
+- read advancement uses a conditional monotonic UPSERT, returns stable
+  `advanced`/`unchanged`/denial results, and lower retries leave
+  `last_read_at` unchanged;
+- counterpart receipts are visible only through the detail projection while
+  authenticated and anonymous roles have no raw SELECT on conversations,
+  messages, or conversation reads;
+- 93 of 98 Conversation assertions pass. The five remaining red assertions
+  map exactly to Milestone 4 typing, publication, Realtime policy, and
+  Broadcast triggers;
+- the multi-session harness now also proves concurrent high/low read cursors
+  finish at the greatest durable message ID without rewriting the timestamp;
+- the changed Foundation schema, RLS, and grant contracts pass their focused
+  regression files, the Conversation TypeScript boundary remains clean, and
+  warning-level database lint reports no errors.
+
+Milestone 4 completed on 2026-07-14:
+
+- private database Broadcast replaces message Postgres Changes; committed
+  message and advanced-read triggers emit string-safe IDs only, while
+  duplicate, unchanged, and rolled-back work emits no durable event;
+- conversation content uses the block-aware `conversation:<uuid>` topic.
+  Integration testing proved that a channel whose authorization is revoked by
+  a block cannot reliably deliver its own revocation, so permission and
+  revocation invalidations now use each participant's owner-only
+  `user:<uuid>` control topic. A blocked member can retain only their own
+  control topic and cannot rejoin the conversation topic;
+- disconnect, block, and unblock emit minimal control invalidations without a
+  block initiator or content. Typing is server-checked per call, throttled to
+  one event per second, stored without content, and expires locally after
+  three seconds;
+- deferred Ask consistency triggers were hardened as internal
+  security-definer validators after the authenticated Realtime harness proved
+  that their commit-time reads otherwise ran outside the command function's
+  privilege scope;
+- all 105 focused Conversation assertions, the complete multi-session
+  concurrency contract, the expanded participant/outsider/block/reconnect
+  Realtime harness, five channel-adapter tests, focused TypeScript, and
+  warning-level database lint pass;
+- the typed adapter calls `setAuth` before opening both private topics,
+  validates strict Zod payloads, deduplicates event/message IDs, refetches on
+  every conversation subscription, expires typing locally, and removes each
+  channel exactly once.
+
+Milestone 5 completed on 2026-07-14:
+
+- framework-free `/lib/conversations` contracts define the detail, user/system
+  message, cursor, repository, and stable create/send/read/typing result
+  unions without importing Next.js, Supabase, database types, or environment
+  state;
+- small injected operations preserve expected denials and duplicate-send
+  success, reject invalid local inputs before I/O, reverse older pages for
+  chronological rendering, and drain multi-page gaps with monotonic-progress
+  checks;
+- the only Supabase member calls live in the typed repository, use fixed `api`
+  RPCs, parse exact strict Zod projections, reject impossible message shapes,
+  and throw sanitized operation/code errors for transport failures;
+- optional SQL cursor defaults let first-page RPC calls remain generated-type
+  safe without `unknown` casts or suppression directives;
+- 20 focused assertions across repository mapping, channel behavior,
+  pagination, and operations pass with zero focused TypeScript errors;
+- the Conversation boundary checker proves its own deliberate violation
+  fixture, then bans framework/infrastructure imports from `/lib`, legacy
+  thread identifiers, service-role paths, raw conversation table calls, and
+  TypeScript compatibility suppressions.
+
+Milestone 6 completed on 2026-07-14:
+
+- a correctly seeded clean reset rebuilt the single v2 baseline and all 315
+  pgTAP assertions passed across nine files;
+- Foundation and Conversation concurrency contracts passed serially, followed
+  by the full private Realtime authorization, delivery, recovery, revocation,
+  typing, read, and cleanup integration matrix;
+- warning-level lint reported no schema errors and a public/api/private shadow
+  diff found no schema drift;
+- a rollback-only realistic-volume plan contract used the primary, direct-pair,
+  message-keyset, nonce, and read-cursor indexes without forcing planner
+  settings;
+- two generated `public` + `api` type files were byte-identical at SHA-256
+  `4bc3f0ad1cec32342051361645198523d5c704ace6b4d4a1a9e24a2b59dac989`
+  and contained no `private` or `realtime` schema;
+- Foundation passed 22 Vitest assertions across nine files and Conversation
+  passed 20 across four files; both focused TypeScript boundaries remained at
+  zero errors;
+- the global compiler inventory was unchanged at the classified 1,257 errors
+  across 98 legacy files, with no error in the completed Conversation slice;
+- canonical contract, sequence, test inventory, migration, Supabase, and ADR
+  docs now describe the tested Broadcast/API topology consistently. No remote
+  project, push, merge, deployment, or remote database command was used.
+
 ## Target pipeline
 
 ```mermaid
@@ -180,8 +351,10 @@ flowchart LR
   P --> DB["durable conversation tables"]
   DB --> O["outbox job with IDs only"]
   DB --> RT["private Broadcast trigger"]
-  RT --> C["active conversation channel"]
+  RT --> C["block-aware conversation topic"]
+  RT --> U["owner-only user-control topic"]
   C --> RF["after-cursor refetch"]
+  U --> RF
   RF --> API
   O -. "later worker revalidates current state" .-> N["notification or email"]
 ```
@@ -281,9 +454,9 @@ bounded name/avatar identity after shared membership ends; organization-only
 profile fields still require their normal visibility rules. Deleted accounts
 map to a tombstone. Blocked/non-participant/missing rows all return no result.
 
-Message projections expose immutable render fields. A client nonce is returned
-only to its sender for optimistic reconciliation. System event keys remain
-internal.
+Message projections expose immutable render fields. Client nonces and system
+event keys remain internal; the send result returns the durable message ID for
+optimistic reconciliation.
 
 ### 7. Pagination is keyset-only
 
@@ -309,21 +482,22 @@ outgoing message; there is no per-message mutable `read_at` and no last-seen.
 
 ### 9. Realtime is an authorized hint, never the source of truth
 
-Use one private channel topic per open thread:
+Use two private topics while a thread is open:
 
 ```text
 conversation:<conversation_uuid>
+user:<viewer_user_uuid>
 ```
 
 Database triggers send minimal private events through `realtime.send`:
 
-| Event | Payload |
-|---|---|
-| `message.created` | conversation ID + message ID |
-| `read.advanced` | conversation ID + reader user ID + cursor message ID |
-| `conversation.permissions_changed` | conversation ID only |
-| `conversation.revoked` | conversation ID only |
-| `typing.changed` | conversation ID + actor user ID + boolean + expiry |
+| Topic | Event | Payload |
+|---|---|---|
+| conversation | `message.created` | conversation ID + message ID |
+| conversation | `read.advanced` | conversation ID + reader user ID + cursor message ID |
+| user control | `conversation.permissions_changed` | conversation ID only |
+| user control | `conversation.revoked` | conversation ID only |
+| conversation | `typing.changed` | conversation ID + actor user ID + boolean + expiry |
 
 Message bodies, client nonces, profile fields, Ask text, and block initiator are
 never broadcast. On `message.created`, subscription/reconnection, channel
@@ -331,16 +505,18 @@ error recovery, or an ID gap, the client fetches durable rows after its last
 seen ID. Duplicate or missing broadcasts therefore cause at most a refetch,
 not a missing or duplicated message.
 
-The `realtime.messages` SELECT policy validates the topic through an
-empty-search-path security-definer helper and the same block-aware view rule.
-No authenticated INSERT policy is granted. Typing is published through
-`api.publish_conversation_typing`, which rechecks access on every call,
+The `realtime.messages` SELECT policy validates both topic forms through
+empty-search-path security-definer helpers. Conversation topics use the same
+block-aware view rule; a user-control topic is readable only by its active
+owner. No authenticated INSERT policy is granted. Typing is published through
+`api.publish_conversation_typing`, which rechecks send access on every call,
 rate-limits in the private table, and then calls `realtime.send`. This avoids
 trusting cached channel-write authorization after a block.
 
-The app calls `setAuth()`, opens only the active conversation channel, removes
-it on unmount/navigation, and gives typing a local expiry so a lost stop event
-cannot leave a permanent indicator. Presence is not used.
+The app calls `setAuth()`, opens the active conversation topic and the viewer's
+control topic, removes both on unmount/navigation, and gives typing a local
+expiry so a lost stop event cannot leave a permanent indicator. Presence is
+not used.
 
 Remove `public.messages` from the Postgres Changes publication and remove its
 `replica identity full`; `notifications` remains unchanged in this slice.
@@ -409,189 +585,191 @@ fails.
 
 ### Milestone 0 — Freeze the slice and make failures visible
 
-1. [ ] Compare `codex/redesign-v2` with local `main`; merge `main` only if it
+1. [x] Compare `codex/redesign-v2` with local `main`; merge `main` only if it
    advanced, then rerun the Foundation gate.
    **Verify:** branch relationship recorded; Foundation remains green.
-2. [ ] Record Node, pnpm, Supabase CLI, Postgres, migration count, pgTAP count,
+2. [x] Record Node, pnpm, Supabase CLI, Postgres, migration count, pgTAP count,
    and full TypeScript error/file inventory.
    **Verify:** this plan's implementation record contains reproducible values.
-3. [ ] Create `tsconfig.v2-conversations.json` from the Foundation config and
+3. [x] Create `tsconfig.v2-conversations.json` from the Foundation config and
    add only the new conversation `/lib`, `/db`, and direct test importers.
    **Verify:** the declared slice and legacy exclusions are explicit.
-4. [ ] Add `009_conversation_primitive.test.sql` with failing function,
+4. [x] Add `009_conversation_primitive.test.sql` with failing function,
    constraint, grant, RLS, result-code, and lifecycle assertions.
    **Verify:** failures correspond only to planned changes.
-5. [ ] Add failing parallel-nonce, block-vs-send, disconnect-vs-send,
+5. [x] Add failing parallel-nonce, block-vs-send, disconnect-vs-send,
    read-cursor, and direct-create harness cases.
    **Verify:** at least the known nonce/race behavior fails before the fix.
-6. [ ] Add a failing local Realtime harness for authorized delivery, denied
+6. [x] Add a failing local Realtime harness for authorized delivery, denied
    third-party join, gap fill, and channel cleanup.
    **Verify:** legacy Postgres Changes cannot satisfy the new private-Broadcast
    contract.
 
 ### Milestone 1 — Harden the relational contract
 
-7. [ ] Add structured system-event columns, FK, shape checks, allowed-type
+7. [x] Add structured system-event columns, FK, shape checks, allowed-type
    check, and the partial event-key unique index.
    **Verify:** malformed user/system shapes and duplicate event keys fail.
-8. [ ] Correct the composite read-cursor FK delete action.
+8. [x] Correct the composite read-cursor FK delete action.
    **Verify:** deleting a referenced fixture message nulls only the cursor and
    leaves the read row valid.
-9. [ ] Add the private typing-limit table, RLS, constraints, and both FK
+9. [x] Add the private typing-limit table, RLS, constraints, and both FK
    indexes.
    **Verify:** it is absent from Data API/generated schemas and direct roles.
-10. [ ] Add `private.lock_user_pair` with ascending lock order and no client
+10. [x] Add `private.lock_user_pair` with ascending lock order and no client
     execute grant.
     **Verify:** pgTAP confirms privilege denial and the concurrency harness can
     hold/release the pair deterministically.
-11. [ ] Replace ambiguous access logic with explicit view and send helpers.
+11. [x] Replace ambiguous access logic with explicit view and send helpers.
     **Verify:** every row in the access matrix passes for both directions.
-12. [ ] Add safe topic parsing/authorization without direct casts that can
+12. [x] Add safe topic parsing/authorization without direct casts that can
     raise on malformed topics.
     **Verify:** valid participant topic succeeds; malformed, blocked, and
     non-participant topics return false without error.
-13. [ ] Review the message index budget against the exact before/after and FK
+13. [x] Review the message index budget against the exact before/after and FK
     queries; remove a redundant index only with EXPLAIN evidence.
     **Verify:** every FK retains a leading index and accepted queries use an
     index scan.
 
 ### Milestone 2 — Make creation and send transactions race-proof
 
-14. [ ] Add an idempotent private system-message insertion helper.
+14. [x] Add an idempotent private system-message insertion helper.
     **Verify:** repeated event key returns the same durable row.
-15. [ ] Refactor direct conversation creation to lock the pair and use the
+15. [x] Refactor direct conversation creation to lock the pair and use the
     partial unique index as the arbiter.
     **Verify:** parallel callers receive one conversation ID.
-16. [ ] Refactor Connection acceptance to pair-lock, request-lock, create the
+16. [x] Refactor Connection acceptance to pair-lock, request-lock, create the
     connection, ensure the conversation, and insert one origin line.
     **Verify:** one retry returns the same connection/conversation with one
     system event and one notification job.
-17. [ ] Retrofit direct-Ask acceptance to pair-lock before its Ask lock and
+17. [x] Retrofit direct-Ask acceptance to pair-lock before its Ask lock and
     insert origin + opening rows atomically.
     **Verify:** a failed opening insert rolls back Ask, conversation, messages,
     events, and outbox together.
-18. [ ] Retrofit offer acceptance to pair-lock, Ask-lock, and offer-lock in
+18. [x] Retrofit offer acceptance to pair-lock, Ask-lock, and offer-lock in
     stable order before creating origin + opening rows.
     **Verify:** simultaneous accepts still produce one accepted offer and one
     conversation without deadlock.
-19. [ ] Refactor block/unblock and disconnect to acquire the same pair lock
+19. [x] Refactor block/unblock and disconnect to acquire the same pair lock
     before mutating relationship state.
     **Verify:** existing safety invariants and audit assertions remain green.
-20. [ ] Rewrite user-message insertion around one atomic nonce conflict path.
+20. [x] Rewrite user-message insertion around one atomic nonce conflict path.
     **Verify:** 20 parallel identical sends yield one message ID.
-21. [ ] Enqueue notification work only when the message insert wins.
+21. [x] Enqueue notification work only when the message insert wins.
     **Verify:** the 20-send retry test yields one outbox job with no body.
-22. [ ] Return stable send/create result rows instead of expected-state SQL
+22. [x] Return stable send/create result rows instead of expected-state SQL
     exceptions.
     **Verify:** blocked/non-participant/missing collapse to `not_available`;
     disconnect returns `connection_required` only to a participant.
-23. [ ] Keep the sender-validation trigger as defense in depth and align it
+23. [x] Keep the sender-validation trigger as defense in depth and align it
     with the new send helper.
     **Verify:** privileged fixture attempts still cannot insert a user message
     from a non-participant or blocked pair.
 
 ### Milestone 3 — Add bounded reads and monotonic receipts
 
-24. [ ] Add the conversation-detail projection with bounded counterpart
+24. [x] Add the conversation-detail projection with bounded counterpart
     identity and both read cursors.
     **Verify:** participant, disconnected, tombstone, blocked, and outsider
     personas receive exactly the approved shape.
-25. [ ] Add older-history keyset query with a 1–100 limit and no OFFSET.
+25. [x] Add older-history keyset query with a 1–100 limit and no OFFSET.
     **Verify:** page boundaries have no duplicate rows and EXPLAIN uses the
     conversation/message index.
-26. [ ] Add after-cursor gap query in ascending order.
+26. [x] Add after-cursor gap query in ascending order.
     **Verify:** more than 100 missed rows can be drained in bounded pages.
-27. [ ] Replace read marking with a conditional monotonic UPSERT.
+27. [x] Replace read marking with a conditional monotonic UPSERT.
     **Verify:** concurrent out-of-order cursor writes finish at the greatest
     message ID and lower retries do not change `last_read_at`.
-28. [ ] Expose the counterpart cursor only through the detail projection.
+28. [x] Expose the counterpart cursor only through the detail projection.
     **Verify:** raw cursor/table SELECT is denied while the participant receipt
     remains visible.
-29. [ ] Revoke authenticated raw SELECT on the three conversation tables and
+29. [x] Revoke authenticated raw SELECT on the three conversation tables and
     grant only the fixed API functions.
     **Verify:** direct Data API reads fail for authenticated/anon; service role
     and pgTAP fixtures retain required maintenance access.
 
 ### Milestone 4 — Replace row streaming with private invalidation
 
-30. [ ] Add the narrow Realtime SELECT policy on `realtime.messages` using the
-    safe topic helper; add no client INSERT policy.
-    **Verify:** only active, unblocked participants can join a private topic.
-31. [ ] Add an after-insert message trigger that sends only conversation and
+30. [x] Add the narrow Realtime SELECT policy on `realtime.messages` using the
+    safe conversation and owner-control topic helpers; add no client INSERT
+    policy.
+    **Verify:** only active, unblocked participants can join a conversation
+    topic and only the active owner can join a user-control topic.
+31. [x] Add an after-insert message trigger that sends only conversation and
     message IDs through `realtime.send`.
     **Verify:** one committed new message produces one `message.created`; a
     rolled-back or duplicate send produces none.
-32. [ ] Add a conditional read-cursor trigger for `read.advanced`.
+32. [x] Add a conditional read-cursor trigger for `read.advanced`.
     **Verify:** unchanged/lower cursor calls do not broadcast.
-33. [ ] Broadcast permission-change/revocation invalidations from disconnect
-    and block transactions.
-    **Verify:** an already-open participant channel receives the event, then
-    the next send/join is denied as appropriate.
-34. [ ] Add rate-limited `api.publish_conversation_typing` and minimal payload.
+33. [x] Broadcast permission-change/revocation invalidations from disconnect
+    and block transactions through each participant's user-control topic.
+    **Verify:** an already-open control topic receives the event, then the next
+    send/conversation join is denied as appropriate.
+34. [x] Add rate-limited `api.publish_conversation_typing` and minimal payload.
     **Verify:** access is rechecked per call; repeat calls throttle; no typing
     content is stored.
-35. [ ] Remove messages from the Postgres Changes publication and remove
+35. [x] Remove messages from the Postgres Changes publication and remove
     message replica-identity expansion.
     **Verify:** publication inventory contains no `public.messages`; private
     Broadcast still delivers.
-36. [ ] Build the client channel adapter with `setAuth`, private topic config,
+36. [x] Build the client channel adapter with `setAuth`, private topic config,
     Zod event parsing, refetch callbacks, typing expiry, and cleanup.
-    **Verify:** unit tests reject malformed/spoofed payloads and remove exactly
-    one channel on teardown.
-37. [ ] Complete the two-client local Realtime harness, including reconnect gap
+    **Verify:** unit tests reject malformed/spoofed payloads and remove the
+    conversation and user-control channels exactly once each on teardown.
+37. [x] Complete the two-client local Realtime harness, including reconnect gap
     recovery and a denied outsider.
     **Verify:** durable API results converge even when one Broadcast is ignored.
 
 ### Milestone 5 — Establish the application boundary
 
-38. [ ] Define conversation entities, cursors, repository interface, and
+38. [x] Define conversation entities, cursors, repository interface, and
     stable result unions in `/lib`.
     **Verify:** no framework, Supabase, or transport import appears there.
-39. [ ] Implement the repository's conversation detail and page parsers with
+39. [x] Implement the repository's conversation detail and page parsers with
     exact Zod schemas.
     **Verify:** malformed/nullability-drift fixtures fail loudly.
-40. [ ] Implement repository command mappings for create/send/read/typing.
+40. [x] Implement repository command mappings for create/send/read/typing.
     **Verify:** every expected database result maps to one domain union and
     unknown results throw.
-41. [ ] Implement small `/lib` operations using injected repository methods.
+41. [x] Implement small `/lib` operations using injected repository methods.
     **Verify:** Vitest covers success, retry, expected denial, and unexpected
     dependency failure without a database.
-42. [ ] Add a static boundary check forbidding legacy thread identifiers,
+42. [x] Add a static boundary check forbidding legacy thread identifiers,
     service clients, and raw conversation table calls in the new modules.
     **Verify:** the check fails on a deliberate fixture violation and passes on
     the implementation.
-43. [ ] Run the focused conversation typecheck and Vitest suite.
+43. [x] Run the focused conversation typecheck and Vitest suite.
     **Verify:** zero errors and no suppression/compatibility types.
 
 ### Milestone 6 — Rebuild, audit, and checkpoint
 
-44. [ ] Reset the local database from empty and run all pgTAP files serially.
+44. [x] Reset the local database from empty and run all pgTAP files serially.
     **Verify:** every Foundation and Conversation assertion passes.
-45. [ ] Run nonce/pair-lock/read-cursor concurrency harnesses serially after
+45. [x] Run nonce/pair-lock/read-cursor concurrency harnesses serially after
     pgTAP.
     **Verify:** no duplicate rows, lock leaks, timeouts, or deadlocks.
-46. [ ] Run local Realtime integration after the database gates.
+46. [x] Run local Realtime integration after the database gates.
     **Verify:** private delivery, denial, revocation, cleanup, and gap recovery
     pass without exposing message text in events.
-47. [ ] Run warning-level database lint, empty schema diff, grant/RLS/FK/index
+47. [x] Run warning-level database lint, empty schema diff, grant/RLS/FK/index
     audits, and targeted EXPLAIN plans.
     **Verify:** no warning or unexplained sequential scan remains.
-48. [ ] Generate `public` + `api` types twice and compare byte-for-byte.
+48. [x] Generate `public` + `api` types twice and compare byte-for-byte.
     **Verify:** deterministic output and no `private`/`realtime` schema leak.
-49. [ ] Re-run Foundation + Conversation focused TypeScript/Vitest and the
+49. [x] Re-run Foundation + Conversation focused TypeScript/Vitest and the
     global compiler inventory.
     **Verify:** both completed slices are zero-error; every global change is
     classified and no out-of-slice drift appears.
-50. [ ] Update the v2 contract, active implementation sequence, test inventory,
+50. [x] Update the v2 contract, active implementation sequence, test inventory,
     migration/Realtime runbooks, and ADR status together.
     **Verify:** docs describe Broadcast, access states, APIs, and remaining
     legacy domains consistently.
-51. [ ] Audit staged additions for secrets, message bodies in telemetry,
+51. [x] Audit staged additions for secrets, message bodies in telemetry,
     service-role leakage, broad grants, raw IP/token logging, unbounded queries,
     and unrelated files.
     **Verify:** clean `git diff --check`, zero secret-pattern hits, exact file
     inventory.
-52. [ ] Commit one Conversation Primitive checkpoint.
+52. [x] Commit one Conversation Primitive checkpoint.
     **Verify:** clean worktree; no push, merge, deployment, or remote database
     command occurred.
 

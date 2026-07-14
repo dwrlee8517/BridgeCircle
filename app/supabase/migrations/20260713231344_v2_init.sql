@@ -664,13 +664,33 @@ create table public.messages (
   kind text not null default 'user',
   body text not null,
   client_nonce uuid,
+  system_event_type text,
+  system_event_key text,
+  system_actor_user_id uuid references public.users(id) on delete set null,
   created_at timestamptz not null default now(),
   constraint messages_kind_check check (kind in ('user', 'system')),
   constraint messages_body_check check (char_length(btrim(body)) between 1 and 10000),
-  constraint messages_sender_shape_check check (
-    (kind = 'user' and sender_user_id is not null and client_nonce is not null)
+  constraint messages_kind_shape_check check (
+    (
+      kind = 'user'
+      and sender_user_id is not null
+      and client_nonce is not null
+      and system_event_type is null
+      and system_event_key is null
+      and system_actor_user_id is null
+    )
     or
-    (kind = 'system' and sender_user_id is null and client_nonce is null)
+    (
+      kind = 'system'
+      and sender_user_id is null
+      and client_nonce is null
+      and system_event_type is not null
+      and system_event_key is not null
+    )
+  ),
+  constraint messages_system_event_type_check check (
+    system_event_type is null
+    or system_event_type in ('connection_accepted', 'ask_accepted', 'ask_resolved')
   ),
   constraint messages_conversation_id_key unique (conversation_id, id)
 );
@@ -678,11 +698,15 @@ create table public.messages (
 create unique index messages_client_nonce_key
   on public.messages (conversation_id, sender_user_id, client_nonce)
   where client_nonce is not null;
-create index messages_conversation_created_idx
-  on public.messages (conversation_id, created_at, id);
+create unique index messages_system_event_key_key
+  on public.messages (conversation_id, system_event_key)
+  where system_event_key is not null;
 create index messages_sender_idx
   on public.messages (sender_user_id, created_at desc)
   where sender_user_id is not null;
+create index messages_system_actor_idx
+  on public.messages (system_actor_user_id)
+  where system_actor_user_id is not null;
 
 create table public.conversation_reads (
   conversation_id uuid not null references public.conversations(id) on delete cascade,
@@ -693,11 +717,22 @@ create table public.conversation_reads (
   constraint conversation_reads_message_fk
     foreign key (conversation_id, last_read_message_id)
     references public.messages(conversation_id, id)
-    on delete set null
+    on delete set null (last_read_message_id)
 );
 
 create index conversation_reads_user_idx
   on public.conversation_reads (user_id, last_read_at desc);
+
+create table private.conversation_typing_limits (
+  conversation_id uuid not null references public.conversations(id) on delete cascade,
+  user_id uuid not null references public.users(id) on delete cascade,
+  is_typing boolean not null,
+  last_sent_at timestamptz not null,
+  primary key (conversation_id, user_id)
+);
+
+create index conversation_typing_limits_user_idx
+  on private.conversation_typing_limits (user_id, conversation_id);
 
 -- ---------------------------------------------------------------------------
 -- School
@@ -1435,7 +1470,33 @@ as $$
   end;
 $$;
 
-create function private.can_access_conversation(p_conversation_id uuid)
+create function private.lock_user_pair(p_user_a_id uuid, p_user_b_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_locked_count integer;
+begin
+  if p_user_a_id is null or p_user_b_id is null or p_user_a_id = p_user_b_id then
+    raise exception using errcode = '22023', message = 'invalid_user_pair';
+  end if;
+
+  perform u.id
+  from public.users u
+  where u.id in (p_user_a_id, p_user_b_id)
+  order by u.id
+  for update;
+
+  get diagnostics v_locked_count = row_count;
+  if v_locked_count <> 2 then
+    raise exception using errcode = 'P0002', message = 'user_pair_not_found';
+  end if;
+end;
+$$;
+
+create function private.can_view_conversation(p_conversation_id uuid)
 returns boolean
 language sql
 stable
@@ -1451,6 +1512,192 @@ as $$
       and u.account_state = 'active'
       and not private.is_blocked(c.user_a_id, c.user_b_id)
   );
+$$;
+
+create function private.can_send_to_conversation(p_conversation_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.conversations c
+    join public.users viewer on viewer.id = (select auth.uid())
+    join public.users counterpart
+      on counterpart.id = case
+        when c.user_a_id = (select auth.uid()) then c.user_b_id
+        else c.user_a_id
+      end
+    left join public.asks a on a.id = c.ask_id
+    where c.id = p_conversation_id
+      and (select auth.uid()) in (c.user_a_id, c.user_b_id)
+      and viewer.account_state = 'active'
+      and counterpart.account_state = 'active'
+      and not private.is_blocked(c.user_a_id, c.user_b_id)
+      and (
+        (c.kind = 'direct' and private.is_connected(c.user_a_id, c.user_b_id))
+        or (c.kind = 'ask' and a.status in ('accepted', 'resolved'))
+      )
+  );
+$$;
+
+create function private.can_access_conversation(p_conversation_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select private.can_view_conversation(p_conversation_id);
+$$;
+
+create function private.can_access_conversation_topic(p_topic text)
+returns boolean
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_conversation_id uuid;
+begin
+  if p_topic is null or p_topic !~* '^conversation:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
+    return false;
+  end if;
+
+  begin
+    v_conversation_id := substring(p_topic from 14)::uuid;
+  exception
+    when invalid_text_representation then
+      return false;
+  end;
+
+  return private.can_view_conversation(v_conversation_id);
+end;
+$$;
+
+create function private.can_access_user_topic(p_topic text)
+returns boolean
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid;
+begin
+  if p_topic is null or p_topic !~* '^user:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then
+    return false;
+  end if;
+
+  begin
+    v_user_id := substring(p_topic from 6)::uuid;
+  exception
+    when invalid_text_representation then
+      return false;
+  end;
+
+  return v_user_id = (select auth.uid())
+    and exists (
+      select 1
+      from public.users u
+      where u.id = v_user_id
+        and u.account_state = 'active'
+    );
+end;
+$$;
+
+create function private.broadcast_conversation_event(
+  p_conversation_id uuid,
+  p_event text,
+  p_payload jsonb
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if p_conversation_id is null
+     or p_event not in (
+       'message.created',
+       'read.advanced',
+       'typing.changed'
+     ) then
+    raise exception using errcode = '22023', message = 'invalid_conversation_event';
+  end if;
+
+  perform realtime.send(
+    coalesce(p_payload, '{}'::jsonb),
+    p_event,
+    'conversation:' || p_conversation_id::text,
+    true
+  );
+end;
+$$;
+
+create function private.broadcast_user_control_event(
+  p_user_id uuid,
+  p_event text,
+  p_payload jsonb
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if p_user_id is null
+     or p_event not in (
+       'conversation.permissions_changed',
+       'conversation.revoked'
+     ) then
+    raise exception using errcode = '22023', message = 'invalid_user_control_event';
+  end if;
+
+  perform realtime.send(
+    coalesce(p_payload, '{}'::jsonb),
+    p_event,
+    'user:' || p_user_id::text,
+    true
+  );
+end;
+$$;
+
+create function private.broadcast_pair_conversation_event(
+  p_user_one_id uuid,
+  p_user_two_id uuid,
+  p_event text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_conversation_id uuid;
+begin
+  for v_conversation_id in
+    select c.id
+    from public.conversations c
+    where c.user_a_id = least(p_user_one_id, p_user_two_id)
+      and c.user_b_id = greatest(p_user_one_id, p_user_two_id)
+    order by c.id
+  loop
+    perform private.broadcast_user_control_event(
+      p_user_one_id,
+      p_event,
+      jsonb_build_object('conversationId', v_conversation_id)
+    );
+    perform private.broadcast_user_control_event(
+      p_user_two_id,
+      p_event,
+      jsonb_build_object('conversationId', v_conversation_id)
+    );
+  end loop;
+end;
 $$;
 
 create function private.can_view_ask(p_ask_id uuid)
@@ -2864,6 +3111,7 @@ create trigger asks_enforce_transition
 create function private.validate_reopened_ask()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 declare
@@ -3026,18 +3274,47 @@ as $$
 declare
   v_user_a_id uuid;
   v_user_b_id uuid;
+  v_kind text;
+  v_ask_status text;
+  v_sender_state text;
+  v_counterpart_state text;
 begin
-  select c.user_a_id, c.user_b_id
-    into v_user_a_id, v_user_b_id
+  if new.kind = 'system' then
+    return new;
+  end if;
+
+  select c.user_a_id, c.user_b_id, c.kind, a.status
+    into v_user_a_id, v_user_b_id, v_kind, v_ask_status
   from public.conversations c
+  left join public.asks a on a.id = c.ask_id
   where c.id = new.conversation_id;
 
-  if new.kind = 'user' and new.sender_user_id not in (v_user_a_id, v_user_b_id) then
+  if new.sender_user_id not in (v_user_a_id, v_user_b_id) then
     raise exception using errcode = '23514', message = 'message_sender_not_participant';
   end if;
 
-  if new.kind = 'user' and private.is_blocked(v_user_a_id, v_user_b_id) then
+  if private.is_blocked(v_user_a_id, v_user_b_id) then
     raise exception using errcode = '42501', message = 'message_blocked';
+  end if;
+
+  select sender.account_state, counterpart.account_state
+    into v_sender_state, v_counterpart_state
+  from public.users sender
+  join public.users counterpart
+    on counterpart.id = case
+      when new.sender_user_id = v_user_a_id then v_user_b_id
+      else v_user_a_id
+    end
+  where sender.id = new.sender_user_id;
+
+  if v_sender_state <> 'active' or v_counterpart_state <> 'active' then
+    raise exception using errcode = '42501', message = 'message_account_unavailable';
+  end if;
+
+  if v_kind = 'direct' and not private.is_connected(v_user_a_id, v_user_b_id) then
+    raise exception using errcode = '42501', message = 'message_connection_required';
+  elsif v_kind = 'ask' and v_ask_status not in ('accepted', 'resolved') then
+    raise exception using errcode = '42501', message = 'message_ask_unavailable';
   end if;
 
   return new;
@@ -3064,6 +3341,61 @@ $$;
 create trigger messages_update_conversation
   after insert on public.messages
   for each row execute function private.update_conversation_last_message();
+
+create function private.broadcast_message_created()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  perform private.broadcast_conversation_event(
+    new.conversation_id,
+    'message.created',
+    jsonb_build_object(
+      'conversationId', new.conversation_id,
+      'messageId', new.id::text
+    )
+  );
+  return null;
+end;
+$$;
+
+create trigger messages_broadcast_created
+  after insert on public.messages
+  for each row execute function private.broadcast_message_created();
+
+create function private.broadcast_conversation_read_advanced()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.last_read_message_id is null then
+    return null;
+  end if;
+
+  if tg_op = 'UPDATE'
+     and old.last_read_message_id is not null
+     and new.last_read_message_id <= old.last_read_message_id then
+    return null;
+  end if;
+
+  perform private.broadcast_conversation_event(
+    new.conversation_id,
+    'read.advanced',
+    jsonb_build_object(
+      'conversationId', new.conversation_id,
+      'readerUserId', new.user_id,
+      'messageId', new.last_read_message_id::text
+    )
+  );
+  return null;
+end;
+$$;
+
+create trigger conversation_reads_broadcast_advanced
+  after insert or update of last_read_message_id on public.conversation_reads
+  for each row execute function private.broadcast_conversation_read_advanced();
 
 create function private.validate_report_target()
 returns trigger
@@ -3112,6 +3444,7 @@ create trigger reports_validate_target
 create function private.validate_ask_consistency()
 returns trigger
 language plpgsql
+security definer
 set search_path = ''
 as $$
 declare
@@ -3231,6 +3564,44 @@ create trigger profile_enrichment_jobs_set_updated_at before update on private.p
 -- ---------------------------------------------------------------------------
 -- Transactional domain commands
 -- ---------------------------------------------------------------------------
+
+create function private.insert_system_message(
+  p_conversation_id uuid,
+  p_event_type text,
+  p_event_key text,
+  p_body text,
+  p_actor_user_id uuid default null
+)
+returns bigint
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_message_id bigint;
+begin
+  insert into public.messages (
+    conversation_id, kind, body, system_event_type, system_event_key,
+    system_actor_user_id
+  ) values (
+    p_conversation_id, 'system', p_body, p_event_type, p_event_key,
+    p_actor_user_id
+  )
+  on conflict (conversation_id, system_event_key)
+    where system_event_key is not null
+  do nothing
+  returning id into v_message_id;
+
+  if v_message_id is null then
+    select m.id into v_message_id
+    from public.messages m
+    where m.conversation_id = p_conversation_id
+      and m.system_event_key = p_event_key;
+  end if;
+
+  return v_message_id;
+end;
+$$;
 
 create function private.create_ask(
   p_kind text,
@@ -3392,8 +3763,7 @@ declare
 begin
   select * into v_ask
   from public.asks a
-  where a.id = p_ask_id
-  for update;
+  where a.id = p_ask_id;
 
   if not found or v_ask.kind <> 'direct' then
     raise exception using errcode = '22023', message = 'direct_ask_not_found';
@@ -3406,6 +3776,18 @@ begin
   where asker.id = v_ask.asker_membership_id;
 
   if v_recipient_user_id is distinct from (select auth.uid()) then
+    raise exception using errcode = '42501', message = 'direct_ask_not_recipient';
+  end if;
+
+  perform private.lock_user_pair(v_asker_user_id, v_recipient_user_id);
+
+  select * into v_ask
+  from public.asks a
+  where a.id = p_ask_id
+  for update;
+
+  if not found or v_ask.kind <> 'direct'
+     or v_recipient_user_id is distinct from (select auth.uid()) then
     raise exception using errcode = '42501', message = 'direct_ask_not_recipient';
   end if;
   if private.is_blocked(v_asker_user_id, v_recipient_user_id) then
@@ -3436,13 +3818,33 @@ begin
       'ask', least(v_asker_user_id, v_recipient_user_id),
       greatest(v_asker_user_id, v_recipient_user_id),
       v_ask.organization_id, p_ask_id
-    ) returning id into v_conversation_id;
+    )
+    on conflict (ask_id) where ask_id is not null
+    do nothing
+    returning id into v_conversation_id;
+
+    if v_conversation_id is null then
+      select c.id into v_conversation_id
+      from public.conversations c
+      where c.ask_id = p_ask_id;
+    end if;
+
+    perform private.insert_system_message(
+      v_conversation_id,
+      'ask_accepted',
+      'ask_accepted:' || p_ask_id::text,
+      'Ask accepted.',
+      v_recipient_user_id
+    );
 
     insert into public.messages (
       conversation_id, sender_user_id, kind, body, client_nonce
     ) values (
       v_conversation_id, v_recipient_user_id, 'user', p_opening_message, p_client_nonce
-    );
+    )
+    on conflict (conversation_id, sender_user_id, client_nonce)
+      where client_nonce is not null
+    do nothing;
 
     update public.helper_preferences
     set consecutive_timeouts = 0
@@ -3540,6 +3942,7 @@ as $$
 declare
   v_ask public.asks%rowtype;
   v_actor uuid := (select auth.uid());
+  v_conversation_id uuid;
 begin
   select * into v_ask from public.asks where id = p_ask_id for update;
   if not found then
@@ -3555,6 +3958,16 @@ begin
   update public.asks
   set status = 'resolved', outcome_note = nullif(btrim(p_outcome_note), ''), ended_at = now()
   where id = p_ask_id;
+  select c.id into v_conversation_id
+  from public.conversations c
+  where c.ask_id = p_ask_id;
+  perform private.insert_system_message(
+    v_conversation_id,
+    'ask_resolved',
+    'ask_resolved:' || p_ask_id::text,
+    'Ask resolved.',
+    v_actor
+  );
   insert into private.ask_events (ask_id, organization_id, actor_user_id, event_type)
   values (p_ask_id, v_ask.organization_id, v_actor, 'resolved');
 end;
@@ -3657,11 +4070,11 @@ declare
   v_helper_user_id uuid;
   v_conversation_id uuid;
 begin
-  select * into v_offer from public.ask_offers where id = p_offer_id for update;
+  select * into v_offer from public.ask_offers where id = p_offer_id;
   if not found then
     raise exception using errcode = '22023', message = 'offer_not_found';
   end if;
-  select * into v_ask from public.asks where id = v_offer.ask_id for update;
+  select * into v_ask from public.asks where id = v_offer.ask_id;
 
   if not private.owns_membership(v_ask.asker_membership_id, v_ask.organization_id) then
     raise exception using errcode = '42501', message = 'offer_decision_not_owned';
@@ -3672,6 +4085,28 @@ begin
   from public.organization_memberships asker
   join public.organization_memberships helper on helper.id = v_offer.helper_membership_id
   where asker.id = v_ask.asker_membership_id;
+
+  perform private.lock_user_pair(v_asker_user_id, v_helper_user_id);
+
+  select * into v_ask
+  from public.asks
+  where id = v_offer.ask_id
+  for update;
+
+  perform 1
+  from public.ask_offers ao
+  where ao.ask_id = v_ask.id
+  order by ao.id
+  for update;
+
+  select * into v_offer
+  from public.ask_offers
+  where id = p_offer_id;
+
+  if not found or v_offer.ask_id <> v_ask.id
+     or not private.owns_membership(v_ask.asker_membership_id, v_ask.organization_id) then
+    raise exception using errcode = '42501', message = 'offer_decision_not_owned';
+  end if;
 
   if private.is_blocked(v_asker_user_id, v_helper_user_id) then
     raise exception using errcode = '42501', message = 'offer_blocked';
@@ -3691,12 +4126,6 @@ begin
       raise exception using errcode = '22023', message = 'opening_message_required';
     end if;
 
-    perform 1
-    from public.ask_offers ao
-    where ao.ask_id = v_ask.id and ao.status = 'pending'
-    order by ao.id
-    for update;
-
     update public.ask_offers
     set status = 'accepted', responded_at = now()
     where id = p_offer_id;
@@ -3715,13 +4144,33 @@ begin
       'ask', least(v_asker_user_id, v_helper_user_id),
       greatest(v_asker_user_id, v_helper_user_id),
       v_ask.organization_id, v_ask.id
-    ) returning id into v_conversation_id;
+    )
+    on conflict (ask_id) where ask_id is not null
+    do nothing
+    returning id into v_conversation_id;
+
+    if v_conversation_id is null then
+      select c.id into v_conversation_id
+      from public.conversations c
+      where c.ask_id = v_ask.id;
+    end if;
+
+    perform private.insert_system_message(
+      v_conversation_id,
+      'ask_accepted',
+      'ask_accepted:' || v_ask.id::text,
+      'Ask accepted.',
+      v_asker_user_id
+    );
 
     insert into public.messages (
       conversation_id, sender_user_id, kind, body, client_nonce
     ) values (
       v_conversation_id, v_asker_user_id, 'user', p_opening_message, p_client_nonce
-    );
+    )
+    on conflict (conversation_id, sender_user_id, client_nonce)
+      where client_nonce is not null
+    do nothing;
 
     insert into private.ask_events (
       ask_id, organization_id, actor_user_id, event_type,
@@ -3867,7 +4316,21 @@ as $$
 declare
   v_request public.connection_requests%rowtype;
   v_connection_id uuid;
+  v_conversation_id uuid;
 begin
+  select * into v_request
+  from public.connection_requests
+  where id = p_request_id;
+
+  if not found or v_request.recipient_user_id is distinct from (select auth.uid()) then
+    raise exception using errcode = '42501', message = 'connection_request_not_recipient';
+  end if;
+
+  perform private.lock_user_pair(
+    v_request.requester_user_id,
+    v_request.recipient_user_id
+  );
+
   select * into v_request
   from public.connection_requests
   where id = p_request_id
@@ -3884,6 +4347,18 @@ begin
     select id into v_connection_id
     from public.connections
     where connection_request_id = p_request_id;
+    select c.id into v_conversation_id
+    from public.conversations c
+    where c.kind = 'direct'
+      and c.user_a_id = least(v_request.requester_user_id, v_request.recipient_user_id)
+      and c.user_b_id = greatest(v_request.requester_user_id, v_request.recipient_user_id);
+    perform private.insert_system_message(
+      v_conversation_id,
+      'connection_accepted',
+      'connection_accepted:' || p_request_id::text,
+      'Connection accepted.',
+      v_request.recipient_user_id
+    );
     return v_connection_id;
   elsif v_request.status = 'declined' and p_decision = 'decline' then
     return null;
@@ -3907,12 +4382,39 @@ begin
       set connection_request_id = coalesce(public.connections.connection_request_id, excluded.connection_request_id)
     returning id into v_connection_id;
 
+    insert into public.conversations (kind, user_a_id, user_b_id)
+    values (
+      'direct',
+      least(v_request.requester_user_id, v_request.recipient_user_id),
+      greatest(v_request.requester_user_id, v_request.recipient_user_id)
+    )
+    on conflict (user_a_id, user_b_id) where kind = 'direct'
+    do nothing
+    returning id into v_conversation_id;
+
+    if v_conversation_id is null then
+      select c.id into v_conversation_id
+      from public.conversations c
+      where c.kind = 'direct'
+        and c.user_a_id = least(v_request.requester_user_id, v_request.recipient_user_id)
+        and c.user_b_id = greatest(v_request.requester_user_id, v_request.recipient_user_id);
+    end if;
+
+    perform private.insert_system_message(
+      v_conversation_id,
+      'connection_accepted',
+      'connection_accepted:' || p_request_id::text,
+      'Connection accepted.',
+      v_request.recipient_user_id
+    );
+
     perform private.enqueue_outbox(
       'create_notification',
       jsonb_build_object(
         'type', 'connection_accepted', 'recipientUserId', v_request.requester_user_id,
         'actorUserId', v_request.recipient_user_id,
-        'connectionRequestId', p_request_id
+        'connectionRequestId', p_request_id,
+        'conversationId', v_conversation_id
       ),
       'connection_accepted:' || p_request_id::text
     );
@@ -3930,13 +4432,33 @@ $$;
 
 create function private.disconnect(p_other_user_id uuid)
 returns void
-language sql
+language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_deleted_count integer;
+begin
+  if v_user_id is null or v_user_id = p_other_user_id or not exists (
+    select 1 from public.users u where u.id = p_other_user_id
+  ) then
+    raise exception using errcode = '22023', message = 'invalid_disconnect_target';
+  end if;
+
+  perform private.lock_user_pair(v_user_id, p_other_user_id);
+
   delete from public.connections c
   where c.user_a_id = least((select auth.uid()), p_other_user_id)
     and c.user_b_id = greatest((select auth.uid()), p_other_user_id);
+
+  get diagnostics v_deleted_count = row_count;
+  if v_deleted_count > 0 then
+    perform private.broadcast_pair_conversation_event(
+      v_user_id, p_other_user_id, 'conversation.permissions_changed'
+    );
+  end if;
+end;
 $$;
 
 create function private.block_member(p_blocked_user_id uuid)
@@ -3947,14 +4469,22 @@ set search_path = ''
 as $$
 declare
   v_blocker_user_id uuid := (select auth.uid());
+  v_inserted_count integer;
 begin
   if v_blocker_user_id is null or v_blocker_user_id = p_blocked_user_id then
     raise exception using errcode = '22023', message = 'invalid_block_target';
   end if;
+  if not exists (select 1 from public.users u where u.id = p_blocked_user_id) then
+    raise exception using errcode = '22023', message = 'invalid_block_target';
+  end if;
+
+  perform private.lock_user_pair(v_blocker_user_id, p_blocked_user_id);
 
   insert into public.member_blocks (blocker_user_id, blocked_user_id)
   values (v_blocker_user_id, p_blocked_user_id)
   on conflict do nothing;
+
+  get diagnostics v_inserted_count = row_count;
 
   update public.connection_requests
   set status = 'cancelled', responded_at = now()
@@ -4011,6 +4541,12 @@ begin
   ) values (
     v_blocker_user_id, 'safety.member_blocked', 'user', p_blocked_user_id::text
   );
+
+  if v_inserted_count > 0 then
+    perform private.broadcast_pair_conversation_event(
+      v_blocker_user_id, p_blocked_user_id, 'conversation.revoked'
+    );
+  end if;
 end;
 $$;
 
@@ -4022,21 +4558,37 @@ set search_path = ''
 as $$
 declare
   v_blocker_user_id uuid := (select auth.uid());
+  v_deleted_count integer;
 begin
+  if v_blocker_user_id is null or v_blocker_user_id = p_blocked_user_id
+     or not exists (select 1 from public.users u where u.id = p_blocked_user_id) then
+    raise exception using errcode = '22023', message = 'invalid_unblock_target';
+  end if;
+
+  perform private.lock_user_pair(v_blocker_user_id, p_blocked_user_id);
+
   delete from public.member_blocks
   where blocker_user_id = v_blocker_user_id
     and blocked_user_id = p_blocked_user_id;
+
+  get diagnostics v_deleted_count = row_count;
 
   insert into private.audit_log (
     actor_user_id, action, target_type, target_id
   ) values (
     v_blocker_user_id, 'safety.member_unblocked', 'user', p_blocked_user_id::text
   );
+
+  if v_deleted_count > 0 then
+    perform private.broadcast_pair_conversation_event(
+      v_blocker_user_id, p_blocked_user_id, 'conversation.permissions_changed'
+    );
+  end if;
 end;
 $$;
 
 create function private.get_or_create_direct_conversation(p_other_user_id uuid)
-returns uuid
+returns table(result_code text, conversation_id uuid)
 language plpgsql
 security definer
 set search_path = ''
@@ -4045,19 +4597,44 @@ declare
   v_user_id uuid := (select auth.uid());
   v_conversation_id uuid;
 begin
-  if v_user_id is null or v_user_id = p_other_user_id
-     or not private.is_connected(v_user_id, p_other_user_id)
-     or private.is_blocked(v_user_id, p_other_user_id) then
-    raise exception using errcode = '42501', message = 'direct_conversation_not_allowed';
+  if v_user_id is null or v_user_id = p_other_user_id or not exists (
+    select 1
+    from public.users mine
+    join public.users other on other.id = p_other_user_id
+    where mine.id = v_user_id
+      and mine.account_state = 'active'
+      and other.account_state = 'active'
+  ) then
+    return query select 'not_available'::text, null::uuid;
+    return;
+  end if;
+
+  perform private.lock_user_pair(v_user_id, p_other_user_id);
+
+  if private.is_blocked(v_user_id, p_other_user_id) then
+    return query select 'not_available'::text, null::uuid;
+    return;
+  end if;
+  if not private.is_connected(v_user_id, p_other_user_id) then
+    return query select 'connection_required'::text, null::uuid;
+    return;
   end if;
 
   insert into public.conversations (kind, user_a_id, user_b_id)
   values ('direct', least(v_user_id, p_other_user_id), greatest(v_user_id, p_other_user_id))
   on conflict (user_a_id, user_b_id) where kind = 'direct'
-  do update set kind = excluded.kind
-  returning id into v_conversation_id;
+  do nothing
+  returning public.conversations.id into v_conversation_id;
 
-  return v_conversation_id;
+  if v_conversation_id is null then
+    select c.id into v_conversation_id
+    from public.conversations c
+    where c.kind = 'direct'
+      and c.user_a_id = least(v_user_id, p_other_user_id)
+      and c.user_b_id = greatest(v_user_id, p_other_user_id);
+  end if;
+
+  return query select 'ready'::text, v_conversation_id;
 end;
 $$;
 
@@ -4066,39 +4643,95 @@ create function private.send_message(
   p_body text,
   p_client_nonce uuid
 )
-returns bigint
+returns table(result_code text, message_id bigint, created_at timestamptz)
 language plpgsql
 security definer
 set search_path = ''
 as $$
 declare
   v_user_id uuid := (select auth.uid());
+  v_user_a_id uuid;
+  v_user_b_id uuid;
+  v_kind text;
+  v_ask_id uuid;
+  v_ask_status text;
+  v_sender_state text;
+  v_recipient_state text;
   v_message_id bigint;
+  v_created_at timestamptz;
   v_recipient_user_id uuid;
 begin
-  if not private.can_access_conversation(p_conversation_id) then
-    raise exception using errcode = '42501', message = 'conversation_not_accessible';
+  if p_client_nonce is null
+     or char_length(btrim(coalesce(p_body, ''))) not between 1 and 10000 then
+    return query select 'invalid_message'::text, null::bigint, null::timestamptz;
+    return;
   end if;
 
-  select m.id into v_message_id
-  from public.messages m
-  where m.conversation_id = p_conversation_id
-    and m.sender_user_id = v_user_id
-    and m.client_nonce = p_client_nonce;
-  if v_message_id is not null then
-    return v_message_id;
+  select c.user_a_id, c.user_b_id
+    into v_user_a_id, v_user_b_id
+  from public.conversations c
+  where c.id = p_conversation_id;
+  if not found or v_user_id not in (v_user_a_id, v_user_b_id) then
+    return query select 'not_available'::text, null::bigint, null::timestamptz;
+    return;
+  end if;
+
+  perform private.lock_user_pair(v_user_a_id, v_user_b_id);
+
+  select c.user_a_id, c.user_b_id, c.kind, c.ask_id,
+         sender.account_state, recipient.account_state,
+         case when c.user_a_id = v_user_id then c.user_b_id else c.user_a_id end
+    into v_user_a_id, v_user_b_id, v_kind, v_ask_id,
+         v_sender_state, v_recipient_state, v_recipient_user_id
+  from public.conversations c
+  join public.users sender on sender.id = v_user_id
+  join public.users recipient
+    on recipient.id = case
+      when c.user_a_id = v_user_id then c.user_b_id
+      else c.user_a_id
+    end
+  where c.id = p_conversation_id
+    and v_user_id in (c.user_a_id, c.user_b_id)
+  for update of c;
+
+  if not found
+     or v_sender_state <> 'active'
+     or v_recipient_state <> 'active'
+     or private.is_blocked(v_user_a_id, v_user_b_id) then
+    return query select 'not_available'::text, null::bigint, null::timestamptz;
+    return;
+  end if;
+
+  if v_kind = 'direct' and not private.is_connected(v_user_a_id, v_user_b_id) then
+    return query select 'connection_required'::text, null::bigint, null::timestamptz;
+    return;
+  elsif v_kind = 'ask' then
+    select a.status into v_ask_status from public.asks a where a.id = v_ask_id;
+    if v_ask_status not in ('accepted', 'resolved') then
+      return query select 'not_available'::text, null::bigint, null::timestamptz;
+      return;
+    end if;
   end if;
 
   insert into public.messages (
     conversation_id, sender_user_id, kind, body, client_nonce
   ) values (
     p_conversation_id, v_user_id, 'user', p_body, p_client_nonce
-  ) returning id into v_message_id;
+  )
+  on conflict (conversation_id, sender_user_id, client_nonce)
+    where client_nonce is not null
+  do nothing
+  returning id, public.messages.created_at into v_message_id, v_created_at;
 
-  select case when c.user_a_id = v_user_id then c.user_b_id else c.user_a_id end
-    into v_recipient_user_id
-  from public.conversations c
-  where c.id = p_conversation_id;
+  if v_message_id is null then
+    select m.id, m.created_at into v_message_id, v_created_at
+    from public.messages m
+    where m.conversation_id = p_conversation_id
+      and m.sender_user_id = v_user_id
+      and m.client_nonce = p_client_nonce;
+    return query select 'duplicate'::text, v_message_id, v_created_at;
+    return;
+  end if;
 
   perform private.enqueue_outbox(
     'create_notification',
@@ -4109,30 +4742,195 @@ begin
     ),
     'message_received:' || v_message_id::text
   );
-  return v_message_id;
+  return query select 'sent'::text, v_message_id, v_created_at;
 end;
+$$;
+
+create function private.get_conversation_detail(p_conversation_id uuid)
+returns table(
+  conversation_id uuid,
+  kind text,
+  organization_id uuid,
+  ask_id uuid,
+  created_at timestamptz,
+  last_message_at timestamptz,
+  counterpart_user_id uuid,
+  counterpart_display_name text,
+  counterpart_avatar_path text,
+  counterpart_graduation_year smallint,
+  can_send boolean,
+  viewer_last_read_message_id bigint,
+  viewer_last_read_at timestamptz,
+  counterpart_last_read_message_id bigint,
+  counterpart_last_read_at timestamptz,
+  latest_message_id bigint
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    c.id,
+    c.kind,
+    c.organization_id,
+    c.ask_id,
+    c.created_at,
+    c.last_message_at,
+    counterpart.id,
+    case
+      when counterpart.account_state = 'active'
+        then coalesce(nullif(p.preferred_name, ''), p.display_name, 'Member')
+      else 'Deleted member'
+    end,
+    case when counterpart.account_state = 'active' then p.avatar_path else null end,
+    case when counterpart.account_state = 'active' then class_year.graduation_year else null end,
+    private.can_send_to_conversation(c.id),
+    viewer_read.last_read_message_id,
+    viewer_read.last_read_at,
+    counterpart_read.last_read_message_id,
+    counterpart_read.last_read_at,
+    latest.id
+  from public.conversations c
+  join public.users counterpart
+    on counterpart.id = case
+      when c.user_a_id = (select auth.uid()) then c.user_b_id
+      else c.user_a_id
+    end
+  left join public.profiles p on p.user_id = counterpart.id
+  left join public.conversation_reads viewer_read
+    on viewer_read.conversation_id = c.id
+   and viewer_read.user_id = (select auth.uid())
+  left join public.conversation_reads counterpart_read
+    on counterpart_read.conversation_id = c.id
+   and counterpart_read.user_id = counterpart.id
+  left join lateral (
+    select op.graduation_year
+    from public.organization_memberships mine
+    join public.organization_memberships theirs
+      on theirs.organization_id = mine.organization_id
+     and theirs.user_id = counterpart.id
+     and theirs.status = 'active'
+    left join public.organization_profiles op
+      on op.organization_id = theirs.organization_id
+     and op.organization_membership_id = theirs.id
+    where mine.user_id = (select auth.uid())
+      and mine.status = 'active'
+    order by
+      case when mine.organization_id = c.organization_id then 0 else 1 end,
+      mine.organization_id
+    limit 1
+  ) class_year on true
+  left join lateral (
+    select m.id
+    from public.messages m
+    where m.conversation_id = c.id
+    order by m.id desc
+    limit 1
+  ) latest on true
+  where c.id = p_conversation_id
+    and private.can_view_conversation(c.id);
+$$;
+
+create function private.list_conversation_messages_before(
+  p_conversation_id uuid,
+  p_before_id bigint default null,
+  p_limit integer default 50
+)
+returns table(
+  id bigint,
+  conversation_id uuid,
+  sender_user_id uuid,
+  kind text,
+  body text,
+  system_event_type text,
+  system_actor_user_id uuid,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    m.id, m.conversation_id, m.sender_user_id, m.kind, m.body,
+    m.system_event_type, m.system_actor_user_id, m.created_at
+  from public.messages m
+  where m.conversation_id = p_conversation_id
+    and private.can_view_conversation(p_conversation_id)
+    and (p_before_id is null or m.id < p_before_id)
+  order by m.id desc
+  limit greatest(1, least(coalesce(p_limit, 50), 100));
+$$;
+
+create function private.list_conversation_messages_after(
+  p_conversation_id uuid,
+  p_after_id bigint default null,
+  p_limit integer default 100
+)
+returns table(
+  id bigint,
+  conversation_id uuid,
+  sender_user_id uuid,
+  kind text,
+  body text,
+  system_event_type text,
+  system_actor_user_id uuid,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    m.id, m.conversation_id, m.sender_user_id, m.kind, m.body,
+    m.system_event_type, m.system_actor_user_id, m.created_at
+  from public.messages m
+  where m.conversation_id = p_conversation_id
+    and private.can_view_conversation(p_conversation_id)
+    and (p_after_id is null or m.id > p_after_id)
+  order by m.id asc
+  limit greatest(1, least(coalesce(p_limit, 100), 100));
 $$;
 
 create function private.mark_conversation_read(
   p_conversation_id uuid,
   p_message_id bigint
 )
-returns void
+returns table(result_code text, last_read_message_id bigint, last_read_at timestamptz)
 language plpgsql
 security definer
 set search_path = ''
 as $$
 declare
   v_user_id uuid := (select auth.uid());
+  v_user_a_id uuid;
+  v_user_b_id uuid;
+  v_last_read_message_id bigint;
+  v_last_read_at timestamptz;
 begin
-  if not private.can_access_conversation(p_conversation_id) then
-    raise exception using errcode = '42501', message = 'conversation_not_accessible';
+  select c.user_a_id, c.user_b_id
+    into v_user_a_id, v_user_b_id
+  from public.conversations c
+  where c.id = p_conversation_id;
+  if not found or v_user_id not in (v_user_a_id, v_user_b_id) then
+    return query select 'not_available'::text, null::bigint, null::timestamptz;
+    return;
   end if;
-  if p_message_id is not null and not exists (
+
+  perform private.lock_user_pair(v_user_a_id, v_user_b_id);
+
+  if not private.can_view_conversation(p_conversation_id) then
+    return query select 'not_available'::text, null::bigint, null::timestamptz;
+    return;
+  end if;
+  if p_message_id is null or not exists (
     select 1 from public.messages m
     where m.conversation_id = p_conversation_id and m.id = p_message_id
   ) then
-    raise exception using errcode = '22023', message = 'read_cursor_message_mismatch';
+    return query select 'invalid_cursor'::text, null::bigint, null::timestamptz;
+    return;
   end if;
 
   insert into public.conversation_reads (
@@ -4141,12 +4939,103 @@ begin
     p_conversation_id, v_user_id, p_message_id, now()
   )
   on conflict (conversation_id, user_id) do update
-    set last_read_message_id = case
-          when public.conversation_reads.last_read_message_id is null then excluded.last_read_message_id
-          when excluded.last_read_message_id is null then public.conversation_reads.last_read_message_id
-          else greatest(public.conversation_reads.last_read_message_id, excluded.last_read_message_id)
-        end,
-        last_read_at = now();
+    set last_read_message_id = excluded.last_read_message_id,
+        last_read_at = excluded.last_read_at
+    where public.conversation_reads.last_read_message_id is null
+       or public.conversation_reads.last_read_message_id < excluded.last_read_message_id
+  returning public.conversation_reads.last_read_message_id,
+            public.conversation_reads.last_read_at
+    into v_last_read_message_id, v_last_read_at;
+
+  if found then
+    return query select 'advanced'::text, v_last_read_message_id, v_last_read_at;
+    return;
+  end if;
+
+  select cr.last_read_message_id, cr.last_read_at
+    into v_last_read_message_id, v_last_read_at
+  from public.conversation_reads cr
+  where cr.conversation_id = p_conversation_id
+    and cr.user_id = v_user_id;
+  return query select 'unchanged'::text, v_last_read_message_id, v_last_read_at;
+end;
+$$;
+
+create function private.publish_conversation_typing(
+  p_conversation_id uuid,
+  p_is_typing boolean
+)
+returns table(result_code text, expires_at timestamptz)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_user_a_id uuid;
+  v_user_b_id uuid;
+  v_sent_at timestamptz;
+  v_expires_at timestamptz;
+begin
+  if v_user_id is null or p_is_typing is null then
+    return query select 'not_available'::text, null::timestamptz;
+    return;
+  end if;
+
+  select c.user_a_id, c.user_b_id
+    into v_user_a_id, v_user_b_id
+  from public.conversations c
+  where c.id = p_conversation_id
+    and v_user_id in (c.user_a_id, c.user_b_id);
+
+  if not found then
+    return query select 'not_available'::text, null::timestamptz;
+    return;
+  end if;
+
+  perform private.lock_user_pair(v_user_a_id, v_user_b_id);
+
+  if not private.can_send_to_conversation(p_conversation_id) then
+    return query select 'not_available'::text, null::timestamptz;
+    return;
+  end if;
+
+  v_sent_at := clock_timestamp();
+  insert into private.conversation_typing_limits (
+    conversation_id, user_id, is_typing, last_sent_at
+  ) values (
+    p_conversation_id, v_user_id, p_is_typing, v_sent_at
+  )
+  on conflict (conversation_id, user_id) do update
+    set is_typing = excluded.is_typing,
+        last_sent_at = excluded.last_sent_at
+    where private.conversation_typing_limits.last_sent_at
+          <= excluded.last_sent_at - interval '1 second'
+  returning private.conversation_typing_limits.last_sent_at + interval '3 seconds'
+    into v_expires_at;
+
+  if not found then
+    select ctl.last_sent_at + interval '3 seconds'
+      into v_expires_at
+    from private.conversation_typing_limits ctl
+    where ctl.conversation_id = p_conversation_id
+      and ctl.user_id = v_user_id;
+    return query select 'throttled'::text, v_expires_at;
+    return;
+  end if;
+
+  perform private.broadcast_conversation_event(
+    p_conversation_id,
+    'typing.changed',
+    jsonb_build_object(
+      'conversationId', p_conversation_id,
+      'actorUserId', v_user_id,
+      'isTyping', p_is_typing,
+      'expiresAt', v_expires_at
+    )
+  );
+
+  return query select 'published'::text, v_expires_at;
 end;
 $$;
 
@@ -5222,20 +6111,87 @@ returns void language sql set search_path = ''
 as $$ select private.unblock_member(p_blocked_user_id); $$;
 
 create function api.get_or_create_direct_conversation(p_other_user_id uuid)
-returns uuid language sql set search_path = ''
-as $$ select private.get_or_create_direct_conversation(p_other_user_id); $$;
+returns table(result_code text, conversation_id uuid)
+language sql set search_path = ''
+as $$ select * from private.get_or_create_direct_conversation(p_other_user_id); $$;
+
+create function api.get_conversation_detail(p_conversation_id uuid)
+returns table(
+  conversation_id uuid,
+  kind text,
+  organization_id uuid,
+  ask_id uuid,
+  created_at timestamptz,
+  last_message_at timestamptz,
+  counterpart_user_id uuid,
+  counterpart_display_name text,
+  counterpart_avatar_path text,
+  counterpart_graduation_year smallint,
+  can_send boolean,
+  viewer_last_read_message_id bigint,
+  viewer_last_read_at timestamptz,
+  counterpart_last_read_message_id bigint,
+  counterpart_last_read_at timestamptz,
+  latest_message_id bigint
+)
+language sql set search_path = ''
+as $$ select * from private.get_conversation_detail(p_conversation_id); $$;
+
+create function api.list_conversation_messages_before(
+  p_conversation_id uuid,
+  p_before_id bigint default null,
+  p_limit integer default 50
+)
+returns table(
+  id bigint, conversation_id uuid, sender_user_id uuid, kind text, body text,
+  system_event_type text, system_actor_user_id uuid, created_at timestamptz
+)
+language sql set search_path = ''
+as $$
+  select * from private.list_conversation_messages_before(
+    p_conversation_id, p_before_id, p_limit
+  );
+$$;
+
+create function api.list_conversation_messages_after(
+  p_conversation_id uuid,
+  p_after_id bigint default null,
+  p_limit integer default 100
+)
+returns table(
+  id bigint, conversation_id uuid, sender_user_id uuid, kind text, body text,
+  system_event_type text, system_actor_user_id uuid, created_at timestamptz
+)
+language sql set search_path = ''
+as $$
+  select * from private.list_conversation_messages_after(
+    p_conversation_id, p_after_id, p_limit
+  );
+$$;
 
 create function api.send_message(
   p_conversation_id uuid,
   p_body text,
   p_client_nonce uuid
 )
-returns bigint language sql set search_path = ''
-as $$ select private.send_message(p_conversation_id, p_body, p_client_nonce); $$;
+returns table(result_code text, message_id bigint, created_at timestamptz)
+language sql set search_path = ''
+as $$ select * from private.send_message(p_conversation_id, p_body, p_client_nonce); $$;
 
 create function api.mark_conversation_read(p_conversation_id uuid, p_message_id bigint)
-returns void language sql set search_path = ''
-as $$ select private.mark_conversation_read(p_conversation_id, p_message_id); $$;
+returns table(result_code text, last_read_message_id bigint, last_read_at timestamptz)
+language sql set search_path = ''
+as $$ select * from private.mark_conversation_read(p_conversation_id, p_message_id); $$;
+
+create function api.publish_conversation_typing(
+  p_conversation_id uuid,
+  p_is_typing boolean
+)
+returns table(result_code text, expires_at timestamptz)
+language sql set search_path = ''
+as $$
+  select * from private.publish_conversation_typing(p_conversation_id, p_is_typing);
+$$;
 
 create function api.mark_notifications_read(p_notification_ids bigint[])
 returns integer language sql set search_path = ''
@@ -5414,6 +6370,7 @@ alter table public.notification_preferences enable row level security;
 
 alter table private.ask_matches enable row level security;
 alter table private.ask_events enable row level security;
+alter table private.conversation_typing_limits enable row level security;
 alter table private.reports enable row level security;
 alter table private.moderation_actions enable row level security;
 alter table private.outbox_jobs enable row level security;
@@ -5593,15 +6550,15 @@ create policy member_blocks_select_owner on public.member_blocks
 
 create policy conversations_select_participant on public.conversations
   for select to authenticated
-  using ((select private.can_access_conversation(id)));
+  using ((select private.can_view_conversation(id)));
 
 create policy messages_select_participant on public.messages
   for select to authenticated
-  using ((select private.can_access_conversation(conversation_id)));
+  using ((select private.can_view_conversation(conversation_id)));
 
 create policy conversation_reads_select_owner on public.conversation_reads
   for select to authenticated
-  using (user_id = (select auth.uid()) and (select private.can_access_conversation(conversation_id)));
+  using (user_id = (select auth.uid()) and (select private.can_view_conversation(conversation_id)));
 
 create policy events_select_member on public.events
   for select to authenticated
@@ -5651,9 +6608,6 @@ grant select on public.users,
   public.connection_requests,
   public.connections,
   public.member_blocks,
-  public.conversations,
-  public.messages,
-  public.conversation_reads,
   public.events,
   public.event_rsvps,
   public.announcements,
@@ -5692,8 +6646,12 @@ grant execute on function api.disconnect(uuid) to authenticated;
 grant execute on function api.block_member(uuid) to authenticated;
 grant execute on function api.unblock_member(uuid) to authenticated;
 grant execute on function api.get_or_create_direct_conversation(uuid) to authenticated;
+grant execute on function api.get_conversation_detail(uuid) to authenticated;
+grant execute on function api.list_conversation_messages_before(uuid, bigint, integer) to authenticated;
+grant execute on function api.list_conversation_messages_after(uuid, bigint, integer) to authenticated;
 grant execute on function api.send_message(uuid, text, uuid) to authenticated;
 grant execute on function api.mark_conversation_read(uuid, bigint) to authenticated;
+grant execute on function api.publish_conversation_typing(uuid, boolean) to authenticated;
 grant execute on function api.mark_notifications_read(bigint[]) to authenticated;
 grant execute on function api.submit_report(text, text, text, text) to authenticated;
 grant execute on function api.set_event_rsvp(uuid, uuid, text) to authenticated;
@@ -5708,7 +6666,9 @@ grant execute on function private.owns_membership(uuid, uuid) to authenticated;
 grant execute on function private.is_admin_of(uuid) to authenticated;
 grant execute on function private.is_connected(uuid, uuid) to authenticated;
 grant execute on function private.is_blocked(uuid, uuid) to authenticated;
-grant execute on function private.can_access_conversation(uuid) to authenticated;
+grant execute on function private.can_view_conversation(uuid) to authenticated;
+grant execute on function private.can_access_conversation_topic(text) to authenticated;
+grant execute on function private.can_access_user_topic(text) to authenticated;
 grant execute on function private.can_view_ask(uuid) to authenticated;
 grant execute on function private.accept_invite(text) to authenticated;
 grant execute on function private.create_ask(text, uuid, uuid, text, text, text, boolean, uuid) to authenticated;
@@ -5736,8 +6696,12 @@ grant execute on function private.disconnect(uuid) to authenticated;
 grant execute on function private.block_member(uuid) to authenticated;
 grant execute on function private.unblock_member(uuid) to authenticated;
 grant execute on function private.get_or_create_direct_conversation(uuid) to authenticated;
+grant execute on function private.get_conversation_detail(uuid) to authenticated;
+grant execute on function private.list_conversation_messages_before(uuid, bigint, integer) to authenticated;
+grant execute on function private.list_conversation_messages_after(uuid, bigint, integer) to authenticated;
 grant execute on function private.send_message(uuid, text, uuid) to authenticated;
 grant execute on function private.mark_conversation_read(uuid, bigint) to authenticated;
+grant execute on function private.publish_conversation_typing(uuid, boolean) to authenticated;
 grant execute on function private.mark_notifications_read(bigint[]) to authenticated;
 grant execute on function private.submit_report(text, text, text, text) to authenticated;
 grant execute on function private.set_event_rsvp(uuid, uuid, text) to authenticated;
@@ -5829,17 +6793,28 @@ create policy resumes_owner_delete on storage.objects
     and (storage.foldername(name))[1] = (select auth.uid())::text
   );
 
-alter table public.messages replica identity full;
 alter table public.notifications replica identity full;
+
+-- Supabase Realtime owns this relation. BridgeCircle adds only the supported
+-- receive policy; clients never receive an INSERT policy for private topics.
+create policy conversation_topics_receive on realtime.messages
+  for select to authenticated
+  using (
+    extension = 'broadcast'
+    and (
+      private.can_access_conversation_topic((select realtime.topic()))
+      or private.can_access_user_topic((select realtime.topic()))
+    )
+  );
 
 do $$
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
-    if not exists (
+    if exists (
       select 1 from pg_publication_tables
       where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'messages'
     ) then
-      execute 'alter publication supabase_realtime add table public.messages';
+      execute 'alter publication supabase_realtime drop table public.messages';
     end if;
     if not exists (
       select 1 from pg_publication_tables

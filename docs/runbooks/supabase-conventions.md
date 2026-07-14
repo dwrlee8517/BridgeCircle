@@ -74,6 +74,28 @@ Raw Help identity tables (`asks`, `ask_offers`, private matching data) are not
 general client read surfaces. Use the approved `api` projections and commands
 so anonymous author identity and block filtering remain database-enforced.
 
+Raw `conversations`, `messages`, and `conversation_reads` are also not member
+read surfaces. Use the fixed `api` detail, before/after keyset, send, read, and
+typing functions through `src/db/repositories/conversations.ts`. Keep behavior
+and result unions framework-free under `src/lib/conversations/`; do not call
+Supabase from that domain layer.
+
+## Conversation Realtime
+
+Conversation state uses private database Broadcast, not message Postgres
+Changes. Open both authenticated topics only after `setAuth()`:
+
+- `conversation:<conversation_uuid>` carries block-aware ID-only message,
+  read, and typing hints;
+- `user:<viewer_user_uuid>` is owner-only and carries permission-change or
+  revocation hints that must survive loss of conversation-topic access.
+
+Treat every event as a refetch hint. Fetch durable content through the bounded
+after-cursor API on subscribe, reconnect, gaps, and `message.created`;
+deduplicate by event/message ID and remove both channels on cleanup. Never add
+message bodies, Ask text, client nonces, profile fields, or block initiators to
+Broadcast payloads. `notifications` remains on RLS-filtered Postgres Changes.
+
 ## Storage and account deletion
 
 Storage object bytes are removed through the Supabase Storage API, not by

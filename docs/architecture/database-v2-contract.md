@@ -1,17 +1,19 @@
 # BridgeCircle database v2 contract
 
-**Status:** Foundation schema and app boundary implemented and verified locally; later domains and remote cutovers pending; not live
+**Status:** Foundation and Conversation Primitive implemented and verified locally; later domains and remote cutovers pending; not live
 **Decision:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md)
 **Current live schema:** [Data model — Phase 1 launch](data-model.md)
 **Approved product behavior:** [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 
 This document is the canonical implementation contract for the pre-launch
 database rebuild. `codex/redesign-v2` now contains the active v2 baseline,
-deterministic seed, generated types, pgTAP suite, and completed Foundation app
-boundary for identity, memberships, self-profile/onboarding, shell context,
-and notifications. Later product domains and both remote databases remain on
-the legacy contract until their ports and separately approved cutovers land.
-Nothing in this document authorizes a remote database reset.
+deterministic seed, generated types, pgTAP suite, and completed Foundation and
+Conversation Primitive application boundaries. Identity, memberships,
+self-profile/onboarding, shell context, notifications, conversation storage,
+bounded reads, message commands, read cursors, typing, and private Broadcast
+are locally verified. Later product domains and both remote databases remain
+on the legacy contract until their ports and separately approved cutovers
+land. Nothing in this document authorizes a remote database reset.
 
 ## Goal
 
@@ -30,8 +32,7 @@ flows correct by construction:
 
 - a new ORM, API framework, auth provider, database vendor, email provider,
   or LLM provider;
-- group conversations, attachments, reactions, message editing, or typing
-  indicators;
+- group conversations, attachments, reactions, or message editing;
 - scoring, streaks, public activity feeds, or help leaderboards;
 - offer withdrawal unless a later product decision adds it;
 - a compatibility layer for legacy application data;
@@ -761,20 +762,28 @@ Ask conversations.
 | `kind` | `user` or `system` |
 | `body` | nonblank text, max 10,000 |
 | `client_nonce` | nullable UUID; required for user messages |
+| `system_event_type` | nullable structured event type; required for system messages |
+| `system_event_key` | nullable idempotency key; required for system messages |
+| `system_actor_user_id` | nullable actor user FK; system-event provenance only |
 | `created_at` | timestamp |
 
 Constraints and indexes:
 
 - user kind requires sender and nonce;
-- system kind requires null sender and null nonce;
+- system kind requires null sender/nonce and nonnull event type/key;
 - unique `(conversation_id, sender_user_id, client_nonce)` where
   `client_nonce is not null`;
+- unique `(conversation_id, system_event_key)` where
+  `system_event_key is not null`;
 - unique `(conversation_id, id)` to support composite read-cursor FK;
-- `(conversation_id, created_at, id)`.
+- sender and nullable system-actor foreign keys have leading indexes.
 
 Messages are immutable to member roles. `api.send_message` verifies that the
 sender is a participant, the pair is not blocked, the conversation is
-eligible for messaging, and the nonce is idempotent.
+eligible for messaging, and the nonce is idempotent. Member history reads use
+bounded `api.list_conversation_messages_before` and
+`api.list_conversation_messages_after` keyset functions; raw conversation,
+message, and read-cursor SELECT is not granted.
 
 ### `public.conversation_reads`
 
@@ -1189,7 +1198,11 @@ The v2 baseline is incomplete unless it also includes or configures:
 - `avatars` and `resumes` Storage bucket rows;
 - Storage INSERT/SELECT/UPDATE/DELETE policies, including all privileges
   needed for avatar upsert;
-- Realtime publication membership for `messages` and `notifications`;
+- Realtime publication membership for `notifications`, with `messages`
+  deliberately absent because conversation events use private Broadcast;
+- private `conversation:<uuid>` content topics and owner-only `user:<uuid>`
+  permission-control topics, authorized by the `realtime.messages` SELECT
+  policy through private helpers;
 - analytics views/functions;
 - local seed configuration and deterministic personas;
 - a separate remote-development seeder ported before the development cutover;
@@ -1322,7 +1335,9 @@ blocked user, and service worker. In particular:
 - invite acceptance creates the correct membership/profile rows;
 - avatar create and upsert obey Storage policy;
 - resume access remains owner/private;
-- message and notification Realtime deliver only RLS-visible rows;
+- private conversation Broadcast authorizes participants, exposes IDs only,
+  and recovers durable rows through bounded after-cursor reads;
+- notification Postgres Changes delivers only RLS-visible rows;
 - Ask acceptance creates one conversation and first message;
 - Resend work appears once in outbox and obeys non-production recipient safety;
 - account deletion follows the approved retention decision;
@@ -1334,14 +1349,14 @@ member-visible flow. See the [database testing guide](https://supabase.com/docs/
 
 ## Application implementation sequence
 
-1. **Foundation:** Auth shadow, organizations, memberships, profiles, grants,
+1. **Foundation — complete locally:** Auth shadow, organizations, memberships, profiles, grants,
    RLS helpers, blocks, audit, and outbox.
    **Verify:** signup, tenant isolation, profile visibility, block matrix.
-2. **Conversation primitive:** conversations, messages, reads, Realtime, and
+2. **Conversation primitive — complete locally:** conversations, messages, reads, Realtime, and
    idempotent message commands.
    **Verify:** direct pair uniqueness, multiple Ask conversations, Realtime,
    blocked access.
-3. **Help:** helper settings/topics, unified asks, offers, matching,
+3. **Help — next:** helper settings/topics, unified asks, offers, matching,
    transitions, reminders, closure, anonymity, notifications.
    **Verify:** complete direct and circle flows plus concurrency/RLS suites.
 4. **Messages:** replace Ask/DM repositories, inbox aggregation, unread state,

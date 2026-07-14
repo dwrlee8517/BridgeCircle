@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(29);
+select extensions.plan(30);
 
 select extensions.has_schema('api', 'api schema exists');
 select extensions.has_schema('private', 'private schema exists');
@@ -20,6 +20,7 @@ select extensions.has_table('public', 'notifications', 'notifications table exis
 select extensions.has_table('public', 'notification_preferences', 'notification preferences table exists');
 
 select extensions.has_table('private', 'ask_matches', 'private Ask matches exist');
+select extensions.has_table('private', 'conversation_typing_limits', 'private typing throttle storage exists');
 select extensions.has_table('private', 'outbox_jobs', 'private outbox exists');
 select extensions.has_table('private', 'reports', 'private reports exist');
 select extensions.has_table('private', 'profile_embedding_chunks', 'private embeddings exist');
@@ -60,14 +61,15 @@ select extensions.is(
         'events', 'event_rsvps', 'announcements', 'notifications',
         'notification_preferences', 'ask_matches', 'ask_events', 'reports',
         'moderation_actions', 'outbox_jobs', 'audit_log',
+        'conversation_typing_limits',
         'profile_embedding_chunks', 'profile_embedding_status',
         'profile_enrichment_settings', 'profile_enrichment_runs',
         'profile_change_proposals', 'profile_enrichment_jobs'
       )
       and c.relrowsecurity
   ),
-  38::bigint,
-  'all 38 application tables have RLS enabled'
+  39::bigint,
+  'all 39 application tables have RLS enabled'
 );
 
 select extensions.ok(
@@ -108,11 +110,11 @@ select extensions.ok(
 );
 
 select extensions.ok(
-  exists (
+  not exists (
     select 1 from pg_publication_tables
     where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'messages'
   ),
-  'messages is in the Realtime publication'
+  'messages are absent from the Postgres Changes publication'
 );
 
 select extensions.ok(

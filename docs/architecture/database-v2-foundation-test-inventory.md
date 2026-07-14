@@ -2,7 +2,9 @@
 
 - **Status:** Foundation gates passed locally on 2026-07-14
 - **Plan:** [Database v2 Foundation implementation plan](database-v2-foundation-plan.md)
-- **Result:** 209 pgTAP assertions across eight database files, 22 Vitest
+- **Result:** the current Foundation regression set has 210 passing pgTAP
+  assertions across eight database files (209 at the original Foundation
+  checkpoint plus one Conversation boundary assertion), 22 Vitest
   assertions across nine files, and four local-only Playwright scenarios pass;
   focused TypeScript has zero errors
 - **Migration inventory:** full TypeScript is 1,257 errors across 98 unported

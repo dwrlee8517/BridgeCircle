@@ -138,6 +138,18 @@ insert into public.conversations (
 );
 
 insert into public.messages (
+  conversation_id, kind, body, system_event_type, system_event_key,
+  system_actor_user_id
+) values (
+  '50000000-0000-4000-8000-000000000001',
+  'system',
+  'Connection accepted.',
+  'connection_accepted',
+  'connection_accepted:seed-richard-mei',
+  '10000000-0000-4000-8000-000000000004'
+);
+
+insert into public.messages (
   conversation_id, sender_user_id, kind, body, client_nonce
 ) values (
   '50000000-0000-4000-8000-000000000001',
