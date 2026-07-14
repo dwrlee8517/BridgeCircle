@@ -793,7 +793,7 @@ Foundation is complete only when:
 
 Proceed in the approved order:
 
-1. conversation primitive;
+1. [conversation primitive](database-v2-conversation-plan.md);
 2. Help end to end;
 3. Messages aggregation and routes;
 4. People/Profile, Connections, Search, and enrichment;

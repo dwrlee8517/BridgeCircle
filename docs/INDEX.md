@@ -51,6 +51,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Database v2 contract](architecture/database-v2-contract.md) — approved target schema, ERD, constraints, RLS matrix, locally verified Foundation, and cutover gates
 - [Database v2 Foundation plan](architecture/database-v2-foundation-plan.md) — completed local implementation record for identity, memberships, self-profile/onboarding, grants, blocking, audit, outbox, and app boundaries
 - [Database v2 Foundation test inventory](architecture/database-v2-foundation-test-inventory.md) — exact database, unit, concurrency, browser, and compiler gates
+- [Database v2 Conversation Primitive plan](architecture/database-v2-conversation-plan.md) — approved transactional, RLS, pagination, Realtime, and application-boundary plan for the next v2 slice
+- [Database v2 Conversation Primitive test inventory](architecture/database-v2-conversation-test-inventory.md) — approved database, concurrency, Realtime, performance, and compiler gates
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
