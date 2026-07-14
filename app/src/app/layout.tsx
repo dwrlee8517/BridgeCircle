@@ -52,9 +52,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {/* Dark tokens live in globals.css `.dark`; next-themes applies the
-            class from the OS preference by default, with a manual override
-            in the account menu. */}
+        {/* Dark-mode reconciliation is parked in the BridgeCircle handoff.
+            Preserve the production theme behavior while the light redesign
+            lands; this foundation pass does not reinterpret dark tokens. */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

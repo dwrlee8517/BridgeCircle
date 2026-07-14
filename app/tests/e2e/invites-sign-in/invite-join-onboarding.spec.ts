@@ -11,7 +11,7 @@ test.afterAll(async () => {
   await scenario.destroy();
 });
 
-test("a fresh invitee travels join link → account → onboarding → Help hub, and the database records every hop", async ({ page }) => {
+test("a fresh invitee travels join link → account → onboarding → Home, and the database records every hop", async ({ page }) => {
   test.setTimeout(90_000);
   const invite = await scenario.createInvite({
     fullName: "Invited Ivy",

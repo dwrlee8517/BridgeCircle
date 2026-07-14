@@ -4,8 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { getMemberNavIcon } from './member-nav-icons'
-import { activeMemberNavStyle, getMemberNavAccent } from './member-nav-style'
-import { MEMBER_NAV_LINKS } from './nav-links'
+import { isMemberNavLinkActive, MEMBER_NAV_LINKS } from './nav-links'
 
 /**
  * Mobile bottom tab bar — the Civic Editorial prototype's primary mobile
@@ -24,12 +23,7 @@ export function MemberTabBar() {
     >
       {MEMBER_NAV_LINKS.map((link) => {
         const Icon = getMemberNavIcon(link.href)
-        const active = link.match.some((prefix) =>
-          prefix === '/'
-            ? pathname === '/'
-            : pathname === prefix || pathname.startsWith(`${prefix}/`),
-        )
-        const activeAccent = getMemberNavAccent(link.href)
+        const active = isMemberNavLinkActive(pathname, link)
         return (
           <Link
             key={link.href}
@@ -38,20 +32,19 @@ export function MemberTabBar() {
             className="flex min-h-[60px] flex-1 items-center justify-center px-1 text-kicker font-medium"
           >
             <span
-              style={active ? activeMemberNavStyle(activeAccent, '--member-tab-accent') : undefined}
               className={cn(
-                'relative flex h-12 min-w-[58px] flex-col items-center justify-center gap-1 rounded-md border px-2 transition-[color,background-color,border-color,box-shadow]',
+                'flex h-12 min-w-[58px] flex-col items-center justify-center gap-1 rounded-[var(--radius-box)] px-2 transition-[color,background-color]',
                 active
-                  ? 'border-transparent text-foreground shadow-card after:absolute after:inset-x-2 after:bottom-[-1px] after:h-0.5 after:rounded-full after:bg-[var(--member-tab-accent)]'
-                  : 'border-transparent text-muted-foreground hover:border-border/70 hover:bg-muted/35 hover:text-foreground',
+                  ? 'bg-[image:var(--nav-active-bg)] font-bold text-[var(--nav-active-text)]'
+                  : 'text-muted-foreground hover:bg-[var(--hover-tint)] hover:text-foreground',
               )}
             >
               <Icon
                 className={cn(
                   'size-5 transition-colors',
-                  active ? 'text-[var(--member-tab-accent)]' : 'text-muted-foreground/75',
+                  active ? 'text-current' : 'text-muted-foreground/75',
                 )}
-                strokeWidth={1.8}
+                strokeWidth={active ? 2.1 : 1.9}
                 aria-hidden
               />
               <span>{link.label}</span>

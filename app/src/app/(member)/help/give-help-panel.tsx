@@ -18,8 +18,8 @@ type ProfileSummary = {
 }
 
 /**
- * The give-help queue — the supply side of the Help hub (formerly the /help
- * page body). Rendered by the home hub when the mode toggle is on "Give help".
+ * The give-help queue — the supply side of the Help hub. Rendered at
+ * /help?mode=give when the mode toggle is on "Give help".
  */
 export async function GiveHelpPanel() {
   const session = await requireSession()

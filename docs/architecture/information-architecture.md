@@ -38,24 +38,19 @@ Phase 1 breaks into five major areas:
 
 ### Member Navigation (current)
 
-Member top nav has **five** items, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/nav-links.ts`:
+Member navigation has **five** section roots, in this order, defined by `MEMBER_NAV_LINKS` in `app/src/app/(member)/nav-links.ts`:
 
-1. **Ask** — natural-language question → hybrid retrieved and explained people matches → guided ask composer
-2. **Help** — supply-side surface for requests needing reply and people the viewer could help
+1. **Home** — the member's relationship-action feed and default destination
+2. **Help** — ask/give modes, question-driven matching, composer, and ask details
 3. **People** — alumni exploration; NL search + structured filters + "People I know" toggle; result cards are match briefs
-4. **School** — events and announcements in one member-facing pulse hub
-5. **Inbox** — unified request lifecycle: needs reply, helping, getting help, connections, direct messages
+4. **Messages** — unified request lifecycle: needs reply, helping, getting help, connections, direct messages
+5. **School** — events and announcements in one member-facing pulse hub
 
 Admins see an additional slot ("Admin") that links to `/admin/invite`.
 
-The mobile dropdown in `member-header.tsx` reads from the same `MEMBER_NAV_LINKS` array, so desktop and mobile cannot drift.
+The desktop sidebar, tablet icon rail, and mobile bottom tab bar all read from the same array, so they cannot drift.
 
-Global utilities (header right-rail):
-
-- inline search field (submits to `/people?q=`)
-- notifications bell (toast + popover, deep-links into the relevant detail surface)
-- helper settings (gear icon → `/help/settings`)
-- account menu (sign out, organization switcher when multi-org)
+Global utilities in the 66px topbar are the current section title, notification bell, and account menu. Search stays inside the surfaces that need it.
 
 ### How we got here (post-launch IA reorg)
 
@@ -64,8 +59,8 @@ The original Phase 1 plan was a 7–8-item nav (Search, Inbox, Messages, Friends
 | Was | Where it went | Why |
 |---|---|---|
 | Search / Discover | **People** | Exploration remains one click away, but Ask is the primary intent surface |
-| Mentorship requests | **Ask** + workflow routes (`/ask/new`, `/ask/[id]`, `/ask/thread/[id]`) | Lower the barrier to asking from a natural-language question |
-| Helper supply | **Help** | Older alumni need a natural place to give help without browsing everything |
+| Mentorship requests | **Help** + workflow routes (`/ask/new`, `/ask/[id]`, `/ask/thread/[id]`) | Lower the barrier to asking from a natural-language question |
+| Helper supply | **Help** give mode | Older alumni need a natural place to give help without browsing everything |
 | Friends | Folded into People (`peopleIKnow` filter + Friend badge); incoming requests moved to Inbox | Friendship is one dimension of people search, not its own page |
 | Messages (list) | Folded into Inbox; conversation page `/messages/[id]` kept | DMs are inbox-style — no second list surface needed |
 | Events + Announcements | **School** | School connection needs one calm place instead of separate member nav items |
@@ -83,7 +78,7 @@ Admins have access to a separate management area rather than mixing everything i
 5. Announcements
 6. Analytics
 
-Reached via the "Admin" top-nav slot (admin-only) and the sidebar in `app/src/app/(member)/admin/layout.tsx`.
+Reached via the role-gated Admin utility in the member sidebar and the sidebar in `app/src/app/(member)/admin/layout.tsx`.
 
 ## Organization Context Model
 
@@ -190,15 +185,15 @@ This may be part of onboarding or a secondary flow from Profile.
 
 ## Member Experience
 
-### 7. Home (`/`) — merged home/ask surface
+### 7. Home (`/`)
 
 Home IS the ask entry moment (merged 2026-06-11; `ask-home.tsx`). The
 pre-merge split — a home hero with its own ask bar plus a separate /ask
 starter — duplicated the front door and kept the trust scaffolding (social
 proof, the two-sided "how asking works") off the page members actually land
-on. One component now renders at `/`, at `/ask` without a query, and behind
-the composer sheet via `ask/default.tsx`. The Ask nav tab points at `/` and
-highlights on both routes.
+on. During the redesign transition, one component still renders at `/`, at
+`/ask` without a query, and behind the composer sheet via `ask/default.tsx`.
+The shell now treats `/` as Home; `/help` owns the permanent ask/give modes.
 
 Purpose:
 
@@ -222,6 +217,12 @@ Primary actions:
 - ask a question → `/ask?nl=...` (results)
 - ask a suggested helper → composer sheet
 - review help requests → `/help` or `/inbox`
+
+### 7a. Help (`/help` and `/ask/*`)
+
+Help owns both sides of the reciprocal-help workflow. `/help` switches between
+Ask for help and Give help; results, composer, status, and ask details remain
+under `/ask/*` and keep Help active in the shell.
 
 ### 8. People (`/people`)
 

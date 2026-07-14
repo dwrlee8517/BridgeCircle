@@ -26,7 +26,7 @@ test("the Admin nav tab appears for admins and not for plain members", async ({ 
   await expect(page.getByRole("navigation").getByRole("link", { name: "Admin" })).toHaveCount(0);
 });
 
-test("a plain member requesting /admin/invite is bounced back to the Help hub", async ({ page }) => {
+test("a plain member requesting /admin/invite is bounced back to Home", async ({ page }) => {
   await signInAs(page, plainMember);
   await page.goto("/admin/invite");
   await page.waitForURL((url) => url.pathname === "/");

@@ -222,7 +222,7 @@ For the full prod inventory + descriptions, see **Manual Production Configuratio
 | `VOYAGE_API_KEY` | Voyage key | Voyage key |
 | `ASK_MATCHING_PIPELINE` | `legacy` or `voyage_hybrid` | `legacy` until verified |
 | `ASK_MATCHING_EXPLANATIONS` | `templated` or `haiku_polish` | `templated` |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3001` | prod origin (`https://bridgecircle.org`) |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
 | `SENTRY_AUTH_TOKEN` | (build-time only, optional locally) | set by Sentry wizard |
 
 `.env.local` is in `.gitignore` and must never be committed. Railway's Variables tab is the only place production secrets live in human-readable form — keep a backup copy in your password manager.
@@ -250,7 +250,7 @@ pnpm dev:local:live              # daily driver: local DB, real AI, guarded emai
 # or: pnpm dev:local             # the deterministic E2E config (services dummied)
 ```
 
-Open http://localhost:3001. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md) "Which config, when". With the local configs, writes go to your throwaway Docker stack; with `doppler run -- pnpm dev` they go to the shared `bridgecircle-dev` cloud project.
+Open http://localhost:3000. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md) "Which config, when". With the local configs, writes go to your throwaway Docker stack; with `doppler run -- pnpm dev` they go to the shared `bridgecircle-dev` cloud project.
 
 ### Useful commands
 

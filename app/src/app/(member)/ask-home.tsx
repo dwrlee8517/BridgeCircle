@@ -28,9 +28,10 @@ const CAROUSEL_LIMIT = 5
  * The merged home + ask surface. Home IS the ask entry moment — one front
  * door instead of two near-identical ones (the pre-merge / and /ask starter
  * duplicated the bar and split the trust scaffolding from where members
- * actually land). Rendered at /, at /ask without a query, and behind the
- * composer sheet via ask/default.tsx. The ask bar submits to /ask?nl=…,
- * which stays the results URL.
+ * actually land). During the redesign transition it renders on Home, on the
+ * Help ask mode, at /ask without a query, and behind the composer sheet via
+ * ask/default.tsx. The ask bar submits to /ask?nl=…, which stays the results
+ * URL.
  */
 export async function AskHome({ defaultValue = '' }: { defaultValue?: string }) {
   const session = await requireSession()

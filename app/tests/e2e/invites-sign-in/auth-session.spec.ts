@@ -27,7 +27,7 @@ test("wrong password shows 'Invalid email or password.' and stays on the sign-in
   await expect(page).toHaveURL(/\/sign-in/);
 });
 
-test("a signed-in member lands on the Help hub greeted by first name with all four nav tabs", async ({ page }) => {
+test("a signed-in member lands on Home greeted by first name with all five nav sections", async ({ page }) => {
   await signInAs(page, activeMember);
 
   await expect(page).toHaveURL("/");
@@ -37,10 +37,11 @@ test("a signed-in member lands on the Help hub greeted by first name with all fo
   ).toBeVisible();
 
   const nav = page.getByRole("navigation");
-  await expect(nav.getByRole("link", { name: "Help", exact: true })).toHaveAttribute("href", "/");
+  await expect(nav.getByRole("link", { name: "Home", exact: true })).toHaveAttribute("href", "/");
+  await expect(nav.getByRole("link", { name: "Help", exact: true })).toHaveAttribute("href", "/help");
   await expect(nav.getByRole("link", { name: "People", exact: true })).toHaveAttribute("href", "/people");
-  await expect(nav.getByRole("link", { name: "School", exact: true })).toHaveAttribute("href", "/school");
   await expect(nav.getByRole("link", { name: "Messages", exact: true })).toHaveAttribute("href", "/inbox");
+  await expect(nav.getByRole("link", { name: "School", exact: true })).toHaveAttribute("href", "/school");
 });
 
 test("the ?next= target survives the sign-in round trip", async ({ page }) => {
@@ -57,7 +58,7 @@ test("the ?next= target survives the sign-in round trip", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("a member who never finished onboarding is routed into the wizard instead of the Help hub", async ({ page }) => {
+test("a member who never finished onboarding is routed into the wizard instead of Home", async ({ page }) => {
   await page.goto("/sign-in");
   await page.locator("#email").fill(unonboardedMember.email);
   await page.locator("#password").fill(unonboardedMember.password);

@@ -4,6 +4,7 @@ import { requireSession } from '@/lib/auth/session'
 import { listNotifications } from '@/lib/notifications/listNotifications'
 import { unreadCount } from '@/lib/notifications/unreadCount'
 import { MemberHeader } from './member-header'
+import { MemberSidebar } from './member-sidebar'
 import { MemberTabBar } from './member-tab-bar'
 
 /**
@@ -82,43 +83,72 @@ export default async function MemberLayout({ children }: { children: React.React
     redirect('/onboarding')
   }
 
-  const { data: profile } = await supabase
-    .from('base_profiles')
-    .select('name, avatar_url')
-    .eq('user_id', session.userId)
-    .maybeSingle()
-
-  const { data: adminRoles } = await supabase
-    .from('admin_role_assignments')
-    .select('role')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-    .limit(1)
-  const isAdmin = !!adminRoles && adminRoles.length > 0
-
-  // Notifications for the bell — fetched once at layout level so every
-  // (member) route gets a fresh server-rendered view. Realtime takes over
-  // from there for live updates without polling.
-  const [notifications, unreadResult] = await Promise.all([
+  // Shell data is independent after the membership/onboarding gates, so start
+  // every query together rather than building a layout-level waterfall.
+  const [
+    { data: profile },
+    { data: orgProfile },
+    { data: adminRoles },
+    notifications,
+    unreadResult,
+  ] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select('name, avatar_url')
+      .eq('user_id', session.userId)
+      .maybeSingle(),
+    supabase
+      .from('organization_profiles')
+      .select('graduation_year')
+      .eq('organization_membership_id', membership.id)
+      .maybeSingle(),
+    supabase
+      .from('admin_role_assignments')
+      .select('role')
+      .eq('user_id', session.userId)
+      .in('role', ['super_admin', 'admin'])
+      .limit(1),
     listNotifications(supabase, session.userId, { limit: 15 }),
     unreadCount(supabase, session.userId),
   ])
+  const isAdmin = !!adminRoles && adminRoles.length > 0
 
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden md:h-auto md:min-h-screen md:overflow-visible">
-      <MemberHeader
-        userId={session.userId}
-        name={profile?.name ?? null}
-        avatarUrl={profile?.avatar_url ?? null}
-        isAdmin={isAdmin}
-        notifications={notifications}
-        unreadCount={unreadResult}
-      />
-      {/* Mobile main owns scroll while the bottom tab bar stays anchored. */}
-      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(60px+env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch] md:overflow-visible md:pb-0">
-        {children}
-      </main>
-      <MemberTabBar />
+    <div className="min-h-dvh bg-[var(--surface-canvas)]">
+      <a
+        href="#main-content"
+        className="fixed top-2 left-2 z-[60] -translate-y-20 rounded-md bg-foreground px-3 py-2 text-sm font-semibold text-background transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
+      <div className="mx-auto flex min-h-dvh max-w-[var(--container-shell)]">
+        <MemberSidebar
+          userId={session.userId}
+          name={profile?.name ?? null}
+          avatarUrl={profile?.avatar_url ?? null}
+          graduationYear={orgProfile?.graduation_year ?? null}
+          isAdmin={isAdmin}
+        />
+        <div className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden md:h-auto md:min-h-dvh md:overflow-visible">
+          <MemberHeader
+            userId={session.userId}
+            name={profile?.name ?? null}
+            avatarUrl={profile?.avatar_url ?? null}
+            graduationYear={orgProfile?.graduation_year ?? null}
+            isAdmin={isAdmin}
+            notifications={notifications}
+            unreadCount={unreadResult}
+          />
+          {/* Mobile main owns scroll while the bottom tab bar stays anchored. */}
+          <main
+            id="main-content"
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(60px+env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch] md:overflow-visible md:pb-0"
+          >
+            {children}
+          </main>
+          <MemberTabBar />
+        </div>
+      </div>
     </div>
   )
 }
