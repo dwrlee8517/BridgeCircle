@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
  *
  * Tone guide:
  *   - "open"    -> success (mentor accepting)
- *   - "warn"    -> warning (paused, pending, stale)
+ *   - "warn"    -> warning (paused, stale, closing soon)
  *   - "alert"   -> danger (revoked, declined, error)
  *   - "info"    -> info (active, accepted, neutral-positive)
  *   - "muted"   -> muted (no signal, deactivated)
@@ -101,11 +101,11 @@ function dotClass(tone: NonNullable<StatusBadgeProps['tone']>) {
 // member and admin surfaces. Asker-facing surfaces that must soften
 // "Declined" (voice § decline copy) pass their own children instead.
 const lifecycleStatus = {
-  pending: { tone: 'warn', label: 'Pending', dot: true },
+  pending: { tone: 'muted', label: 'Pending', dot: false },
   accepted: { tone: 'info', label: 'Accepted', dot: true },
   active: { tone: 'info', label: 'Active', dot: true },
   completed: { tone: 'open', label: 'Completed', dot: true },
-  declined: { tone: 'alert', label: 'Declined', dot: true },
+  declined: { tone: 'muted', label: 'Declined', dot: false },
   revoked: { tone: 'alert', label: 'Revoked', dot: true },
   expired: { tone: 'muted', label: 'Expired', dot: false },
   paused: { tone: 'warn', label: 'Paused', dot: true },

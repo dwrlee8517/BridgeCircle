@@ -47,7 +47,7 @@ cd app
 pnpm dev
 ```
 
-Opens at http://localhost:3001.
+Opens at http://localhost:3000.
 
 ## Step 2: Install day-0 dependencies
 
@@ -233,7 +233,7 @@ git push
 
 By end of day 0:
 
-- [ ] `pnpm dev` runs at localhost:3001
+- [ ] `pnpm dev` runs at localhost:3000
 - [ ] Railway URL serves the default Next.js page
 - [ ] Supabase project exists; Google OAuth provider enabled
 - [ ] `.env.local` and Railway env vars both have Supabase keys

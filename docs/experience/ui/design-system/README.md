@@ -1,4 +1,4 @@
-# Civic Editorial Design System
+# BridgeCircle Design System
 
 > **⚠️ Direction change — 2026-07-04 (ADR 0012 → [0013](../../../decisions/0013-toss-baseline-then-brand-overlay.md)).**
 > Civic Editorial is retired as target direction. The **main design system is
@@ -6,12 +6,12 @@
 > the faithful Toss baseline ([`handoff/toss-base/`](handoff/toss-base/),
 > Layer 0), diverging only via its
 > [`OVERRIDES.md`](handoff/bridgecircle/project/uploads/OVERRIDES.md) ledger.
-> The full **redesign is being designed in the `bridgecircle` Claude Design
-> project first**, then translated to production flow-by-flow (ADR 0013
-> Phase E, design-first). Until that redesign lands, the Civic contract below
-> still describes **live production** — treat it as current reality, not
-> target. **When the redesign is done, this Civic documentation and the
-> `handoff/bridgecircle-design-system/` bundle move to `_archive/`.**
+> The full redesign is translated to production flow-by-flow (ADR 0013 Phase
+> E). The production token and primitive foundation now maps to the
+> BridgeCircle fork; individual feature pages may still use compatibility
+> aliases until their redesign slice lands. When the full redesign is done,
+> the old `handoff/bridgecircle-design-system/` Civic bundle moves to
+> `_archive/`.
 
 > **Updated 2026-06-02.** The Claude Design handoff bundle in
 > [`handoff/`](handoff/) is now the source of truth for intended BridgeCircle
@@ -23,22 +23,22 @@ design-system contract; older HTML visual references are in [`_archive/`](_archi
 
 ## Canonical Order
 
-1. [`handoff/bridgecircle-design-system/project/ui_kits/app/index.html`](handoff/bridgecircle-design-system/project/ui_kits/app/index.html) — primary UI/UX source of truth for member-app screen composition and interaction direction.
-2. [`handoff/bridgecircle-design-system/project/uploads/DESIGN.md`](handoff/bridgecircle-design-system/project/uploads/DESIGN.md) — Civic Editorial token and usage source from the handoff.
-3. [`handoff/bridgecircle-design-system/project/colors_and_type.css`](handoff/bridgecircle-design-system/project/colors_and_type.css) — handoff token CSS export.
-4. [`tokens.md`](tokens.md) — production token implementation notes.
-5. [`states-and-motion.md`](states-and-motion.md) — production state and motion implementation notes.
-6. [`components.md`](components.md) — production component and pattern usage.
-7. [`../../screens/`](../../screens/) — screen-level product jobs and hierarchy.
-8. [`../../../../app/src/app/globals.css`](../../../../app/src/app/globals.css) — live CSS token implementation.
-9. [`../../../../app/src/components/ui/`](../../../../app/src/components/ui/) — live shared primitives.
-10. [`screenshots/`](../screenshots/) — current rendered reference captures.
+1. [`handoff/bridgecircle/project/SKILL.md`](handoff/bridgecircle/project/SKILL.md) — current design-system rules.
+2. [`handoff/bridgecircle/project/colors_and_type.css`](handoff/bridgecircle/project/colors_and_type.css) — current token export.
+3. [`handoff/bridgecircle/project/templates/`](handoff/bridgecircle/project/templates/) — stabilized surface compositions and interaction behavior.
+4. [`handoff/bridgecircle/project/uploads/FLOWS.md`](handoff/bridgecircle/project/uploads/FLOWS.md) — product-flow contract.
+5. [`tokens.md`](tokens.md) — production token mapping and compatibility notes.
+6. [`components.md`](components.md) — production primitive and pattern usage.
+7. [`states-and-motion.md`](states-and-motion.md) — production state and motion notes.
+8. [`../../screens/`](../../screens/) — screen-level product jobs and hierarchy.
+9. [`../../../../app/src/app/globals.css`](../../../../app/src/app/globals.css) — live CSS token implementation.
+10. [`../../../../app/src/components/ui/`](../../../../app/src/components/ui/) — live shared primitives.
 11. [`_archive/`](_archive/) — pre-handoff visual history only.
 
-## Density modes (new)
+## Compatibility Density Modes
 
-Civic now has three density modes that compose with theme. Surfaces declare a
-density via a wrapper class:
+Existing production surfaces have three density modes that compose with theme.
+They remain compatibility behavior during route-by-route redesign:
 
 | Class | Use |
 |---|---|
@@ -46,9 +46,9 @@ density via a wrapper class:
 | `.density-cozy` | Home, ask results, inbox, people search (list-of-cards member surfaces) |
 | `.density-pro` | Admin tables, analytics, ambassador dashboards (operator surfaces) |
 
-What flips with density: type sizes, padding, shadow weight, avatar size, CTA
-over-claim. What does NOT flip: radius, color palette, font family, focus
-styles. Full surface-assignment matrix in [`tokens.md`](tokens.md) § Density modes.
+What flips with density: legacy type aliases, padding, and shadow weight. What
+does not flip: the BridgeCircle palette, shape tiers, font family, or focus
+styles.
 
 ## Live Implementation Anchors
 

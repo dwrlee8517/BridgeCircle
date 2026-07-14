@@ -25,7 +25,7 @@ async function main() {
     const result = await sendAskRequestEmail({
       to: 'helper-mark@example.com',
       askerName: 'Student Sam',
-      reviewUrl: 'http://localhost:3001/ask/some-id',
+      reviewUrl: 'http://localhost:3000/ask/some-id',
     })
     console.log('sendAskRequestEmail result:', result)
   } catch (err) {

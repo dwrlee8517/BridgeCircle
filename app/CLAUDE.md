@@ -113,7 +113,7 @@ Do not introduce alternative providers or frameworks without checking with the u
 From `app/`:
 
 ```bash
-pnpm dev          # local dev at http://localhost:3001
+pnpm dev          # local dev at http://localhost:3000
 pnpm build        # production build (also runs Sentry source map upload in CI)
 pnpm start        # serve production build
 pnpm lint         # eslint
@@ -149,9 +149,9 @@ Before declaring a task done:
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/` | The Help hub — one page with a segmented **Ask for help / Give help** toggle (`?mode=give` = give). Ask side = `AskHome` (NL ask prompt, people who can help); give side = `GiveHelpPanel` (requests needing reply, availability). Default after sign-in | Ask + Help tabs collapsed into one "Help" nav tab pointing here |
+| `/` | Home — the member's relationship-action feed and default post-sign-in destination | Keeps the existing `AskHome` content while the redesigned Home template lands |
 | `/ask` | Question-driven matching results — `?nl=` → hybrid retrieved/reranked matches; `?edit=1` → composer front door | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`; matching plan is ADR 0009 |
-| `/help` | 307 → `/?mode=give` (folded into the Help hub) | Give-side body lives in `help/give-help-panel.tsx`; `/help/settings` still resolves |
+| `/help` | One Help section with **Ask for help / Give help** modes (`?mode=give` = give) | Ask side reuses `AskHome` during the redesign; give side is `GiveHelpPanel`; `/help/settings` remains |
 | `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
 | `/inbox` | Unified request lifecycle — needs reply, helping, getting help, connections, direct messages | Folded in `/messages` (root), `/friends` (incoming reqs) |
@@ -162,7 +162,7 @@ Before declaring a task done:
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **Help · People · School · Messages**. The Help tab is the combined ask/give hub at `/` (the former Ask and Help tabs merged into it); the Messages tab points at the `/inbox` route (route rename deferred to a later ADR 0011 phase). The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Member navigation: **Home · Help · People · Messages · School**. Home points at `/`; Help owns `/help` and every `/ask/*` workflow; Messages points at `/inbox` (route rename deferred). `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth for the desktop sidebar, tablet rail, and mobile tab bar.
 
 Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/mentorship/settings → /help/settings`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
 
