@@ -7,10 +7,12 @@ import {
   Megaphone,
   MessageSquare,
   UserPlus,
+  UserRoundCheck,
 } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { createNotificationRepository } from '@/db/repositories/notifications'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { listNotifications } from '@/lib/notifications/listNotifications'
@@ -28,9 +30,9 @@ import {
  * acknowledging things.
  */
 export default async function NotificationsPage() {
-  const session = await requireSession()
+  await requireSession()
   const supabase = await createClient()
-  const items = await listNotifications(supabase, session.userId, { limit: 100 })
+  const items = await listNotifications(createNotificationRepository(supabase), { limit: 100 })
 
   return (
     <div className="density-cozy mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-8">
@@ -105,19 +107,23 @@ function Row({ row }: { row: NotificationRow }) {
 }
 
 const NOTIF_ICON: Record<NotificationType, typeof Bell> = {
-  friend_request_received: UserPlus,
-  friend_request_accepted: UserPlus,
+  connection_requested: UserPlus,
+  connection_accepted: UserPlus,
   ask_received: Handshake,
   ask_accepted: Handshake,
   ask_declined: Handshake,
-  direct_message: MessageSquare,
-  ask_message: MessageSquare,
-  announcement: Megaphone,
-  event_canceled: CalendarX,
-  open_ask_match: CircleHelp,
-  open_ask_expired: CircleHelp,
   ask_reminder: Handshake,
-  ask_expired: Handshake,
+  ask_closed: Handshake,
+  offer_received: Handshake,
+  offer_accepted: Handshake,
+  offer_declined: Handshake,
+  offer_closed: Handshake,
+  circle_ask_match: CircleHelp,
+  circle_ask_closed: CircleHelp,
+  message_received: MessageSquare,
+  announcement_published: Megaphone,
+  event_cancelled: CalendarX,
+  profile_update_ready: UserRoundCheck,
 }
 
 /**
@@ -132,14 +138,15 @@ function notifTone(type: NotificationType): string {
     case 'ask_received':
       return 'bg-warning-tint text-accent-ochre'
     case 'ask_accepted':
-    case 'friend_request_accepted':
+    case 'offer_accepted':
+    case 'connection_accepted':
       return 'bg-success-tint text-accent-sage'
     case 'ask_declined':
-    case 'event_canceled':
+    case 'offer_declined':
+    case 'event_cancelled':
       return 'bg-danger-tint text-state-danger'
-    case 'friend_request_received':
-    case 'direct_message':
-    case 'ask_message':
+    case 'connection_requested':
+    case 'message_received':
       return 'bg-primary-tint text-primary'
     default:
       return 'bg-muted text-muted-foreground'

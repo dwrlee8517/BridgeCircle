@@ -2,9 +2,11 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/db/server'
+import { loadMemberContext } from '@/app/_lib/load-member-context'
+import { createProfileRepository } from '@/db/repositories/profiles'
 import { track } from '@/lib/analytics/track'
 import { requireSession } from '@/lib/auth/session'
+import { selectedMembership } from '@/lib/membership/selection'
 import { ONBOARDING_STEP_COOKIE, type OnboardingStep } from '@/lib/onboarding/progress'
 import {
   markOnboardingComplete,
@@ -71,14 +73,11 @@ export async function aboutAction(_prev: StepState, formData: FormData): Promise
     }
   }
 
-  const supabase = await createClient()
-  const result = await saveOnboardingAbout(supabase, session.userId, parsed.data)
+  const { repository, membershipId } = await profileContext()
+  const result = await saveOnboardingAbout(repository, membershipId, parsed.data)
   if (!result.ok) {
     if (result.error === 'no_membership') {
-      await supabase.auth.signOut()
-      redirect(
-        `/sign-in?error=${encodeURIComponent("We couldn't find an invite for this email. Ask your admin to send you one.")}`,
-      )
+      redirect('/select-circle?error=unavailable')
     }
     return { error: 'Could not save. Try again.' }
   }
@@ -105,8 +104,8 @@ export async function educationAction(_prev: StepState, formData: FormData): Pro
     }
   }
 
-  const supabase = await createClient()
-  const result = await saveOnboardingEducation(supabase, session.userId, parsed.data)
+  const { repository, membershipId } = await profileContext()
+  const result = await saveOnboardingEducation(repository, membershipId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 2 })
   await rememberStep(3)
@@ -131,8 +130,8 @@ export async function currentAction(_prev: StepState, formData: FormData): Promi
     }
   }
 
-  const supabase = await createClient()
-  const result = await saveOnboardingCurrent(supabase, session.userId, parsed.data)
+  const { repository, membershipId } = await profileContext()
+  const result = await saveOnboardingCurrent(repository, membershipId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 3 })
   await rememberStep(4)
@@ -157,8 +156,8 @@ export async function pastAction(_prev: StepState, formData: FormData): Promise<
     }
   }
 
-  const supabase = await createClient()
-  const result = await saveOnboardingPast(supabase, session.userId, parsed.data)
+  const { repository, membershipId } = await profileContext()
+  const result = await saveOnboardingPast(repository, membershipId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 4 })
   await rememberStep(5)
@@ -169,13 +168,13 @@ export async function pastAction(_prev: StepState, formData: FormData): Promise<
 
 export async function helpAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
-  const supabase = await createClient()
+  const { repository, membershipId, membershipStatus } = await profileContext()
 
   if (isSkip(formData)) {
     // Skipping the final step still completes onboarding — the user
     // chose not to fill in mentoring/avatar fields right now. They can
     // do so from /profile/edit and /mentorship/settings later.
-    const saveResult = await saveOnboardingHelp(supabase, session.userId, {
+    const saveResult = await saveOnboardingHelp(repository, membershipId, {
       openToMentor: boolFromForm(formData.get('openToMentor')),
       mentoringTopics: null,
       bio: null,
@@ -184,12 +183,12 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
     })
     if (!saveResult.ok) return { error: 'Could not save. Try again.' }
 
-    const finishResult = await markOnboardingComplete(supabase, session.userId)
+    const finishResult = await markOnboardingComplete(repository, membershipId)
     if (!finishResult.ok) return { error: 'Could not save. Try again.' }
     track({ type: 'onboarding_skipped', userId: session.userId, step: 5 })
     track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: true })
     await clearRememberedStep()
-    redirect('/')
+    redirect(membershipStatus === 'pending' ? '/onboarding' : '/')
   }
 
   const parsed = parseOnboardingHelp(formData)
@@ -200,23 +199,34 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
     }
   }
 
-  const result = await saveOnboardingHelp(supabase, session.userId, parsed.data)
+  const result = await saveOnboardingHelp(repository, membershipId, parsed.data)
   if (!result.ok) {
     if (result.error === 'no_membership') {
-      await supabase.auth.signOut()
-      redirect(
-        `/sign-in?error=${encodeURIComponent("We couldn't find an invite for this email. Ask your admin to send you one.")}`,
-      )
+      redirect('/select-circle?error=unavailable')
     }
     return { error: 'Could not save. Try again.' }
   }
 
-  const finishResult = await markOnboardingComplete(supabase, session.userId)
+  const finishResult = await markOnboardingComplete(repository, membershipId)
   if (!finishResult.ok) return { error: 'Could not save. Try again.' }
   track({ type: 'onboarding_step_completed', userId: session.userId, step: 5 })
   track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: false })
   await clearRememberedStep()
-  redirect('/')
+  redirect(membershipStatus === 'pending' ? '/onboarding' : '/')
+}
+
+async function profileContext() {
+  const { client, context } = await loadMemberContext()
+  if (context.requiresCircleChoice) redirect('/select-circle')
+  const membership = selectedMembership(context)
+  if (!membership || (membership.status !== 'active' && membership.status !== 'pending')) {
+    redirect('/select-circle?error=unavailable')
+  }
+  return {
+    repository: createProfileRepository(client),
+    membershipId: membership.membershipId,
+    membershipStatus: membership.status,
+  }
 }
 
 function boolFromForm(value: FormDataEntryValue | null): boolean {

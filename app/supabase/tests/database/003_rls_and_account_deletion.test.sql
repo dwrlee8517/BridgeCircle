@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(19);
+select extensions.plan(21);
 
 select extensions.ok(
   not has_table_privilege('authenticated', 'public.asks', 'select'),
@@ -126,6 +126,20 @@ select extensions.lives_ok(
 
 select extensions.lives_ok('set constraints all immediate', 'pseudonymized history satisfies deferred invariants');
 set constraints all deferred;
+
+select extensions.lives_ok(
+  $$select private.pseudonymize_user('70000000-0000-4000-8000-000000000001')$$,
+  'repeated pseudonymization is safe'
+);
+select extensions.is(
+  (
+    select count(*)::bigint from private.audit_log
+    where action = 'account.pseudonymized'
+      and target_id = '70000000-0000-4000-8000-000000000001'
+  ),
+  1::bigint,
+  'repeated pseudonymization does not duplicate its audit side effect'
+);
 
 select extensions.is(
   (select account_state from public.users where id = '70000000-0000-4000-8000-000000000001'),

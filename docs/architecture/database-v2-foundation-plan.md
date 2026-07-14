@@ -1,6 +1,6 @@
 # Database v2 Foundation implementation plan
 
-- **Status:** approved for implementation
+- **Status:** implemented and verified locally; not deployed
 - **Branch:** `codex/redesign-v2`
 - **Date:** 2026-07-14
 - **Depends on:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the [database v2 contract](database-v2-contract.md)
@@ -26,14 +26,16 @@ Help, Messages, People, or School domains.
 As of 2026-07-14:
 
 - the clean v2 baseline, deterministic seed, and generated `public` + `api`
-  types are committed;
-- the baseline's last recorded local verification has 69 passing pgTAP
-  assertions;
+  types are present on `codex/redesign-v2`;
+- the current local baseline has 207 passing pgTAP assertions;
 - the baseline has RLS, a centralized grant section, composite tenant foreign keys,
   supporting foreign-key indexes, block-aware helpers, audit storage, and an
   outbox claim primitive;
-- the application still uses the legacy data contract;
-- `pnpm tsc --noEmit` reports 1,356 expected migration errors across 108 files;
+- the Foundation application boundary uses the v2 contract; later product
+  domains remain deliberately unported;
+- `pnpm typecheck:v2-foundation` passes with zero errors;
+- the full `pnpm tsc --noEmit` migration inventory is 1,257 errors across 98
+  legacy files, down from the initial 1,356 errors across 108 files;
 - those errors are the port inventory, not permission to weaken types or add
   an untyped client;
 - the active local database may be destroyed and rebuilt, but neither shared
@@ -51,6 +53,68 @@ As of 2026-07-14:
 When code and the approved target disagree, the implementation changes the
 code and updates the active docs in the same slice. Accepted ADRs are not
 silently rewritten.
+
+## Implementation record
+
+Milestones 0–6 completed locally on 2026-07-14:
+
+- approved plan checkpoint: `aa701c8` on `codex/redesign-v2`;
+- toolchain: Node `22.22.2`, pnpm `10.33.2`, Supabase CLI `2.109.1`;
+- migration inventory: one active v2 baseline and 27 archived legacy files;
+- Docker preflight: the running local stack is named `supabase_*_bridgecircle`;
+- compiler baseline: 1,356 errors across 108 files globally; the initial
+  Foundation gate narrows the active slice to 223 errors across 20 files;
+- local database reset from legacy history to the v2 baseline completed;
+- security red phase failed only on the five intended grant/membership-policy
+  assertions;
+- security green phase passes all 86 pgTAP assertions, warning-level lint,
+  empty `public,api,private` shadow diff, static Data API/type boundaries, and
+  two-pass deterministic generated types;
+- member context, safe service-only invite verification, locked atomic invite
+  acceptance, and same-organization membership decisions now pass 45 added
+  pgTAP assertions;
+- the forced two-connection acceptance contract holds the first transaction's
+  invite lock while the second caller retries, producing one membership, one
+  organization profile, one accepted invite, and one audit event;
+- the owner-only self-profile projection and seven atomic profile/onboarding
+  commands pass 41 added assertions, including pending-member resume,
+  invalid-aggregate rollback, path-scoped avatar persistence, and idempotent
+  profile-index enqueue;
+- overlapping experience/skills replacements serialize on the membership lock
+  and preserve one complete aggregate rather than a mixed child set;
+- the Milestone 3 rebuild passes all 172 assertions, warning-level lint, an
+  empty schema diff, static boundary checks, and identical two-pass generated
+  types;
+- symmetric block enforcement now covers profile, organization-profile,
+  helper, connection, Help, conversation, and message surfaces through the
+  centralized helper;
+- every Foundation profile mutation writes an exact non-PII audit action, and
+  repeated account pseudonymization does not duplicate its audit or Storage
+  deletion side effects;
+- service-only outbox claim/complete/retry/fail wrappers enforce lock
+  ownership, stale-lock recovery, attempt caps, and durable terminal states;
+- two overlapping outbox workers claim three disjoint jobs each through
+  `FOR UPDATE SKIP LOCKED`;
+- typed repositories now own every Foundation Supabase call while invite,
+  profile, membership, and admin orchestration stays framework-agnostic;
+- password signup and OAuth invite acceptance, the secure membership cookie,
+  deterministic circle chooser, member layout, notifications, onboarding,
+  avatar-path persistence, pending state, and approval command use v2
+  projections and commands;
+- the focused compiler gate passes with zero errors, and 22 Vitest assertions
+  across nine files cover result parsing and pure orchestration;
+- four local-only Playwright scenarios cover invite/signup/onboarding/shell,
+  pending-to-approved access, explicit multi-circle selection, and rejection
+  of a foreign membership cookie; the core scenario also proves avatar
+  upload/path/re-render and persisted notification acknowledgement, with
+  browser error capture enabled;
+- the final full compiler inventory is 1,257 errors across 98 legacy files,
+  with no error in the completed Foundation slice;
+- hosted Supabase advisors are deferred to the separately approved remote
+  cutover because they operate on hosted projects; local warning lint, grant,
+  RLS, foreign-key/index, pgTAP, schema-diff, and deterministic-type gates are
+  green;
+- no shared-development or production database was read, changed, or reset.
 
 ## Scope
 
@@ -114,9 +178,10 @@ tested boundaries.
 
 Replace `grant execute on all functions in schema api to authenticated` with
 an explicit function list. Do not grant authenticated users blanket sequence
-access. Private mutation/query implementations must not be directly callable
-by a member. Retain only the minimum private RLS-helper ACL that policy
-evaluation demonstrably needs. A new service-only function must be
+access. The exposed `api` wrappers remain security-invoker functions; only
+their exact private implementations and the exact helpers used by RLS receive
+narrow authenticated EXECUTE grants. `private` remains absent from the Data
+API schemas and generated client types. A new service-only function must be
 unreachable to `anon` and `authenticated` unless its grant is deliberately
 added and tested.
 
@@ -328,11 +393,10 @@ occurs after claim commit and before the short completion/retry command.
 - provide pending users only the safe organization context returned by the
   self-context API;
 - keep raw profile, invite, audit, outbox, and private-table access revoked;
-- prevent authenticated direct execution of private mutation/query
-  implementations; use reviewed `api` wrappers for those operations;
-- allow only the minimum private helper execution/schema access that RLS
-  evaluation requires, with pgTAP proving policy success and denial of every
-  non-helper private function;
+- keep `private` outside the Data API and generated client contract;
+- explicitly grant authenticated execution only to private implementations
+  reached by an authenticated API wrapper and helpers required by RLS; deny
+  every other private function, including service-only work;
 - explicitly grant each authenticated `api` function;
 - explicitly grant service-only functions only to `service_role`;
 - remove blanket authenticated sequence access unless a reviewed direct-write
@@ -356,11 +420,10 @@ table, stop and amend this plan/contract before adding it.
 - RLS policies wrap stable Auth/helper calls in scalar `select` form where
   PostgreSQL can initialize them once per statement, while preserving the
   central helper contract.
-- every security-definer function uses `set search_path = ''`, fully qualified
-  names, a fixed return type, and an explicit caller grant test. An API wrapper
-  that delegates to a privileged private implementation is itself a reviewed
-  security-definer boundary, so its caller needs only the wrapper grant and
-  never the private command grant.
+- every security-definer implementation stays in `private`, uses
+  `set search_path = ''`, fully qualified names, and an explicit caller grant
+  test. Exposed `api` wrappers stay security-invoker with fixed signatures, in
+  accordance with the accepted database contract.
 - write commands lock rows in a documented order: root membership/invite first,
   then owned profile rows, then replaceable children. No command waits on an
   external API or starts a second database transaction.
@@ -431,171 +494,172 @@ passes; diagnose failures before starting the next step.
 
 ### Milestone 0 — Freeze the local contract and verification baseline
 
-1. After signoff, commit the approved planning docs, then record branch, commit,
+1. [x] After signoff, commit the approved planning docs, then record branch, commit,
    dirty state, Node/pnpm versions, and the 1,356-error / 108-file compiler
    baseline.
    **Verify:** `codex/redesign-v2` is current and no unrelated change is present.
-2. Confirm active migration history contains only the v2 baseline and legacy
+2. [x] Confirm active migration history contains only the v2 baseline and legacy
    history is archived.
    **Verify:** migration and archive file lists match ADR 0015.
-3. Inspect Docker container names before starting Supabase; do not stop another
+3. [x] Inspect Docker container names before starting Supabase; do not stop another
    project's stack without approval.
    **Verify:** BridgeCircle ports are free or the conflicting owner is known.
-4. Add the focused Foundation typecheck script and initial include list.
+4. [x] Add the focused Foundation typecheck script and initial include list.
    **Verify:** failures are limited to identified Foundation legacy calls.
-5. Add a test inventory mapping each Foundation invariant to pgTAP, Vitest, or
-   Playwright.
+5. [x] Add the [Foundation test inventory](database-v2-foundation-test-inventory.md)
+   mapping each invariant to pgTAP, Vitest, Playwright, or a static boundary
+   check.
    **Verify:** every definition-of-done item below has an owning test.
 
 ### Milestone 1 — Correct the SQL security boundary first
 
-6. Write failing pgTAP assertions for owner-pending membership reads, explicit
+6. [x] Write failing pgTAP assertions for owner-pending membership reads, explicit
    function grants, raw profile denial, and service-only outbox denial.
    **Verify:** only the new assertions fail.
-7. Replace blanket authenticated API/sequence grants with explicit allowlists,
-   and remove direct grants on private command/query implementations. Preserve
-   only the minimum ACL needed by RLS helpers.
-   **Verify:** reviewed API calls and RLS policies work, while direct private
-   commands, non-allowlisted API functions, sequences, anon, and cross-role
-   calls fail.
-8. Amend membership read policy so owners can read their own non-active row
+7. [x] Replace blanket authenticated API/sequence grants with explicit allowlists.
+   Grant only the matching private implementations and RLS helpers required by
+   those allowed surfaces; keep `private` outside the Data API.
+   **Verify:** reviewed API calls and RLS policies work, while non-allowlisted
+   API/private functions, sequences, anon, and cross-role calls fail; exposed
+   schemas and generated types still omit `private`.
+8. [x] Amend membership read policy so owners can read their own non-active row
    without granting organization data to another pending/revoked user.
    **Verify:** active, pending, revoked, cross-org, and anon personas pass.
-9. Re-run database lint and the foreign-key/RLS schema contract.
+9. [x] Re-run database lint and the foreign-key/RLS schema contract.
    **Verify:** zero warnings and all existing assertions pass.
 
 ### Milestone 2 — Build the context and invite contract
 
-10. Add failing tests for zero, one, multiple, pending, rejected, revoked,
+10. [x] Add failing tests for zero, one, multiple, pending, rejected, revoked,
     valid-preference, and tampered-preference context results.
     **Verify:** tests prove no user-ID argument or cross-user row is accepted.
-11. Implement `private.get_my_member_context` and its fixed `api` wrapper.
+11. [x] Implement `private.get_my_member_context` and its fixed `api` wrapper.
     **Verify:** it returns one account row, validates the preferred membership,
     and produces the deterministic selection/chooser result above.
-12. Add failing invite-verification tests for valid, missing, expired, revoked,
+12. [x] Add failing invite-verification tests for valid, missing, expired, revoked,
     and accepted tokens.
     **Verify:** safe fields only; no hash/raw-table privilege.
-13. Implement the service-only invite verification projection.
+13. [x] Implement the service-only invite verification projection.
     **Verify:** service role succeeds; anon/authenticated direct calls fail.
-14. Add invite-acceptance tests for auto-approve, pending approval, email
+14. [x] Add invite-acceptance tests for auto-approve, pending approval, email
     mismatch, missing display name, repeat acceptance, and competing users.
     **Verify:** tests fail before the command exists.
-15. Implement atomic invite acceptance with a locked invite and idempotent
+15. [x] Implement atomic invite acceptance with a locked invite and idempotent
     inserts.
     **Verify:** acceptance tests and deferred constraints pass.
-16. Add a concurrent acceptance test.
+16. [x] Add a concurrent acceptance test.
     **Verify:** one membership/org-profile result, one accepted invite, no
     duplicate profile, and no partial rows.
-17. Add `api.decide_membership` with admin, cross-org, and repeat-decision tests.
+17. [x] Add `api.decide_membership` with admin, cross-org, and repeat-decision tests.
     **Verify:** only an active same-org permitted admin can decide.
 
 ### Milestone 3 — Build the self-profile/onboarding contract
 
-18. Add failing self-profile read tests for owner, cross-user, blocked orgmate,
+18. [x] Add failing self-profile read tests for owner, cross-user, blocked orgmate,
     pending member, and invalid membership.
     **Verify:** only the owner receives the full edit projection.
-19. Implement `api.get_my_profile`.
+19. [x] Implement `api.get_my_profile`.
     **Verify:** ordered children and defaults match the fixed return contract.
-20. Add profile-identity command tests, including profile creation when invite
+20. [x] Add profile-identity command tests, including profile creation when invite
     acceptance had no usable display name.
     **Verify:** non-owner and cross-org writes fail without partial updates.
-21. Implement `api.save_profile_identity`.
+21. [x] Implement `api.save_profile_identity`.
     **Verify:** global and organization fields commit atomically.
-22. Add and implement education replacement tests/command.
+22. [x] Add and implement education replacement tests/command.
     **Verify:** invalid ranges fail; valid ordering is deterministic; retries do
     not duplicate rows.
-23. Add and implement current-profile field tests/command.
+23. [x] Add and implement current-profile field tests/command.
     **Verify:** URL and length constraints produce stable results.
-24. Add and implement experience/skills replacement tests/command.
+24. [x] Add and implement experience/skills replacement tests/command.
     **Verify:** row lock prevents concurrent replacement constraint failures.
-25. Add and implement organization bio, helper availability/topics, and
+25. [x] Add and implement organization bio, helper availability/topics, and
     freshness-consent tests/command.
     **Verify:** membership ownership and normalized topic ordering hold.
-26. Add and implement avatar-path update tests/command.
+26. [x] Add and implement avatar-path update tests/command.
     **Verify:** only the owner's allowed bucket/path prefix can be stored.
-27. Add and implement onboarding completion tests/command.
+27. [x] Add and implement onboarding completion tests/command.
     **Verify:** required identity/graduation floor is enforced, audit is written,
     and one profile-indexing outbox job is deduplicated.
-28. Rebuild from empty, regenerate types, and confirm deterministic output.
+28. [x] Rebuild from empty, regenerate types, and confirm deterministic output.
     **Verify:** reset, tests, lint, empty diff, and a second generation produce
     no unexplained change.
 
 ### Milestone 4 — Finish block, audit, and outbox primitives
 
-29. Expand the block matrix across profile context and existing downstream
+29. [x] Expand the block matrix across profile context and existing downstream
     helpers.
     **Verify:** either direction blocks visibility/commands without revealing
     who initiated the block.
-30. Audit every Foundation command and add missing action assertions.
+30. [x] Audit every Foundation command and add missing action assertions.
     **Verify:** actor, organization, target, and payload contain no profile PII
     beyond the approved evidence.
-31. Add failing outbox claim/complete/retry/fail ownership tests.
+31. [x] Add failing outbox claim/complete/retry/fail ownership tests.
     **Verify:** authenticated and anon roles cannot call service wrappers.
-32. Implement explicit service-only outbox wrappers.
+32. [x] Implement explicit service-only outbox wrappers.
     **Verify:** state constraints and lock ownership pass.
-33. Run parallel-worker and stale-lock/retry tests.
+33. [x] Run parallel-worker and stale-lock/retry tests.
     **Verify:** workers claim disjoint jobs, attempts cap correctly, and no
     external call occurs inside a database transaction.
-34. Re-run account pseudonymization regression tests.
+34. [x] Re-run account pseudonymization regression tests.
     **Verify:** profile PII is removed, shared accepted history remains, Storage
     deletion is queued once, and repeated cleanup is safe.
 
 ### Milestone 5 — Port the application boundary
 
-35. Implement typed Foundation repositories using generated `public`/`api`
+35. [x] Implement typed Foundation repositories using generated `public`/`api`
     types.
     **Verify:** repository unit tests map every stable database result.
-36. Refactor invite `/lib` operations to injected repositories.
+36. [x] Refactor invite `/lib` operations to injected repositories.
     **Verify:** no Supabase/admin/Next import remains in the business functions.
-37. Port password signup and OAuth callback to verify/accept commands.
+37. [x] Port password signup and OAuth callback to verify/accept commands.
     **Verify:** invalid/mismatched invites never create partial accounts or
     memberships; successful paths set the membership cookie.
-38. Implement the membership-context selector and secure cookie boundary.
+38. [x] Implement the membership-context selector and secure cookie boundary.
     **Verify:** tampered/stale cookies are ignored and never authorize access.
-39. Add the multiple-circle chooser and deterministic one-circle fast path.
+39. [x] Add the multiple-circle chooser and deterministic one-circle fast path.
     **Verify:** two-org E2E selects and persists the intended membership.
-40. Port member layout to the single context projection and avatar-path resolver.
+40. [x] Port member layout to the single context projection and avatar-path resolver.
     **Verify:** no layout query uses `.limit(1)` for organization selection.
-41. Port the cursor-paginated shell notification list through owner RLS, take
+41. [x] Port the cursor-paginated shell notification list through owner RLS, take
     initial unread count from member context, and mark read through the existing
     API command.
     **Verify:** the redesigned shell renders and updates read state without
     service-role, raw table-write access, or N+1 queries.
-42. Refactor profile/onboarding `/lib` operations to injected repositories.
+42. [x] Refactor profile/onboarding `/lib` operations to injected repositories.
     **Verify:** focused Vitest covers each onboarding step and expected error.
-43. Port onboarding page/actions to self-profile projection and commands.
+43. [x] Port onboarding page/actions to self-profile projection and commands.
     **Verify:** steps resume, skip, retry, and completion remain correct.
-44. Port avatar upload persistence to `avatar_path`.
+44. [x] Port avatar upload persistence to `avatar_path`.
     **Verify:** upload/upsert policies and rendered public URL work locally.
-45. Port pending-approval rendering and admin decision integration.
+45. [x] Port pending-approval rendering and admin decision integration.
     **Verify:** pending members see only safe self/org context and gain access
     immediately after approval.
-46. Remove obsolete Foundation direct-table/admin-client code paths.
+46. [x] Remove obsolete Foundation direct-table/admin-client code paths.
     **Verify:** targeted `rg` finds no raw Foundation write outside repository,
     seed, test fixture, or approved service script.
 
 ### Milestone 6 — Verify and checkpoint Foundation
 
-47. Run the complete database rebuild/verification chain.
+47. [x] Run the complete database rebuild/verification chain.
     **Verify:** reset, pgTAP, warning-level lint, empty schema diff, deterministic
     types, advisor review, and FK/RLS/grant assertions all pass; active history
     contains the single v2 baseline.
-48. Run `pnpm typecheck:v2-foundation`, Biome, ESLint, and focused Vitest.
+48. [x] Run `pnpm typecheck:v2-foundation`, Biome, ESLint, and focused Vitest.
     **Verify:** Foundation is green with no ignored errors.
-49. Run focused Playwright for invite → signup → onboarding → circle selection
+49. [x] Run focused Playwright for invite → signup → onboarding → circle selection
     → shell, plus pending approval and tenant-denial paths.
     **Verify:** no browser console errors and no outbound real email.
-50. Re-run global TypeScript inventory.
+50. [x] Re-run global TypeScript inventory.
     **Verify:** error count and error-file count are lower than 1,356/108 and
     no new out-of-domain error exists.
-51. Update contract, runbooks, active data-model status, E2E fixture docs, and
+51. [x] Update contract, runbooks, active data-model status, E2E fixture docs, and
     implementation status together.
     **Verify:** docs label legacy vs v2 accurately and use port 3000/current
     branch names.
-52. Review the diff for secrets, broad grants, service-role leakage, raw token
+52. [x] Review the diff for secrets, broad grants, service-role leakage, raw token
     logging, non-determinism, and unrelated edits.
     **Verify:** clean `git diff --check`; no secrets or remote commands.
-53. Commit one Foundation checkpoint only after every gate above passes.
+53. [x] Commit one Foundation checkpoint only after every gate above passes.
     **Verify:** clean worktree and commit contains SQL, generated types, code,
     tests, and synchronized docs.
 

@@ -34,11 +34,12 @@ exception is narrow:
 During this transition, validate from `app/` with:
 
 ```bash
-pnpm dlx supabase db reset --local
+supabase db reset --local
 pnpm db:test
-pnpm dlx supabase db lint --local --level warning --fail-on warning
-pnpm dlx supabase db diff --local --schema public,api,private
+supabase db lint --local --level warning --fail-on warning
+supabase db diff --local --schema public,api,private
 pnpm db:types:local
+pnpm typecheck:v2-foundation
 ```
 
 An empty diff, clean lint, passing pgTAP suite, and deterministic types prove
@@ -46,6 +47,13 @@ the baseline can rebuild locally. They do not authorize a remote change. Do
 not run `supabase db push`, `pnpm db:types` (linked), or migration repair
 against either shared project until the matching development cutover step is
 approved.
+
+As of 2026-07-14, the Foundation slice is complete locally on
+`codex/redesign-v2`: the single baseline rebuild, 207 pgTAP assertions,
+warning lint, empty schema diff, two-pass generated types, focused TypeScript,
+Vitest, concurrency harnesses, and local Playwright pass. Hosted Supabase
+advisor checks remain part of the separately approved development cutover;
+this local result does not authorize a remote command.
 
 Once development and production have cut over, the exception is spent. The
 baseline is immutable and every later change follows the normal forward-only
@@ -60,7 +68,7 @@ pipeline.
 
 ```
 1. edit / add SQL file in app/supabase/migrations/
-2. pnpm dlx supabase db push                       (applies to bridgecircle-dev)
+2. supabase db push                                (applies to bridgecircle-dev)
 3. pnpm db:types                                   (regenerate database.types.ts)
 4. test locally
 5. git push branch + open PR

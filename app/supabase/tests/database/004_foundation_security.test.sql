@@ -1,0 +1,233 @@
+begin;
+
+create extension if not exists pgtap with schema extensions;
+select extensions.plan(17);
+
+select extensions.ok(
+  not has_table_privilege('authenticated', 'public.profiles', 'select'),
+  'authenticated has no raw profile SELECT grant'
+);
+select extensions.ok(
+  not has_table_privilege('authenticated', 'public.invites', 'select'),
+  'authenticated has no raw invite SELECT grant'
+);
+select extensions.ok(
+  not has_table_privilege('authenticated', 'private.audit_log', 'select'),
+  'authenticated has no audit-log SELECT grant'
+);
+select extensions.ok(
+  not has_table_privilege('authenticated', 'private.outbox_jobs', 'select'),
+  'authenticated has no outbox SELECT grant'
+);
+select extensions.ok(
+  not exists (
+    select 1
+    from information_schema.usage_privileges p
+    where p.grantee = 'authenticated'
+      and p.object_schema = 'public'
+      and p.object_type = 'SEQUENCE'
+      and p.privilege_type = 'USAGE'
+  ),
+  'authenticated has no blanket public sequence usage'
+);
+
+select extensions.is(
+  (
+    select array_agg(p.proname::text order by p.proname)
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'api'
+      and has_function_privilege('authenticated', p.oid, 'execute')
+  ),
+  array[
+    'accept_invite', 'block_member', 'complete_onboarding',
+    'create_circle_ask', 'create_direct_ask',
+    'decide_membership', 'decide_offer', 'disconnect', 'get_ask_detail', 'get_my_member_context',
+    'get_my_profile', 'get_or_create_direct_conversation',
+    'list_give_help', 'list_help_matches', 'mark_conversation_read',
+    'mark_notifications_read', 'offer_to_help', 'resolve_ask',
+    'respond_to_connection_request', 'respond_to_direct_ask', 'retract_ask',
+    'save_profile_current', 'save_profile_education', 'save_profile_history',
+    'save_profile_identity', 'save_profile_preferences',
+    'send_connection_request', 'send_message', 'set_event_rsvp',
+    'set_my_avatar_path', 'submit_report', 'unblock_member'
+  ]::text[],
+  'authenticated API execution matches the reviewed allowlist'
+);
+
+select extensions.is(
+  (
+    select array_agg(p.proname::text order by p.proname)
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'private'
+      and has_function_privilege('authenticated', p.oid, 'execute')
+  ),
+  array[
+    'accept_invite', 'block_member', 'can_access_conversation', 'can_view_ask',
+    'complete_onboarding', 'create_ask', 'decide_membership', 'decide_offer',
+    'disconnect', 'get_ask_detail', 'get_my_member_context', 'get_my_profile',
+    'get_or_create_direct_conversation', 'is_active_member_of', 'is_admin_of',
+    'is_blocked', 'is_connected', 'list_give_help', 'list_help_matches',
+    'mark_conversation_read', 'mark_notifications_read', 'offer_to_help',
+    'owns_membership', 'resolve_ask', 'respond_to_connection_request',
+    'respond_to_direct_ask', 'retract_ask', 'save_profile_current',
+    'save_profile_education', 'save_profile_history', 'save_profile_identity',
+    'save_profile_preferences', 'send_connection_request', 'send_message',
+    'set_event_rsvp', 'set_my_avatar_path', 'submit_report', 'unblock_member'
+  ]::text[],
+  'authenticated private execution matches API implementations and RLS helpers'
+);
+
+select extensions.ok(
+  not has_function_privilege(
+    'authenticated', 'private.claim_outbox_jobs(text,integer)', 'execute'
+  ),
+  'members cannot claim outbox jobs'
+);
+select extensions.ok(
+  not has_function_privilege(
+    'authenticated', 'private.close_expired_asks(integer)', 'execute'
+  ),
+  'members cannot run scheduled Ask expiry'
+);
+select extensions.ok(
+  not has_function_privilege(
+    'authenticated', 'private.pseudonymize_user(uuid)', 'execute'
+  ),
+  'members cannot pseudonymize accounts'
+);
+
+insert into public.organizations (id, slug, name) values
+  ('60000000-0000-4000-8000-000000000001', 'foundation-other', 'Foundation Other');
+
+insert into public.users (id) values
+  ('70000000-0000-4000-8000-000000000011'),
+  ('70000000-0000-4000-8000-000000000012'),
+  ('70000000-0000-4000-8000-000000000013'),
+  ('70000000-0000-4000-8000-000000000014');
+
+insert into public.organization_memberships (
+  id, user_id, organization_id, status, joined_at
+) values
+  (
+    '71000000-0000-4000-8000-000000000011',
+    '70000000-0000-4000-8000-000000000011',
+    '11111111-1111-1111-1111-111111111111', 'pending', null
+  ),
+  (
+    '71000000-0000-4000-8000-000000000012',
+    '70000000-0000-4000-8000-000000000012',
+    '11111111-1111-1111-1111-111111111111', 'rejected', null
+  ),
+  (
+    '71000000-0000-4000-8000-000000000013',
+    '70000000-0000-4000-8000-000000000013',
+    '11111111-1111-1111-1111-111111111111', 'revoked', null
+  ),
+  (
+    '71000000-0000-4000-8000-000000000014',
+    '70000000-0000-4000-8000-000000000014',
+    '60000000-0000-4000-8000-000000000001', 'active', now()
+  );
+
+select set_config(
+  'request.jwt.claim.sub', '70000000-0000-4000-8000-000000000011', true
+);
+set local role authenticated;
+select extensions.is(
+  (select status from public.organization_memberships
+   where id = '71000000-0000-4000-8000-000000000011'),
+  'pending',
+  'pending member can read their own membership state'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claim.sub', '70000000-0000-4000-8000-000000000012', true
+);
+set local role authenticated;
+select extensions.is(
+  (select status from public.organization_memberships
+   where id = '71000000-0000-4000-8000-000000000012'),
+  'rejected',
+  'rejected member can read their own membership state'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claim.sub', '70000000-0000-4000-8000-000000000013', true
+);
+set local role authenticated;
+select extensions.is(
+  (select status from public.organization_memberships
+   where id = '71000000-0000-4000-8000-000000000013'),
+  'revoked',
+  'revoked member can read their own membership state'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true
+);
+set local role authenticated;
+select extensions.is(
+  (
+    select count(*)::bigint
+    from public.organization_memberships
+    where id in (
+      '71000000-0000-4000-8000-000000000011',
+      '71000000-0000-4000-8000-000000000012',
+      '71000000-0000-4000-8000-000000000013'
+    )
+  ),
+  0::bigint,
+  'ordinary active member cannot browse inactive memberships'
+);
+select extensions.is(
+  (
+    select count(*)::bigint
+    from public.organization_memberships
+    where id = '20000000-0000-4000-8000-000000000003'
+  ),
+  1::bigint,
+  'ordinary active member can browse an active same-org membership'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claim.sub', '10000000-0000-4000-8000-000000000001', true
+);
+set local role authenticated;
+select extensions.is(
+  (
+    select count(*)::bigint
+    from public.organization_memberships
+    where id in (
+      '71000000-0000-4000-8000-000000000011',
+      '71000000-0000-4000-8000-000000000012',
+      '71000000-0000-4000-8000-000000000013'
+    )
+  ),
+  3::bigint,
+  'same-org admin can read inactive memberships for decisions'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claim.sub', '70000000-0000-4000-8000-000000000014', true
+);
+set local role authenticated;
+select extensions.is(
+  (
+    select count(*)::bigint
+    from public.organization_memberships
+    where organization_id = '11111111-1111-1111-1111-111111111111'
+  ),
+  0::bigint,
+  'active member cannot read another organization memberships'
+);
+reset role;
+
+select * from extensions.finish();
+rollback;

@@ -13,15 +13,18 @@
     "build": "NODE_ENV=production next build",
     "start": "NODE_ENV=production next start",
     "lint": "eslint",
+    "typecheck:v2-foundation": "tsc --noEmit -p tsconfig.v2-foundation.json --pretty false",
+    "check:supabase-boundaries": "bash scripts/check-supabase-boundaries.sh",
+    "test:db:concurrency": "bash scripts/test-foundation-concurrency.sh",
     "check:tokens": "bash scripts/check-design-tokens.sh",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "db:start": "bash scripts/db-start.sh",
-    "db:stop": "pnpm dlx supabase stop",
-    "db:reset": "pnpm dlx supabase db reset",
-    "db:test": "pnpm dlx supabase test db --local",
-    "db:types:local": "pnpm dlx supabase gen types typescript --local --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts",
-    "db:types": "pnpm dlx supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts"
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db --local",
+    "db:types:local": "supabase gen types typescript --local --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts",
+    "db:types": "supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

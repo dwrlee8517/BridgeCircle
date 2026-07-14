@@ -1,7 +1,16 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import { Bell, CalendarX, Handshake, Megaphone, MessageSquare, UserPlus } from 'lucide-react'
+import {
+  Bell,
+  CalendarX,
+  CircleHelp,
+  Handshake,
+  Megaphone,
+  MessageSquare,
+  UserPlus,
+  UserRoundCheck,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState, useTransition } from 'react'
@@ -9,6 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { createClient } from '@/db/client'
 import {
+  isNotificationType,
   type NotificationRow,
   type NotificationType,
   notificationLabel,
@@ -60,19 +70,21 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${viewerId}`,
+          filter: `recipient_user_id=eq.${viewerId}`,
         },
         (payload) => {
           const r = payload.new as Record<string, unknown>
+          if (!isNotificationType(r.type) || typeof r.id !== 'number') return
           const row: NotificationRow = {
-            id: r.id as string,
-            type: r.type as NotificationType,
+            id: r.id,
+            type: r.type,
             targetType: (r.target_type as string | null) ?? null,
             targetId: (r.target_id as string | null) ?? null,
             organizationId: (r.organization_id as string | null) ?? null,
+            actorUserId: (r.actor_user_id as string | null) ?? null,
             readAt: (r.read_at as string | null) ?? null,
             createdAt: r.created_at as string,
-            payload: (r.payload as Record<string, unknown> | null) ?? null,
+            payload: (r.payload as Record<string, unknown> | null) ?? {},
           }
           setItems((prev) => {
             // Dedup by id in case the realtime event races with a server-
@@ -104,7 +116,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
       )
       setUnread((u) => Math.max(0, u - 1))
       const fd = new FormData()
-      fd.set('notificationId', row.id)
+      fd.set('notificationId', String(row.id))
       startTransition(() => {
         markNotificationReadAction(fd).catch(() => {
           // If the mark-read fails the next page-load refresh will reconcile.
@@ -228,20 +240,30 @@ function NotificationList({
 function Icon({ type }: { type: NotificationType }) {
   const className = 'mt-0.5 size-4 shrink-0 text-muted-foreground'
   switch (type) {
-    case 'friend_request_received':
-    case 'friend_request_accepted':
+    case 'connection_requested':
+    case 'connection_accepted':
       return <UserPlus className={className} />
     case 'ask_received':
     case 'ask_accepted':
     case 'ask_declined':
+    case 'ask_reminder':
+    case 'ask_closed':
+    case 'offer_received':
+    case 'offer_accepted':
+    case 'offer_declined':
+    case 'offer_closed':
       return <Handshake className={className} />
-    case 'direct_message':
-    case 'ask_message':
+    case 'message_received':
       return <MessageSquare className={className} />
-    case 'announcement':
+    case 'announcement_published':
       return <Megaphone className={className} />
-    case 'event_canceled':
+    case 'event_cancelled':
       return <CalendarX className={className} />
+    case 'circle_ask_match':
+    case 'circle_ask_closed':
+      return <CircleHelp className={className} />
+    case 'profile_update_ready':
+      return <UserRoundCheck className={className} />
   }
 }
 

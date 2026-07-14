@@ -21,7 +21,7 @@ export default function globalSetup(): void {
   const appDir = path.resolve(__dirname, "..", "..");
   console.log("[e2e] resetting local database (supabase db reset)...");
   try {
-    execSync("pnpm dlx supabase db reset", { cwd: appDir, stdio: "inherit" });
+    execSync("supabase db reset", { cwd: appDir, stdio: "inherit" });
   } catch (error) {
     throw new Error(
       "supabase db reset failed. Is the local stack running? Start it with `pnpm db:start` " +

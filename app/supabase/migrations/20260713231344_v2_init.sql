@@ -1539,6 +1539,1237 @@ as $$
   on conflict (dedupe_key) do nothing;
 $$;
 
+create function private.get_my_member_context(
+  p_preferred_membership_id uuid default null
+)
+returns table (
+  account_state text,
+  onboarding_completed_at timestamptz,
+  delete_scheduled_for timestamptz,
+  delete_initiated_by_admin boolean,
+  deleted_at timestamptz,
+  selected_membership_id uuid,
+  requires_circle_choice boolean,
+  unread_notification_count bigint,
+  memberships jsonb
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_selected_membership_id uuid;
+  v_active_count bigint;
+  v_pending_count bigint;
+begin
+  if v_user_id is null then
+    raise exception using errcode = '42501', message = 'authentication_required';
+  end if;
+
+  if not exists (select 1 from public.users u where u.id = v_user_id) then
+    raise exception using errcode = '42501', message = 'account_not_found';
+  end if;
+
+  select m.id
+    into v_selected_membership_id
+  from public.organization_memberships m
+  where m.id = p_preferred_membership_id
+    and m.user_id = v_user_id
+    and m.status in ('active', 'pending');
+
+  select
+    count(*) filter (where m.status = 'active'),
+    count(*) filter (where m.status = 'pending')
+    into v_active_count, v_pending_count
+  from public.organization_memberships m
+  where m.user_id = v_user_id;
+
+  if v_selected_membership_id is null and v_active_count = 1 then
+    select m.id
+      into v_selected_membership_id
+    from public.organization_memberships m
+    where m.user_id = v_user_id and m.status = 'active';
+  elsif v_selected_membership_id is null
+    and v_active_count = 0
+    and v_pending_count = 1 then
+    select m.id
+      into v_selected_membership_id
+    from public.organization_memberships m
+    where m.user_id = v_user_id and m.status = 'pending';
+  end if;
+
+  return query
+  select
+    u.account_state,
+    u.onboarding_completed_at,
+    u.delete_scheduled_for,
+    u.delete_initiated_by_admin,
+    u.deleted_at,
+    v_selected_membership_id,
+    v_selected_membership_id is null
+      and (v_active_count > 1 or (v_active_count = 0 and v_pending_count > 1)),
+    (
+      select count(*)
+      from public.notifications n
+      where n.recipient_user_id = v_user_id and n.read_at is null
+    ),
+    coalesce(
+      (
+        select jsonb_agg(
+          jsonb_build_object(
+            'membershipId', m.id,
+            'status', m.status,
+            'joinedAt', m.joined_at,
+            'organization', jsonb_build_object(
+              'id', o.id,
+              'slug', o.slug,
+              'name', o.name,
+              'requiresAdminApproval', o.requires_admin_approval
+            ),
+            'profile', jsonb_build_object(
+              'displayName', p.display_name,
+              'preferredName', p.preferred_name,
+              'avatarPath', p.avatar_path,
+              'graduationYear', op.graduation_year,
+              'bio', op.bio
+            ),
+            'roles', coalesce(
+              (
+                select jsonb_agg(a.role order by a.role)
+                from public.admin_role_assignments a
+                where a.organization_membership_id = m.id
+              ),
+              '[]'::jsonb
+            )
+          )
+          order by o.name, m.id
+        )
+        from public.organization_memberships m
+        join public.organizations o on o.id = m.organization_id
+        left join public.profiles p on p.user_id = m.user_id
+        left join public.organization_profiles op
+          on op.organization_membership_id = m.id
+        where m.user_id = v_user_id
+      ),
+      '[]'::jsonb
+    )
+  from public.users u
+  where u.id = v_user_id;
+end;
+$$;
+
+create function private.verify_invite(p_token text)
+returns table (
+  result_code text,
+  invite_id uuid,
+  organization_id uuid,
+  email text,
+  full_name text,
+  graduation_year smallint,
+  organization_name text,
+  organization_slug text,
+  expires_at timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_invite record;
+  v_result_code text;
+begin
+  if p_token is null or char_length(p_token) < 32 or char_length(p_token) > 512 then
+    return query select
+      'not_found'::text, null::uuid, null::uuid, null::text, null::text,
+      null::smallint, null::text, null::text, null::timestamptz;
+    return;
+  end if;
+
+  select
+    i.id, i.organization_id, i.email, i.full_name, i.graduation_year,
+    i.status, i.expires_at, o.name as organization_name,
+    o.slug as organization_slug
+    into v_invite
+  from public.invites i
+  join public.organizations o on o.id = i.organization_id
+  where i.token_hash = extensions.digest(p_token, 'sha256');
+
+  if not found then
+    return query select
+      'not_found'::text, null::uuid, null::uuid, null::text, null::text,
+      null::smallint, null::text, null::text, null::timestamptz;
+    return;
+  end if;
+
+  v_result_code := case
+    when v_invite.status = 'accepted' then 'accepted'
+    when v_invite.status = 'revoked' then 'revoked'
+    when v_invite.status = 'expired' or v_invite.expires_at <= now() then 'expired'
+    when v_invite.status = 'pending' then 'valid'
+    else 'not_found'
+  end;
+
+  return query select
+    v_result_code,
+    case when v_result_code = 'valid' then v_invite.id else null end,
+    case when v_result_code = 'valid' then v_invite.organization_id else null end,
+    case when v_result_code = 'valid' then v_invite.email else null end,
+    case when v_result_code = 'valid' then v_invite.full_name else null end,
+    case when v_result_code = 'valid' then v_invite.graduation_year else null end,
+    case when v_result_code = 'valid' then v_invite.organization_name else null end,
+    case when v_result_code = 'valid' then v_invite.organization_slug else null end,
+    case when v_result_code = 'valid' then v_invite.expires_at else null end;
+end;
+$$;
+
+create function private.accept_invite(p_token text)
+returns table (
+  result_code text,
+  membership_id uuid,
+  membership_status text
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_invite record;
+  v_auth record;
+  v_membership record;
+  v_display_name text;
+begin
+  if v_user_id is null then
+    raise exception using errcode = '42501', message = 'authentication_required';
+  end if;
+
+  if p_token is null or char_length(p_token) < 32 or char_length(p_token) > 512 then
+    return query select 'not_found'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  select
+    i.id, i.organization_id, i.email_normalized, i.full_name,
+    i.graduation_year, i.status, i.accepted_by_user_id, i.expires_at,
+    o.requires_admin_approval
+    into v_invite
+  from public.invites i
+  join public.organizations o on o.id = i.organization_id
+  where i.token_hash = extensions.digest(p_token, 'sha256')
+  for update of i;
+
+  if not found then
+    return query select 'not_found'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  if v_invite.status = 'accepted' then
+    if v_invite.accepted_by_user_id <> v_user_id then
+      return query select 'accepted_by_other'::text, null::uuid, null::text;
+      return;
+    end if;
+
+    select m.id, m.status
+      into v_membership
+    from public.organization_memberships m
+    where m.user_id = v_user_id
+      and m.organization_id = v_invite.organization_id;
+
+    if not found then
+      return query select 'inconsistent_state'::text, null::uuid, null::text;
+      return;
+    end if;
+
+    return query select 'accepted'::text, v_membership.id, v_membership.status;
+    return;
+  end if;
+
+  if v_invite.status = 'revoked' then
+    return query select 'revoked'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  if v_invite.status = 'expired' or v_invite.expires_at <= now() then
+    if v_invite.status = 'pending' then
+      update public.invites set status = 'expired' where id = v_invite.id;
+    end if;
+    return query select 'expired'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  select au.email, au.raw_user_meta_data
+    into v_auth
+  from auth.users au
+  where au.id = v_user_id;
+
+  if not found or v_auth.email is null
+    or not exists (select 1 from public.users u where u.id = v_user_id) then
+    return query select 'account_not_found'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  if lower(btrim(v_auth.email)) <> v_invite.email_normalized then
+    return query select 'email_mismatch'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  select m.id, m.status
+    into v_membership
+  from public.organization_memberships m
+  where m.user_id = v_user_id
+    and m.organization_id = v_invite.organization_id
+  for update;
+
+  if found and v_membership.status not in ('active', 'pending') then
+    return query select 'membership_unavailable'::text, null::uuid, null::text;
+    return;
+  end if;
+
+  if not found then
+    insert into public.organization_memberships (
+      user_id, organization_id, status, joined_at
+    ) values (
+      v_user_id,
+      v_invite.organization_id,
+      case when v_invite.requires_admin_approval then 'pending' else 'active' end,
+      case when v_invite.requires_admin_approval then null else now() end
+    )
+    returning id, status into v_membership;
+  end if;
+
+  v_display_name := nullif(
+    btrim(coalesce(
+      v_invite.full_name,
+      v_auth.raw_user_meta_data ->> 'full_name',
+      v_auth.raw_user_meta_data ->> 'name',
+      ''
+    )),
+    ''
+  );
+
+  if v_display_name is not null then
+    insert into public.profiles (user_id, display_name)
+    values (v_user_id, v_display_name)
+    on conflict (user_id) do nothing;
+  end if;
+
+  insert into public.organization_profiles (
+    organization_membership_id, organization_id, graduation_year
+  ) values (
+    v_membership.id, v_invite.organization_id, v_invite.graduation_year
+  )
+  on conflict (organization_membership_id) do nothing;
+
+  update public.invites
+  set status = 'accepted', accepted_by_user_id = v_user_id, accepted_at = now()
+  where id = v_invite.id;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_invite.organization_id,
+    case when v_membership.status = 'active'
+      then 'membership.joined' else 'membership.pending' end,
+    'invite',
+    v_invite.id::text,
+    jsonb_build_object(
+      'membershipId', v_membership.id,
+      'membershipStatus', v_membership.status
+    )
+  );
+
+  return query select 'accepted'::text, v_membership.id, v_membership.status;
+end;
+$$;
+
+create function private.decide_membership(
+  p_membership_id uuid,
+  p_decision text
+)
+returns table (
+  result_code text,
+  membership_status text
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_actor_user_id uuid := (select auth.uid());
+  v_actor_membership_id uuid;
+  v_membership record;
+  v_new_status text;
+begin
+  if v_actor_user_id is null then
+    raise exception using errcode = '42501', message = 'authentication_required';
+  end if;
+
+  if p_decision not in ('approve', 'reject') then
+    return query select 'invalid_decision'::text, null::text;
+    return;
+  end if;
+
+  select m.id, m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  where m.id = p_membership_id
+  for update;
+
+  if not found then
+    return query select 'not_found'::text, null::text;
+    return;
+  end if;
+
+  select actor.id
+    into v_actor_membership_id
+  from public.organization_memberships actor
+  join public.admin_role_assignments role
+    on role.organization_id = actor.organization_id
+   and role.organization_membership_id = actor.id
+  join public.users actor_user on actor_user.id = actor.user_id
+  where actor.user_id = v_actor_user_id
+    and actor.organization_id = v_membership.organization_id
+    and actor.status = 'active'
+    and actor_user.account_state = 'active'
+    and role.role in ('super_admin', 'admin')
+  order by case role.role when 'super_admin' then 0 else 1 end, actor.id
+  limit 1;
+
+  if v_actor_membership_id is null then
+    return query select 'not_authorized'::text, v_membership.status;
+    return;
+  end if;
+
+  v_new_status := case when p_decision = 'approve' then 'active' else 'rejected' end;
+
+  if v_membership.status = v_new_status then
+    return query select
+      case when v_new_status = 'active' then 'approved' else 'rejected' end,
+      v_membership.status;
+    return;
+  end if;
+
+  if v_membership.status <> 'pending' then
+    return query select 'not_pending'::text, v_membership.status;
+    return;
+  end if;
+
+  update public.organization_memberships
+  set status = v_new_status,
+      joined_at = case when v_new_status = 'active' then now() else null end,
+      approved_by_membership_id = v_actor_membership_id,
+      approved_at = now()
+  where id = v_membership.id;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id
+  ) values (
+    v_actor_user_id,
+    v_membership.organization_id,
+    case when v_new_status = 'active'
+      then 'membership.approved' else 'membership.rejected' end,
+    'membership',
+    v_membership.id::text
+  );
+
+  perform private.enqueue_outbox(
+    'send_email',
+    jsonb_build_object(
+      'userId', v_membership.user_id,
+      'organizationId', v_membership.organization_id,
+      'membershipId', v_membership.id,
+      'template', case when v_new_status = 'active'
+        then 'membership_approved' else 'membership_rejected' end
+    ),
+    'membership_decision:' || v_membership.id::text || ':' || v_new_status
+  );
+
+  return query select
+    case when v_new_status = 'active' then 'approved' else 'rejected' end,
+    v_new_status;
+end;
+$$;
+
+create function private.get_my_profile(p_membership_id uuid)
+returns table (
+  result_code text,
+  profile jsonb
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_profile jsonb;
+begin
+  if v_user_id is null then
+    return query select 'not_found'::text, null::jsonb;
+    return;
+  end if;
+
+  select jsonb_build_object(
+    'membership', jsonb_build_object(
+      'id', m.id,
+      'status', m.status,
+      'organization', jsonb_build_object(
+        'id', o.id,
+        'name', o.name,
+        'slug', o.slug
+      )
+    ),
+    'identity', jsonb_build_object(
+      'displayName', p.display_name,
+      'preferredName', p.preferred_name,
+      'nameOther', p.name_other,
+      'graduationYear', op.graduation_year,
+      'avatarPath', p.avatar_path
+    ),
+    'current', jsonb_build_object(
+      'headline', p.headline,
+      'employer', p.current_employer,
+      'title', p.current_title,
+      'city', p.city,
+      'university', p.university,
+      'major', p.major,
+      'linkedinUrl', p.linkedin_url
+    ),
+    'education', coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id', e.id,
+          'school', e.school,
+          'degree', e.degree,
+          'field', e.field,
+          'startYear', e.start_year,
+          'startMonth', e.start_month,
+          'endYear', e.end_year,
+          'endMonth', e.end_month,
+          'description', e.description
+        ) order by e.sort_order, e.id
+      )
+      from public.profile_education e
+      where e.user_id = v_user_id
+    ), '[]'::jsonb),
+    'experiences', coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id', e.id,
+          'employer', e.employer,
+          'title', e.title,
+          'startYear', e.start_year,
+          'startMonth', e.start_month,
+          'endYear', e.end_year,
+          'endMonth', e.end_month,
+          'description', e.description
+        ) order by e.sort_order, e.id
+      )
+      from public.profile_experiences e
+      where e.user_id = v_user_id
+    ), '[]'::jsonb),
+    'skills', coalesce((
+      select jsonb_agg(
+        jsonb_build_object('name', s.name)
+        order by s.sort_order, s.normalized_name
+      )
+      from public.profile_skills s
+      where s.user_id = v_user_id
+    ), '[]'::jsonb),
+    'visibility', coalesce((
+      select jsonb_object_agg(v.field_key, v.audience order by v.field_key)
+      from public.profile_field_visibility v
+      where v.organization_membership_id = m.id
+    ), '{}'::jsonb),
+    'preferences', jsonb_build_object(
+      'bio', op.bio,
+      'openToHelp', coalesce((
+        select hp.open_to_help
+        from public.helper_preferences hp
+        where hp.organization_membership_id = m.id
+      ), true),
+      'helperTopics', coalesce((
+        select jsonb_agg(
+          jsonb_build_object('name', ht.name)
+          order by ht.sort_order, ht.normalized_name
+        )
+        from public.helper_topics ht
+        where ht.organization_membership_id = m.id
+      ), '[]'::jsonb),
+      'freshness', jsonb_build_object(
+        'linkedinUrl', pes.linkedin_url,
+        'refreshPolicy', coalesce(pes.refresh_policy, 'review_before_update'),
+        'refreshInterval', coalesce(pes.refresh_interval, 'monthly'),
+        'consentedAt', pes.consented_at
+      )
+    )
+  )
+  into v_profile
+  from public.organization_memberships m
+  join public.organizations o on o.id = m.organization_id
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  left join public.profiles p on p.user_id = m.user_id
+  left join public.organization_profiles op
+    on op.organization_membership_id = m.id
+  left join private.profile_enrichment_settings pes on pes.user_id = m.user_id
+  where m.id = p_membership_id
+    and m.user_id = v_user_id
+    and m.status in ('active', 'pending');
+
+  if v_profile is null then
+    return query select 'not_found'::text, null::jsonb;
+    return;
+  end if;
+
+  return query select 'ok'::text, v_profile;
+end;
+$$;
+
+create function private.save_profile_identity(
+  p_membership_id uuid,
+  p_display_name text,
+  p_preferred_name text,
+  p_name_other text,
+  p_graduation_year smallint
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_display_name text := nullif(btrim(p_display_name), '');
+  v_preferred_name text := nullif(btrim(p_preferred_name), '');
+  v_name_other text := nullif(btrim(p_name_other), '');
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+  for update of m;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if v_display_name is null or char_length(v_display_name) > 200
+    or char_length(coalesce(v_preferred_name, '')) > 200
+    or char_length(coalesce(v_name_other, '')) > 200
+    or (p_graduation_year is not null and p_graduation_year not between 1900 and 2100)
+  then
+    return 'invalid_identity';
+  end if;
+
+  insert into public.profiles (
+    user_id, display_name, preferred_name, name_other
+  ) values (
+    v_user_id, v_display_name, v_preferred_name, v_name_other
+  )
+  on conflict (user_id) do update
+    set display_name = excluded.display_name,
+        preferred_name = excluded.preferred_name,
+        name_other = excluded.name_other;
+
+  insert into public.organization_profiles (
+    organization_membership_id, organization_id, graduation_year
+  ) values (
+    p_membership_id, v_membership.organization_id, p_graduation_year
+  )
+  on conflict (organization_membership_id) do update
+    set graduation_year = excluded.graduation_year;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.identity_saved',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'graduationYearProvided', p_graduation_year is not null
+    )
+  );
+
+  return 'saved';
+end;
+$$;
+
+create function private.save_profile_education(
+  p_membership_id uuid,
+  p_university text,
+  p_major text,
+  p_education jsonb
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_university text := nullif(btrim(p_university), '');
+  v_major text := nullif(btrim(p_major), '');
+  v_education jsonb := coalesce(p_education, '[]'::jsonb);
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+  for update of m;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if not exists (select 1 from public.profiles p where p.user_id = v_user_id) then
+    return 'profile_required';
+  end if;
+  if jsonb_typeof(v_education) <> 'array'
+    or jsonb_array_length(v_education) > 20
+    or char_length(coalesce(v_university, '')) > 300
+    or char_length(coalesce(v_major, '')) > 300
+  then
+    return 'invalid_education';
+  end if;
+
+  begin
+    update public.profiles
+    set university = v_university, major = v_major
+    where user_id = v_user_id;
+
+    delete from public.profile_education where user_id = v_user_id;
+
+    insert into public.profile_education (
+      user_id, school, degree, field,
+      start_year, start_month, end_year, end_month,
+      description, sort_order
+    )
+    select
+      v_user_id,
+      btrim(entry.value ->> 'school'),
+      nullif(btrim(entry.value ->> 'degree'), ''),
+      nullif(btrim(entry.value ->> 'field'), ''),
+      (entry.value ->> 'startYear')::smallint,
+      (entry.value ->> 'startMonth')::smallint,
+      (entry.value ->> 'endYear')::smallint,
+      (entry.value ->> 'endMonth')::smallint,
+      nullif(btrim(entry.value ->> 'description'), ''),
+      (entry.ordinality - 1)::integer
+    from jsonb_array_elements(v_education)
+      with ordinality as entry(value, ordinality);
+  exception
+    when check_violation or not_null_violation or invalid_text_representation
+      or numeric_value_out_of_range or string_data_right_truncation
+    then
+      return 'invalid_education';
+  end;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.education_saved',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'educationCount', jsonb_array_length(v_education)
+    )
+  );
+
+  return 'saved';
+end;
+$$;
+
+create function private.save_profile_current(
+  p_membership_id uuid,
+  p_current_employer text,
+  p_current_title text,
+  p_city text,
+  p_headline text,
+  p_linkedin_url text
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_employer text := nullif(btrim(p_current_employer), '');
+  v_title text := nullif(btrim(p_current_title), '');
+  v_city text := nullif(btrim(p_city), '');
+  v_headline text := nullif(btrim(p_headline), '');
+  v_linkedin_url text := nullif(btrim(p_linkedin_url), '');
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+  for update of m;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if not exists (select 1 from public.profiles p where p.user_id = v_user_id) then
+    return 'profile_required';
+  end if;
+  if char_length(coalesce(v_employer, '')) > 300
+    or char_length(coalesce(v_title, '')) > 300
+    or char_length(coalesce(v_city, '')) > 200
+    or char_length(coalesce(v_headline, '')) > 280
+    or (v_linkedin_url is not null
+      and v_linkedin_url !~ '^https://([a-z0-9-]+[.])*linkedin[.]com/')
+  then
+    return 'invalid_current';
+  end if;
+
+  update public.profiles
+  set current_employer = v_employer,
+      current_title = v_title,
+      city = v_city,
+      headline = v_headline,
+      linkedin_url = v_linkedin_url
+  where user_id = v_user_id;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.current_saved',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'linkedinProvided', v_linkedin_url is not null
+    )
+  );
+
+  return 'saved';
+end;
+$$;
+
+create function private.save_profile_history(
+  p_membership_id uuid,
+  p_experiences jsonb,
+  p_skills text[]
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_experiences jsonb := coalesce(p_experiences, '[]'::jsonb);
+  v_skills text[] := coalesce(p_skills, '{}'::text[]);
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+  for update of m;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if not exists (select 1 from public.profiles p where p.user_id = v_user_id) then
+    return 'profile_required';
+  end if;
+  if jsonb_typeof(v_experiences) <> 'array'
+    or jsonb_array_length(v_experiences) > 50
+    or cardinality(v_skills) > 50
+    or exists (
+      select 1 from unnest(v_skills) skill
+      where char_length(btrim(skill)) not between 1 and 100
+    )
+    or exists (
+      select 1
+      from unnest(v_skills) skill
+      group by lower(btrim(skill))
+      having count(*) > 1
+    )
+  then
+    return 'invalid_history';
+  end if;
+
+  begin
+    delete from public.profile_experiences where user_id = v_user_id;
+    delete from public.profile_skills where user_id = v_user_id;
+
+    insert into public.profile_experiences (
+      user_id, employer, title,
+      start_year, start_month, end_year, end_month,
+      description, sort_order
+    )
+    select
+      v_user_id,
+      btrim(entry.value ->> 'employer'),
+      btrim(entry.value ->> 'title'),
+      (entry.value ->> 'startYear')::smallint,
+      (entry.value ->> 'startMonth')::smallint,
+      (entry.value ->> 'endYear')::smallint,
+      (entry.value ->> 'endMonth')::smallint,
+      nullif(btrim(entry.value ->> 'description'), ''),
+      (entry.ordinality - 1)::integer
+    from jsonb_array_elements(v_experiences)
+      with ordinality as entry(value, ordinality);
+
+    insert into public.profile_skills (
+      user_id, name, normalized_name, sort_order
+    )
+    select
+      v_user_id,
+      btrim(skill),
+      lower(btrim(skill)),
+      (ordinality - 1)::integer
+    from unnest(v_skills) with ordinality as item(skill, ordinality);
+  exception
+    when check_violation or not_null_violation or invalid_text_representation
+      or numeric_value_out_of_range or unique_violation
+      or string_data_right_truncation
+    then
+      return 'invalid_history';
+  end;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.history_saved',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'experienceCount', jsonb_array_length(v_experiences),
+      'skillCount', cardinality(v_skills)
+    )
+  );
+
+  return 'saved';
+end;
+$$;
+
+create function private.save_profile_preferences(
+  p_membership_id uuid,
+  p_bio text,
+  p_open_to_help boolean,
+  p_topics text[],
+  p_linkedin_url text,
+  p_refresh_policy text,
+  p_refresh_interval text,
+  p_freshness_consent boolean
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_bio text := nullif(btrim(p_bio), '');
+  v_topics text[] := coalesce(p_topics, '{}'::text[]);
+  v_linkedin_url text := nullif(btrim(p_linkedin_url), '');
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+  for update of m;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if not exists (select 1 from public.profiles p where p.user_id = v_user_id) then
+    return 'profile_required';
+  end if;
+  if p_open_to_help is null or p_freshness_consent is null
+    or char_length(coalesce(v_bio, '')) > 4000
+    or cardinality(v_topics) > 5
+    or exists (
+      select 1 from unnest(v_topics) topic
+      where char_length(btrim(topic)) not between 1 and 100
+    )
+    or exists (
+      select 1
+      from unnest(v_topics) topic
+      group by lower(btrim(topic))
+      having count(*) > 1
+    )
+    or (v_linkedin_url is not null
+      and v_linkedin_url !~ '^https://([a-z0-9-]+[.])*linkedin[.]com/')
+    or p_refresh_policy not in ('manual_only', 'review_before_update', 'auto_apply_and_notify')
+    or p_refresh_interval not in ('monthly', 'quarterly')
+    or (p_freshness_consent and v_linkedin_url is null)
+  then
+    return 'invalid_preferences';
+  end if;
+
+  insert into public.organization_profiles (
+    organization_membership_id, organization_id, bio
+  ) values (
+    p_membership_id, v_membership.organization_id, v_bio
+  )
+  on conflict (organization_membership_id) do update
+    set bio = excluded.bio;
+
+  insert into public.helper_preferences (
+    organization_membership_id, organization_id,
+    open_to_help, paused_at, pause_reason
+  ) values (
+    p_membership_id,
+    v_membership.organization_id,
+    p_open_to_help,
+    case when p_open_to_help then null else now() end,
+    case when p_open_to_help then null else 'manual' end
+  )
+  on conflict (organization_membership_id) do update
+    set open_to_help = excluded.open_to_help,
+        paused_at = case
+          when excluded.open_to_help then null
+          else coalesce(public.helper_preferences.paused_at, now())
+        end,
+        pause_reason = case
+          when excluded.open_to_help then null else 'manual'
+        end;
+
+  delete from public.helper_topics
+  where organization_membership_id = p_membership_id;
+  insert into public.helper_topics (
+    organization_membership_id, organization_id,
+    name, normalized_name, sort_order
+  )
+  select
+    p_membership_id,
+    v_membership.organization_id,
+    btrim(topic),
+    lower(btrim(topic)),
+    (ordinality - 1)::smallint
+  from unnest(v_topics) with ordinality as item(topic, ordinality);
+
+  update public.profiles
+  set linkedin_url = v_linkedin_url
+  where user_id = v_user_id;
+
+  insert into private.profile_enrichment_settings (
+    user_id, linkedin_url, refresh_policy, refresh_interval, consented_at
+  ) values (
+    v_user_id,
+    v_linkedin_url,
+    p_refresh_policy,
+    p_refresh_interval,
+    case when p_freshness_consent then now() else null end
+  )
+  on conflict (user_id) do update
+    set linkedin_url = excluded.linkedin_url,
+        refresh_policy = excluded.refresh_policy,
+        refresh_interval = excluded.refresh_interval,
+        consented_at = case
+          when p_freshness_consent
+            then coalesce(private.profile_enrichment_settings.consented_at, now())
+          else null
+        end;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.preferences_saved',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'openToHelp', p_open_to_help,
+      'topicCount', cardinality(v_topics),
+      'freshnessConsent', p_freshness_consent
+    )
+  );
+
+  return 'saved';
+end;
+$$;
+
+create function private.set_my_avatar_path(
+  p_membership_id uuid,
+  p_avatar_path text
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_avatar_path text := nullif(btrim(p_avatar_path), '');
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+  for update of m;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if not exists (select 1 from public.profiles p where p.user_id = v_user_id) then
+    return 'profile_required';
+  end if;
+  if v_avatar_path is not null and (
+    char_length(v_avatar_path) > 500
+    or not starts_with(v_avatar_path, v_user_id::text || '/')
+    or position('..' in v_avatar_path) > 0
+    or v_avatar_path !~ '^[0-9a-f-]{36}/[A-Za-z0-9][A-Za-z0-9._/-]*$'
+  ) then
+    return 'invalid_avatar_path';
+  end if;
+
+  update public.profiles
+  set avatar_path = v_avatar_path
+  where user_id = v_user_id;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.avatar_saved',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'avatarCleared', v_avatar_path is null
+    )
+  );
+
+  return 'saved';
+end;
+$$;
+
+create function private.complete_onboarding(p_membership_id uuid)
+returns table (
+  result_code text,
+  completed_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_account record;
+begin
+  select m.user_id, m.organization_id, m.status
+    into v_membership
+  from public.organization_memberships m
+  where m.id = p_membership_id
+  for update;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return query select 'not_owned'::text, null::timestamptz;
+    return;
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return query select 'membership_unavailable'::text, null::timestamptz;
+    return;
+  end if;
+
+  select
+    u.account_state,
+    u.onboarding_completed_at,
+    p.display_name,
+    op.graduation_year
+    into v_account
+  from public.users u
+  left join public.profiles p on p.user_id = u.id
+  left join public.organization_profiles op
+    on op.organization_membership_id = p_membership_id
+  where u.id = v_user_id
+  for update of u;
+
+  if not found or v_account.account_state <> 'active' then
+    return query select 'account_unavailable'::text, null::timestamptz;
+    return;
+  end if;
+  if v_account.display_name is null or v_account.graduation_year is null then
+    return query select 'incomplete_profile'::text, null::timestamptz;
+    return;
+  end if;
+  if v_account.onboarding_completed_at is not null then
+    return query select 'completed'::text, v_account.onboarding_completed_at;
+    return;
+  end if;
+
+  update public.users
+  set onboarding_completed_at = now()
+  where id = v_user_id
+  returning onboarding_completed_at into v_account.onboarding_completed_at;
+
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id,
+    payload
+  ) values (
+    v_user_id,
+    v_membership.organization_id,
+    'profile.onboarding_completed',
+    'profile',
+    v_user_id::text,
+    jsonb_build_object('membershipId', p_membership_id)
+  );
+
+  perform private.enqueue_outbox(
+    'index_profile',
+    jsonb_build_object(
+      'userId', v_user_id,
+      'organizationId', v_membership.organization_id,
+      'membershipId', p_membership_id
+    ),
+    'profile_index:' || p_membership_id::text
+  );
+
+  return query select 'completed'::text, v_account.onboarding_completed_at;
+end;
+$$;
+
 -- ---------------------------------------------------------------------------
 -- Integrity triggers that require relational lookups
 -- ---------------------------------------------------------------------------
@@ -3083,6 +4314,13 @@ begin
   if not exists (select 1 from public.users u where u.id = p_user_id) then
     return;
   end if;
+  if exists (
+    select 1
+    from public.users u
+    where u.id = p_user_id and u.account_state = 'deleted'
+  ) then
+    return;
+  end if;
 
   -- Close accepted circle offers before closing their Ask so the deferred
   -- accepted-offer invariant remains true at commit.
@@ -3517,6 +4755,27 @@ security definer
 set search_path = ''
 as $$
 begin
+  if char_length(btrim(coalesce(p_worker_id, ''))) not between 1 and 200 then
+    raise exception using errcode = '22023', message = 'invalid_worker_id';
+  end if;
+
+  update private.outbox_jobs j
+  set status = 'failed',
+      last_error = coalesce(j.last_error, 'lock_timeout')
+  where j.status = 'processing'
+    and j.locked_at <= now() - interval '15 minutes'
+    and j.attempts >= j.max_attempts;
+
+  update private.outbox_jobs j
+  set status = 'pending',
+      locked_at = null,
+      locked_by = null,
+      last_error = coalesce(j.last_error, 'lock_timeout'),
+      available_at = least(j.available_at, now())
+  where j.status = 'processing'
+    and j.locked_at <= now() - interval '15 minutes'
+    and j.attempts < j.max_attempts;
+
   return query
   with claimable as (
     select j.id
@@ -3531,6 +4790,136 @@ begin
       attempts = attempts + 1
   where j.id in (select id from claimable)
   returning j.*;
+end;
+$$;
+
+create function private.complete_outbox_job(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_job private.outbox_jobs%rowtype;
+begin
+  select * into v_job
+  from private.outbox_jobs j
+  where j.id = p_job_id
+  for update;
+
+  if not found then
+    return 'not_found';
+  end if;
+  if v_job.locked_by is distinct from p_worker_id then
+    return 'lock_not_owned';
+  end if;
+  if v_job.status = 'completed' then
+    return 'completed';
+  end if;
+  if v_job.status <> 'processing' then
+    return 'not_processing';
+  end if;
+
+  update private.outbox_jobs
+  set status = 'completed', completed_at = now(), last_error = null
+  where id = p_job_id;
+
+  return 'completed';
+end;
+$$;
+
+create function private.retry_outbox_job(
+  p_job_id bigint,
+  p_worker_id text,
+  p_error text,
+  p_available_at timestamptz
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_job private.outbox_jobs%rowtype;
+  v_error text := left(nullif(btrim(p_error), ''), 10000);
+begin
+  select * into v_job
+  from private.outbox_jobs j
+  where j.id = p_job_id
+  for update;
+
+  if not found then
+    return 'not_found';
+  end if;
+  if v_job.locked_by is distinct from p_worker_id then
+    return 'lock_not_owned';
+  end if;
+  if v_job.status = 'failed' then
+    return 'failed';
+  end if;
+  if v_job.status <> 'processing' then
+    return 'not_processing';
+  end if;
+
+  if v_job.attempts >= v_job.max_attempts then
+    update private.outbox_jobs
+    set status = 'failed', last_error = coalesce(v_error, 'max_attempts_reached')
+    where id = p_job_id;
+    return 'failed';
+  end if;
+
+  update private.outbox_jobs
+  set status = 'pending',
+      available_at = greatest(coalesce(p_available_at, now()), now()),
+      locked_at = null,
+      locked_by = null,
+      last_error = v_error
+  where id = p_job_id;
+
+  return 'pending';
+end;
+$$;
+
+create function private.fail_outbox_job(
+  p_job_id bigint,
+  p_worker_id text,
+  p_error text
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_job private.outbox_jobs%rowtype;
+  v_error text := left(nullif(btrim(p_error), ''), 10000);
+begin
+  select * into v_job
+  from private.outbox_jobs j
+  where j.id = p_job_id
+  for update;
+
+  if not found then
+    return 'not_found';
+  end if;
+  if v_job.locked_by is distinct from p_worker_id then
+    return 'lock_not_owned';
+  end if;
+  if v_job.status = 'failed' then
+    return 'failed';
+  end if;
+  if v_job.status <> 'processing' then
+    return 'not_processing';
+  end if;
+
+  update private.outbox_jobs
+  set status = 'failed', last_error = coalesce(v_error, 'terminal_failure')
+  where id = p_job_id;
+
+  return 'failed';
 end;
 $$;
 
@@ -3634,6 +5023,155 @@ returns table (
 language sql stable set search_path = ''
 as $$ select * from private.get_ask_detail(p_ask_id); $$;
 
+create function api.get_my_member_context(
+  p_preferred_membership_id uuid default null
+)
+returns table (
+  account_state text,
+  onboarding_completed_at timestamptz,
+  delete_scheduled_for timestamptz,
+  delete_initiated_by_admin boolean,
+  deleted_at timestamptz,
+  selected_membership_id uuid,
+  requires_circle_choice boolean,
+  unread_notification_count bigint,
+  memberships jsonb
+)
+language sql stable set search_path = ''
+as $$
+  select * from private.get_my_member_context(p_preferred_membership_id);
+$$;
+
+create function api.verify_invite(p_token text)
+returns table (
+  result_code text,
+  invite_id uuid,
+  organization_id uuid,
+  email text,
+  full_name text,
+  graduation_year smallint,
+  organization_name text,
+  organization_slug text,
+  expires_at timestamptz
+)
+language sql stable set search_path = ''
+as $$ select * from private.verify_invite(p_token); $$;
+
+create function api.accept_invite(p_token text)
+returns table (
+  result_code text,
+  membership_id uuid,
+  membership_status text
+)
+language sql set search_path = ''
+as $$ select * from private.accept_invite(p_token); $$;
+
+create function api.decide_membership(p_membership_id uuid, p_decision text)
+returns table (
+  result_code text,
+  membership_status text
+)
+language sql set search_path = ''
+as $$ select * from private.decide_membership(p_membership_id, p_decision); $$;
+
+create function api.get_my_profile(p_membership_id uuid)
+returns table (
+  result_code text,
+  profile jsonb
+)
+language sql stable set search_path = ''
+as $$ select * from private.get_my_profile(p_membership_id); $$;
+
+create function api.save_profile_identity(
+  p_membership_id uuid,
+  p_display_name text,
+  p_preferred_name text,
+  p_name_other text,
+  p_graduation_year smallint
+)
+returns text language sql set search_path = ''
+as $$
+  select private.save_profile_identity(
+    p_membership_id, p_display_name, p_preferred_name,
+    p_name_other, p_graduation_year
+  );
+$$;
+
+create function api.save_profile_education(
+  p_membership_id uuid,
+  p_university text,
+  p_major text,
+  p_education jsonb
+)
+returns text language sql set search_path = ''
+as $$
+  select private.save_profile_education(
+    p_membership_id, p_university, p_major, p_education
+  );
+$$;
+
+create function api.save_profile_current(
+  p_membership_id uuid,
+  p_current_employer text,
+  p_current_title text,
+  p_city text,
+  p_headline text,
+  p_linkedin_url text
+)
+returns text language sql set search_path = ''
+as $$
+  select private.save_profile_current(
+    p_membership_id, p_current_employer, p_current_title,
+    p_city, p_headline, p_linkedin_url
+  );
+$$;
+
+create function api.save_profile_history(
+  p_membership_id uuid,
+  p_experiences jsonb,
+  p_skills text[]
+)
+returns text language sql set search_path = ''
+as $$
+  select private.save_profile_history(
+    p_membership_id, p_experiences, p_skills
+  );
+$$;
+
+create function api.save_profile_preferences(
+  p_membership_id uuid,
+  p_bio text,
+  p_open_to_help boolean,
+  p_topics text[],
+  p_linkedin_url text,
+  p_refresh_policy text,
+  p_refresh_interval text,
+  p_freshness_consent boolean
+)
+returns text language sql set search_path = ''
+as $$
+  select private.save_profile_preferences(
+    p_membership_id, p_bio, p_open_to_help, p_topics,
+    p_linkedin_url, p_refresh_policy, p_refresh_interval,
+    p_freshness_consent
+  );
+$$;
+
+create function api.set_my_avatar_path(
+  p_membership_id uuid,
+  p_avatar_path text
+)
+returns text language sql set search_path = ''
+as $$ select private.set_my_avatar_path(p_membership_id, p_avatar_path); $$;
+
+create function api.complete_onboarding(p_membership_id uuid)
+returns table (
+  result_code text,
+  completed_at timestamptz
+)
+language sql set search_path = ''
+as $$ select * from private.complete_onboarding(p_membership_id); $$;
+
 create function api.list_help_matches(p_ask_id uuid)
 returns table (
   helper_membership_id uuid, helper_user_id uuid, display_name text,
@@ -3712,13 +5250,59 @@ create function api.submit_report(
 returns uuid language sql set search_path = ''
 as $$ select private.submit_report(p_target_type, p_target_id, p_reason, p_note); $$;
 
-create function api.save_helper_topics(p_membership_id uuid, p_topics text[])
-returns void language sql set search_path = ''
-as $$ select private.save_helper_topics(p_membership_id, p_topics); $$;
-
 create function api.set_event_rsvp(p_event_id uuid, p_membership_id uuid, p_status text)
 returns text language sql set search_path = ''
 as $$ select private.set_event_rsvp(p_event_id, p_membership_id, p_status); $$;
+
+create function api.claim_outbox_jobs(
+  p_worker_id text,
+  p_limit integer default 20
+)
+returns table (
+  id bigint,
+  job_type text,
+  payload jsonb,
+  attempts integer,
+  max_attempts integer,
+  available_at timestamptz,
+  locked_at timestamptz,
+  locked_by text
+)
+language sql set search_path = ''
+as $$
+  select
+    j.id, j.job_type, j.payload, j.attempts, j.max_attempts,
+    j.available_at, j.locked_at, j.locked_by
+  from private.claim_outbox_jobs(p_worker_id, p_limit) j;
+$$;
+
+create function api.complete_outbox_job(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns text language sql set search_path = ''
+as $$ select private.complete_outbox_job(p_job_id, p_worker_id); $$;
+
+create function api.retry_outbox_job(
+  p_job_id bigint,
+  p_worker_id text,
+  p_error text,
+  p_available_at timestamptz
+)
+returns text language sql set search_path = ''
+as $$
+  select private.retry_outbox_job(
+    p_job_id, p_worker_id, p_error, p_available_at
+  );
+$$;
+
+create function api.fail_outbox_job(
+  p_job_id bigint,
+  p_worker_id text,
+  p_error text
+)
+returns text language sql set search_path = ''
+as $$ select private.fail_outbox_job(p_job_id, p_worker_id, p_error); $$;
 
 -- ---------------------------------------------------------------------------
 -- Analytics remain private and service-role only.
@@ -3851,7 +5435,14 @@ create policy organizations_select_member on public.organizations
 
 create policy memberships_select_same_org on public.organization_memberships
   for select to authenticated
-  using ((select private.is_active_member_of(organization_id)));
+  using (
+    user_id = (select auth.uid())
+    or (
+      status = 'active'
+      and (select private.is_active_member_of(organization_id))
+    )
+    or (select private.is_admin_of(organization_id))
+  );
 
 create policy invites_select_admin on public.invites
   for select to authenticated
@@ -3956,11 +5547,31 @@ create policy profile_visibility_select_owner on public.profile_field_visibility
 
 create policy helper_preferences_select_orgmate on public.helper_preferences
   for select to authenticated
-  using ((select private.is_active_member_of(organization_id)));
+  using (
+    (select private.is_active_member_of(organization_id))
+    and not private.is_blocked(
+      (select auth.uid()),
+      (
+        select m.user_id
+        from public.organization_memberships m
+        where m.id = organization_membership_id
+      )
+    )
+  );
 
 create policy helper_topics_select_orgmate on public.helper_topics
   for select to authenticated
-  using ((select private.is_active_member_of(organization_id)));
+  using (
+    (select private.is_active_member_of(organization_id))
+    and not private.is_blocked(
+      (select auth.uid()),
+      (
+        select m.user_id
+        from public.organization_memberships m
+        where m.id = organization_membership_id
+      )
+    )
+  );
 
 -- Asks and offers intentionally have no client policies. All member access
 -- uses anonymity-safe API projections and transactional commands.
@@ -4054,8 +5665,43 @@ to authenticated;
 -- grant because column-level privacy requires an API projection.
 -- profiles, profile details, helper settings, invites, asks, and offers.
 
-grant usage, select on all sequences in schema public to authenticated;
-grant execute on all functions in schema api to authenticated;
+grant execute on function api.accept_invite(text) to authenticated;
+grant execute on function api.create_direct_ask(uuid, uuid, text, text, uuid) to authenticated;
+grant execute on function api.create_circle_ask(uuid, text, text, boolean, uuid) to authenticated;
+grant execute on function api.decide_membership(uuid, text) to authenticated;
+grant execute on function api.get_my_profile(uuid) to authenticated;
+grant execute on function api.save_profile_identity(uuid, text, text, text, smallint) to authenticated;
+grant execute on function api.save_profile_education(uuid, text, text, jsonb) to authenticated;
+grant execute on function api.save_profile_current(uuid, text, text, text, text, text) to authenticated;
+grant execute on function api.save_profile_history(uuid, jsonb, text[]) to authenticated;
+grant execute on function api.save_profile_preferences(uuid, text, boolean, text[], text, text, text, boolean) to authenticated;
+grant execute on function api.set_my_avatar_path(uuid, text) to authenticated;
+grant execute on function api.complete_onboarding(uuid) to authenticated;
+grant execute on function api.respond_to_direct_ask(uuid, text, text, text, text, uuid) to authenticated;
+grant execute on function api.retract_ask(uuid) to authenticated;
+grant execute on function api.resolve_ask(uuid, text) to authenticated;
+grant execute on function api.offer_to_help(uuid, uuid, text, uuid) to authenticated;
+grant execute on function api.decide_offer(uuid, text, text, text, text, uuid) to authenticated;
+grant execute on function api.get_ask_detail(uuid) to authenticated;
+grant execute on function api.get_my_member_context(uuid) to authenticated;
+grant execute on function api.list_help_matches(uuid) to authenticated;
+grant execute on function api.list_give_help(timestamptz, integer) to authenticated;
+grant execute on function api.send_connection_request(uuid, uuid, text, uuid) to authenticated;
+grant execute on function api.respond_to_connection_request(uuid, text) to authenticated;
+grant execute on function api.disconnect(uuid) to authenticated;
+grant execute on function api.block_member(uuid) to authenticated;
+grant execute on function api.unblock_member(uuid) to authenticated;
+grant execute on function api.get_or_create_direct_conversation(uuid) to authenticated;
+grant execute on function api.send_message(uuid, text, uuid) to authenticated;
+grant execute on function api.mark_conversation_read(uuid, bigint) to authenticated;
+grant execute on function api.mark_notifications_read(bigint[]) to authenticated;
+grant execute on function api.submit_report(text, text, text, text) to authenticated;
+grant execute on function api.set_event_rsvp(uuid, uuid, text) to authenticated;
+grant execute on function api.verify_invite(text) to service_role;
+grant execute on function api.claim_outbox_jobs(text, integer) to service_role;
+grant execute on function api.complete_outbox_job(bigint, text) to service_role;
+grant execute on function api.retry_outbox_job(bigint, text, text, timestamptz) to service_role;
+grant execute on function api.fail_outbox_job(bigint, text, text) to service_role;
 
 grant execute on function private.is_active_member_of(uuid) to authenticated;
 grant execute on function private.owns_membership(uuid, uuid) to authenticated;
@@ -4064,13 +5710,24 @@ grant execute on function private.is_connected(uuid, uuid) to authenticated;
 grant execute on function private.is_blocked(uuid, uuid) to authenticated;
 grant execute on function private.can_access_conversation(uuid) to authenticated;
 grant execute on function private.can_view_ask(uuid) to authenticated;
+grant execute on function private.accept_invite(text) to authenticated;
 grant execute on function private.create_ask(text, uuid, uuid, text, text, text, boolean, uuid) to authenticated;
+grant execute on function private.decide_membership(uuid, text) to authenticated;
+grant execute on function private.get_my_profile(uuid) to authenticated;
+grant execute on function private.save_profile_identity(uuid, text, text, text, smallint) to authenticated;
+grant execute on function private.save_profile_education(uuid, text, text, jsonb) to authenticated;
+grant execute on function private.save_profile_current(uuid, text, text, text, text, text) to authenticated;
+grant execute on function private.save_profile_history(uuid, jsonb, text[]) to authenticated;
+grant execute on function private.save_profile_preferences(uuid, text, boolean, text[], text, text, text, boolean) to authenticated;
+grant execute on function private.set_my_avatar_path(uuid, text) to authenticated;
+grant execute on function private.complete_onboarding(uuid) to authenticated;
 grant execute on function private.respond_to_direct_ask(uuid, text, text, text, text, uuid) to authenticated;
 grant execute on function private.retract_ask(uuid) to authenticated;
 grant execute on function private.resolve_ask(uuid, text) to authenticated;
 grant execute on function private.offer_to_help(uuid, uuid, text, uuid) to authenticated;
 grant execute on function private.decide_offer(uuid, text, text, text, text, uuid) to authenticated;
 grant execute on function private.get_ask_detail(uuid) to authenticated;
+grant execute on function private.get_my_member_context(uuid) to authenticated;
 grant execute on function private.list_help_matches(uuid) to authenticated;
 grant execute on function private.list_give_help(timestamptz, integer) to authenticated;
 grant execute on function private.send_connection_request(uuid, uuid, text, uuid) to authenticated;
@@ -4083,7 +5740,6 @@ grant execute on function private.send_message(uuid, text, uuid) to authenticate
 grant execute on function private.mark_conversation_read(uuid, bigint) to authenticated;
 grant execute on function private.mark_notifications_read(bigint[]) to authenticated;
 grant execute on function private.submit_report(text, text, text, text) to authenticated;
-grant execute on function private.save_helper_topics(uuid, text[]) to authenticated;
 grant execute on function private.set_event_rsvp(uuid, uuid, text) to authenticated;
 
 alter default privileges for role postgres in schema public

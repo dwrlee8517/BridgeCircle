@@ -1,5 +1,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { loadMemberContext } from '@/app/_lib/load-member-context'
+import { clearMembershipPreference } from '@/app/_lib/membership-cookie'
 import { OnboardingShell } from '@/components/onboarding/shell'
 import { StepAbout } from '@/components/onboarding/step-about'
 import { StepCurrent } from '@/components/onboarding/step-current'
@@ -7,9 +9,10 @@ import { StepEducation } from '@/components/onboarding/step-education'
 import { StepHelp } from '@/components/onboarding/step-help'
 import { StepPast } from '@/components/onboarding/step-past'
 import { Button } from '@/components/ui/button'
-import { createAdminClient } from '@/db/admin'
-import { createClient } from '@/db/server'
+import { Wordmark } from '@/components/ui/wordmark'
+import { createProfileRepository } from '@/db/repositories/profiles'
 import { requireSession } from '@/lib/auth/session'
+import { memberDestination, selectedMembership } from '@/lib/membership/selection'
 import {
   inferOnboardingStep,
   ONBOARDING_STEP_COOKIE,
@@ -20,138 +23,56 @@ import { aboutAction, currentAction, educationAction, helpAction, pastAction } f
 
 type SearchParams = { step?: string }
 
-type DbCareerEntry = {
-  employer: string
-  title: string
-  start_date: string | null
-  end_date: string | null
-  description: string | null
-}
-type DbEducationEntry = {
-  school: string
-  degree: string | null
-  field: string | null
-  start_date: string | null
-  end_date: string | null
-}
-
-/**
- * Onboarding page router. Reads `?step=1..5` and renders the appropriate
- * step component inside the shared shell.
- *
- * Routing rules:
- *   - Anyone with users.onboarding_completed_at set → redirect to /. They've
- *     already finished onboarding; further fields go through /profile/edit.
- *   - No active membership row → show the pending-approval state when the
- *     user has a pending membership, otherwise sign out + redirect to /sign-in.
- *   - Step out of range (or missing) → resume the remembered/inferred step.
- *   - Step ≥ 2 but name/grad year still missing → force back to step 1.
- *     Step 1 is the only required step; you can't skip it.
- *
- * The user can navigate forward and backward freely between steps 1–5
- * (after passing step 1) — query-param based state means browser back +
- * forward both work natively.
- */
 export default async function OnboardingPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>
 }) {
-  const session = await requireSession('/onboarding')
-  const params = await searchParams
-  const supabase = await createClient()
+  await requireSession('/onboarding')
+  const [params, { client, context }] = await Promise.all([searchParams, loadMemberContext()])
+  const destination = memberDestination(context)
 
-  // Onboarding completion gate. Use the admin client because users.row is
-  // protected by RLS and the regular client doesn't always include the
-  // signed-in user's own row in selects depending on policy shape.
-  const admin = createAdminClient()
-  const { data: userRow } = await admin
-    .from('users')
-    .select('onboarding_completed_at')
-    .eq('id', session.userId)
-    .maybeSingle()
-  if (userRow?.onboarding_completed_at) redirect('/')
-
-  const [{ data: base }, { data: membership }] = await Promise.all([
-    supabase
-      .from('base_profiles')
-      .select(
-        'name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, linkedin_url, avatar_url, skills, career_history, education_history',
-      )
-      .eq('user_id', session.userId)
-      .maybeSingle(),
-    supabase
-      .from('organization_memberships')
-      .select('id, organizations!organization_memberships_organization_id_fkey(name)')
-      .eq('user_id', session.userId)
-      .eq('status', 'active')
-      .limit(1)
-      .maybeSingle(),
-  ])
-
-  if (!membership) {
-    const { data: inactiveMemberships } = await admin
-      .from('organization_memberships')
-      .select('status, organizations!organization_memberships_organization_id_fkey(name)')
-      .eq('user_id', session.userId)
-
-    const pendingMembership = inactiveMemberships?.find((m) => m.status === 'pending')
-    if (pendingMembership) {
-      const pendingOrgName = (pendingMembership.organizations as { name: string } | null)?.name
-      const orgName = pendingOrgName ? displayOrgName(pendingOrgName) : null
-      return <PendingApproval orgName={orgName} />
-    }
-
-    await supabase.auth.signOut()
-    redirect(
-      `/sign-in?error=${encodeURIComponent("We couldn't find an invite for this email. Ask your admin to send you one.")}`,
-    )
+  if (destination === 'cancel-delete') redirect('/cancel-delete')
+  if (destination === 'select-circle') redirect('/select-circle')
+  if (destination === 'member-shell') redirect('/')
+  if (destination === 'reject-session') {
+    await client.auth.signOut()
+    await clearMembershipPreference()
+    redirect('/sign-in?error=membership_unavailable')
   }
 
-  const [{ data: orgProfile }, { data: pref }, { data: enrichSettings }] = await Promise.all([
-    supabase
-      .from('organization_profiles')
-      .select('graduation_year, bio, mentoring_topics')
-      .eq('organization_membership_id', membership.id)
-      .maybeSingle(),
-    supabase
-      .from('helper_preferences')
-      .select('open_to_mentorship')
-      .eq('organization_membership_id', membership.id)
-      .maybeSingle(),
-    supabase
-      .from('profile_enrichment_settings')
-      .select('refresh_policy, linkedin_url')
-      .eq('user_id', session.userId)
-      .maybeSingle(),
-  ])
+  const membership = selectedMembership(context)
+  if (!membership) redirect('/select-circle')
+  if (destination === 'pending-approval') {
+    return <PendingApproval orgName={displayOrgName(membership.organization.name)} />
+  }
 
-  const orgName = displayOrgName((membership.organizations as { name: string } | null)?.name)
+  const profileResult = await createProfileRepository(client).get(membership.membershipId)
+  if (!profileResult.ok) redirect('/select-circle?error=unavailable')
+  const profile = profileResult.profile
+  const orgName = displayOrgName(profile.membership.organization.name)
 
-  // Step coercion. Always force step 1 if the required floor (name +
-  // grad year) is not yet set.
-  const requiredFloorMet = !!base?.name && !!orgProfile?.graduation_year
+  const requiredFloorMet = !!profile.identity.displayName && !!profile.identity.graduationYear
   const cookieStore = await cookies()
   const requestedStep =
     parseOnboardingStep(params.step) ??
     parseOnboardingStep(cookieStore.get(ONBOARDING_STEP_COOKIE)?.value) ??
     inferOnboardingStep({
-      name: base?.name,
-      graduationYear: orgProfile?.graduation_year,
-      university: base?.university,
-      major: base?.major,
-      educationHistory: (base?.education_history as DbEducationEntry[] | null) ?? null,
-      currentEmployer: base?.current_employer,
-      currentTitle: base?.current_title,
-      city: base?.city,
-      headline: base?.headline,
-      linkedinUrl: base?.linkedin_url,
-      careerHistory: (base?.career_history as DbCareerEntry[] | null) ?? null,
-      skills: base?.skills,
+      name: profile.identity.displayName,
+      graduationYear: profile.identity.graduationYear,
+      university: profile.current.university,
+      major: profile.current.major,
+      educationHistory: profile.education,
+      currentEmployer: profile.current.employer,
+      currentTitle: profile.current.title,
+      city: profile.current.city,
+      headline: profile.current.headline,
+      linkedinUrl: profile.current.linkedinUrl,
+      careerHistory: profile.experiences,
+      skills: profile.skills.map((skill) => skill.name),
     })
   const step = requiredFloorMet ? requestedStep : 1
-
-  const firstName = base?.name?.split(' ')[0] ?? null
+  const firstName = profile.identity.displayName?.split(' ')[0] ?? null
 
   switch (step) {
     case 1:
@@ -169,10 +90,10 @@ export default async function OnboardingPage({
         >
           <StepAbout
             defaults={{
-              name: base?.name ?? '',
-              preferredName: base?.preferred_name ?? '',
-              nameOther: base?.name_other ?? '',
-              graduationYear: orgProfile?.graduation_year?.toString() ?? '',
+              name: profile.identity.displayName ?? '',
+              preferredName: profile.identity.preferredName ?? '',
+              nameOther: profile.identity.nameOther ?? '',
+              graduationYear: profile.identity.graduationYear?.toString() ?? '',
             }}
             action={aboutAction}
           />
@@ -194,17 +115,15 @@ export default async function OnboardingPage({
         >
           <StepEducation
             defaults={{
-              university: base?.university ?? '',
-              major: base?.major ?? '',
-              educationHistory: ((base?.education_history as DbEducationEntry[] | null) ?? []).map(
-                (e) => ({
-                  school: e.school,
-                  degree: e.degree ?? null,
-                  field: e.field ?? null,
-                  startDate: e.start_date ?? null,
-                  endDate: e.end_date ?? null,
-                }),
-              ),
+              university: profile.current.university ?? '',
+              major: profile.current.major ?? '',
+              educationHistory: profile.education.map((entry) => ({
+                school: entry.school,
+                degree: entry.degree,
+                field: entry.field,
+                startDate: formatPeriod(entry.startYear, entry.startMonth),
+                endDate: formatPeriod(entry.endYear, entry.endMonth),
+              })),
             }}
             action={educationAction}
           />
@@ -217,19 +136,15 @@ export default async function OnboardingPage({
           step={3}
           eyebrow="Today"
           title="Where you are now."
-          lede={
-            <>
-              What you&rsquo;re doing today. Keeps you findable for referrals and local connections.
-            </>
-          }
+          lede="What you’re doing today. It helps fellow alumni find you for referrals and local connections."
         >
           <StepCurrent
             defaults={{
-              currentEmployer: base?.current_employer ?? '',
-              currentTitle: base?.current_title ?? '',
-              city: base?.city ?? '',
-              headline: base?.headline ?? '',
-              linkedinUrl: base?.linkedin_url ?? '',
+              currentEmployer: profile.current.employer ?? '',
+              currentTitle: profile.current.title ?? '',
+              city: profile.current.city ?? '',
+              headline: profile.current.headline ?? '',
+              linkedinUrl: profile.current.linkedinUrl ?? '',
             }}
             action={currentAction}
           />
@@ -242,98 +157,85 @@ export default async function OnboardingPage({
           step={4}
           eyebrow="Past experience"
           title="Where you've been."
-          lede={
-            <>
-              Past roles are how helpers get matched on the harder questions —{' '}
-              <em>&ldquo;someone who worked in fintech before teaching.&rdquo;</em> Drop your resume
-              to fill it in fast.
-            </>
-          }
+          lede="Past roles help the right people find one another for the harder questions."
         >
           <StepPast
             defaults={{
-              careerHistory: ((base?.career_history as DbCareerEntry[] | null) ?? []).map((e) => ({
-                employer: e.employer,
-                title: e.title,
-                startDate: e.start_date ?? null,
-                endDate: e.end_date ?? null,
-                description: e.description ?? null,
+              careerHistory: profile.experiences.map((entry) => ({
+                employer: entry.employer,
+                title: entry.title,
+                startDate: formatPeriod(entry.startYear, entry.startMonth),
+                endDate: formatPeriod(entry.endYear, entry.endMonth),
+                description: entry.description,
               })),
-              skills: base?.skills ?? [],
+              skills: profile.skills.map((skill) => skill.name),
             }}
             action={pastAction}
           />
         </OnboardingShell>
       )
 
-    case 5:
+    case 5: {
+      const avatarUrl = profile.identity.avatarPath
+        ? client.storage.from('avatars').getPublicUrl(profile.identity.avatarPath).data.publicUrl
+        : ''
       return (
         <OnboardingShell
           step={5}
           eyebrow="The last bit"
           title="How you can help."
-          lede={
-            <>
-              Optional. If you want fellow alumni to be able to ask you questions, turn this on. You
-              can change it any time.
-            </>
-          }
+          lede="Optional. Let fellow alumni know whether they can ask you a question. You can change this any time."
         >
           <StepHelp
             defaults={{
-              avatarUrl: base?.avatar_url ?? '',
-              bio: orgProfile?.bio ?? '',
-              openToMentor: pref?.open_to_mentorship ?? false,
-              mentoringTopics: orgProfile?.mentoring_topics?.join(', ') ?? '',
-              freshnessPolicy:
-                (enrichSettings?.refresh_policy as
-                  | 'manual_only'
-                  | 'review_before_update'
-                  | 'auto_apply_and_notify'
-                  | null
-                  | undefined) ?? 'review_before_update',
-              hasLinkedinUrl: !!(enrichSettings?.linkedin_url ?? base?.linkedin_url),
+              avatarUrl,
+              bio: profile.preferences.bio ?? '',
+              openToMentor: profile.preferences.openToHelp,
+              mentoringTopics: profile.preferences.helperTopics
+                .map((topic) => topic.name)
+                .join(', '),
+              freshnessPolicy: profile.preferences.freshness.refreshPolicy,
+              hasLinkedinUrl: !!(
+                profile.preferences.freshness.linkedinUrl ?? profile.current.linkedinUrl
+              ),
             }}
-            name={base?.name ?? ''}
+            name={profile.identity.displayName ?? ''}
             action={helpAction}
           />
         </OnboardingShell>
       )
-
-    default:
-      // Should never hit because parseOnboardingStep/inferOnboardingStep guarantee 1..5.
-      redirect('/onboarding?step=1')
+    }
   }
+}
+
+function formatPeriod(year: number | null, month: number | null): string | null {
+  if (!year) return null
+  return month ? `${year}-${String(month).padStart(2, '0')}` : String(year)
 }
 
 async function signOutFromPendingApproval() {
   'use server'
 
-  const supabase = await createClient()
-  await supabase.auth.signOut()
+  const { client } = await loadMemberContext()
+  await client.auth.signOut()
+  await clearMembershipPreference()
   redirect('/sign-in')
 }
 
-function PendingApproval({ orgName }: { orgName: string | null }) {
+function PendingApproval({ orgName }: { orgName: string }) {
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
-      <header className="mb-16 flex items-center justify-between">
-        <span className="bc-fraunces text-xl font-bold tracking-tight text-foreground">
-          Bridge<span className="text-primary">Circle</span>
-        </span>
-      </header>
-      <section className="mt-10 space-y-5">
+    <main className="mx-auto flex min-h-dvh max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
+      <Wordmark />
+      <section className="mt-20 space-y-5">
         <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
           Approval pending
         </p>
         <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          {orgName
-            ? `Your ${orgName} membership is waiting for approval.`
-            : 'Your membership is waiting for approval.'}
+          Your {orgName} profile is ready.
         </h1>
         <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-          You accepted the invite. An admin still needs to approve access before your profile setup
-          can continue.
+          Your profile setup is saved. A circle admin is reviewing your membership, and you’ll be
+          able to enter as soon as it’s approved.
         </p>
         <form action={signOutFromPendingApproval}>
           <Button type="submit" variant="outline">

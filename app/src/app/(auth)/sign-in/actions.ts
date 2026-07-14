@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { clearMembershipPreference } from '@/app/_lib/membership-cookie'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
 import { signInSchema } from '@/lib/invite/schemas'
@@ -73,5 +74,6 @@ export async function signInWithGoogle(formData: FormData) {
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  await clearMembershipPreference()
   redirect('/sign-in')
 }

@@ -55,6 +55,7 @@ Specs live in per-feature directories that converge toward 1:1 parity with the s
 tests/e2e/
 ├── helpers/            env loading + signIn(page, email, password)
 ├── global-setup.ts     the wipe-and-reseed step
+├── foundation/         local-only v2 identity/membership/profile boundary
 ├── invites-sign-in/    redirect smoke + seeded-persona sign-in
 ├── asks/               core-loop.spec.ts — invite → onboard → ask → accept → chat
 └── events/             seeded events list + RSVP
@@ -62,6 +63,14 @@ tests/e2e/
 
 Isolation rules:
 
+- `foundation/foundation-flow.spec.ts` is intentionally local-only and serial.
+  Its four scenarios create and destroy their own organizations and Auth users
+  around the deterministic seed, covering invite/signup/onboarding/shell,
+  avatar upload and durable render, notification acknowledgement, pending
+  approval, multi-circle selection, and a foreign membership cookie. Every
+  scenario also fails on browser console or uncaught page errors. Run it
+  directly with
+  `pnpm exec playwright test tests/e2e/foundation/foundation-flow.spec.ts`.
 - The seed provides the shared world. A suite that **mutates** state creates its own uniquely-identified entities (the core loop signs up a fresh `e2e-invitee-ivan@example.com`, which is not in the seed) or touches rows no other suite reads (the events suite RSVPs Richard to the one event he's seeded as *not* attending).
 - No suite depends on another suite having run. Every suite passes alone and the whole set passes in parallel.
 - Don't re-test what a Vitest suite already covers — E2E is for integration truth.
@@ -134,7 +143,10 @@ Playwright's `webServer` couldn't boot the dev server within 120s. Check that `p
 
 **Sign-in fails for every seeded persona**
 
-The local keys in the `dev_local` Doppler config no longer match your stack (a CLI upgrade can change them). Compare with `pnpm dlx supabase status` and update the config: `doppler secrets set -p bridgecircle -c dev_local NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=...`.
+The local keys in the `dev_local` Doppler config may no longer match your
+stack after a CLI upgrade. Restart the BridgeCircle stack, then follow the
+local-config procedure in [doppler.md](doppler.md); do not paste keys into a
+terminal transcript, issue, or committed file.
 
 **A `getByRole("heading")` assertion fails with "element(s) not found"**
 

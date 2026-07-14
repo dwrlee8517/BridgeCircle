@@ -45,4 +45,4 @@ if ! docker info >/dev/null 2>&1; then
   fi
 fi
 
-pnpm dlx supabase start
+supabase start

@@ -3,7 +3,12 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import { setMembershipPreference } from '@/app/_lib/membership-cookie'
 import { createAdminClient } from '@/db/admin'
+import {
+  createInviteAcceptanceRepository,
+  createInviteVerificationRepository,
+} from '@/db/repositories/invites'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
 import { acceptInvite } from '@/lib/invite/accept'
@@ -30,12 +35,15 @@ export async function signUpWithPassword(_prev: JoinState, formData: FormData): 
     return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' }
   }
 
-  const verified = await verifyInviteToken(parsed.data.token)
+  const admin = createAdminClient()
+  const verified = await verifyInviteToken(
+    parsed.data.token,
+    createInviteVerificationRepository(admin),
+  )
   if (!verified.ok) {
     return { error: errorMessage(verified.error) }
   }
 
-  const admin = createAdminClient()
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email: verified.invite.email,
     password: parsed.data.password,
@@ -56,14 +64,18 @@ export async function signUpWithPassword(_prev: JoinState, formData: FormData): 
     password: parsed.data.password,
   })
   if (signInErr) {
-    return { error: 'Account was created but sign-in failed. Try signing in directly.' }
+    await admin.auth.admin.deleteUser(created.user.id)
+    return { error: 'Could not finish creating your account. Please try again.' }
   }
 
-  const accept = await acceptInvite({ inviteId: verified.invite.id, userId: created.user.id })
+  const accept = await acceptInvite(parsed.data.token, createInviteAcceptanceRepository(supabase))
   if (!accept.ok) {
-    return { error: 'Account was created but accepting the invite failed. Contact your admin.' }
+    await supabase.auth.signOut()
+    await admin.auth.admin.deleteUser(created.user.id)
+    return { error: 'Could not accept this invite. Ask your admin for a fresh link.' }
   }
 
+  await setMembershipPreference(accept.membershipId)
   redirect('/onboarding?step=1')
 }
 
@@ -73,13 +85,16 @@ export async function startGoogleSignup(formData: FormData) {
     redirect('/sign-in?error=missing_token')
   }
 
-  const verified = await verifyInviteToken(token as string)
+  const verified = await verifyInviteToken(
+    token,
+    createInviteVerificationRepository(createAdminClient()),
+  )
   if (!verified.ok) {
-    redirect(`/join?token=${encodeURIComponent(token as string)}&error=${verified.error}`)
+    redirect(`/join?token=${encodeURIComponent(token)}&error=${verified.error}`)
   }
 
   const cookieStore = await cookies()
-  cookieStore.set(PENDING_INVITE_COOKIE, token as string, {
+  cookieStore.set(PENDING_INVITE_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

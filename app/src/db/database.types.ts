@@ -15,7 +15,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invite: {
+        Args: { p_token: string }
+        Returns: {
+          membership_id: string
+          membership_status: string
+          result_code: string
+        }[]
+      }
       block_member: { Args: { p_blocked_user_id: string }; Returns: undefined }
+      claim_outbox_jobs: {
+        Args: { p_limit?: number; p_worker_id: string }
+        Returns: {
+          attempts: number
+          available_at: string
+          id: number
+          job_type: string
+          locked_at: string
+          locked_by: string
+          max_attempts: number
+          payload: Json
+        }[]
+      }
+      complete_onboarding: {
+        Args: { p_membership_id: string }
+        Returns: {
+          completed_at: string
+          result_code: string
+        }[]
+      }
+      complete_outbox_job: {
+        Args: { p_job_id: number; p_worker_id: string }
+        Returns: string
+      }
       create_circle_ask: {
         Args: {
           p_anonymous_until_accepted: boolean
@@ -36,6 +68,13 @@ export type Database = {
         }
         Returns: string
       }
+      decide_membership: {
+        Args: { p_decision: string; p_membership_id: string }
+        Returns: {
+          membership_status: string
+          result_code: string
+        }[]
+      }
       decide_offer: {
         Args: {
           p_client_nonce?: string
@@ -48,6 +87,10 @@ export type Database = {
         Returns: string
       }
       disconnect: { Args: { p_other_user_id: string }; Returns: undefined }
+      fail_outbox_job: {
+        Args: { p_error: string; p_job_id: number; p_worker_id: string }
+        Returns: string
+      }
       get_ask_detail: {
         Args: { p_ask_id: string }
         Returns: {
@@ -69,6 +112,27 @@ export type Database = {
           recipient_user_id: string
           request_message: string
           status: string
+        }[]
+      }
+      get_my_member_context: {
+        Args: { p_preferred_membership_id?: string }
+        Returns: {
+          account_state: string
+          delete_initiated_by_admin: boolean
+          delete_scheduled_for: string
+          deleted_at: string
+          memberships: Json
+          onboarding_completed_at: string
+          requires_circle_choice: boolean
+          selected_membership_id: string
+          unread_notification_count: number
+        }[]
+      }
+      get_my_profile: {
+        Args: { p_membership_id: string }
+        Returns: {
+          profile: Json
+          result_code: string
         }[]
       }
       get_or_create_direct_conversation: {
@@ -138,9 +202,65 @@ export type Database = {
         Returns: string
       }
       retract_ask: { Args: { p_ask_id: string }; Returns: undefined }
-      save_helper_topics: {
-        Args: { p_membership_id: string; p_topics: string[] }
-        Returns: undefined
+      retry_outbox_job: {
+        Args: {
+          p_available_at: string
+          p_error: string
+          p_job_id: number
+          p_worker_id: string
+        }
+        Returns: string
+      }
+      save_profile_current: {
+        Args: {
+          p_city: string
+          p_current_employer: string
+          p_current_title: string
+          p_headline: string
+          p_linkedin_url: string
+          p_membership_id: string
+        }
+        Returns: string
+      }
+      save_profile_education: {
+        Args: {
+          p_education: Json
+          p_major: string
+          p_membership_id: string
+          p_university: string
+        }
+        Returns: string
+      }
+      save_profile_history: {
+        Args: {
+          p_experiences: Json
+          p_membership_id: string
+          p_skills: string[]
+        }
+        Returns: string
+      }
+      save_profile_identity: {
+        Args: {
+          p_display_name: string
+          p_graduation_year: number
+          p_membership_id: string
+          p_name_other: string
+          p_preferred_name: string
+        }
+        Returns: string
+      }
+      save_profile_preferences: {
+        Args: {
+          p_bio: string
+          p_freshness_consent: boolean
+          p_linkedin_url: string
+          p_membership_id: string
+          p_open_to_help: boolean
+          p_refresh_interval: string
+          p_refresh_policy: string
+          p_topics: string[]
+        }
+        Returns: string
       }
       send_connection_request: {
         Args: {
@@ -163,6 +283,10 @@ export type Database = {
         Args: { p_event_id: string; p_membership_id: string; p_status: string }
         Returns: string
       }
+      set_my_avatar_path: {
+        Args: { p_avatar_path: string; p_membership_id: string }
+        Returns: string
+      }
       submit_report: {
         Args: {
           p_note?: string
@@ -175,6 +299,20 @@ export type Database = {
       unblock_member: {
         Args: { p_blocked_user_id: string }
         Returns: undefined
+      }
+      verify_invite: {
+        Args: { p_token: string }
+        Returns: {
+          email: string
+          expires_at: string
+          full_name: string
+          graduation_year: number
+          invite_id: string
+          organization_id: string
+          organization_name: string
+          organization_slug: string
+          result_code: string
+        }[]
       }
     }
     Enums: {

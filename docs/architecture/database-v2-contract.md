@@ -1,16 +1,17 @@
 # BridgeCircle database v2 contract
 
-**Status:** local baseline implemented and database-tested; backend port pending; not live
+**Status:** Foundation schema and app boundary implemented and verified locally; later domains and remote cutovers pending; not live
 **Decision:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md)
 **Current live schema:** [Data model — Phase 1 launch](data-model.md)
 **Approved product behavior:** [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 
 This document is the canonical implementation contract for the pre-launch
-database rebuild. The isolated database-v2 worktree now contains the active
-v2 baseline, deterministic seed, generated types, and pgTAP suite. The current
-shared application and remote databases remain on the legacy contract until
-the backend port and separately approved cutovers land. Nothing in this
-document authorizes a remote database reset.
+database rebuild. `codex/redesign-v2` now contains the active v2 baseline,
+deterministic seed, generated types, pgTAP suite, and completed Foundation app
+boundary for identity, memberships, self-profile/onboarding, shell context,
+and notifications. Later product domains and both remote databases remain on
+the legacy contract until their ports and separately approved cutovers land.
+Nothing in this document authorizes a remote database reset.
 
 ## Goal
 
@@ -1198,7 +1199,9 @@ harmless migration; the v2 reset may not be its first database execution.
 - every FK has a supporting leading index;
 - every exposed table has RLS and an intentional grant set;
 - every view is invoker-safe or private;
-- security and performance advisors are clean or have documented exceptions.
+- local warning lint plus the explicit grant/RLS/FK/index assertions are clean;
+- hosted security and performance advisors are clean or have documented
+  exceptions at each separately approved remote cutover.
 
 ### Constraint tests
 

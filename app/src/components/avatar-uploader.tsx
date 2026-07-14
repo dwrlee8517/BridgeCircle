@@ -2,7 +2,7 @@
 
 import { Camera, Loader2 } from 'lucide-react'
 import { useRef, useState, useTransition } from 'react'
-import { uploadAvatarAction } from '@/app/(member)/profile/edit/actions'
+import { uploadAvatarAction } from '@/app/avatar-actions'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 
@@ -82,12 +82,12 @@ export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
             </>
           )}
         </Button>
-        <p className="text-xs text-muted-foreground">JPEG, PNG, WebP, or GIF. 5 MB max.</p>
+        <p className="text-xs text-muted-foreground">JPEG, PNG, or WebP. 5 MB max.</p>
         {error ? <p className="text-xs text-destructive">{error}</p> : null}
         <input
           ref={inputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept="image/jpeg,image/png,image/webp"
           className="hidden"
           onChange={onFile}
         />
