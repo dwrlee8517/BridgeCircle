@@ -158,8 +158,13 @@ production is reset. The implementation order is:
 6. School, administration, enrichment, and analytics.
 
 The redesigned app shell and token work are orthogonal and may merge before
-or during this effort. Database work stays in a separate clean worktree and
-integration branch.
+or during this effort.
+
+**Implementation-topology amendment (2026-07-14):** Richard removed the other
+uncommitted worktree and explicitly consolidated the surviving app-shell and
+database-v2 work on the long-lived `codex/redesign-v2` integration branch.
+This replaces physical worktree separation, not the isolation rule: `main`
+remains untouched and no partially ported v2 application may merge or deploy.
 
 ### 8. Reinstate normal migration discipline at the first real signup
 

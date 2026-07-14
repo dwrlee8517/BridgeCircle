@@ -29,11 +29,11 @@ cd app
 pnpm db:start    # boots the local stack — starts Docker Desktop first if needed
 pnpm db:reset    # wipe → re-apply all migrations → load supabase/seeds/*.sql
 pnpm db:stop     # shut the stack down
-pnpm dev:local   # run the app at :3001 against the local stack (Doppler dev_local)
+pnpm dev:local   # run the app at :3000 against the local stack (Doppler dev_local)
 ```
 
 - Migrations come from `app/supabase/migrations/` — the same files every other environment uses.
-- The seed (`app/supabase/seeds/seed.sql`) creates the deterministic world: the local org, 15 recognizable personas (`richard@example.com` / `devseed-password-richard` has the richest home feed), asks in every status, threads with messages, friendships, DMs, five events, announcements, and notifications. It mirrors the cast in `scripts/seed-dev.ts` (which seeds the **remote** dev project and stays admin-API based).
+- The v2 seed (`app/supabase/seeds/seed.sql`) creates the current deterministic world: one local organization, six recognizable personas, normalized profiles and helper topics, one admin, one connection/direct conversation, two representative asks, and one event. `richard@example.com` / `devseed-password-richard` is the primary member persona. The seed will grow domain by domain with the v2 application port; it is intentionally independent from `scripts/seed-dev.ts`, which seeds the **remote** development project through the admin API and remains legacy until its domain is ported.
 - Seeded auth users are inserted directly into `auth.users` + `auth.identities` with deterministic UUIDs, so the `on_auth_user_created` trigger fires exactly as in real sign-up.
 
 `supabase db reset` only ever touches the local stack (it is not `--linked`). The SQL seed must never be pointed at a remote project.
@@ -43,7 +43,7 @@ pnpm dev:local   # run the app at :3001 against the local stack (Doppler dev_loc
 `pnpm test:e2e` reads `playwright.config.ts` and:
 
 1. **Global setup wipes and reseeds** the local database (`supabase db reset`). Skip with `E2E_SKIP_RESET=1` when iterating on a spec. Never runs in integ mode.
-2. Checks whether something is already serving on `http://localhost:3002` — the E2E-owned port, deliberately separate from `pnpm dev`'s 3001 so the suite can never silently reuse a server pointed at the remote dev database.
+2. Checks whether something is already serving on `http://localhost:3002` — the E2E-owned port, deliberately separate from `pnpm dev`'s 3000 so the suite can never silently reuse a server pointed at the remote dev database.
 3. If not, starts `pnpm exec next dev -p 3002` with the `dev_local` env injected (explicit process env beats Next's `.env.local` loading, so your remote-dev `.env.local` can't leak in). The fetch uses your personal `doppler login` locally, or `DOPPLER_TOKEN` in CI.
 4. Runs every spec in `tests/e2e/**/*.spec.ts` in parallel and reports pass/fail. In CI there is one retry, purely so a flake captures its trace — treat any retry as a bug to investigate.
 

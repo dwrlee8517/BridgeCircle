@@ -5,7 +5,7 @@ import { baseURL, e2eEnv, isRemote } from './tests/e2e/helpers/env'
  * BridgeCircle e2e config. Two modes, detected from the base URL:
  *
  * Local/hermetic (default, also PR CI): the suite owns a dev server on port
- * 3002 (separate from `pnpm dev`'s 3001 so it can never silently reuse a
+ * 3002 (separate from `pnpm dev`'s 3000 so it can never silently reuse a
  * server pointed at a remote database) wired to the LOCAL Supabase stack.
  * Env comes from the Doppler `bridgecircle/dev_local` config — nothing
  * remote, nothing deployed. global-setup wipes and reseeds the local

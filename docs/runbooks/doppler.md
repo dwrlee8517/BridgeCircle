@@ -184,7 +184,7 @@ Run it:
 
 ```bash
 pnpm db:start && pnpm db:reset   # fresh local DB
-pnpm dev:local:live              # app at :3001, local DB + real AI + guarded real email
+pnpm dev:local:live              # app at :3000, local DB + real AI + guarded real email
 ```
 
 **If the local Supabase keys drift** (a Supabase CLI upgrade can change the local stack's well-known keys): compare with `pnpm dlx supabase status` and re-set the two key overrides here, same as the `dev_local` procedure in [e2e-testing.md](e2e-testing.md).

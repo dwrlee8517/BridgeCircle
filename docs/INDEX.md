@@ -49,6 +49,7 @@ How the system is shaped. Reference material — facts, not how-to.
 
 - [Data model](architecture/data-model.md) — tables, relations, RLS posture
 - [Database v2 contract](architecture/database-v2-contract.md) — approved target schema, ERD, constraints, RLS matrix, verified local baseline, and cutover gates; backend port pending
+- [Database v2 Foundation plan](architecture/database-v2-foundation-plan.md) — proposed local-only implementation sequence for identity, memberships, self-profile/onboarding, grants, blocking, audit, and outbox
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance

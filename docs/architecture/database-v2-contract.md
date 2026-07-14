@@ -1144,6 +1144,12 @@ migration history and repair behavior is documented in the
 7. Generate types from the local database during development; compare with
    linked development types after cutover.
 
+Steps 1–2 describe the original repository preparation. On 2026-07-14 Richard
+removed the other uncommitted worktree and consolidated the surviving work on
+`codex/redesign-v2`, as recorded by the ADR 0015 implementation-topology
+amendment. The branch remains isolated from `main` until the full backend port
+is compatible.
+
 ### Snapshot gate
 
 Before either remote reset:

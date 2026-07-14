@@ -23,9 +23,9 @@ exception is narrow:
   `app/supabase/legacy/`;
 - active history starts with the CLI-generated
   `20260713231344_v2_init.sql` baseline;
-- the baseline, seed, pgTAP suite, and generated types are developed only in
-  the isolated `codex/database-v2-baseline` worktree until the backend port is
-  compatible;
+- the baseline, seed, pgTAP suite, generated types, and backend port are
+  developed together on the long-lived `codex/redesign-v2` integration branch
+  until the application is compatible;
 - no one may push the baseline to shared development or production merely
   because it passes locally;
 - each remote reset still requires its own approved snapshot and cutover
