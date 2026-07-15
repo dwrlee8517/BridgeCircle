@@ -85,13 +85,12 @@ source of truth.
 |---|---|
 | `/people` | Organization directory, search, filters, and direct-Help entry |
 | `/profile/[id]` | Member profile, Connection state, and direct-Help entry |
-| `/profile/edit` | Edit the member's profile |
-| `/profile/import` | Review profile enrichment |
+| `/profile/me` | Canonical self profile with inline section and audience editing |
 
 People sends `membershipId`, not `userId`, when entering a direct Ask. Profile
-and People are the next dedicated v2 port. Messages already owns the fixed
-Connection request/decision/disconnect seam; do not add compatibility reads
-from retired friendship or Help columns while the remaining UI port is pending.
+URLs use `userId`, while the self route derives its selected membership on the
+server. The removed edit/import/proposal routes have no compatibility aliases;
+future enrichment review belongs to its later dedicated slice.
 
 ### Messages
 

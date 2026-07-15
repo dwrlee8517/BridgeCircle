@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { createAdminClient } from '@/db/admin'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { getImportCurrentProfile } from '@/lib/profile/importCurrentProfile'
-import { ImportFlow, type ImportSource } from '../../(member)/profile/import/import-flow'
+import { getImportCurrentProfile } from '@/lib/onboarding/import-current-profile'
+import { ImportFlow, type ImportSource } from './import-flow'
 
 type SearchParams = { return?: string; source?: string }
 
@@ -30,7 +30,7 @@ export default async function OnboardingImportPage({
     .maybeSingle()
 
   if (userRow?.onboarding_completed_at) {
-    redirect(`/profile/import?source=${source}&return=${encodeURIComponent('/profile/edit')}`)
+    redirect('/profile/me')
   }
 
   const { data: membership } = await supabase

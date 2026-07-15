@@ -39,7 +39,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<AvatarUplo
   }
 
   revalidatePath('/onboarding')
-  revalidatePath('/profile/edit')
+  revalidatePath('/profile/me')
   revalidatePath(`/profile/${session.userId}`)
   return { publicUrl: result.publicUrl }
 }

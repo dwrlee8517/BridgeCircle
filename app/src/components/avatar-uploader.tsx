@@ -13,13 +13,13 @@ type Props = {
 
 /**
  * Avatar uploader. Click → file picker → optimistic preview (object URL) →
- * server action does the actual upload + base_profile update.
+ * server action does the actual upload + fixed profile command.
  *
  * Errors come back from the server action and render as a small red note
  * below. We don't roll back the preview on failure — leaving the new image
  * visible while the user re-tries is friendlier than snapping back.
  *
- * Used by /profile/edit and the onboarding step-5 surface. The server
+ * Used by /profile/me and the onboarding step-5 surface. The server
  * action targets the signed-in user's own row, so the same action is
  * correct in both contexts.
  */

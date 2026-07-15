@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import type { ImportCurrentProfile } from '@/lib/profile/importCurrentProfile'
+import type { ImportCurrentProfile } from '@/lib/onboarding/import-current-profile'
 import type { CareerEntry, EducationEntry, ExtractedProfile } from '@/lib/resume/schemas'
 
 /**

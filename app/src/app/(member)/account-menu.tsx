@@ -16,14 +16,13 @@ import { cn } from '@/lib/utils'
 import { signOut } from '../(auth)/sign-in/actions'
 
 type Props = {
-  userId: string
   name: string | null
   avatarUrl: string | null
   graduationYear: number | null
   isAdmin: boolean
 }
 
-export function AccountMenu({ userId, name, avatarUrl, graduationYear, isAdmin }: Props) {
+export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props) {
   const initial = (name ?? '?').slice(0, 1).toUpperCase()
   const cohort = graduationYear ? `Class of ’${String(graduationYear).slice(-2)}` : 'Member account'
 
@@ -47,7 +46,7 @@ export function AccountMenu({ userId, name, avatarUrl, graduationYear, isAdmin }
         className="w-[300px] overflow-hidden rounded-[18px] border-0 bg-popover p-0 text-popover-foreground shadow-[var(--ring-card-elevated),0_20px_50px_-14px_rgb(25_31_40_/_0.3)]"
       >
         <Link
-          href={`/profile/${userId}`}
+          href="/profile/me"
           className="flex items-center gap-3 px-5 pt-4 pb-3.5 transition-colors hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
         >
           <Avatar className="size-[42px] after:border-white/20">
@@ -64,7 +63,7 @@ export function AccountMenu({ userId, name, avatarUrl, graduationYear, isAdmin }
         <DropdownMenuSeparator className="m-0" />
         <DropdownMenuGroup className="p-1.5">
           <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
-            <Link href="/profile/edit">
+            <Link href="/profile/me">
               <UserRound className="text-muted-foreground" />
               Edit profile
             </Link>

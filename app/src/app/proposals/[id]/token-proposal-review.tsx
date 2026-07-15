@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { ExtractedProfile } from '@/lib/resume/schemas'
-import { ConfirmStep, type CurrentProfile } from '../../(member)/profile/import/confirm-step'
+import { ConfirmStep, type CurrentProfile } from '../../onboarding/import/confirm-step'
 import { type ApplyTokenProposalState, applyTokenProposalAction } from './actions'
 
 type Props = {

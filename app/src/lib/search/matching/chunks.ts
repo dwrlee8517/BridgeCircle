@@ -5,7 +5,7 @@ import {
   type PrivacySettings,
   type PrivacyTier,
   parseStoredPrivacySettings,
-} from '@/lib/profile/privacy'
+} from '@/lib/search/privacy'
 import type { CareerEntry, EducationEntry } from '../searchAlumni'
 import {
   RAW_CHUNK_PROMPT_VERSION,

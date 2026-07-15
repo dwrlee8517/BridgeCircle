@@ -146,7 +146,7 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
     case 'event_cancelled':
       return row.targetId ? `/events/${row.targetId}` : '/events'
     case 'profile_update_ready':
-      return row.targetId ? `/profile/proposals/${row.targetId}` : '/profile/edit'
+      return '/profile/me'
   }
 }
 

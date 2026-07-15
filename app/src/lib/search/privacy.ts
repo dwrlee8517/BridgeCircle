@@ -37,7 +37,7 @@ export const PRIVACY_DEFAULTS: Record<PrivacySection, PrivacyTier> = {
   skills: 'org',
 }
 
-/** Map stored under base_profiles.privacy_settings (partial; missing → default). */
+/** Legacy search visibility projection retained until the index worker port. */
 export type PrivacySettings = Partial<Record<PrivacySection, PrivacyTier>>
 
 /**

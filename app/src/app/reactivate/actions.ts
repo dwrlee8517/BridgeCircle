@@ -1,8 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { selfReactivate } from '@/lib/account/self-reactivate'
 import { requireSession } from '@/lib/auth/session'
-import { selfReactivate } from '@/lib/profile/selfReactivate'
 
 export type ReactivateState = { ok?: boolean; error?: string }
 

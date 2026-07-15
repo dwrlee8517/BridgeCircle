@@ -12,9 +12,9 @@ describe('uploadAvatar', () => {
       upload: vi.fn().mockResolvedValue({ ok: true }),
       publicUrl: vi.fn().mockReturnValue('https://example.test/avatar.png'),
     }
-    const profiles = {
+    const profiles: Pick<ProfileRepository, 'setAvatarPath'> = {
       setAvatarPath: vi.fn().mockResolvedValue('saved'),
-    } as unknown as ProfileRepository
+    }
 
     const result = await uploadAvatar({
       storage,
@@ -37,7 +37,9 @@ describe('uploadAvatar', () => {
       upload: vi.fn(),
       publicUrl: vi.fn(),
     }
-    const profiles = {} as ProfileRepository
+    const profiles: Pick<ProfileRepository, 'setAvatarPath'> = {
+      setAvatarPath: vi.fn(),
+    }
     await expect(
       uploadAvatar({
         storage,

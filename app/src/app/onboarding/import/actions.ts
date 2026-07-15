@@ -221,7 +221,7 @@ export async function applyExtractedAction(
     return { error: 'Could not apply changes. Try again.' }
   }
 
-  redirect(returnTo ?? `/profile/${session.userId}`)
+  redirect(returnTo ?? '/profile/me')
 }
 
 function extractErrorMessage(err: string): string {

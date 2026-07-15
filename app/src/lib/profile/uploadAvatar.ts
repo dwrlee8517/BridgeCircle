@@ -13,7 +13,7 @@ export type UploadAvatarResult =
 
 export async function uploadAvatar(input: {
   storage: AvatarStorageRepository
-  profiles: ProfileRepository
+  profiles: Pick<ProfileRepository, 'setAvatarPath'>
   membershipId: string
   userId: string
   file: File

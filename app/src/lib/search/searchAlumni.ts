@@ -1,7 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import { canSeeSection, deriveViewerKind, parseStoredPrivacySettings } from '@/lib/profile/privacy'
+import { canSeeSection, deriveViewerKind, parseStoredPrivacySettings } from '@/lib/search/privacy'
 import type { FilterScopes, SearchFilters } from './schemas'
 
 export type CareerEntry = {

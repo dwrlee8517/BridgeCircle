@@ -51,7 +51,6 @@ export function MemberHeader({
             />
           )}
           <AccountMenu
-            userId={userId}
             name={name}
             avatarUrl={avatarUrl}
             graduationYear={graduationYear}

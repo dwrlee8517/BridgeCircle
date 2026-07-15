@@ -1,6 +1,6 @@
 # Database v2 People/Profile vertical-slice test inventory
 
-- **Status:** Milestone 0 plan complete; implementation baseline starting
+- **Status:** Milestone 6 code and destructive cutover green; browser acceptance pending
 - **Approved:** 2026-07-15
 - **Plan:** [People/Profile vertical-slice implementation plan](database-v2-people-profile-plan.md)
 - **Starting checkpoint:** completed Messages slice `c9a1b77`
@@ -115,6 +115,40 @@ The in-app browser reached the local server but had no authenticated session in
 the controllable tab, so browser/visual acceptance is deliberately not claimed
 at this checkpoint. Milestone 6 self-profile cutover and Milestone 7 visual QA
 remain required before completion.
+
+## Milestone 6 self-profile checkpoint
+
+Implemented locally after member-profile checkpoint `0db8c97`:
+
+- `/profile/me` now reads the selected membership through `api.get_my_profile`
+  and renders the canonical owner view instead of redirecting to the visitor
+  profile;
+- identity, current role, About, career and skills, education, section
+  visibility, links, and avatar changes use fixed repository commands with
+  server-derived membership authorization;
+- client validation mirrors database bounds for text, dates, array sizes,
+  duplicate skills/links, HTTPS/email links, allowed audiences, and custom link
+  labels;
+- Help topics and open-to-help remain a read-only mirror linked to Help · Give;
+  notification controls remain outside the public profile;
+- `/profile/edit`, `/profile/import`, `/profile/proposals/*`, the legacy
+  friendship domain, unused profile getters/savers/privacy code, and all owned
+  links to retired routes were deleted without redirects;
+- onboarding-only import/confirm components were relocated under onboarding so
+  route deletion did not remove a still-owned onboarding dependency.
+
+| Gate | Result |
+|---|---|
+| focused People/Profile TypeScript under Node 22.22.2 | green |
+| People/Profile boundary detector | green |
+| destructive cutover detector | green |
+| focused People/profile repositories, query, validation, and avatar Vitest | 5 files / 13 tests / green |
+| relevant Biome | green |
+| global TypeScript | still red only in classified later-domain/runtime migrations; People/Profile focused compiler remains zero-error |
+
+Authenticated browser roads, three-viewer privacy checks, avatar refresh, and
+reference-to-render visual comparison remain Milestone 6/7 acceptance work and
+are not claimed by this code checkpoint.
 
 ## Planned verification matrix
 
