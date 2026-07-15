@@ -1,0 +1,244 @@
+# Database v2 People/Profile vertical-slice test inventory
+
+- **Status:** Milestone 0 plan complete; implementation baseline starting
+- **Approved:** 2026-07-15
+- **Plan:** [People/Profile vertical-slice implementation plan](database-v2-people-profile-plan.md)
+- **Starting checkpoint:** completed Messages slice `c9a1b77`
+- **Rule:** a milestone cannot proceed while its owned verification is red
+- **Scope:** local-only; no remote project, provider mutation, deploy, push, or
+  merge
+
+## Milestone 0 inspected baseline
+
+Recorded locally on 2026-07-15 before implementation:
+
+| Checkout/tool | Recorded value |
+|---|---|
+| branch / commit | `codex/redesign-v2` / `c9a1b77` |
+| relationship to local `main` | 0 behind / 26 ahead |
+| worktree | clean |
+| prescribed Node / pnpm | 22.22.2 / 10.33.2 |
+| Supabase CLI / psql | 2.109.1 / 18.3 |
+| inherited pgTAP inventory | 11 files / 438 planned assertions |
+| global TypeScript | 679 errors |
+| People/Profile legacy inventory | 318 errors across 22 classified files |
+
+The 318 count is deliberately broad: it includes current People/Profile routes,
+legacy profile/friendship/search modules, profile-index maintenance, and their
+direct provider/search dependencies. Milestone 1 will replace this heuristic
+with an exact owned-file manifest used by the focused compiler and final
+cutover gate.
+
+The inspected application still reads removed v1 objects including
+`base_profiles`, `friendships`, and `friend_requests`; uses an admin client for
+member profile details/vector search; paginates 10 rather than the approved
+20/20/10; and routes self editing through a second `/profile/edit` page. Those
+are expected red cutover findings, not accepted compatibility behavior.
+
+## Planned verification matrix
+
+### A. Schema and contract
+
+- active baseline rebuilds from empty local database;
+- `industry` and `profile_contact_links` exist with exact checks/FKs/indexes;
+- public profile LinkedIn/contact visibility drift is removed;
+- every new FK has a leading index;
+- every status/kind/audience/value constraint rejects invalid shapes;
+- profile detail/raw private relations have no broad member grant;
+- fixed APIs have exact authenticated grants and no anon grant;
+- `api` wrappers are invoker-safe and private implementations are
+  security-definer with empty search paths;
+- generated public+api types are byte-identical across two generations;
+- schema lint has no warnings and local public/api/private diff is empty.
+
+### B. Directory and profile privacy personas
+
+Exercise owner, same-organization stranger, connected member, blocked pair,
+out-of-organization member, inactive member, admin, and service personas:
+
+- directory excludes self, blocked, inactive, deleted, revoked, and other-org
+  members before count/ranking;
+- organization-visible career/education/bio/skills appear to org mates;
+- connection-visible sections appear only to connected pairs;
+- self-only sections appear only to the owner;
+- each contact link independently obeys organization/connections/self;
+- a hidden link/section is absent, not returned as redacted raw content;
+- profile unavailable, blocked, and permission denied share a non-enumerating
+  result;
+- Help topics/availability obey block and selected-organization rules;
+- resume path, provider ID, enrichment snapshot, report data, and self-only
+  evidence never appear in member responses;
+- raw relation access cannot bypass the fixed projection.
+
+### C. Search correctness
+
+- blank browse is bounded to 50 and sorted by durable updated time + ID;
+- explicit All/Open to help/In your circle scopes are exact;
+- industry, class-year range, location, employer, education, and topic filters
+  compose with AND semantics;
+- keyword search uses indexed full-text facts and deterministic tie-breaks;
+- natural-language mode accepts an optional extracted filter set and embedding
+  without changing result shape;
+- explicit filters override extracted filters;
+- semantic evidence respects organization/connection/self visibility;
+- blocked/hidden evidence cannot affect rank, explanation, or result count;
+- provider-unavailable, extraction-failed, embedding-failed, timeout, and
+  malformed response fall back to lexical/structured search;
+- display evidence is typed, authorized, deterministic, and truthful;
+- query cap/length/filter range/cardinality validation is enforced in app and
+  SQL;
+- result hard cap is 50 even when more members match.
+
+### D. Profile commands
+
+- owner can save each approved section for the selected active membership;
+- another member, other organization, pending/revoked membership, and deleted
+  account cannot save;
+- links reject non-HTTPS URL kinds, malformed email, unknown kind/audience,
+  duplicate order/value, excessive cardinality, blank/oversized values;
+- visibility rejects unknown fields/audiences and stores only overrides;
+- experience/education date and ordering constraints remain intact;
+- two concurrent section replacements serialize without partial child sets;
+- successful save creates one audit record, dirty index state, deduped work,
+  and owner profile invalidation;
+- failed validation/authorization creates none of those side effects;
+- retry returns stable results and cannot duplicate links or index jobs.
+
+### E. Connection and safety integration
+
+- Connect retry with one client UUID creates one request;
+- opposite-direction pending request returns incoming-pending, not a second row;
+- connected, blocked, self, inactive, and other-org targets return stable state;
+- accepted request exposes canonical conversation ID for Message;
+- report profile captures immutable authorized evidence and returns only ID;
+- block removes both parties from directory/profile/search/message access;
+- unblock restores only permission, not a deleted Connection;
+- disconnect removes circle state, preserves direct history, and makes retained
+  direct conversation read-only under the existing Messages contract;
+- every expected race maps to calm product state without SQL text.
+
+### F. Realtime and invalidation
+
+- `profile.changed` is owner-topic only, IDs only, and strictly parsed;
+- malformed/unknown profile events are ignored and reported;
+- reconnect/subscription increments profile revision and triggers one bounded
+  refetch path;
+- profile save does not open a second user channel;
+- Connection/block invalidation refreshes visible People/Profile state;
+- Realtime payload never contains name, bio, query, link, evidence, or block
+  initiator.
+
+### G. Query plans and performance
+
+Use representative pilot data including at least 2,500 active members, 50+
+matches, blocked/inactive distractors, normalized histories, links, topics,
+Connections, and profile chunks:
+
+- selected organization/activity narrowing uses composite membership indexes;
+- blank directory avoids per-row subqueries over the full organization;
+- keyword query uses the directory GIN vector;
+- scope/filter predicates use measured indexes or bounded post-filtering;
+- Connection/pending state uses canonical pair indexes;
+- profile detail uses target-user/membership and child sort indexes;
+- contact-link authorization uses membership/audience index;
+- vector query exact-scans only eligible organization chunks and remains under
+  the recorded pilot latency budget;
+- no N+1, deep OFFSET, external sort spill, or unbounded sequential scan over a
+  growing relation;
+- `EXPLAIN (ANALYZE, BUFFERS)` fixtures record actual rows, loops, buffers, and
+  execution time.
+
+### H. Application boundaries and compiler
+
+- focused `tsconfig.v2-people-profile.json` is zero-error;
+- People/Profile routes/domains contain no admin client or raw table access;
+- framework-free domains contain no Next/Supabase/provider/env imports;
+- API routes/actions are thin parse/auth/invoke/map boundaries;
+- no `base_profiles`, `friendships`, `friend_requests`, old profile privacy
+  JSON, raw embedding function, OFFSET, or compatibility cast remains;
+- no `/profile/edit`, `/profile/import`, or `/profile/proposals` application
+  route remains;
+- direct Ask links use membership IDs and profile URLs use user IDs;
+- private responses are no-store;
+- global compiler/build failures after cutover have an exact later-domain owner
+  and People/Profile-owned count is zero.
+
+### I. Unit and component behavior
+
+- search parameter normalization and URL serialization;
+- invisible keyword/NL routing and provider fallback;
+- deterministic ranking/evidence copy/tie-breaks;
+- strict repository row parsing and contract violation detection;
+- desktop 20/20/10 pagination and mobile 20/40/50 reveal behavior;
+- selected preview persists through mobile load more and closes intentionally;
+- stale/aborted responses cannot overwrite a newer query;
+- one action per relationship state;
+- self section validation/result mapping;
+- member-control profile revision and deduplication;
+- versioned local storage is not used for profile/search/member content.
+
+### J. Browser and accessibility roads
+
+1. blank directory → scope/filter → reset;
+2. keyword search → 50 cap → page 2/3 → selected preview preserved;
+3. natural-language search with provider success and provider fallback;
+4. row preview → full intercepted profile → close/back/forward in place;
+5. direct deep link/refresh → canonical profile → People back target;
+6. Connect quick note → pending → accept in Messages → Message action;
+7. AI-shaped Connect draft → edit → send; provider failure → manual send;
+8. Ask for help from header and a specific helping topic;
+9. report acknowledgement, block disappearance, unblock restoration;
+10. disconnect confirmation and retained read-only Messages history;
+11. self profile edit/save/cancel/validation across every section;
+12. per-link and per-section visibility checked as owner, org mate, Connection;
+13. loading, empty, filtered-empty, unavailable, permission-safe, offline, and
+    retry states;
+14. keyboard-only and axe checks for directory, preview, overlays, drawers,
+    dialogs, and inline forms.
+
+Acceptance viewports: 1440-class desktop, 1280 × 900 handoff class, 768 tablet,
+390 × 844 mobile, and 320 px narrow mobile. Horizontal overflow, clipped
+actions, below-list mobile preview, lost focus, and background-scroll leakage
+are failures.
+
+### K. Visual fidelity
+
+- capture People blank, searched/collapsed, selected preview, Connection panel,
+  profile, safety dialogs, self profile, and inline edit states from the handoff;
+- compare same-state/same-viewport implementation screenshots in the Codex
+  in-app browser;
+- inspect copy, layout, type, palette, border/shadow/radius, icon treatment,
+  density, rail/sheet size, focus states, and responsive composition;
+- keep a fidelity ledger and fix every P0/P1/P2 issue;
+- require final design QA `passed` before completion.
+
+## Commands to add
+
+```bash
+pnpm typecheck:v2-people-profile
+pnpm check:people-profile-boundaries
+pnpm check:people-profile-cutover
+pnpm test:db:people-profile-concurrency
+pnpm test:db:people-profile-query-plans
+pnpm test:e2e -- tests/e2e/people-profile/people-profile.spec.ts
+```
+
+These supplement, not replace, reset, pgTAP, lint/diff, deterministic types,
+Foundation/Conversation/Help/Messages gates, Biome, ESLint, Vitest, axe, and the
+production build/classified global inventory.
+
+## Completion evidence
+
+This file will be updated milestone by milestone with:
+
+- exact commit and clean/dirty state;
+- exact commands and exit status;
+- assertion/test counts;
+- concurrency/race outcomes;
+- Realtime payload/subscription evidence;
+- representative EXPLAIN nodes/timings/buffers;
+- focused/global compiler and build ownership;
+- browser viewport/road/axe results;
+- reference and implementation screenshot paths plus fidelity ledger result;
+- destructive cutover search results;
+- final local commit, with explicit confirmation that no remote action occurred.
