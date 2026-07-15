@@ -53,8 +53,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Database v2 Foundation test inventory](architecture/database-v2-foundation-test-inventory.md) — exact database, unit, concurrency, browser, and compiler gates
 - [Database v2 Conversation Primitive plan](architecture/database-v2-conversation-plan.md) — completed transactional, RLS, pagination, Realtime, and application-boundary implementation record
 - [Database v2 Conversation Primitive test inventory](architecture/database-v2-conversation-test-inventory.md) — completed database, concurrency, Realtime, performance, and compiler evidence
-- [Database v2 Help vertical-slice plan](architecture/database-v2-help-plan.md) — approval-ready end-to-end plan for Help data, matching, worker, Realtime, UI, and cutover
-- [Database v2 Help vertical-slice test inventory](architecture/database-v2-help-test-inventory.md) — planned database, concurrency, worker, matching, Realtime, browser, privacy, and pipeline gates
+- [Database v2 Help vertical-slice plan](architecture/database-v2-help-plan.md) — completed local plan for Help data, matching, worker, Realtime, UI, and destructive cutover
+- [Database v2 Help vertical-slice test inventory](architecture/database-v2-help-test-inventory.md) — completed local evidence plus the classified later-domain port inventory
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
@@ -68,7 +68,7 @@ How the system is shaped. Reference material — facts, not how-to.
 How-to guides. Read when touching the relevant area.
 
 - [Day 0 setup](runbooks/day-0-setup.md) — initial scaffold and `/lib` rationale
-- [Seed dev DB](runbooks/seed-dev.md) — personas + mentorship requests + events
+- [Seed development data](runbooks/seed-dev.md) — disposable local v2 seed and remote-cutover boundary
 - [Supabase conventions](runbooks/supabase-conventions.md) — keys, clients, type generation, role grants
 - [Migration workflow](runbooks/migration-workflow.md) — branching + db push + prod safety
 - [E2E testing](runbooks/e2e-testing.md)

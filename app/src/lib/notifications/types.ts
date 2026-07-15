@@ -115,27 +115,32 @@ export function notificationLabel(row: NotificationRow): string {
 }
 
 export function notificationTargetUrl(row: NotificationRow): string | null {
+  if (row.targetType === 'conversation' && row.targetId) {
+    return `/messages/${row.targetId}`
+  }
+  if (row.targetType === 'ask' && row.targetId) {
+    return `/help/asks/${row.targetId}`
+  }
+
   switch (row.type) {
     case 'connection_requested':
-      return '/inbox'
+      return row.actorUserId ? `/profile/${row.actorUserId}` : '/people'
     case 'connection_accepted':
-      return row.targetId ? `/profile/${row.targetId}` : '/inbox'
+      return row.actorUserId ? `/profile/${row.actorUserId}` : '/people'
     case 'ask_received':
     case 'ask_accepted':
     case 'ask_declined':
     case 'ask_reminder':
     case 'ask_closed':
-      return row.targetId ? `/ask/${row.targetId}` : '/inbox'
     case 'offer_received':
     case 'offer_accepted':
     case 'offer_declined':
     case 'offer_closed':
-      return '/inbox'
     case 'circle_ask_match':
     case 'circle_ask_closed':
-      return row.targetId ? `/ask/${row.targetId}` : '/ask'
+      return '/help/asks'
     case 'message_received':
-      return row.targetId ? `/messages/${row.targetId}` : '/inbox'
+      return '/messages'
     case 'announcement_published':
       return '/announcements'
     case 'event_cancelled':

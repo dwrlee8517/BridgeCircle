@@ -22,6 +22,7 @@ export type EducationEntry = {
 
 export type SearchHit = {
   userId: string
+  membershipId: string
   name: string | null
   preferredName: string | null
   nameOther: string | null
@@ -33,14 +34,9 @@ export type SearchHit = {
   major: string | null
   graduationYear: number | null
   avatarUrl: string | null
-  isOpenAsMentor: boolean
-  isOpenAsAdviceHelper: boolean
-  mentorPaused: boolean
-  mentoringTopics: string[] | null
-  maxActiveMentees: number
-  maxPendingRequests: number
-  activeMenteeCount: number
-  pendingRequestCount: number
+  openToHelp: boolean
+  helpPaused: boolean
+  helperTopics: string[] | null
   // Rich fields populated for the NL rerank step. The structured-search UI
   // doesn't display them but the NL orchestrator passes them to Haiku.
   bio: string | null
@@ -103,55 +99,40 @@ export async function searchAlumni(
   const membershipIds = memberships.map((m) => m.id)
   const membershipByUser = new Map(memberships.map((m) => [m.user_id, m.id]))
 
-  const [baseRes, orgProfileRes, prefRes, friendsRes, pendingAsksRes, activeThreadsRes] =
-    await Promise.all([
-      supabase
-        .from('base_profiles')
-        .select(
-          'user_id, name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
-        )
-        .in('user_id', userIds),
-      supabase
-        .from('organization_profiles')
-        .select('organization_membership_id, graduation_year, mentoring_topics, bio')
-        .in('organization_membership_id', membershipIds),
-      supabase
-        .from('helper_preferences')
-        .select(
-          'organization_membership_id, open_to_mentorship, open_to_advice, paused_at, max_active_mentees, max_pending_requests',
-        )
-        .in('organization_membership_id', membershipIds),
-      // Pull viewer's friend list once so we can compute the per-candidate
-      // visibility tier in JS without N extra queries.
-      supabase
-        .from('friendships')
-        .select('user_a_id, user_b_id')
-        .or(`user_a_id.eq.${input.viewerId},user_b_id.eq.${input.viewerId}`),
-      // Bulk-fetch pending asks for capacity indicator
-      supabase
-        .from('asks')
-        .select('helper_id')
-        .eq('ask_type', 'mentorship')
-        .eq('status', 'pending')
-        .in('helper_id', userIds),
-      // Bulk-fetch active threads for capacity indicator
-      supabase
-        .from('ask_threads')
-        .select('helper_id, asks!inner(ask_type)')
-        .eq('status', 'active')
-        .eq('asks.ask_type', 'mentorship')
-        .in('helper_id', userIds),
-    ])
+  const [baseRes, orgProfileRes, prefRes, topicRes, friendsRes] = await Promise.all([
+    supabase
+      .from('base_profiles')
+      .select(
+        'user_id, name, preferred_name, name_other, headline, current_employer, current_title, city, university, major, avatar_url, career_history, education_history, skills, privacy_settings',
+      )
+      .in('user_id', userIds),
+    supabase
+      .from('organization_profiles')
+      .select('organization_membership_id, graduation_year, bio')
+      .in('organization_membership_id', membershipIds),
+    supabase
+      .from('helper_preferences')
+      .select('organization_membership_id, open_to_help, paused_at')
+      .in('organization_membership_id', membershipIds),
+    supabase
+      .from('helper_topics')
+      .select('organization_membership_id, name, sort_order')
+      .in('organization_membership_id', membershipIds)
+      .order('sort_order', { ascending: true }),
+    // Pull viewer's friend list once so we can compute the per-candidate
+    // visibility tier in JS without N extra queries.
+    supabase
+      .from('friendships')
+      .select('user_a_id, user_b_id')
+      .or(`user_a_id.eq.${input.viewerId},user_b_id.eq.${input.viewerId}`),
+  ])
 
   if (baseRes.error) throw new Error(`searchAlumni base_profiles: ${baseRes.error.message}`)
   if (orgProfileRes.error)
     throw new Error(`searchAlumni org_profiles: ${orgProfileRes.error.message}`)
   if (prefRes.error) throw new Error(`searchAlumni helper_preferences: ${prefRes.error.message}`)
+  if (topicRes.error) throw new Error(`searchAlumni helper_topics: ${topicRes.error.message}`)
   if (friendsRes.error) throw new Error(`searchAlumni friendships: ${friendsRes.error.message}`)
-  if (pendingAsksRes.error)
-    throw new Error(`searchAlumni pending asks: ${pendingAsksRes.error.message}`)
-  if (activeThreadsRes.error)
-    throw new Error(`searchAlumni active threads: ${activeThreadsRes.error.message}`)
 
   const orgProfileByMembership = new Map(
     (orgProfileRes.data ?? []).map((p) => [p.organization_membership_id, p]),
@@ -159,16 +140,11 @@ export async function searchAlumni(
   const prefByMembership = new Map(
     (prefRes.data ?? []).map((p) => [p.organization_membership_id, p]),
   )
-  const pendingCountByHelper = new Map<string, number>()
-  for (const ask of pendingAsksRes.data ?? []) {
-    pendingCountByHelper.set(ask.helper_id, (pendingCountByHelper.get(ask.helper_id) ?? 0) + 1)
-  }
-  const activeCountByHelper = new Map<string, number>()
-  for (const t of activeThreadsRes.data ?? []) {
-    const helperId = t.helper_id
-    if (helperId) {
-      activeCountByHelper.set(helperId, (activeCountByHelper.get(helperId) ?? 0) + 1)
-    }
+  const topicsByMembership = new Map<string, string[]>()
+  for (const topic of topicRes.data ?? []) {
+    const topics = topicsByMembership.get(topic.organization_membership_id) ?? []
+    topics.push(topic.name)
+    topicsByMembership.set(topic.organization_membership_id, topics)
   }
   const friendIds = new Set(
     (friendsRes.data ?? []).map((f) =>
@@ -185,8 +161,7 @@ export async function searchAlumni(
     if (!membershipId) continue
     const op = orgProfileByMembership.get(membershipId)
     const pref = prefByMembership.get(membershipId)
-    const isOpenAsMentor = !!pref?.open_to_mentorship && !pref.paused_at
-    const isOpenAsAdviceHelper = !!pref?.open_to_advice && !pref.paused_at
+    const openToHelp = (pref?.open_to_help ?? true) && !pref?.paused_at
 
     // Career and education history may match the filter via past entries
     // even when the directory field doesn't. We use the *raw* JSONB here
@@ -198,9 +173,7 @@ export async function searchAlumni(
     const rawCareer = (base.career_history as CareerEntry[] | null) ?? []
     const rawEducation = (base.education_history as EducationEntry[] | null) ?? []
 
-    // "Open to help" filter (ADR 0011 Phase 2): either legacy flag counts
-    // until the Phase 6 column collapse.
-    if (f.openToMentor && !(isOpenAsMentor || isOpenAsAdviceHelper)) continue
+    if (f.openToHelp && !openToHelp) continue
     if (f.peopleIKnow && !friendIds.has(base.user_id)) continue
     if (f.gradYearMin && (op?.graduation_year ?? -Infinity) < f.gradYearMin) continue
     if (f.gradYearMax && (op?.graduation_year ?? Infinity) > f.gradYearMax) continue
@@ -227,7 +200,7 @@ export async function searchAlumni(
       if (!scopeMatch(scope, matchesCurrent, matchesPast)) continue
     }
     if (f.topic) {
-      const topics = (op?.mentoring_topics ?? []).map((t) => t.toLowerCase())
+      const topics = (topicsByMembership.get(membershipId) ?? []).map((t) => t.toLowerCase())
       if (!topics.some((t) => t.includes(ci(f.topic ?? '')))) continue
     }
     if (f.q) {
@@ -254,9 +227,9 @@ export async function searchAlumni(
     let score = 0
     const reasons: string[] = []
 
-    if (isOpenAsMentor) {
+    if (openToHelp) {
       score += 100
-      reasons.push('open to mentor')
+      reasons.push('open to help')
     }
     if (input.viewerUniversity && ci(base.university) === ci(input.viewerUniversity)) {
       score += 50
@@ -288,9 +261,11 @@ export async function searchAlumni(
     const showEducation = canSeeSection(candidatePrivacy, 'education_history', viewerKind)
     const showBio = canSeeSection(candidatePrivacy, 'bio', viewerKind)
     const showSkills = canSeeSection(candidatePrivacy, 'skills', viewerKind)
+    const showHelperTopics = canSeeSection(candidatePrivacy, 'helper_topics', viewerKind)
 
     hits.push({
       userId: base.user_id,
+      membershipId,
       name: base.name,
       preferredName: base.preferred_name,
       nameOther: base.name_other,
@@ -302,18 +277,13 @@ export async function searchAlumni(
       major: base.major,
       graduationYear: op?.graduation_year ?? null,
       avatarUrl: base.avatar_url,
-      isOpenAsMentor,
-      isOpenAsAdviceHelper,
-      mentorPaused: !!pref?.paused_at,
-      mentoringTopics: showBio ? (op?.mentoring_topics ?? null) : null,
+      openToHelp,
+      helpPaused: !!pref?.paused_at,
+      helperTopics: showHelperTopics ? (topicsByMembership.get(membershipId) ?? null) : null,
       bio: showBio ? (op?.bio ?? null) : null,
       careerHistory: showCareer ? (rawCareer.length > 0 ? rawCareer : null) : null,
       educationHistory: showEducation ? (rawEducation.length > 0 ? rawEducation : null) : null,
       skills: showSkills ? (base.skills ?? null) : null,
-      maxActiveMentees: pref?.max_active_mentees ?? 5,
-      maxPendingRequests: pref?.max_pending_requests ?? 10,
-      activeMenteeCount: activeCountByHelper.get(base.user_id) ?? 0,
-      pendingRequestCount: pendingCountByHelper.get(base.user_id) ?? 0,
       reason: reasons.slice(0, 2).join(' · ') || 'in your network',
       score,
     })

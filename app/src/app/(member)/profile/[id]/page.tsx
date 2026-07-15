@@ -1,21 +1,19 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { FreshnessReviewCard } from '@/components/profile-freshness-card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { StatusBadge } from '@/components/ui/status-badge'
 import { createAdminClient } from '@/db/admin'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getFriendshipState } from '@/lib/friendship/friendshipState'
 import { getProfile } from '@/lib/profile/getProfile'
-import { cn, displayName } from '@/lib/utils'
-import { FreshnessReviewCard } from '../../help-network-ui'
-import { startThreadAction } from '../../messages/[id]/actions'
+import { displayName } from '@/lib/utils'
 import { FriendshipAction } from './friendship-action'
 
 type Params = { id: string }
-type SearchParams = { saved?: string; error?: string }
+type SearchParams = { saved?: string }
 
 export default async function ProfileDetailPage({
   params,
@@ -32,20 +30,10 @@ export default async function ProfileDetailPage({
 
   if (!profile) notFound()
 
-  // Flash banners — driven by query params from sibling actions:
-  //   ?saved=1               → editProfileAction's success path
-  //   ?error=not_friends     → startThreadAction when DMs are gated by
-  //                            mutual friendship and the gate isn't met
+  // Flash banner driven by editProfileAction's ?saved=1 success path.
   const flashSaved = profile.isSelf && sp.saved === '1'
-  const flashNotFriends = sp.error === 'not_friends'
 
   const isSelf = profile.isSelf
-  const isFriend = profile.isFriend
-
-  // Ask state with this user (only meaningful when viewing someone else)
-  let mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active' = 'none'
-  let relatedRequestId: string | null = null
-  let relatedThreadId: string | null = null
 
   // Full friendship enum — needed for the CTA button which has more states
   // (pending_outgoing, pending_incoming) than the boolean profile.isFriend.
@@ -62,33 +50,10 @@ export default async function ProfileDetailPage({
           : friendship.kind === 'pending_incoming'
             ? 'pending_incoming'
             : 'none'
-
-  if (!isSelf) {
-    // Surface the most recent ask either direction (single type, ADR 0011).
-    const { data: req } = await supabase
-      .from('asks')
-      .select('id, helper_id, asker_id, status')
-      .or(
-        `and(helper_id.eq.${id},asker_id.eq.${session.userId}),and(helper_id.eq.${session.userId},asker_id.eq.${id})`,
-      )
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    if (req) {
-      relatedRequestId = req.id
-      if (req.status === 'pending') {
-        mentorshipState = req.helper_id === session.userId ? 'pending_incoming' : 'pending_outgoing'
-      } else if (req.status === 'accepted') {
-        mentorshipState = 'active'
-        const { data: thread } = await supabase
-          .from('ask_threads')
-          .select('id')
-          .eq('ask_id', req.id)
-          .maybeSingle()
-        relatedThreadId = thread?.id ?? null
-      }
-    }
-  }
+  const friendshipRequestId =
+    friendship.kind === 'pending_outgoing' || friendship.kind === 'pending_incoming'
+      ? friendship.requestId
+      : null
 
   // Fetch viewer friendships (restricted by RLS to viewer's own rows)
   const { data: viewerFriendships } = await supabase
@@ -220,14 +185,6 @@ export default async function ProfileDetailPage({
           Profile saved.
         </div>
       ) : null}
-      {flashNotFriends ? (
-        <div className="mb-6 rounded-md border border-accent-ochre/25 bg-accent-ochre/10 px-4 py-3 text-sm text-foreground">
-          Direct messages are open to friends only. Add{' '}
-          <span className="font-medium">{profile.name ?? 'this member'}</span> as a friend first to
-          start a conversation.
-        </div>
-      ) : null}
-
       <Card className="mb-6 border-border bg-card p-6 shadow-card md:p-8">
         <div className="space-y-4">
           {/* Top Badges
@@ -250,15 +207,6 @@ export default async function ProfileDetailPage({
                 </svg>
                 Verified &apos;{`${profile.graduationYear}`.slice(-2)}
               </span>
-            ) : null}
-            {profile.isOpenAsMentor || profile.isOpenAsAdviceHelper ? (
-              <StatusBadge tone="open" dot>
-                Open to help
-              </StatusBadge>
-            ) : profile.mentorPaused ? (
-              <StatusBadge tone="warn" dot>
-                Paused
-              </StatusBadge>
             ) : null}
           </div>
 
@@ -434,63 +382,6 @@ export default async function ProfileDetailPage({
             </Card>
           ) : null}
 
-          {/* Open To Grids */}
-          <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
-            <div className="mb-4">
-              <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
-                Open to
-              </span>
-            </div>
-            <div
-              className={cn(
-                'p-4 rounded-md border transition-colors',
-                profile.isOpenAsMentor || profile.isOpenAsAdviceHelper
-                  ? 'border-border bg-card text-foreground'
-                  : 'border-border/50 bg-muted/30 text-muted-foreground opacity-75',
-              )}
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                <span
-                  className={cn(
-                    'size-2 rounded-full',
-                    profile.isOpenAsMentor || profile.isOpenAsAdviceHelper
-                      ? 'bg-accent-sage'
-                      : 'bg-muted-foreground/60',
-                  )}
-                />
-                <span className="text-sm font-semibold">Helping</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {profile.isOpenAsMentor || profile.isOpenAsAdviceHelper
-                  ? 'Open to asks'
-                  : profile.mentorPaused
-                    ? 'Paused while away'
-                    : 'Not taking asks right now'}
-              </p>
-            </div>
-          </Card>
-
-          {/* Mentoring Topics */}
-          {profile.mentoringTopics && profile.mentoringTopics.length > 0 ? (
-            <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
-              <div className="mb-4">
-                <span className="text-xs font-semibold uppercase tracking-label text-muted-foreground">
-                  Help topics
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.mentoringTopics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="font-mono text-xs uppercase tracking-wider text-foreground border border-border bg-card px-2.5 py-1 rounded-sm"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            </Card>
-          ) : null}
-
           {/* Skills */}
           {profile.skills && profile.skills.length > 0 ? (
             <Card className="rounded-md border border-border bg-card p-6 md:p-8 shadow-card">
@@ -550,24 +441,12 @@ export default async function ProfileDetailPage({
                 </Button>
               ) : (
                 <>
-                  <HelperAsks
+                  <HelperAsks profileMembershipId={profile.membershipId} />
+                  <FriendshipAction
                     profileUserId={profile.userId}
-                    isOpenAsMentor={profile.isOpenAsMentor}
-                    isOpenAsAdviceHelper={profile.isOpenAsAdviceHelper}
-                    mentorshipAtCapacity={profile.mentorshipAtCapacity}
-                    mentorshipState={mentorshipState}
-                    relatedRequestId={relatedRequestId}
-                    relatedThreadId={relatedThreadId}
+                    requestId={friendshipRequestId}
+                    state={friendshipActionKind}
                   />
-                  <FriendshipAction profileUserId={profile.userId} state={friendshipActionKind} />
-                  {isFriend ? (
-                    <form action={startThreadAction} className="w-full">
-                      <input type="hidden" name="receiverId" value={profile.userId} />
-                      <Button type="submit" variant="outline" className="w-full">
-                        Message
-                      </Button>
-                    </form>
-                  ) : null}
                 </>
               )}
             </div>
@@ -753,60 +632,10 @@ function NumberedField({
 /**
  * Helper-asks CTA cluster on the profile detail page.
  */
-function HelperAsks({
-  profileUserId,
-  isOpenAsMentor,
-  isOpenAsAdviceHelper,
-  mentorshipAtCapacity,
-  mentorshipState,
-  relatedRequestId,
-  relatedThreadId,
-}: {
-  profileUserId: string
-  isOpenAsMentor: boolean
-  isOpenAsAdviceHelper: boolean
-  mentorshipAtCapacity: boolean
-  mentorshipState: 'none' | 'pending_outgoing' | 'pending_incoming' | 'active'
-  relatedRequestId: string | null
-  relatedThreadId: string | null
-}) {
-  if (mentorshipState === 'active' && relatedThreadId) {
-    return (
-      <Button asChild variant="offer" className="w-full">
-        <Link href={`/ask/thread/${relatedThreadId}`}>Open your conversation</Link>
-      </Button>
-    )
-  }
-  if (mentorshipState === 'pending_outgoing' && relatedRequestId) {
-    return (
-      <Button asChild variant="outline" className="w-full">
-        <Link href={`/ask/${relatedRequestId}`}>Ask pending — view</Link>
-      </Button>
-    )
-  }
-  if (mentorshipState === 'pending_incoming' && relatedRequestId) {
-    return (
-      <Button asChild variant="offer" className="w-full">
-        <Link href={`/ask/${relatedRequestId}`}>Review their ask</Link>
-      </Button>
-    )
-  }
-
-  if (!isOpenAsMentor && !isOpenAsAdviceHelper) {
-    return (
-      <Button variant="outline" disabled className="w-full">
-        Not taking asks right now
-      </Button>
-    )
-  }
-
-  // One front door (ADR 0011 Phase 2): a single ask CTA, no type fork.
-  // mentorshipAtCapacity is unused since the active-cap check left
-  // createAsk; the prop stays until getProfile drops it in Phase 6.
-  void mentorshipAtCapacity
+function HelperAsks({ profileMembershipId }: { profileMembershipId: string }) {
   return (
     <Button asChild variant="cta" className="w-full">
-      <Link href={`/ask/new?to=${profileUserId}`}>Ask for help</Link>
+      <Link href={`/help/ask/${profileMembershipId}`}>Ask for help</Link>
     </Button>
   )
 }

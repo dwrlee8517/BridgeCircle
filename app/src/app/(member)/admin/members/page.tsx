@@ -51,7 +51,7 @@ export default async function AdminMembersPage() {
     active: members.filter((m) => m.status === 'active').length,
     pending: members.filter((m) => m.status === 'pending').length,
     revoked: members.filter((m) => m.status === 'revoked').length,
-    mentors: members.filter((m) => m.isOpenAsMentor).length,
+    helpers: members.filter((m) => m.isOpenToHelp).length,
   }
 
   return (
@@ -93,7 +93,7 @@ export default async function AdminMembersPage() {
               {counts.revoked > 0 ? (
                 <Badge variant="destructive">{counts.revoked} revoked</Badge>
               ) : null}
-              <Badge variant="outline">{counts.mentors} open to helping</Badge>
+              <Badge variant="outline">{counts.helpers} open to helping</Badge>
             </div>
           </div>
         </CardHeader>
@@ -132,7 +132,7 @@ export default async function AdminMembersPage() {
                               <span className="italic text-muted-foreground">(no name)</span>
                             )}
                           </Link>
-                          {m.isOpenAsMentor ? (
+                          {m.isOpenToHelp ? (
                             <Pill tone="open" className="ml-2 align-middle text-xs" dot>
                               helper
                             </Pill>

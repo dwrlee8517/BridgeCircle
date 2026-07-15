@@ -94,7 +94,7 @@ export async function saveOnboardingHelp(
 
   const linkedinUrl =
     current.profile.preferences.freshness.linkedinUrl ?? current.profile.current.linkedinUrl
-  const topics = (input.mentoringTopics ?? '')
+  const topics = (input.helperTopics ?? '')
     .split(',')
     .map((topic) => topic.trim())
     .filter(Boolean)
@@ -102,7 +102,7 @@ export async function saveOnboardingHelp(
   return mapCommandResult(
     await repository.savePreferences(membershipId, {
       bio: input.bio ?? null,
-      openToHelp: input.openToMentor,
+      openToHelp: input.openToHelp,
       topics,
       linkedinUrl,
       refreshPolicy: input.freshnessPolicy,

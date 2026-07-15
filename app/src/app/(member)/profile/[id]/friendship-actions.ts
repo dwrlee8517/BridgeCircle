@@ -12,16 +12,8 @@ import { sendFriendRequestAcceptedEmail, sendFriendRequestEmail } from '@/notify
 
 export type FriendActionState = { ok: boolean; message: string }
 
-/**
- * Send a friend request — invoked from the profile page button. The
- * receiverId is required; an optional message is supported but the v1
- * UI doesn't expose it.
- *
- * After Friends folded into People, the email's "review" link points
- * recipients at /inbox where pending requests now live.
- */
 export async function sendFriendRequestAction(
-  _prev: FriendActionState | null,
+  _previous: FriendActionState | null,
   formData: FormData,
 ): Promise<FriendActionState> {
   const session = await requireSession()
@@ -29,13 +21,10 @@ export async function sendFriendRequestAction(
     receiverId: formData.get('receiverId'),
     message: formData.get('message') ?? undefined,
   })
-  if (!parsed.success) {
-    return { ok: false, message: 'Invalid request' }
-  }
+  if (!parsed.success) return { ok: false, message: 'Invalid request' }
 
   const supabase = await createClient()
   const origin = await getAppOrigin()
-
   const result = await sendFriendRequest(
     {
       db: supabase,
@@ -46,7 +35,7 @@ export async function sendFriendRequestAction(
         await sendFriendRequestEmail({
           to: email,
           senderName: senderName ?? 'A fellow alumnus',
-          reviewUrl: `${origin}/inbox`,
+          reviewUrl: `${origin}/profile/${session.userId}`,
           message: parsed.data.message,
         })
       },
@@ -60,26 +49,22 @@ export async function sendFriendRequestAction(
       result.error === 'already_friends'
         ? "You're already friends."
         : result.error === 'request_exists'
-          ? 'A friend request is already pending between you.'
+          ? 'A connection request is already pending between you.'
           : result.error === 'self_request'
-            ? "You can't friend yourself."
+            ? "You can't connect with yourself."
             : result.error === 'cross_org'
-              ? 'You can only friend members of your organization.'
-              : 'Could not send friend request.'
+              ? 'You can only connect with members of your circle.'
+              : 'Could not send the connection request.'
     return { ok: false, message }
   }
 
-  revalidatePath('/inbox')
   revalidatePath(`/profile/${parsed.data.receiverId}`)
-  return { ok: true, message: 'Friend request sent.' }
+  revalidatePath('/notifications')
+  return { ok: true, message: 'Connection request sent.' }
 }
 
-/**
- * Accept or decline an incoming friend request. Invoked from the
- * /inbox Friend requests section.
- */
 export async function respondToFriendRequestAction(
-  _prev: FriendActionState | null,
+  _previous: FriendActionState | null,
   formData: FormData,
 ): Promise<FriendActionState> {
   const session = await requireSession()
@@ -87,14 +72,11 @@ export async function respondToFriendRequestAction(
     requestId: formData.get('requestId'),
     response: formData.get('response'),
   })
-  if (!parsed.success) {
-    return { ok: false, message: 'Invalid response' }
-  }
+  if (!parsed.success) return { ok: false, message: 'Invalid response' }
 
   const supabase = await createClient()
   const admin = createAdminClient()
   const origin = await getAppOrigin()
-
   const result = await respondToFriendRequest(
     {
       db: supabase,
@@ -119,16 +101,17 @@ export async function respondToFriendRequestAction(
       result.error === 'not_found'
         ? 'That request no longer exists.'
         : result.error === 'not_pending'
-          ? 'That request was already responded to.'
+          ? 'That request was already answered.'
           : result.error === 'not_receiver'
-            ? "That request isn't yours to respond to."
+            ? "That request isn't yours to answer."
             : 'Could not record your response.'
     return { ok: false, message }
   }
 
-  revalidatePath('/inbox')
+  revalidatePath('/people')
+  revalidatePath('/notifications')
   return {
     ok: true,
-    message: result.outcome === 'accepted' ? "You're now friends." : 'Request declined.',
+    message: result.outcome === 'accepted' ? "You're now connected." : 'Request declined.',
   }
 }

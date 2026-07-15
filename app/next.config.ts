@@ -16,66 +16,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '6mb',
     },
   },
-  // Legacy route redirects. Permanent (308) so stale email links and
-  // bookmarks route users to the renamed pages.
-  async redirects() {
-    return [
-      {
-        source: '/mentorship/request/new',
-        destination: '/ask/new',
-        permanent: true,
-      },
-      {
-        source: '/mentorship/request/:id',
-        destination: '/ask/:id',
-        permanent: true,
-      },
-      {
-        source: '/mentorship/thread/:id',
-        destination: '/ask/thread/:id',
-        permanent: true,
-      },
-      // Helper availability moved out of the mentorship vocabulary
-      // entirely (ADR 0011 Phase 1): settings now live beside the
-      // supply-side surface at /help/settings.
-      {
-        source: '/mentorship/settings',
-        destination: '/help/settings',
-        permanent: true,
-      },
-      // /search and /discover now fold into /people, the canonical
-      // directory and request-start surface.
-      {
-        source: '/search',
-        destination: '/people',
-        permanent: true,
-      },
-      {
-        source: '/discover',
-        destination: '/people',
-        permanent: true,
-      },
-      // /friends folded into /people (with a "People I know" filter)
-      // and /inbox (where incoming requests now live). The 308 here
-      // catches stale email links and bookmarks; we send root /friends
-      // to People with the filter pre-applied so the user lands on
-      // their friends list, the closest analog to the old page.
-      {
-        source: '/friends',
-        destination: '/people?peopleIKnow=on',
-        permanent: true,
-      },
-      // /messages list page folded into /inbox — the inbox now shows
-      // DM threads alongside asks and friend requests. /messages/:id
-      // (the conversation viewer) keeps working; only the root list
-      // URL redirects.
-      {
-        source: '/messages',
-        destination: '/inbox',
-        permanent: true,
-      },
-    ]
-  },
 }
 
 export default withSentryConfig(nextConfig, {

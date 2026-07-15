@@ -136,9 +136,9 @@ Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway veri
 | `RESEND_API_KEY` | Resend API key | `re_…` |
 | `RESEND_FROM` | Sender address used by every Resend send. Set 2026-04-29 to `BridgeCircle <noreply@bridgecircle.org>`. Defaults to `BridgeCircle <invites@bridgecircle.org>` if unset. | `BridgeCircle <noreply@bridgecircle.org>` |
 | `ANTHROPIC_API_KEY` | Claude Haiku key for resume extraction + current NL search extraction/rerank | `sk-ant-…` |
-| `VOYAGE_API_KEY` | Voyage key for Ask matching embeddings and reranking when `ASK_MATCHING_PIPELINE=voyage_hybrid` | `pa-…` |
-| `ASK_MATCHING_PIPELINE` | Ask matching mode. Keep `legacy` until migration, backfill, and E2E verification pass; set `voyage_hybrid` for the new path. | `legacy` |
-| `ASK_MATCHING_EXPLANATIONS` | Ask explanation mode. Use `templated` by default; `haiku_polish` only polishes final matches. | `templated` |
+| `VOYAGE_API_KEY` | Voyage key for v2 Help retrieval/reranking and profile indexing | `pa-…` |
+| `ASK_MATCHING_PIPELINE` | Temporary unported-People search switch; not used by v2 Help | `legacy` |
+| `ASK_MATCHING_EXPLANATIONS` | Temporary unported-People explanation switch; not used by v2 Help | `templated` |
 | `NEXT_PUBLIC_APP_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
 | `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
 | `OUTBOX_BATCH_SIZE` | Optional Help worker claim size; defaults to `20`, bounded `1–100`. | `20` |
@@ -208,10 +208,9 @@ environment; they are not remote deployment commands.
 **Voyage**
 - Separate API key from Anthropic. Anthropic recommends Voyage for embeddings, but
   Voyage calls authenticate against Voyage with `VOYAGE_API_KEY`.
-- Used by `ASK_MATCHING_PIPELINE=voyage_hybrid` for `voyage-4` embeddings and
-  `rerank-2.5-lite`.
-- Keep the production flag at `legacy` until the additive migration, profile
-  embedding backfill, and Ask/People verification pass.
+- Used by the bounded v2 Help provider adapter for embeddings and reranking.
+- The older `ASK_MATCHING_PIPELINE` switch remains only until the People search
+  domain is ported; do not route v2 Help through it.
 
 ### GitHub repository
 

@@ -4,6 +4,14 @@ import { createAdminClient } from "../../../src/db/admin";
 import type { Database } from "../../../src/db/database.types";
 import { loadE2eEnv } from "./env";
 
+export type FoundationMember = {
+  userId: string;
+  membershipId: string;
+  email: string;
+  password: string;
+  name: string;
+};
+
 export class FoundationScenario {
   readonly admin: ReturnType<typeof createAdminClient>;
   readonly password = "foundation-suite-password-1";
@@ -101,6 +109,66 @@ export class FoundationScenario {
     });
     if (roleError) throw new Error(`createAdministrator role: ${roleError.message}`);
     return { email };
+  }
+
+  async createMember(
+    organizationId: string,
+    label = "Member",
+  ): Promise<FoundationMember> {
+    const suffix = crypto.randomBytes(5).toString("hex");
+    const email = `foundation-member+${suffix}@example.com`;
+    const name = `Foundation ${label}`;
+    const { data, error } = await this.admin.auth.admin.createUser({
+      email,
+      password: this.password,
+      email_confirm: true,
+      user_metadata: { full_name: name },
+    });
+    if (error || !data.user) throw new Error(`createMember: ${error?.message}`);
+    this.createdUserIds.push(data.user.id);
+
+    const { error: userError } = await this.admin
+      .from("users")
+      .update({ onboarding_completed_at: new Date().toISOString() })
+      .eq("id", data.user.id);
+    if (userError) throw new Error(`createMember user: ${userError.message}`);
+
+    const { data: membership, error: membershipError } = await this.admin
+      .from("organization_memberships")
+      .insert({
+        user_id: data.user.id,
+        organization_id: organizationId,
+        status: "active",
+        joined_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    if (membershipError) throw new Error(`createMember membership: ${membershipError.message}`);
+
+    const { error: profileError } = await this.admin.from("profiles").upsert({
+      user_id: data.user.id,
+      display_name: name,
+    });
+    if (profileError) throw new Error(`createMember profile: ${profileError.message}`);
+
+    const { error: organizationProfileError } = await this.admin
+      .from("organization_profiles")
+      .insert({
+        organization_id: organizationId,
+        organization_membership_id: membership.id,
+        graduation_year: 2018,
+      });
+    if (organizationProfileError) {
+      throw new Error(`createMember organization profile: ${organizationProfileError.message}`);
+    }
+
+    return {
+      userId: data.user.id,
+      membershipId: membership.id,
+      email,
+      password: this.password,
+      name,
+    };
   }
 
   async approveMembership(email: string, password: string, membershipId: string) {

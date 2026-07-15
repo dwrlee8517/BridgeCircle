@@ -16,7 +16,7 @@ export default async function PeoplePage({
   searchParams: Promise<RawSearchParams>
 }) {
   const params = await searchParams
-  const results = await getMemberSearchResults(params, { surface: 'people' })
+  const results = await getMemberSearchResults(params)
 
   if (!results) return null
 
@@ -50,6 +50,7 @@ export default async function PeoplePage({
                   <ResultCard
                     key={h.userId}
                     userId={h.userId}
+                    membershipId={h.membershipId}
                     name={h.name}
                     preferredName={h.preferredName}
                     headline={h.headline}
@@ -60,18 +61,13 @@ export default async function PeoplePage({
                     major={h.major}
                     graduationYear={h.graduationYear}
                     avatarUrl={h.avatarUrl}
-                    isOpenAsMentor={h.isOpenAsMentor}
-                    isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
-                    mentorPaused={h.mentorPaused}
-                    mentoringTopics={h.mentoringTopics}
+                    openToHelp={h.openToHelp}
+                    helpPaused={h.helpPaused}
+                    helperTopics={h.helperTopics}
                     isFriend={results.friendIds.has(h.userId)}
                     rationale={h.rationale}
                     rerankScore={h.rerankScore}
                     topCareerEntry={pickTopCareerEntry(h.careerHistory)}
-                    maxActiveMentees={h.maxActiveMentees}
-                    maxPendingRequests={h.maxPendingRequests}
-                    activeMenteeCount={h.activeMenteeCount}
-                    pendingRequestCount={h.pendingRequestCount}
                   />
                 ))}
               </ResultGrid>
@@ -93,6 +89,7 @@ export default async function PeoplePage({
                     <ResultCard
                       key={h.userId}
                       userId={h.userId}
+                      membershipId={h.membershipId}
                       name={h.name}
                       preferredName={h.preferredName}
                       headline={h.headline}
@@ -103,18 +100,13 @@ export default async function PeoplePage({
                       major={h.major}
                       graduationYear={h.graduationYear}
                       avatarUrl={h.avatarUrl}
-                      isOpenAsMentor={h.isOpenAsMentor}
-                      isOpenAsAdviceHelper={h.isOpenAsAdviceHelper}
-                      mentorPaused={h.mentorPaused}
-                      mentoringTopics={h.mentoringTopics}
+                      openToHelp={h.openToHelp}
+                      helpPaused={h.helpPaused}
+                      helperTopics={h.helperTopics}
                       isFriend={results.friendIds.has(h.userId)}
                       rationale={null}
                       rerankScore={null}
                       topCareerEntry={null}
-                      maxActiveMentees={h.maxActiveMentees}
-                      maxPendingRequests={h.maxPendingRequests}
-                      activeMenteeCount={h.activeMenteeCount}
-                      pendingRequestCount={h.pendingRequestCount}
                     />
                   ))}
                 </ResultGrid>
@@ -215,7 +207,7 @@ function PeoplePagination({
           return (
             <Link
               key={page}
-              href={memberSearchPageHref('/people', params, page)}
+              href={memberSearchPageHref(params, page)}
               aria-current={isCurrent ? 'page' : undefined}
               className={
                 isCurrent

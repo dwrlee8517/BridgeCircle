@@ -16,7 +16,7 @@ The project has these configs, all under the `dev` environment except staging an
 
 - **`dev`** — root config. The team-shared dev secret values. Whenever a new shared dev secret is added (e.g. a new third-party API key for local development), it goes here. Real Supabase (cloud dev project) and real third-party keys. This is the config the CI/CD pipeline reads for the dev stage.
 - **`dev_personal`** — branch off `dev`. Each developer overrides values here for personal local development without affecting the team's `dev`. Talks to the **real** dev Supabase and real services. This is the config your repo binding should point to for `doppler run -- pnpm dev`.
-- **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty `ANTHROPIC_API_KEY`, `ASK_MATCHING_PIPELINE=legacy`) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
+- **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty AI-provider keys) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
 - **`dev_local_live`** — branch off `dev`. Local Supabase like `dev_local`, but **real** Anthropic/Voyage **and real Resend** (safe because the [non-prod email guard](#the-non-prod-email-guard) redirects everything not allowlisted to a sink) — so you can develop AI and email features against a wipeable local DB. Used by `pnpm dev:local:live`. See "Local dev against real services" below. Not read by CI or the pipeline.
 - **`stg`** — staging. Root config, **currently unused** — there is no staging environment on Railway (the pipeline goes dev → prod). Kept as a placeholder for a future staging tier.
 - **`prd`** — production. Root config. Syncs to the Railway `production` environment; read by the CD pipeline's promote job.
@@ -82,7 +82,7 @@ Anything that needs the application's env vars goes through `doppler run`:
 ```bash
 doppler run -- pnpm dev               # Next.js dev server
 doppler run -- pnpm build             # production build with prod-style env
-doppler run -- pnpm exec tsx scripts/seed-dev.ts   # ad-hoc scripts
+doppler run -- pnpm worker:outbox -- --once        # one local worker batch
 doppler run -- pnpm test:e2e          # E2E tests against the dev DB
 ```
 
@@ -96,9 +96,10 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — anon key for client-side Supabase calls
 - `SUPABASE_SECRET_KEY` — service-role key for server-side Supabase calls (RLS-bypassing)
 - `ANTHROPIC_API_KEY` — for the AI-powered features
-- `VOYAGE_API_KEY` — for Voyage Ask matching embeddings and reranking when `ASK_MATCHING_PIPELINE=voyage_hybrid`
-- `ASK_MATCHING_PIPELINE` — Ask matching mode; defaults to `legacy` until the Voyage hybrid path is verified
-- `ASK_MATCHING_EXPLANATIONS` — Ask explanation mode; defaults to `templated`
+- `VOYAGE_API_KEY` — v2 Help embeddings/reranking and profile indexing
+- `ASK_MATCHING_PIPELINE` / `ASK_MATCHING_EXPLANATIONS` — temporary settings
+  used only by the still-unported People search implementation; v2 Help does
+  not branch on them
 - `RESEND_API_KEY` — for transactional email
 - `SENTRY_AUTH_TOKEN` — for source-map upload during build
 - `OUTBOX_BATCH_SIZE`, `OUTBOX_CONCURRENCY`, `OUTBOX_HANDLER_TIMEOUT_MS`, and
@@ -272,5 +273,5 @@ Either the explicit `NODE_ENV=development` secret was removed from your `dev_per
 ## Related Documentation
 
 - [Environments and dev/prod separation](../architecture/environments.md) — which Supabase project each Doppler config talks to and the rules around prod safety.
-- [Dev seeding](seed-dev.md) — the seed script reads its env vars via `doppler run` too.
+- [Development seeding](seed-dev.md) — the local v2 SQL seed is applied by `pnpm db:reset` and does not need remote secrets.
 - [E2E testing](e2e-testing.md) — Playwright runs the dev server through Doppler.

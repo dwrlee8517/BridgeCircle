@@ -16,7 +16,7 @@ export type SearchFormDefaults = {
   topic: string
   gradYearMin: string
   gradYearMax: string
-  openToMentor: boolean
+  openToHelp: boolean
   peopleIKnow: boolean
 }
 
@@ -113,7 +113,7 @@ export function SearchForm({
     onSearch(buildParamsFromForm(form))
   }
 
-  const toggleFlag = (key: 'openToMentor' | 'peopleIKnow') => {
+  const toggleFlag = (key: 'openToHelp' | 'peopleIKnow') => {
     const form = formRef.current
     const input = form?.querySelector(`[name="${key}"]`) as HTMLInputElement | null
     if (!form || !input) return
@@ -158,7 +158,7 @@ export function SearchForm({
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className="min-h-full">
-      <input type="hidden" name="openToMentor" defaultValue={defaults.openToMentor ? 'on' : ''} />
+      <input type="hidden" name="openToHelp" defaultValue={defaults.openToHelp ? 'on' : ''} />
       <input type="hidden" name="peopleIKnow" defaultValue={defaults.peopleIKnow ? 'on' : ''} />
 
       <div className="border-b border-border bg-background">
@@ -267,9 +267,9 @@ export function SearchForm({
               <FilterRow
                 label="Open to help"
                 count={openCount}
-                active={defaults.openToMentor}
+                active={defaults.openToHelp}
                 dotClassName="bg-accent-sage"
-                onClick={() => toggleFlag('openToMentor')}
+                onClick={() => toggleFlag('openToHelp')}
               />
               <FilterRow
                 label="People I know"
@@ -589,7 +589,7 @@ function buildActiveFilters(defaults: SearchFormDefaults): ActiveFilterItem[] {
         }
       : null,
     defaults.q ? { key: 'q', label: 'keyword', value: defaults.q } : null,
-    defaults.openToMentor ? { key: 'openToMentor', label: 'open to help', value: 'yes' } : null,
+    defaults.openToHelp ? { key: 'openToHelp', label: 'open to help', value: 'yes' } : null,
     defaults.peopleIKnow ? { key: 'peopleIKnow', label: 'my circle', value: 'yes' } : null,
   ]
   return filters.filter((filter): filter is ActiveFilterItem => filter !== null)

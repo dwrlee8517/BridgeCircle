@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { AvatarUploader } from '@/components/avatar-uploader'
 import { ProfileForm } from '@/components/profile-form'
+import { FreshnessReviewCard } from '@/components/profile-freshness-card'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getProfile } from '@/lib/profile/getProfile'
-import { FreshnessReviewCard } from '../../help-network-ui'
 import { editProfileAction, refreshFromLinkedInAction } from './actions'
 import { DangerZone } from './danger-zone'
 import { PrivacyForm } from './privacy-form'
@@ -114,8 +114,6 @@ export default async function EditProfilePage({
               avatarUrl: profile.avatarUrl ?? '',
               graduationYear: profile.graduationYear?.toString() ?? '',
               bio: profile.bio ?? '',
-              mentoringTopics: profile.mentoringTopics?.join(', ') ?? '',
-              openToMentor: profile.openToMentor,
               skills: profile.skills ?? [],
               careerHistory: (profile.careerHistory ?? []).map((e) => ({
                 employer: e.employer,

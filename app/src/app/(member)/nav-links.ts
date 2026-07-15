@@ -9,13 +9,10 @@
 
 export const MEMBER_NAV_LINKS = [
   { href: '/', label: 'Home', match: ['/'] },
-  // Help owns both asking and giving, plus every ask detail/composer route.
-  { href: '/help', label: 'Help', match: ['/help', '/ask'] },
-  { href: '/people', label: 'People', match: ['/people', '/discover', '/profile', '/friends'] },
-  // Messages (route still /inbox) absorbs direct messages — the /messages
-  // list page redirects here. Every conversation converges here per ADR
-  // 0011; the route itself is renamed in a later phase.
-  { href: '/inbox', label: 'Messages', match: ['/inbox', '/messages'] },
+  // Help owns both asking and giving, plus every Ask detail/composer route.
+  { href: '/help', label: 'Help', match: ['/help'] },
+  { href: '/people', label: 'People', match: ['/people', '/profile'] },
+  { href: '/messages', label: 'Messages', match: ['/messages'] },
   { href: '/school', label: 'School', match: ['/school', '/events', '/announcements'] },
   // /announcements no longer has a top-nav slot — they're low-frequency
   // admin posts. The home page surfaces the latest one as a banner;

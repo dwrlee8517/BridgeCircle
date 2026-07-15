@@ -7,6 +7,7 @@ describe('candidateRerankDocument', () => {
   it('uses visible raw/profile evidence and omits synthetic passages', () => {
     const hit: SearchHit = {
       userId: 'user-1',
+      membershipId: 'membership-1',
       name: 'Jamie Kim',
       preferredName: null,
       nameOther: null,
@@ -18,19 +19,14 @@ describe('candidateRerankDocument', () => {
       major: null,
       graduationYear: null,
       avatarUrl: null,
-      isOpenAsMentor: true,
-      isOpenAsAdviceHelper: true,
-      mentorPaused: false,
-      mentoringTopics: ['Product management'],
-      maxActiveMentees: 5,
-      maxPendingRequests: 10,
-      activeMenteeCount: 0,
-      pendingRequestCount: 0,
+      openToHelp: true,
+      helpPaused: false,
+      helperTopics: ['Product management'],
       bio: null,
       careerHistory: null,
       educationHistory: null,
       skills: null,
-      reason: 'open to mentor',
+      reason: 'open to help',
       score: 100,
     }
     const candidate: HybridCandidate = {

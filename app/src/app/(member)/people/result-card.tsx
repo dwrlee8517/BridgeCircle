@@ -10,10 +10,11 @@ import {
   TopicChips,
 } from '@/components/ui/person-card'
 import { StatusBadge, type StatusBadgeProps } from '@/components/ui/status-badge'
-import { askComposeHref, classYearShort, displayName, isOpenToHelp } from '@/lib/utils'
+import { classYearShort, directHelpHref, displayName } from '@/lib/utils'
 
 export type ResultCardProps = {
   userId: string
+  membershipId: string
   name: string | null
   preferredName: string | null
   headline: string | null
@@ -24,19 +25,14 @@ export type ResultCardProps = {
   major: string | null
   graduationYear: number | null
   avatarUrl: string | null
-  isOpenAsMentor: boolean
-  isOpenAsAdviceHelper: boolean
-  mentorPaused: boolean
-  mentoringTopics: string[] | null
+  openToHelp: boolean
+  helpPaused: boolean
+  helperTopics: string[] | null
   isFriend: boolean
   rationale: string | null
   rerankScore: number | null
   topCareerEntry: { employer: string; title: string; dates: string } | null
   density?: 'comfortable' | 'compact'
-  maxActiveMentees?: number
-  maxPendingRequests?: number
-  activeMenteeCount?: number
-  pendingRequestCount?: number
 }
 
 export function ResultCard(props: ResultCardProps) {
@@ -44,12 +40,12 @@ export function ResultCard(props: ResultCardProps) {
   const firstName = getActionName(display)
   const yearShort = classYearShort(props.graduationYear)
   const status = getStatus(props)
-  const canAsk = isOpenToHelp(props)
+  const canAsk = props.openToHelp
   // System rationale renders as plain text; only the member's own headline
   // earns the pull-quote treatment.
   const systemRationale = props.rationale
   const humanHeadline = !props.rationale ? props.headline : null
-  const topics = props.mentoringTopics?.slice(0, 3) ?? []
+  const topics = props.helperTopics?.slice(0, 3) ?? []
 
   return (
     <Card
@@ -125,7 +121,7 @@ export function ResultCard(props: ResultCardProps) {
             </Button>
             {canAsk ? (
               <Button asChild variant="default" size="sm" className="h-8 rounded-md px-3 text-xs">
-                <Link href={askComposeHref(props.userId)}>Ask {firstName}</Link>
+                <Link href={directHelpHref(props.membershipId)}>Ask {firstName}</Link>
               </Button>
             ) : null}
           </div>
@@ -140,8 +136,8 @@ function getStatus(props: ResultCardProps): {
   tone: NonNullable<StatusBadgeProps['tone']>
   dot: boolean
 } {
-  if (isOpenToHelp(props)) return { label: 'Open to help', tone: 'open', dot: true }
-  if (props.mentorPaused) return { label: 'Paused', tone: 'warn', dot: true }
+  if (props.openToHelp) return { label: 'Open to help', tone: 'open', dot: true }
+  if (props.helpPaused) return { label: 'Paused', tone: 'warn', dot: true }
   return { label: 'Not open now', tone: 'muted', dot: false }
 }
 

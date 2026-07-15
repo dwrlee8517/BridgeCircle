@@ -100,7 +100,7 @@ export async function searchAlumniNLLegacy(
     topic: userExtra.topic,
     gradYearMin: userExtra.gradYearMin ?? llmFilters.gradYearMin ?? undefined,
     gradYearMax: userExtra.gradYearMax ?? llmFilters.gradYearMax ?? undefined,
-    openToMentor: userExtra.openToMentor ?? (llmFilters.mentorOpen === true ? true : undefined),
+    openToHelp: userExtra.openToHelp ?? (llmFilters.mentorOpen === true ? true : undefined),
     // peopleIKnow is a viewer-side restriction — the LLM has no way to
     // express "people the asker knows," so this passes through from the
     // form toggle only.
@@ -160,7 +160,7 @@ export async function searchAlumniNLLegacy(
     major: h.major,
     graduationYear: h.graduationYear,
     bio: h.bio,
-    mentoringTopics: h.mentoringTopics,
+    mentoringTopics: h.helperTopics,
     careerHistory: h.careerHistory,
     educationHistory: h.educationHistory,
     skills: h.skills,

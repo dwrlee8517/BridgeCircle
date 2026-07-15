@@ -1,6 +1,6 @@
 # Database v2 Help vertical-slice test inventory
 
-- **Status:** approved — Milestones 1–7 green locally; Milestone 8 is next
+- **Status:** Milestones 1–8 green locally; Milestone 9 remote-cutover preparation is next
 - **Plan:** [Help vertical-slice implementation plan](database-v2-help-plan.md)
 - **Starting checkpoint:** Conversation Primitive `4a07b47`
 - **Rule:** a milestone cannot proceed while its owned verification is red
@@ -124,6 +124,33 @@ The browser road used only seeded local accounts and the disposable local
 database. No remote project, worker, provider, secret, merge, or deployment was
 changed. The full three-column Messages inbox remains a separate domain slice;
 Milestone 7 owns only the accepted-Ask thread seam required to complete Help.
+
+## Milestone 8 domain-cutover evidence — 2026-07-15
+
+| Gate | Result |
+|---|---|
+| destructive route/module cutover | green: retired Ask/Inbox routes, draft API, Help/DM modules, debug/sweep/remote-seed scripts, and obsolete Ask E2E removed |
+| permanent cutover ratchet | green: production source has no retired URL/import or redirect; canonical navigation is `/help` + `/messages` |
+| Help compiler/boundaries | green: focused compiler, domain boundary, and cutover checks; zero Help-owned errors |
+| repository application gates | Biome 430 files green; ESLint green; Vitest 47 files/214 tests green |
+| global TypeScript inventory | 690 errors across 75 later-port files, down from 1,239/97; all remain outside Help in People/Profile/Admin/School/enrichment and old test inventory |
+| database | green: 10 pgTAP files/379 assertions |
+| stateful Help | green: concurrency, worker durability, maintenance, Realtime, and query plans |
+| inherited Conversation | green: concurrency, Realtime, and query plans |
+| Help settings E2E | green: 2/2 against localhost:3000; default-open/topic normalization and manual pause/topic removal persisted after refresh |
+| API/auth-proxy E2E | green: 9/9; canonical `/messages` protection preserves the original destination |
+| browser route contract | green: Help, settings, and Messages render; retired route roots return the intentional not-found screen without redirect |
+| documentation | canonical IA, screen map, app conventions, v2 contract, ADR 0011, environment/Doppler, migration/Supabase, seed, E2E, and CD hold reconciled |
+
+The focused browser gate exposed and closed one real issue: a disabled topics
+input is omitted from `FormData`, so turning availability off originally
+returned before saving. The action now treats absent topics as the intentional
+closed-state payload and clears the normalized topic rows. The E2E proves the
+durable result.
+
+The full compiler/build and unported-domain Playwright suites are deliberately
+not declared green. No remote project, Railway service, Doppler value, provider,
+merge, or deployment was changed.
 
 ## Test ownership
 

@@ -41,6 +41,9 @@ supabase db diff --local --schema public,api,private
 pnpm db:types:local
 pnpm typecheck:v2-foundation
 pnpm typecheck:v2-conversations
+pnpm typecheck:v2-help
+pnpm check:help-boundaries
+pnpm check:help-cutover
 pnpm test:db:conversation-concurrency
 pnpm test:db:conversation-realtime
 pnpm test:db:conversation-query-plans
@@ -52,13 +55,12 @@ not run `supabase db push`, `pnpm db:types` (linked), or migration repair
 against either shared project until the matching development cutover step is
 approved.
 
-As of 2026-07-14, the Foundation and Conversation Primitive slices are
-complete locally on `codex/redesign-v2`: the single baseline rebuild, 315
-pgTAP assertions, warning lint, empty schema diff, two-pass generated types,
-focused TypeScript/Vitest, concurrency harnesses, private Realtime integration,
-query-plan contract, and Foundation local Playwright pass. Hosted Supabase
-advisor checks remain part of the separately approved development cutover;
-this local result does not authorize a remote command.
+As of 2026-07-15, Foundation, Conversation Primitive, and Help are complete
+locally on `codex/redesign-v2`, including Help worker/lifecycle/Realtime/UI and
+the destructive local route/module cutover. Messages, People/Profile, and
+School/Admin are still application-port inventory. Hosted Supabase advisor
+checks remain part of the separately approved development cutover; this local
+result does not authorize a remote command.
 
 `codex/redesign-v2` is a long-lived integration branch. At the start of each
 domain port and before its checkpoint, compare it with local `main`; if `main`

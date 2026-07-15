@@ -190,10 +190,8 @@ export default async function OnboardingPage({
             defaults={{
               avatarUrl,
               bio: profile.preferences.bio ?? '',
-              openToMentor: profile.preferences.openToHelp,
-              mentoringTopics: profile.preferences.helperTopics
-                .map((topic) => topic.name)
-                .join(', '),
+              openToHelp: profile.preferences.openToHelp,
+              helperTopics: profile.preferences.helperTopics.map((topic) => topic.name).join(', '),
               freshnessPolicy: profile.preferences.freshness.refreshPolicy,
               hasLinkedinUrl: !!(
                 profile.preferences.freshness.linkedinUrl ?? profile.current.linkedinUrl

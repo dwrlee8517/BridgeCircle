@@ -1356,10 +1356,13 @@ member-visible flow. See the [database testing guide](https://supabase.com/docs/
    idempotent message commands.
    **Verify:** direct pair uniqueness, multiple Ask conversations, Realtime,
    blocked access.
-3. **Help — next:** helper settings/topics, unified asks, offers, matching,
-   transitions, reminders, closure, anonymity, notifications.
-   **Verify:** complete direct and circle flows plus concurrency/RLS suites.
-4. **Messages:** replace Ask/DM repositories, inbox aggregation, unread state,
+3. **Help — complete locally:** helper settings/topics, unified asks, offers,
+   matching, transitions, reminders, closure, anonymity, notifications,
+   accepted-thread seam, and destructive route/module cutover.
+   **Verified:** complete direct and circle flows, concurrency/RLS, worker,
+   Realtime, query plans, responsive UI, and zero Help-owned compiler errors.
+4. **Messages — next:** port the conversation list, Connection-origin threads,
+   unread state,
    thread routes, and origin lines.
    **Verify:** E2E conversations from Ask and Connection paths.
 5. **People/Profile:** normalized profile storage, privacy, search,

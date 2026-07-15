@@ -20,6 +20,7 @@
     "check:supabase-boundaries": "bash scripts/check-supabase-boundaries.sh",
     "check:conversation-boundaries": "bash scripts/check-conversation-boundaries.sh",
     "check:help-boundaries": "bash scripts/check-help-boundaries.sh",
+    "check:help-cutover": "bash scripts/check-help-cutover.sh",
     "test:db:concurrency": "bash scripts/test-foundation-concurrency.sh",
     "test:db:conversation-concurrency": "bash scripts/test-conversation-concurrency.sh",
     "test:db:conversation-query-plans": "bash scripts/test-conversation-query-plans.sh",

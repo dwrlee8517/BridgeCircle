@@ -14,7 +14,7 @@ export type AdminMemberRow = {
   graduationYear: number | null
   city: string | null
   currentEmployer: string | null
-  isOpenAsMentor: boolean
+  isOpenToHelp: boolean
   completionPercent: number
   /** When set, this account is in the deletion grace window. Drives the row's
    * "scheduled for deletion" badge and swaps the row actions to cancel/finalize. */
@@ -34,7 +34,7 @@ const COMPLETION_FIELDS = [
 
 /**
  * Admin view of every membership in their org. Joins memberships → base
- * profile → org profile → mentorship preference + auth email (one admin
+ * profile → org profile → Help preference + auth email (one admin
  * lookup batched at the end).
  *
  * Profile completion is the share of the seven required launch fields
@@ -85,7 +85,7 @@ export async function listMembers(
       .in('organization_membership_id', membershipIds),
     supabase
       .from('helper_preferences')
-      .select('organization_membership_id, open_to_mentorship, paused_at')
+      .select('organization_membership_id, open_to_help, paused_at')
       .in('organization_membership_id', membershipIds),
     admin
       .from('users')
@@ -154,7 +154,7 @@ export async function listMembers(
       graduationYear: op?.graduation_year ?? null,
       city: base?.city ?? null,
       currentEmployer: base?.current_employer ?? null,
-      isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
+      isOpenToHelp: (pref?.open_to_help ?? true) && !pref?.paused_at,
       completionPercent,
       deletionScheduledFor: userRow?.delete_scheduled_for ?? null,
       deletionInitiatedByAdmin: userRow?.delete_initiated_by_admin ?? false,

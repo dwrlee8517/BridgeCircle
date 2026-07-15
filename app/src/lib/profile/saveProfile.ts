@@ -1,7 +1,6 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
-import { setOpenToHelp } from '@/lib/asks/preferences'
 import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
 import type { ProfileFormInput } from './schemas'
 
@@ -22,13 +21,6 @@ export async function saveProfile(
   userId: string,
   input: ProfileFormInput,
 ): Promise<SaveProfileResult> {
-  const topics = input.mentoringTopics
-    ? input.mentoringTopics
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean)
-    : null
-
   // career_history / education_history land in JSONB with snake_case fields,
   // matching what the resume-import path writes — keeps the two write paths
   // schema-compatible.
@@ -89,7 +81,6 @@ export async function saveProfile(
     .update({
       graduation_year: input.graduationYear,
       bio: input.bio || null,
-      mentoring_topics: topics,
       updated_at: new Date().toISOString(),
     })
     .eq('organization_membership_id', membership.id)
@@ -97,9 +88,6 @@ export async function saveProfile(
   if (orgErr) {
     return { ok: false, error: 'db_error', detail: orgErr.message }
   }
-
-  const prefResult = await setOpenToHelp(supabase, membership.id, input.openToMentor)
-  if (!prefResult.ok) return prefResult
 
   await markProfileEmbeddingDirty({
     userId,

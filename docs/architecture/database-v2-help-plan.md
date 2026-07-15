@@ -845,6 +845,16 @@ drift, missing system state, inaccessible dialog, or legacy database call.
 
 ### 8. Cut over the domain and reconcile documentation
 
+**Completed locally (2026-07-15):** all production entry points now use the
+canonical `/help/*` and `/messages/*` route families. The earlier Ask/Inbox
+routes, API draft route, domain modules, DM modules, remote seed/sweep/debug
+scripts, and obsolete E2E roads were deleted with no redirect layer. People,
+Profile, Admin, onboarding, notifications, and navigation now use the v2 Help
+availability/topic and membership-ID contracts where they cross the Help
+boundary. `check:help-cutover` permanently rejects a returning route, import,
+or redirect. Documentation and runbooks now state the destructive pre-launch
+contract and the remote-cutover hold.
+
 - Update Home/Profile/Notifications/Messages entry links and remove or redirect
   legacy Help routes atomically.
 - Update `app/CLAUDE.md`, information architecture, screen map, v2 contract,

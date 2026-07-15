@@ -17,12 +17,15 @@ export async function saveHelpPreferencesAction(
   _previous: HelpPreferencesFormState,
   formData: FormData,
 ): Promise<HelpPreferencesFormState> {
+  const openToHelp = formData.get('openToHelp') === 'on'
   const topicsValue = formData.get('topics')
-  if (typeof topicsValue !== 'string') {
+  if (openToHelp && typeof topicsValue !== 'string') {
     return { error: 'Check the topics and try again.' }
   }
 
-  const topics = topicsValue.split(',')
+  // Disabled form controls are omitted from FormData. Closing availability
+  // intentionally clears topics, so absence is valid only in the closed state.
+  const topics = openToHelp && typeof topicsValue === 'string' ? topicsValue.split(',') : []
   if (topics.length > 5) {
     return {
       error: 'Choose up to five topics.',
@@ -40,7 +43,7 @@ export async function saveHelpPreferencesAction(
     const result = await saveHelpPreferences(
       {
         membershipId: membership.membershipId,
-        openToHelp: formData.get('openToHelp') === 'on',
+        openToHelp,
         topics,
       },
       createHelpRepository(client),
@@ -60,6 +63,7 @@ export async function saveHelpPreferencesAction(
     }
 
     revalidatePath('/help')
+    revalidatePath('/help/settings')
     return { ok: true }
   } catch (error) {
     Sentry.captureException(error, { tags: { area: 'help', action: 'save_preferences' } })

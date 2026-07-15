@@ -15,7 +15,7 @@ export type Classmate = {
  * year, excluding the viewer themselves. Returns up to `limit` (default 5)
  * sorted by recency of joining — newest first to surface fresh names.
  *
- * Used by the right rail on `/friends` as a "people from your class" prompt.
+ * Returns a small same-class discovery set for People surfaces.
  *
  * Friendship status is intentionally NOT filtered out — even if you're
  * already friends, seeing their name in the rail is fine; clicking goes to

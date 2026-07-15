@@ -184,7 +184,7 @@ function mergeFilters(
     topic: userExtra.topic,
     gradYearMin: userExtra.gradYearMin ?? llmFilters.gradYearMin ?? undefined,
     gradYearMax: userExtra.gradYearMax ?? llmFilters.gradYearMax ?? undefined,
-    openToMentor: userExtra.openToMentor ?? (llmFilters.mentorOpen === true ? true : undefined),
+    openToHelp: userExtra.openToHelp ?? (llmFilters.mentorOpen === true ? true : undefined),
     peopleIKnow: userExtra.peopleIKnow,
   }
 }
@@ -199,7 +199,7 @@ function emptySearchFilters(): SearchFilters {
     topic: undefined,
     gradYearMin: undefined,
     gradYearMax: undefined,
-    openToMentor: undefined,
+    openToHelp: undefined,
     peopleIKnow: undefined,
   }
 }

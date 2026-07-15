@@ -73,6 +73,9 @@ both halves for every exposed object.
 Raw Help identity tables (`asks`, `ask_offers`, private matching data) are not
 general client read surfaces. Use the approved `api` projections and commands
 so anonymous author identity and block filtering remain database-enforced.
+All Help route code lives under `/help/*`; deleting the earlier route modules
+was part of the pre-launch v2 cutover, so do not add compatibility repositories
+or raw-table fallbacks for them.
 
 Raw `conversations`, `messages`, and `conversation_reads` are also not member
 read surfaces. Use the fixed `api` detail, before/after keyset, send, read, and

@@ -1,9 +1,9 @@
 import Link from 'next/link'
+import { FreshnessReviewCard } from '@/components/profile-freshness-card'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getImportCurrentProfile } from '@/lib/profile/importCurrentProfile'
-import { FreshnessReviewCard } from '../../help-network-ui'
 import { ImportFlow, type ImportSource } from './import-flow'
 
 type SearchParams = { return?: string; source?: string }

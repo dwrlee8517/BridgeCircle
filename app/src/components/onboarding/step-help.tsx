@@ -23,8 +23,8 @@ type Props = {
   defaults: {
     avatarUrl: string
     bio: string
-    openToMentor: boolean
-    mentoringTopics: string
+    openToHelp: boolean
+    helperTopics: string
     freshnessPolicy: FreshnessPolicy
     /** True when the user has already imported from LinkedIn (a settings row
      * exists). The freshness consent UI tones down when no URL is on file —
@@ -41,23 +41,21 @@ type Props = {
  * Step 5 of 5 — How you can help. Skippable.
  *
  * Last step holds: avatar upload (kept here per the spec to keep step 1
- * lightest), short bio, and the mentoring opt-in. Avatar uploads are
+ * lightest), short bio, and the Help opt-in. Avatar uploads are
  * persisted *immediately* via uploadAvatarAction — independent of the
  * step's main submit — so the user's photo is saved even if they bail
  * before clicking Finish.
  *
- * openToMentor defaults to UNCHECKED. A brand-new alumnus shouldn't be
- * defaulted to "yes, mentor me right away" without explicit opt-in. The
- * helper-preferences page later lets them flip it on with full caps + a
- * caveat tour.
+ * openToHelp defaults to UNCHECKED. A brand-new alumnus should choose this
+ * explicitly. Help settings lets them change it later.
  *
- * The mentoringTopics input is dim/disabled when openToMentor is off,
+ * The helperTopics input is dim/disabled when openToHelp is off,
  * since topics only make sense when you're actually open.
  */
 export function StepHelp({ defaults, name, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
-  const [openToMentor, setOpenToMentor] = useState(defaults.openToMentor)
+  const [openToHelp, setOpenToHelp] = useState(defaults.openToHelp)
   const [freshnessPolicy, setFreshnessPolicy] = useState<FreshnessPolicy>(defaults.freshnessPolicy)
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
 
@@ -90,13 +88,13 @@ export function StepHelp({ defaults, name, action }: Props) {
       <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
         <div className="flex items-start gap-3">
           <Checkbox
-            id="openToMentor"
-            name="openToMentor"
-            checked={openToMentor}
-            onCheckedChange={(v) => setOpenToMentor(v === true)}
+            id="openToHelp"
+            name="openToHelp"
+            checked={openToHelp}
+            onCheckedChange={(v) => setOpenToHelp(v === true)}
           />
           <div className="space-y-1">
-            <Label htmlFor="openToMentor">I&rsquo;m open to helping fellow alumni</Label>
+            <Label htmlFor="openToHelp">I&rsquo;m open to helping fellow alumni</Label>
             <p className="text-xs text-muted-foreground">
               Members can ask you a quick question or ask for ongoing help. You can pause or change
               this any time from Help settings.
@@ -104,23 +102,21 @@ export function StepHelp({ defaults, name, action }: Props) {
           </div>
         </div>
 
-        <div className={`space-y-1.5 ${openToMentor ? '' : 'opacity-50'}`}>
-          <Label htmlFor="mentoringTopics" className={openToMentor ? '' : 'pointer-events-none'}>
+        <div className={`space-y-1.5 ${openToHelp ? '' : 'opacity-50'}`}>
+          <Label htmlFor="helperTopics" className={openToHelp ? '' : 'pointer-events-none'}>
             Topics you can help with
           </Label>
           <Input
-            id="mentoringTopics"
-            name="mentoringTopics"
-            defaultValue={defaults.mentoringTopics}
+            id="helperTopics"
+            name="helperTopics"
+            defaultValue={defaults.helperTopics}
             placeholder="e.g. consulting, business school, returning to Korea"
-            disabled={!openToMentor}
+            disabled={!openToHelp}
           />
           <p className="text-xs text-muted-foreground">
             Comma-separated. Helps members find you in search.
           </p>
-          {fe.mentoringTopics ? (
-            <p className="text-xs text-destructive">{fe.mentoringTopics}</p>
-          ) : null}
+          {fe.helperTopics ? <p className="text-xs text-destructive">{fe.helperTopics}</p> : null}
         </div>
       </div>
 

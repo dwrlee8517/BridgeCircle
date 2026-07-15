@@ -30,7 +30,7 @@ export const searchFiltersSchema = z.object({
   topic: optStr,
   gradYearMin: optYear,
   gradYearMax: optYear,
-  openToMentor: optBool,
+  openToHelp: optBool,
   // "People I know" — restricts results to alumni you're already friends
   // with. Surfaced in People after the Friends page folded in (the
   // accepted-friends list is now this filter view rather than a separate
@@ -62,7 +62,7 @@ const emptyFilters: SearchFilters = {
   topic: undefined,
   gradYearMin: undefined,
   gradYearMax: undefined,
-  openToMentor: undefined,
+  openToHelp: undefined,
   peopleIKnow: undefined,
 }
 

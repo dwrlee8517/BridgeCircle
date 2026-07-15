@@ -1,5 +1,12 @@
 # Dev stage + scripted CD — rollout plan
 
+> **Database-v2 hold (2026-07-15):** do not execute any deploy, remote
+> migration, reset, or seed step from this older rollout plan while the v2
+> application port is incomplete. Foundation, Conversation, and Help are green
+> locally; Messages, People/Profile, and School/Admin still need porting. The
+> later v2 remote-cutover runbook, a snapshot, a green global build, and
+> separate production approval supersede any execution implication below.
+
 Working plan for [ADR 0014](../decisions/0014-scripted-cd-pipeline.md).
 Executed on branch `dev-stage-cd`. Check items off as they land; delete this
 doc (or archive it) when Phase 6 folds the durable parts into

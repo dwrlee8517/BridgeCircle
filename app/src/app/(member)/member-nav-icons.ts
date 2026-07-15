@@ -13,7 +13,7 @@ const MEMBER_NAV_ICONS: Record<string, LucideIcon> = {
   '/help': HandHelping,
   '/people': Users,
   '/school': GraduationCap,
-  '/inbox': MessageCircle,
+  '/messages': MessageCircle,
   '/admin/invite': Shield,
 }
 

@@ -1,7 +1,7 @@
 # 0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface
 
-- **Status:** proposed · amended 2026-07-06; persistence choices superseded in
-  part by [0015](0015-prelaunch-v2-database-reset.md)
+- **Status:** accepted · amended 2026-07-15; v2 persistence implemented locally
+  under [0015](0015-prelaunch-v2-database-reset.md)
 - **Date:** 2026-07-02
 - **Decider:** Richard
 
@@ -12,6 +12,16 @@
 > and layer offers onto separate `open_asks`. The product gates remain:
 > Connections are mutual, Asks are one-sided, and accepted interactions land
 > in Messages.
+
+> **Cutover amendment (2026-07-15):** the pre-launch v2 Help slice now uses the
+> unified `asks`, `ask_offers`, `conversations`, and `messages` contracts.
+> Helper availability is `open_to_help` with normalized `helper_topics`.
+> Declining a direct Ask or an offer stores the cushioned note in the v2
+> lifecycle; Connection declines remain quiet. Help is rooted at `/help` and
+> accepted threads at `/messages/[id]`. Because no real users or durable data
+> exist yet, the retired route families and compatibility redirects were
+> deleted instead of maintained. The detailed older phases below are retained
+> as decision history, not current implementation instructions.
 
 ## Context
 

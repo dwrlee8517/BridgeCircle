@@ -99,23 +99,9 @@ export function classYearShort(year: number | null | undefined): string | null {
 }
 
 /**
- * Canonical link into the ask composer. Centralized so the intent param
- * can't silently drop on some surfaces (it did on Home and People).
+ * Canonical link into the v2 direct-Ask composer. Help is membership-scoped,
+ * so callers must use the candidate's membership ID rather than a user ID.
  */
-export function askComposeHref(userId: string, intent?: string): string {
-  const params = new URLSearchParams({ to: userId })
-  if (intent?.trim()) params.set('intent', intent.trim())
-  return `/ask/new?${params.toString()}`
-}
-
-/**
- * Whether a card's ask CTA should render at all — one availability state
- * (ADR 0011 Phase 2). Either legacy flag counts as open until the Phase 6
- * column collapse, so members with divergent legacy rows stay reachable.
- */
-export function isOpenToHelp(person: {
-  isOpenAsAdviceHelper?: boolean
-  isOpenAsMentor?: boolean
-}): boolean {
-  return Boolean(person.isOpenAsAdviceHelper || person.isOpenAsMentor)
+export function directHelpHref(membershipId: string): string {
+  return `/help/ask/${membershipId}`
 }

@@ -4,7 +4,7 @@ import { requireSession } from '@/lib/auth/session'
 import type { ExtractedFilters } from './extractFilters'
 import { parseSearchParams, type SearchFilters } from './schemas'
 import { type SearchHit, searchAlumni } from './searchAlumni'
-import { type NLSearchHit, searchAlumniNL, searchAlumniNLLegacy } from './searchAlumniNL'
+import { type NLSearchHit, searchAlumniNLLegacy } from './searchAlumniNL'
 
 export type RawSearchParams = Record<string, string | string[] | undefined>
 
@@ -18,7 +18,7 @@ export type MemberSearchDefaults = {
   topic: string
   gradYearMin: string
   gradYearMax: string
-  openToMentor: boolean
+  openToHelp: boolean
   peopleIKnow: boolean
 }
 
@@ -51,11 +51,8 @@ export type MemberSearchResults = {
 
 export const MEMBER_SEARCH_PAGE_SIZE = 10
 
-export type MemberSearchSurface = 'ask' | 'people'
-
 export async function getMemberSearchResults(
   params: RawSearchParams,
-  options: { surface: MemberSearchSurface },
 ): Promise<MemberSearchResults | null> {
   const session = await requireSession()
   const supabase = await createClient()
@@ -110,8 +107,7 @@ export async function getMemberSearchResults(
   let nlFilters: ExtractedFilters | null = null
 
   if (useNL) {
-    const nlSearch = options.surface === 'ask' ? searchAlumniNL : searchAlumniNLLegacy
-    const result = await nlSearch(supabase, {
+    const result = await searchAlumniNLLegacy(supabase, {
       query: nlQuery,
       organizationId: viewerMembership.organization_id,
       viewerId: session.userId,
@@ -161,7 +157,7 @@ export async function getMemberSearchResults(
     filters.topic ||
     filters.gradYearMin ||
     filters.gradYearMax ||
-    filters.openToMentor ||
+    filters.openToHelp ||
     filters.peopleIKnow
   )
   const showNaturalLanguageResults = useNL && !nlError
@@ -169,9 +165,7 @@ export async function getMemberSearchResults(
   const filtersOpen = anyFilter || (useNL && nlHits.length === 0)
   const resultCount = showNaturalLanguageResults ? nlHits.length : structuredHits.length
   const activeHits = showNaturalLanguageResults ? nlHits : structuredHits
-  const openCount = activeHits.filter(
-    (hit) => hit.isOpenAsMentor || hit.isOpenAsAdviceHelper,
-  ).length
+  const openCount = activeHits.filter((hit) => hit.openToHelp).length
   const totalPages = Math.max(1, Math.ceil(resultCount / MEMBER_SEARCH_PAGE_SIZE))
   const currentPage = Number.isFinite(requestedPage)
     ? Math.min(Math.max(requestedPage, 1), totalPages)
@@ -191,7 +185,7 @@ export async function getMemberSearchResults(
       topic: filters.topic ?? '',
       gradYearMin: filters.gradYearMin?.toString() ?? '',
       gradYearMax: filters.gradYearMax?.toString() ?? '',
-      openToMentor: !!filters.openToMentor,
+      openToHelp: !!filters.openToHelp,
       peopleIKnow: !!filters.peopleIKnow,
     },
     nlQuery,
@@ -215,11 +209,7 @@ export async function getMemberSearchResults(
   }
 }
 
-export function memberSearchPageHref(
-  basePath: '/ask' | '/people',
-  params: RawSearchParams,
-  page: number,
-) {
+export function memberSearchPageHref(params: RawSearchParams, page: number) {
   const next = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
     if (key === 'page' || value === undefined) continue
@@ -230,7 +220,7 @@ export function memberSearchPageHref(
   }
   if (page > 1) next.set('page', String(page))
   const search = next.toString()
-  return search ? `${basePath}?${search}` : basePath
+  return search ? `/people?${search}` : '/people'
 }
 
 function singleParam(value: string | string[] | undefined) {

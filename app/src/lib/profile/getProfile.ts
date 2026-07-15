@@ -48,31 +48,9 @@ export type ProfileView = {
   // Configurable sections — null when redacted by privacy.
   linkedinUrl: string | null
   bio: string | null
-  mentoringTopics: string[] | null
   careerHistory: CareerEntry[] | null
   educationHistory: EducationEntry[] | null
   skills: string[] | null
-  // Helper-side state on the profile owner. Two opt-ins (advice + mentorship);
-  // each has a "raw" toggle and a "currently accepting" derived flag that
-  // also accounts for the mentor inactivity auto-pause.
-  openToAdvice: boolean
-  isOpenAsAdviceHelper: boolean
-  openToMentor: boolean
-  isOpenAsMentor: boolean
-  mentorPaused: boolean
-  // True when the helper's current pending or active mentee counts have hit
-  // their self-set caps. Used by the profile CTA to pre-empt a "Request
-  // mentorship" click that would just bounce off `helper_full` /
-  // `helper_at_capacity` from createAsk. Only meaningful when isOpenAsMentor.
-  mentorshipAtCapacity: boolean
-  activeMenteeCount: number
-  maxActiveMentees: number
-  pendingRequestCount: number
-  maxPendingRequests: number
-  // Mentor-authored question every mentorship asker answers at compose
-  // time. Null when unset (most mentors) — the composer skips the
-  // screening step entirely in that case.
-  screeningPrompt: string | null
   // Viewer-relative metadata. Lets the UI render a "Some sections are
   // hidden by this member's privacy settings" hint without re-deriving.
   isSelf: boolean
@@ -120,47 +98,9 @@ export async function getProfile(
 
   const { data: orgProfile } = await supabase
     .from('organization_profiles')
-    .select('graduation_year, bio, mentoring_topics')
+    .select('graduation_year, bio')
     .eq('organization_membership_id', membership.id)
     .maybeSingle()
-
-  const { data: pref } = await supabase
-    .from('helper_preferences')
-    .select(
-      'open_to_advice, open_to_mentorship, paused_at, max_pending_requests, max_active_mentees, screening_prompt',
-    )
-    .eq('organization_membership_id', membership.id)
-    .maybeSingle()
-
-  // Mirror createAsk's mentorship capacity check at render time so the CTA
-  // can disable instead of letting the user write a request that will just
-  // bounce. We only run these queries when the helper is actually open as a
-  // mentor and not paused — otherwise the buttons render disabled for a
-  // different reason and the counts don't matter.
-  let mentorshipAtCapacity = false
-  let activeMenteeCount = 0
-  let pendingRequestCount = 0
-  if (pref?.open_to_mentorship && !pref.paused_at) {
-    const [{ count: pendingCount }, { count: activeCount }] = await Promise.all([
-      supabase
-        .from('asks')
-        .select('id', { count: 'exact', head: true })
-        .eq('helper_id', userId)
-        .eq('ask_type', 'mentorship')
-        .eq('status', 'pending'),
-      supabase
-        .from('ask_threads')
-        .select('id, asks!inner(ask_type)', { count: 'exact', head: true })
-        .eq('helper_id', userId)
-        .eq('status', 'active')
-        .eq('asks.ask_type', 'mentorship'),
-    ])
-    pendingRequestCount = pendingCount ?? 0
-    activeMenteeCount = activeCount ?? 0
-    const pendingFull = pendingRequestCount >= pref.max_pending_requests
-    const activeFull = activeMenteeCount >= pref.max_active_mentees
-    mentorshipAtCapacity = pendingFull || activeFull
-  }
 
   const orgName = (membership.organizations as { name: string } | null)?.name ?? ''
 
@@ -208,25 +148,11 @@ export async function getProfile(
     avatarUrl: base.avatar_url,
     linkedinUrl: showContact ? base.linkedin_url : null,
     bio: showBio ? (orgProfile?.bio ?? null) : null,
-    // Mentoring topics ride along with the bio gate — they're the
-    // owner-authored mentoring blurb, not a directory field.
-    mentoringTopics: showBio ? (orgProfile?.mentoring_topics ?? null) : null,
     careerHistory: showCareer ? ((base.career_history as CareerEntry[] | null) ?? null) : null,
     educationHistory: showEducation
       ? ((base.education_history as EducationEntry[] | null) ?? null)
       : null,
     skills: showSkills ? (base.skills ?? null) : null,
-    openToAdvice: pref?.open_to_advice ?? false,
-    isOpenAsAdviceHelper: !!pref?.open_to_advice && !pref.paused_at,
-    openToMentor: pref?.open_to_mentorship ?? false,
-    isOpenAsMentor: !!pref?.open_to_mentorship && !pref.paused_at,
-    mentorPaused: !!pref?.paused_at,
-    mentorshipAtCapacity,
-    activeMenteeCount,
-    maxActiveMentees: pref?.max_active_mentees ?? 5,
-    pendingRequestCount,
-    maxPendingRequests: pref?.max_pending_requests ?? 10,
-    screeningPrompt: pref?.screening_prompt ?? null,
     isSelf,
     isFriend,
     privacySettings: privacy,

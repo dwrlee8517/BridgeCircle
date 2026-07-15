@@ -173,10 +173,10 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
   if (isSkip(formData)) {
     // Skipping the final step still completes onboarding — the user
     // chose not to fill in mentoring/avatar fields right now. They can
-    // do so from /profile/edit and /mentorship/settings later.
+    // do so from Help settings later.
     const saveResult = await saveOnboardingHelp(repository, membershipId, {
-      openToMentor: boolFromForm(formData.get('openToMentor')),
-      mentoringTopics: null,
+      openToHelp: boolFromForm(formData.get('openToHelp')),
+      helperTopics: null,
       bio: null,
       avatarUrl: null,
       freshnessPolicy: freshnessPolicyFromForm(formData),

@@ -1,13 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
 /**
- * Loading fallback for member route navigation. Mirrors the merged home/ask
- * surface (ask-home.tsx): ink editorial band, overlapping command bar, asks
- * rail, examples + helper carousel, how-asking-works. Keep in sync with
- * ask-home.tsx so the cross-fade is structural, not a jump.
+ * Generic loading fallback for member route navigation. Domain routes with
+ * distinct geometry provide their own loading boundary.
  *
- * Routes that don't share this shape (Ask results, People, Inbox, Thread)
- * define their own loading.tsx so navigation lands on the right skeleton.
+ * Help, People, and Messages own their route-specific loading states.
  */
 export default function MemberLoading() {
   return (
