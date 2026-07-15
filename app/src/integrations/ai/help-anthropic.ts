@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import type { HelpAssistanceProvider, HelpAssistanceTask } from '@/lib/help/providers'
+import type {
+  HelpAssistanceProvider,
+  HelpAssistanceTask,
+  HelpProfilePassageProvider,
+} from '@/lib/help/providers'
 import { HelpProviderError } from './help-voyage'
 
 const ANTHROPIC_MESSAGES_URL = 'https://api.anthropic.com/v1/messages'
@@ -16,6 +20,21 @@ const responseSchema = z.object({
 })
 
 const completionSchema = z.object({ text: z.string() }).strict()
+const passagesSchema = z
+  .object({
+    passages: z
+      .array(
+        z
+          .object({
+            sourceSection: z.enum(['career_path_summary', 'help_topics_summary']),
+            content: z.string().trim().min(1).max(900),
+            evidenceFactIds: z.array(z.string().min(1)).min(1).max(6),
+          })
+          .strict(),
+      )
+      .max(2),
+  })
+  .strict()
 
 const taskPrompts: Record<HelpAssistanceTask, string> = {
   ask_draft:
@@ -32,7 +51,7 @@ export type AnthropicHelpProviderOptions = {
   timeoutMs?: number
 }
 
-export class AnthropicHelpProvider implements HelpAssistanceProvider {
+export class AnthropicHelpProvider implements HelpAssistanceProvider, HelpProfilePassageProvider {
   private readonly fetchImpl: typeof fetch
   private readonly timeoutMs: number
 
@@ -47,6 +66,43 @@ export class AnthropicHelpProvider implements HelpAssistanceProvider {
     input: Readonly<Record<string, string | readonly string[]>>,
     signal: AbortSignal,
   ): Promise<Readonly<Record<string, string>>> {
+    const decoded = await this.requestJson(
+      `${taskPrompts[task]} Return JSON only with exactly one string field named text.`,
+      input,
+      signal,
+    )
+    const completion = completionSchema.safeParse(decoded)
+    if (!completion.success) throw new HelpProviderError('invalid_response')
+    return completion.data
+  }
+
+  async generateProfilePassages(
+    input: {
+      visibility: 'organization' | 'connections'
+      facts: readonly { id: string; sourceSection: string; content: string }[]
+    },
+    signal: AbortSignal,
+  ) {
+    const decoded = await this.requestJson(
+      'Write up to two search-only profile passages using only the supplied facts. Do not infer expertise, willingness, seniority, identity, or private facts. Cite every passage with evidenceFactIds from the input. Return JSON only with one passages array.',
+      input,
+      signal,
+    )
+    const passages = passagesSchema.safeParse(decoded)
+    if (!passages.success) throw new HelpProviderError('invalid_response')
+    const factIds = new Set(input.facts.map((fact) => fact.id))
+    if (
+      passages.data.passages.some((passage) =>
+        passage.evidenceFactIds.some((id) => !factIds.has(id)),
+      )
+    ) {
+      throw new HelpProviderError('invalid_response')
+    }
+    return passages.data.passages
+  }
+
+  private async requestJson(system: string, input: unknown, signal: AbortSignal): Promise<unknown> {
+    if (signal.aborted) throw new HelpProviderError('timeout')
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort('timeout'), this.timeoutMs)
     const abort = () => controller.abort(signal.reason)
@@ -62,7 +118,7 @@ export class AnthropicHelpProvider implements HelpAssistanceProvider {
         body: JSON.stringify({
           model: MODEL,
           max_tokens: 700,
-          system: `${taskPrompts[task]} Return JSON only with exactly one string field named text.`,
+          system,
           messages: [{ role: 'user', content: JSON.stringify(input) }],
         }),
         signal: controller.signal,
@@ -77,9 +133,7 @@ export class AnthropicHelpProvider implements HelpAssistanceProvider {
       } catch {
         throw new HelpProviderError('invalid_response')
       }
-      const completion = completionSchema.safeParse(decoded)
-      if (!completion.success) throw new HelpProviderError('invalid_response')
-      return completion.data
+      return decoded
     } catch (error) {
       if (error instanceof HelpProviderError) throw error
       if (controller.signal.aborted) throw new HelpProviderError('timeout')

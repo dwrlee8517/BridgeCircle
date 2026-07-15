@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(42);
+select extensions.plan(58);
 
 select extensions.has_table(
   'private', 'help_ai_usage_windows',
@@ -22,6 +22,24 @@ select extensions.ok(
 select extensions.has_column(
   'private', 'profile_embedding_chunks', 'search_vector',
   'permission-safe profile chunks expose a generated lexical search vector'
+);
+select extensions.has_column(
+  'private', 'profile_embedding_chunks', 'content_version',
+  'profile chunks record the content contract version'
+);
+select extensions.has_column(
+  'private', 'profile_embedding_chunks', 'fingerprint',
+  'profile chunks record a model and prompt aware fingerprint'
+);
+select extensions.ok(
+  exists (
+    select 1
+    from pg_indexes i
+    where i.schemaname = 'private'
+      and i.tablename = 'profile_embedding_chunks'
+      and i.indexdef like '%organization_membership_id, fingerprint%'
+  ),
+  'profile chunk fingerprints are unique per membership'
 );
 select extensions.ok(
   exists (
@@ -54,6 +72,34 @@ select extensions.has_function('api', 'apply_ask_matches', 'circle matches commi
 select extensions.has_function('api', 'run_help_maintenance', 'day-5/day-14 lifecycle work has one service-only command');
 select extensions.has_function('api', 'materialize_notification_job', 'notification jobs materialize transactionally');
 select extensions.has_function('api', 'get_outbox_email_context', 'email workers fetch a minimal current context');
+select extensions.has_column(
+  'private', 'outbox_jobs', 'provider_result_id',
+  'outbox email jobs durably record the provider result before completion'
+);
+select extensions.has_function(
+  'api', 'record_outbox_provider_result',
+  'email workers durably record a stable provider result'
+);
+select extensions.has_function(
+  'private', 'search_help_candidates',
+  'member and worker matching share one hard-gated candidate query'
+);
+select extensions.has_function(
+  'api', 'get_ask_matching_context',
+  'the matching worker gets one claimed Ask context'
+);
+select extensions.has_function(
+  'api', 'search_ask_matching_candidates',
+  'the matching worker gets a fixed permission-safe candidate projection'
+);
+select extensions.has_function(
+  'api', 'get_profile_index_source',
+  'the profile worker gets privacy-shaped facts from its claimed job'
+);
+select extensions.has_function(
+  'api', 'sync_profile_index',
+  'profile chunks synchronize in one service-only transaction'
+);
 
 select extensions.ok(
   coalesce(pg_get_function_result(to_regprocedure('api.create_direct_ask(uuid,uuid,text,text,uuid)')) like 'TABLE(result_code text,%', false),
@@ -152,6 +198,30 @@ select extensions.ok(
 select extensions.ok(
   not coalesce(has_function_privilege('authenticated', to_regprocedure('api.materialize_notification_job(bigint,text)'), 'execute'), false),
   'members cannot materialize notification jobs'
+);
+select extensions.ok(
+  coalesce(has_function_privilege('service_role', to_regprocedure('api.search_ask_matching_candidates(bigint,text,extensions.vector,integer)'), 'execute'), false),
+  'service workers can execute claimed Ask candidate search'
+);
+select extensions.ok(
+  not coalesce(has_function_privilege('authenticated', to_regprocedure('api.search_ask_matching_candidates(bigint,text,extensions.vector,integer)'), 'execute'), false),
+  'members cannot execute worker Ask candidate search'
+);
+select extensions.ok(
+  coalesce(has_function_privilege('service_role', to_regprocedure('api.sync_profile_index(bigint,text,text[],jsonb)'), 'execute'), false),
+  'service workers can synchronize a claimed profile index'
+);
+select extensions.ok(
+  not coalesce(has_function_privilege('authenticated', to_regprocedure('api.sync_profile_index(bigint,text,text[],jsonb)'), 'execute'), false),
+  'members cannot synchronize profile chunks'
+);
+select extensions.ok(
+  coalesce(has_function_privilege('service_role', to_regprocedure('api.record_outbox_provider_result(bigint,text,text)'), 'execute'), false),
+  'service workers can record an email provider result'
+);
+select extensions.ok(
+  not coalesce(has_function_privilege('authenticated', to_regprocedure('api.record_outbox_provider_result(bigint,text,text)'), 'execute'), false),
+  'members cannot record an email provider result'
 );
 
 select extensions.ok(

@@ -141,8 +141,35 @@ Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway veri
 | `ASK_MATCHING_EXPLANATIONS` | Ask explanation mode. Use `templated` by default; `haiku_polish` only polishes final matches. | `templated` |
 | `NEXT_PUBLIC_APP_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
 | `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
+| `OUTBOX_BATCH_SIZE` | Optional Help worker claim size; defaults to `20`, bounded `1–100`. | `20` |
+| `OUTBOX_CONCURRENCY` | Optional Help worker provider/handler concurrency; defaults to `4`, bounded `1–10`. | `4` |
+| `OUTBOX_HANDLER_TIMEOUT_MS` | Optional per-job timeout; defaults to 30 seconds, bounded 1–120 seconds. | `30000` |
+| `OUTBOX_IDLE_DELAY_MS` | Optional empty-queue/backoff delay; defaults to one second, bounded 0.1–60 seconds. | `1000` |
 
 Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points the Supabase keys at `bridgecircle-dev` and inherits the shared Resend/Anthropic/Voyage/Sentry keys from `dev` (they're cheap and activity is environment-tagged provider-side); `dev_local` instead points at the local Docker stack and dummies the outbound services. **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@`. Note real dev sends can't reach real inboxes anyway: outside prod the email guard (`app/src/notify/devGuard.ts`) redirects to a sink unless the address is on `EMAIL_DEV_ALLOWLIST` (see [doppler.md](../runbooks/doppler.md)).
+
+### Help outbox worker topology (implemented locally, not provisioned)
+
+The v2 Help slice adds one non-HTTP Railway worker service from the same repo,
+working directory, and commit as the web service. Its production command is
+`pnpm worker:outbox`; it has no web health check and handles `SIGTERM` before a
+Railway replacement. Do not create this service until every v2 domain is
+ported, the global compiler/build are green, and the remote reset is separately
+approved.
+
+The worker uses the same Doppler config as its matching web environment and
+requires the existing `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
+`NEXT_PUBLIC_APP_URL`, `APP_ENV`, Resend, Anthropic, and Voyage variables. The
+four `OUTBOX_*` settings above are optional bounded tuning controls, not
+secrets. Non-production worker email still passes through the central
+`EMAIL_DEV_REDIRECT`/`EMAIL_DEV_ALLOWLIST` guard. Structured logs and Sentry
+contain result codes and durable IDs only—never questions, notes, profile text,
+provider output, or email addresses.
+
+For local operational checks, run the same entry point with `--once` for one
+claim batch plus one maintenance pass, or `--drain` to process supported jobs
+until none remain. Both modes still require the correct Doppler/local Supabase
+environment; they are not remote deployment commands.
 
 ### Third-party services
 

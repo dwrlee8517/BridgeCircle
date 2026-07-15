@@ -29,8 +29,29 @@ export type HelpAssistanceProvider = {
   ): Promise<Readonly<Record<string, string>>>
 }
 
+export type HelpProfilePassageProvider = {
+  generateProfilePassages(
+    input: {
+      visibility: 'organization' | 'connections'
+      facts: readonly {
+        id: string
+        sourceSection: string
+        content: string
+      }[]
+    },
+    signal: AbortSignal,
+  ): Promise<
+    readonly {
+      sourceSection: 'career_path_summary' | 'help_topics_summary'
+      content: string
+      evidenceFactIds: readonly string[]
+    }[]
+  >
+}
+
 export type HelpProviders = {
   embeddings: HelpEmbeddingProvider | null
   reranker: HelpRerankProvider | null
   assistance: HelpAssistanceProvider | null
+  profilePassages: HelpProfilePassageProvider | null
 }

@@ -101,6 +101,9 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 - `ASK_MATCHING_EXPLANATIONS` — Ask explanation mode; defaults to `templated`
 - `RESEND_API_KEY` — for transactional email
 - `SENTRY_AUTH_TOKEN` — for source-map upload during build
+- `OUTBOX_BATCH_SIZE`, `OUTBOX_CONCURRENCY`, `OUTBOX_HANDLER_TIMEOUT_MS`, and
+  `OUTBOX_IDLE_DELAY_MS` — optional bounded tuning for the v2 Help worker; code
+  defaults are safe when these are absent
 - `NODE_ENV` / `APP_ENV` — see "The NODE_ENV Gotcha" and "APP_ENV" below
 
 If you add a new secret, add it to `dev` first (so the whole team gets it on next run) and only override in `dev_personal` if your value needs to differ from the team's.
@@ -134,7 +137,7 @@ Never branch on `NODE_ENV` for environment identity — the dev stage and produc
 
 There *is* now an email guard (this used to read "no allowlist yet"). It lives in [`app/src/notify/devGuard.ts`](../../app/src/notify/devGuard.ts) and runs inside `sendRenderedEmail` — the single Resend send choke point in `app/src/notify/resend.ts`.
 
-Whenever `APP_ENV !== 'prod'`, a recipient is delivered as-is only if it is a known-safe address (a `@resend.dev` sink, or one you put on the dev allowlist); **everything else is redirected to a single safe sink** (`delivered@resend.dev`) before the send, and the redirect is logged (`[notify] APP_ENV=… redirected …`). This exists because non-prod now runs against real Resend keys — the `dev_local_live` config and remote-dev both use a live key — so without the guard the dev seed's `@example.com` addresses would bounce (denting sender reputation) and any triggered flow would mail real people from a dev box.
+Whenever `APP_ENV !== 'prod'`, a recipient is delivered as-is only if it is a known-safe address (a `@resend.dev` sink, or one you put on the dev allowlist); **everything else is redirected to a single safe sink** (`delivered@resend.dev`) before the send, and a content-free redirect event is logged without either email address. This exists because non-prod now runs against real Resend keys — the `dev_local_live` config and remote-dev both use a live key — so without the guard the dev seed's `@example.com` addresses would bounce (denting sender reputation) and any triggered flow would mail real people from a dev box.
 
 Resolution order in non-prod:
 

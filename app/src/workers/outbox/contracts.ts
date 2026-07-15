@@ -30,7 +30,9 @@ export type OutboxWorkerDependencies = {
 export type OutboxWorkerOptions = {
   workerId: string
   batchSize: number
+  maxConcurrentHandlers: number
   handlerTimeoutMs: number
   idleDelayMs: number
   maxIdleJitterMs: number
+  maxRetryDelayMs: number
 }

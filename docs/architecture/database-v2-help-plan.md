@@ -1,6 +1,6 @@
 # Database v2 Help vertical-slice implementation plan
 
-- **Status:** approved — implementation in progress; no remote changes
+- **Status:** approved — Milestones 1–6 complete locally; Help UI is next; no remote changes
 - **Prepared:** 2026-07-14
 - **Approved:** 2026-07-14 by Richard
 - **Branch:** `codex/redesign-v2`
@@ -640,6 +640,68 @@ status-specific shape before they enter the domain.
 - Provider and worker modules at this checkpoint are typed injection seams;
   external matching behavior and the durable runner remain owned by
   Milestones 4 and 5. No provider or remote service was contacted.
+
+### Milestone 4 matching/provider/index record
+
+The Help matching pipeline now separates database-enforced eligibility from
+pure ranking and provider assistance. The database hard gate removes inactive,
+blocked, self, paused, and capacity-full candidates before any provider call.
+The pure matcher then applies deterministic relevance thresholds, stable tie
+ordering, bounded reranking, factual reason templates, and no evidence padding.
+
+- Ten focused test files passed 49 assertions at checkpoint `e4b859f`, including
+  the privacy-reviewed golden fixture, weak-evidence filtering, deterministic
+  fallbacks, provider timeout/error handling, and strict Anthropic/Voyage output
+  schemas.
+- Voyage receives at most the bounded eligible pool and reranks at most 20
+  candidates. Anthropic assistance is optional and fail-open to editable
+  deterministic text; neither provider can submit a member command.
+- Profile indexing uses content-, model-, prompt-, and pipeline-aware SHA-256
+  fingerprints. Atomic synchronization inserts only changed chunks and deletes
+  obsolete fingerprints; synthetic passages can improve retrieval but can
+  never become display evidence.
+- No real provider, remote database, or secret value was contacted.
+
+### Milestone 5 outbox/lifecycle record
+
+One generic Help worker now claims only its four registered job types, runs
+bounded concurrent handlers, retries with capped exponential backoff, isolates
+poison jobs, recovers queue-cycle outages without a hot loop, and responds to
+`SIGTERM`/`SIGINT`. Continuous, one-batch (`--once`), and bounded drain
+(`--drain`) modes share the same handlers.
+
+- Notification materialization, email context, Resend provider-result
+  persistence, Ask matching, and profile indexing are service-only fixed APIs.
+  Email retries use the durable job key at Resend and skip a replay after a
+  provider result has been recorded.
+- The maintenance transaction passes time-travel coverage for one day-5
+  reminder, day-14 direct/circle closure, pending-offer closure, three-strike
+  helper pause, accepted-Ask preservation, and zero-effect replay.
+- The stateful worker harness passes supported/unsupported claims, matching
+  context and candidate hard gates, capacity removal, profile-index sync,
+  email-context idempotency, and provider-result replay. The inherited
+  Foundation harness still proves two workers receive disjoint jobs.
+- The current focused suite passes 13 files and 79 tests. The full pgTAP
+  suite passes 10 files and 374 assertions. Database lint is clean, the shadow
+  replay has no `public`/`api`/`private` drift, and two generated type passes are
+  byte-identical at SHA-256
+  `f55507e958b0067fe28ae06d4e39f778096544f901bca0b47889834f1e5fe687`.
+- Logs and Sentry receive sanitized operation codes and durable IDs only. The
+  development email redirect log no longer prints either the original or sink
+  address. Railway/Doppler topology is documented but not provisioned.
+- Repository-wide Biome, ESLint, token, and Vitest checks are green (ESLint has
+  three pre-existing script warnings). The global v2 port inventory remains
+  exactly 1,257 TypeScript errors, with zero errors in Help-owned modules.
+
+### Milestone 6 Realtime record
+
+The existing strict Help adapter and database invalidations have now been
+reverified against the completed worker/schema state. Help Realtime passes
+own-topic authorization, IDs-only commit delivery, duplicate suppression,
+missed-event recovery, malformed-event rejection, and exact cleanup. The
+inherited Conversation Realtime and Conversation query-plan suites remain
+green. Broadcast is still only an invalidation signal; every durable result is
+reloaded through a fixed projection.
 
 ## Out of scope
 

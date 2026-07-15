@@ -21,12 +21,14 @@ const embeddingResponseSchema = z.object({
 })
 
 const rerankResponseSchema = z.object({
-  data: z.array(
-    z.object({
-      index: z.number().int().nonnegative(),
-      relevance_score: z.number().finite(),
-    }),
-  ),
+  data: z
+    .array(
+      z.object({
+        index: z.number().int().nonnegative(),
+        relevance_score: z.number().finite().min(0).max(1),
+      }),
+    )
+    .max(20),
 })
 
 export type VoyageHelpProviderOptions = {
@@ -85,8 +87,14 @@ export class VoyageHelpProvider implements HelpEmbeddingProvider, HelpRerankProv
     )
     const parsed = rerankResponseSchema.safeParse(response)
     if (!parsed.success) throw new HelpProviderError('invalid_response')
+    const seen = new Set<number>()
+    for (const item of parsed.data.data) {
+      if (item.index >= candidates.length || seen.has(item.index)) {
+        throw new HelpProviderError('invalid_response')
+      }
+      seen.add(item.index)
+    }
     return parsed.data.data
-      .filter((item) => candidates[item.index])
       .map((item) => ({
         candidateId: candidates[item.index]?.candidateId ?? '',
         score: item.relevance_score,
@@ -113,10 +121,15 @@ export class VoyageHelpProvider implements HelpEmbeddingProvider, HelpRerankProv
     if (!parsed.success || parsed.data.data.length !== content.length) {
       throw new HelpProviderError('invalid_response')
     }
-    return [...parsed.data.data].sort((a, b) => a.index - b.index).map((item) => item.embedding)
+    const ordered = [...parsed.data.data].sort((a, b) => a.index - b.index)
+    if (ordered.some((item, index) => item.index !== index)) {
+      throw new HelpProviderError('invalid_response')
+    }
+    return ordered.map((item) => item.embedding)
   }
 
   private async post(path: string, body: unknown, signal: AbortSignal): Promise<unknown> {
+    if (signal.aborted) throw new HelpProviderError('timeout')
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort('timeout'), this.timeoutMs)
     const abort = () => controller.abort(signal.reason)

@@ -37,6 +37,7 @@ export type PlannedHelpProfileChunk = {
   sourceSection: HelpProfileRawSection | HelpProfileSyntheticSection
   visibility: HelpProfileVisibility
   content: string
+  contentVersion: string
   contentHash: string
   syntheticPromptVersion: string | null
   embeddingModel: string
@@ -65,6 +66,9 @@ export function buildHelpProfileIndexPlan(input: {
   const contentVersion = input.contentVersion ?? HELP_PROFILE_CONTENT_VERSION
   const syntheticPromptVersion = input.syntheticPromptVersion ?? HELP_SYNTHETIC_PROMPT_VERSION
   const factIds = new Set(input.facts.map((fact) => fact.id))
+  if (factIds.size !== input.facts.length)
+    throw new Error('Help profile facts must have unique IDs')
+  const factVisibility = new Map(input.facts.map((fact) => [fact.id, fact.visibility]))
   const chunks = dedupe(
     [
       ...input.facts.map((fact) =>
@@ -82,7 +86,11 @@ export function buildHelpProfileIndexPlan(input: {
       ...(input.syntheticPassages ?? []).map((passage) => {
         if (
           passage.evidenceFactIds.length === 0 ||
-          passage.evidenceFactIds.some((id) => !factIds.has(id))
+          passage.evidenceFactIds.some(
+            (id) =>
+              !factIds.has(id) ||
+              (passage.visibility === 'organization' && factVisibility.get(id) === 'connections'),
+          )
         ) {
           throw new Error('Synthetic Help passage has invalid evidence')
         }

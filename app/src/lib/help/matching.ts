@@ -187,11 +187,7 @@ function mergeCandidates(
 }
 
 function hasDisplayEvidence(candidate: RankedHelpCandidate): boolean {
-  return (
-    candidate.deterministicScore > 0 ||
-    candidate.topics.length > 0 ||
-    candidate.evidenceChunkIds.length > 0
-  )
+  return candidate.deterministicScore >= 0.12
 }
 
 function displayEvidence(candidate: RankedHelpCandidate): string[] {

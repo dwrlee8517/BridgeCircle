@@ -28,3 +28,13 @@ export type OutboxHandler = (
 ) => Promise<OutboxHandlerResult>
 
 export type OutboxHandlerRegistry = Readonly<Record<HelpWorkerJobType, OutboxHandler>>
+
+export class OutboxJobError extends Error {
+  constructor(
+    readonly code: string,
+    readonly terminal: boolean,
+  ) {
+    super(`Outbox job failed: ${code}`)
+    this.name = 'OutboxJobError'
+  }
+}

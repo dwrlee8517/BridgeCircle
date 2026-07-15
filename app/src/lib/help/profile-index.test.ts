@@ -101,6 +101,33 @@ describe('Help profile index planning', () => {
     ).toThrow('invalid evidence')
   })
 
+  it('does not widen connection-only evidence into an organization-visible passage', () => {
+    expect(() =>
+      buildHelpProfileIndexPlan({
+        facts: [
+          ...facts,
+          {
+            id: 'private-career',
+            sourceSection: 'career_history',
+            visibility: 'connections',
+            content: 'Connection-only career detail',
+          },
+        ],
+        syntheticPassages: [
+          {
+            sourceSection: 'career_path_summary',
+            visibility: 'organization',
+            content: 'A broader passage built from a restricted fact.',
+            evidenceFactIds: ['private-career'],
+          },
+        ],
+        existingChunks: [],
+        embeddingModel: 'voyage-4',
+        embeddingDimensions: 1024,
+      }),
+    ).toThrow('invalid evidence')
+  })
+
   it('deduplicates identical chunks and drops blank facts', () => {
     const duplicateFact = facts[0]
     if (!duplicateFact) throw new Error('missing fixture')

@@ -68,7 +68,7 @@ from generate_series(1, 2000) fixture;
 
 insert into private.profile_embedding_chunks (
   organization_id, user_id, organization_membership_id, chunk_kind,
-  source_section, visibility_tier, content, content_hash,
+  source_section, visibility_tier, content, content_version, content_hash, fingerprint,
   embedding_model, embedding
 )
 select
@@ -82,7 +82,9 @@ select
     then 'planneedle specialized experience'
     else 'ordinary profile planner fixture ' || fixture
   end,
+  'help-profile-v1',
   encode(digest('help-plan-' || fixture::text, 'sha256'), 'hex'),
+  encode(digest('help-plan-fingerprint-' || fixture::text, 'sha256'), 'hex'),
   'fixture-embedding-v1',
   array_fill(0::real, array[1024])::extensions.vector
 from generate_series(1, 2000) fixture;

@@ -1,10 +1,4 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
   api: {
@@ -153,6 +147,14 @@ export type Database = {
           status: string
         }[]
       }
+      get_ask_matching_context: {
+        Args: { p_job_id: number; p_worker_id: string }
+        Returns: {
+          ask_id: string
+          asker_membership_id: string
+          question: string
+        }[]
+      }
       get_conversation_detail: {
         Args: { p_conversation_id: string }
         Returns: {
@@ -264,11 +266,22 @@ export type Database = {
           idempotency_key: string
           job_id: number
           notification_type: string
+          provider_result_id: string
           recipient_display_name: string
           recipient_email: string
           recipient_user_id: string
           target_id: string
           target_type: string
+        }[]
+      }
+      get_profile_index_source: {
+        Args: { p_job_id: number; p_worker_id: string }
+        Returns: {
+          existing_chunks: Json
+          facts: Json
+          membership_id: string
+          organization_id: string
+          user_id: string
         }[]
       }
       list_conversation_messages_after: {
@@ -405,6 +418,14 @@ export type Database = {
           result_code: string
         }[]
       }
+      record_outbox_provider_result: {
+        Args: {
+          p_job_id: number
+          p_provider_result_id: string
+          p_worker_id: string
+        }
+        Returns: string
+      }
       resolve_ask: {
         Args: { p_ask_id: string; p_outcome_note?: string }
         Returns: {
@@ -523,6 +544,27 @@ export type Database = {
         }
         Returns: string
       }
+      search_ask_matching_candidates: {
+        Args: {
+          p_job_id: number
+          p_limit?: number
+          p_query_embedding?: string
+          p_worker_id: string
+        }
+        Returns: {
+          avatar_path: string
+          display_name: string
+          evidence_chunk_ids: string[]
+          graduation_year: number
+          headline: string
+          helper_membership_id: string
+          helper_user_id: string
+          lexical_score: number
+          match_reason: string
+          semantic_score: number
+          topics: string[]
+        }[]
+      }
       search_help_candidates: {
         Args: {
           p_limit?: number
@@ -582,6 +624,18 @@ export type Database = {
         }
         Returns: string
       }
+      sync_profile_index: {
+        Args: {
+          p_desired_fingerprints: string[]
+          p_job_id: number
+          p_new_chunks: Json
+          p_worker_id: string
+        }
+        Returns: {
+          chunk_count: number
+          result_code: string
+        }[]
+      }
       unblock_member: {
         Args: { p_blocked_user_id: string }
         Returns: undefined
@@ -637,25 +691,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "admin_role_assignments_granter_fk"
-            columns: ["organization_id", "granted_by_membership_id"]
+            foreignKeyName: 'admin_role_assignments_granter_fk'
+            columns: ['organization_id', 'granted_by_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "admin_role_assignments_member_fk"
-            columns: ["organization_id", "organization_membership_id"]
+            foreignKeyName: 'admin_role_assignments_member_fk'
+            columns: ['organization_id', 'organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "admin_role_assignments_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'admin_role_assignments_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -698,18 +752,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "announcements_author_fk"
-            columns: ["organization_id", "author_membership_id"]
+            foreignKeyName: 'announcements_author_fk'
+            columns: ['organization_id', 'author_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "announcements_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'announcements_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -764,25 +818,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "ask_offers_ask_id_fkey"
-            columns: ["ask_id"]
+            foreignKeyName: 'ask_offers_ask_id_fkey'
+            columns: ['ask_id']
             isOneToOne: false
-            referencedRelation: "asks"
-            referencedColumns: ["id"]
+            referencedRelation: 'asks'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "ask_offers_helper_membership_fk"
-            columns: ["organization_id", "helper_membership_id"]
+            foreignKeyName: 'ask_offers_helper_membership_fk'
+            columns: ['organization_id', 'helper_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "ask_offers_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'ask_offers_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -864,32 +918,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "asks_asker_membership_fk"
-            columns: ["organization_id", "asker_membership_id"]
+            foreignKeyName: 'asks_asker_membership_fk'
+            columns: ['organization_id', 'asker_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "asks_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'asks_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "asks_recipient_membership_fk"
-            columns: ["organization_id", "recipient_membership_id"]
+            foreignKeyName: 'asks_recipient_membership_fk'
+            columns: ['organization_id', 'recipient_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "asks_reopened_from_ask_id_fkey"
-            columns: ["reopened_from_ask_id"]
+            foreignKeyName: 'asks_reopened_from_ask_id_fkey'
+            columns: ['reopened_from_ask_id']
             isOneToOne: false
-            referencedRelation: "asks"
-            referencedColumns: ["id"]
+            referencedRelation: 'asks'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -932,25 +986,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "connection_requests_origin_organization_id_fkey"
-            columns: ["origin_organization_id"]
+            foreignKeyName: 'connection_requests_origin_organization_id_fkey'
+            columns: ['origin_organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "connection_requests_recipient_user_id_fkey"
-            columns: ["recipient_user_id"]
+            foreignKeyName: 'connection_requests_recipient_user_id_fkey'
+            columns: ['recipient_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "connection_requests_requester_user_id_fkey"
-            columns: ["requester_user_id"]
+            foreignKeyName: 'connection_requests_requester_user_id_fkey'
+            columns: ['requester_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -981,32 +1035,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "connections_connection_request_id_fkey"
-            columns: ["connection_request_id"]
+            foreignKeyName: 'connections_connection_request_id_fkey'
+            columns: ['connection_request_id']
             isOneToOne: true
-            referencedRelation: "connection_requests"
-            referencedColumns: ["id"]
+            referencedRelation: 'connection_requests'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "connections_origin_organization_id_fkey"
-            columns: ["origin_organization_id"]
+            foreignKeyName: 'connections_origin_organization_id_fkey'
+            columns: ['origin_organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "connections_user_a_id_fkey"
-            columns: ["user_a_id"]
+            foreignKeyName: 'connections_user_a_id_fkey'
+            columns: ['user_a_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "connections_user_b_id_fkey"
-            columns: ["user_b_id"]
+            foreignKeyName: 'connections_user_b_id_fkey'
+            columns: ['user_b_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1031,25 +1085,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "conversation_reads_conversation_id_fkey"
-            columns: ["conversation_id"]
+            foreignKeyName: 'conversation_reads_conversation_id_fkey'
+            columns: ['conversation_id']
             isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
+            referencedRelation: 'conversations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "conversation_reads_message_fk"
-            columns: ["conversation_id", "last_read_message_id"]
+            foreignKeyName: 'conversation_reads_message_fk'
+            columns: ['conversation_id', 'last_read_message_id']
             isOneToOne: false
-            referencedRelation: "messages"
-            referencedColumns: ["conversation_id", "id"]
+            referencedRelation: 'messages'
+            referencedColumns: ['conversation_id', 'id']
           },
           {
-            foreignKeyName: "conversation_reads_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'conversation_reads_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1086,32 +1140,32 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "conversations_ask_id_fkey"
-            columns: ["ask_id"]
+            foreignKeyName: 'conversations_ask_id_fkey'
+            columns: ['ask_id']
             isOneToOne: false
-            referencedRelation: "asks"
-            referencedColumns: ["id"]
+            referencedRelation: 'asks'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "conversations_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'conversations_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "conversations_user_a_id_fkey"
-            columns: ["user_a_id"]
+            foreignKeyName: 'conversations_user_a_id_fkey'
+            columns: ['user_a_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "conversations_user_b_id_fkey"
-            columns: ["user_b_id"]
+            foreignKeyName: 'conversations_user_b_id_fkey'
+            columns: ['user_b_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1139,25 +1193,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "event_rsvps_event_fk"
-            columns: ["organization_id", "event_id"]
+            foreignKeyName: 'event_rsvps_event_fk'
+            columns: ['organization_id', 'event_id']
             isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'events'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "event_rsvps_membership_fk"
-            columns: ["organization_id", "organization_membership_id"]
+            foreignKeyName: 'event_rsvps_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "event_rsvps_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'event_rsvps_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1212,18 +1266,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "events_creator_fk"
-            columns: ["organization_id", "created_by_membership_id"]
+            foreignKeyName: 'events_creator_fk'
+            columns: ['organization_id', 'created_by_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "events_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'events_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1263,18 +1317,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "helper_preferences_membership_fk"
-            columns: ["organization_id", "organization_membership_id"]
+            foreignKeyName: 'helper_preferences_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "helper_preferences_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'helper_preferences_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1305,18 +1359,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "helper_topics_membership_fk"
-            columns: ["organization_id", "organization_membership_id"]
+            foreignKeyName: 'helper_topics_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "helper_topics_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'helper_topics_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1368,25 +1422,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "invites_accepted_by_user_id_fkey"
-            columns: ["accepted_by_user_id"]
+            foreignKeyName: 'invites_accepted_by_user_id_fkey'
+            columns: ['accepted_by_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "invites_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'invites_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "invites_sender_fk"
-            columns: ["organization_id", "sent_by_membership_id"]
+            foreignKeyName: 'invites_sender_fk'
+            columns: ['organization_id', 'sent_by_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
         ]
       }
@@ -1408,18 +1462,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "member_blocks_blocked_user_id_fkey"
-            columns: ["blocked_user_id"]
+            foreignKeyName: 'member_blocks_blocked_user_id_fkey'
+            columns: ['blocked_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "member_blocks_blocker_user_id_fkey"
-            columns: ["blocker_user_id"]
+            foreignKeyName: 'member_blocks_blocker_user_id_fkey'
+            columns: ['blocker_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1462,25 +1516,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
+            foreignKeyName: 'messages_conversation_id_fkey'
+            columns: ['conversation_id']
             isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
+            referencedRelation: 'conversations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "messages_sender_user_id_fkey"
-            columns: ["sender_user_id"]
+            foreignKeyName: 'messages_sender_user_id_fkey'
+            columns: ['sender_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "messages_system_actor_user_id_fkey"
-            columns: ["system_actor_user_id"]
+            foreignKeyName: 'messages_system_actor_user_id_fkey'
+            columns: ['system_actor_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1508,11 +1562,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "notification_preferences_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'notification_preferences_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1558,25 +1612,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "notifications_actor_user_id_fkey"
-            columns: ["actor_user_id"]
+            foreignKeyName: 'notifications_actor_user_id_fkey'
+            columns: ['actor_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "notifications_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'notifications_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "notifications_recipient_user_id_fkey"
-            columns: ["recipient_user_id"]
+            foreignKeyName: 'notifications_recipient_user_id_fkey'
+            columns: ['recipient_user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1616,25 +1670,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "organization_memberships_approver_fk"
-            columns: ["organization_id", "approved_by_membership_id"]
+            foreignKeyName: 'organization_memberships_approver_fk'
+            columns: ['organization_id', 'approved_by_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "organization_memberships_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'organization_memberships_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "organization_memberships_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'organization_memberships_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1665,18 +1719,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "organization_profiles_membership_fk"
-            columns: ["organization_id", "organization_membership_id"]
+            foreignKeyName: 'organization_profiles_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "organization_profiles_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'organization_profiles_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1755,11 +1809,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_education_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profile_education_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1808,11 +1862,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_experiences_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profile_experiences_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1840,18 +1894,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_field_visibility_membership_fk"
-            columns: ["organization_id", "organization_membership_id"]
+            foreignKeyName: 'profile_field_visibility_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
             isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["organization_id", "id"]
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
           },
           {
-            foreignKeyName: "profile_field_visibility_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: 'profile_field_visibility_organization_id_fkey'
+            columns: ['organization_id']
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1876,11 +1930,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profile_skills_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profile_skills_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -1941,11 +1995,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: 'profiles_user_id_fkey'
+            columns: ['user_id']
             isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -2001,33 +2055,31 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type DatabaseWithoutInternals = Omit<Database, '__InternalSupabase'>
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, 'public'>]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema['Tables'] & DefaultSchema['Views'])
+    ? (DefaultSchema['Tables'] & DefaultSchema['Views'])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -2036,23 +2088,23 @@ export type Tables<
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -2061,23 +2113,23 @@ export type TablesInsert<
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
+    | keyof DefaultSchema['Tables']
     | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema['Tables']
+    ? DefaultSchema['Tables'][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -2086,36 +2138,36 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
+    | keyof DefaultSchema['Enums']
     | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema['Enums']
+    ? DefaultSchema['Enums'][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
+    | keyof DefaultSchema['CompositeTypes']
     | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema['CompositeTypes']
+    ? DefaultSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

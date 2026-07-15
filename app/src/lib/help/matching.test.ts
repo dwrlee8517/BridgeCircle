@@ -68,7 +68,7 @@ describe('Help matching', () => {
   it('merges semantic retrieval and reranks only the bounded top pool', async () => {
     const lexical = Array.from({ length: 25 }, (_, index) =>
       candidate(`20000000-0000-4000-8000-${String(index + 2).padStart(12, '0')}`, {
-        lexicalScore: 1 / (index + 1),
+        lexicalScore: 0.5,
         evidenceChunkIds: [`70000000-0000-4000-8000-${String(index + 2).padStart(12, '0')}`],
       }),
     )
@@ -142,9 +142,7 @@ describe('Help matching', () => {
       },
       { repository: repo, embeddings: null, reranker: null },
     )
-    expect(result.candidates.map((item) => item.membershipId)).toEqual([
-      '20000000-0000-4000-8000-000000000003',
-    ])
+    expect(result.candidates).toEqual([])
     expect(result.diagnostics.fallbacks).toEqual(['embedding_unavailable', 'reranker_unavailable'])
   })
 })

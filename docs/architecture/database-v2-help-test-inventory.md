@@ -1,6 +1,6 @@
 # Database v2 Help vertical-slice test inventory
 
-- **Status:** approved — Milestone 1 red baselines recorded
+- **Status:** approved — Milestones 1–6 green locally; UI/browser gates remain
 - **Plan:** [Help vertical-slice implementation plan](database-v2-help-plan.md)
 - **Starting checkpoint:** Conversation Primitive `4a07b47`
 - **Rule:** a milestone cannot proceed while its owned verification is red
@@ -64,6 +64,42 @@ The provider and worker files are dependency-injection contracts only at this
 checkpoint. Provider fallback behavior, golden matching fixtures, profile
 indexing, dispatch, retry, and graceful drain remain explicit red work for the
 next two milestones. No remote system, provider, or secret value was touched.
+
+## Milestone 4 matching/provider evidence — 2026-07-14
+
+| Gate | Result |
+|---|---|
+| focused Vitest at checkpoint | green: 10 files, 49 assertions |
+| deterministic/golden ranking | green: stable ties, weak-evidence removal, no evidence padding, rerank cap 20 |
+| database hard gate | green: same active organization, active account, open/unpaused helper, self/block/capacity exclusion |
+| provider boundaries | green: bounded strict schemas, timeout/error fallbacks, invalid evidence rejection |
+| profile indexing | green: versioned SHA-256 fingerprints, changed-only embedding plan, obsolete cleanup contract |
+| privacy | green: provider/synthetic content cannot become displayed evidence |
+
+No provider or remote service was called; all provider cases used deterministic
+fakes and strict parser fixtures.
+
+## Milestones 5–6 worker/lifecycle/Realtime evidence — 2026-07-14
+
+| Gate | Result |
+|---|---|
+| pgTAP | green: 10 files, 374 assertions |
+| focused Help Vitest | green: 13 files, 79 tests |
+| focused compilers/boundaries | Help, Foundation, Conversation, Supabase, and Conversation boundaries green |
+| worker integration | green: supported-only claim, eligibility/capacity, matching apply, profile sync, email provider replay |
+| maintenance time travel | green: day 5, day 14, offer closure, third timeout, accepted preservation, replay |
+| Foundation/Conversation/Help races | green: disjoint workers plus all inherited and Help concurrency cases |
+| Realtime | Help and inherited Conversation suites green |
+| query plans | Help and inherited Conversation suites green |
+| database lint/shadow diff | no warnings; no schema drift in `public`, `api`, or `private` |
+| deterministic types | generated, formatted, and byte-identical; SHA-256 `f55507e958b0067fe28ae06d4e39f778096544f901bca0b47889834f1e5fe687` |
+| privacy/monitoring | sanitized codes/IDs only; redirect logs contain no email addresses; Sentry PII disabled |
+| repository-wide application gates | Biome green; ESLint green with 3 legacy script warnings; tokens green; Vitest 48 files/234 tests |
+| global TypeScript inventory | unchanged at 1,257 legacy-port errors; zero Help-owned errors |
+
+The worker supports continuous, one-batch, and drain modes with the same typed
+registry. Railway/Doppler deployment remains documentation-only and requires a
+later explicit remote-cutover approval.
 
 ## Test ownership
 
@@ -407,6 +443,7 @@ bash scripts/test-foundation-concurrency.sh
 bash scripts/test-conversation-concurrency.sh
 bash scripts/test-help-concurrency.sh
 bash scripts/test-help-worker.sh
+bash scripts/test-help-maintenance.sh
 bash scripts/test-help-realtime.sh
 bash scripts/test-help-query-plans.sh
 supabase db lint --local --level warning --fail-on warning
@@ -420,7 +457,7 @@ pnpm db:types:local
 pnpm typecheck:v2-foundation
 pnpm typecheck:v2-conversations
 pnpm typecheck:v2-help
-pnpm vitest run src/db/repositories/help.test.ts src/db/realtime/help-channel.test.ts src/lib/help src/lib/outbox src/workers/outbox
+pnpm vitest run src/db/repositories/help.test.ts src/db/realtime/help-channel.test.ts src/lib/help src/lib/outbox src/workers/outbox src/integrations/ai/help-anthropic.test.ts src/integrations/ai/help-voyage.test.ts src/notify/devGuard.test.ts
 pnpm check:supabase-boundaries
 pnpm check:conversation-boundaries
 pnpm check:help-boundaries

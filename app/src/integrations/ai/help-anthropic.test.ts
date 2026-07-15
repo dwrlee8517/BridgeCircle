@@ -61,4 +61,48 @@ describe('Anthropic Help provider', () => {
       message: 'Help provider failed: network',
     })
   })
+
+  it('accepts only retrieval passages that cite supplied factual IDs', async () => {
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        response(
+          JSON.stringify({
+            passages: [
+              {
+                sourceSection: 'career_path_summary',
+                content: 'Moved from consulting into product leadership.',
+                evidenceFactIds: ['career'],
+              },
+            ],
+          }),
+        ),
+      )
+      .mockResolvedValueOnce(
+        response(
+          JSON.stringify({
+            passages: [
+              {
+                sourceSection: 'career_path_summary',
+                content: 'Unsupported claim.',
+                evidenceFactIds: ['missing'],
+              },
+            ],
+          }),
+        ),
+      )
+    const provider = new AnthropicHelpProvider({ apiKey: 'test-key', fetchImpl })
+    const input = {
+      visibility: 'organization' as const,
+      facts: [
+        { id: 'career', sourceSection: 'career_history', content: 'Consultant. Product lead.' },
+      ],
+    }
+    await expect(
+      provider.generateProfilePassages(input, new AbortController().signal),
+    ).resolves.toHaveLength(1)
+    await expect(
+      provider.generateProfilePassages(input, new AbortController().signal),
+    ).rejects.toMatchObject({ code: 'invalid_response' })
+  })
 })

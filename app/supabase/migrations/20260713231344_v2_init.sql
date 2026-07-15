@@ -1014,6 +1014,7 @@ create table private.outbox_jobs (
   locked_at timestamptz,
   locked_by text,
   last_error text,
+  provider_result_id text,
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -1025,6 +1026,10 @@ create table private.outbox_jobs (
   constraint outbox_jobs_dedupe_key_check check (char_length(btrim(dedupe_key)) between 1 and 500),
   constraint outbox_jobs_status_check check (status in ('pending', 'processing', 'completed', 'failed')),
   constraint outbox_jobs_attempts_check check (attempts >= 0 and max_attempts > 0 and attempts <= max_attempts),
+  constraint outbox_jobs_provider_result_check check (
+    provider_result_id is null
+    or (job_type = 'send_email' and char_length(btrim(provider_result_id)) between 1 and 500)
+  ),
   constraint outbox_jobs_state_check check (
     (status = 'pending' and locked_at is null and locked_by is null and completed_at is null)
     or (status = 'processing' and locked_at is not null and locked_by is not null and completed_at is null)
@@ -1073,10 +1078,12 @@ create table private.profile_embedding_chunks (
   source_section text not null,
   visibility_tier text not null,
   content text not null,
+  content_version text not null,
   search_vector tsvector generated always as (
     to_tsvector('english'::regconfig, content)
   ) stored,
   content_hash text not null,
+  fingerprint text not null,
   synthetic_prompt_version text,
   embedding_model text not null,
   embedding_dim integer not null default 1024,
@@ -1099,10 +1106,17 @@ create table private.profile_embedding_chunks (
   constraint profile_embedding_chunks_visibility_check
     check (visibility_tier in ('organization', 'connections')),
   constraint profile_embedding_chunks_content_check check (char_length(btrim(content)) > 0),
+  constraint profile_embedding_chunks_content_version_check
+    check (char_length(btrim(content_version)) between 1 and 100),
+  constraint profile_embedding_chunks_hash_check
+    check (content_hash ~ '^[0-9a-f]{64}$' and fingerprint ~ '^[0-9a-f]{64}$'),
   constraint profile_embedding_chunks_dimension_check check (embedding_dim = 1024),
   constraint profile_embedding_chunks_content_key unique (
     organization_membership_id, source_section, visibility_tier,
     content_hash, embedding_model, embedding_dim
+  ),
+  constraint profile_embedding_chunks_fingerprint_key unique (
+    organization_membership_id, fingerprint
   )
 );
 
@@ -4211,7 +4225,10 @@ begin
   end if;
 
   select * into v_ask from public.asks where id = p_ask_id for share;
-  if not found or v_ask.kind <> 'circle' or v_ask.status <> 'open' then
+  if not found
+     or v_ask.kind <> 'circle'
+     or v_ask.status <> 'open'
+     or v_ask.reach <> 'matched' then
     raise exception using errcode = '22023', message = 'circle_ask_not_open';
   end if;
   if not private.owns_membership(p_helper_membership_id, v_ask.organization_id) then
@@ -5421,6 +5438,134 @@ begin
 end;
 $$;
 
+create function private.search_help_candidates(
+  p_organization_id uuid,
+  p_viewer_user_id uuid,
+  p_question text,
+  p_query_embedding extensions.vector(1024) default null,
+  p_limit integer default 20
+)
+returns table (
+  helper_membership_id uuid,
+  helper_user_id uuid,
+  display_name text,
+  headline text,
+  avatar_path text,
+  graduation_year smallint,
+  topics text[],
+  lexical_score double precision,
+  semantic_score double precision,
+  match_reason text,
+  evidence_chunk_ids uuid[]
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with query_input as (
+    select websearch_to_tsquery(
+      'english'::regconfig,
+      nullif(btrim(coalesce(p_question, '')), '')
+    ) as lexical_query
+  ),
+  eligible as (
+    select
+      helper.id as membership_id,
+      helper.user_id,
+      p.display_name,
+      p.headline,
+      p.avatar_path,
+      op.graduation_year,
+      coalesce((
+        select array_agg(ht.name order by ht.sort_order)
+        from public.helper_topics ht
+        where ht.organization_membership_id = helper.id
+      ), '{}'::text[]) as topics
+    from public.organization_memberships helper
+    join public.users helper_user
+      on helper_user.id = helper.user_id and helper_user.account_state = 'active'
+    join public.helper_preferences hp
+      on hp.organization_membership_id = helper.id
+     and hp.organization_id = helper.organization_id
+     and hp.open_to_help = true
+     and hp.paused_at is null
+    join public.profiles p on p.user_id = helper.user_id
+    left join public.organization_profiles op
+      on op.organization_membership_id = helper.id
+    where helper.organization_id = p_organization_id
+      and helper.status = 'active'
+      and helper.user_id <> p_viewer_user_id
+      and not private.is_blocked(p_viewer_user_id, helper.user_id)
+      and (
+        select count(*)
+        from public.asks pending
+        where pending.recipient_membership_id = helper.id
+          and pending.kind = 'direct'
+          and pending.status = 'waiting'
+      ) < hp.max_pending_requests
+  ),
+  scored as (
+    select
+      e.*,
+      greatest(
+        coalesce(max(ts_rank_cd(c.search_vector, q.lexical_query)), 0),
+        coalesce(ts_rank_cd(
+          to_tsvector('english'::regconfig, array_to_string(e.topics, ' ')),
+          q.lexical_query
+        ), 0)
+      )::double precision as lexical_score,
+      case
+        when p_query_embedding is null then 0::double precision
+        else coalesce(max(
+          1 - (c.embedding OPERATOR(extensions.<=>) p_query_embedding)
+        ), 0)::double precision
+      end as semantic_score,
+      coalesce(
+        array_agg(c.id order by c.id) filter (where c.chunk_kind = 'raw'),
+        '{}'::uuid[]
+      ) as evidence_chunk_ids
+    from eligible e
+    cross join query_input q
+    left join private.profile_embedding_chunks c
+      on c.organization_membership_id = e.membership_id
+     and (
+       c.visibility_tier = 'organization'
+       or (
+         c.visibility_tier = 'connections'
+         and private.is_connected(p_viewer_user_id, e.user_id)
+       )
+     )
+    where q.lexical_query is not null
+    group by
+      e.membership_id, e.user_id, e.display_name, e.headline, e.avatar_path,
+      e.graduation_year, e.topics, q.lexical_query
+  )
+  select
+    s.membership_id,
+    s.user_id,
+    s.display_name,
+    s.headline,
+    s.avatar_path,
+    s.graduation_year,
+    s.topics,
+    s.lexical_score,
+    s.semantic_score,
+    case
+      when cardinality(s.topics) > 0 then 'Speaks to ' || s.topics[1]
+      else coalesce(s.headline, 'Relevant experience')
+    end,
+    s.evidence_chunk_ids
+  from scored s
+  where p_query_embedding is null
+     or s.lexical_score > 0
+     or s.semantic_score > 0
+  order by
+    (s.lexical_score * 0.45 + s.semantic_score * 0.55) desc,
+    s.membership_id
+  limit greatest(1, least(coalesce(p_limit, 20), 50));
+$$;
+
 create function private.match_profile_embedding_chunks(
   p_organization_id uuid,
   p_query_embedding extensions.vector(1024),
@@ -6108,6 +6253,45 @@ begin
 end;
 $$;
 
+create function private.record_outbox_provider_result(
+  p_job_id bigint,
+  p_worker_id text,
+  p_provider_result_id text
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_job private.outbox_jobs%rowtype;
+  v_provider_result_id text := nullif(btrim(p_provider_result_id), '');
+begin
+  select * into v_job
+  from private.outbox_jobs j
+  where j.id = p_job_id
+  for update;
+
+  if not found then return 'not_found'; end if;
+  if v_job.locked_by is distinct from p_worker_id then return 'lock_not_owned'; end if;
+  if v_job.job_type <> 'send_email' or v_job.status <> 'processing' then
+    return 'not_available';
+  end if;
+  if v_provider_result_id is null or char_length(v_provider_result_id) > 500 then
+    return 'invalid_input';
+  end if;
+  if v_job.provider_result_id is not null then
+    if v_job.provider_result_id = v_provider_result_id then return 'recorded'; end if;
+    return 'provider_conflict';
+  end if;
+
+  update private.outbox_jobs
+  set provider_result_id = v_provider_result_id
+  where id = p_job_id;
+  return 'recorded';
+end;
+$$;
+
 create function private.fail_outbox_job(
   p_job_id bigint,
   p_worker_id text,
@@ -6218,6 +6402,13 @@ begin
    and hp.paused_at is null
   where helper.user_id <> v_asker_user_id
     and not private.is_blocked(v_asker_user_id, helper.user_id)
+    and (
+      select count(*)
+      from public.asks pending
+      where pending.recipient_membership_id = helper.id
+        and pending.kind = 'direct'
+        and pending.status = 'waiting'
+    ) < hp.max_pending_requests
     and input.rank > 0
     and input.score between 0 and 1
     and char_length(btrim(coalesce(input.reason, ''))) between 1 and 1000
@@ -6516,21 +6707,21 @@ begin
     raise exception using errcode = '22023', message = 'invalid_notification_payload';
   end if;
 
-  if v_job.payload ? 'offerId' then
-    v_target_type := 'offer';
-    v_target_id := v_job.payload ->> 'offerId';
-    select ao.organization_id into v_organization_id
-    from public.ask_offers ao where ao.id = v_target_id::uuid;
+  if v_job.payload ? 'conversationId' then
+    v_target_type := 'conversation';
+    v_target_id := v_job.payload ->> 'conversationId';
+    select c.organization_id into v_organization_id
+    from public.conversations c where c.id = v_target_id::uuid;
   elsif v_job.payload ? 'askId' then
     v_target_type := 'ask';
     v_target_id := v_job.payload ->> 'askId';
     select a.organization_id into v_organization_id
     from public.asks a where a.id = v_target_id::uuid;
-  elsif v_job.payload ? 'conversationId' then
-    v_target_type := 'conversation';
-    v_target_id := v_job.payload ->> 'conversationId';
-    select c.organization_id into v_organization_id
-    from public.conversations c where c.id = v_target_id::uuid;
+  elsif v_job.payload ? 'offerId' then
+    v_target_type := 'offer';
+    v_target_id := v_job.payload ->> 'offerId';
+    select ao.organization_id into v_organization_id
+    from public.ask_offers ao where ao.id = v_target_id::uuid;
   elsif v_job.payload ? 'connectionRequestId' then
     v_target_type := 'connection_request';
     v_target_id := v_job.payload ->> 'connectionRequestId';
@@ -6620,7 +6811,8 @@ returns table (
   actor_display_name text,
   target_type text,
   target_id text,
-  idempotency_key text
+  idempotency_key text,
+  provider_result_id text
 )
 language sql
 stable
@@ -6635,17 +6827,18 @@ as $$
     recipient_profile.display_name,
     actor_profile.display_name,
     case
-      when j.payload ? 'offerId' then 'offer'
-      when j.payload ? 'askId' then 'ask'
       when j.payload ? 'conversationId' then 'conversation'
+      when j.payload ? 'askId' then 'ask'
+      when j.payload ? 'offerId' then 'offer'
       else null
     end,
     coalesce(
-      j.payload ->> 'offerId',
+      j.payload ->> 'conversationId',
       j.payload ->> 'askId',
-      j.payload ->> 'conversationId'
+      j.payload ->> 'offerId'
     ),
-    'outbox:' || j.id::text
+    'outbox:' || j.id::text,
+    j.provider_result_id
   from private.outbox_jobs j
   join public.users recipient
     on recipient.id = (j.payload ->> 'recipientUserId')::uuid
@@ -6658,6 +6851,313 @@ as $$
     and j.job_type = 'send_email'
     and j.status = 'processing'
     and j.locked_by = p_worker_id;
+$$;
+
+create function private.get_ask_matching_context(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  ask_id uuid,
+  asker_membership_id uuid,
+  question text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select a.id, a.asker_membership_id, a.question
+  from private.outbox_jobs j
+  join public.asks a on a.id::text = j.payload ->> 'askId'
+  where j.id = p_job_id
+    and j.job_type = 'run_ask_matching'
+    and j.status = 'processing'
+    and j.locked_by = p_worker_id
+    and a.kind = 'circle'
+    and a.status = 'open'
+    and a.reach = 'matched';
+$$;
+
+create function private.get_profile_index_source(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  organization_id uuid,
+  user_id uuid,
+  membership_id uuid,
+  facts jsonb,
+  existing_chunks jsonb
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with claimed as (
+    select m.organization_id, m.user_id, m.id as membership_id
+    from private.outbox_jobs j
+    join public.organization_memberships m
+      on m.id::text = j.payload ->> 'membershipId'
+     and m.organization_id::text = j.payload ->> 'organizationId'
+     and m.user_id::text = j.payload ->> 'userId'
+     and m.status = 'active'
+    join public.users u on u.id = m.user_id and u.account_state = 'active'
+    where j.id = p_job_id
+      and j.job_type = 'index_profile'
+      and j.status = 'processing'
+      and j.locked_by = p_worker_id
+  )
+  select
+    claimed.organization_id,
+    claimed.user_id,
+    claimed.membership_id,
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id', fact.id,
+          'sourceSection', fact.source_section,
+          'visibility', fact.visibility,
+          'content', left(fact.content, 8000)
+        ) order by fact.sort_order
+      )
+      from (
+        select
+          'directory'::text as id,
+          'directory'::text as source_section,
+          'organization'::text as visibility,
+          nullif(concat_ws('. ',
+            nullif(p.headline, ''),
+            nullif(concat_ws(' at ', p.current_title, p.current_employer), ''),
+            case when p.city is not null then 'Based in ' || p.city end,
+            case when p.university is not null then 'Studied at ' || p.university end,
+            case when p.major is not null then 'Studied ' || p.major end,
+            case when op.graduation_year is not null then 'Class of ' || op.graduation_year::text end
+          ), '') as content,
+          1 as sort_order
+        union all
+        select
+          'career_history', 'career_history',
+          coalesce((
+            select v.audience from public.profile_field_visibility v
+            where v.organization_membership_id = claimed.membership_id
+              and v.field_key = 'career_history'
+          ), 'organization'),
+          (select string_agg(
+            concat_ws(' - ', e.title || ' at ' || e.employer, e.description),
+            '. ' order by e.sort_order, e.id
+          ) from public.profile_experiences e where e.user_id = claimed.user_id),
+          2
+        union all
+        select
+          'education_history', 'education_history',
+          coalesce((
+            select v.audience from public.profile_field_visibility v
+            where v.organization_membership_id = claimed.membership_id
+              and v.field_key = 'education_history'
+          ), 'organization'),
+          (select string_agg(
+            concat_ws(' - ', e.school, e.degree, e.field, e.description),
+            '. ' order by e.sort_order, e.id
+          ) from public.profile_education e where e.user_id = claimed.user_id),
+          3
+        union all
+        select
+          'bio', 'bio',
+          coalesce((
+            select v.audience from public.profile_field_visibility v
+            where v.organization_membership_id = claimed.membership_id
+              and v.field_key = 'bio'
+          ), 'organization'),
+          op.bio,
+          4
+        union all
+        select
+          'skills', 'skills',
+          coalesce((
+            select v.audience from public.profile_field_visibility v
+            where v.organization_membership_id = claimed.membership_id
+              and v.field_key = 'skills'
+          ), 'organization'),
+          (select string_agg(s.name, ', ' order by s.sort_order, s.normalized_name)
+           from public.profile_skills s where s.user_id = claimed.user_id),
+          5
+        union all
+        select
+          'helper_topics', 'helper_topics', 'organization',
+          (select string_agg(t.name, ', ' order by t.sort_order, t.normalized_name)
+           from public.helper_topics t
+           where t.organization_membership_id = claimed.membership_id),
+          6
+      ) fact
+      where nullif(btrim(fact.content), '') is not null
+        and fact.visibility in ('organization', 'connections')
+    ), '[]'::jsonb),
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object('id', c.id, 'fingerprint', c.fingerprint)
+        order by c.id
+      )
+      from private.profile_embedding_chunks c
+      where c.organization_membership_id = claimed.membership_id
+    ), '[]'::jsonb)
+  from claimed
+  join public.profiles p on p.user_id = claimed.user_id
+  left join public.organization_profiles op
+    on op.organization_membership_id = claimed.membership_id;
+$$;
+
+create function private.sync_profile_index(
+  p_job_id bigint,
+  p_worker_id text,
+  p_desired_fingerprints text[],
+  p_new_chunks jsonb
+)
+returns table (
+  result_code text,
+  chunk_count integer
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_organization_id uuid;
+  v_user_id uuid;
+  v_membership_id uuid;
+  v_chunk_count integer;
+begin
+  select m.organization_id, m.user_id, m.id
+    into v_organization_id, v_user_id, v_membership_id
+  from private.outbox_jobs j
+  join public.organization_memberships m
+    on m.id::text = j.payload ->> 'membershipId'
+   and m.organization_id::text = j.payload ->> 'organizationId'
+   and m.user_id::text = j.payload ->> 'userId'
+   and m.status = 'active'
+  where j.id = p_job_id
+    and j.job_type = 'index_profile'
+    and j.status = 'processing'
+    and j.locked_by = p_worker_id
+  for update of j, m;
+
+  if not found then
+    return query select 'not_available'::text, 0;
+    return;
+  end if;
+  if p_desired_fingerprints is null
+     or cardinality(p_desired_fingerprints) > 20
+     or (select count(distinct value) from unnest(p_desired_fingerprints) value)
+        <> cardinality(p_desired_fingerprints)
+     or exists (
+       select 1 from unnest(p_desired_fingerprints) value
+       where value !~ '^[0-9a-f]{64}$'
+     )
+     or p_new_chunks is null
+     or jsonb_typeof(p_new_chunks) <> 'array' then
+    return query select 'invalid_input'::text, 0;
+    return;
+  end if;
+  if jsonb_array_length(p_new_chunks) > 20
+    or exists (
+       select 1
+       from jsonb_array_elements(p_new_chunks) element
+       where jsonb_typeof(element) <> 'object'
+     )
+    or exists (
+       select 1
+       from jsonb_array_elements(p_new_chunks) element
+       cross join lateral jsonb_object_keys(
+         case when jsonb_typeof(element) = 'object' then element else '{}'::jsonb end
+       ) key
+       where key not in (
+           'chunkKind', 'sourceSection', 'visibility', 'content', 'contentVersion',
+           'contentHash', 'fingerprint', 'syntheticPromptVersion', 'embeddingModel',
+           'embeddingDimensions', 'embedding'
+         )
+     ) then
+    return query select 'invalid_input'::text, 0;
+    return;
+  end if;
+
+  begin
+    insert into private.profile_embedding_chunks (
+      organization_id, user_id, organization_membership_id,
+      chunk_kind, source_section, visibility_tier, content, content_version,
+      content_hash, fingerprint, synthetic_prompt_version,
+      embedding_model, embedding_dim, embedding
+    )
+    select
+      v_organization_id,
+      v_user_id,
+      v_membership_id,
+      item."chunkKind",
+      item."sourceSection",
+      item.visibility,
+      btrim(item.content),
+      item."contentVersion",
+      item."contentHash",
+      item.fingerprint,
+      item."syntheticPromptVersion",
+      item."embeddingModel",
+      item."embeddingDimensions",
+      item.embedding::extensions.vector(1024)
+    from jsonb_to_recordset(p_new_chunks) as item(
+      "chunkKind" text,
+      "sourceSection" text,
+      visibility text,
+      content text,
+      "contentVersion" text,
+      "contentHash" text,
+      fingerprint text,
+      "syntheticPromptVersion" text,
+      "embeddingModel" text,
+      "embeddingDimensions" integer,
+      embedding text
+    )
+    where item.fingerprint = any(p_desired_fingerprints)
+    on conflict (organization_membership_id, fingerprint) do update
+      set content = excluded.content,
+          embedding = excluded.embedding,
+          updated_at = now();
+  exception when data_exception or integrity_constraint_violation then
+    return query select 'invalid_input'::text, 0;
+    return;
+  end;
+
+  delete from private.profile_embedding_chunks c
+  where c.organization_membership_id = v_membership_id
+    and not (c.fingerprint = any(p_desired_fingerprints));
+
+  select count(*)::integer into v_chunk_count
+  from private.profile_embedding_chunks c
+  where c.organization_membership_id = v_membership_id;
+  if v_chunk_count <> cardinality(p_desired_fingerprints) then
+    raise exception using errcode = '23514', message = 'profile_index_incomplete';
+  end if;
+
+  insert into private.profile_embedding_status (
+    organization_membership_id, organization_id, user_id, status,
+    dirty_reason, dirty_since, attempt_count, last_indexed_at, last_success_at,
+    locked_at, locked_by, last_error
+  ) values (
+    v_membership_id, v_organization_id, v_user_id, 'ready',
+    null, null, 0, now(), now(), null, null, null
+  )
+  on conflict (organization_membership_id) do update
+    set status = 'ready',
+        dirty_reason = null,
+        dirty_since = null,
+        attempt_count = 0,
+        last_indexed_at = now(),
+        last_success_at = now(),
+        locked_at = null,
+        locked_by = null,
+        last_error = null;
+
+  return query select 'synced'::text, v_chunk_count;
+end;
 $$;
 
 -- ---------------------------------------------------------------------------
@@ -7118,97 +7618,16 @@ as $$
     where m.id = p_membership_id
       and m.user_id = (select auth.uid())
       and m.status = 'active'
-  ),
-  query_input as (
-    select websearch_to_tsquery(
-      'english'::regconfig,
-      nullif(btrim(coalesce(p_question, '')), '')
-    ) as lexical_query
-  ),
-  eligible as (
-    select
-      helper.id as membership_id,
-      helper.user_id,
-      p.display_name,
-      p.headline,
-      p.avatar_path,
-      op.graduation_year,
-      coalesce((
-        select array_agg(ht.name order by ht.sort_order)
-        from public.helper_topics ht
-        where ht.organization_membership_id = helper.id
-      ), '{}'::text[]) as topics
-    from viewer
-    join public.organization_memberships helper
-      on helper.organization_id = viewer.organization_id
-     and helper.status = 'active'
-     and helper.user_id <> viewer.user_id
-    join public.users helper_user
-      on helper_user.id = helper.user_id and helper_user.account_state = 'active'
-    join public.helper_preferences hp
-      on hp.organization_membership_id = helper.id
-     and hp.organization_id = helper.organization_id
-     and hp.open_to_help = true
-     and hp.paused_at is null
-    join public.profiles p on p.user_id = helper.user_id
-    left join public.organization_profiles op
-      on op.organization_membership_id = helper.id
-    where not private.is_blocked(viewer.user_id, helper.user_id)
-  ),
-  scored as (
-    select
-      e.*,
-      greatest(
-        coalesce(max(ts_rank_cd(c.search_vector, q.lexical_query)), 0),
-        coalesce(ts_rank_cd(
-          to_tsvector('english'::regconfig, array_to_string(e.topics, ' ')),
-          q.lexical_query
-        ), 0)
-      )::double precision as lexical_score,
-      case
-        when p_query_embedding is null then 0::double precision
-        else coalesce(max(
-          1 - (c.embedding OPERATOR(extensions.<=>) p_query_embedding)
-        ), 0)::double precision
-      end as semantic_score,
-      array_remove(array_agg(c.id order by c.id), null) as evidence_chunk_ids
-    from eligible e
-    cross join query_input q
-    left join private.profile_embedding_chunks c
-      on c.organization_membership_id = e.membership_id
-     and (
-       c.visibility_tier = 'organization'
-       or (
-         c.visibility_tier = 'connections'
-         and private.is_connected((select user_id from viewer), e.user_id)
-       )
-     )
-    where q.lexical_query is not null
-    group by
-      e.membership_id, e.user_id, e.display_name, e.headline, e.avatar_path,
-      e.graduation_year, e.topics, q.lexical_query
   )
-  select
-    s.membership_id,
-    s.user_id,
-    s.display_name,
-    s.headline,
-    s.avatar_path,
-    s.graduation_year,
-    s.topics,
-    s.lexical_score,
-    s.semantic_score,
-    case
-      when cardinality(s.topics) > 0 then 'Speaks to ' || s.topics[1]
-      else coalesce(s.headline, 'Relevant experience')
-    end,
-    s.evidence_chunk_ids
-  from scored s
-  where s.lexical_score > 0 or s.semantic_score > 0
-  order by
-    (s.lexical_score * 0.45 + s.semantic_score * 0.55) desc,
-    s.membership_id
-  limit greatest(1, least(coalesce(p_limit, 20), 50));
+  select candidate.*
+  from viewer
+  cross join lateral private.search_help_candidates(
+    viewer.organization_id,
+    viewer.user_id,
+    p_question,
+    p_query_embedding,
+    p_limit
+  ) candidate;
 $$;
 
 create function api.get_help_ask_detail(p_ask_id uuid)
@@ -7964,6 +8383,97 @@ as $$
   from private.claim_outbox_jobs(p_worker_id, p_limit, p_allowed_types) j;
 $$;
 
+create function api.get_ask_matching_context(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  ask_id uuid,
+  asker_membership_id uuid,
+  question text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$ select * from private.get_ask_matching_context(p_job_id, p_worker_id); $$;
+
+create function api.search_ask_matching_candidates(
+  p_job_id bigint,
+  p_worker_id text,
+  p_query_embedding extensions.vector(1024) default null,
+  p_limit integer default 40
+)
+returns table (
+  helper_membership_id uuid,
+  helper_user_id uuid,
+  display_name text,
+  headline text,
+  avatar_path text,
+  graduation_year smallint,
+  topics text[],
+  lexical_score double precision,
+  semantic_score double precision,
+  match_reason text,
+  evidence_chunk_ids uuid[]
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with context as (
+    select c.*, m.organization_id, m.user_id as asker_user_id
+    from private.get_ask_matching_context(p_job_id, p_worker_id) c
+    join public.organization_memberships m on m.id = c.asker_membership_id
+  )
+  select candidate.*
+  from context
+  cross join lateral private.search_help_candidates(
+    context.organization_id,
+    context.asker_user_id,
+    context.question,
+    p_query_embedding,
+    p_limit
+  ) candidate;
+$$;
+
+create function api.get_profile_index_source(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  organization_id uuid,
+  user_id uuid,
+  membership_id uuid,
+  facts jsonb,
+  existing_chunks jsonb
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$ select * from private.get_profile_index_source(p_job_id, p_worker_id); $$;
+
+create function api.sync_profile_index(
+  p_job_id bigint,
+  p_worker_id text,
+  p_desired_fingerprints text[],
+  p_new_chunks jsonb
+)
+returns table (
+  result_code text,
+  chunk_count integer
+)
+language sql
+security definer
+set search_path = ''
+as $$
+  select * from private.sync_profile_index(
+    p_job_id, p_worker_id, p_desired_fingerprints, p_new_chunks
+  );
+$$;
+
 create function api.apply_ask_matches(
   p_ask_id uuid,
   p_pipeline_version text,
@@ -8025,13 +8535,26 @@ returns table (
   actor_display_name text,
   target_type text,
   target_id text,
-  idempotency_key text
+  idempotency_key text,
+  provider_result_id text
 )
 language sql
 stable
 security definer
 set search_path = ''
 as $$ select * from private.get_outbox_email_context(p_job_id, p_worker_id); $$;
+
+create function api.record_outbox_provider_result(
+  p_job_id bigint,
+  p_worker_id text,
+  p_provider_result_id text
+)
+returns text language sql set search_path = ''
+as $$
+  select private.record_outbox_provider_result(
+    p_job_id, p_worker_id, p_provider_result_id
+  );
+$$;
 
 create function api.complete_outbox_job(
   p_job_id bigint,
@@ -8466,10 +8989,15 @@ grant execute on function api.submit_report(text, text, text, text) to authentic
 grant execute on function api.set_event_rsvp(uuid, uuid, text) to authenticated;
 grant execute on function api.verify_invite(text) to service_role;
 grant execute on function api.claim_outbox_jobs(text, integer, text[]) to service_role;
+grant execute on function api.get_ask_matching_context(bigint, text) to service_role;
+grant execute on function api.search_ask_matching_candidates(bigint, text, extensions.vector, integer) to service_role;
+grant execute on function api.get_profile_index_source(bigint, text) to service_role;
+grant execute on function api.sync_profile_index(bigint, text, text[], jsonb) to service_role;
 grant execute on function api.apply_ask_matches(uuid, text, text, jsonb) to service_role;
 grant execute on function api.run_help_maintenance(timestamptz, integer) to service_role;
 grant execute on function api.materialize_notification_job(bigint, text) to service_role;
 grant execute on function api.get_outbox_email_context(bigint, text) to service_role;
+grant execute on function api.record_outbox_provider_result(bigint, text, text) to service_role;
 grant execute on function api.complete_outbox_job(bigint, text) to service_role;
 grant execute on function api.retry_outbox_job(bigint, text, text, timestamptz) to service_role;
 grant execute on function api.fail_outbox_job(bigint, text, text) to service_role;
