@@ -5,14 +5,13 @@ import { Wordmark } from '@/components/ui/wordmark'
 import { MemberNav } from './member-nav'
 
 type Props = {
-  userId: string
   name: string | null
   avatarUrl: string | null
   graduationYear: number | null
   isAdmin: boolean
 }
 
-export function MemberSidebar({ userId, name, avatarUrl, graduationYear, isAdmin }: Props) {
+export function MemberSidebar({ name, avatarUrl, graduationYear, isAdmin }: Props) {
   const initial = (name?.trim() || '?').slice(0, 1).toUpperCase()
 
   return (
@@ -42,7 +41,7 @@ export function MemberSidebar({ userId, name, avatarUrl, graduationYear, isAdmin
         ) : null}
 
         <Link
-          href={`/profile/${userId}`}
+          href="/profile/me"
           aria-label={name ? `Open ${name}'s profile` : 'Open your profile'}
           className="flex items-center justify-center gap-3 rounded-[var(--radius-box)] px-1 py-2 transition-colors hover:bg-[var(--hover-tint)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring xl:justify-start xl:px-2"
         >

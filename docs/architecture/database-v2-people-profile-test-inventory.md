@@ -1,6 +1,6 @@
 # Database v2 People/Profile vertical-slice test inventory
 
-- **Status:** Milestone 6 code and destructive cutover green; browser acceptance pending
+- **Status:** Milestones 4–6 code and destructive cutover green; final browser acceptance pending
 - **Approved:** 2026-07-15
 - **Plan:** [People/Profile vertical-slice implementation plan](database-v2-people-profile-plan.md)
 - **Starting checkpoint:** completed Messages slice `c9a1b77`
@@ -149,6 +149,40 @@ Implemented locally after member-profile checkpoint `0db8c97`:
 Authenticated browser roads, three-viewer privacy checks, avatar refresh, and
 reference-to-render visual comparison remain Milestone 6/7 acceptance work and
 are not claimed by this code checkpoint.
+
+## Milestone 5 intercepted-profile closure
+
+Implemented locally after self-profile checkpoint `4cd93aa`:
+
+- the member layout now owns an `@profileModal` parallel slot, a same-segment
+  `/profile/[id]` interceptor, a hard-load default, and an unmatched-route
+  catch-all so unrelated soft navigation cannot retain a stale profile;
+- canonical and intercepted profile routes render one async server component,
+  so session, membership, privacy, avatar, and viewer-shaped profile loading
+  cannot drift;
+- direct loads remain the complete `/profile/[id]` page with a deterministic
+  People back target, while in-shell navigation uses a right-side modal sheet;
+- the client modal owns only Radix focus containment, scrim/Escape/close
+  dismissal through `router.back()`, sheet scrolling, and presentation;
+- the overlay keeps the complete profile sections and actions, but forces the
+  narrow one-column composition even on desktop viewports;
+- a slot catch-all resolves modal state to `null` when an action navigates to
+  Help, Messages, People, or another member route.
+- the desktop shell’s owner link now targets `/profile/me` directly rather
+  than entering the other-member interceptor and relying on a self redirect.
+
+| Gate | Result |
+|---|---|
+| Next 16.2.4 route type generation | green; canonical and intercepted pages both type as `/profile/[id]` |
+| focused People/Profile TypeScript under Node 22 | green |
+| People/Profile boundary and destructive-cutover detectors | green |
+| focused repository/query/profile Vitest | 6 files / 17 tests / green |
+| changed-file ESLint, Biome, and `git diff --check` | green |
+| unauthenticated direct-route runtime | `307` to sign-in with the exact `/profile/[id]` return path preserved |
+
+Authenticated overlay back/forward, focus return, nested action dialogs, axe,
+and same-state visual comparison remain final browser acceptance work and are
+not claimed by the structural/runtime checkpoint.
 
 ## Planned verification matrix
 

@@ -45,11 +45,13 @@ export function MemberProfileView({
   avatarUrl,
   organizationId,
   organizationName,
+  presentation,
 }: {
   profile: MemberProfile
   avatarUrl: string | null
   organizationId: string
   organizationName: string
+  presentation: 'page' | 'overlay'
 }) {
   const router = useRouter()
   const [relationship, setRelationship] = useState<MemberProfileRelationship>(profile.relationship)
@@ -128,15 +130,29 @@ export function MemberProfileView({
   }
 
   return (
-    <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-      <div className="mx-auto max-w-[1180px]">
-        <Button asChild variant="ghost" size="sm" className="mb-3 -ml-2">
-          <Link href="/people">
-            <ArrowLeft aria-hidden /> People
-          </Link>
-        </Button>
+    <div
+      className={cn(
+        'min-h-full bg-[var(--surface-canvas)]',
+        presentation === 'page' ? 'px-4 py-5 sm:px-6 lg:px-8 lg:py-7' : 'p-3 sm:p-4',
+      )}
+    >
+      <div className={cn('mx-auto max-w-[1180px]', presentation === 'overlay' && 'max-w-none')}>
+        {presentation === 'page' ? (
+          <Button asChild variant="ghost" size="sm" className="mb-3 -ml-2">
+            <Link href="/people">
+              <ArrowLeft aria-hidden /> People
+            </Link>
+          </Button>
+        ) : null}
         <article className="overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-          <header className="flex flex-col gap-5 px-5 py-6 sm:px-7 lg:flex-row lg:items-start lg:px-8.5 lg:py-7.5">
+          <header
+            className={cn(
+              'flex flex-col gap-5 px-5 py-6 sm:px-7',
+              presentation === 'page'
+                ? 'lg:flex-row lg:items-start lg:px-8.5 lg:py-7.5'
+                : 'lg:items-stretch lg:px-7 lg:py-6',
+            )}
+          >
             <Avatar className="size-20 ring-2 ring-[rgb(49_130_246_/_0.28)] ring-offset-2 ring-offset-white sm:size-[84px]">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
               <AvatarFallback className="text-2xl">{initials(name)}</AvatarFallback>
@@ -182,7 +198,9 @@ export function MemberProfileView({
                 </div>
               ) : null}
             </div>
-            <div className="flex flex-wrap gap-2 lg:justify-end">
+            <div
+              className={cn('flex flex-wrap gap-2', presentation === 'page' && 'lg:justify-end')}
+            >
               {profile.help.openToHelp ? (
                 <Button asChild variant="cta">
                   <Link href={directHelpHref(profile.membershipId)}>Ask for help</Link>
@@ -227,7 +245,14 @@ export function MemberProfileView({
           </header>
 
           <div className="mx-5 h-px bg-[var(--divider-row)] sm:mx-7 lg:mx-8.5" />
-          <div className="grid gap-8 px-5 py-6 sm:px-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8.5 lg:py-7">
+          <div
+            className={cn(
+              'grid gap-8 px-5 py-6 sm:px-7',
+              presentation === 'page'
+                ? 'lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8.5 lg:py-7'
+                : 'lg:grid-cols-1 lg:px-7 lg:py-6',
+            )}
+          >
             <div className="min-w-0 space-y-7">
               <ProfileSection title="About">
                 <p className="max-w-[64ch] text-sm leading-[1.7] font-medium text-[var(--text-secondary)]">
@@ -302,7 +327,12 @@ export function MemberProfileView({
               ) : null}
             </div>
 
-            <aside className="space-y-3 border-t border-[var(--divider-row)] pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7">
+            <aside
+              className={cn(
+                'space-y-3 border-t border-[var(--divider-row)] pt-6',
+                presentation === 'page' && 'lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7',
+              )}
+            >
               {profile.sharedContext.length ? (
                 <RailCard title="You share">
                   {profile.sharedContext.map((context) => (

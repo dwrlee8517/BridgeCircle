@@ -11,7 +11,13 @@ import { MemberSidebar } from './member-sidebar'
 import { MemberTabBar } from './member-tab-bar'
 import { UserControlProvider } from './user-control-provider'
 
-export default async function MemberLayout({ children }: { children: React.ReactNode }) {
+export default async function MemberLayout({
+  children,
+  profileModal,
+}: {
+  children: React.ReactNode
+  profileModal: React.ReactNode
+}) {
   const session = await requireSession()
   const { client, context } = await loadMemberContext()
 
@@ -57,7 +63,6 @@ export default async function MemberLayout({ children }: { children: React.React
       >
         <div className="flex min-h-dvh w-full">
           <MemberSidebar
-            userId={session.userId}
             name={name}
             avatarUrl={avatarUrl}
             graduationYear={membership.profile.graduationYear}
@@ -80,6 +85,7 @@ export default async function MemberLayout({ children }: { children: React.React
               >
                 {children}
               </main>
+              {profileModal}
             </MemberShellHeaderProvider>
             <MemberTabBar />
           </div>
