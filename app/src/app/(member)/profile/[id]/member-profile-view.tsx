@@ -3,6 +3,7 @@
 import {
   ArrowLeft,
   BriefcaseBusiness,
+  ChevronRight,
   ExternalLink,
   GraduationCap,
   Link2,
@@ -16,7 +17,8 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
+import { ConnectionComposer } from '@/app/(member)/people/connection-composer'
 import { SafetyReportDialog } from '@/components/safety-report-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -58,13 +60,12 @@ export function MemberProfileView({
   const [reportOpen, setReportOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
   const [connectOpen, setConnectOpen] = useState(false)
-  const [note, setNote] = useState('')
   const [actionStatus, setActionStatus] = useState<'idle' | 'pending' | 'error'>('idle')
-  const clientRequestId = useRef(crypto.randomUUID())
+  const [clientRequestId, setClientRequestId] = useState(() => crypto.randomUUID())
   const name = profile.identity.preferredName || profile.identity.displayName
   const shortName = firstName(name)
 
-  async function sendConnection() {
+  async function sendConnection(note: string) {
     if (actionStatus === 'pending') return
     setActionStatus('pending')
     try {
@@ -74,8 +75,8 @@ export function MemberProfileView({
         body: JSON.stringify({
           recipientUserId: profile.userId,
           originOrganizationId: organizationId,
-          introMessage: note.trim() || null,
-          clientRequestId: clientRequestId.current,
+          introMessage: note,
+          clientRequestId,
         }),
       })
       const result = (await response.json()) as { status?: string; requestId?: string }
@@ -210,7 +211,7 @@ export function MemberProfileView({
                 relationship={relationship}
                 name={shortName}
                 onConnect={() => {
-                  clientRequestId.current = crypto.randomUUID()
+                  setClientRequestId(crypto.randomUUID())
                   setActionStatus('idle')
                   setConnectOpen(true)
                 }}
@@ -245,140 +246,197 @@ export function MemberProfileView({
           </header>
 
           <div className="mx-5 h-px bg-[var(--divider-row)] sm:mx-7 lg:mx-8.5" />
-          <div
-            className={cn(
-              'grid gap-8 px-5 py-6 sm:px-7',
-              presentation === 'page'
-                ? 'lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8.5 lg:py-7'
-                : 'lg:grid-cols-1 lg:px-7 lg:py-6',
-            )}
-          >
-            <div className="min-w-0 space-y-7">
+          {presentation === 'overlay' ? (
+            <div className="space-y-6 px-5 py-6 sm:px-7">
               <ProfileSection title="About">
-                <p className="max-w-[64ch] text-sm leading-[1.7] font-medium text-[var(--text-secondary)]">
+                <p className="text-sm leading-[1.7] font-medium text-[var(--text-secondary)]">
                   {profile.about || 'No about details have been shared yet.'}
                 </p>
               </ProfileSection>
 
-              <ProfileSection title="Career" divided>
-                {profile.experiences.length ? (
-                  <ProfileTimeline
-                    items={profile.experiences.map((experience) => ({
-                      id: experience.id,
-                      period: period(experience),
-                      title: `${experience.title} · ${experience.employer}`,
-                      description: experience.description,
-                    }))}
-                  />
-                ) : (
-                  <QuietEmpty icon={BriefcaseBusiness}>No career history is visible.</QuietEmpty>
-                )}
-              </ProfileSection>
-
-              <ProfileSection title="Education" divided>
-                {profile.education.length ? (
-                  <ProfileTimeline
-                    items={profile.education.map((education) => ({
-                      id: education.id,
-                      period: period(education),
-                      title: [education.school, education.degree, education.field]
-                        .filter(Boolean)
-                        .join(' · '),
-                      description: education.description,
-                    }))}
-                  />
-                ) : (
-                  <QuietEmpty icon={GraduationCap}>No education history is visible.</QuietEmpty>
-                )}
-              </ProfileSection>
-
-              <ProfileSection title="Can help with" divided>
-                {profile.help.topics.length ? (
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {profile.help.topics.map((topic) => (
+              {profile.help.topics.length ? (
+                <ProfileSection title="Can help with" divided>
+                  <div className="grid gap-2">
+                    {profile.help.topics.slice(0, 4).map((topic) => (
                       <Link
                         key={topic}
                         href={`${directHelpHref(profile.membershipId)}?topic=${encodeURIComponent(topic)}`}
-                        className="flex min-h-11 items-start gap-2.5 rounded-xl p-2 text-[13.5px] font-bold hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        className="flex min-h-11 items-center justify-between rounded-xl bg-[var(--surface-inset)] px-3.5 text-[13px] font-bold outline-none hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
-                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--action-primary)]" />
-                        {topic}
+                        <span>{topic}</span>
+                        <span className="text-xs text-[var(--blue-800)]">Ask</span>
                       </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <QuietEmpty icon={UserPlus}>No helping topics are listed.</QuietEmpty>
-                )}
-              </ProfileSection>
-
-              {profile.skills.length ? (
-                <ProfileSection title="Skills" divided>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="rounded-full bg-[var(--surface-subtle)] px-3 py-1.5 text-xs font-semibold text-[var(--text-secondary)]"
-                      >
-                        {skill}
-                      </span>
                     ))}
                   </div>
                 </ProfileSection>
               ) : null}
-            </div>
 
-            <aside
-              className={cn(
-                'space-y-3 border-t border-[var(--divider-row)] pt-6',
-                presentation === 'page' && 'lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7',
-              )}
-            >
               {profile.sharedContext.length ? (
-                <RailCard title="You share">
-                  {profile.sharedContext.map((context) => (
-                    <div key={`${context.kind}-${context.value}`} className="mt-3 flex gap-2.5">
-                      <MapPin
-                        aria-hidden
-                        className="mt-0.5 size-4 shrink-0 text-[var(--blue-600)]"
-                      />
-                      <div>
-                        <p className="text-xs font-bold">{context.value}</p>
-                        <p className="mt-0.5 text-[11px] font-medium text-[var(--text-faint)]">
-                          {context.kind === 'same_city'
-                            ? 'You both list this location'
-                            : 'You both list this school'}
-                        </p>
+                <ProfileSection title="You share" divided>
+                  <div className="grid gap-2">
+                    {profile.sharedContext.map((context) => (
+                      <div
+                        key={`${context.kind}-${context.value}`}
+                        className="flex items-start gap-2.5 rounded-xl bg-[var(--surface-inset)] p-3.5"
+                      >
+                        <MapPin
+                          aria-hidden
+                          className="mt-0.5 size-4 shrink-0 text-[var(--blue-600)]"
+                        />
+                        <div>
+                          <p className="text-xs font-bold">{context.value}</p>
+                          <p className="mt-0.5 text-[11px] font-medium text-[var(--text-faint)]">
+                            {context.kind === 'same_city'
+                              ? 'You both list this location'
+                              : 'You both list this school'}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </RailCard>
+                    ))}
+                  </div>
+                </ProfileSection>
               ) : null}
-              {profile.links.length ? (
-                <RailCard title="Links">
-                  {profile.links.map((link) => (
-                    <a
-                      key={link.id}
-                      href={link.kind === 'email' ? `mailto:${link.value}` : link.value}
-                      target={link.kind === 'email' ? undefined : '_blank'}
-                      rel={link.kind === 'email' ? undefined : 'noreferrer'}
-                      className="mt-2.5 flex min-h-9 items-center gap-2 rounded-lg px-2 text-xs font-bold text-[var(--blue-600)] hover:bg-[var(--blue-50)]"
-                    >
-                      <Link2 aria-hidden className="size-3.5" />
-                      {link.label || linkLabel(link.kind)}
-                      {link.kind !== 'email' ? (
-                        <ExternalLink aria-hidden className="ml-auto size-3" />
-                      ) : null}
-                    </a>
-                  ))}
-                </RailCard>
-              ) : null}
-              <RailCard title="Profile">
-                <p className="mt-2 text-[11px] leading-relaxed font-medium text-[var(--text-faint)]">
+
+              <div className="border-t border-[var(--divider-row)] pt-5">
+                <Button asChild variant="secondary" className="w-full">
+                  <a href={`/profile/${profile.userId}`}>
+                    Open full profile <ChevronRight aria-hidden />
+                  </a>
+                </Button>
+                <p className="mt-3 text-center text-[10.5px] font-medium text-[var(--text-faint)]">
                   Updated {formatUpdated(profile.updatedAt)}
                 </p>
-              </RailCard>
-            </aside>
-          </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-8 px-5 py-6 sm:px-7 lg:grid-cols-[minmax(0,1fr)_280px] lg:px-8.5 lg:py-7">
+              <div className="min-w-0 space-y-7">
+                <ProfileSection title="About">
+                  <p className="max-w-[64ch] text-sm leading-[1.7] font-medium text-[var(--text-secondary)]">
+                    {profile.about || 'No about details have been shared yet.'}
+                  </p>
+                </ProfileSection>
+
+                <ProfileSection title="Career" divided>
+                  {profile.experiences.length ? (
+                    <ProfileTimeline
+                      items={profile.experiences.map((experience) => ({
+                        id: experience.id,
+                        period: period(experience),
+                        title: `${experience.title} · ${experience.employer}`,
+                        description: experience.description,
+                      }))}
+                    />
+                  ) : (
+                    <QuietEmpty icon={BriefcaseBusiness}>No career history is visible.</QuietEmpty>
+                  )}
+                </ProfileSection>
+
+                <ProfileSection title="Education" divided>
+                  {profile.education.length ? (
+                    <ProfileTimeline
+                      items={profile.education.map((education) => ({
+                        id: education.id,
+                        period: period(education),
+                        title: [education.school, education.degree, education.field]
+                          .filter(Boolean)
+                          .join(' · '),
+                        description: education.description,
+                      }))}
+                    />
+                  ) : (
+                    <QuietEmpty icon={GraduationCap}>No education history is visible.</QuietEmpty>
+                  )}
+                </ProfileSection>
+
+                <ProfileSection title="Can help with" divided>
+                  {profile.help.topics.length ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {profile.help.topics.map((topic) => (
+                        <Link
+                          key={topic}
+                          href={`${directHelpHref(profile.membershipId)}?topic=${encodeURIComponent(topic)}`}
+                          className="flex min-h-11 items-start gap-2.5 rounded-xl p-2 text-[13.5px] font-bold hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        >
+                          <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--action-primary)]" />
+                          {topic}
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <QuietEmpty icon={UserPlus}>No helping topics are listed.</QuietEmpty>
+                  )}
+                </ProfileSection>
+
+                {profile.skills.length ? (
+                  <ProfileSection title="Skills" divided>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="rounded-full bg-[var(--surface-subtle)] px-3 py-1.5 text-xs font-semibold text-[var(--text-secondary)]"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </ProfileSection>
+                ) : null}
+              </div>
+
+              <aside
+                className={cn(
+                  'space-y-3 border-t border-[var(--divider-row)] pt-6',
+                  presentation === 'page' && 'lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7',
+                )}
+              >
+                {profile.sharedContext.length ? (
+                  <RailCard title="You share">
+                    {profile.sharedContext.map((context) => (
+                      <div key={`${context.kind}-${context.value}`} className="mt-3 flex gap-2.5">
+                        <MapPin
+                          aria-hidden
+                          className="mt-0.5 size-4 shrink-0 text-[var(--blue-600)]"
+                        />
+                        <div>
+                          <p className="text-xs font-bold">{context.value}</p>
+                          <p className="mt-0.5 text-[11px] font-medium text-[var(--text-faint)]">
+                            {context.kind === 'same_city'
+                              ? 'You both list this location'
+                              : 'You both list this school'}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </RailCard>
+                ) : null}
+                {profile.links.length ? (
+                  <RailCard title="Links">
+                    {profile.links.map((link) => (
+                      <a
+                        key={link.id}
+                        href={link.kind === 'email' ? `mailto:${link.value}` : link.value}
+                        target={link.kind === 'email' ? undefined : '_blank'}
+                        rel={link.kind === 'email' ? undefined : 'noreferrer'}
+                        className="mt-2.5 flex min-h-9 items-center gap-2 rounded-lg px-2 text-xs font-bold text-[var(--blue-600)] hover:bg-[var(--blue-50)]"
+                      >
+                        <Link2 aria-hidden className="size-3.5" />
+                        {link.label || linkLabel(link.kind)}
+                        {link.kind !== 'email' ? (
+                          <ExternalLink aria-hidden className="ml-auto size-3" />
+                        ) : null}
+                      </a>
+                    ))}
+                  </RailCard>
+                ) : null}
+                <RailCard title="Profile">
+                  <p className="mt-2 text-[11px] leading-relaxed font-medium text-[var(--text-faint)]">
+                    Updated {formatUpdated(profile.updatedAt)}
+                  </p>
+                </RailCard>
+              </aside>
+            </div>
+          )}
         </article>
       </div>
 
@@ -434,72 +492,21 @@ export function MemberProfileView({
         ) : null}
       </Dialog>
 
-      <Dialog
+      <ConnectionComposer
+        key={connectOpen ? clientRequestId : 'closed-profile-connection-composer'}
         open={connectOpen}
+        recipient={{ userId: profile.userId, name }}
+        organizationName={organizationName}
+        sharedContext={profile.sharedContext.map((context) => context.value)}
+        status={
+          actionStatus === 'pending' ? 'sending' : actionStatus === 'error' ? 'error' : 'editing'
+        }
         onOpenChange={(open) => {
           setConnectOpen(open)
           if (!open) setActionStatus('idle')
         }}
-      >
-        <DialogContent className="right-0 left-auto top-0 h-dvh max-w-[92vw] translate-x-0 translate-y-0 content-start rounded-none p-6 sm:w-[440px] sm:max-w-[440px]">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-extrabold">Connect with {shortName}</DialogTitle>
-            <DialogDescription>
-              Your note lands in {shortName}’s “Waiting on you.” Connecting is mutual, and declines
-              stay quiet both ways.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {[
-              `Hi ${shortName} — great to find you through ${organizationName}.`,
-              `Hi ${shortName} — I’d love to connect and learn more about your work.`,
-            ].map((value) => (
-              <button
-                key={value}
-                type="button"
-                className="rounded-full bg-[var(--surface-subtle)] px-3 py-2 text-left text-xs font-semibold hover:bg-[var(--blue-50)]"
-                onClick={() => setNote(value)}
-              >
-                {value}
-              </button>
-            ))}
-          </div>
-          <label
-            htmlFor="profile-connect-note"
-            className="mt-4 text-xs font-bold text-[var(--text-secondary)]"
-          >
-            Add a note <span className="font-medium text-[var(--text-faint)]">Optional</span>
-          </label>
-          <textarea
-            id="profile-connect-note"
-            value={note}
-            maxLength={2000}
-            onChange={(event) => setNote(event.target.value)}
-            className="min-h-36 resize-none rounded-xl border border-[var(--border-subtle)] p-3 text-sm outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
-          />
-          {actionStatus === 'error' ? (
-            <p role="alert" className="text-xs font-semibold text-[var(--state-danger)]">
-              We couldn’t send that yet. Your note is still here—try again.
-            </p>
-          ) : null}
-          <DialogFooter className="absolute inset-x-0 bottom-0 m-0">
-            <Button variant="outline" onClick={() => setConnectOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="cta"
-              className="flex-1"
-              aria-busy={actionStatus === 'pending'}
-              onClick={sendConnection}
-            >
-              {actionStatus === 'pending' ? (
-                <LoaderCircle aria-hidden className="animate-spin motion-reduce:animate-none" />
-              ) : null}
-              Send to {shortName}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onSend={sendConnection}
+      />
     </div>
   )
 }

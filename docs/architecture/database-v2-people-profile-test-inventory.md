@@ -1,6 +1,6 @@
 # Database v2 People/Profile vertical-slice test inventory
 
-- **Status:** Milestones 4–6 code and destructive cutover green; final browser acceptance pending
+- **Status:** code/cutover green; corrected directory/profile interaction road green; full Milestone 7 matrix pending
 - **Approved:** 2026-07-15
 - **Plan:** [People/Profile vertical-slice implementation plan](database-v2-people-profile-plan.md)
 - **Starting checkpoint:** completed Messages slice `c9a1b77`
@@ -164,8 +164,10 @@ Implemented locally after self-profile checkpoint `4cd93aa`:
   People back target, while in-shell navigation uses a right-side modal sheet;
 - the client modal owns only Radix focus containment, scrim/Escape/close
   dismissal through `router.back()`, sheet scrolling, and presentation;
-- the overlay keeps the complete profile sections and actions, but forces the
-  narrow one-column composition even on desktop viewports;
+- the overlay now keeps only contextual identity/actions, About, helping
+  topics, true shared context, and an explicit full-profile link; Career,
+  Education, links, and the complete timeline remain owned by the canonical
+  page;
 - a slot catch-all resolves modal state to `null` when an action navigates to
   Help, Messages, People, or another member route.
 - the desktop shell’s owner link now targets `/profile/me` directly rather
@@ -180,9 +182,63 @@ Implemented locally after self-profile checkpoint `4cd93aa`:
 | changed-file ESLint, Biome, and `git diff --check` | green |
 | unauthenticated direct-route runtime | `307` to sign-in with the exact `/profile/[id]` return path preserved |
 
-Authenticated overlay back/forward, focus return, nested action dialogs, axe,
-and same-state visual comparison remain final browser acceptance work and are
-not claimed by the structural/runtime checkpoint.
+This checkpoint was structural. The post-acceptance correction below records
+the later authenticated overlay/history/focus and axe evidence; the broader
+safety, self-profile, privacy-persona, and full visual matrix still remains.
+
+## Post-acceptance People interaction correction
+
+Implemented and verified locally on 2026-07-15 after comparing the running
+app with the approved People/Profile flow contract:
+
+- selecting a row/chevron now opens a bounded docked preview on desktop and an
+  accessible bottom sheet below the desktop breakpoint without changing the
+  URL; closing returns focus to the visible row trigger;
+- member-name navigation opens the compact intercepted profile overlay,
+  preserves Back/Forward behavior, and returns focus to the exact originating
+  desktop or mobile link;
+- “View full profile” and “Open full profile” use explicit document navigation
+  to the complete canonical page instead of being re-intercepted;
+- Industry, Class year, and Location are first-class quick filters, with
+  Employer, Education, and Can help under More filters; applied state remains
+  URL-addressable;
+- Connect now has the approved one-tap quick-hello mode and an optional
+  AI-shaped reason mode backed by a bounded no-store adapter and editable
+  fallback draft;
+- desktop/mobile duplicate render targets have unique IDs, preview focus finds
+  the visible trigger, and the mobile sheet has an explicit accessible name
+  and description;
+- all axe-discovered directory, Connect-composer, compact-overlay, and mobile
+  preview contrast failures in this road were corrected.
+
+| Gate | Result |
+|---|---|
+| focused People/Profile TypeScript under Node 22.22.2 | green |
+| People/Profile boundary and destructive-cutover detectors | green |
+| focused repositories, Connections, query, draft domain/provider Vitest | 9 files / 28 tests / green |
+| changed-file ESLint and Biome | green |
+| Codex in-app browser at `localhost:3000` | directory, docked preview, quick filter URL, both Connect modes, compact overlay, close focus, Back/Forward, and canonical full page green |
+| local acceptance + axe | one Playwright road / green at desktop and 390 × 844; directory, Connect composer, compact overlay, and mobile sheet axe-green; no horizontal overflow; focus return green |
+
+The repository test is
+`tests/e2e/people/people.spec.ts`. The normal hermetic command could not start
+in this desktop session because the Doppler CLI had no authenticated
+`bridgecircle/dev_local` token. The same non-mutating test passed against the
+already verified local seeded app on port 3000 through a temporary local-only
+config, which was removed immediately afterward. CI and authenticated local
+runs continue to use the permanent hermetic config and disposable port 3002
+database reset.
+
+Final same-state desktop screenshots:
+
+- `/private/tmp/bridgecircle-people-fix-qa-2026-07-15/07-final-directory.png`;
+- `/private/tmp/bridgecircle-people-fix-qa-2026-07-15/08-final-preview.png`;
+- `/private/tmp/bridgecircle-people-fix-qa-2026-07-15/09-final-profile-overlay.png`.
+
+This correction closes the interaction drift the review identified. It does
+not by itself claim the entire Milestone 7 matrix: three-viewer privacy,
+self-profile editing, safety actions, provider-success/failure sending, and
+all reference viewports remain separately enumerated below.
 
 ## Planned verification matrix
 
@@ -369,7 +425,7 @@ pnpm check:people-profile-boundaries
 pnpm check:people-profile-cutover
 pnpm test:db:people-profile-concurrency
 pnpm test:db:people-profile-query-plans
-pnpm test:e2e -- tests/e2e/people-profile/people-profile.spec.ts
+pnpm test:e2e -- tests/e2e/people/people.spec.ts
 ```
 
 These supplement, not replace, reset, pgTAP, lint/diff, deterministic types,

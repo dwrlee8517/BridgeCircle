@@ -49,6 +49,7 @@ export default async function PeoplePage({
       key={peopleSearchHref(search)}
       organizationId={membership.organization.id}
       organizationName={membership.organization.name}
+      viewerGraduationYear={membership.profile.graduationYear}
       initialSearch={search}
       initialResult={result.result}
       initialAvatarUrls={avatarUrls}

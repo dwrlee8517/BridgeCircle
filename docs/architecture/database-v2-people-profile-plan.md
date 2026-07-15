@@ -171,10 +171,17 @@ The implementation resolves these visible or architectural drifts explicitly:
   serialize the full history for every row.
 - `/profile/[id]` is the canonical deep link. A direct load renders a complete
   People-owned detail page with a deterministic back target to `/people`.
-- Client navigation to `/profile/[id]` from People, Messages, Help, School, or
-  Home uses a member-layout parallel slot and intercepted route. The same
-  profile content appears in an accessible right-side dialog/sheet; `router.back()`
-  closes it and browser forward reopens it.
+- A People row/chevron opens the bounded docked preview on desktop and an
+  accessible sheet below the desktop breakpoint. It does not change the URL.
+- A member-name/profile link inside the member shell uses the member-layout
+  parallel slot and intercepted route. The contextual overlay is deliberately
+  compact: identity/actions, About, Can help with, true shared context, and a
+  plain “Open full profile” link. `router.back()` closes it, returns focus to
+  the originating link, and browser forward reopens it.
+- “View full profile” from the row preview, “Open full profile” from the
+  contextual overlay, and a direct/refresh load render the complete canonical
+  `/profile/[id]` page. The explicit full-profile links use a document
+  navigation so the interceptor cannot retain the compact overlay.
 - The full profile follows: header and actions; About; reverse-chronological
   Career; Education directly under Career; Can help with; and a restrained
   links/shared-context rail. It uses text-first timelines, not logo-dependent
@@ -241,7 +248,7 @@ The implementation resolves these visible or architectural drifts explicitly:
 | `/people` | bounded directory, search/filter state, desktop preview |
 | `/profile/[id]` | canonical other-member deep link/full profile |
 | `/profile/me` | canonical self profile and inline section editing |
-| member `@profile/(.)profile/[id]` slot | contextual profile slide-over |
+| member `@profileModal/(.)profile/[id]` slot | compact contextual profile slide-over |
 | `/api/people/profile/[userId]` | bounded preview/full-profile projection |
 | `/api/people/connection-draft` | optional, timed, no-store draft shaping |
 | `/api/connections/requests` | existing idempotent Connection command |
@@ -285,7 +292,9 @@ query -> bounded extractor + Voyage query embedding -> fixed member RPC
                          failure -----------+--> lexical fallback
 
 Profile links inside the member shell
-        -> Next intercepted route + @profile parallel slot -> slide-over
+        -> Next intercepted route + @profileModal parallel slot -> compact slide-over
+People row selection
+        -> bounded preview fetch -> docked rail or responsive sheet
 Direct URL / refresh
         -> canonical /profile/[id] page
 ```
