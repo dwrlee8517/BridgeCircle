@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice test inventory
 
-- **Status:** approved; Milestone 1 baseline complete; Milestone 2 next
+- **Status:** approved; Milestones 1-2 complete; Milestone 3 next
 - **Approved:** 2026-07-15
 - **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
@@ -78,11 +78,41 @@ onboarding diagnostics are counted under Auth/onboarding in the ownership table
 above. These remain outside Messages unless a fixed Messages contract directly
 replaces their caller.
 
+## Milestone 2 database evidence
+
+Recorded locally on 2026-07-15 from a clean `supabase db reset`. No remote
+database, provider, push, merge, deployment, or secret value was touched.
+
+| Gate | Final local result |
+|---|---|
+| migration | `20260715105111_messages_vertical_slice.sql` applies from zero |
+| full pgTAP | 11 files / 438 assertions green |
+| focused Messages pgTAP | 59 signature, grant, persona, unread, Waiting, block, and Connection assertions green |
+| Messages concurrency | opposite request, decision, block, and send/read races green; zero leaked fixtures |
+| Messages Realtime | owner-topic authorization, IDs-only delivery, rollback silence, and cleanup green |
+| Messages query plans | participant, latest-message, direct-Ask, and Connection indexes selected |
+| inherited Foundation/Conversation/Help concurrency | green |
+| inherited Conversation/Help Realtime | green |
+| inherited Help worker/maintenance | green |
+| inherited Conversation/Help query plans | green |
+| local Supabase lint | warning-as-error; no schema errors |
+| local shadow-schema diff | no untracked schema changes |
+| generated public/api types | two runs byte-identical at `8bd8a1a18fa25f08342eb6ff77dc59665b699466f722a28385337f1785e6171e` |
+| focused/global TypeScript | all four focused configs green; global inventory remains 690 errors with zero Messages-owned errors |
+
+Two implementation findings were fixed before this checkpoint. User-pair
+mutation now uses one canonical transaction advisory lock rather than locking
+the RLS-protected `users` rows, and every new fixed API wrapper crosses its
+revoked private boundary as a security definer with an empty search path. The
+focused pgTAP contract asserts both properties. Owner invalidations are emitted
+once by domain commands rather than row triggers, so fixture/maintenance writes
+cannot manufacture member events and idempotent retries stay quiet.
+
 ## Test ownership
 
 - pgTAP owns schema signatures, grants, fixed projections, authorization,
   result rows, transaction effects, dedupe, and IDs-only Broadcast contracts.
-- multi-session shell harnesses own advisory/row lock order and race outcomes.
+- multi-session shell harnesses own canonical advisory-lock order and race outcomes.
 - Realtime integration owns private-topic joins, commit delivery, rollback
   silence, dedupe, cross-tab invalidation, permission revocation, reconnect,
   and cleanup.

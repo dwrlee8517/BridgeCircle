@@ -28,15 +28,17 @@ plan_output="$("${psql_base[@]}" <<'SQL'
 begin;
 
 insert into public.asks (
-  organization_id, asker_membership_id, kind, status, question, reach,
-  anonymous_until_accepted, client_request_id, ended_at, expires_at, created_at
+  organization_id, asker_membership_id, kind, status, recipient_membership_id,
+  question, request_message, client_request_id, accepted_at, responded_at,
+  expires_at, created_at
 )
 select
   '11111111-1111-1111-1111-111111111111',
   '20000000-0000-4000-8000-000000000005',
-  'circle', 'retracted',
+  'direct', 'accepted', '20000000-0000-4000-8000-000000000003',
   case when fixture = 2000 then 'messagesplanneedle' else 'Messages plan Ask ' || fixture end,
-  'organization', false, gen_random_uuid(), now(), now() + interval '14 days',
+  'Planner-only accepted request.', gen_random_uuid(), now(), now(),
+  now() + interval '14 days',
   now() - fixture * interval '1 second'
 from generate_series(1, 2000) fixture;
 
@@ -107,6 +109,7 @@ order by m.id desc limit 1;
 explain (analyze, buffers, costs off)
 select a.id from public.asks a
 where a.recipient_membership_id = '20000000-0000-4000-8000-000000000003'
+  and a.kind = 'direct'
   and a.status = 'waiting'
 order by a.created_at desc limit 50;
 

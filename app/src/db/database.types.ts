@@ -29,7 +29,12 @@ export type Database = {
           result_code: string
         }[]
       }
-      block_member: { Args: { p_blocked_user_id: string }; Returns: undefined }
+      block_member: {
+        Args: { p_blocked_user_id: string }
+        Returns: {
+          result_code: string
+        }[]
+      }
       claim_outbox_jobs: {
         Args: {
           p_allowed_types?: string[]
@@ -119,7 +124,12 @@ export type Database = {
           result_code: string
         }[]
       }
-      disconnect: { Args: { p_other_user_id: string }; Returns: undefined }
+      disconnect: {
+        Args: { p_other_user_id: string }
+        Returns: {
+          result_code: string
+        }[]
+      }
       fail_outbox_job: {
         Args: { p_error: string; p_job_id: number; p_worker_id: string }
         Returns: string
@@ -159,19 +169,32 @@ export type Database = {
         Args: { p_conversation_id: string }
         Returns: {
           ask_id: string
+          ask_outcome_note: string
+          ask_question: string
+          ask_status: string
+          can_request_connection: boolean
           can_send: boolean
+          connection_state: string
           conversation_id: string
           counterpart_avatar_path: string
+          counterpart_current_employer: string
+          counterpart_current_title: string
           counterpart_display_name: string
           counterpart_graduation_year: number
+          counterpart_headline: string
           counterpart_last_read_at: string
           counterpart_last_read_message_id: number
+          counterpart_open_to_help: boolean
+          counterpart_preferred_name: string
           counterpart_user_id: string
           created_at: string
+          is_connected: boolean
           kind: string
           last_message_at: string
           latest_message_id: number
           organization_id: string
+          pending_connection_request_id: string
+          read_only_reason: string
           viewer_last_read_at: string
           viewer_last_read_message_id: number
         }[]
@@ -231,6 +254,16 @@ export type Database = {
           topics: string[]
         }[]
       }
+      get_messages_counts: {
+        Args: never
+        Returns: {
+          all_count: number
+          my_circle_count: number
+          open_asks_count: number
+          unread_count: number
+          waiting_count: number
+        }[]
+      }
       get_my_member_context: {
         Args: { p_preferred_membership_id?: string }
         Returns: {
@@ -239,6 +272,7 @@ export type Database = {
           delete_scheduled_for: string
           deleted_at: string
           memberships: Json
+          messages_attention_count: number
           onboarding_completed_at: string
           requires_circle_choice: boolean
           selected_membership_id: string
@@ -318,6 +352,41 @@ export type Database = {
           system_event_type: string
         }[]
       }
+      list_conversation_summaries: {
+        Args: {
+          p_before_activity_at?: string
+          p_before_conversation_id?: string
+          p_before_priority?: number
+          p_filter?: string
+          p_limit?: number
+          p_query?: string
+        }
+        Returns: {
+          activity_at: string
+          ask_id: string
+          ask_question: string
+          ask_status: string
+          can_send: boolean
+          conversation_id: string
+          conversation_kind: string
+          counterpart_avatar_path: string
+          counterpart_display_name: string
+          counterpart_graduation_year: number
+          counterpart_preferred_name: string
+          counterpart_user_id: string
+          is_connected: boolean
+          latest_body: string
+          latest_created_at: string
+          latest_message_id: number
+          latest_message_kind: string
+          latest_sender_user_id: string
+          needs_reply: boolean
+          organization_id: string
+          priority_tier: number
+          read_only_reason: string
+          unread_count: number
+        }[]
+      }
       list_give_help: {
         Args: {
           p_arm: string
@@ -355,6 +424,22 @@ export type Database = {
           rank: number
           reason: string
           score: number
+        }[]
+      }
+      list_messages_waiting: {
+        Args: never
+        Returns: {
+          counterpart_avatar_path: string
+          counterpart_display_name: string
+          counterpart_graduation_year: number
+          counterpart_preferred_name: string
+          counterpart_user_id: string
+          created_at: string
+          item_id: string
+          item_kind: string
+          message: string
+          organization_id: string
+          question: string
         }[]
       }
       list_my_asks: {
@@ -437,7 +522,11 @@ export type Database = {
       }
       respond_to_connection_request: {
         Args: { p_decision: string; p_request_id: string }
-        Returns: string
+        Returns: {
+          connection_id: string
+          conversation_id: string
+          result_code: string
+        }[]
       }
       respond_to_direct_ask: {
         Args: {
@@ -594,7 +683,10 @@ export type Database = {
           p_origin_organization_id: string
           p_recipient_user_id: string
         }
-        Returns: string
+        Returns: {
+          request_id: string
+          result_code: string
+        }[]
       }
       send_message: {
         Args: {

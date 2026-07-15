@@ -108,6 +108,18 @@ wait_for_sql() {
     sleep 0.05
   done
   echo "timed out waiting for $description" >&2
+  "${psql_base[@]}" --tuples-only --no-align --field-separator='|' <<'SQL' >&2 || true
+select application_name, state, coalesce(wait_event_type, ''), coalesce(wait_event, '')
+from pg_stat_activity
+where application_name like 'bridgecircle-messages-%'
+order by application_name;
+SQL
+  for output_file in "$work_dir"/*.out; do
+    if [[ -s "$output_file" ]]; then
+      echo "$(basename "$output_file"):" >&2
+      sed -n '1,20p' "$output_file" >&2
+    fi
+  done
   return 1
 }
 
@@ -124,7 +136,7 @@ start_pair_holder() {
   exec 3>"$fifo"
   printf '%s\n' \
     "begin;" \
-    "select id from public.users where id in ('$first_user', '$second_user') order by id for update;" >&3
+    "select private.lock_user_pair('$first_user', '$second_user');" >&3
   wait_for_sql "$name pair holder" \
     "select exists (select 1 from pg_stat_activity where application_name = 'bridgecircle-messages-holder-$name' and state = 'idle in transaction')"
 }

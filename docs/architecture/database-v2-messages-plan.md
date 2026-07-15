@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice implementation plan
 
-- **Status:** approved by Richard; Milestone 1 complete; Milestone 2 next; local-only
+- **Status:** approved by Richard; Milestones 1-2 complete; Milestone 3 next; local-only
 - **Prepared:** 2026-07-15
 - **Approved:** 2026-07-15
 - **Branch:** `codex/redesign-v2`
@@ -356,11 +356,20 @@ Their result shapes are fixed as `(result_code, request_id)`,
 `(result_code, connection_id, conversation_id)`, and `(result_code)` for each
 of disconnect and block. A success code cannot omit an ID required by the UI.
 
-All pair mutations use the existing ascending user-pair lock before reading or
-changing pair state. Same-key/same-payload retries return the original durable
-result; same-key/different-payload returns `idempotency_conflict`. Opposite-
-direction pending Connection requests return `incoming_pending` instead of
-hitting the unordered-pair unique index.
+All pair mutations use one canonical transaction advisory lock derived from
+the sorted user IDs before reading or changing pair state. It serializes the
+unordered pair without coupling Connection/Conversation writes to locks on the
+RLS-protected `users` table. Same-key/same-payload retries return the original
+durable result; same-key/different-payload returns `idempotency_conflict`.
+Opposite-direction pending Connection requests return `incoming_pending`
+instead of hitting the unordered-pair unique index.
+
+The authenticated surface remains fixed API only. Its narrow wrappers are
+`SECURITY DEFINER` functions with an empty search path so they can cross into
+their reviewed private implementations; authenticated execution on those
+private functions and raw Connection tables remains revoked. Each private
+implementation still derives the caller from `auth.uid()` and performs the
+authorization and state checks before returning data or mutating state.
 
 Accepting a Connection performs one transaction:
 
