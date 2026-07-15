@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/database.types.ts",
+    "src/db/repositories/member-context*.ts",
+    "src/db/repositories/profiles*.ts",
+    "src/db/repositories/people*.ts",
+    "src/db/repositories/connections*.ts",
+    "src/db/repositories/safety*.ts",
+    "src/db/realtime/member-channel*.ts",
+    "src/lib/people/**/*.ts",
+    "src/lib/profile/contracts.ts",
+    "src/lib/profile/schemas.ts",
+    "src/lib/profile/uploadAvatar*.ts",
+    "src/lib/connections/**/*.ts",
+    "src/lib/safety/**/*.ts",
+    "src/integrations/ai/people*.ts",
+    "src/app/api/people/**/*.ts",
+    "src/app/api/members/[userId]/block/route.ts",
+    "src/app/api/members/[userId]/report/route.ts",
+    "src/app/(member)/user-control-provider.tsx",
+    "src/app/(member)/people-v2/**/*.ts",
+    "src/app/(member)/people-v2/**/*.tsx",
+    "src/app/(member)/profile-v2/**/*.ts",
+    "src/app/(member)/profile-v2/**/*.tsx"
+  ],
+  "exclude": ["node_modules", ".next", "tests/e2e"]
+}

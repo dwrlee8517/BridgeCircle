@@ -35,6 +35,30 @@ member profile details/vector search; paginates 10 rather than the approved
 20/20/10; and routes self editing through a second `/profile/edit` page. Those
 are expected red cutover findings, not accepted compatibility behavior.
 
+## Milestone 1 live baseline
+
+Recorded after the isolated plan checkpoint `00903a6`:
+
+| Gate | Result |
+|---|---|
+| inherited pgTAP | 11 files / 438 assertions / green |
+| focused People/Profile TypeScript | green |
+| future People/Profile boundary detector | green, including deliberate bad fixture |
+| People/Profile cutover ratchet | expected red: legacy `/profile/edit` still exists |
+| People/Profile concurrency preflight | expected red: member-profile, links, and visibility contracts absent |
+| People/Profile query-plan preflight | expected red: directory and member-profile projections absent |
+| pgTAP with People/Profile contracts | 12 files / 460 assertions / 15 planned failures in the new 22-assertion file |
+
+The 15 new pgTAP failures are exactly: industry storage; removal of public
+LinkedIn; contact-link table, audience, index, and section-visibility drift;
+the directory/member-profile/about/visibility/link fixed functions; the two
+authenticated execute grants; security-definer API posture; and the
+`profile.changed` owner invalidation. The seven passing assertions confirm the
+already-safe raw profile/detail grant boundary and lack of anonymous grants.
+
+No inherited contract regressed. The red baseline contains no unrelated SQL,
+TypeScript, shell, or environment failure.
+
 ## Planned verification matrix
 
 ### A. Schema and contract
