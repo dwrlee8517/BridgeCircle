@@ -1,10 +1,13 @@
-# Design QA — Help Ask history and status
+# Design QA — Help vertical slice
 
 ## Comparison target
 
 - Source visual truth:
   - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/AskHistory.dc.html`
   - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/AskStatus.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/GiveDirect.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/GiveOffer.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/messages/Messages.dc.html`
 - Source rendered captures:
   - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/source-ask-history-1440.png`
   - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/source-ask-status-direct-1440.png`
@@ -12,6 +15,8 @@
 - Implementation routes:
   - `http://localhost:3000/help/asks`
   - `http://localhost:3000/help/asks/:askId`
+  - `http://localhost:3000/help/asks/:askId/offer`
+  - `http://localhost:3000/messages/:conversationId`
 - Primary comparison viewport: 1440 × 900.
 - Responsive verification viewports: 768 × 900, 390 × 844, and 320 × 700.
 - States compared: Ask history; direct Ask waiting; circle Ask open with two pending offers.
@@ -25,6 +30,9 @@
 - Direct Ask status tablet: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-direct-768.png`
 - Ask history mobile: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-390.png` and `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-320.png`
 - Circle Ask status mobile: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-circle-390.png` and `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-circle-320.png`
+- Direct helper source/implementation: `reference-give-direct-1512x772.png` and `implementation-give-direct-1512x772.png`, plus matched 768 × 900 and 390 × 844 captures.
+- Circle offer source/implementation: `reference-give-offer-1512x772.png` and `implementation-give-offer-1512x772.png`, plus matched 768 × 900 and 390 × 844 captures.
+- Accepted-Ask thread source/implementation: `reference-messages-ask-thread-1512x772.png` and `implementation-messages-ask-thread-1512x772.png`, plus matched 768 × 900 and 390 × 844 captures and an implementation-only 320 × 700 minimum-width check.
 
 ## Comparison evidence
 
@@ -33,6 +41,8 @@
 - Full-view circle-status comparison: the matched 1440 × 900 captures were opened together and compared for the Ask summary, anonymity note, offer stack, and action hierarchy.
 - Focused-region crops were not needed: every evaluated screen is already a single focused reading column, and all relevant regions remain legible in the matched 1440 × 900 captures.
 - Responsive captures confirm that the existing shell collapses to icon rail at 768 px and fixed bottom navigation at 390/320 px. DOM-backed overflow checks found no element wider than its client box at 390 or 320 px.
+- The helper-response and accepted-thread source/implementation pairs were opened together in the same visual comparison input after each final capture. Desktop pairs use the same 1512 × 772 viewport and state; tablet pairs use 768 × 900; mobile pairs use 390 × 844.
+- The legacy source templates retain desktop-width overflow at 390 px (`GiveDirect` 419 px, `GiveOffer` 412 px, `Messages` 662 px). The implementation intentionally applies the approved responsive shell and stays exactly within 390 px; the accepted thread also stays within 320 px.
 
 ## Comparison history and fixes
 
@@ -56,6 +66,15 @@ Post-fix evidence:
 
 No actionable P0, P1, or P2 mismatch remains after the post-fix comparison.
 
+### Iteration 2 — helper responses and accepted-Ask thread
+
+- Direct-response geometry, wash, Ask hierarchy, recipient identity, response card, report action, green commitment CTA, and route-specific shell title align with `GiveDirect.dc.html`; authenticated seed copy accounts for expected wrapping differences.
+- Circle-offer geometry, anonymous member presentation, green matching treatment, two-column desktop workspace, assistant panel, private offer card, and CTA align with `GiveOffer.dc.html`.
+- The accepted-Ask thread preserves the source conversation column, origin line, outgoing message treatment, composer, member context, Ask status, and resolve action. The approved Help plan includes only this minimal seam; the source's searchable conversation list, shared-media panel, and full inbox controls remain intentionally owned by the later Messages slice.
+- Mobile implementation order is deliberate: helper composers become one readable column, the shell becomes bottom navigation, the accepted thread keeps the conversation primary, and the details panel is reached through the visible `Details` link. No action is clipped and no implementation viewport scrolls horizontally.
+
+No actionable P0, P1, or P2 mismatch remains within the approved Help milestone scope.
+
 ## Required fidelity surfaces
 
 - Fonts and typography: passed; the implementation uses the active BridgeCircle Pretendard hierarchy and named type tokens.
@@ -74,21 +93,31 @@ No actionable P0, P1, or P2 mismatch remains after the post-fix comparison.
 - Verify pending-offer Accept, Decline, and Report controls are present and correctly scoped per offer.
 - Verify tablet and mobile shell transitions, fixed bottom navigation, vertical reachability, and absence of horizontal overflow.
 - Verify Realtime subscription wiring refreshes the affected Ask/history route through the existing Help channel contract.
+- Accept a direct Ask with an opening note and verify the resulting conversation has one actor-aware origin line and one opening message.
+- Submit a private offer to an anonymous matched Ask, verify the asker alone sees it, accept it, and verify the accepted helper identity appears in the new conversation.
+- Send in both accepted conversation kinds, resolve the circle Ask, and send again after resolution to prove that resolution closes the Ask rather than the conversation.
+- Verify Realtime outage copy is non-blocking, durable send remains available, and bounded reconnection retries stay active without an unhandled rejection.
 
 ## Runtime and verification
 
 - Browser console: a fresh post-navigation checkpoint produced no application warnings or errors. Writing-assistant extension warnings and an older retained log from the superseded remote-environment attempt were excluded from the current local run.
-- `pnpm exec biome check .` — 479 files passed.
+- `pnpm exec biome check .` — 491 files passed.
 - `pnpm typecheck:v2-help` — passed.
 - `pnpm check:help-boundaries` — passed.
 - `pnpm check:tokens` — all four design-token ratchets passed.
-- `pnpm exec vitest run` — 51 files and 246 tests passed.
+- `pnpm exec vitest run` — 52 files and 249 tests passed.
 - `pnpm exec eslint .` — zero errors and three unrelated warnings in existing debug scripts.
+- `supabase test db` — 10 files and 379 assertions passed.
+- Foundation, Conversation, and Help concurrency; Help worker/maintenance/Realtime/query-plan; and Conversation Realtime/query-plan harnesses all passed serially.
+- `supabase db lint --local --level warning --fail-on warning` — no schema warnings.
+- `supabase db diff --local --schema public,api,private` — no schema drift.
+- Global TypeScript remains a later-domain port inventory at 1,239 errors across 97 files; focused Help and the accepted-thread seam have zero owned errors.
 - `git diff --check` — passed.
 
 ## Residual notes
 
 - The source specimens use fixed demo identities and notes, while local QA uses authenticated seed data. The resulting line wrapping is expected data variance, not design drift.
 - The two disposable local-only offers used to exercise the circle actions were removed after QA.
+- The full three-column Messages inbox is not claimed as part of this Help milestone. Its source comparison was used to preserve the conversation/detail language and hierarchy while the approved minimal accepted-Ask seam was implemented; the inbox list and media/tools panel remain parked for the Messages vertical slice.
 
 final result: passed

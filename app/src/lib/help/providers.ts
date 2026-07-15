@@ -19,7 +19,7 @@ export type HelpRerankProvider = {
   ): Promise<readonly { candidateId: string; score: number }[]>
 }
 
-export type HelpAssistanceTask = 'ask_draft' | 'match_explanation' | 'decline_note'
+export type HelpAssistanceTask = 'ask_draft' | 'offer_note' | 'match_explanation' | 'decline_note'
 
 export type HelpAssistanceProvider = {
   complete(

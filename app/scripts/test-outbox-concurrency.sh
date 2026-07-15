@@ -28,7 +28,7 @@ select
   'index_profile',
   jsonb_build_object('fixture', item),
   'foundation:parallel-worker:' || item::text,
-  'pending', 0, 8, now() - interval '1 minute'
+  'pending', 0, 8, '-infinity'::timestamptz
 from generate_series(1, 6) item;
 SQL
 
@@ -36,7 +36,11 @@ claim_and_hold() {
   psql "$database_url" --no-psqlrc --set ON_ERROR_STOP=1 --quiet <<'SQL' >/dev/null
 begin;
 set local role service_role;
-select * from api.claim_outbox_jobs('parallel-worker-a', 3);
+select * from api.claim_outbox_jobs(
+  'parallel-worker-a',
+  3,
+  array['index_profile']::text[]
+);
 select pg_sleep(1);
 commit;
 SQL
@@ -46,7 +50,11 @@ claim_while_locked() {
   psql "$database_url" --no-psqlrc --set ON_ERROR_STOP=1 --quiet <<'SQL' >/dev/null
 begin;
 set local role service_role;
-select * from api.claim_outbox_jobs('parallel-worker-b', 3);
+select * from api.claim_outbox_jobs(
+  'parallel-worker-b',
+  3,
+  array['index_profile']::text[]
+);
 commit;
 SQL
 }

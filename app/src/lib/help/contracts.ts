@@ -291,7 +291,7 @@ export type HelpRepository = {
     topics: string[]
   }): Promise<SaveHelperPreferencesResult>
   consumeAiBudget(
-    action: 'ask_draft' | 'match_explanation' | 'decline_note',
+    action: 'ask_draft' | 'offer_note' | 'match_explanation' | 'decline_note',
   ): Promise<HelpAiBudgetResult>
   createDirectAsk(input: {
     membershipId: string
@@ -333,6 +333,16 @@ export type HelpRepository = {
   }): Promise<HelpOfferDecisionResult>
   reportOffer(input: {
     offerId: string
+    reason: HelpReportReason
+    note: string | null
+  }): Promise<{ reportId: string }>
+  reportAsk(input: {
+    askId: string
+    reason: HelpReportReason
+    note: string | null
+  }): Promise<{ reportId: string }>
+  reportMessage(input: {
+    messageId: number
     reason: HelpReportReason
     note: string | null
   }): Promise<{ reportId: string }>

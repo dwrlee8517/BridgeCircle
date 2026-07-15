@@ -6,6 +6,7 @@ import { createHelpRepository } from '@/db/repositories/help'
 import { requireSession } from '@/lib/auth/session'
 import { selectedMembership } from '@/lib/membership/selection'
 import { AskStatusView } from './ask-status-view'
+import { GiveDirectView } from './give-direct-view'
 
 export default async function AskStatusPage({ params }: { params: Promise<{ askId: string }> }) {
   const [{ askId }, session, memberState] = await Promise.all([
@@ -19,11 +20,24 @@ export default async function AskStatusPage({ params }: { params: Promise<{ askI
   if (!membership || membership.status !== 'active') notFound()
 
   const detail = await createHelpRepository(memberState.client).getAskDetail(askId)
-  if (!detail || detail.asker.identity !== 'identified' || detail.asker.userId !== session.userId) {
-    notFound()
-  }
+  if (!detail) notFound()
 
   const avatarStorage = createAvatarStorageRepository(memberState.client)
+  const isOwner = detail.asker.identity === 'identified' && detail.asker.userId === session.userId
+  const isDirectRecipient = detail.kind === 'direct' && detail.recipient?.userId === session.userId
+
+  if (isDirectRecipient && !isOwner) {
+    const askerAvatarPath = detail.asker.identity === 'identified' ? detail.asker.avatarPath : null
+    return (
+      <GiveDirectView
+        detail={detail}
+        avatarUrl={askerAvatarPath ? avatarStorage.publicUrl(askerAvatarPath) : null}
+      />
+    )
+  }
+
+  if (!isOwner) notFound()
+
   const avatarPaths = [
     detail.recipient?.avatarPath,
     ...detail.offers.map((offer) => offer.helper.avatarPath),

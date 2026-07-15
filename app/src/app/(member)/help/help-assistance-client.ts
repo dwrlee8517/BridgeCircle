@@ -6,6 +6,7 @@ export type HelpAssistanceResponse = {
 const ASSISTANCE_TIMEOUT_MS = 10_000
 
 export async function requestHelpAssistance(input: {
+  task?: 'ask_draft' | 'offer_note' | 'decline_note'
   currentText: string
   context: string[]
   fallbackText: string
@@ -25,7 +26,7 @@ export async function requestHelpAssistance(input: {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        task: 'ask_draft',
+        task: input.task ?? 'ask_draft',
         currentText: input.currentText,
         context: input.context,
         fallbackText: input.fallbackText,

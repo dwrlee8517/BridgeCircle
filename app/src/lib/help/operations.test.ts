@@ -6,6 +6,7 @@ import {
   decideHelpOffer,
   offerHelp,
   resolveHelpAsk,
+  respondToDirectHelpAsk,
   saveHelpPreferences,
 } from './operations'
 
@@ -131,6 +132,47 @@ describe('Help domain operations', () => {
         openingMessage: 'I would be glad to help.',
         declineReasonCode: null,
         declineNote: null,
+      }),
+    )
+  })
+
+  it('requires a message for direct acceptance and a reasoned note for decline', async () => {
+    const respondToDirectAsk = vi.fn<HelpRepository['respondToDirectAsk']>().mockResolvedValue({
+      status: 'accepted',
+      askId,
+      conversationId: '50000000-0000-4000-8000-000000000001',
+    })
+
+    await expect(
+      respondToDirectHelpAsk(
+        {
+          askId,
+          decision: 'accept',
+          openingMessage: ' ',
+          declineReasonCode: null,
+          declineNote: null,
+          clientNonce: requestId,
+        },
+        { respondToDirectAsk },
+      ),
+    ).resolves.toMatchObject({ status: 'invalid_input' })
+    await respondToDirectHelpAsk(
+      {
+        askId,
+        decision: 'decline',
+        openingMessage: null,
+        declineReasonCode: 'unavailable',
+        declineNote: '  I cannot give this the attention it deserves right now.  ',
+        clientNonce: null,
+      },
+      { respondToDirectAsk },
+    )
+
+    expect(respondToDirectAsk).toHaveBeenCalledWith(
+      expect.objectContaining({
+        decision: 'decline',
+        declineNote: 'I cannot give this the attention it deserves right now.',
+        clientNonce: null,
       }),
     )
   })

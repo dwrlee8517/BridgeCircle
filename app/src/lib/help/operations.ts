@@ -51,6 +51,35 @@ export async function offerHelp(
   return repository.offerToHelp({ ...input, offerNote })
 }
 
+export async function respondToDirectHelpAsk(
+  input: Parameters<HelpRepository['respondToDirectAsk']>[0],
+  repository: Pick<HelpRepository, 'respondToDirectAsk'>,
+): Promise<HelpAskDecisionResult> {
+  if (input.decision === 'accept') {
+    const openingMessage = input.openingMessage ? clean(input.openingMessage) : ''
+    if (!openingMessage || openingMessage.length > 10_000 || !input.clientNonce) {
+      return { status: 'invalid_input', askId: null, conversationId: null }
+    }
+    return repository.respondToDirectAsk({
+      ...input,
+      openingMessage,
+      declineReasonCode: null,
+      declineNote: null,
+    })
+  }
+
+  const declineNote = input.declineNote ? clean(input.declineNote) : ''
+  if (!input.declineReasonCode || !declineNote || declineNote.length > 2_000) {
+    return { status: 'invalid_input', askId: null, conversationId: null }
+  }
+  return repository.respondToDirectAsk({
+    ...input,
+    openingMessage: null,
+    declineNote,
+    clientNonce: null,
+  })
+}
+
 export async function resolveHelpAsk(
   input: Parameters<HelpRepository['resolveAsk']>[0],
   repository: Pick<HelpRepository, 'resolveAsk'>,

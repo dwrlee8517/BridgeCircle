@@ -1,87 +1,39 @@
-import { ChevronLeft } from 'lucide-react'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import { CircleMark } from '@/components/ui/circle-mark'
+import { z } from 'zod'
+import { createAvatarStorageRepository } from '@/db/repositories/avatar-storage'
+import { createConversationRepository } from '@/db/repositories/conversations'
+import { createHelpRepository } from '@/db/repositories/help'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { getDmThread } from '@/lib/dm/getThread'
-import { markDmThreadRead } from '@/lib/dm/markThreadRead'
-import { classYearShort } from '@/lib/utils'
-import { LiveThread } from './live-thread'
+import { ConversationThread } from './conversation-thread'
 
 type Params = { id: string }
 
 export default async function MessageThreadPage({ params }: { params: Promise<Params> }) {
-  const session = await requireSession()
-  const { id } = await params
-  const supabase = await createClient()
+  const [session, { id }] = await Promise.all([requireSession(), params])
+  if (!z.uuid().safeParse(id).success) notFound()
 
-  const result = await getDmThread(supabase, session.userId, id)
-  if (!result.ok) notFound()
+  const client = await createClient()
+  const repository = createConversationRepository(client)
+  const conversation = await repository.getDetail(id)
+  if (!conversation) notFound()
 
-  // Mark messages as read on every load. Idempotent — only updates rows
-  // that were actually unread. Doesn't block the render; we don't await
-  // a revalidate since the realtime subscription handles fresh data.
-  await markDmThreadRead(supabase, session.userId, id)
-
-  const { thread } = result
+  const [messagesDescending, askDetail] = await Promise.all([
+    repository.listBefore({ conversationId: id, beforeMessageId: null, limit: 50 }),
+    conversation.askId ? createHelpRepository(client).getAskDetail(conversation.askId) : null,
+  ])
+  const avatarUrl = conversation.counterpart.avatarPath
+    ? createAvatarStorageRepository(client).publicUrl(conversation.counterpart.avatarPath)
+    : null
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 space-y-4">
-      <Link
-        href="/inbox"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
-      >
-        <ChevronLeft className="size-4" />
-        Back to inbox
-      </Link>
-
-      <Card>
-        <CardHeader className="flex-row items-center gap-3 space-y-0 pb-3">
-          <Link href={`/profile/${thread.otherUserId}`} className="shrink-0">
-            <Avatar className="size-12">
-              {thread.otherAvatarUrl ? (
-                <AvatarImage src={thread.otherAvatarUrl} alt={thread.otherName ?? ''} />
-              ) : null}
-              <AvatarFallback>{(thread.otherName ?? '?').slice(0, 1).toUpperCase()}</AvatarFallback>
-            </Avatar>
-          </Link>
-          <div className="min-w-0 flex-1">
-            <span className="flex items-center gap-1.5">
-              <Link
-                href={`/profile/${thread.otherUserId}`}
-                className="font-semibold hover:underline"
-              >
-                {thread.otherName ?? 'Friend'}
-              </Link>
-              {classYearShort(thread.otherGradYear) ? (
-                <span className="font-mono text-xs text-muted-foreground">
-                  {classYearShort(thread.otherGradYear)}
-                </span>
-              ) : null}
-              {thread.isStillFriends ? <CircleMark className="text-primary" /> : null}
-            </span>
-            <p className="text-xs text-muted-foreground">
-              {thread.isStillFriends
-                ? 'You’re connected'
-                : thread.otherHeadline || 'Connection ended — read-only'}
-            </p>
-          </div>
-          {!thread.isStillFriends ? (
-            <span className="text-xs text-muted-foreground italic">Read-only</span>
-          ) : null}
-        </CardHeader>
-        <CardContent>
-          <LiveThread
-            threadId={thread.threadId}
-            viewerId={session.userId}
-            initialMessages={thread.messages}
-            composerEnabled={thread.isStillFriends}
-          />
-        </CardContent>
-      </Card>
-    </div>
+    <ConversationThread
+      conversation={conversation}
+      initialMessages={[...messagesDescending].reverse()}
+      askDetail={askDetail}
+      avatarUrl={avatarUrl}
+      viewerUserId={session.userId}
+      hasEarlier={messagesDescending.length === 50}
+    />
   )
 }

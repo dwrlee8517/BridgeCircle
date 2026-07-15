@@ -18,7 +18,7 @@ const conversationDetailRowSchema = z
   .object({
     conversation_id: z.uuid(),
     kind: z.enum(['direct', 'ask']),
-    organization_id: z.uuid().nullable(),
+    organization_id: z.guid().nullable(),
     ask_id: z.uuid().nullable(),
     created_at: timestampSchema,
     last_message_at: timestampSchema.nullable(),

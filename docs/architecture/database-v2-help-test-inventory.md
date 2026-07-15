@@ -1,6 +1,6 @@
 # Database v2 Help vertical-slice test inventory
 
-- **Status:** approved — Milestones 1–6 green locally; UI/browser gates remain
+- **Status:** approved — Milestones 1–7 green locally; Milestone 8 is next
 - **Plan:** [Help vertical-slice implementation plan](database-v2-help-plan.md)
 - **Starting checkpoint:** Conversation Primitive `4a07b47`
 - **Rule:** a milestone cannot proceed while its owned verification is red
@@ -100,6 +100,30 @@ fakes and strict parser fixtures.
 The worker supports continuous, one-batch, and drain modes with the same typed
 registry. Railway/Doppler deployment remains documentation-only and requires a
 later explicit remote-cutover approval.
+
+## Milestone 7 routes/UI evidence — 2026-07-15
+
+| Gate | Result |
+|---|---|
+| pgTAP | green: 10 files, 379 assertions |
+| Foundation/Conversation/Help stateful races | green, including isolated disjoint outbox claims and competing Help accepts |
+| worker/maintenance | green: supported-only claims, durable matching/index/email work, day-5/day-14/three-strike replay |
+| Realtime | Help and Conversation authorization, IDs-only delivery, recovery, revocation, and cleanup green |
+| query plans | Help and Conversation index contracts green |
+| database lint/shadow diff | no warnings; no schema drift in `public`, `api`, or `private` |
+| deterministic types | generated twice and byte-identical; SHA-256 `d57831c6949bcc602e50c573ae4c1e10ac9bcec70dc166fb9a7f242e29c463d9` |
+| focused compiler/boundary | v2 Help plus accepted-thread seam green; no raw Help tables or service client in member paths |
+| repository application gates | Biome 491 files green; Vitest 52 files/249 tests green; tokens green; ESLint zero errors and three existing script warnings |
+| global TypeScript inventory | 1,239 remaining errors across 97 later-port files; zero Help-owned errors after deleting the unused legacy Give panel |
+| exact-viewport design QA | source and implementation compared together at 1512 × 772, 768 × 900, and 390 × 844; implementation also verified at 320 × 700 |
+| direct helper road | accept with opening note → one Messages thread; origin copy, message send, and refresh-safe state verified |
+| circle helper road | anonymous matched Ask → private offer → asker acceptance → one Messages thread verified |
+| accepted Ask lifecycle | resolve adds the actor-aware system line and closes only the Ask; sending after resolution remains available |
+
+The browser road used only seeded local accounts and the disposable local
+database. No remote project, worker, provider, secret, merge, or deployment was
+changed. The full three-column Messages inbox remains a separate domain slice;
+Milestone 7 owns only the accepted-Ask thread seam required to complete Help.
 
 ## Test ownership
 

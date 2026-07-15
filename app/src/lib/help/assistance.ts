@@ -54,6 +54,7 @@ export async function assistHelpText(
 
 function maximumLength(task: HelpAssistanceTask): number {
   if (task === 'ask_draft') return 2_000
+  if (task === 'offer_note') return 4_000
   if (task === 'decline_note') return 2_000
   return 500
 }

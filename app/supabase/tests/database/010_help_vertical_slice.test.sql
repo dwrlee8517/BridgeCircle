@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(61);
+select extensions.plan(63);
 
 select extensions.has_table(
   'private', 'help_ai_usage_windows',
@@ -281,8 +281,46 @@ insert into public.asks (
   '93000000-0000-4000-8000-000000000101'
 );
 
-select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+insert into public.asks (
+  id, organization_id, asker_membership_id, kind, status, question,
+  reach, anonymous_until_accepted, client_request_id
+) values (
+  '93000000-0000-4000-8000-000000000002',
+  '11111111-1111-1111-1111-111111111111',
+  '20000000-0000-4000-8000-000000000002',
+  'circle',
+  'open',
+  'Who can help me think through a public organization Ask?',
+  'organization',
+  false,
+  '93000000-0000-4000-8000-000000000102'
+);
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000006', true);
 set local role authenticated;
+select extensions.is(
+  (
+    select result_code
+    from api.consume_help_ai_budget('offer_note')
+  ),
+  'allowed',
+  'helper offer-note assistance has its own bounded database budget'
+);
+select extensions.is(
+  (
+    select result_code
+    from api.offer_to_help(
+      '93000000-0000-4000-8000-000000000002',
+      '20000000-0000-4000-8000-000000000006',
+      'I can help you think this through.',
+      '93000000-0000-4000-8000-000000000103'
+    )
+  ),
+  'created',
+  'eligible active members can offer on organization-reach circle Asks'
+);
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
 select extensions.is(
   (
     select count(*)::integer

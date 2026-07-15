@@ -1,6 +1,6 @@
 # Database v2 Help vertical-slice implementation plan
 
-- **Status:** approved — Milestones 1–6 complete locally; Milestone 7 in progress; no remote changes
+- **Status:** approved — Milestones 1–7 complete locally; Milestone 8 is next; no remote changes
 - **Prepared:** 2026-07-14
 - **Approved:** 2026-07-14 by Richard
 - **Branch:** `codex/redesign-v2`
@@ -810,22 +810,22 @@ the UI treats Broadcast as authoritative state.
 
 ### 7. Build the Help routes and template-faithful UI
 
-**Progress (2026-07-14):** `/help` now uses the v2 home/search/preferences
-projections, and the private search → `/help/ask/[membershipId]` direct road is
-operational with membership-scoped draft carry, AI/plain composition, a bounded
-provider fallback, idempotent send, and refresh-safe recent-Ask rendering. A
-forward-only repair keeps `list_my_asks.recipient_preview` aligned with the
-strict profile-preview contract. Automated/runtime gates pass. The direct
-composer now passes exact-source desktop design QA plus 1440, 768, 390, and
-320 px responsive capture checks, including the route-specific shell header,
-full-height desktop workspace, and shrink-safe mobile tab bar. The circle
-composer is also operational against `api.create_circle_ask`: empty direct
-entry plus membership-scoped draft carry, editable and assisted shaping,
-immutable reach, anonymous-until-accepted, payload-aware idempotent publish,
-and calm recovery. Its supplied-source 2546 × 1281 comparison and
-1440/768/390/320 responsive captures now pass with no remaining P0/P1/P2
-drift. History/status/direct-detail, give/offer responses, redirects, and the
-remaining Help template matrix remain in this milestone.
+**Completed (2026-07-15):** every Milestone 7 route now runs on the v2 fixed
+API/repository contracts. This includes Help home and preferences, private
+search, both Ask composers, history and owner status, the role-shaped direct
+recipient response, matched/private circle offers, cushioned decline/report
+paths, accepted-Ask redirects, and the minimal v2 Messages thread needed to
+finish the Help loop. Direct acceptance and offer acceptance create one
+conversation with one origin line and opening message; accepted conversations
+remain sendable after either participant resolves the Ask. The offer API now
+supports both `matched` and organization-wide reach while preserving the
+eligibility projection, and helper drafting has a bounded `offer_note` AI
+budget with a deterministic fallback. All desktop/tablet/mobile implementation
+captures were checked beside their source templates; the implementation has no
+horizontal overflow at 768, 390, or 320 px. The source's full three-column
+Messages inbox is deliberately outside this Help milestone; only the approved
+accepted-Ask thread seam is included here and the full inbox remains owned by
+the Messages vertical slice.
 
 - Implement `/help`, both composers, history, status/direct detail, offer
   composer, result/error/loading/offline states, remembered mode, draft carry,

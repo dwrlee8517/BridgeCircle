@@ -39,6 +39,8 @@ const passagesSchema = z
 const taskPrompts: Record<HelpAssistanceTask, string> = {
   ask_draft:
     'Rewrite the member text as one clear, warm request for help. Preserve intent. Do not add facts, names, or promises.',
+  offer_note:
+    'Rewrite the member text as one warm, concise reply offering help. Preserve intent. Do not add facts, credentials, availability, names, or promises.',
   match_explanation:
     'Write one concise match reason using only the supplied visible evidence. Do not infer expertise or reveal identity not present in the evidence.',
   decline_note:
