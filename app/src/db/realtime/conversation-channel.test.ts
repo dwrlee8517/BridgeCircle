@@ -105,6 +105,48 @@ describe('conversation Realtime adapter', () => {
     expect(fixture.removeChannel).toHaveBeenCalledOnce()
   })
 
+  it('does not declare the content channel ready before gap recovery completes', async () => {
+    const fixture = setup()
+    const recovery: { finish: () => void } = { finish() {} }
+    const handlers = callbacks()
+    handlers.onRefetchAfterCursor = vi.fn(
+      () => new Promise<void>((resolve) => (recovery.finish = resolve)),
+    )
+    let opened = false
+    const opening = openConversationRealtime({
+      client: fixture.client,
+      accessToken: 'member-token',
+      conversationId,
+      callbacks: handlers,
+    }).then((handle) => {
+      opened = true
+      return handle
+    })
+    await Promise.resolve()
+    expect(opened).toBe(false)
+    recovery.finish()
+    const handle = await opening
+    expect(opened).toBe(true)
+    await handle.close()
+  })
+
+  it('closes the content channel when initial gap recovery fails', async () => {
+    const fixture = setup()
+    const handlers = callbacks()
+    handlers.onRefetchAfterCursor = vi.fn(async () => {
+      throw new Error('gap failed')
+    })
+    await expect(
+      openConversationRealtime({
+        client: fixture.client,
+        accessToken: 'member-token',
+        conversationId,
+        callbacks: handlers,
+      }),
+    ).rejects.toThrow('gap failed')
+    expect(fixture.removeChannel).toHaveBeenCalledOnce()
+  })
+
   it('parses minimal content events and rejects owner-control or mismatched payloads', async () => {
     const fixture = setup()
     const handlers = callbacks()

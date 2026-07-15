@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import { z } from 'zod'
 import { createAvatarStorageRepository } from '@/db/repositories/avatar-storage'
 import { createConversationRepository } from '@/db/repositories/conversations'
-import { createHelpRepository } from '@/db/repositories/help'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { ConversationThread } from './conversation-thread'
@@ -15,13 +14,11 @@ export default async function MessageThreadPage({ params }: { params: Promise<Pa
 
   const client = await createClient()
   const repository = createConversationRepository(client)
-  const conversation = await repository.getDetail(id)
-  if (!conversation) notFound()
-
-  const [messagesDescending, askDetail] = await Promise.all([
+  const [conversation, messagesDescending] = await Promise.all([
+    repository.getDetail(id),
     repository.listBefore({ conversationId: id, beforeMessageId: null, limit: 50 }),
-    conversation.askId ? createHelpRepository(client).getAskDetail(conversation.askId) : null,
   ])
+  if (!conversation) notFound()
   const avatarUrl = conversation.counterpart.avatarPath
     ? createAvatarStorageRepository(client).publicUrl(conversation.counterpart.avatarPath)
     : null
@@ -30,7 +27,6 @@ export default async function MessageThreadPage({ params }: { params: Promise<Pa
     <ConversationThread
       conversation={conversation}
       initialMessages={[...messagesDescending].reverse()}
-      askDetail={askDetail}
       avatarUrl={avatarUrl}
       viewerUserId={session.userId}
       hasEarlier={messagesDescending.length === 50}

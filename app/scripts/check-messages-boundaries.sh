@@ -10,6 +10,7 @@ root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 messages_lib=()
 messages_db=()
 messages_routes=()
+messages_ui=()
 
 collect_files() {
   local relative_path="$1"
@@ -21,6 +22,7 @@ collect_files() {
       lib) messages_lib+=("$root_dir/$file") ;;
       db) messages_db+=("$root_dir/$file") ;;
       routes) messages_routes+=("$root_dir/$file") ;;
+      ui) messages_ui+=("$root_dir/$file") ;;
     esac
   done < <(cd "$root_dir" && rg --files "$relative_path" | sort)
 }
@@ -40,6 +42,7 @@ collect_files src/app/api/messages routes
 collect_files src/app/api/connections routes
 collect_files 'src/app/api/members/[userId]/block/route.ts' routes
 collect_files 'src/app/api/conversations/[conversationId]/messages/[messageId]/report/route.ts' routes
+collect_files 'src/app/(member)/messages' ui
 
 framework_pattern="@supabase|from ['\"]next|@/db|server-only|process\\.env"
 legacy_pattern='\b(ask_threads|direct_threads|ask_messages|direct_messages|thread_id|threadId)\b'
@@ -74,6 +77,10 @@ if (( ${#messages_routes[@]} > 0 )) && rg -q "$route_rpc_pattern" "${messages_ro
 fi
 if (( ${#messages_routes[@]} > 0 )) && rg -q "$cross_domain_pattern" "${messages_routes[@]}"; then
   echo "Messages routes must not depend on the Help domain" >&2
+  exit 1
+fi
+if (( ${#messages_ui[@]} > 0 )) && rg -q "$cross_domain_pattern" "${messages_ui[@]}"; then
+  echo "Messages UI must use extended conversation detail, not the Help domain" >&2
   exit 1
 fi
 owner_channel_callers="$(rg -l "$owner_channel_pattern" "$root_dir/src" --glob '*.ts' --glob '*.tsx' | sort || true)"

@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice test inventory
 
-- **Status:** approved; Milestones 1-5 complete; Milestone 6 next
+- **Status:** approved; Milestones 1-6 complete; Milestone 7 next
 - **Approved:** 2026-07-15
 - **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
@@ -184,6 +184,36 @@ Independent server projections load in parallel; only the list query is
 client-refetched. Search cancellation invalidates the previous request before
 the debounce window, so a fast filter/query change cannot be overwritten by an
 older response.
+
+## Milestone 6 unified-thread evidence
+
+Recorded locally on 2026-07-15 without touching a remote database, provider,
+push, merge, or deployment.
+
+| Gate | Final local result |
+|---|---|
+| shared detail contract | Ask and direct routes use extended Conversation detail; the page no longer imports the Help repository |
+| server loading | detail and the newest bounded 50-message page load in parallel; avatar mapping stays server-side |
+| responsive composition | below 768 px is one thread pane; 768 px is 300 px list plus fluid thread; 1440 px is 300 px list, 600 px thread, and 300 px context |
+| navigation | member header remains Messages; mobile Back target is canonical `/messages` |
+| context | accessible sheet below 1200 px; collapsible desktop rail; versioned user-scoped boolean only |
+| send state | session-scoped draft plus pending body/nonce; uncertain retry reuses one nonce; edit requires deliberate discard |
+| Realtime | initial gap read is awaited; failed handles close before capped 1/2/5/10/30-second reconnect; online/focus retries only while paused |
+| typing | blank input and unmount publish false; durable send remains independent |
+| reads/receipts | read advances only for a visible, intersecting newest counterpart message; only the newest outgoing message owns a receipt |
+| context actions | resolve, post-Ask Connection request, report, block, and conditional disconnect use existing stable routes with confirmation/recovery |
+| browser state | draft survives refresh and clears cleanly; context preference survives hydration/refresh; no fabricated control or content |
+| browser sizes | 1440 x 900, 768 x 900, 390 x 844, and 320 x 700 have document scroll width equal to viewport width |
+| browser diagnostics | zero console warnings or errors |
+| focused/full Vitest | thread state plus content adapter green; 55 files / 243 tests green |
+| live local Realtime | Conversation content, Messages owner, and Help owner harnesses green |
+| compiler/static/style | all four focused compilers, Messages/Help boundaries, token check, ESLint, and 469-file Biome check green |
+
+The content adapter now resolves its initial subscription only after the
+after-cursor recovery completes. A recovery failure closes the channel and
+enters the real reconnect loop, so the paused copy corresponds to actual
+behavior. Session storage contains only the approved draft and pending attempt
+fields; no message history, profile data, search, or identity field is stored.
 
 ## Test ownership
 

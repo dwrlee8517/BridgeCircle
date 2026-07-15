@@ -1,35 +1,58 @@
 'use client'
 
 import { format, isToday, isYesterday } from 'date-fns'
-import { Check, CheckCheck, ChevronLeft, CircleAlert, CircleCheck, Info, Send } from 'lucide-react'
+import {
+  Check,
+  CheckCheck,
+  ChevronLeft,
+  CircleAlert,
+  CircleCheck,
+  Info,
+  PanelRightClose,
+  PanelRightOpen,
+  Send,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { SafetyReportDialog } from '@/components/safety-report-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
-import { createClient } from '@/db/client'
-import { openConversationRealtime } from '@/db/realtime/conversation-channel'
 import type { ConversationDetail, ConversationMessage } from '@/lib/conversations/contracts'
-import type { HelpAskDetail } from '@/lib/help/contracts'
+import {
+  beginSendAttempt,
+  confirmSendAttempt,
+  discardSendAttempt,
+  markSendUncertain,
+  newestOutgoingReceiptId,
+  readCandidate,
+  rejectSendAttempt,
+} from '@/lib/messages/thread-state'
 import { cn, getInitials } from '@/lib/utils'
-import { HelpReportDialog } from '../../help/help-report-dialog'
-import { useMemberShellHeader } from '../../member-shell-header-context'
 import { useUserControl } from '../../user-control-provider'
+import { useBooleanPreference } from '../use-boolean-preference'
+import { ConversationContext } from './conversation-context'
+import { useConversationRealtime } from './use-conversation-realtime'
+import { useThreadComposer } from './use-thread-composer'
 
 type MessageListResponse = { messages?: ConversationMessage[]; error?: string }
-type SendResponse = { status?: string; messageId?: number; createdAt?: string; error?: string }
+type SendResponse = {
+  status?: string
+  messageId?: number
+  createdAt?: string
+  error?: string
+}
+type ReadResponse = { status?: string; lastReadMessageId?: number }
 
 export function ConversationThread({
   conversation,
   initialMessages,
-  askDetail,
   avatarUrl,
   viewerUserId,
   hasEarlier: initialHasEarlier,
 }: {
   conversation: ConversationDetail
   initialMessages: ConversationMessage[]
-  askDetail: HelpAskDetail | null
   avatarUrl: string | null
   viewerUserId: string
   hasEarlier: boolean
@@ -37,41 +60,49 @@ export function ConversationThread({
   const router = useRouter()
   const { conversationControl } = useUserControl()
   const [messages, setMessages] = useState(initialMessages)
-  const [draft, setDraft] = useState('')
+  const storageKey = `bridgecircle:messages:v1:${viewerUserId}:${conversation.id}:draft`
+  const [composer, setComposer] = useThreadComposer(storageKey)
   const [sending, setSending] = useState(false)
   const [loadingEarlier, setLoadingEarlier] = useState(false)
   const [hasEarlier, setHasEarlier] = useState(initialHasEarlier)
   const [error, setError] = useState<string | null>(null)
-  const [realtimePaused, setRealtimePaused] = useState(false)
   const [typing, setTyping] = useState(false)
   const [counterpartReadId, setCounterpartReadId] = useState(
     conversation.counterpartLastReadMessageId,
   )
+  const [viewerReadId, setViewerReadId] = useState(conversation.viewerLastReadMessageId)
+  const [resolved, setResolved] = useState(conversation.askContext?.status === 'resolved')
+  const [disconnected, setDisconnected] = useState(false)
+  const [reportMessageId, setReportMessageId] = useState<number | null>(null)
+  const [contextSheetOpen, setContextSheetOpen] = useState(false)
   const [resolveOpen, setResolveOpen] = useState(false)
   const [resolveNote, setResolveNote] = useState('')
-  const [resolving, setResolving] = useState(false)
-  const [resolved, setResolved] = useState(askDetail?.status === 'resolved')
-  const [reportMessageId, setReportMessageId] = useState<number | null>(null)
+  const [confirmAction, setConfirmAction] = useState<'disconnect' | 'block' | null>(null)
+  const [actionPending, setActionPending] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [connectionRequestState, setConnectionRequestState] = useState<'idle' | 'pending' | 'sent'>(
+    conversation.connectionState === 'outgoing_pending' ? 'sent' : 'idle',
+  )
+  const [contextVisible, setContextVisible] = useBooleanPreference(
+    `bridgecircle:messages:v1:${viewerUserId}:context-visible`,
+    true,
+  )
   const scrollRef = useRef<HTMLDivElement | null>(null)
+  const endRef = useRef<HTMLDivElement | null>(null)
   const latestIdRef = useRef(initialMessages.at(-1)?.id ?? null)
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const typingPublishedRef = useRef(false)
-  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useMemberShellHeader({
-    title: conversation.counterpart.displayName,
-    backHref: '/messages',
-    backLabel: 'Back',
-    hideNotifications: true,
-  })
+  const gapControllerRef = useRef<AbortController | null>(null)
+  const previousScrollHeightRef = useRef<number | null>(null)
+  const endVisibleRef = useRef(false)
+  const pendingReadIdRef = useRef<number | null>(null)
+  const connectionRequestIdRef = useRef<string | null>(null)
+  const effectiveCanSend = conversation.canSend && !disconnected
 
   useEffect(() => {
     if (!conversationControl || conversationControl.conversationId !== conversation.id) return
-    if (conversationControl.type === 'conversation.revoked') {
-      router.replace('/messages')
-    } else {
-      router.refresh()
-    }
+    if (conversationControl.type === 'conversation.revoked') router.replace('/messages')
+    else router.refresh()
   }, [conversation.id, conversationControl, router])
 
   useEffect(() => {
@@ -83,30 +114,33 @@ export function ConversationThread({
     if (element) element.scrollTop = element.scrollHeight
   }, [])
 
-  useEffect(() => {
-    const latestMessage = messages.at(-1)
-    if (!latestMessage) return
-    void fetch(`/api/conversations/${conversation.id}/read`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messageId: latestMessage.id }),
-      cache: 'no-store',
-    })
-  }, [conversation.id, messages])
+  useLayoutEffect(() => {
+    if (messages.length === 0) return
+    const previousHeight = previousScrollHeightRef.current
+    const element = scrollRef.current
+    if (previousHeight === null || !element) return
+    element.scrollTop += element.scrollHeight - previousHeight
+    previousScrollHeightRef.current = null
+  }, [messages.length])
 
   const fetchAfterLatest = useCallback(async () => {
     const after = latestIdRef.current
     const query = after ? `?after=${after}&limit=100` : '?limit=100'
+    gapControllerRef.current?.abort()
+    const controller = new AbortController()
+    gapControllerRef.current = controller
     try {
       const response = await fetch(`/api/conversations/${conversation.id}/messages${query}`, {
         cache: 'no-store',
+        signal: controller.signal,
       })
       if (!response.ok) return false
       const payload = (await response.json()) as MessageListResponse
       const incoming = payload.messages ?? []
       if (incoming.length > 0) setMessages((current) => mergeMessages(current, incoming))
       return true
-    } catch {
+    } catch (refreshError) {
+      if (refreshError instanceof DOMException && refreshError.name === 'AbortError') return false
       setError('Couldn’t refresh the thread. Your current messages are still here.')
       return false
     }
@@ -129,60 +163,89 @@ export function ConversationThread({
     [conversation.id],
   )
 
+  const realtimeCallbacks = useMemo(
+    () => ({
+      recoverAfterCursor: fetchAfterLatest,
+      onReadAdvanced(_readerUserId: string, messageId: number) {
+        setCounterpartReadId((current) => Math.max(current ?? 0, messageId))
+      },
+      onTypingChanged(_actorUserId: string, isTyping: boolean) {
+        setTyping(isTyping)
+      },
+    }),
+    [fetchAfterLatest],
+  )
+  const { paused: realtimePaused } = useConversationRealtime({
+    conversationId: conversation.id,
+    viewerUserId,
+    callbacks: realtimeCallbacks,
+  })
+
+  const attemptReadAdvance = useCallback(async () => {
+    const candidate = readCandidate({
+      messages,
+      viewerUserId,
+      currentReadMessageId: viewerReadId,
+      documentVisible: document.visibilityState === 'visible',
+      endVisible: endVisibleRef.current,
+    })
+    if (!candidate || candidate <= (pendingReadIdRef.current ?? 0)) return
+    pendingReadIdRef.current = candidate
+    try {
+      const response = await fetch(`/api/conversations/${conversation.id}/read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId: candidate }),
+        cache: 'no-store',
+      })
+      const payload = (await response.json()) as ReadResponse
+      if (response.ok && (payload.status === 'advanced' || payload.status === 'unchanged')) {
+        setViewerReadId(Math.max(viewerReadId ?? 0, payload.lastReadMessageId ?? candidate))
+      }
+    } catch {
+      // Monotonic read state retries on focus, reconnect, or the next message.
+    } finally {
+      if (pendingReadIdRef.current === candidate) pendingReadIdRef.current = null
+    }
+  }, [conversation.id, messages, viewerReadId, viewerUserId])
+
   useEffect(() => {
-    let active = true
-    let handle: Awaited<ReturnType<typeof openConversationRealtime>> | null = null
-    const client = createClient()
+    const root = scrollRef.current
+    const end = endRef.current
+    if (!root || !end) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        endVisibleRef.current = Boolean(entry?.isIntersecting)
+        if (entry?.isIntersecting) void attemptReadAdvance()
+      },
+      { root, threshold: 0.9 },
+    )
+    observer.observe(end)
+    return () => observer.disconnect()
+  }, [attemptReadAdvance])
 
-    async function connect() {
-      try {
-        const { data } = await client.auth.getSession()
-        const accessToken = data.session?.access_token
-        if (!accessToken || !active) return
-        handle = await openConversationRealtime({
-          client,
-          accessToken,
-          conversationId: conversation.id,
-          callbacks: {
-            async onRefetchAfterCursor() {
-              if (await fetchAfterLatest()) setRealtimePaused(false)
-            },
-            async onMessageCreated() {
-              if (await fetchAfterLatest()) setRealtimePaused(false)
-            },
-            onReadAdvanced(event) {
-              if (event.readerUserId !== viewerUserId) setCounterpartReadId(event.messageId)
-            },
-            onTypingChanged(event) {
-              if (event.actorUserId !== viewerUserId) setTyping(event.isTyping)
-            },
-            onMalformedEvent() {},
-            onChannelError() {
-              setRealtimePaused(true)
-            },
-          },
-        })
-      } catch {
-        if (!active) return
-        setRealtimePaused(true)
-        reconnectTimerRef.current = setTimeout(() => {
-          reconnectTimerRef.current = null
-          void connect()
-        }, 5_000)
-      }
+  useEffect(() => {
+    const retry = () => {
+      if (document.visibilityState === 'visible') void attemptReadAdvance()
     }
-
-    void connect()
+    window.addEventListener('focus', retry)
+    document.addEventListener('visibilitychange', retry)
+    const frame = requestAnimationFrame(retry)
     return () => {
-      active = false
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
-      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current)
-      if (typingPublishedRef.current) {
-        void publishTypingState(false)
-      }
-      void handle?.close()
+      cancelAnimationFrame(frame)
+      window.removeEventListener('focus', retry)
+      document.removeEventListener('visibilitychange', retry)
     }
-  }, [conversation.id, fetchAfterLatest, publishTypingState, viewerUserId])
+  }, [attemptReadAdvance])
+
+  useEffect(
+    () => () => {
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
+      gapControllerRef.current?.abort()
+      if (typingPublishedRef.current) void publishTypingState(false)
+    },
+    [publishTypingState],
+  )
 
   async function loadEarlier() {
     const firstId = messages[0]?.id
@@ -197,6 +260,7 @@ export function ConversationThread({
       const payload = (await response.json()) as MessageListResponse
       if (!response.ok) throw new Error(payload.error ?? 'history_failed')
       const older = [...(payload.messages ?? [])].reverse()
+      previousScrollHeightRef.current = scrollRef.current?.scrollHeight ?? null
       setMessages((current) => mergeMessages(older, current))
       setHasEarlier(older.length === 50)
     } catch {
@@ -207,21 +271,30 @@ export function ConversationThread({
   }
 
   async function sendMessage() {
-    const body = draft.trim()
-    if (!body || sending || !conversation.canSend) return
+    if (sending || !effectiveCanSend) return
+    const started = beginSendAttempt(composer, () => crypto.randomUUID())
+    if (!started) return
+    setComposer(started.state)
     setSending(true)
     setError(null)
-    const clientNonce = crypto.randomUUID()
     try {
       const response = await fetch(`/api/conversations/${conversation.id}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body, clientNonce }),
+        body: JSON.stringify({ body: started.attempt.body, clientNonce: started.attempt.nonce }),
         cache: 'no-store',
       })
       const result = (await response.json()) as SendResponse
-      if (!response.ok || !result.messageId || !result.createdAt) {
-        throw new Error(result.error ?? 'send_failed')
+      if (response.status >= 500) throw new Error('send_uncertain')
+      if (
+        !response.ok ||
+        (result.status !== 'sent' && result.status !== 'duplicate') ||
+        !result.messageId ||
+        !result.createdAt
+      ) {
+        setComposer((current) => rejectSendAttempt(current))
+        setError('This conversation is no longer available for sending. Your draft is still here.')
+        return
       }
       setMessages((current) =>
         mergeMessages(current, [
@@ -230,38 +303,46 @@ export function ConversationThread({
             conversationId: conversation.id,
             kind: 'user',
             senderUserId: viewerUserId,
-            body,
+            body: started.attempt.body,
             createdAt: result.createdAt as string,
           },
         ]),
       )
-      setDraft('')
+      setComposer(confirmSendAttempt())
       await publishTypingState(false)
-      window.setTimeout(() => {
+      requestAnimationFrame(() => {
         const element = scrollRef.current
         if (element) element.scrollTop = element.scrollHeight
-      }, 0)
+      })
     } catch {
-      setError('Couldn’t send that. Your message is still in the box — try again.')
+      setComposer((current) => markSendUncertain(current))
+      setError(null)
     } finally {
       setSending(false)
     }
   }
 
   function handleDraftChange(value: string) {
-    setDraft(value)
+    if (composer.pending) return
+    setComposer({ draft: value, pending: null })
     setError(null)
+    if (!value.trim()) {
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
+      typingTimerRef.current = null
+      if (typingPublishedRef.current) void publishTypingState(false)
+      return
+    }
     if (!typingPublishedRef.current) void publishTypingState(true)
     if (typingTimerRef.current) clearTimeout(typingTimerRef.current)
     typingTimerRef.current = setTimeout(() => void publishTypingState(false), 2_000)
   }
 
   async function resolveAsk() {
-    if (!askDetail || resolving) return
-    setResolving(true)
-    setError(null)
+    if (!conversation.askId || !conversation.askContext || actionPending) return
+    setActionPending(true)
+    setActionError(null)
     try {
-      const response = await fetch(`/api/help/asks/${askDetail.id}/resolve`, {
+      const response = await fetch(`/api/help/asks/${conversation.askId}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ outcomeNote: resolveNote.trim() || null }),
@@ -271,228 +352,318 @@ export function ConversationThread({
       setResolved(true)
       setResolveOpen(false)
       await fetchAfterLatest()
+      router.refresh()
     } catch {
-      setError('Couldn’t close the ask. The conversation is unchanged — try again.')
+      setActionError('Couldn’t resolve the ask. The conversation is unchanged — try again.')
     } finally {
-      setResolving(false)
+      setActionPending(false)
     }
   }
 
-  return (
-    <div className="min-h-full bg-[image:var(--wash-page)] lg:h-[calc(100dvh-var(--topbar-height)_-_1px)] lg:overflow-hidden">
-      <div className="mx-auto grid h-full max-w-[1220px] lg:grid-cols-[minmax(0,1fr)_310px]">
-        <main className="flex min-h-[calc(100dvh-var(--topbar-height))] min-w-0 flex-col bg-card lg:min-h-0">
-          <div className="flex items-center gap-3 border-b border-[var(--border-subtle)] px-4 py-3.5 sm:px-5">
-            <Link
-              href="/help"
-              aria-label="Back"
-              className="inline-flex size-10 items-center justify-center rounded-full bg-[var(--surface-subtle)] text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring lg:hidden"
-            >
-              <ChevronLeft aria-hidden className="size-4" />
-            </Link>
-            <Avatar className="size-10 shadow-[var(--ring-avatar)]">
-              {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback>{getInitials(conversation.counterpart.displayName)}</AvatarFallback>
-            </Avatar>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-body-sm font-bold text-[var(--text-primary)]">
-                {conversation.counterpart.displayName}
-              </span>
-              <span className="block text-xs font-medium text-[var(--text-faint)]">
-                {conversation.counterpart.graduationYear
-                  ? `Class of ’${String(conversation.counterpart.graduationYear).slice(-2)}`
-                  : conversation.kind === 'ask'
-                    ? 'Connected through an ask'
-                    : 'Direct conversation'}
-              </span>
-            </span>
-            <a
-              href="#conversation-context"
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-[var(--surface-subtle)] px-3 text-xs font-bold text-[var(--text-secondary)] lg:hidden"
-            >
-              <Info aria-hidden className="size-4" /> Details
-            </a>
-          </div>
+  async function requestConnection() {
+    if (!conversation.organizationId || connectionRequestState !== 'idle' || actionPending) return
+    const clientRequestId = connectionRequestIdRef.current ?? crypto.randomUUID()
+    connectionRequestIdRef.current = clientRequestId
+    setConnectionRequestState('pending')
+    setActionError(null)
+    try {
+      const response = await fetch('/api/connections/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipientUserId: conversation.counterpart.userId,
+          originOrganizationId: conversation.organizationId,
+          introMessage: null,
+          clientRequestId,
+        }),
+        cache: 'no-store',
+      })
+      const result = (await response.json()) as { status?: string }
+      if (!response.ok) throw new Error(result.status ?? 'request_failed')
+      if (result.status === 'created' || result.status === 'existing') {
+        setConnectionRequestState('sent')
+        router.refresh()
+        return
+      }
+      if (result.status === 'already_connected') {
+        setConnectionRequestState('sent')
+        router.refresh()
+        return
+      }
+      if (result.status === 'incoming_pending') {
+        setConnectionRequestState('idle')
+        setActionError('They already sent you a request. You can respond from Waiting on you.')
+        return
+      }
+      throw new Error('request_failed')
+    } catch {
+      setConnectionRequestState('idle')
+      setActionError('Couldn’t send the Connection request. Try once more.')
+    }
+  }
 
-          <div
-            ref={scrollRef}
-            className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-5 sm:px-5"
+  async function completeSafetyAction() {
+    if (!confirmAction || actionPending) return
+    setActionPending(true)
+    setActionError(null)
+    try {
+      const endpoint =
+        confirmAction === 'block'
+          ? `/api/members/${conversation.counterpart.userId}/block`
+          : `/api/connections/${conversation.counterpart.userId}/disconnect`
+      const response = await fetch(endpoint, { method: 'POST', cache: 'no-store' })
+      if (!response.ok) throw new Error('action_failed')
+      if (confirmAction === 'block') {
+        router.replace('/messages')
+        router.refresh()
+        return
+      }
+      setDisconnected(true)
+      setConfirmAction(null)
+      router.refresh()
+    } catch {
+      setConfirmAction(null)
+      setActionError(
+        confirmAction === 'block'
+          ? 'Couldn’t block this member. Nothing changed — try again.'
+          : 'Couldn’t disconnect. Nothing changed — try again.',
+      )
+    } finally {
+      setActionPending(false)
+    }
+  }
+
+  const newestReceiptId = newestOutgoingReceiptId(messages, viewerUserId)
+  const context = (
+    <ConversationContext
+      conversation={conversation}
+      avatarUrl={avatarUrl}
+      resolved={resolved}
+      disconnected={disconnected}
+      connectionRequestState={connectionRequestState}
+      actionPending={actionPending}
+      actionError={actionError}
+      onResolve={() => setResolveOpen(true)}
+      onRequestConnection={() => void requestConnection()}
+      onDisconnect={() => setConfirmAction('disconnect')}
+      onBlock={() => setConfirmAction('block')}
+    />
+  )
+
+  return (
+    <div
+      className={cn(
+        'grid h-full min-h-0 w-full min-w-0 overflow-hidden bg-surface-thread',
+        contextVisible ? 'xl:grid-cols-[minmax(0,1fr)_300px]' : 'grid-cols-1',
+      )}
+    >
+      <main className="flex min-h-0 min-w-0 flex-col bg-card">
+        <div className="flex min-h-[68px] shrink-0 items-center gap-3 border-b border-border-subtle px-4 py-3 sm:px-5">
+          <Link
+            href="/messages"
+            aria-label="Back to messages"
+            className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring md:hidden"
           >
-            {hasEarlier ? (
-              <div className="text-center">
+            <ChevronLeft aria-hidden className="size-4" />
+          </Link>
+          <Avatar className="size-10 shadow-[var(--ring-avatar)]">
+            {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
+            <AvatarFallback>{getInitials(conversation.counterpart.displayName)}</AvatarFallback>
+          </Avatar>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-body-sm font-bold text-foreground">
+              {conversation.counterpart.displayName}
+            </span>
+            <span className="block text-xs font-medium text-muted-foreground">
+              {conversation.counterpart.graduationYear
+                ? `Class of ’${String(conversation.counterpart.graduationYear).slice(-2)}`
+                : conversation.kind === 'ask'
+                  ? 'Connected through an ask'
+                  : 'Direct conversation'}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setContextSheetOpen(true)}
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-surface-subtle px-3 text-xs font-bold text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring xl:hidden"
+          >
+            <Info aria-hidden className="size-4" /> Details
+          </button>
+          <button
+            type="button"
+            aria-pressed={contextVisible}
+            aria-label={contextVisible ? 'Hide conversation details' : 'Show conversation details'}
+            onClick={() => setContextVisible(!contextVisible)}
+            className="hidden size-10 items-center justify-center rounded-full text-text-secondary hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring xl:inline-flex"
+          >
+            {contextVisible ? (
+              <PanelRightClose aria-hidden className="size-4" />
+            ) : (
+              <PanelRightOpen aria-hidden className="size-4" />
+            )}
+          </button>
+        </div>
+
+        <div
+          ref={scrollRef}
+          className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-4 py-5 sm:px-5"
+        >
+          {hasEarlier ? (
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => void loadEarlier()}
+                disabled={loadingEarlier}
+                className="min-h-9 rounded-full bg-surface-subtle px-3 text-xs font-semibold text-text-secondary disabled:opacity-50"
+              >
+                {loadingEarlier ? 'Loading…' : 'Load earlier messages'}
+              </button>
+            </div>
+          ) : null}
+          {messages.length === 0 ? (
+            <p className="py-12 text-center text-body-sm font-medium text-muted-foreground">
+              {effectiveCanSend ? 'Start with a quick hello.' : 'No messages in this conversation.'}
+            </p>
+          ) : (
+            messages.map((message, index) => (
+              <MessageRow
+                key={message.id}
+                message={message}
+                viewerUserId={viewerUserId}
+                counterpartName={conversation.counterpart.displayName}
+                showTime={index === 0 || gapMinutes(messages[index - 1], message) > 15}
+                showReceipt={message.id === newestReceiptId}
+                read={counterpartReadId !== null && message.id <= counterpartReadId}
+                onReport={
+                  message.kind === 'user' && message.senderUserId !== viewerUserId
+                    ? () => setReportMessageId(message.id)
+                    : undefined
+                }
+              />
+            ))
+          )}
+          {typing ? (
+            <div
+              role="status"
+              className="flex items-center gap-2 text-xs font-medium text-muted-foreground"
+            >
+              <span className="inline-flex gap-1 rounded-full bg-surface-subtle px-3 py-2">
+                {[0, 1, 2].map((dot) => (
+                  <i
+                    key={dot}
+                    className="size-1.5 animate-pulse rounded-full bg-[var(--grey-400)] motion-reduce:animate-none"
+                  />
+                ))}
+              </span>
+              {conversation.counterpart.displayName.split(/\s+/)[0]} is typing…
+            </div>
+          ) : null}
+          <div ref={endRef} aria-hidden className="h-px" />
+        </div>
+
+        <div className="shrink-0 border-t border-border-subtle px-4 py-3 sm:px-5">
+          {realtimePaused ? (
+            <p className="mb-2 flex items-start gap-2 text-xs font-semibold text-[var(--warning)]">
+              <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" /> Live updates paused.
+              Sending still works; this page is reconnecting.
+            </p>
+          ) : null}
+          {composer.pending?.status === 'uncertain' && !sending ? (
+            <div role="alert" className="mb-2 rounded-xl bg-surface-inset p-3 text-xs">
+              <p className="font-bold text-foreground">Delivery could not be confirmed.</p>
+              <p className="mt-1 text-text-secondary">
+                Retry checks the same message instead of creating another copy.
+              </p>
+              <div className="mt-2 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => void loadEarlier()}
-                  disabled={loadingEarlier}
-                  className="min-h-9 rounded-full bg-[var(--surface-subtle)] px-3 text-xs font-semibold text-[var(--text-secondary)] disabled:opacity-50"
+                  onClick={() => void sendMessage()}
+                  disabled={sending}
+                  className="min-h-9 rounded-lg bg-primary-tint-strong px-3 font-bold text-primary"
                 >
-                  {loadingEarlier ? 'Loading…' : 'Load earlier messages'}
+                  Retry send
                 </button>
-              </div>
-            ) : null}
-            {messages.length === 0 ? (
-              <p className="py-12 text-center text-body-sm font-medium text-[var(--text-faint)]">
-                {conversation.canSend
-                  ? 'Start with a quick hello.'
-                  : 'No messages in this conversation.'}
-              </p>
-            ) : (
-              messages.map((message, index) => (
-                <MessageRow
-                  key={message.id}
-                  message={message}
-                  viewerUserId={viewerUserId}
-                  counterpartName={conversation.counterpart.displayName}
-                  viewerOwnsAsk={
-                    askDetail?.asker.identity === 'identified' &&
-                    askDetail.asker.userId === viewerUserId
-                  }
-                  showTime={index === 0 || gapMinutes(messages[index - 1], message) > 15}
-                  read={counterpartReadId !== null && message.id <= counterpartReadId}
-                  onReport={
-                    message.kind === 'user' && message.senderUserId !== viewerUserId
-                      ? () => setReportMessageId(message.id)
-                      : undefined
-                  }
-                />
-              ))
-            )}
-            {typing ? (
-              <div className="flex items-center gap-2 text-xs font-medium text-[var(--text-faint)]">
-                <span className="inline-flex gap-1 rounded-full bg-[var(--surface-subtle)] px-3 py-2">
-                  {[0, 1, 2].map((dot) => (
-                    <i
-                      key={dot}
-                      className="size-1.5 animate-pulse rounded-full bg-[var(--grey-400)] motion-reduce:animate-none"
-                    />
-                  ))}
-                </span>
-                {conversation.counterpart.displayName.split(/\s+/)[0]} is typing…
-              </div>
-            ) : null}
-          </div>
-
-          <div className="border-t border-[var(--border-subtle)] px-4 py-3 sm:px-5">
-            {realtimePaused ? (
-              <p className="mb-2 flex items-start gap-2 text-xs font-semibold text-[var(--warning)]">
-                <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" /> Live updates paused.
-                Sending still works; this page will keep retrying.
-              </p>
-            ) : null}
-            {error ? (
-              <p
-                role="alert"
-                className="mb-2 flex items-start gap-2 text-xs font-semibold text-[var(--error)]"
-              >
-                <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" /> {error}
-              </p>
-            ) : null}
-            {conversation.canSend ? (
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  void sendMessage()
-                }}
-                className="flex items-end gap-2"
-              >
-                <label htmlFor="message-draft" className="sr-only">
-                  Message
-                </label>
-                <textarea
-                  id="message-draft"
-                  value={draft}
-                  onChange={(event) => handleDraftChange(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' && !event.shiftKey) {
-                      event.preventDefault()
-                      void sendMessage()
-                    }
-                  }}
-                  maxLength={10_000}
-                  rows={1}
-                  placeholder={`Message ${conversation.counterpart.displayName.split(/\s+/)[0]}…`}
-                  className="max-h-36 min-h-11 flex-1 resize-y rounded-xl border-0 bg-card px-4 py-3 text-body-sm font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
-                />
                 <button
-                  type="submit"
-                  aria-label="Send message"
-                  disabled={sending || !draft.trim()}
-                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-[image:var(--gradient-primary-btn)] text-white shadow-[var(--shadow-primary-btn)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50"
+                  type="button"
+                  onClick={() => setComposer((current) => discardSendAttempt(current))}
+                  disabled={sending}
+                  className="min-h-9 rounded-lg px-3 font-semibold text-text-secondary hover:bg-muted"
                 >
-                  <Send aria-hidden className="size-[17px]" />
+                  Edit draft
                 </button>
-              </form>
-            ) : (
-              <p className="rounded-xl bg-[var(--surface-inset)] px-4 py-3 text-center text-xs font-semibold text-[var(--text-faint)]">
-                This conversation is read-only.
-              </p>
-            )}
-          </div>
-        </main>
+              </div>
+            </div>
+          ) : null}
+          {error ? (
+            <p
+              role="alert"
+              className="mb-2 flex items-start gap-2 text-xs font-semibold text-destructive"
+            >
+              <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" /> {error}
+            </p>
+          ) : null}
+          {effectiveCanSend ? (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault()
+                void sendMessage()
+              }}
+              className="flex items-end gap-2"
+            >
+              <label htmlFor="message-draft" className="sr-only">
+                Message
+              </label>
+              <textarea
+                id="message-draft"
+                value={composer.draft}
+                onChange={(event) => handleDraftChange(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault()
+                    void sendMessage()
+                  }
+                }}
+                disabled={Boolean(composer.pending)}
+                maxLength={10_000}
+                rows={1}
+                placeholder={`Message ${conversation.counterpart.displayName.split(/\s+/)[0]}…`}
+                className="max-h-36 min-h-11 min-w-0 flex-1 resize-y rounded-xl border-0 bg-card px-4 py-3 text-body-sm font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:bg-surface-inset"
+              />
+              <button
+                type="submit"
+                aria-label="Send message"
+                disabled={sending || !composer.draft.trim() || Boolean(composer.pending)}
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-[image:var(--gradient-primary-btn)] text-white shadow-[var(--shadow-primary-btn)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-50"
+              >
+                <Send aria-hidden className="size-[17px]" />
+              </button>
+            </form>
+          ) : (
+            <p className="rounded-xl bg-surface-inset px-4 py-3 text-center text-xs font-semibold text-muted-foreground">
+              This conversation is read-only.
+            </p>
+          )}
+        </div>
+      </main>
 
+      {contextVisible ? (
         <aside
-          id="conversation-context"
-          className="border-l border-[var(--border-subtle)] bg-card px-5 py-6 lg:overflow-y-auto"
+          aria-label="Conversation details"
+          className="hidden min-h-0 overflow-y-auto border-l border-border-subtle bg-card xl:block"
         >
-          <div className="text-center">
-            <Avatar className="mx-auto size-16 shadow-[var(--ring-avatar)]">
-              {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback className="text-body-lg">
-                {getInitials(conversation.counterpart.displayName)}
-              </AvatarFallback>
-            </Avatar>
-            <Link
-              href={`/profile/${conversation.counterpart.userId}`}
-              className="mt-3 block text-body-md font-extrabold text-[var(--text-primary)] hover:text-[var(--blue-600)] hover:underline"
-            >
-              {conversation.counterpart.displayName}
-            </Link>
-            {conversation.counterpart.graduationYear ? (
-              <p className="mt-1 text-xs font-semibold text-[var(--text-faint)]">
-                Class of ’{String(conversation.counterpart.graduationYear).slice(-2)}
-              </p>
-            ) : null}
-          </div>
-
-          {askDetail ? (
-            <section className="mt-6 rounded-[14px] bg-[var(--surface-inset)] p-4">
-              <p className="text-kicker font-bold tracking-label text-[var(--text-faint)] uppercase">
-                About this conversation
-              </p>
-              <Link
-                href={`/help/asks/${askDetail.id}`}
-                className="mt-2 block text-body-sm leading-snug font-bold text-[var(--text-primary)] hover:text-[var(--blue-600)]"
-              >
-                Ask · {askDetail.question}
-              </Link>
-              <span
-                className={cn(
-                  'mt-2 inline-flex rounded-full px-2 py-0.5 text-kicker font-bold',
-                  resolved
-                    ? 'bg-[var(--state-success-bg)] text-[var(--state-success-fg)]'
-                    : 'bg-[var(--action-weak)] text-[var(--blue-600)]',
-                )}
-              >
-                {resolved ? 'Resolved' : 'Open'}
-              </span>
-            </section>
-          ) : null}
-
-          {askDetail && !resolved ? (
-            <button
-              type="button"
-              onClick={() => setResolveOpen(true)}
-              className="mt-4 min-h-11 w-full rounded-xl bg-card px-4 text-xs font-bold text-[var(--text-secondary)] shadow-[var(--ring-outline)] hover:bg-[var(--surface-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-            >
-              Mark ask resolved
-            </button>
-          ) : null}
-
-          <p className="mt-6 text-center text-kicker leading-relaxed font-medium text-[var(--text-faint)]">
-            Accepted asks do not expire. Resolving closes the ask, not this conversation.
-          </p>
+          {context}
         </aside>
-      </div>
+      ) : null}
+
+      <Dialog open={contextSheetOpen} onOpenChange={setContextSheetOpen}>
+        <DialogContent className="top-0 right-0 left-auto h-dvh w-[min(360px,calc(100%-1rem))] max-w-none content-start gap-0 overflow-y-auto rounded-none border-l border-border-subtle p-0 translate-x-0 translate-y-0">
+          <DialogTitle className="sr-only">Conversation details</DialogTitle>
+          <DialogDescription className="sr-only">
+            Profile, Ask context, Connection state, and safety actions.
+          </DialogDescription>
+          {context}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={resolveOpen} onOpenChange={setResolveOpen}>
         <DialogContent className="sm:max-w-[440px]">
@@ -502,8 +673,8 @@ export function ConversationThread({
           <DialogDescription className="text-body-sm leading-relaxed font-medium">
             The conversation stays available for both of you. Only the ask closes.
           </DialogDescription>
-          <label htmlFor="resolve-note" className="text-xs font-bold text-[var(--text-secondary)]">
-            What helped? <span className="font-medium text-[var(--text-faint)]">Optional</span>
+          <label htmlFor="resolve-note" className="text-xs font-bold text-text-secondary">
+            What helped? <span className="font-medium text-muted-foreground">Optional</span>
           </label>
           <textarea
             id="resolve-note"
@@ -516,16 +687,56 @@ export function ConversationThread({
           <button
             type="button"
             onClick={() => void resolveAsk()}
-            disabled={resolving}
+            disabled={actionPending}
             className="min-h-11 rounded-xl bg-[image:var(--gradient-primary-btn)] px-5 text-body-sm font-bold text-white shadow-[var(--shadow-primary-btn)] disabled:opacity-55"
           >
-            {resolving ? 'Closing…' : 'Mark resolved'}
+            {actionPending ? 'Closing…' : 'Mark resolved'}
           </button>
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={Boolean(confirmAction)}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+      >
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogTitle className="text-body-lg font-extrabold tracking-tight">
+            {confirmAction === 'block'
+              ? `Block ${conversation.counterpart.displayName}?`
+              : `Disconnect from ${conversation.counterpart.displayName}?`}
+          </DialogTitle>
+          <DialogDescription className="text-body-sm leading-relaxed font-medium">
+            {confirmAction === 'block'
+              ? 'You will no longer see each other across BridgeCircle, and this conversation will be hidden.'
+              : 'Your message history stays available, but this direct conversation becomes read-only.'}
+          </DialogDescription>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={() => setConfirmAction(null)}
+              disabled={actionPending}
+              className="min-h-11 rounded-xl px-4 text-body-sm font-bold text-text-secondary hover:bg-surface-subtle"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => void completeSafetyAction()}
+              disabled={actionPending}
+              className="min-h-11 rounded-xl bg-destructive px-4 text-body-sm font-bold text-destructive-foreground disabled:opacity-55"
+            >
+              {actionPending
+                ? 'Working…'
+                : confirmAction === 'block'
+                  ? 'Block member'
+                  : 'Disconnect'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {reportMessageId ? (
-        <HelpReportDialog
+        <SafetyReportDialog
           open
           onOpenChange={(open) => {
             if (!open) setReportMessageId(null)
@@ -542,26 +753,25 @@ function MessageRow({
   message,
   viewerUserId,
   counterpartName,
-  viewerOwnsAsk,
   showTime,
+  showReceipt,
   read,
   onReport,
 }: {
   message: ConversationMessage
   viewerUserId: string
   counterpartName: string
-  viewerOwnsAsk: boolean
   showTime: boolean
+  showReceipt: boolean
   read: boolean
   onReport?: () => void
 }) {
   if (message.kind === 'system') {
-    const icon = message.eventType === 'ask_resolved' ? CircleCheck : Check
-    const Icon = icon
+    const Icon = message.eventType === 'ask_resolved' ? CircleCheck : Check
     return (
-      <div className="flex items-center justify-center gap-2 py-2 text-xs font-semibold text-[var(--text-faint)]">
+      <div className="flex items-center justify-center gap-2 py-2 text-xs font-semibold text-muted-foreground">
         <Icon aria-hidden className="size-3.5" />
-        {systemMessageCopy(message, viewerUserId, counterpartName, viewerOwnsAsk)} ·{' '}
+        {systemMessageCopy(message, viewerUserId, counterpartName)} ·{' '}
         {formatStamp(message.createdAt)}
       </div>
     )
@@ -571,7 +781,7 @@ function MessageRow({
   return (
     <div className={cn('group flex flex-col', mine ? 'items-end' : 'items-start')}>
       {showTime ? (
-        <span className="mb-1 px-1 text-kicker font-medium text-[var(--text-faint)]">
+        <span className="mb-1 px-1 text-kicker font-medium text-muted-foreground">
           {formatStamp(message.createdAt)}
         </span>
       ) : null}
@@ -580,7 +790,7 @@ function MessageRow({
           <button
             type="button"
             onClick={onReport}
-            className="order-2 min-h-8 rounded-lg px-2 text-kicker font-semibold text-[var(--text-faint)] opacity-100 hover:bg-[var(--surface-subtle)] focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+            className="order-2 min-h-8 rounded-lg px-2 text-kicker font-semibold text-muted-foreground opacity-100 hover:bg-surface-subtle focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
           >
             Report
           </button>
@@ -590,14 +800,14 @@ function MessageRow({
             'whitespace-pre-wrap break-words rounded-[14px] px-4 py-2.5 text-body-sm leading-relaxed font-medium',
             mine
               ? 'bg-[image:var(--gradient-primary-btn)] text-white shadow-[var(--shadow-primary-btn)]'
-              : 'bg-[var(--surface-subtle)] text-[var(--text-primary)]',
+              : 'bg-surface-subtle text-foreground',
           )}
         >
           {message.body}
         </div>
       </div>
-      {mine ? (
-        <span className="mt-1 inline-flex items-center gap-1 px-1 text-kicker font-medium text-[var(--text-faint)]">
+      {mine && showReceipt ? (
+        <span className="mt-1 inline-flex items-center gap-1 px-1 text-kicker font-medium text-muted-foreground">
           {read ? (
             <CheckCheck aria-hidden className="size-3" />
           ) : (
@@ -632,19 +842,13 @@ function systemMessageCopy(
   message: Extract<ConversationMessage, { kind: 'system' }>,
   viewerUserId: string,
   counterpartName: string,
-  viewerOwnsAsk: boolean,
 ) {
   const counterpartFirst = counterpartName.split(/\s+/)[0]
   const viewerWasActor = message.actorUserId === viewerUserId
   if (message.eventType === 'ask_accepted') {
-    if (viewerWasActor) {
-      return viewerOwnsAsk
-        ? `You accepted ${counterpartFirst}’s offer`
-        : `You accepted ${counterpartFirst}’s ask`
-    }
-    return viewerOwnsAsk
-      ? `${counterpartFirst} accepted your ask`
-      : `${counterpartFirst} accepted your offer`
+    return viewerWasActor
+      ? 'You accepted and opened this conversation'
+      : `${counterpartFirst} accepted and opened this conversation`
   }
   if (message.eventType === 'ask_resolved') {
     return viewerWasActor

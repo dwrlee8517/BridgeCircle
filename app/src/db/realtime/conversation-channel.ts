@@ -291,12 +291,17 @@ export async function openConversationRealtime(
       channel.subscribe((status, error) => {
         if (closed) return
         if (status === 'SUBSCRIBED') {
-          invoke(() => callbacks.onRefetchAfterCursor())
           if (!ready) {
             ready = true
             clearTimeout(timer)
             subscriptionTimers.delete(timer)
-            resolve()
+            try {
+              Promise.resolve(callbacks.onRefetchAfterCursor()).then(resolve, reject)
+            } catch (callbackError) {
+              reject(callbackError)
+            }
+          } else {
+            invoke(() => callbacks.onRefetchAfterCursor())
           }
           return
         }
