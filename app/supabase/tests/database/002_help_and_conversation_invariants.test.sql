@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(21);
+select extensions.plan(22);
 
 select extensions.throws_ok(
   $$
@@ -122,21 +122,31 @@ select extensions.lives_ok(
 );
 
 select extensions.is(
-  api.create_direct_ask(
-    '20000000-0000-4000-8000-000000000005',
-    '20000000-0000-4000-8000-000000000003',
-    'Could you review another career option?',
-    'I would value a second perspective on this path.',
-    '90000000-0000-4000-8000-000000000101'
+  (
+    select result_code from api.create_direct_ask(
+      '20000000-0000-4000-8000-000000000005',
+      '20000000-0000-4000-8000-000000000003',
+      'Could you review another career option?',
+      'I would value a second perspective on this path.',
+      '90000000-0000-4000-8000-000000000101'
+    )
   ),
-  api.create_direct_ask(
-    '20000000-0000-4000-8000-000000000005',
-    '20000000-0000-4000-8000-000000000003',
-    'Ignored on idempotent retry',
-    'Ignored on idempotent retry.',
-    '90000000-0000-4000-8000-000000000101'
+  'existing'::text,
+  'same-key same-payload Ask retry returns the existing durable result'
+);
+
+select extensions.is(
+  (
+    select result_code from api.create_direct_ask(
+      '20000000-0000-4000-8000-000000000005',
+      '20000000-0000-4000-8000-000000000003',
+      'A conflicting question for the same request key',
+      'This payload must never replace the durable request.',
+      '90000000-0000-4000-8000-000000000101'
+    )
   ),
-  'Ask creation is idempotent by membership and client request ID'
+  'idempotency_conflict'::text,
+  'same-key different-payload Ask retry returns an idempotency conflict'
 );
 
 select extensions.lives_ok(
@@ -163,18 +173,17 @@ select extensions.lives_ok(
   'five active Asks are allowed'
 );
 
-select extensions.throws_ok(
-  $$
-    select api.create_direct_ask(
+select extensions.is(
+  (
+    select result_code from api.create_direct_ask(
       '20000000-0000-4000-8000-000000000005',
       '20000000-0000-4000-8000-000000000003',
       'Active Ask six', 'This request must be rejected.',
       '90000000-0000-4000-8000-000000000105'
     )
-  $$,
-  'P0001',
-  null,
-  'the sixth active Ask is rejected transactionally'
+  ),
+  'active_limit_reached'::text,
+  'the sixth active Ask returns a stable rejection without committing'
 );
 
 reset role;
@@ -222,7 +231,7 @@ select extensions.is(
 select extensions.lives_ok(
   $$
     create temporary table test_offer_id on commit drop as
-    select api.offer_to_help(
+    select offer_id as id from api.offer_to_help(
       '30000000-0000-4000-8000-000000000002',
       '20000000-0000-4000-8000-000000000006',
       'I work in this area and would be glad to compare notes.',

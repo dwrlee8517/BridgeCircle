@@ -487,10 +487,12 @@ create table public.asks (
   constraint asks_client_request_key unique (asker_membership_id, client_request_id)
 );
 
-create index asks_org_asker_created_idx
-  on public.asks (organization_id, asker_membership_id, created_at desc, id desc);
+create index asks_asker_created_idx
+  on public.asks (asker_membership_id, created_at desc, id desc);
+create index asks_org_asker_fk_idx
+  on public.asks (organization_id, asker_membership_id);
 create index asks_recipient_status_created_idx
-  on public.asks (recipient_membership_id, status, created_at desc)
+  on public.asks (recipient_membership_id, status, created_at desc, id desc)
   where kind = 'direct';
 create index asks_circle_reach_created_idx
   on public.asks (organization_id, reach, created_at desc, id desc)
@@ -1071,6 +1073,9 @@ create table private.profile_embedding_chunks (
   source_section text not null,
   visibility_tier text not null,
   content text not null,
+  search_vector tsvector generated always as (
+    to_tsvector('english'::regconfig, content)
+  ) stored,
   content_hash text not null,
   synthetic_prompt_version text,
   embedding_model text not null,
@@ -1107,6 +1112,22 @@ create index profile_embedding_chunks_visibility_idx
   on private.profile_embedding_chunks (organization_id, visibility_tier);
 create index profile_embedding_chunks_hash_idx
   on private.profile_embedding_chunks (content_hash);
+create index profile_embedding_chunks_search_idx
+  on private.profile_embedding_chunks using gin (search_vector);
+
+create table private.help_ai_usage_windows (
+  user_id uuid not null references public.users(id) on delete cascade,
+  action text not null,
+  window_started_at timestamptz not null,
+  request_count integer not null default 1,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, action, window_started_at),
+  constraint help_ai_usage_action_check
+    check (action in ('ask_draft', 'match_explanation', 'decline_note')),
+  constraint help_ai_usage_window_check
+    check (window_started_at = date_trunc('hour', window_started_at)),
+  constraint help_ai_usage_count_check check (request_count > 0)
+);
 
 create table private.profile_embedding_status (
   organization_membership_id uuid primary key,
@@ -1652,9 +1673,20 @@ begin
   if p_user_id is null
      or p_event not in (
        'conversation.permissions_changed',
-       'conversation.revoked'
+       'conversation.revoked',
+       'help.changed'
      ) then
     raise exception using errcode = '22023', message = 'invalid_user_control_event';
+  end if;
+
+  if p_event = 'help.changed'
+     and (
+       jsonb_typeof(p_payload) <> 'object'
+       or not (p_payload ? 'id')
+       or not (p_payload ? 'askId')
+       or (p_payload - array['id', 'askId', 'offerId']::text[]) <> '{}'::jsonb
+     ) then
+    raise exception using errcode = '22023', message = 'invalid_help_change_payload';
   end if;
 
   perform realtime.send(
@@ -1663,6 +1695,72 @@ begin
     'user:' || p_user_id::text,
     true
   );
+end;
+$$;
+
+create function private.broadcast_help_change(
+  p_ask_id uuid,
+  p_offer_id uuid default null,
+  p_only_user_id uuid default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid;
+  v_payload jsonb := jsonb_strip_nulls(jsonb_build_object(
+    'id', gen_random_uuid(),
+    'askId', p_ask_id,
+    'offerId', p_offer_id
+  ));
+begin
+  if p_ask_id is null then
+    raise exception using errcode = '22023', message = 'help_change_ask_required';
+  end if;
+
+  if p_only_user_id is not null then
+    perform private.broadcast_user_control_event(
+      p_only_user_id,
+      'help.changed',
+      v_payload
+    );
+    return;
+  end if;
+
+  for v_user_id in
+    select distinct affected.user_id
+    from (
+      select asker.user_id
+      from public.asks a
+      join public.organization_memberships asker on asker.id = a.asker_membership_id
+      where a.id = p_ask_id
+
+      union all
+
+      select recipient.user_id
+      from public.asks a
+      join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
+      where a.id = p_ask_id
+
+      union all
+
+      select helper.user_id
+      from public.ask_offers ao
+      join public.organization_memberships helper on helper.id = ao.helper_membership_id
+      where ao.ask_id = p_ask_id
+        and (p_offer_id is null or ao.id = p_offer_id)
+    ) affected
+    where affected.user_id is not null
+    order by affected.user_id
+  loop
+    perform private.broadcast_user_control_event(
+      v_user_id,
+      'help.changed',
+      v_payload
+    );
+  end loop;
 end;
 $$;
 
@@ -3603,6 +3701,44 @@ begin
 end;
 $$;
 
+create function private.lock_help_capacity(
+  p_asker_membership_id uuid,
+  p_helper_membership_id uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_asker_key bigint;
+  v_helper_key bigint;
+begin
+  if p_asker_membership_id is null then
+    raise exception using errcode = '22023', message = 'asker_membership_required';
+  end if;
+
+  v_asker_key := pg_catalog.hashtextextended(
+    'help:asker:' || p_asker_membership_id::text,
+    0
+  );
+  v_helper_key := case
+    when p_helper_membership_id is null then null
+    else pg_catalog.hashtextextended(
+      'help:helper:' || p_helper_membership_id::text,
+      0
+    )
+  end;
+
+  if v_helper_key is null then
+    perform pg_advisory_xact_lock(v_asker_key);
+  else
+    perform pg_advisory_xact_lock(least(v_asker_key, v_helper_key));
+    perform pg_advisory_xact_lock(greatest(v_asker_key, v_helper_key));
+  end if;
+end;
+$$;
+
 create function private.create_ask(
   p_kind text,
   p_asker_membership_id uuid,
@@ -3613,7 +3749,12 @@ create function private.create_ask(
   p_anonymous_until_accepted boolean,
   p_client_request_id uuid
 )
-returns uuid
+returns table (
+  result_code text,
+  ask_id uuid,
+  active_count integer,
+  created boolean
+)
 language plpgsql
 security definer
 set search_path = ''
@@ -3622,12 +3763,35 @@ declare
   v_organization_id uuid;
   v_asker_user_id uuid;
   v_recipient_user_id uuid;
-  v_existing_id uuid;
+  v_existing public.asks%rowtype;
   v_ask_id uuid;
   v_active_count integer;
   v_max_pending smallint;
   v_pending_for_helper integer;
+  v_question text := btrim(coalesce(p_question, ''));
+  v_request_message text := nullif(btrim(coalesce(p_request_message, '')), '');
+  v_reach text := nullif(btrim(coalesce(p_reach, '')), '');
 begin
+  if p_kind not in ('direct', 'circle')
+     or p_asker_membership_id is null
+     or p_client_request_id is null
+     or char_length(v_question) not between 1 and 2000
+     or (
+       p_kind = 'direct'
+       and (
+         p_recipient_membership_id is null
+         or v_request_message is null
+         or char_length(v_request_message) > 4000
+       )
+     )
+     or (
+       p_kind = 'circle'
+       and (p_recipient_membership_id is not null or v_reach not in ('matched', 'organization'))
+     ) then
+    return query select 'invalid_input'::text, null::uuid, 0, false;
+    return;
+  end if;
+
   select m.organization_id, m.user_id
     into v_organization_id, v_asker_user_id
   from public.organization_memberships m
@@ -3638,24 +3802,35 @@ begin
     and u.account_state = 'active';
 
   if v_organization_id is null then
-    raise exception using errcode = '42501', message = 'asker_membership_not_owned';
-  end if;
-
-  select a.id into v_existing_id
-  from public.asks a
-  where a.asker_membership_id = p_asker_membership_id
-    and a.client_request_id = p_client_request_id;
-  if v_existing_id is not null then
-    return v_existing_id;
-  end if;
-
-  if p_kind not in ('direct', 'circle') then
-    raise exception using errcode = '22023', message = 'invalid_ask_kind';
+    return query select 'not_available'::text, null::uuid, 0, false;
+    return;
   end if;
 
   if p_kind = 'direct' then
-    select recipient.user_id, hp.max_pending_requests
-      into v_recipient_user_id, v_max_pending
+    select recipient.user_id
+      into v_recipient_user_id
+    from public.organization_memberships recipient
+    join public.users u on u.id = recipient.user_id and u.account_state = 'active'
+    where recipient.id = p_recipient_membership_id
+      and recipient.organization_id = v_organization_id
+      and recipient.status = 'active';
+
+    if v_recipient_user_id is null or v_recipient_user_id = v_asker_user_id then
+      return query select 'not_available'::text, null::uuid, 0, false;
+      return;
+    end if;
+
+    perform private.lock_user_pair(v_asker_user_id, v_recipient_user_id);
+  end if;
+
+  perform private.lock_help_capacity(
+    p_asker_membership_id,
+    case when p_kind = 'direct' then p_recipient_membership_id else null end
+  );
+
+  if p_kind = 'direct' then
+    select hp.max_pending_requests
+      into v_max_pending
     from public.organization_memberships recipient
     join public.users u on u.id = recipient.user_id and u.account_state = 'active'
     join public.helper_preferences hp
@@ -3665,36 +3840,59 @@ begin
      and hp.paused_at is null
     where recipient.id = p_recipient_membership_id
       and recipient.organization_id = v_organization_id
-      and recipient.status = 'active';
+      and recipient.status = 'active'
+    for update of hp;
 
-    if v_recipient_user_id is null or v_recipient_user_id = v_asker_user_id then
-      raise exception using errcode = '22023', message = 'direct_recipient_unavailable';
-    end if;
-    if private.is_blocked(v_asker_user_id, v_recipient_user_id) then
-      raise exception using errcode = '42501', message = 'ask_blocked';
-    end if;
-
-    select count(*) into v_pending_for_helper
-    from public.asks a
-    where a.kind = 'direct'
-      and a.recipient_membership_id = p_recipient_membership_id
-      and a.status = 'waiting';
-    if v_pending_for_helper >= v_max_pending then
-      raise exception using errcode = 'P0001', message = 'helper_request_limit_reached';
+    if v_max_pending is null
+       or private.is_blocked(v_asker_user_id, v_recipient_user_id) then
+      return query select 'not_available'::text, null::uuid, 0, false;
+      return;
     end if;
   end if;
 
-  perform pg_advisory_xact_lock(
-    pg_catalog.hashtextextended(v_organization_id::text || ':' || p_asker_membership_id::text, 0)
-  );
+  select * into v_existing
+  from public.asks a
+  where a.asker_membership_id = p_asker_membership_id
+    and a.client_request_id = p_client_request_id;
 
   select count(*) into v_active_count
   from public.asks a
   where a.asker_membership_id = p_asker_membership_id
     and a.status in ('waiting', 'open', 'accepted');
 
+  if found and v_existing.id is not null then
+    if v_existing.kind = p_kind
+       and v_existing.recipient_membership_id is not distinct from
+         (case when p_kind = 'direct' then p_recipient_membership_id else null end)
+       and v_existing.question = v_question
+       and v_existing.request_message is not distinct from
+         (case when p_kind = 'direct' then v_request_message else null end)
+       and v_existing.reach is not distinct from
+         (case when p_kind = 'circle' then v_reach else null end)
+       and v_existing.anonymous_until_accepted =
+         (case when p_kind = 'circle' then coalesce(p_anonymous_until_accepted, false) else false end) then
+      return query select 'existing'::text, v_existing.id, v_active_count, false;
+    else
+      return query select 'idempotency_conflict'::text, v_existing.id, v_active_count, false;
+    end if;
+    return;
+  end if;
+
   if v_active_count >= 5 then
-    raise exception using errcode = 'P0001', message = 'active_ask_limit_reached';
+    return query select 'active_limit_reached'::text, null::uuid, v_active_count, false;
+    return;
+  end if;
+
+  if p_kind = 'direct' then
+    select count(*) into v_pending_for_helper
+    from public.asks a
+    where a.kind = 'direct'
+      and a.recipient_membership_id = p_recipient_membership_id
+      and a.status = 'waiting';
+    if v_pending_for_helper >= v_max_pending then
+      return query select 'helper_limit_reached'::text, null::uuid, v_active_count, false;
+      return;
+    end if;
   end if;
 
   insert into public.asks (
@@ -3705,9 +3903,9 @@ begin
     v_organization_id, p_asker_membership_id, p_kind,
     case when p_kind = 'direct' then 'waiting' else 'open' end,
     case when p_kind = 'direct' then p_recipient_membership_id else null end,
-    p_question,
-    case when p_kind = 'direct' then p_request_message else null end,
-    case when p_kind = 'circle' then p_reach else null end,
+    v_question,
+    case when p_kind = 'direct' then v_request_message else null end,
+    case when p_kind = 'circle' then v_reach else null end,
     case when p_kind = 'circle' then coalesce(p_anonymous_until_accepted, false) else false end,
     p_client_request_id
   ) returning id into v_ask_id;
@@ -3738,7 +3936,8 @@ begin
     );
   end if;
 
-  return v_ask_id;
+  perform private.broadcast_help_change(v_ask_id);
+  return query select 'created'::text, v_ask_id, v_active_count + 1, true;
 end;
 $$;
 
@@ -3863,6 +4062,7 @@ begin
       ),
       'ask_accepted:' || p_ask_id::text
     );
+    perform private.broadcast_help_change(p_ask_id);
     return v_conversation_id;
   elsif p_decision = 'decline' then
     if p_decline_reason_code not in ('unavailable', 'outside_expertise', 'other')
@@ -3895,6 +4095,7 @@ begin
       ),
       'ask_declined:' || p_ask_id::text
     );
+    perform private.broadcast_help_change(p_ask_id);
     return null;
   end if;
 
@@ -3930,6 +4131,7 @@ begin
   update public.asks set status = 'retracted', ended_at = now() where id = p_ask_id;
   insert into private.ask_events (ask_id, organization_id, actor_user_id, event_type)
   values (p_ask_id, v_ask.organization_id, v_actor, 'retracted');
+  perform private.broadcast_help_change(p_ask_id);
 end;
 $$;
 
@@ -3948,8 +4150,16 @@ begin
   if not found then
     raise exception using errcode = '22023', message = 'ask_not_found';
   end if;
-  if not private.owns_membership(v_ask.asker_membership_id, v_ask.organization_id) then
+
+  select c.id into v_conversation_id
+  from public.conversations c
+  where c.ask_id = p_ask_id
+    and v_actor in (c.user_a_id, c.user_b_id);
+  if v_conversation_id is null then
     raise exception using errcode = '42501', message = 'ask_not_owned';
+  end if;
+  if v_ask.status = 'resolved' then
+    return;
   end if;
   if v_ask.status <> 'accepted' then
     raise exception using errcode = 'P0001', message = 'ask_not_accepted';
@@ -3958,9 +4168,6 @@ begin
   update public.asks
   set status = 'resolved', outcome_note = nullif(btrim(p_outcome_note), ''), ended_at = now()
   where id = p_ask_id;
-  select c.id into v_conversation_id
-  from public.conversations c
-  where c.ask_id = p_ask_id;
   perform private.insert_system_message(
     v_conversation_id,
     'ask_resolved',
@@ -3970,6 +4177,7 @@ begin
   );
   insert into private.ask_events (ask_id, organization_id, actor_user_id, event_type)
   values (p_ask_id, v_ask.organization_id, v_actor, 'resolved');
+  perform private.broadcast_help_change(p_ask_id);
 end;
 $$;
 
@@ -3979,17 +4187,29 @@ create function private.offer_to_help(
   p_offer_note text,
   p_client_request_id uuid
 )
-returns uuid
+returns table (
+  offer_id uuid,
+  created boolean
+)
 language plpgsql
 security definer
 set search_path = ''
 as $$
 declare
   v_ask public.asks%rowtype;
+  v_existing public.ask_offers%rowtype;
   v_asker_user_id uuid;
   v_helper_user_id uuid;
   v_offer_id uuid;
+  v_offer_note text := btrim(coalesce(p_offer_note, ''));
 begin
+  if p_ask_id is null
+     or p_helper_membership_id is null
+     or p_client_request_id is null
+     or char_length(v_offer_note) not between 1 and 4000 then
+    raise exception using errcode = '22023', message = 'invalid_offer_input';
+  end if;
+
   select * into v_ask from public.asks where id = p_ask_id for share;
   if not found or v_ask.kind <> 'circle' or v_ask.status <> 'open' then
     raise exception using errcode = '22023', message = 'circle_ask_not_open';
@@ -4014,19 +4234,39 @@ begin
     raise exception using errcode = '42501', message = 'offer_not_allowed';
   end if;
 
-  select id into v_offer_id
+  perform pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(
+      'help:offer-helper:' || p_helper_membership_id::text,
+      0
+    )
+  );
+
+  select * into v_existing
   from public.ask_offers
   where helper_membership_id = p_helper_membership_id
     and client_request_id = p_client_request_id;
-  if v_offer_id is not null then
-    return v_offer_id;
+  if v_existing.id is not null then
+    if v_existing.ask_id = p_ask_id and v_existing.offer_note = v_offer_note then
+      return query select v_existing.id, false;
+      return;
+    end if;
+    raise exception using errcode = 'P0001', message = 'idempotency_conflict';
+  end if;
+
+  select * into v_existing
+  from public.ask_offers
+  where ask_id = p_ask_id
+    and helper_membership_id = p_helper_membership_id;
+  if v_existing.id is not null then
+    return query select v_existing.id, false;
+    return;
   end if;
 
   insert into public.ask_offers (
     organization_id, ask_id, helper_membership_id, offer_note, client_request_id
   ) values (
     v_ask.organization_id, p_ask_id, p_helper_membership_id,
-    p_offer_note, p_client_request_id
+    v_offer_note, p_client_request_id
   ) returning id into v_offer_id;
 
   insert into private.ask_events (
@@ -4046,7 +4286,8 @@ begin
     ),
     'offer_received:' || v_offer_id::text
   );
-  return v_offer_id;
+  perform private.broadcast_help_change(p_ask_id, v_offer_id);
+  return query select v_offer_id, true;
 end;
 $$;
 
@@ -4189,6 +4430,7 @@ begin
       ),
       'offer_accepted:' || p_offer_id::text
     );
+    perform private.broadcast_help_change(v_ask.id, p_offer_id);
     return v_conversation_id;
   elsif p_decision = 'decline' then
     if p_decline_reason_code not in ('went_another_direction', 'not_right_fit', 'other')
@@ -4218,6 +4460,7 @@ begin
       ),
       'offer_declined:' || p_offer_id::text
     );
+    perform private.broadcast_help_change(v_ask.id, p_offer_id);
     return null;
   end if;
 
@@ -4470,6 +4713,7 @@ as $$
 declare
   v_blocker_user_id uuid := (select auth.uid());
   v_inserted_count integer;
+  v_ask_id uuid;
 begin
   if v_blocker_user_id is null or v_blocker_user_id = p_blocked_user_id then
     raise exception using errcode = '22023', message = 'invalid_block_target';
@@ -4479,6 +4723,34 @@ begin
   end if;
 
   perform private.lock_user_pair(v_blocker_user_id, p_blocked_user_id);
+
+  for v_ask_id in
+    select distinct affected.ask_id
+    from (
+      select a.id as ask_id
+      from public.asks a
+      join public.organization_memberships asker on asker.id = a.asker_membership_id
+      join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
+      where a.status in ('waiting', 'accepted')
+        and (
+          (asker.user_id = v_blocker_user_id and recipient.user_id = p_blocked_user_id)
+          or (asker.user_id = p_blocked_user_id and recipient.user_id = v_blocker_user_id)
+        )
+
+      union
+
+      select a.id
+      from public.asks a
+      join public.organization_memberships asker on asker.id = a.asker_membership_id
+      join public.ask_offers ao on ao.ask_id = a.id and ao.status in ('pending', 'accepted')
+      join public.organization_memberships helper on helper.id = ao.helper_membership_id
+      where asker.user_id in (v_blocker_user_id, p_blocked_user_id)
+        and helper.user_id in (v_blocker_user_id, p_blocked_user_id)
+    ) affected
+    order by affected.ask_id
+  loop
+    perform private.broadcast_help_change(v_ask_id);
+  end loop;
 
   insert into public.member_blocks (blocker_user_id, blocked_user_id)
   values (v_blocker_user_id, p_blocked_user_id)
@@ -5440,19 +5712,29 @@ as $$
 $$;
 
 create function private.list_give_help(
-  p_before timestamptz default null,
+  p_membership_id uuid,
+  p_arm text,
+  p_query text default null,
+  p_before_created_at timestamptz default null,
+  p_before_id uuid default null,
   p_limit integer default 50
 )
 returns table (
   ask_id uuid,
   organization_id uuid,
   kind text,
+  status text,
   question text,
   reach text,
   anonymous_until_accepted boolean,
   asker_user_id uuid,
+  asker_display_name text,
+  asker_avatar_path text,
+  asker_graduation_year smallint,
   match_reason text,
-  created_at timestamptz
+  my_offer_status text,
+  created_at timestamptz,
+  expires_at timestamptz
 )
 language sql
 stable
@@ -5463,28 +5745,68 @@ as $$
     a.id,
     a.organization_id,
     a.kind,
+    a.status,
     a.question,
     a.reach,
     a.anonymous_until_accepted,
     case when a.anonymous_until_accepted then null else asker.user_id end,
+    case when a.anonymous_until_accepted then null else asker_profile.display_name end,
+    case when a.anonymous_until_accepted then null else asker_profile.avatar_path end,
+    asker_org_profile.graduation_year,
     am.reason,
-    a.created_at
+    own_offer.status,
+    a.created_at,
+    a.expires_at
   from public.asks a
+  join public.organization_memberships viewer
+    on viewer.id = p_membership_id
+   and viewer.organization_id = a.organization_id
+   and viewer.user_id = (select auth.uid())
+   and viewer.status = 'active'
   join public.organization_memberships asker on asker.id = a.asker_membership_id
+  join public.profiles asker_profile on asker_profile.user_id = asker.user_id
+  left join public.organization_profiles asker_org_profile
+    on asker_org_profile.organization_membership_id = asker.id
   left join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
-  left join public.organization_memberships viewer_membership
-    on viewer_membership.organization_id = a.organization_id
-   and viewer_membership.user_id = (select auth.uid())
-   and viewer_membership.status = 'active'
   left join private.ask_matches am
     on am.ask_id = a.id
-   and am.helper_membership_id = viewer_membership.id
-  where a.status in ('waiting', 'open')
-    and (p_before is null or a.created_at < p_before)
+   and am.helper_membership_id = viewer.id
+  left join public.ask_offers own_offer
+    on own_offer.ask_id = a.id
+   and own_offer.helper_membership_id = viewer.id
+  where p_arm in ('direct', 'suggested', 'search')
     and (
-      (a.kind = 'direct' and recipient.user_id = (select auth.uid()))
-      or
-      (a.kind = 'circle' and private.can_view_ask(a.id))
+      (p_before_created_at is null and p_before_id is null)
+      or (
+        p_before_created_at is not null and p_before_id is not null
+        and (a.created_at, a.id) < (p_before_created_at, p_before_id)
+      )
+    )
+    and (
+      (
+        p_arm = 'direct'
+        and a.kind = 'direct'
+        and a.status = 'waiting'
+        and recipient.id = viewer.id
+      )
+      or (
+        p_arm = 'suggested'
+        and a.kind = 'circle'
+        and a.status = 'open'
+        and am.ask_id is not null
+        and private.can_view_ask(a.id)
+      )
+      or (
+        p_arm = 'search'
+        and a.kind = 'circle'
+        and a.status = 'open'
+        and private.can_view_ask(a.id)
+        and (
+          nullif(btrim(coalesce(p_query, '')), '') is null
+          or to_tsvector('english'::regconfig, a.question)
+            @@ websearch_to_tsquery('english'::regconfig, p_query)
+        )
+      )
     )
     and not private.is_blocked((select auth.uid()), asker.user_id)
   order by a.created_at desc, a.id desc
@@ -5636,7 +5958,8 @@ $$;
 
 create function private.claim_outbox_jobs(
   p_worker_id text,
-  p_limit integer default 20
+  p_limit integer default 20,
+  p_allowed_types text[] default null
 )
 returns setof private.outbox_jobs
 language plpgsql
@@ -5646,6 +5969,17 @@ as $$
 begin
   if char_length(btrim(coalesce(p_worker_id, ''))) not between 1 and 200 then
     raise exception using errcode = '22023', message = 'invalid_worker_id';
+  end if;
+  if p_allowed_types is null
+     or cardinality(p_allowed_types) = 0
+     or exists (
+       select 1 from unnest(p_allowed_types) allowed(job_type)
+       where allowed.job_type not in (
+         'send_email', 'create_notification', 'run_ask_matching', 'index_profile',
+         'process_account_deletion', 'delete_storage_objects'
+       )
+     ) then
+    raise exception using errcode = '22023', message = 'invalid_allowed_job_types';
   end if;
 
   update private.outbox_jobs j
@@ -5669,7 +6003,9 @@ begin
   with claimable as (
     select j.id
     from private.outbox_jobs j
-    where j.status = 'pending' and j.available_at <= now()
+    where j.status = 'pending'
+      and j.available_at <= now()
+      and j.job_type = any(p_allowed_types)
     order by j.available_at, j.id
     for update skip locked
     limit greatest(1, least(coalesce(p_limit, 20), 100))
@@ -5812,9 +6148,522 @@ begin
 end;
 $$;
 
+create function private.apply_ask_matches(
+  p_ask_id uuid,
+  p_pipeline_version text,
+  p_model_version text,
+  p_matches jsonb
+)
+returns table (
+  result_code text,
+  applied_count integer
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_ask public.asks%rowtype;
+  v_asker_user_id uuid;
+  v_expected_count integer;
+  v_valid_count integer;
+  v_inserted_count integer;
+  v_match record;
+begin
+  if p_ask_id is null
+     or char_length(btrim(coalesce(p_pipeline_version, ''))) not between 1 and 100
+     or char_length(btrim(coalesce(p_model_version, ''))) not between 1 and 100
+     or jsonb_typeof(p_matches) <> 'array'
+     or jsonb_array_length(p_matches) > 50 then
+    return query select 'invalid_input'::text, 0;
+    return;
+  end if;
+
+  select * into v_ask
+  from public.asks a
+  where a.id = p_ask_id
+  for update;
+  if not found or v_ask.kind <> 'circle' or v_ask.status <> 'open' then
+    return query select 'not_available'::text, 0;
+    return;
+  end if;
+
+  select asker.user_id into v_asker_user_id
+  from public.organization_memberships asker
+  where asker.id = v_ask.asker_membership_id;
+  v_expected_count := jsonb_array_length(p_matches);
+
+  with input as (
+    select *
+    from jsonb_to_recordset(p_matches) as item(
+      "helperMembershipId" uuid,
+      rank integer,
+      score double precision,
+      reason text,
+      evidence jsonb
+    )
+  )
+  select count(*)::integer into v_valid_count
+  from input
+  join public.organization_memberships helper
+    on helper.id = input."helperMembershipId"
+   and helper.organization_id = v_ask.organization_id
+   and helper.status = 'active'
+  join public.users helper_user
+    on helper_user.id = helper.user_id and helper_user.account_state = 'active'
+  join public.helper_preferences hp
+    on hp.organization_membership_id = helper.id
+   and hp.organization_id = helper.organization_id
+   and hp.open_to_help = true
+   and hp.paused_at is null
+  where helper.user_id <> v_asker_user_id
+    and not private.is_blocked(v_asker_user_id, helper.user_id)
+    and input.rank > 0
+    and input.score between 0 and 1
+    and char_length(btrim(coalesce(input.reason, ''))) between 1 and 1000
+    and coalesce(jsonb_typeof(input.evidence), 'object') = 'object';
+
+  if v_valid_count <> v_expected_count
+     or (
+       select count(distinct item.rank) <> v_expected_count
+         or count(distinct item."helperMembershipId") <> v_expected_count
+       from jsonb_to_recordset(p_matches) as item(
+         "helperMembershipId" uuid,
+         rank integer
+       )
+     ) then
+    return query select 'invalid_input'::text, 0;
+    return;
+  end if;
+
+  delete from private.ask_matches am where am.ask_id = p_ask_id;
+  insert into private.ask_matches (
+    ask_id, organization_id, helper_membership_id, rank, score, reason,
+    evidence, model, model_version
+  )
+  select
+    p_ask_id,
+    v_ask.organization_id,
+    item."helperMembershipId",
+    item.rank,
+    item.score,
+    btrim(item.reason),
+    coalesce(item.evidence, '{}'::jsonb),
+    btrim(p_pipeline_version),
+    btrim(p_model_version)
+  from jsonb_to_recordset(p_matches) as item(
+    "helperMembershipId" uuid,
+    rank integer,
+    score double precision,
+    reason text,
+    evidence jsonb
+  );
+  get diagnostics v_inserted_count = row_count;
+
+  for v_match in
+    select am.helper_membership_id, helper.user_id as helper_user_id
+    from private.ask_matches am
+    join public.organization_memberships helper on helper.id = am.helper_membership_id
+    where am.ask_id = p_ask_id
+    order by am.rank
+  loop
+    perform private.enqueue_outbox(
+      'create_notification',
+      jsonb_strip_nulls(jsonb_build_object(
+        'type', 'circle_ask_match',
+        'recipientUserId', v_match.helper_user_id,
+        'actorUserId', case
+          when v_ask.anonymous_until_accepted then null
+          else v_asker_user_id
+        end,
+        'askId', p_ask_id
+      )),
+      'circle_ask_match:' || p_ask_id::text || ':' || v_match.helper_membership_id::text
+    );
+    perform private.broadcast_help_change(
+      p_ask_id,
+      null,
+      v_match.helper_user_id
+    );
+  end loop;
+
+  perform private.broadcast_help_change(p_ask_id, null, v_asker_user_id);
+
+  return query select 'applied'::text, v_inserted_count;
+end;
+$$;
+
+create function private.run_help_maintenance(
+  p_now timestamptz,
+  p_limit integer default 100
+)
+returns table (
+  reminders_sent integer,
+  asks_closed integer,
+  offers_closed integer,
+  helpers_paused integer
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_ask public.asks%rowtype;
+  v_offer public.ask_offers%rowtype;
+  v_asker_user_id uuid;
+  v_recipient_user_id uuid;
+  v_helper_user_id uuid;
+  v_previous_timeouts smallint;
+  v_reminders integer := 0;
+  v_closed integer := 0;
+  v_offers integer := 0;
+  v_paused integer := 0;
+  v_limit integer := greatest(1, least(coalesce(p_limit, 100), 1000));
+begin
+  if p_now is null then
+    raise exception using errcode = '22023', message = 'maintenance_time_required';
+  end if;
+
+  for v_ask in
+    select a.*
+    from public.asks a
+    where a.kind = 'direct'
+      and a.status = 'waiting'
+      and a.reminder_sent_at is null
+      and a.created_at + interval '5 days' <= p_now
+      and a.expires_at > p_now
+    order by a.created_at, a.id
+    for update skip locked
+    limit v_limit
+  loop
+    update public.asks
+    set reminder_sent_at = p_now
+    where id = v_ask.id;
+    insert into private.ask_events (
+      ask_id, organization_id, event_type, created_at
+    ) values (
+      v_ask.id, v_ask.organization_id, 'reminded', p_now
+    );
+    select asker.user_id, recipient.user_id
+      into v_asker_user_id, v_recipient_user_id
+    from public.organization_memberships asker
+    join public.organization_memberships recipient
+      on recipient.id = v_ask.recipient_membership_id
+    where asker.id = v_ask.asker_membership_id;
+    perform private.enqueue_outbox(
+      'create_notification',
+      jsonb_build_object(
+        'type', 'ask_reminder',
+        'recipientUserId', v_recipient_user_id,
+        'actorUserId', v_asker_user_id,
+        'askId', v_ask.id
+      ),
+      'ask_reminder:' || v_ask.id::text
+    );
+    perform private.broadcast_help_change(v_ask.id);
+    v_reminders := v_reminders + 1;
+  end loop;
+
+  for v_ask in
+    select a.*
+    from public.asks a
+    where a.status in ('waiting', 'open')
+      and a.expires_at <= p_now
+    order by a.expires_at, a.id
+    for update skip locked
+    limit v_limit
+  loop
+    select asker.user_id into v_asker_user_id
+    from public.organization_memberships asker
+    where asker.id = v_ask.asker_membership_id;
+
+    for v_offer in
+      select ao.*
+      from public.ask_offers ao
+      where ao.ask_id = v_ask.id and ao.status = 'pending'
+      order by ao.id
+      for update
+    loop
+      update public.ask_offers
+      set status = 'closed', closure_reason = 'ask_closed', closed_at = p_now
+      where id = v_offer.id;
+      select helper.user_id into v_helper_user_id
+      from public.organization_memberships helper
+      where helper.id = v_offer.helper_membership_id;
+      insert into private.ask_events (
+        ask_id, organization_id, event_type, payload, created_at
+      ) values (
+        v_ask.id,
+        v_ask.organization_id,
+        'offer_closed',
+        jsonb_build_object('offerId', v_offer.id),
+        p_now
+      );
+      perform private.enqueue_outbox(
+        'create_notification',
+        jsonb_build_object(
+          'type', 'offer_closed',
+          'recipientUserId', v_helper_user_id,
+          'actorUserId', v_asker_user_id,
+          'askId', v_ask.id,
+          'offerId', v_offer.id
+        ),
+        'offer_closed:' || v_offer.id::text
+      );
+      v_offers := v_offers + 1;
+    end loop;
+
+    update public.asks
+    set status = 'closed', closure_reason = 'silence_timeout', ended_at = p_now
+    where id = v_ask.id;
+    insert into private.ask_events (
+      ask_id, organization_id, event_type, created_at
+    ) values (
+      v_ask.id, v_ask.organization_id, 'closed', p_now
+    );
+    perform private.enqueue_outbox(
+      'create_notification',
+      jsonb_build_object(
+        'type', case
+          when v_ask.kind = 'circle' then 'circle_ask_closed'
+          else 'ask_closed'
+        end,
+        'recipientUserId', v_asker_user_id,
+        'askId', v_ask.id
+      ),
+      'ask_closed:' || v_ask.id::text
+    );
+    perform private.broadcast_help_change(v_ask.id);
+
+    if v_ask.kind = 'direct' then
+      select hp.consecutive_timeouts into v_previous_timeouts
+      from public.helper_preferences hp
+      where hp.organization_membership_id = v_ask.recipient_membership_id
+      for update;
+      update public.helper_preferences hp
+      set consecutive_timeouts = least(3, hp.consecutive_timeouts + 1),
+          open_to_help = case
+            when hp.consecutive_timeouts + 1 >= 3 then false
+            else hp.open_to_help
+          end,
+          paused_at = case
+            when hp.consecutive_timeouts + 1 >= 3 then coalesce(hp.paused_at, p_now)
+            else hp.paused_at
+          end,
+          pause_reason = case
+            when hp.consecutive_timeouts + 1 >= 3 then 'unresponsive'
+            else hp.pause_reason
+          end
+      where hp.organization_membership_id = v_ask.recipient_membership_id;
+      if v_previous_timeouts = 2 then
+        v_paused := v_paused + 1;
+      end if;
+    end if;
+    v_closed := v_closed + 1;
+  end loop;
+
+  return query select v_reminders, v_closed, v_offers, v_paused;
+end;
+$$;
+
+create function private.materialize_notification_job(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  result_code text,
+  notification_id bigint,
+  email_job_id bigint
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_job private.outbox_jobs%rowtype;
+  v_type text;
+  v_recipient_user_id uuid;
+  v_actor_user_id uuid;
+  v_organization_id uuid;
+  v_target_type text;
+  v_target_id text;
+  v_notification_id bigint;
+  v_email_job_id bigint;
+  v_in_app_enabled boolean;
+  v_email_enabled boolean;
+  v_email_payload jsonb;
+begin
+  select * into v_job
+  from private.outbox_jobs j
+  where j.id = p_job_id
+    and j.job_type = 'create_notification'
+    and j.status = 'processing'
+    and j.locked_by = p_worker_id
+  for update;
+  if not found then
+    return query select 'not_available'::text, null::bigint, null::bigint;
+    return;
+  end if;
+
+  v_type := v_job.payload ->> 'type';
+  begin
+    v_recipient_user_id := (v_job.payload ->> 'recipientUserId')::uuid;
+    v_actor_user_id := nullif(v_job.payload ->> 'actorUserId', '')::uuid;
+  exception when invalid_text_representation then
+    raise exception using errcode = '22023', message = 'invalid_notification_payload';
+  end;
+  if v_type is null or v_recipient_user_id is null then
+    raise exception using errcode = '22023', message = 'invalid_notification_payload';
+  end if;
+
+  if v_job.payload ? 'offerId' then
+    v_target_type := 'offer';
+    v_target_id := v_job.payload ->> 'offerId';
+    select ao.organization_id into v_organization_id
+    from public.ask_offers ao where ao.id = v_target_id::uuid;
+  elsif v_job.payload ? 'askId' then
+    v_target_type := 'ask';
+    v_target_id := v_job.payload ->> 'askId';
+    select a.organization_id into v_organization_id
+    from public.asks a where a.id = v_target_id::uuid;
+  elsif v_job.payload ? 'conversationId' then
+    v_target_type := 'conversation';
+    v_target_id := v_job.payload ->> 'conversationId';
+    select c.organization_id into v_organization_id
+    from public.conversations c where c.id = v_target_id::uuid;
+  elsif v_job.payload ? 'connectionRequestId' then
+    v_target_type := 'connection_request';
+    v_target_id := v_job.payload ->> 'connectionRequestId';
+    select cr.origin_organization_id into v_organization_id
+    from public.connection_requests cr where cr.id = v_target_id::uuid;
+  else
+    raise exception using errcode = '22023', message = 'invalid_notification_target';
+  end if;
+  if v_organization_id is null
+     or not exists (
+       select 1 from public.users u
+       where u.id = v_recipient_user_id and u.account_state = 'active'
+     ) then
+    return query select 'not_available'::text, null::bigint, null::bigint;
+    return;
+  end if;
+
+  select
+    coalesce(np.in_app_enabled, true),
+    coalesce(np.email_enabled, true)
+    into v_in_app_enabled, v_email_enabled
+  from (select 1) one
+  left join public.notification_preferences np
+    on np.user_id = v_recipient_user_id
+   and np.notification_type = v_type;
+
+  if v_in_app_enabled then
+    insert into public.notifications (
+      recipient_user_id, organization_id, actor_user_id, type,
+      target_type, target_id, payload, dedupe_key
+    ) values (
+      v_recipient_user_id,
+      v_organization_id,
+      v_actor_user_id,
+      v_type,
+      v_target_type,
+      v_target_id,
+      jsonb_strip_nulls(jsonb_build_object(
+        'askId', v_job.payload -> 'askId',
+        'offerId', v_job.payload -> 'offerId',
+        'conversationId', v_job.payload -> 'conversationId'
+      )),
+      v_job.dedupe_key
+    )
+    on conflict (dedupe_key) do update
+      set dedupe_key = excluded.dedupe_key
+    returning id into v_notification_id;
+  end if;
+
+  if v_email_enabled and v_type in (
+    'ask_received', 'ask_accepted', 'ask_declined', 'ask_reminder', 'ask_closed',
+    'offer_received', 'offer_accepted', 'offer_declined', 'offer_closed',
+    'circle_ask_match', 'circle_ask_closed', 'message_received'
+  ) then
+    v_email_payload := jsonb_strip_nulls(jsonb_build_object(
+      'notificationType', v_type,
+      'recipientUserId', v_recipient_user_id,
+      'actorUserId', v_actor_user_id,
+      'askId', v_job.payload -> 'askId',
+      'offerId', v_job.payload -> 'offerId',
+      'conversationId', v_job.payload -> 'conversationId'
+    ));
+    perform private.enqueue_outbox(
+      'send_email',
+      v_email_payload,
+      'send_email:' || v_job.dedupe_key
+    );
+    select j.id into v_email_job_id
+    from private.outbox_jobs j
+    where j.dedupe_key = 'send_email:' || v_job.dedupe_key;
+  end if;
+
+  return query select 'materialized'::text, v_notification_id, v_email_job_id;
+end;
+$$;
+
+create function private.get_outbox_email_context(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  job_id bigint,
+  notification_type text,
+  recipient_user_id uuid,
+  recipient_email text,
+  recipient_display_name text,
+  actor_display_name text,
+  target_type text,
+  target_id text,
+  idempotency_key text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    j.id,
+    j.payload ->> 'notificationType',
+    recipient.id,
+    auth_recipient.email,
+    recipient_profile.display_name,
+    actor_profile.display_name,
+    case
+      when j.payload ? 'offerId' then 'offer'
+      when j.payload ? 'askId' then 'ask'
+      when j.payload ? 'conversationId' then 'conversation'
+      else null
+    end,
+    coalesce(
+      j.payload ->> 'offerId',
+      j.payload ->> 'askId',
+      j.payload ->> 'conversationId'
+    ),
+    'outbox:' || j.id::text
+  from private.outbox_jobs j
+  join public.users recipient
+    on recipient.id = (j.payload ->> 'recipientUserId')::uuid
+   and recipient.account_state = 'active'
+  join auth.users auth_recipient on auth_recipient.id = recipient.id
+  join public.profiles recipient_profile on recipient_profile.user_id = recipient.id
+  left join public.profiles actor_profile
+    on actor_profile.user_id = nullif(j.payload ->> 'actorUserId', '')::uuid
+  where j.id = p_job_id
+    and j.job_type = 'send_email'
+    and j.status = 'processing'
+    and j.locked_by = p_worker_id;
+$$;
+
 -- ---------------------------------------------------------------------------
 -- Exposed API wrappers. Implementations remain in the unexposed private
--- schema; wrappers are invoker functions with fixed return signatures.
+-- schema; mutating wrappers are reviewed security-definer functions with an
+-- empty search path and fixed result signatures.
 -- ---------------------------------------------------------------------------
 
 create function api.create_direct_ask(
@@ -5824,9 +6673,17 @@ create function api.create_direct_ask(
   p_request_message text,
   p_client_request_id uuid
 )
-returns uuid language sql set search_path = ''
+returns table (
+  result_code text,
+  ask_id uuid,
+  active_count integer,
+  created boolean
+)
+language sql
+security definer
+set search_path = ''
 as $$
-  select private.create_ask(
+  select * from private.create_ask(
     'direct', p_asker_membership_id, p_recipient_membership_id,
     p_question, p_request_message, null, false, p_client_request_id
   );
@@ -5839,9 +6696,17 @@ create function api.create_circle_ask(
   p_anonymous_until_accepted boolean,
   p_client_request_id uuid
 )
-returns uuid language sql set search_path = ''
+returns table (
+  result_code text,
+  ask_id uuid,
+  active_count integer,
+  created boolean
+)
+language sql
+security definer
+set search_path = ''
 as $$
-  select private.create_ask(
+  select * from private.create_ask(
     'circle', p_asker_membership_id, null, p_question, null,
     p_reach, p_anonymous_until_accepted, p_client_request_id
   );
@@ -5855,21 +6720,110 @@ create function api.respond_to_direct_ask(
   p_decline_note text default null,
   p_client_nonce uuid default null
 )
-returns uuid language sql set search_path = ''
+returns table (
+  result_code text,
+  ask_id uuid,
+  conversation_id uuid
+)
+language plpgsql
+security definer
+set search_path = ''
 as $$
-  select private.respond_to_direct_ask(
+declare
+  v_conversation_id uuid;
+  v_message text;
+begin
+  if p_decision not in ('accept', 'decline') then
+    return query select 'invalid_input'::text, null::uuid, null::uuid;
+    return;
+  end if;
+
+  v_conversation_id := private.respond_to_direct_ask(
     p_ask_id, p_decision, p_opening_message, p_decline_reason_code,
     p_decline_note, p_client_nonce
   );
+  return query select
+    case when p_decision = 'accept' then 'accepted' else 'declined' end,
+    p_ask_id,
+    v_conversation_id;
+exception when others then
+  v_message := sqlerrm;
+  if v_message in ('direct_ask_not_found', 'direct_ask_not_recipient', 'ask_blocked') then
+    return query select 'not_available'::text, null::uuid, null::uuid;
+  elsif v_message = 'ask_already_decided' then
+    return query select 'already_decided'::text, p_ask_id, null::uuid;
+  elsif v_message in (
+    'opening_message_required', 'decline_note_required', 'invalid_direct_ask_decision'
+  ) then
+    return query select 'invalid_input'::text, null::uuid, null::uuid;
+  else
+    raise;
+  end if;
+end;
 $$;
 
 create function api.retract_ask(p_ask_id uuid)
-returns void language sql set search_path = ''
-as $$ select private.retract_ask(p_ask_id); $$;
+returns table (
+  result_code text,
+  ask_id uuid,
+  conversation_id uuid
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_message text;
+begin
+  perform private.retract_ask(p_ask_id);
+  return query select 'retracted'::text, p_ask_id, null::uuid;
+exception when others then
+  v_message := sqlerrm;
+  if v_message in ('ask_not_found', 'ask_not_owned') then
+    return query select 'not_available'::text, null::uuid, null::uuid;
+  elsif v_message = 'ask_cannot_be_retracted' then
+    return query select 'already_decided'::text, p_ask_id, null::uuid;
+  else
+    raise;
+  end if;
+end;
+$$;
 
 create function api.resolve_ask(p_ask_id uuid, p_outcome_note text default null)
-returns void language sql set search_path = ''
-as $$ select private.resolve_ask(p_ask_id, p_outcome_note); $$;
+returns table (
+  result_code text,
+  ask_id uuid,
+  conversation_id uuid
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_conversation_id uuid;
+  v_message text;
+begin
+  if char_length(btrim(coalesce(p_outcome_note, ''))) > 2000 then
+    return query select 'invalid_input'::text, null::uuid, null::uuid;
+    return;
+  end if;
+
+  perform private.resolve_ask(p_ask_id, p_outcome_note);
+  select c.id into v_conversation_id
+  from public.conversations c
+  where c.ask_id = p_ask_id;
+  return query select 'resolved'::text, p_ask_id, v_conversation_id;
+exception when others then
+  v_message := sqlerrm;
+  if v_message in ('ask_not_found', 'ask_not_owned') then
+    return query select 'not_available'::text, null::uuid, null::uuid;
+  elsif v_message = 'ask_not_accepted' then
+    return query select 'already_decided'::text, p_ask_id, null::uuid;
+  else
+    raise;
+  end if;
+end;
+$$;
 
 create function api.offer_to_help(
   p_ask_id uuid,
@@ -5877,11 +6831,45 @@ create function api.offer_to_help(
   p_offer_note text,
   p_client_request_id uuid
 )
-returns uuid language sql set search_path = ''
+returns table (
+  result_code text,
+  ask_id uuid,
+  offer_id uuid,
+  created boolean
+)
+language plpgsql
+security definer
+set search_path = ''
 as $$
-  select private.offer_to_help(
+declare
+  v_offer_id uuid;
+  v_created boolean;
+  v_message text;
+begin
+  select r.offer_id, r.created
+    into v_offer_id, v_created
+  from private.offer_to_help(
     p_ask_id, p_helper_membership_id, p_offer_note, p_client_request_id
-  );
+  ) r;
+  return query select
+    case when v_created then 'created' else 'existing' end,
+    p_ask_id,
+    v_offer_id,
+    v_created;
+exception when others then
+  v_message := sqlerrm;
+  if v_message in (
+    'circle_ask_not_open', 'helper_membership_not_owned', 'ask_not_visible', 'offer_not_allowed'
+  ) then
+    return query select 'not_available'::text, null::uuid, null::uuid, false;
+  elsif v_message = 'idempotency_conflict' then
+    return query select 'idempotency_conflict'::text, p_ask_id, null::uuid, false;
+  elsif v_message = 'invalid_offer_input' then
+    return query select 'invalid_input'::text, null::uuid, null::uuid, false;
+  else
+    raise;
+  end if;
+end;
 $$;
 
 create function api.decide_offer(
@@ -5892,12 +6880,55 @@ create function api.decide_offer(
   p_decline_note text default null,
   p_client_nonce uuid default null
 )
-returns uuid language sql set search_path = ''
+returns table (
+  result_code text,
+  ask_id uuid,
+  offer_id uuid,
+  conversation_id uuid
+)
+language plpgsql
+security definer
+set search_path = ''
 as $$
-  select private.decide_offer(
+declare
+  v_ask_id uuid;
+  v_conversation_id uuid;
+  v_message text;
+begin
+  if p_decision not in ('accept', 'decline') then
+    return query select 'invalid_input'::text, null::uuid, null::uuid, null::uuid;
+    return;
+  end if;
+
+  v_conversation_id := private.decide_offer(
     p_offer_id, p_decision, p_opening_message, p_decline_reason_code,
     p_decline_note, p_client_nonce
   );
+  select ao.ask_id into v_ask_id
+  from public.ask_offers ao
+  where ao.id = p_offer_id;
+  return query select
+    case when p_decision = 'accept' then 'accepted' else 'declined' end,
+    v_ask_id,
+    p_offer_id,
+    v_conversation_id;
+exception when others then
+  v_message := sqlerrm;
+  if v_message in ('offer_not_found', 'offer_decision_not_owned', 'offer_blocked') then
+    return query select 'not_available'::text, null::uuid, null::uuid, null::uuid;
+  elsif v_message = 'offer_already_decided' then
+    select ao.ask_id into v_ask_id
+    from public.ask_offers ao
+    where ao.id = p_offer_id;
+    return query select 'already_decided'::text, v_ask_id, p_offer_id, null::uuid;
+  elsif v_message in (
+    'opening_message_required', 'offer_decline_note_required', 'invalid_offer_decision'
+  ) then
+    return query select 'invalid_input'::text, null::uuid, null::uuid, null::uuid;
+  else
+    raise;
+  end if;
+end;
 $$;
 
 create function api.get_ask_detail(p_ask_id uuid)
@@ -5911,6 +6942,482 @@ returns table (
 )
 language sql stable set search_path = ''
 as $$ select * from private.get_ask_detail(p_ask_id); $$;
+
+create function api.get_help_home(p_membership_id uuid)
+returns table (
+  membership_id uuid,
+  organization_id uuid,
+  active_ask_count integer,
+  active_ask_limit integer,
+  open_to_help boolean,
+  paused_at timestamptz,
+  pause_reason text,
+  helper_topics text[],
+  recent_asks jsonb,
+  direct_requests jsonb,
+  suggested_asks jsonb
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    viewer.id,
+    viewer.organization_id,
+    (
+      select count(*)::integer
+      from public.asks mine
+      where mine.asker_membership_id = viewer.id
+        and mine.status in ('waiting', 'open', 'accepted')
+    ),
+    5,
+    coalesce(hp.open_to_help, true),
+    hp.paused_at,
+    hp.pause_reason,
+    coalesce((
+      select array_agg(ht.name order by ht.sort_order)
+      from public.helper_topics ht
+      where ht.organization_membership_id = viewer.id
+    ), '{}'::text[]),
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'askId', recent.id,
+          'kind', recent.kind,
+          'status', recent.status,
+          'question', recent.question,
+          'createdAt', recent.created_at,
+          'expiresAt', recent.expires_at
+        ) order by recent.created_at desc, recent.id desc
+      )
+      from (
+        select a.id, a.kind, a.status, a.question, a.created_at, a.expires_at
+        from public.asks a
+        where a.asker_membership_id = viewer.id
+        order by a.created_at desc, a.id desc
+        limit 6
+      ) recent
+    ), '[]'::jsonb),
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'askId', direct.id,
+          'question', direct.question,
+          'requestMessage', direct.request_message,
+          'createdAt', direct.created_at,
+          'expiresAt', direct.expires_at,
+          'asker', jsonb_build_object(
+            'userId', direct.asker_user_id,
+            'displayName', direct.display_name,
+            'headline', direct.headline,
+            'avatarPath', direct.avatar_path,
+            'graduationYear', direct.graduation_year
+          )
+        ) order by direct.created_at desc, direct.id desc
+      )
+      from (
+        select
+          a.id, a.question, a.request_message, a.created_at, a.expires_at,
+          asker.user_id as asker_user_id,
+          p.display_name, p.headline, p.avatar_path, op.graduation_year
+        from public.asks a
+        join public.organization_memberships asker on asker.id = a.asker_membership_id
+        join public.profiles p on p.user_id = asker.user_id
+        left join public.organization_profiles op
+          on op.organization_membership_id = asker.id
+        where a.kind = 'direct'
+          and a.status = 'waiting'
+          and a.recipient_membership_id = viewer.id
+          and not private.is_blocked(viewer.user_id, asker.user_id)
+        order by a.created_at desc, a.id desc
+        limit 6
+      ) direct
+    ), '[]'::jsonb),
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'askId', suggested.id,
+          'question', suggested.question,
+          'anonymousUntilAccepted', suggested.anonymous_until_accepted,
+          'matchReason', suggested.reason,
+          'createdAt', suggested.created_at,
+          'expiresAt', suggested.expires_at,
+          'asker', case
+            when suggested.anonymous_until_accepted then jsonb_build_object(
+              'displayName', 'A member',
+              'graduationYear', suggested.graduation_year
+            )
+            else jsonb_build_object(
+              'userId', suggested.asker_user_id,
+              'displayName', suggested.display_name,
+              'avatarPath', suggested.avatar_path,
+              'graduationYear', suggested.graduation_year
+            )
+          end
+        ) order by suggested.rank, suggested.id
+      )
+      from (
+        select
+          a.id, a.question, a.anonymous_until_accepted, a.created_at, a.expires_at,
+          asker.user_id as asker_user_id,
+          p.display_name, p.avatar_path, op.graduation_year,
+          am.rank, am.reason
+        from private.ask_matches am
+        join public.asks a on a.id = am.ask_id and a.status = 'open'
+        join public.organization_memberships asker on asker.id = a.asker_membership_id
+        join public.profiles p on p.user_id = asker.user_id
+        left join public.organization_profiles op
+          on op.organization_membership_id = asker.id
+        where am.helper_membership_id = viewer.id
+          and private.can_view_ask(a.id)
+          and not private.is_blocked(viewer.user_id, asker.user_id)
+        order by am.rank, a.id
+        limit 6
+      ) suggested
+    ), '[]'::jsonb)
+  from public.organization_memberships viewer
+  join public.users viewer_user
+    on viewer_user.id = viewer.user_id and viewer_user.account_state = 'active'
+  left join public.helper_preferences hp
+    on hp.organization_membership_id = viewer.id
+   and hp.organization_id = viewer.organization_id
+  where viewer.id = p_membership_id
+    and viewer.user_id = (select auth.uid())
+    and viewer.status = 'active';
+$$;
+
+create function api.search_help_candidates(
+  p_membership_id uuid,
+  p_question text,
+  p_query_embedding extensions.vector(1024),
+  p_limit integer default 20
+)
+returns table (
+  helper_membership_id uuid,
+  helper_user_id uuid,
+  display_name text,
+  headline text,
+  avatar_path text,
+  graduation_year smallint,
+  topics text[],
+  lexical_score double precision,
+  semantic_score double precision,
+  match_reason text,
+  evidence_chunk_ids uuid[]
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with viewer as (
+    select m.id, m.organization_id, m.user_id
+    from public.organization_memberships m
+    join public.users u on u.id = m.user_id and u.account_state = 'active'
+    where m.id = p_membership_id
+      and m.user_id = (select auth.uid())
+      and m.status = 'active'
+  ),
+  query_input as (
+    select websearch_to_tsquery(
+      'english'::regconfig,
+      nullif(btrim(coalesce(p_question, '')), '')
+    ) as lexical_query
+  ),
+  eligible as (
+    select
+      helper.id as membership_id,
+      helper.user_id,
+      p.display_name,
+      p.headline,
+      p.avatar_path,
+      op.graduation_year,
+      coalesce((
+        select array_agg(ht.name order by ht.sort_order)
+        from public.helper_topics ht
+        where ht.organization_membership_id = helper.id
+      ), '{}'::text[]) as topics
+    from viewer
+    join public.organization_memberships helper
+      on helper.organization_id = viewer.organization_id
+     and helper.status = 'active'
+     and helper.user_id <> viewer.user_id
+    join public.users helper_user
+      on helper_user.id = helper.user_id and helper_user.account_state = 'active'
+    join public.helper_preferences hp
+      on hp.organization_membership_id = helper.id
+     and hp.organization_id = helper.organization_id
+     and hp.open_to_help = true
+     and hp.paused_at is null
+    join public.profiles p on p.user_id = helper.user_id
+    left join public.organization_profiles op
+      on op.organization_membership_id = helper.id
+    where not private.is_blocked(viewer.user_id, helper.user_id)
+  ),
+  scored as (
+    select
+      e.*,
+      greatest(
+        coalesce(max(ts_rank_cd(c.search_vector, q.lexical_query)), 0),
+        coalesce(ts_rank_cd(
+          to_tsvector('english'::regconfig, array_to_string(e.topics, ' ')),
+          q.lexical_query
+        ), 0)
+      )::double precision as lexical_score,
+      case
+        when p_query_embedding is null then 0::double precision
+        else coalesce(max(
+          1 - (c.embedding OPERATOR(extensions.<=>) p_query_embedding)
+        ), 0)::double precision
+      end as semantic_score,
+      array_remove(array_agg(c.id order by c.id), null) as evidence_chunk_ids
+    from eligible e
+    cross join query_input q
+    left join private.profile_embedding_chunks c
+      on c.organization_membership_id = e.membership_id
+     and (
+       c.visibility_tier = 'organization'
+       or (
+         c.visibility_tier = 'connections'
+         and private.is_connected((select user_id from viewer), e.user_id)
+       )
+     )
+    where q.lexical_query is not null
+    group by
+      e.membership_id, e.user_id, e.display_name, e.headline, e.avatar_path,
+      e.graduation_year, e.topics, q.lexical_query
+  )
+  select
+    s.membership_id,
+    s.user_id,
+    s.display_name,
+    s.headline,
+    s.avatar_path,
+    s.graduation_year,
+    s.topics,
+    s.lexical_score,
+    s.semantic_score,
+    case
+      when cardinality(s.topics) > 0 then 'Speaks to ' || s.topics[1]
+      else coalesce(s.headline, 'Relevant experience')
+    end,
+    s.evidence_chunk_ids
+  from scored s
+  where s.lexical_score > 0 or s.semantic_score > 0
+  order by
+    (s.lexical_score * 0.45 + s.semantic_score * 0.55) desc,
+    s.membership_id
+  limit greatest(1, least(coalesce(p_limit, 20), 50));
+$$;
+
+create function api.get_help_ask_detail(p_ask_id uuid)
+returns table (
+  ask_id uuid,
+  organization_id uuid,
+  kind text,
+  status text,
+  question text,
+  request_message text,
+  reach text,
+  anonymous_until_accepted boolean,
+  asker_preview jsonb,
+  recipient_preview jsonb,
+  decline_reason_code text,
+  decline_note text,
+  closure_reason text,
+  outcome_note text,
+  conversation_id uuid,
+  offers jsonb,
+  history jsonb,
+  accepted_at timestamptz,
+  ended_at timestamptz,
+  expires_at timestamptz,
+  created_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    a.id,
+    a.organization_id,
+    a.kind,
+    a.status,
+    a.question,
+    case
+      when (select auth.uid()) in (asker.user_id, recipient.user_id)
+      then a.request_message
+      else null
+    end,
+    a.reach,
+    a.anonymous_until_accepted,
+    case
+      when not a.anonymous_until_accepted
+        or asker.user_id = (select auth.uid())
+        or a.status in ('accepted', 'resolved')
+      then jsonb_build_object(
+        'userId', asker.user_id,
+        'displayName', asker_profile.display_name,
+        'headline', asker_profile.headline,
+        'avatarPath', asker_profile.avatar_path,
+        'graduationYear', asker_org_profile.graduation_year
+      )
+      else jsonb_build_object(
+        'displayName', 'A member',
+        'graduationYear', asker_org_profile.graduation_year
+      )
+    end,
+    case when recipient.user_id is null then null else jsonb_build_object(
+      'userId', recipient.user_id,
+      'displayName', recipient_profile.display_name,
+      'headline', recipient_profile.headline,
+      'avatarPath', recipient_profile.avatar_path,
+      'graduationYear', recipient_org_profile.graduation_year
+    ) end,
+    case
+      when (select auth.uid()) in (asker.user_id, recipient.user_id)
+      then a.decline_reason_code else null
+    end,
+    case
+      when (select auth.uid()) in (asker.user_id, recipient.user_id)
+      then a.decline_note else null
+    end,
+    a.closure_reason,
+    a.outcome_note,
+    conversation.id,
+    coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'offerId', ao.id,
+          'status', ao.status,
+          'offerNote', ao.offer_note,
+          'declineReasonCode', ao.decline_reason_code,
+          'declineNote', ao.decline_note,
+          'closureReason', ao.closure_reason,
+          'createdAt', ao.created_at,
+          'helper', jsonb_build_object(
+            'userId', helper.user_id,
+            'displayName', helper_profile.display_name,
+            'headline', helper_profile.headline,
+            'avatarPath', helper_profile.avatar_path,
+            'graduationYear', helper_org_profile.graduation_year
+          )
+        ) order by ao.created_at, ao.id
+      )
+      from public.ask_offers ao
+      join public.organization_memberships helper on helper.id = ao.helper_membership_id
+      join public.profiles helper_profile on helper_profile.user_id = helper.user_id
+      left join public.organization_profiles helper_org_profile
+        on helper_org_profile.organization_membership_id = helper.id
+      where ao.ask_id = a.id
+        and (asker.user_id = (select auth.uid()) or helper.user_id = (select auth.uid()))
+    ), '[]'::jsonb),
+    case
+      when asker.user_id = (select auth.uid())
+        or recipient.user_id = (select auth.uid())
+        or exists (
+          select 1
+          from public.ask_offers own_offer
+          join public.organization_memberships own_helper
+            on own_helper.id = own_offer.helper_membership_id
+          where own_offer.ask_id = a.id
+            and own_helper.user_id = (select auth.uid())
+        )
+      then coalesce((
+        select jsonb_agg(
+          jsonb_build_object(
+            'eventId', event.id,
+            'type', event.event_type,
+            'createdAt', event.created_at
+          ) order by event.created_at, event.id
+        )
+        from private.ask_events event
+        where event.ask_id = a.id
+      ), '[]'::jsonb)
+      else '[]'::jsonb
+    end,
+    a.accepted_at,
+    a.ended_at,
+    a.expires_at,
+    a.created_at
+  from public.asks a
+  join public.organization_memberships asker on asker.id = a.asker_membership_id
+  join public.profiles asker_profile on asker_profile.user_id = asker.user_id
+  left join public.organization_profiles asker_org_profile
+    on asker_org_profile.organization_membership_id = asker.id
+  left join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
+  left join public.profiles recipient_profile on recipient_profile.user_id = recipient.user_id
+  left join public.organization_profiles recipient_org_profile
+    on recipient_org_profile.organization_membership_id = recipient.id
+  left join public.conversations conversation on conversation.ask_id = a.id
+  where a.id = p_ask_id
+    and private.can_view_ask(a.id);
+$$;
+
+create function api.list_my_asks(
+  p_before_created_at timestamptz default null,
+  p_before_id uuid default null,
+  p_limit integer default 20
+)
+returns table (
+  ask_id uuid,
+  organization_id uuid,
+  kind text,
+  status text,
+  question text,
+  recipient_preview jsonb,
+  offer_count integer,
+  conversation_id uuid,
+  created_at timestamptz,
+  expires_at timestamptz,
+  ended_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    a.id,
+    a.organization_id,
+    a.kind,
+    a.status,
+    a.question,
+    case when recipient.user_id is null then null else jsonb_build_object(
+      'userId', recipient.user_id,
+      'displayName', recipient_profile.display_name,
+      'headline', recipient_profile.headline,
+      'avatarPath', recipient_profile.avatar_path
+    ) end,
+    (
+      select count(*)::integer
+      from public.ask_offers ao
+      where ao.ask_id = a.id
+    ),
+    conversation.id,
+    a.created_at,
+    a.expires_at,
+    a.ended_at
+  from public.asks a
+  join public.organization_memberships asker
+    on asker.id = a.asker_membership_id
+   and asker.user_id = (select auth.uid())
+   and asker.status = 'active'
+  left join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
+  left join public.profiles recipient_profile on recipient_profile.user_id = recipient.user_id
+  left join public.conversations conversation on conversation.ask_id = a.id
+  where (
+    (p_before_created_at is null and p_before_id is null)
+    or (
+      p_before_created_at is not null and p_before_id is not null
+      and (a.created_at, a.id) < (p_before_created_at, p_before_id)
+    )
+  )
+  order by a.created_at desc, a.id desc
+  limit greatest(1, least(coalesce(p_limit, 20), 50));
+$$;
 
 create function api.get_my_member_context(
   p_preferred_membership_id uuid default null
@@ -6070,16 +7577,238 @@ language sql stable set search_path = ''
 as $$ select * from private.list_help_matches(p_ask_id); $$;
 
 create function api.list_give_help(
-  p_before timestamptz default null,
+  p_membership_id uuid,
+  p_arm text,
+  p_query text default null,
+  p_before_created_at timestamptz default null,
+  p_before_id uuid default null,
   p_limit integer default 50
 )
 returns table (
-  ask_id uuid, organization_id uuid, kind text, question text, reach text,
-  anonymous_until_accepted boolean, asker_user_id uuid, match_reason text,
-  created_at timestamptz
+  ask_id uuid, organization_id uuid, kind text, status text, question text,
+  reach text, anonymous_until_accepted boolean, asker_user_id uuid,
+  asker_display_name text, asker_avatar_path text, asker_graduation_year smallint,
+  match_reason text, my_offer_status text, created_at timestamptz,
+  expires_at timestamptz
 )
-language sql stable set search_path = ''
-as $$ select * from private.list_give_help(p_before, p_limit); $$;
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select * from private.list_give_help(
+    p_membership_id, p_arm, p_query, p_before_created_at, p_before_id, p_limit
+  );
+$$;
+
+create function api.get_helper_preferences(p_membership_id uuid)
+returns table (
+  membership_id uuid,
+  organization_id uuid,
+  open_to_help boolean,
+  max_pending_requests smallint,
+  consecutive_timeouts smallint,
+  paused_at timestamptz,
+  pause_reason text,
+  topics text[]
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    m.id,
+    m.organization_id,
+    coalesce(hp.open_to_help, true),
+    coalesce(hp.max_pending_requests, 10::smallint),
+    coalesce(hp.consecutive_timeouts, 0::smallint),
+    hp.paused_at,
+    hp.pause_reason,
+    coalesce(
+      array_agg(ht.name order by ht.sort_order)
+        filter (where ht.name is not null),
+      '{}'::text[]
+    )
+  from public.organization_memberships m
+  left join public.helper_preferences hp
+    on hp.organization_membership_id = m.id
+   and hp.organization_id = m.organization_id
+  left join public.helper_topics ht
+    on ht.organization_membership_id = m.id
+   and ht.organization_id = m.organization_id
+  where m.id = p_membership_id
+    and m.status = 'active'
+    and m.user_id = (select auth.uid())
+  group by m.id, m.organization_id, hp.organization_membership_id;
+$$;
+
+create function api.save_helper_preferences(
+  p_membership_id uuid,
+  p_open_to_help boolean,
+  p_topics text[]
+)
+returns table (
+  result_code text,
+  open_to_help boolean,
+  paused_at timestamptz,
+  pause_reason text,
+  topics text[]
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_organization_id uuid;
+  v_topics text[];
+  v_current public.helper_preferences%rowtype;
+  v_final public.helper_preferences%rowtype;
+begin
+  if p_open_to_help is null then
+    return query select 'invalid_input'::text, false, null::timestamptz, null::text, '{}'::text[];
+    return;
+  end if;
+
+  select coalesce(array_agg(d.topic order by d.first_ordinal), '{}'::text[])
+    into v_topics
+  from (
+    select distinct on (lower(btrim(item.topic)))
+      btrim(item.topic) as topic,
+      item.ordinality as first_ordinal
+    from unnest(coalesce(p_topics, '{}'::text[])) with ordinality as item(topic, ordinality)
+    where btrim(item.topic) <> ''
+      and char_length(btrim(item.topic)) <= 100
+    order by lower(btrim(item.topic)), item.ordinality
+  ) d;
+
+  if cardinality(v_topics) > 5
+     or exists (
+       select 1
+       from unnest(coalesce(p_topics, '{}'::text[])) item(topic)
+       where btrim(item.topic) <> '' and char_length(btrim(item.topic)) > 100
+     ) then
+    return query select 'invalid_input'::text, false, null::timestamptz, null::text, '{}'::text[];
+    return;
+  end if;
+
+  select m.organization_id into v_organization_id
+  from public.organization_memberships m
+  join public.users u on u.id = m.user_id and u.account_state = 'active'
+  where m.id = p_membership_id
+    and m.user_id = (select auth.uid())
+    and m.status = 'active';
+  if v_organization_id is null then
+    return query select 'not_available'::text, false, null::timestamptz, null::text, '{}'::text[];
+    return;
+  end if;
+
+  perform private.lock_help_capacity(p_membership_id, p_membership_id);
+  select * into v_current
+  from public.helper_preferences hp
+  where hp.organization_membership_id = p_membership_id
+  for update;
+
+  if v_current.pause_reason = 'admin' then
+    return query select
+      'not_available'::text,
+      v_current.open_to_help,
+      v_current.paused_at,
+      v_current.pause_reason,
+      v_topics;
+    return;
+  end if;
+
+  insert into public.helper_preferences (
+    organization_membership_id, organization_id, open_to_help,
+    consecutive_timeouts, paused_at, pause_reason
+  ) values (
+    p_membership_id,
+    v_organization_id,
+    p_open_to_help,
+    case when p_open_to_help then 0 else coalesce(v_current.consecutive_timeouts, 0) end,
+    case when p_open_to_help then null else coalesce(v_current.paused_at, now()) end,
+    case when p_open_to_help then null else 'manual' end
+  )
+  on conflict (organization_membership_id) do update
+    set open_to_help = excluded.open_to_help,
+        consecutive_timeouts = excluded.consecutive_timeouts,
+        paused_at = excluded.paused_at,
+        pause_reason = excluded.pause_reason
+  returning * into v_final;
+
+  delete from public.helper_topics ht
+  where ht.organization_membership_id = p_membership_id;
+  insert into public.helper_topics (
+    organization_membership_id, organization_id, name, normalized_name, sort_order
+  )
+  select
+    p_membership_id,
+    v_organization_id,
+    item.topic,
+    lower(item.topic),
+    (item.ordinality - 1)::smallint
+  from unnest(v_topics) with ordinality as item(topic, ordinality);
+
+  return query select
+    'saved'::text,
+    v_final.open_to_help,
+    v_final.paused_at,
+    v_final.pause_reason,
+    v_topics;
+end;
+$$;
+
+create function api.consume_help_ai_budget(p_action text)
+returns table (
+  result_code text,
+  remaining integer,
+  resets_at timestamptz
+)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_window_started_at timestamptz := date_trunc('hour', now());
+  v_limit integer;
+  v_count integer;
+begin
+  v_limit := case p_action
+    when 'ask_draft' then 12
+    when 'match_explanation' then 20
+    when 'decline_note' then 20
+    else null
+  end;
+  if v_limit is null or v_user_id is null
+     or not exists (
+       select 1 from public.users u
+       where u.id = v_user_id and u.account_state = 'active'
+     ) then
+    return query select 'not_available'::text, 0, v_window_started_at + interval '1 hour';
+    return;
+  end if;
+
+  insert into private.help_ai_usage_windows (
+    user_id, action, window_started_at, request_count
+  ) values (
+    v_user_id, p_action, v_window_started_at, 1
+  )
+  on conflict (user_id, action, window_started_at) do update
+    set request_count = private.help_ai_usage_windows.request_count + 1,
+        updated_at = now()
+    where private.help_ai_usage_windows.request_count < v_limit
+  returning request_count into v_count;
+
+  if v_count is null then
+    return query select 'limited'::text, 0, v_window_started_at + interval '1 hour';
+  else
+    return query select 'allowed'::text, greatest(v_limit - v_count, 0),
+      v_window_started_at + interval '1 hour';
+  end if;
+end;
+$$;
 
 create function api.send_connection_request(
   p_recipient_user_id uuid,
@@ -6212,7 +7941,10 @@ as $$ select private.set_event_rsvp(p_event_id, p_membership_id, p_status); $$;
 
 create function api.claim_outbox_jobs(
   p_worker_id text,
-  p_limit integer default 20
+  p_limit integer default 20,
+  p_allowed_types text[] default array[
+    'create_notification', 'send_email', 'run_ask_matching', 'index_profile'
+  ]::text[]
 )
 returns table (
   id bigint,
@@ -6229,8 +7961,77 @@ as $$
   select
     j.id, j.job_type, j.payload, j.attempts, j.max_attempts,
     j.available_at, j.locked_at, j.locked_by
-  from private.claim_outbox_jobs(p_worker_id, p_limit) j;
+  from private.claim_outbox_jobs(p_worker_id, p_limit, p_allowed_types) j;
 $$;
+
+create function api.apply_ask_matches(
+  p_ask_id uuid,
+  p_pipeline_version text,
+  p_model_version text,
+  p_matches jsonb
+)
+returns table (
+  result_code text,
+  applied_count integer
+)
+language sql
+security definer
+set search_path = ''
+as $$
+  select * from private.apply_ask_matches(
+    p_ask_id, p_pipeline_version, p_model_version, p_matches
+  );
+$$;
+
+create function api.run_help_maintenance(
+  p_now timestamptz default now(),
+  p_limit integer default 100
+)
+returns table (
+  reminders_sent integer,
+  asks_closed integer,
+  offers_closed integer,
+  helpers_paused integer
+)
+language sql
+security definer
+set search_path = ''
+as $$ select * from private.run_help_maintenance(p_now, p_limit); $$;
+
+create function api.materialize_notification_job(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  result_code text,
+  notification_id bigint,
+  email_job_id bigint
+)
+language sql
+security definer
+set search_path = ''
+as $$ select * from private.materialize_notification_job(p_job_id, p_worker_id); $$;
+
+create function api.get_outbox_email_context(
+  p_job_id bigint,
+  p_worker_id text
+)
+returns table (
+  job_id bigint,
+  notification_type text,
+  recipient_user_id uuid,
+  recipient_email text,
+  recipient_display_name text,
+  actor_display_name text,
+  target_type text,
+  target_id text,
+  idempotency_key text
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$ select * from private.get_outbox_email_context(p_job_id, p_worker_id); $$;
 
 create function api.complete_outbox_job(
   p_job_id bigint,
@@ -6376,6 +8177,7 @@ alter table private.moderation_actions enable row level security;
 alter table private.outbox_jobs enable row level security;
 alter table private.audit_log enable row level security;
 alter table private.profile_embedding_chunks enable row level security;
+alter table private.help_ai_usage_windows enable row level security;
 alter table private.profile_embedding_status enable row level security;
 alter table private.profile_enrichment_settings enable row level security;
 alter table private.profile_enrichment_runs enable row level security;
@@ -6637,9 +8439,16 @@ grant execute on function api.resolve_ask(uuid, text) to authenticated;
 grant execute on function api.offer_to_help(uuid, uuid, text, uuid) to authenticated;
 grant execute on function api.decide_offer(uuid, text, text, text, text, uuid) to authenticated;
 grant execute on function api.get_ask_detail(uuid) to authenticated;
+grant execute on function api.get_help_home(uuid) to authenticated;
+grant execute on function api.search_help_candidates(uuid, text, extensions.vector, integer) to authenticated;
+grant execute on function api.get_help_ask_detail(uuid) to authenticated;
+grant execute on function api.list_my_asks(timestamptz, uuid, integer) to authenticated;
 grant execute on function api.get_my_member_context(uuid) to authenticated;
 grant execute on function api.list_help_matches(uuid) to authenticated;
-grant execute on function api.list_give_help(timestamptz, integer) to authenticated;
+grant execute on function api.list_give_help(uuid, text, text, timestamptz, uuid, integer) to authenticated;
+grant execute on function api.get_helper_preferences(uuid) to authenticated;
+grant execute on function api.save_helper_preferences(uuid, boolean, text[]) to authenticated;
+grant execute on function api.consume_help_ai_budget(text) to authenticated;
 grant execute on function api.send_connection_request(uuid, uuid, text, uuid) to authenticated;
 grant execute on function api.respond_to_connection_request(uuid, text) to authenticated;
 grant execute on function api.disconnect(uuid) to authenticated;
@@ -6656,7 +8465,11 @@ grant execute on function api.mark_notifications_read(bigint[]) to authenticated
 grant execute on function api.submit_report(text, text, text, text) to authenticated;
 grant execute on function api.set_event_rsvp(uuid, uuid, text) to authenticated;
 grant execute on function api.verify_invite(text) to service_role;
-grant execute on function api.claim_outbox_jobs(text, integer) to service_role;
+grant execute on function api.claim_outbox_jobs(text, integer, text[]) to service_role;
+grant execute on function api.apply_ask_matches(uuid, text, text, jsonb) to service_role;
+grant execute on function api.run_help_maintenance(timestamptz, integer) to service_role;
+grant execute on function api.materialize_notification_job(bigint, text) to service_role;
+grant execute on function api.get_outbox_email_context(bigint, text) to service_role;
 grant execute on function api.complete_outbox_job(bigint, text) to service_role;
 grant execute on function api.retry_outbox_job(bigint, text, text, timestamptz) to service_role;
 grant execute on function api.fail_outbox_job(bigint, text, text) to service_role;
@@ -6671,7 +8484,6 @@ grant execute on function private.can_access_conversation_topic(text) to authent
 grant execute on function private.can_access_user_topic(text) to authenticated;
 grant execute on function private.can_view_ask(uuid) to authenticated;
 grant execute on function private.accept_invite(text) to authenticated;
-grant execute on function private.create_ask(text, uuid, uuid, text, text, text, boolean, uuid) to authenticated;
 grant execute on function private.decide_membership(uuid, text) to authenticated;
 grant execute on function private.get_my_profile(uuid) to authenticated;
 grant execute on function private.save_profile_identity(uuid, text, text, text, smallint) to authenticated;
@@ -6681,15 +8493,9 @@ grant execute on function private.save_profile_history(uuid, jsonb, text[]) to a
 grant execute on function private.save_profile_preferences(uuid, text, boolean, text[], text, text, text, boolean) to authenticated;
 grant execute on function private.set_my_avatar_path(uuid, text) to authenticated;
 grant execute on function private.complete_onboarding(uuid) to authenticated;
-grant execute on function private.respond_to_direct_ask(uuid, text, text, text, text, uuid) to authenticated;
-grant execute on function private.retract_ask(uuid) to authenticated;
-grant execute on function private.resolve_ask(uuid, text) to authenticated;
-grant execute on function private.offer_to_help(uuid, uuid, text, uuid) to authenticated;
-grant execute on function private.decide_offer(uuid, text, text, text, text, uuid) to authenticated;
 grant execute on function private.get_ask_detail(uuid) to authenticated;
 grant execute on function private.get_my_member_context(uuid) to authenticated;
 grant execute on function private.list_help_matches(uuid) to authenticated;
-grant execute on function private.list_give_help(timestamptz, integer) to authenticated;
 grant execute on function private.send_connection_request(uuid, uuid, text, uuid) to authenticated;
 grant execute on function private.respond_to_connection_request(uuid, text) to authenticated;
 grant execute on function private.disconnect(uuid) to authenticated;

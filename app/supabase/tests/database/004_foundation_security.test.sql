@@ -41,16 +41,18 @@ select extensions.is(
   ),
   array[
     'accept_invite', 'block_member', 'complete_onboarding',
-    'create_circle_ask', 'create_direct_ask',
+    'consume_help_ai_budget', 'create_circle_ask', 'create_direct_ask',
     'decide_membership', 'decide_offer', 'disconnect', 'get_ask_detail',
-    'get_conversation_detail', 'get_my_member_context', 'get_my_profile',
+    'get_conversation_detail', 'get_help_ask_detail', 'get_help_home',
+    'get_helper_preferences', 'get_my_member_context', 'get_my_profile',
     'get_or_create_direct_conversation', 'list_conversation_messages_after',
-    'list_conversation_messages_before', 'list_give_help', 'list_help_matches',
+    'list_conversation_messages_before', 'list_give_help', 'list_help_matches', 'list_my_asks',
     'mark_conversation_read',
     'mark_notifications_read', 'offer_to_help', 'publish_conversation_typing', 'resolve_ask',
     'respond_to_connection_request', 'respond_to_direct_ask', 'retract_ask',
+    'save_helper_preferences',
     'save_profile_current', 'save_profile_education', 'save_profile_history',
-    'save_profile_identity', 'save_profile_preferences',
+    'save_profile_identity', 'save_profile_preferences', 'search_help_candidates',
     'send_connection_request', 'send_message', 'set_event_rsvp',
     'set_my_avatar_path', 'submit_report', 'unblock_member'
   ]::text[],
@@ -68,15 +70,15 @@ select extensions.is(
   array[
     'accept_invite', 'block_member', 'can_access_conversation_topic',
     'can_access_user_topic', 'can_view_ask', 'can_view_conversation', 'complete_onboarding',
-    'create_ask', 'decide_membership', 'decide_offer',
+    'decide_membership',
     'disconnect', 'get_ask_detail', 'get_conversation_detail',
     'get_my_member_context', 'get_my_profile', 'get_or_create_direct_conversation',
     'is_active_member_of', 'is_admin_of', 'is_blocked', 'is_connected',
     'list_conversation_messages_after', 'list_conversation_messages_before',
-    'list_give_help', 'list_help_matches', 'mark_conversation_read',
-    'mark_notifications_read', 'offer_to_help', 'owns_membership',
-    'publish_conversation_typing', 'resolve_ask', 'respond_to_connection_request',
-    'respond_to_direct_ask', 'retract_ask', 'save_profile_current',
+    'list_help_matches', 'mark_conversation_read',
+    'mark_notifications_read', 'owns_membership',
+    'publish_conversation_typing', 'respond_to_connection_request',
+    'save_profile_current',
     'save_profile_education', 'save_profile_history', 'save_profile_identity',
     'save_profile_preferences', 'send_connection_request', 'send_message',
     'set_event_rsvp', 'set_my_avatar_path', 'submit_report', 'unblock_member'
@@ -85,8 +87,13 @@ select extensions.is(
 );
 
 select extensions.ok(
-  not has_function_privilege(
-    'authenticated', 'private.claim_outbox_jobs(text,integer)', 'execute'
+  not coalesce(
+    has_function_privilege(
+      'authenticated',
+      to_regprocedure('private.claim_outbox_jobs(text,integer,text[])'),
+      'execute'
+    ),
+    false
   ),
   'members cannot claim outbox jobs'
 );

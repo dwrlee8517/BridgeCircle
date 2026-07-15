@@ -347,8 +347,8 @@ select extensions.ok(
 );
 
 select extensions.has_function(
-  'api', 'claim_outbox_jobs', array['text', 'integer'],
-  'service outbox claim wrapper exists'
+  'api', 'claim_outbox_jobs', array['text', 'integer', 'text[]'],
+  'service outbox claim wrapper filters to implemented worker job types'
 );
 select extensions.has_function(
   'api', 'complete_outbox_job', array['bigint', 'text'],

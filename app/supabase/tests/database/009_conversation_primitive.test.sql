@@ -770,17 +770,16 @@ insert into public.asks (
   'This fixture must roll back on an invalid opening message.',
   '95000000-0000-4000-8000-000000000021'
 );
-select extensions.throws_ok(
-  $$
-    select api.respond_to_direct_ask(
+select extensions.is(
+  (
+    select result_code from api.respond_to_direct_ask(
       '95000000-0000-4000-8000-000000000020',
       'accept', '   ', null, null,
       '95000000-0000-4000-8000-000000000022'
     )
-  $$,
-  '22023',
-  null,
-  'invalid opening message aborts direct Ask acceptance'
+  ),
+  'invalid_input'::text,
+  'invalid opening message returns a stable result without accepting the Ask'
 );
 select extensions.is(
   (select status from public.asks where id = '95000000-0000-4000-8000-000000000020'),

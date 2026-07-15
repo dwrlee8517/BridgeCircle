@@ -101,6 +101,24 @@ wait_for_sql() {
   return 1
 }
 
+wait_for_output() {
+  local description="$1"
+  local file="$2"
+  local pattern="$3"
+  local attempts=0
+
+  while (( attempts < 200 )); do
+    if grep -Eq "$pattern" "$file" 2>/dev/null; then
+      return 0
+    fi
+    attempts=$((attempts + 1))
+    sleep 0.05
+  done
+
+  echo "timed out waiting for $description" >&2
+  return 1
+}
+
 start_holder() {
   local name="$1"
   local key="$2"
@@ -410,6 +428,7 @@ run_competing_offer_accept_test() {
   local pids=()
   local successes=0
   local failures=0
+  local result_codes=""
 
   "${psql_base[@]}" <<'SQL' >/dev/null
 insert into public.asks (
@@ -451,7 +470,7 @@ SQL
       printf '%s\n' \
         "set local statement_timeout = '10s';" \
         "select pg_advisory_xact_lock_shared($barrier_key);" \
-        "select api.decide_offer('96000000-0000-4000-8000-00000000000$index', 'accept', 'Winning opening $index', null, null, '96000000-0000-4000-8000-00000000002$index');" \
+        "select result_code, ask_id, offer_id, conversation_id from api.decide_offer('96000000-0000-4000-8000-00000000000$index', 'accept', 'Winning opening $index', null, null, '96000000-0000-4000-8000-00000000002$index');" \
         "reset role;" \
         "commit;"
     } | PGAPPNAME="bridgecircle-conversation-offer-$index" \
@@ -471,13 +490,19 @@ SQL
       failures=$((failures + 1))
     fi
   done
-  if (( successes != 1 || failures != 1 )); then
-    echo "competing offer acceptance expected one winner and one closed loser" >&2
+  if (( successes != 2 || failures != 0 )); then
+    echo "competing offer acceptance callers did not both receive stable result rows" >&2
+    return 1
+  fi
+
+  result_codes="$(sed '/^$/d' "$work_dir/offer-2.out" "$work_dir/offer-3.out" | cut -d'|' -f1 | sort | tr '\n' ' ')"
+  if [[ "$result_codes" != "accepted already_decided " ]]; then
+    echo "competing offer acceptance expected accepted + already_decided, got: $result_codes" >&2
     return 1
   fi
 
   if [[ "$("${psql_base[@]}" --tuples-only --no-align --command \
-    "select (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'accepted') = 1 and (select count(*) from public.conversations where ask_id = '96000000-0000-4000-8000-000000000001') = 1 and (select count(*) from public.messages m join public.conversations c on c.id = m.conversation_id where c.ask_id = '96000000-0000-4000-8000-000000000001' and m.kind = 'system') = 1;")" != "t" ]]; then
+    "select (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'accepted') = 1 and (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'closed') = 1 and (select count(*) from public.conversations where ask_id = '96000000-0000-4000-8000-000000000001') = 1 and (select count(*) from public.messages m join public.conversations c on c.id = m.conversation_id where c.ask_id = '96000000-0000-4000-8000-000000000001' and m.kind = 'system') = 1;")" != "t" ]]; then
     echo "competing offer acceptance did not preserve one accepted aggregate" >&2
     return 1
   fi
@@ -513,6 +538,15 @@ run_read_cursor_test() {
 
   wait_for_sql "high read cursor transaction" \
     "select count(*) >= 1 from pg_stat_activity where application_name = 'bridgecircle-conversation-read-high' and state = 'idle in transaction';"
+  if ! wait_for_output \
+    "high read cursor result" \
+    "$work_dir/read-high.out" \
+    '^advanced\|[0-9]+\|'; then
+    printf '%s\n' "rollback;" "\\q" >&4
+    exec 4>&-
+    wait "$high_pid" || true
+    return 1
+  fi
   high_timestamp="$(grep -E '^advanced\|[0-9]+\|' "$work_dir/read-high.out" | tail -1 | cut -d'|' -f3 || true)"
   if [[ -z "$high_timestamp" ]]; then
     printf '%s\n' "rollback;" "\\q" >&4

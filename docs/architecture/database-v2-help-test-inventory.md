@@ -1,9 +1,51 @@
 # Database v2 Help vertical-slice test inventory
 
-- **Status:** approved — red baselines pending Milestone 1
+- **Status:** approved — Milestone 1 red baselines recorded
 - **Plan:** [Help vertical-slice implementation plan](database-v2-help-plan.md)
 - **Starting checkpoint:** Conversation Primitive `4a07b47`
 - **Rule:** a milestone cannot proceed while its owned verification is red
+
+## Milestone 1 baseline — 2026-07-14
+
+Environment: approved-plan checkpoint `3b9815b`; Node 22.22.2; pnpm 10.33.2;
+Supabase CLI 2.109.1; PostgreSQL client 18.3. All checks were local-only.
+
+| Gate | Baseline result | Planned missing contract |
+|---|---|---|
+| inherited database suite | green: 9 files, 315 assertions | none |
+| new Help pgTAP | red: 33 of 42 assertions; 9 guards already green | Help storage, fixed APIs, grants, worker and Realtime contracts |
+| Help focused compiler | green with no implementation modules yet | becomes meaningful as each owned module lands |
+| Help static boundary | red | required v2 Help/outbox/provider/worker modules are absent |
+| identical-create race | red: 7 failed callers, 1 row | payload-aware idempotent convergence |
+| helper-capacity race | red: 0 failed callers, 2 waiting rows at limit 1 | shared helper-capacity lock |
+| worker claim | red | allowed job-type filter on atomic outbox claim |
+| Help Realtime | red | authorized IDs-only `help.changed` control event |
+| Help query plans | red | fixed projection signatures and representative fixtures |
+
+Harness syntax and local transaction cleanup are green. The failures above are
+the required implementation gaps, not setup, parsing, connection, or cleanup
+errors. The global compiler remains a port inventory (1,257 errors across 73
+legacy files; 342 across 14 Help/search paths), not a milestone acceptance gate.
+
+## Milestone 2 schema/API evidence — 2026-07-14
+
+| Gate | Result |
+|---|---|
+| pgTAP | green: 10 files, 358 assertions; Help 42/42 |
+| Foundation concurrency | green: invite, profile aggregate, disjoint outbox |
+| Conversation concurrency | green: 7 scenarios, including stable accepted/already-decided offer race |
+| Help concurrency | green: identical-key convergence and helper limit |
+| worker claim | green: supported types claimed; unsupported types remain pending |
+| Help Realtime | green: authorization, IDs-only delivery, dedupe, recovery, cleanup |
+| query plans | green: owned-history/direct-feed indexes; bounded 2,000-row lexical pilot scan |
+| database lint | green: no schema warnings |
+| shadow diff | green: no drift in public/api/private |
+| type generation | green twice; SHA-256 `2fb42b8f70dade7a870d99fe3d57d2ba9f3bf7c2c48b8181df27f3c4ada8659c` |
+| focused regressions | Foundation, Conversation, Supabase boundaries, Conversation boundaries green |
+
+The Help compiler remains an empty-boundary guard until Milestone 3. The Help
+boundary check remains intentionally red only because its owned modules have
+not been created yet. No remote system or secret value was touched.
 
 ## Test ownership
 

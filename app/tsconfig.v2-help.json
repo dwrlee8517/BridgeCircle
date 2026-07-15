@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/database.types.ts",
+    "src/db/repositories/help*.ts",
+    "src/db/realtime/help*.ts",
+    "src/lib/help/**/*.ts",
+    "src/lib/outbox/**/*.ts",
+    "src/integrations/ai/help*.ts",
+    "src/workers/outbox/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "tests/e2e"]
+}

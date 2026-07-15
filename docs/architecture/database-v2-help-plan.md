@@ -5,6 +5,7 @@
 - **Approved:** 2026-07-14 by Richard
 - **Branch:** `codex/redesign-v2`
 - **Depends on:** Conversation Primitive checkpoint `4a07b47`
+- **Approved-plan checkpoint:** `3b9815b`
 - **Contract:** [Database v2 contract](database-v2-contract.md)
 - **Behavior:** [`FLOWS.md` §3](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 - **UI source:** [BridgeCircle Help templates](../experience/ui/design-system/handoff/bridgecircle/project/templates/help/)
@@ -553,6 +554,66 @@ The implementation must close these confirmed gaps:
     from recent joiners when no true Ask exists;
 12. notification links, IA docs, route docs, and ADR 0011's decline behavior
     still point at the legacy workflow.
+
+### Milestone 1 red-baseline record
+
+Recorded locally on 2026-07-14 from approved-plan checkpoint `3b9815b` with
+Node 22.22.2, pnpm 10.33.2, Supabase CLI 2.109.1, and PostgreSQL client 18.3.
+No remote project, deployment, push, merge, or secret value was touched.
+
+- The nine inherited Foundation/Conversation pgTAP files remain green with 315
+  assertions. The new 42-assertion Help contract is intentionally red at 33
+  assertions and green at nine raw-access/service-role/publication guards.
+- The focused Foundation and Conversation compilers, boundary checks,
+  concurrency suites, query-plan checks, and Conversation Realtime suite remain
+  green at this checkpoint.
+- `typecheck:v2-help` is green only as an empty-boundary guard. The Help static
+  boundary check is intentionally red because the v2 domain, repository,
+  Realtime, provider, and worker modules do not exist yet.
+- Eight concurrent identical direct-Ask creates currently produce one row and
+  seven failed callers instead of one idempotent result for every caller.
+- Two concurrent direct Asks against a helper limit of one currently both
+  commit, proving the missing helper-capacity lock.
+- The worker baseline is red because outbox claiming cannot filter supported
+  job types. Realtime is red because `help.changed` is not yet an authorized
+  control event. Query-plan coverage is red because `api.get_help_home(uuid)`
+  and the other fixed Help projections do not exist.
+- The inherited global port inventory remains 1,257 TypeScript errors across 73
+  reported legacy files, including 342 errors across 14 Help/search paths. It
+  is an inventory, not a green Help gate.
+
+### Milestone 2 schema/API record
+
+Completed locally on 2026-07-14. The baseline migration now supplies
+payload-aware Ask/offer idempotency, deterministic Help capacity locks, stable
+mutation results, participant resolution, bounded caller-shaped projections,
+atomic preferences, count-only AI budgets, typed worker claims, matching and
+maintenance transactions, notification/email materialization boundaries, and
+IDs-only Help invalidations.
+
+- All 10 pgTAP files pass 358 assertions. The new Help contract is green at
+  42/42 while all nine inherited files remain green.
+- Foundation concurrency (invite, profile aggregate, disjoint outbox), all
+  seven Conversation concurrency scenarios, and both Help creation races pass.
+  The Conversation offer race now proves one `accepted` and one
+  `already_decided` result without a failed caller or deadlock.
+- Conversation query plans and full Realtime integration remain green. Help
+  Realtime proves own-topic authorization, IDs-only delivery, retry dedupe,
+  missed-event recovery, and channel cleanup.
+- Help query plans use `asks_asker_created_idx` and
+  `asks_recipient_status_created_idx`. PostgreSQL deliberately chooses a
+  sub-millisecond sequential lexical scan for the bounded 2,000-chunk pilot
+  fixture; the GIN index exists and the gate also accepts it when growth makes
+  it cheaper.
+- Database lint reports no warnings. A shadow diff over `public`, `api`, and
+  `private` reports no schema drift. Two generated type passes are byte-for-byte
+  identical at SHA-256
+  `2fb42b8f70dade7a870d99fe3d57d2ba9f3bf7c2c48b8181df27f3c4ada8659c`.
+- Foundation, Conversation, and empty-boundary Help focused compilers pass;
+  Supabase and Conversation static boundaries remain green. Help's own boundary
+  check stays intentionally red until Milestone 3 creates its repository,
+  domain, provider, Realtime, and worker modules.
+- No remote project, deploy, push, merge, or secret value was touched.
 
 ## Out of scope
 

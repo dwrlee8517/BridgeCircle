@@ -23,9 +23,25 @@ export type Database = {
           result_code: string
         }[]
       }
+      apply_ask_matches: {
+        Args: {
+          p_ask_id: string
+          p_matches: Json
+          p_model_version: string
+          p_pipeline_version: string
+        }
+        Returns: {
+          applied_count: number
+          result_code: string
+        }[]
+      }
       block_member: { Args: { p_blocked_user_id: string }; Returns: undefined }
       claim_outbox_jobs: {
-        Args: { p_limit?: number; p_worker_id: string }
+        Args: {
+          p_allowed_types?: string[]
+          p_limit?: number
+          p_worker_id: string
+        }
         Returns: {
           attempts: number
           available_at: string
@@ -48,6 +64,14 @@ export type Database = {
         Args: { p_job_id: number; p_worker_id: string }
         Returns: string
       }
+      consume_help_ai_budget: {
+        Args: { p_action: string }
+        Returns: {
+          remaining: number
+          resets_at: string
+          result_code: string
+        }[]
+      }
       create_circle_ask: {
         Args: {
           p_anonymous_until_accepted: boolean
@@ -56,7 +80,12 @@ export type Database = {
           p_question: string
           p_reach: string
         }
-        Returns: string
+        Returns: {
+          active_count: number
+          ask_id: string
+          created: boolean
+          result_code: string
+        }[]
       }
       create_direct_ask: {
         Args: {
@@ -66,7 +95,12 @@ export type Database = {
           p_recipient_membership_id: string
           p_request_message: string
         }
-        Returns: string
+        Returns: {
+          active_count: number
+          ask_id: string
+          created: boolean
+          result_code: string
+        }[]
       }
       decide_membership: {
         Args: { p_decision: string; p_membership_id: string }
@@ -84,7 +118,12 @@ export type Database = {
           p_offer_id: string
           p_opening_message?: string
         }
-        Returns: string
+        Returns: {
+          ask_id: string
+          conversation_id: string
+          offer_id: string
+          result_code: string
+        }[]
       }
       disconnect: { Args: { p_other_user_id: string }; Returns: undefined }
       fail_outbox_job: {
@@ -135,6 +174,61 @@ export type Database = {
           viewer_last_read_message_id: number
         }[]
       }
+      get_help_ask_detail: {
+        Args: { p_ask_id: string }
+        Returns: {
+          accepted_at: string
+          anonymous_until_accepted: boolean
+          ask_id: string
+          asker_preview: Json
+          closure_reason: string
+          conversation_id: string
+          created_at: string
+          decline_note: string
+          decline_reason_code: string
+          ended_at: string
+          expires_at: string
+          history: Json
+          kind: string
+          offers: Json
+          organization_id: string
+          outcome_note: string
+          question: string
+          reach: string
+          recipient_preview: Json
+          request_message: string
+          status: string
+        }[]
+      }
+      get_help_home: {
+        Args: { p_membership_id: string }
+        Returns: {
+          active_ask_count: number
+          active_ask_limit: number
+          direct_requests: Json
+          helper_topics: string[]
+          membership_id: string
+          open_to_help: boolean
+          organization_id: string
+          pause_reason: string
+          paused_at: string
+          recent_asks: Json
+          suggested_asks: Json
+        }[]
+      }
+      get_helper_preferences: {
+        Args: { p_membership_id: string }
+        Returns: {
+          consecutive_timeouts: number
+          max_pending_requests: number
+          membership_id: string
+          open_to_help: boolean
+          organization_id: string
+          pause_reason: string
+          paused_at: string
+          topics: string[]
+        }[]
+      }
       get_my_member_context: {
         Args: { p_preferred_membership_id?: string }
         Returns: {
@@ -161,6 +255,20 @@ export type Database = {
         Returns: {
           conversation_id: string
           result_code: string
+        }[]
+      }
+      get_outbox_email_context: {
+        Args: { p_job_id: number; p_worker_id: string }
+        Returns: {
+          actor_display_name: string
+          idempotency_key: string
+          job_id: number
+          notification_type: string
+          recipient_display_name: string
+          recipient_email: string
+          recipient_user_id: string
+          target_id: string
+          target_type: string
         }[]
       }
       list_conversation_messages_after: {
@@ -198,17 +306,30 @@ export type Database = {
         }[]
       }
       list_give_help: {
-        Args: { p_before?: string; p_limit?: number }
+        Args: {
+          p_arm: string
+          p_before_created_at?: string
+          p_before_id?: string
+          p_limit?: number
+          p_membership_id: string
+          p_query?: string
+        }
         Returns: {
           anonymous_until_accepted: boolean
           ask_id: string
+          asker_avatar_path: string
+          asker_display_name: string
+          asker_graduation_year: number
           asker_user_id: string
           created_at: string
+          expires_at: string
           kind: string
           match_reason: string
+          my_offer_status: string
           organization_id: string
           question: string
           reach: string
+          status: string
         }[]
       }
       list_help_matches: {
@@ -223,6 +344,26 @@ export type Database = {
           score: number
         }[]
       }
+      list_my_asks: {
+        Args: {
+          p_before_created_at?: string
+          p_before_id?: string
+          p_limit?: number
+        }
+        Returns: {
+          ask_id: string
+          conversation_id: string
+          created_at: string
+          ended_at: string
+          expires_at: string
+          kind: string
+          offer_count: number
+          organization_id: string
+          question: string
+          recipient_preview: Json
+          status: string
+        }[]
+      }
       mark_conversation_read: {
         Args: { p_conversation_id: string; p_message_id: number }
         Returns: {
@@ -235,6 +376,14 @@ export type Database = {
         Args: { p_notification_ids: number[] }
         Returns: number
       }
+      materialize_notification_job: {
+        Args: { p_job_id: number; p_worker_id: string }
+        Returns: {
+          email_job_id: number
+          notification_id: number
+          result_code: string
+        }[]
+      }
       offer_to_help: {
         Args: {
           p_ask_id: string
@@ -242,7 +391,12 @@ export type Database = {
           p_helper_membership_id: string
           p_offer_note: string
         }
-        Returns: string
+        Returns: {
+          ask_id: string
+          created: boolean
+          offer_id: string
+          result_code: string
+        }[]
       }
       publish_conversation_typing: {
         Args: { p_conversation_id: string; p_is_typing: boolean }
@@ -253,7 +407,11 @@ export type Database = {
       }
       resolve_ask: {
         Args: { p_ask_id: string; p_outcome_note?: string }
-        Returns: undefined
+        Returns: {
+          ask_id: string
+          conversation_id: string
+          result_code: string
+        }[]
       }
       respond_to_connection_request: {
         Args: { p_decision: string; p_request_id: string }
@@ -268,9 +426,20 @@ export type Database = {
           p_decline_reason_code?: string
           p_opening_message?: string
         }
-        Returns: string
+        Returns: {
+          ask_id: string
+          conversation_id: string
+          result_code: string
+        }[]
       }
-      retract_ask: { Args: { p_ask_id: string }; Returns: undefined }
+      retract_ask: {
+        Args: { p_ask_id: string }
+        Returns: {
+          ask_id: string
+          conversation_id: string
+          result_code: string
+        }[]
+      }
       retry_outbox_job: {
         Args: {
           p_available_at: string
@@ -279,6 +448,29 @@ export type Database = {
           p_worker_id: string
         }
         Returns: string
+      }
+      run_help_maintenance: {
+        Args: { p_limit?: number; p_now?: string }
+        Returns: {
+          asks_closed: number
+          helpers_paused: number
+          offers_closed: number
+          reminders_sent: number
+        }[]
+      }
+      save_helper_preferences: {
+        Args: {
+          p_membership_id: string
+          p_open_to_help: boolean
+          p_topics: string[]
+        }
+        Returns: {
+          open_to_help: boolean
+          pause_reason: string
+          paused_at: string
+          result_code: string
+          topics: string[]
+        }[]
       }
       save_profile_current: {
         Args: {
@@ -330,6 +522,27 @@ export type Database = {
           p_topics: string[]
         }
         Returns: string
+      }
+      search_help_candidates: {
+        Args: {
+          p_limit?: number
+          p_membership_id: string
+          p_query_embedding: string
+          p_question: string
+        }
+        Returns: {
+          avatar_path: string
+          display_name: string
+          evidence_chunk_ids: string[]
+          graduation_year: number
+          headline: string
+          helper_membership_id: string
+          helper_user_id: string
+          lexical_score: number
+          match_reason: string
+          semantic_score: number
+          topics: string[]
+        }[]
       }
       send_connection_request: {
         Args: {

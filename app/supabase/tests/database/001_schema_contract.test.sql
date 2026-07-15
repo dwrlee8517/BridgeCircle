@@ -77,9 +77,16 @@ select extensions.ok(
     select 1
     from pg_proc p
     join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname in ('public', 'api') and p.prosecdef
+    where p.prosecdef
+      and (
+        n.nspname = 'public'
+        or (
+          n.nspname = 'api'
+          and not coalesce(p.proconfig @> array['search_path=""']::text[], false)
+        )
+      )
   ),
-  'no security-definer function lives in an exposed schema'
+  'exposed security-definer functions are API-only with an empty search path'
 );
 
 select extensions.ok(
