@@ -6,9 +6,19 @@
   "include": [
     "next-env.d.ts",
     "src/db/database.types.ts",
+    "src/db/repositories/connections*.ts",
+    "src/db/repositories/conversations*.ts",
     "src/db/repositories/messages*.ts",
+    "src/db/repositories/safety*.ts",
     "src/db/realtime/member-channel*.ts",
-    "src/lib/messages/**/*.ts"
+    "src/lib/connections/**/*.ts",
+    "src/lib/conversations/**/*.ts",
+    "src/lib/messages/**/*.ts",
+    "src/lib/safety/**/*.ts",
+    "src/app/api/connections/**/*.ts",
+    "src/app/api/members/[userId]/block/route.ts",
+    "src/app/api/messages/**/*.ts",
+    "src/app/api/conversations/[conversationId]/messages/[messageId]/report/route.ts"
   ],
   "exclude": ["node_modules", ".next", "tests/e2e"]
 }

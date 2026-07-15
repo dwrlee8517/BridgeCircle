@@ -847,16 +847,5 @@ export function createHelpRepository(memberClient: SupabaseClient<Database>): He
       if (error) transportError('reportAsk', error)
       return { reportId: z.guid().parse(data) }
     },
-
-    async reportMessage(input) {
-      const { data, error } = await memberClient.schema('api').rpc('submit_report', {
-        p_target_type: 'message',
-        p_target_id: String(input.messageId),
-        p_reason: input.reason,
-        p_note: input.note ?? undefined,
-      })
-      if (error) transportError('reportMessage', error)
-      return { reportId: z.guid().parse(data) }
-    },
   }
 }

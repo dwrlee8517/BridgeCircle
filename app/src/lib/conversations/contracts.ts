@@ -11,10 +11,30 @@ export type ConversationDetail = {
   counterpart: {
     userId: string
     displayName: string
+    preferredName: string | null
     avatarPath: string | null
     graduationYear: number | null
+    headline: string | null
+    currentEmployer: string | null
+    currentTitle: string | null
+    openToHelp: boolean
   }
+  isConnected: boolean
   canSend: boolean
+  readOnlyReason:
+    | 'account_unavailable'
+    | 'connection_required'
+    | 'ask_unavailable'
+    | 'not_available'
+    | null
+  connectionState: 'connected' | 'incoming_pending' | 'outgoing_pending' | 'none'
+  pendingConnectionRequestId: string | null
+  askContext: {
+    question: string
+    status: 'accepted' | 'resolved'
+    outcomeNote: string | null
+  } | null
+  canRequestConnection: boolean
   viewerLastReadMessageId: number | null
   viewerLastReadAt: string | null
   counterpartLastReadMessageId: number | null

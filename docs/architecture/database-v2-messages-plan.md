@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice implementation plan
 
-- **Status:** approved by Richard; Milestones 1-2 complete; Milestone 3 next; local-only
+- **Status:** approved by Richard; Milestones 1-3 complete; Milestone 4 next; local-only
 - **Prepared:** 2026-07-15
 - **Approved:** 2026-07-15
 - **Branch:** `codex/redesign-v2`

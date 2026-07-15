@@ -341,9 +341,4 @@ export type HelpRepository = {
     reason: HelpReportReason
     note: string | null
   }): Promise<{ reportId: string }>
-  reportMessage(input: {
-    messageId: number
-    reason: HelpReportReason
-    note: string | null
-  }): Promise<{ reportId: string }>
 }

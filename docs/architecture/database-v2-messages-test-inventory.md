@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice test inventory
 
-- **Status:** approved; Milestones 1-2 complete; Milestone 3 next
+- **Status:** approved; Milestones 1-3 complete; Milestone 4 next
 - **Approved:** 2026-07-15
 - **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
@@ -107,6 +107,32 @@ revoked private boundary as a security definer with an empty search path. The
 focused pgTAP contract asserts both properties. Owner invalidations are emitted
 once by domain commands rather than row triggers, so fixture/maintenance writes
 cannot manufacture member events and idempotent retries stay quiet.
+
+## Milestone 3 application-boundary evidence
+
+Recorded locally on 2026-07-15 without touching a remote database, provider,
+push, merge, or deployment.
+
+| Gate | Final local result |
+|---|---|
+| Messages/Connection/Safety contracts | strict discriminated projections and stable command results implemented |
+| repository transport | fixed `api` functions only; exact RPC names and keyset/command arguments unit-tested |
+| local validation | malformed query, cursor, Connection, report, and block inputs perform no repository I/O |
+| Messages API | authenticated, strict, bounded, private no-store routes for list/count/Connection/block |
+| message report ownership | ported from Help to the Safety repository; database remains evidence authority |
+| extended conversation detail | strict Connection, Ask-context, safe-profile, and permission invariants parsed |
+| focused compiler | zero errors across Messages, Connections, Safety, Conversation contracts, and owned routes |
+| boundary detector | framework-free domains; fixed-RPC repositories; no raw route transport or Help cross-import |
+| focused Vitest | 7 files / 27 tests green |
+| full Vitest | 53 files / 233 tests green |
+| inherited focused gates | Foundation, Conversation, and Help compilers/boundaries/cutover green |
+| formatting/lint/tokens | Biome, ESLint, and design-token checks green |
+
+The list operation returns the next cursor only from a full bounded page and
+merges refreshed pages by conversation ID under the database's canonical
+priority/activity/ID order. Independent Waiting/count reads use `Promise.all`.
+Route failures capture only fixed scope errors, so request content, member
+names, and database error messages cannot enter logs or responses.
 
 ## Test ownership
 

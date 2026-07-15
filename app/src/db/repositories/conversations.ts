@@ -26,7 +26,22 @@ const conversationDetailRowSchema = z
     counterpart_display_name: z.string().min(1),
     counterpart_avatar_path: z.string().nullable(),
     counterpart_graduation_year: z.number().int().nullable(),
+    counterpart_preferred_name: z.string().min(1).nullable(),
+    counterpart_headline: z.string().nullable(),
+    counterpart_current_employer: z.string().nullable(),
+    counterpart_current_title: z.string().nullable(),
+    counterpart_open_to_help: z.boolean(),
+    is_connected: z.boolean(),
     can_send: z.boolean(),
+    read_only_reason: z
+      .enum(['account_unavailable', 'connection_required', 'ask_unavailable', 'not_available'])
+      .nullable(),
+    connection_state: z.enum(['connected', 'incoming_pending', 'outgoing_pending', 'none']),
+    pending_connection_request_id: z.uuid().nullable(),
+    ask_question: z.string().min(1).nullable(),
+    ask_status: z.enum(['accepted', 'resolved']).nullable(),
+    ask_outcome_note: z.string().nullable(),
+    can_request_connection: z.boolean(),
     viewer_last_read_message_id: messageIdSchema.nullable(),
     viewer_last_read_at: timestampSchema.nullable(),
     counterpart_last_read_message_id: messageIdSchema.nullable(),
@@ -95,6 +110,33 @@ function transportError(operation: string, error: { code?: string } | null): nev
 
 export function parseConversationDetailRow(row: unknown): ConversationDetail {
   const parsed = conversationDetailRowSchema.parse(row)
+  if (parsed.can_send !== (parsed.read_only_reason === null)) {
+    return contractError('detail', 'send permission and reason disagree')
+  }
+  if (parsed.is_connected !== (parsed.connection_state === 'connected')) {
+    return contractError('detail', 'Connection flag and state disagree')
+  }
+  if (
+    (parsed.connection_state === 'incoming_pending' ||
+      parsed.connection_state === 'outgoing_pending') !==
+    Boolean(parsed.pending_connection_request_id)
+  ) {
+    return contractError('detail', 'pending Connection state and ID disagree')
+  }
+  if (parsed.kind === 'ask') {
+    if (!parsed.organization_id || !parsed.ask_id || !parsed.ask_question || !parsed.ask_status) {
+      return contractError('detail', 'Ask conversation without Ask context')
+    }
+  } else if (
+    parsed.organization_id ||
+    parsed.ask_id ||
+    parsed.ask_question ||
+    parsed.ask_status ||
+    parsed.ask_outcome_note ||
+    parsed.can_request_connection
+  ) {
+    return contractError('detail', 'direct conversation with Ask context')
+  }
   return {
     id: parsed.conversation_id,
     kind: parsed.kind,
@@ -105,10 +147,28 @@ export function parseConversationDetailRow(row: unknown): ConversationDetail {
     counterpart: {
       userId: parsed.counterpart_user_id,
       displayName: parsed.counterpart_display_name,
+      preferredName: parsed.counterpart_preferred_name,
       avatarPath: parsed.counterpart_avatar_path,
       graduationYear: parsed.counterpart_graduation_year,
+      headline: parsed.counterpart_headline,
+      currentEmployer: parsed.counterpart_current_employer,
+      currentTitle: parsed.counterpart_current_title,
+      openToHelp: parsed.counterpart_open_to_help,
     },
+    isConnected: parsed.is_connected,
     canSend: parsed.can_send,
+    readOnlyReason: parsed.read_only_reason,
+    connectionState: parsed.connection_state,
+    pendingConnectionRequestId: parsed.pending_connection_request_id,
+    askContext:
+      parsed.kind === 'ask'
+        ? {
+            question: parsed.ask_question as string,
+            status: parsed.ask_status as 'accepted' | 'resolved',
+            outcomeNote: parsed.ask_outcome_note,
+          }
+        : null,
+    canRequestConnection: parsed.can_request_connection,
     viewerLastReadMessageId: parsed.viewer_last_read_message_id,
     viewerLastReadAt: parsed.viewer_last_read_at,
     counterpartLastReadMessageId: parsed.counterpart_last_read_message_id,
