@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice test inventory
 
-- **Status:** approved; Milestones 1-4 complete; Milestone 5 next
+- **Status:** approved; Milestones 1-5 complete; Milestone 6 next
 - **Approved:** 2026-07-15
 - **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
@@ -158,6 +158,32 @@ The shell provider never applies Broadcast payloads as data. Every event moves
 only a revision or conversation-control cursor and then refetches the relevant
 Postgres-backed projection. A failed count refresh preserves the last
 authoritative badge value, and a later invalidation retries it.
+
+## Milestone 5 Messages workspace evidence
+
+Recorded locally on 2026-07-15 without touching a remote database, provider,
+push, merge, or deployment.
+
+| Gate | Final local result |
+|---|---|
+| persistent layout | one nested Messages layout owns Waiting, counts, filters, search, and the 30-row first page across thread navigation |
+| list transport | fixed bounded API projection; server-only avatar URL mapping; no raw table or fabricated row |
+| filters/search | canonical counts; 250 ms debounce; abort plus monotonic request sequence prevents stale replacement |
+| pagination | existing all-component keyset cursor and deduplicating page merge drive Load more |
+| Waiting | zero-hidden foldable group; user-scoped boolean only; direct Asks link to Help; Connection decisions are idempotent |
+| invalidation | owner revision refetches the active bounded query and server Waiting/counts while preserving filter and selection |
+| browser desktop | 1440 x 900 fills the shell: 300 px list plus 900 px fluid pane; document scroll width equals viewport width |
+| browser mobile | 390 x 844 and 320 x 700 render one list pane with no horizontal overflow |
+| interaction | All/Unread pressed state, bounded search loading/empty/recovery, selection, and read-count convergence verified |
+| browser diagnostics | zero console warnings or errors |
+| focused/full application gates | Messages compiler and boundary check green; 54 Vitest files / 236 tests green |
+| static/style gates | token check, ESLint, and Biome green |
+
+The workspace keeps the list mounted while the selected thread route changes.
+Independent server projections load in parallel; only the list query is
+client-refetched. Search cancellation invalidates the previous request before
+the debounce window, so a fast filter/query change cannot be overwritten by an
+older response.
 
 ## Test ownership
 

@@ -26,7 +26,8 @@
     "src/app/(member)/member-nav.tsx",
     "src/app/(member)/member-tab-bar.tsx",
     "src/app/(member)/help/asks/use-help-realtime-refresh.ts",
-    "src/app/(member)/messages/[id]/conversation-thread.tsx"
+    "src/app/(member)/messages/**/*.ts",
+    "src/app/(member)/messages/**/*.tsx"
   ],
   "exclude": ["node_modules", ".next", "tests/e2e"]
 }

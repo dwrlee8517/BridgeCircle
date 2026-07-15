@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { createAvatarStorageRepository } from '@/db/repositories/avatar-storage'
 import { createMessagesRepository } from '@/db/repositories/messages'
 import { createClient } from '@/db/server'
 import { listMessageConversations } from '@/lib/messages/operations'
@@ -69,7 +70,15 @@ export async function GET(request: Request) {
         { status: 400, headers: NO_STORE_HEADERS },
       )
     }
-    return NextResponse.json(result.page, { headers: NO_STORE_HEADERS })
+    const avatarStorage = createAvatarStorageRepository(client)
+    const avatarUrls = Object.fromEntries(
+      result.page.items.flatMap((item) =>
+        item.counterpart.avatarPath
+          ? [[item.counterpart.avatarPath, avatarStorage.publicUrl(item.counterpart.avatarPath)]]
+          : [],
+      ),
+    )
+    return NextResponse.json({ ...result.page, avatarUrls }, { headers: NO_STORE_HEADERS })
   } catch {
     Sentry.captureException(new Error('Messages conversation list failed'), {
       tags: { scope: 'messages-conversation-list' },
