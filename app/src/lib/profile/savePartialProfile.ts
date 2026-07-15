@@ -61,7 +61,7 @@ export async function saveOnboardingCurrent(
       currentTitle: input.currentTitle ?? null,
       city: input.city ?? null,
       headline: input.headline ?? null,
-      linkedinUrl: input.linkedinUrl ?? null,
+      industry: input.industry ?? null,
     }),
   )
 }
@@ -92,8 +92,7 @@ export async function saveOnboardingHelp(
   const current = await repository.get(membershipId)
   if (!current.ok) return { ok: false, error: 'no_membership' }
 
-  const linkedinUrl =
-    current.profile.preferences.freshness.linkedinUrl ?? current.profile.current.linkedinUrl
+  const linkedinUrl = current.profile.preferences.freshness.linkedinUrl
   const topics = (input.helperTopics ?? '')
     .split(',')
     .map((topic) => topic.trim())

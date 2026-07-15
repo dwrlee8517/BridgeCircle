@@ -59,6 +59,33 @@ already-safe raw profile/detail grant boundary and lack of anonymous grants.
 No inherited contract regressed. The red baseline contains no unrelated SQL,
 TypeScript, shell, or environment failure.
 
+## Milestone 2 database/API foundation evidence
+
+Implemented and measured locally after red checkpoint `671d5cd`:
+
+| Gate | Result |
+|---|---|
+| empty local reset + deterministic seed | green |
+| complete pgTAP | 12 files / 489 assertions / green |
+| People/Profile pgTAP | 51 privacy, search, grant, command, and invalidation assertions / green |
+| generated public+api types | two runs byte-identical; SHA-256 `bc0b272ebaa915b514c359a65743baaf784a0f5759ce473e1c5ef9be4189a6d7` |
+| Foundation and People/Profile focused TypeScript | green |
+| replacement concurrency | whole links/visibility sets only; retry-safe; one pending index job |
+| representative plan fixture | 2,500 generated members plus seed; organization and link indexes used; 50 rows with safe total 2,504 |
+| keyword plan | actual pilot plan chose a 0.205 ms sequential scan; forced companion proved the GIN path is valid |
+
+The actual keyword plan is intentionally recorded rather than treated as an
+index failure: at 2,505 profiles PostgreSQL measured the sequential scan as
+cheaper. The maintained GIN index is available, and the harness will expose
+when real cardinality/selectivity makes it preferable. No ANN vector index was
+added without a measured need.
+
+Live viewer-shaped checks also proved Richard sees exactly the four eligible
+seeded members with correct connected/pending states, can read allowed
+organization/Connection links, and receives `not_available` for the blocked
+profile. Raw profile, link, visibility, resume, embedding, and report data
+remain unavailable to `authenticated`.
+
 ## Planned verification matrix
 
 ### A. Schema and contract

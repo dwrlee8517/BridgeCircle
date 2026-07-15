@@ -550,7 +550,8 @@ begin
        'conversation.revoked',
        'help.changed',
        'messages.changed',
-       'connections.changed'
+       'connections.changed',
+       'profile.changed'
      ) then
     raise exception using errcode = '22023', message = 'invalid_user_control_event';
   end if;
@@ -570,6 +571,11 @@ begin
        or (v_payload - array['requestId', 'conversationId']::text[]) <> '{}'::jsonb
      ) then
     raise exception using errcode = '22023', message = 'invalid_connections_change_payload';
+  elsif p_event = 'profile.changed' and (
+       not (v_payload ? 'membershipId')
+       or (v_payload - 'membershipId') <> '{}'::jsonb
+     ) then
+    raise exception using errcode = '22023', message = 'invalid_profile_change_payload';
   elsif p_event in ('conversation.permissions_changed', 'conversation.revoked') and (
        not (v_payload ? 'conversationId')
        or (v_payload - 'conversationId') <> '{}'::jsonb
@@ -588,6 +594,8 @@ begin
     elsif p_event = 'connections.changed' then
       if v_payload ? 'requestId' then perform (v_payload ->> 'requestId')::uuid; end if;
       if v_payload ? 'conversationId' then perform (v_payload ->> 'conversationId')::uuid; end if;
+    elsif p_event = 'profile.changed' then
+      perform (v_payload ->> 'membershipId')::uuid;
     end if;
   exception when invalid_text_representation then
     raise exception using errcode = '22023', message = 'invalid_user_control_payload_id';

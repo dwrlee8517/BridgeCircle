@@ -13,7 +13,7 @@ export type OnboardingProgressProfile = {
   currentTitle: string | null | undefined
   city: string | null | undefined
   headline: string | null | undefined
-  linkedinUrl: string | null | undefined
+  industry: string | null | undefined
   careerHistory: unknown[] | null | undefined
   skills: string[] | null | undefined
 }
@@ -41,7 +41,7 @@ export function inferOnboardingStep(profile: OnboardingProgressProfile): Onboard
     !hasText(profile.currentTitle) &&
     !hasText(profile.city) &&
     !hasText(profile.headline) &&
-    !hasText(profile.linkedinUrl)
+    !hasText(profile.industry)
   ) {
     return 3
   }

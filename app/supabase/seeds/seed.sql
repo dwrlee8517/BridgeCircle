@@ -75,14 +75,14 @@ from (values
 
 insert into public.profiles (
   user_id, display_name, headline, current_employer, current_title,
-  city, university, major, linkedin_url
+  industry, city, university, major
 ) values
-  ('10000000-0000-4000-8000-000000000001', 'Amy Admin', 'Keeping the Chadwick circle connected', 'Chadwick School', 'Alumni Board Chair', 'Palos Verdes, CA', 'Stanford University', 'Public Policy', null),
-  ('10000000-0000-4000-8000-000000000002', 'Richard Lee', 'Tech investing and early-stage company building', 'Common Capital', 'Investment Associate', 'San Francisco, CA', 'Stanford University', 'Computer Science', null),
-  ('10000000-0000-4000-8000-000000000003', 'Mark Chen', 'Strategy, consulting, and career transitions', 'Acme Consulting', 'Senior Partner', 'San Francisco, CA', 'University of Pennsylvania', 'Economics', 'https://www.linkedin.com/in/mark-chen'),
-  ('10000000-0000-4000-8000-000000000004', 'Mei Park', 'Product leadership across Seoul and San Francisco', 'Hyundai Motor', 'Product Director', 'Seoul, South Korea', 'Yonsei University', 'Industrial Engineering', 'https://www.linkedin.com/in/mei-park'),
-  ('10000000-0000-4000-8000-000000000005', 'Sam Rivera', 'Exploring product and engineering paths', 'UCLA', 'Student', 'Los Angeles, CA', 'UCLA', 'Computer Science', null),
-  ('10000000-0000-4000-8000-000000000006', 'Jordan Kim', 'Climate and infrastructure investing', 'Northstar Ventures', 'Principal', 'New York, NY', 'Harvard University', 'Economics', null);
+  ('10000000-0000-4000-8000-000000000001', 'Amy Admin', 'Keeping the Chadwick circle connected', 'Chadwick School', 'Alumni Board Chair', 'Education', 'Palos Verdes, CA', 'Stanford University', 'Public Policy'),
+  ('10000000-0000-4000-8000-000000000002', 'Richard Lee', 'Tech investing and early-stage company building', 'Common Capital', 'Investment Associate', 'Venture capital', 'San Francisco, CA', 'Stanford University', 'Computer Science'),
+  ('10000000-0000-4000-8000-000000000003', 'Mark Chen', 'Strategy, consulting, and career transitions', 'Acme Consulting', 'Senior Partner', 'Management consulting', 'San Francisco, CA', 'University of Pennsylvania', 'Economics'),
+  ('10000000-0000-4000-8000-000000000004', 'Mei Park', 'Product leadership across Seoul and San Francisco', 'Hyundai Motor', 'Product Director', 'Automotive', 'Seoul, South Korea', 'Yonsei University', 'Industrial Engineering'),
+  ('10000000-0000-4000-8000-000000000005', 'Sam Rivera', 'Exploring product and engineering paths', 'UCLA', 'Student', 'Technology', 'Los Angeles, CA', 'UCLA', 'Computer Science'),
+  ('10000000-0000-4000-8000-000000000006', 'Jordan Kim', 'Climate and infrastructure investing', 'Northstar Ventures', 'Principal', 'Climate investing', 'New York, NY', 'Harvard University', 'Economics');
 
 insert into public.organization_profiles (
   organization_membership_id, organization_id, graduation_year, bio
@@ -93,6 +93,15 @@ insert into public.organization_profiles (
   ('20000000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', 2012, 'Product leader with experience moving between Korea and the US.'),
   ('20000000-0000-4000-8000-000000000005', '11111111-1111-4111-8111-111111111111', 2024, 'Recent graduate exploring what comes next.'),
   ('20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', 2011, 'Climate and infrastructure investor.');
+
+insert into public.profile_contact_links (
+  id, organization_membership_id, organization_id,
+  kind, label, value, audience, sort_order
+) values
+  ('70000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', 'linkedin', null, 'https://www.linkedin.com/in/richard-lee', 'self', 0),
+  ('70000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 'linkedin', null, 'https://www.linkedin.com/in/mark-chen', 'organization', 0),
+  ('70000000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', 'linkedin', null, 'https://www.linkedin.com/in/mei-park', 'connections', 0),
+  ('70000000-0000-4000-8000-000000000004', '20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', 'website', null, 'https://northstar.example.com/climate', 'organization', 0);
 
 insert into public.helper_preferences (
   organization_membership_id, organization_id, open_to_help,

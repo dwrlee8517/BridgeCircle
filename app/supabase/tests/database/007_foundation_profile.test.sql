@@ -76,12 +76,12 @@ insert into public.organization_memberships (
 
 insert into public.profiles (
   user_id, display_name, preferred_name, headline, current_employer,
-  current_title, city, university, major, linkedin_url
+  current_title, industry, city, university, major
 ) values
   (
     '70000000-0000-4000-8000-000000000041', 'Profile Owner', 'Owner',
-    'Owner headline', 'Owner Co', 'Founder', 'Los Angeles',
-    'Owner University', 'History', 'https://www.linkedin.com/in/profile-owner'
+    'Owner headline', 'Owner Co', 'Founder', 'Technology', 'Los Angeles',
+    'Owner University', 'History'
   ),
   (
     '70000000-0000-4000-8000-000000000042', 'Profile Other', null,
@@ -412,7 +412,7 @@ select extensions.is(
   api.save_profile_current(
     '61000000-0000-4000-8000-000000000044',
     'Bridge Co', 'Product Lead', 'Seoul', 'Building trusted networks',
-    'https://www.linkedin.com/in/blank-member'
+    'Technology platforms'
   ),
   'saved',
   'valid current-profile fields are accepted'
@@ -422,9 +422,9 @@ select extensions.ok(
   (
     select current_employer = 'Bridge Co'
       and current_title = 'Product Lead'
+      and industry = 'Technology platforms'
       and city = 'Seoul'
       and headline = 'Building trusted networks'
-      and linkedin_url = 'https://www.linkedin.com/in/blank-member'
     from public.profiles
     where user_id = '70000000-0000-4000-8000-000000000044'
   ),
@@ -436,7 +436,7 @@ set local role authenticated;
 select api.save_profile_current(
   '61000000-0000-4000-8000-000000000044',
   'Changed Co', 'Changed title', 'Changed city', 'Changed headline',
-  'http://linkedin.example.com/not-allowed'
+  repeat('x', 121)
 ) as invalid_current_result \gset
 reset role;
 select extensions.ok(
@@ -715,7 +715,7 @@ select extensions.ok(
     select count(*) = 1
     from private.outbox_jobs
     where job_type = 'index_profile'
-      and dedupe_key = 'profile_index:61000000-0000-4000-8000-000000000044'
+      and payload ->> 'membershipId' = '61000000-0000-4000-8000-000000000044'
   ),
   'completion timestamps, audits, and enqueues indexing exactly once'
 );
@@ -738,7 +738,8 @@ select extensions.ok(
   and (
     select count(*) = 1
     from private.outbox_jobs
-    where dedupe_key = 'profile_index:61000000-0000-4000-8000-000000000044'
+    where job_type = 'index_profile'
+      and payload ->> 'membershipId' = '61000000-0000-4000-8000-000000000044'
   ),
   'onboarding retry does not duplicate side effects'
 );

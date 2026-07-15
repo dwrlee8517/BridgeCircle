@@ -35,10 +35,10 @@ const selfProfileSchema = z.object({
     headline: nullableText,
     employer: nullableText,
     title: nullableText,
+    industry: nullableText,
     city: nullableText,
     university: nullableText,
     major: nullableText,
-    linkedinUrl: nullableText,
   }),
   education: z.array(
     z.object({
@@ -61,6 +61,15 @@ const selfProfileSchema = z.object({
   ),
   skills: z.array(z.object({ name: z.string() })),
   visibility: z.record(z.string(), z.enum(['organization', 'connections', 'self'])),
+  links: z.array(
+    z.object({
+      id: z.guid(),
+      kind: z.enum(['linkedin', 'portfolio', 'website', 'social', 'email', 'other']),
+      label: nullableText,
+      value: z.string(),
+      audience: z.enum(['organization', 'connections', 'self']),
+    }),
+  ),
   preferences: z.object({
     bio: nullableText,
     openToHelp: z.boolean(),
@@ -82,7 +91,10 @@ const commandResultSchema = z.enum([
   'invalid_identity',
   'invalid_education',
   'invalid_current',
+  'invalid_about',
   'invalid_history',
+  'invalid_visibility',
+  'invalid_links',
   'invalid_preferences',
   'invalid_avatar_path',
 ])
@@ -163,7 +175,7 @@ export function createProfileRepository(client: SupabaseClient<Database>): Profi
         p_current_title: input.currentTitle ?? '',
         p_city: input.city ?? '',
         p_headline: input.headline ?? '',
-        p_linkedin_url: input.linkedinUrl ?? '',
+        p_industry: input.industry ?? '',
       })
       return commandResult(data, error, 'saveProfileCurrent')
     },
@@ -176,6 +188,31 @@ export function createProfileRepository(client: SupabaseClient<Database>): Profi
         p_skills: input.skills,
       })
       return commandResult(data, error, 'saveProfileHistory')
+    },
+
+    async saveAbout(membershipId, bio) {
+      const { data, error } = await client.schema('api').rpc('save_profile_about', {
+        p_membership_id: membershipId,
+        p_bio: bio ?? '',
+      })
+      return commandResult(data, error, 'saveProfileAbout')
+    },
+
+    async saveVisibility(membershipId, visibility) {
+      const { data, error } = await client.schema('api').rpc('save_profile_visibility', {
+        p_membership_id: membershipId,
+        p_visibility: visibility,
+      })
+      return commandResult(data, error, 'saveProfileVisibility')
+    },
+
+    async saveLinks(membershipId, links) {
+      const payload: Json = links.map((link) => ({ ...link }))
+      const { data, error } = await client.schema('api').rpc('save_profile_links', {
+        p_membership_id: membershipId,
+        p_links: payload,
+      })
+      return commandResult(data, error, 'saveProfileLinks')
     },
 
     async savePreferences(membershipId, input) {

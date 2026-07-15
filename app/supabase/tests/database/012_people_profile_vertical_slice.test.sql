@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(22);
+select extensions.plan(51);
 
 select extensions.has_column(
   'public', 'profiles', 'industry',
@@ -149,6 +149,278 @@ select extensions.ok(
     false
   ),
   'the owner topic accepts profile invalidations'
+);
+
+insert into public.profile_experiences (
+  user_id, employer, title, start_year, sort_order
+) values (
+  '10000000-0000-4000-8000-000000000004',
+  'Hyundai Motor', 'Product Director', 2020, 0
+);
+insert into public.profile_field_visibility (
+  organization_membership_id, organization_id, field_key, audience
+) values (
+  '20000000-0000-4000-8000-000000000004',
+  '11111111-1111-4111-8111-111111111111',
+  'career_history', 'connections'
+);
+update public.profiles
+set resume_path = 'private/mark-resume.pdf', resume_uploaded_at = now()
+where user_id = '10000000-0000-4000-8000-000000000003';
+
+select set_config(
+  'request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true
+);
+set local role authenticated;
+
+select extensions.is(
+  (select count(*)::integer from api.list_people(
+    '20000000-0000-4000-8000-000000000002'
+  )),
+  4,
+  'blank directory excludes self and the blocked seeded member before count'
+);
+select extensions.is(
+  (select array_agg(target_user_id order by target_membership_id)
+   from api.list_people('20000000-0000-4000-8000-000000000002')),
+  array[
+    '10000000-0000-4000-8000-000000000003'::uuid,
+    '10000000-0000-4000-8000-000000000004'::uuid,
+    '10000000-0000-4000-8000-000000000005'::uuid,
+    '10000000-0000-4000-8000-000000000006'::uuid
+  ],
+  'directory membership IDs are stable and contain no blocked/self row'
+);
+select extensions.is(
+  (select count(*)::integer from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000002',
+    p_scope => 'in_circle'
+  )),
+  1,
+  'in-circle scope uses the canonical Connection pair'
+);
+select extensions.is(
+  (select count(*)::integer from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000002',
+    p_scope => 'open_to_help'
+  )),
+  3,
+  'open-to-help scope applies preference, pause, and capacity state'
+);
+select extensions.is(
+  (select display_name from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000002',
+    p_query => 'climate'
+  )),
+  'Jordan Kim',
+  'keyword search uses directory-safe indexed facts'
+);
+select extensions.is(
+  (select display_name from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000002',
+    p_industry => 'management consulting'
+  )),
+  'Mark Chen',
+  'industry filter is exact to the selected organization projection'
+);
+select extensions.ok(
+  (select relationship_state = 'connected'
+      and conversation_id = '50000000-0000-4000-8000-000000000001'
+   from api.list_people('20000000-0000-4000-8000-000000000002')
+   where target_user_id = '10000000-0000-4000-8000-000000000004'),
+  'connected rows expose their canonical direct conversation'
+);
+select extensions.is(
+  (select relationship_state
+   from api.list_people('20000000-0000-4000-8000-000000000002')
+   where target_user_id = '10000000-0000-4000-8000-000000000003'),
+  'pending_incoming',
+  'pending relationship direction is viewer-shaped'
+);
+select extensions.ok(
+  (select result_code = 'not_available' and profile is null
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000002',
+     '10000000-0000-4000-8000-000000000001'
+   )),
+  'blocked profile access converges on the non-enumerating unavailable result'
+);
+select extensions.is(
+  (select jsonb_array_length(profile -> 'links')
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000002',
+     '10000000-0000-4000-8000-000000000003'
+   )),
+  1,
+  'organization-visible links appear to an active same-circle member'
+);
+select extensions.is(
+  (select jsonb_array_length(profile -> 'links')
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000002',
+     '10000000-0000-4000-8000-000000000004'
+   )),
+  1,
+  'connections-visible links appear to the connected member'
+);
+select extensions.is(
+  (select jsonb_array_length(profile -> 'experiences')
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000002',
+     '10000000-0000-4000-8000-000000000004'
+   )),
+  1,
+  'connections-visible career history appears to the connected member'
+);
+select extensions.is(
+  (select jsonb_array_length(profile -> 'links')
+   from api.get_my_profile('20000000-0000-4000-8000-000000000002')),
+  1,
+  'the owner edit projection includes their self-only link'
+);
+select extensions.ok(
+  (select count(*) = 2 and min(total_count) = 4
+   from api.list_people(
+     p_membership_id => '20000000-0000-4000-8000-000000000002',
+     p_limit => 2
+   )),
+  'row limit never changes the authorization-safe total'
+);
+select extensions.is(
+  (select count(*)::integer from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000002',
+    p_class_year_start => 2010::smallint,
+    p_class_year_end => 2012::smallint
+  )),
+  2,
+  'class-year range composes inside the fixed projection'
+);
+select extensions.is(
+  (select display_name from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000002',
+    p_topic => 'consulting'
+  )),
+  'Mark Chen',
+  'help-topic filter uses the Help-owned source of truth'
+);
+select extensions.ok(
+  (select profile::text not like '%private/mark-resume.pdf%'
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000002',
+     '10000000-0000-4000-8000-000000000003'
+   )),
+  'viewer-shaped profile JSON never serializes the private resume path'
+);
+select extensions.is(
+  api.save_profile_links(
+    '20000000-0000-4000-8000-000000000002',
+    '[{"kind":"website","label":null,"value":"https://richard.example.com","audience":"organization"}]'::jsonb
+  ),
+  'saved',
+  'owner can atomically replace profile links'
+);
+select extensions.ok(
+  (select jsonb_array_length(profile -> 'links') = 1
+      and profile #>> '{links,0,kind}' = 'website'
+      and profile #>> '{links,0,audience}' = 'organization'
+   from api.get_my_profile('20000000-0000-4000-8000-000000000002')),
+  'link replacement stores one normalized audience-scoped row'
+);
+select extensions.ok(
+  api.save_profile_links(
+    '20000000-0000-4000-8000-000000000002',
+    '[{"kind":"website","label":null,"value":"http://unsafe.example.com","audience":"organization"}]'::jsonb
+  ) = 'invalid_links'
+  and (
+    select jsonb_array_length(profile -> 'links') = 1
+      and profile #>> '{links,0,value}' = 'https://richard.example.com'
+    from api.get_my_profile('20000000-0000-4000-8000-000000000002')
+  ),
+  'invalid links roll back the entire replacement'
+);
+select extensions.is(
+  api.save_profile_visibility(
+    '20000000-0000-4000-8000-000000000002',
+    '{"unknown":"self"}'::jsonb
+  ),
+  'invalid_visibility',
+  'unknown profile sections cannot create visibility policy drift'
+);
+select extensions.is(
+  api.save_profile_visibility(
+    '20000000-0000-4000-8000-000000000002',
+    '{"bio":"connections","career_history":"organization"}'::jsonb
+  ),
+  'saved',
+  'owner can atomically replace supported visibility overrides'
+);
+select extensions.ok(
+  (select profile #>> '{visibility,bio}' = 'connections'
+      and not (profile -> 'visibility' ? 'career_history')
+   from api.get_my_profile('20000000-0000-4000-8000-000000000002')),
+  'default organization visibility is omitted from override storage'
+);
+select extensions.is(
+  api.save_profile_about(
+    '20000000-0000-4000-8000-000000000002',
+    'A concise updated bio.'
+  ),
+  'saved',
+  'owner can save the selected-membership About section'
+);
+reset role;
+
+select set_config(
+  'request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005', true
+);
+set local role authenticated;
+select extensions.is(
+  (select jsonb_array_length(profile -> 'links')
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000005',
+     '10000000-0000-4000-8000-000000000004'
+   )),
+  0,
+  'connections-only link is absent for a same-circle stranger'
+);
+select extensions.is(
+  (select jsonb_array_length(profile -> 'experiences')
+   from api.get_member_profile(
+     '20000000-0000-4000-8000-000000000005',
+     '10000000-0000-4000-8000-000000000004'
+   )),
+  0,
+  'connections-only career history is absent for a same-circle stranger'
+);
+select extensions.is(
+  api.save_profile_about(
+    '20000000-0000-4000-8000-000000000002',
+    'A stolen bio.'
+  ),
+  'not_owned',
+  'another member cannot save the owner About section'
+);
+select extensions.is(
+  (select count(*)::integer from api.list_people(
+    p_membership_id => '20000000-0000-4000-8000-000000000005',
+    p_limit => 51
+  )),
+  0,
+  'invalid result limits return no rows rather than widening the cap'
+);
+reset role;
+
+select extensions.throws_ok(
+  $$
+    select private.broadcast_user_control_event(
+      '10000000-0000-4000-8000-000000000002',
+      'profile.changed',
+      '{"membershipId":"20000000-0000-4000-8000-000000000002","name":"Richard"}'::jsonb
+    )
+  $$,
+  '22023',
+  'invalid_profile_change_payload',
+  'profile invalidations reject content-bearing payloads'
 );
 
 select * from extensions.finish();

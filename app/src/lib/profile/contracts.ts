@@ -23,6 +23,16 @@ export type ProfileExperience = {
   description: string | null
 }
 
+export type ProfileContactLink = {
+  id: string
+  kind: 'linkedin' | 'portfolio' | 'website' | 'social' | 'email' | 'other'
+  label: string | null
+  value: string
+  audience: 'organization' | 'connections' | 'self'
+}
+
+export type ProfileContactLinkCommand = Omit<ProfileContactLink, 'id'>
+
 export type SelfProfile = {
   membership: {
     id: string
@@ -40,15 +50,16 @@ export type SelfProfile = {
     headline: string | null
     employer: string | null
     title: string | null
+    industry: string | null
     city: string | null
     university: string | null
     major: string | null
-    linkedinUrl: string | null
   }
   education: ProfileEducation[]
   experiences: ProfileExperience[]
   skills: { name: string }[]
   visibility: Record<string, 'organization' | 'connections' | 'self'>
+  links: ProfileContactLink[]
   preferences: {
     bio: string | null
     openToHelp: boolean
@@ -74,7 +85,10 @@ export type ProfileCommandResult =
   | 'invalid_identity'
   | 'invalid_education'
   | 'invalid_current'
+  | 'invalid_about'
   | 'invalid_history'
+  | 'invalid_visibility'
+  | 'invalid_links'
   | 'invalid_preferences'
   | 'invalid_avatar_path'
 
@@ -128,13 +142,19 @@ export type ProfileRepository = {
       currentTitle: string | null
       city: string | null
       headline: string | null
-      linkedinUrl: string | null
+      industry: string | null
     },
   ): Promise<ProfileCommandResult>
   saveHistory(
     membershipId: string,
     input: { experiences: ExperienceCommand[]; skills: string[] },
   ): Promise<ProfileCommandResult>
+  saveAbout(membershipId: string, bio: string | null): Promise<ProfileCommandResult>
+  saveVisibility(
+    membershipId: string,
+    visibility: Record<string, 'organization' | 'connections' | 'self'>,
+  ): Promise<ProfileCommandResult>
+  saveLinks(membershipId: string, links: ProfileContactLinkCommand[]): Promise<ProfileCommandResult>
   savePreferences(
     membershipId: string,
     input: {

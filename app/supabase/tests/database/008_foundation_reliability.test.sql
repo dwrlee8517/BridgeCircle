@@ -290,7 +290,7 @@ select api.save_profile_education(
 select api.save_profile_current(
   '63000000-0000-4000-8000-000000000053',
   'Audit Co', 'Audit Role', 'Audit City', 'Audit headline',
-  'https://www.linkedin.com/in/reliability-audit'
+  'Technology'
 );
 select api.save_profile_history(
   '63000000-0000-4000-8000-000000000053',

@@ -45,8 +45,7 @@ const graduationYearField = z
   .refine((n) => n >= 1900 && n <= 2100, 'Graduation year out of range.')
 
 // Optional URL: accepts an empty string OR a valid URL. Used for fields like
-// linkedinUrl and avatarUrl where the form may submit "" when the user
-// hasn't filled in anything.
+// avatarUrl where the form may submit "" when the user has not filled it in.
 const optionalUrl = z
   .union([z.url(), z.literal('')])
   .optional()
@@ -158,7 +157,7 @@ export const onboardingCurrentSchema = z.object({
   currentTitle: z.string().trim().max(200).optional().nullable(),
   city: z.string().trim().max(120).optional().nullable(),
   headline: z.string().trim().max(200).optional().nullable(),
-  linkedinUrl: optionalUrl,
+  industry: z.string().trim().max(120).optional().nullable(),
 })
 export type OnboardingCurrentInput = z.infer<typeof onboardingCurrentSchema>
 
@@ -168,7 +167,7 @@ export function parseOnboardingCurrent(formData: FormData) {
     currentTitle: formData.get('currentTitle'),
     city: formData.get('city'),
     headline: formData.get('headline'),
-    linkedinUrl: formData.get('linkedinUrl'),
+    industry: formData.get('industry'),
   })
 }
 

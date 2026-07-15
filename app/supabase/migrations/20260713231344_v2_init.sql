@@ -187,13 +187,25 @@ create table public.profiles (
   headline text,
   current_employer text,
   current_title text,
+  industry text,
   city text,
   university text,
   major text,
-  linkedin_url text,
   avatar_path text,
   resume_path text,
   resume_uploaded_at timestamptz,
+  directory_search_vector tsvector generated always as (
+    to_tsvector(
+      'simple'::regconfig,
+      coalesce(display_name, '') || ' ' ||
+      coalesce(preferred_name, '') || ' ' ||
+      coalesce(headline, '') || ' ' ||
+      coalesce(current_employer, '') || ' ' ||
+      coalesce(current_title, '') || ' ' ||
+      coalesce(industry, '') || ' ' ||
+      coalesce(city, '')
+    )
+  ) stored,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint profiles_display_name_check
@@ -204,11 +216,14 @@ create table public.profiles (
     check (name_other is null or char_length(btrim(name_other)) between 1 and 200),
   constraint profiles_headline_check
     check (headline is null or char_length(headline) between 1 and 280),
-  constraint profiles_linkedin_url_check
-    check (linkedin_url is null or linkedin_url ~ '^https://([a-z0-9-]+[.])*linkedin[.]com/'),
+  constraint profiles_industry_check
+    check (industry is null or char_length(btrim(industry)) between 1 and 120),
   constraint profiles_resume_pair_check
     check ((resume_path is null and resume_uploaded_at is null) or (resume_path is not null and resume_uploaded_at is not null))
 );
+
+create index profiles_directory_search_idx
+  on public.profiles using gin (directory_search_vector);
 
 create table public.organization_profiles (
   organization_membership_id uuid primary key,
@@ -337,13 +352,56 @@ create table public.profile_field_visibility (
     references public.organization_memberships(organization_id, id)
     on delete cascade,
   constraint profile_field_visibility_field_check
-    check (field_key in ('contact_links', 'career_history', 'education_history', 'bio', 'skills')),
+    check (field_key in ('career_history', 'education_history', 'bio', 'skills')),
   constraint profile_field_visibility_audience_check
     check (audience in ('organization', 'connections', 'self'))
 );
 
 create index profile_field_visibility_org_idx
   on public.profile_field_visibility (organization_id, organization_membership_id);
+
+create table public.profile_contact_links (
+  id uuid primary key default gen_random_uuid(),
+  organization_membership_id uuid not null,
+  organization_id uuid not null references public.organizations(id) on delete restrict,
+  kind text not null,
+  label text,
+  value text not null,
+  normalized_value text generated always as (lower(btrim(value))) stored,
+  audience text not null default 'self',
+  sort_order smallint not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint profile_contact_links_membership_fk
+    foreign key (organization_id, organization_membership_id)
+    references public.organization_memberships(organization_id, id)
+    on delete cascade,
+  constraint profile_contact_links_kind_check
+    check (kind in ('linkedin', 'portfolio', 'website', 'social', 'email', 'other')),
+  constraint profile_contact_links_label_check check (
+    (kind = 'other' and char_length(btrim(label)) between 1 and 80)
+    or (kind <> 'other' and (label is null or char_length(btrim(label)) between 1 and 80))
+  ),
+  constraint profile_contact_links_value_check check (
+    char_length(btrim(value)) between 1 and 500
+    and (
+      (kind = 'email' and value ~* '^[a-z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:[.][a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$')
+      or (kind <> 'email' and value ~ '^https://[^[:space:]]+$')
+    )
+  ),
+  constraint profile_contact_links_audience_check
+    check (audience in ('organization', 'connections', 'self')),
+  constraint profile_contact_links_sort_check check (sort_order between 0 and 19),
+  constraint profile_contact_links_membership_sort_key
+    unique (organization_membership_id, sort_order),
+  constraint profile_contact_links_membership_value_key
+    unique (organization_membership_id, normalized_value)
+);
+
+create index profile_contact_links_membership_audience_idx
+  on public.profile_contact_links (organization_membership_id, audience, sort_order);
+create index profile_contact_links_org_membership_idx
+  on public.profile_contact_links (organization_id, organization_membership_id);
 
 -- ---------------------------------------------------------------------------
 -- Help
@@ -1898,6 +1956,128 @@ as $$
   on conflict (dedupe_key) do nothing;
 $$;
 
+create function private.profile_field_is_visible(
+  p_target_membership_id uuid,
+  p_field_key text,
+  p_viewer_user_id uuid,
+  p_target_user_id uuid
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select case
+    when p_viewer_user_id is null or p_target_user_id is null then false
+    when p_viewer_user_id = p_target_user_id then true
+    when coalesce((
+      select visibility.audience
+      from public.profile_field_visibility visibility
+      where visibility.organization_membership_id = p_target_membership_id
+        and visibility.field_key = p_field_key
+    ), 'organization') = 'organization' then true
+    when coalesce((
+      select visibility.audience
+      from public.profile_field_visibility visibility
+      where visibility.organization_membership_id = p_target_membership_id
+        and visibility.field_key = p_field_key
+    ), 'organization') = 'connections'
+      then private.is_connected(p_viewer_user_id, p_target_user_id)
+    else false
+  end;
+$$;
+
+create function private.mark_profile_index_dirty(
+  p_user_id uuid,
+  p_reason text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_membership record;
+  v_dedupe_key text;
+begin
+  if p_user_id is null
+     or p_reason not in (
+       'identity', 'current', 'about', 'career', 'education', 'skills',
+       'visibility', 'links', 'avatar', 'help_preferences'
+     ) then
+    raise exception using errcode = '22023', message = 'invalid_profile_dirty_input';
+  end if;
+
+  for v_membership in
+    select membership.id, membership.organization_id
+    from public.organization_memberships membership
+    where membership.user_id = p_user_id
+      and membership.status = 'active'
+    order by membership.id
+  loop
+    perform pg_catalog.pg_advisory_xact_lock(
+      pg_catalog.hashtextextended('profile_index:' || v_membership.id::text, 0)
+    );
+
+    insert into private.profile_embedding_status (
+      organization_membership_id, organization_id, user_id,
+      status, dirty_reason, dirty_since
+    ) values (
+      v_membership.id, v_membership.organization_id, p_user_id,
+      'dirty', p_reason, now()
+    )
+    on conflict (organization_membership_id) do update
+      set status = case
+            when private.profile_embedding_status.status = 'indexing'
+              then 'indexing'
+            else 'dirty'
+          end,
+          dirty_reason = excluded.dirty_reason,
+          dirty_since = coalesce(private.profile_embedding_status.dirty_since, now()),
+          last_error = null;
+
+    if not exists (
+      select 1
+      from private.outbox_jobs job
+      where job.job_type = 'index_profile'
+        and job.status = 'pending'
+        and job.payload ->> 'membershipId' = v_membership.id::text
+    ) then
+      v_dedupe_key := 'profile_index:' || v_membership.id::text || ':' ||
+        pg_catalog.txid_current()::text;
+      insert into private.outbox_jobs (job_type, payload, dedupe_key)
+      values (
+        'index_profile',
+        jsonb_build_object(
+          'userId', p_user_id,
+          'organizationId', v_membership.organization_id,
+          'membershipId', v_membership.id
+        ),
+        v_dedupe_key
+      )
+      on conflict (dedupe_key) do nothing;
+    end if;
+  end loop;
+end;
+$$;
+
+create function private.broadcast_profile_change(
+  p_user_id uuid,
+  p_membership_id uuid
+)
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  select private.broadcast_user_control_event(
+    p_user_id,
+    'profile.changed',
+    jsonb_build_object('membershipId', p_membership_id)
+  );
+$$;
+
 create function private.get_my_member_context(
   p_preferred_membership_id uuid default null
 )
@@ -2393,10 +2573,10 @@ begin
       'headline', p.headline,
       'employer', p.current_employer,
       'title', p.current_title,
+      'industry', p.industry,
       'city', p.city,
       'university', p.university,
-      'major', p.major,
-      'linkedinUrl', p.linkedin_url
+      'major', p.major
     ),
     'education', coalesce((
       select jsonb_agg(
@@ -2444,6 +2624,19 @@ begin
       from public.profile_field_visibility v
       where v.organization_membership_id = m.id
     ), '{}'::jsonb),
+    'links', coalesce((
+      select jsonb_agg(
+        jsonb_build_object(
+          'id', link.id,
+          'kind', link.kind,
+          'label', link.label,
+          'value', link.value,
+          'audience', link.audience
+        ) order by link.sort_order, link.id
+      )
+      from public.profile_contact_links link
+      where link.organization_membership_id = m.id
+    ), '[]'::jsonb),
     'preferences', jsonb_build_object(
       'bio', op.bio,
       'openToHelp', coalesce((
@@ -2485,6 +2678,213 @@ begin
   end if;
 
   return query select 'ok'::text, v_profile;
+end;
+$$;
+
+create function private.save_profile_about(
+  p_membership_id uuid,
+  p_bio text
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_bio text := nullif(btrim(p_bio), '');
+begin
+  select membership.user_id, membership.organization_id, membership.status
+    into v_membership
+  from public.organization_memberships membership
+  join public.users account
+    on account.id = membership.user_id and account.account_state = 'active'
+  where membership.id = p_membership_id
+  for update of membership;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if char_length(coalesce(v_bio, '')) > 4000 then
+    return 'invalid_about';
+  end if;
+
+  insert into public.organization_profiles (
+    organization_membership_id, organization_id, bio
+  ) values (
+    p_membership_id, v_membership.organization_id, v_bio
+  )
+  on conflict (organization_membership_id) do update
+    set bio = excluded.bio;
+
+  perform private.mark_profile_index_dirty(v_user_id, 'about');
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id, v_membership.organization_id, 'profile.about_saved',
+    'profile', v_user_id::text,
+    jsonb_build_object('membershipId', p_membership_id, 'bioProvided', v_bio is not null)
+  );
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
+
+  return 'saved';
+end;
+$$;
+
+create function private.save_profile_visibility(
+  p_membership_id uuid,
+  p_visibility jsonb
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_visibility jsonb := coalesce(p_visibility, '{}'::jsonb);
+begin
+  select membership.user_id, membership.organization_id, membership.status
+    into v_membership
+  from public.organization_memberships membership
+  join public.users account
+    on account.id = membership.user_id and account.account_state = 'active'
+  where membership.id = p_membership_id
+  for update of membership;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if jsonb_typeof(v_visibility) <> 'object'
+     or exists (
+       select 1
+       from jsonb_each_text(v_visibility) entry
+       where entry.key not in ('career_history', 'education_history', 'bio', 'skills')
+          or entry.value not in ('organization', 'connections', 'self')
+     ) then
+    return 'invalid_visibility';
+  end if;
+
+  delete from public.profile_field_visibility
+  where organization_membership_id = p_membership_id;
+
+  insert into public.profile_field_visibility (
+    organization_membership_id, organization_id, field_key, audience
+  )
+  select p_membership_id, v_membership.organization_id, entry.key, entry.value
+  from jsonb_each_text(v_visibility) entry
+  where entry.value <> 'organization';
+
+  perform private.mark_profile_index_dirty(v_user_id, 'visibility');
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id, v_membership.organization_id, 'profile.visibility_saved',
+    'profile', v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'overrideCount', (select count(*) from jsonb_each_text(v_visibility))
+    )
+  );
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
+
+  return 'saved';
+end;
+$$;
+
+create function private.save_profile_links(
+  p_membership_id uuid,
+  p_links jsonb
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_membership record;
+  v_links jsonb := coalesce(p_links, '[]'::jsonb);
+begin
+  select membership.user_id, membership.organization_id, membership.status
+    into v_membership
+  from public.organization_memberships membership
+  join public.users account
+    on account.id = membership.user_id and account.account_state = 'active'
+  where membership.id = p_membership_id
+  for update of membership;
+
+  if not found or v_membership.user_id is distinct from v_user_id then
+    return 'not_owned';
+  end if;
+  if v_membership.status not in ('active', 'pending') then
+    return 'membership_unavailable';
+  end if;
+  if jsonb_typeof(v_links) <> 'array'
+     or jsonb_array_length(v_links) > 20
+     or exists (
+       select 1
+       from jsonb_array_elements(v_links) item
+       where jsonb_typeof(item) <> 'object'
+          or (item - array['kind', 'label', 'value', 'audience']::text[]) <> '{}'::jsonb
+          or not (item ? 'kind' and item ? 'value' and item ? 'audience')
+     )
+     or exists (
+       select 1
+       from jsonb_array_elements(v_links) item
+       group by lower(btrim(item ->> 'value'))
+       having count(*) > 1
+     ) then
+    return 'invalid_links';
+  end if;
+
+  begin
+    delete from public.profile_contact_links
+    where organization_membership_id = p_membership_id;
+
+    insert into public.profile_contact_links (
+      organization_membership_id, organization_id, kind, label,
+      value, audience, sort_order
+    )
+    select
+      p_membership_id,
+      v_membership.organization_id,
+      item.value ->> 'kind',
+      nullif(btrim(item.value ->> 'label'), ''),
+      btrim(item.value ->> 'value'),
+      item.value ->> 'audience',
+      (item.ordinality - 1)::smallint
+    from jsonb_array_elements(v_links)
+      with ordinality as item(value, ordinality);
+  exception
+    when check_violation or not_null_violation or unique_violation
+      or string_data_right_truncation
+    then
+      return 'invalid_links';
+  end;
+
+  perform private.mark_profile_index_dirty(v_user_id, 'links');
+  insert into private.audit_log (
+    actor_user_id, organization_id, action, target_type, target_id, payload
+  ) values (
+    v_user_id, v_membership.organization_id, 'profile.links_saved',
+    'profile', v_user_id::text,
+    jsonb_build_object(
+      'membershipId', p_membership_id,
+      'linkCount', jsonb_array_length(v_links)
+    )
+  );
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
+
+  return 'saved';
 end;
 $$;
 
@@ -2559,6 +2959,9 @@ begin
       'graduationYearProvided', p_graduation_year is not null
     )
   );
+
+  perform private.mark_profile_index_dirty(v_user_id, 'identity');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
 
   return 'saved';
 end;
@@ -2652,6 +3055,9 @@ begin
     )
   );
 
+  perform private.mark_profile_index_dirty(v_user_id, 'education');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
+
   return 'saved';
 end;
 $$;
@@ -2662,7 +3068,7 @@ create function private.save_profile_current(
   p_current_title text,
   p_city text,
   p_headline text,
-  p_linkedin_url text
+  p_industry text
 )
 returns text
 language plpgsql
@@ -2676,7 +3082,7 @@ declare
   v_title text := nullif(btrim(p_current_title), '');
   v_city text := nullif(btrim(p_city), '');
   v_headline text := nullif(btrim(p_headline), '');
-  v_linkedin_url text := nullif(btrim(p_linkedin_url), '');
+  v_industry text := nullif(btrim(p_industry), '');
 begin
   select m.user_id, m.organization_id, m.status
     into v_membership
@@ -2698,8 +3104,7 @@ begin
     or char_length(coalesce(v_title, '')) > 300
     or char_length(coalesce(v_city, '')) > 200
     or char_length(coalesce(v_headline, '')) > 280
-    or (v_linkedin_url is not null
-      and v_linkedin_url !~ '^https://([a-z0-9-]+[.])*linkedin[.]com/')
+    or char_length(coalesce(v_industry, '')) > 120
   then
     return 'invalid_current';
   end if;
@@ -2707,9 +3112,9 @@ begin
   update public.profiles
   set current_employer = v_employer,
       current_title = v_title,
+      industry = v_industry,
       city = v_city,
-      headline = v_headline,
-      linkedin_url = v_linkedin_url
+      headline = v_headline
   where user_id = v_user_id;
 
   insert into private.audit_log (
@@ -2722,9 +3127,12 @@ begin
     v_user_id::text,
     jsonb_build_object(
       'membershipId', p_membership_id,
-      'linkedinProvided', v_linkedin_url is not null
+      'industryProvided', v_industry is not null
     )
   );
+
+  perform private.mark_profile_index_dirty(v_user_id, 'current');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
 
   return 'saved';
 end;
@@ -2833,6 +3241,9 @@ begin
     )
   );
 
+  perform private.mark_profile_index_dirty(v_user_id, 'career');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
+
   return 'saved';
 end;
 $$;
@@ -2939,10 +3350,6 @@ begin
     (ordinality - 1)::smallint
   from unnest(v_topics) with ordinality as item(topic, ordinality);
 
-  update public.profiles
-  set linkedin_url = v_linkedin_url
-  where user_id = v_user_id;
-
   insert into private.profile_enrichment_settings (
     user_id, linkedin_url, refresh_policy, refresh_interval, consented_at
   ) values (
@@ -2977,6 +3384,9 @@ begin
       'freshnessConsent', p_freshness_consent
     )
   );
+
+  perform private.mark_profile_index_dirty(v_user_id, 'help_preferences');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
 
   return 'saved';
 end;
@@ -3038,6 +3448,9 @@ begin
       'avatarCleared', v_avatar_path is null
     )
   );
+
+  perform private.mark_profile_index_dirty(v_user_id, 'avatar');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
 
   return 'saved';
 end;
@@ -3115,15 +3528,8 @@ begin
     jsonb_build_object('membershipId', p_membership_id)
   );
 
-  perform private.enqueue_outbox(
-    'index_profile',
-    jsonb_build_object(
-      'userId', v_user_id,
-      'organizationId', v_membership.organization_id,
-      'membershipId', p_membership_id
-    ),
-    'profile_index:' || p_membership_id::text
-  );
+  perform private.mark_profile_index_dirty(v_user_id, 'identity');
+  perform private.broadcast_profile_change(v_user_id, p_membership_id);
 
   return query select 'completed'::text, v_account.onboarding_completed_at;
 end;
@@ -3647,6 +4053,8 @@ create trigger organization_profiles_set_updated_at before update on public.orga
 create trigger profile_experiences_set_updated_at before update on public.profile_experiences
   for each row execute function private.set_updated_at();
 create trigger profile_education_set_updated_at before update on public.profile_education
+  for each row execute function private.set_updated_at();
+create trigger profile_contact_links_set_updated_at before update on public.profile_contact_links
   for each row execute function private.set_updated_at();
 create trigger helper_preferences_set_updated_at before update on public.helper_preferences
   for each row execute function private.set_updated_at();
@@ -5610,6 +6018,538 @@ as $$
   limit greatest(1, least(coalesce(p_limit, 80), 200));
 $$;
 
+create function private.list_people(
+  p_membership_id uuid,
+  p_query text,
+  p_scope text,
+  p_industry text,
+  p_class_year_start smallint,
+  p_class_year_end smallint,
+  p_location text,
+  p_employer text,
+  p_education text,
+  p_topic text,
+  p_query_embedding extensions.vector,
+  p_limit integer
+)
+returns table (
+  target_membership_id uuid,
+  target_user_id uuid,
+  display_name text,
+  preferred_name text,
+  avatar_path text,
+  headline text,
+  current_employer text,
+  current_title text,
+  industry text,
+  city text,
+  graduation_year smallint,
+  open_to_help boolean,
+  helper_topics text[],
+  relationship_state text,
+  pending_request_id uuid,
+  conversation_id uuid,
+  match_evidence jsonb,
+  total_count integer,
+  rank_score double precision,
+  profile_updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with viewer as (
+    select membership.user_id, membership.organization_id
+    from public.organization_memberships membership
+    join public.users account
+      on account.id = membership.user_id and account.account_state = 'active'
+    where membership.id = p_membership_id
+      and membership.user_id = (select auth.uid())
+      and membership.status = 'active'
+      and p_scope in ('all', 'open_to_help', 'in_circle')
+      and char_length(btrim(coalesce(p_query, ''))) <= 300
+      and (p_class_year_start is null or p_class_year_start between 1900 and 2100)
+      and (p_class_year_end is null or p_class_year_end between 1900 and 2100)
+      and (p_class_year_start is null or p_class_year_end is null
+        or p_class_year_start <= p_class_year_end)
+      and p_limit between 1 and 50
+      and (p_query_embedding is null or extensions.vector_dims(p_query_embedding) = 1024)
+  ),
+  query_input as (
+    select
+      nullif(btrim(coalesce(p_query, '')), '') as query_text,
+      websearch_to_tsquery(
+        'simple'::regconfig,
+        nullif(btrim(coalesce(p_query, '')), '')
+      ) as lexical_query
+  ),
+  eligible as (
+    select
+      target.id as target_membership_id,
+      target.user_id as target_user_id,
+      profile.display_name,
+      profile.preferred_name,
+      profile.avatar_path,
+      profile.headline,
+      profile.current_employer,
+      profile.current_title,
+      profile.industry,
+      profile.city,
+      organization_profile.graduation_year,
+      profile.directory_search_vector,
+      greatest(
+        profile.updated_at,
+        coalesce(organization_profile.updated_at, profile.updated_at),
+        coalesce(helper.updated_at, profile.updated_at)
+      ) as profile_updated_at,
+      coalesce(helper.open_to_help and helper.paused_at is null, false)
+        and coalesce(capacity.pending_count, 0) < coalesce(helper.max_pending_requests, 0)
+        as open_to_help,
+      coalesce(topics.names, '{}'::text[]) as helper_topics,
+      private.is_connected(viewer.user_id, target.user_id) as is_connected,
+      request.id as pending_request_id,
+      request.requester_user_id as pending_requester_user_id,
+      direct_conversation.id as conversation_id,
+      chunk_score.lexical_score as chunk_lexical_score,
+      chunk_score.semantic_score,
+      chunk_score.best_source_section
+    from viewer
+    join public.organization_memberships target
+      on target.organization_id = viewer.organization_id
+     and target.status = 'active'
+     and target.user_id <> viewer.user_id
+    join public.users target_account
+      on target_account.id = target.user_id
+     and target_account.account_state = 'active'
+    join public.profiles profile on profile.user_id = target.user_id
+    left join public.organization_profiles organization_profile
+      on organization_profile.organization_membership_id = target.id
+    left join public.helper_preferences helper
+      on helper.organization_membership_id = target.id
+     and helper.organization_id = target.organization_id
+    left join lateral (
+      select count(*)::integer as pending_count
+      from public.asks pending
+      where pending.recipient_membership_id = target.id
+        and pending.kind = 'direct'
+        and pending.status = 'waiting'
+    ) capacity on true
+    left join lateral (
+      select array_agg(topic.name order by topic.sort_order, topic.normalized_name) as names
+      from public.helper_topics topic
+      where topic.organization_membership_id = target.id
+    ) topics on true
+    left join lateral (
+      select pending_request.id, pending_request.requester_user_id
+      from public.connection_requests pending_request
+      where pending_request.status = 'pending'
+        and (
+          (pending_request.requester_user_id = viewer.user_id
+            and pending_request.recipient_user_id = target.user_id)
+          or
+          (pending_request.requester_user_id = target.user_id
+            and pending_request.recipient_user_id = viewer.user_id)
+        )
+      order by pending_request.created_at desc, pending_request.id
+      limit 1
+    ) request on true
+    left join lateral (
+      select conversation.id
+      from public.conversations conversation
+      where conversation.kind = 'direct'
+        and conversation.user_a_id = least(viewer.user_id, target.user_id)
+        and conversation.user_b_id = greatest(viewer.user_id, target.user_id)
+      limit 1
+    ) direct_conversation on true
+    left join lateral (
+      select
+        coalesce(max(
+          case
+            when query_input.lexical_query is null then 0
+            else ts_rank_cd(chunk.search_vector, query_input.lexical_query)
+          end
+        ), 0)::double precision as lexical_score,
+        coalesce(max(
+          case
+            when p_query_embedding is null then 0
+            else 1 - (chunk.embedding OPERATOR(extensions.<=>) p_query_embedding)
+          end
+        ), 0)::double precision as semantic_score,
+        (array_agg(
+          chunk.source_section
+          order by case
+            when p_query_embedding is null then 1
+            else chunk.embedding OPERATOR(extensions.<=>) p_query_embedding
+          end,
+          chunk.id
+        ))[1] as best_source_section
+      from private.profile_embedding_chunks chunk
+      cross join query_input
+      where chunk.organization_membership_id = target.id
+        and (
+          chunk.visibility_tier = 'organization'
+          or (
+            chunk.visibility_tier = 'connections'
+            and private.is_connected(viewer.user_id, target.user_id)
+          )
+        )
+    ) chunk_score on true
+    where not private.is_blocked(viewer.user_id, target.user_id)
+      and (
+        p_scope = 'all'
+        or (p_scope = 'open_to_help'
+          and helper.open_to_help = true and helper.paused_at is null
+          and coalesce(capacity.pending_count, 0) < helper.max_pending_requests)
+        or (p_scope = 'in_circle' and private.is_connected(viewer.user_id, target.user_id))
+      )
+      and (p_industry is null or profile.industry ilike '%' || btrim(p_industry) || '%')
+      and (p_class_year_start is null
+        or organization_profile.graduation_year >= p_class_year_start)
+      and (p_class_year_end is null
+        or organization_profile.graduation_year <= p_class_year_end)
+      and (p_location is null or profile.city ilike '%' || btrim(p_location) || '%')
+      and (p_employer is null
+        or profile.current_employer ilike '%' || btrim(p_employer) || '%'
+        or exists (
+          select 1 from public.profile_experiences experience
+          where experience.user_id = target.user_id
+            and experience.employer ilike '%' || btrim(p_employer) || '%'
+            and private.profile_field_is_visible(
+              target.id, 'career_history', viewer.user_id, target.user_id
+            )
+        ))
+      and (p_education is null or (
+        private.profile_field_is_visible(
+          target.id, 'education_history', viewer.user_id, target.user_id
+        ) and (
+          profile.university ilike '%' || btrim(p_education) || '%'
+          or exists (
+            select 1 from public.profile_education education
+            where education.user_id = target.user_id
+              and education.school ilike '%' || btrim(p_education) || '%'
+          )
+        )
+      ))
+      and (p_topic is null or exists (
+        select 1 from public.helper_topics topic
+        where topic.organization_membership_id = target.id
+          and topic.name ilike '%' || btrim(p_topic) || '%'
+      ))
+  ),
+  scored as (
+    select
+      eligible.*,
+      query_input.query_text,
+      coalesce(
+        case when query_input.lexical_query is null then 0
+          else ts_rank_cd(eligible.directory_search_vector, query_input.lexical_query)
+        end,
+        0
+      )::double precision as directory_lexical_score
+    from eligible
+    cross join query_input
+    where query_input.query_text is null
+      or eligible.directory_search_vector @@ query_input.lexical_query
+      or eligible.chunk_lexical_score > 0
+      or eligible.semantic_score > 0
+      or exists (
+        select 1 from unnest(eligible.helper_topics) topic
+        where topic ilike '%' || query_input.query_text || '%'
+      )
+  ),
+  ranked as (
+    select
+      scored.*,
+      count(*) over ()::integer as total_count,
+      case
+        when scored.query_text is null then
+          extract(epoch from scored.profile_updated_at)::double precision
+        else
+          scored.directory_lexical_score * 0.45
+          + scored.chunk_lexical_score * 0.20
+          + scored.semantic_score * 0.35
+      end as rank_score
+    from scored
+  )
+  select
+    ranked.target_membership_id,
+    ranked.target_user_id,
+    ranked.display_name,
+    ranked.preferred_name,
+    ranked.avatar_path,
+    ranked.headline,
+    ranked.current_employer,
+    ranked.current_title,
+    ranked.industry,
+    ranked.city,
+    ranked.graduation_year,
+    ranked.open_to_help,
+    ranked.helper_topics,
+    case
+      when ranked.is_connected then 'connected'
+      when ranked.pending_request_id is not null
+        and ranked.pending_requester_user_id = (select auth.uid())
+        then 'pending_outgoing'
+      when ranked.pending_request_id is not null then 'pending_incoming'
+      else 'none'
+    end,
+    ranked.pending_request_id,
+    case when ranked.is_connected then ranked.conversation_id end,
+    case
+      when ranked.query_text is null then '[]'::jsonb
+      else jsonb_build_array(jsonb_strip_nulls(jsonb_build_object(
+        'kind', case
+          when ranked.best_source_section is not null then ranked.best_source_section
+          when ranked.current_title is not null then 'current_role'
+          else 'profile'
+        end,
+        'title', ranked.current_title,
+        'organization', ranked.current_employer,
+        'sourceSection', ranked.best_source_section
+      )))
+    end,
+    ranked.total_count,
+    ranked.rank_score,
+    ranked.profile_updated_at
+  from ranked
+  order by ranked.rank_score desc, ranked.target_membership_id
+  limit p_limit;
+$$;
+
+create function private.get_member_profile(
+  p_membership_id uuid,
+  p_target_user_id uuid
+)
+returns table (
+  result_code text,
+  profile jsonb
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_viewer record;
+  v_target record;
+  v_connected boolean;
+  v_profile jsonb;
+begin
+  select membership.user_id, membership.organization_id
+    into v_viewer
+  from public.organization_memberships membership
+  join public.users account
+    on account.id = membership.user_id and account.account_state = 'active'
+  where membership.id = p_membership_id
+    and membership.user_id = (select auth.uid())
+    and membership.status = 'active';
+
+  if not found then
+    return query select 'not_available'::text, null::jsonb;
+    return;
+  end if;
+
+  select membership.id, membership.user_id, membership.organization_id
+    into v_target
+  from public.organization_memberships membership
+  join public.users account
+    on account.id = membership.user_id and account.account_state = 'active'
+  where membership.organization_id = v_viewer.organization_id
+    and membership.user_id = p_target_user_id
+    and membership.status = 'active';
+
+  if not found
+     or private.is_blocked(v_viewer.user_id, p_target_user_id) then
+    return query select 'not_available'::text, null::jsonb;
+    return;
+  end if;
+
+  v_connected := private.is_connected(v_viewer.user_id, p_target_user_id);
+
+  select jsonb_build_object(
+    'membershipId', v_target.id,
+    'userId', profile_row.user_id,
+    'identity', jsonb_build_object(
+      'displayName', profile_row.display_name,
+      'preferredName', profile_row.preferred_name,
+      'avatarPath', profile_row.avatar_path,
+      'graduationYear', organization_profile.graduation_year
+    ),
+    'current', jsonb_build_object(
+      'headline', profile_row.headline,
+      'employer', profile_row.current_employer,
+      'title', profile_row.current_title,
+      'industry', profile_row.industry,
+      'city', profile_row.city
+    ),
+    'about', case
+      when private.profile_field_is_visible(
+        v_target.id, 'bio', v_viewer.user_id, v_target.user_id
+      ) then organization_profile.bio
+      else null
+    end,
+    'experiences', case
+      when private.profile_field_is_visible(
+        v_target.id, 'career_history', v_viewer.user_id, v_target.user_id
+      ) then coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'id', experience.id,
+          'employer', experience.employer,
+          'title', experience.title,
+          'startYear', experience.start_year,
+          'startMonth', experience.start_month,
+          'endYear', experience.end_year,
+          'endMonth', experience.end_month,
+          'description', experience.description
+        ) order by experience.sort_order, experience.id)
+        from public.profile_experiences experience
+        where experience.user_id = v_target.user_id
+      ), '[]'::jsonb)
+      else '[]'::jsonb
+    end,
+    'education', case
+      when private.profile_field_is_visible(
+        v_target.id, 'education_history', v_viewer.user_id, v_target.user_id
+      ) then coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'id', education.id,
+          'school', education.school,
+          'degree', education.degree,
+          'field', education.field,
+          'startYear', education.start_year,
+          'startMonth', education.start_month,
+          'endYear', education.end_year,
+          'endMonth', education.end_month,
+          'description', education.description
+        ) order by education.sort_order, education.id)
+        from public.profile_education education
+        where education.user_id = v_target.user_id
+      ), '[]'::jsonb)
+      else '[]'::jsonb
+    end,
+    'skills', case
+      when private.profile_field_is_visible(
+        v_target.id, 'skills', v_viewer.user_id, v_target.user_id
+      ) then coalesce((
+        select jsonb_agg(skill.name order by skill.sort_order, skill.normalized_name)
+        from public.profile_skills skill
+        where skill.user_id = v_target.user_id
+      ), '[]'::jsonb)
+      else '[]'::jsonb
+    end,
+    'links', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id', link.id,
+        'kind', link.kind,
+        'label', link.label,
+        'value', link.value,
+        'audience', link.audience
+      ) order by link.sort_order, link.id)
+      from public.profile_contact_links link
+      where link.organization_membership_id = v_target.id
+        and (
+          v_viewer.user_id = v_target.user_id
+          or link.audience = 'organization'
+          or (link.audience = 'connections' and v_connected)
+        )
+    ), '[]'::jsonb),
+    'help', jsonb_build_object(
+      'openToHelp', coalesce(
+        helper.open_to_help and helper.paused_at is null
+          and coalesce(capacity.pending_count, 0) < helper.max_pending_requests,
+        false
+      ),
+      'topics', coalesce((
+        select jsonb_agg(topic.name order by topic.sort_order, topic.normalized_name)
+        from public.helper_topics topic
+        where topic.organization_membership_id = v_target.id
+      ), '[]'::jsonb)
+    ),
+    'relationship', jsonb_build_object(
+      'state', case
+        when v_viewer.user_id = v_target.user_id then 'self'
+        when v_connected then 'connected'
+        when pending_request.id is not null
+          and pending_request.requester_user_id = v_viewer.user_id
+          then 'pending_outgoing'
+        when pending_request.id is not null then 'pending_incoming'
+        else 'none'
+      end,
+      'requestId', pending_request.id,
+      'conversationId', case when v_connected then direct_conversation.id end
+    ),
+    'sharedContext', coalesce(shared_context.items, '[]'::jsonb),
+    'updatedAt', greatest(
+      profile_row.updated_at,
+      coalesce(organization_profile.updated_at, profile_row.updated_at)
+    )
+  )
+  into v_profile
+  from public.profiles profile_row
+  left join public.organization_profiles organization_profile
+    on organization_profile.organization_membership_id = v_target.id
+  left join public.helper_preferences helper
+    on helper.organization_membership_id = v_target.id
+  left join lateral (
+    select count(*)::integer as pending_count
+    from public.asks pending
+    where pending.recipient_membership_id = v_target.id
+      and pending.kind = 'direct'
+      and pending.status = 'waiting'
+  ) capacity on true
+  left join lateral (
+    select request.id, request.requester_user_id
+    from public.connection_requests request
+    where request.status = 'pending'
+      and (
+        (request.requester_user_id = v_viewer.user_id
+          and request.recipient_user_id = v_target.user_id)
+        or
+        (request.requester_user_id = v_target.user_id
+          and request.recipient_user_id = v_viewer.user_id)
+      )
+    order by request.created_at desc, request.id
+    limit 1
+  ) pending_request on true
+  left join lateral (
+    select conversation.id
+    from public.conversations conversation
+    where conversation.kind = 'direct'
+      and conversation.user_a_id = least(v_viewer.user_id, v_target.user_id)
+      and conversation.user_b_id = greatest(v_viewer.user_id, v_target.user_id)
+    limit 1
+  ) direct_conversation on true
+  left join lateral (
+    select jsonb_agg(context.item order by context.sort_order) as items
+    from (
+      select jsonb_build_object('kind', 'same_city', 'value', profile_row.city) as item, 1 as sort_order
+      from public.profiles viewer_profile
+      where viewer_profile.user_id = v_viewer.user_id
+        and profile_row.city is not null
+        and lower(viewer_profile.city) = lower(profile_row.city)
+      union all
+      select jsonb_build_object('kind', 'same_school', 'value', profile_row.university), 2
+      from public.profiles viewer_profile
+      where viewer_profile.user_id = v_viewer.user_id
+        and profile_row.university is not null
+        and lower(viewer_profile.university) = lower(profile_row.university)
+        and private.profile_field_is_visible(
+          v_target.id, 'education_history', v_viewer.user_id, v_target.user_id
+        )
+    ) context
+  ) shared_context on true
+  where profile_row.user_id = v_target.user_id;
+
+  if v_profile is null then
+    return query select 'not_available'::text, null::jsonb;
+    return;
+  end if;
+
+  return query select 'ok'::text, v_profile;
+end;
+$$;
+
 create function private.pseudonymize_user(p_user_id uuid)
 returns void
 language plpgsql
@@ -6930,9 +7870,8 @@ as $$
           nullif(concat_ws('. ',
             nullif(p.headline, ''),
             nullif(concat_ws(' at ', p.current_title, p.current_employer), ''),
+            case when p.industry is not null then 'Industry: ' || p.industry end,
             case when p.city is not null then 'Based in ' || p.city end,
-            case when p.university is not null then 'Studied at ' || p.university end,
-            case when p.major is not null then 'Studied ' || p.major end,
             case when op.graduation_year is not null then 'Class of ' || op.graduation_year::text end
           ), '') as content,
           1 as sort_order
@@ -7899,6 +8838,98 @@ returns table (
 language sql stable set search_path = ''
 as $$ select * from private.get_my_profile(p_membership_id); $$;
 
+create function api.list_people(
+  p_membership_id uuid,
+  p_query text default null,
+  p_scope text default 'all',
+  p_industry text default null,
+  p_class_year_start smallint default null,
+  p_class_year_end smallint default null,
+  p_location text default null,
+  p_employer text default null,
+  p_education text default null,
+  p_topic text default null,
+  p_query_embedding extensions.vector default null,
+  p_limit integer default 50
+)
+returns table (
+  target_membership_id uuid,
+  target_user_id uuid,
+  display_name text,
+  preferred_name text,
+  avatar_path text,
+  headline text,
+  current_employer text,
+  current_title text,
+  industry text,
+  city text,
+  graduation_year smallint,
+  open_to_help boolean,
+  helper_topics text[],
+  relationship_state text,
+  pending_request_id uuid,
+  conversation_id uuid,
+  match_evidence jsonb,
+  total_count integer,
+  rank_score double precision,
+  profile_updated_at timestamptz
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select * from private.list_people(
+    p_membership_id, p_query, p_scope, p_industry,
+    p_class_year_start, p_class_year_end, p_location, p_employer,
+    p_education, p_topic, p_query_embedding, p_limit
+  );
+$$;
+
+create function api.get_member_profile(
+  p_membership_id uuid,
+  p_target_user_id uuid
+)
+returns table (
+  result_code text,
+  profile jsonb
+)
+language sql
+stable
+security definer
+set search_path = ''
+as $$ select * from private.get_member_profile(p_membership_id, p_target_user_id); $$;
+
+create function api.save_profile_about(
+  p_membership_id uuid,
+  p_bio text
+)
+returns text
+language sql
+security definer
+set search_path = ''
+as $$ select private.save_profile_about(p_membership_id, p_bio); $$;
+
+create function api.save_profile_visibility(
+  p_membership_id uuid,
+  p_visibility jsonb
+)
+returns text
+language sql
+security definer
+set search_path = ''
+as $$ select private.save_profile_visibility(p_membership_id, p_visibility); $$;
+
+create function api.save_profile_links(
+  p_membership_id uuid,
+  p_links jsonb
+)
+returns text
+language sql
+security definer
+set search_path = ''
+as $$ select private.save_profile_links(p_membership_id, p_links); $$;
+
 create function api.save_profile_identity(
   p_membership_id uuid,
   p_display_name text,
@@ -7933,13 +8964,13 @@ create function api.save_profile_current(
   p_current_title text,
   p_city text,
   p_headline text,
-  p_linkedin_url text
+  p_industry text
 )
 returns text language sql set search_path = ''
 as $$
   select private.save_profile_current(
     p_membership_id, p_current_employer, p_current_title,
-    p_city, p_headline, p_linkedin_url
+    p_city, p_headline, p_industry
   );
 $$;
 
@@ -8678,6 +9709,7 @@ alter table public.profile_experiences enable row level security;
 alter table public.profile_education enable row level security;
 alter table public.profile_skills enable row level security;
 alter table public.profile_field_visibility enable row level security;
+alter table public.profile_contact_links enable row level security;
 alter table public.helper_preferences enable row level security;
 alter table public.helper_topics enable row level security;
 alter table public.asks enable row level security;
@@ -8829,6 +9861,10 @@ create policy profile_visibility_select_owner on public.profile_field_visibility
   for select to authenticated
   using ((select private.owns_membership(organization_membership_id, organization_id)));
 
+create policy profile_contact_links_select_owner on public.profile_contact_links
+  for select to authenticated
+  using ((select private.owns_membership(organization_membership_id, organization_id)));
+
 create policy helper_preferences_select_orgmate on public.helper_preferences
   for select to authenticated
   using (
@@ -8951,6 +9987,11 @@ grant execute on function api.create_direct_ask(uuid, uuid, text, text, uuid) to
 grant execute on function api.create_circle_ask(uuid, text, text, boolean, uuid) to authenticated;
 grant execute on function api.decide_membership(uuid, text) to authenticated;
 grant execute on function api.get_my_profile(uuid) to authenticated;
+grant execute on function api.list_people(uuid, text, text, text, smallint, smallint, text, text, text, text, extensions.vector, integer) to authenticated;
+grant execute on function api.get_member_profile(uuid, uuid) to authenticated;
+grant execute on function api.save_profile_about(uuid, text) to authenticated;
+grant execute on function api.save_profile_visibility(uuid, jsonb) to authenticated;
+grant execute on function api.save_profile_links(uuid, jsonb) to authenticated;
 grant execute on function api.save_profile_identity(uuid, text, text, text, smallint) to authenticated;
 grant execute on function api.save_profile_education(uuid, text, text, jsonb) to authenticated;
 grant execute on function api.save_profile_current(uuid, text, text, text, text, text) to authenticated;

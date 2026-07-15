@@ -11,7 +11,7 @@ const completeProfile = {
   currentTitle: 'Member',
   city: 'Los Angeles, CA',
   headline: 'Helping fellow alumni',
-  linkedinUrl: 'https://linkedin.com/in/example',
+  industry: 'Technology',
   careerHistory: [{ employer: 'BridgeCircle' }],
   skills: ['fundraising'],
 }
@@ -49,7 +49,7 @@ describe('onboarding progress', () => {
         currentTitle: '',
         city: '',
         headline: '',
-        linkedinUrl: '',
+        industry: '',
       }),
     ).toBe(3)
 

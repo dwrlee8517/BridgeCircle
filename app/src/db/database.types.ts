@@ -254,6 +254,13 @@ export type Database = {
           topics: string[]
         }[]
       }
+      get_member_profile: {
+        Args: { p_membership_id: string; p_target_user_id: string }
+        Returns: {
+          profile: Json
+          result_code: string
+        }[]
+      }
       get_messages_counts: {
         Args: never
         Returns: {
@@ -463,6 +470,44 @@ export type Database = {
           status: string
         }[]
       }
+      list_people: {
+        Args: {
+          p_class_year_end?: number
+          p_class_year_start?: number
+          p_education?: string
+          p_employer?: string
+          p_industry?: string
+          p_limit?: number
+          p_location?: string
+          p_membership_id: string
+          p_query?: string
+          p_query_embedding?: string
+          p_scope?: string
+          p_topic?: string
+        }
+        Returns: {
+          avatar_path: string
+          city: string
+          conversation_id: string
+          current_employer: string
+          current_title: string
+          display_name: string
+          graduation_year: number
+          headline: string
+          helper_topics: string[]
+          industry: string
+          match_evidence: Json
+          open_to_help: boolean
+          pending_request_id: string
+          preferred_name: string
+          profile_updated_at: string
+          rank_score: number
+          relationship_state: string
+          target_membership_id: string
+          target_user_id: string
+          total_count: number
+        }[]
+      }
       mark_conversation_read: {
         Args: { p_conversation_id: string; p_message_id: number }
         Returns: {
@@ -583,13 +628,17 @@ export type Database = {
           topics: string[]
         }[]
       }
+      save_profile_about: {
+        Args: { p_bio: string; p_membership_id: string }
+        Returns: string
+      }
       save_profile_current: {
         Args: {
           p_city: string
           p_current_employer: string
           p_current_title: string
           p_headline: string
-          p_linkedin_url: string
+          p_industry: string
           p_membership_id: string
         }
         Returns: string
@@ -621,6 +670,10 @@ export type Database = {
         }
         Returns: string
       }
+      save_profile_links: {
+        Args: { p_links: Json; p_membership_id: string }
+        Returns: string
+      }
       save_profile_preferences: {
         Args: {
           p_bio: string
@@ -632,6 +685,10 @@ export type Database = {
           p_refresh_policy: string
           p_topics: string[]
         }
+        Returns: string
+      }
+      save_profile_visibility: {
+        Args: { p_membership_id: string; p_visibility: Json }
         Returns: string
       }
       search_ask_matching_candidates: {
@@ -1854,6 +1911,63 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_contact_links: {
+        Row: {
+          audience: string
+          created_at: string
+          id: string
+          kind: string
+          label: string | null
+          normalized_value: string | null
+          organization_id: string
+          organization_membership_id: string
+          sort_order: number
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          audience?: string
+          created_at?: string
+          id?: string
+          kind: string
+          label?: string | null
+          normalized_value?: string | null
+          organization_id: string
+          organization_membership_id: string
+          sort_order: number
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          audience?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          normalized_value?: string | null
+          organization_id?: string
+          organization_membership_id?: string
+          sort_order?: number
+          updated_at?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'profile_contact_links_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
+            isOneToOne: false
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'profile_contact_links_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       profile_education: {
         Row: {
           created_at: string
@@ -2038,9 +2152,10 @@ export type Database = {
           created_at: string
           current_employer: string | null
           current_title: string | null
+          directory_search_vector: unknown
           display_name: string
           headline: string | null
-          linkedin_url: string | null
+          industry: string | null
           major: string | null
           name_other: string | null
           preferred_name: string | null
@@ -2056,9 +2171,10 @@ export type Database = {
           created_at?: string
           current_employer?: string | null
           current_title?: string | null
+          directory_search_vector?: unknown
           display_name: string
           headline?: string | null
-          linkedin_url?: string | null
+          industry?: string | null
           major?: string | null
           name_other?: string | null
           preferred_name?: string | null
@@ -2074,9 +2190,10 @@ export type Database = {
           created_at?: string
           current_employer?: string | null
           current_title?: string | null
+          directory_search_vector?: unknown
           display_name?: string
           headline?: string | null
-          linkedin_url?: string | null
+          industry?: string | null
           major?: string | null
           name_other?: string | null
           preferred_name?: string | null

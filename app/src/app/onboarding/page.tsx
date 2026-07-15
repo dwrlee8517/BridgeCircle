@@ -67,7 +67,7 @@ export default async function OnboardingPage({
       currentTitle: profile.current.title,
       city: profile.current.city,
       headline: profile.current.headline,
-      linkedinUrl: profile.current.linkedinUrl,
+      industry: profile.current.industry,
       careerHistory: profile.experiences,
       skills: profile.skills.map((skill) => skill.name),
     })
@@ -144,7 +144,7 @@ export default async function OnboardingPage({
               currentTitle: profile.current.title ?? '',
               city: profile.current.city ?? '',
               headline: profile.current.headline ?? '',
-              linkedinUrl: profile.current.linkedinUrl ?? '',
+              industry: profile.current.industry ?? '',
             }}
             action={currentAction}
           />
@@ -193,9 +193,7 @@ export default async function OnboardingPage({
               openToHelp: profile.preferences.openToHelp,
               helperTopics: profile.preferences.helperTopics.map((topic) => topic.name).join(', '),
               freshnessPolicy: profile.preferences.freshness.refreshPolicy,
-              hasLinkedinUrl: !!(
-                profile.preferences.freshness.linkedinUrl ?? profile.current.linkedinUrl
-              ),
+              hasLinkedinUrl: !!profile.preferences.freshness.linkedinUrl,
             }}
             name={profile.identity.displayName ?? ''}
             action={helpAction}
