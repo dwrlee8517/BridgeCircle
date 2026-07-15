@@ -34,6 +34,18 @@ export function createSafetyRepository(memberClient: SupabaseClient<Database>): 
       return { status: 'submitted', reportId: z.uuid().parse(data) }
     },
 
+    async reportProfile(input) {
+      const { data, error } = await memberClient.schema('api').rpc('submit_report', {
+        p_target_type: 'profile',
+        p_target_id: input.userId,
+        p_reason: input.reason,
+        ...(input.note ? { p_note: input.note } : {}),
+      })
+      if (error?.code === '42501') return { status: 'not_available' }
+      if (error) transportError('reportProfile', error)
+      return { status: 'submitted', reportId: z.uuid().parse(data) }
+    },
+
     async blockMember(userId) {
       const { data, error } = await memberClient
         .schema('api')

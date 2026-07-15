@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { blockMember, reportMessage } from './operations'
+import { blockMember, reportMessage, reportProfile } from './operations'
 
 describe('Safety operations', () => {
   it('normalizes a valid report note', async () => {
@@ -20,6 +20,9 @@ describe('Safety operations', () => {
     await expect(blockMember('bad', { blockMember: block })).resolves.toEqual({
       status: 'not_available',
     })
+    await expect(
+      reportProfile({ userId: 'bad', reason: 'spam', note: null }, { reportProfile: report }),
+    ).resolves.toEqual({ status: 'invalid_input' })
     expect(report).not.toHaveBeenCalled()
     expect(block).not.toHaveBeenCalled()
   })

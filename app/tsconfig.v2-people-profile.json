@@ -23,10 +23,20 @@
     "src/app/api/members/[userId]/block/route.ts",
     "src/app/api/members/[userId]/report/route.ts",
     "src/app/(member)/user-control-provider.tsx",
-    "src/app/(member)/people-v2/**/*.ts",
-    "src/app/(member)/people-v2/**/*.tsx",
-    "src/app/(member)/profile-v2/**/*.ts",
-    "src/app/(member)/profile-v2/**/*.tsx"
+    "src/app/_lib/load-member-context.ts",
+    "src/app/_lib/membership-cookie.ts",
+    "src/app/(member)/people/**/*.ts",
+    "src/app/(member)/people/**/*.tsx",
+    "src/app/(member)/profile/[id]/**/*.ts",
+    "src/app/(member)/profile/[id]/**/*.tsx",
+    "src/components/ui/avatar.tsx",
+    "src/components/ui/button.tsx",
+    "src/components/ui/dialog.tsx",
+    "src/components/ui/dropdown-menu.tsx",
+    "src/components/ui/input.tsx",
+    "src/components/safety-report-dialog.tsx",
+    "src/lib/membership/selection.ts",
+    "src/lib/utils.ts"
   ],
   "exclude": ["node_modules", ".next", "tests/e2e"]
 }

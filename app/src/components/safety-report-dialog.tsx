@@ -24,7 +24,7 @@ export function SafetyReportDialog({
   open: boolean
   onOpenChange(open: boolean): void
   endpoint: string
-  subject: 'ask' | 'message'
+  subject: 'ask' | 'message' | 'profile'
 }) {
   const [reason, setReason] = useState<ReportReason>('harassment')
   const [note, setNote] = useState('')

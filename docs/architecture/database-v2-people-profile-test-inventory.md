@@ -86,6 +86,36 @@ organization/Connection links, and receives `not_available` for the blocked
 profile. Raw profile, link, visibility, resume, embedding, and report data
 remain unavailable to `authenticated`.
 
+## Milestones 3–5 application checkpoint
+
+Implemented locally after database checkpoint `230bb93`:
+
+- strict People directory and member-profile contracts plus Zod repository
+  parsing over only `api.list_people` and `api.get_member_profile`;
+- normalized URL search state, bounded query/filter validation, stable URL
+  serialization, authorized evidence copy, and deterministic lexical fallback;
+- `/people` blank browse, invisible keyword/NL input, scopes, filters, 50-row
+  bounded result, desktop 20/20/10 local paging, mobile 20/40/50 reveal,
+  relationship actions, and deliberate-only profile preview fetching;
+- `/profile/[id]` canonical viewer-shaped profile with About, Career,
+  Education, helping topics, links, shared context, current Connection state,
+  direct Ask membership IDs, profile report, block, and disconnect paths;
+- private no-store preview and profile-report routes; no raw table, admin
+  client, or member-supplied authorization scope enters either route.
+
+| Gate | Result |
+|---|---|
+| focused People/Profile TypeScript under Node 22.22.2 | green |
+| People/Profile boundary detector | green |
+| focused People/query/repository/safety Vitest | 4 files / 10 tests / green |
+| relevant Biome and `git diff --check` | green |
+| destructive cutover | expected red at the first remaining Milestone 6 path: `/profile/edit` |
+
+The in-app browser reached the local server but had no authenticated session in
+the controllable tab, so browser/visual acceptance is deliberately not claimed
+at this checkpoint. Milestone 6 self-profile cutover and Milestone 7 visual QA
+remain required before completion.
+
 ## Planned verification matrix
 
 ### A. Schema and contract

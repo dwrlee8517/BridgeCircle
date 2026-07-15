@@ -1,6 +1,7 @@
 import type {
   BlockMemberResult,
   ReportMessageResult,
+  ReportProfileResult,
   ReportReason,
   SafetyRepository,
 } from './contracts'
@@ -28,6 +29,21 @@ export async function reportMessage(
     return { status: 'invalid_input' }
   }
   return repository.reportMessage({ ...input, note })
+}
+
+export async function reportProfile(
+  input: { userId: string; reason: ReportReason; note: string | null },
+  repository: Pick<SafetyRepository, 'reportProfile'>,
+): Promise<ReportProfileResult> {
+  const note = input.note?.trim() || null
+  if (
+    !UUID_PATTERN.test(input.userId) ||
+    !REASONS.has(input.reason) ||
+    (note?.length ?? 0) > 4_000
+  ) {
+    return { status: 'invalid_input' }
+  }
+  return repository.reportProfile({ ...input, note })
 }
 
 export async function blockMember(
