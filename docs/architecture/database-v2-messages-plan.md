@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice implementation plan
 
-- **Status:** approved by Richard; implementation in progress; local-only
+- **Status:** approved by Richard; Milestone 1 complete; Milestone 2 next; local-only
 - **Prepared:** 2026-07-15
 - **Approved:** 2026-07-15
 - **Branch:** `codex/redesign-v2`
@@ -290,11 +290,11 @@ not add speculative indexes before the red query proves a need.
 
 Add four authenticated-only projections:
 
-1. `api.list_conversation_summaries` — bounded, filterable, searchable,
+1. `api.list_conversation_summaries(text,text,smallint,timestamptz,uuid,integer)` — bounded, filterable, searchable,
    priority-keyset conversation rows;
-2. `api.list_messages_waiting` — pending direct Asks plus incoming Connection
+2. `api.list_messages_waiting()` — pending direct Asks plus incoming Connection
    requests, capped at 50;
-3. `api.get_messages_counts` — All, Unread, My circle, Open asks, and Waiting
+3. `api.get_messages_counts()` — All, Unread, My circle, Open asks, and Waiting
    counts from one canonical definition;
 4. an extended `api.get_conversation_detail` — authorized context, Connection
    state, minimal Ask context, and post-Ask nudge eligibility.
@@ -351,6 +351,10 @@ constraint failures for programming defects.
 | `api.respond_to_connection_request` | `accepted`, `declined`, `already_decided`, `not_available`, or `invalid_input`; optional connection and conversation IDs |
 | `api.disconnect` | `disconnected`, `unchanged`, or `not_available` |
 | `api.block_member` | `blocked`, `unchanged`, or `not_available` |
+
+Their result shapes are fixed as `(result_code, request_id)`,
+`(result_code, connection_id, conversation_id)`, and `(result_code)` for each
+of disconnect and block. A success code cannot omit an ID required by the UI.
 
 All pair mutations use the existing ascending user-pair lock before reading or
 changing pair state. Same-key/same-payload retries return the original durable

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/database.types.ts",
+    "src/db/repositories/messages*.ts",
+    "src/db/realtime/member-channel*.ts",
+    "src/lib/messages/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "tests/e2e"]
+}

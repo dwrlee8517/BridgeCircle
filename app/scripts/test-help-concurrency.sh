@@ -27,12 +27,37 @@ where a.pid <> pg_backend_pid()
   and a.application_name like 'bridgecircle-help-%';
 drop trigger if exists help_test_ask_barrier on public.asks;
 drop function if exists private.help_test_barrier();
+delete from private.outbox_jobs
+where job_type = 'create_notification'
+  and payload ->> 'recipientUserId' = '$helper_user_id'
+  and payload ->> 'actorUserId' in ('$asker_one_user_id', '$asker_two_user_id');
+delete from public.asks where organization_id = '$org_id';
+delete from public.organization_memberships where organization_id = '$org_id';
+delete from public.users where id in (
+  '$helper_user_id', '$asker_one_user_id', '$asker_two_user_id'
+);
 delete from public.organizations where id = '$org_id';
 SQL
   find "$work_dir" -type f -delete 2>/dev/null || true
   rmdir "$work_dir" 2>/dev/null || true
 }
 trap cleanup EXIT
+
+# Recover from an interrupted prior run before creating fixed-ID fixtures.
+"${psql_base[@]}" <<SQL >/dev/null
+drop trigger if exists help_test_ask_barrier on public.asks;
+drop function if exists private.help_test_barrier();
+delete from private.outbox_jobs
+where job_type = 'create_notification'
+  and payload ->> 'recipientUserId' = '$helper_user_id'
+  and payload ->> 'actorUserId' in ('$asker_one_user_id', '$asker_two_user_id');
+delete from public.asks where organization_id = '$org_id';
+delete from public.organization_memberships where organization_id = '$org_id';
+delete from public.users where id in (
+  '$helper_user_id', '$asker_one_user_id', '$asker_two_user_id'
+);
+delete from public.organizations where id = '$org_id';
+SQL
 
 wait_for_sql() {
   local description="$1"
