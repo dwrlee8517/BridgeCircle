@@ -527,7 +527,7 @@ export type Database = {
         Args: {
           p_limit?: number
           p_membership_id: string
-          p_query_embedding: string
+          p_query_embedding?: string
           p_question: string
         }
         Returns: {

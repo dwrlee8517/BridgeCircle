@@ -47,6 +47,24 @@ The Help compiler remains an empty-boundary guard until Milestone 3. The Help
 boundary check remains intentionally red only because its owned modules have
 not been created yet. No remote system or secret value was touched.
 
+## Milestone 3 repository/domain evidence — 2026-07-14
+
+| Gate | Result |
+|---|---|
+| focused Help compiler | green: zero errors across Help domain, repository, Realtime, provider, and worker seams |
+| focused Vitest | green: 4 files, 25 assertions |
+| Help static boundary | green: fixed member APIs, no raw tables/service client, pure domain imports enforced |
+| parser/privacy matrix | green: strict unknown-field rejection and anonymous identity leak rejection |
+| Realtime adapter | green: private user topic, IDs-only strict payload, dedupe, reconnect refetch, one cleanup |
+| inherited application checks | Foundation and Conversation focused compilers/boundaries green |
+| inherited database suite | green: 10 files, 358 assertions |
+| type generation | green twice; SHA-256 `ac7e01f6d623e18d134393e5327e4f21a594b58a3f5da89a1b98b311f0215ed0` |
+
+The provider and worker files are dependency-injection contracts only at this
+checkpoint. Provider fallback behavior, golden matching fixtures, profile
+indexing, dispatch, retry, and graceful drain remain explicit red work for the
+next two milestones. No remote system, provider, or secret value was touched.
+
 ## Test ownership
 
 - pgTAP owns schema shape, constraints, grants, fixed API results, transaction

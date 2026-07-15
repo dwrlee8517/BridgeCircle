@@ -1,0 +1,30 @@
+export const HELP_WORKER_JOB_TYPES = [
+  'create_notification',
+  'send_email',
+  'run_ask_matching',
+  'index_profile',
+] as const
+
+export type HelpWorkerJobType = (typeof HELP_WORKER_JOB_TYPES)[number]
+
+export type ClaimedOutboxJob = {
+  id: number
+  jobType: HelpWorkerJobType
+  payload: unknown
+  attempts: number
+  maxAttempts: number
+  availableAt: string
+  lockedAt: string
+  lockedBy: string
+}
+
+export type OutboxHandlerResult = {
+  outcome: 'completed' | 'already_applied' | 'skipped'
+}
+
+export type OutboxHandler = (
+  job: ClaimedOutboxJob,
+  signal: AbortSignal,
+) => Promise<OutboxHandlerResult>
+
+export type OutboxHandlerRegistry = Readonly<Record<HelpWorkerJobType, OutboxHandler>>

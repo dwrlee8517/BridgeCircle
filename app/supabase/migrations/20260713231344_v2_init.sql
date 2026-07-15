@@ -7090,7 +7090,7 @@ $$;
 create function api.search_help_candidates(
   p_membership_id uuid,
   p_question text,
-  p_query_embedding extensions.vector(1024),
+  p_query_embedding extensions.vector(1024) default null,
   p_limit integer default 20
 )
 returns table (

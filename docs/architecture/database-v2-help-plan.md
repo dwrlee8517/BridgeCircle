@@ -615,6 +615,32 @@ IDs-only Help invalidations.
   domain, provider, Realtime, and worker modules.
 - No remote project, deploy, push, merge, or secret value was touched.
 
+### Milestone 3 repository/domain record
+
+The v2 Help application boundary now has exact domain contracts, tuple-cursor
+helpers, local command validation, a member-only fixed-API repository with
+strict Zod projections, injected provider/worker seams, and one authenticated
+IDs-only user-topic Realtime adapter. Anonymous projections fail closed if an
+identity field appears, and command rows are checked against their
+status-specific shape before they enter the domain.
+
+- The focused Help compiler passes with zero errors, and the Help static
+  boundary is green. Member Help code has no service client or raw Help table;
+  pure Help/outbox code has no framework, provider, database, or environment
+  import.
+- Four focused Vitest files pass 25 assertions covering projections, malformed
+  result rows, identity leakage, cursor round trips, local validation,
+  preference normalization, event validation/deduplication, reconnect refetch,
+  and exactly-once channel removal.
+- Foundation and Conversation focused compilers plus their static boundaries
+  remain green. The complete 10-file pgTAP suite remains green at 358
+  assertions after the optional query-embedding signature was regenerated.
+- Two consecutive local type generations are byte-for-byte identical at
+  SHA-256 `ac7e01f6d623e18d134393e5327e4f21a594b58a3f5da89a1b98b311f0215ed0`.
+- Provider and worker modules at this checkpoint are typed injection seams;
+  external matching behavior and the durable runner remain owned by
+  Milestones 4 and 5. No provider or remote service was contacted.
+
 ## Out of scope
 
 - group conversations, attachments, reactions, voice/video, scheduling, public
