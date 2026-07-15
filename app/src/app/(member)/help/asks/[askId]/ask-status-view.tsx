@@ -44,14 +44,12 @@ export function AskStatusView({
   membershipId,
   organizationName,
   graduationYear,
-  userId,
 }: {
   detail: HelpAskDetail
   avatarUrls: Record<string, string>
   membershipId: string
   organizationName: string
   graduationYear: number | null
-  userId: string
 }) {
   const router = useRouter()
   const [dialog, setDialog] = useState<OpenDialog>(null)
@@ -68,7 +66,7 @@ export function AskStatusView({
     backLabel: 'Back to Help',
     hideNotifications: true,
   })
-  useHelpRealtimeRefresh({ userId, askId: detail.id })
+  useHelpRealtimeRefresh()
 
   useEffect(
     () => () => {

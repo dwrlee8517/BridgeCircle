@@ -12,6 +12,7 @@ function context(overrides: Partial<MemberContext> = {}): MemberContext {
     selectedMembershipId: '61000000-0000-4000-8000-000000000001',
     requiresCircleChoice: false,
     unreadNotificationCount: 0,
+    messagesAttentionCount: 0,
     memberships: [
       {
         membershipId: '61000000-0000-4000-8000-000000000001',

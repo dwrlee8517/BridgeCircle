@@ -14,7 +14,6 @@ export function AskHistoryView({
   activeAskCount,
   activeAskLimit,
   organizationName,
-  userId,
   olderHref,
   paged,
 }: {
@@ -22,7 +21,6 @@ export function AskHistoryView({
   activeAskCount: number
   activeAskLimit: number
   organizationName: string
-  userId: string
   olderHref: string | null
   paged: boolean
 }) {
@@ -33,7 +31,7 @@ export function AskHistoryView({
     backLabel: 'Back to Help',
     hideNotifications: true,
   })
-  useHelpRealtimeRefresh({ userId })
+  useHelpRealtimeRefresh()
 
   const current = asks.filter(isCurrentAsk)
   const history = asks.filter((ask) => !isCurrentAsk(ask))

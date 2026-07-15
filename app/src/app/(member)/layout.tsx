@@ -9,6 +9,7 @@ import { MemberHeader } from './member-header'
 import { MemberShellHeaderProvider } from './member-shell-header-context'
 import { MemberSidebar } from './member-sidebar'
 import { MemberTabBar } from './member-tab-bar'
+import { UserControlProvider } from './user-control-provider'
 
 export default async function MemberLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession()
@@ -50,35 +51,40 @@ export default async function MemberLayout({ children }: { children: React.React
       >
         Skip to content
       </a>
-      <div className="flex min-h-dvh w-full">
-        <MemberSidebar
-          userId={session.userId}
-          name={name}
-          avatarUrl={avatarUrl}
-          graduationYear={membership.profile.graduationYear}
-          isAdmin={isAdmin}
-        />
-        <div className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden md:h-auto md:min-h-dvh md:overflow-visible">
-          <MemberShellHeaderProvider>
-            <MemberHeader
-              userId={session.userId}
-              name={name}
-              avatarUrl={avatarUrl}
-              graduationYear={membership.profile.graduationYear}
-              isAdmin={isAdmin}
-              notifications={notifications}
-              unreadCount={context.unreadNotificationCount}
-            />
-            <main
-              id="main-content"
-              className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(60px+env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch] md:overflow-visible md:pb-0"
-            >
-              {children}
-            </main>
-          </MemberShellHeaderProvider>
-          <MemberTabBar />
+      <UserControlProvider
+        userId={session.userId}
+        initialMessagesAttentionCount={context.messagesAttentionCount}
+      >
+        <div className="flex min-h-dvh w-full">
+          <MemberSidebar
+            userId={session.userId}
+            name={name}
+            avatarUrl={avatarUrl}
+            graduationYear={membership.profile.graduationYear}
+            isAdmin={isAdmin}
+          />
+          <div className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden md:h-auto md:min-h-dvh md:overflow-visible">
+            <MemberShellHeaderProvider>
+              <MemberHeader
+                userId={session.userId}
+                name={name}
+                avatarUrl={avatarUrl}
+                graduationYear={membership.profile.graduationYear}
+                isAdmin={isAdmin}
+                notifications={notifications}
+                unreadCount={context.unreadNotificationCount}
+              />
+              <main
+                id="main-content"
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(60px+env(safe-area-inset-bottom))] [-webkit-overflow-scrolling:touch] md:overflow-visible md:pb-0"
+              >
+                {children}
+              </main>
+            </MemberShellHeaderProvider>
+            <MemberTabBar />
+          </div>
         </div>
-      </div>
+      </UserControlProvider>
     </div>
   )
 }

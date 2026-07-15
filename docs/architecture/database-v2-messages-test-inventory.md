@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice test inventory
 
-- **Status:** approved; Milestones 1-3 complete; Milestone 4 next
+- **Status:** approved; Milestones 1-4 complete; Milestone 5 next
 - **Approved:** 2026-07-15
 - **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
@@ -133,6 +133,31 @@ merges refreshed pages by conversation ID under the database's canonical
 priority/activity/ID order. Independent Waiting/count reads use `Promise.all`.
 Route failures capture only fixed scope errors, so request content, member
 names, and database error messages cannot enter logs or responses.
+
+## Milestone 4 owner-Realtime and shell evidence
+
+Recorded locally on 2026-07-15 without touching a remote database, provider,
+push, merge, or deployment.
+
+| Gate | Final local result |
+|---|---|
+| member owner adapter | one authenticated private `user:<id>` topic; strict five-event IDs-only union |
+| event handling | generated event-ID dedupe; unknown, extra, content, and malformed payloads fail closed |
+| reconnect state | bounded 1/2/5/10/30-second backoff; online/visible retry; timers/channel cleaned once |
+| domain revisions | subscribe invalidates all; Help, Messages, Connections, and conversation controls route narrowly |
+| Help port | dead Help owner-channel adapter removed; Help refresh consumes shell revision |
+| Conversation port | content adapter owns only `conversation:<id>`; permission/revocation comes from shell |
+| canonical attention | member context includes `messages_attention_count`; debounced count refresh is stale-safe |
+| badge | sidebar, collapsed rail, and mobile tab hide at 0, show 1-99, and cap visually at `99+` |
+| focused Realtime/domain Vitest | 5 files / 17 tests green |
+| full Vitest | 54 files / 236 tests green |
+| live local Realtime | Conversation, Help, and Messages owner-topic harnesses green |
+| compiler/static/style | all focused compilers, boundaries, Help cutover, ESLint, Biome, and token checks green |
+
+The shell provider never applies Broadcast payloads as data. Every event moves
+only a revision or conversation-control cursor and then refetches the relevant
+Postgres-backed projection. A failed count refresh preserves the last
+authoritative badge value, and a later invalidation retries it.
 
 ## Test ownership
 

@@ -8,9 +8,11 @@
     "src/db/database.types.ts",
     "src/db/repositories/connections*.ts",
     "src/db/repositories/conversations*.ts",
+    "src/db/repositories/member-context*.ts",
     "src/db/repositories/messages*.ts",
     "src/db/repositories/safety*.ts",
     "src/db/realtime/member-channel*.ts",
+    "src/db/realtime/conversation-channel*.ts",
     "src/lib/connections/**/*.ts",
     "src/lib/conversations/**/*.ts",
     "src/lib/messages/**/*.ts",
@@ -18,7 +20,13 @@
     "src/app/api/connections/**/*.ts",
     "src/app/api/members/[userId]/block/route.ts",
     "src/app/api/messages/**/*.ts",
-    "src/app/api/conversations/[conversationId]/messages/[messageId]/report/route.ts"
+    "src/app/api/conversations/[conversationId]/messages/[messageId]/report/route.ts",
+    "src/app/(member)/user-control-provider.tsx",
+    "src/app/(member)/messages-attention-badge.tsx",
+    "src/app/(member)/member-nav.tsx",
+    "src/app/(member)/member-tab-bar.tsx",
+    "src/app/(member)/help/asks/use-help-realtime-refresh.ts",
+    "src/app/(member)/messages/[id]/conversation-thread.tsx"
   ],
   "exclude": ["node_modules", ".next", "tests/e2e"]
 }

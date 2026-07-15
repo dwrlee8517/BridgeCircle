@@ -10,7 +10,6 @@ import {
 
 const conversationId = '50000000-0000-4000-8000-000000000001'
 const otherConversationId = '50000000-0000-4000-8000-000000000002'
-const userId = '10000000-0000-4000-8000-000000000002'
 const otherUserId = '10000000-0000-4000-8000-000000000004'
 
 class MockChannel implements ConversationRealtimeChannel {
@@ -46,7 +45,11 @@ class MockChannel implements ConversationRealtimeChannel {
     return this
   }
 
-  emitBroadcast(message: unknown) {
+  emitBroadcast(event: string, payload: Record<string, unknown>) {
+    this.broadcastCallback?.({ type: 'broadcast', event, payload })
+  }
+
+  emitMalformed(message: unknown) {
     this.broadcastCallback?.(message)
   }
 
@@ -60,181 +63,101 @@ function callbacks(): ConversationRealtimeCallbacks {
     onRefetchAfterCursor: vi.fn(),
     onMessageCreated: vi.fn(),
     onReadAdvanced: vi.fn(),
-    onPermissionsChanged: vi.fn(),
-    onRevoked: vi.fn(),
     onTypingChanged: vi.fn(),
     onMalformedEvent: vi.fn(),
     onChannelError: vi.fn(),
   }
 }
 
-function setup(
-  initialStatuses: Array<'SUBSCRIBED' | 'CHANNEL_ERROR'> = ['SUBSCRIBED', 'SUBSCRIBED'],
-) {
-  const channels = initialStatuses.map((status) => new MockChannel(status))
-  const topics: Array<{ topic: string; options: { config: { private: true } } }> = []
-  const callOrder: string[] = []
+function setup(initialStatus: 'SUBSCRIBED' | 'CHANNEL_ERROR' = 'SUBSCRIBED') {
+  const channel = new MockChannel(initialStatus)
   const removeChannel = vi.fn(async () => 'ok')
   const client: ConversationRealtimeClient = {
-    realtime: {
-      setAuth: vi.fn(async () => {
-        callOrder.push('setAuth')
-      }),
-    },
-    channel(topic, options) {
-      callOrder.push(`channel:${topic}`)
-      topics.push({ topic, options })
-      const channel = channels[topics.length - 1]
-      if (!channel) throw new Error('unexpected channel')
-      return channel
-    },
+    realtime: { setAuth: vi.fn(async () => undefined) },
+    channel: vi.fn(() => channel),
     removeChannel,
   }
-  return { client, channels, topics, callOrder, removeChannel }
+  return { channel, client, removeChannel }
 }
 
-function message(event: string, payload: Record<string, unknown>) {
-  return { type: 'broadcast', event, payload }
-}
-
-afterEach(() => {
-  vi.useRealTimers()
-})
+afterEach(() => vi.useRealTimers())
 
 describe('conversation Realtime adapter', () => {
-  it('accepts the application Supabase client without a transport cast', () => {
+  it('accepts the app client and owns only one private content topic', async () => {
     expectTypeOf<SupabaseClient<Database>>().toExtend<ConversationRealtimeClient>()
-  })
-
-  it('authenticates before opening the two private topics and refetches on reconnect', async () => {
     const fixture = setup()
     const handlers = callbacks()
     const handle = await openConversationRealtime({
       client: fixture.client,
       accessToken: 'member-token',
       conversationId,
-      userId,
       callbacks: handlers,
     })
-
-    expect(fixture.callOrder).toEqual([
-      'setAuth',
-      `channel:conversation:${conversationId}`,
-      `channel:user:${userId}`,
-    ])
-    expect(fixture.topics).toEqual([
-      { topic: `conversation:${conversationId}`, options: { config: { private: true } } },
-      { topic: `user:${userId}`, options: { config: { private: true } } },
-    ])
-    expect(handlers.onRefetchAfterCursor).toHaveBeenCalledTimes(1)
-
-    fixture.channels[0]?.emitStatus('SUBSCRIBED')
+    expect(fixture.client.channel).toHaveBeenCalledOnce()
+    expect(fixture.client.channel).toHaveBeenCalledWith(`conversation:${conversationId}`, {
+      config: { private: true },
+    })
+    expect(handlers.onRefetchAfterCursor).toHaveBeenCalledOnce()
+    fixture.channel.emitStatus('SUBSCRIBED')
     expect(handlers.onRefetchAfterCursor).toHaveBeenCalledTimes(2)
-
     await handle.close()
     await handle.close()
-    expect(fixture.removeChannel).toHaveBeenCalledTimes(2)
-    expect(fixture.removeChannel).toHaveBeenNthCalledWith(1, fixture.channels[0])
-    expect(fixture.removeChannel).toHaveBeenNthCalledWith(2, fixture.channels[1])
+    expect(fixture.removeChannel).toHaveBeenCalledOnce()
   })
 
-  it('parses minimal events, deduplicates IDs, and rejects malformed or spoofed payloads', async () => {
+  it('parses minimal content events and rejects owner-control or mismatched payloads', async () => {
     const fixture = setup()
     const handlers = callbacks()
     const handle = await openConversationRealtime({
       client: fixture.client,
       accessToken: 'member-token',
       conversationId,
-      userId,
       callbacks: handlers,
     })
-    const conversation = fixture.channels[0]
-    const control = fixture.channels[1]
-
-    conversation?.emitBroadcast(
-      message('message.created', {
-        id: '91000000-0000-4000-8000-000000000001',
-        conversationId,
-        messageId: '41',
-      }),
-    )
-    conversation?.emitBroadcast(
-      message('message.created', {
-        id: '91000000-0000-4000-8000-000000000002',
-        conversationId,
-        messageId: '41',
-      }),
-    )
+    fixture.channel.emitBroadcast('message.created', {
+      id: '91000000-0000-4000-8000-000000000001',
+      conversationId,
+      messageId: '41',
+    })
+    fixture.channel.emitBroadcast('message.created', {
+      id: '91000000-0000-4000-8000-000000000002',
+      conversationId,
+      messageId: '41',
+    })
     expect(handlers.onMessageCreated).toHaveBeenCalledOnce()
-    expect(handlers.onMessageCreated).toHaveBeenCalledWith({ conversationId, messageId: 41 })
-
-    conversation?.emitBroadcast(
-      message('read.advanced', {
-        id: '91000000-0000-4000-8000-000000000003',
-        conversationId,
-        readerUserId: otherUserId,
-        messageId: '41',
-      }),
-    )
+    fixture.channel.emitBroadcast('read.advanced', {
+      id: '91000000-0000-4000-8000-000000000003',
+      conversationId,
+      readerUserId: otherUserId,
+      messageId: '41',
+    })
     expect(handlers.onReadAdvanced).toHaveBeenCalledWith({
       conversationId,
       readerUserId: otherUserId,
       messageId: 41,
     })
-
-    control?.emitBroadcast(
-      message('conversation.permissions_changed', {
-        id: '91000000-0000-4000-8000-000000000004',
-        conversationId,
-      }),
-    )
-    control?.emitBroadcast(
-      message('conversation.revoked', {
-        id: '91000000-0000-4000-8000-000000000005',
-        conversationId,
-      }),
-    )
-    expect(handlers.onPermissionsChanged).toHaveBeenCalledWith({ conversationId })
-    expect(handlers.onRevoked).toHaveBeenCalledWith({ conversationId })
-
-    conversation?.emitBroadcast(
-      message('message.created', {
-        id: '91000000-0000-4000-8000-000000000006',
-        conversationId,
-        messageId: '42',
-        body: 'must be rejected',
-      }),
-    )
-    control?.emitBroadcast(
-      message('conversation.revoked', {
-        id: '91000000-0000-4000-8000-000000000007',
-        conversationId: otherConversationId,
-      }),
-    )
-    conversation?.emitBroadcast(message('conversation.revoked', {}))
-    conversation?.emitBroadcast({ malformed: true })
-
-    expect(handlers.onMalformedEvent).toHaveBeenCalledWith({
-      source: 'conversation',
-      eventName: 'message.created',
-      reason: 'malformed_payload',
+    fixture.channel.emitBroadcast('conversation.revoked', {
+      id: '91000000-0000-4000-8000-000000000004',
+      conversationId,
     })
-    expect(handlers.onMalformedEvent).toHaveBeenCalledWith({
-      source: 'control',
-      eventName: 'conversation.revoked',
-      reason: 'conversation_mismatch',
+    fixture.channel.emitBroadcast('message.created', {
+      id: '91000000-0000-4000-8000-000000000005',
+      conversationId: otherConversationId,
+      messageId: '42',
     })
+    fixture.channel.emitMalformed({ malformed: true })
     expect(handlers.onMalformedEvent).toHaveBeenCalledWith({
-      source: 'conversation',
       eventName: 'conversation.revoked',
       reason: 'unexpected_event',
     })
     expect(handlers.onMalformedEvent).toHaveBeenCalledWith({
-      source: 'conversation',
+      eventName: 'message.created',
+      reason: 'conversation_mismatch',
+    })
+    expect(handlers.onMalformedEvent).toHaveBeenCalledWith({
       eventName: null,
       reason: 'malformed_envelope',
     })
-
     await handle.close()
   })
 
@@ -247,26 +170,15 @@ describe('conversation Realtime adapter', () => {
       client: fixture.client,
       accessToken: 'member-token',
       conversationId,
-      userId,
       callbacks: handlers,
     })
-
-    fixture.channels[0]?.emitBroadcast(
-      message('typing.changed', {
-        id: '91000000-0000-4000-8000-000000000008',
-        conversationId,
-        actorUserId: otherUserId,
-        isTyping: true,
-        expiresAt: '2026-07-14T23:00:03.000Z',
-      }),
-    )
-    expect(handlers.onTypingChanged).toHaveBeenLastCalledWith({
+    fixture.channel.emitBroadcast('typing.changed', {
+      id: '91000000-0000-4000-8000-000000000006',
       conversationId,
       actorUserId: otherUserId,
       isTyping: true,
       expiresAt: '2026-07-14T23:00:03.000Z',
     })
-
     await vi.advanceTimersByTimeAsync(3_000)
     expect(handlers.onTypingChanged).toHaveBeenLastCalledWith({
       conversationId,
@@ -274,32 +186,28 @@ describe('conversation Realtime adapter', () => {
       isTyping: false,
       expiresAt: '2026-07-14T23:00:03.000Z',
     })
-
-    fixture.channels[0]?.emitBroadcast(
-      message('typing.changed', {
-        id: '91000000-0000-4000-8000-000000000009',
-        conversationId,
-        actorUserId: otherUserId,
-        isTyping: true,
-        expiresAt: '2026-07-14T23:00:06.000Z',
-      }),
-    )
+    fixture.channel.emitBroadcast('typing.changed', {
+      id: '91000000-0000-4000-8000-000000000007',
+      conversationId,
+      actorUserId: otherUserId,
+      isTyping: true,
+      expiresAt: '2026-07-14T23:00:06.000Z',
+    })
     await handle.close()
     await vi.advanceTimersByTimeAsync(3_000)
     expect(handlers.onTypingChanged).toHaveBeenCalledTimes(3)
   })
 
-  it('removes both channels when either initial subscription is denied', async () => {
-    const fixture = setup(['SUBSCRIBED', 'CHANNEL_ERROR'])
+  it('removes the content channel when initial subscription is denied', async () => {
+    const fixture = setup('CHANNEL_ERROR')
     await expect(
       openConversationRealtime({
         client: fixture.client,
         accessToken: 'member-token',
         conversationId,
-        userId,
         callbacks: callbacks(),
       }),
     ).rejects.toThrow('denied')
-    expect(fixture.removeChannel).toHaveBeenCalledTimes(2)
+    expect(fixture.removeChannel).toHaveBeenCalledOnce()
   })
 })

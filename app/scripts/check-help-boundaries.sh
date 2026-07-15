@@ -14,8 +14,6 @@ worker_files=()
 member_db=(
   "$root_dir/src/db/repositories/help.ts"
   "$root_dir/src/db/repositories/help.test.ts"
-  "$root_dir/src/db/realtime/help-channel.ts"
-  "$root_dir/src/db/realtime/help-channel.test.ts"
 )
 
 collect_files() {
@@ -93,4 +91,9 @@ if rg -q "$suppression_pattern" "${help_lib[@]}" "${outbox_lib[@]}" "${member_db
   exit 1
 fi
 
-echo "Help domain, repository, provider, worker, and Realtime boundaries are explicit"
+if rg -q 'openHelpRealtime|help-channel' "$root_dir/src"; then
+  echo "Help must consume the shell-owned user control provider" >&2
+  exit 1
+fi
+
+echo "Help domain, repository, provider, worker, and shell-Realtime boundaries are explicit"

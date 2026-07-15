@@ -4,7 +4,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { getMemberNavIcon } from './member-nav-icons'
+import { MessagesAttentionBadge } from './messages-attention-badge'
 import { isMemberNavLinkActive, MEMBER_NAV_LINKS } from './nav-links'
+import { useUserControl } from './user-control-provider'
 
 /**
  * Mobile bottom tab bar — the Civic Editorial prototype's primary mobile
@@ -15,6 +17,7 @@ import { isMemberNavLinkActive, MEMBER_NAV_LINKS } from './nav-links'
  */
 export function MemberTabBar() {
   const pathname = usePathname()
+  const { messagesAttentionCount } = useUserControl()
 
   return (
     <nav
@@ -24,16 +27,22 @@ export function MemberTabBar() {
       {MEMBER_NAV_LINKS.map((link) => {
         const Icon = getMemberNavIcon(link.href)
         const active = isMemberNavLinkActive(pathname, link)
+        const isMessages = link.href === '/messages'
         return (
           <Link
             key={link.href}
             href={link.href}
             aria-current={active ? 'page' : undefined}
+            aria-label={
+              isMessages && messagesAttentionCount > 0
+                ? `${link.label} (${messagesAttentionCount} items need attention)`
+                : link.label
+            }
             className="flex min-h-[60px] min-w-0 flex-1 items-center justify-center text-kicker font-medium"
           >
             <span
               className={cn(
-                'flex h-12 w-[calc(100%-4px)] min-w-0 max-w-[58px] flex-col items-center justify-center gap-1 rounded-[var(--radius-box)] px-1 transition-[color,background-color]',
+                'relative flex h-12 w-[calc(100%-4px)] min-w-0 max-w-[58px] flex-col items-center justify-center gap-1 rounded-[var(--radius-box)] px-1 transition-[color,background-color]',
                 active
                   ? 'bg-[image:var(--nav-active-bg)] font-bold text-[var(--nav-active-text)]'
                   : 'text-muted-foreground hover:bg-[var(--hover-tint)] hover:text-foreground',
@@ -48,6 +57,9 @@ export function MemberTabBar() {
                 aria-hidden
               />
               <span>{link.label}</span>
+              {isMessages ? (
+                <MessagesAttentionBadge className="absolute top-0.5 right-0.5 h-4 min-w-4 px-0.5" />
+              ) : null}
             </span>
           </Link>
         )

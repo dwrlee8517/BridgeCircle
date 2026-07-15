@@ -3,6 +3,7 @@
 import { format, isToday, isYesterday } from 'date-fns'
 import { Check, CheckCheck, ChevronLeft, CircleAlert, CircleCheck, Info, Send } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
@@ -13,6 +14,7 @@ import type { HelpAskDetail } from '@/lib/help/contracts'
 import { cn, getInitials } from '@/lib/utils'
 import { HelpReportDialog } from '../../help/help-report-dialog'
 import { useMemberShellHeader } from '../../member-shell-header-context'
+import { useUserControl } from '../../user-control-provider'
 
 type MessageListResponse = { messages?: ConversationMessage[]; error?: string }
 type SendResponse = { status?: string; messageId?: number; createdAt?: string; error?: string }
@@ -32,6 +34,8 @@ export function ConversationThread({
   viewerUserId: string
   hasEarlier: boolean
 }) {
+  const router = useRouter()
+  const { conversationControl } = useUserControl()
   const [messages, setMessages] = useState(initialMessages)
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
@@ -56,10 +60,19 @@ export function ConversationThread({
 
   useMemberShellHeader({
     title: conversation.counterpart.displayName,
-    backHref: '/help',
+    backHref: '/messages',
     backLabel: 'Back',
     hideNotifications: true,
   })
+
+  useEffect(() => {
+    if (!conversationControl || conversationControl.conversationId !== conversation.id) return
+    if (conversationControl.type === 'conversation.revoked') {
+      router.replace('/messages')
+    } else {
+      router.refresh()
+    }
+  }, [conversation.id, conversationControl, router])
 
   useEffect(() => {
     latestIdRef.current = messages.at(-1)?.id ?? null
@@ -130,7 +143,6 @@ export function ConversationThread({
           client,
           accessToken,
           conversationId: conversation.id,
-          userId: viewerUserId,
           callbacks: {
             async onRefetchAfterCursor() {
               if (await fetchAfterLatest()) setRealtimePaused(false)
@@ -140,12 +152,6 @@ export function ConversationThread({
             },
             onReadAdvanced(event) {
               if (event.readerUserId !== viewerUserId) setCounterpartReadId(event.messageId)
-            },
-            onPermissionsChanged() {
-              window.location.reload()
-            },
-            onRevoked() {
-              window.location.assign('/help')
             },
             onTypingChanged(event) {
               if (event.actorUserId !== viewerUserId) setTyping(event.isTyping)

@@ -53,7 +53,6 @@ export default async function AskStatusPage({ params }: { params: Promise<{ askI
       membershipId={membership.membershipId}
       organizationName={membership.organization.name}
       graduationYear={membership.profile.graduationYear}
-      userId={session.userId}
     />
   )
 }

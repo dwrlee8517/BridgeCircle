@@ -13,6 +13,7 @@ describe('parseMemberContextRow', () => {
         selected_membership_id: '61000000-0000-4000-8000-000000000001',
         requires_circle_choice: false,
         unread_notification_count: 3,
+        messages_attention_count: 5,
         memberships: [
           {
             membershipId: '61000000-0000-4000-8000-000000000001',
@@ -39,6 +40,7 @@ describe('parseMemberContextRow', () => {
       accountState: 'active',
       selectedMembershipId: '61000000-0000-4000-8000-000000000001',
       unreadNotificationCount: 3,
+      messagesAttentionCount: 5,
       memberships: [{ roles: ['admin'] }],
     })
   })
@@ -54,6 +56,7 @@ describe('parseMemberContextRow', () => {
         selected_membership_id: null,
         requires_circle_choice: false,
         unread_notification_count: 0,
+        messages_attention_count: 0,
         memberships: [{ membershipId: 'not-a-uuid' }],
       }),
     ).toThrow()

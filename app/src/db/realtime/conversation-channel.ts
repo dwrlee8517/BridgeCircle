@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 type ChannelStatus = 'SUBSCRIBED' | 'TIMED_OUT' | 'CLOSED' | 'CHANNEL_ERROR'
-type EventSource = 'conversation' | 'control'
 type TimerHandle = ReturnType<typeof setTimeout>
 
 export interface ConversationRealtimeChannel {
@@ -29,8 +28,6 @@ export interface ConversationRealtimeCallbacks {
     readerUserId: string
     messageId: number
   }): void | Promise<void>
-  onPermissionsChanged(event: { conversationId: string }): void | Promise<void>
-  onRevoked(event: { conversationId: string }): void | Promise<void>
   onTypingChanged(event: {
     conversationId: string
     actorUserId: string
@@ -38,7 +35,6 @@ export interface ConversationRealtimeCallbacks {
     expiresAt: string
   }): void | Promise<void>
   onMalformedEvent(event: {
-    source: EventSource
     eventName: string | null
     reason:
       | 'malformed_envelope'
@@ -53,7 +49,6 @@ export interface OpenConversationRealtimeOptions {
   client: ConversationRealtimeClient
   accessToken: string
   conversationId: string
-  userId: string
   callbacks: ConversationRealtimeCallbacks
   subscribeTimeoutMs?: number
 }
@@ -65,7 +60,6 @@ export interface ConversationRealtimeHandle {
 const openOptionsSchema = z.object({
   accessToken: z.string().min(1),
   conversationId: z.uuid(),
-  userId: z.uuid(),
   subscribeTimeoutMs: z.number().int().positive().max(60_000),
 })
 
@@ -102,13 +96,6 @@ const readAdvancedSchema = z
   })
   .strict()
 
-const conversationControlSchema = z
-  .object({
-    id: eventIdSchema,
-    conversationId: conversationIdSchema,
-  })
-  .strict()
-
 const typingChangedSchema = z
   .object({
     id: eventIdSchema,
@@ -120,7 +107,6 @@ const typingChangedSchema = z
   .strict()
 
 const conversationEvents = new Set(['message.created', 'read.advanced', 'typing.changed'])
-const controlEvents = new Set(['conversation.permissions_changed', 'conversation.revoked'])
 
 function remember<T>(values: Set<T>, value: T, limit = 512): boolean {
   if (values.has(value)) return false
@@ -143,7 +129,6 @@ export async function openConversationRealtime(
   const parsed = openOptionsSchema.parse({
     accessToken: options.accessToken,
     conversationId: options.conversationId,
-    userId: options.userId,
     subscribeTimeoutMs: options.subscribeTimeoutMs ?? 10_000,
   })
   const { client, callbacks } = options
@@ -174,11 +159,10 @@ export async function openConversationRealtime(
   }
 
   function malformed(
-    source: EventSource,
     eventName: string | null,
     reason: Parameters<ConversationRealtimeCallbacks['onMalformedEvent']>[0]['reason'],
   ) {
-    invoke(() => callbacks.onMalformedEvent({ source, eventName, reason }))
+    invoke(() => callbacks.onMalformedEvent({ eventName, reason }))
   }
 
   function clearTypingTimer(actorUserId: string) {
@@ -187,30 +171,29 @@ export async function openConversationRealtime(
     typingTimers.delete(actorUserId)
   }
 
-  function handleBroadcast(source: EventSource, message: unknown) {
+  function handleBroadcast(message: unknown) {
     if (closed) return
     const envelope = envelopeSchema.safeParse(message)
     if (!envelope.success) {
-      malformed(source, null, 'malformed_envelope')
+      malformed(null, 'malformed_envelope')
       return
     }
 
     const { event: eventName, payload } = envelope.data
-    const allowed = source === 'conversation' ? conversationEvents : controlEvents
-    if (!allowed.has(eventName)) {
-      malformed(source, eventName, 'unexpected_event')
+    if (!conversationEvents.has(eventName)) {
+      malformed(eventName, 'unexpected_event')
       return
     }
 
     if (eventName === 'message.created') {
       const result = messageCreatedSchema.safeParse(payload)
       if (!result.success) {
-        malformed(source, eventName, 'malformed_payload')
+        malformed(eventName, 'malformed_payload')
         return
       }
       const created = result.data
       if (created.conversationId !== parsed.conversationId) {
-        malformed(source, eventName, 'conversation_mismatch')
+        malformed(eventName, 'conversation_mismatch')
         return
       }
       if (!remember(seenEventIds, created.id)) return
@@ -226,12 +209,12 @@ export async function openConversationRealtime(
     if (eventName === 'read.advanced') {
       const result = readAdvancedSchema.safeParse(payload)
       if (!result.success) {
-        malformed(source, eventName, 'malformed_payload')
+        malformed(eventName, 'malformed_payload')
         return
       }
       const read = result.data
       if (read.conversationId !== parsed.conversationId) {
-        malformed(source, eventName, 'conversation_mismatch')
+        malformed(eventName, 'conversation_mismatch')
         return
       }
       if (!remember(seenEventIds, read.id)) return
@@ -247,12 +230,12 @@ export async function openConversationRealtime(
     if (eventName === 'typing.changed') {
       const result = typingChangedSchema.safeParse(payload)
       if (!result.success) {
-        malformed(source, eventName, 'malformed_payload')
+        malformed(eventName, 'malformed_payload')
         return
       }
       const typing = result.data
       if (typing.conversationId !== parsed.conversationId) {
-        malformed(source, eventName, 'conversation_mismatch')
+        malformed(eventName, 'conversation_mismatch')
         return
       }
       if (!remember(seenEventIds, typing.id)) return
@@ -277,37 +260,13 @@ export async function openConversationRealtime(
       }
       return
     }
-
-    const result = conversationControlSchema.safeParse(payload)
-    if (!result.success) {
-      malformed(source, eventName, 'malformed_payload')
-      return
-    }
-    const control = result.data
-    if (control.conversationId !== parsed.conversationId) {
-      malformed(source, eventName, 'conversation_mismatch')
-      return
-    }
-    if (!remember(seenEventIds, control.id)) return
-    if (eventName === 'conversation.permissions_changed') {
-      invoke(() => callbacks.onPermissionsChanged({ conversationId: control.conversationId }))
-    } else {
-      invoke(() => callbacks.onRevoked({ conversationId: control.conversationId }))
-    }
   }
 
   await client.realtime.setAuth(parsed.accessToken)
   const conversationChannel = client.channel(`conversation:${parsed.conversationId}`, {
     config: { private: true },
   })
-  const controlChannel = client.channel(`user:${parsed.userId}`, {
-    config: { private: true },
-  })
-
-  conversationChannel.on('broadcast', { event: '*' }, (message) =>
-    handleBroadcast('conversation', message),
-  )
-  controlChannel.on('broadcast', { event: '*' }, (message) => handleBroadcast('control', message))
+  conversationChannel.on('broadcast', { event: '*' }, handleBroadcast)
 
   async function close(): Promise<void> {
     if (closePromise) return closePromise
@@ -316,26 +275,23 @@ export async function openConversationRealtime(
     typingTimers.clear()
     for (const timer of subscriptionTimers) clearTimeout(timer)
     subscriptionTimers.clear()
-    closePromise = Promise.all([
-      client.removeChannel(conversationChannel),
-      client.removeChannel(controlChannel),
-    ]).then(() => undefined)
+    closePromise = Promise.resolve(client.removeChannel(conversationChannel)).then(() => undefined)
     return closePromise
   }
 
-  function subscribe(channel: ConversationRealtimeChannel, source: EventSource): Promise<void> {
+  function subscribe(channel: ConversationRealtimeChannel): Promise<void> {
     return new Promise((resolve, reject) => {
       let ready = false
       const timer = setTimeout(() => {
         subscriptionTimers.delete(timer)
-        reject(new Error(`Timed out subscribing to ${source} Realtime channel`))
+        reject(new Error('Timed out subscribing to conversation Realtime channel'))
       }, parsed.subscribeTimeoutMs)
       subscriptionTimers.add(timer)
 
       channel.subscribe((status, error) => {
         if (closed) return
         if (status === 'SUBSCRIBED') {
-          if (source === 'conversation') invoke(() => callbacks.onRefetchAfterCursor())
+          invoke(() => callbacks.onRefetchAfterCursor())
           if (!ready) {
             ready = true
             clearTimeout(timer)
@@ -345,14 +301,14 @@ export async function openConversationRealtime(
           return
         }
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          const statusError = normalizeError(error, `${source} Realtime channel ${status}`)
+          const statusError = normalizeError(error, `Conversation Realtime channel ${status}`)
           if (!ready) {
             ready = true
             clearTimeout(timer)
             subscriptionTimers.delete(timer)
             reject(statusError)
           } else {
-            reportError(statusError, `${source} Realtime channel failed`)
+            reportError(statusError, 'Conversation Realtime channel failed')
           }
         }
       })
@@ -360,10 +316,7 @@ export async function openConversationRealtime(
   }
 
   try {
-    await Promise.all([
-      subscribe(conversationChannel, 'conversation'),
-      subscribe(controlChannel, 'control'),
-    ])
+    await subscribe(conversationChannel)
   } catch (error) {
     await close()
     throw error

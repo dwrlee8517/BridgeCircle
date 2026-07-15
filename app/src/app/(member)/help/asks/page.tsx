@@ -19,7 +19,7 @@ export default async function AskHistoryPage({
 }: {
   searchParams: Promise<{ before?: string; id?: string }>
 }) {
-  const [session, params, memberState] = await Promise.all([
+  const [, params, memberState] = await Promise.all([
     requireSession('/help/asks'),
     searchParams,
     loadMemberContext(),
@@ -51,7 +51,6 @@ export default async function AskHistoryPage({
       activeAskCount={home.activeAskCount}
       activeAskLimit={home.activeAskLimit}
       organizationName={membership.organization.name}
-      userId={session.userId}
       olderHref={olderHref}
       paged={cursor !== null}
     />

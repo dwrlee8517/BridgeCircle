@@ -31,6 +31,7 @@ const memberContextRowSchema = z.object({
   selected_membership_id: z.guid().nullable(),
   requires_circle_choice: z.boolean(),
   unread_notification_count: z.coerce.number().int().nonnegative(),
+  messages_attention_count: z.coerce.number().int().nonnegative(),
   memberships: z.array(membershipSchema),
 })
 
@@ -43,6 +44,7 @@ export type MemberContext = {
   selectedMembershipId: string | null
   requiresCircleChoice: boolean
   unreadNotificationCount: number
+  messagesAttentionCount: number
   memberships: z.infer<typeof membershipSchema>[]
 }
 
@@ -57,6 +59,7 @@ export function parseMemberContextRow(row: unknown): MemberContext {
     selectedMembershipId: parsed.selected_membership_id,
     requiresCircleChoice: parsed.requires_circle_choice,
     unreadNotificationCount: parsed.unread_notification_count,
+    messagesAttentionCount: parsed.messages_attention_count,
     memberships: parsed.memberships,
   }
 }

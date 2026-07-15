@@ -48,6 +48,8 @@ raw_table_pattern="\\.from\\(['\"](asks|blocks|connections|conversations|convers
 suppression_pattern='@ts-ignore|@ts-expect-error|as unknown as'
 route_rpc_pattern="\.rpc\(|\.from\("
 cross_domain_pattern='@/db/repositories/help|@/lib/help'
+owner_channel_pattern='openMemberRealtime'
+legacy_owner_channel_pattern='openHelpRealtime|help-channel'
 
 fixture="$(mktemp "${TMPDIR:-/tmp}/bridgecircle-messages-boundary.XXXXXX")"
 trap 'rm -f "$fixture"' EXIT
@@ -72,6 +74,22 @@ if (( ${#messages_routes[@]} > 0 )) && rg -q "$route_rpc_pattern" "${messages_ro
 fi
 if (( ${#messages_routes[@]} > 0 )) && rg -q "$cross_domain_pattern" "${messages_routes[@]}"; then
   echo "Messages routes must not depend on the Help domain" >&2
+  exit 1
+fi
+owner_channel_callers="$(rg -l "$owner_channel_pattern" "$root_dir/src" --glob '*.ts' --glob '*.tsx' | sort || true)"
+owner_channel_allowed="$root_dir/src/app/(member)/user-control-provider.tsx
+$root_dir/src/db/realtime/member-channel.test.ts
+$root_dir/src/db/realtime/member-channel.ts"
+if [[ "$owner_channel_callers" != "$owner_channel_allowed" ]]; then
+  echo "The member shell provider must own the sole user control channel" >&2
+  exit 1
+fi
+if rg -q "$legacy_owner_channel_pattern" "$root_dir/src"; then
+  echo "Legacy Help owner-channel code must not return" >&2
+  exit 1
+fi
+if rg -q 'channel\(`user:' "$root_dir/src/db/realtime/conversation-channel.ts"; then
+  echo "Conversation Realtime must own only its content topic" >&2
   exit 1
 fi
 if (( ${#messages_lib[@]} + ${#messages_db[@]} > 0 )) &&
