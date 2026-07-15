@@ -9,7 +9,7 @@ export default function MessagesPage() {
           <MessageCircle aria-hidden className="size-5" />
         </span>
         <p className="mt-3 text-sm font-bold text-foreground">Your conversations, together</p>
-        <p className="mt-1.5 text-caption leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-caption leading-relaxed text-text-secondary">
           Choose a conversation to pick up where you left off.
         </p>
       </div>

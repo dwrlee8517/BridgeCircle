@@ -1,6 +1,6 @@
 'use client'
 
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { type ReactNode, useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import type {
@@ -167,17 +167,30 @@ export function MessagesWorkspace({
         )}
       >
         <div className="grid shrink-0 gap-2.5 p-3.5 pb-2.5">
-          <label className="flex h-10 items-center gap-2 rounded-[11px] bg-surface-subtle px-3 text-muted-foreground focus-within:outline-2 focus-within:outline-focus-ring">
+          <div className="flex h-10 items-center gap-2 rounded-[11px] bg-surface-subtle px-3 text-muted-foreground focus-within:outline-2 focus-within:outline-focus-ring">
             <Search aria-hidden className="size-4 shrink-0" />
-            <span className="sr-only">Search messages</span>
+            <label htmlFor="message-search" className="sr-only">
+              Search messages
+            </label>
             <input
+              id="message-search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               maxLength={100}
               placeholder="Search messages…"
               className="min-w-0 flex-1 border-0 bg-transparent text-caption font-medium text-foreground outline-none placeholder:text-muted-foreground"
             />
-          </label>
+            {query ? (
+              <button
+                type="button"
+                aria-label="Clear message search"
+                onClick={() => setQuery('')}
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              >
+                <X aria-hidden className="size-3.5" />
+              </button>
+            ) : null}
+          </div>
           <fieldset className="flex flex-wrap gap-1.5">
             <legend className="sr-only">Message filters</legend>
             {FILTERS.map((option) => {
@@ -191,7 +204,7 @@ export function MessagesWorkspace({
                   className={cn(
                     'min-h-8 rounded-full px-3 text-kicker font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                     active
-                      ? 'bg-primary-tint-strong font-bold text-primary'
+                      ? 'bg-primary-tint-strong font-bold text-[var(--blue-800)]'
                       : 'bg-surface-subtle text-text-secondary hover:bg-muted',
                   )}
                 >
@@ -229,6 +242,11 @@ export function MessagesWorkspace({
               }}
             />
           )}
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {loading
+              ? 'Searching messages.'
+              : `${page.items.length} conversation${page.items.length === 1 ? '' : 's'} shown.`}
+          </p>
           {isRefreshing ? <span className="sr-only">Refreshing messages</span> : null}
         </div>
       </aside>

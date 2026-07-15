@@ -20,8 +20,11 @@ cursors, and deliver authorized Realtime invalidations without relying on the
 legacy `ask_threads`, `direct_message_threads`, polymorphic legacy message
 columns, or service-role access from member code.
 
-This is the backend primitive that Help and the redesigned Messages UI will
-consume. It deliberately does not port the full inbox or thread screens yet.
+This is the backend primitive now consumed by the completed local Help and
+Messages slices. The responsive list/thread/context UI and Connection seam are
+recorded in the
+[Messages vertical-slice plan](database-v2-messages-plan.md); they remain
+separate from this primitive's storage and transaction contract.
 
 ## Canonical sources
 

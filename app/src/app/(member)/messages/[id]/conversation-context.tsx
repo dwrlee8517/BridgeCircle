@@ -58,7 +58,7 @@ export function ConversationContext({
           {counterpart.displayName}
         </Link>
         {counterpart.graduationYear ? (
-          <p className="mt-1 text-xs font-semibold text-muted-foreground">
+          <p className="mt-1 text-xs font-semibold text-text-secondary">
             Class of ’{String(counterpart.graduationYear).slice(-2)}
           </p>
         ) : null}
@@ -66,7 +66,7 @@ export function ConversationContext({
 
       {counterpart.headline || work ? (
         <section className="rounded-[14px] bg-surface-inset p-4">
-          <p className="text-kicker font-bold tracking-label text-muted-foreground uppercase">
+          <p className="text-kicker font-bold tracking-label text-text-secondary uppercase">
             About
           </p>
           {counterpart.headline ? (
@@ -90,7 +90,7 @@ export function ConversationContext({
 
       {conversation.askContext && conversation.askId ? (
         <section className="rounded-[14px] bg-surface-inset p-4">
-          <p className="text-kicker font-bold tracking-label text-muted-foreground uppercase">
+          <p className="text-kicker font-bold tracking-label text-text-secondary uppercase">
             About this conversation
           </p>
           <Link
@@ -104,7 +104,7 @@ export function ConversationContext({
               'mt-2 inline-flex rounded-full px-2 py-0.5 text-kicker font-bold',
               resolved
                 ? 'bg-[var(--state-success-bg)] text-[var(--state-success-fg)]'
-                : 'bg-primary-tint-strong text-primary',
+                : 'bg-primary-tint-strong text-[var(--blue-800)]',
             )}
           >
             {resolved ? 'Resolved' : 'Open'}
@@ -138,7 +138,7 @@ export function ConversationContext({
             type="button"
             onClick={onRequestConnection}
             disabled={connectionRequestState !== 'idle' || actionPending}
-            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-primary-tint-strong px-3 text-xs font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-60"
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-primary-tint-strong px-3 text-xs font-bold text-[var(--blue-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-60"
           >
             <UserPlus aria-hidden className="size-4" />
             {connectionRequestState === 'sent'
@@ -178,7 +178,7 @@ export function ConversationContext({
       </div>
 
       {conversation.askContext ? (
-        <p className="text-center text-kicker leading-relaxed font-medium text-muted-foreground">
+        <p className="text-center text-kicker leading-relaxed font-medium text-text-secondary">
           Accepted asks do not expire. Resolving closes the ask, not this conversation.
         </p>
       ) : null}

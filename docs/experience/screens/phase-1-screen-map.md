@@ -26,8 +26,8 @@ source.
 | Help settings | `/help/settings` | Implemented |
 | People | `/people` | Later People/Profile port; canonical direct-Help link is implemented |
 | Profile | `/profile/[id]` | Later People/Profile port; canonical direct-Help link is implemented |
-| Messages list | `/messages` | Next domain slice |
-| Conversation | `/messages/[id]` | Accepted-Ask seam implemented |
+| Messages list | `/messages` | Implemented |
+| Conversation | `/messages/[id]` | Implemented for Ask and Connection origins |
 | School | `/school` | Later School/Admin port |
 | Events | `/events`, `/events/[id]` | Later School/Admin port |
 | Announcements | `/announcements`, `/announcements/[id]` | Later School/Admin port |
@@ -64,6 +64,20 @@ The Help implementation is checked at:
 No screen may depend on a fixed specimen canvas. Content can remain centered
 inside a readable max width while the shell background and layout fill the
 viewport. Horizontal overflow at the acceptance widths is a failure.
+
+## Messages states that must be designed and tested
+
+- Waiting: direct Ask, incoming Connection, folded/unfolded, accept/decline,
+  zero-hidden, stale decision, and transport recovery;
+- list: All/Unread/My circle/Open asks, bounded search, selected/unread,
+  tied-cursor pagination, deleted-member fallback, and truthful empty/error;
+- thread: Ask/Connection origin, history paging, idempotent send retry, typing,
+  visible-end read, latest receipt, reconnect, and continued send after resolve;
+- context and safety: desktop rail, mobile sheet with focus return, Ask resolve,
+  post-Ask Connection nudge, report acknowledgement, disconnect, and block;
+- responsive composition: three columns at 1200 px and above, two panes at
+  tablet width, and separate list/thread routes below 768 px, with no overflow
+  at 1440, 768, 390, or 320 px.
 
 ## Pre-launch cutover
 

@@ -66,7 +66,7 @@ insert into public.asks (
   anonymous_until_accepted, client_request_id
 ) values (
   '82000000-0000-4000-8000-000000000001',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000005',
   'circle', 'open', 'Who can speak to product management?', 'matched', true,
   '82000000-0000-4000-8000-000000000101'
@@ -76,7 +76,7 @@ insert into public.ask_offers (
   id, organization_id, ask_id, helper_membership_id, offer_note, client_request_id
 ) values (
   '83000000-0000-4000-8000-000000000001',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '82000000-0000-4000-8000-000000000001',
   '20000000-0000-4000-8000-000000000004',
   'Happy to compare notes.',
@@ -92,7 +92,7 @@ insert into private.outbox_jobs (job_type, payload, dedupe_key, available_at) va
   ),
   (
     'index_profile',
-    '{"userId":"10000000-0000-4000-8000-000000000004","organizationId":"11111111-1111-1111-1111-111111111111","membershipId":"20000000-0000-4000-8000-000000000004"}',
+    '{"userId":"10000000-0000-4000-8000-000000000004","organizationId":"11111111-1111-4111-8111-111111111111","membershipId":"20000000-0000-4000-8000-000000000004"}',
     'help:worker-baseline:index',
     now() - interval '1 minute'
   ),
@@ -146,7 +146,7 @@ begin
     anonymous_until_accepted, client_request_id
   ) values (
     '82000000-0000-4000-8000-000000000002',
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     '20000000-0000-4000-8000-000000000002',
     'direct', 'waiting', '20000000-0000-4000-8000-000000000004',
     'Capacity fixture', 'Local worker hard-gate fixture.',

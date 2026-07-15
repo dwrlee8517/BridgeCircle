@@ -91,7 +91,12 @@ export function ConversationList({
                       {item.counterpart.preferredName ?? item.counterpart.displayName}
                     </span>
                     {item.counterpart.graduationYear ? (
-                      <span className="shrink-0 text-kicker font-semibold text-muted-foreground">
+                      <span
+                        className={cn(
+                          'shrink-0 text-kicker font-semibold',
+                          selected ? 'text-text-secondary' : 'text-muted-foreground',
+                        )}
+                      >
                         ’{String(item.counterpart.graduationYear).slice(-2)}
                       </span>
                     ) : null}
@@ -99,7 +104,11 @@ export function ConversationList({
                       dateTime={item.activityAt}
                       className={cn(
                         'ml-auto shrink-0 text-kicker font-bold tabular-nums',
-                        unread ? 'text-primary' : 'text-muted-foreground',
+                        unread
+                          ? 'text-[var(--blue-700)]'
+                          : selected
+                            ? 'text-text-secondary'
+                            : 'text-muted-foreground',
                       )}
                     >
                       {format(new Date(item.activityAt), 'MMM d')}
@@ -114,7 +123,12 @@ export function ConversationList({
                     {item.latestMessage?.body ?? item.askQuestion ?? 'Conversation started'}
                   </span>
                   {item.kind === 'ask' && item.askQuestion ? (
-                    <span className="mt-0.5 block truncate text-kicker text-muted-foreground">
+                    <span
+                      className={cn(
+                        'mt-0.5 block truncate text-kicker',
+                        selected ? 'text-text-secondary' : 'text-muted-foreground',
+                      )}
+                    >
                       Ask · {item.askQuestion}
                     </span>
                   ) : null}

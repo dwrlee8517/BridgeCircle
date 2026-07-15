@@ -13,6 +13,8 @@ const REASONS: Array<{ value: ReportReason; label: string }> = [
   { value: 'other', label: 'Other' },
 ]
 
+const REPORT_SUCCESS = 'Thanks — we’ll look into it.'
+
 export function SafetyReportDialog({
   open,
   onOpenChange,
@@ -41,8 +43,7 @@ export function SafetyReportDialog({
         cache: 'no-store',
       })
       if (!response.ok) throw new Error('report_failed')
-      setResult('Thanks — we’ll look into it.')
-      window.setTimeout(() => onOpenChange(false), 650)
+      setResult(REPORT_SUCCESS)
     } catch {
       setResult('Couldn’t send the report. Please try again.')
     } finally {
@@ -75,7 +76,7 @@ export function SafetyReportDialog({
               className={cn(
                 'min-h-10 rounded-full px-3.5 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                 reason === item.value
-                  ? 'bg-[var(--action-weak)] text-[var(--blue-600)] shadow-[inset_0_0_0_1px_var(--action-primary)]'
+                  ? 'bg-[var(--action-weak)] text-[var(--blue-800)] shadow-[inset_0_0_0_1px_var(--action-primary)]'
                   : 'bg-[var(--surface-subtle)] text-[var(--text-secondary)]',
               )}
             >
@@ -84,7 +85,7 @@ export function SafetyReportDialog({
           ))}
         </div>
         <label className="text-xs font-bold text-[var(--text-secondary)]" htmlFor="report-note">
-          Anything else? <span className="font-medium text-[var(--text-faint)]">Optional</span>
+          Anything else? <span className="font-medium text-muted-foreground">Optional</span>
         </label>
         <textarea
           id="report-note"
@@ -101,11 +102,14 @@ export function SafetyReportDialog({
         ) : null}
         <button
           type="button"
-          onClick={() => void submit()}
+          onClick={() => {
+            if (result === REPORT_SUCCESS) onOpenChange(false)
+            else void submit()
+          }}
           disabled={pending}
           className="min-h-11 rounded-xl bg-[image:var(--gradient-primary-btn)] px-5 text-body-sm font-bold text-white shadow-[var(--shadow-primary-btn)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-55"
         >
-          {pending ? 'Sending…' : 'Send report'}
+          {pending ? 'Sending…' : result === REPORT_SUCCESS ? 'Done' : 'Send report'}
         </button>
       </DialogContent>
     </Dialog>

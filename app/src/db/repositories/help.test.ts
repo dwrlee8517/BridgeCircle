@@ -17,8 +17,8 @@ import {
 const askId = '30000000-0000-4000-8000-000000000001'
 const offerId = '40000000-0000-4000-8000-000000000001'
 const conversationId = '50000000-0000-4000-8000-000000000001'
-// PostgreSQL accepts generic GUIDs, including the deterministic local seed ID.
-const organizationId = '11111111-1111-1111-1111-111111111111'
+// Stable RFC-4122-shaped identifier from the deterministic local seed.
+const organizationId = '11111111-1111-4111-8111-111111111111'
 const membershipId = '20000000-0000-4000-8000-000000000003'
 const userId = '10000000-0000-4000-8000-000000000003'
 const timestamp = '2026-07-15T01:00:00.000Z'

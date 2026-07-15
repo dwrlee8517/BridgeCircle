@@ -23,6 +23,18 @@
 > deleted instead of maintained. The detailed older phases below are retained
 > as decision history, not current implementation instructions.
 
+> **Messages amendment (2026-07-15):** the complete local v2 Messages slice now
+> uses `/messages` and `/messages/[id]` only. One `conversations` table and one
+> `messages` table serve both accepted Asks and accepted Connections; fixed
+> projections provide Waiting, counts, bounded search, keyset pagination, and
+> viewer-shaped context. Connection accept preserves the intro as the first
+> durable user message. A single shell-owned `user:<id>` Broadcast subscription
+> invalidates Help, Messages, Connection, and permission state; each thread has
+> its separate content topic. `/inbox`, `/ask/thread/*`, split thread tables,
+> redirect aliases, and Messages compatibility adapters are retired. The older
+> Phase 3, Consequences, and Alternatives text below is historical and is
+> superseded where it argues for UI-only unification or indefinite redirects.
+
 ## Context
 
 [0010](0010-horizontal-help-warm-data-flywheel.md) reframed help as horizontal

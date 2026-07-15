@@ -9,7 +9,7 @@ select extensions.throws_ok(
       organization_id, asker_membership_id, kind, status,
       recipient_membership_id, question, request_message, client_request_id
     ) values (
-      '11111111-1111-1111-1111-111111111111',
+      '11111111-1111-4111-8111-111111111111',
       '20000000-0000-4000-8000-000000000005',
       'direct', 'open',
       '20000000-0000-4000-8000-000000000003',
@@ -28,7 +28,7 @@ select extensions.throws_ok(
       organization_id, asker_membership_id, kind, status,
       question, reach, client_request_id
     ) values (
-      '11111111-1111-1111-1111-111111111111',
+      '11111111-1111-4111-8111-111111111111',
       '20000000-0000-4000-8000-000000000005',
       'circle', 'waiting', 'Illegal circle state', 'matched',
       '90000000-0000-4000-8000-000000000002'
@@ -44,7 +44,7 @@ select extensions.throws_ok(
     insert into public.ask_offers (
       organization_id, ask_id, helper_membership_id, offer_note, client_request_id
     ) values (
-      '11111111-1111-1111-1111-111111111111',
+      '11111111-1111-4111-8111-111111111111',
       '30000000-0000-4000-8000-000000000001',
       '20000000-0000-4000-8000-000000000004',
       'This direct Ask must reject offers.',

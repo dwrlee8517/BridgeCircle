@@ -474,6 +474,15 @@ unranked; if visible declines make hesitant members ask less, revisit.
 **Job:** relationship lifecycle. List priorities: ① needs reply ② active
 ③ history. Filters as chips (All / Unread / My circle / Open asks), not tabs.
 
+**Local v2 implementation note — 2026-07-15:** the list, Waiting group,
+Ask/Connection threads, context, resolve, post-Ask Connection nudge,
+report/block/disconnect, Realtime, and responsive layouts below are implemented.
+Four details are intentionally parked rather than represented by dead controls:
+accepted Asks do not expire, so there is no three-day thread warning;
+attachments/shared files have no approved storage contract; presence is not
+modeled; and public outcome stories/bilateral identity consent remain a later
+Home contract. Resolve currently supports the private optional outcome note.
+
 1. **Conversation list** — avatar, name + class year, preview, time; unread =
    heavy + blue dot; selected = tint + left accent. Pending items live in a
    **"Waiting on you" group pinned above conversations (DECIDED, Richard

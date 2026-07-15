@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice test inventory
 
-- **Status:** approved; Milestones 1-6 complete; Milestone 7 next
+- **Status:** complete locally through Milestone 8; checkpoint ready; not deployed
 - **Approved:** 2026-07-15
 - **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
@@ -214,6 +214,47 @@ after-cursor recovery completes. A recovery failure closes the channel and
 enters the real reconnect loop, so the paused copy corresponds to actual
 behavior. Session storage contains only the approved draft and pending attempt
 fields; no message history, profile data, search, or identity field is stored.
+
+## Milestone 7 seed, browser, and accessibility evidence
+
+Recorded locally on 2026-07-15. The suite owns one canonical reset and runs
+serially; no remote database, provider, push, merge, deployment, or secret
+value was touched.
+
+| Gate | Final local result |
+|---|---|
+| deterministic seed | pending Ask/Connection, unread/resolved Ask, disconnected and blocked history, deleted member, 32 visible rows, tied cursor |
+| full pgTAP | 11 files / 438 assertions green after the expanded seed |
+| database reliability | Foundation, Conversation, Help, and Messages concurrency green; Help worker/maintenance green |
+| Realtime | Conversation content plus Help/Messages owner-topic harnesses green |
+| query plans | Conversation, Help, and Messages representative index plans green |
+| schema/tooling | warning-as-error lint clean; empty `public,api,private` shadow diff; two-pass type hash `8bd8a1a18fa25f08342eb6ff77dc59665b699466f722a28385337f1785e6171e` |
+| Playwright | 4 durable serial roads green in 49.5 seconds |
+| accessibility | axe green on root, resolve dialog, report acknowledgement, and mobile context sheet; focus returns to the trigger |
+| responsive | 1440, 768, 390, and 320 px show no horizontal overflow |
+| focused/full unit gates | all four focused compilers green; 55 Vitest files / 243 tests green; ESLint, 469-file Biome, and tokens green |
+
+The four browser roads cover direct Ask acceptance/send/reload, Connection
+accept/decline, two-context unread/read convergence plus resolve and post-Ask
+Connection, and report/disconnect/block. Filters, bounded search, two-page
+keyset loading, deleted-member fallback, durable reloads, and database state
+are asserted within those roads.
+
+## Milestone 8 cutover and global inventory evidence
+
+| Gate | Final local result |
+|---|---|
+| canonical URLs | `/messages` and `/messages/[id]` only; active auth E2E updated; no redirect alias |
+| cutover ratchet | retired URL/import/schema/raw-table/specimen/content-payload/suppression/duplicate-owner detectors self-test and pass the real tree |
+| active docs | contract, Conversation plan, IA, screen map, app conventions, seed/E2E/Supabase runbooks, ADR 0011, and FLOWS drift reconciled |
+| global TypeScript | 679 errors / 74 files, all owned by later maintenance, People/Profile, School/Admin, and legacy E2E ports; Messages owns zero |
+| production build | optimized bundle compiles; type phase stops at the later profile-embedding maintenance script's retired schema fields |
+| remote effects | none; remote reset/deploy remains blocked |
+
+The generated Next route cache no longer contains the 11 stale retired-route
+diagnostics after the production build regenerated it. Legacy
+`src/lib/friendship` remains only because active People/Profile callers are the
+next domain port; Messages neither imports nor wraps it.
 
 ## Test ownership
 

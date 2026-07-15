@@ -32,7 +32,7 @@ insert into public.asks (
   created_at
 )
 select
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000005',
   'circle',
   'retracted',
@@ -51,7 +51,7 @@ insert into public.asks (
   client_request_id, expires_at, created_at
 )
 select
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000006',
   'direct',
   'waiting',
@@ -72,7 +72,7 @@ insert into private.profile_embedding_chunks (
   embedding_model, embedding
 )
 select
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '10000000-0000-4000-8000-000000000003',
   '20000000-0000-4000-8000-000000000003',
   'raw',
@@ -111,7 +111,7 @@ limit 20;
 explain (analyze, buffers, costs off)
 select c.id
 from private.profile_embedding_chunks c
-where c.organization_id = '11111111-1111-1111-1111-111111111111'
+where c.organization_id = '11111111-1111-4111-8111-111111111111'
   and c.search_vector @@ websearch_to_tsquery('english'::regconfig, 'planneedle')
 limit 20;
 

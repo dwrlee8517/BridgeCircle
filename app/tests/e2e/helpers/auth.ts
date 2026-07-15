@@ -32,9 +32,11 @@ export async function signOut(page: Page) {
 // before hydration gets wiped and the required-field submit silently no-ops.
 export async function sendComposerMessage(page: Page, body: string) {
   await page.waitForLoadState("networkidle");
-  const composer = page.locator('textarea[name="body"]');
+  const composer = page.getByLabel("Message", { exact: true });
   await composer.fill(body);
   await expect(composer).toHaveValue(body);
-  await page.getByRole("button", { name: "Send", exact: true }).click();
-  await expect(page.getByText(body)).toBeVisible();
+  await page.getByRole("button", { name: "Send message" }).click();
+  await expect(
+    page.getByLabel("Conversation", { exact: true }).getByText(body, { exact: true }),
+  ).toBeVisible();
 }

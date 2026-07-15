@@ -3,7 +3,7 @@
 insert into public.organizations (
   id, slug, name, requires_admin_approval
 ) values (
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   'chadwick-local',
   'Chadwick School (Local)',
   true
@@ -61,7 +61,7 @@ insert into public.organization_memberships (
 select
   member.id,
   member.user_id,
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   'active',
   now()
 from (values
@@ -87,35 +87,35 @@ insert into public.profiles (
 insert into public.organization_profiles (
   organization_membership_id, organization_id, graduation_year, bio
 ) values
-  ('20000000-0000-4000-8000-000000000001', '11111111-1111-1111-1111-111111111111', 2005, 'Alumni board chair and pilot administrator.'),
-  ('20000000-0000-4000-8000-000000000002', '11111111-1111-1111-1111-111111111111', 2018, 'Happy to help with tech investing and early-stage career questions.'),
-  ('20000000-0000-4000-8000-000000000003', '11111111-1111-1111-1111-111111111111', 2008, 'Open to consulting, business school, and career transition questions.'),
-  ('20000000-0000-4000-8000-000000000004', '11111111-1111-1111-1111-111111111111', 2012, 'Product leader with experience moving between Korea and the US.'),
-  ('20000000-0000-4000-8000-000000000005', '11111111-1111-1111-1111-111111111111', 2024, 'Recent graduate exploring what comes next.'),
-  ('20000000-0000-4000-8000-000000000006', '11111111-1111-1111-1111-111111111111', 2011, 'Climate and infrastructure investor.');
+  ('20000000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 2005, 'Alumni board chair and pilot administrator.'),
+  ('20000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', 2018, 'Happy to help with tech investing and early-stage career questions.'),
+  ('20000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 2008, 'Open to consulting, business school, and career transition questions.'),
+  ('20000000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', 2012, 'Product leader with experience moving between Korea and the US.'),
+  ('20000000-0000-4000-8000-000000000005', '11111111-1111-4111-8111-111111111111', 2024, 'Recent graduate exploring what comes next.'),
+  ('20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', 2011, 'Climate and infrastructure investor.');
 
 insert into public.helper_preferences (
   organization_membership_id, organization_id, open_to_help,
   max_pending_requests
 ) values
-  ('20000000-0000-4000-8000-000000000002', '11111111-1111-1111-1111-111111111111', true, 5),
-  ('20000000-0000-4000-8000-000000000003', '11111111-1111-1111-1111-111111111111', true, 10),
-  ('20000000-0000-4000-8000-000000000004', '11111111-1111-1111-1111-111111111111', true, 10),
-  ('20000000-0000-4000-8000-000000000006', '11111111-1111-1111-1111-111111111111', true, 5);
+  ('20000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', true, 5),
+  ('20000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', true, 10),
+  ('20000000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', true, 10),
+  ('20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', true, 5);
 
 insert into public.helper_topics (
   organization_membership_id, organization_id, name, normalized_name, sort_order
 ) values
-  ('20000000-0000-4000-8000-000000000002', '11111111-1111-1111-1111-111111111111', 'Venture capital', 'venture capital', 0),
-  ('20000000-0000-4000-8000-000000000003', '11111111-1111-1111-1111-111111111111', 'Consulting', 'consulting', 0),
-  ('20000000-0000-4000-8000-000000000003', '11111111-1111-1111-1111-111111111111', 'Business school', 'business school', 1),
-  ('20000000-0000-4000-8000-000000000004', '11111111-1111-1111-1111-111111111111', 'Product management', 'product management', 0),
-  ('20000000-0000-4000-8000-000000000006', '11111111-1111-1111-1111-111111111111', 'Climate tech', 'climate tech', 0);
+  ('20000000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', 'Venture capital', 'venture capital', 0),
+  ('20000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 'Consulting', 'consulting', 0),
+  ('20000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 'Business school', 'business school', 1),
+  ('20000000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', 'Product management', 'product management', 0),
+  ('20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', 'Climate tech', 'climate tech', 0);
 
 insert into public.admin_role_assignments (
   organization_id, organization_membership_id, role
 ) values (
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000001',
   'super_admin'
 );
@@ -125,7 +125,7 @@ insert into public.connections (
 ) values (
   '10000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000004',
-  '11111111-1111-1111-1111-111111111111'
+  '11111111-1111-4111-8111-111111111111'
 );
 
 insert into public.conversations (
@@ -165,7 +165,7 @@ insert into public.asks (
   anonymous_until_accepted, client_request_id
 ) values (
   '30000000-0000-4000-8000-000000000001',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000005',
   'direct', 'waiting',
   '20000000-0000-4000-8000-000000000003',
@@ -175,7 +175,7 @@ insert into public.asks (
   '30000000-0000-4000-8000-000000000101'
 ), (
   '30000000-0000-4000-8000-000000000002',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000002',
   'circle', 'open', null,
   'Who has experience evaluating climate infrastructure investments?',
@@ -189,7 +189,7 @@ insert into private.ask_matches (
   reason, evidence, model, model_version
 ) values (
   '30000000-0000-4000-8000-000000000002',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000006',
   1, 0.91,
   'Invests in climate and infrastructure companies.',
@@ -198,12 +198,287 @@ insert into private.ask_matches (
   'v1'
 );
 
+-- Messages v2 acceptance matrix for Richard:
+-- pending direct Ask + incoming Connections, unread accepted Ask, resolved
+-- Ask, disconnected history, and a blocked conversation that must stay hidden.
+insert into public.asks (
+  id, organization_id, asker_membership_id, kind, status,
+  recipient_membership_id, question, request_message, reach,
+  anonymous_until_accepted, client_request_id, accepted_at,
+  responded_at, ended_at, outcome_note, created_at
+) values (
+  '30000000-0000-4000-8000-000000000003',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000002',
+  'direct', 'accepted',
+  '20000000-0000-4000-8000-000000000006',
+  'How do investors evaluate climate infrastructure opportunities?',
+  'I would value a practical framework and a few questions to ask first.',
+  null, false,
+  '30000000-0000-4000-8000-000000000103',
+  now() - interval '2 days', now() - interval '2 days', null, null,
+  now() - interval '3 days'
+), (
+  '30000000-0000-4000-8000-000000000004',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000005',
+  'direct', 'resolved',
+  '20000000-0000-4000-8000-000000000002',
+  'How can I choose a first product role with room to grow?',
+  'I am comparing two teams and would appreciate a grounded outside view.',
+  null, false,
+  '30000000-0000-4000-8000-000000000104',
+  now() - interval '5 days', now() - interval '5 days', now() - interval '1 day',
+  'A clearer way to compare the manager, scope, and learning curve.',
+  now() - interval '6 days'
+), (
+  '30000000-0000-4000-8000-000000000005',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000005',
+  'direct', 'waiting',
+  '20000000-0000-4000-8000-000000000002',
+  'Could you help me prepare for a product case interview?',
+  'A short review of how I structure the problem would be a huge help.',
+  null, false,
+  '30000000-0000-4000-8000-000000000105',
+  null, null, null, null,
+  now() - interval '30 minutes'
+);
+
+insert into public.connection_requests (
+  id, requester_user_id, recipient_user_id, origin_organization_id,
+  status, intro_message, client_request_id, created_at
+) values (
+  '40000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000003',
+  '10000000-0000-4000-8000-000000000002',
+  '11111111-1111-4111-8111-111111111111',
+  'pending',
+  'I enjoyed our earlier conversation and would be glad to stay in touch.',
+  '40000000-0000-4000-8000-000000000101',
+  now() - interval '20 minutes'
+), (
+  '40000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000005',
+  '10000000-0000-4000-8000-000000000002',
+  '11111111-1111-4111-8111-111111111111',
+  'pending',
+  'It would be nice to keep learning from each other.',
+  '40000000-0000-4000-8000-000000000102',
+  now() - interval '10 minutes'
+);
+
+insert into public.conversations (
+  id, kind, user_a_id, user_b_id, organization_id, ask_id, created_at
+) values (
+  '50000000-0000-4000-8000-000000000002',
+  'ask',
+  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000006',
+  '11111111-1111-4111-8111-111111111111',
+  '30000000-0000-4000-8000-000000000003',
+  now() - interval '2 days'
+), (
+  '50000000-0000-4000-8000-000000000003',
+  'ask',
+  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000005',
+  '11111111-1111-4111-8111-111111111111',
+  '30000000-0000-4000-8000-000000000004',
+  now() - interval '5 days'
+), (
+  '50000000-0000-4000-8000-000000000004',
+  'direct',
+  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000003',
+  null, null,
+  now() - interval '14 days'
+), (
+  '50000000-0000-4000-8000-000000000005',
+  'direct',
+  '10000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002',
+  null, null,
+  now() - interval '21 days'
+);
+
+-- Historical direct messages must pass the same sender guard as production.
+-- Create the old Connections for insertion, then remove them below to leave
+-- retained read-only history.
+insert into public.connections (
+  user_a_id, user_b_id, origin_organization_id
+) values
+  ('10000000-0000-4000-8000-000000000002',
+   '10000000-0000-4000-8000-000000000003',
+   '11111111-1111-4111-8111-111111111111'),
+  ('10000000-0000-4000-8000-000000000001',
+   '10000000-0000-4000-8000-000000000002',
+   '11111111-1111-4111-8111-111111111111');
+
+insert into public.messages (
+  conversation_id, kind, body, system_event_type, system_event_key,
+  system_actor_user_id, created_at
+) values
+  ('50000000-0000-4000-8000-000000000002', 'system', 'Ask accepted.',
+   'ask_accepted', 'ask_accepted:seed-richard-jordan',
+   '10000000-0000-4000-8000-000000000006', now() - interval '2 days'),
+  ('50000000-0000-4000-8000-000000000003', 'system', 'Ask accepted.',
+   'ask_accepted', 'ask_accepted:seed-sam-richard',
+   '10000000-0000-4000-8000-000000000002', now() - interval '5 days'),
+  ('50000000-0000-4000-8000-000000000003', 'system', 'Ask resolved.',
+   'ask_resolved', 'ask_resolved:seed-sam-richard',
+   '10000000-0000-4000-8000-000000000005', now() - interval '1 day'),
+  ('50000000-0000-4000-8000-000000000004', 'system', 'Connection accepted.',
+   'connection_accepted', 'connection_accepted:seed-richard-mark',
+   '10000000-0000-4000-8000-000000000003', now() - interval '14 days'),
+  ('50000000-0000-4000-8000-000000000005', 'system', 'Connection accepted.',
+   'connection_accepted', 'connection_accepted:seed-amy-richard',
+   '10000000-0000-4000-8000-000000000001', now() - interval '21 days');
+
+insert into public.messages (
+  conversation_id, sender_user_id, kind, body, client_nonce, created_at
+) values
+  ('50000000-0000-4000-8000-000000000002',
+   '10000000-0000-4000-8000-000000000002', 'user',
+   'I am weighing contracted revenue against regulatory and construction risk.',
+   '50000000-0000-4000-8000-000000000102', now() - interval '1 day 2 hours'),
+  ('50000000-0000-4000-8000-000000000002',
+   '10000000-0000-4000-8000-000000000006', 'user',
+   'Start with who bears completion risk, then test the durability of the off-take agreement.',
+   '50000000-0000-4000-8000-000000000103', now() - interval '40 minutes'),
+  ('50000000-0000-4000-8000-000000000003',
+   '10000000-0000-4000-8000-000000000005', 'user',
+   'The manager and learning curve comparison made the decision much clearer.',
+   '50000000-0000-4000-8000-000000000104', now() - interval '2 days'),
+  ('50000000-0000-4000-8000-000000000003',
+   '10000000-0000-4000-8000-000000000002', 'user',
+   'I am glad it helped. Keep me posted as the role takes shape.',
+   '50000000-0000-4000-8000-000000000105', now() - interval '1 day 1 hour'),
+  ('50000000-0000-4000-8000-000000000004',
+   '10000000-0000-4000-8000-000000000003', 'user',
+   'I still think about our conversation on choosing the right consulting team.',
+   '50000000-0000-4000-8000-000000000106', now() - interval '12 days'),
+  ('50000000-0000-4000-8000-000000000005',
+   '10000000-0000-4000-8000-000000000001', 'user',
+   'This blocked conversation must never appear in Richard’s Messages list.',
+   '50000000-0000-4000-8000-000000000107', now() - interval '20 days');
+
+insert into public.conversation_reads (
+  conversation_id, user_id, last_read_message_id, last_read_at
+)
+select message.conversation_id,
+       '10000000-0000-4000-8000-000000000002',
+       max(message.id), max(message.created_at)
+from public.messages message
+where message.conversation_id in (
+  '50000000-0000-4000-8000-000000000001',
+  '50000000-0000-4000-8000-000000000003',
+  '50000000-0000-4000-8000-000000000004'
+)
+group by message.conversation_id;
+
+insert into public.conversation_reads (
+  conversation_id, user_id, last_read_message_id, last_read_at
+)
+select message.conversation_id,
+       '10000000-0000-4000-8000-000000000006',
+       max(message.id), max(message.created_at)
+from public.messages message
+where message.conversation_id = '50000000-0000-4000-8000-000000000002'
+  and message.sender_user_id = '10000000-0000-4000-8000-000000000002'
+group by message.conversation_id;
+
+delete from public.connections
+where (user_a_id, user_b_id) in (
+  ('10000000-0000-4000-8000-000000000002',
+   '10000000-0000-4000-8000-000000000003'),
+  ('10000000-0000-4000-8000-000000000001',
+   '10000000-0000-4000-8000-000000000002')
+);
+
+insert into public.member_blocks (blocker_user_id, blocked_user_id)
+values (
+  '10000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002'
+);
+
+-- A bounded second Messages page verifies keyset pagination and stable UUID
+-- tie-breaking without inventing more member accounts. Multiple Ask
+-- conversations between the same two people are legitimate; all are old,
+-- resolved, and remain sendable by product rule.
+insert into public.asks (
+  id, organization_id, asker_membership_id, kind, status,
+  recipient_membership_id, question, request_message, reach,
+  anonymous_until_accepted, client_request_id, accepted_at,
+  responded_at, ended_at, outcome_note, created_at
+)
+select
+  format('60000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
+  '11111111-1111-4111-8111-111111111111'::uuid,
+  '20000000-0000-4000-8000-000000000002'::uuid,
+  'direct', 'resolved',
+  '20000000-0000-4000-8000-000000000006'::uuid,
+  format('Historical risk discussion %s', lpad(sequence::text, 2, '0')),
+  'A retained resolved ask used to verify Messages ordering and pagination.',
+  null, false,
+  format('61000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
+  activity_at + interval '1 hour',
+  activity_at + interval '1 hour',
+  activity_at + interval '2 hours',
+  'The conversation produced a useful framework.',
+  activity_at
+from (
+  select
+    sequence,
+    case
+      when sequence in (26, 27) then now() - interval '100 days'
+      else now() - interval '60 days' - make_interval(days => sequence)
+    end as activity_at
+  from generate_series(1, 27) as sequence
+) historical;
+
+insert into public.conversations (
+  id, kind, user_a_id, user_b_id, organization_id, ask_id, created_at
+)
+select
+  format('62000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
+  'ask',
+  '10000000-0000-4000-8000-000000000002'::uuid,
+  '10000000-0000-4000-8000-000000000006'::uuid,
+  '11111111-1111-4111-8111-111111111111'::uuid,
+  format('60000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
+  case
+    when sequence in (26, 27) then now() - interval '100 days'
+    else now() - interval '60 days' - make_interval(days => sequence)
+  end
+from generate_series(1, 27) as sequence;
+
+-- Account deletion retains an anonymized user tombstone and conversation
+-- history. No auth identity or profile survives, so the UI must render the
+-- leak-safe Deleted member fallback and a read-only thread.
+insert into public.users (id, account_state, deleted_at)
+values (
+  'f7000000-0000-4000-8000-000000000001',
+  'deleted',
+  now() - interval '200 days'
+);
+
+insert into public.conversations (
+  id, kind, user_a_id, user_b_id, created_at
+) values (
+  '62000000-0000-4000-8000-000000000999',
+  'direct',
+  '10000000-0000-4000-8000-000000000002',
+  'f7000000-0000-4000-8000-000000000001',
+  now() - interval '200 days'
+);
+
 insert into public.events (
   id, organization_id, created_by_membership_id, status, title,
   description, location, starts_at, ends_at, capacity, published_at
 ) values (
   'eeee0000-0000-4000-8000-000000000001',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000001',
   'published',
   'Chadwick alumni summer gathering',
@@ -218,7 +493,7 @@ insert into public.events (
 insert into public.event_rsvps (
   organization_id, event_id, organization_membership_id, status
 ) values (
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   'eeee0000-0000-4000-8000-000000000001',
   '20000000-0000-4000-8000-000000000002',
   'going'

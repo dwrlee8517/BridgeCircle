@@ -36,8 +36,11 @@ interactive account is:
 - `devseed-password-richard`
 
 Additional seeded members exist to exercise membership, Connection,
-conversation, Help, matching, and School fixtures. Do not duplicate the cast
-in this runbook; keeping credentials in one executable source prevents drift.
+conversation, Help, Messages, matching, and School fixtures. The Messages
+matrix includes pending Ask/Connection decisions, unread and resolved Ask
+threads, disconnected history, blocked-hidden history, a deleted-member
+tombstone, and more than one 30-row page with a tied cursor. Do not duplicate
+the cast or UUIDs in this runbook; the executable seed is canonical.
 
 ## Extending the seed
 
@@ -62,6 +65,11 @@ Hermetic Playwright suites that mutate data should create a unique organization
 and users through `tests/e2e/helpers/foundation.ts`, then delete them in
 `afterAll`. The checked-in seed is for stable browser inspection and read-only
 fixtures, not cross-test coordination.
+
+The focused Messages suite is the narrow exception: one serial, local-only,
+reset-owned scenario intentionally advances the canonical Messages matrix and
+proves durable lifecycle transitions. It must begin with `pnpm db:reset`, must
+not be sharded, and must never run against remote development or production.
 
 ## Remote development and production
 

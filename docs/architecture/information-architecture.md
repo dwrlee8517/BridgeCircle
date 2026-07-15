@@ -89,9 +89,9 @@ source of truth.
 | `/profile/import` | Review profile enrichment |
 
 People sends `membershipId`, not `userId`, when entering a direct Ask. Profile
-and Connection persistence are the next dedicated v2 port after Messages; do
-not add compatibility reads from retired Help columns while that work is
-pending.
+and People are the next dedicated v2 port. Messages already owns the fixed
+Connection request/decision/disconnect seam; do not add compatibility reads
+from retired friendship or Help columns while the remaining UI port is pending.
 
 ### Messages
 
@@ -100,11 +100,13 @@ pending.
 | `/messages` | Canonical conversation list root |
 | `/messages/[id]` | Unified conversation thread |
 
-The accepted-Ask thread is implemented because it completes the Help loop. The
-full conversation list, Connection-origin threads, unread aggregation, and
-three-column desktop Messages layout belong to the Messages vertical slice.
-Until that slice lands, the root page states this boundary honestly instead of
-rendering legacy data or fabricated rows.
+Messages is implemented locally as one responsive workspace for accepted Asks
+and accepted Connections. The root owns the foldable Waiting group, canonical
+attention counts, bounded filters/search, and keyset-paginated conversation
+list. The selected route owns bounded history, idempotent sends, visible-end
+read advancement, typing, context, Ask resolution, post-Ask Connection nudges,
+and report/block/disconnect controls. Broadcast carries identifiers only;
+every visible state is refetched from fixed v2 projections.
 
 ### School
 
@@ -156,7 +158,8 @@ re-evaluated when the target projection loads.
 
 The v2 rebuild intentionally has no compatibility route layer. Retired route
 families, persistence modules, and redirect rules are deleted rather than kept
-behind aliases. `pnpm check:help-cutover` prevents those callers from returning.
+behind aliases. `pnpm check:help-cutover` and `pnpm check:messages-cutover`
+prevent those callers from returning.
 
 This is safe only because the product is pre-launch and the databases contain
 no real member data. Once real users exist, future route removals and schema
@@ -169,7 +172,7 @@ changes require an explicit compatibility and data-migration decision.
 | Foundation | Complete |
 | Conversation primitive | Complete |
 | Help | Complete through local domain cutover |
-| Messages list and Connection threads | Next |
+| Messages list and Connection threads | Complete through local domain cutover |
 | People/Profile/Connections | Pending |
 | School/Admin/account lifecycle | Pending |
 | Remote dev/prod reset | Blocked until every application domain and the global build are green |

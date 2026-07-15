@@ -1,17 +1,18 @@
 # BridgeCircle database v2 contract
 
-**Status:** Foundation and Conversation Primitive implemented and verified locally; later domains and remote cutovers pending; not live
+**Status:** Foundation, Conversation Primitive, Help, and Messages implemented and verified locally; later domains and remote cutovers pending; not live
 **Decision:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md)
 **Current live schema:** [Data model — Phase 1 launch](data-model.md)
 **Approved product behavior:** [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 
 This document is the canonical implementation contract for the pre-launch
 database rebuild. `codex/redesign-v2` now contains the active v2 baseline,
-deterministic seed, generated types, pgTAP suite, and completed Foundation and
-Conversation Primitive application boundaries. Identity, memberships,
+deterministic seed, generated types, pgTAP suite, and completed Foundation,
+Conversation Primitive, Help, and Messages application boundaries. Identity, memberships,
 self-profile/onboarding, shell context, notifications, conversation storage,
-bounded reads, message commands, read cursors, typing, and private Broadcast
-are locally verified. Later product domains and both remote databases remain
+bounded reads, message commands, read cursors, typing, Help lifecycle,
+Messages list/attention/Connection/safety seams, and private Broadcast are
+locally verified. Later product domains and both remote databases remain
 on the legacy contract until their ports and separately approved cutovers
 land. Nothing in this document authorizes a remote database reset.
 
@@ -1361,10 +1362,12 @@ member-visible flow. See the [database testing guide](https://supabase.com/docs/
    accepted-thread seam, and destructive route/module cutover.
    **Verified:** complete direct and circle flows, concurrency/RLS, worker,
    Realtime, query plans, responsive UI, and zero Help-owned compiler errors.
-4. **Messages — next:** port the conversation list, Connection-origin threads,
-   unread state,
-   thread routes, and origin lines.
-   **Verify:** E2E conversations from Ask and Connection paths.
+4. **Messages — complete locally:** conversation list, Waiting decisions,
+   Connection-origin threads, unread attention, filters/search/keyset paging,
+   responsive Ask/Connection thread, context, and safety actions.
+   **Verified:** 438 pgTAP assertions, race/Realtime/query-plan harnesses,
+   deterministic types, fixed-boundary checks, axe, four durable Playwright
+   roads, and zero Messages-owned compiler errors.
 5. **People/Profile:** normalized profile storage, privacy, search,
    connections, report/block/disconnect, embeddings.
    **Verify:** search visibility, profile overlays, safety actions.

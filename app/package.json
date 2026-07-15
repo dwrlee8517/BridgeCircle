@@ -23,6 +23,7 @@
     "check:help-boundaries": "bash scripts/check-help-boundaries.sh",
     "check:help-cutover": "bash scripts/check-help-cutover.sh",
     "check:messages-boundaries": "bash scripts/check-messages-boundaries.sh",
+    "check:messages-cutover": "bash scripts/check-messages-cutover.sh",
     "test:db:concurrency": "bash scripts/test-foundation-concurrency.sh",
     "test:db:conversation-concurrency": "bash scripts/test-conversation-concurrency.sh",
     "test:db:conversation-query-plans": "bash scripts/test-conversation-query-plans.sh",
@@ -75,6 +76,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@biomejs/biome": "^2.4.13",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",

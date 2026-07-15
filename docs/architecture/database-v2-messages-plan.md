@@ -1,6 +1,6 @@
 # Database v2 Messages vertical-slice implementation plan
 
-- **Status:** approved by Richard; Milestones 1-6 complete; Milestone 7 next; local-only
+- **Status:** complete locally through Milestone 8; checkpoint ready; not deployed
 - **Prepared:** 2026-07-15
 - **Approved:** 2026-07-15
 - **Branch:** `codex/redesign-v2`
@@ -10,6 +10,23 @@
 - **Behavior:** [`FLOWS.md` §5](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 - **UI source:** [BridgeCircle Messages template](../experience/ui/design-system/handoff/bridgecircle/project/templates/messages/Messages.dc.html)
 - **Test inventory:** [Messages vertical-slice test inventory](database-v2-messages-test-inventory.md)
+
+## Completion record
+
+All eight milestones completed locally on 2026-07-15. The final slice has one
+canonical Messages route family, fixed database APIs, one shell-owned user
+control channel, bounded list/history reads, durable Connection and safety
+commands, a responsive workspace, a deterministic Messages seed matrix, and a
+static cutover ratchet. Database reset/pgTAP, concurrency, Realtime, query
+plans, schema lint/diff, deterministic types, focused compilers, boundaries,
+style/unit gates, accessibility, and the durable browser roads are green.
+
+The global compiler remains a classified later-domain inventory at 679 errors
+in 74 files with zero Messages-owned errors. The production bundle compiles,
+then the build stops in the unported profile-embedding maintenance script's
+legacy schema types. Therefore this completion record authorizes only the local
+checkpoint; it does not claim full-app deployability or authorize a push,
+merge, remote reset, provider call, or deployment.
 
 ## Goal
 

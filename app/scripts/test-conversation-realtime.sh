@@ -43,7 +43,7 @@ insert into public.connections (
 ) values (
   '10000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000004',
-  '11111111-1111-1111-1111-111111111111'
+  '11111111-1111-4111-8111-111111111111'
 )
 on conflict (user_a_id, user_b_id) do nothing;
 delete from private.conversation_typing_limits

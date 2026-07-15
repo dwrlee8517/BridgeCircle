@@ -13,7 +13,7 @@ psql_base=(psql "$database_url" --no-psqlrc --set ON_ERROR_STOP=1 --quiet)
 user_a="10000000-0000-4000-8000-000000000003"
 user_b="10000000-0000-4000-8000-000000000005"
 user_c="10000000-0000-4000-8000-000000000006"
-organization_id="11111111-1111-1111-1111-111111111111"
+organization_id="11111111-1111-4111-8111-111111111111"
 decision_request_id="a1000000-0000-4000-8000-000000000001"
 block_request_id="a1000000-0000-4000-8000-000000000002"
 read_conversation_id="a1000000-0000-4000-8000-000000000003"
@@ -353,7 +353,9 @@ unread_count="$("${psql_base[@]}" --tuples-only --no-align <<SQL
 begin;
 set local role authenticated;
 set local "request.jwt.claim.sub" = '$user_b';
-select unread_count from api.get_messages_counts();
+select unread_count
+from api.list_conversation_summaries()
+where conversation_id = '$read_conversation_id';
 rollback;
 SQL
 )"

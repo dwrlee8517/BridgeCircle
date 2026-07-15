@@ -330,7 +330,7 @@ insert into public.connections (
 ) values (
   '10000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000004',
-  '11111111-1111-1111-1111-111111111111'
+  '11111111-1111-4111-8111-111111111111'
 );
 
 insert into public.member_blocks (blocker_user_id, blocked_user_id)
@@ -398,7 +398,7 @@ insert into public.conversations (
   'ask',
   '10000000-0000-4000-8000-000000000003',
   '10000000-0000-4000-8000-000000000005',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '30000000-0000-4000-8000-000000000001'
 );
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005', true);
@@ -513,7 +513,10 @@ insert into public.conversation_reads (
     select id from public.messages
     where client_nonce = '94000000-0000-4000-8000-000000000003'
   )
-);
+)
+on conflict (conversation_id, user_id) do update
+set last_read_message_id = excluded.last_read_message_id,
+    last_read_at = now();
 delete from public.messages
 where client_nonce = '94000000-0000-4000-8000-000000000003';
 select extensions.ok(
@@ -650,7 +653,7 @@ insert into public.connections (
 ) values (
   '10000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000004',
-  '11111111-1111-1111-1111-111111111111'
+  '11111111-1111-4111-8111-111111111111'
 );
 
 insert into public.member_blocks (blocker_user_id, blocked_user_id)
@@ -697,11 +700,11 @@ insert into public.connection_requests (
 ) values (
   '95000000-0000-4000-8000-000000000010',
   '10000000-0000-4000-8000-000000000002',
-  '10000000-0000-4000-8000-000000000003',
-  '11111111-1111-1111-1111-111111111111',
+  '10000000-0000-4000-8000-000000000006',
+  '11111111-1111-4111-8111-111111111111',
   '95000000-0000-4000-8000-000000000011'
 );
-select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000003', true);
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000006', true);
 select extensions.lives_ok(
   $$select api.respond_to_connection_request('95000000-0000-4000-8000-000000000010', 'accept')$$,
   'Connection acceptance creates its durable aggregate'
@@ -712,7 +715,7 @@ select extensions.is(
     from public.conversations
     where kind = 'direct'
       and user_a_id = '10000000-0000-4000-8000-000000000002'
-      and user_b_id = '10000000-0000-4000-8000-000000000003'
+      and user_b_id = '10000000-0000-4000-8000-000000000006'
   ),
   1::bigint,
   'Connection acceptance creates one direct conversation'
@@ -724,7 +727,7 @@ select extensions.is(
     join public.conversations c on c.id = m.conversation_id
     where c.kind = 'direct'
       and c.user_a_id = '10000000-0000-4000-8000-000000000002'
-      and c.user_b_id = '10000000-0000-4000-8000-000000000003'
+      and c.user_b_id = '10000000-0000-4000-8000-000000000006'
       and m.system_event_type = 'connection_accepted'
   ),
   1::bigint,
@@ -741,7 +744,7 @@ select extensions.is(
     join public.conversations c on c.id = m.conversation_id
     where c.kind = 'direct'
       and c.user_a_id = '10000000-0000-4000-8000-000000000002'
-      and c.user_b_id = '10000000-0000-4000-8000-000000000003'
+      and c.user_b_id = '10000000-0000-4000-8000-000000000006'
       and m.system_event_type = 'connection_accepted'
   ),
   1::bigint,
@@ -762,10 +765,10 @@ insert into public.asks (
   recipient_membership_id, question, request_message, client_request_id
 ) values (
   '95000000-0000-4000-8000-000000000020',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000004',
   'direct', 'waiting',
-  '20000000-0000-4000-8000-000000000003',
+  '20000000-0000-4000-8000-000000000006',
   'Can you test the opening-message transaction?',
   'This fixture must roll back on an invalid opening message.',
   '95000000-0000-4000-8000-000000000021'
@@ -830,7 +833,7 @@ insert into public.ask_offers (
   offer_note, client_request_id
 ) values (
   '95000000-0000-4000-8000-000000000030',
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '30000000-0000-4000-8000-000000000002',
   '20000000-0000-4000-8000-000000000006',
   'I can help exercise the offer acceptance transaction.',
@@ -919,7 +922,7 @@ insert into public.connections (
 ) values (
   '10000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000004',
-  '11111111-1111-1111-1111-111111111111'
+  '11111111-1111-4111-8111-111111111111'
 );
 
 insert into public.member_blocks (blocker_user_id, blocked_user_id)

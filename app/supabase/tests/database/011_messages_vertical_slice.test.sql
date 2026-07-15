@@ -201,23 +201,39 @@ select set_config(
 );
 set local role authenticated;
 select extensions.is(
-  (select count(*)::integer from api.list_conversation_summaries()),
+  (
+    select count(*)::integer
+    from api.list_conversation_summaries(p_query => 'Mei Park')
+  ),
   1,
-  'a participant sees their seeded direct conversation'
+  'a participant can isolate their seeded direct conversation'
 );
 select extensions.is(
-  (select counterpart_display_name from api.list_conversation_summaries()),
+  (
+    select counterpart_display_name
+    from api.list_conversation_summaries()
+    where conversation_id = '50000000-0000-4000-8000-000000000001'
+  ),
   'Mei Park',
   'the summary resolves the other participant identity'
 );
 select extensions.is(
-  (select unread_count from api.list_conversation_summaries()),
-  1,
-  'only the counterpart user message is unread'
+  (
+    select unread_count
+    from api.list_conversation_summaries()
+    where conversation_id = '50000000-0000-4000-8000-000000000001'
+  ),
+  0,
+  'the deterministic acceptance seed preserves the direct read cursor'
 );
-select extensions.ok(
-  (select needs_reply from api.list_conversation_summaries()),
-  'an unread latest counterpart user message needs a reply'
+select extensions.is(
+  (
+    select needs_reply
+    from api.list_conversation_summaries()
+    where conversation_id = '50000000-0000-4000-8000-000000000001'
+  ),
+  false,
+  'a fully read direct conversation does not need a reply'
 );
 select extensions.is(
   (
@@ -241,7 +257,7 @@ select extensions.is(
     from api.list_conversation_summaries(p_filter => 'unread')
   ),
   1,
-  'the Unread filter uses canonical unread semantics'
+  'the Unread filter finds the one unread accepted Ask'
 );
 select extensions.is(
   (
@@ -256,13 +272,13 @@ select extensions.is(
     select count(*)::integer
     from api.list_conversation_summaries(p_filter => 'open_asks')
   ),
-  0,
-  'a direct conversation is not classified as an open Ask'
+  1,
+  'only the accepted Ask is classified as open'
 );
 select extensions.is(
   (select all_count from api.get_messages_counts()),
-  1,
-  'canonical counts report one visible conversation'
+  32,
+  'canonical counts include both bounded Messages seed pages'
 );
 select extensions.is(
   (select unread_count from api.get_messages_counts()),
@@ -276,8 +292,8 @@ select extensions.is(
 );
 select extensions.is(
   (select waiting_count from api.get_messages_counts()),
-  0,
-  'the seeded participant has no Waiting work'
+  3,
+  'canonical counts include the direct Ask and two Connection requests'
 );
 reset role;
 
@@ -287,8 +303,8 @@ select set_config(
 set local role authenticated;
 select extensions.is(
   (select count(*)::integer from api.list_conversation_summaries()),
-  0,
-  'a same-circle nonparticipant cannot see another pair conversation'
+  1,
+  'a member sees their own retained direct history but no other pair conversations'
 );
 select extensions.is(
   (select count(*)::integer from api.list_messages_waiting()),
@@ -308,21 +324,33 @@ select extensions.is(
 reset role;
 
 select set_config(
+  'messages.latest_unread_id',
+  (
+    select max(message.id)::text
+    from public.messages message
+    where message.conversation_id = '50000000-0000-4000-8000-000000000002'
+  ),
+  true
+);
+select set_config(
   'request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true
 );
 set local role authenticated;
 select extensions.is(
   (
     select result_code
-    from api.mark_conversation_read('50000000-0000-4000-8000-000000000001', 2)
+    from api.mark_conversation_read(
+      '50000000-0000-4000-8000-000000000002',
+      current_setting('messages.latest_unread_id')::bigint
+    )
   ),
   'advanced',
-  'marking the latest seeded message advances the read cursor'
+  'marking the unread Ask at its latest message advances the read cursor'
 );
 select extensions.is(
-  (select unread_count from api.list_conversation_summaries()),
+  (select coalesce(sum(unread_count), 0)::integer from api.list_conversation_summaries()),
   0,
-  'advancing the read cursor clears the summary unread count'
+  'advancing the read cursor clears all summary unread count'
 );
 select extensions.is(
   (select unread_count from api.get_messages_counts()),
@@ -338,7 +366,10 @@ select extensions.is(
   'blocking a connected counterpart returns a stable result row'
 );
 select extensions.is(
-  (select count(*)::integer from api.list_conversation_summaries()),
+  (
+    select count(*)::integer
+    from api.list_conversation_summaries(p_query => 'Mei Park')
+  ),
   0,
   'a blocked pair disappears from the Messages projection'
 );
@@ -353,7 +384,7 @@ select extensions.is(
     select result_code
     from api.send_connection_request(
       '10000000-0000-4000-8000-000000000005',
-      '11111111-1111-1111-1111-111111111111',
+      '11111111-1111-4111-8111-111111111111',
       'A deterministic intro.',
       'b1000000-0000-4000-8000-000000000001'
     )
@@ -389,7 +420,7 @@ select extensions.is(
     select result_code
     from api.send_connection_request(
       '10000000-0000-4000-8000-000000000005',
-      '11111111-1111-1111-1111-111111111111',
+      '11111111-1111-4111-8111-111111111111',
       'A deterministic intro.',
       'b1000000-0000-4000-8000-000000000001'
     )
@@ -402,7 +433,7 @@ select extensions.is(
     select result_code
     from api.send_connection_request(
       '10000000-0000-4000-8000-000000000005',
-      '11111111-1111-1111-1111-111111111111',
+      '11111111-1111-4111-8111-111111111111',
       'A different intro.',
       'b1000000-0000-4000-8000-000000000001'
     )

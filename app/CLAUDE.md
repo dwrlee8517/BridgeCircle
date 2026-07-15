@@ -46,7 +46,7 @@ app/src/
 │   ├── (auth)/           sign in / signup / invite landing
 │   └── (member)/         authenticated app shell
 │       ├── help/         v2 Help home, composers, history, detail, offers, settings
-│       ├── messages/     v2 conversation boundary; accepted-Ask thread is live
+│       ├── messages/     v2 list, Waiting, Ask/Connection thread, context, safety
 │       ├── people/       directory + NL search + direct-Help entry
 │       ├── events/
 │       ├── announcements/
@@ -55,6 +55,10 @@ app/src/
 ├── components/
 │   └── ui/               shadcn primitives (we own this code)
 ├── lib/                  business logic, framework-agnostic
+│   ├── conversations/    shared v2 thread contracts and pure behavior
+│   ├── messages/         v2 list/count contracts and pure behavior
+│   ├── connections/      v2 Connection commands and pure behavior
+│   ├── safety/           v2 report/block command boundary
 │   ├── help/             v2 Help domain contracts and pure behavior
 │   ├── outbox/           durable worker job contracts
 │   ├── friendship/
@@ -115,7 +119,8 @@ pnpm lint         # eslint
 pnpm biome format --write .   # format
 pnpm biome check .            # lint via biome
 pnpm vitest                   # run tests
-pnpm db:types                 # regenerate src/db/database.types.ts after migration
+pnpm db:types:local           # regenerate types from local v2 during the rebuild
+pnpm check:messages-cutover   # prevent retired Messages URLs/imports from returning
 ```
 
 Package manager is **pnpm 10.33.2** — do not use npm or yarn.
@@ -126,7 +131,9 @@ Before declaring a task done:
 
 - `pnpm biome check . && pnpm lint`
 - `pnpm tsc --noEmit`
-- if you touched SQL: `pnpm db:types` and confirm `database.types.ts` regenerated cleanly
+- if you touched SQL during the rebuild: run `pnpm db:types:local` twice and
+  confirm `database.types.ts` is byte-identical, then lint and shadow-diff the
+  local schema per `docs/runbooks/migration-workflow.md`
 - if you touched a route: there is a Vitest covering the `/lib` function (or write one)
 
 ## Working Conventions
@@ -161,8 +168,8 @@ Before declaring a task done:
 | `/help/settings` | Helper availability and topics | Sole settings surface for Help supply |
 | `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
-| `/messages` | Canonical Messages root | Full list is the next Messages-domain port; current page states that boundary truthfully |
-| `/messages/[id]` | Unified v2 conversation thread | Accepted Help conversations are live; conversation persists after Ask resolution |
+| `/messages` | Canonical Messages root | Waiting, counts, filters/search, keyset list, and responsive workspace use fixed v2 projections |
+| `/messages/[id]` | Unified v2 conversation thread | Ask and Connection origins share history, send/read/typing, context, and safety controls |
 | `/events`, `/events/[id]` | Events list + detail | |
 | `/announcements`, `/announcements/[id]` | Archive | Off top nav post-#55; entry via home banner + notifications |
 | `/profile/[id]` | Profile detail with friendship + helper-ask CTAs | |
@@ -176,7 +183,8 @@ sidebar, tablet rail, and mobile tab bar.
 
 This is a pre-launch destructive rebuild. Retired `/ask`, `/inbox`, `/search`,
 `/discover`, `/friends`, and `/mentorship/*` routes have no compatibility
-redirects. Do not recreate them. Update callers to the canonical routes.
+redirects. Do not recreate them. Update callers to the canonical routes;
+`check:help-cutover` and `check:messages-cutover` enforce this boundary.
 
 Vocabulary (ADR 0011 + ADR 0015): user-facing copy says **Ask**, **Help**,
 **Connect**, and **Messages**. The v2 schema uses these concepts directly; no

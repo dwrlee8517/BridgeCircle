@@ -379,7 +379,7 @@
   --muted-foreground: var(--grey-600);
   --accent: var(--grey-100);
   --accent-foreground: var(--grey-900);
-  --destructive: var(--red-600);
+  --destructive: var(--red-700);
   --destructive-foreground: #ffffff;
   --border: var(--grey-200);
   --border-subtle: #eef1f5; /* O7: shell rails and quiet dividers */
@@ -436,7 +436,7 @@
   --action-primary-pressed: var(--blue-700);
   --action-on-primary: var(--primary-foreground);
   --action-weak: var(--blue-50);
-  --action-weak-text: var(--blue-600);
+  --action-weak-text: var(--blue-700);
   --action-quiet: var(--grey-100);
   --action-quiet-text: var(--grey-700);
   --action-disabled: var(--grey-200);
@@ -475,7 +475,7 @@
   --state-warning-tint: var(--orange-50);
   --state-caution-text: var(--yellow-800);
   --state-caution-tint: var(--yellow-50);
-  --state-danger-text: var(--red-600);
+  --state-danger-text: var(--red-700);
   --state-danger-tint: var(--red-50);
   --state-premium-text: var(--purple-600);
   --state-premium-tint: var(--purple-50);

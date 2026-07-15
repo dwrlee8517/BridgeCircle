@@ -40,7 +40,10 @@ test("a signed-in member lands on Home greeted by first name with all five nav s
   await expect(nav.getByRole("link", { name: "Home", exact: true })).toHaveAttribute("href", "/");
   await expect(nav.getByRole("link", { name: "Help", exact: true })).toHaveAttribute("href", "/help");
   await expect(nav.getByRole("link", { name: "People", exact: true })).toHaveAttribute("href", "/people");
-  await expect(nav.getByRole("link", { name: "Messages", exact: true })).toHaveAttribute("href", "/inbox");
+  await expect(nav.getByRole('link', { name: 'Messages', exact: true })).toHaveAttribute(
+    'href',
+    '/messages',
+  )
   await expect(nav.getByRole("link", { name: "School", exact: true })).toHaveAttribute("href", "/school");
 });
 
@@ -73,6 +76,6 @@ test("signing out returns to /sign-in and re-locks member pages", async ({ page 
   await signInAs(page, activeMember);
   await signOut(page);
 
-  await page.goto("/inbox");
-  await expect(page).toHaveURL(/\/sign-in\?next=%2Finbox/);
+  await page.goto('/messages')
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fmessages/)
 });

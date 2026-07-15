@@ -10,13 +10,15 @@ and Vitest for pure behavior.
 ## Current rebuild status
 
 The database is v2, while application domains are being ported one at a time.
-Foundation, Conversation, and Help have focused green gates. Messages list,
+Foundation, Conversation, Help, and Messages have focused green gates.
 People/Profile, School/Admin, and their older E2E files remain a migration
 inventory. Until those domains are ported, do not describe the repository-wide
 Playwright suite or production build as green.
 
 Focused Help acceptance is recorded in
 [`database-v2-help-test-inventory.md`](../architecture/database-v2-help-test-inventory.md).
+Focused Messages acceptance is recorded in
+[`database-v2-messages-test-inventory.md`](../architecture/database-v2-messages-test-inventory.md).
 
 ## Local hermetic mode
 
@@ -36,6 +38,7 @@ pnpm db:start
 pnpm db:reset
 pnpm test:e2e tests/e2e/foundation/foundation-flow.spec.ts
 pnpm test:e2e tests/e2e/help/help-settings.spec.ts
+pnpm test:e2e tests/e2e/messages/messages.spec.ts --workers=1
 ```
 
 Use `E2E_SKIP_RESET=1` only for a short local iteration when the test owns and
@@ -48,6 +51,7 @@ tests/e2e/
 ├── helpers/          environment, auth, and v2 scenario helpers
 ├── foundation/       v2 identity/membership/profile boundary
 ├── help/             v2 Help settings and browser flows
+├── messages/         v2 list, thread, Connection, safety, and responsive roads
 ├── api/              health and auth-proxy contracts
 └── <later domains>/  migration inventory until that domain is ported
 ```
@@ -86,6 +90,23 @@ Database truth for these roads is also asserted by the Help pgTAP,
 concurrency, worker, maintenance, Realtime, and query-plan suites. Browser tests
 do not replace those gates.
 
+## Messages acceptance road
+
+The focused Messages browser gate is serial and begins from a canonical local
+reset because it deliberately walks lifecycle state across the fixed seed:
+
+1. Waiting direct Ask acceptance into the unified thread, send, and reload;
+2. Connection accept and quiet decline with durable database checks;
+3. two authenticated contexts converging unread/read state through Realtime;
+4. post-Ask Connection nudge, Ask resolution, and continued send;
+5. report acknowledgement, disconnect retention, and block revocation;
+6. All/Open asks/search/tied keyset paging and deleted-member fallback;
+7. axe checks for root, dialogs, and mobile context plus no overflow at 1440,
+   768, 390, and 320 px.
+
+This file is one reset-owned scenario, not a dependency between independent
+specs. Do not shard it or run it against a persistent remote project.
+
 ## Integ mode and remote safety
 
 `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org` selects remote integ mode.
@@ -122,6 +143,7 @@ incompatible remote application/database pair.
 ## Related documentation
 
 - [Help test inventory](../architecture/database-v2-help-test-inventory.md)
+- [Messages test inventory](../architecture/database-v2-messages-test-inventory.md)
 - [Local seed](seed-dev.md)
 - [Environment model](../architecture/environments.md)
 - [Migration workflow](migration-workflow.md)

@@ -23,28 +23,28 @@ insert into public.invites (
 ) values
   (
     '80000000-0000-4000-8000-000000000001',
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     'valid@example.com', 'valid@example.com',
     extensions.digest('foundation-verify-valid-token-0000000001', 'sha256'),
     'pending', 'Valid Member', 2014, null, null, now() + interval '1 day'
   ),
   (
     '80000000-0000-4000-8000-000000000002',
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     'expired@example.com', 'expired@example.com',
     extensions.digest('foundation-verify-expired-token-0000001', 'sha256'),
     'pending', null, null, null, null, now() - interval '1 minute'
   ),
   (
     '80000000-0000-4000-8000-000000000003',
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     'revoked@example.com', 'revoked@example.com',
     extensions.digest('foundation-verify-revoked-token-0000001', 'sha256'),
     'revoked', null, null, null, null, now() + interval '1 day'
   ),
   (
     '80000000-0000-4000-8000-000000000004',
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     'accepted@example.com', 'accepted@example.com',
     extensions.digest('foundation-verify-accepted-token-000001', 'sha256'),
     'accepted', null, null,
@@ -159,7 +159,7 @@ insert into public.invites (
   ),
   (
     '80000000-0000-4000-8000-000000000012',
-    '11111111-1111-1111-1111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
     'accept-pending@example.com', 'accept-pending@example.com',
     extensions.digest('foundation-accept-pending-token-0000001', 'sha256'),
     'pending', null, 2012, now() + interval '1 day'
@@ -365,17 +365,17 @@ insert into public.organization_memberships (
   (
     '71000000-0000-4000-8000-000000000041',
     '70000000-0000-4000-8000-000000000041',
-    '11111111-1111-1111-1111-111111111111', 'pending', null
+    '11111111-1111-4111-8111-111111111111', 'pending', null
   ),
   (
     '71000000-0000-4000-8000-000000000042',
     '70000000-0000-4000-8000-000000000042',
-    '11111111-1111-1111-1111-111111111111', 'pending', null
+    '11111111-1111-4111-8111-111111111111', 'pending', null
   ),
   (
     '71000000-0000-4000-8000-000000000043',
     '70000000-0000-4000-8000-000000000043',
-    '11111111-1111-1111-1111-111111111111', 'pending', null
+    '11111111-1111-4111-8111-111111111111', 'pending', null
   ),
   (
     '71000000-0000-4000-8000-000000000044',

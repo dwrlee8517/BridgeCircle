@@ -33,7 +33,7 @@ insert into public.asks (
   expires_at, created_at
 )
 select
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000005',
   'direct', 'accepted', '20000000-0000-4000-8000-000000000003',
   case when fixture = 2000 then 'messagesplanneedle' else 'Messages plan Ask ' || fixture end,
@@ -72,7 +72,7 @@ insert into public.asks (
   question, request_message, client_request_id, expires_at, created_at
 )
 select
-  '11111111-1111-1111-1111-111111111111',
+  '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000006',
   'direct', 'waiting', '20000000-0000-4000-8000-000000000003',
   'Messages Waiting plan Ask ' || fixture, 'Planner-only request.',
@@ -86,7 +86,7 @@ insert into public.connection_requests (
 select
   '10000000-0000-4000-8000-000000000005',
   '10000000-0000-4000-8000-000000000003',
-  '11111111-1111-1111-1111-111111111111', 'declined', gen_random_uuid(), now(),
+  '11111111-1111-4111-8111-111111111111', 'declined', gen_random_uuid(), now(),
   now() - fixture * interval '1 second'
 from generate_series(1, 500) fixture;
 

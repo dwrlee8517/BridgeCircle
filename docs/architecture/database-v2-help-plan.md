@@ -106,7 +106,7 @@ stable provider idempotency key as an additional defense around outbox retries.
 
 #### Messages and closure
 
-- An accepted Ask redirects to `/messages/[conversationId]`; it is an ordinary
+- An accepted Ask navigates to `/messages/[conversationId]`; it is an ordinary
   conversation thereafter.
 - Either participant may mark an accepted Ask resolved and optionally add one
   outcome note. The conversation remains available and sendable.
@@ -129,15 +129,12 @@ stable provider idempotency key as an additional defense around outbox retries.
 | `/help/asks` | Owned Ask history and recovery actions | `AskHistory.dc.html` |
 | `/help/asks/[askId]` | Role-shaped Ask/direct-request/status view | `AskStatus.dc.html`, `GiveDirect.dc.html` |
 | `/help/asks/[askId]/offer` | Offer composer for an eligible circle Ask | `GiveOffer.dc.html` |
+| `/help/settings` | Helper availability and normalized topics | `Help.dc.html` Give settings |
 | `/messages/[conversationId]` | Minimal accepted-Ask thread seam | `Messages.dc.html` thread state |
 
-Legacy routes are removed from the product graph in the same cutover:
-
-- `/ask` redirects to `/help`;
-- `/ask/[id]` redirects to `/help/asks/[id]`;
-- `/help/settings` redirects to `/help?mode=give`;
-- old new/thread routes redirect to the nearest safe new landing because the
-  pre-launch reset deliberately preserves no legacy thread identifiers.
+Legacy `/ask*`, `/inbox*`, and split-thread routes are deleted from the product
+graph in the same cutover. No alias or redirect layer remains; `/help/settings`
+is the canonical dedicated settings route.
 
 All application links, notification targets, and route ownership tests switch
 in one change. No compatibility reads or writes to legacy Ask/thread tables are
@@ -148,10 +145,10 @@ loop: origin line, paginated/gap-recovered history, send, Ask context, report,
 and either-participant resolve. It reuses the completed Conversation Primitive
 rather than adding a second thread implementation. Accepted Asks do not expire,
 so their Messages thread never shows an expiry warning; the last-three-days
-warning belongs only to unanswered status rows. The full Messages list, Waiting
-group, filters, responsive split-pane inbox, connection-request grouping, and
-inbox polish stay in the next Messages slice; until then, direct requests remain
-complete and actionable from Help's Give arm.
+warning belongs only to unanswered status rows. At this Help checkpoint, the
+full Messages list, Waiting group, filters, responsive split-pane inbox, and
+Connection-request grouping remained owned by the subsequent Messages slice;
+that slice is now complete locally.
 
 ## Architecture
 
@@ -814,7 +811,7 @@ the UI treats Broadcast as authoritative state.
 API/repository contracts. This includes Help home and preferences, private
 search, both Ask composers, history and owner status, the role-shaped direct
 recipient response, matched/private circle offers, cushioned decline/report
-paths, accepted-Ask redirects, and the minimal v2 Messages thread needed to
+paths, accepted-Ask navigation, and the minimal v2 Messages thread needed to
 finish the Help loop. Direct acceptance and offer acceptance create one
 conversation with one origin line and opening message; accepted conversations
 remain sendable after either participant resolves the Ask. The offer API now
@@ -823,13 +820,13 @@ eligibility projection, and helper drafting has a bounded `offer_note` AI
 budget with a deterministic fallback. All desktop/tablet/mobile implementation
 captures were checked beside their source templates; the implementation has no
 horizontal overflow at 768, 390, or 320 px. The source's full three-column
-Messages inbox is deliberately outside this Help milestone; only the approved
-accepted-Ask thread seam is included here and the full inbox remains owned by
-the Messages vertical slice.
+Messages inbox was deliberately outside this Help milestone; only the approved
+accepted-Ask thread seam was included here. The subsequent Messages vertical
+slice now owns and implements the full inbox.
 
 - Implement `/help`, both composers, history, status/direct detail, offer
   composer, result/error/loading/offline states, remembered mode, draft carry,
-  last-three-days warning, and redirects.
+  last-three-days warning, and canonical navigation.
 - Wire all commands, matching, assistance, Realtime refresh, reports, and
   notification targets, plus the minimal v2 accepted-Ask Messages thread needed
   to finish the loop.
@@ -855,8 +852,8 @@ boundary. `check:help-cutover` permanently rejects a returning route, import,
 or redirect. Documentation and runbooks now state the destructive pre-launch
 contract and the remote-cutover hold.
 
-- Update Home/Profile/Notifications/Messages entry links and remove or redirect
-  legacy Help routes atomically.
+- Update Home/Profile/Notifications/Messages entry links and delete legacy Help
+  routes atomically without compatibility aliases.
 - Update `app/CLAUDE.md`, information architecture, screen map, v2 contract,
   ADR 0011 decline amendment, environment/Doppler worker topology, migration,
   Supabase, seed, E2E, and CD runbooks.

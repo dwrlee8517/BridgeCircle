@@ -97,6 +97,7 @@ export function ConversationThread({
   const endVisibleRef = useRef(false)
   const pendingReadIdRef = useRef<number | null>(null)
   const connectionRequestIdRef = useRef<string | null>(null)
+  const detailsButtonRef = useRef<HTMLButtonElement | null>(null)
   const effectiveCanSend = conversation.canSend && !disconnected
 
   useEffect(() => {
@@ -483,6 +484,7 @@ export function ConversationThread({
             </span>
           </span>
           <button
+            ref={detailsButtonRef}
             type="button"
             onClick={() => setContextSheetOpen(true)}
             className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-surface-subtle px-3 text-xs font-bold text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring xl:hidden"
@@ -656,7 +658,13 @@ export function ConversationThread({
       ) : null}
 
       <Dialog open={contextSheetOpen} onOpenChange={setContextSheetOpen}>
-        <DialogContent className="top-0 right-0 left-auto h-dvh w-[min(360px,calc(100%-1rem))] max-w-none content-start gap-0 overflow-y-auto rounded-none border-l border-border-subtle p-0 translate-x-0 translate-y-0">
+        <DialogContent
+          onCloseAutoFocus={(event) => {
+            event.preventDefault()
+            detailsButtonRef.current?.focus()
+          }}
+          className="top-0 right-0 left-auto h-dvh w-[min(360px,calc(100%-1rem))] max-w-none content-start gap-0 overflow-y-auto rounded-none border-l border-border-subtle p-0 translate-x-0 translate-y-0"
+        >
           <DialogTitle className="sr-only">Conversation details</DialogTitle>
           <DialogDescription className="sr-only">
             Profile, Ask context, Connection state, and safety actions.

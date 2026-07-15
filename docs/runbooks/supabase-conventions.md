@@ -83,19 +83,27 @@ typing functions through `src/db/repositories/conversations.ts`. Keep behavior
 and result unions framework-free under `src/lib/conversations/`; do not call
 Supabase from that domain layer.
 
+Messages list/count/Waiting reads and Connection/safety commands follow the
+same boundary. Use `src/db/repositories/messages.ts`, `connections.ts`, and
+`safety.ts`, backed only by fixed `api` functions. Their framework-free result
+mapping lives under `src/lib/messages/`, `connections/`, and `safety/`.
+
 ## Conversation Realtime
 
 Conversation state uses private database Broadcast, not message Postgres
-Changes. Open both authenticated topics only after `setAuth()`:
+Changes. Open authenticated topics only after `setAuth()`:
 
 - `conversation:<conversation_uuid>` carries block-aware ID-only message,
   read, and typing hints;
-- `user:<viewer_user_uuid>` is owner-only and carries permission-change or
-  revocation hints that must survive loss of conversation-topic access.
+- `user:<viewer_user_uuid>` is owner-only and carries Help, Messages,
+  Connection, permission-change, and revocation hints. One member-shell
+  `UserControlProvider` owns this topic for the whole app; domain screens must
+  consume its revision/control state rather than opening duplicate channels.
 
 Treat every event as a refetch hint. Fetch durable content through the bounded
 after-cursor API on subscribe, reconnect, gaps, and `message.created`;
-deduplicate by event/message ID and remove both channels on cleanup. Never add
+deduplicate by event/message ID and remove the content channel on cleanup. The
+shell provider independently owns and cleans the user topic. Never add
 message bodies, Ask text, client nonces, profile fields, or block initiators to
 Broadcast payloads. `notifications` remains on RLS-filtered Postgres Changes.
 
