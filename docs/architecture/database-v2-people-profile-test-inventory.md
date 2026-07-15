@@ -1,6 +1,6 @@
 # Database v2 People/Profile vertical-slice test inventory
 
-- **Status:** code/cutover green; corrected directory/profile interaction road green; full Milestone 7 matrix pending
+- **Status:** code/cutover, corrected interaction road, and multi-persona privacy matrix green; UI/UX-first sequencing active; detailed search/ranking verification deferred
 - **Approved:** 2026-07-15
 - **Plan:** [People/Profile vertical-slice implementation plan](database-v2-people-profile-plan.md)
 - **Starting checkpoint:** completed Messages slice `c9a1b77`
@@ -240,6 +240,73 @@ not by itself claim the entire Milestone 7 matrix: three-viewer privacy,
 self-profile editing, safety actions, provider-success/failure sending, and
 all reference viewports remain separately enumerated below.
 
+## Multi-persona privacy acceptance checkpoint
+
+Implemented and verified locally on 2026-07-15 after the interaction
+correction checkpoint:
+
+- added a self-contained pgTAP matrix for owner, same-organization stranger,
+  connected member, blocked member, other-organization member, pending member,
+  revoked member, inactive account, organization admin, and service role;
+- proved directory exclusion happens before count/ranking for self, block,
+  other organization, pending/revoked membership, inactive/deleted account,
+  and deleted/revoked targets;
+- proved organization, Connection, and self section audiences and per-link
+  audiences omit hidden values entirely rather than returning redacted raw
+  content;
+- proved blocked and nonexistent profiles return the identical
+  `not_available` shape, and a caller cannot substitute another member's
+  membership ID as an authorization capability;
+- proved organization administrators receive ordinary member profile
+  visibility, while trusted service jobs retain deliberate raw maintenance,
+  enrichment, and safety access;
+- proved resume paths, provider identifiers, enrichment settings, report
+  evidence, raw profile relations, visibility policy, and contact-link rows do
+  not enter member responses or authenticated raw access;
+- replaced the stale pre-v2 friendship/profile browser spec with the current
+  `/people`, `/profile/[id]`, and `/profile/me` contract;
+- verified Richard sees his self-only link and Mei's Connection-only link, Sam
+  sees Mark's organization link but not Mei's Connection-only link, and the
+  blocked Amy route and directory both expose only the calm unavailable state.
+
+| Gate | Result |
+|---|---|
+| isolated privacy pgTAP | 1 file / 36 assertions / green |
+| empty local reset + deterministic seed | green |
+| complete pgTAP | 13 files / 525 assertions / green |
+| rendered privacy E2E | 2 tests / green after clean reset |
+| Codex in-app browser | owner, connected, stranger, blocked, and directory surfaces green; Richard session restored on `/people` |
+| focused People/Profile TypeScript | green |
+| People/Profile boundary and destructive-cutover detectors | green |
+| changed-file ESLint and `git diff --check` | green |
+
+The first complete pgTAP attempt correctly detected that prior local Messages
+use had advanced the seeded unread cursor. Resetting only the disposable local
+database restored the deterministic fixture; the clean run passed all 525
+assertions. No schema migration or production/remote mutation was required for
+this privacy checkpoint.
+
+## Sequencing decision — complete UI/UX before search tuning
+
+Recorded at the user's direction on 2026-07-15:
+
+- the current bounded, privacy-safe People search contract stays in place so
+  the visible directory, filters, result states, and profile flows have real
+  data and stable behavior;
+- detailed natural-language extraction, embedding/ranking quality, match-
+  evidence tuning, large-fixture search correctness, and query-plan
+  optimization are intentionally deferred until the redesigned pages and
+  user-visible flows are complete;
+- active People/Profile work moves to the remaining self-profile interaction,
+  relationship/safety, loading/empty/error, responsive, accessibility, and
+  source-to-render visual fidelity roads;
+- security, block/privacy behavior, tenant isolation, fixed result bounds, and
+  safe provider fallback are not deferred because visible UX depends on those
+  contracts remaining trustworthy.
+
+This changes implementation order, not the approved final completion
+definition. Sections C and G remain required before production readiness.
+
 ## Planned verification matrix
 
 ### A. Schema and contract
@@ -256,7 +323,7 @@ all reference viewports remain separately enumerated below.
 - generated public+api types are byte-identical across two generations;
 - schema lint has no warnings and local public/api/private diff is empty.
 
-### B. Directory and profile privacy personas
+### B. Directory and profile privacy personas — complete 2026-07-15
 
 Exercise owner, same-organization stranger, connected member, blocked pair,
 out-of-organization member, inactive member, admin, and service personas:
@@ -275,7 +342,7 @@ out-of-organization member, inactive member, admin, and service personas:
   evidence never appear in member responses;
 - raw relation access cannot bypass the fixed projection.
 
-### C. Search correctness
+### C. Search correctness — deferred until after UI/UX completion
 
 - blank browse is bounded to 50 and sorted by durable updated time + ID;
 - explicit All/Open to help/In your circle scopes are exact;
@@ -333,7 +400,7 @@ out-of-organization member, inactive member, admin, and service personas:
 - Realtime payload never contains name, bio, query, link, evidence, or block
   initiator.
 
-### G. Query plans and performance
+### G. Query plans and performance — deferred until after UI/UX completion
 
 Use representative pilot data including at least 2,500 active members, 50+
 matches, blocked/inactive distractors, normalized histories, links, topics,

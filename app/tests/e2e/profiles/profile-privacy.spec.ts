@@ -1,75 +1,71 @@
-import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "../helpers/factory";
-import { signInAs } from "../helpers/auth";
+import { expect, test, type Page } from '@playwright/test'
+import { signIn } from '../helpers/auth'
+import { isRemote } from '../helpers/env'
 
-const scenario = new TestScenario("privacy");
-let owner: SeededMember;
-let friendViewer: SeededMember;
-let strangerViewer: SeededMember;
-const linkedinUrl = "https://www.linkedin.com/in/integ-test-owner";
+const PERSONAS = {
+  owner: {
+    email: 'richard@example.com',
+    password: 'devseed-password-richard',
+  },
+  connected: {
+    email: 'richard@example.com',
+    password: 'devseed-password-richard',
+  },
+  stranger: {
+    email: 'sam@example.com',
+    password: 'devseed-password-sam',
+  },
+}
 
-test.beforeAll(async () => {
-  owner = await scenario.createMember("owner", {
-    linkedinUrl,
-    currentEmployer: "Meridian Capital",
-    currentTitle: "Portfolio Manager",
-    city: "Seoul",
-    university: "Yonsei University",
-    major: "Economics",
-    graduationYear: 2011,
-    educationHistory: [
-      {
-        school: "Yonsei University",
-        degree: "BA",
-        field: "Economics",
-        start_date: "2011",
-        end_date: "2015",
-      },
-    ],
-  });
-  friendViewer = await scenario.createMember("friend");
-  strangerViewer = await scenario.createMember("stranger");
-  await scenario.createFriendship(owner.userId, friendViewer.userId);
-});
+const MEMBERS = {
+  blocked: '10000000-0000-4000-8000-000000000001',
+  organizationLink: '10000000-0000-4000-8000-000000000003',
+  connectionLink: '10000000-0000-4000-8000-000000000004',
+}
 
-test.afterAll(async () => {
-  await scenario.destroy();
-});
+const LINKS = {
+  self: 'https://www.linkedin.com/in/richard-lee',
+  organization: 'https://www.linkedin.com/in/mark-chen',
+  connection: 'https://www.linkedin.com/in/mei-park',
+}
 
-test("a non-friend sees every org-visible field but no contact links", async ({ page }) => {
-  await signInAs(page, strangerViewer);
-  await page.goto(`/profile/${owner.userId}`);
+async function switchPersona(
+  page: Page,
+  persona: { email: string; password: string },
+): Promise<void> {
+  await page.context().clearCookies()
+  await signIn(page, persona.email, persona.password)
+}
 
-  await expect(page.getByRole("heading", { name: owner.name })).toBeVisible();
-  await expect(page.getByText("Meridian Capital")).toBeVisible();
-  await expect(page.getByText("Portfolio Manager")).toBeVisible();
-  await expect(page.getByText("Seoul")).toBeVisible();
-  await expect(page.getByText("Yonsei University").first()).toBeVisible();
-  await expect(page.getByText(/Verified '11/)).toBeVisible();
+test.describe.configure({ mode: 'serial' })
+test.skip(isRemote, 'Profile privacy acceptance depends on the disposable local v2 seed.')
 
-  await expect(page.locator(`a[href="${linkedinUrl}"]`)).toHaveCount(0);
-});
+test('profile links follow organization, connection, and self audiences in the rendered app', async ({
+  page,
+}) => {
+  await switchPersona(page, PERSONAS.stranger)
+  await page.goto(`/profile/${MEMBERS.organizationLink}`)
+  await expect(page.locator(`a[href="${LINKS.organization}"]`)).toBeVisible()
 
-test("a friend sees the contact links card with the LinkedIn URL", async ({ page }) => {
-  await signInAs(page, friendViewer);
-  await page.goto(`/profile/${owner.userId}`);
+  await page.goto(`/profile/${MEMBERS.connectionLink}`)
+  await expect(page.getByRole('heading', { name: 'Mei Park' })).toBeVisible()
+  await expect(page.locator(`a[href="${LINKS.connection}"]`)).toHaveCount(0)
 
-  await expect(page.getByRole("heading", { name: owner.name })).toBeVisible();
-  await expect(page.locator(`a[href="${linkedinUrl}"]`)).toBeVisible();
-});
+  await switchPersona(page, PERSONAS.connected)
+  await page.goto(`/profile/${MEMBERS.connectionLink}`)
+  await expect(page.locator(`a[href="${LINKS.connection}"]`)).toBeVisible()
 
-test("your own profile shows an Edit profile action instead of connect CTAs", async ({ page }) => {
-  await signInAs(page, owner);
-  await page.goto(`/profile/${owner.userId}`);
+  await switchPersona(page, PERSONAS.owner)
+  await page.goto('/profile/me')
+  await expect(page.getByRole('heading', { name: 'Richard Lee' })).toBeVisible()
+  await expect(page.locator(`a[href="${LINKS.self}"]`)).toBeVisible()
+})
 
-  await expect(page.getByRole("link", { name: "Edit profile" }).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Add friend" })).toHaveCount(0);
-});
+test('blocked profile and directory access converge on an unavailable surface', async ({ page }) => {
+  await switchPersona(page, PERSONAS.owner)
+  await page.goto(`/profile/${MEMBERS.blocked}`)
+  await expect(page.getByRole('heading', { name: 'That page isn’t in the circle.' })).toBeVisible()
 
-test("the People I know filter narrows the directory to friends only", async ({ page }) => {
-  await signInAs(page, friendViewer);
-  await page.goto("/people?peopleIKnow=on");
-
-  await expect(page.getByText(owner.name).first()).toBeVisible();
-  await expect(page.getByText(strangerViewer.name)).toHaveCount(0);
-});
+  await page.goto('/people')
+  await expect(page.getByRole('link', { name: 'Amy Admin' })).toHaveCount(0)
+})
