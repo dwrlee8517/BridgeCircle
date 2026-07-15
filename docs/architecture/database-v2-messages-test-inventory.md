@@ -1,0 +1,475 @@
+# Database v2 Messages vertical-slice test inventory
+
+- **Status:** approved; Milestone 1 baseline in progress
+- **Approved:** 2026-07-15
+- **Plan:** [Messages vertical-slice implementation plan](database-v2-messages-plan.md)
+- **Starting checkpoint:** Help domain cutover `f0a09e1`
+- **Rule:** a milestone cannot proceed while its owned verification is red
+- **Scope:** local-only; no remote project, provider, deploy, push, or merge
+
+## Baseline to record after approval
+
+Milestone 1 records exact versions, counts, and checkpoint evidence before
+implementation. Expected inherited gates from the starting checkpoint are:
+
+| Gate | Expected starting state |
+|---|---|
+| pgTAP | 10 files / 379 assertions green |
+| Foundation concurrency | green |
+| Conversation concurrency | green |
+| Help concurrency | green |
+| Help worker and maintenance | green |
+| Conversation Realtime | green |
+| Help Realtime | green |
+| Conversation query plans | green |
+| Help query plans | green |
+| focused Help compiler/boundaries/cutover | zero errors / green |
+| repository Biome/ESLint/Vitest | green |
+| global TypeScript | classified later-domain inventory; not globally green |
+
+Do not copy these expected counts into completion evidence without rerunning
+them. If the live baseline differs, classify the difference before adding
+Messages work.
+
+## Test ownership
+
+- pgTAP owns schema signatures, grants, fixed projections, authorization,
+  result rows, transaction effects, dedupe, and IDs-only Broadcast contracts.
+- multi-session shell harnesses own advisory/row lock order and race outcomes.
+- Realtime integration owns private-topic joins, commit delivery, rollback
+  silence, dedupe, cross-tab invalidation, permission revocation, reconnect,
+  and cleanup.
+- query-plan harnesses own representative planner evidence; no index is added
+  from intuition alone.
+- Vitest owns strict parsers, framework-free operation mapping, cursor/list
+  merging, UI state machines, and channel/provider adapters.
+- Playwright owns rendered member workflows, persistence after refresh,
+  accessibility behavior, responsive adaptation, and two-context convergence.
+- static checks own dependency direction, fixed APIs, legacy/raw/service bans,
+  content/log bans, token use, user-topic ownership, and suppressions.
+
+## Database projection matrix
+
+Test every read as authenticated participant, same-org outsider, cross-org
+member, inactive member, deleted counterpart, blocked party in both directions,
+and anonymous role where applicable.
+
+| Invariant | Required proof |
+|---|---|
+| only participant conversations appear | pgTAP personas |
+| blocked pair is absent from list/detail/counts | pgTAP + block race |
+| inactive viewer gets no ordinary Messages data | pgTAP |
+| deleted counterpart uses tombstone identity and cannot send | pgTAP + UI fixture |
+| disconnected direct history remains visible but read-only | inherited Conversation + summary pgTAP |
+| resolved Ask remains visible and sendable | inherited Conversation + summary/detail pgTAP |
+| waiting/open/unaccepted Asks never appear as conversations | pgTAP |
+| same pair may have one direct and multiple Ask rows | inherited constraint regression |
+| no raw conversation/message/read grant returns | grant pgTAP + static check |
+| fixed functions are authenticated-only | grant pgTAP |
+
+### Conversation summaries
+
+- participant narrowing uses both `(user_a_id, ...)` and `(user_b_id, ...)`
+  paths;
+- counterpart identity is the other user for either canonical pair order;
+- Ask question/status is present only for Ask conversations;
+- connected flag follows the current Connection, not conversation origin;
+- `can_send` matches the authoritative conversation permission helper;
+- latest preview is the highest durable message ID and preserves sender/kind;
+- no message-body search occurs;
+- unread counts only counterpart `kind='user'` rows above the viewer cursor;
+- own user messages and all system messages contribute zero unread;
+- no read row means every counterpart user message is unread;
+- `needs_reply` requires a latest unread counterpart user message;
+- priority is needs reply, then sendable, then read-only history;
+- activity order uses `coalesce(last_message_at, created_at), id`;
+- cursor requires priority + activity timestamp + ID together;
+- limit clamps to the approved range and OFFSET is unavailable;
+- stable tied pages contain neither duplicate nor skipped IDs;
+- All, Unread, My circle, and Open asks filters match exact definitions;
+- search trims/caps input and matches counterpart name or Ask question only;
+- malformed cursor component sets return a stable invalid-input result.
+
+### Waiting projection
+
+- pending direct Ask appears only to the active recipient user;
+- circle, outgoing, accepted, declined, retracted, resolved, and closed Asks do
+  not appear;
+- direct Ask carries only the identified asker safe preview and Help-detail ID;
+- pending incoming Connection appears only to its recipient;
+- outgoing/accepted/declined/cancelled requests do not appear;
+- blocked or inactive pairs do not appear;
+- ordering is deterministic by created time and ID;
+- result is capped at 50 and never uses raw-table client reads;
+- zero items makes the UI group disappear.
+
+### Counts
+
+- `all_count` equals all visible conversations;
+- `unread_count` equals unread conversations, not unread messages;
+- `circle_count` follows current Connection state;
+- `open_ask_count` includes accepted, unresolved Ask conversations only;
+- `waiting_count` equals pending direct Asks plus incoming Connection requests;
+- `attention_count = unread_count + waiting_count`;
+- member context and `/api/messages/counts` return the same canonical values;
+- send, receive, mark-read, accept, decline, disconnect, block, resolve, and
+  account-state changes move only the expected counts.
+
+### Extended detail
+
+- profile fields are limited to the approved participant-safe projection;
+- Ask context never requires a raw Help read or exposes offer/match internals;
+- class year/Help availability prefer the conversation organization for Ask;
+- direct context chooses a deterministic active shared organization;
+- no shared organization degrades safely without hiding retained direct history;
+- connected/pending/incoming-pending state is exact;
+- post-Ask nudge eligibility requires both users to have written, no Connection,
+  no pending request, active accounts, and no block;
+- accepted Asks expose no expiry countdown;
+- report/block/disconnect capabilities follow viewer/conversation state.
+
+## Connection command matrix
+
+### Send request
+
+| Scenario | Required result |
+|---|---|
+| first valid request | `created` + request ID |
+| same key, same normalized payload | `existing` + same request ID |
+| same key, different payload | `idempotency_conflict` and no second row/job |
+| same-direction pending pair | stable existing/pending result |
+| opposite-direction pending pair | `incoming_pending` + recipient-owned request ID |
+| already connected | `already_connected` |
+| blocked, self, missing, inactive, no shared org | leak-safe `not_available`/`invalid_input` |
+| 20 simultaneous identical requests | one row and one notification job |
+| simultaneous opposite requests | one pending row, no unique exception/deadlock |
+
+### Respond to request
+
+| Scenario | Required result |
+|---|---|
+| recipient accepts pending request | `accepted` + Connection ID + conversation ID |
+| recipient declines pending request | `declined`; no notification to requester |
+| same accept retry | same accepted IDs; no duplicate effects |
+| same decline retry | stable declined result |
+| opposite decision after terminal | `already_decided` with no mutation |
+| nonrecipient/missing/blocked/inactive | leak-safe `not_available` |
+| accept vs decline race | exactly one terminal result; loser stable; no deadlock |
+| block vs accept race | serial valid outcome; blocked state wins future access |
+
+Acceptance transaction assertions:
+
+- one canonical Connection;
+- one direct conversation for the pair;
+- one `connection_accepted` system event and key;
+- zero or one opening intro user message according to request content;
+- intro sender is requester and nonce is the request client key;
+- origin line sorts before intro;
+- one acceptance notification/outbox job;
+- IDs-only owner/conversation events;
+- rollback leaves none of the effects.
+
+### Disconnect and block
+
+- disconnect is idempotent and preserves conversation/messages/reads;
+- disconnected direct detail/list is read-only and sorted in history tier;
+- reconnecting reuses the direct conversation and does not duplicate origin;
+- block is idempotent, directional in storage, symmetric in effect;
+- block removes list/detail/waiting/count access and revokes the live thread;
+- unblock does not silently recreate a Connection or restore direct send;
+- every block check goes through `private.is_blocked`.
+
+## Messaging semantics matrix
+
+### Send and retry
+
+- blank/oversized/invalid nonce rejects locally without repository I/O;
+- one send creates one user message and one notification job;
+- same nonce/body retry returns the original message ID/timestamp;
+- lost-response UI retry reuses the same nonce;
+- a changed draft cannot silently reuse an uncertain nonce;
+- optimistic row reconciles with Broadcast/refetch without duplication;
+- connection-required/not-available preserves the draft and explains read-only;
+- unexpected transport failure is sanitized and retryable;
+- send remains available while Realtime is paused.
+
+### History and merge
+
+- initial newest 50 render chronologically;
+- older pages prepend chronologically and preserve scroll anchor;
+- after-cursor gaps append monotonically;
+- duplicate event/message IDs do not duplicate rows;
+- a non-progressing gap page stops rather than loops;
+- system line mapping is actor/viewer aware for Connection accepted, Ask
+  accepted, and Ask resolved;
+- day dividers use the member's local date and do not duplicate;
+- deleted counterpart/system actor fallbacks remain understandable.
+
+### Read and receipts
+
+- hidden document does not advance;
+- end sentinel outside viewport does not advance;
+- loading older history does not advance a newer unseen cursor;
+- visible selected end advances to the latest counterpart user message;
+- duplicate/lower advance keeps the database cursor/timestamp unchanged;
+- failure retries on focus/reconnect/new message without regressing;
+- cross-tab read event updates list count/badge;
+- only the newest relevant outgoing message renders Sent/Read;
+- counterpart higher cursor changes Sent to Read exactly once.
+
+### Typing and reconnect
+
+- nonblank typing publishes true at most once per server throttle window;
+- blank draft, send, blur/unmount publishes false where possible;
+- typing payload contains no content and expires locally at server time;
+- initial subscribe performs gap refetch;
+- post-subscribe channel error closes before reconnect;
+- backoff sequence is bounded and cleanup cancels every timer/fetch;
+- `online` and visible focus trigger immediate safe retry;
+- only one content handle and one owner handle exist per tab;
+- malformed/duplicate/wrong-conversation events fail closed;
+- durable UI remains usable during channel failure.
+
+## Owner-topic Realtime matrix
+
+Test authenticated participant A, participant B, outsider, inactive user,
+blocked user, and anonymous clients.
+
+- only a user may subscribe to their own `user:<uuid>` topic;
+- every allowed payload has one generated UUID event ID;
+- unknown event names and extra/content fields are rejected;
+- `help.changed` invalidates Help plus Messages Waiting/counts;
+- `messages.changed` reaches both participants after message commit;
+- read advance reaches the reader for cross-tab count convergence;
+- Connection create/decision emits `connections.changed` to affected owners;
+- block/disconnect control reaches both parties without content/actor leakage;
+- rollback emits no durable event;
+- duplicate/no-op command emits no duplicate durable effect and at most one
+  meaningful invalidation;
+- reconnect calls a full authoritative count/domain refetch;
+- provider deduplicates event IDs and closes the channel once;
+- Help no longer opens a second owner channel;
+- conversation content channel no longer opens a duplicate owner channel;
+- notifications Postgres Changes remains independent and regression-green.
+
+## Query-plan matrix
+
+Use rollback-only fixtures large enough to defeat toy-plan optimism:
+
+- at least 2,000 participant conversations split across canonical pair order;
+- at least 40,000 interleaved messages with mixed sender/system/read state;
+- at least 500 pending/terminal direct Asks;
+- at least 500 pending/terminal Connection requests;
+- name and Ask-question search matches near the end of the candidate set.
+
+Required evidence:
+
+- participant branches use `conversations_user_a_list_idx` and
+  `conversations_user_b_list_idx` (or measured successor indexes);
+- latest/unread work uses the `(conversation_id,id)` message path;
+- viewer cursor uses the conversation/read primary key path;
+- Connection Waiting uses recipient/status/created index;
+- direct-Ask Waiting uses recipient/status partial index;
+- connected checks use the canonical pair unique index;
+- no full message-body scan, OFFSET, or unbounded result exists;
+- bounded name/Ask search first narrows participant rows;
+- counts complete within the documented local threshold;
+- every new FK keeps a leading index (no new FK is expected);
+- an added index must make a previously red representative plan green and must
+  not duplicate an existing prefix.
+
+## Repository, domain, and route matrix
+
+### Strict parsers
+
+- valid direct/Ask summary and Waiting union rows map exactly;
+- unknown key rejects;
+- invalid UUID/timestamp/message safe integer rejects;
+- negative count/unread rejects;
+- impossible kind/Ask combinations reject;
+- success command missing required IDs rejects;
+- denial carrying private/durable IDs rejects where not permitted;
+- transport errors include operation/safe code only, never body or member data.
+
+### Framework-free operations
+
+- invalid filters/cursors/limits reject before I/O;
+- merge preserves canonical order and deduplicates by conversation ID;
+- Connection expected results are preserved exactly;
+- safety operations receive typed targets and normalized reasons;
+- no `/lib` file imports Next, Supabase, Sentry, browser globals, or env state.
+
+### Routes
+
+- missing auth returns 401;
+- invalid path/query/body returns 400 without repository call;
+- unavailable/hidden returns leak-safe 404 where appropriate;
+- idempotent/stale expected results use documented 200/409 mapping;
+- unexpected dependency failure returns sanitized 503 and Sentry-safe metadata;
+- every response is private/no-store;
+- route source contains no business-rule branches beyond result-to-HTTP mapping;
+- POST endpoints reject unknown JSON keys and non-JSON bodies.
+
+## UI and accessibility matrix
+
+### Inbox
+
+- Waiting is first, foldable, count-visible when folded, absent at zero;
+- direct Ask View opens `/help/asks/[id]`;
+- Connection buttons disable while pending and announce result;
+- selected row has `aria-current`, tint, and accent without color-only meaning;
+- unread row has semantic unread text and visual emphasis;
+- filters are buttons/chips, not tab semantics;
+- search label/clear/loading/result count are announced;
+- Load more retains focus and does not reorder stable existing rows;
+- empty, filtered-empty, error, stale-realtime, and loading states are distinct;
+- navigation badge is readable at 0, 1, 99, and 100.
+
+### Thread and context
+
+- mobile back goes to `/messages`, never `/help` or browser history;
+- Enter sends, Shift+Enter adds newline, IME composition does not send early;
+- draft max length and pending/failed state are announced;
+- history loading preserves reading position;
+- typing and Realtime status use non-disruptive live regions;
+- context rail/sheet has one accessible name and returns focus;
+- rail/fold preferences store booleans only and are user-scoped;
+- report/block/disconnect/resolve dialogs require explicit confirmation;
+- report reason/note are labelled and success is announced;
+- no attachment, fake presence, accepted expiry, or share-win control renders;
+- 44 px targets, visible focus, reduced motion, and color contrast pass.
+
+### Responsive and visual acceptance
+
+| Width | Required behavior |
+|---|---|
+| source desktop / 1440 class | full shell width; list + fluid thread + optional context rail |
+| 768 | shell icon rail; list + thread; context sheet; no overflow |
+| 390 | root list or selected thread; bottom nav; context sheet |
+| 320 | same one-pane model with no clipped action/text/horizontal scroll |
+
+Screenshots compare implementation and source for hierarchy, density, tokens,
+selected/unread states, Waiting, thread bubbles, context, empty/loading/error,
+and dialogs. Responsive differences required by real routing are documented,
+not treated as unexplained drift.
+
+## Seed matrix
+
+The disposable local v2 seed should contain the smallest deterministic set that
+exercises every visible branch:
+
+1. pending direct Ask addressed to the primary browser account;
+2. pending Connection request with intro;
+3. accepted Ask conversation with unread counterpart messages;
+4. accepted Ask conversation owned by the other side;
+5. resolved Ask conversation that remains sendable;
+6. connected direct conversation;
+7. disconnected direct history that is read-only;
+8. tied timestamps for ordering/pagination;
+9. blocked pair that is absent;
+10. deleted/inactive counterpart fallback where retention permits.
+
+Seed IDs are stable, non-secret, and local-only. The seed never bypasses a
+constraint the application relies on.
+
+## Playwright roads
+
+1. **Empty Messages:** no Waiting/conversations -> truthful root -> canonical
+   Help/People action.
+2. **Direct Ask:** Waiting row -> Help detail -> accept with opening note ->
+   Messages thread -> reply -> refresh -> resolve -> reply after resolution.
+3. **Connection accept:** Waiting intro -> Accept -> one origin + intro -> direct
+   send -> circle badge/profile context.
+4. **Connection decline:** Decline -> row disappears -> requester receives no
+   decline notification -> refresh remains terminal.
+5. **Unread/read:** second user sends -> list/nav attention rises -> open at
+   visible end -> read advances -> both contexts converge.
+6. **Lost response retry:** intercept first response after commit -> Retry -> one
+   durable message and one notification.
+7. **Realtime outage:** close channel -> paused copy -> durable send works ->
+   reconnect/gap refetch converges without duplicate.
+8. **Filters/search/paging:** each chip/count, bounded name/Ask search, tied
+   Load-more page, clear filter.
+9. **Resolve and connect nudge:** both write -> nudge -> request pending -> no
+   duplicate nudge; resolve does not close thread.
+10. **Disconnect:** confirm -> same history -> read-only composer -> reconnect
+    later reuses direct conversation.
+11. **Block:** confirm -> selected thread closes -> pair hidden -> revoked user
+    cannot rejoin topic or read detail.
+12. **Report:** report counterpart message -> acknowledgement -> evidence row
+    exists privately; reporter cannot browse moderation state.
+13. **Responsive keyboard:** 768/390/320 navigation, filter, row, composer,
+    sheet, dialogs, focus return, and no overflow/console error.
+
+Every durable road refreshes the page or queries Postgres after the visible
+action. Optimistic UI alone is not acceptance evidence.
+
+## Static ratchets
+
+`check:messages-boundaries` and `check:messages-cutover` must reject:
+
+- `/inbox`, `/ask/thread`, or retired redirect aliases;
+- legacy Ask/DM thread table identifiers in production Messages code;
+- imports from `src/lib/friendship` or removed DM modules;
+- raw `.from('conversations'|'messages'|'conversation_reads'|'connection_requests'|'connections')`
+  in member repositories/routes;
+- service-client imports in any member Messages path;
+- Next/Supabase/Sentry/env imports in framework-free domains;
+- duplicate direct `user:<uuid>` channel creation outside the owner adapter;
+- Postgres Changes on conversation/message tables;
+- content keys such as body, intro, question, name, or email in user-topic event
+  payload builders;
+- TypeScript suppressions or compatibility casts in the slice;
+- raw color/radius/shadow additions where a BridgeCircle token exists;
+- production imports of `messages-data.js` or fabricated specimen data.
+
+## Whole-slice command groups
+
+Exact scripts may be added during implementation, but completion must cover:
+
+```bash
+cd app
+pnpm check:supabase-boundaries
+pnpm check:conversation-boundaries
+pnpm check:help-boundaries
+pnpm check:help-cutover
+pnpm check:messages-boundaries
+pnpm check:messages-cutover
+pnpm typecheck:v2-foundation
+pnpm typecheck:v2-conversations
+pnpm typecheck:v2-help
+pnpm typecheck:v2-messages
+pnpm check:tokens
+pnpm biome check .
+pnpm lint
+pnpm vitest run
+pnpm test:db:conversation-concurrency
+pnpm test:db:messages-concurrency
+pnpm test:db:conversation-realtime
+pnpm test:db:messages-realtime
+pnpm test:db:conversation-query-plans
+pnpm test:db:messages-query-plans
+```
+
+Also run the inherited Help worker/maintenance/Realtime/query-plan gates, full
+pgTAP, deterministic type generation, warning-level database lint, shadow
+schema diff, selected Playwright roads, and the classified global TypeScript/
+production-build inventory.
+
+## Completion evidence template
+
+When a milestone turns green, record:
+
+- date and local checkpoint;
+- exact command/script;
+- assertion/test/scenario count;
+- expected red-to-green delta;
+- query indexes selected or documented exception;
+- deterministic type hash when SQL changed;
+- focused and global TypeScript counts;
+- browser viewport/account/route exercised;
+- confirmation that no remote system, secret value, push, or merge was touched.
+
+Do not mark the Messages slice complete while an owned failure is hidden in the
+global legacy-port inventory or while a browser road proves only optimistic
+state.

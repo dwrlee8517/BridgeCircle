@@ -55,6 +55,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Database v2 Conversation Primitive test inventory](architecture/database-v2-conversation-test-inventory.md) — completed database, concurrency, Realtime, performance, and compiler evidence
 - [Database v2 Help vertical-slice plan](architecture/database-v2-help-plan.md) — completed local plan for Help data, matching, worker, Realtime, UI, and destructive cutover
 - [Database v2 Help vertical-slice test inventory](architecture/database-v2-help-test-inventory.md) — completed local evidence plus the classified later-domain port inventory
+- [Database v2 Messages vertical-slice plan](architecture/database-v2-messages-plan.md) — approved full inbox, Connection seam, owner Realtime, responsive thread, and destructive cutover plan
+- [Database v2 Messages vertical-slice test inventory](architecture/database-v2-messages-test-inventory.md) — approved database, race, Realtime, performance, application, browser, and accessibility gates
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
