@@ -23,8 +23,8 @@ O6 softer radii (card 20 / box 14 / bubble 18 / control 12) · O7 hairline
 `#e6e9ee` + `--border-subtle #eef1f5` + `--ring-card` · E2 avatar palette
 (`--avatar-1..6`, no status meaning).
 
-**Applied (2026-07-05):** E3 desktop extension — breakpoints 768/1024/1280,
-`--container-shell 1320` (max, fluid below) / `--container-reading 680`,
+**Applied (2026-07-05; shell width amended 2026-07-14):** E3 desktop extension — breakpoints 768/1024/1280,
+full-viewport app shell / `--container-reading 680` for measured flows,
 **sidebar shell** (240px, **icon nav** — 20px strokes, radius `--radius-box`,
 NOT identity dots; two-tone wordmark; `--gradient-avatar` member card),
 **topbar** (`--topbar-height 66`: blurred white, title, round icon actions —

@@ -426,8 +426,8 @@
   /* TDS is mobile-only; everything here is invention in the Toss      */
   /* spirit (FL-8: "the calm turns empty at 1280px"), seeded from the  */
   /* production app's proven desktop solutions (density modes, admin   */
-  /* tables, sidebar). Mobile flows keep their width; the shell holds  */
-  /* them so wide canvases never read as blank margin.                 */
+  /* tables, sidebar). Mobile flows keep their measured width; the     */
+  /* full-viewport shell and surfaces fill wide canvases.              */
   /* ---------------------------------------------------------------- */
 
   /* Breakpoints (min-width) */
@@ -435,14 +435,8 @@
   --bp-desktop: 1024px;
   --bp-wide:    1280px;
 
-  /* Containers — the FL-8 answer: content owns a measured column */
+  /* Containers — content owns a measured column; the shell owns the viewport. */
   --container-reading: 680px;  /* single-flow reading/forms column */
-  --container-shell:  1320px;  /* app shell MAX-width (fluid below) — matches
-                                  the Field Pro v2 reference frames; 240 rail
-                                  + ~1080 content sits on 1280–1512 laptops.
-                                  The reference's radius-24 outer frame is a
-                                  mockup canvas artifact — real shells are
-                                  full-bleed, no frame radius. */
 
   /* Sidebar shell */
   --sidebar-width:      240px;

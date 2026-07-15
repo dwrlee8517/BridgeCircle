@@ -11,7 +11,7 @@ psql_base=(psql "$database_url" --no-psqlrc --set ON_ERROR_STOP=1 --quiet)
 
 required=(
   "api.get_help_home(uuid)"
-  "api.list_my_asks(timestamp with time zone,uuid,integer)"
+  "api.list_my_asks(uuid,timestamp with time zone,uuid,integer)"
   "api.list_give_help(uuid,text,text,timestamp with time zone,uuid,integer)"
   "api.search_help_candidates(uuid,text,extensions.vector,integer)"
 )

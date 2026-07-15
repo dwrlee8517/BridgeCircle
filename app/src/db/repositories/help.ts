@@ -36,7 +36,7 @@ const reachSchema = z.enum(['matched', 'organization'])
 
 const identifiedProfileSchema = z
   .object({
-    userId: z.uuid(),
+    userId: z.guid(),
     displayName: z.string().min(1),
     headline: z.string().nullable(),
     avatarPath: z.string().nullable(),
@@ -53,7 +53,7 @@ const anonymousProfileSchema = z
 
 const recentAskSchema = z
   .object({
-    askId: z.uuid(),
+    askId: z.guid(),
     kind: askKindSchema,
     status: askStatusSchema,
     question: z.string().min(1),
@@ -64,7 +64,7 @@ const recentAskSchema = z
 
 const directRequestSchema = z
   .object({
-    askId: z.uuid(),
+    askId: z.guid(),
     question: z.string().min(1),
     requestMessage: z.string().min(1),
     asker: identifiedProfileSchema,
@@ -75,7 +75,7 @@ const directRequestSchema = z
 
 const suggestedAskSchema = z
   .object({
-    askId: z.uuid(),
+    askId: z.guid(),
     question: z.string().min(1),
     anonymousUntilAccepted: z.boolean(),
     asker: z.union([identifiedProfileSchema, anonymousProfileSchema]),
@@ -87,8 +87,8 @@ const suggestedAskSchema = z
 
 const homeRowSchema = z
   .object({
-    membership_id: z.uuid(),
-    organization_id: z.uuid(),
+    membership_id: z.guid(),
+    organization_id: z.guid(),
     active_ask_count: z.number().int().nonnegative(),
     active_ask_limit: z.number().int().positive(),
     open_to_help: z.boolean(),
@@ -103,8 +103,8 @@ const homeRowSchema = z
 
 const candidateRowSchema = z
   .object({
-    helper_membership_id: z.uuid(),
-    helper_user_id: z.uuid(),
+    helper_membership_id: z.guid(),
+    helper_user_id: z.guid(),
     display_name: z.string().min(1),
     headline: z.string().nullable(),
     avatar_path: z.string().nullable(),
@@ -113,13 +113,13 @@ const candidateRowSchema = z
     lexical_score: z.number().finite().nonnegative(),
     semantic_score: z.number().finite(),
     match_reason: z.string().min(1),
-    evidence_chunk_ids: z.array(z.uuid()),
+    evidence_chunk_ids: z.array(z.guid()),
   })
   .strict()
 
 const offerSchema = z
   .object({
-    offerId: z.uuid(),
+    offerId: z.guid(),
     status: offerStatusSchema,
     offerNote: z.string().min(1),
     declineReasonCode: z.string().nullable(),
@@ -151,8 +151,8 @@ const historySchema = z
 
 const askDetailRowSchema = z
   .object({
-    ask_id: z.uuid(),
-    organization_id: z.uuid(),
+    ask_id: z.guid(),
+    organization_id: z.guid(),
     kind: askKindSchema,
     status: askStatusSchema,
     question: z.string().min(1),
@@ -165,7 +165,7 @@ const askDetailRowSchema = z
     decline_note: z.string().nullable(),
     closure_reason: z.string().nullable(),
     outcome_note: z.string().nullable(),
-    conversation_id: z.uuid().nullable(),
+    conversation_id: z.guid().nullable(),
     offers: z.array(offerSchema),
     history: z.array(historySchema),
     accepted_at: timestampSchema.nullable(),
@@ -177,14 +177,14 @@ const askDetailRowSchema = z
 
 const askSummaryRowSchema = z
   .object({
-    ask_id: z.uuid(),
-    organization_id: z.uuid(),
+    ask_id: z.guid(),
+    organization_id: z.guid(),
     kind: askKindSchema,
     status: askStatusSchema,
     question: z.string().min(1),
     recipient_preview: identifiedProfileSchema.nullable(),
     offer_count: z.number().int().nonnegative(),
-    conversation_id: z.uuid().nullable(),
+    conversation_id: z.guid().nullable(),
     created_at: timestampSchema,
     expires_at: timestampSchema,
     ended_at: timestampSchema.nullable(),
@@ -193,14 +193,14 @@ const askSummaryRowSchema = z
 
 const giveRowSchema = z
   .object({
-    ask_id: z.uuid(),
-    organization_id: z.uuid(),
+    ask_id: z.guid(),
+    organization_id: z.guid(),
     kind: askKindSchema,
     status: askStatusSchema,
     question: z.string().min(1),
     reach: reachSchema.nullable(),
     anonymous_until_accepted: z.boolean(),
-    asker_user_id: z.uuid().nullable(),
+    asker_user_id: z.guid().nullable(),
     asker_display_name: z.string().nullable(),
     asker_avatar_path: z.string().nullable(),
     asker_graduation_year: z.number().int().nullable(),
@@ -213,8 +213,8 @@ const giveRowSchema = z
 
 const preferencesRowSchema = z
   .object({
-    membership_id: z.uuid(),
-    organization_id: z.uuid(),
+    membership_id: z.guid(),
+    organization_id: z.guid(),
     open_to_help: z.boolean(),
     max_pending_requests: z.number().int().positive(),
     consecutive_timeouts: z.number().int().min(0).max(3),
@@ -235,7 +235,7 @@ const createAskRowSchema = z
       'invalid_input',
       'not_available',
     ]),
-    ask_id: z.uuid().nullable(),
+    ask_id: z.guid().nullable(),
     active_count: z.number().int().nonnegative(),
     created: z.boolean(),
   })
@@ -252,8 +252,8 @@ const askDecisionRowSchema = z
       'invalid_input',
       'not_available',
     ]),
-    ask_id: z.uuid().nullable(),
-    conversation_id: z.uuid().nullable(),
+    ask_id: z.guid().nullable(),
+    conversation_id: z.guid().nullable(),
   })
   .strict()
 
@@ -266,8 +266,8 @@ const createOfferRowSchema = z
       'invalid_input',
       'not_available',
     ]),
-    ask_id: z.uuid().nullable(),
-    offer_id: z.uuid().nullable(),
+    ask_id: z.guid().nullable(),
+    offer_id: z.guid().nullable(),
     created: z.boolean(),
   })
   .strict()
@@ -281,9 +281,9 @@ const offerDecisionRowSchema = z
       'invalid_input',
       'not_available',
     ]),
-    ask_id: z.uuid().nullable(),
-    offer_id: z.uuid().nullable(),
-    conversation_id: z.uuid().nullable(),
+    ask_id: z.guid().nullable(),
+    offer_id: z.guid().nullable(),
+    conversation_id: z.guid().nullable(),
   })
   .strict()
 
@@ -672,6 +672,7 @@ export function createHelpRepository(memberClient: SupabaseClient<Database>): He
 
     async listMyAsks(input) {
       const args = {
+        p_membership_id: input.membershipId,
         p_limit: input.limit,
         ...(input.cursor
           ? { p_before_created_at: input.cursor.createdAt, p_before_id: input.cursor.id }
@@ -823,6 +824,17 @@ export function createHelpRepository(memberClient: SupabaseClient<Database>): He
         .single()
       if (error) transportError('decideOffer', error)
       return parseHelpOfferDecisionRow(data)
+    },
+
+    async reportOffer(input) {
+      const { data, error } = await memberClient.schema('api').rpc('submit_report', {
+        p_target_type: 'offer',
+        p_target_id: input.offerId,
+        p_reason: input.reason,
+        p_note: input.note ?? undefined,
+      })
+      if (error) transportError('reportOffer', error)
+      return { reportId: z.guid().parse(data) }
     },
   }
 }

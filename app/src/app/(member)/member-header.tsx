@@ -1,8 +1,11 @@
+'use client'
+
 import Link from 'next/link'
 import { Wordmark } from '@/components/ui/wordmark'
 import type { NotificationRow } from '@/lib/notifications/types'
 import { AccountMenu } from './account-menu'
 import { MemberPageTitle } from './member-page-title'
+import { useMemberShellHeaderState } from './member-shell-header-context'
 import { NotificationsBell } from './notifications-bell'
 
 type Props = {
@@ -24,6 +27,8 @@ export function MemberHeader({
   notifications,
   unreadCount,
 }: Props) {
+  const headerOverride = useMemberShellHeaderState()
+
   return (
     <header className="sticky top-0 z-40 shrink-0 border-b border-border-subtle bg-card/90 text-foreground backdrop-blur-sm">
       <div className="flex h-[var(--topbar-height)] items-center gap-3 px-4 md:px-6 xl:px-8">
@@ -38,11 +43,13 @@ export function MemberHeader({
         <MemberPageTitle />
 
         <div className="ml-auto flex items-center gap-2">
-          <NotificationsBell
-            initial={notifications}
-            initialUnread={unreadCount}
-            viewerId={userId}
-          />
+          {headerOverride?.hideNotifications ? null : (
+            <NotificationsBell
+              initial={notifications}
+              initialUnread={unreadCount}
+              viewerId={userId}
+            />
+          )}
           <AccountMenu
             userId={userId}
             name={name}

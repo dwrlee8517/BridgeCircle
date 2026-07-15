@@ -1,6 +1,6 @@
 # Database v2 Help vertical-slice implementation plan
 
-- **Status:** approved — Milestones 1–6 complete locally; Help UI is next; no remote changes
+- **Status:** approved — Milestones 1–6 complete locally; Milestone 7 in progress; no remote changes
 - **Prepared:** 2026-07-14
 - **Approved:** 2026-07-14 by Richard
 - **Branch:** `codex/redesign-v2`
@@ -305,8 +305,8 @@ Add or replace bounded APIs rather than exposing raw tables:
   hard-gated permission-safe candidate evidence for the signed-in asker;
 - `api.get_help_ask_detail(ask_id)` — one caller-shaped Ask plus safe participant
   previews and only the offers that caller may see;
-- `api.list_my_asks(before_created_at, before_id, limit)` — owner-only tuple
-  keyset pagination;
+- `api.list_my_asks(membership_id, before_created_at, before_id, limit)` —
+  membership-scoped owner-only tuple keyset pagination;
 - `api.list_give_help(membership_id, arm, query?, before_created_at, before_id,
   limit)` — direct, suggested, or searchable rows with tuple keysets;
 - `api.get_helper_preferences` / `api.save_helper_preferences` — one coherent
@@ -809,6 +809,23 @@ payload handling, and channel cleanup. Stop if any event exposes content or if
 the UI treats Broadcast as authoritative state.
 
 ### 7. Build the Help routes and template-faithful UI
+
+**Progress (2026-07-14):** `/help` now uses the v2 home/search/preferences
+projections, and the private search → `/help/ask/[membershipId]` direct road is
+operational with membership-scoped draft carry, AI/plain composition, a bounded
+provider fallback, idempotent send, and refresh-safe recent-Ask rendering. A
+forward-only repair keeps `list_my_asks.recipient_preview` aligned with the
+strict profile-preview contract. Automated/runtime gates pass. The direct
+composer now passes exact-source desktop design QA plus 1440, 768, 390, and
+320 px responsive capture checks, including the route-specific shell header,
+full-height desktop workspace, and shrink-safe mobile tab bar. The circle
+composer is also operational against `api.create_circle_ask`: empty direct
+entry plus membership-scoped draft carry, editable and assisted shaping,
+immutable reach, anonymous-until-accepted, payload-aware idempotent publish,
+and calm recovery. Its supplied-source 2546 × 1281 comparison and
+1440/768/390/320 responsive captures now pass with no remaining P0/P1/P2
+drift. History/status/direct-detail, give/offer responses, redirects, and the
+remaining Help template matrix remain in this milestone.
 
 - Implement `/help`, both composers, history, status/direct detail, offer
   composer, result/error/loading/offline states, remembered mode, draft carry,

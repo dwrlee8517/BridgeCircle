@@ -6,6 +6,7 @@ import {
   parseHelpAiBudgetRow,
   parseHelpAskDecisionRow,
   parseHelpAskDetailRow,
+  parseHelpAskSummaryRow,
   parseHelpCandidateRow,
   parseHelperPreferencesRow,
   parseHelpHomeRow,
@@ -16,7 +17,8 @@ import {
 const askId = '30000000-0000-4000-8000-000000000001'
 const offerId = '40000000-0000-4000-8000-000000000001'
 const conversationId = '50000000-0000-4000-8000-000000000001'
-const organizationId = '11111111-1111-4111-8111-111111111111'
+// PostgreSQL accepts generic GUIDs, including the deterministic local seed ID.
+const organizationId = '11111111-1111-1111-1111-111111111111'
 const membershipId = '20000000-0000-4000-8000-000000000003'
 const userId = '10000000-0000-4000-8000-000000000003'
 const timestamp = '2026-07-15T01:00:00.000Z'
@@ -174,6 +176,27 @@ describe('Help repository projections', () => {
     })
     expect(detail.offers[0]?.helper.identity).toBe('identified')
     expect(detail.history).toEqual([{ id: 41, type: 'offer_created', createdAt: timestamp }])
+  })
+
+  it('parses the complete recipient preview returned by owned Ask history', () => {
+    expect(
+      parseHelpAskSummaryRow({
+        ask_id: askId,
+        organization_id: organizationId,
+        kind: 'direct',
+        status: 'waiting',
+        question: 'Could you review this?',
+        recipient_preview: identifiedProfile(),
+        offer_count: 0,
+        conversation_id: null,
+        created_at: timestamp,
+        expires_at: timestamp,
+        ended_at: null,
+      }),
+    ).toMatchObject({
+      id: askId,
+      recipient: { identity: 'identified', userId, graduationYear: 2001 },
+    })
   })
 
   it('fails closed if an anonymous Give row includes identity fields', () => {

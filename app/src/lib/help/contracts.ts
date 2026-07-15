@@ -10,6 +10,7 @@ export type HelpAskStatus =
 export type HelpOfferStatus = 'pending' | 'accepted' | 'declined' | 'closed'
 export type HelpGiveArm = 'direct' | 'suggested' | 'search'
 export type HelpReach = 'matched' | 'organization'
+export type HelpReportReason = 'harassment' | 'spam' | 'inappropriate' | 'impersonation' | 'other'
 
 export type HelpCursor = {
   createdAt: string
@@ -271,7 +272,11 @@ export type HelpRepository = {
     limit: number
   }): Promise<HelpCandidate[]>
   getAskDetail(askId: string): Promise<HelpAskDetail | null>
-  listMyAsks(input: { cursor: HelpCursor | null; limit: number }): Promise<HelpAskSummary[]>
+  listMyAsks(input: {
+    membershipId: string
+    cursor: HelpCursor | null
+    limit: number
+  }): Promise<HelpAskSummary[]>
   listGiveHelp(input: {
     membershipId: string
     arm: HelpGiveArm
@@ -326,4 +331,9 @@ export type HelpRepository = {
     declineNote: string | null
     clientNonce: string | null
   }): Promise<HelpOfferDecisionResult>
+  reportOffer(input: {
+    offerId: string
+    reason: HelpReportReason
+    note: string | null
+  }): Promise<{ reportId: string }>
 }

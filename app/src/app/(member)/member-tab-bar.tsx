@@ -29,11 +29,11 @@ export function MemberTabBar() {
             key={link.href}
             href={link.href}
             aria-current={active ? 'page' : undefined}
-            className="flex min-h-[60px] flex-1 items-center justify-center px-1 text-kicker font-medium"
+            className="flex min-h-[60px] min-w-0 flex-1 items-center justify-center text-kicker font-medium"
           >
             <span
               className={cn(
-                'flex h-12 min-w-[58px] flex-col items-center justify-center gap-1 rounded-[var(--radius-box)] px-2 transition-[color,background-color]',
+                'flex h-12 w-[calc(100%-4px)] min-w-0 max-w-[58px] flex-col items-center justify-center gap-1 rounded-[var(--radius-box)] px-1 transition-[color,background-color]',
                 active
                   ? 'bg-[image:var(--nav-active-bg)] font-bold text-[var(--nav-active-text)]'
                   : 'text-muted-foreground hover:bg-[var(--hover-tint)] hover:text-foreground',

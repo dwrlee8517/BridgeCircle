@@ -44,7 +44,7 @@ export interface HelpRealtimeHandle {
 
 const openOptionsSchema = z.object({
   accessToken: z.string().min(1),
-  userId: z.uuid(),
+  userId: z.guid(),
   subscribeTimeoutMs: z.number().int().positive().max(60_000),
 })
 
@@ -57,9 +57,9 @@ const envelopeSchema = z
 
 const helpChangedSchema = z
   .object({
-    id: z.uuid(),
-    askId: z.uuid(),
-    offerId: z.uuid().optional(),
+    id: z.guid(),
+    askId: z.guid(),
+    offerId: z.guid().optional(),
   })
   .strict()
 

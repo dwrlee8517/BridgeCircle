@@ -7776,6 +7776,7 @@ as $$
 $$;
 
 create function api.list_my_asks(
+  p_membership_id uuid,
   p_before_created_at timestamptz default null,
   p_before_id uuid default null,
   p_limit integer default 20
@@ -7822,6 +7823,7 @@ as $$
   from public.asks a
   join public.organization_memberships asker
     on asker.id = a.asker_membership_id
+   and asker.id = p_membership_id
    and asker.user_id = (select auth.uid())
    and asker.status = 'active'
   left join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
@@ -8965,7 +8967,7 @@ grant execute on function api.get_ask_detail(uuid) to authenticated;
 grant execute on function api.get_help_home(uuid) to authenticated;
 grant execute on function api.search_help_candidates(uuid, text, extensions.vector, integer) to authenticated;
 grant execute on function api.get_help_ask_detail(uuid) to authenticated;
-grant execute on function api.list_my_asks(timestamptz, uuid, integer) to authenticated;
+grant execute on function api.list_my_asks(uuid, timestamptz, uuid, integer) to authenticated;
 grant execute on function api.get_my_member_context(uuid) to authenticated;
 grant execute on function api.list_help_matches(uuid) to authenticated;
 grant execute on function api.list_give_help(uuid, text, text, timestamptz, uuid, integer) to authenticated;

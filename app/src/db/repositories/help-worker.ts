@@ -6,8 +6,8 @@ import { parseHelpCandidateRow } from './help'
 
 const matchingContextSchema = z
   .object({
-    ask_id: z.uuid(),
-    asker_membership_id: z.uuid(),
+    ask_id: z.guid(),
+    asker_membership_id: z.guid(),
     question: z.string().min(1).max(2_000),
   })
   .strict()
@@ -29,14 +29,14 @@ const factSchema = z
   .strict()
 
 const existingChunkSchema = z
-  .object({ id: z.uuid(), fingerprint: z.string().regex(/^[0-9a-f]{64}$/) })
+  .object({ id: z.guid(), fingerprint: z.string().regex(/^[0-9a-f]{64}$/) })
   .strict()
 
 const profileSourceSchema = z
   .object({
-    organization_id: z.uuid(),
-    user_id: z.uuid(),
-    membership_id: z.uuid(),
+    organization_id: z.guid(),
+    user_id: z.guid(),
+    membership_id: z.guid(),
     facts: z.array(factSchema).max(6),
     existing_chunks: z.array(existingChunkSchema).max(20),
   })
@@ -59,12 +59,12 @@ const emailContextSchema = z
       'circle_ask_closed',
       'message_received',
     ]),
-    recipient_user_id: z.uuid(),
+    recipient_user_id: z.guid(),
     recipient_email: z.email(),
     recipient_display_name: z.string().min(1),
     actor_display_name: z.string().nullable(),
     target_type: z.enum(['ask', 'offer', 'conversation']),
-    target_id: z.uuid(),
+    target_id: z.guid(),
     idempotency_key: z.string().min(1).max(100),
     provider_result_id: z.string().min(1).max(500).nullable(),
   })

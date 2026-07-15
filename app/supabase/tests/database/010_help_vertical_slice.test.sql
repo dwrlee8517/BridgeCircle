@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(58);
+select extensions.plan(61);
 
 select extensions.has_table(
   'private', 'help_ai_usage_windows',
@@ -59,7 +59,11 @@ select extensions.has_function(
 select extensions.has_function('api', 'get_help_home', 'Help home uses one fixed snapshot');
 select extensions.has_function('api', 'search_help_candidates', 'direct search has a private fixed projection');
 select extensions.has_function('api', 'get_help_ask_detail', 'Ask detail has one caller-shaped projection');
-select extensions.has_function('api', 'list_my_asks', 'owned Ask history has a keyset projection');
+select extensions.has_function(
+  'api', 'list_my_asks',
+  array['uuid', 'timestamp with time zone', 'uuid', 'integer'],
+  'owned Ask history is membership-scoped with a tuple-keyset projection'
+);
 select extensions.has_function(
   'api', 'list_give_help',
   array['uuid', 'text', 'text', 'timestamp with time zone', 'uuid', 'integer'],
@@ -245,6 +249,84 @@ select extensions.ok(
     false
   ),
   'the private user-control Broadcast allowlist includes help.changed'
+);
+
+insert into public.organizations (id, slug, name)
+values (
+  '91000000-0000-4000-8000-000000000001',
+  'help-history-other-circle',
+  'Help History Other Circle'
+);
+insert into public.organization_memberships (
+  id, user_id, organization_id, status, joined_at
+) values (
+  '92000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002',
+  '91000000-0000-4000-8000-000000000001',
+  'active',
+  now()
+);
+insert into public.asks (
+  id, organization_id, asker_membership_id, kind, status, question,
+  reach, anonymous_until_accepted, client_request_id
+) values (
+  '93000000-0000-4000-8000-000000000001',
+  '91000000-0000-4000-8000-000000000001',
+  '92000000-0000-4000-8000-000000000001',
+  'circle',
+  'open',
+  'This Ask belongs to another selected circle.',
+  'matched',
+  true,
+  '93000000-0000-4000-8000-000000000101'
+);
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000002', true);
+set local role authenticated;
+select extensions.is(
+  (
+    select count(*)::integer
+    from api.list_my_asks(
+      '20000000-0000-4000-8000-000000000002',
+      null,
+      null,
+      50
+    )
+    where organization_id = '91000000-0000-4000-8000-000000000001'
+  ),
+  0,
+  'owned Ask history never mixes the same user across selected memberships'
+);
+
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005', true);
+select extensions.is(
+  (
+    select recipient_preview ->> 'graduationYear'
+    from api.list_my_asks(
+      '20000000-0000-4000-8000-000000000005',
+      null,
+      null,
+      50
+    )
+    where ask_id = '30000000-0000-4000-8000-000000000001'
+  ),
+  '2008',
+  'owned direct Ask history includes the recipient graduation year'
+);
+select extensions.ok(
+  (
+    select recipient_preview ?& array[
+      'userId', 'displayName', 'headline', 'avatarPath', 'graduationYear'
+    ]
+    from api.list_my_asks(
+      '20000000-0000-4000-8000-000000000005',
+      null,
+      null,
+      50
+    )
+    where ask_id = '30000000-0000-4000-8000-000000000001'
+  ),
+  'owned direct Ask history keeps the strict identified-profile preview contract'
 );
 
 select * from extensions.finish();

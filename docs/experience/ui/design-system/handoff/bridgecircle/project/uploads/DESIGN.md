@@ -24,8 +24,8 @@ duplicated here — this document only frames what's different.
    specimens. **2026-07-04 brand batch applied:** O1–O4, O6, O7 + E2 (green
    give action, section identity, Display XL, softer radii, hairline + card
    ring, avatar palette) — the fork now renders visibly differently from the
-   baseline. **2026-07-05:** E3 desktop extension applied (breakpoints,
-   1320px shell, sidebar nav, hover/focus states, operator table — all
+   baseline. **2026-07-05 (shell width amended 2026-07-14):** E3 desktop extension applied (breakpoints,
+   full-viewport shell with measured inner columns, sidebar nav, hover/focus states, operator table — all
    invention in the Toss spirit; TDS is mobile-only). **2026-07-12 template
    reconciliation:** the full `templates/**` set landed; the saturated section
    bands were retired for **wash heroes + navy covers**; E5/E6/E7 minted
