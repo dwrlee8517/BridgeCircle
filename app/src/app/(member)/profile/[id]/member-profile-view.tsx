@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  ArrowLeft,
   BriefcaseBusiness,
   ChevronRight,
   ExternalLink,
@@ -18,7 +17,9 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useMemberShellHeader } from '@/app/(member)/member-shell-header-context'
 import { ConnectionComposer } from '@/app/(member)/people/connection-composer'
+import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { SafetyReportDialog } from '@/components/safety-report-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -61,9 +62,20 @@ export function MemberProfileView({
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null)
   const [connectOpen, setConnectOpen] = useState(false)
   const [actionStatus, setActionStatus] = useState<'idle' | 'pending' | 'error'>('idle')
+  const [actionNotice, setActionNotice] = useState<string | null>(null)
   const [clientRequestId, setClientRequestId] = useState(() => crypto.randomUUID())
   const name = profile.identity.preferredName || profile.identity.displayName
   const shortName = firstName(name)
+  useMemberShellHeader(
+    presentation === 'page'
+      ? {
+          title: 'Profile',
+          meta: `People › ${name}`,
+          backHref: '/people',
+          backLabel: 'Back to People',
+        }
+      : null,
+  )
 
   async function sendConnection(note: string) {
     if (actionStatus === 'pending') return
@@ -92,6 +104,7 @@ export function MemberProfileView({
           requestId: result.requestId,
           conversationId: null,
         })
+        setActionNotice(`Request sent. ${shortName} will see it in Waiting on you.`)
         setConnectOpen(false)
         setActionStatus('idle')
         return
@@ -123,6 +136,9 @@ export function MemberProfileView({
         return
       }
       setRelationship({ state: 'none', requestId: null, conversationId: null })
+      setActionNotice(
+        `You and ${name} are no longer connected. Your messages are still in Messages.`,
+      )
       setConfirmAction(null)
       setActionStatus('idle')
     } catch {
@@ -138,13 +154,7 @@ export function MemberProfileView({
       )}
     >
       <div className={cn('mx-auto max-w-[1180px]', presentation === 'overlay' && 'max-w-none')}>
-        {presentation === 'page' ? (
-          <Button asChild variant="ghost" size="sm" className="mb-3 -ml-2">
-            <Link href="/people">
-              <ArrowLeft aria-hidden /> People
-            </Link>
-          </Button>
-        ) : null}
+        <ConnectivityNotice />
         <article className="overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
           <header
             className={cn(
@@ -160,7 +170,7 @@ export function MemberProfileView({
             </Avatar>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-[26px] leading-tight font-extrabold tracking-[-0.03em]">
+                <h1 className="text-display-large leading-tight font-extrabold tracking-display">
                   {name}
                 </h1>
                 {relationship.state === 'connected' ? (
@@ -191,7 +201,7 @@ export function MemberProfileView({
                   {profile.help.topics.slice(0, 5).map((topic) => (
                     <span
                       key={topic}
-                      className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--text-secondary)]"
+                      className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-chip font-semibold text-[var(--text-secondary)]"
                     >
                       {topic}
                     </span>
@@ -209,7 +219,6 @@ export function MemberProfileView({
               ) : null}
               <ProfileRelationshipAction
                 relationship={relationship}
-                name={shortName}
                 onConnect={() => {
                   setClientRequestId(crypto.randomUUID())
                   setActionStatus('idle')
@@ -245,6 +254,22 @@ export function MemberProfileView({
             </div>
           </header>
 
+          {actionNotice ? (
+            <div
+              role="status"
+              className="mx-5 mb-5 flex items-center gap-3 rounded-xl bg-[var(--blue-50)] px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] sm:mx-7 lg:mx-8.5"
+            >
+              <span className="min-w-0 flex-1">{actionNotice}</span>
+              <button
+                type="button"
+                className="shrink-0 rounded-md px-2 py-1 text-[var(--blue-600)] hover:bg-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                onClick={() => setActionNotice(null)}
+              >
+                Dismiss
+              </button>
+            </div>
+          ) : null}
+
           <div className="mx-5 h-px bg-[var(--divider-row)] sm:mx-7 lg:mx-8.5" />
           {presentation === 'overlay' ? (
             <div className="space-y-6 px-5 py-6 sm:px-7">
@@ -261,7 +286,7 @@ export function MemberProfileView({
                       <Link
                         key={topic}
                         href={`${directHelpHref(profile.membershipId)}?topic=${encodeURIComponent(topic)}`}
-                        className="flex min-h-11 items-center justify-between rounded-xl bg-[var(--surface-inset)] px-3.5 text-[13px] font-bold outline-none hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        className="flex min-h-11 items-center justify-between rounded-xl bg-[var(--surface-inset)] px-3.5 text-body-sm font-bold outline-none hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                       >
                         <span>{topic}</span>
                         <span className="text-xs text-[var(--blue-800)]">Ask</span>
@@ -285,7 +310,7 @@ export function MemberProfileView({
                         />
                         <div>
                           <p className="text-xs font-bold">{context.value}</p>
-                          <p className="mt-0.5 text-[11px] font-medium text-[var(--text-faint)]">
+                          <p className="mt-0.5 text-overline font-medium text-[var(--text-faint)]">
                             {context.kind === 'same_city'
                               ? 'You both list this location'
                               : 'You both list this school'}
@@ -303,7 +328,7 @@ export function MemberProfileView({
                     Open full profile <ChevronRight aria-hidden />
                   </a>
                 </Button>
-                <p className="mt-3 text-center text-[10.5px] font-medium text-[var(--text-faint)]">
+                <p className="mt-3 text-center text-fine font-medium text-[var(--text-faint)]">
                   Updated {formatUpdated(profile.updatedAt)}
                 </p>
               </div>
@@ -349,24 +374,26 @@ export function MemberProfileView({
                   )}
                 </ProfileSection>
 
-                <ProfileSection title="Can help with" divided>
-                  {profile.help.topics.length ? (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {profile.help.topics.map((topic) => (
-                        <Link
-                          key={topic}
-                          href={`${directHelpHref(profile.membershipId)}?topic=${encodeURIComponent(topic)}`}
-                          className="flex min-h-11 items-start gap-2.5 rounded-xl p-2 text-[13.5px] font-bold hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-                        >
-                          <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--action-primary)]" />
-                          {topic}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <QuietEmpty icon={UserPlus}>No helping topics are listed.</QuietEmpty>
-                  )}
-                </ProfileSection>
+                {profile.help.openToHelp ? (
+                  <ProfileSection title="Can help with" divided>
+                    {profile.help.topics.length ? (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {profile.help.topics.map((topic) => (
+                          <Link
+                            key={topic}
+                            href={`${directHelpHref(profile.membershipId)}?topic=${encodeURIComponent(topic)}`}
+                            className="flex min-h-11 items-start gap-2.5 rounded-xl p-2 text-control font-bold hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                          >
+                            <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--action-primary)]" />
+                            {topic}
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <QuietEmpty icon={UserPlus}>No helping topics are listed.</QuietEmpty>
+                    )}
+                  </ProfileSection>
+                ) : null}
 
                 {profile.skills.length ? (
                   <ProfileSection title="Skills" divided>
@@ -400,7 +427,7 @@ export function MemberProfileView({
                         />
                         <div>
                           <p className="text-xs font-bold">{context.value}</p>
-                          <p className="mt-0.5 text-[11px] font-medium text-[var(--text-faint)]">
+                          <p className="mt-0.5 text-overline font-medium text-[var(--text-faint)]">
                             {context.kind === 'same_city'
                               ? 'You both list this location'
                               : 'You both list this school'}
@@ -411,7 +438,7 @@ export function MemberProfileView({
                   </RailCard>
                 ) : null}
                 {profile.links.length ? (
-                  <RailCard title="Links">
+                  <RailCard title="Links & contact">
                     {profile.links.map((link) => (
                       <a
                         key={link.id}
@@ -430,7 +457,7 @@ export function MemberProfileView({
                   </RailCard>
                 ) : null}
                 <RailCard title="Profile">
-                  <p className="mt-2 text-[11px] leading-relaxed font-medium text-[var(--text-faint)]">
+                  <p className="mt-2 text-overline leading-relaxed font-medium text-[var(--text-faint)]">
                     Updated {formatUpdated(profile.updatedAt)}
                   </p>
                 </RailCard>
@@ -464,8 +491,8 @@ export function MemberProfileView({
               </DialogTitle>
               <DialogDescription>
                 {confirmAction === 'block'
-                  ? 'You will stop seeing each other’s profiles, asks, and messages. You can undo this later in Settings.'
-                  : 'They will leave your circle. Your existing message history stays available but becomes read-only.'}
+                  ? `You won’t see each other’s asks or messages, and neither of you can reach the other. You can undo this in Settings.`
+                  : `You’ll both leave each other’s circle. Your messages stay, and neither of you is notified.`}
               </DialogDescription>
             </DialogHeader>
             {actionStatus === 'error' ? (
@@ -474,11 +501,16 @@ export function MemberProfileView({
               </p>
             ) : null}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setConfirmAction(null)}>
+              <Button autoFocus variant="outline" onClick={() => setConfirmAction(null)}>
                 Cancel
               </Button>
               <Button
                 variant={confirmAction === 'block' ? 'destructive' : 'outline'}
+                className={
+                  confirmAction === 'disconnect'
+                    ? 'border-[var(--red-200)] text-[var(--state-danger)]'
+                    : undefined
+                }
                 aria-busy={actionStatus === 'pending'}
                 onClick={confirmSafetyAction}
               >
@@ -513,11 +545,9 @@ export function MemberProfileView({
 
 function ProfileRelationshipAction({
   relationship,
-  name,
   onConnect,
 }: {
   relationship: MemberProfileRelationship
-  name: string
   onConnect: () => void
 }) {
   if (relationship.state === 'connected')
@@ -532,7 +562,7 @@ function ProfileRelationshipAction({
     return <Button disabled>Pending</Button>
   return (
     <Button variant="secondary" onClick={onConnect}>
-      <UserPlus aria-hidden /> Connect with {name}
+      <UserPlus aria-hidden /> Connect
     </Button>
   )
 }
@@ -548,7 +578,7 @@ function ProfileSection({
 }) {
   return (
     <section className={cn(divided && 'border-t border-[var(--divider-row)] pt-7')}>
-      <h2 className="text-[15px] font-extrabold tracking-[-0.01em]">{title}</h2>
+      <h2 className="text-nav font-extrabold tracking-title">{title}</h2>
       <div className="mt-3.5">{children}</div>
     </section>
   )
@@ -588,7 +618,7 @@ function ProfileTimeline({
               {item.period}
             </time>
             {item.description ? (
-              <p className="mt-2 text-[13px] leading-relaxed font-medium text-[var(--text-secondary)]">
+              <p className="mt-2 text-body-sm leading-relaxed font-medium text-[var(--text-secondary)]">
                 {item.description}
               </p>
             ) : null}
@@ -602,7 +632,7 @@ function ProfileTimeline({
 function RailCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-[13px] bg-[var(--surface-inset)] p-3.5">
-      <h2 className="text-[11px] font-bold text-[var(--text-faint)]">{title}</h2>
+      <h2 className="text-overline font-bold text-[var(--text-faint)]">{title}</h2>
       {children}
     </section>
   )
@@ -633,7 +663,7 @@ function ProfileTag({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-bold',
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-chip font-bold',
         tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-600)]',
         tone === 'green' && 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
         tone === 'grey' && 'bg-[var(--surface-subtle)] text-[var(--grey-600)]',

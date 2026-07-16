@@ -15,11 +15,19 @@ update public.helper_preferences
 set consecutive_timeouts = 2, open_to_help = true, paused_at = null, pause_reason = null
 where organization_membership_id = '20000000-0000-4000-8000-000000000003';
 
+insert into public.conversations (
+  id, user_a_id, user_b_id
+) values (
+  '85000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000004',
+  '10000000-0000-4000-8000-000000000005'
+);
+
 insert into public.asks (
   id, organization_id, asker_membership_id, kind, status,
   recipient_membership_id, question, request_message, reach,
   anonymous_until_accepted, client_request_id, created_at, expires_at,
-  accepted_at, responded_at
+  accepted_at, responded_at, conversation_id
 ) values
   (
     '83000000-0000-4000-8000-000000000001',
@@ -28,7 +36,7 @@ insert into public.asks (
     'direct', 'waiting', '20000000-0000-4000-8000-000000000003',
     'Expired direct fixture', 'Local maintenance fixture.', null, false,
     '83000000-0000-4000-8000-000000000101',
-    '2026-06-30T00:00:00Z', '2026-07-14T00:00:00Z', null, null
+    '2026-06-30T00:00:00Z', '2026-07-14T00:00:00Z', null, null, null
   ),
   (
     '83000000-0000-4000-8000-000000000002',
@@ -37,7 +45,7 @@ insert into public.asks (
     'direct', 'waiting', '20000000-0000-4000-8000-000000000004',
     'Reminder direct fixture', 'Local maintenance fixture.', null, false,
     '83000000-0000-4000-8000-000000000102',
-    '2026-07-09T00:00:00Z', '2026-07-23T00:00:00Z', null, null
+    '2026-07-09T00:00:00Z', '2026-07-23T00:00:00Z', null, null, null
   ),
   (
     '83000000-0000-4000-8000-000000000003',
@@ -46,7 +54,7 @@ insert into public.asks (
     'circle', 'open', null,
     'Expired circle fixture', null, 'matched', true,
     '83000000-0000-4000-8000-000000000103',
-    '2026-06-30T00:00:00Z', '2026-07-14T00:00:00Z', null, null
+    '2026-06-30T00:00:00Z', '2026-07-14T00:00:00Z', null, null, null
   ),
   (
     '83000000-0000-4000-8000-000000000004',
@@ -56,7 +64,8 @@ insert into public.asks (
     'Accepted fixture', 'Local maintenance fixture.', null, false,
     '83000000-0000-4000-8000-000000000104',
     '2026-06-20T00:00:00Z', '2026-07-04T00:00:00Z',
-    '2026-07-01T00:00:00Z', '2026-07-01T00:00:00Z'
+    '2026-07-01T00:00:00Z', '2026-07-01T00:00:00Z',
+    '85000000-0000-4000-8000-000000000001'
   );
 
 insert into public.ask_offers (
@@ -69,17 +78,6 @@ insert into public.ask_offers (
   '20000000-0000-4000-8000-000000000006',
   'pending', 'Local maintenance fixture.',
   '84000000-0000-4000-8000-000000000101'
-);
-
-insert into public.conversations (
-  id, kind, user_a_id, user_b_id, organization_id, ask_id
-) values (
-  '85000000-0000-4000-8000-000000000001',
-  'ask',
-  '10000000-0000-4000-8000-000000000004',
-  '10000000-0000-4000-8000-000000000005',
-  '11111111-1111-4111-8111-111111111111',
-  '83000000-0000-4000-8000-000000000004'
 );
 
 set local role service_role;

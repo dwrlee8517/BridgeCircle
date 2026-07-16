@@ -93,10 +93,10 @@ select extensions.ok(
   exists (
     select 1 from pg_indexes
     where schemaname = 'public'
-      and indexname = 'conversations_direct_pair_key'
-      and indexdef like '%WHERE (kind = ''direct''::text)%'
+      and indexname = 'conversations_pair_key'
+      and indexdef not like '% WHERE %'
   ),
-  'direct conversation uniqueness is scoped to direct kind'
+  'conversation uniqueness is global for every unordered user pair'
 );
 
 select extensions.ok(

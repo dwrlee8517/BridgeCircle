@@ -1,6 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/db/database.types'
+import type { ProfileRepository } from '@/lib/profile/contracts'
 
 export type ImportCurrentProfile = {
   name: string | null
@@ -28,32 +27,59 @@ export type ImportCurrentProfile = {
   skills: string[]
 }
 
-type CareerEntryFromDb = ImportCurrentProfile['careerHistory'][number]
-type EducationEntryFromDb = ImportCurrentProfile['educationHistory'][number]
-
 export async function getImportCurrentProfile(
-  supabase: SupabaseClient<Database>,
-  userId: string,
+  profiles: Pick<ProfileRepository, 'get'>,
+  membershipId: string,
 ): Promise<ImportCurrentProfile> {
-  const { data: base } = await supabase
-    .from('base_profiles')
-    .select(
-      'name, headline, city, current_employer, current_title, university, major, linkedin_url, career_history, education_history, skills',
-    )
-    .eq('user_id', userId)
-    .maybeSingle()
+  const result = await profiles.get(membershipId)
+  if (!result.ok) return emptyImportCurrentProfile()
+
+  const { profile } = result
 
   return {
-    name: base?.name ?? null,
-    headline: base?.headline ?? null,
-    city: base?.city ?? null,
-    currentEmployer: base?.current_employer ?? null,
-    currentTitle: base?.current_title ?? null,
-    university: base?.university ?? null,
-    major: base?.major ?? null,
-    linkedinUrl: base?.linkedin_url ?? null,
-    careerHistory: (base?.career_history as CareerEntryFromDb[] | null) ?? [],
-    educationHistory: (base?.education_history as EducationEntryFromDb[] | null) ?? [],
-    skills: base?.skills ?? [],
+    name: profile.identity.displayName,
+    headline: profile.current.headline,
+    city: profile.current.city,
+    currentEmployer: profile.current.employer,
+    currentTitle: profile.current.title,
+    university: profile.current.university,
+    major: profile.current.major,
+    linkedinUrl: profile.preferences.freshness.linkedinUrl,
+    careerHistory: profile.experiences.map((entry) => ({
+      employer: entry.employer,
+      title: entry.title,
+      start_date: profilePeriod(entry.startYear, entry.startMonth),
+      end_date: profilePeriod(entry.endYear, entry.endMonth),
+      description: entry.description,
+    })),
+    educationHistory: profile.education.map((entry) => ({
+      school: entry.school,
+      degree: entry.degree,
+      field: entry.field,
+      start_date: profilePeriod(entry.startYear, entry.startMonth),
+      end_date: profilePeriod(entry.endYear, entry.endMonth),
+    })),
+    skills: profile.skills.map((skill) => skill.name),
+  }
+}
+
+function profilePeriod(year: number | null, month: number | null) {
+  if (year === null) return null
+  return month === null ? String(year) : `${year}-${String(month).padStart(2, '0')}`
+}
+
+function emptyImportCurrentProfile(): ImportCurrentProfile {
+  return {
+    name: null,
+    headline: null,
+    city: null,
+    currentEmployer: null,
+    currentTitle: null,
+    university: null,
+    major: null,
+    linkedinUrl: null,
+    careerHistory: [],
+    educationHistory: [],
+    skills: [],
   }
 }

@@ -277,8 +277,8 @@ select extensions.is(
 );
 select extensions.is(
   (select all_count from api.get_messages_counts()),
-  32,
-  'canonical counts include both bounded Messages seed pages'
+  5,
+  'canonical counts include one room per visible counterpart'
 );
 select extensions.is(
   (select unread_count from api.get_messages_counts()),
@@ -493,12 +493,11 @@ select extensions.is(
   (
     select count(*)::integer
     from public.conversations conversation
-    where conversation.kind = 'direct'
-      and conversation.user_a_id = '10000000-0000-4000-8000-000000000005'
+    where conversation.user_a_id = '10000000-0000-4000-8000-000000000005'
       and conversation.user_b_id = '10000000-0000-4000-8000-000000000006'
   ),
   1,
-  'Connection acceptance persists one canonical direct conversation'
+  'Connection acceptance persists one canonical pair conversation'
 );
 select extensions.is(
   (

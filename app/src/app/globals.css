@@ -193,12 +193,33 @@
   --text-display-md: var(--font-size-display-md);
   --text-display-lg: var(--font-size-display-lg);
 
+  /* Repeated handoff roles that intentionally sit between the core type
+     steps. Naming them keeps the approved People/Profile and School detail
+     geometry exact while preventing one-off Tailwind literals from spreading. */
+  --text-micro: 0.625rem; /* 10px */
+  --text-fine: 0.65625rem; /* 10.5px */
+  --text-overline: 0.6875rem; /* 11px */
+  --text-chip: 0.71875rem; /* 11.5px */
+  --text-control: 0.84375rem; /* 13.5px */
+  --text-section-title: 1.1875rem; /* 19px */
+  --text-page-title: 1.75rem; /* 28px */
+  --text-display-event: 2.25rem; /* 36px */
+  --text-event-date: 3.25rem; /* 52px */
+  --text-event-date-md: 3.5rem; /* 56px */
+  --text-event-date-lg: 4rem; /* 64px */
+
   /* Letter-spacing utilities for the label voices (tracking-label,
      tracking-kicker) plus the wide editorial-hero kicker (tracking-hero,
      auth/onboarding "Verified alumni network"-style lines). */
   --tracking-label: 0.08em;
   --tracking-kicker: 0.12em;
   --tracking-hero: 0.18em;
+  --tracking-caps: 0.04em;
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-title: -0.01em;
+  --tracking-copy: -0.005em;
+  --tracking-body-tight: -0.003em;
 
   /* The master-detail layout pivot (was 40+ min-[761px]/max-[760px]
      literals). detail: ≥761px, max-detail: ≤760px. */

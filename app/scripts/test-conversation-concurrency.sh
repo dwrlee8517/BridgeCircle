@@ -54,14 +54,10 @@ where dedupe_key in (
   'offer_accepted:96000000-0000-4000-8000-000000000002',
   'offer_accepted:96000000-0000-4000-8000-000000000003'
 );
-delete from public.conversations
-where ask_id = '96000000-0000-4000-8000-000000000001';
+delete from public.messages
+where system_event_key = 'ask_accepted:96000000-0000-4000-8000-000000000001';
 delete from public.asks
 where id = '96000000-0000-4000-8000-000000000001';
-delete from public.conversations
-where kind = 'direct'
-  and user_a_id = '10000000-0000-4000-8000-000000000002'
-  and user_b_id = '10000000-0000-4000-8000-000000000003';
 delete from public.connections
 where user_a_id = '10000000-0000-4000-8000-000000000002'
   and user_b_id = '10000000-0000-4000-8000-000000000003';
@@ -311,7 +307,7 @@ run_parallel_direct_create_test() {
     return 1
   fi
   if [[ "$("${psql_base[@]}" --tuples-only --no-align --command \
-    "select count(*) from public.conversations where kind = 'direct' and user_a_id = '$richard_id' and user_b_id = '$mark_id';")" != "1" ]]; then
+    "select count(*) from public.conversations where user_a_id = '$richard_id' and user_b_id = '$mark_id';")" != "1" ]]; then
     echo "parallel direct creation persisted more than one conversation" >&2
     return 1
   fi
@@ -502,7 +498,7 @@ SQL
   fi
 
   if [[ "$("${psql_base[@]}" --tuples-only --no-align --command \
-    "select (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'accepted') = 1 and (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'closed') = 1 and (select count(*) from public.conversations where ask_id = '96000000-0000-4000-8000-000000000001') = 1 and (select count(*) from public.messages m join public.conversations c on c.id = m.conversation_id where c.ask_id = '96000000-0000-4000-8000-000000000001' and m.kind = 'system') = 1;")" != "t" ]]; then
+    "select (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'accepted') = 1 and (select count(*) from public.ask_offers where ask_id = '96000000-0000-4000-8000-000000000001' and status = 'closed') = 1 and (select count(*) from public.asks where id = '96000000-0000-4000-8000-000000000001' and conversation_id is not null) = 1 and (select count(*) from public.messages m join public.asks a on a.conversation_id = m.conversation_id where a.id = '96000000-0000-4000-8000-000000000001' and m.system_event_key = 'ask_accepted:96000000-0000-4000-8000-000000000001') = 1;")" != "t" ]]; then
     echo "competing offer acceptance did not preserve one accepted aggregate" >&2
     return 1
   fi

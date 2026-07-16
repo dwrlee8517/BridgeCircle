@@ -71,8 +71,8 @@ Code remains canonical for the current live application until v2 is deployed.
    anonymity cannot be edited after insert.
 7. **One accepted offer.** A circle Ask may have many offers but at most one
    accepted offer.
-8. **One conversation per Ask.** Direct user pairs have at most one direct
-   conversation but may have many Ask conversations.
+8. **One room per user pair.** Every unordered user pair has at most one
+   conversation. Any number of accepted/resolved Asks may link to that room.
 9. **No polymorphic message parent.** Every message has a real conversation
    foreign key.
 10. **Blocking is centralized and symmetric in effect.** One directional row
@@ -481,6 +481,7 @@ One table represents direct and circle asks.
 | `decline_note` | nullable nonblank text, max 2,000; direct decline only |
 | `closure_reason` | nullable `silence_timeout`, `admin`, `account_deleted`, or `blocked` |
 | `outcome_note` | nullable text, max 2,000 |
+| `conversation_id` | nullable canonical pair-conversation FK; required for accepted/resolved Asks |
 | `reopened_from_ask_id` | nullable self-FK |
 | `client_request_id` | UUID supplied by caller, not null |
 | `reminder_sent_at`, `accepted_at`, `responded_at`, `ended_at` | nullable lifecycle timestamps |
@@ -732,26 +733,21 @@ reimplement block joins.
 | Column | Contract |
 |---|---|
 | `id` | UUID PK |
-| `kind` | `direct` or `ask` |
 | `user_a_id`, `user_b_id` | user FKs in canonical order |
-| `organization_id` | nullable organization FK; required for Ask kind |
-| `ask_id` | nullable Ask FK; required for Ask kind |
 | `last_message_at` | nullable timestamp |
 | `created_at` | timestamp |
 
 Constraints and indexes:
 
 - CHECK `user_a_id < user_b_id`;
-- direct requires `ask_id is null`;
-- Ask kind requires `ask_id` and `organization_id`;
-- unique `(ask_id) where ask_id is not null`;
-- unique `(user_a_id, user_b_id) where kind = 'direct'`;
+- unique `(user_a_id, user_b_id)` across every room origin;
 - `(user_a_id, last_message_at desc nulls last, id)`;
 - `(user_b_id, last_message_at desc nulls last, id)`.
 
-The direct-pair unique index does not apply to Ask conversations. The same two
-people may therefore have one direct conversation and any number of distinct
-Ask conversations.
+Conversation origin is relational history, not room identity. Connections
+reuse the pair row; accepted/resolved Asks store its ID in
+`asks.conversation_id`. Multiple Asks between the same two people therefore
+remain distinct Help records while appearing as one Messages room.
 
 ### `public.messages`
 
@@ -1302,7 +1298,7 @@ harmless migration; the v2 reset may not be its first database execution.
 - reject offers on direct asks and self-offers;
 - reject a second accepted offer;
 - reject an accepted circle Ask with zero accepted offers at commit;
-- allow several Ask conversations but only one direct conversation per pair;
+- allow several Ask records for a pair while enforcing one shared room;
 - reject a read cursor pointing at another conversation's message;
 - reject a message from a non-participant;
 - reject blocked Ask, offer, connection, and message operations.
@@ -1355,8 +1351,8 @@ member-visible flow. See the [database testing guide](https://supabase.com/docs/
    **Verify:** signup, tenant isolation, profile visibility, block matrix.
 2. **Conversation primitive — complete locally:** conversations, messages, reads, Realtime, and
    idempotent message commands.
-   **Verify:** direct pair uniqueness, multiple Ask conversations, Realtime,
-   blocked access.
+   **Verify:** global pair uniqueness, multiple Asks sharing one room,
+   Realtime, blocked access.
 3. **Help — complete locally:** helper settings/topics, unified asks, offers,
    matching, transitions, reminders, closure, anonymity, notifications,
    accepted-thread seam, and destructive route/module cutover.
@@ -1365,7 +1361,7 @@ member-visible flow. See the [database testing guide](https://supabase.com/docs/
 4. **Messages — complete locally:** conversation list, Waiting decisions,
    Connection-origin threads, unread attention, filters/search/keyset paging,
    responsive Ask/Connection thread, context, and safety actions.
-   **Verified:** 438 pgTAP assertions, race/Realtime/query-plan harnesses,
+   **Verified:** the full pgTAP suite, race/Realtime/query-plan harnesses,
    deterministic types, fixed-boundary checks, axe, four durable Playwright
    roads, and zero Messages-owned compiler errors.
 5. **People/Profile:** normalized profile storage, privacy, search,

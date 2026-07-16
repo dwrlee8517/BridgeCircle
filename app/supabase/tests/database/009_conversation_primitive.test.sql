@@ -385,22 +385,20 @@ update public.users
 set account_state = 'active', delete_scheduled_for = null
 where id = '10000000-0000-4000-8000-000000000002';
 
+insert into public.conversations (
+  id, user_a_id, user_b_id
+) values (
+  '93000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000003',
+  '10000000-0000-4000-8000-000000000005'
+);
 update public.asks
-set status = 'accepted', accepted_at = now(), responded_at = now()
+set status = 'accepted', accepted_at = now(), responded_at = now(),
+    conversation_id = '93000000-0000-4000-8000-000000000001'
 where id = '30000000-0000-4000-8000-000000000001';
 update public.asks
 set status = 'resolved', ended_at = now()
 where id = '30000000-0000-4000-8000-000000000001';
-insert into public.conversations (
-  id, kind, user_a_id, user_b_id, organization_id, ask_id
-) values (
-  '93000000-0000-4000-8000-000000000001',
-  'ask',
-  '10000000-0000-4000-8000-000000000003',
-  '10000000-0000-4000-8000-000000000005',
-  '11111111-1111-4111-8111-111111111111',
-  '30000000-0000-4000-8000-000000000001'
-);
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000005', true);
 select extensions.ok(
   private.can_view_conversation('93000000-0000-4000-8000-000000000001'),
@@ -713,22 +711,20 @@ select extensions.is(
   (
     select count(*)::bigint
     from public.conversations
-    where kind = 'direct'
-      and user_a_id = '10000000-0000-4000-8000-000000000002'
+    where user_a_id = '10000000-0000-4000-8000-000000000002'
       and user_b_id = '10000000-0000-4000-8000-000000000006'
   ),
   1::bigint,
-  'Connection acceptance creates one direct conversation'
+  'Connection acceptance reuses the pair canonical conversation'
 );
 select extensions.is(
   (
     select count(*)::bigint
     from public.messages m
     join public.conversations c on c.id = m.conversation_id
-    where c.kind = 'direct'
-      and c.user_a_id = '10000000-0000-4000-8000-000000000002'
+    where c.user_a_id = '10000000-0000-4000-8000-000000000002'
       and c.user_b_id = '10000000-0000-4000-8000-000000000006'
-      and m.system_event_type = 'connection_accepted'
+      and m.system_event_key = 'connection_accepted:95000000-0000-4000-8000-000000000010'
   ),
   1::bigint,
   'Connection acceptance creates one structured origin line'
@@ -742,10 +738,9 @@ select extensions.is(
     select count(*)::bigint
     from public.messages m
     join public.conversations c on c.id = m.conversation_id
-    where c.kind = 'direct'
-      and c.user_a_id = '10000000-0000-4000-8000-000000000002'
+    where c.user_a_id = '10000000-0000-4000-8000-000000000002'
       and c.user_b_id = '10000000-0000-4000-8000-000000000006'
-      and m.system_event_type = 'connection_accepted'
+      and m.system_event_key = 'connection_accepted:95000000-0000-4000-8000-000000000010'
   ),
   1::bigint,
   'Connection acceptance retry does not duplicate its origin line'
@@ -791,8 +786,9 @@ select extensions.is(
 );
 select extensions.is(
   (
-    select count(*)::bigint from public.conversations
-    where ask_id = '95000000-0000-4000-8000-000000000020'
+    select count(*)::bigint from public.asks
+    where id = '95000000-0000-4000-8000-000000000020'
+      and conversation_id is not null
   ),
   0::bigint,
   'failed direct Ask acceptance leaves no conversation'
@@ -810,9 +806,9 @@ select extensions.lives_ok(
 select extensions.is(
   (
     select count(*)::bigint from public.messages m
-    join public.conversations c on c.id = m.conversation_id
-    where c.ask_id = '95000000-0000-4000-8000-000000000020'
-      and m.kind = 'system' and m.system_event_type = 'ask_accepted'
+    join public.asks ask on ask.conversation_id = m.conversation_id
+    where ask.id = '95000000-0000-4000-8000-000000000020'
+      and m.system_event_key = 'ask_accepted:95000000-0000-4000-8000-000000000020'
   ),
   1::bigint,
   'direct Ask acceptance creates one origin line'
@@ -820,9 +816,9 @@ select extensions.is(
 select extensions.is(
   (
     select count(*)::bigint from public.messages m
-    join public.conversations c on c.id = m.conversation_id
-    where c.ask_id = '95000000-0000-4000-8000-000000000020'
-      and m.kind = 'user'
+    join public.asks ask on ask.conversation_id = m.conversation_id
+    where ask.id = '95000000-0000-4000-8000-000000000020'
+      and m.client_nonce = '95000000-0000-4000-8000-000000000023'
   ),
   1::bigint,
   'direct Ask acceptance creates one opening user message'
@@ -853,9 +849,9 @@ select extensions.lives_ok(
 select extensions.is(
   (
     select count(*)::bigint from public.messages m
-    join public.conversations c on c.id = m.conversation_id
-    where c.ask_id = '30000000-0000-4000-8000-000000000002'
-      and m.kind = 'system' and m.system_event_type = 'ask_accepted'
+    join public.asks ask on ask.conversation_id = m.conversation_id
+    where ask.id = '30000000-0000-4000-8000-000000000002'
+      and m.system_event_key = 'ask_accepted:30000000-0000-4000-8000-000000000002'
   ),
   1::bigint,
   'circle offer acceptance creates one origin line'
@@ -863,9 +859,9 @@ select extensions.is(
 select extensions.is(
   (
     select count(*)::bigint from public.messages m
-    join public.conversations c on c.id = m.conversation_id
-    where c.ask_id = '30000000-0000-4000-8000-000000000002'
-      and m.kind = 'user'
+    join public.asks ask on ask.conversation_id = m.conversation_id
+    where ask.id = '30000000-0000-4000-8000-000000000002'
+      and m.client_nonce = '95000000-0000-4000-8000-000000000032'
   ),
   1::bigint,
   'circle offer acceptance creates one opening user message'

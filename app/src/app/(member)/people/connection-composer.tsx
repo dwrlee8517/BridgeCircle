@@ -99,7 +99,7 @@ export function ConnectionComposer({
 
         {mode === 'quick' ? (
           <div className="mt-4">
-            <p className="text-[11px] font-bold tracking-[0.04em] text-[var(--text-secondary)] uppercase">
+            <p className="text-overline font-bold tracking-caps text-[var(--text-secondary)] uppercase">
               For someone you know — one tap
             </p>
             <div className="mt-2 grid gap-2">
@@ -122,7 +122,7 @@ export function ConnectionComposer({
           <div className="mt-4">
             <label
               htmlFor="connection-reason"
-              className="text-[11px] font-bold tracking-[0.04em] text-[var(--text-secondary)] uppercase"
+              className="text-overline font-bold tracking-caps text-[var(--text-secondary)] uppercase"
             >
               For someone new — say why, casually
             </label>
@@ -168,7 +168,7 @@ export function ConnectionComposer({
 
         <label
           htmlFor="connection-request-message"
-          className="mt-5 text-[11px] font-bold tracking-[0.04em] text-[var(--text-secondary)] uppercase"
+          className="mt-5 text-overline font-bold tracking-caps text-[var(--text-secondary)] uppercase"
         >
           Your request message
         </label>
@@ -195,7 +195,7 @@ export function ConnectionComposer({
             Pick a hello or write a line before sending.
           </p>
         ) : null}
-        <p className="mt-2 text-[11px] font-medium text-[var(--text-secondary)]">
+        <p className="mt-2 text-overline font-medium text-[var(--text-secondary)]">
           AI-helped — edit anything before it sends.
         </p>
         {status === 'error' ? (

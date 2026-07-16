@@ -1,6 +1,7 @@
 # Database v2 People/Profile vertical-slice implementation plan
 
-- **Status:** approved and in progress; local-only; not deployed
+- **Status:** UI/UX, privacy, and destructive cutover complete locally; detailed
+  search/ranking tuning deferred; not deployed
 - **Prepared:** 2026-07-15
 - **Approved:** 2026-07-15 — the user explicitly asked to make the plan and
   begin building from it in the same task

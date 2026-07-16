@@ -26,11 +26,35 @@ fi
 
 plan_output="$("${psql_base[@]}" <<'SQL'
 begin;
+set local session_replication_role = replica;
+
+insert into public.users (id)
+select format('a1000000-0000-4000-8000-%s', lpad(fixture::text, 12, '0'))::uuid
+from generate_series(1, 2000) fixture;
+
+insert into public.conversations (
+  id, user_a_id, user_b_id, last_message_at, created_at
+)
+select
+  format('a2000000-0000-4000-8000-%s', lpad(fixture::text, 12, '0'))::uuid,
+  '10000000-0000-4000-8000-000000000003'::uuid,
+  format('a1000000-0000-4000-8000-%s', lpad(fixture::text, 12, '0'))::uuid,
+  now() - fixture * interval '1 second',
+  now() - fixture * interval '1 second'
+from generate_series(1, 2000) fixture;
+
+insert into public.conversations (id, user_a_id, user_b_id, created_at)
+values (
+  'a3000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000003',
+  '10000000-0000-4000-8000-000000000005',
+  now() - interval '1 day'
+);
 
 insert into public.asks (
   organization_id, asker_membership_id, kind, status, recipient_membership_id,
   question, request_message, client_request_id, accepted_at, responded_at,
-  expires_at, created_at
+  conversation_id, expires_at, created_at
 )
 select
   '11111111-1111-4111-8111-111111111111',
@@ -38,20 +62,10 @@ select
   'direct', 'accepted', '20000000-0000-4000-8000-000000000003',
   case when fixture = 2000 then 'messagesplanneedle' else 'Messages plan Ask ' || fixture end,
   'Planner-only accepted request.', gen_random_uuid(), now(), now(),
+  'a3000000-0000-4000-8000-000000000001',
   now() + interval '14 days',
   now() - fixture * interval '1 second'
 from generate_series(1, 2000) fixture;
-
-insert into public.conversations (
-  kind, user_a_id, user_b_id, organization_id, ask_id, last_message_at, created_at
-)
-select
-  'ask',
-  '10000000-0000-4000-8000-000000000003',
-  '10000000-0000-4000-8000-000000000005',
-  a.organization_id, a.id, a.created_at, a.created_at
-from public.asks a
-where a.question like 'Messages plan Ask %' or a.question = 'messagesplanneedle';
 
 insert into public.messages (
   conversation_id, sender_user_id, kind, body, client_nonce, created_at
@@ -63,9 +77,7 @@ select
   gen_random_uuid(), c.created_at + message_number * interval '1 millisecond'
 from public.conversations c
 cross join generate_series(1, 20) message_number
-where c.ask_id in (
-  select id from public.asks where question like 'Messages plan Ask %' or question = 'messagesplanneedle'
-);
+where c.id::text like 'a2000000-%';
 
 insert into public.asks (
   organization_id, asker_membership_id, kind, status, recipient_membership_id,

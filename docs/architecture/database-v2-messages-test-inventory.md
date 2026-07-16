@@ -288,7 +288,7 @@ and anonymous role where applicable.
 | disconnected direct history remains visible but read-only | inherited Conversation + summary pgTAP |
 | resolved Ask remains visible and sendable | inherited Conversation + summary/detail pgTAP |
 | waiting/open/unaccepted Asks never appear as conversations | pgTAP |
-| same pair may have one direct and multiple Ask rows | inherited constraint regression |
+| every pair has one room while multiple Asks retain their own records | inherited constraint regression + summary count regression |
 | no raw conversation/message/read grant returns | grant pgTAP + static check |
 | fixed functions are authenticated-only | grant pgTAP |
 
@@ -297,7 +297,8 @@ and anonymous role where applicable.
 - participant narrowing uses both `(user_a_id, ...)` and `(user_b_id, ...)`
   paths;
 - counterpart identity is the other user for either canonical pair order;
-- Ask question/status is present only for Ask conversations;
+- Ask question/status reflects the current accepted or latest linked Ask when
+  a pair room has Ask history;
 - connected flag follows the current Connection, not conversation origin;
 - `can_send` matches the authoritative conversation permission helper;
 - latest preview is the highest durable message ID and preserves sender/kind;
@@ -333,7 +334,7 @@ and anonymous role where applicable.
 - `all_count` equals all visible conversations;
 - `unread_count` equals unread conversations, not unread messages;
 - `circle_count` follows current Connection state;
-- `open_ask_count` includes accepted, unresolved Ask conversations only;
+- `open_ask_count` includes rooms with at least one accepted, unresolved Ask;
 - `waiting_count` equals pending direct Asks plus incoming Connection requests;
 - `attention_count = unread_count + waiting_count`;
 - member context and `/api/messages/counts` return the same canonical values;

@@ -102,7 +102,7 @@ export function ConversationThread({
 
   useEffect(() => {
     if (!conversationControl || conversationControl.conversationId !== conversation.id) return
-    if (conversationControl.type === 'conversation.revoked') router.replace('/messages')
+    if (conversationControl.type === 'conversation.revoked') window.location.replace('/messages')
     else router.refresh()
   }, [conversation.id, conversationControl, router])
 
@@ -415,8 +415,7 @@ export function ConversationThread({
       const response = await fetch(endpoint, { method: 'POST', cache: 'no-store' })
       if (!response.ok) throw new Error('action_failed')
       if (confirmAction === 'block') {
-        router.replace('/messages')
-        router.refresh()
+        window.location.replace('/messages')
         return
       }
       setDisconnected(true)

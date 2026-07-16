@@ -997,6 +997,7 @@ export type Database = {
           asker_membership_id: string
           client_request_id: string
           closure_reason: string | null
+          conversation_id: string | null
           created_at: string
           decline_note: string | null
           decline_reason_code: string | null
@@ -1022,6 +1023,7 @@ export type Database = {
           asker_membership_id: string
           client_request_id: string
           closure_reason?: string | null
+          conversation_id?: string | null
           created_at?: string
           decline_note?: string | null
           decline_reason_code?: string | null
@@ -1047,6 +1049,7 @@ export type Database = {
           asker_membership_id?: string
           client_request_id?: string
           closure_reason?: string | null
+          conversation_id?: string | null
           created_at?: string
           decline_note?: string | null
           decline_reason_code?: string | null
@@ -1073,6 +1076,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: 'organization_memberships'
             referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'asks_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'conversations'
+            referencedColumns: ['id']
           },
           {
             foreignKeyName: 'asks_organization_id_fkey'
@@ -1259,50 +1269,27 @@ export type Database = {
       }
       conversations: {
         Row: {
-          ask_id: string | null
           created_at: string
           id: string
-          kind: string
           last_message_at: string | null
-          organization_id: string | null
           user_a_id: string
           user_b_id: string
         }
         Insert: {
-          ask_id?: string | null
           created_at?: string
           id?: string
-          kind: string
           last_message_at?: string | null
-          organization_id?: string | null
           user_a_id: string
           user_b_id: string
         }
         Update: {
-          ask_id?: string | null
           created_at?: string
           id?: string
-          kind?: string
           last_message_at?: string | null
-          organization_id?: string | null
           user_a_id?: string
           user_b_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: 'conversations_ask_id_fkey'
-            columns: ['ask_id']
-            isOneToOne: false
-            referencedRelation: 'asks'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'conversations_organization_id_fkey'
-            columns: ['organization_id']
-            isOneToOne: false
-            referencedRelation: 'organizations'
-            referencedColumns: ['id']
-          },
           {
             foreignKeyName: 'conversations_user_a_id_fkey'
             columns: ['user_a_id']

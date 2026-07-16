@@ -34,7 +34,9 @@ export function SelfProfileHeader({
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-[26px] leading-tight font-extrabold tracking-[-0.03em]">{name}</h1>
+            <h1 className="text-display-large leading-tight font-extrabold tracking-display">
+              {name}
+            </h1>
             {identity.graduationYear ? (
               <ProfileTag>Class of ’{String(identity.graduationYear).slice(-2)}</ProfileTag>
             ) : null}
@@ -44,7 +46,7 @@ export function SelfProfileHeader({
             {visibleCurrent || 'Add what you are working on now'}
           </p>
           {current.headline ? (
-            <p className="mt-2 max-w-[62ch] text-[13px] leading-relaxed font-medium text-[var(--text-secondary)]">
+            <p className="mt-2 max-w-[62ch] text-body-sm leading-relaxed font-medium text-[var(--text-secondary)]">
               {current.headline}
             </p>
           ) : null}

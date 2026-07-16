@@ -1,6 +1,16 @@
 'use client'
 
-import { Bell, HandHelping, LogOut, Monitor, Moon, Shield, Sun, UserRound } from 'lucide-react'
+import {
+  Bell,
+  HandHelping,
+  LogOut,
+  Monitor,
+  Moon,
+  Shield,
+  Sun,
+  UserRound,
+  Users,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -66,6 +76,12 @@ export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props)
             <Link href="/profile/me">
               <UserRound className="text-muted-foreground" />
               Edit profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
+            <Link href="/people/circle">
+              <Users className="text-muted-foreground" />
+              My circle
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">

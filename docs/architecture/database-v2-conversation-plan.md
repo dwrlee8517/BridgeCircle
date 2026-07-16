@@ -139,8 +139,9 @@ must not hide those errors with compatibility types or suppressions.
 
 The v2 baseline already has a strong base:
 
-- one `public.conversations` table with direct-pair uniqueness scoped to
-  `kind = 'direct'` and Ask uniqueness scoped to `ask_id`;
+- one `public.conversations` table with global unordered-pair uniqueness;
+- accepted/resolved Asks linked through `asks.conversation_id`, allowing many
+  Ask records to share the pair's one durable room;
 - immutable user/system messages with per-sender client nonces;
 - one monotonic `conversation_reads` row per user and conversation;
 - block-aware read policies and service-free authenticated message commands;
@@ -371,9 +372,9 @@ message exists.
 ### 1. Conversations are person-scoped; origins keep their own gates
 
 `conversations`, `messages`, reads, blocks, and Connections use user IDs and
-outlive an organization membership. Ask provenance remains on `organization_id`
-and `ask_id`. The same people may have one direct conversation plus multiple
-Ask conversations.
+outlive an organization membership. Ask provenance remains on the Ask record,
+which links to its pair room through `asks.conversation_id`. The same people
+always return to one room whether contact began through an Ask or Connection.
 
 No generic "conversation membership" abstraction is added. The two-person
 shape is enforced by canonical user columns and database checks.
@@ -825,7 +826,7 @@ Primitive slice:
    into the conversation as a manufactured user message;
 6. direct history survives disconnect but sending requires a current
    Connection;
-7. accepted Ask conversations remain sendable after resolution;
+7. pair rooms remain sendable after a linked Ask is resolved;
 8. conversation reads use fixed API projections, not raw client table access;
 9. pair-lock ordering is retrofitted into the minimal existing Help/Connection
    SQL seams needed to eliminate races;

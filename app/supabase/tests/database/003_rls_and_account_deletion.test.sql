@@ -76,10 +76,18 @@ insert into public.profiles (user_id, display_name) values
   ('70000000-0000-4000-8000-000000000001', 'Deletion Test Member'),
   ('70000000-0000-4000-8000-000000000002', 'History Counterpart');
 
+insert into public.conversations (
+  id, user_a_id, user_b_id
+) values (
+  '73000000-0000-4000-8000-000000000001',
+  '70000000-0000-4000-8000-000000000001',
+  '70000000-0000-4000-8000-000000000002'
+);
+
 insert into public.asks (
   id, organization_id, asker_membership_id, kind, status,
   recipient_membership_id, question, request_message, client_request_id,
-  accepted_at, responded_at
+  accepted_at, responded_at, conversation_id
 ) values (
   '72000000-0000-4000-8000-000000000001',
   '11111111-1111-4111-8111-111111111111',
@@ -89,18 +97,7 @@ insert into public.asks (
   'Could you help with this deletion-retention test?',
   'This accepted Ask should remain as shared history.',
   '72000000-0000-4000-8000-000000000101',
-  now(), now()
-);
-
-insert into public.conversations (
-  id, kind, user_a_id, user_b_id, organization_id, ask_id
-) values (
-  '73000000-0000-4000-8000-000000000001',
-  'ask',
-  '70000000-0000-4000-8000-000000000001',
-  '70000000-0000-4000-8000-000000000002',
-  '11111111-1111-4111-8111-111111111111',
-  '72000000-0000-4000-8000-000000000001'
+  now(), now(), '73000000-0000-4000-8000-000000000001'
 );
 
 insert into public.messages (

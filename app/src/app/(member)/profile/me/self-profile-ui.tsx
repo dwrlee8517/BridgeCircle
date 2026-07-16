@@ -189,7 +189,7 @@ export function SelfSection({
   return (
     <section className={cn(divided && 'border-t border-[var(--divider-row)] pt-7')}>
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[15px] font-extrabold tracking-[-0.01em]">{title}</h2>
+        <h2 className="text-nav font-extrabold tracking-title">{title}</h2>
         {onEdit ? (
           <Button
             variant="ghost"
@@ -240,7 +240,7 @@ export function ProfileTimeline({
               {item.period}
             </time>
             {item.description ? (
-              <p className="mt-2 text-[13px] leading-relaxed font-medium text-[var(--text-secondary)]">
+              <p className="mt-2 text-body-sm leading-relaxed font-medium text-[var(--text-secondary)]">
                 {item.description}
               </p>
             ) : null}
@@ -265,12 +265,12 @@ export function RailCard({
   return (
     <section className="rounded-[13px] bg-[var(--surface-inset)] p-3.5">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-[11px] font-bold text-[var(--text-faint)]">{title}</h2>
+        <h2 className="text-overline font-bold text-[var(--text-faint)]">{title}</h2>
         {onAction ? (
           <button
             type="button"
             onClick={onAction}
-            className="text-[11px] font-bold text-[var(--blue-600)] hover:underline"
+            className="text-overline font-bold text-[var(--blue-600)] hover:underline"
           >
             {actionLabel}
           </button>
@@ -305,7 +305,7 @@ export function ProfileTag({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-bold',
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-chip font-bold',
         tone === 'blue'
           ? 'bg-[var(--blue-50)] text-[var(--blue-600)]'
           : 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
@@ -350,11 +350,7 @@ export function linkLabel(kind: ProfileContactLinkCommand['kind']): string {
             : 'Other'
 }
 export function audienceLabel(audience: ProfileContactLinkCommand['audience']): string {
-  return audience === 'organization'
-    ? 'Circle'
-    : audience === 'connections'
-      ? 'Connections'
-      : 'Only you'
+  return audience === 'organization' ? 'Public' : audience === 'connections' ? 'Circle' : 'Private'
 }
 
 import type { ProfileContactLinkCommand } from '@/lib/profile/contracts'

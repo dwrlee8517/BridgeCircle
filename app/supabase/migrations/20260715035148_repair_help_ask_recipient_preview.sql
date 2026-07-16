@@ -57,7 +57,7 @@ as $$
   left join public.profiles recipient_profile on recipient_profile.user_id = recipient.user_id
   left join public.organization_profiles recipient_org_profile
     on recipient_org_profile.organization_membership_id = recipient.id
-  left join public.conversations conversation on conversation.ask_id = a.id
+  left join public.conversations conversation on conversation.id = a.conversation_id
   where (
     (p_before_created_at is null and p_before_id is null)
     or (

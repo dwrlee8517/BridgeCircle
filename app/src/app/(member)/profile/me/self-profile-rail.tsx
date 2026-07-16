@@ -88,7 +88,7 @@ export function SelfProfileRail({
             >
               <Link2 aria-hidden className="size-3.5" />
               <span className="min-w-0 truncate">{item.label || linkLabel(item.kind)}</span>
-              <span className="ml-auto text-[10px] font-semibold text-[var(--text-faint)]">
+              <span className="ml-auto text-micro font-semibold text-[var(--text-faint)]">
                 {audienceLabel(item.audience)}
               </span>
               {item.kind !== 'email' ? <ExternalLink aria-hidden className="size-3" /> : null}
@@ -97,6 +97,9 @@ export function SelfProfileRail({
         ) : (
           <p className="mt-2 text-xs font-medium text-[var(--text-faint)]">No links added.</p>
         )}
+        <p className="mt-3 text-fine leading-relaxed font-medium text-[var(--text-faint)]">
+          Public — any member · Circle — connections only · Private — just you.
+        </p>
       </RailCard>
 
       <RailCard
@@ -119,7 +122,7 @@ export function SelfProfileRail({
         ) : (
           <div className="mt-2 space-y-2">
             {visibilityFields.map(([key, label]) => (
-              <div key={key} className="flex items-center justify-between gap-2 text-[11px]">
+              <div key={key} className="flex items-center justify-between gap-2 text-overline">
                 <span className="font-semibold text-[var(--text-secondary)]">{label}</span>
                 <span className="font-medium text-[var(--text-faint)]">
                   {audienceLabel(visibility[key] || 'organization')}
@@ -136,18 +139,18 @@ export function SelfProfileRail({
         </p>
         <Link
           href="/help/settings"
-          className="mt-2 inline-flex text-[11px] font-bold text-[var(--blue-600)]"
+          className="mt-2 inline-flex text-overline font-bold text-[var(--blue-600)]"
         >
           Edit availability
         </Link>
       </RailCard>
       <RailCard title="Email & quiet">
-        <p className="mt-2 text-[11px] leading-relaxed font-medium text-[var(--text-faint)]">
+        <p className="mt-2 text-overline leading-relaxed font-medium text-[var(--text-faint)]">
           Notification history and controls stay outside your public profile.
         </p>
         <Link
           href="/notifications"
-          className="mt-2 inline-flex text-[11px] font-bold text-[var(--blue-600)]"
+          className="mt-2 inline-flex text-overline font-bold text-[var(--blue-600)]"
         >
           Open notifications
         </Link>
@@ -249,9 +252,9 @@ function AudienceField({
         onChange={onChange ? (event) => onChange(event.target.value as Audience) : undefined}
         className={cn(selectClass, 'mt-1.5')}
       >
-        <option value="organization">Anyone in your circle</option>
-        <option value="connections">Connections only</option>
-        <option value="self">Only you</option>
+        <option value="organization">Public — any member</option>
+        <option value="connections">Circle — connections only</option>
+        <option value="self">Private — just you</option>
       </select>
     </label>
   )

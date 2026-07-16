@@ -52,7 +52,7 @@ delete from public.conversation_reads where conversation_id = '$read_conversatio
 delete from public.messages where conversation_id = '$read_conversation_id';
 delete from public.conversations
 where id = '$read_conversation_id'
-   or (kind = 'direct' and user_a_id in ('$user_a', '$user_b') and user_b_id in ('$user_b', '$user_c'));
+   or (user_a_id in ('$user_a', '$user_b') and user_b_id in ('$user_b', '$user_c'));
 delete from public.connections
 where (user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
        and user_b_id = greatest('$user_a'::uuid, '$user_b'::uuid))
@@ -275,17 +275,17 @@ fi
 
 "${psql_base[@]}" <<SQL >/dev/null
 delete from public.conversation_reads where conversation_id in (
-  select id from public.conversations where kind = 'direct'
-    and user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
+  select id from public.conversations
+  where user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
     and user_b_id = greatest('$user_a'::uuid, '$user_b'::uuid)
 );
 delete from public.messages where conversation_id in (
-  select id from public.conversations where kind = 'direct'
-    and user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
+  select id from public.conversations
+  where user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
     and user_b_id = greatest('$user_a'::uuid, '$user_b'::uuid)
 );
-delete from public.conversations where kind = 'direct'
-  and user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
+delete from public.conversations
+where user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
   and user_b_id = greatest('$user_a'::uuid, '$user_b'::uuid);
 delete from public.connections where user_a_id = least('$user_a'::uuid, '$user_b'::uuid)
   and user_b_id = greatest('$user_a'::uuid, '$user_b'::uuid);
@@ -329,8 +329,8 @@ fi
 delete from public.member_blocks where blocker_user_id = '$user_c' and blocked_user_id = '$user_a';
 insert into public.connections (user_a_id, user_b_id, origin_organization_id)
 values (least('$user_b'::uuid, '$user_c'::uuid), greatest('$user_b'::uuid, '$user_c'::uuid), '$organization_id');
-insert into public.conversations (id, kind, user_a_id, user_b_id)
-values ('$read_conversation_id', 'direct', least('$user_b'::uuid, '$user_c'::uuid), greatest('$user_b'::uuid, '$user_c'::uuid));
+insert into public.conversations (id, user_a_id, user_b_id)
+values ('$read_conversation_id', least('$user_b'::uuid, '$user_c'::uuid), greatest('$user_b'::uuid, '$user_c'::uuid));
 insert into public.messages (conversation_id, sender_user_id, kind, body, client_nonce)
 values ('$read_conversation_id', '$user_c', 'user', 'Initial read target.', 'a1000000-0000-4000-8000-000000000201');
 SQL

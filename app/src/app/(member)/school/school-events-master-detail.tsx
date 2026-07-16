@@ -274,7 +274,7 @@ function EventSpotlight({
             </span>
             <span className="text-xs text-surface-ink-muted">Hosted by {orgName}</span>
           </div>
-          <h3 className="font-heading text-h1 font-semibold leading-[1.08] tracking-[-0.01em] text-surface-ink-foreground sm:text-[28px]">
+          <h3 className="font-heading text-h1 font-semibold leading-[1.08] tracking-title text-surface-ink-foreground sm:text-page-title">
             {event.title}
           </h3>
           <p className="mt-2 text-caption leading-relaxed text-surface-ink-muted">
@@ -286,7 +286,7 @@ function EventSpotlight({
           <div className="font-mono text-xs font-bold uppercase tracking-label text-primary-on-dark">
             {format(starts, 'MMM')}
           </div>
-          <div className="mt-1 font-heading text-[56px] font-semibold leading-none tracking-tighter text-surface-ink-foreground sm:text-[64px]">
+          <div className="mt-1 font-heading text-event-date-md font-semibold leading-none tracking-tighter text-surface-ink-foreground sm:text-event-date-lg">
             {format(starts, 'd')}
           </div>
           <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-surface-ink-muted">

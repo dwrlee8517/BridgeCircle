@@ -154,7 +154,7 @@ export function SelfProfileCareer({
                   }
                   placeholder="Climate strategy, Mentoring, Product design"
                 />
-                <p className="mt-1.5 text-[11px] font-medium text-[var(--text-faint)]">
+                <p className="mt-1.5 text-overline font-medium text-[var(--text-faint)]">
                   Separate skills with commas.
                 </p>
               </div>

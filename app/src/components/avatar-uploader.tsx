@@ -25,7 +25,9 @@ type Props = {
  */
 export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialAvatarUrl)
+  const [durableUrl, setDurableUrl] = useState<string | null>(initialAvatarUrl)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
   const [pending, startTransition] = useTransition()
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -33,6 +35,7 @@ export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
     const file = e.target.files?.[0]
     if (!file) return
     setError(null)
+    setSaved(false)
 
     const localPreview = URL.createObjectURL(file)
     setPreviewUrl(localPreview)
@@ -41,15 +44,24 @@ export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
     fd.set('file', file)
 
     startTransition(async () => {
-      const result = await uploadAvatarAction(fd)
-      if (result.error) {
-        setError(result.error)
-        return
-      }
-      if (result.publicUrl) {
-        // Replace the local object-URL preview with the durable storage URL
-        setPreviewUrl(result.publicUrl)
+      try {
+        const result = await uploadAvatarAction(fd)
+        if (result.error) {
+          setPreviewUrl(durableUrl)
+          setError(result.error)
+          return
+        }
+        if (result.publicUrl) {
+          setDurableUrl(result.publicUrl)
+          setPreviewUrl(result.publicUrl)
+          setSaved(true)
+        }
+      } catch {
+        setPreviewUrl(durableUrl)
+        setError('Could not save that photo. Please try again.')
+      } finally {
         URL.revokeObjectURL(localPreview)
+        if (inputRef.current) inputRef.current.value = ''
       }
     })
   }
@@ -72,7 +84,7 @@ export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
         >
           {pending ? (
             <>
-              <Loader2 className="size-3.5 animate-spin" />
+              <Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" />
               Uploading…
             </>
           ) : (
@@ -82,8 +94,20 @@ export function AvatarUploader({ initialAvatarUrl, initialName }: Props) {
             </>
           )}
         </Button>
+        <p className="text-xs font-medium text-[var(--text-secondary)]">
+          Members with a photo hear back faster.
+        </p>
         <p className="text-xs text-muted-foreground">JPEG, PNG, or WebP. 5 MB max.</p>
-        {error ? <p className="text-xs text-destructive">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-xs text-destructive">
+            {error}
+          </p>
+        ) : null}
+        {saved ? (
+          <p role="status" className="text-xs font-semibold text-[var(--action-give-text)]">
+            Photo saved.
+          </p>
+        ) : null}
         <input
           ref={inputRef}
           type="file"

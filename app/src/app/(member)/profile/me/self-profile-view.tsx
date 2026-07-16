@@ -1,5 +1,9 @@
+'use client'
+
 import { ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
+import { useMemberShellHeader } from '@/app/(member)/member-shell-header-context'
+import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { Button } from '@/components/ui/button'
 import type { SelfProfile } from '@/lib/profile/contracts'
 import { SelfProfileHeader } from './self-profile-header'
@@ -14,8 +18,16 @@ export function SelfProfileView({
   profile: SelfProfile
   avatarUrl: string | null
 }) {
+  useMemberShellHeader({
+    title: 'Your profile',
+    meta: 'What you edit here is exactly what other members see.',
+  })
+
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
+      <div className="mx-auto max-w-[1180px]">
+        <ConnectivityNotice />
+      </div>
       <article className="mx-auto max-w-[1180px] overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
         <SelfProfileHeader
           identity={profile.identity}
@@ -40,7 +52,7 @@ export function SelfProfileView({
                   {profile.preferences.helperTopics.map((topic) => (
                     <div
                       key={topic.name}
-                      className="flex min-h-10 items-start gap-2.5 rounded-xl p-2 text-[13.5px] font-bold"
+                      className="flex min-h-10 items-start gap-2.5 rounded-xl p-2 text-control font-bold"
                     >
                       <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--action-primary)]" />
                       {topic.name}

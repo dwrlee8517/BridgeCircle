@@ -84,10 +84,13 @@ source of truth.
 | Route | Responsibility |
 |---|---|
 | `/people` | Organization directory, search, filters, and direct-Help entry |
+| `/people/circle` | Managed Connection view with Message and confirmed Disconnect actions |
 | `/profile/[id]` | Member profile, Connection state, and direct-Help entry |
 | `/profile/me` | Canonical self profile with inline section and audience editing |
 
-People sends `membershipId`, not `userId`, when entering a direct Ask. Profile
+People sends `membershipId`, not `userId`, when entering a direct Ask. The
+managed circle view is a People-owned detail route reached from the directory,
+Messages' My-circle lens, and the account menu. Profile
 URLs use `userId`, while the self route derives its selected membership on the
 server. The removed edit/import/proposal routes have no compatibility aliases;
 future enrichment review belongs to its later dedicated slice.

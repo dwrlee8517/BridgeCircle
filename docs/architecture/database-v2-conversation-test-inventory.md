@@ -31,9 +31,9 @@
 
 | Invariant | Primary owner |
 |---|---|
-| one direct conversation per unordered pair | `002_help_and_conversation_invariants.test.sql` + `009_conversation_primitive.test.sql` |
-| multiple Ask conversations for the same pair | `002_help_and_conversation_invariants.test.sql` |
-| direct/Ask origin shape and participant correctness | `009_conversation_primitive.test.sql` |
+| one conversation per unordered pair, across every origin | `001_schema_contract.test.sql` + `002_help_and_conversation_invariants.test.sql` + `009_conversation_primitive.test.sql` |
+| multiple Asks for the same pair reuse one room | `002_help_and_conversation_invariants.test.sql` + `009_conversation_primitive.test.sql` |
+| Ask-to-room participant correctness | `002_help_and_conversation_invariants.test.sql` + `009_conversation_primitive.test.sql` |
 | user/system message shape is mutually exclusive | `009_conversation_primitive.test.sql` |
 | system event key is unique per conversation | `009_conversation_primitive.test.sql` |
 | system actor FK is indexed and nulls on account deletion | `003_rls_and_account_deletion.test.sql`, `009_conversation_primitive.test.sql` |

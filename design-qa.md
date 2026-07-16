@@ -1,123 +1,107 @@
-# Design QA — Help vertical slice
+# Design QA — People and Profile vertical slice
 
 ## Comparison target
 
 - Source visual truth:
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/AskHistory.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/AskStatus.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/GiveDirect.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/help/GiveOffer.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/messages/Messages.dc.html`
-- Source rendered captures:
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/source-ask-history-1440.png`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/source-ask-status-direct-1440.png`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/source-ask-status-circle-1440.png`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/people/People.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/my-circle/MyCircle.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/profile/Profile.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/profile/ProfileSelf.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md`, especially §§4, 7, 7b, 7c, and 7d. Where the older profile specimen still shows “Why this match,” the later explicit decision in FLOWS §7 is canonical and removes it from profiles.
 - Implementation routes:
-  - `http://localhost:3000/help/asks`
-  - `http://localhost:3000/help/asks/:askId`
-  - `http://localhost:3000/help/asks/:askId/offer`
-  - `http://localhost:3000/messages/:conversationId`
-- Primary comparison viewport: 1440 × 900.
-- Responsive verification viewports: 768 × 900, 390 × 844, and 320 × 700.
-- States compared: Ask history; direct Ask waiting; circle Ask open with two pending offers.
+  - `http://localhost:3000/people`
+  - `http://localhost:3000/people/circle`
+  - `http://localhost:3000/profile/:userId`
+  - `http://localhost:3000/profile/me`
+- Primary comparison viewport: 1280 × 820.
+- Responsive verification viewports: 390 × 844 and 320 × 700.
+- Authenticated state: Richard Lee; four visible directory members; one current connection, Mei Park.
 
-## Browser-rendered implementation evidence
+## Browser-rendered evidence
 
-- Ask history desktop: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-1440.png`
-- Direct Ask status desktop: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-direct-1440.png`
-- Circle Ask status desktop: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-circle-1440.png`
-- Ask history tablet: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-768.png`
-- Direct Ask status tablet: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-direct-768.png`
-- Ask history mobile: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-390.png` and `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-320.png`
-- Circle Ask status mobile: `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-circle-390.png` and `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-circle-320.png`
-- Direct helper source/implementation: `reference-give-direct-1512x772.png` and `implementation-give-direct-1512x772.png`, plus matched 768 × 900 and 390 × 844 captures.
-- Circle offer source/implementation: `reference-give-offer-1512x772.png` and `implementation-give-offer-1512x772.png`, plus matched 768 × 900 and 390 × 844 captures.
-- Accepted-Ask thread source/implementation: `reference-messages-ask-thread-1512x772.png` and `implementation-messages-ask-thread-1512x772.png`, plus matched 768 × 900 and 390 × 844 captures and an implementation-only 320 × 700 minimum-width check.
+All files below are in `/private/tmp/bridgecircle-people-profile-ui-qa-2026-07-15`.
 
-## Comparison evidence
+- Source captures:
+  - `reference-people-1280x820.png`
+  - `reference-my-circle-1280x820.png`
+  - `reference-profile-1280x820.png`
+  - `reference-profile-self-1280x820.png`
+- Exact 1280 × 820 implementation captures:
+  - `after-people-1280x820.png`
+  - `after-my-circle-1280x820.png`
+  - `after-profile-1280x820.png`
+  - `after-profile-self-1280x820.png`
+- Exact 390 × 844 implementation captures:
+  - `after-people-390x844.png`
+  - `after-my-circle-390x844.png`
+  - `after-profile-390x844.png`
+  - `after-profile-self-390x844.png`
+- Full-view paired comparisons:
+  - `compare-people-1280x820.jpg`
+  - `compare-my-circle-1280x820.jpg`
+  - `compare-profile-1280x820.jpg`
+  - `compare-profile-self-1280x820.jpg`
+- Focused paired comparisons:
+  - `focus-people.jpg`
+  - `focus-my-circle.jpg`
+  - `focus-profile.jpg`
+  - `focus-profile-self.jpg`
 
-- Full-view history comparison: the 1440 × 900 source and implementation captures above were opened together and compared for shell alignment, content width, section rhythm, row density, status pills, typography, and card geometry.
-- Full-view direct-status comparison: the matched 1440 × 900 captures were opened together and compared for the summary card, recipient state card, vertical spacing, and waiting treatment.
-- Full-view circle-status comparison: the matched 1440 × 900 captures were opened together and compared for the Ask summary, anonymity note, offer stack, and action hierarchy.
-- Focused-region crops were not needed: every evaluated screen is already a single focused reading column, and all relevant regions remain legible in the matched 1440 × 900 captures.
-- Responsive captures confirm that the existing shell collapses to icon rail at 768 px and fixed bottom navigation at 390/320 px. DOM-backed overflow checks found no element wider than its client box at 390 or 320 px.
-- The helper-response and accepted-thread source/implementation pairs were opened together in the same visual comparison input after each final capture. Desktop pairs use the same 1512 × 772 viewport and state; tablet pairs use 768 × 900; mobile pairs use 390 × 844.
-- The legacy source templates retain desktop-width overflow at 390 px (`GiveDirect` 419 px, `GiveOffer` 412 px, `Messages` 662 px). The implementation intentionally applies the approved responsive shell and stays exactly within 390 px; the accepted thread also stays within 320 px.
+## Findings
 
-## Comparison history and fixes
+No actionable P0, P1, or P2 mismatch remains.
+
+- The final People composition matches the source hierarchy: page title, full-width search, the three scope controls, exactly three visible structured filters, result metadata, and elevated rows.
+- The My circle managed view matches FLOWS §7d and the specimen’s hierarchy with per-row Message and Disconnect actions. Source and implementation row counts and identities intentionally differ because the implementation uses the current seed.
+- The member profile preserves the approved header, exactly two primary relationship verbs, facts column, Can help with section, entitled links, shared context when available, and staleness hint. The older specimen’s “Why this match” rail is intentionally absent because FLOWS §7 explicitly removed it from profiles.
+- The self profile preserves same-layout inline editing, per-link and per-section audience controls, the read-only Help availability mirror, and quiet notification settings. The source’s enrichment-review banner is a different data state; the current owner has no pending proposals.
+- Connection dates/context shown in the MyCircle specimen are demo data, not required by FLOWS §7d; the live managed view does not fabricate missing relationship history.
+
+## Comparison history
 
 ### Iteration 1
 
-- P2 — the first implementation used a 680 px border-box container with internal padding, making the visible cards narrower than the 680 px source cards.
-- P2 — the status/history pages initially used arbitrary font-size values that bypassed the active BridgeCircle typography tokens.
-- P2 — history lacked the shell-level active-slot count, making the source's `3 of 5 open` context unavailable to the user.
+The pre-fix captures were:
 
-Fixes made:
+- `before-people-desktop-1280x820.png`
+- `before-profile-1280x820.png`
+- `before-profile-self-1280x820.png`
 
-- The reading container is now 732 px including 26 px side padding, producing the source-aligned 680 px card width at desktop.
-- All new typography uses named BridgeCircle text tokens; the design-token ratchets pass with no new arbitrary font sizes.
-- The member shell header now supports optional metadata and the history route supplies the live active-slot count.
+Findings and fixes:
 
-Post-fix evidence:
+- P1 — FLOWS §7d required a managed My circle surface, but only a People scope existed. Added `/people/circle`, linked it from People, Messages, and the account menu, and implemented Message plus confirmed Disconnect.
+- P2 — People exposed a fourth “More filters” control that was absent from the settled handoff. Removed it while retaining its backend query capabilities for the deferred search pass.
+- P2 — self-profile audience copy exposed database terminology. Replaced it with Public, Circle, and Private and the exact viewer explanation.
+- P2 — profile and destructive-action navigation/copy were inconsistent across entry points. Unified shell ownership, back behavior, action notices, and the exact Block/Disconnect confirmations from FLOWS §7c.
+- P2 — the slice lacked complete in-shape loading/error/not-found/offline states. Added route-shaped skeletons, calm retry/back cards, and a shared connectivity notice.
 
-- `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-history-1440.png`
-- `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-direct-1440.png`
-- `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/screenshots/help/qa/app-ask-status-circle-1440.png`
-
-No actionable P0, P1, or P2 mismatch remains after the post-fix comparison.
-
-### Iteration 2 — helper responses and accepted-Ask thread
-
-- Direct-response geometry, wash, Ask hierarchy, recipient identity, response card, report action, green commitment CTA, and route-specific shell title align with `GiveDirect.dc.html`; authenticated seed copy accounts for expected wrapping differences.
-- Circle-offer geometry, anonymous member presentation, green matching treatment, two-column desktop workspace, assistant panel, private offer card, and CTA align with `GiveOffer.dc.html`.
-- The accepted-Ask thread preserves the source conversation column, origin line, outgoing message treatment, composer, member context, Ask status, and resolve action. The approved Help plan includes only this minimal seam; the source's searchable conversation list, shared-media panel, and full inbox controls remain intentionally owned by the later Messages slice.
-- Mobile implementation order is deliberate: helper composers become one readable column, the shell becomes bottom navigation, the accepted thread keeps the conversation primary, and the details panel is reached through the visible `Details` link. No action is clipped and no implementation viewport scrolls horizontally.
-
-No actionable P0, P1, or P2 mismatch remains within the approved Help milestone scope.
+Post-fix evidence is the final exact-viewport and focused comparison set above. No later visual fix was required after the final comparison.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: passed; the implementation uses the active BridgeCircle Pretendard hierarchy and named type tokens.
-- Spacing and layout rhythm: passed; desktop card width and vertical rhythm match the templates, with deliberate content-driven height changes for longer live notes.
-- Colors and visual tokens: passed; page wash, elevated cards, status pills, buttons, focus rings, and dialog scrims use the existing design-system variables.
-- Image and asset quality: passed; existing BridgeCircle branding, Lucide shell icons, and real avatar/fallback components are used. No placeholder or approximate visible asset was added.
-- Copy and content: passed; the source voice is preserved while identity, school, timestamps, Ask counts, and notes come from authenticated local data.
-- Interaction and accessibility: passed; history rows are links, dialogs are labelled and focus-managed, report reasons are semantic radios, buttons retain 44 px mobile targets, and status updates use a live region.
+- Fonts and typography: passed. The BridgeCircle Pretendard hierarchy, weights, compact metadata, and section headings align with the handoff.
+- Spacing and layout rhythm: passed. Shell proportions, content widths, search/filter rhythm, card radii, row density, profile grid, and responsive stacking remain coherent at all tested sizes.
+- Colors and visual tokens: passed. Canvas wash, elevated surfaces, blue/green relationship states, neutral destructive controls, dividers, shadows, and focus rings use the active design-system variables.
+- Image and asset quality: passed. Existing BridgeCircle branding, Lucide icons, avatar components, and real/fallback member data are used; no approximate custom graphic was introduced.
+- Copy and content: passed. Visible filter names, privacy audiences, block/disconnect explanations, empty/error/offline states, and Help availability language follow FLOWS and the handoff. Seed-specific identities and sparse histories are expected data variance.
+- Interaction and accessibility: passed for the manually exercised roads. Buttons, links, dialogs, headings, active scopes, focus defaults, and status regions expose semantic browser roles.
 
 ## Primary interactions tested
 
-- Open Ask history and follow direct/circle Ask detail links.
-- Open and cancel the retract confirmation without mutating the Ask.
-- Open the decline flow, verify the cushioned default note, and cancel without declining.
-- Open the private report flow, switch the reason from Harassment to Spam, and cancel without submitting.
-- Verify pending-offer Accept, Decline, and Report controls are present and correctly scoped per offer.
-- Verify tablet and mobile shell transitions, fixed bottom navigation, vertical reachability, and absence of horizontal overflow.
-- Verify Realtime subscription wiring refreshes the affected Ask/history route through the existing Help channel contract.
-- Accept a direct Ask with an opening note and verify the resulting conversation has one actor-aware origin line and one opening message.
-- Submit a private offer to an anonymous matched Ask, verify the asker alone sees it, accept it, and verify the accepted helper identity appears in the new conversation.
-- Send in both accepted conversation kinds, resolve the circle Ask, and send again after resolution to prove that resolution closes the Ask rather than the conversation.
-- Verify Realtime outage copy is non-blocking, durable send remains available, and bounded reconnection retries stay active without an unhandled rejection.
+- People All → In your circle → Manage circle.
+- My circle Message presence and Disconnect confirmation/cancel without mutating the seed.
+- Member profile intercepted overlay, full-profile transition, People-owned back target, and Links & contact visibility.
+- More actions → Block confirmation/cancel with the exact mutual-invisibility copy.
+- Self-profile audience editor with Public/Circle/Private options and close without saving.
+- Desktop and mobile People, My circle, member profile, and self profile rendering.
+- Horizontal-overflow checks at 390 × 844 and 320 × 700; every route remained exactly within the viewport.
+- Browser console after fresh navigations: no runtime exception or error entry; only normal Next.js development info/log events.
 
-## Runtime and verification
+## Verification
 
-- Browser console: a fresh post-navigation checkpoint produced no application warnings or errors. Writing-assistant extension warnings and an older retained log from the superseded remote-environment attempt were excluded from the current local run.
-- `pnpm exec biome check .` — 491 files passed.
-- `pnpm typecheck:v2-help` — passed.
-- `pnpm check:help-boundaries` — passed.
-- `pnpm check:tokens` — all four design-token ratchets passed.
-- `pnpm exec vitest run` — 52 files and 249 tests passed.
-- `pnpm exec eslint .` — zero errors and three unrelated warnings in existing debug scripts.
-- `supabase test db` — 10 files and 379 assertions passed.
-- Foundation, Conversation, and Help concurrency; Help worker/maintenance/Realtime/query-plan; and Conversation Realtime/query-plan harnesses all passed serially.
-- `supabase db lint --local --level warning --fail-on warning` — no schema warnings.
-- `supabase db diff --local --schema public,api,private` — no schema drift.
-- Global TypeScript remains a later-domain port inventory at 1,239 errors across 97 files; focused Help and the accepted-thread seam have zero owned errors.
-- `git diff --check` — passed.
-
-## Residual notes
-
-- The source specimens use fixed demo identities and notes, while local QA uses authenticated seed data. The resulting line wrapping is expected data variance, not design drift.
-- The two disposable local-only offers used to exercise the circle actions were removed after QA.
-- The full three-column Messages inbox is not claimed as part of this Help milestone. Its source comparison was used to preserve the conversation/detail language and hierarchy while the approved minimal accepted-Ask seam was implemented; the inbox list and media/tools panel remain parked for the Messages vertical slice.
+- Focused Biome check across all changed People/Profile/shell files: passed after formatting.
+- Full TypeScript inventory: still red in unrelated pre-v2 scripts/admin/events/invite test factories after the destructive schema cutover; zero diagnostics matched any changed People/Profile, My circle, shell, route-state, or avatar file.
+- `git diff --check`: passed before the documentation/test updates and is rerun in the final gate.
+- Search ranking, natural-language routing, indexing, and query-plan tuning remain explicitly deferred until after the visual and interaction slices, per the current product decision.
 
 final result: passed

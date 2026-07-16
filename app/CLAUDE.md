@@ -166,7 +166,8 @@ Before declaring a task done:
 | `/help/asks/[askId]` | Ask detail or direct-recipient response | Projection is viewer-role shaped |
 | `/help/asks/[askId]/offer` | Circle-offer composer | Private offer note and bounded AI assistance |
 | `/help/settings` | Helper availability and topics | Sole settings surface for Help supply |
-| `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
+| `/people` | Member exploration — bounded search, All/Open-to-help/In-your-circle scopes, and profile preview | Was `/discover`; folded `/friends` in |
+| `/people/circle` | Managed circle view | Per-row Message and confirmed, mutual Disconnect |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
 | `/messages` | Canonical Messages root | Waiting, counts, filters/search, keyset list, and responsive workspace use fixed v2 projections |
 | `/messages/[id]` | Unified v2 conversation thread | Ask and Connection origins share history, send/read/typing, context, and safety controls |

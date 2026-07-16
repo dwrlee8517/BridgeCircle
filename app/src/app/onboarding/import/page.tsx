@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createAdminClient } from '@/db/admin'
+import { createProfileRepository } from '@/db/repositories/profiles'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 import { getImportCurrentProfile } from '@/lib/onboarding/import-current-profile'
@@ -43,7 +44,7 @@ export default async function OnboardingImportPage({
 
   if (!membership) redirect('/onboarding')
 
-  const current = await getImportCurrentProfile(supabase, session.userId)
+  const current = await getImportCurrentProfile(createProfileRepository(supabase), membership.id)
   const copy =
     source === 'linkedin'
       ? {

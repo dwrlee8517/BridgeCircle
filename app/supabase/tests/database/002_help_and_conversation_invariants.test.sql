@@ -58,16 +58,15 @@ select extensions.throws_ok(
 
 select extensions.throws_ok(
   $$
-    insert into public.conversations (kind, user_a_id, user_b_id)
+    insert into public.conversations (user_a_id, user_b_id)
     values (
-      'direct',
       '10000000-0000-4000-8000-000000000002',
       '10000000-0000-4000-8000-000000000004'
     )
   $$,
   '23505',
   null,
-  'a user pair can have only one direct conversation'
+  'a user pair can have only one conversation'
 );
 
 select extensions.throws_ok(
@@ -214,7 +213,12 @@ select extensions.is(
 );
 
 select extensions.is(
-  (select count(*)::bigint from public.conversations where ask_id = '30000000-0000-4000-8000-000000000001'),
+  (
+    select count(*)::bigint
+    from public.asks
+    where id = '30000000-0000-4000-8000-000000000001'
+      and conversation_id is not null
+  ),
   1::bigint,
   'accepted direct Ask has exactly one conversation'
 );
@@ -274,9 +278,19 @@ select extensions.is(
 );
 
 select extensions.is(
-  (select count(*)::bigint from public.conversations where ask_id = '30000000-0000-4000-8000-000000000002'),
+  (
+    select count(*)::bigint
+    from public.conversations conversation
+    where conversation.user_a_id = '10000000-0000-4000-8000-000000000002'
+      and conversation.user_b_id = '10000000-0000-4000-8000-000000000006'
+      and conversation.id = (
+        select ask.conversation_id
+        from public.asks ask
+        where ask.id = '30000000-0000-4000-8000-000000000002'
+      )
+  ),
   1::bigint,
-  'accepted circle Ask has exactly one conversation'
+  'accepted circle Ask reuses the pair canonical conversation'
 );
 
 select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000006', true);

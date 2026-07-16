@@ -96,7 +96,7 @@ export default async function EventDetailPage({ params }: { params: Promise<Para
                     </span>
                     <EventStatus isPast={event.isPast} starts={starts} accentHex={accent.hex} />
                   </div>
-                  <h1 className="font-heading text-display-md font-semibold leading-[1.08] tracking-[-0.01em] text-foreground sm:text-[36px]">
+                  <h1 className="font-heading text-display-md font-semibold leading-[1.08] tracking-title text-foreground sm:text-display-event">
                     {event.title}
                   </h1>
                   <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
@@ -306,7 +306,7 @@ function DateBlock({ starts, accentHex }: { starts: Date; accentHex: string }) {
       >
         {format(starts, 'MMM')}
       </div>
-      <div className="mt-1 font-heading text-[52px] font-semibold leading-none tracking-tighter text-foreground">
+      <div className="mt-1 font-heading text-event-date font-semibold leading-none tracking-tighter text-foreground">
         {format(starts, 'd')}
       </div>
       <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-muted-foreground">

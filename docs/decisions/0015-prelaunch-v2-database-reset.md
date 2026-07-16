@@ -105,9 +105,11 @@ wrappers have fixed return types and delegate to those implementations.
 - `asks.accepted_offer_id` does not exist; a partial unique index makes the
   accepted offer authoritative, and a deferred consistency trigger validates
   the Ask/offer relationship at commit.
-- One `conversations` table represents direct and Ask conversations.
-- Direct conversation uniqueness is scoped to `kind = 'direct'`; the same
-  pair may have multiple Ask conversations.
+- One `conversations` row represents the durable room for an unordered user
+  pair, regardless of whether the relationship began through an Ask or a
+  Connection.
+- `asks.conversation_id` links every accepted/resolved Ask to that canonical
+  pair room, so multiple Asks never create duplicate rooms in Messages.
 - `messages.conversation_id` is a real foreign key.
 - `conversation_reads` replaces mutable `messages.read_at` state.
 

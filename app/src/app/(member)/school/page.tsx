@@ -60,7 +60,7 @@ export default async function SchoolPage() {
       <section className="mx-auto max-w-7xl px-4 py-5 sm:px-8 sm:py-6">
         <div className="mb-5">
           <p className="bc-section-kicker mb-3">{orgName}</p>
-          <h1 className="font-heading text-[28px] font-semibold leading-tight text-foreground sm:text-display-md">
+          <h1 className="font-heading text-page-title font-semibold leading-tight text-foreground sm:text-display-md">
             School circle
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">

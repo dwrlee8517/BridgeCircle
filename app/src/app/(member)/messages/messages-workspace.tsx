@@ -1,6 +1,7 @@
 'use client'
 
 import { Search, X } from 'lucide-react'
+import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { type ReactNode, useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import type {
@@ -213,6 +214,14 @@ export function MessagesWorkspace({
               )
             })}
           </fieldset>
+          {filter === 'my_circle' ? (
+            <Link
+              href="/people/circle"
+              className="w-fit rounded-md px-1 text-kicker font-bold text-[var(--blue-600)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+            >
+              Manage your circle
+            </Link>
+          ) : null}
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">

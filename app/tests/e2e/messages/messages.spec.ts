@@ -34,7 +34,7 @@ test('inbox exposes the canonical seed branches and accepts a direct Ask into Me
   await page.goto('/messages')
 
   const filters = page.getByRole('group', { name: 'Message filters' })
-  await expect(filters.getByRole('button', { name: 'All 32' })).toHaveAttribute(
+  await expect(filters.getByRole('button', { name: 'All 5' })).toHaveAttribute(
     'aria-pressed',
     'true',
   )
@@ -43,6 +43,7 @@ test('inbox exposes the canonical seed branches and accepts a direct Ask into Me
   await expect(filters.getByRole('button', { name: 'Open asks 1' })).toBeVisible()
   await expect(page.getByRole('button', { name: /Waiting on you/ })).toContainText('3')
   await expect(page.getByRole('link', { name: /Jordan Kim, 1 unread/ })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Jordan Kim/ })).toHaveCount(1)
   await expect(page.getByRole('link', { name: /Amy Admin/ })).toHaveCount(0)
   await expectNoAccessibilityViolations(page)
 
@@ -53,17 +54,16 @@ test('inbox exposes the canonical seed branches and accepts a direct Ask into Me
   await filters.getByRole('button', { name: 'Open asks 1' }).click()
   await expect(page.getByRole('list', { name: 'Conversations' }).getByRole('link')).toHaveCount(1)
   await expect(page.getByRole('link', { name: /Jordan Kim/ })).toBeVisible()
-  await filters.getByRole('button', { name: 'All 32' }).click()
+  await filters.getByRole('button', { name: 'All 5' }).click()
 
   const search = page.getByRole('textbox', { name: 'Search messages' })
   await search.fill('Historical risk discussion 27')
-  await expect(page.getByText('Historical risk discussion 27', { exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Jordan Kim/ })).toHaveCount(1)
   await expect(page.getByText('1 conversation shown.')).toBeAttached()
   await page.getByRole('button', { name: 'Clear message search' }).click()
-  await expect(page.getByRole('button', { name: 'Load more' })).toBeVisible()
-  await page.getByRole('button', { name: 'Load more' }).click()
+  await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Deleted member', exact: true })).toBeVisible()
-  await expect(page.getByRole('list', { name: 'Conversations' }).getByRole('link')).toHaveCount(32)
+  await expect(page.getByRole('list', { name: 'Conversations' }).getByRole('link')).toHaveCount(5)
 
   const directAsk = page.locator('li').filter({ hasText: 'Asked for your help' })
   await directAsk.getByRole('link', { name: 'View ask' }).click()

@@ -460,6 +460,21 @@ create table public.helper_topics (
 create index helper_topics_org_idx
   on public.helper_topics (organization_id, organization_membership_id, sort_order);
 
+create table public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_a_id uuid not null references public.users(id) on delete restrict,
+  user_b_id uuid not null references public.users(id) on delete restrict,
+  last_message_at timestamptz,
+  created_at timestamptz not null default now(),
+  constraint conversations_canonical_pair_check check (user_a_id < user_b_id),
+  constraint conversations_pair_key unique (user_a_id, user_b_id)
+);
+
+create index conversations_user_a_last_idx
+  on public.conversations (user_a_id, last_message_at desc nulls last, id);
+create index conversations_user_b_last_idx
+  on public.conversations (user_b_id, last_message_at desc nulls last, id);
+
 create table public.asks (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete restrict,
@@ -475,6 +490,7 @@ create table public.asks (
   decline_note text,
   closure_reason text,
   outcome_note text,
+  conversation_id uuid references public.conversations(id) on delete restrict,
   reopened_from_ask_id uuid references public.asks(id) on delete restrict,
   client_request_id uuid not null,
   reminder_sent_at timestamptz,
@@ -541,6 +557,11 @@ create table public.asks (
     status not in ('waiting', 'open')
     or (accepted_at is null and responded_at is null and ended_at is null)
   ),
+  constraint asks_conversation_lifecycle_check check (
+    (status not in ('accepted', 'resolved') or conversation_id is not null)
+    and
+    (status not in ('waiting', 'open', 'declined', 'retracted') or conversation_id is null)
+  ),
   constraint asks_expiry_check check (expires_at > created_at),
   constraint asks_client_request_key unique (asker_membership_id, client_request_id)
 );
@@ -564,6 +585,9 @@ create index asks_asker_active_idx
 create index asks_reopened_from_idx
   on public.asks (reopened_from_ask_id)
   where reopened_from_ask_id is not null;
+create index asks_conversation_status_idx
+  on public.asks (conversation_id, status, accepted_at desc, id)
+  where conversation_id is not null;
 
 create table public.ask_offers (
   id uuid primary key default gen_random_uuid(),
@@ -684,38 +708,6 @@ create table public.member_blocks (
 
 create index member_blocks_blocked_idx
   on public.member_blocks (blocked_user_id, blocker_user_id);
-
-create table public.conversations (
-  id uuid primary key default gen_random_uuid(),
-  kind text not null,
-  user_a_id uuid not null references public.users(id) on delete restrict,
-  user_b_id uuid not null references public.users(id) on delete restrict,
-  organization_id uuid references public.organizations(id) on delete restrict,
-  ask_id uuid references public.asks(id) on delete restrict,
-  last_message_at timestamptz,
-  created_at timestamptz not null default now(),
-  constraint conversations_kind_check check (kind in ('direct', 'ask')),
-  constraint conversations_canonical_pair_check check (user_a_id < user_b_id),
-  constraint conversations_kind_shape_check check (
-    (kind = 'direct' and organization_id is null and ask_id is null)
-    or
-    (kind = 'ask' and organization_id is not null and ask_id is not null)
-  )
-);
-
-create unique index conversations_ask_key
-  on public.conversations (ask_id)
-  where ask_id is not null;
-create unique index conversations_direct_pair_key
-  on public.conversations (user_a_id, user_b_id)
-  where kind = 'direct';
-create index conversations_user_a_last_idx
-  on public.conversations (user_a_id, last_message_at desc nulls last, id);
-create index conversations_user_b_last_idx
-  on public.conversations (user_b_id, last_message_at desc nulls last, id);
-create index conversations_org_idx
-  on public.conversations (organization_id)
-  where organization_id is not null;
 
 create table public.messages (
   id bigint generated always as identity primary key,
@@ -1623,15 +1615,19 @@ as $$
         when c.user_a_id = (select auth.uid()) then c.user_b_id
         else c.user_a_id
       end
-    left join public.asks a on a.id = c.ask_id
     where c.id = p_conversation_id
       and (select auth.uid()) in (c.user_a_id, c.user_b_id)
       and viewer.account_state = 'active'
       and counterpart.account_state = 'active'
       and not private.is_blocked(c.user_a_id, c.user_b_id)
       and (
-        (c.kind = 'direct' and private.is_connected(c.user_a_id, c.user_b_id))
-        or (c.kind = 'ask' and a.status in ('accepted', 'resolved'))
+        private.is_connected(c.user_a_id, c.user_b_id)
+        or exists (
+          select 1
+          from public.asks a
+          where a.conversation_id = c.id
+            and a.status in ('accepted', 'resolved')
+        )
       )
   );
 $$;
@@ -3737,7 +3733,42 @@ create trigger ask_offers_enforce_transition
   before update on public.ask_offers
   for each row execute function private.enforce_offer_transition();
 
-create function private.validate_conversation()
+create function private.get_or_create_pair_conversation(
+  p_user_one_id uuid,
+  p_user_two_id uuid
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_conversation_id uuid;
+begin
+  if p_user_one_id is null or p_user_two_id is null or p_user_one_id = p_user_two_id then
+    raise exception using errcode = '22023', message = 'invalid_conversation_pair';
+  end if;
+
+  insert into public.conversations (user_a_id, user_b_id)
+  values (
+    least(p_user_one_id, p_user_two_id),
+    greatest(p_user_one_id, p_user_two_id)
+  )
+  on conflict (user_a_id, user_b_id) do nothing
+  returning id into v_conversation_id;
+
+  if v_conversation_id is null then
+    select conversation.id into v_conversation_id
+    from public.conversations conversation
+    where conversation.user_a_id = least(p_user_one_id, p_user_two_id)
+      and conversation.user_b_id = greatest(p_user_one_id, p_user_two_id);
+  end if;
+
+  return v_conversation_id;
+end;
+$$;
+
+create function private.validate_ask_conversation()
 returns trigger
 language plpgsql
 set search_path = ''
@@ -3745,33 +3776,43 @@ as $$
 declare
   v_asker_user_id uuid;
   v_counterpart_user_id uuid;
-  v_organization_id uuid;
-  v_status text;
+  v_user_a_id uuid;
+  v_user_b_id uuid;
 begin
-  if new.kind = 'direct' then
+  if new.conversation_id is null then
     return new;
   end if;
 
-  select asker.user_id, a.organization_id, a.status,
+  if tg_op = 'UPDATE'
+     and new.status = 'closed'
+     and new.conversation_id is not distinct from old.conversation_id then
+    return new;
+  end if;
+
+  select asker.user_id,
          case
-           when a.kind = 'direct' then recipient.user_id
+           when new.kind = 'direct' then recipient.user_id
            else accepted_helper.user_id
          end
-    into v_asker_user_id, v_organization_id, v_status, v_counterpart_user_id
-  from public.asks a
-  join public.organization_memberships asker on asker.id = a.asker_membership_id
-  left join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
+    into v_asker_user_id, v_counterpart_user_id
+  from public.organization_memberships asker
+  left join public.organization_memberships recipient on recipient.id = new.recipient_membership_id
   left join public.ask_offers accepted_offer
-    on accepted_offer.ask_id = a.id and accepted_offer.status = 'accepted'
+    on accepted_offer.ask_id = new.id and accepted_offer.status = 'accepted'
   left join public.organization_memberships accepted_helper
     on accepted_helper.id = accepted_offer.helper_membership_id
-  where a.id = new.ask_id;
+  where asker.id = new.asker_membership_id;
 
-  if v_status not in ('accepted', 'resolved')
-     or v_organization_id is distinct from new.organization_id
+  select conversation.user_a_id, conversation.user_b_id
+    into v_user_a_id, v_user_b_id
+  from public.conversations conversation
+  where conversation.id = new.conversation_id;
+
+  if new.status not in ('accepted', 'resolved', 'closed')
+     or v_asker_user_id is null
      or v_counterpart_user_id is null
-     or new.user_a_id <> least(v_asker_user_id, v_counterpart_user_id)
-     or new.user_b_id <> greatest(v_asker_user_id, v_counterpart_user_id) then
+     or v_user_a_id <> least(v_asker_user_id, v_counterpart_user_id)
+     or v_user_b_id <> greatest(v_asker_user_id, v_counterpart_user_id) then
     raise exception using errcode = '23514', message = 'ask_conversation_participants_invalid';
   end if;
 
@@ -3779,10 +3820,10 @@ begin
 end;
 $$;
 
-create trigger conversations_validate
-  before insert or update of kind, user_a_id, user_b_id, organization_id, ask_id
-  on public.conversations
-  for each row execute function private.validate_conversation();
+create trigger asks_validate_conversation
+  before insert or update of conversation_id, status, kind, recipient_membership_id, asker_membership_id
+  on public.asks
+  for each row execute function private.validate_ask_conversation();
 
 create function private.validate_message_sender()
 returns trigger
@@ -3792,8 +3833,6 @@ as $$
 declare
   v_user_a_id uuid;
   v_user_b_id uuid;
-  v_kind text;
-  v_ask_status text;
   v_sender_state text;
   v_counterpart_state text;
 begin
@@ -3801,10 +3840,9 @@ begin
     return new;
   end if;
 
-  select c.user_a_id, c.user_b_id, c.kind, a.status
-    into v_user_a_id, v_user_b_id, v_kind, v_ask_status
+  select c.user_a_id, c.user_b_id
+    into v_user_a_id, v_user_b_id
   from public.conversations c
-  left join public.asks a on a.id = c.ask_id
   where c.id = new.conversation_id;
 
   if new.sender_user_id not in (v_user_a_id, v_user_b_id) then
@@ -3829,10 +3867,14 @@ begin
     raise exception using errcode = '42501', message = 'message_account_unavailable';
   end if;
 
-  if v_kind = 'direct' and not private.is_connected(v_user_a_id, v_user_b_id) then
+  if not private.is_connected(v_user_a_id, v_user_b_id)
+     and not exists (
+       select 1
+       from public.asks ask
+       where ask.conversation_id = new.conversation_id
+         and ask.status in ('accepted', 'resolved')
+     ) then
     raise exception using errcode = '42501', message = 'message_connection_required';
-  elsif v_kind = 'ask' and v_ask_status not in ('accepted', 'resolved') then
-    raise exception using errcode = '42501', message = 'message_ask_unavailable';
   end if;
 
   return new;
@@ -3971,20 +4013,20 @@ declare
   v_status text;
   v_asker_membership_id uuid;
   v_recipient_membership_id uuid;
+  v_conversation_id uuid;
   v_accepted_offer_count integer;
   v_offer_count integer;
-  v_conversation_count integer;
 begin
   if tg_table_name = 'asks' then
     v_ask_id := coalesce(new.id, old.id);
   elsif tg_table_name = 'ask_offers' then
     v_ask_id := coalesce(new.ask_id, old.ask_id);
-  else
-    v_ask_id := coalesce(new.ask_id, old.ask_id);
   end if;
 
-  select a.kind, a.status, a.asker_membership_id, a.recipient_membership_id
-    into v_kind, v_status, v_asker_membership_id, v_recipient_membership_id
+  select a.kind, a.status, a.asker_membership_id, a.recipient_membership_id,
+         a.conversation_id
+    into v_kind, v_status, v_asker_membership_id, v_recipient_membership_id,
+         v_conversation_id
   from public.asks a
   where a.id = v_ask_id;
 
@@ -4009,17 +4051,10 @@ begin
     end if;
   end if;
 
-  select count(*)
-    into v_conversation_count
-  from public.conversations c
-  where c.ask_id = v_ask_id;
-
-  if v_status in ('accepted', 'resolved') and v_conversation_count <> 1 then
+  if v_status in ('accepted', 'resolved') and v_conversation_id is null then
     raise exception using errcode = '23514', message = 'accepted_ask_requires_one_conversation';
-  elsif v_status in ('waiting', 'open', 'declined', 'retracted') and v_conversation_count <> 0 then
+  elsif v_status in ('waiting', 'open', 'declined', 'retracted') and v_conversation_id is not null then
     raise exception using errcode = '23514', message = 'inactive_ask_cannot_have_conversation';
-  elsif v_conversation_count > 1 then
-    raise exception using errcode = '23514', message = 'ask_has_multiple_conversations';
   end if;
 
   return null;
@@ -4033,11 +4068,6 @@ create constraint trigger asks_consistency_deferred
 
 create constraint trigger ask_offers_consistency_deferred
   after insert or update or delete on public.ask_offers
-  deferrable initially deferred
-  for each row execute function private.validate_ask_consistency();
-
-create constraint trigger conversations_consistency_deferred
-  after insert or update or delete on public.conversations
   deferrable initially deferred
   for each row execute function private.validate_ask_consistency();
 
@@ -4416,8 +4446,7 @@ begin
   end if;
 
   if v_ask.status = 'accepted' and p_decision = 'accept' then
-    select c.id into v_conversation_id from public.conversations c where c.ask_id = p_ask_id;
-    return v_conversation_id;
+    return v_ask.conversation_id;
   elsif v_ask.status = 'declined' and p_decision = 'decline' then
     return null;
   elsif v_ask.status <> 'waiting' then
@@ -4429,26 +4458,15 @@ begin
       raise exception using errcode = '22023', message = 'opening_message_required';
     end if;
 
+    v_conversation_id := private.get_or_create_pair_conversation(
+      v_asker_user_id,
+      v_recipient_user_id
+    );
+
     update public.asks
-    set status = 'accepted', accepted_at = now(), responded_at = now()
+    set status = 'accepted', accepted_at = now(), responded_at = now(),
+        conversation_id = v_conversation_id
     where id = p_ask_id;
-
-    insert into public.conversations (
-      kind, user_a_id, user_b_id, organization_id, ask_id
-    ) values (
-      'ask', least(v_asker_user_id, v_recipient_user_id),
-      greatest(v_asker_user_id, v_recipient_user_id),
-      v_ask.organization_id, p_ask_id
-    )
-    on conflict (ask_id) where ask_id is not null
-    do nothing
-    returning id into v_conversation_id;
-
-    if v_conversation_id is null then
-      select c.id into v_conversation_id
-      from public.conversations c
-      where c.ask_id = p_ask_id;
-    end if;
 
     perform private.insert_system_message(
       v_conversation_id,
@@ -4573,9 +4591,10 @@ begin
     raise exception using errcode = '22023', message = 'ask_not_found';
   end if;
 
-  select c.id into v_conversation_id
-  from public.conversations c
-  where c.ask_id = p_ask_id
+  select a.conversation_id into v_conversation_id
+  from public.asks a
+  join public.conversations c on c.id = a.conversation_id
+  where a.id = p_ask_id
     and v_actor in (c.user_a_id, c.user_b_id);
   if v_conversation_id is null then
     raise exception using errcode = '42501', message = 'ask_not_owned';
@@ -4779,8 +4798,7 @@ begin
   end if;
 
   if v_offer.status = 'accepted' and p_decision = 'accept' then
-    select c.id into v_conversation_id from public.conversations c where c.ask_id = v_ask.id;
-    return v_conversation_id;
+    return v_ask.conversation_id;
   elsif v_offer.status = 'declined' and p_decision = 'decline' then
     return null;
   elsif v_offer.status <> 'pending' or v_ask.status <> 'open' then
@@ -4800,26 +4818,15 @@ begin
     set status = 'closed', closure_reason = 'accepted_elsewhere', closed_at = now()
     where ask_id = v_ask.id and id <> p_offer_id and status = 'pending';
 
+    v_conversation_id := private.get_or_create_pair_conversation(
+      v_asker_user_id,
+      v_helper_user_id
+    );
+
     update public.asks
-    set status = 'accepted', accepted_at = now(), responded_at = now()
+    set status = 'accepted', accepted_at = now(), responded_at = now(),
+        conversation_id = v_conversation_id
     where id = v_ask.id;
-
-    insert into public.conversations (
-      kind, user_a_id, user_b_id, organization_id, ask_id
-    ) values (
-      'ask', least(v_asker_user_id, v_helper_user_id),
-      greatest(v_asker_user_id, v_helper_user_id),
-      v_ask.organization_id, v_ask.id
-    )
-    on conflict (ask_id) where ask_id is not null
-    do nothing
-    returning id into v_conversation_id;
-
-    if v_conversation_id is null then
-      select c.id into v_conversation_id
-      from public.conversations c
-      where c.ask_id = v_ask.id;
-    end if;
 
     perform private.insert_system_message(
       v_conversation_id,
@@ -5017,8 +5024,7 @@ begin
     where connection_request_id = p_request_id;
     select c.id into v_conversation_id
     from public.conversations c
-    where c.kind = 'direct'
-      and c.user_a_id = least(v_request.requester_user_id, v_request.recipient_user_id)
+    where c.user_a_id = least(v_request.requester_user_id, v_request.recipient_user_id)
       and c.user_b_id = greatest(v_request.requester_user_id, v_request.recipient_user_id);
     perform private.insert_system_message(
       v_conversation_id,
@@ -5050,23 +5056,10 @@ begin
       set connection_request_id = coalesce(public.connections.connection_request_id, excluded.connection_request_id)
     returning id into v_connection_id;
 
-    insert into public.conversations (kind, user_a_id, user_b_id)
-    values (
-      'direct',
-      least(v_request.requester_user_id, v_request.recipient_user_id),
-      greatest(v_request.requester_user_id, v_request.recipient_user_id)
-    )
-    on conflict (user_a_id, user_b_id) where kind = 'direct'
-    do nothing
-    returning id into v_conversation_id;
-
-    if v_conversation_id is null then
-      select c.id into v_conversation_id
-      from public.conversations c
-      where c.kind = 'direct'
-        and c.user_a_id = least(v_request.requester_user_id, v_request.recipient_user_id)
-        and c.user_b_id = greatest(v_request.requester_user_id, v_request.recipient_user_id);
-    end if;
+    v_conversation_id := private.get_or_create_pair_conversation(
+      v_request.requester_user_id,
+      v_request.recipient_user_id
+    );
 
     perform private.insert_system_message(
       v_conversation_id,
@@ -5317,19 +5310,10 @@ begin
     return;
   end if;
 
-  insert into public.conversations (kind, user_a_id, user_b_id)
-  values ('direct', least(v_user_id, p_other_user_id), greatest(v_user_id, p_other_user_id))
-  on conflict (user_a_id, user_b_id) where kind = 'direct'
-  do nothing
-  returning public.conversations.id into v_conversation_id;
-
-  if v_conversation_id is null then
-    select c.id into v_conversation_id
-    from public.conversations c
-    where c.kind = 'direct'
-      and c.user_a_id = least(v_user_id, p_other_user_id)
-      and c.user_b_id = greatest(v_user_id, p_other_user_id);
-  end if;
+  v_conversation_id := private.get_or_create_pair_conversation(
+    v_user_id,
+    p_other_user_id
+  );
 
   return query select 'ready'::text, v_conversation_id;
 end;
@@ -5349,9 +5333,6 @@ declare
   v_user_id uuid := (select auth.uid());
   v_user_a_id uuid;
   v_user_b_id uuid;
-  v_kind text;
-  v_ask_id uuid;
-  v_ask_status text;
   v_sender_state text;
   v_recipient_state text;
   v_message_id bigint;
@@ -5375,10 +5356,10 @@ begin
 
   perform private.lock_user_pair(v_user_a_id, v_user_b_id);
 
-  select c.user_a_id, c.user_b_id, c.kind, c.ask_id,
+  select c.user_a_id, c.user_b_id,
          sender.account_state, recipient.account_state,
          case when c.user_a_id = v_user_id then c.user_b_id else c.user_a_id end
-    into v_user_a_id, v_user_b_id, v_kind, v_ask_id,
+    into v_user_a_id, v_user_b_id,
          v_sender_state, v_recipient_state, v_recipient_user_id
   from public.conversations c
   join public.users sender on sender.id = v_user_id
@@ -5399,15 +5380,15 @@ begin
     return;
   end if;
 
-  if v_kind = 'direct' and not private.is_connected(v_user_a_id, v_user_b_id) then
+  if not private.is_connected(v_user_a_id, v_user_b_id)
+     and not exists (
+       select 1
+       from public.asks ask
+       where ask.conversation_id = p_conversation_id
+         and ask.status in ('accepted', 'resolved')
+     ) then
     return query select 'connection_required'::text, null::bigint, null::timestamptz;
     return;
-  elsif v_kind = 'ask' then
-    select a.status into v_ask_status from public.asks a where a.id = v_ask_id;
-    if v_ask_status not in ('accepted', 'resolved') then
-      return query select 'not_available'::text, null::bigint, null::timestamptz;
-      return;
-    end if;
   end if;
 
   insert into public.messages (
@@ -5469,9 +5450,9 @@ set search_path = ''
 as $$
   select
     c.id,
-    c.kind,
-    c.organization_id,
-    c.ask_id,
+    case when ask_context.id is null then 'direct' else 'ask' end,
+    ask_context.organization_id,
+    ask_context.id,
     c.created_at,
     c.last_message_at,
     counterpart.id,
@@ -5495,6 +5476,16 @@ as $$
       else c.user_a_id
     end
   left join public.profiles p on p.user_id = counterpart.id
+  left join lateral (
+    select ask.id, ask.organization_id
+    from public.asks ask
+    where ask.conversation_id = c.id
+    order by
+      (ask.status = 'accepted') desc,
+      coalesce(ask.accepted_at, ask.created_at) desc,
+      ask.id desc
+    limit 1
+  ) ask_context on true
   left join public.conversation_reads viewer_read
     on viewer_read.conversation_id = c.id
    and viewer_read.user_id = (select auth.uid())
@@ -5514,7 +5505,7 @@ as $$
     where mine.user_id = (select auth.uid())
       and mine.status = 'active'
     order by
-      case when mine.organization_id = c.organization_id then 0 else 1 end,
+      case when mine.organization_id = ask_context.organization_id then 0 else 1 end,
       mine.organization_id
     limit 1
   ) class_year on true
@@ -5799,7 +5790,23 @@ begin
     where ao.id = v_offer_id and private.can_view_ask(a.id);
   elsif p_target_type = 'message' then
     v_message_id := p_target_id::bigint;
-    select m.sender_user_id, c.organization_id,
+    select m.sender_user_id,
+           coalesce(
+             (
+               select ask.organization_id
+               from public.asks ask
+               where ask.conversation_id = c.id
+               order by coalesce(ask.accepted_at, ask.created_at) desc, ask.id desc
+               limit 1
+             ),
+             (
+               select connection.origin_organization_id
+               from public.connections connection
+               where connection.user_a_id = c.user_a_id
+                 and connection.user_b_id = c.user_b_id
+               limit 1
+             )
+           ),
            jsonb_build_object('kind', m.kind, 'body', m.body, 'createdAt', m.created_at)
       into v_reported_user_id, v_organization_id, v_evidence
     from public.messages m
@@ -6157,8 +6164,7 @@ as $$
     left join lateral (
       select conversation.id
       from public.conversations conversation
-      where conversation.kind = 'direct'
-        and conversation.user_a_id = least(viewer.user_id, target.user_id)
+      where conversation.user_a_id = least(viewer.user_id, target.user_id)
         and conversation.user_b_id = greatest(viewer.user_id, target.user_id)
       limit 1
     ) direct_conversation on true
@@ -6515,8 +6521,7 @@ begin
   left join lateral (
     select conversation.id
     from public.conversations conversation
-    where conversation.kind = 'direct'
-      and conversation.user_a_id = least(v_viewer.user_id, v_target.user_id)
+    where conversation.user_a_id = least(v_viewer.user_id, v_target.user_id)
       and conversation.user_b_id = greatest(v_viewer.user_id, v_target.user_id)
     limit 1
   ) direct_conversation on true
@@ -6615,13 +6620,16 @@ begin
   using public.organization_memberships helper
   where helper.id = ao.helper_membership_id
     and helper.user_id = p_user_id
-    and not exists (select 1 from public.conversations c where c.ask_id = ao.ask_id);
+    and not exists (
+      select 1 from public.asks ask
+      where ask.id = ao.ask_id and ask.conversation_id is not null
+    );
 
   delete from public.asks a
   using public.organization_memberships asker
   where asker.id = a.asker_membership_id
     and asker.user_id = p_user_id
-    and not exists (select 1 from public.conversations c where c.ask_id = a.id);
+    and a.conversation_id is null;
 
   update public.organization_memberships
   set status = 'revoked', updated_at = now()
@@ -7650,7 +7658,22 @@ begin
   if v_job.payload ? 'conversationId' then
     v_target_type := 'conversation';
     v_target_id := v_job.payload ->> 'conversationId';
-    select c.organization_id into v_organization_id
+    select coalesce(
+      (
+        select ask.organization_id
+        from public.asks ask
+        where ask.conversation_id = c.id
+        order by coalesce(ask.accepted_at, ask.created_at) desc, ask.id desc
+        limit 1
+      ),
+      (
+        select connection.origin_organization_id
+        from public.connections connection
+        where connection.user_a_id = c.user_a_id
+          and connection.user_b_id = c.user_b_id
+        limit 1
+      )
+    ) into v_organization_id
     from public.conversations c where c.id = v_target_id::uuid;
   elsif v_job.payload ? 'askId' then
     v_target_type := 'ask';
@@ -8248,9 +8271,9 @@ begin
   end if;
 
   perform private.resolve_ask(p_ask_id, p_outcome_note);
-  select c.id into v_conversation_id
-  from public.conversations c
-  where c.ask_id = p_ask_id;
+  select ask.conversation_id into v_conversation_id
+  from public.asks ask
+  where ask.id = p_ask_id;
   return query select 'resolved'::text, p_ask_id, v_conversation_id;
 exception when others then
   v_message := sqlerrm;
@@ -8709,7 +8732,7 @@ as $$
   left join public.profiles recipient_profile on recipient_profile.user_id = recipient.user_id
   left join public.organization_profiles recipient_org_profile
     on recipient_org_profile.organization_membership_id = recipient.id
-  left join public.conversations conversation on conversation.ask_id = a.id
+  left join public.conversations conversation on conversation.id = a.conversation_id
   where a.id = p_ask_id
     and private.can_view_ask(a.id);
 $$;
@@ -8767,7 +8790,7 @@ as $$
    and asker.status = 'active'
   left join public.organization_memberships recipient on recipient.id = a.recipient_membership_id
   left join public.profiles recipient_profile on recipient_profile.user_id = recipient.user_id
-  left join public.conversations conversation on conversation.ask_id = a.id
+  left join public.conversations conversation on conversation.id = a.conversation_id
   where (
     (p_before_created_at is null and p_before_id is null)
     or (

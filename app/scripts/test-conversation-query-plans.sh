@@ -23,10 +23,9 @@ insert into public.users (id)
 select ('80000000-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid
 from generate_series(1, 5000) as fixture(i);
 
-insert into public.conversations (id, kind, user_a_id, user_b_id)
+insert into public.conversations (id, user_a_id, user_b_id)
 select
   ('81000000-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
-  'direct',
   '10000000-0000-4000-8000-000000000002'::uuid,
   ('80000000-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid
 from generate_series(1, 5000) as fixture(i);
@@ -135,8 +134,7 @@ where public.conversation_reads.last_read_message_id is null
 explain (costs off)
 select c.id
 from public.conversations c
-where c.kind = 'direct'
-  and c.user_a_id = '10000000-0000-4000-8000-000000000002'
+where c.user_a_id = '10000000-0000-4000-8000-000000000002'
   and c.user_b_id = '80000000-0000-4000-8000-000000000001';
 
 rollback;
@@ -157,7 +155,11 @@ require_plan "users_pkey" "participant lookup did not use the user primary key"
 require_plan "messages_conversation_id_key" "bounded history did not use the conversation/message keyset index"
 require_plan "messages_client_nonce_key" "nonce lookup did not use the partial unique index"
 require_plan "Conflict Arbiter Indexes: conversation_reads_pkey" "read UPSERT did not use the composite primary key"
-require_plan "conversations_direct_pair_key" "direct pair lookup did not use the scoped unique index"
+if ! grep -Eq "conversations_(pair_key|user_b_last_idx)" "$plan_output"; then
+  echo "query-plan contract failed: pair lookup was not index-backed" >&2
+  sed -n '1,240p' "$plan_output" >&2
+  exit 1
+fi
 
 history_index_uses="$(grep -Fc "messages_conversation_id_key" "$plan_output")"
 if (( history_index_uses < 4 )); then

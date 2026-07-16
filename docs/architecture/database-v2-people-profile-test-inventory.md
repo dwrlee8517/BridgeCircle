@@ -199,9 +199,10 @@ app with the approved People/Profile flow contract:
   desktop or mobile link;
 - “View full profile” and “Open full profile” use explicit document navigation
   to the complete canonical page instead of being re-intercepted;
-- Industry, Class year, and Location are first-class quick filters, with
-  Employer, Education, and Can help under More filters; applied state remains
-  URL-addressable;
+- Industry, Class year, and Location are the three approved visible quick
+  filters; employer, education, and helping-topic query capabilities remain
+  intentionally unexposed until the deferred search-tuning pass; applied state
+  remains URL-addressable;
 - Connect now has the approved one-tap quick-hello mode and an optional
   AI-shaped reason mode backed by a bounded no-store adapter and editable
   fallback draft;
@@ -483,6 +484,55 @@ are failures.
   density, rail/sheet size, focus states, and responsive composition;
 - keep a fidelity ledger and fix every P0/P1/P2 issue;
 - require final design QA `passed` before completion.
+
+## UI/UX completion checkpoint — 2026-07-15
+
+The People/Profile surface is now complete for the visual-and-flow milestone:
+
+- People exposes the settled All / Open to help / In your circle scopes and
+  Industry / Class year / Location filters without surfacing deferred search
+  controls;
+- In your circle now leads to `/people/circle`, the managed view required by
+  FLOWS §7d, with per-person Message and confirmed Disconnect;
+- member profiles preserve overlay return-in-place behavior, the canonical
+  People back target on full pages, entitled links, Can help with, and exact
+  Report / Block / Disconnect protections;
+- the self profile uses exact Public / Circle / Private audience language,
+  inline editing, a Help-owned availability mirror, and durable avatar states;
+- loading, unavailable/not-found, failed-load/retry, and offline states use
+  calm route-shaped treatment rather than blank pages or raw errors;
+- the final same-viewport report at `/design-qa.md` is `passed`, with source,
+  implementation, full-view, focused-region, desktop, mobile, console, and
+  overflow evidence recorded there.
+
+Search ranking, semantic routing, indexes, representative-data query plans,
+and relevance evaluation remain intentionally deferred. This checkpoint does
+not claim those invisible-search gates; it makes the visible product ready for
+that later pass without exposing speculative controls now.
+
+### Final checkpoint verification
+
+The combined People/Profile UI/UX checkpoint and canonical one-room Messages
+correction were re-verified from an empty local database immediately before
+commit:
+
+| Gate | Result |
+|---|---|
+| clean local reset and deterministic seed | green |
+| complete database contracts | 13 pgTAP files / 525 assertions / green |
+| generated `public` + `api` types | two runs byte-identical; SHA-256 `ff23475acbd46ff1e82b493b4fec3fe25850a90265ca8e88ac5c7c9f186f7b16` |
+| focused compilers | Foundation, Conversation, Help, Messages, and People/Profile all zero-error |
+| database reliability | all five concurrency families, Conversation/Help/Messages Realtime, Help worker/maintenance, and all query-plan harnesses green |
+| application tests | 61 Vitest files / 264 tests / green |
+| browser acceptance | People plus four serial Messages roads / 5 tests / green against a freshly reset local seed |
+| browser quality | axe, keyboard focus return, mobile widths, Realtime, safety, lifecycle, and one-room-per-person assertions green |
+| static and style gates | every boundary/cutover check, Biome, ESLint, `git diff --check`, and design-token ratchet green |
+| token discipline | approved handoff micro/display roles promoted to named tokens; numeric font, tracking, and padding literal baselines are all zero |
+
+The active onboarding import comparison read was also moved from the deleted
+`base_profiles` table to the fixed v2 self-profile repository, with mapping and
+unavailable-profile unit coverage. No remote database, provider, deployment,
+push, or merge was touched.
 
 ## Commands to add
 

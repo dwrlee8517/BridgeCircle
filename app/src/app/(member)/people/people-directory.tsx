@@ -14,6 +14,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
+import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
@@ -226,13 +227,14 @@ export function PeopleDirectory({
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-[1180px]">
+        <ConnectivityNotice />
         <header>
-          <p className="text-[13px] font-semibold text-[var(--text-secondary)]">
+          <p className="text-body-sm font-semibold text-[var(--text-secondary)]">
             Directory ·{' '}
             {initialResult.capped ? `${initialResult.items.length}+` : initialResult.totalCount}{' '}
             {initialResult.totalCount === 1 ? 'member' : 'members'}
           </p>
-          <h1 className="mt-1.5 text-[28px] leading-tight font-extrabold tracking-[-0.03em] text-[var(--text-primary)]">
+          <h1 className="mt-1.5 text-page-title leading-tight font-extrabold tracking-display text-[var(--text-primary)]">
             Find people to connect with.
           </h1>
         </header>
@@ -288,6 +290,7 @@ export function PeopleDirectory({
             {initialResult.items.length === 0 ? (
               <PeopleEmpty
                 hasSearch={Boolean(initialSearch.query || activePeopleFilterCount(initialSearch))}
+                inCircle={initialSearch.scope === 'in_circle'}
               />
             ) : (
               <>
@@ -443,7 +446,7 @@ function PeopleSearchForm({
       />
       <input
         aria-label="Search people"
-        className="min-w-0 flex-1 border-0 bg-transparent py-2 text-[15px] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-faint)]"
+        className="min-w-0 flex-1 border-0 bg-transparent py-2 text-nav font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-faint)]"
         maxLength={300}
         placeholder="Try: designers who moved in-house in the Bay Area"
         value={query}
@@ -478,16 +481,10 @@ function PeopleToolbar({
     { key: 'open_to_help', label: 'Open to help' },
     { key: 'in_circle', label: 'In your circle' },
   ]
-  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false)
-  const moreFilterCount = [
-    search.filters.employer,
-    search.filters.education,
-    search.filters.topic,
-  ].filter(Boolean).length
   return (
     <div className="mt-3.5">
       <div className="flex flex-wrap items-center gap-2.5">
-        <fieldset className="flex rounded-xl bg-[#e8eaee] p-[3px]">
+        <fieldset className="flex rounded-xl bg-[#e8eaee] p-0.75">
           <legend className="sr-only">People scopes</legend>
           {scopes.map((scope) => (
             <button
@@ -530,25 +527,15 @@ function PeopleToolbar({
             onNavigate({ ...search, filters: { ...search.filters, location } })
           }
         />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="rounded-full text-[var(--text-secondary)]"
-          aria-expanded={moreFiltersOpen}
-          onClick={() => setMoreFiltersOpen((open) => !open)}
-        >
-          More filters {moreFilterCount > 0 ? `(${moreFilterCount})` : ''}
-          <ChevronDown
-            aria-hidden
-            className={cn('transition-transform', moreFiltersOpen && 'rotate-180')}
-          />
-        </Button>
+        {search.scope === 'in_circle' ? (
+          <Button asChild variant="ghost" size="sm" className="rounded-full text-[var(--blue-600)]">
+            <Link href="/people/circle">Manage circle</Link>
+          </Button>
+        ) : null}
         <span className="ml-auto text-xs font-semibold text-[var(--text-secondary)]">
           {resultCount} shown · {search.query ? 'relevance' : 'recently updated'}
         </span>
       </div>
-      {moreFiltersOpen ? <MorePeopleFilters search={search} onNavigate={onNavigate} /> : null}
     </div>
   )
 }
@@ -676,7 +663,7 @@ function ClassYearFilterPopover({
           <div className="mt-2 grid grid-cols-2 gap-2">
             <label
               htmlFor="people-class-year-from"
-              className="grid gap-1 text-[11px] font-semibold text-[var(--text-faint)]"
+              className="grid gap-1 text-overline font-semibold text-[var(--text-faint)]"
             >
               From
               <Input
@@ -694,7 +681,7 @@ function ClassYearFilterPopover({
             </label>
             <label
               htmlFor="people-class-year-to"
-              className="grid gap-1 text-[11px] font-semibold text-[var(--text-faint)]"
+              className="grid gap-1 text-overline font-semibold text-[var(--text-faint)]"
             >
               To
               <Input
@@ -741,101 +728,12 @@ function ClassYearFilterPopover({
   )
 }
 
-function MorePeopleFilters({
-  search,
-  onNavigate,
-}: {
-  search: PeopleSearchParams
-  onNavigate: (search: PeopleSearchParams) => void
-}) {
-  const [filters, setFilters] = useState({
-    employer: search.filters.employer,
-    education: search.filters.education,
-    topic: search.filters.topic,
-  })
-  return (
-    <form
-      className="mt-2.5 grid gap-3 rounded-2xl bg-[var(--surface-card)] p-4 shadow-[var(--ring-card),var(--shadow-card)] sm:grid-cols-2 lg:grid-cols-4"
-      onSubmit={(event) => {
-        event.preventDefault()
-        onNavigate({ ...search, filters: { ...search.filters, ...filters } })
-      }}
-    >
-      <FilterInput
-        label="Employer"
-        value={filters.employer}
-        onChange={(employer) => setFilters({ ...filters, employer })}
-      />
-      <FilterInput
-        label="Education"
-        value={filters.education}
-        onChange={(education) => setFilters({ ...filters, education })}
-      />
-      <FilterInput
-        label="Can help with"
-        value={filters.topic}
-        onChange={(topic) => setFilters({ ...filters, topic })}
-      />
-      <div className="flex items-end gap-2">
-        <Button type="submit" variant="secondary" className="flex-1">
-          Apply
-        </Button>
-        {filters.employer || filters.education || filters.topic ? (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() =>
-              onNavigate({
-                ...search,
-                filters: {
-                  ...search.filters,
-                  employer: null,
-                  education: null,
-                  topic: null,
-                },
-              })
-            }
-          >
-            Clear
-          </Button>
-        ) : null}
-      </div>
-    </form>
-  )
-}
-
 function parseClassYear(value: string): number | null | undefined {
   const normalized = value.trim()
   if (!normalized) return null
   if (!/^\d{4}$/.test(normalized)) return undefined
   const year = Number(normalized)
   return year >= 1900 && year <= 2100 ? year : undefined
-}
-
-function FilterInput({
-  label,
-  value,
-  onChange,
-  inputMode,
-}: {
-  label: string
-  value: string | null
-  onChange: (value: string | null) => void
-  inputMode?: 'numeric'
-}) {
-  const id = `people-filter-${label.toLowerCase().replaceAll(' ', '-')}`
-  return (
-    <div className="grid gap-1.5 text-xs font-bold text-[var(--text-secondary)]">
-      <label htmlFor={id}>{label}</label>
-      <Input
-        id={id}
-        value={value ?? ''}
-        maxLength={120}
-        inputMode={inputMode}
-        onChange={(event) => onChange(event.target.value.trimStart() || null)}
-      />
-    </div>
-  )
 }
 
 function PeopleRow({
@@ -897,7 +795,7 @@ function PeopleRow({
             <Link
               id={profileLinkId}
               href={`/profile/${person.userId}`}
-              className="relative z-10 rounded text-[15px] font-bold text-[var(--text-primary)] hover:text-[var(--blue-600)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              className="relative z-10 rounded text-nav font-bold text-[var(--text-primary)] hover:text-[var(--blue-600)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               onClick={() =>
                 sessionStorage.setItem('bridgecircle:profile-return-focus', profileLinkId)
               }
@@ -911,7 +809,7 @@ function PeopleRow({
               <Tag tone="grey">Requested</Tag>
             ) : null}
             {searched && person.matchEvidence.length > 0 ? (
-              <span className="text-[11.5px] font-bold text-[var(--blue-600)]">Strong match</span>
+              <span className="text-chip font-bold text-[var(--blue-600)]">Strong match</span>
             ) : null}
           </div>
           <p className="mt-0.5 truncate text-xs font-medium text-[var(--grey-600)]">
@@ -922,7 +820,7 @@ function PeopleRow({
               {person.helperTopics.slice(0, 3).map((topic) => (
                 <span
                   key={topic}
-                  className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-[11.5px] font-semibold text-[var(--text-secondary)]"
+                  className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-chip font-semibold text-[var(--text-secondary)]"
                 >
                   {topic}
                 </span>
@@ -931,7 +829,7 @@ function PeopleRow({
           ) : null}
         </div>
         <div className="relative z-10 hidden shrink-0 sm:block">
-          <RelationshipAction relationship={relationship} person={person} onConnect={onConnect} />
+          <RelationshipAction relationship={relationship} onConnect={onConnect} />
         </div>
         <ChevronRight
           aria-hidden
@@ -942,12 +840,7 @@ function PeopleRow({
         />
       </div>
       <div className="relative z-10 px-4 pb-3.5 sm:hidden">
-        <RelationshipAction
-          relationship={relationship}
-          person={person}
-          onConnect={onConnect}
-          full
-        />
+        <RelationshipAction relationship={relationship} onConnect={onConnect} full />
       </div>
     </article>
   )
@@ -955,12 +848,10 @@ function PeopleRow({
 
 function RelationshipAction({
   relationship,
-  person,
   onConnect,
   full = false,
 }: {
   relationship: PeopleRelationship
-  person: PeopleDirectoryItem
   onConnect: () => void
   full?: boolean
 }) {
@@ -993,7 +884,7 @@ function RelationshipAction({
       className={cn('rounded-full', full && 'w-full text-[var(--blue-800)]')}
       onClick={onConnect}
     >
-      <UserPlus aria-hidden /> Connect with {firstName(person.preferredName || person.displayName)}
+      <UserPlus aria-hidden /> Connect
     </Button>
   )
 }
@@ -1048,7 +939,7 @@ function PeoplePreview({
           <AvatarFallback className="text-lg">{initials(name)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h2 className="truncate text-[19px] font-extrabold tracking-[-0.02em]">{name}</h2>
+          <h2 className="truncate text-section-title font-extrabold tracking-heading">{name}</h2>
           <p className="mt-0.5 text-xs font-medium text-[var(--grey-700)]">
             {[person.currentTitle, person.currentEmployer, person.city].filter(Boolean).join(' · ')}
           </p>
@@ -1057,11 +948,11 @@ function PeoplePreview({
 
       {evidence ? (
         <div className="mt-3.5 rounded-[13px] bg-gradient-to-b from-[#f3f8ff] to-[#eef5ff] p-3.5 shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.14)]">
-          <p className="text-[11px] font-bold text-[var(--blue-600)]">◉ Why this match</p>
-          <p className="mt-1.5 text-[13px] leading-relaxed font-medium text-[#33404e]">
+          <p className="text-overline font-bold text-[var(--blue-600)]">◉ Why this match</p>
+          <p className="mt-1.5 text-body-sm leading-relaxed font-medium text-[#33404e]">
             {matchEvidenceCopy(evidence)}
           </p>
-          <p className="mt-2 text-[10.5px] font-medium text-[var(--text-secondary)]">
+          <p className="mt-2 text-fine font-medium text-[var(--text-secondary)]">
             From profile facts you can see
           </p>
         </div>
@@ -1093,7 +984,7 @@ function PeoplePreview({
       ) : null}
       {profile?.sharedContext.length ? (
         <div className="mt-3 rounded-[13px] bg-[var(--surface-inset)] p-3.5">
-          <p className="text-[11px] font-bold text-[var(--text-secondary)]">You share</p>
+          <p className="text-overline font-bold text-[var(--text-secondary)]">You share</p>
           {profile.sharedContext.map((context) => (
             <p key={`${context.kind}-${context.value}`} className="mt-2 text-xs font-bold">
               {context.kind === 'same_city' ? 'Both in ' : 'Both attended '}
@@ -1103,7 +994,7 @@ function PeoplePreview({
         </div>
       ) : null}
       <div className="mt-3 rounded-[13px] bg-[var(--surface-inset)] p-3.5">
-        <p className="text-[11px] font-bold text-[var(--text-secondary)]">Career</p>
+        <p className="text-overline font-bold text-[var(--text-secondary)]">Career</p>
         <p className="mt-1.5 text-xs font-bold">
           {[
             profile?.current.title || person.currentTitle,
@@ -1113,7 +1004,7 @@ function PeoplePreview({
             .join(', ') || 'No current role listed'}
         </p>
         {profile?.experiences[0] ? (
-          <p className="mt-0.5 text-[11px] font-medium text-[var(--text-secondary)]">
+          <p className="mt-0.5 text-overline font-medium text-[var(--text-secondary)]">
             {formatPeriod(profile.experiences[0])}
           </p>
         ) : null}
@@ -1124,12 +1015,7 @@ function PeoplePreview({
             <Link href={directHelpHref(person.membershipId)}>Ask for help</Link>
           </Button>
         ) : null}
-        <RelationshipAction
-          relationship={relationship}
-          person={person}
-          onConnect={onConnect}
-          full
-        />
+        <RelationshipAction relationship={relationship} onConnect={onConnect} full />
       </div>
       <Button asChild variant="ghost" size="sm" className="mt-2 w-full text-[var(--blue-800)]">
         <a href={`/profile/${person.userId}`}>
@@ -1220,23 +1106,34 @@ function PageButton({
   )
 }
 
-function PeopleEmpty({ hasSearch }: { hasSearch: boolean }) {
+function PeopleEmpty({ hasSearch, inCircle }: { hasSearch: boolean; inCircle: boolean }) {
   return (
     <div className="rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-6 py-12 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
       <span className="mx-auto flex size-11 items-center justify-center rounded-full bg-[var(--surface-subtle)] text-[var(--text-faint)]">
         <Users aria-hidden className="size-5" />
       </span>
       <h2 className="mt-3 text-sm font-bold">
-        {hasSearch ? 'No one matches this search yet' : 'No other members are available yet'}
+        {hasSearch
+          ? 'No one matches this search yet'
+          : inCircle
+            ? 'No one is in your circle yet'
+            : 'No other members are available yet'}
       </h2>
       <p className="mx-auto mt-1.5 max-w-sm text-xs leading-relaxed text-[var(--text-secondary)]">
         {hasSearch
           ? 'Try a broader phrase, another scope, or fewer filters.'
-          : 'People will appear here as members join your circle.'}
+          : inCircle
+            ? 'Every accepted hello will appear here.'
+            : 'People will appear here as members join your circle.'}
       </p>
       {hasSearch ? (
         <Button asChild variant="link" size="sm" className="mt-2">
           <Link href="/people">Clear search and filters</Link>
+        </Button>
+      ) : null}
+      {!hasSearch && inCircle ? (
+        <Button asChild variant="link" size="sm" className="mt-2">
+          <Link href="/people">Find people to connect with</Link>
         </Button>
       ) : null}
     </div>
@@ -1247,7 +1144,7 @@ function Tag({ tone, children }: { tone: 'blue' | 'green' | 'grey'; children: Re
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold',
+        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-overline font-bold',
         tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-600)]',
         tone === 'green' && 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
         tone === 'grey' && 'bg-[var(--surface-subtle)] text-[var(--grey-600)]',
@@ -1268,10 +1165,6 @@ function initials(name: string): string {
       .map((part) => part[0]?.toUpperCase())
       .join('') || '?'
   )
-}
-
-function firstName(name: string): string {
-  return name.split(/\s+/).filter(Boolean)[0] || 'them'
 }
 
 function formatPeriod(item: { startYear: number | null; endYear: number | null }): string {

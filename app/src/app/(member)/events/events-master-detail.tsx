@@ -161,7 +161,7 @@ function EventArchiveSpotlight({
               {view === 'past' ? 'Archive' : format(starts, 'EEE · MMM d')}
             </span>
           </div>
-          <h2 className="font-heading text-[28px] font-semibold leading-[1.08] tracking-[-0.01em] text-foreground sm:text-display-md">
+          <h2 className="font-heading text-page-title font-semibold leading-[1.08] tracking-title text-foreground sm:text-display-md">
             {event.title}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -173,7 +173,7 @@ function EventArchiveSpotlight({
           <div className="font-mono text-xs font-semibold uppercase tracking-label text-muted-foreground">
             {format(starts, 'MMM')}
           </div>
-          <div className="mt-1 font-heading text-[52px] font-semibold leading-none tracking-tighter text-foreground">
+          <div className="mt-1 font-heading text-event-date font-semibold leading-none tracking-tighter text-foreground">
             {format(starts, 'd')}
           </div>
           <div className="mt-1.5 font-mono text-xs uppercase tracking-label text-muted-foreground">

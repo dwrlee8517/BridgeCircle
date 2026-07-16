@@ -119,9 +119,9 @@ insert into public.asks (
 );
 
 insert into public.conversations (
-  id, kind, user_a_id, user_b_id
+  id, user_a_id, user_b_id
 ) values (
-  '67000000-0000-4000-8000-000000000051', 'direct',
+  '67000000-0000-4000-8000-000000000051',
   '70000000-0000-4000-8000-000000000051',
   '70000000-0000-4000-8000-000000000052'
 );

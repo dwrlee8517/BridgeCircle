@@ -138,10 +138,9 @@ insert into public.connections (
 );
 
 insert into public.conversations (
-  id, kind, user_a_id, user_b_id
+  id, user_a_id, user_b_id
 ) values (
   '50000000-0000-4000-8000-000000000001',
-  'direct',
   '10000000-0000-4000-8000-000000000002',
   '10000000-0000-4000-8000-000000000004'
 );
@@ -210,11 +209,36 @@ insert into private.ask_matches (
 -- Messages v2 acceptance matrix for Richard:
 -- pending direct Ask + incoming Connections, unread accepted Ask, resolved
 -- Ask, disconnected history, and a blocked conversation that must stay hidden.
+-- Each unordered user pair owns exactly one room; Ask history links to it.
+insert into public.conversations (
+  id, user_a_id, user_b_id, created_at
+) values (
+  '50000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000006',
+  now() - interval '2 days'
+), (
+  '50000000-0000-4000-8000-000000000003',
+  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000005',
+  now() - interval '5 days'
+), (
+  '50000000-0000-4000-8000-000000000004',
+  '10000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000003',
+  now() - interval '14 days'
+), (
+  '50000000-0000-4000-8000-000000000005',
+  '10000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000002',
+  now() - interval '21 days'
+);
+
 insert into public.asks (
   id, organization_id, asker_membership_id, kind, status,
   recipient_membership_id, question, request_message, reach,
   anonymous_until_accepted, client_request_id, accepted_at,
-  responded_at, ended_at, outcome_note, created_at
+  responded_at, ended_at, outcome_note, conversation_id, created_at
 ) values (
   '30000000-0000-4000-8000-000000000003',
   '11111111-1111-4111-8111-111111111111',
@@ -226,6 +250,7 @@ insert into public.asks (
   null, false,
   '30000000-0000-4000-8000-000000000103',
   now() - interval '2 days', now() - interval '2 days', null, null,
+  '50000000-0000-4000-8000-000000000002',
   now() - interval '3 days'
 ), (
   '30000000-0000-4000-8000-000000000004',
@@ -239,6 +264,7 @@ insert into public.asks (
   '30000000-0000-4000-8000-000000000104',
   now() - interval '5 days', now() - interval '5 days', now() - interval '1 day',
   'A clearer way to compare the manager, scope, and learning curve.',
+  '50000000-0000-4000-8000-000000000003',
   now() - interval '6 days'
 ), (
   '30000000-0000-4000-8000-000000000005',
@@ -251,6 +277,7 @@ insert into public.asks (
   null, false,
   '30000000-0000-4000-8000-000000000105',
   null, null, null, null,
+  null,
   now() - interval '30 minutes'
 );
 
@@ -275,40 +302,6 @@ insert into public.connection_requests (
   'It would be nice to keep learning from each other.',
   '40000000-0000-4000-8000-000000000102',
   now() - interval '10 minutes'
-);
-
-insert into public.conversations (
-  id, kind, user_a_id, user_b_id, organization_id, ask_id, created_at
-) values (
-  '50000000-0000-4000-8000-000000000002',
-  'ask',
-  '10000000-0000-4000-8000-000000000002',
-  '10000000-0000-4000-8000-000000000006',
-  '11111111-1111-4111-8111-111111111111',
-  '30000000-0000-4000-8000-000000000003',
-  now() - interval '2 days'
-), (
-  '50000000-0000-4000-8000-000000000003',
-  'ask',
-  '10000000-0000-4000-8000-000000000002',
-  '10000000-0000-4000-8000-000000000005',
-  '11111111-1111-4111-8111-111111111111',
-  '30000000-0000-4000-8000-000000000004',
-  now() - interval '5 days'
-), (
-  '50000000-0000-4000-8000-000000000004',
-  'direct',
-  '10000000-0000-4000-8000-000000000002',
-  '10000000-0000-4000-8000-000000000003',
-  null, null,
-  now() - interval '14 days'
-), (
-  '50000000-0000-4000-8000-000000000005',
-  'direct',
-  '10000000-0000-4000-8000-000000000001',
-  '10000000-0000-4000-8000-000000000002',
-  null, null,
-  now() - interval '21 days'
 );
 
 -- Historical direct messages must pass the same sender guard as production.
@@ -411,15 +404,13 @@ values (
   '10000000-0000-4000-8000-000000000002'
 );
 
--- A bounded second Messages page verifies keyset pagination and stable UUID
--- tie-breaking without inventing more member accounts. Multiple Ask
--- conversations between the same two people are legitimate; all are old,
--- resolved, and remain sendable by product rule.
+-- Retained Ask history verifies that many Ask records between the same two
+-- people remain attached to their one canonical room.
 insert into public.asks (
   id, organization_id, asker_membership_id, kind, status,
   recipient_membership_id, question, request_message, reach,
   anonymous_until_accepted, client_request_id, accepted_at,
-  responded_at, ended_at, outcome_note, created_at
+  responded_at, ended_at, outcome_note, conversation_id, created_at
 )
 select
   format('60000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
@@ -435,6 +426,7 @@ select
   activity_at + interval '1 hour',
   activity_at + interval '2 hours',
   'The conversation produced a useful framework.',
+  '50000000-0000-4000-8000-000000000002'::uuid,
   activity_at
 from (
   select
@@ -445,22 +437,6 @@ from (
     end as activity_at
   from generate_series(1, 27) as sequence
 ) historical;
-
-insert into public.conversations (
-  id, kind, user_a_id, user_b_id, organization_id, ask_id, created_at
-)
-select
-  format('62000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
-  'ask',
-  '10000000-0000-4000-8000-000000000002'::uuid,
-  '10000000-0000-4000-8000-000000000006'::uuid,
-  '11111111-1111-4111-8111-111111111111'::uuid,
-  format('60000000-0000-4000-8000-%s', lpad(sequence::text, 12, '0'))::uuid,
-  case
-    when sequence in (26, 27) then now() - interval '100 days'
-    else now() - interval '60 days' - make_interval(days => sequence)
-  end
-from generate_series(1, 27) as sequence;
 
 -- Account deletion retains an anonymized user tombstone and conversation
 -- history. No auth identity or profile survives, so the UI must render the
@@ -473,10 +449,9 @@ values (
 );
 
 insert into public.conversations (
-  id, kind, user_a_id, user_b_id, created_at
+  id, user_a_id, user_b_id, created_at
 ) values (
   '62000000-0000-4000-8000-000000000999',
-  'direct',
   '10000000-0000-4000-8000-000000000002',
   'f7000000-0000-4000-8000-000000000001',
   now() - interval '200 days'

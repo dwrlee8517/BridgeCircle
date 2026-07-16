@@ -86,9 +86,9 @@ as $$
   ), enriched as (
     select
       c.id as conversation_id,
-      c.kind as conversation_kind,
-      c.organization_id,
-      c.ask_id,
+      case when ask.id is null then 'direct' else 'ask' end as conversation_kind,
+      ask.organization_id,
+      ask.id as ask_id,
       c.created_at,
       counterpart.id as counterpart_user_id,
       counterpart.account_state as counterpart_account_state,
@@ -129,7 +129,17 @@ as $$
         else c.user_a_id
       end
     left join public.profiles profile on profile.user_id = counterpart.id
-    left join public.asks ask on ask.id = c.ask_id
+    left join lateral (
+      select linked_ask.id, linked_ask.organization_id, linked_ask.question,
+             linked_ask.status, linked_ask.accepted_at, linked_ask.created_at
+      from public.asks linked_ask
+      where linked_ask.conversation_id = c.id
+      order by
+        (linked_ask.status = 'accepted') desc,
+        coalesce(linked_ask.accepted_at, linked_ask.created_at) desc,
+        linked_ask.id desc
+      limit 1
+    ) ask on true
     left join public.conversation_reads viewer_read
       on viewer_read.conversation_id = c.id
      and viewer_read.user_id = (select auth.uid())
@@ -146,7 +156,7 @@ as $$
       where mine.user_id = (select auth.uid())
         and mine.status = 'active'
       order by
-        case when mine.organization_id = c.organization_id then 0 else 1 end,
+        case when mine.organization_id = ask.organization_id then 0 else 1 end,
         mine.organization_id
       limit 1
     ) class_year on true
@@ -282,14 +292,24 @@ begin
       or (v_filter = 'my_circle' and summary.is_connected)
       or (
         v_filter = 'open_asks'
-        and summary.conversation_kind = 'ask'
-        and summary.ask_status = 'accepted'
+        and exists (
+          select 1
+          from public.asks ask
+          where ask.conversation_id = summary.conversation_id
+            and ask.status = 'accepted'
+        )
       )
     )
     and (
       v_query is null
       or summary.counterpart_display_name ilike '%' || v_query || '%'
       or coalesce(summary.ask_question, '') ilike '%' || v_query || '%'
+      or exists (
+        select 1
+        from public.asks ask
+        where ask.conversation_id = summary.conversation_id
+          and ask.question ilike '%' || v_query || '%'
+      )
     )
     and (
       not v_has_cursor
@@ -441,7 +461,12 @@ as $$
     count(*) filter (where summaries.unread_count > 0)::integer,
     count(*) filter (where summaries.is_connected)::integer,
     count(*) filter (
-      where summaries.conversation_kind = 'ask' and summaries.ask_status = 'accepted'
+      where exists (
+        select 1
+        from public.asks ask
+        where ask.conversation_id = summaries.conversation_id
+          and ask.status = 'accepted'
+      )
     )::integer,
     (select count(*)::integer from waiting)
   from summaries;
@@ -1034,8 +1059,7 @@ begin
       where connection.connection_request_id = p_request_id;
       select conversation.id into v_conversation_id
       from public.conversations conversation
-      where conversation.kind = 'direct'
-        and conversation.user_a_id = least(
+      where conversation.user_a_id = least(
           v_request.requester_user_id, v_request.recipient_user_id
         )
         and conversation.user_b_id = greatest(
@@ -1082,26 +1106,10 @@ begin
     )
   returning id into v_connection_id;
 
-  insert into public.conversations (kind, user_a_id, user_b_id)
-  values (
-    'direct',
-    least(v_request.requester_user_id, v_request.recipient_user_id),
-    greatest(v_request.requester_user_id, v_request.recipient_user_id)
-  )
-  on conflict (user_a_id, user_b_id) where kind = 'direct'
-  do nothing
-  returning id into v_conversation_id;
-  if v_conversation_id is null then
-    select conversation.id into v_conversation_id
-    from public.conversations conversation
-    where conversation.kind = 'direct'
-      and conversation.user_a_id = least(
-        v_request.requester_user_id, v_request.recipient_user_id
-      )
-      and conversation.user_b_id = greatest(
-        v_request.requester_user_id, v_request.recipient_user_id
-      );
-  end if;
+  v_conversation_id := private.get_or_create_pair_conversation(
+    v_request.requester_user_id,
+    v_request.recipient_user_id
+  );
 
   perform private.insert_system_message(
     v_conversation_id,
@@ -1290,9 +1298,9 @@ set search_path = ''
 as $$
   select
     conversation.id,
-    conversation.kind,
-    conversation.organization_id,
-    conversation.ask_id,
+    summary.conversation_kind,
+    summary.organization_id,
+    summary.ask_id,
     conversation.created_at,
     conversation.last_message_at,
     summary.counterpart_user_id,
@@ -1322,7 +1330,7 @@ as $$
     ask.status,
     ask.outcome_note,
     coalesce(help_state.open_to_help, false),
-    conversation.kind = 'ask'
+    summary.conversation_kind = 'ask'
       and counterpart.account_state = 'active'
       and not summary.is_connected
       and pending_request.id is null
@@ -1343,7 +1351,7 @@ as $$
     on summary.conversation_id = conversation.id
   join public.users counterpart on counterpart.id = summary.counterpart_user_id
   left join public.profiles profile on profile.user_id = counterpart.id
-  left join public.asks ask on ask.id = conversation.ask_id
+  left join public.asks ask on ask.id = summary.ask_id
   left join public.conversation_reads viewer_read
     on viewer_read.conversation_id = conversation.id
    and viewer_read.user_id = (select auth.uid())
@@ -1374,11 +1382,11 @@ as $$
     where mine.user_id = (select auth.uid())
       and mine.status = 'active'
       and (
-        conversation.organization_id is null
-        or mine.organization_id = conversation.organization_id
+        summary.organization_id is null
+        or mine.organization_id = summary.organization_id
       )
     order by
-      case when mine.organization_id = conversation.organization_id then 0 else 1 end,
+      case when mine.organization_id = summary.organization_id then 0 else 1 end,
       mine.organization_id
     limit 1
   ) help_state on true
