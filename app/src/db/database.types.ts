@@ -35,6 +35,10 @@ export type Database = {
           result_code: string
         }[]
       }
+      cancel_admin_school_event: {
+        Args: { p_event_id: string; p_membership_id: string; p_reason?: string }
+        Returns: string
+      }
       claim_outbox_jobs: {
         Args: {
           p_allowed_types?: string[]
@@ -124,6 +128,10 @@ export type Database = {
           result_code: string
         }[]
       }
+      delete_admin_school_event: {
+        Args: { p_event_id: string; p_membership_id: string }
+        Returns: string
+      }
       disconnect: {
         Args: { p_other_user_id: string }
         Returns: {
@@ -133,6 +141,14 @@ export type Database = {
       fail_outbox_job: {
         Args: { p_error: string; p_job_id: number; p_worker_id: string }
         Returns: string
+      }
+      get_admin_school_announcements: {
+        Args: { p_membership_id: string }
+        Returns: Json
+      }
+      get_admin_school_events: {
+        Args: { p_membership_id: string }
+        Returns: Json
       }
       get_ask_detail: {
         Args: { p_ask_id: string }
@@ -293,6 +309,10 @@ export type Database = {
           result_code: string
         }[]
       }
+      get_newsletter_issue: {
+        Args: { p_issue_slug: string; p_membership_id: string }
+        Returns: Json
+      }
       get_or_create_direct_conversation: {
         Args: { p_other_user_id: string }
         Returns: {
@@ -325,6 +345,15 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_school_announcement: {
+        Args: { p_announcement_id: string; p_membership_id: string }
+        Returns: Json
+      }
+      get_school_event: {
+        Args: { p_event_id: string; p_membership_id: string }
+        Returns: Json
+      }
+      get_school_home: { Args: { p_membership_id: string }; Returns: Json }
       list_conversation_messages_after: {
         Args: {
           p_after_id?: number
@@ -470,6 +499,10 @@ export type Database = {
           status: string
         }[]
       }
+      list_newsletter_issues: {
+        Args: { p_limit?: number; p_membership_id: string }
+        Returns: Json
+      }
       list_people: {
         Args: {
           p_class_year_end?: number
@@ -508,6 +541,14 @@ export type Database = {
           total_count: number
         }[]
       }
+      list_school_announcements: {
+        Args: { p_limit?: number; p_membership_id: string; p_tag?: string }
+        Returns: Json
+      }
+      list_school_event_attendees: {
+        Args: { p_event_id: string; p_limit?: number; p_membership_id: string }
+        Returns: Json
+      }
       mark_conversation_read: {
         Args: { p_conversation_id: string; p_message_id: number }
         Returns: {
@@ -519,6 +560,10 @@ export type Database = {
       mark_notifications_read: {
         Args: { p_notification_ids: number[] }
         Returns: number
+      }
+      mark_school_announcement_read: {
+        Args: { p_announcement_id: string; p_membership_id: string }
+        Returns: string
       }
       materialize_notification_job: {
         Args: { p_job_id: number; p_worker_id: string }
@@ -542,6 +587,16 @@ export type Database = {
           result_code: string
         }[]
       }
+      publish_admin_school_announcement: {
+        Args: {
+          p_body: string
+          p_membership_id: string
+          p_pinned?: boolean
+          p_tag: string
+          p_title: string
+        }
+        Returns: Json
+      }
       publish_conversation_typing: {
         Args: { p_conversation_id: string; p_is_typing: boolean }
         Returns: {
@@ -564,6 +619,10 @@ export type Database = {
           conversation_id: string
           result_code: string
         }[]
+      }
+      respond_school_event: {
+        Args: { p_event_id: string; p_intent: string; p_membership_id: string }
+        Returns: string
       }
       respond_to_connection_request: {
         Args: { p_decision: string; p_request_id: string }
@@ -613,6 +672,25 @@ export type Database = {
           offers_closed: number
           reminders_sent: number
         }[]
+      }
+      run_school_maintenance: {
+        Args: { p_limit?: number; p_now?: string }
+        Returns: {
+          expired_offers: number
+          opened_offers: number
+        }[]
+      }
+      save_admin_school_event: {
+        Args: {
+          p_capacity?: number
+          p_description?: string
+          p_event_id?: string
+          p_location?: string
+          p_membership_id: string
+          p_starts_at?: string
+          p_title?: string
+        }
+        Returns: Json
       }
       save_helper_preferences: {
         Args: {
@@ -757,10 +835,6 @@ export type Database = {
           result_code: string
         }[]
       }
-      set_event_rsvp: {
-        Args: { p_event_id: string; p_membership_id: string; p_status: string }
-        Returns: string
-      }
       set_my_avatar_path: {
         Args: { p_avatar_path: string; p_membership_id: string }
         Returns: string
@@ -863,6 +937,49 @@ export type Database = {
           },
         ]
       }
+      announcement_reads: {
+        Row: {
+          announcement_id: string
+          organization_id: string
+          organization_membership_id: string
+          read_at: string
+        }
+        Insert: {
+          announcement_id: string
+          organization_id: string
+          organization_membership_id: string
+          read_at?: string
+        }
+        Update: {
+          announcement_id?: string
+          organization_id?: string
+          organization_membership_id?: string
+          read_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'announcement_reads_announcement_fk'
+            columns: ['announcement_id']
+            isOneToOne: false
+            referencedRelation: 'announcements'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'announcement_reads_membership_fk'
+            columns: ['organization_id', 'organization_membership_id']
+            isOneToOne: false
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'announcement_reads_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       announcements: {
         Row: {
           author_membership_id: string | null
@@ -873,6 +990,8 @@ export type Database = {
           pinned: boolean
           published_at: string | null
           status: string
+          summary: string | null
+          tag: string
           title: string
           updated_at: string
         }
@@ -885,6 +1004,8 @@ export type Database = {
           pinned?: boolean
           published_at?: string | null
           status?: string
+          summary?: string | null
+          tag?: string
           title: string
           updated_at?: string
         }
@@ -897,6 +1018,8 @@ export type Database = {
           pinned?: boolean
           published_at?: string | null
           status?: string
+          summary?: string | null
+          tag?: string
           title?: string
           updated_at?: string
         }
@@ -1306,27 +1429,84 @@ export type Database = {
           },
         ]
       }
+      event_facts: {
+        Row: {
+          event_id: string
+          id: number
+          label: string
+          link_label: string | null
+          link_url: string | null
+          organization_id: string
+          position: number
+          value: string
+        }
+        Insert: {
+          event_id: string
+          id?: never
+          label: string
+          link_label?: string | null
+          link_url?: string | null
+          organization_id: string
+          position: number
+          value: string
+        }
+        Update: {
+          event_id?: string
+          id?: never
+          label?: string
+          link_label?: string | null
+          link_url?: string | null
+          organization_id?: string
+          position?: number
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'event_facts_event_fk'
+            columns: ['organization_id', 'event_id']
+            isOneToOne: false
+            referencedRelation: 'events'
+            referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'event_facts_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       event_rsvps: {
         Row: {
           event_id: string
+          offer_expires_at: string | null
+          offered_at: string | null
           organization_id: string
           organization_membership_id: string
           responded_at: string
           status: string
+          updated_at: string
         }
         Insert: {
           event_id: string
+          offer_expires_at?: string | null
+          offered_at?: string | null
           organization_id: string
           organization_membership_id: string
           responded_at?: string
           status: string
+          updated_at?: string
         }
         Update: {
           event_id?: string
+          offer_expires_at?: string | null
+          offered_at?: string | null
           organization_id?: string
           organization_membership_id?: string
           responded_at?: string
           status?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1352,52 +1532,145 @@ export type Database = {
           },
         ]
       }
+      event_schedule_items: {
+        Row: {
+          event_id: string
+          id: number
+          label: string
+          organization_id: string
+          position: number
+          starts_at: string | null
+        }
+        Insert: {
+          event_id: string
+          id?: never
+          label: string
+          organization_id: string
+          position: number
+          starts_at?: string | null
+        }
+        Update: {
+          event_id?: string
+          id?: never
+          label?: string
+          organization_id?: string
+          position?: number
+          starts_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'event_schedule_event_fk'
+            columns: ['organization_id', 'event_id']
+            isOneToOne: false
+            referencedRelation: 'events'
+            referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'event_schedule_items_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       events: {
         Row: {
+          allow_waitlist: boolean
+          campus: string
+          cancellation_note: string | null
           cancelled_at: string | null
           capacity: number | null
+          category: string
+          change_note: string | null
+          changed_at: string | null
           created_at: string
           created_by_membership_id: string | null
           description: string | null
           ends_at: string | null
+          format: string
+          host_membership_id: string | null
+          host_name: string | null
           id: string
+          join_url: string | null
+          join_window_minutes: number
           location: string | null
+          location_address: string | null
+          location_name: string | null
+          maps_url: string | null
           organization_id: string
           published_at: string | null
+          slug: string
           starts_at: string
           status: string
+          summary: string | null
+          time_zone: string
           title: string
           updated_at: string
         }
         Insert: {
+          allow_waitlist?: boolean
+          campus?: string
+          cancellation_note?: string | null
           cancelled_at?: string | null
           capacity?: number | null
+          category?: string
+          change_note?: string | null
+          changed_at?: string | null
           created_at?: string
           created_by_membership_id?: string | null
           description?: string | null
           ends_at?: string | null
+          format?: string
+          host_membership_id?: string | null
+          host_name?: string | null
           id?: string
+          join_url?: string | null
+          join_window_minutes?: number
           location?: string | null
+          location_address?: string | null
+          location_name?: string | null
+          maps_url?: string | null
           organization_id: string
           published_at?: string | null
+          slug: string
           starts_at: string
           status?: string
+          summary?: string | null
+          time_zone?: string
           title: string
           updated_at?: string
         }
         Update: {
+          allow_waitlist?: boolean
+          campus?: string
+          cancellation_note?: string | null
           cancelled_at?: string | null
           capacity?: number | null
+          category?: string
+          change_note?: string | null
+          changed_at?: string | null
           created_at?: string
           created_by_membership_id?: string | null
           description?: string | null
           ends_at?: string | null
+          format?: string
+          host_membership_id?: string | null
+          host_name?: string | null
           id?: string
+          join_url?: string | null
+          join_window_minutes?: number
           location?: string | null
+          location_address?: string | null
+          location_name?: string | null
+          maps_url?: string | null
           organization_id?: string
           published_at?: string | null
+          slug?: string
           starts_at?: string
           status?: string
+          summary?: string | null
+          time_zone?: string
           title?: string
           updated_at?: string
         }
@@ -1405,6 +1678,13 @@ export type Database = {
           {
             foreignKeyName: 'events_creator_fk'
             columns: ['organization_id', 'created_by_membership_id']
+            isOneToOne: false
+            referencedRelation: 'organization_memberships'
+            referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'events_host_fk'
+            columns: ['organization_id', 'host_membership_id']
             isOneToOne: false
             referencedRelation: 'organization_memberships'
             referencedColumns: ['organization_id', 'id']
@@ -1671,6 +1951,101 @@ export type Database = {
             columns: ['system_actor_user_id']
             isOneToOne: false
             referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      newsletter_issues: {
+        Row: {
+          created_at: string
+          id: string
+          issue_number: number
+          organization_id: string
+          published_at: string | null
+          slug: string
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          issue_number: number
+          organization_id: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          issue_number?: number
+          organization_id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'newsletter_issues_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      newsletter_sections: {
+        Row: {
+          body: string
+          heading: string
+          id: number
+          issue_id: string
+          link_label: string | null
+          link_url: string | null
+          organization_id: string
+          position: number
+        }
+        Insert: {
+          body: string
+          heading: string
+          id?: never
+          issue_id: string
+          link_label?: string | null
+          link_url?: string | null
+          organization_id: string
+          position: number
+        }
+        Update: {
+          body?: string
+          heading?: string
+          id?: never
+          issue_id?: string
+          link_label?: string | null
+          link_url?: string | null
+          organization_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'newsletter_sections_issue_fk'
+            columns: ['organization_id', 'issue_id']
+            isOneToOne: false
+            referencedRelation: 'newsletter_issues'
+            referencedColumns: ['organization_id', 'id']
+          },
+          {
+            foreignKeyName: 'newsletter_sections_organization_id_fkey'
+            columns: ['organization_id']
+            isOneToOne: false
+            referencedRelation: 'organizations'
             referencedColumns: ['id']
           },
         ]

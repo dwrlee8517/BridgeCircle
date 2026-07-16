@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { createClient } from '@/db/server'
-import { requireAdmin } from '@/lib/auth/session'
-import { getEvent } from '@/lib/events/getEvent'
+import { createSchoolRepository } from '@/db/repositories/school'
+import { loadSchoolAdminContext } from '../../../_lib/school-admin'
 import { EventForm } from '../../event-form'
 import { editEventAction } from './actions'
 import { CancelDeleteButtons } from './cancel-delete-buttons'
@@ -26,11 +25,10 @@ function isoToLocalDatetime(iso: string): string {
 }
 
 export default async function EditEventPage({ params }: { params: Promise<Params> }) {
-  const session = await requireAdmin()
   const { id } = await params
-  const supabase = await createClient()
-
-  const event = await getEvent(supabase, id, session.userId)
+  const { client, membership } = await loadSchoolAdminContext()
+  const events = await createSchoolRepository(client).getAdminEvents(membership.membershipId)
+  const event = events?.find((candidate) => candidate.id === id)
   if (!event) notFound()
 
   return (
@@ -44,8 +42,8 @@ export default async function EditEventPage({ params }: { params: Promise<Params
           <CardTitle>Edit event</CardTitle>
           <CardDescription>
             {event.isCanceled
-              ? 'This event is canceled and hidden from members. You can still adjust details for the record.'
-              : 'Changes apply immediately. We do not auto-email members on edits.'}
+              ? 'This event is cancelled. It remains available to members as a cancelled record.'
+              : 'Changes apply immediately. Members who responded receive an in-app update.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -69,8 +67,8 @@ export default async function EditEventPage({ params }: { params: Promise<Params
         <CardHeader>
           <CardTitle>Danger zone</CardTitle>
           <CardDescription>
-            Cancel sends emails and hides from members. Delete is permanent and silent — only for
-            mistake events.
+            Cancel keeps a visible record and notifies members who responded. Delete is allowed only
+            before anyone responds.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,7 +76,7 @@ export default async function EditEventPage({ params }: { params: Promise<Params
             eventId={event.id}
             goingCount={event.goingCount}
             waitlistCount={event.waitlistCount}
-            isCanceled={event.isCanceled}
+            isCanceled={event.status === 'cancelled'}
           />
         </CardContent>
       </Card>

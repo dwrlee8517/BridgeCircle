@@ -13,11 +13,7 @@ export const MEMBER_NAV_LINKS = [
   { href: '/help', label: 'Help', match: ['/help'] },
   { href: '/people', label: 'People', match: ['/people', '/profile'] },
   { href: '/messages', label: 'Messages', match: ['/messages'] },
-  { href: '/school', label: 'School', match: ['/school', '/events', '/announcements'] },
-  // /announcements no longer has a top-nav slot — they're low-frequency
-  // admin posts. The home page surfaces the latest one as a banner;
-  // notifications and admin emails deep-link into /announcements when
-  // there's a specific post to read. The archive page itself stays.
+  { href: '/school', label: 'School', match: ['/school'] },
 ] as const
 
 export type MemberNavLink = (typeof MEMBER_NAV_LINKS)[number]

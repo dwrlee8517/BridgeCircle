@@ -19,9 +19,8 @@ const DELETE_INITIAL = {} as { error?: string }
 
 /**
  * Two destructive actions on the event edit page:
- *   - Cancel event: keeps the row, sends emails to going + waitlisted RSVPs.
- *     The reason text shows up in the email body.
- *   - Delete event: hard-delete + cascade. For typo / mistake events.
+ *   - Cancel event: keeps a visible record and queues durable in-app notices.
+ *   - Delete event: allowed only while the event has no responses.
  *
  * Each has its own confirmation dialog so the admin can't fat-finger one
  * for the other.
@@ -70,19 +69,19 @@ export function CancelDeleteButtons({
           <DialogHeader>
             <DialogTitle>Cancel this event?</DialogTitle>
             <DialogDescription>
-              Members will no longer see it on /events. We&apos;ll email{' '}
+              The event will stay available as a cancelled record. We&apos;ll notify{' '}
               {goingCount + waitlistCount === 0
                 ? 'no one (no RSVPs yet)'
                 : `${goingCount} going${
                     waitlistCount > 0 ? ` + ${waitlistCount} waitlisted` : ''
                   }`}{' '}
-              with the reason below. The event row stays in the database for the record.
+              in the app with the reason below.
             </DialogDescription>
           </DialogHeader>
           <form action={cancelAction} className="space-y-4">
             <input type="hidden" name="eventId" value={eventId} />
             <div className="space-y-2">
-              <Label htmlFor="cancel-reason">Reason (optional, included in email)</Label>
+              <Label htmlFor="cancel-reason">Reason (optional, shown to members)</Label>
               <Textarea
                 id="cancel-reason"
                 name="reason"
@@ -116,9 +115,8 @@ export function CancelDeleteButtons({
           <DialogHeader>
             <DialogTitle className="text-destructive">Delete this event permanently?</DialogTitle>
             <DialogDescription>
-              This is irreversible. All RSVPs for this event will be deleted along with it. No
-              emails are sent. Use this only for typo / mistake events — to &quot;cancel&quot; a
-              real event, use Cancel event instead.
+              This is irreversible and only works before anyone responds. Use it for a typo or
+              mistake event. Cancel a real event so members keep a clear record.
             </DialogDescription>
           </DialogHeader>
           <form action={deleteAction} className="space-y-4">

@@ -11,9 +11,8 @@ import { type AnnouncementFormState, createAnnouncementAction } from './actions'
 const initialState: AnnouncementFormState = {}
 
 /**
- * Compose form for a new announcement. Title required, body optional. The
- * "send email" checkbox fans out a one-shot Resend email to every active
- * member. Default off — admin opts in per announcement.
+ * Compose form for a School announcement. Publishing creates durable in-app
+ * notifications through the outbox; delivery is not coupled to this request.
  */
 export function AnnouncementForm() {
   const [state, action, pending] = useActionState(createAnnouncementAction, initialState)
@@ -46,25 +45,32 @@ export function AnnouncementForm() {
         />
       </Field>
 
-      <div className="flex items-start gap-3">
-        <Checkbox id="ann-sendEmail" name="sendEmail" />
+      <Field id="ann-tag" label="Category" error={fe.tag} required>
+        <select
+          id="ann-tag"
+          name="tag"
+          defaultValue="general"
+          className="h-10 w-full rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
+        >
+          <option value="general">General</option>
+          <option value="mentorship">Mentorship</option>
+          <option value="hiring">Hiring</option>
+          <option value="reunion">Reunion</option>
+        </select>
+      </Field>
+
+      <div className="flex items-start gap-3 rounded-[var(--radius-md)] bg-muted/50 p-3">
+        <Checkbox id="ann-pinned" name="pinned" />
         <div className="space-y-1">
-          <Label htmlFor="ann-sendEmail">Email this to every active member</Label>
+          <Label htmlFor="ann-pinned">Pin in the announcement archive</Label>
           <p className="text-xs text-muted-foreground">
-            Off by default. Use sparingly — it lands in everyone&apos;s inbox immediately.
+            Pinned announcements stay ahead of newer posts until the pin is removed.
           </p>
         </div>
       </div>
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-      {state.ok ? (
-        <p className="text-sm text-accent-sage">
-          Announcement published.
-          {state.emailsAttempted
-            ? ` Emailed ${state.emailsSent} of ${state.emailsAttempted} member${state.emailsAttempted === 1 ? '' : 's'}.`
-            : ''}
-        </p>
-      ) : null}
+      {state.ok ? <p className="text-sm text-accent-sage">Announcement published.</p> : null}
 
       <Button type="submit" disabled={pending}>
         {pending ? 'Publishing…' : 'Publish announcement'}

@@ -1,6 +1,9 @@
 import { format, formatDistanceToNow } from 'date-fns'
 import {
   Bell,
+  CalendarCheck,
+  CalendarClock,
+  CalendarSync,
   CalendarX,
   CircleHelp,
   Handshake,
@@ -122,7 +125,10 @@ const NOTIF_ICON: Record<NotificationType, typeof Bell> = {
   circle_ask_closed: CircleHelp,
   message_received: MessageSquare,
   announcement_published: Megaphone,
+  event_changed: CalendarSync,
   event_cancelled: CalendarX,
+  event_reminder: CalendarClock,
+  event_waitlist_spot_opened: CalendarCheck,
   profile_update_ready: UserRoundCheck,
 }
 
@@ -145,6 +151,8 @@ function notifTone(type: NotificationType): string {
     case 'offer_declined':
     case 'event_cancelled':
       return 'bg-danger-tint text-state-danger'
+    case 'event_waitlist_spot_opened':
+      return 'bg-success-tint text-accent-sage'
     case 'connection_requested':
     case 'message_received':
       return 'bg-primary-tint text-primary'

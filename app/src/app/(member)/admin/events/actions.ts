@@ -1,10 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/db/server'
-import { requireAdmin } from '@/lib/auth/session'
-import { createEvent } from '@/lib/events/createEvent'
-import { parseEventCreateForm } from '@/lib/events/schemas'
+import { createSchoolRepository } from '@/db/repositories/school'
+import { parseAdminEventForm } from '@/lib/school/admin-schemas'
+import { loadSchoolAdminContext } from '../_lib/school-admin'
 
 export type EventCreateFormState = {
   ok?: boolean
@@ -16,8 +15,7 @@ export async function createEventAction(
   _prev: EventCreateFormState,
   formData: FormData,
 ): Promise<EventCreateFormState> {
-  const session = await requireAdmin()
-  const parsed = parseEventCreateForm(formData)
+  const parsed = parseAdminEventForm(formData)
 
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {}
@@ -28,29 +26,24 @@ export async function createEventAction(
     return { error: 'Please fix the highlighted fields.', fieldErrors }
   }
 
-  const supabase = await createClient()
-  const { data: roles } = await supabase
-    .from('admin_role_assignments')
-    .select('organization_id')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-    .limit(1)
-  const orgId = roles?.[0]?.organization_id
-  if (!orgId) return { error: 'No admin role found.' }
+  const { client, membership } = await loadSchoolAdminContext()
+  const result = await createSchoolRepository(client).saveAdminEvent({
+    membershipId: membership.membershipId,
+    ...parsed.data,
+  })
 
-  const result = await createEvent(supabase, orgId, session.userId, parsed.data)
-
-  if (!result.ok) {
-    if (result.error === 'past_start') {
+  if (result !== 'created') {
+    if (result === 'past_start') {
       return {
         error: 'Start time must be in the future.',
         fieldErrors: { startsAt: 'In the past.' },
       }
     }
+    if (result === 'invalid_input') return { error: 'The event details are not valid.' }
     return { error: 'Could not create the event. Try again.' }
   }
 
   revalidatePath('/admin/events')
-  revalidatePath('/events')
+  revalidatePath('/school')
   return { ok: true }
 }

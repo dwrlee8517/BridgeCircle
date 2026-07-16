@@ -2,36 +2,16 @@ import { format, formatDistanceToNow } from 'date-fns'
 import { Megaphone } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
-import { createClient } from '@/db/server'
-import { listAnnouncements } from '@/lib/announcements/listAnnouncements'
-import { requireAdmin } from '@/lib/auth/session'
+import { createSchoolRepository } from '@/db/repositories/school'
 import { displayOrgName } from '@/lib/utils'
+import { loadSchoolAdminContext } from '../_lib/school-admin'
 import { AnnouncementForm } from './announcement-form'
 
 export default async function AdminAnnouncementsPage() {
-  const session = await requireAdmin()
-  const supabase = await createClient()
-
-  const { data: roles } = await supabase
-    .from('admin_role_assignments')
-    .select('organization_id, organizations!admin_role_assignments_organization_id_fkey(name)')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-    .limit(1)
-
-  const adminOrg = roles?.[0]
-  if (!adminOrg) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-10">
-        <p className="text-sm text-muted-foreground">No admin organization.</p>
-      </div>
-    )
-  }
-  const orgName = displayOrgName(
-    (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization',
-  )
-
-  const recent = await listAnnouncements(supabase, adminOrg.organization_id, { limit: 30 })
+  const { client, membership } = await loadSchoolAdminContext()
+  const orgName = displayOrgName(membership.organization.name)
+  const recent =
+    (await createSchoolRepository(client).getAdminAnnouncements(membership.membershipId)) ?? []
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
@@ -39,8 +19,8 @@ export default async function AdminAnnouncementsPage() {
         <CardHeader>
           <CardTitle>New announcement</CardTitle>
           <CardDescription>
-            Publishes immediately to {orgName}. Members see it on /announcements; if you tick the
-            email box, every active member also receives it in their inbox.
+            Publishes immediately to {orgName}. Members see it in School and receive a durable
+            in-app notification.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,7 +38,7 @@ export default async function AdminAnnouncementsPage() {
             <EmptyState
               icon={Megaphone}
               title="Nothing published yet"
-              description="The first announcement you post will land at the top of the members' /announcements page."
+              description="The first announcement you post will land at the top of the School announcement archive."
               size="inline"
               className="border-none bg-transparent shadow-none"
             />
@@ -70,9 +50,11 @@ export default async function AdminAnnouncementsPage() {
                     <h3 className="text-sm font-semibold">{a.title}</h3>
                     <span
                       className="shrink-0 text-xs text-muted-foreground"
-                      title={format(new Date(a.publishedAt), 'PPpp')}
+                      title={a.publishedAt ? format(new Date(a.publishedAt), 'PPpp') : undefined}
                     >
-                      {formatDistanceToNow(new Date(a.publishedAt), { addSuffix: true })}
+                      {a.publishedAt
+                        ? formatDistanceToNow(new Date(a.publishedAt), { addSuffix: true })
+                        : 'draft'}
                     </span>
                   </div>
                   {a.body ? (

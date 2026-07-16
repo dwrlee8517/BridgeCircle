@@ -458,27 +458,136 @@ insert into public.conversations (
 );
 
 insert into public.events (
-  id, organization_id, created_by_membership_id, status, title,
-  description, location, starts_at, ends_at, capacity, published_at
+  id, organization_id, created_by_membership_id, status, slug, category, title,
+  summary, description, format, time_zone, campus, location, location_name,
+  location_address, maps_url, join_url, host_name, starts_at, ends_at, capacity,
+  published_at, cancelled_at, cancellation_note, changed_at, change_note
 ) values (
   'eeee0000-0000-4000-8000-000000000001',
   '11111111-1111-4111-8111-111111111111',
   '20000000-0000-4000-8000-000000000001',
   'published',
-  'Chadwick alumni summer gathering',
-  'A relaxed evening to reconnect across class years.',
-  'Palos Verdes, CA',
+  'summer-gathering', 'Social', 'Summer gathering on the Main Court Patio',
+  'An easy evening on the patio — name tags, snacks, and no program.',
+  E'No agenda and no speeches. Come as you are, find a name tag, and let the patio do the work.\n\nFirst time back in a while? These gatherings skew friendly and people rarely stay inside their class year.',
+  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Main Court Patio',
+  'Main Court Patio', '26800 S Academy Dr, Palos Verdes Peninsula, CA',
+  'https://maps.google.com/?q=Chadwick+School+Palos+Verdes', null,
+  'the Alumni Office',
   now() + interval '30 days',
   now() + interval '30 days 3 hours',
-  3,
-  now()
+  50, now(), null, null, null, null
+), (
+  'eeee0000-0000-4000-8000-000000000002',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000001',
+  'published',
+  'founders-dinner', 'Dinner', 'Founders Dinner at The Riviera',
+  'A small dinner for alumni building companies and teams.',
+  'A seated dinner with a short welcome, then an unhurried conversation across the table.',
+  'in_person', 'America/Los_Angeles', 'palos_verdes', 'The Riviera Country Club',
+  'The Riviera Country Club', '1250 Capri Dr, Pacific Palisades, CA',
+  'https://maps.google.com/?q=The+Riviera+Country+Club', null,
+  'Amy and the Alumni Board',
+  now() + interval '45 days', now() + interval '45 days 2 hours 30 minutes',
+  1, now(), null, null, null, null
+), (
+  'eeee0000-0000-4000-8000-000000000003',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000001',
+  'published',
+  'seoul-office-hours', 'Conversation', 'Seoul alumni office hours',
+  'A short online room for anyone moving between Korea and the US.',
+  'Drop in with a question or just listen. The room opens one hour before the start.',
+  'online', 'Asia/Seoul', 'online', null, null, null, null,
+  'https://meet.example.com/chadwick-office-hours', 'Mei Park',
+  now() + interval '30 minutes', now() + interval '2 hours',
+  null, now(), null, null, now() - interval '1 day',
+  'The start moved thirty minutes later so more members in California can join.'
+), (
+  'eeee0000-0000-4000-8000-000000000004',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000001',
+  'cancelled',
+  'campus-walk', 'Campus', 'A walk through the new campus spaces',
+  'A quiet return to campus with the facilities team.',
+  'The visit was cancelled because construction access changed.',
+  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Chadwick School',
+  'Chadwick School', null, null, null, 'the Alumni Office',
+  now() + interval '10 days', now() + interval '10 days 90 minutes',
+  30, now() - interval '10 days', now() - interval '2 days',
+  'Construction access changed, so this walk will be rescheduled.', null, null
+), (
+  'eeee0000-0000-4000-8000-000000000005',
+  '11111111-1111-4111-8111-111111111111',
+  '20000000-0000-4000-8000-000000000001',
+  'published',
+  'spring-career-panel', 'Panel', 'Spring career panel',
+  'Alumni shared practical lessons from their first five years after Chadwick.',
+  'A completed event retained as a calm record for members who attended.',
+  'in_person', 'America/Los_Angeles', 'palos_verdes', 'Laverty Center',
+  'Laverty Center', null, null, null, 'the Alumni Office',
+  now() - interval '20 days', now() - interval '20 days' + interval '2 hours',
+  80, now() - interval '60 days', null, null, null, null
 );
 
 insert into public.event_rsvps (
   organization_id, event_id, organization_membership_id, status
-) values (
+) values
+(
   '11111111-1111-4111-8111-111111111111',
   'eeee0000-0000-4000-8000-000000000001',
   '20000000-0000-4000-8000-000000000002',
   'going'
+),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000004', 'going'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000006', 'going'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'going'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000003', '20000000-0000-4000-8000-000000000002', 'going'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000005', '20000000-0000-4000-8000-000000000002', 'going'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000005', '20000000-0000-4000-8000-000000000003', 'going');
+
+insert into public.event_schedule_items (organization_id, event_id, position, starts_at, label) values
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000002', 0, now() + interval '45 days', 'Doors open and drinks'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000002', 1, now() + interval '45 days 30 minutes', 'Dinner and table conversation'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000002', 2, now() + interval '45 days 2 hours', 'A short closing note');
+
+insert into public.event_facts (
+  organization_id, event_id, position, label, value, link_label, link_url
+) values
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000001', 0, 'Parking', 'Lot B, off Academy Road', 'Directions', 'https://maps.google.com/?q=Chadwick+School+Palos+Verdes'),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000001', 1, 'Cost', 'Free — snacks and drinks covered', null, null),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000002', 0, 'Dress', 'Whatever you wore that day', null, null),
+('11111111-1111-4111-8111-111111111111', 'eeee0000-0000-4000-8000-000000000002', 1, 'Guest', 'One guest is welcome', null, null);
+
+insert into public.announcements (
+  id, organization_id, author_membership_id, status, tag, title, summary,
+  body, pinned, published_at
+) values
+('aaaa0000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', '20000000-0000-4000-8000-000000000001', 'published', 'reunion', 'Reunion weekend dates are set', 'Save the first weekend in October for class gatherings and a return to campus.', E'Reunion weekend will begin Friday evening and continue through Sunday morning.\n\nClass volunteers will receive planning notes next week.', true, now() - interval '2 days'),
+('aaaa0000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', '20000000-0000-4000-8000-000000000001', 'published', 'mentorship', 'Career conversations for this summer', 'Alumni volunteers can host one short conversation with a recent graduate.', 'If you have twenty minutes to share what your first role actually felt like, open Help and tell the circle what you know.', false, now() - interval '5 days'),
+('aaaa0000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', '20000000-0000-4000-8000-000000000001', 'published', 'hiring', 'Share a summer opportunity', 'The school can pass along internships and early-career roles.', 'Send the alumni office a role link and a short note about who would learn the most from it.', false, now() - interval '8 days'),
+('aaaa0000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', '20000000-0000-4000-8000-000000000001', 'published', 'general', 'Library hours during campus work', 'The library entrance moves to the east walk for two weeks.', 'Construction near the main entrance changes the route, but the library remains open on its usual schedule.', false, now() - interval '12 days');
+
+insert into public.announcement_reads (
+  organization_id, announcement_id, organization_membership_id, read_at
+) values (
+  '11111111-1111-4111-8111-111111111111',
+  'aaaa0000-0000-4000-8000-000000000004',
+  '20000000-0000-4000-8000-000000000002',
+  now() - interval '10 days'
 );
+
+insert into public.newsletter_issues (
+  id, organization_id, slug, issue_number, status, title, summary, published_at
+) values
+('bbbb0000-0000-4000-8000-000000000001', '11111111-1111-4111-8111-111111111111', 'july-2026', 18, 'published', 'The Bridge · July 2026', 'Small updates from campus and the alumni circle.', now() - interval '3 days'),
+('bbbb0000-0000-4000-8000-000000000002', '11111111-1111-4111-8111-111111111111', 'june-2026', 17, 'archived', 'The Bridge · June 2026', 'A look back at spring and what is next.', now() - interval '33 days');
+
+insert into public.newsletter_sections (
+  organization_id, issue_id, position, heading, body, link_label, link_url
+) values
+('11111111-1111-4111-8111-111111111111', 'bbbb0000-0000-4000-8000-000000000001', 0, 'A summer return to campus', 'The patio is open again, and the alumni office is planning a relaxed evening without a program or speeches.', null, null),
+('11111111-1111-4111-8111-111111111111', 'bbbb0000-0000-4000-8000-000000000001', 1, 'One useful conversation', 'Recent graduates are asking for honest stories about first jobs, changing direction, and living in a new city.', 'See what the circle needs', 'https://bridgecircle.org/help'),
+('11111111-1111-4111-8111-111111111111', 'bbbb0000-0000-4000-8000-000000000001', 2, 'From the archive', 'The oral history team added three interviews with alumni from the 1970s.', null, null),
+('11111111-1111-4111-8111-111111111111', 'bbbb0000-0000-4000-8000-000000000002', 0, 'Spring, in a few lines', 'Students closed the year with performances, project exhibitions, and the usual mix of relief and pride.', null, null);

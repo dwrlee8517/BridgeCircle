@@ -14,7 +14,10 @@ export const NOTIFICATION_TYPES = [
   'circle_ask_closed',
   'message_received',
   'announcement_published',
+  'event_changed',
   'event_cancelled',
+  'event_reminder',
+  'event_waitlist_spot_opened',
   'profile_update_ready',
 ] as const
 
@@ -65,7 +68,11 @@ export function notificationIcon(t: NotificationType): string {
     case 'announcement_published':
       return 'Megaphone'
     case 'event_cancelled':
+    case 'event_changed':
+    case 'event_reminder':
       return 'CalendarX'
+    case 'event_waitlist_spot_opened':
+      return 'CalendarCheck'
     case 'profile_update_ready':
       return 'UserRoundCheck'
   }
@@ -109,6 +116,21 @@ export function notificationLabel(row: NotificationRow): string {
         typeof row.payload.event_title === 'string' ? row.payload.event_title : 'An event'
       return `${title} was cancelled`
     }
+    case 'event_changed': {
+      const title =
+        typeof row.payload.event_title === 'string' ? row.payload.event_title : 'An event'
+      return `${title} was updated`
+    }
+    case 'event_reminder': {
+      const title =
+        typeof row.payload.event_title === 'string' ? row.payload.event_title : 'Your event'
+      return `${title} is coming up`
+    }
+    case 'event_waitlist_spot_opened': {
+      const title =
+        typeof row.payload.event_title === 'string' ? row.payload.event_title : 'An event'
+      return `A spot opened for ${title}`
+    }
     case 'profile_update_ready':
       return 'Your profile update is ready to review'
   }
@@ -142,9 +164,12 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
     case 'message_received':
       return '/messages'
     case 'announcement_published':
-      return '/announcements'
+      return row.targetId ? `/school/announcements/${row.targetId}` : '/school/announcements'
+    case 'event_changed':
     case 'event_cancelled':
-      return row.targetId ? `/events/${row.targetId}` : '/events'
+    case 'event_reminder':
+    case 'event_waitlist_spot_opened':
+      return row.targetId ? `/school/events/${row.targetId}` : '/school'
     case 'profile_update_ready':
       return '/profile/me'
   }
@@ -153,6 +178,7 @@ export function notificationTargetUrl(row: NotificationRow): string | null {
 export function notificationShouldToast(t: NotificationType): boolean {
   return ![
     'announcement_published',
+    'event_changed',
     'event_cancelled',
     'ask_closed',
     'offer_closed',

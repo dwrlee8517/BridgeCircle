@@ -82,10 +82,11 @@ export function EventForm({
             defaultValue={defaults.startsAtLocal}
           />
         </Field>
-        <Field id="location" label="Location" error={fe.location}>
+        <Field id="location" label="Location" error={fe.location} required>
           <Input
             id="location"
             name="location"
+            required
             maxLength={200}
             placeholder="Palos Verdes campus"
             defaultValue={defaults.location}

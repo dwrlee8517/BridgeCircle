@@ -48,17 +48,15 @@ test("a signed-in member lands on Home greeted by first name with all five nav s
 });
 
 test("the ?next= target survives the sign-in round trip", async ({ page }) => {
-  await page.goto("/events");
-  await expect(page).toHaveURL(/\/sign-in\?next=%2Fevents/);
+  await page.goto("/school");
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fschool/);
 
   await page.locator("#email").fill(activeMember.email);
   await page.locator("#password").fill(activeMember.password);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
-  await page.waitForURL(/\/events/);
-  await expect(
-    page.getByRole("heading", { name: /What's happening across the circle/ }),
-  ).toBeVisible();
+  await page.waitForURL(/\/school/);
+  await expect(page.getByRole("heading", { name: /School/ })).toBeVisible();
 });
 
 test("a member who never finished onboarding is routed into the wizard instead of Home", async ({ page }) => {

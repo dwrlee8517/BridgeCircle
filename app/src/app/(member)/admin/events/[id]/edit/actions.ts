@@ -3,12 +3,9 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { createClient } from '@/db/server'
-import { requireAdmin } from '@/lib/auth/session'
-import { cancelEvent } from '@/lib/events/cancelEvent'
-import { deleteEvent } from '@/lib/events/deleteEvent'
-import { editEvent } from '@/lib/events/editEvent'
-import { parseEventCreateForm } from '@/lib/events/schemas'
+import { createSchoolRepository } from '@/db/repositories/school'
+import { parseAdminEventForm } from '@/lib/school/admin-schemas'
+import { loadSchoolAdminContext } from '../../../_lib/school-admin'
 
 // Identical shape to EventCreateFormState — kept as a re-export so the
 // edit page's action plugs into the shared <EventForm /> without a type
@@ -24,14 +21,7 @@ export async function editEventAction(
   _prev: EditEventFormState,
   formData: FormData,
 ): Promise<EditEventFormState> {
-  const session = await requireAdmin()
-
-  const eventId = formData.get('eventId')
-  if (typeof eventId !== 'string' || !eventId) {
-    return { error: 'Missing event id.' }
-  }
-
-  const parsed = parseEventCreateForm(formData)
+  const parsed = parseAdminEventForm(formData)
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {}
     for (const issue of parsed.error.issues) {
@@ -41,23 +31,28 @@ export async function editEventAction(
     return { error: 'Please fix the highlighted fields.', fieldErrors }
   }
 
-  const supabase = await createClient()
-  const result = await editEvent(supabase, eventId, session.userId, parsed.data)
+  if (!parsed.data.eventId) return { error: 'Missing event id.' }
+  const { client, membership } = await loadSchoolAdminContext()
+  const result = await createSchoolRepository(client).saveAdminEvent({
+    membershipId: membership.membershipId,
+    ...parsed.data,
+  })
 
-  if (!result.ok) {
-    if (result.error === 'past_start') {
+  if (result !== 'updated') {
+    if (result === 'past_start') {
       return {
         error: 'Start time must be in the future when changing the date.',
         fieldErrors: { startsAt: 'In the past.' },
       }
     }
-    if (result.error === 'event_not_found') return { error: 'Event not found.' }
+    if (result === 'cancelled') return { error: 'Cancelled events cannot be edited.' }
+    if (result === 'not_available') return { error: 'Event not found.' }
     return { error: 'Could not save the event. Try again.' }
   }
 
   revalidatePath('/admin/events')
-  revalidatePath('/events')
-  revalidatePath(`/events/${eventId}`)
+  revalidatePath('/school')
+  revalidatePath(`/school/events/${parsed.data.eventId}`)
   return { ok: true }
 }
 
@@ -67,37 +62,37 @@ const cancelSchema = z.object({
   reason: z.string().trim().max(1000).optional(),
 })
 
-export type CancelEventFormState = { ok?: boolean; error?: string; emailsSent?: number }
+export type CancelEventFormState = { ok?: boolean; error?: string }
 
 export async function cancelEventAction(
   _prev: CancelEventFormState,
   formData: FormData,
 ): Promise<CancelEventFormState> {
-  const session = await requireAdmin()
   const parsed = cancelSchema.safeParse({
     eventId: formData.get('eventId'),
     reason: formData.get('reason') ?? undefined,
   })
   if (!parsed.success) return { error: 'Invalid request.' }
 
-  const result = await cancelEvent({
-    eventId: parsed.data.eventId,
-    actorUserId: session.userId,
-    reason: parsed.data.reason ?? null,
-  })
+  const { client, membership } = await loadSchoolAdminContext()
+  const result = await createSchoolRepository(client).cancelAdminEvent(
+    membership.membershipId,
+    parsed.data.eventId,
+    parsed.data.reason ?? null,
+  )
 
-  if (!result.ok) {
-    if (result.error === 'event_not_found') return { error: 'Event not found.' }
-    if (result.error === 'already_canceled') {
+  if (result !== 'cancelled') {
+    if (result === 'not_available') return { error: 'Event not found.' }
+    if (result === 'already_cancelled') {
       return { error: 'This event is already canceled.' }
     }
     return { error: 'Could not cancel. Try again.' }
   }
 
   revalidatePath('/admin/events')
-  revalidatePath('/events')
-  revalidatePath(`/events/${parsed.data.eventId}`)
-  return { ok: true, emailsSent: result.emailsSent }
+  revalidatePath('/school')
+  revalidatePath(`/school/events/${parsed.data.eventId}`)
+  return { ok: true }
 }
 
 const deleteSchema = z.object({ eventId: z.guid() })
@@ -106,19 +101,24 @@ export async function deleteEventAction(
   _prev: { error?: string },
   formData: FormData,
 ): Promise<{ error?: string }> {
-  const session = await requireAdmin()
   const parsed = deleteSchema.safeParse({ eventId: formData.get('eventId') })
   if (!parsed.success) return { error: 'Invalid request.' }
 
-  const supabase = await createClient()
-  const result = await deleteEvent(supabase, parsed.data.eventId, session.userId)
+  const { client, membership } = await loadSchoolAdminContext()
+  const result = await createSchoolRepository(client).deleteAdminEvent(
+    membership.membershipId,
+    parsed.data.eventId,
+  )
 
-  if (!result.ok) {
-    if (result.error === 'event_not_found') return { error: 'Event not found.' }
+  if (result !== 'deleted') {
+    if (result === 'not_available') return { error: 'Event not found.' }
+    if (result === 'has_responses') {
+      return { error: 'This event has responses. Cancel it to preserve the member record.' }
+    }
     return { error: 'Could not delete. Try again.' }
   }
 
   revalidatePath('/admin/events')
-  revalidatePath('/events')
+  revalidatePath('/school')
   redirect('/admin/events')
 }

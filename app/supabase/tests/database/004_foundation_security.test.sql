@@ -40,23 +40,28 @@ select extensions.is(
       and has_function_privilege('authenticated', p.oid, 'execute')
   ),
   array[
-    'accept_invite', 'block_member', 'complete_onboarding',
+    'accept_invite', 'block_member', 'cancel_admin_school_event', 'complete_onboarding',
     'consume_help_ai_budget', 'create_circle_ask', 'create_direct_ask',
-    'decide_membership', 'decide_offer', 'disconnect', 'get_ask_detail',
+    'decide_membership', 'decide_offer', 'delete_admin_school_event', 'disconnect',
+    'get_admin_school_announcements', 'get_admin_school_events', 'get_ask_detail',
     'get_conversation_detail', 'get_help_ask_detail', 'get_help_home',
     'get_helper_preferences', 'get_member_profile', 'get_messages_counts',
-    'get_my_member_context', 'get_my_profile',
-    'get_or_create_direct_conversation', 'list_conversation_messages_after',
+    'get_my_member_context', 'get_my_profile', 'get_newsletter_issue',
+    'get_or_create_direct_conversation', 'get_school_announcement', 'get_school_event',
+    'get_school_home', 'list_conversation_messages_after',
     'list_conversation_messages_before', 'list_conversation_summaries',
-    'list_give_help', 'list_help_matches', 'list_messages_waiting', 'list_my_asks', 'list_people',
+    'list_give_help', 'list_help_matches', 'list_messages_waiting', 'list_my_asks',
+    'list_newsletter_issues', 'list_people', 'list_school_announcements',
+    'list_school_event_attendees',
     'mark_conversation_read',
-    'mark_notifications_read', 'offer_to_help', 'publish_conversation_typing', 'resolve_ask',
-    'respond_to_connection_request', 'respond_to_direct_ask', 'retract_ask',
-    'save_helper_preferences', 'save_profile_about',
+    'mark_notifications_read', 'mark_school_announcement_read', 'offer_to_help',
+    'publish_admin_school_announcement', 'publish_conversation_typing', 'resolve_ask',
+    'respond_school_event', 'respond_to_connection_request', 'respond_to_direct_ask', 'retract_ask',
+    'save_admin_school_event', 'save_helper_preferences', 'save_profile_about',
     'save_profile_current', 'save_profile_education', 'save_profile_history',
     'save_profile_identity', 'save_profile_links', 'save_profile_preferences',
     'save_profile_visibility', 'search_help_candidates',
-    'send_connection_request', 'send_message', 'set_event_rsvp',
+    'send_connection_request', 'send_message',
     'set_my_avatar_path', 'submit_report', 'unblock_member'
   ]::text[],
   'authenticated API execution matches the reviewed allowlist'
@@ -83,7 +88,7 @@ select extensions.is(
     'publish_conversation_typing', 'save_profile_current',
     'save_profile_education', 'save_profile_history', 'save_profile_identity',
     'save_profile_preferences', 'send_message',
-    'set_event_rsvp', 'set_my_avatar_path', 'submit_report', 'unblock_member'
+    'set_my_avatar_path', 'submit_report', 'unblock_member'
   ]::text[],
   'authenticated private execution matches API implementations and RLS helpers'
 );

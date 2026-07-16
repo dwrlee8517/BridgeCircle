@@ -3,6 +3,9 @@
 import { formatDistanceToNow } from 'date-fns'
 import {
   Bell,
+  CalendarCheck,
+  CalendarClock,
+  CalendarSync,
   CalendarX,
   CircleHelp,
   Handshake,
@@ -259,6 +262,12 @@ function Icon({ type }: { type: NotificationType }) {
       return <Megaphone className={className} />
     case 'event_cancelled':
       return <CalendarX className={className} />
+    case 'event_changed':
+      return <CalendarSync className={className} />
+    case 'event_reminder':
+      return <CalendarClock className={className} />
+    case 'event_waitlist_spot_opened':
+      return <CalendarCheck className={className} />
     case 'circle_ask_match':
     case 'circle_ask_closed':
       return <CircleHelp className={className} />

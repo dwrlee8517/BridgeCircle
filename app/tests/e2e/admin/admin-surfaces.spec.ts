@@ -69,7 +69,7 @@ test("sending a single invite writes a pending invites row, and reports success 
     });
 });
 
-test("publishing an event through the admin form makes it visible on the member events page", async ({ page }) => {
+test("publishing an event through the admin form makes it visible in School", async ({ page }) => {
   const eventTitle = `Admin Published Social ${scenario.runId}`;
   const startsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
   const localDatetime = new Date(startsAt.getTime() - startsAt.getTimezoneOffset() * 60_000)
@@ -96,6 +96,6 @@ test("publishing an event through the admin form makes it visible on the member 
   });
   expect(event?.published_at).not.toBeNull();
 
-  await page.goto("/events");
+  await page.goto("/school");
   await expect(page.getByText(eventTitle).first()).toBeVisible();
 });

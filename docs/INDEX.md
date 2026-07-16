@@ -59,6 +59,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Database v2 Messages vertical-slice test inventory](architecture/database-v2-messages-test-inventory.md) — completed database, race, Realtime, performance, application, browser, and accessibility evidence
 - [Database v2 People/Profile vertical-slice plan](architecture/database-v2-people-profile-plan.md) — completed local UI/UX, privacy, Connections, safety, self editing, and destructive-cutover record; detailed search/ranking tuning is deferred
 - [Database v2 People/Profile vertical-slice test inventory](architecture/database-v2-people-profile-test-inventory.md) — completed UI/UX checkpoint evidence plus the explicitly deferred search/performance verification ledger
+- [Database v2 School vertical-slice plan](architecture/database-v2-school-plan.md) — approved clean-slate member School architecture for events, held waitlist offers, announcements, newsletters, privacy, and destructive route cutover
+- [Database v2 School vertical-slice test inventory](architecture/database-v2-school-test-inventory.md) — active database, race, application, responsive, accessibility, and cutover evidence ledger
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance

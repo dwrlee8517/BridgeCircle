@@ -7690,6 +7690,16 @@ begin
     v_target_id := v_job.payload ->> 'connectionRequestId';
     select cr.origin_organization_id into v_organization_id
     from public.connection_requests cr where cr.id = v_target_id::uuid;
+  elsif v_job.payload ? 'eventId' then
+    v_target_type := 'event';
+    v_target_id := v_job.payload ->> 'eventId';
+    select e.organization_id into v_organization_id
+    from public.events e where e.id = v_target_id::uuid;
+  elsif v_job.payload ? 'announcementId' then
+    v_target_type := 'announcement';
+    v_target_id := v_job.payload ->> 'announcementId';
+    select a.organization_id into v_organization_id
+    from public.announcements a where a.id = v_target_id::uuid;
   else
     raise exception using errcode = '22023', message = 'invalid_notification_target';
   end if;
@@ -7725,7 +7735,11 @@ begin
       jsonb_strip_nulls(jsonb_build_object(
         'askId', v_job.payload -> 'askId',
         'offerId', v_job.payload -> 'offerId',
-        'conversationId', v_job.payload -> 'conversationId'
+        'conversationId', v_job.payload -> 'conversationId',
+        'eventId', v_job.payload -> 'eventId',
+        'event_title', v_job.payload -> 'eventTitle',
+        'announcementId', v_job.payload -> 'announcementId',
+        'title', v_job.payload -> 'announcementTitle'
       )),
       v_job.dedupe_key
     )

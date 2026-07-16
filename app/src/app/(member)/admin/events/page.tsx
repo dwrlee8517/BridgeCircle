@@ -12,46 +12,21 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { createClient } from '@/db/server'
-import { requireAdmin } from '@/lib/auth/session'
-import { listEvents } from '@/lib/events/listEvents'
+import { createSchoolRepository } from '@/db/repositories/school'
 import { displayOrgName } from '@/lib/utils'
+import { loadSchoolAdminContext } from '../_lib/school-admin'
 import { EventForm } from './event-form'
 
 export default async function AdminEventsPage() {
-  const session = await requireAdmin()
-  const supabase = await createClient()
-
-  const { data: roles } = await supabase
-    .from('admin_role_assignments')
-    .select('organization_id, organizations!admin_role_assignments_organization_id_fkey(name)')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-    .limit(1)
-  const adminOrg = roles?.[0]
-  if (!adminOrg) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-10">
-        <p className="text-sm text-muted-foreground">No admin organization.</p>
-      </div>
-    )
-  }
-  const orgName = displayOrgName(
-    (adminOrg.organizations as { name: string } | null)?.name ?? 'your organization',
-  )
-
-  // Admin sees everything in the org: past, future, AND canceled (events
-  // with published_at = null). Member views never see drafts/canceled — RLS
-  // and the default listEvents filter both block them.
-  const events = await listEvents(supabase, adminOrg.organization_id, session.userId, {
-    includePast: true,
-    includeDrafts: true,
-  })
+  const { client, membership } = await loadSchoolAdminContext()
+  const events = await createSchoolRepository(client).getAdminEvents(membership.membershipId)
+  const orgName = displayOrgName(membership.organization.name)
 
   // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
   const now = Date.now()
-  const upcoming = events.filter((e) => new Date(e.startsAt).getTime() >= now)
-  const past = events.filter((e) => new Date(e.startsAt).getTime() < now)
+  const availableEvents = events ?? []
+  const upcoming = availableEvents.filter((event) => new Date(event.startsAt).getTime() >= now)
+  const past = availableEvents.filter((event) => new Date(event.startsAt).getTime() < now)
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
@@ -75,7 +50,7 @@ export default async function AdminEventsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {events.length === 0 ? (
+          {availableEvents.length === 0 ? (
             <EmptyState
               icon={CalendarDays}
               title="No events yet"
@@ -96,14 +71,14 @@ export default async function AdminEventsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {events.map((e) => {
+                {availableEvents.map((e) => {
                   const isPast = new Date(e.startsAt).getTime() < now
-                  const isCanceled = e.publishedAt === null
+                  const isCanceled = e.status === 'cancelled'
                   return (
                     <TableRow key={e.id}>
                       <TableCell>
                         <div className="font-medium">
-                          <Link href={`/events/${e.id}`} className="hover:underline">
+                          <Link href={`/school/events/${e.id}`} className="hover:underline">
                             {e.title}
                           </Link>
                         </div>
