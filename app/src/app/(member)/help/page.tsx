@@ -13,9 +13,9 @@ import { HelpGiveHome } from './help-give-home'
 export default async function HelpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string }>
+  searchParams: Promise<{ mode?: string; from?: string }>
 }) {
-  const { mode } = await searchParams
+  const { mode, from } = await searchParams
   const give = mode === 'give'
 
   const { client, context } = await loadMemberContext()
@@ -49,6 +49,6 @@ export default async function HelpPage({
   return give ? (
     <HelpGiveHome home={home} avatarUrls={avatarUrls} />
   ) : (
-    <HelpGetHome home={home} recentAsks={recentAsks} />
+    <HelpGetHome home={home} recentAsks={recentAsks} autostart={from === 'home'} />
   )
 }

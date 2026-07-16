@@ -71,7 +71,12 @@ export function ConversationThread({
     conversation.counterpartLastReadMessageId,
   )
   const [viewerReadId, setViewerReadId] = useState(conversation.viewerLastReadMessageId)
-  const [resolved, setResolved] = useState(conversation.askContext?.status === 'resolved')
+  const [resolvedOverride, setResolved] = useState<boolean | null>(null)
+  const resolved = resolvedOverride ?? conversation.askContext?.status === 'resolved'
+  const [outcomeSharingOverride, setOutcomeSharing] = useState<
+    NonNullable<ConversationDetail['askContext']>['outcomeSharing'] | undefined
+  >()
+  const outcomeSharing = outcomeSharingOverride ?? conversation.askContext?.outcomeSharing ?? null
   const [disconnected, setDisconnected] = useState(false)
   const [reportMessageId, setReportMessageId] = useState<number | null>(null)
   const [contextSheetOpen, setContextSheetOpen] = useState(false)
@@ -403,6 +408,43 @@ export function ConversationThread({
     }
   }
 
+  async function updateOutcomeSharing(shareStory: boolean, shareIdentity: boolean) {
+    if (!conversation.askId || !outcomeSharing || actionPending) return
+    const previous = outcomeSharing
+    setActionPending(true)
+    setActionError(null)
+    setOutcomeSharing({
+      ...previous,
+      viewerShareStory: shareStory,
+      viewerShareIdentity: shareIdentity,
+    })
+    try {
+      const response = await fetch(`/api/help/asks/${conversation.askId}/outcome-share`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shareStory, shareIdentity }),
+        cache: 'no-store',
+      })
+      const result = (await response.json()) as {
+        status?: string
+        shareStory?: boolean
+        shareIdentity?: boolean
+      }
+      if (!response.ok || result.status !== 'saved') throw new Error('share_failed')
+      setOutcomeSharing({
+        ...previous,
+        viewerShareStory: Boolean(result.shareStory),
+        viewerShareIdentity: Boolean(result.shareIdentity),
+      })
+      router.refresh()
+    } catch {
+      setOutcomeSharing(previous)
+      setActionError('Couldn’t update sharing. Nothing changed — try again.')
+    } finally {
+      setActionPending(false)
+    }
+  }
+
   async function completeSafetyAction() {
     if (!confirmAction || actionPending) return
     setActionPending(true)
@@ -439,11 +481,15 @@ export function ConversationThread({
       conversation={conversation}
       avatarUrl={avatarUrl}
       resolved={resolved}
+      outcomeSharing={outcomeSharing}
       disconnected={disconnected}
       connectionRequestState={connectionRequestState}
       actionPending={actionPending}
       actionError={actionError}
       onResolve={() => setResolveOpen(true)}
+      onOutcomeSharingChange={(shareStory, shareIdentity) =>
+        void updateOutcomeSharing(shareStory, shareIdentity)
+      }
       onRequestConnection={() => void requestConnection()}
       onDisconnect={() => setConfirmAction('disconnect')}
       onBlock={() => setConfirmAction('block')}
@@ -457,7 +503,10 @@ export function ConversationThread({
         contextVisible ? 'xl:grid-cols-[minmax(0,1fr)_300px]' : 'grid-cols-1',
       )}
     >
-      <main className="flex min-h-0 min-w-0 flex-col bg-card">
+      <section
+        aria-labelledby="conversation-heading"
+        className="flex min-h-0 min-w-0 flex-col bg-card"
+      >
         <div className="flex min-h-[68px] shrink-0 items-center gap-3 border-b border-border-subtle px-4 py-3 sm:px-5">
           <Link
             href="/messages"
@@ -471,9 +520,12 @@ export function ConversationThread({
             <AvatarFallback>{getInitials(conversation.counterpart.displayName)}</AvatarFallback>
           </Avatar>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-body-sm font-bold text-foreground">
+            <h1
+              id="conversation-heading"
+              className="block truncate text-body-sm font-bold text-foreground"
+            >
               {conversation.counterpart.displayName}
-            </span>
+            </h1>
             <span className="block text-xs font-medium text-muted-foreground">
               {conversation.counterpart.graduationYear
                 ? `Class of ’${String(conversation.counterpart.graduationYear).slice(-2)}`
@@ -645,7 +697,7 @@ export function ConversationThread({
             </p>
           )}
         </div>
-      </main>
+      </section>
 
       {contextVisible ? (
         <aside

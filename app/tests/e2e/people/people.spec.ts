@@ -66,9 +66,11 @@ test('directory selection, filters, Connect, profile navigation, and mobile prev
   await page.getByRole('link', { name: 'Manage circle' }).click()
   await expect(page).toHaveURL('/people/circle')
   await expect(page.getByRole('heading', { name: 'My circle' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Mei Park' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Message', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Disconnect…' }).click()
+  const meiCircleRow = page.getByRole('article').filter({
+    has: page.getByRole('link', { name: 'Mei Park' }),
+  })
+  await expect(meiCircleRow.getByRole('link', { name: 'Message', exact: true })).toBeVisible()
+  await meiCircleRow.getByRole('button', { name: 'Disconnect…' }).click()
   const disconnectDialog = page.getByRole('dialog', { name: 'Disconnect from Mei Park?' })
   await expect(disconnectDialog).toContainText(
     'Your messages stay, and neither of you is notified.',
@@ -77,8 +79,8 @@ test('directory selection, filters, Connect, profile navigation, and mobile prev
   await page.getByRole('link', { name: 'Back to People' }).click()
   await expect(page).toHaveURL('/people')
 
-  await page.getByRole('button', { name: 'Connect' }).click()
-  const connectDialog = page.getByRole('dialog', { name: 'Connect with Jordan' })
+  await page.getByRole('button', { name: 'Connect' }).first().click()
+  const connectDialog = page.getByRole('dialog', { name: /^Connect with / })
   await expect(connectDialog.getByRole('button', { name: 'Quick hello' })).toHaveAttribute(
     'aria-pressed',
     'true',

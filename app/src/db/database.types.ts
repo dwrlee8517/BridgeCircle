@@ -209,10 +209,14 @@ export type Database = {
           last_message_at: string
           latest_message_id: number
           organization_id: string
+          outcome_identity_eligible: boolean
+          outcome_story_eligible: boolean
           pending_connection_request_id: string
           read_only_reason: string
           viewer_last_read_at: string
           viewer_last_read_message_id: number
+          viewer_outcome_share_identity: boolean
+          viewer_outcome_share_story: boolean
         }[]
       }
       get_help_ask_detail: {
@@ -270,6 +274,7 @@ export type Database = {
           topics: string[]
         }[]
       }
+      get_home_native: { Args: { p_membership_id: string }; Returns: Json }
       get_member_profile: {
         Args: { p_membership_id: string; p_target_user_id: string }
         Returns: {
@@ -691,6 +696,19 @@ export type Database = {
           p_title?: string
         }
         Returns: Json
+      }
+      save_ask_outcome_share: {
+        Args: {
+          p_ask_id: string
+          p_share_identity: boolean
+          p_share_story: boolean
+        }
+        Returns: {
+          ask_id: string
+          result_code: string
+          share_identity: boolean
+          share_story: boolean
+        }[]
       }
       save_helper_preferences: {
         Args: {

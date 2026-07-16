@@ -3,7 +3,7 @@
 import { CircleHelp, HeartHandshake, Search, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn, getInitials } from '@/lib/utils'
 import {
@@ -26,10 +26,12 @@ export function HelpQuestionForm({
   membershipId,
   activeAskCount,
   activeAskLimit,
+  autostart = false,
 }: {
   membershipId: string
   activeAskCount: number
   activeAskLimit: number
+  autostart?: boolean
 }) {
   const router = useRouter()
   const [question, setQuestion] = useState('')
@@ -37,18 +39,58 @@ export function HelpQuestionForm({
   const [status, setStatus] = useState<'idle' | 'searching' | 'results' | 'failed'>('idle')
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const requestRef = useRef<AbortController | null>(null)
+  const questionRef = useRef<HTMLTextAreaElement | null>(null)
+  const autostartedRef = useRef(false)
   const atCapacity = activeAskCount >= activeAskLimit
+
+  const performSearch = useCallback(async (value: string) => {
+    requestRef.current?.abort()
+    const controller = new AbortController()
+    requestRef.current = controller
+    setError(null)
+    setStatus('searching')
+
+    try {
+      const response = await fetch('/api/help/candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: value.trim() }),
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+      const body = (await response.json()) as CandidateResponse
+      if (!response.ok || !body.candidates) throw new Error(body.error ?? 'search_failed')
+      setCandidates(body.candidates)
+      setStatus('results')
+    } catch (caught) {
+      if (controller.signal.aborted) return
+      setCandidates([])
+      setStatus('failed')
+      setError(
+        caught instanceof Error && caught.message === 'invalid_input'
+          ? 'Check your question and try again.'
+          : 'We couldn’t search right now. Your question is still here — try again when you’re ready.',
+      )
+    }
+  }, [])
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       const stored = readHelpDraft(window.sessionStorage, membershipId)
-      if (stored) setQuestion(stored.question)
+      if (!stored) return
+      setQuestion(stored.question)
+      if (autostart && !autostartedRef.current) {
+        autostartedRef.current = true
+        questionRef.current?.focus()
+        void performSearch(stored.question)
+        router.replace('/help', { scroll: false })
+      }
     })
     return () => {
       window.cancelAnimationFrame(frame)
       requestRef.current?.abort()
     }
-  }, [membershipId])
+  }, [autostart, membershipId, performSearch, router])
 
   function updateQuestion(next: string) {
     setQuestion(next)
@@ -61,8 +103,8 @@ export function HelpQuestionForm({
     writeHelpQuestionDraft(window.sessionStorage, membershipId, next)
   }
 
-  function validateQuestion(): string | null {
-    const cleaned = question.trim()
+  function validateQuestion(value = question): string | null {
+    const cleaned = value.trim()
     if (!cleaned) return 'Type your question first — it carries into everything from here.'
     if (cleaned.length > MAX_QUESTION_LENGTH) {
       return `Keep your question under ${MAX_QUESTION_LENGTH.toLocaleString()} characters.`
@@ -88,34 +130,7 @@ export function HelpQuestionForm({
       return
     }
 
-    requestRef.current?.abort()
-    const controller = new AbortController()
-    requestRef.current = controller
-    setError(null)
-    setStatus('searching')
-
-    try {
-      const response = await fetch('/api/help/candidates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: question.trim() }),
-        cache: 'no-store',
-        signal: controller.signal,
-      })
-      const body = (await response.json()) as CandidateResponse
-      if (!response.ok || !body.candidates) throw new Error(body.error ?? 'search_failed')
-      setCandidates(body.candidates)
-      setStatus('results')
-    } catch (caught) {
-      if (controller.signal.aborted) return
-      setCandidates([])
-      setStatus('failed')
-      setError(
-        caught instanceof Error && caught.message === 'invalid_input'
-          ? 'Check your question and try again.'
-          : 'We couldn’t search right now. Your question is still here — try again when you’re ready.',
-      )
-    }
+    await performSearch(question)
   }
 
   return (
@@ -162,6 +177,7 @@ export function HelpQuestionForm({
           What do you need help with?
         </label>
         <textarea
+          ref={questionRef}
           id="help-question"
           value={question}
           onChange={(event) => updateQuestion(event.target.value)}

@@ -105,7 +105,7 @@ export function ConversationList({
                       className={cn(
                         'ml-auto shrink-0 text-kicker font-bold tabular-nums',
                         unread
-                          ? 'text-[var(--blue-700)]'
+                          ? 'text-[var(--blue-800)]'
                           : selected
                             ? 'text-text-secondary'
                             : 'text-muted-foreground',

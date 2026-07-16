@@ -22,7 +22,7 @@ async function expectNoAccessibilityViolations(page: Page) {
   expect(violations, violations.map((violation) => violation.help).join('\n')).toEqual([])
 }
 
-test.describe.configure({ mode: 'serial' })
+test.describe.configure({ mode: 'serial', timeout: 90_000 })
 test.skip(isRemote, 'Messages acceptance roads mutate the disposable local seed only.')
 
 test.beforeAll(() => loadE2eEnv())

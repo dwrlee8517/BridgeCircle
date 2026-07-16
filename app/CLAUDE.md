@@ -158,7 +158,7 @@ Before declaring a task done:
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/` | Home and default post-sign-in destination | Home is a separate later v2 port; it must link into canonical domain roots |
+| `/` | Home and default post-sign-in destination | v2 composition dashboard over canonical Help, Messages, School, and Home-native projections |
 | `/help` | Help home with **Get help / Give help** modes | Uses v2 fixed API projections only |
 | `/help/ask/[membershipId]` | Private direct-Ask composer | Recipient is membership-scoped |
 | `/help/ask-circle` | Circle-Ask composer | Supports matched or organization-wide reach |

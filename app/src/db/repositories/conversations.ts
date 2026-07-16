@@ -40,7 +40,11 @@ const conversationDetailRowSchema = z
     pending_connection_request_id: z.uuid().nullable(),
     ask_question: z.string().min(1).nullable(),
     ask_status: z.enum(['accepted', 'resolved']).nullable(),
-    ask_outcome_note: z.string().nullable(),
+    ask_outcome_note: z.string().min(1).nullable(),
+    viewer_outcome_share_story: z.boolean(),
+    viewer_outcome_share_identity: z.boolean(),
+    outcome_story_eligible: z.boolean(),
+    outcome_identity_eligible: z.boolean(),
     can_request_connection: z.boolean(),
     viewer_last_read_message_id: messageIdSchema.nullable(),
     viewer_last_read_at: timestampSchema.nullable(),
@@ -127,12 +131,35 @@ export function parseConversationDetailRow(row: unknown): ConversationDetail {
     if (!parsed.organization_id || !parsed.ask_id || !parsed.ask_question || !parsed.ask_status) {
       return contractError('detail', 'Ask conversation without Ask context')
     }
+    if (parsed.viewer_outcome_share_identity && !parsed.viewer_outcome_share_story) {
+      return contractError('detail', 'identity consent without story consent')
+    }
+    if (parsed.outcome_identity_eligible && !parsed.outcome_story_eligible) {
+      return contractError('detail', 'identity eligibility without story eligibility')
+    }
+    if (parsed.outcome_story_eligible && !parsed.ask_outcome_note) {
+      return contractError('detail', 'story eligibility without an outcome')
+    }
+    if (
+      parsed.ask_status === 'accepted' &&
+      (parsed.ask_outcome_note ||
+        parsed.viewer_outcome_share_story ||
+        parsed.viewer_outcome_share_identity ||
+        parsed.outcome_story_eligible ||
+        parsed.outcome_identity_eligible)
+    ) {
+      return contractError('detail', 'open Ask conversation with outcome state')
+    }
   } else if (
     parsed.organization_id ||
     parsed.ask_id ||
     parsed.ask_question ||
     parsed.ask_status ||
     parsed.ask_outcome_note ||
+    parsed.viewer_outcome_share_story ||
+    parsed.viewer_outcome_share_identity ||
+    parsed.outcome_story_eligible ||
+    parsed.outcome_identity_eligible ||
     parsed.can_request_connection
   ) {
     return contractError('detail', 'direct conversation with Ask context')
@@ -166,6 +193,12 @@ export function parseConversationDetailRow(row: unknown): ConversationDetail {
             question: parsed.ask_question as string,
             status: parsed.ask_status as 'accepted' | 'resolved',
             outcomeNote: parsed.ask_outcome_note,
+            outcomeSharing: {
+              viewerShareStory: parsed.viewer_outcome_share_story,
+              viewerShareIdentity: parsed.viewer_outcome_share_identity,
+              storyEligible: parsed.outcome_story_eligible,
+              identityEligible: parsed.outcome_identity_eligible,
+            },
           }
         : null,
     canRequestConnection: parsed.can_request_connection,

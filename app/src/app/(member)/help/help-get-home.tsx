@@ -5,9 +5,11 @@ import { RecentAskList } from './recent-ask-list'
 export function HelpGetHome({
   home,
   recentAsks,
+  autostart = false,
 }: {
   home: HelpHome
   recentAsks: HelpAskSummary[]
+  autostart?: boolean
 }) {
   return (
     <div className="min-h-full bg-[var(--surface-page)]">
@@ -17,6 +19,7 @@ export function HelpGetHome({
             membershipId={home.membershipId}
             activeAskCount={home.activeAskCount}
             activeAskLimit={home.activeAskLimit}
+            autostart={autostart}
           />
         </div>
       </section>

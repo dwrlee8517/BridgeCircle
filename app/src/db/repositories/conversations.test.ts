@@ -38,6 +38,10 @@ function detailRow() {
     ask_question: null,
     ask_status: null,
     ask_outcome_note: null,
+    viewer_outcome_share_story: false,
+    viewer_outcome_share_identity: false,
+    outcome_story_eligible: false,
+    outcome_identity_eligible: false,
     can_request_connection: false,
     viewer_last_read_message_id: 40,
     viewer_last_read_at: timestamp,
@@ -87,6 +91,30 @@ describe('conversation repository projections', () => {
       parseConversationDetailRow({ ...detailRow(), counterpart_display_name: null }),
     ).toThrow()
     expect(() => parseConversationDetailRow({ ...detailRow(), unexpected: true })).toThrow()
+  })
+
+  it('rejects impossible Ask outcome combinations before they reach the UI', () => {
+    const askRow = {
+      ...detailRow(),
+      kind: 'ask',
+      organization_id: '10000000-0000-4000-8000-000000000001',
+      ask_id: '30000000-0000-4000-8000-000000000001',
+      ask_question: 'Could someone pressure-test this decision?',
+      ask_status: 'resolved',
+    }
+    expect(() =>
+      parseConversationDetailRow({ ...askRow, viewer_outcome_share_identity: true }),
+    ).toThrow('identity consent without story consent')
+    expect(() => parseConversationDetailRow({ ...askRow, outcome_story_eligible: true })).toThrow(
+      'story eligibility without an outcome',
+    )
+    expect(() =>
+      parseConversationDetailRow({
+        ...askRow,
+        ask_status: 'accepted',
+        ask_outcome_note: 'Should not be visible while open.',
+      }),
+    ).toThrow('open Ask conversation with outcome state')
   })
 
   it('maps user and structured system messages without transport-only fields', () => {

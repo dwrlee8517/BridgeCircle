@@ -1,28 +1,72 @@
+import { notFound } from 'next/navigation'
 import { loadMemberContext } from '@/app/_lib/load-member-context'
+import { createAvatarStorageRepository } from '@/db/repositories/avatar-storage'
+import { createHelpRepository } from '@/db/repositories/help'
+import { createHomeRepository } from '@/db/repositories/home'
+import { createMessagesRepository } from '@/db/repositories/messages'
+import { createSchoolRepository } from '@/db/repositories/school'
+import { requireSession } from '@/lib/auth/session'
+import type { HomeSource } from '@/lib/home/contracts'
+import { composeHome, failedSource, readySource, unavailableSource } from '@/lib/home/operations'
 import { selectedMembership } from '@/lib/membership/selection'
+import { HomeDashboard } from './home-dashboard'
 
 export default async function HomePage() {
-  const { context } = await loadMemberContext()
+  const [{ client, context }, session] = await Promise.all([loadMemberContext(), requireSession()])
   const membership = selectedMembership(context)
-  const name = membership?.profile.preferredName ?? membership?.profile.displayName
-  const firstName = name?.split(/\s+/)[0] ?? null
+  if (!membership || membership.status !== 'active') notFound()
+
+  const membershipId = membership.membershipId
+  const helpRepository = createHelpRepository(client)
+  const messagesRepository = createMessagesRepository(client)
+  const schoolRepository = createSchoolRepository(client)
+  const homeRepository = createHomeRepository(client)
+
+  const [helpResult, asksResult, waitingResult, countsResult, schoolResult, nativeResult] =
+    await Promise.allSettled([
+      helpRepository.getHome(membershipId),
+      helpRepository.listMyAsks({ membershipId, cursor: null, limit: 20 }),
+      messagesRepository.listWaiting(),
+      messagesRepository.getCounts(),
+      schoolRepository.getHome(membershipId),
+      homeRepository.getNative(membershipId),
+    ])
+
+  const dashboard = composeHome({
+    greetingName: membership.profile.preferredName ?? membership.profile.displayName,
+    organizationName: membership.organization.name,
+    graduationYear: membership.profile.graduationYear,
+    help: settledSource(helpResult),
+    asks: settledSource(asksResult),
+    waiting: settledSource(waitingResult),
+    messageCounts: settledSource(countsResult),
+    school: settledSource(schoolResult),
+    native: settledSource(nativeResult),
+  })
+
+  const waiting = dashboard.waiting.status === 'ready' ? dashboard.waiting.data : []
+  const avatarStorage = createAvatarStorageRepository(client)
+  const avatarUrls = Object.fromEntries(
+    waiting.flatMap((item) =>
+      item.counterpart.avatarPath
+        ? [[item.counterpart.avatarPath, avatarStorage.publicUrl(item.counterpart.avatarPath)]]
+        : [],
+    ),
+  )
 
   return (
-    <div className="min-h-full bg-background">
-      <section className="border-b border-border-subtle bg-surface-editorial text-surface-editorial-foreground">
-        <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8 sm:py-14">
-          <p className="text-kicker font-bold uppercase tracking-kicker text-primary-on-dark">
-            {membership?.organization.name ?? 'Your circle'}
-          </p>
-          <h1 className="mt-3 max-w-2xl font-heading text-display-md font-semibold leading-[1.12]">
-            {firstName ? `Welcome, ${firstName}.` : 'Welcome to your circle.'}
-          </h1>
-          <p className="mt-3 max-w-xl text-body-lg leading-relaxed text-surface-editorial-muted">
-            Your profile and circle access are ready. Help, Messages, People, and School will land
-            here as each v2 domain is connected.
-          </p>
-        </div>
-      </section>
-    </div>
+    <HomeDashboard
+      dashboard={dashboard}
+      membershipId={membershipId}
+      userId={session.userId}
+      avatarUrls={avatarUrls}
+      renderedAt={new Date().toISOString()}
+    />
   )
+}
+
+function settledSource<T>(result: PromiseSettledResult<T | null>): HomeSource<T> {
+  if (result.status === 'rejected') return failedSource<T>()
+  if (result.value === null) return unavailableSource<T>()
+  return readySource(result.value)
 }

@@ -33,6 +33,12 @@ export type ConversationDetail = {
     question: string
     status: 'accepted' | 'resolved'
     outcomeNote: string | null
+    outcomeSharing: {
+      viewerShareStory: boolean
+      viewerShareIdentity: boolean
+      storyEligible: boolean
+      identityEligible: boolean
+    }
   } | null
   canRequestConnection: boolean
   viewerLastReadMessageId: number | null

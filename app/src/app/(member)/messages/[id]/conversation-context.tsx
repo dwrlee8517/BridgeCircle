@@ -10,11 +10,13 @@ export function ConversationContext({
   conversation,
   avatarUrl,
   resolved,
+  outcomeSharing,
   disconnected,
   connectionRequestState,
   actionPending,
   actionError,
   onResolve,
+  onOutcomeSharingChange,
   onRequestConnection,
   onDisconnect,
   onBlock,
@@ -22,11 +24,13 @@ export function ConversationContext({
   conversation: ConversationDetail
   avatarUrl: string | null
   resolved: boolean
+  outcomeSharing: NonNullable<ConversationDetail['askContext']>['outcomeSharing'] | null
   disconnected: boolean
   connectionRequestState: 'idle' | 'pending' | 'sent'
   actionPending: boolean
   actionError: string | null
   onResolve(): void
+  onOutcomeSharingChange(shareStory: boolean, shareIdentity: boolean): void
   onRequestConnection(): void
   onDisconnect(): void
   onBlock(): void
@@ -110,9 +114,55 @@ export function ConversationContext({
             {resolved ? 'Resolved' : 'Open'}
           </span>
           {resolved && conversation.askContext.outcomeNote ? (
-            <p className="mt-2 text-kicker leading-relaxed text-text-secondary">
-              {conversation.askContext.outcomeNote}
-            </p>
+            <>
+              <p className="mt-2 text-kicker leading-relaxed text-text-secondary">
+                {conversation.askContext.outcomeNote}
+              </p>
+              {outcomeSharing ? (
+                <div className="mt-4 grid gap-2.5 border-t border-border-subtle pt-3">
+                  <label className="flex cursor-pointer items-start gap-2.5 text-kicker leading-relaxed font-semibold text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={outcomeSharing.viewerShareStory}
+                      disabled={actionPending}
+                      onChange={(event) => onOutcomeSharingChange(event.target.checked, false)}
+                      className="mt-0.5 size-4 rounded border-border text-primary focus:ring-focus-ring"
+                    />
+                    <span>
+                      Share this win with the circle
+                      <span className="mt-0.5 block font-medium text-text-secondary">
+                        It appears only if the other person also says yes.
+                      </span>
+                    </span>
+                  </label>
+                  <label className="flex cursor-pointer items-start gap-2.5 text-kicker leading-relaxed font-semibold text-foreground has-disabled:cursor-not-allowed has-disabled:opacity-55">
+                    <input
+                      type="checkbox"
+                      checked={outcomeSharing.viewerShareIdentity}
+                      disabled={!outcomeSharing.viewerShareStory || actionPending}
+                      onChange={(event) => onOutcomeSharingChange(true, event.target.checked)}
+                      className="mt-0.5 size-4 rounded border-border text-primary focus:ring-focus-ring"
+                    />
+                    <span>
+                      Include my name if they do too
+                      <span className="mt-0.5 block font-medium text-text-secondary">
+                        Otherwise the story stays anonymous.
+                      </span>
+                    </span>
+                  </label>
+                  {outcomeSharing.storyEligible ? (
+                    <p className="text-kicker font-semibold text-[var(--state-success-fg)]">
+                      This win can now appear on Home.
+                      {outcomeSharing.identityEligible ? ' Both names can appear too.' : ''}
+                    </p>
+                  ) : outcomeSharing.viewerShareStory ? (
+                    <p className="text-kicker font-medium text-text-secondary">
+                      Your choice is saved. The story stays private unless they also opt in.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
           ) : null}
         </section>
       ) : null}

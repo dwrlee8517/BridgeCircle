@@ -3,44 +3,12 @@
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useState, useSyncExternalStore } from 'react'
+import { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import type { MessagesWaitingItem } from '@/lib/messages/contracts'
 import { cn, getInitials } from '@/lib/utils'
-
-const PREFERENCE_EVENT = 'bridgecircle:messages-preference'
-
-function useFoldedPreference(key: string): [boolean, (folded: boolean) => void] {
-  const subscribe = useCallback((notify: () => void) => {
-    window.addEventListener('storage', notify)
-    window.addEventListener(PREFERENCE_EVENT, notify)
-    return () => {
-      window.removeEventListener('storage', notify)
-      window.removeEventListener(PREFERENCE_EVENT, notify)
-    }
-  }, [])
-  const getSnapshot = useCallback(() => {
-    try {
-      return window.localStorage.getItem(key) === 'true'
-    } catch {
-      return false
-    }
-  }, [key])
-  const folded = useSyncExternalStore(subscribe, getSnapshot, () => false)
-  const setFolded = useCallback(
-    (next: boolean) => {
-      try {
-        window.localStorage.setItem(key, String(next))
-      } catch {
-        // The control remains usable when storage is unavailable.
-      }
-      window.dispatchEvent(new Event(PREFERENCE_EVENT))
-    },
-    [key],
-  )
-  return [folded, setFolded]
-}
+import { useWaitingFoldedPreference } from './use-waiting-preference'
 
 export function WaitingGroup({
   userId,
@@ -53,9 +21,7 @@ export function WaitingGroup({
   avatarUrls: Record<string, string>
   onRemove(id: string): void
 }) {
-  const [folded, setFolded] = useFoldedPreference(
-    `bridgecircle:messages:v1:${userId}:waiting-folded`,
-  )
+  const [folded, setFolded] = useWaitingFoldedPreference(userId)
   const router = useRouter()
   const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set())
   const [errors, setErrors] = useState<Record<string, string>>({})

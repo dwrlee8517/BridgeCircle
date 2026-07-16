@@ -666,7 +666,7 @@ function ProfileTag({
         'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-chip font-bold',
         tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-600)]',
         tone === 'green' && 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
-        tone === 'grey' && 'bg-[var(--surface-subtle)] text-[var(--grey-600)]',
+        tone === 'grey' && 'bg-[var(--surface-subtle)] text-[var(--text-secondary)]',
       )}
     >
       {tone === 'green' ? <i className="size-1.5 rounded-full bg-[var(--green-500)]" /> : null}
