@@ -1,10 +1,12 @@
 # Database v2 Entry and Operations test inventory
 
-> **Status (2026-07-16): local hardening checkpoint measured and committed.**
+> **Status (2026-07-16): destructive cutover and local hardening complete.**
 > The database, focused application contracts, authenticated operational smoke
 > roads, complete seven-step onboarding cold start, and provider-backed Fast
-> Fill contracts are green. The rest of the exhaustive durability/state matrix
-> remains follow-on work. No remote environment action is authorized.
+> Fill contracts are green. Retired pre-v2 callers and routes are removed, the
+> repository-wide compiler/build are green, and the complete current E2E suite
+> passes hermetically. The remaining exhaustive durability/state roads are
+> follow-on work. No remote environment action is authorized.
 
 ## Planning checkpoint
 
@@ -41,7 +43,9 @@
   and `git diff --check` passed;
 - project-owned database lint (`public,api,private`) passed at warning level;
   migration diff against a shadow rebuild was empty;
-- Vitest: 67 files and 293 tests passed;
+- Vitest: 59 files and 263 tests passed after the destructive removal of
+  retired search, enrichment-sweep, analytics, member-management, and legacy
+  E2E modules;
 - Playwright authenticated browser suite: 3 tests passed after its own clean
   reset, covering member Settings and Notifications, administrator Invite and
   Approvals, and Welcome through all seven onboarding steps, canonical Offer,
@@ -71,11 +75,19 @@
 - the onboarding browser fixture uses its own deterministic local organization,
   classmate, and matched Ask so it cannot change existing Help, Messages, or
   People acceptance counts;
-- repository-wide `tsc --noEmit` and the production build's type-check stage
-  remain red in deferred search/embedding code, broader legacy Admin, and old
-  E2E factory code that still target schema removed by the destructive rebuild.
-  The production bundle itself compiles successfully, and all eight active
-  vertical-slice projects have no owned type errors;
+- repository-wide `tsc --noEmit`, the production build, all eight active
+  vertical-slice TypeScript projects, and the complete route manifest pass;
+- the destructive cutover removed the detached pre-v2 search/embedding tree,
+  retired proposal-token and enrichment-cron routes, legacy admin
+  member-management/analytics expansion, old account-operation helpers, and
+  the obsolete E2E factory/onboarding duplicate instead of preserving dead
+  compatibility code;
+- the default Playwright suite now uses one worker because current acceptance
+  roads intentionally mutate the canonical disposable seed. A clean reset
+  happens before the browser run, and pgTAP must run after its own clean reset;
+- Playwright: all 36 current E2E tests passed, covering Foundation, Help, Home,
+  Messages, People/Profile, School, auth, minimal Admin, responsive layouts,
+  keyboard behavior, and automated accessibility checks;
 - the complete 17-road browser/accessibility matrix is not claimed green yet.
   Fast Fill now implements LinkedIn primary/fallback providers, private PDF or
   Word résumé extraction, explicit review, atomic apply, resumable pending
@@ -354,9 +366,11 @@ Owned production code must contain none of the following after closeout:
 - compatibility aliases for removed Entry/Operations URLs;
 - admin analytics/member-management expansion introduced by this slice.
 
-The ratchet is scoped to Entry/Operations-owned paths. Deferred search and
-enrichment failures remain separately inventoried rather than hidden or
-misreported as green.
+The ratchet is scoped to the active v2 application. Detailed matching/search
+algorithms remain deliberately deferred product work; their removed pre-v2
+implementation is not retained as dormant production code. Provider adapters
+used by onboarding Fast Fill remain, while retired manual-refresh and scheduled
+sweep callers stay absent until those flows receive a new approved slice.
 
 ## Closeout commands and evidence
 
@@ -370,12 +384,21 @@ The implementation record must include measured results for:
 6. focused Entry/Operations TypeScript projects;
 7. complete Vitest suite and counts;
 8. ESLint, formatting, and static cutover ratchet;
-9. all durable browser roads and accessibility scans;
+9. current durable browser roads and accessibility scans, run after their own
+   clean reset with one worker while fixed seed personas remain shared;
 10. prior Foundation, Help, Messages, People/Profile, School, and Home
     regression roads;
 11. visual comparison paths and disposition;
-12. repository-wide build result with any remaining later-owner failures named
-    precisely.
+12. repository-wide build result on a supported Node version. Turbopack needs
+    permission to bind its internal localhost port in sandboxed agent runs.
+
+The required local order is:
+
+1. reset and run the browser suite;
+2. reset again before pgTAP, because browser roads intentionally mutate seed
+   state;
+3. run lint, diff, typechecks, unit tests, boundary ratchets, and production
+   build.
 
 Remote reset, deployment, push, merge, and production verification remain
 separate, explicit approvals.

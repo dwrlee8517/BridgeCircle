@@ -14,6 +14,9 @@ function repository(overrides: Partial<ProfileRepository> = {}): ProfileReposito
     saveEducation: vi.fn().mockResolvedValue('saved'),
     saveCurrent: vi.fn().mockResolvedValue('saved'),
     saveHistory: vi.fn().mockResolvedValue('saved'),
+    saveAbout: vi.fn().mockResolvedValue('saved'),
+    saveVisibility: vi.fn().mockResolvedValue('saved'),
+    saveLinks: vi.fn().mockResolvedValue('saved'),
     savePreferences: vi.fn().mockResolvedValue('saved'),
     setAvatarPath: vi.fn().mockResolvedValue('saved'),
     completeOnboarding: vi.fn().mockResolvedValue({

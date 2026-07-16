@@ -19,34 +19,6 @@ test.describe("GET /api/health", () => {
   });
 });
 
-test.describe("cron endpoints never run unauthenticated", () => {
-  // The proxy matcher currently intercepts /api/cron/* with a 307 before the
-  // bearer check runs (tracked separately); once excluded, the route's own
-  // guard answers 401. Either way the sweep must not execute.
-  const rejectionStatuses = [401, 307];
-
-  for (const path of ["/api/cron/enrichment-sweep-start", "/api/cron/enrichment-sweep-poll"]) {
-    test(`POST ${path} without a token is rejected`, async ({ request }) => {
-      const response = await request.post(path, { maxRedirects: 0 });
-      expect(rejectionStatuses).toContain(response.status());
-      if (response.status() === 401) {
-        expect(await response.json()).toEqual({ error: "unauthorized" });
-      }
-    });
-
-    test(`POST ${path} with a wrong bearer token is rejected`, async ({ request }) => {
-      const response = await request.post(path, {
-        headers: { authorization: "Bearer definitely-not-the-real-token" },
-        maxRedirects: 0,
-      });
-      expect(rejectionStatuses).toContain(response.status());
-      if (response.status() === 401) {
-        expect(await response.json()).toEqual({ error: "unauthorized" });
-      }
-    });
-  }
-});
-
 test.describe("auth proxy", () => {
   test("redirects an unauthenticated member-page request to /sign-in with the original path in ?next=", async ({ request }) => {
     const response = await request.get("/messages", { maxRedirects: 0 });

@@ -114,6 +114,10 @@ export class FoundationScenario {
   async createMember(
     organizationId: string,
     label = "Member",
+    options: {
+      onboardingCompleted?: boolean;
+      adminRole?: "admin";
+    } = {},
   ): Promise<FoundationMember> {
     const suffix = crypto.randomBytes(5).toString("hex");
     const email = `foundation-member+${suffix}@example.com`;
@@ -127,11 +131,13 @@ export class FoundationScenario {
     if (error || !data.user) throw new Error(`createMember: ${error?.message}`);
     this.createdUserIds.push(data.user.id);
 
-    const { error: userError } = await this.admin
-      .from("users")
-      .update({ onboarding_completed_at: new Date().toISOString() })
-      .eq("id", data.user.id);
-    if (userError) throw new Error(`createMember user: ${userError.message}`);
+    if (options.onboardingCompleted !== false) {
+      const { error: userError } = await this.admin
+        .from("users")
+        .update({ onboarding_completed_at: new Date().toISOString() })
+        .eq("id", data.user.id);
+      if (userError) throw new Error(`createMember user: ${userError.message}`);
+    }
 
     const { data: membership, error: membershipError } = await this.admin
       .from("organization_memberships")
@@ -160,6 +166,15 @@ export class FoundationScenario {
       });
     if (organizationProfileError) {
       throw new Error(`createMember organization profile: ${organizationProfileError.message}`);
+    }
+
+    if (options.adminRole) {
+      const { error: roleError } = await this.admin.from("admin_role_assignments").insert({
+        organization_id: organizationId,
+        organization_membership_id: membership.id,
+        role: options.adminRole,
+      });
+      if (roleError) throw new Error(`createMember admin role: ${roleError.message}`);
     }
 
     return {

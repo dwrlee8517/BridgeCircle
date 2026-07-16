@@ -1,14 +1,19 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "../helpers/factory";
+import {
+  FoundationScenario,
+  type FoundationMember,
+} from "../helpers/foundation";
 import { signInAs, signOut } from "../helpers/auth";
 
-const scenario = new TestScenario("auth");
-let activeMember: SeededMember;
-let unonboardedMember: SeededMember;
+const scenario = new FoundationScenario();
+let organizationId: string;
+let activeMember: FoundationMember;
+let unonboardedMember: FoundationMember;
 
 test.beforeAll(async () => {
-  activeMember = await scenario.createMember("active");
-  unonboardedMember = await scenario.createMember("unonboarded", {
+  organizationId = (await scenario.createOrganization(false, "Auth Circle")).id;
+  activeMember = await scenario.createMember(organizationId, "Active");
+  unonboardedMember = await scenario.createMember(organizationId, "Unonboarded", {
     onboardingCompleted: false,
   });
 });
@@ -33,7 +38,7 @@ test("a signed-in member lands on Home greeted by first name with all five nav s
   await expect(page).toHaveURL("/");
   const firstName = activeMember.name.split(" ")[0];
   await expect(
-    page.getByRole("heading", { name: new RegExp(`Hi ${firstName}`) }),
+    page.getByRole("heading", { name: new RegExp(`Welcome, ${firstName}`) }),
   ).toBeVisible();
 
   const nav = page.getByRole("navigation");
@@ -56,7 +61,9 @@ test("the ?next= target survives the sign-in round trip", async ({ page }) => {
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
   await page.waitForURL(/\/school/);
-  await expect(page.getByRole("heading", { name: /School/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Close to school, not buried in it." }),
+  ).toBeVisible();
 });
 
 test("a member who never finished onboarding is routed into the wizard instead of Home", async ({ page }) => {
@@ -66,8 +73,9 @@ test("a member who never finished onboarding is routed into the wizard instead o
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
   await page.waitForURL(/\/onboarding/);
-  await expect(page.getByText(/Step \d of 5/)).toBeVisible();
-  await expect(page.getByRole("progressbar")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /Welcome|Let's set up/ }),
+  ).toBeVisible();
 });
 
 test("signing out returns to /sign-in and re-locks member pages", async ({ page }) => {

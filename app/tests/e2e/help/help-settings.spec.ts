@@ -22,9 +22,12 @@ test("a member without saved preferences starts default-open, and saving writes 
 
   const availabilityToggle = page.getByRole("checkbox", { name: "Open to helping" });
   await expect(availabilityToggle).toBeChecked();
-  await expect(page.getByText("Visible")).toBeVisible();
+  await expect(page.getByText("Visible").filter({ visible: true })).toBeVisible();
 
-  await page.locator("#topics").fill("careers, product management");
+  await page
+    .locator("#topics")
+    .filter({ visible: true })
+    .fill("careers, product management");
   await page.getByRole("button", { name: "Save settings" }).click();
 
   await expect
@@ -59,8 +62,8 @@ test("turning availability off records a manual pause and removes disabled topic
   await page.goto("/help/settings");
 
   await page.getByRole("checkbox", { name: "Open to helping" }).uncheck();
-  await expect(page.getByText("Off")).toBeVisible();
-  await expect(page.locator("#topics")).toBeDisabled();
+  await expect(page.getByText("Off").filter({ visible: true })).toBeVisible();
+  await expect(page.locator("#topics").filter({ visible: true })).toBeDisabled();
   await page.getByRole("button", { name: "Save settings" }).click();
 
   await expect

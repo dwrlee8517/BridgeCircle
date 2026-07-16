@@ -47,7 +47,6 @@ export async function decideMembershipAction(
   }
 
   revalidatePath('/admin/approvals')
-  revalidatePath('/admin/members')
   revalidatePath('/admin')
   return {
     ok: true,

@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createAdminClient } from '../../../src/db/admin'
 import { signIn, sendComposerMessage } from '../helpers/auth'
 import { isRemote, loadE2eEnv } from '../helpers/env'
@@ -20,6 +20,15 @@ const MARK_USER = '10000000-0000-4000-8000-000000000003'
 async function expectNoAccessibilityViolations(page: Page) {
   const { violations } = await new AxeBuilder({ page }).analyze()
   expect(violations, violations.map((violation) => violation.help).join('\n')).toEqual([])
+}
+
+async function waitForOwnAnimations(locator: Locator) {
+  await locator.evaluate(async (element) => {
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    })
+    await Promise.all(element.getAnimations().map((animation) => animation.finished.catch(() => {})))
+  })
 }
 
 test.describe.configure({ mode: 'serial', timeout: 90_000 })
@@ -183,7 +192,10 @@ test('owner Realtime converges unread state and the Ask remains sendable after r
   await resolveDialog.getByLabel(/What helped/).fill('A durable risk framework and concrete questions.')
   await resolveDialog.getByRole('button', { name: 'Mark resolved' }).click()
   await expect(
-    page.getByLabel('Conversation details').getByText('Resolved', { exact: true }),
+    page
+      .getByLabel('Conversation details')
+      .getByText('Resolved', { exact: true })
+      .filter({ visible: true }),
   ).toBeVisible()
 
   const afterResolve = 'The ask is closed, and this conversation still works.'
@@ -193,7 +205,10 @@ test('owner Realtime converges unread state and the Ask remains sendable after r
     page.getByLabel('Conversation', { exact: true }).getByText(afterResolve, { exact: true }),
   ).toBeVisible()
   await expect(
-    page.getByLabel('Conversation details').getByText('Resolved', { exact: true }),
+    page
+      .getByLabel('Conversation details')
+      .getByText('Resolved', { exact: true })
+      .filter({ visible: true }),
   ).toBeVisible()
 })
 
@@ -216,9 +231,9 @@ test('report, disconnect, block, keyboard focus, and acceptance widths stay safe
   const disconnectDialog = page.getByRole('dialog', { name: 'Disconnect from Mark Chen?' })
   await expect(disconnectDialog).toBeVisible()
   await disconnectDialog.getByRole('button', { name: 'Disconnect' }).click()
-  await expect(page.getByText('This conversation is read-only.')).toBeVisible()
+  await expect(page.getByText('This conversation is read-only.').first()).toBeVisible()
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 30_000 })
-  await expect(page.getByText('This conversation is read-only.')).toBeVisible()
+  await expect(page.getByText('This conversation is read-only.').first()).toBeVisible()
   await page.waitForLoadState('networkidle')
 
   await page.getByRole('button', { name: 'Block member' }).click()
@@ -247,6 +262,7 @@ test('report, disconnect, block, keyboard focus, and acceptance widths stay safe
   await details.click()
   const detailsDialog = page.getByRole('dialog', { name: 'Conversation details' })
   await expect(detailsDialog).toBeVisible()
+  await waitForOwnAnimations(detailsDialog)
   await expectNoAccessibilityViolations(page)
   await page.keyboard.press('Escape')
   await expect(detailsDialog).toBeHidden()

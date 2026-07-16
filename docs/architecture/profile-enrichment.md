@@ -1,6 +1,18 @@
 # Profile Enrichment And Freshness
 
-This document is the current plan for onboarding enrichment and ongoing profile freshness. It supersedes older references that treated LinkedIn import as OAuth-first, resume-first, single-provider, or sweep-via-LinkdAPI.
+This document is the approved architecture for onboarding enrichment and future
+profile freshness. It supersedes older references that treated LinkedIn import
+as OAuth-first, resume-first, single-provider, or sweep-via-LinkdAPI.
+
+> **Current implementation boundary (2026-07-16):** onboarding Fast Fill is the
+> only active product flow. It uses the provider registry, LinkdAPI primary,
+> PDL fallback, explicit proposal review, and atomic apply. The provider
+> adapters and normalized proposal types remain in the repository. Manual
+> **Update from LinkedIn**, scheduled Bright Data sweeps, email-token proposal
+> review, and auto-apply are future slices; their pre-v2 routes, cron callers,
+> and direct profile-write helpers were removed during the destructive database
+> v2 cutover. This document specifies those future flows but does not claim
+> they are currently reachable.
 
 ## Product Principle
 
@@ -37,7 +49,11 @@ The manual button stays on LinkdAPI because the user is at the screen and expect
 
 ### Provider Interface
 
-All three providers are implemented behind a single abstraction from day 1, even though the pilot only actively routes traffic to LinkdAPI for onboarding/manual update and Bright Data for sweep. The two dormant fallback paths are real code with real API keys on the shelf, not a contingency to be built later.
+All three provider adapters are implemented behind a single abstraction. The
+active application currently routes only onboarding through that abstraction.
+Manual refresh and sweep orchestration must be rebuilt against the v2 schema
+before those jobs are enabled; dormant provider adapters are not treated as
+authorization to restore the removed pre-v2 callers.
 
 ```
 EnrichmentProvider {

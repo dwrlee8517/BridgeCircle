@@ -45,7 +45,9 @@ test('profile links follow organization, connection, and self audiences in the r
 }) => {
   await switchPersona(page, PERSONAS.stranger)
   await page.goto(`/profile/${MEMBERS.organizationLink}`)
-  await expect(page.locator(`a[href="${LINKS.organization}"]`)).toBeVisible()
+  await expect(
+    page.locator(`a[href="${LINKS.organization}"]`).filter({ visible: true }),
+  ).toBeVisible()
 
   await page.goto(`/profile/${MEMBERS.connectionLink}`)
   await expect(page.getByRole('heading', { name: 'Mei Park' })).toBeVisible()
@@ -53,12 +55,14 @@ test('profile links follow organization, connection, and self audiences in the r
 
   await switchPersona(page, PERSONAS.connected)
   await page.goto(`/profile/${MEMBERS.connectionLink}`)
-  await expect(page.locator(`a[href="${LINKS.connection}"]`)).toBeVisible()
+  await expect(
+    page.locator(`a[href="${LINKS.connection}"]`).filter({ visible: true }),
+  ).toBeVisible()
 
   await switchPersona(page, PERSONAS.owner)
   await page.goto('/profile/me')
   await expect(page.getByRole('heading', { name: 'Richard Lee' })).toBeVisible()
-  await expect(page.locator(`a[href="${LINKS.self}"]`)).toBeVisible()
+  await expect(page.locator(`a[href="${LINKS.self}"]`).filter({ visible: true })).toBeVisible()
 })
 
 test('blocked profile and directory access converge on an unavailable surface', async ({ page }) => {

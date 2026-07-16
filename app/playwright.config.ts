@@ -19,7 +19,12 @@ import { baseURL, e2eEnv, isRemote } from './tests/e2e/helpers/env'
  */
 export default defineConfig({
   testDir: './tests/e2e',
-  fullyParallel: true,
+  // Most acceptance roads intentionally exercise the canonical disposable
+  // seed and mutate shared rows (messages, blocks, memberships, events).
+  // A single worker keeps those roads hermetic until every suite owns a
+  // factory-built organization and cast.
+  fullyParallel: false,
+  workers: 1,
   // The webServer is `next dev`, which compiles routes on first hit. With
   // parallel workers all landing on a cold server, first navigations can
   // exceed Playwright's default 30s test timeout — give cold compiles room.

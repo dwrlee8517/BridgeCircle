@@ -41,7 +41,7 @@ export default async function EditEventPage({ params }: { params: Promise<Params
         <CardHeader>
           <CardTitle>Edit event</CardTitle>
           <CardDescription>
-            {event.isCanceled
+            {event.status === 'cancelled'
               ? 'This event is cancelled. It remains available to members as a cancelled record.'
               : 'Changes apply immediately. Members who responded receive an in-app update.'}
           </CardDescription>

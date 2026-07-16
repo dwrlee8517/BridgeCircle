@@ -3,10 +3,19 @@ import { isRemote } from "../helpers/env";
 import { FoundationScenario } from "../helpers/foundation";
 
 const browserErrors = new WeakMap<Page, string[]>();
-const transparentPng = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
-  "base64",
-);
+
+async function finishOnboarding(page: Page) {
+  await page.waitForURL(/\/onboarding\?step=2/);
+  await page.getByRole("button", { name: "Skip this step" }).click();
+
+  for (const step of [3, 4, 5, 6]) {
+    await page.waitForURL(new RegExp(`/onboarding\\?step=${step}`));
+    await page.getByRole("button", { name: "Skip for now" }).click();
+  }
+
+  await page.waitForURL(/\/onboarding\?step=7/);
+  await page.getByRole("button", { name: "Finish setup" }).click();
+}
 
 test.describe("database v2 Foundation", () => {
   test.skip(isRemote, "Foundation reset tests are local-only");
@@ -41,40 +50,23 @@ test.describe("database v2 Foundation", () => {
       await expect(page.locator("#name")).toHaveValue("Invited Ivy");
       await expect(page.locator("#graduationYear")).toHaveValue("2018");
       await page.getByRole("button", { name: "Save and continue" }).click();
-      for (const step of [2, 3, 4]) {
-        await page.waitForURL(new RegExp(`/onboarding\\?step=${step}`));
-        await page.getByRole("button", { name: "Skip for now" }).click();
-      }
-      await page.waitForURL(/\/onboarding\?step=5/);
-      await page.locator('input[type="file"]').setInputFiles({
-        name: "avatar.png",
-        mimeType: "image/png",
-        buffer: transparentPng,
-      });
-      await expect(page.locator('img[alt="Invited Ivy"]')).toHaveAttribute(
-        "src",
-        /\/storage\/v1\/object\/public\/avatars\//,
-      );
-      await page.getByRole("button", { name: "Skip for now" }).click();
+      await finishOnboarding(page);
+
+      await page.waitForURL(/\/onboarding\?complete=1/);
+      await expect(
+        page.getByRole("heading", { name: "You're all set, Invited." }),
+      ).toBeVisible();
+      await page.getByRole("link", { name: "Go to your dashboard" }).click();
       await page.waitForURL((url) => url.pathname === "/");
 
       await expect(page.getByText(organization.name)).toBeVisible();
-      await expect(page.getByRole("heading", { name: "Welcome, Invited." })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Welcome, Invited." }),
+      ).toBeVisible();
       await expect(page.getByLabel("Account menu")).toBeVisible();
-      await expect(page.getByLabel("Account menu").locator("img")).toHaveAttribute(
-        "src",
-        /\/storage\/v1\/object\/public\/avatars\//,
-      );
 
       const membership = await scenario.membershipForEmail(invite.email, organization.id);
       expect(membership.status).toBe("active");
-      const { data: profile } = await scenario.admin
-        .from("profiles")
-        .select("avatar_path")
-        .eq("user_id", membership.userId)
-        .single();
-      expect(profile?.avatar_path).toMatch(new RegExp(`^${membership.userId}/`));
-      if (profile?.avatar_path) scenario.trackAvatarPath(profile.avatar_path);
 
       const { data: notification, error: notificationError } = await scenario.admin
         .from("notifications")
@@ -130,10 +122,7 @@ test.describe("database v2 Foundation", () => {
       await page.locator("#password").fill("foundation-pending-password-9");
       await page.getByRole("button", { name: "Create account" }).click();
       await page.getByRole("button", { name: "Save and continue" }).click();
-      for (const step of [2, 3, 4, 5]) {
-        await page.waitForURL(new RegExp(`/onboarding\\?step=${step}`));
-        await page.getByRole("button", { name: "Skip for now" }).click();
-      }
+      await finishOnboarding(page);
 
       await expect(page.getByRole("heading", { name: `Your ${organization.name} profile is ready.` })).toBeVisible();
       const membership = await scenario.membershipForEmail(invite.email, organization.id);
@@ -152,7 +141,7 @@ test.describe("database v2 Foundation", () => {
     const scenario = new FoundationScenario();
     try {
       const organization = await scenario.createOrganization(false, "Second Circle");
-      await scenario.addMembershipForSeededUser(
+      const membershipId = await scenario.addMembershipForSeededUser(
         "10000000-0000-4000-8000-000000000002",
         organization.id,
       );
@@ -164,7 +153,13 @@ test.describe("database v2 Foundation", () => {
       await page.waitForURL(/\/select-circle/);
       await page.getByRole("button", { name: new RegExp(organization.name) }).click();
       await page.waitForURL((url) => url.pathname === "/");
-      await expect(page.getByText(organization.name)).toBeVisible();
+      await expect(page.getByLabel("Account menu")).toBeVisible();
+      await expect
+        .poll(async () => {
+          const cookies = await page.context().cookies();
+          return cookies.find((cookie) => cookie.name === "bc_membership_id")?.value;
+        })
+        .toBe(membershipId);
     } finally {
       await scenario.destroy();
     }
@@ -187,7 +182,10 @@ test.describe("database v2 Foundation", () => {
       },
     ]);
     await page.goto("/");
-    await expect(page.getByText("Chadwick School (Local)")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Welcome back, Richard." }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Open Richard Lee's profile" })).toBeVisible();
     await expect(page.getByLabel("Account menu")).toBeVisible();
   });
 });

@@ -25,6 +25,8 @@ test.describe("sign-in", () => {
   test("signs in a seeded member and lands on the home page", async ({ page }) => {
     await signIn(page, "richard@example.com", "devseed-password-richard");
 
-    await expect(page.getByRole("heading", { name: /Hi Richard/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Welcome back, Richard." }),
+    ).toBeVisible();
   });
 });

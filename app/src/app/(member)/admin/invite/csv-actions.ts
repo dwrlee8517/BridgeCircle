@@ -44,6 +44,5 @@ export async function submitCsvInvites(
   })
 
   revalidatePath('/admin/invite')
-  revalidatePath('/admin/members')
   return { result }
 }

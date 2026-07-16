@@ -1,5 +1,4 @@
 import { expect, type Page } from "@playwright/test";
-import type { SeededMember } from "./factory";
 
 /**
  * Sign in through the real form with a seeded persona (see
@@ -17,7 +16,10 @@ export async function signIn(page: Page, email: string, password: string): Promi
 
 // Factory-seeded members switch identity mid-test, so clear the previous
 // session's cookies before signing in.
-export async function signInAs(page: Page, member: Pick<SeededMember, "email" | "password">) {
+export async function signInAs(
+  page: Page,
+  member: { email: string; password: string },
+) {
   await page.context().clearCookies();
   await signIn(page, member.email, member.password);
 }

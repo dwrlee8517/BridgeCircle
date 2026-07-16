@@ -54,4 +54,20 @@ if test ! -f "$root_dir/src/app/(member)/settings/page.tsx"; then
   exit 1
 fi
 
+retired_paths=(
+  "$root_dir/src/app/(member)/admin/members"
+  "$root_dir/src/app/(member)/admin/analytics"
+  "$root_dir/src/app/proposals"
+  "$root_dir/src/app/api/cron/enrichment-sweep-start"
+  "$root_dir/src/app/api/cron/enrichment-sweep-poll"
+  "$root_dir/src/lib/search"
+)
+
+for retired_path in "${retired_paths[@]}"; do
+  if test -e "$retired_path"; then
+    echo "Retired pre-v2 path remains: $retired_path" >&2
+    exit 1
+  fi
+done
+
 echo "Entry, onboarding, Settings, notifications, account lifecycle, and minimal admin are cut over"
