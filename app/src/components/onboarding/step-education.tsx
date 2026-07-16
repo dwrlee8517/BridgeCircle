@@ -1,8 +1,5 @@
 'use client'
 
-import { FileText, Link2 } from 'lucide-react'
-import Link from 'next/link'
-import type { ReactNode } from 'react'
 import { useActionState } from 'react'
 import {
   type EducationEntryInput,
@@ -34,7 +31,7 @@ type Props = {
 }
 
 /**
- * Step 2 of 5 — Education. Skippable.
+ * Step 3 of 7 — Education. Skippable.
  *
  * University and major are typed in the Basics row. Education history is
  * a separate dynamic editor; it starts empty and the user opens it via
@@ -51,7 +48,6 @@ export function StepEducation({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5">
-      <OnboardingImportOptions step={2} />
       <div className="space-y-1.5">
         <Label htmlFor="university">University</Label>
         <Input
@@ -101,73 +97,4 @@ export function StepEducation({ defaults, action }: Props) {
       </div>
     </form>
   )
-}
-
-/**
- * Inline import prompt for Steps 2/3/4. A single import fills education,
- * current role, career history, and skills — so once a user accepts the
- * import, the steps that follow are pre-filled.
- *
- * `step` controls where the user lands after the import confirm step.
- */
-export function OnboardingImportOptions({
-  step,
-  resumeRoleCount,
-}: {
-  step: 2 | 3 | 4
-  resumeRoleCount?: number
-}) {
-  const returnTo = `/onboarding?step=${step}`
-  const linkedinHref = onboardingImportHref(returnTo, 'linkedin')
-  const resumeHref = onboardingImportHref(returnTo, 'resume')
-  const hasImportedResume = typeof resumeRoleCount === 'number' && resumeRoleCount > 0
-
-  return (
-    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
-      <div className="flex items-start gap-2.5">
-        <Link2 className="size-4 mt-0.5 text-primary" aria-hidden />
-        <div className="min-w-0 flex-1 space-y-2.5">
-          <p className="font-medium text-foreground">Want to fill this faster?</p>
-          <p className="text-xs text-muted-foreground">
-            Import once to pre-fill education, current role, career history, and skills. You review
-            every field before anything is saved.
-          </p>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <ImportOption href={linkedinHref} icon={<Link2 className="size-3.5" aria-hidden />}>
-              Import from LinkedIn
-            </ImportOption>
-            <ImportOption href={resumeHref} icon={<FileText className="size-3.5" aria-hidden />}>
-              {hasImportedResume
-                ? `Re-import resume/CV (${resumeRoleCount} role${resumeRoleCount === 1 ? '' : 's'})`
-                : 'Upload resume/CV'}
-            </ImportOption>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ImportOption({
-  href,
-  icon,
-  children,
-}: {
-  href: string
-  icon: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-md border border-primary/20 bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/35 hover:bg-primary-tint"
-    >
-      {icon}
-      {children}
-    </Link>
-  )
-}
-
-function onboardingImportHref(returnTo: string, source: 'linkedin' | 'resume') {
-  return `/onboarding/import?source=${source}&return=${encodeURIComponent(returnTo)}`
 }

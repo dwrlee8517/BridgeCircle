@@ -27,8 +27,9 @@ export default async function MemberLayout({
     case 'select-circle':
       return redirect('/select-circle')
     case 'onboarding':
-    case 'pending-approval':
       return redirect('/onboarding')
+    case 'pending-approval':
+      return redirect('/pending')
     case 'reject-session':
       await client.auth.signOut()
       await clearMembershipPreference()
@@ -40,7 +41,7 @@ export default async function MemberLayout({
   }
 
   const membership = selectedMembership(context)
-  if (!membership || membership.status !== 'active') redirect('/onboarding')
+  if (!membership || membership.status !== 'active') redirect('/pending')
 
   const notifications = await listNotifications(createNotificationRepository(client), { limit: 15 })
   const avatarUrl = membership.profile.avatarPath

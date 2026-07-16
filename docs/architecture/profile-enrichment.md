@@ -174,7 +174,10 @@ Before creating a proposal:
 
 - LinkedIn URL still resolves to the same normalized username or stored URN.
 - Name is present and sufficiently similar to the saved profile name.
-- Current title and company are not empty when the previous profile had them.
+- Current title and company are not empty when the previous profile had them,
+  unless the provider supplies career history and every returned role has a
+  real end date. In that case, preserve the member's existing current fields
+  and let the ended roles proceed to review.
 - Career and education arrays are parseable.
 - The diff is not a total replacement caused by a partial provider response.
 - Extraction does not contain obvious placeholder, redacted, or masked values.

@@ -52,8 +52,21 @@ export function useMemberShellHeaderState() {
 }
 
 export function useMemberShellHeader(override: MemberShellHeaderOverride | null) {
+  const value = useMemberShellHeaderContext()
+  useStoreMemberShellHeader(value, override)
+}
+
+export function useOptionalMemberShellHeader(override: MemberShellHeaderOverride | null) {
+  const value = useContext(MemberShellHeaderContext)
+  useStoreMemberShellHeader(value, override)
+}
+
+function useStoreMemberShellHeader(
+  value: MemberShellHeaderContextValue | null,
+  override: MemberShellHeaderOverride | null,
+) {
   const pathname = usePathname()
-  const { setStoredOverride } = useMemberShellHeaderContext()
+  const setStoredOverride = value?.setStoredOverride
   const title = override?.title
   const meta = override?.meta
   const backHref = override?.backHref
@@ -61,7 +74,7 @@ export function useMemberShellHeader(override: MemberShellHeaderOverride | null)
   const hideNotifications = override?.hideNotifications
 
   useEffect(() => {
-    if (!title) return
+    if (!title || !setStoredOverride) return
 
     setStoredOverride({
       pathname,

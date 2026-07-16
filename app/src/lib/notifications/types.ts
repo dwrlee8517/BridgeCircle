@@ -36,8 +36,14 @@ export type NotificationRow = {
 }
 
 export type NotificationRepository = {
-  list(options?: { limit?: number; unreadOnly?: boolean }): Promise<NotificationRow[]>
+  list(options?: {
+    limit?: number
+    unreadOnly?: boolean
+    beforeCreatedAt?: string
+    beforeId?: number
+  }): Promise<NotificationRow[]>
   markRead(notificationIds: number[]): Promise<number>
+  markAllRead(before: string): Promise<number>
 }
 
 const notificationTypeSet = new Set<string>(NOTIFICATION_TYPES)

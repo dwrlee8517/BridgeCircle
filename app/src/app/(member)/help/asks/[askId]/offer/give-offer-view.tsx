@@ -7,7 +7,7 @@ import { useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { HelpAskDetail } from '@/lib/help/contracts'
 import { getInitials } from '@/lib/utils'
-import { useMemberShellHeader } from '../../../../member-shell-header-context'
+import { useOptionalMemberShellHeader } from '../../../../member-shell-header-context'
 import { requestHelpAssistance } from '../../../help-assistance-client'
 import { HelpReportDialog } from '../../../help-report-dialog'
 import { buildOfferDraft, reviseHelperReplyFallback } from '../../../helper-response-draft'
@@ -22,10 +22,16 @@ export function GiveOfferView({
   detail,
   avatarUrl,
   viewerUserId,
+  returnHref = '/help?mode=give',
+  returnLabel = 'Back to Give help',
+  onboarding = false,
 }: {
   detail: HelpAskDetail
   avatarUrl: string | null
   viewerUserId: string
+  returnHref?: string
+  returnLabel?: string
+  onboarding?: boolean
 }) {
   const askerName = detail.asker.identity === 'identified' ? detail.asker.displayName : null
   const initialDraft = buildOfferDraft(askerName, detail.question)
@@ -39,10 +45,10 @@ export function GiveOfferView({
   const [reportOpen, setReportOpen] = useState(false)
   const requestIdRef = useRef<string | null>(null)
 
-  useMemberShellHeader({
+  useOptionalMemberShellHeader({
     title: 'Offer help',
-    backHref: '/help?mode=give',
-    backLabel: 'Back to Give help',
+    backHref: returnHref,
+    backLabel: returnLabel,
     hideNotifications: true,
   })
 
@@ -112,7 +118,16 @@ export function GiveOfferView({
     }
   }
 
-  if (sent) return <OfferSuccess detail={detail} askerName={askerName} />
+  if (sent) {
+    return (
+      <OfferSuccess
+        detail={detail}
+        askerName={askerName}
+        returnHref={returnHref}
+        returnLabel={returnLabel}
+      />
+    )
+  }
 
   const source =
     detail.reach === 'matched' ? 'Matched to your experience' : 'Open to members in your circle'
@@ -138,7 +153,11 @@ export function GiveOfferView({
             </Avatar>
             <span className="min-w-0">
               <span className="flex flex-wrap items-baseline gap-2">
-                {detail.asker.identity === 'identified' ? (
+                {detail.asker.identity === 'identified' && onboarding ? (
+                  <span className="text-body-sm font-bold text-[var(--text-primary)]">
+                    {detail.asker.displayName}
+                  </span>
+                ) : detail.asker.identity === 'identified' ? (
                   <Link
                     href={`/profile/${detail.asker.userId}`}
                     className="text-body-sm font-bold text-[var(--text-primary)] hover:text-[var(--blue-600)] hover:underline"
@@ -183,15 +202,17 @@ export function GiveOfferView({
                 </p>
               ))}
           </section>
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => setReportOpen(true)}
-              className="min-h-9 rounded-lg px-2 text-xs font-semibold text-[var(--text-faint)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-            >
-              Report this ask
-            </button>
-          </div>
+          {!onboarding ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setReportOpen(true)}
+                className="min-h-9 rounded-lg px-2 text-xs font-semibold text-[var(--text-faint)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              >
+                Report this ask
+              </button>
+            </div>
+          ) : null}
 
           <section className="flex min-h-[430px] flex-col overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
             <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-4.5 py-3.25">
@@ -314,7 +335,17 @@ export function GiveOfferView({
   )
 }
 
-function OfferSuccess({ detail, askerName }: { detail: HelpAskDetail; askerName: string | null }) {
+function OfferSuccess({
+  detail,
+  askerName,
+  returnHref,
+  returnLabel,
+}: {
+  detail: HelpAskDetail
+  askerName: string | null
+  returnHref: string
+  returnLabel: string
+}) {
   return (
     <div className="min-h-full bg-[image:var(--wash-page)] px-4 py-12 sm:px-6">
       <section className="mx-auto max-w-[620px] rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-6 py-10 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
@@ -332,10 +363,10 @@ function OfferSuccess({ detail, askerName }: { detail: HelpAskDetail; askerName:
           “{detail.question}”
         </p>
         <Link
-          href="/help?mode=give"
+          href={returnHref}
           className="mt-6 inline-flex min-h-11 items-center rounded-xl bg-[var(--action-give)] px-5 text-body-sm font-bold text-white"
         >
-          Back to Give help
+          {returnLabel}
         </Link>
       </section>
     </div>

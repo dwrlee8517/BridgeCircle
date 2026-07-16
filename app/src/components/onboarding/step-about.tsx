@@ -23,7 +23,7 @@ type Props = {
 }
 
 /**
- * Step 1 of 5 — About you.
+ * Step 1 of 7 — About you.
  *
  * Two required fields (name, graduation year) with prefill where possible.
  * Two optional name fields (preferred + name_other) for members who go by

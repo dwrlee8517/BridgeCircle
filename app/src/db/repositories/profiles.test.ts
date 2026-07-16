@@ -32,8 +32,31 @@ describe('profile repository result mapping', () => {
             university: null,
             major: null,
           },
-          education: [],
-          experiences: [],
+          education: [
+            {
+              id: 41,
+              school: 'UCLA',
+              degree: 'B.A.',
+              field: 'Public Policy',
+              startYear: 2018,
+              startMonth: null,
+              endYear: 2022,
+              endMonth: null,
+              description: null,
+            },
+          ],
+          experiences: [
+            {
+              id: 52,
+              employer: 'Civic Futures',
+              title: 'Program Associate',
+              startYear: 2024,
+              startMonth: 7,
+              endYear: null,
+              endMonth: null,
+              description: null,
+            },
+          ],
           skills: [],
           visibility: {},
           links: [],
@@ -50,7 +73,14 @@ describe('profile repository result mapping', () => {
           },
         },
       }),
-    ).toMatchObject({ ok: true, profile: { identity: { displayName: 'Maren Lee' } } })
+    ).toMatchObject({
+      ok: true,
+      profile: {
+        identity: { displayName: 'Maren Lee' },
+        education: [{ id: '41' }],
+        experiences: [{ id: '52' }],
+      },
+    })
   })
 
   it('maps not-found without attempting to parse a profile', () => {

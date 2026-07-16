@@ -2,8 +2,10 @@
 
 import { redirect } from 'next/navigation'
 import { clearMembershipPreference } from '@/app/_lib/membership-cookie'
+import { getMemberContext } from '@/db/repositories/member-context'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
+import { memberEntryPath, safeNextPath } from '@/lib/entry/routing'
 import { signInSchema } from '@/lib/invite/schemas'
 
 export type SignInState = {
@@ -28,31 +30,20 @@ export async function signInWithPassword(
     return { error: 'Invalid email or password.' }
   }
 
-  // Onboarding gate: users without onboarding_completed_at land on the
-  // staged onboarding flow regardless of where they were headed. Once
-  // they finish (or skip-through) they land at /. Returning users
-  // (onboarding_completed_at non-null) honor `next` or land at /.
   const next = formData.get('next')
-  const safeNext = typeof next === 'string' && next.startsWith('/') ? next : '/'
   if (data.user) {
-    const { data: userRow } = await supabase
-      .from('users')
-      .select('onboarding_completed_at')
-      .eq('id', data.user.id)
-      .maybeSingle()
-    if (!userRow?.onboarding_completed_at) {
-      redirect('/onboarding')
-    }
+    redirect(memberEntryPath(await getMemberContext(supabase), next))
   }
-  redirect(safeNext)
+  redirect('/')
 }
 
 export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
   const origin = await getAppOrigin()
   const next = formData.get('next')
+  const safeNext = safeNextPath(next, '')
   const redirectTo = `${origin}/auth/callback${
-    typeof next === 'string' && next.startsWith('/') ? `?next=${encodeURIComponent(next)}` : ''
+    safeNext ? `?next=${encodeURIComponent(safeNext)}` : ''
   }`
 
   const { data, error } = await supabase.auth.signInWithOAuth({

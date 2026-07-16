@@ -23,8 +23,9 @@ export async function chooseCircleAction(formData: FormData): Promise<void> {
   await setMembershipPreference(membership.membershipId)
   switch (memberDestination(context)) {
     case 'onboarding':
-    case 'pending-approval':
       return redirect('/onboarding')
+    case 'pending-approval':
+      return redirect('/pending')
     case 'cancel-delete':
       return redirect('/cancel-delete')
     case 'member-shell':

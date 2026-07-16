@@ -7,6 +7,7 @@ import { createVoyageHelpProviderFromEnvironment } from '@/integrations/ai/help-
 import { OutboxJobError } from '@/lib/outbox/contracts'
 import type { OutboxWorkerDependencies } from './contracts'
 import { resendHelpEmailSender } from './email-sender'
+import { createEntryOperationsWorker } from './entry-operations'
 import { createHelpOutboxHandlers } from './handlers'
 import { reportHelpWorkerError } from './monitoring'
 import { runOutboxBatch, runOutboxLoop } from './runner'
@@ -35,6 +36,10 @@ export async function runHelpWorker(
     profileIndexingEnabled: voyage !== null,
     pipelineVersion: 'help-hybrid-v1',
     modelVersion: voyage ? 'voyage-4+rerank-2.5' : 'deterministic-v1',
+    entryOperations: createEntryOperationsWorker(
+      serviceClient,
+      process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+    ),
   })
   const options = {
     workerId,

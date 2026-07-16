@@ -13,18 +13,22 @@ import {
   UserRoundCheck,
 } from 'lucide-react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { createNotificationRepository } from '@/db/repositories/notifications'
 import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
-import { listNotifications } from '@/lib/notifications/listNotifications'
 import {
   type NotificationRow,
   type NotificationType,
   notificationLabel,
   notificationTargetUrl,
 } from '@/lib/notifications/types'
+import {
+  markAllNotificationsReadFromPageAction,
+  openNotificationAction,
+} from '../notifications-actions'
 
 /**
  * Standalone notifications page — pull last 100 (the popover only shows 15).
@@ -32,19 +36,52 @@ import {
  * row to navigate to its target; the bell popover is the place for
  * acknowledging things.
  */
-export default async function NotificationsPage() {
+type SearchParams = { before?: string; beforeId?: string; unread?: string }
+
+export default async function NotificationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
   await requireSession()
+  const params = await searchParams
   const supabase = await createClient()
-  const items = await listNotifications(createNotificationRepository(supabase), { limit: 100 })
+  const items = await createNotificationRepository(supabase).list({
+    limit: 50,
+    unreadOnly: params.unread === '1',
+    beforeCreatedAt: params.before,
+    beforeId: params.beforeId ? Number(params.beforeId) : undefined,
+  })
+  const last = items.at(-1)
 
   return (
     <div className="density-cozy mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-8">
-      <div className="space-y-2">
-        <p className="bc-section-kicker">Your activity</p>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-          Notifications
-        </h1>
-        <p className="text-sm text-muted-foreground">Your last 100 notifications.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-2">
+          <p className="bc-section-kicker">Your activity</p>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+            Notifications
+          </h1>
+          <div className="flex gap-3 text-sm">
+            <Link
+              href="/notifications"
+              className={params.unread === '1' ? 'text-muted-foreground' : 'font-semibold'}
+            >
+              All
+            </Link>
+            <Link
+              href="/notifications?unread=1"
+              className={params.unread === '1' ? 'font-semibold' : 'text-muted-foreground'}
+            >
+              Unread
+            </Link>
+          </div>
+        </div>
+        <form action={markAllNotificationsReadFromPageAction}>
+          <Button type="submit" variant="outline" size="sm">
+            Mark all read
+          </Button>
+        </form>
       </div>
 
       {items.length === 0 ? (
@@ -67,6 +104,16 @@ export default async function NotificationsPage() {
           </CardContent>
         </Card>
       )}
+
+      {last && items.length === 50 ? (
+        <Button asChild variant="outline" className="w-full">
+          <Link
+            href={`/notifications?before=${encodeURIComponent(last.createdAt)}&beforeId=${last.id}${params.unread === '1' ? '&unread=1' : ''}`}
+          >
+            Load older notifications
+          </Link>
+        </Button>
+      ) : null}
     </div>
   )
 }
@@ -101,9 +148,12 @@ function Row({ row }: { row: NotificationRow }) {
   )
 
   return url ? (
-    <Link href={url} className="block">
-      {inner}
-    </Link>
+    <form action={openNotificationAction}>
+      <input type="hidden" name="notificationId" value={row.id} />
+      <button type="submit" className="block w-full text-left">
+        {inner}
+      </button>
+    </form>
   ) : (
     inner
   )

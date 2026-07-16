@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { loadMemberContext } from '@/app/_lib/load-member-context'
+import { createOnboardingRepository } from '@/db/repositories/onboarding'
 import { createProfileRepository } from '@/db/repositories/profiles'
 import { track } from '@/lib/analytics/track'
 import { requireSession } from '@/lib/auth/session'
@@ -54,6 +55,11 @@ async function rememberStep(step: OnboardingStep) {
     maxAge: 60 * 60 * 24 * 30,
     path: '/',
   })
+  const { client, context } = await loadMemberContext()
+  const membership = selectedMembership(context)
+  if (membership) {
+    await createOnboardingRepository(client).saveProgress(membership.membershipId, step)
+  }
 }
 
 async function clearRememberedStep() {
@@ -62,6 +68,12 @@ async function clearRememberedStep() {
 }
 
 // --- Step 1: About you (cannot skip) ----------------------------------
+
+export async function startAction(): Promise<void> {
+  await requireSession()
+  await rememberStep(1)
+  redirect('/onboarding?step=1')
+}
 
 export async function aboutAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
@@ -86,14 +98,22 @@ export async function aboutAction(_prev: StepState, formData: FormData): Promise
   redirect('/onboarding?step=2')
 }
 
-// --- Step 2: Education -------------------------------------------------
+// --- Step 2: review-first fast fill ------------------------------------
+
+export async function fastFillAction(): Promise<void> {
+  await requireSession()
+  await rememberStep(3)
+  redirect('/onboarding?step=3')
+}
+
+// --- Step 3: Education -------------------------------------------------
 
 export async function educationAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 2 })
-    await rememberStep(3)
-    redirect('/onboarding?step=3')
+    await rememberStep(4)
+    redirect('/onboarding?step=4')
   }
 
   const parsed = parseOnboardingEducation(formData)
@@ -107,19 +127,19 @@ export async function educationAction(_prev: StepState, formData: FormData): Pro
   const { repository, membershipId } = await profileContext()
   const result = await saveOnboardingEducation(repository, membershipId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
-  track({ type: 'onboarding_step_completed', userId: session.userId, step: 2 })
-  await rememberStep(3)
-  redirect('/onboarding?step=3')
+  track({ type: 'onboarding_step_completed', userId: session.userId, step: 3 })
+  await rememberStep(4)
+  redirect('/onboarding?step=4')
 }
 
-// --- Step 3: Current ---------------------------------------------------
+// --- Step 4: Career ----------------------------------------------------
 
 export async function currentAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 3 })
-    await rememberStep(4)
-    redirect('/onboarding?step=4')
+    await rememberStep(5)
+    redirect('/onboarding?step=5')
   }
 
   const parsed = parseOnboardingCurrent(formData)
@@ -133,19 +153,19 @@ export async function currentAction(_prev: StepState, formData: FormData): Promi
   const { repository, membershipId } = await profileContext()
   const result = await saveOnboardingCurrent(repository, membershipId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
-  track({ type: 'onboarding_step_completed', userId: session.userId, step: 3 })
-  await rememberStep(4)
-  redirect('/onboarding?step=4')
+  track({ type: 'onboarding_step_completed', userId: session.userId, step: 4 })
+  await rememberStep(5)
+  redirect('/onboarding?step=5')
 }
 
-// --- Step 4: Past ------------------------------------------------------
+// --- Step 5: Activities and experience --------------------------------
 
 export async function pastAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
   if (isSkip(formData)) {
     track({ type: 'onboarding_skipped', userId: session.userId, step: 4 })
-    await rememberStep(5)
-    redirect('/onboarding?step=5')
+    await rememberStep(6)
+    redirect('/onboarding?step=6')
   }
 
   const parsed = parseOnboardingPast(formData)
@@ -159,21 +179,18 @@ export async function pastAction(_prev: StepState, formData: FormData): Promise<
   const { repository, membershipId } = await profileContext()
   const result = await saveOnboardingPast(repository, membershipId, parsed.data)
   if (!result.ok) return { error: 'Could not save. Try again.' }
-  track({ type: 'onboarding_step_completed', userId: session.userId, step: 4 })
-  await rememberStep(5)
-  redirect('/onboarding?step=5')
+  track({ type: 'onboarding_step_completed', userId: session.userId, step: 5 })
+  await rememberStep(6)
+  redirect('/onboarding?step=6')
 }
 
-// --- Step 5: Help (final — sets onboarding_completed_at) --------------
+// --- Step 6: Help ------------------------------------------------------
 
 export async function helpAction(_prev: StepState, formData: FormData): Promise<StepState> {
   const session = await requireSession()
-  const { repository, membershipId, membershipStatus } = await profileContext()
+  const { repository, membershipId } = await profileContext()
 
   if (isSkip(formData)) {
-    // Skipping the final step still completes onboarding — the user
-    // chose not to fill in mentoring/avatar fields right now. They can
-    // do so from Help settings later.
     const saveResult = await saveOnboardingHelp(repository, membershipId, {
       openToHelp: boolFromForm(formData.get('openToHelp')),
       helperTopics: null,
@@ -183,12 +200,9 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
     })
     if (!saveResult.ok) return { error: 'Could not save. Try again.' }
 
-    const finishResult = await markOnboardingComplete(repository, membershipId)
-    if (!finishResult.ok) return { error: 'Could not save. Try again.' }
-    track({ type: 'onboarding_skipped', userId: session.userId, step: 5 })
-    track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: true })
-    await clearRememberedStep()
-    redirect(membershipStatus === 'pending' ? '/onboarding' : '/')
+    track({ type: 'onboarding_skipped', userId: session.userId, step: 6 })
+    await rememberStep(7)
+    redirect('/onboarding?step=7')
   }
 
   const parsed = parseOnboardingHelp(formData)
@@ -207,12 +221,30 @@ export async function helpAction(_prev: StepState, formData: FormData): Promise<
     return { error: 'Could not save. Try again.' }
   }
 
+  track({ type: 'onboarding_step_completed', userId: session.userId, step: 6 })
+  await rememberStep(7)
+  redirect('/onboarding?step=7')
+}
+
+// --- Step 7: private cold-start draft and completion ------------------
+
+export async function finishAction(_prev: StepState, formData: FormData): Promise<StepState> {
+  const session = await requireSession()
+  const { client, repository, membershipId, membershipStatus } = await profileContext()
+  const question = String(formData.get('question') ?? '').trim()
+  if (question.length > 600) return { error: 'Keep the question under 600 characters.' }
+
+  if (question) {
+    const saved = await createOnboardingRepository(client).saveDraft(membershipId, question)
+    if (!saved.ok) return { error: 'Could not save your private draft. Try again.' }
+  }
+
   const finishResult = await markOnboardingComplete(repository, membershipId)
-  if (!finishResult.ok) return { error: 'Could not save. Try again.' }
-  track({ type: 'onboarding_step_completed', userId: session.userId, step: 5 })
-  track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: false })
+  if (!finishResult.ok) return { error: 'Could not finish setup. Check your name and class year.' }
+  track({ type: 'onboarding_step_completed', userId: session.userId, step: 7 })
+  track({ type: 'onboarding_finished', userId: session.userId, skippedFinal: !question })
   await clearRememberedStep()
-  redirect(membershipStatus === 'pending' ? '/onboarding' : '/')
+  redirect(membershipStatus === 'pending' ? '/pending' : '/onboarding?complete=1')
 }
 
 async function profileContext() {
@@ -223,6 +255,7 @@ async function profileContext() {
     redirect('/select-circle?error=unavailable')
   }
   return {
+    client,
     repository: createProfileRepository(client),
     membershipId: membership.membershipId,
     membershipStatus: membership.status,

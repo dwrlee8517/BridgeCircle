@@ -29,6 +29,28 @@ export type Database = {
           result_code: string
         }[]
       }
+      apply_profile_import: {
+        Args: {
+          p_edited: boolean
+          p_membership_id: string
+          p_payload: Json
+          p_proposal_id: string
+        }
+        Returns: string
+      }
+      begin_profile_import: {
+        Args: {
+          p_client_request_id: string
+          p_membership_id: string
+          p_source: string
+          p_source_key: string
+        }
+        Returns: {
+          proposal_id: string
+          request_id: string
+          result_code: string
+        }[]
+      }
       block_member: {
         Args: { p_blocked_user_id: string }
         Returns: {
@@ -38,6 +60,13 @@ export type Database = {
       cancel_admin_school_event: {
         Args: { p_event_id: string; p_membership_id: string; p_reason?: string }
         Returns: string
+      }
+      cancel_my_account_deletion: {
+        Args: never
+        Returns: {
+          account_state: string
+          result_code: string
+        }[]
       }
       claim_outbox_jobs: {
         Args: {
@@ -55,6 +84,19 @@ export type Database = {
           max_attempts: number
           payload: Json
         }[]
+      }
+      clear_my_onboarding_draft: {
+        Args: { p_membership_id: string }
+        Returns: string
+      }
+      complete_account_export: {
+        Args: {
+          p_expires_at: string
+          p_export_request_id: string
+          p_storage_bucket: string
+          p_storage_path: string
+        }
+        Returns: string
       }
       complete_onboarding: {
         Args: { p_membership_id: string }
@@ -128,6 +170,10 @@ export type Database = {
           result_code: string
         }[]
       }
+      decline_profile_import: {
+        Args: { p_membership_id: string; p_proposal_id: string }
+        Returns: string
+      }
       delete_admin_school_event: {
         Args: { p_event_id: string; p_membership_id: string }
         Returns: string
@@ -141,6 +187,25 @@ export type Database = {
       fail_outbox_job: {
         Args: { p_error: string; p_job_id: number; p_worker_id: string }
         Returns: string
+      }
+      fail_profile_import: {
+        Args: { p_attempts: Json; p_error_code: string; p_request_id: string }
+        Returns: string
+      }
+      finish_profile_import: {
+        Args: {
+          p_attempts: Json
+          p_confidence: number
+          p_current_snapshot: Json
+          p_proposed_snapshot: Json
+          p_request_id: string
+          p_source: string
+          p_source_metadata: Json
+        }
+        Returns: {
+          proposal_id: string
+          result_code: string
+        }[]
       }
       get_admin_school_announcements: {
         Args: { p_membership_id: string }
@@ -292,6 +357,30 @@ export type Database = {
           waiting_count: number
         }[]
       }
+      get_my_account_export: {
+        Args: never
+        Returns: {
+          completed_at: string
+          created_at: string
+          expires_at: string
+          export_request_id: string
+          status: string
+        }[]
+      }
+      get_my_account_export_download: {
+        Args: never
+        Returns: {
+          storage_bucket: string
+          storage_path: string
+        }[]
+      }
+      get_my_communication_preferences: {
+        Args: never
+        Returns: {
+          school_newsletter_email_enabled: boolean
+          updated_at: string
+        }[]
+      }
       get_my_member_context: {
         Args: { p_preferred_membership_id?: string }
         Returns: {
@@ -307,11 +396,43 @@ export type Database = {
           unread_notification_count: number
         }[]
       }
+      get_my_notification_preferences: {
+        Args: never
+        Returns: {
+          email_enabled: boolean
+          in_app_enabled: boolean
+          notification_type: string
+          updated_at: string
+        }[]
+      }
+      get_my_onboarding_draft: {
+        Args: { p_membership_id: string }
+        Returns: {
+          current_step: number
+          question: string
+          result_code: string
+          updated_at: string
+        }[]
+      }
       get_my_profile: {
         Args: { p_membership_id: string }
         Returns: {
           profile: Json
           result_code: string
+        }[]
+      }
+      get_my_profile_import: {
+        Args: { p_membership_id: string; p_proposal_id?: string }
+        Returns: {
+          created_at: string
+          current_snapshot: Json
+          expires_at: string
+          proposal_id: string
+          proposed_snapshot: Json
+          result_code: string
+          source: string
+          source_metadata: Json
+          status: string
         }[]
       }
       get_newsletter_issue: {
@@ -359,6 +480,21 @@ export type Database = {
         Returns: Json
       }
       get_school_home: { Args: { p_membership_id: string }; Returns: Json }
+      issue_invite: {
+        Args: {
+          p_email: string
+          p_full_name: string
+          p_graduation_year: number
+          p_organization_id: string
+          p_request_id: string
+        }
+        Returns: {
+          expires_at: string
+          invite_id: string
+          invite_status: string
+          result_code: string
+        }[]
+      }
       list_conversation_messages_after: {
         Args: {
           p_after_id?: number
@@ -467,6 +603,23 @@ export type Database = {
           score: number
         }[]
       }
+      list_invites: {
+        Args: {
+          p_before_created_at?: string
+          p_before_id?: string
+          p_limit?: number
+          p_organization_id: string
+        }
+        Returns: {
+          created_at: string
+          email: string
+          expires_at: string
+          full_name: string
+          graduation_year: number
+          invite_id: string
+          status: string
+        }[]
+      }
       list_messages_waiting: {
         Args: never
         Returns: {
@@ -504,9 +657,53 @@ export type Database = {
           status: string
         }[]
       }
+      list_my_blocked_members: {
+        Args: never
+        Returns: {
+          avatar_path: string
+          blocked_at: string
+          blocked_user_id: string
+          display_name: string
+        }[]
+      }
+      list_my_notifications: {
+        Args: {
+          p_before_created_at?: string
+          p_before_id?: number
+          p_limit?: number
+          p_unread_only?: boolean
+        }
+        Returns: {
+          actor_user_id: string
+          created_at: string
+          id: number
+          organization_id: string
+          payload: Json
+          read_at: string
+          target_id: string
+          target_type: string
+          type: string
+        }[]
+      }
       list_newsletter_issues: {
         Args: { p_limit?: number; p_membership_id: string }
         Returns: Json
+      }
+      list_pending_memberships: {
+        Args: {
+          p_before_created_at?: string
+          p_before_id?: string
+          p_limit?: number
+          p_organization_id: string
+        }
+        Returns: {
+          avatar_path: string
+          display_name: string
+          graduation_year: number
+          membership_id: string
+          requested_at: string
+          user_id: string
+        }[]
       }
       list_people: {
         Args: {
@@ -566,6 +763,10 @@ export type Database = {
         Args: { p_notification_ids: number[] }
         Returns: number
       }
+      mark_notifications_read_before: {
+        Args: { p_before: string }
+        Returns: number
+      }
       mark_school_announcement_read: {
         Args: { p_announcement_id: string; p_membership_id: string }
         Returns: string
@@ -616,6 +817,25 @@ export type Database = {
           p_worker_id: string
         }
         Returns: string
+      }
+      request_my_account_export: {
+        Args: { p_request_id: string }
+        Returns: {
+          created_at: string
+          expires_at: string
+          export_request_id: string
+          result_code: string
+          status: string
+        }[]
+      }
+      resend_invite: {
+        Args: { p_invite_id: string; p_request_id: string }
+        Returns: {
+          expires_at: string
+          invite_id: string
+          invite_status: string
+          result_code: string
+        }[]
       }
       resolve_ask: {
         Args: { p_ask_id: string; p_outcome_note?: string }
@@ -668,6 +888,15 @@ export type Database = {
           p_worker_id: string
         }
         Returns: string
+      }
+      revoke_invite: {
+        Args: { p_invite_id: string; p_request_id: string }
+        Returns: {
+          expires_at: string
+          invite_id: string
+          invite_status: string
+          result_code: string
+        }[]
       }
       run_help_maintenance: {
         Args: { p_limit?: number; p_now?: string }
@@ -723,6 +952,41 @@ export type Database = {
           result_code: string
           topics: string[]
         }[]
+      }
+      save_my_communication_preferences: {
+        Args: { p_school_newsletter_email_enabled: boolean }
+        Returns: {
+          result_code: string
+          school_newsletter_email_enabled: boolean
+          updated_at: string
+        }[]
+      }
+      save_my_notification_preference: {
+        Args: {
+          p_email_enabled: boolean
+          p_in_app_enabled: boolean
+          p_notification_type: string
+        }
+        Returns: {
+          email_enabled: boolean
+          in_app_enabled: boolean
+          notification_type: string
+          result_code: string
+          updated_at: string
+        }[]
+      }
+      save_my_onboarding_draft: {
+        Args: { p_membership_id: string; p_question: string }
+        Returns: {
+          current_step: number
+          question: string
+          result_code: string
+          updated_at: string
+        }[]
+      }
+      save_my_onboarding_progress: {
+        Args: { p_membership_id: string; p_step: number }
+        Returns: string
       }
       save_profile_about: {
         Args: { p_bio: string; p_membership_id: string }
@@ -786,6 +1050,13 @@ export type Database = {
       save_profile_visibility: {
         Args: { p_membership_id: string; p_visibility: Json }
         Returns: string
+      }
+      schedule_my_account_deletion: {
+        Args: never
+        Returns: {
+          delete_scheduled_for: string
+          result_code: string
+        }[]
       }
       search_ask_matching_candidates: {
         Args: {
@@ -1821,9 +2092,11 @@ export type Database = {
           graduation_year: number | null
           id: string
           organization_id: string
+          request_id: string | null
           sent_by_membership_id: string | null
           status: string
           token_hash: string
+          updated_at: string
         }
         Insert: {
           accepted_at?: string | null
@@ -1836,9 +2109,11 @@ export type Database = {
           graduation_year?: number | null
           id?: string
           organization_id: string
+          request_id?: string | null
           sent_by_membership_id?: string | null
           status?: string
           token_hash: string
+          updated_at?: string
         }
         Update: {
           accepted_at?: string | null
@@ -1851,9 +2126,11 @@ export type Database = {
           graduation_year?: number | null
           id?: string
           organization_id?: string
+          request_id?: string | null
           sent_by_membership_id?: string | null
           status?: string
           token_hash?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -2586,6 +2863,32 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'profiles_user_id_fkey'
+            columns: ['user_id']
+            isOneToOne: true
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      user_communication_preferences: {
+        Row: {
+          school_newsletter_email_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          school_newsletter_email_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          school_newsletter_email_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'user_communication_preferences_user_id_fkey'
             columns: ['user_id']
             isOneToOne: true
             referencedRelation: 'users'

@@ -16,8 +16,7 @@ export async function markAllNotificationsRead(
   repository: NotificationRepository,
 ): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
   try {
-    const unread = await repository.list({ limit: 100, unreadOnly: true })
-    const count = await repository.markRead(unread.map((row) => row.id))
+    const count = await repository.markAllRead(new Date().toISOString())
     return { ok: true, count }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'mark_all_failed' }

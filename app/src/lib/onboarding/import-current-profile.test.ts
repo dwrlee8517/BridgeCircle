@@ -30,7 +30,7 @@ const profile: SelfProfile = {
   },
   education: [
     {
-      id: '33333333-3333-4333-8333-333333333333',
+      id: '1',
       school: 'UCLA',
       degree: 'PhD',
       field: 'Neuroscience',
@@ -43,7 +43,7 @@ const profile: SelfProfile = {
   ],
   experiences: [
     {
-      id: '44444444-4444-4444-8444-444444444444',
+      id: '1',
       employer: 'BridgeCircle',
       title: 'Founder',
       startYear: 2025,

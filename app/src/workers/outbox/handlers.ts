@@ -51,6 +51,10 @@ export type HelpOutboxHandlerDependencies = {
   profileIndexingEnabled: boolean
   pipelineVersion: string
   modelVersion: string
+  entryOperations: {
+    sendInvite(payload: unknown, idempotencyKey: string, signal: AbortSignal): Promise<void>
+    generateAccountExport(payload: unknown, signal: AbortSignal): Promise<void>
+  }
 }
 
 export function createHelpOutboxHandlers(
@@ -58,6 +62,16 @@ export function createHelpOutboxHandlers(
 ): OutboxHandlerRegistry {
   const appBaseUrl = normalizeHelpAppBaseUrl(dependencies.appBaseUrl)
   return {
+    async send_invite_email(job, signal) {
+      await dependencies.entryOperations.sendInvite(job.payload, `outbox:${job.id}`, signal)
+      return { outcome: 'completed' }
+    },
+
+    async generate_account_export(job, signal) {
+      await dependencies.entryOperations.generateAccountExport(job.payload, signal)
+      return { outcome: 'completed' }
+    },
+
     async create_notification(job) {
       const result = await dependencies.repository.materializeNotification(job.id, job.lockedBy)
       if (result.result_code === 'not_available') return { outcome: 'skipped' }

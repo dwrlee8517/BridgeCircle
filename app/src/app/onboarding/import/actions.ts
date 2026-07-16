@@ -2,239 +2,289 @@
 
 import * as Sentry from '@sentry/nextjs'
 import { redirect } from 'next/navigation'
-import { createAdminClient } from '@/db/admin'
-import { createClient } from '@/db/server'
+import { loadMemberContext } from '@/app/_lib/load-member-context'
+import {
+  createProfileImportRepository,
+  type ImportAttempt,
+} from '@/db/repositories/profile-imports'
+import { createProfileRepository } from '@/db/repositories/profiles'
 import { requireSession } from '@/lib/auth/session'
 import { fetchForOnboarding } from '@/lib/enrichment/onboardingFetch'
-import { upsertEnrichmentSettings } from '@/lib/enrichment/persistSettings'
-import { applyExtractedToProfile } from '@/lib/resume/applyToProfile'
-import { extractFromResume } from '@/lib/resume/extract'
+import { isAcceptableResult } from '@/lib/enrichment/quality'
+import { selectedMembership } from '@/lib/membership/selection'
+import { getImportCurrentProfile } from '@/lib/onboarding/import-current-profile'
 import {
-  type ApplyExtractedInput,
-  applyExtractedSchema,
-  type ExtractedProfile,
-} from '@/lib/resume/schemas'
+  buildImportApplyPayload,
+  currentProfileAsExtracted,
+  parseApplySelections,
+} from '@/lib/onboarding/import-proposal'
+import { extractFromResume } from '@/lib/resume/extract'
 import { storeResumeUpload } from '@/lib/resume/storeUpload'
+import { fastFillAction } from '../actions'
 
-const MAX_BYTES = 5 * 1024 * 1024 // 5MB
-const ACCEPTED_MIME = new Set([
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'image/png',
-])
+const MAX_BYTES = 5 * 1024 * 1024
+const PDF = 'application/pdf'
+const DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+const ACCEPTED_MIME = new Set([PDF, DOCX])
 
-export type ExtractState = {
-  profile?: ExtractedProfile
-  error?: string
-}
+export type ImportStartState = { error?: string }
+export type ImportReviewState = { error?: string }
 
-export async function extractFromUploadAction(
-  _prev: ExtractState,
+export async function startLinkedInImportAction(
+  _previous: ImportStartState,
   formData: FormData,
-): Promise<ExtractState> {
+): Promise<ImportStartState> {
   const session = await requireSession()
-  const file = formData.get('file')
+  const url = normalizeLinkedInUrl(String(formData.get('linkedinUrl') ?? ''))
+  const clientRequestId = String(formData.get('clientRequestId') ?? '')
+  if (!url) return { error: 'Paste a LinkedIn profile URL, such as linkedin.com/in/yourname.' }
+  if (!isUuid(clientRequestId))
+    return { error: 'This import could not be started. Refresh and try again.' }
 
-  if (!(file instanceof File) || file.size === 0) {
-    return { error: 'No file uploaded.' }
-  }
-  if (file.size > MAX_BYTES) {
-    return { error: 'File is too large (5MB max).' }
-  }
-  if (!ACCEPTED_MIME.has(file.type)) {
-    return { error: 'Upload a PDF, DOCX, or PNG file.' }
-  }
-
-  const bytes = Buffer.from(await file.arrayBuffer())
-
-  // Best-effort: persist to Storage so the user can re-extract later. If
-  // upload fails we still try the extraction — the file isn't required for
-  // anything downstream.
-  const supabase = await createClient()
-  await storeResumeUpload(supabase, session.userId, file.name, bytes, file.type).catch((err) => {
-    Sentry.captureException(err, {
-      extra: { scope: 'resume-upload-store', userId: session.userId, fileName: file.name },
-    })
-    return null
+  const context = await importContext()
+  const current = await getImportCurrentProfile(context.profiles, context.membershipId)
+  const begin = await context.imports.begin({
+    membershipId: context.membershipId,
+    clientRequestId,
+    source: 'linkedin',
+    sourceKey: url.toLowerCase(),
   })
 
-  const mimeType = file.type as
-    | 'application/pdf'
-    | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    | 'image/png'
-  const result = await extractFromResume({ mimeType, bytes })
+  if (begin.result_code === 'existing' && begin.proposal_id) {
+    redirect(`/onboarding/import/${begin.proposal_id}`)
+  }
+  if (begin.result_code === 'in_progress') {
+    return { error: 'That import is already running. Give it a moment, then try again.' }
+  }
+  if (begin.result_code !== 'started' || !begin.request_id) {
+    return { error: 'We could not start that import. Refresh and try again.' }
+  }
+
+  const self = await context.profiles.get(context.membershipId)
+  const identity =
+    self.ok && current.name && session.email && self.profile.identity.graduationYear
+      ? {
+          name: current.name,
+          email: session.email,
+          gradYear: self.profile.identity.graduationYear,
+          lastEmployer: current.currentEmployer ?? undefined,
+        }
+      : undefined
+  const result = await fetchForOnboarding({ userId: session.userId, url, identity })
 
   if (!result.ok) {
-    return { error: extractErrorMessage(result.error) }
-  }
-
-  // Audit log via admin client (writing here keeps RLS simple).
-  try {
-    const admin = createAdminClient()
-    await admin.from('audit_log').insert({
-      actor_id: session.userId,
-      action: 'resume.extracted',
-      target_type: 'user',
-      target_id: session.userId,
-    })
-  } catch {
-    // Audit failures shouldn't block the user.
-  }
-
-  return { profile: result.profile }
-}
-
-/**
- * LinkedIn URL → ExtractedProfile via lib/enrichment.
- *
- * Walks the configured primary (LinkdAPI by default) then falls back to PDL,
- * persisting one profile_enrichment_runs row per attempt. On success, also
- * upserts profile_enrichment_settings so the monthly sweep has somewhere to
- * track this user from. Returns the same ExtractState shape as the resume
- * upload action so the confirm UI doesn't have to branch on source.
- */
-export async function extractFromLinkedInAction(
-  _prev: ExtractState,
-  formData: FormData,
-): Promise<ExtractState> {
-  const session = await requireSession()
-  const raw = formData.get('linkedinUrl')
-
-  if (typeof raw !== 'string' || raw.trim().length === 0) {
-    return { error: 'Paste your LinkedIn URL.' }
-  }
-
-  const url = raw.trim()
-  if (!/linkedin\.com\/in\//i.test(url) && !/^[a-z0-9-]+$/i.test(url)) {
-    return { error: "That doesn't look like a LinkedIn profile URL." }
-  }
-
-  // Pull identity fields so PDL fallback can keep trying when URL lookup
-  // misses — useful for alumni with sparse LinkedIn presence.
-  const supabase = await createClient()
-  const { data: base } = await supabase
-    .from('base_profiles')
-    .select('name')
-    .eq('user_id', session.userId)
-    .maybeSingle()
-  const email = session.email ?? null
-
-  const result = await fetchForOnboarding({
-    userId: session.userId,
-    url,
-    identity:
-      base?.name && email
-        ? { name: base.name, email, gradYear: new Date().getFullYear() }
-        : undefined,
-  })
-
-  if (!result.ok) {
-    Sentry.captureMessage('linkedin_enrichment_failed', {
+    await context.imports.fail(begin.request_id, 'providers_failed', result.attempts)
+    Sentry.captureMessage('onboarding_linkedin_import_failed', {
       level: 'info',
-      extra: { userId: session.userId, attempts: result.attempts },
+      extra: { userId: session.userId, providerCount: result.attempts.length },
     })
     return { error: linkedinErrorMessage(result.attempts) }
   }
 
-  // Side-effect 1: write the URL onto base_profiles so subsequent onboarding
-  // steps can render it as the default. Use the user client — RLS allows it.
-  await supabase
-    .from('base_profiles')
-    .update({ linkedin_url: url, updated_at: new Date().toISOString() })
-    .eq('user_id', session.userId)
+  const proposed = { ...result.profile, name: result.profile.name ?? current.name }
+  const quality = isAcceptableResult(currentProfileAsExtracted(current), proposed)
+  if (!quality.ok) {
+    await context.imports.fail(begin.request_id, `quality_${quality.reason}`, result.attempts)
+    return {
+      error:
+        'We found a profile, but could not verify it was yours. You can try another URL or fill this in yourself.',
+    }
+  }
 
-  // Side-effect 2: upsert profile_enrichment_settings (service-role write —
-  // only admin client can insert here since users can read but not write
-  // their own row). Sweep targeting reads from this table.
-  const admin = createAdminClient()
-  const settingsResult = await upsertEnrichmentSettings(admin, {
-    userId: session.userId,
-    linkedinUrl: url,
-    linkedinUsername: result.linkedinUsername,
-    primaryProviderName: result.provider,
-    primaryProviderId: result.providerRecordId,
-    fingerprintHash: result.fingerprintHash,
+  const finished = await context.imports.finish({
+    requestId: begin.request_id,
+    current,
+    proposed,
+    source: result.provider,
+    sourceMetadata: {
+      linkedinUrl: url,
+      linkedinUsername: result.linkedinUsername,
+      providerRecordId: result.providerRecordId,
+      fingerprintHash: result.fingerprintHash,
+    },
+    attempts: result.attempts,
+    confidence: 0.9,
   })
-  if (!settingsResult.ok) {
-    // Don't block the user on a settings write — the proposal can still go
-    // through; we just log and move on.
-    Sentry.captureMessage('enrichment_settings_upsert_failed', {
-      level: 'warning',
-      extra: { userId: session.userId, error: settingsResult.error },
-    })
-  }
-
-  return { profile: result.profile }
+  if (!finished.proposal_id)
+    return { error: 'The import finished, but the review could not be opened. Try again.' }
+  redirect(`/onboarding/import/${finished.proposal_id}`)
 }
 
-function linkedinErrorMessage(attempts: Array<{ provider: string; error: string }>): string {
-  const lastErr = attempts[attempts.length - 1]?.error ?? ''
-  if (attempts.every((a) => a.error.includes('not_found'))) {
-    return "We couldn't find that LinkedIn profile. Double-check the URL is correct, or skip and fill manually."
-  }
-  if (lastErr.includes('rate_limited')) {
-    return 'LinkedIn lookup is temporarily busy. Try again in a minute, or skip and fill manually.'
-  }
-  if (lastErr.includes('no_api_key')) {
-    return 'LinkedIn import is not configured. Ask the admin.'
-  }
-  return "We couldn't import from that LinkedIn URL. Try again, or fill the fields manually."
-}
-
-export type ApplyState = {
-  error?: string
-}
-
-export async function applyExtractedAction(
-  _prev: ApplyState,
+export async function startResumeImportAction(
+  _previous: ImportStartState,
   formData: FormData,
-): Promise<ApplyState> {
+): Promise<ImportStartState> {
   const session = await requireSession()
-  const raw = formData.get('selections')
-  const ret = formData.get('return')
-  const returnTo = typeof ret === 'string' && ret.startsWith('/') ? ret : null
+  const file = formData.get('file')
+  const clientRequestId = String(formData.get('clientRequestId') ?? '')
+  if (!(file instanceof File) || file.size === 0) return { error: 'Choose a résumé to upload.' }
+  if (file.size > MAX_BYTES) return { error: 'Keep the file under 5 MB.' }
+  if (!ACCEPTED_MIME.has(file.type)) return { error: 'Upload a PDF or Word (.docx) file.' }
+  if (!isUuid(clientRequestId))
+    return { error: 'This import could not be started. Refresh and try again.' }
 
-  if (typeof raw !== 'string' || raw.length === 0) {
-    return { error: 'Nothing to apply.' }
+  const context = await importContext()
+  const current = await getImportCurrentProfile(context.profiles, context.membershipId)
+  const begin = await context.imports.begin({
+    membershipId: context.membershipId,
+    clientRequestId,
+    source: 'resume',
+    sourceKey: `${file.name}:${file.size}:${file.lastModified}`,
+  })
+  if (begin.result_code === 'existing' && begin.proposal_id) {
+    redirect(`/onboarding/import/${begin.proposal_id}`)
+  }
+  if (begin.result_code === 'in_progress') {
+    return { error: 'That résumé is already being read. Give it a moment, then try again.' }
+  }
+  if (begin.result_code !== 'started' || !begin.request_id) {
+    return { error: 'We could not start that import. Refresh and try again.' }
   }
 
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(raw)
-  } catch {
-    return { error: 'Could not read your selections.' }
-  }
-
-  const validated = applyExtractedSchema.safeParse(parsed)
-  if (!validated.success) {
-    return { error: 'Selections were not valid.' }
-  }
-
-  const supabase = await createClient()
-  const result = await applyExtractedToProfile(
-    supabase,
+  const bytes = Buffer.from(await file.arrayBuffer())
+  const stored = await storeResumeUpload(
+    context.client,
     session.userId,
-    validated.data as ApplyExtractedInput,
+    file.name,
+    bytes,
+    file.type,
   )
-
-  if (!result.ok) {
-    return { error: 'Could not apply changes. Try again.' }
+  const extracted = await extractFromResume({
+    mimeType: file.type as typeof PDF | typeof DOCX,
+    bytes,
+  })
+  if (!extracted.ok) {
+    await context.imports.fail(begin.request_id, extracted.error, [])
+    if (stored.ok) await context.client.storage.from('resumes').remove([stored.storagePath])
+    return { error: resumeErrorMessage(extracted.error) }
   }
 
-  redirect(returnTo ?? '/profile/me')
+  const proposed = { ...extracted.profile, name: extracted.profile.name ?? current.name }
+  const quality = isAcceptableResult(currentProfileAsExtracted(current), proposed)
+  if (!quality.ok) {
+    await context.imports.fail(begin.request_id, `quality_${quality.reason}`, [])
+    return {
+      error:
+        'We could not verify the name on that résumé. Try another file or fill this in yourself.',
+    }
+  }
+
+  const finished = await context.imports.finish({
+    requestId: begin.request_id,
+    current,
+    proposed,
+    source: 'resume',
+    sourceMetadata: {
+      storagePath: stored.ok ? stored.storagePath : undefined,
+      mimeType: file.type,
+      originalName: file.name.slice(0, 120),
+    },
+    attempts: [],
+    confidence: 0.85,
+  })
+  if (!finished.proposal_id)
+    return { error: 'The résumé was read, but the review could not be opened. Try again.' }
+  redirect(`/onboarding/import/${finished.proposal_id}`)
 }
 
-function extractErrorMessage(err: string): string {
-  switch (err) {
-    case 'no_api_key':
-      return 'Resume import is not configured (missing API key). Ask the admin.'
-    case 'docx_parse_failed':
-      return 'Could not read that DOCX file — try saving it as PDF and re-uploading.'
-    case 'llm_call_failed':
-      return 'The extraction service is temporarily unavailable. Try again in a minute.'
-    case 'invalid_response':
-      return "We couldn't read that resume cleanly. Try a different file or format."
-    default:
-      return 'Extraction failed. Try again.'
+export async function applyProfileImportAction(
+  _previous: ImportReviewState,
+  formData: FormData,
+): Promise<ImportReviewState> {
+  await requireSession()
+  const proposalId = String(formData.get('proposalId') ?? '')
+  const raw = String(formData.get('selections') ?? '')
+  if (!isUuid(proposalId) || !raw)
+    return { error: 'The review could not be read. Refresh and try again.' }
+
+  const context = await importContext()
+  const proposal = await context.imports.get(context.membershipId, proposalId)
+  const self = await context.profiles.get(context.membershipId)
+  if (!proposal || proposal.status !== 'pending' || !self.ok) {
+    return { error: 'This review is no longer available.' }
   }
+
+  try {
+    const selections = parseApplySelections(raw)
+    const payload = buildImportApplyPayload({
+      current: proposal.current,
+      selections,
+      preferredName: self.profile.identity.preferredName,
+      nameOther: self.profile.identity.nameOther,
+      graduationYear: self.profile.identity.graduationYear ?? 0,
+      industry: self.profile.current.industry,
+    })
+    const result = await context.imports.apply(context.membershipId, proposalId, payload, true)
+    if (result !== 'applied') return { error: applyErrorMessage(result) }
+  } catch (error) {
+    Sentry.captureException(error, { extra: { scope: 'onboarding-import-apply' } })
+    return { error: 'Check the dates and selected fields, then try again.' }
+  }
+
+  await fastFillAction()
+  return {}
+}
+
+export async function declineProfileImportAction(formData: FormData) {
+  await requireSession()
+  const proposalId = String(formData.get('proposalId') ?? '')
+  if (!isUuid(proposalId)) redirect('/onboarding?step=2')
+  const context = await importContext()
+  await context.imports.decline(context.membershipId, proposalId)
+  redirect('/onboarding?step=2')
+}
+
+async function importContext() {
+  const { client, context } = await loadMemberContext()
+  const membership = selectedMembership(context)
+  if (!membership || !['active', 'pending'].includes(membership.status)) redirect('/select-circle')
+  return {
+    client,
+    membershipId: membership.membershipId,
+    profiles: createProfileRepository(client),
+    imports: createProfileImportRepository(client),
+  }
+}
+
+function normalizeLinkedInUrl(raw: string) {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
+  try {
+    const url = new URL(withProtocol)
+    if (!/(^|\.)linkedin\.com$/i.test(url.hostname) || !/^\/in\/[^/]+\/?$/i.test(url.pathname))
+      return null
+    url.protocol = 'https:'
+    url.hostname = 'www.linkedin.com'
+    url.search = ''
+    url.hash = ''
+    return url.toString().replace(/\/$/, '')
+  } catch {
+    return null
+  }
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+}
+
+function linkedinErrorMessage(attempts: ImportAttempt[]) {
+  if (attempts.length > 0 && attempts.every((attempt) => attempt.status === 'no_match')) {
+    return 'We could not find that profile. Check the URL, upload a résumé, or fill this in yourself.'
+  }
+  return 'LinkedIn import is temporarily unavailable. Try again, upload a résumé, or continue manually.'
+}
+
+function resumeErrorMessage(error: string) {
+  if (error === 'docx_parse_failed')
+    return 'We could not read that Word file. Save it as a PDF and try again.'
+  if (error === 'no_api_key')
+    return 'Résumé import is not configured yet. Continue manually for now.'
+  return 'We could not read that résumé cleanly. Try another file or continue manually.'
+}
+
+function applyErrorMessage(error: string) {
+  if (error === 'expired') return 'This review expired. Start a new import.'
+  if (error === 'already_reviewed') return 'This review has already been used.'
+  return 'We could not apply those changes. Check the fields and try again.'
 }

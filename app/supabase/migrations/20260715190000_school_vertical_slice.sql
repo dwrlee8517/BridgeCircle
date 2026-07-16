@@ -486,7 +486,6 @@ set search_path = ''
 as $$
 declare
   v_viewer record;
-  v_event_org uuid;
   v_visible_count integer;
   v_hidden_count integer;
   v_items jsonb;
@@ -497,7 +496,7 @@ begin
   where m.id = p_membership_id and m.user_id = (select auth.uid()) and m.status = 'active';
   if not found then return jsonb_build_object('resultCode', 'not_available'); end if;
 
-  select e.organization_id into v_event_org
+  perform 1
   from public.events e
   where e.id = p_event_id and e.organization_id = v_viewer.organization_id
     and e.status in ('published', 'cancelled');
@@ -786,7 +785,6 @@ as $$
 declare
   v_event public.events%rowtype;
   v_current public.event_rsvps%rowtype;
-  v_org uuid;
   v_taken integer;
   v_final text;
   v_now timestamptz := now();
@@ -797,7 +795,7 @@ begin
   end if;
   select * into v_event from public.events where id = p_event_id for update;
   if not found or v_event.status <> 'published' or v_event.starts_at <= v_now then return 'not_open'; end if;
-  select m.organization_id into v_org
+  perform 1
   from public.organization_memberships m
   join public.users u on u.id = m.user_id and u.account_state = 'active'
   where m.id = p_membership_id and m.user_id = (select auth.uid())

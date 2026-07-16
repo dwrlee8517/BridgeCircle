@@ -7,7 +7,6 @@ import {
   SkillsField,
 } from '@/components/profile-history-fields'
 import { Button } from '@/components/ui/button'
-import { OnboardingImportOptions } from './step-education'
 import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepPastState = {
@@ -27,7 +26,7 @@ type Props = {
 }
 
 /**
- * Step 4 of 5 — Where you've been. Skippable but argued for.
+ * Step 5 of 7 — Where you've been. Skippable but argued for.
  *
  * This is the strategic step: past roles are what make NL search work for
  * the harder questions ("someone who used to work in fintech before
@@ -47,8 +46,6 @@ export function StepPast({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5">
-      <OnboardingImportOptions step={4} resumeRoleCount={defaults.careerHistory.length} />
-
       {/* Manual editor — secondary path, but still always visible. */}
       <div className="rounded-lg border bg-muted/30 p-4">
         <CareerHistoryField initial={defaults.careerHistory} />

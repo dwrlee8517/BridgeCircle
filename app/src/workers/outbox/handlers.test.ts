@@ -62,6 +62,10 @@ function dependencies(repo = repository()): HelpOutboxHandlerDependencies {
     profileIndexingEnabled: false,
     pipelineVersion: 'help-v1',
     modelVersion: 'deterministic-v1',
+    entryOperations: {
+      sendInvite: vi.fn(async () => undefined),
+      generateAccountExport: vi.fn(async () => undefined),
+    },
   }
 }
 

@@ -38,7 +38,7 @@ type Props = {
 }
 
 /**
- * Step 5 of 5 — How you can help. Skippable.
+ * Step 6 of 7 — How you can help. Skippable.
  *
  * Last step holds: avatar upload (kept here per the spec to keep step 1
  * lightest), short bio, and the Help opt-in. Avatar uploads are
@@ -46,8 +46,8 @@ type Props = {
  * step's main submit — so the user's photo is saved even if they bail
  * before clicking Finish.
  *
- * openToHelp defaults to UNCHECKED. A brand-new alumnus should choose this
- * explicitly. Help settings lets them change it later.
+ * Availability is explicit and reversible. Help settings lets members change
+ * it later without making a public announcement.
  *
  * The helperTopics input is dim/disabled when openToHelp is off,
  * since topics only make sense when you're actually open.
@@ -94,10 +94,10 @@ export function StepHelp({ defaults, name, action }: Props) {
             onCheckedChange={(v) => setOpenToHelp(v === true)}
           />
           <div className="space-y-1">
-            <Label htmlFor="openToHelp">I&rsquo;m open to helping fellow alumni</Label>
+            <Label htmlFor="openToHelp">I&rsquo;m open to helping people in my circle</Label>
             <p className="text-xs text-muted-foreground">
-              Members can ask you a quick question or ask for ongoing help. You can pause or change
-              this any time from Help settings.
+              Members can ask you a focused question. You can pause or change this any time from
+              Help settings.
             </p>
           </div>
         </div>
@@ -161,7 +161,7 @@ export function StepHelp({ defaults, name, action }: Props) {
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
         <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
-          {pending && submittingKind === 'save' ? 'Saving…' : 'Save and finish'}
+          {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
           type="submit"

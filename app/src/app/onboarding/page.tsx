@@ -1,15 +1,22 @@
+import { randomUUID } from 'node:crypto'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { loadMemberContext } from '@/app/_lib/load-member-context'
 import { clearMembershipPreference } from '@/app/_lib/membership-cookie'
+import { OnboardingComplete } from '@/components/onboarding/complete'
 import { OnboardingShell } from '@/components/onboarding/shell'
 import { StepAbout } from '@/components/onboarding/step-about'
 import { StepCurrent } from '@/components/onboarding/step-current'
 import { StepEducation } from '@/components/onboarding/step-education'
+import { StepFastFill } from '@/components/onboarding/step-fast-fill'
 import { StepHelp } from '@/components/onboarding/step-help'
 import { StepPast } from '@/components/onboarding/step-past'
-import { Button } from '@/components/ui/button'
-import { Wordmark } from '@/components/ui/wordmark'
+import { StepSayHi } from '@/components/onboarding/step-say-hi'
+import { OnboardingWelcome } from '@/components/onboarding/welcome'
+import { createHelpRepository } from '@/db/repositories/help'
+import { createOnboardingRepository } from '@/db/repositories/onboarding'
+import { createPeopleRepository } from '@/db/repositories/people'
+import { createProfileImportRepository } from '@/db/repositories/profile-imports'
 import { createProfileRepository } from '@/db/repositories/profiles'
 import { requireSession } from '@/lib/auth/session'
 import { memberDestination, selectedMembership } from '@/lib/membership/selection'
@@ -18,10 +25,21 @@ import {
   ONBOARDING_STEP_COOKIE,
   parseOnboardingStep,
 } from '@/lib/onboarding/progress'
+import { searchPeople } from '@/lib/people/operations'
 import { displayOrgName } from '@/lib/utils'
-import { aboutAction, currentAction, educationAction, helpAction, pastAction } from './actions'
+import {
+  aboutAction,
+  currentAction,
+  educationAction,
+  fastFillAction,
+  finishAction,
+  helpAction,
+  pastAction,
+  startAction,
+} from './actions'
+import { startLinkedInImportAction, startResumeImportAction } from './import/actions'
 
-type SearchParams = { step?: string }
+type SearchParams = { step?: string; complete?: string }
 
 export default async function OnboardingPage({
   searchParams,
@@ -34,7 +52,6 @@ export default async function OnboardingPage({
 
   if (destination === 'cancel-delete') redirect('/cancel-delete')
   if (destination === 'select-circle') redirect('/select-circle')
-  if (destination === 'member-shell') redirect('/')
   if (destination === 'reject-session') {
     await client.auth.signOut()
     await clearMembershipPreference()
@@ -43,8 +60,17 @@ export default async function OnboardingPage({
 
   const membership = selectedMembership(context)
   if (!membership) redirect('/select-circle')
-  if (destination === 'pending-approval') {
-    return <PendingApproval orgName={displayOrgName(membership.organization.name)} />
+  if (destination === 'pending-approval') redirect('/pending')
+  if (destination === 'member-shell') {
+    if (params.complete === '1') {
+      return (
+        <OnboardingComplete
+          name={membership.profile.preferredName ?? membership.profile.displayName ?? 'Member'}
+          organizationName={displayOrgName(membership.organization.name)}
+        />
+      )
+    }
+    redirect('/')
   }
 
   const profileResult = await createProfileRepository(client).get(membership.membershipId)
@@ -53,10 +79,29 @@ export default async function OnboardingPage({
   const orgName = displayOrgName(profile.membership.organization.name)
 
   const requiredFloorMet = !!profile.identity.displayName && !!profile.identity.graduationYear
-  const cookieStore = await cookies()
+  const [cookieStore, onboardingDraftResult] = await Promise.all([
+    cookies(),
+    createOnboardingRepository(client).getDraft(membership.membershipId),
+  ])
+  const durableStep =
+    onboardingDraftResult.ok && onboardingDraftResult.draft
+      ? onboardingDraftResult.draft.currentStep
+      : null
+  const explicitStep = parseOnboardingStep(params.step)
+  const cookieStep = parseOnboardingStep(cookieStore.get(ONBOARDING_STEP_COOKIE)?.value)
+  const storedStep = parseOnboardingStep(durableStep?.toString())
+  if (!explicitStep && !cookieStep && !storedStep) {
+    return (
+      <OnboardingWelcome
+        name={profile.identity.preferredName ?? profile.identity.displayName ?? 'there'}
+        action={startAction}
+      />
+    )
+  }
   const requestedStep =
-    parseOnboardingStep(params.step) ??
-    parseOnboardingStep(cookieStore.get(ONBOARDING_STEP_COOKIE)?.value) ??
+    explicitStep ??
+    cookieStep ??
+    storedStep ??
     inferOnboardingStep({
       name: profile.identity.displayName,
       graduationYear: profile.identity.graduationYear,
@@ -83,8 +128,8 @@ export default async function OnboardingPage({
           title={`Let's set up your ${orgName} profile.`}
           lede={
             <>
-              We&rsquo;ve got most of this from {orgName}. Just confirm what fellow alumni should
-              see.
+              We&rsquo;ve got most of this from {orgName}. Just confirm what people in your circle
+              should see.
             </>
           }
         >
@@ -100,10 +145,32 @@ export default async function OnboardingPage({
         </OnboardingShell>
       )
 
-    case 2:
+    case 2: {
+      const pendingImport = await createProfileImportRepository(client).get(membership.membershipId)
       return (
         <OnboardingShell
           step={2}
+          eyebrow="Fast fill"
+          title="Bring your history in one go."
+          lede="Paste your LinkedIn URL or upload a résumé and we’ll prefill the next steps for you to review. Prefer typing? Skip ahead."
+        >
+          <StepFastFill
+            skipAction={fastFillAction}
+            linkedInAction={startLinkedInImportAction}
+            resumeAction={startResumeImportAction}
+            linkedinRequestId={randomUUID()}
+            resumeRequestId={randomUUID()}
+            savedLinkedinUrl={profile.preferences.freshness.linkedinUrl}
+            pendingProposalId={pendingImport?.id ?? null}
+          />
+        </OnboardingShell>
+      )
+    }
+
+    case 3:
+      return (
+        <OnboardingShell
+          step={3}
           eyebrow="Education"
           title="Where you studied."
           lede={
@@ -130,12 +197,12 @@ export default async function OnboardingPage({
         </OnboardingShell>
       )
 
-    case 3:
+    case 4:
       return (
         <OnboardingShell
-          step={3}
-          eyebrow="Today"
-          title="Where you are now."
+          step={4}
+          eyebrow="Career"
+          title="What are you doing now?"
           lede="What you’re doing today. It helps fellow alumni find you for referrals and local connections."
         >
           <StepCurrent
@@ -151,12 +218,12 @@ export default async function OnboardingPage({
         </OnboardingShell>
       )
 
-    case 4:
+    case 5:
       return (
         <OnboardingShell
-          step={4}
-          eyebrow="Past experience"
-          title="Where you've been."
+          step={5}
+          eyebrow="Activities"
+          title="What have you done?"
           lede="Past roles help the right people find one another for the harder questions."
         >
           <StepPast
@@ -175,15 +242,15 @@ export default async function OnboardingPage({
         </OnboardingShell>
       )
 
-    case 5: {
+    case 6: {
       const avatarUrl = profile.identity.avatarPath
         ? client.storage.from('avatars').getPublicUrl(profile.identity.avatarPath).data.publicUrl
         : ''
       return (
         <OnboardingShell
-          step={5}
-          eyebrow="The last bit"
-          title="How you can help."
+          step={6}
+          eyebrow="Help"
+          title="How are you open to helping?"
           lede="Optional. Let fellow alumni know whether they can ask you a question. You can change this any time."
         >
           <StepHelp
@@ -201,44 +268,86 @@ export default async function OnboardingPage({
         </OnboardingShell>
       )
     }
+
+    case 7: {
+      const classYear = profile.identity.graduationYear
+      const helpRepository = createHelpRepository(client)
+      const [peopleResult, preferences, openAsks] = await Promise.all([
+        classYear
+          ? searchPeople(
+              {
+                membershipId: membership.membershipId,
+                query: null,
+                scope: 'all',
+                filters: {
+                  industry: null,
+                  classYearStart: classYear,
+                  classYearEnd: classYear,
+                  location: null,
+                  employer: null,
+                  education: null,
+                  topic: null,
+                },
+                limit: 25,
+              },
+              createPeopleRepository(client),
+            )
+          : Promise.resolve({ status: 'invalid_input' as const }),
+        helpRepository.getHelperPreferences(membership.membershipId),
+        helpRepository.listGiveHelp({
+          membershipId: membership.membershipId,
+          arm: 'search',
+          query: null,
+          cursor: null,
+          limit: 2,
+        }),
+      ])
+      const classmates =
+        peopleResult.status === 'ok'
+          ? peopleResult.result.items
+              .filter((person) => person.relationship.state === 'none')
+              .map((person) => ({
+                userId: person.userId,
+                displayName: person.preferredName ?? person.displayName,
+                headline: person.headline,
+                graduationYear: person.graduationYear,
+              }))
+          : []
+      const offerableAsks =
+        preferences?.openToHelp && !preferences.pausedAt
+          ? openAsks.map((ask) => ({
+              id: ask.id,
+              question: ask.question,
+              memberLine:
+                ask.asker.identity === 'identified'
+                  ? `${ask.asker.displayName}${ask.asker.graduationYear ? ` · Class of ${ask.asker.graduationYear}` : ''}`
+                  : 'A member in your circle',
+              offered: ask.myOfferStatus === 'pending',
+            }))
+          : []
+      return (
+        <OnboardingShell
+          step={7}
+          eyebrow="Say hi"
+          title="Start with one real thing."
+          lede="You can keep a private question ready for Help. We will not publish it during onboarding."
+        >
+          <StepSayHi
+            defaultQuestion={
+              onboardingDraftResult.ok ? (onboardingDraftResult.draft?.question ?? '') : ''
+            }
+            organizationId={membership.organization.id}
+            classmates={classmates}
+            openAsks={offerableAsks}
+            action={finishAction}
+          />
+        </OnboardingShell>
+      )
+    }
   }
 }
 
 function formatPeriod(year: number | null, month: number | null): string | null {
   if (!year) return null
   return month ? `${year}-${String(month).padStart(2, '0')}` : String(year)
-}
-
-async function signOutFromPendingApproval() {
-  'use server'
-
-  const { client } = await loadMemberContext()
-  await client.auth.signOut()
-  await clearMembershipPreference()
-  redirect('/sign-in')
-}
-
-function PendingApproval({ orgName }: { orgName: string }) {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-xl flex-col px-5 py-10 sm:px-8 sm:py-14">
-      <Wordmark />
-      <section className="mt-20 space-y-5">
-        <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
-          Approval pending
-        </p>
-        <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          Your {orgName} profile is ready.
-        </h1>
-        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-          Your profile setup is saved. A circle admin is reviewing your membership, and you’ll be
-          able to enter as soon as it’s approved.
-        </p>
-        <form action={signOutFromPendingApproval}>
-          <Button type="submit" variant="outline">
-            Sign out
-          </Button>
-        </form>
-      </section>
-    </main>
-  )
 }

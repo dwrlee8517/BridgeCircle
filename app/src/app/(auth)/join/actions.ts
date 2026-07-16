@@ -4,15 +4,15 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { setMembershipPreference } from '@/app/_lib/membership-cookie'
-import { createAdminClient } from '@/db/admin'
-import {
-  createInviteAcceptanceRepository,
-  createInviteVerificationRepository,
-} from '@/db/repositories/invites'
+import { createInviteAcceptanceRepository } from '@/db/repositories/invites'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
+import {
+  createInvitedAuthUser,
+  deleteAuthUser,
+  verifyInviteFromServer,
+} from '@/lib/entry/invite-service'
 import { acceptInvite } from '@/lib/invite/accept'
-import { verifyInviteToken } from '@/lib/invite/verify'
 
 const PENDING_INVITE_COOKIE = 'pending_invite_token'
 const PENDING_INVITE_TTL_SECONDS = 60 * 10
@@ -35,20 +35,15 @@ export async function signUpWithPassword(_prev: JoinState, formData: FormData): 
     return { error: parsed.error.issues[0]?.message ?? 'Invalid input.' }
   }
 
-  const admin = createAdminClient()
-  const verified = await verifyInviteToken(
-    parsed.data.token,
-    createInviteVerificationRepository(admin),
-  )
+  const verified = await verifyInviteFromServer(parsed.data.token)
   if (!verified.ok) {
     return { error: errorMessage(verified.error) }
   }
 
-  const { data: created, error: createErr } = await admin.auth.admin.createUser({
-    email: verified.invite.email,
-    password: parsed.data.password,
-    email_confirm: true,
-  })
+  const { data: created, error: createErr } = await createInvitedAuthUser(
+    verified.invite.email,
+    parsed.data.password,
+  )
   if (createErr || !created.user) {
     if (createErr?.message?.toLowerCase().includes('already')) {
       return {
@@ -64,14 +59,14 @@ export async function signUpWithPassword(_prev: JoinState, formData: FormData): 
     password: parsed.data.password,
   })
   if (signInErr) {
-    await admin.auth.admin.deleteUser(created.user.id)
+    await deleteAuthUser(created.user.id)
     return { error: 'Could not finish creating your account. Please try again.' }
   }
 
   const accept = await acceptInvite(parsed.data.token, createInviteAcceptanceRepository(supabase))
   if (!accept.ok) {
     await supabase.auth.signOut()
-    await admin.auth.admin.deleteUser(created.user.id)
+    await deleteAuthUser(created.user.id)
     return { error: 'Could not accept this invite. Ask your admin for a fresh link.' }
   }
 
@@ -85,10 +80,7 @@ export async function startGoogleSignup(formData: FormData) {
     redirect('/sign-in?error=missing_token')
   }
 
-  const verified = await verifyInviteToken(
-    token,
-    createInviteVerificationRepository(createAdminClient()),
-  )
+  const verified = await verifyInviteFromServer(token)
   if (!verified.ok) {
     redirect(`/join?token=${encodeURIComponent(token)}&error=${verified.error}`)
   }

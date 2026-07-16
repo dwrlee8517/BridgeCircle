@@ -23,8 +23,9 @@ export default async function SelectCirclePage({
   if (!context.requiresCircleChoice && selectedMembership(context)) {
     switch (memberDestination(context)) {
       case 'onboarding':
-      case 'pending-approval':
         return redirect('/onboarding')
+      case 'pending-approval':
+        return redirect('/pending')
       case 'cancel-delete':
         return redirect('/cancel-delete')
       case 'member-shell':

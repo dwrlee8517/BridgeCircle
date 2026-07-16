@@ -7,6 +7,11 @@ insert into public.organizations (
   'chadwick-local',
   'Chadwick School (Local)',
   true
+), (
+  '22222222-2222-4222-8222-222222222222',
+  'chadwick-onboarding-local',
+  'Chadwick School (Local)',
+  false
 );
 
 insert into auth.users (
@@ -31,7 +36,9 @@ from (values
   ('10000000-0000-4000-8000-000000000003'::uuid, 'mark@example.com', 'devseed-password-mark', 'Mark Chen'),
   ('10000000-0000-4000-8000-000000000004'::uuid, 'mei@example.com', 'devseed-password-mei', 'Mei Park'),
   ('10000000-0000-4000-8000-000000000005'::uuid, 'sam@example.com', 'devseed-password-sam', 'Sam Rivera'),
-  ('10000000-0000-4000-8000-000000000006'::uuid, 'jordan@example.com', 'devseed-password-jordan', 'Jordan Kim')
+  ('10000000-0000-4000-8000-000000000006'::uuid, 'jordan@example.com', 'devseed-password-jordan', 'Jordan Kim'),
+  ('10000000-0000-4000-8000-000000000007'::uuid, 'onboarding@example.com', 'devseed-password-onboarding', 'Alex Morgan'),
+  ('10000000-0000-4000-8000-000000000008'::uuid, 'taylor@example.com', 'devseed-password-taylor', 'Taylor Reed')
 ) as person(id, email, password, display_name);
 
 insert into auth.identities (
@@ -61,17 +68,19 @@ insert into public.organization_memberships (
 select
   member.id,
   member.user_id,
-  '11111111-1111-4111-8111-111111111111',
+  member.organization_id,
   'active',
   now()
 from (values
-  ('20000000-0000-4000-8000-000000000001'::uuid, '10000000-0000-4000-8000-000000000001'::uuid),
-  ('20000000-0000-4000-8000-000000000002'::uuid, '10000000-0000-4000-8000-000000000002'::uuid),
-  ('20000000-0000-4000-8000-000000000003'::uuid, '10000000-0000-4000-8000-000000000003'::uuid),
-  ('20000000-0000-4000-8000-000000000004'::uuid, '10000000-0000-4000-8000-000000000004'::uuid),
-  ('20000000-0000-4000-8000-000000000005'::uuid, '10000000-0000-4000-8000-000000000005'::uuid),
-  ('20000000-0000-4000-8000-000000000006'::uuid, '10000000-0000-4000-8000-000000000006'::uuid)
-) as member(id, user_id);
+  ('20000000-0000-4000-8000-000000000001'::uuid, '10000000-0000-4000-8000-000000000001'::uuid, '11111111-1111-4111-8111-111111111111'::uuid),
+  ('20000000-0000-4000-8000-000000000002'::uuid, '10000000-0000-4000-8000-000000000002'::uuid, '11111111-1111-4111-8111-111111111111'::uuid),
+  ('20000000-0000-4000-8000-000000000003'::uuid, '10000000-0000-4000-8000-000000000003'::uuid, '11111111-1111-4111-8111-111111111111'::uuid),
+  ('20000000-0000-4000-8000-000000000004'::uuid, '10000000-0000-4000-8000-000000000004'::uuid, '11111111-1111-4111-8111-111111111111'::uuid),
+  ('20000000-0000-4000-8000-000000000005'::uuid, '10000000-0000-4000-8000-000000000005'::uuid, '11111111-1111-4111-8111-111111111111'::uuid),
+  ('20000000-0000-4000-8000-000000000006'::uuid, '10000000-0000-4000-8000-000000000006'::uuid, '11111111-1111-4111-8111-111111111111'::uuid),
+  ('20000000-0000-4000-8000-000000000007'::uuid, '10000000-0000-4000-8000-000000000007'::uuid, '22222222-2222-4222-8222-222222222222'::uuid),
+  ('20000000-0000-4000-8000-000000000008'::uuid, '10000000-0000-4000-8000-000000000008'::uuid, '22222222-2222-4222-8222-222222222222'::uuid)
+) as member(id, user_id, organization_id);
 
 insert into public.profiles (
   user_id, display_name, headline, current_employer, current_title,
@@ -82,7 +91,9 @@ insert into public.profiles (
   ('10000000-0000-4000-8000-000000000003', 'Mark Chen', 'Strategy, consulting, and career transitions', 'Acme Consulting', 'Senior Partner', 'Management consulting', 'San Francisco, CA', 'University of Pennsylvania', 'Economics'),
   ('10000000-0000-4000-8000-000000000004', 'Mei Park', 'Product leadership across Seoul and San Francisco', 'Hyundai Motor', 'Product Director', 'Automotive', 'Seoul, South Korea', 'Yonsei University', 'Industrial Engineering'),
   ('10000000-0000-4000-8000-000000000005', 'Sam Rivera', 'Exploring product and engineering paths', 'UCLA', 'Student', 'Technology', 'Los Angeles, CA', 'UCLA', 'Computer Science'),
-  ('10000000-0000-4000-8000-000000000006', 'Jordan Kim', 'Climate and infrastructure investing', 'Northstar Ventures', 'Principal', 'Climate investing', 'New York, NY', 'Harvard University', 'Economics');
+  ('10000000-0000-4000-8000-000000000006', 'Jordan Kim', 'Climate and infrastructure investing', 'Northstar Ventures', 'Principal', 'Climate investing', 'New York, NY', 'Harvard University', 'Economics'),
+  ('10000000-0000-4000-8000-000000000007', 'Alex Morgan', null, null, null, null, null, null, null),
+  ('10000000-0000-4000-8000-000000000008', 'Taylor Reed', 'Climate careers and community building', 'Greenline', 'Program Lead', 'Climate', 'Los Angeles, CA', 'UCLA', 'Public Policy');
 
 insert into public.organization_profiles (
   organization_membership_id, organization_id, graduation_year, bio
@@ -92,7 +103,61 @@ insert into public.organization_profiles (
   ('20000000-0000-4000-8000-000000000003', '11111111-1111-4111-8111-111111111111', 2008, 'Open to consulting, business school, and career transition questions.'),
   ('20000000-0000-4000-8000-000000000004', '11111111-1111-4111-8111-111111111111', 2012, 'Product leader with experience moving between Korea and the US.'),
   ('20000000-0000-4000-8000-000000000005', '11111111-1111-4111-8111-111111111111', 2024, 'Recent graduate exploring what comes next.'),
-  ('20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', 2011, 'Climate and infrastructure investor.');
+  ('20000000-0000-4000-8000-000000000006', '11111111-1111-4111-8111-111111111111', 2011, 'Climate and infrastructure investor.'),
+  ('20000000-0000-4000-8000-000000000007', '22222222-2222-4222-8222-222222222222', 2018, null),
+  ('20000000-0000-4000-8000-000000000008', '22222222-2222-4222-8222-222222222222', 2018, 'Open to helping classmates explore climate careers.');
+
+update public.users
+set onboarding_completed_at = null
+where id = '10000000-0000-4000-8000-000000000007';
+
+-- Deterministic review-first Fast Fill proposal. Browser tests exercise the
+-- review and atomic apply without calling an external enrichment provider.
+insert into private.profile_change_proposals (
+  id, user_id, source, status, current_snapshot, proposed_snapshot,
+  source_metadata, confidence, review_token_hash, expires_at
+) values (
+  '91000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000007',
+  'resume',
+  'pending',
+  '{
+    "name":"Alex Morgan","headline":null,"city":null,"currentEmployer":null,
+    "currentTitle":null,"university":null,"major":null,"linkedinUrl":null,
+    "careerHistory":[],"educationHistory":[],"skills":[]
+  }'::jsonb,
+  '{
+    "name":"Alex Morgan","headline":"Climate programs and community partnerships",
+    "city":"Los Angeles, CA","currentEmployer":"Civic Futures","currentTitle":"Program Associate",
+    "university":"UCLA","major":"Public Policy",
+    "careerHistory":[{
+      "employer":"Civic Futures","title":"Program Associate","startDate":"2024-07",
+      "endDate":null,"description":"Builds partnerships for climate career programs."
+    }],
+    "educationHistory":[{
+      "school":"UCLA","degree":"B.A.","field":"Public Policy","startDate":"2018","endDate":"2022"
+    }],
+    "skills":["community partnerships","climate programs","program management"]
+  }'::jsonb,
+  '{"originalName":"alex-morgan-resume.pdf","mimeType":"application/pdf"}'::jsonb,
+  0.91,
+  extensions.digest('local-onboarding-import-review-token', 'sha256'),
+  now() + interval '7 days'
+);
+
+insert into private.profile_import_requests (
+  id, user_id, organization_membership_id, client_request_id, source,
+  source_key_hash, status, proposal_id
+) values (
+  '92000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000007',
+  '20000000-0000-4000-8000-000000000007',
+  '93000000-0000-4000-8000-000000000001',
+  'resume',
+  extensions.digest('seed:alex-morgan-resume.pdf', 'sha256'),
+  'ready',
+  '91000000-0000-4000-8000-000000000001'
+);
 
 insert into public.profile_contact_links (
   id, organization_membership_id, organization_id,
@@ -190,6 +255,15 @@ insert into public.asks (
   null,
   'matched', true,
   '30000000-0000-4000-8000-000000000102'
+), (
+  '30000000-0000-4000-8000-000000000006',
+  '22222222-2222-4222-8222-222222222222',
+  '20000000-0000-4000-8000-000000000008',
+  'circle', 'open', null,
+  'Who has experience planning a career pivot into climate work?',
+  null,
+  'matched', false,
+  '30000000-0000-4000-8000-000000000106'
 );
 
 insert into private.ask_matches (
@@ -202,6 +276,15 @@ insert into private.ask_matches (
   1, 0.91,
   'Invests in climate and infrastructure companies.',
   '{"sections":["headline","helper_topics"]}',
+  'seed',
+  'v1'
+), (
+  '30000000-0000-4000-8000-000000000006',
+  '22222222-2222-4222-8222-222222222222',
+  '20000000-0000-4000-8000-000000000007',
+  1, 0.72,
+  'New member cold-start match for the onboarding offer flow.',
+  '{"sections":["graduation_year"]}',
   'seed',
   'v1'
 );

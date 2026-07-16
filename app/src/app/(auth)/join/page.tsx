@@ -1,7 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { createAdminClient } from '@/db/admin'
-import { createInviteVerificationRepository } from '@/db/repositories/invites'
-import { verifyInviteToken } from '@/lib/invite/verify'
+import { verifyInviteFromServer } from '@/lib/entry/invite-service'
 import { JoinForm } from './join-form'
 
 type SearchParams = { token?: string; error?: string }
@@ -19,10 +17,7 @@ export default async function JoinPage({ searchParams }: { searchParams: Promise
     )
   }
 
-  const verified = await verifyInviteToken(
-    token,
-    createInviteVerificationRepository(createAdminClient()),
-  )
+  const verified = await verifyInviteFromServer(token)
   if (!verified.ok) {
     return <ErrorCard title="Invite unavailable">{describeError(verified.error)}</ErrorCard>
   }

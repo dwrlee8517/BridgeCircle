@@ -4,7 +4,6 @@ import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { OnboardingImportOptions } from './step-education'
 import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepCurrentState = {
@@ -27,7 +26,7 @@ type Props = {
 }
 
 /**
- * Step 3 of 5 — Where you are now. Skippable.
+ * Step 4 of 7 — Where you are now. Skippable.
  *
  * All fields optional. Most members will fill at least employer + title +
  * city and industry. Empty values are stored as null.
@@ -42,7 +41,6 @@ export function StepCurrent({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5">
-      <OnboardingImportOptions step={3} />
       <div className="space-y-1.5">
         <Label htmlFor="currentEmployer">Current employer</Label>
         <Input

@@ -3,6 +3,8 @@ export const HELP_WORKER_JOB_TYPES = [
   'send_email',
   'run_ask_matching',
   'index_profile',
+  'send_invite_email',
+  'generate_account_export',
 ] as const
 
 export type HelpWorkerJobType = (typeof HELP_WORKER_JOB_TYPES)[number]

@@ -40,17 +40,12 @@ export function createNotificationRepository(
 ): NotificationRepository {
   return {
     async list(options = {}) {
-      let query = client
-        .from('notifications')
-        .select(
-          'id, type, target_type, target_id, organization_id, actor_user_id, read_at, created_at, payload',
-        )
-        .order('created_at', { ascending: false })
-        .order('id', { ascending: false })
-        .limit(Math.min(Math.max(options.limit ?? 30, 1), 100))
-
-      if (options.unreadOnly) query = query.is('read_at', null)
-      const { data, error } = await query
+      const { data, error } = await client.schema('api').rpc('list_my_notifications', {
+        p_before_created_at: options.beforeCreatedAt,
+        p_before_id: options.beforeId,
+        p_limit: Math.min(Math.max(options.limit ?? 30, 1), 100),
+        p_unread_only: options.unreadOnly ?? false,
+      })
       if (error) throw new Error(`listNotifications: ${error.message}`)
       return (data ?? [])
         .map(parseNotificationRow)
@@ -63,6 +58,14 @@ export function createNotificationRepository(
         .schema('api')
         .rpc('mark_notifications_read', { p_notification_ids: notificationIds })
       if (error) throw new Error(`markNotificationsRead: ${error.message}`)
+      return z.coerce.number().int().nonnegative().parse(data)
+    },
+
+    async markAllRead(before) {
+      const { data, error } = await client
+        .schema('api')
+        .rpc('mark_notifications_read_before', { p_before: before })
+      if (error) throw new Error(`markAllNotificationsRead: ${error.message}`)
       return z.coerce.number().int().nonnegative().parse(data)
     },
   }

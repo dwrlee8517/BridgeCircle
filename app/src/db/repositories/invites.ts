@@ -36,6 +36,73 @@ const acceptRowSchema = z.object({
   membership_status: z.enum(['active', 'pending', 'rejected', 'revoked']).nullable(),
 })
 
+const adminInviteMutationRowSchema = z.object({
+  result_code: z.enum([
+    'issued',
+    'already_pending',
+    'resent',
+    'revoked',
+    'accepted',
+    'expired',
+    'not_available',
+    'invalid_input',
+  ]),
+  invite_id: z.guid().nullable(),
+  invite_status: z.enum(['pending', 'accepted', 'expired', 'revoked']).nullable(),
+  expires_at: z.string().nullable(),
+})
+
+const adminInviteRowSchema = z.object({
+  invite_id: z.guid(),
+  email: z.email(),
+  full_name: z.string().nullable(),
+  graduation_year: z.number().int().nullable(),
+  status: z.enum(['pending', 'accepted', 'expired', 'revoked']),
+  expires_at: z.string(),
+  created_at: z.string(),
+})
+
+export type AdminInvite = {
+  id: string
+  email: string
+  fullName: string | null
+  graduationYear: number | null
+  status: 'pending' | 'accepted' | 'expired' | 'revoked'
+  expiresAt: string
+  createdAt: string
+}
+
+export type AdminInviteMutationResult =
+  | {
+      ok: true
+      result: 'issued' | 'already_pending' | 'resent' | 'revoked'
+      inviteId: string
+      status: 'pending' | 'accepted' | 'expired' | 'revoked'
+      expiresAt: string
+    }
+  | {
+      ok: false
+      error: 'accepted' | 'expired' | 'not_available' | 'invalid_input'
+    }
+
+export type AdminInviteRepository = {
+  issue(input: {
+    organizationId: string
+    email: string
+    fullName?: string | null
+    graduationYear?: number | null
+    requestId: string
+  }): Promise<AdminInviteMutationResult>
+  list(input: {
+    organizationId: string
+    beforeCreatedAt?: string
+    beforeId?: string
+    limit?: number
+  }): Promise<AdminInvite[]>
+  resend(inviteId: string, requestId: string): Promise<AdminInviteMutationResult>
+  revoke(inviteId: string, requestId: string): Promise<AdminInviteMutationResult>
+}
+
 export function parseVerifyInviteRow(row: unknown): VerifyResult {
   const parsed = verifyRowSchema.parse(row)
   if (parsed.result_code !== 'valid') {
@@ -82,6 +149,46 @@ export function parseAcceptInviteRow(row: unknown): AcceptInviteResult {
   return { ok: false, error: parsed.result_code }
 }
 
+export function parseAdminInviteMutationRow(row: unknown): AdminInviteMutationResult {
+  const parsed = adminInviteMutationRowSchema.parse(row)
+  if (
+    ['issued', 'already_pending', 'resent', 'revoked'].includes(parsed.result_code) &&
+    parsed.invite_id &&
+    parsed.invite_status &&
+    parsed.expires_at
+  ) {
+    return {
+      ok: true,
+      result: parsed.result_code as 'issued' | 'already_pending' | 'resent' | 'revoked',
+      inviteId: parsed.invite_id,
+      status: parsed.invite_status,
+      expiresAt: parsed.expires_at,
+    }
+  }
+  if (
+    parsed.result_code === 'accepted' ||
+    parsed.result_code === 'expired' ||
+    parsed.result_code === 'not_available' ||
+    parsed.result_code === 'invalid_input'
+  ) {
+    return { ok: false, error: parsed.result_code }
+  }
+  throw new Error('adminInvite: successful result omitted required fields')
+}
+
+export function parseAdminInviteRow(row: unknown): AdminInvite {
+  const parsed = adminInviteRowSchema.parse(row)
+  return {
+    id: parsed.invite_id,
+    email: parsed.email,
+    fullName: parsed.full_name,
+    graduationYear: parsed.graduation_year,
+    status: parsed.status,
+    expiresAt: parsed.expires_at,
+    createdAt: parsed.created_at,
+  }
+}
+
 export function createInviteVerificationRepository(
   serviceClient: SupabaseClient<Database>,
 ): InviteVerificationRepository {
@@ -108,6 +215,61 @@ export function createInviteAcceptanceRepository(
         .single()
       if (error) throw new Error(`acceptInvite: ${error.message}`)
       return parseAcceptInviteRow(data)
+    },
+  }
+}
+
+export function createAdminInviteRepository(
+  client: SupabaseClient<Database>,
+): AdminInviteRepository {
+  const mutate = async (
+    operation: 'resend_invite' | 'revoke_invite',
+    inviteId: string,
+    requestId: string,
+  ) => {
+    const { data, error } = await client
+      .schema('api')
+      .rpc(operation, { p_invite_id: inviteId, p_request_id: requestId })
+      .single()
+    if (error) throw new Error(`${operation}: ${error.message}`)
+    return parseAdminInviteMutationRow(data)
+  }
+
+  return {
+    async issue(input) {
+      const { data, error } = await client
+        .schema('api')
+        .rpc('issue_invite', {
+          p_organization_id: input.organizationId,
+          p_email: input.email,
+          p_full_name: input.fullName ?? '',
+          // The fixed SQL contract maps 0 to NULL so the generated RPC type
+          // stays scalar while graduation year remains optional to admins.
+          p_graduation_year: input.graduationYear ?? 0,
+          p_request_id: input.requestId,
+        })
+        .single()
+      if (error) throw new Error(`issueInvite: ${error.message}`)
+      return parseAdminInviteMutationRow(data)
+    },
+
+    async list(input) {
+      const { data, error } = await client.schema('api').rpc('list_invites', {
+        p_organization_id: input.organizationId,
+        p_before_created_at: input.beforeCreatedAt,
+        p_before_id: input.beforeId,
+        p_limit: input.limit,
+      })
+      if (error) throw new Error(`listInvites: ${error.message}`)
+      return (data ?? []).map(parseAdminInviteRow)
+    },
+
+    resend(inviteId, requestId) {
+      return mutate('resend_invite', inviteId, requestId)
+    },
+
+    revoke(inviteId, requestId) {
+      return mutate('revoke_invite', inviteId, requestId)
     },
   }
 }

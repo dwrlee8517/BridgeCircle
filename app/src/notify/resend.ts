@@ -38,6 +38,7 @@ export type SendInviteInput = {
   fullName: string | null
   schoolName: string
   joinUrl: string
+  idempotencyKey?: string
 }
 
 export type NotifyResult = { ok: true; id: string } | { ok: false; error: string }
@@ -212,6 +213,7 @@ export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyRes
     to: input.to,
     subject: `You're invited to join ${input.schoolName} on BridgeCircle`,
     email: InviteEmail(input),
+    idempotencyKey: input.idempotencyKey,
   })
 }
 

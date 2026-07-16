@@ -1,16 +1,13 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { clearMembershipPreference, setMembershipPreference } from '@/app/_lib/membership-cookie'
-import { createAdminClient } from '@/db/admin'
-import {
-  createInviteAcceptanceRepository,
-  createInviteVerificationRepository,
-} from '@/db/repositories/invites'
+import { createInviteAcceptanceRepository } from '@/db/repositories/invites'
 import { getMemberContext } from '@/db/repositories/member-context'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
+import { deleteAuthUser, verifyInviteFromServer } from '@/lib/entry/invite-service'
+import { memberEntryPath } from '@/lib/entry/routing'
 import { acceptInvite } from '@/lib/invite/accept'
-import { verifyInviteToken } from '@/lib/invite/verify'
 
 const PENDING_INVITE_COOKIE = 'pending_invite_token'
 
@@ -56,10 +53,7 @@ export async function GET(request: Request) {
   if (pendingToken) {
     cookieStore.delete(PENDING_INVITE_COOKIE)
 
-    const verified = await verifyInviteToken(
-      pendingToken,
-      createInviteVerificationRepository(createAdminClient()),
-    )
+    const verified = await verifyInviteFromServer(pendingToken)
     if (verified.ok && verified.invite.email.toLowerCase() === data.user.email?.toLowerCase()) {
       const accepted = await acceptInvite(pendingToken, createInviteAcceptanceRepository(supabase))
       if (accepted.ok) {
@@ -82,32 +76,15 @@ export async function GET(request: Request) {
   // reach this branch — the auth.exchangeCodeForSession above fails for
   // banned users and we redirect to /sign-in with the error.
   const context = await getMemberContext(supabase)
-  const hasActive = context.memberships.some((membership) => membership.status === 'active')
-  const hasPending = context.memberships.some((membership) => membership.status === 'pending')
-
-  if (hasActive) {
-    // Onboarding gate for returning users: if their onboarding wasn't
-    // finished (e.g. they signed up via password, bailed mid-flow, then
-    // signed back in via Google later), route them to the staged flow.
-    if (!context.onboardingCompletedAt) {
-      return NextResponse.redirect(`${origin}/onboarding`)
-    }
-    const safeNext = nextParam?.startsWith('/') ? nextParam : '/'
-    return NextResponse.redirect(`${origin}${safeNext}`)
-  }
-
-  if (context.deleteScheduledFor && !context.deleteInitiatedByAdmin && !context.deletedAt) {
-    return NextResponse.redirect(`${origin}/cancel-delete`)
-  }
-
-  if (hasPending) {
-    return NextResponse.redirect(`${origin}/onboarding`)
+  const destination = memberEntryPath(context, nextParam)
+  if (!destination.startsWith('/sign-in?error=')) {
+    return NextResponse.redirect(`${origin}${destination}`)
   }
 
   await supabase.auth.signOut()
   await clearMembershipPreference()
   if (context.memberships.length === 0) {
-    await createAdminClient().auth.admin.deleteUser(data.user.id)
+    await deleteAuthUser(data.user.id)
   }
   return NextResponse.redirect(
     `${origin}/sign-in?error=${encodeURIComponent(

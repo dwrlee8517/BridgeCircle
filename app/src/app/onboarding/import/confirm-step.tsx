@@ -8,7 +8,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { isCurrentRoleSupported } from '@/lib/enrichment/current-role'
 import type { ImportCurrentProfile } from '@/lib/onboarding/import-current-profile'
+import {
+  buildInitialScalarChoices,
+  type ImportScalarChoice,
+  type ImportScalarKey,
+} from '@/lib/onboarding/import-proposal'
 import type { CareerEntry, EducationEntry, ExtractedProfile } from '@/lib/resume/schemas'
 
 /**
@@ -36,8 +42,6 @@ const SCALAR_FIELDS = [
   { key: 'major', label: 'Major' },
 ] as const
 
-type ScalarKey = (typeof SCALAR_FIELDS)[number]['key']
-type ScalarChoice = { use: boolean; value: string | null }
 type CareerChoice = CareerEntry & { use: boolean; _key: string; _origin: 'saved' | 'new' }
 type EducationChoice = EducationEntry & { use: boolean; _key: string; _origin: 'saved' | 'new' }
 type SkillChoice = { use: boolean; value: string; _key: string; _origin: 'saved' | 'new' }
@@ -77,15 +81,10 @@ export function ConfirmStep({
   submitLabel?: string
   extraActions?: React.ReactNode
 }) {
-  const [scalars, setScalars] = useState<Record<ScalarKey, ScalarChoice>>(() => ({
-    name: { use: profile.name !== null, value: profile.name },
-    headline: { use: profile.headline !== null, value: profile.headline },
-    city: { use: profile.city !== null, value: profile.city },
-    currentEmployer: { use: profile.currentEmployer !== null, value: profile.currentEmployer },
-    currentTitle: { use: profile.currentTitle !== null, value: profile.currentTitle },
-    university: { use: profile.university !== null, value: profile.university },
-    major: { use: profile.major !== null, value: profile.major },
-  }))
+  const [scalars, setScalars] = useState(() => buildInitialScalarChoices(profile))
+  const currentRoleNeedsReview =
+    (profile.currentEmployer !== null || profile.currentTitle !== null) &&
+    !isCurrentRoleSupported(profile)
 
   const [careerHistory, setCareerHistory] = useState<CareerChoice[]>(() => {
     const savedKeys = new Set(
@@ -150,7 +149,7 @@ export function ConfirmStep({
 
   const [newSkill, setNewSkill] = useState('')
 
-  function setScalar(key: ScalarKey, patch: Partial<ScalarChoice>) {
+  function setScalar(key: ImportScalarKey, patch: Partial<ImportScalarChoice>) {
     setScalars((s) => ({ ...s, [key]: { ...s[key], ...patch } }))
   }
 
@@ -201,6 +200,12 @@ export function ConfirmStep({
 
       <Section title="Profile fields">
         <div className="space-y-3">
+          {currentRoleNeedsReview ? (
+            <p className="rounded-[var(--radius-box)] bg-surface-subtle px-3 py-2.5 text-xs leading-relaxed text-text-secondary">
+              We found a possible current role, but its dates don&rsquo;t show that it&rsquo;s
+              current. It isn&rsquo;t selected yet.
+            </p>
+          ) : null}
           {SCALAR_FIELDS.map(({ key, label }) => (
             <ScalarRow
               key={key}
@@ -218,7 +223,7 @@ export function ConfirmStep({
         subtitle={`${careerHistory.filter((e) => e.use).length} of ${careerHistory.length} included`}
       >
         {careerHistory.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-text-secondary">
             Nothing on your profile and nothing extracted.
           </p>
         ) : (
@@ -240,7 +245,7 @@ export function ConfirmStep({
         subtitle={`${educationHistory.filter((e) => e.use).length} of ${educationHistory.length} included`}
       >
         {educationHistory.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-text-secondary">
             Nothing on your profile and nothing extracted.
           </p>
         ) : (
@@ -258,7 +263,7 @@ export function ConfirmStep({
       </Section>
 
       <Section title="Skills" subtitle={`${skills.filter((s) => s.use).length} included`}>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-text-secondary">
           Click any chip to remove it (or restore it). Skills already on your profile show with a
           dot.
         </p>
@@ -273,7 +278,7 @@ export function ConfirmStep({
               className={`rounded-lg border px-2.5 py-0.5 text-xs ${
                 s.use
                   ? 'border-foreground bg-foreground text-background'
-                  : 'border-muted-foreground/30 text-muted-foreground line-through'
+                  : 'border-border text-text-secondary line-through'
               }`}
               title={
                 s._origin === 'saved'
@@ -307,14 +312,20 @@ export function ConfirmStep({
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <div className="flex items-center justify-between gap-2 sticky bottom-0 -mx-1 border-t bg-background py-3 px-1">
-        <p className="text-xs text-muted-foreground">{includedCount} items selected</p>
-        <div className="flex gap-2">
-          {extraActions}
+      <div className="sticky bottom-0 -mx-1 flex flex-col gap-3 border-t bg-background px-1 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+        <p className="text-xs text-text-secondary">{includedCount} items selected</p>
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+          {extraActions ? (
+            <div className="col-span-2 [&>*]:w-full sm:col-span-1 sm:[&>*]:w-auto">
+              {extraActions}
+            </div>
+          ) : null}
           <Button type="button" variant="outline" asChild>
-            <Link href={cancelHref}>Cancel</Link>
+            <Link href={cancelHref} className="w-full sm:w-auto">
+              Cancel
+            </Link>
           </Button>
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" variant="cta" className="w-full sm:w-auto" disabled={pending}>
             {pending ? 'Applying…' : submitLabel}
           </Button>
         </div>
@@ -335,8 +346,8 @@ function Section({
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-semibold">{title}</h3>
-        {subtitle ? <span className="text-xs text-muted-foreground">{subtitle}</span> : null}
+        <h2 className="text-sm font-semibold">{title}</h2>
+        {subtitle ? <span className="text-xs text-text-secondary">{subtitle}</span> : null}
       </div>
       {children}
     </div>
@@ -350,9 +361,9 @@ function ScalarRow({
   onChange,
 }: {
   label: string
-  choice: ScalarChoice
+  choice: ImportScalarChoice
   currentValue: string | null
-  onChange: (patch: Partial<ScalarChoice>) => void
+  onChange: (patch: Partial<ImportScalarChoice>) => void
 }) {
   return (
     <div className="grid grid-cols-[auto_1fr] gap-3 items-start">
@@ -371,7 +382,7 @@ function ScalarRow({
           placeholder="(empty)"
         />
         {currentValue && currentValue !== choice.value ? (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-text-secondary">
             Currently: <span className="italic">{currentValue}</span>
           </p>
         ) : null}
@@ -404,7 +415,7 @@ function CareerCard({
           onCheckedChange={(v) => onChange({ use: v === true })}
           aria-label="Include this role"
         />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-text-secondary">
           {entry.startDate ?? '?'} – {entry.endDate ?? 'present'}
         </span>
         {entry.endDate === null ? (
@@ -412,10 +423,7 @@ function CareerCard({
             current
           </Badge>
         ) : null}
-        <Badge
-          variant={entry._origin === 'saved' ? 'outline' : 'default'}
-          className="ml-auto text-xs"
-        >
+        <Badge variant="outline" className="ml-auto bg-primary-tint text-xs text-text-primary">
           {entry._origin === 'saved' ? 'on profile' : newBadgeLabel}
         </Badge>
       </div>
@@ -435,7 +443,7 @@ function CareerCard({
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Start</Label>
+          <Label className="text-xs text-text-secondary">Start</Label>
           <Input
             value={entry.startDate ?? ''}
             onChange={(e) => onChange({ startDate: e.target.value || null })}
@@ -445,7 +453,7 @@ function CareerCard({
           />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">End</Label>
+          <Label className="text-xs text-text-secondary">End</Label>
           <Input
             value={entry.endDate ?? ''}
             onChange={(e) => onChange({ endDate: e.target.value || null })}
@@ -462,7 +470,7 @@ function CareerCard({
           onCheckedChange={(v) => toggleCurrent(v === true)}
           disabled={!entry.use}
         />
-        <Label htmlFor={currentId} className="cursor-pointer text-xs text-muted-foreground">
+        <Label htmlFor={currentId} className="cursor-pointer text-xs text-text-secondary">
           I currently work here
         </Label>
       </div>
@@ -501,13 +509,10 @@ function EducationCard({
           onCheckedChange={(v) => onChange({ use: v === true })}
           aria-label="Include this education"
         />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-text-secondary">
           {entry.startDate ?? '?'} – {entry.endDate ?? (currentlyHere ? 'present' : '?')}
         </span>
-        <Badge
-          variant={entry._origin === 'saved' ? 'outline' : 'default'}
-          className="ml-auto text-xs"
-        >
+        <Badge variant="outline" className="ml-auto bg-primary-tint text-xs text-text-primary">
           {entry._origin === 'saved' ? 'on profile' : newBadgeLabel}
         </Badge>
       </div>
@@ -533,7 +538,7 @@ function EducationCard({
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Start year</Label>
+          <Label className="text-xs text-text-secondary">Start year</Label>
           <Input
             value={entry.startDate ?? ''}
             onChange={(e) => onChange({ startDate: e.target.value || null })}
@@ -543,7 +548,7 @@ function EducationCard({
           />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">End year</Label>
+          <Label className="text-xs text-text-secondary">End year</Label>
           <Input
             value={entry.endDate ?? ''}
             onChange={(e) => onChange({ endDate: e.target.value || null })}
@@ -560,7 +565,7 @@ function EducationCard({
           onCheckedChange={(v) => toggleCurrent(v === true)}
           disabled={!entry.use}
         />
-        <Label htmlFor={currentId} className="cursor-pointer text-xs text-muted-foreground">
+        <Label htmlFor={currentId} className="cursor-pointer text-xs text-text-secondary">
           I&apos;m currently studying here
         </Label>
       </div>

@@ -11,6 +11,7 @@ import type {
 
 const nullableText = z.string().nullable()
 const nullableInteger = z.number().int().nullable()
+const databaseId = z.union([z.string(), z.number().int().positive()]).transform(String)
 const periodSchema = {
   startYear: nullableInteger,
   startMonth: nullableInteger,
@@ -42,7 +43,7 @@ const selfProfileSchema = z.object({
   }),
   education: z.array(
     z.object({
-      id: z.guid(),
+      id: databaseId,
       school: z.string(),
       degree: nullableText,
       field: nullableText,
@@ -52,7 +53,7 @@ const selfProfileSchema = z.object({
   ),
   experiences: z.array(
     z.object({
-      id: z.guid(),
+      id: databaseId,
       employer: z.string(),
       title: z.string(),
       ...periodSchema,

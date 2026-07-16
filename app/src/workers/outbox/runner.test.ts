@@ -41,6 +41,8 @@ function fixture(
     send_email: handler,
     run_ask_matching: handler,
     index_profile: handler,
+    send_invite_email: handler,
+    generate_account_export: handler,
   }
   const dependencies: OutboxWorkerDependencies = {
     queue: {
@@ -66,7 +68,14 @@ describe('outbox runner', () => {
     ).resolves.toEqual({ claimed: 1, completed: 1, retried: 0, failed: 0 })
     expect(dependencies.queue.claim).toHaveBeenCalledWith(
       'worker-1',
-      ['create_notification', 'send_email', 'run_ask_matching', 'index_profile'],
+      [
+        'create_notification',
+        'send_email',
+        'run_ask_matching',
+        'index_profile',
+        'send_invite_email',
+        'generate_account_export',
+      ],
       10,
     )
     expect(dependencies.queue.complete).toHaveBeenCalledWith(1, 'worker-1')

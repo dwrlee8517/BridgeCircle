@@ -55,6 +55,41 @@ describe('isAcceptableResult', () => {
     expect(result).toEqual({ ok: false, reason: 'current_title_dropped' })
   })
 
+  it('accepts an omitted current role when provider history contains only ended roles', () => {
+    const result = isAcceptableResult(
+      profile(),
+      profile({
+        currentEmployer: null,
+        currentTitle: null,
+        careerHistory: [
+          {
+            employer: 'A2 Biotherapeutics, Inc.',
+            title: 'Research Associate II',
+            startDate: '2023-09',
+            endDate: '2024-07',
+            description: null,
+          },
+          {
+            employer: 'A2 Biotherapeutics, Inc.',
+            title: 'Research Associate I',
+            startDate: '2022-06',
+            endDate: '2023-09',
+            description: null,
+          },
+        ],
+      }),
+    )
+    expect(result.ok).toBe(true)
+  })
+
+  it('rejects an omitted current role when the provider supplies no career evidence', () => {
+    const result = isAcceptableResult(
+      profile({ careerHistory: [] }),
+      profile({ currentEmployer: null, currentTitle: null, careerHistory: [] }),
+    )
+    expect(result).toEqual({ ok: false, reason: 'current_title_dropped' })
+  })
+
   it('rejects when career history collapses from many to zero', () => {
     const result = isAcceptableResult(profile(), profile({ careerHistory: [] }))
     expect(result).toEqual({ ok: false, reason: 'total_replacement' })

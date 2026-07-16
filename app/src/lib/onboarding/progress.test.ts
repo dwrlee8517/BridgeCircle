@@ -22,7 +22,7 @@ describe('onboarding progress', () => {
     expect(parseOnboardingStep('0')).toBeNull()
     expect(parseOnboardingStep('abc')).toBeNull()
     expect(parseOnboardingStep('3')).toBe(3)
-    expect(parseOnboardingStep('99')).toBe(5)
+    expect(parseOnboardingStep('99')).toBe(7)
   })
 
   it('forces step 1 until the required identity floor exists', () => {
@@ -40,7 +40,7 @@ describe('onboarding progress', () => {
         major: '',
         educationHistory: [],
       }),
-    ).toBe(2)
+    ).toBe(3)
 
     expect(
       inferOnboardingStep({
@@ -51,7 +51,7 @@ describe('onboarding progress', () => {
         headline: '',
         industry: '',
       }),
-    ).toBe(3)
+    ).toBe(4)
 
     expect(
       inferOnboardingStep({
@@ -59,10 +59,10 @@ describe('onboarding progress', () => {
         careerHistory: [],
         skills: [],
       }),
-    ).toBe(4)
+    ).toBe(5)
   })
 
-  it('uses step 5 once profile setup content exists through step 4', () => {
-    expect(inferOnboardingStep(completeProfile)).toBe(5)
+  it('uses Help once profile setup content exists through Activities', () => {
+    expect(inferOnboardingStep(completeProfile)).toBe(6)
   })
 })
