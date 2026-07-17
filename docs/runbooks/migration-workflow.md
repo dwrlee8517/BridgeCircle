@@ -57,12 +57,12 @@ not run `supabase db push`, `pnpm db:types` (linked), or migration repair
 against either shared project until the matching development cutover step is
 approved.
 
-As of 2026-07-15, Foundation, Conversation Primitive, and Help are complete
-locally on `codex/redesign-v2`, including Help worker/lifecycle/Realtime/UI and
-the destructive local route/module cutover. Messages, People/Profile, and
-School/Admin are still application-port inventory. Hosted Supabase advisor
-checks remain part of the separately approved development cutover; this local
-result does not authorize a remote command.
+As of 2026-07-17, every application domain and the private outbox worker have
+cut over to `bridgecircle-dev` on `codex/redesign-v2`. Active migrations are
+immutable from this point forward: even before the first real signup, every
+schema correction gets a new forward migration. The production-v2 reset and
+deployment remain separately gated; development success does not authorize a
+production command.
 
 `codex/redesign-v2` is a long-lived integration branch. At the start of each
 domain port and before its checkpoint, compare it with local `main`; if `main`

@@ -109,6 +109,19 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 
 If you add a new secret, add it to `dev` first (so the whole team gets it on next run) and only override in `dev_personal` if your value needs to differ from the team's.
 
+### Railway dev worker binding
+
+`BridgeCircle Worker` does not hold copied secret values. Its required Railway
+variables reference the matching `BridgeCircle` web-service variables, and the
+web service remains populated by the Doppler `dev` sync. Rotate or change a dev
+secret in Doppler; after the sync, redeploy both services so both processes read
+the new value. `COMMIT_SHA` is stamped independently on both services by CD.
+
+`EMAIL_DEV_REDIRECT` is intentionally optional. When it is absent, the shared
+mail guard uses `delivered@resend.dev`; `EMAIL_DEV_ALLOWLIST` remains the only
+way to let a maintainer's exact address receive dev mail. Do not add a broad
+domain or wildcard allowlist.
+
 ## The NODE_ENV Gotcha
 
 `NODE_ENV` is a **build-mode flag owned by the tools, not an environment selector** — environment identity is `APP_ENV` (below). Since 2026-07-11 the `package.json` scripts pin it structurally:
@@ -251,6 +264,11 @@ CI and CD are wired (see [`.github/workflows/`](../../.github/workflows/) and [e
 | `DOPPLER_TOKEN_PRD` | `prd` | `cd.yml` promote job (only that job, gated behind the `production` environment) |
 
 Jobs run `doppler run -- <command>` exactly as you do locally; the token in the env authenticates non-interactively. The `DOPPLER_TOKEN_LOCAL` scoping is deliberate — the E2E runner can read local-stack values and dummies but **never** real dev/prod secrets. Rotate any token through the Doppler dashboard and update the matching GitHub secret in the same step.
+
+The dev deploy job uses that one `DOPPLER_TOKEN` to authenticate Railway, then
+deploys the web service and the private worker from the same checkout. It does
+not export Doppler secret values into workflow output or a generated `.env`
+file; worker runtime secrets resolve inside Railway through service references.
 
 ## Troubleshooting
 

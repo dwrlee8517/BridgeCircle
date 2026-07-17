@@ -1,12 +1,11 @@
 # Database v2 development cutover plan
 
-> **Status (2026-07-17): approved; local guardrails and release gate complete.
-> The first linked dev reset at `997dc7c` exposed and repaired a missing
-> explicit service-role grant. The repeat reset at `a5eea0b` passed migration,
-> seed, lint, and schema-diff gates, then the expanded hosted manifest check
-> correctly stopped on five School support tables without RLS. That final
-> migration repair and environment-neutral type generation require a new
-> committed SHA plus a separately approved reset before deployment.**
+> **Status (2026-07-17): development cutover executed through hosted
+> acceptance and private-worker verification. The final destructive reset used
+> approved base SHA `e3f36fe6e38caf1711e40cb1f2e5dad875fbc6b9`; production
+> was not touched. Phase 6 is making the resulting topology reproducible in the
+> repository and CD. Production-v2 reset and deployment remain pending separate
+> approval.**
 > This plan moves the already verified `codex/redesign-v2` application,
 > database, and worker to the shared development environment. It authorizes no
 > destructive or remote mutation command by itself.
@@ -285,6 +284,49 @@ current uncommitted preparation state.
    **Verify:** the final seeded state passes read-only smoke, the worker has no
    stuck jobs or retry storm, and no test email reaches an unapproved address.
 
+### Executed development evidence (2026-07-17)
+
+- The explicitly approved linked reset rebuilt `ojpvahiuafdcynbdbmri` from
+  base SHA `e3f36fe6e38caf1711e40cb1f2e5dad875fbc6b9`. Immediately after
+  reset: 8 Auth users, 8 memberships, 33 Asks, 13 messages, 3 Storage objects,
+  0 outbox jobs, and 11 migration records.
+- Linked migration listing, warning-level lint, `public,api,private` schema
+  diff, and two linked type generations were green. Generated types were
+  byte-identical at SHA-256
+  `68bf8179cdf575cedcba010879b033416875f52bdb88e7cfa88a49d520d55019`.
+- Hosted acceptance passed all 36 executable seeded roads plus the 3-road
+  read-only same-SHA smoke. Five destructive worker/account roads remained
+  intentionally local-only under the checked-in remote guard.
+- Railway dev service `BridgeCircle Worker`
+  (`f39ee7fd-1ecc-4071-9794-f0c399b216b2`) deployed privately with deployment
+  `ea198247-d40d-45c7-a1a3-bd05e6787bf2`: one `us-west2` replica,
+  `pnpm worker:outbox`, no HTTP health check or public domain, on-failure restart
+  capped at three retries, and 30-second draining.
+- Initial worker startup exposed a real contract mismatch: the typed worker
+  supplied eight job types while `private.claim_outbox_jobs` accepted six.
+  Forward migration `20260717110427_align_outbox_claim_job_types.sql` aligns
+  both private validation and the API default with the typed registry. The
+  same change corrected a three-argument function-identity typo that had been
+  skipping 13 pgTAP assertions. Final local evidence: 19 files / 701 assertions,
+  clean warning-level lint, empty shadow diff, and deterministic types at the
+  checksum above. Independent migration review reported no remaining finding.
+- The hosted eight-type claim returned an empty queue without error after the
+  migration. The live worker stopped its retry loop without a redeploy.
+- A deterministic factory scenario sent one `offer_received` email job for a
+  fictional `@example.com` recipient. The dev guard resolved it to
+  `delivered@resend.dev`; the worker claimed it once, recorded the provider
+  result, completed without error, and returned the same terminal result on
+  replay. Its Ask, offer, and outbox rows were removed afterward.
+- The worker's first maintenance interval legitimately created and completed
+  two durable event-reminder jobs. They remain as normal worker history, not
+  test residue. No job is pending, processing, failed, or retrying.
+- The Supabase advisor connector was attempted after the function migration but
+  the current connector identity lacks advisor permission. This is recorded as
+  an environment-access limitation, not silently treated as a green advisor
+  result; schema lint, pgTAP security contracts, hosted manifests, and empty
+  schema diff are the available gates. Recheck the dashboard advisors when an
+  authorized identity is available.
+
 ### Phase 6 — make the development cutover durable
 
 25. Record exact evidence in the v2 contract and test inventories: SHA,
@@ -335,7 +377,8 @@ not a supported target.
 
 ## Approval boundary
 
-Approval of this document authorizes implementation of Phases 1–2 only: the
-guardrails, hosted acceptance mode, smoke tests, seed contract, and a refreshed
-local gate. Phase 3's linked destructive reset requires a separate explicit
-approval after the preflight evidence and exact SHA are shown.
+The required project-and-SHA approvals for the development resets were granted
+and consumed on 2026-07-17. They do not remain reusable authorization for a
+future reset. Nothing in this plan authorizes a production reset, migration,
+worker service, deployment, push, PR, or merge; each still requires its own
+explicit instruction and target verification.

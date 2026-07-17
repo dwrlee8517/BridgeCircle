@@ -161,22 +161,32 @@ Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway veri
 
 Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points the Supabase keys at `bridgecircle-dev` and inherits the shared Resend/Anthropic/Voyage/Sentry keys from `dev` (they're cheap and activity is environment-tagged provider-side); `dev_local` instead points at the local Docker stack and dummies the outbound services. **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@`. Note real dev sends can't reach real inboxes anyway: outside prod the email guard (`app/src/notify/devGuard.ts`) redirects to a sink unless the address is on `EMAIL_DEV_ALLOWLIST` (see [doppler.md](../runbooks/doppler.md)).
 
-### Help outbox worker topology (implemented locally, not provisioned)
+### Outbox worker topology
 
-The v2 Help slice adds one non-HTTP Railway worker service from the same repo,
-working directory, and commit as the web service. Its production command is
-`pnpm worker:outbox`; it has no web health check and handles `SIGTERM` before a
-Railway replacement. Do not create this service until every v2 domain is
-ported, the global compiler/build are green, and the remote reset is separately
-approved.
+The Railway `dev` environment has one private, non-HTTP service named
+`BridgeCircle Worker` (`f39ee7fd-1ecc-4071-9794-f0c399b216b2`). It runs the
+same `app/` source and commit as the web service with `pnpm worker:outbox`, has
+one `us-west2` replica, no public domain or HTTP health check, retries a failed
+process at most three times, and receives 30 seconds to drain after `SIGTERM`.
+[`app/railway.worker.json`](../../app/railway.worker.json) is the checked-in
+runtime contract.
 
-The worker uses the same Doppler config as its matching web environment and
-requires the existing `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
-`NEXT_PUBLIC_APP_URL`, `APP_ENV`, Resend, Anthropic, and Voyage variables. The
-four `OUTBOX_*` settings above are optional bounded tuning controls, not
-secrets. Non-production worker email still passes through the central
-`EMAIL_DEV_REDIRECT`/`EMAIL_DEV_ALLOWLIST` guard. Structured logs and Sentry
-contain result codes and durable IDs only—never questions, notes, profile text,
+The worker's secret-bearing variables are Railway reference variables to the
+matching `BridgeCircle` web service, whose values remain managed by the
+Doppler `dev` sync. This keeps one dev source of truth without copying secret
+values. CD stamps `COMMIT_SHA` on both services, constructs a clean app-root
+archive with `railway.worker.json` as its deployment config, and deploys web
+then worker from the same checkout. Production has no worker service yet; add
+and verify it only during the separately approved production-v2 cutover.
+
+The worker requires `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
+`NEXT_PUBLIC_APP_URL`, `APP_ENV`, `RESEND_API_KEY`, `RESEND_FROM`,
+`EMAIL_DEV_ALLOWLIST`, `ANTHROPIC_API_KEY`, and `VOYAGE_API_KEY`. The four
+`OUTBOX_*` settings above are optional bounded tuning controls, not secrets.
+When `EMAIL_DEV_REDIRECT` is absent, non-production mail safely defaults to
+`delivered@resend.dev`; an exact `EMAIL_DEV_ALLOWLIST` entry may opt a
+maintainer's own address into delivery. Structured logs and Sentry contain
+result codes and durable IDs only—never questions, notes, profile text,
 provider output, or email addresses.
 
 For local operational checks, run the same entry point with `--once` for one

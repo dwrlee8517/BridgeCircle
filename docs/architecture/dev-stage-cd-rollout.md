@@ -1,11 +1,10 @@
 # Dev stage + scripted CD — rollout plan
 
-> **Database-v2 hold (2026-07-15):** do not execute any deploy, remote
-> migration, reset, or seed step from this older rollout plan while the v2
-> application port is incomplete. Foundation, Conversation, and Help are green
-> locally; Messages, People/Profile, and School/Admin still need porting. The
-> later v2 remote-cutover runbook, a snapshot, a green global build, and
-> separate production approval supersede any execution implication below.
+> **Database-v2 update (2026-07-17):** every application domain has cut over to
+> the v2 development database and the private dev outbox worker is running. The
+> former development hold is spent. Production database reset, worker
+> provisioning, and deployment remain blocked on their own explicit cutover
+> approval; nothing in this older rollout plan authorizes them.
 
 Working plan for [ADR 0014](../decisions/0014-scripted-cd-pipeline.md).
 Executed on branch `dev-stage-cd`. Check items off as they land; delete this
@@ -33,6 +32,7 @@ outside this effort.
 |---|---|
 | Railway project | `BridgeCircle` · `07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1` |
 | Railway service | `BridgeCircle` · `70333670-3490-45f5-b87a-9e5be862ab1c` |
+| Railway dev worker | `BridgeCircle Worker` · `f39ee7fd-1ecc-4071-9794-f0c399b216b2` |
 | Railway prod env | `production` · `f4d76a24-6718-4801-932e-d676aef653d7` |
 | Railway dev env | *created in Phase 1* |
 | Supabase dev | `bridgecircle-dev` · `ojpvahiuafdcynbdbmri` |
@@ -158,6 +158,12 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   `promote` (`needs: integ`, environment `production`) both live in
   `cd.yml`. The dev-side idempotent `supabase db push` joins in Phase 4
   with the prod one.
+- [x] **[C]** Development now deploys the private outbox worker after the
+  same-SHA web health check. `app/railway.worker.json` owns its start,
+  restart, drain, and single-region replica contract; CD builds a clean
+  app-root archive so the web and worker keep distinct Railway configs.
+  Production worker deployment is intentionally absent until production-v2
+  cutover approval and service provisioning.
 - [ ] **[R]** Railway: turn **off** auto-deploy in **both** envs (service →
   Settings → Source/Deploy triggers) once the first scripted run is green.
 - [ ] **[C+R]** Verify both directions: a good merge promotes after approval;
@@ -193,6 +199,10 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 - [ ] **[C]** Update `migration-workflow.md` (drop "the integration owns
   prod"; describe the pipeline; fix the stale "Free project" + pre-Doppler
   wording), `environments.md`, `app/CLAUDE.md`, `INDEX.md`; archive this doc.
+- [x] **[C]** The v2 development cutover removed the hold above, documented
+  the private worker topology in `environments.md`, and added same-SHA worker
+  deployment to `cd.yml`. The broader production-pipeline documentation work
+  remains pending with Phase 4.
 
 ## Sequencing rules
 

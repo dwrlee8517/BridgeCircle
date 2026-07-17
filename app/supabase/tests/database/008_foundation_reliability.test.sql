@@ -1,10 +1,10 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(33);
+select extensions.plan(34);
 
 select (
-  to_regprocedure('api.claim_outbox_jobs(text,integer)') is not null
+  to_regprocedure('api.claim_outbox_jobs(text,integer,text[])') is not null
   and to_regprocedure('api.complete_outbox_job(bigint,text)') is not null
   and to_regprocedure('api.retry_outbox_job(bigint,text,text,timestamp with time zone)') is not null
   and to_regprocedure('api.fail_outbox_job(bigint,text,text)') is not null
@@ -363,14 +363,43 @@ select extensions.has_function(
   'service outbox terminal-failure wrapper exists'
 );
 
+set local role service_role;
+select extensions.lives_ok(
+  $$
+    select *
+    from api.claim_outbox_jobs(
+      'worker-contract-check',
+      1,
+      array[
+        'create_notification',
+        'send_email',
+        'run_ask_matching',
+        'index_profile',
+        'send_invite_email',
+        'generate_account_export',
+        'process_account_deletion',
+        'delete_storage_objects'
+      ]::text[]
+    )
+  $$,
+  'outbox claim accepts every job type implemented by the worker'
+);
+reset role;
+
 \if :outbox_api_exists
 select extensions.ok(
-  has_function_privilege('service_role', 'api.claim_outbox_jobs(text,integer)', 'execute')
+  has_function_privilege(
+    'service_role', 'api.claim_outbox_jobs(text,integer,text[])', 'execute'
+  )
   and has_function_privilege('service_role', 'api.complete_outbox_job(bigint,text)', 'execute')
   and has_function_privilege('service_role', 'api.retry_outbox_job(bigint,text,text,timestamp with time zone)', 'execute')
   and has_function_privilege('service_role', 'api.fail_outbox_job(bigint,text,text)', 'execute')
-  and not has_function_privilege('authenticated', 'api.claim_outbox_jobs(text,integer)', 'execute')
-  and not has_function_privilege('anon', 'api.claim_outbox_jobs(text,integer)', 'execute'),
+  and not has_function_privilege(
+    'authenticated', 'api.claim_outbox_jobs(text,integer,text[])', 'execute'
+  )
+  and not has_function_privilege(
+    'anon', 'api.claim_outbox_jobs(text,integer,text[])', 'execute'
+  ),
   'outbox wrappers are service-only'
 );
 

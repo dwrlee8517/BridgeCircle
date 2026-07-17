@@ -36,6 +36,7 @@ concurrency:
 env:
   RAILWAY_PROJECT_ID: 07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1
   RAILWAY_SERVICE: BridgeCircle
+  RAILWAY_WORKER_SERVICE: BridgeCircle Worker
   DEV_URL: https://dev.bridgecircle.org
 
 defaults:
@@ -76,6 +77,34 @@ jobs:
             --service "$RAILWAY_SERVICE" \
             --environment dev \
             --skip-deploys
+          doppler run --preserve-env -- railway variables \
+            --set "COMMIT_SHA=${{ github.sha }}" \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment dev \
+            --skip-deploys
+
+      - name: Verify private worker targets and variable names
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          doppler run --preserve-env -- railway variable list \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment dev \
+            --json | jq -e '
+              . as $variables |
+              $variables.APP_ENV == "dev" and
+              $variables.COMMIT_SHA == "${{ github.sha }}" and
+              $variables.NEXT_PUBLIC_APP_URL == "https://dev.bridgecircle.org" and
+              $variables.NEXT_PUBLIC_SUPABASE_URL == "https://ojpvahiuafdcynbdbmri.supabase.co" and
+              ([
+                "SUPABASE_SECRET_KEY",
+                "RESEND_API_KEY",
+                "RESEND_FROM",
+                "EMAIL_DEV_ALLOWLIST",
+                "ANTHROPIC_API_KEY",
+                "VOYAGE_API_KEY"
+              ] | all(. as $key | ($variables[$key] | type == "string" and length > 0)))
+            ' >/dev/null
 
       # Blocks until the deploy is live (build + health check) — the job
       # succeeding IS the "dev stage is up" signal.
@@ -104,6 +133,27 @@ jobs:
           done
           echo "::error::Dev stage never reported ${{ github.sha }} (10 min timeout)"
           exit 1
+
+      # The worker is deliberately source-less and private in Railway. Build a
+      # clean app-root archive and replace only its deployment config so web
+      # and worker can share one checkout without sharing a start command.
+      - name: Prepare private worker source bundle
+        run: |
+          worker_bundle="$RUNNER_TEMP/bridgecircle-worker"
+          mkdir "$worker_bundle"
+          cp -R app/. "$worker_bundle/"
+          cp app/railway.worker.json "$worker_bundle/railway.json"
+
+      - name: railway up → dev worker
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: |
+          doppler run --preserve-env -- railway up \
+            "$RUNNER_TEMP/bridgecircle-worker" \
+            --path-as-root \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment dev \
+            --ci
 
   integ:
     name: Integ tests vs dev stage
