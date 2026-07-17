@@ -72,6 +72,8 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
 - [Dev stage + CD rollout](architecture/dev-stage-cd-rollout.md) — phased plan for ADR 0014: dev.bridgecircle.org, integ gate, scripted promote
+- [Production migration ownership record](architecture/production-migration-ownership-record.md) — release-freeze evidence, completed no-op/additive ownership proofs, integration transfer, and the next exact-SHA boundary
+- [Production v2 cutover operator runbook](runbooks/production-v2-cutover.md) — fail-closed exact-SHA snapshot, reset, postflight, bootstrap, deployment, and owner-grant sequence (prepared, not yet authorized)
 - [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow — *prod side superseded by ADR 0014*
 - [Data model (interactive)](architecture/data-model.html)
 

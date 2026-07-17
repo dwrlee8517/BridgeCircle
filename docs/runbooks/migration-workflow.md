@@ -1,17 +1,21 @@
 # Migration Workflow
 
 How to author and ship a Supabase migration in BridgeCircle. Updated
-2026-07-13 for the one-time database-v2 reset.
+2026-07-17 for PR C and the one-time database-v2 production reset.
 
 ## Setup
 
-We currently use a **hybrid branching setup**: `bridgecircle-dev` is a separate
-project for shared development, while the prod project (`bridgecircle`) still
-uses the Supabase + GitHub branching integration. ADR 0014 is replacing that
-prod automation with the gated scripted pipeline in phases; do not assume its
-database phase is live until the rollout checklist says so. See
-[`../architecture/dev-stage-cd-rollout.md`](../architecture/dev-stage-cd-rollout.md)
-and [ADR 0014](../decisions/0014-scripted-cd-pipeline.md).
+`bridgecircle-dev` is a separate shared-development project. The production
+Supabase GitHub integration is disconnected, and the protected manual workflow
+on current `main` is the sole production migration owner during the active
+database-v2 release freeze. The no-op and additive ownership proofs succeeded
+on 2026-07-17; see
+[`production-migration-ownership-record.md`](../architecture/production-migration-ownership-record.md).
+
+PR C replaces that temporary bridge with the reviewed `cd.yml` pipeline. Until
+PR C is merged and its development gates pass, that pipeline is preparation
+only: do not reconnect the Supabase integration, enable production promotion,
+or run the one-time production reset.
 
 ## Database-v2 transition exception
 
@@ -36,10 +40,10 @@ exception is narrow:
 During this transition, validate from `app/` with:
 
 ```bash
-supabase db reset --local
+pnpm exec supabase db reset --local
 pnpm db:test
-supabase db lint --local --level warning --fail-on warning
-supabase db diff --local --schema public,api,private
+pnpm exec supabase db lint --local --level warning --fail-on warning
+pnpm exec supabase db diff --local --schema public,api,private
 pnpm db:types:local
 pnpm typecheck:v2-foundation
 pnpm typecheck:v2-conversations
@@ -53,9 +57,8 @@ pnpm test:db:conversation-query-plans
 
 An empty diff, clean lint, passing pgTAP suite, and deterministic types prove
 the baseline can rebuild locally. They do not authorize a remote change. Do
-not run `supabase db push`, `pnpm db:types` (linked), or migration repair
-against either shared project until the matching development cutover step is
-approved.
+not run linked generation, `db push`, reset, seed, or migration repair against
+either shared project from an ordinary developer checkout.
 
 As of 2026-07-17, every application domain and the private outbox worker have
 cut over to `bridgecircle-dev` on `codex/redesign-v2`. Active migrations are
@@ -80,35 +83,47 @@ expand/contract.
 
 ## Per-migration workflow
 
-This is the ordinary workflow outside the active v2 reset exception. It stays
-in force until ADR 0014 Phase 4 replaces the prod integration with the gated
-pipeline.
+This is the ordinary workflow after PR C activates the scripted pipeline and
+the one-time production-v2 reset is complete:
 
 ```
 1. edit / add SQL file in app/supabase/migrations/
-2. supabase db push                                (applies to bridgecircle-dev)
-3. pnpm db:types                                   (regenerate database.types.ts)
-4. test locally
-5. git push branch + open PR
-6. → Supabase auto-creates a preview branch off prod and runs migrations
-   → "Supabase Preview" status check on the PR turns green
-7. merge PR → Supabase auto-applies migrations to bridgecircle (prod)
-8. preview branch auto-deletes
+2. rebuild, lint, diff, test, and regenerate deterministic types locally
+3. open a PR and require CI + hermetic E2E
+4. merge after review
+5. cd.yml validates and applies the migration to development before code
+6. hosted integration passes for the exact merge SHA
+7. production approval releases the same SHA
+8. cd.yml validates, dry-runs, and pushes ordinary migrations before code
 ```
+
+During the release freeze, current `main` still follows the temporary manual
+ownership workflow documented in the production ownership record. The legacy
+probe is archived under `app/supabase/legacy/migrations/` on PR C and must never
+be pushed to the already-v2 development project.
 
 ## Hard rules
 
-- **Do not push to prod manually.** The integration owns the prod side; manual pushes risk drift. (Step 7 replaced the old manual `supabase link --project-ref <prod>` + `db push --dry-run` + `db push` + re-link dance.)
-- **Branch protection on `main` requires the Supabase Preview check to pass before merging.** Don't merge a PR with a failing migration check.
+- **Do not push to prod outside the protected workflow.** Direct CLI pushes and
+  the disconnected Supabase integration are not production owners.
+- **Do not expect a Supabase Preview check during the freeze.** Branch
+  protection instead requires the always-report `CI gate` and `E2E gate`.
+  For code changes those gates depend on lint/test, the migration-aware build,
+  and hermetic Playwright; for docs-only changes they report a legitimate skip.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. Preview branches *can* be deleted destructively — they're throwaway by design — but prod's history is append-only.
 - **ADR 0015 is the sole migration-history exception.** Do not use its archive
   or migration-repair procedure as precedent for an ordinary migration.
-- **Always run step 2 before opening the PR.** The local dev project (`bridgecircle-dev`) and prod stay in sync only because of this. If you skip step 2, dev will be behind main; harmless until you try to test a future feature locally that depends on the missed migration.
+- **Never apply the legacy probe to shared development.** Validate it in an
+  isolated local stack; PR C archives it outside the active v2 history.
 - **Use expand/contract for any non-additive change.** See the next section. This is the single most important authoring rule in this runbook.
 
 ## Classify the migration before writing it
 
-On merge, Supabase auto-applies the migration to prod (~30s) and Railway redeploys the app (~2–5 min). Supabase almost always wins the race, which means there's a 2–5 minute window where the new schema is live but the old code is still serving traffic. The pattern that's safe depends on what kind of change you're making.
+During the release freeze, only the protected manual workflow can apply an
+approved legacy migration and application deployment remains paused. After the
+database-v2 cutover, the scripted pipeline applies ordinary migrations before
+deploying the exact same application SHA. The compatibility pattern that is
+safe still depends on what kind of change is being made.
 
 **Additive** — safe to ship in a single PR. The old code in the deploy window doesn't see the new shape, so it can't break.
 

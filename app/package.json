@@ -37,6 +37,7 @@
     "check:entry-operations-boundaries": "bash scripts/check-entry-operations-boundaries.sh",
     "check:entry-operations-cutover": "bash scripts/check-entry-operations-cutover.sh",
     "check:dev-cutover": "bash scripts/check-dev-cutover-boundaries.sh",
+    "check:production-cutover": "node --import tsx scripts/check-production-cutover.ts",
     "test:db:concurrency": "bash scripts/test-foundation-concurrency.sh",
     "test:db:conversation-concurrency": "bash scripts/test-conversation-concurrency.sh",
     "test:db:conversation-query-plans": "bash scripts/test-conversation-query-plans.sh",
@@ -63,11 +64,11 @@
     "test:e2e:dev-smoke": "E2E_DEV_SMOKE=1 playwright test tests/e2e/dev-cutover/hosted-smoke.spec.ts",
     "test:browser:entry-operations": "pnpm run db:reset && playwright test --config=playwright.entry-operations.config.ts",
     "db:start": "bash scripts/db-start.sh",
-    "db:stop": "supabase stop",
-    "db:reset": "supabase db reset",
-    "db:test": "supabase test db --local",
-    "db:types:local": "supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
-    "db:types": "supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
+    "db:stop": "pnpm exec supabase stop",
+    "db:reset": "pnpm exec supabase db reset",
+    "db:test": "pnpm exec supabase test db --local",
+    "db:types:local": "pnpm exec supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
+    "db:types": "pnpm exec supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
     "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts"
   },
   "dependencies": {
@@ -111,7 +112,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "supabase": "2.109.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.1.5"
   }

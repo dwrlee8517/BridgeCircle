@@ -3,7 +3,8 @@
 > **Status:** preparation plan approved by Richard on 2026-07-17; exact-SHA
 > production execution remains unapproved
 >
-> **Prepared:** 2026-07-17 from `codex/redesign-v2` at `72446e8`
+> **Prepared:** 2026-07-17; refreshed after merging `main` at `4394ea0` into
+> `codex/redesign-v2`; candidate SHA not yet frozen
 >
 > **Production target:** `bridgecircle` / `edumxwzilfgvamzarwvo`
 >
@@ -60,44 +61,36 @@ versions together, and stop on ambiguous state.
 - deploying a migration directly from a developer-linked production checkout
   after the one-time cutover.
 
-## Current state and the blocking ambiguity
+## Current state and remaining boundary
 
-The development database, web app, and private worker have completed their v2
-cutover. Before this plan edit, the branch was clean at `72446e8`; local `main`
-is its ancestor and the branch is 46 commits ahead at the time this plan was
-written. A read-only live
-audit on 2026-07-17 confirmed both Supabase projects are `ACTIVE_HEALTHY` on
-Postgres 17.6.1.105. Railway development web and worker are running the same
-earlier verified SHA `fedc2781dc1077661f9d5e167637289b1e6d962c`; Phase 3 must
-therefore redeploy the later frozen candidate rather than treating today's
-development deployment as final production evidence.
+Development database, web, and private worker have completed their v2 cutover.
+PR A proved a production no-op, PR B proved one additive migration, and the
+production Supabase GitHub integration was disconnected. Production now has 28
+legacy migration records including ownership probe `20260717213750`; the proof
+and integration evidence are preserved in
+[`production-migration-ownership-record.md`](production-migration-ownership-record.md).
 
-Production is intentionally unchanged. Three current facts prevent safely
-merging the redesign today:
+`main` at `4394ea0` has been merged into `codex/redesign-v2`. The probe is
+archived outside active v2 migrations, the temporary ownership workflow is
+removed, and PR C prepares database-before-code dev/prod promotion, exact-SHA
+web/worker deployment, a separately guarded one-time reset, bootstrap, and
+postflight checks. Production itself remains unchanged on application SHA
+`19247789f2018f025fd5cf149730f6d54dbd1d2e`.
 
-1. ADR 0014 assigns production migrations to `.github/workflows/cd.yml`, but
-   the live workflow still contains only a Phase-4 comment and deploys code
-   without running `supabase db push`.
-2. `migration-workflow.md` still says the legacy Supabase GitHub integration
-   owns production migrations.
-3. Railway production is still running a source-connected `main` deployment at
-   `19247789f2018f025fd5cf149730f6d54dbd1d2e`, and the live Railway topology has
-   no production instance of `BridgeCircle Worker`. The status API does not
-   expose the deploy-trigger toggle, so the dashboard must confirm it directly.
-   A merge is unsafe while either an old deploy trigger or an unowned database
-   automation can move production independently.
-
-The first work is therefore migration-ownership transfer, not the v2 PR.
+The remaining boundary is candidate proof, not architecture ambiguity: finish
+the local release suite, prove the frozen SHA on development, confirm the
+production worker/dashboard prerequisites, merge PR C without approving its
+production gate, and then request the separate target-and-SHA destructive reset
+approval.
 
 ## Locked cutover decisions
 
 ### One owner at a time
 
 The legacy Supabase integration and scripted `db push` must never both be
-treated as production owners. The integration remains connected until the
-scripted path proves credentials and target selection with a no-op. It is then
-disconnected before the scripted path applies its first real, harmless
-migration.
+treated as production owners. That transfer is complete: the integration is
+disconnected after the protected path proved both a no-op and the harmless
+ownership probe. Do not reconnect it; PR C's `cd.yml` is the reviewed successor.
 
 ### The v2 reset is manual; later migrations are automatic
 

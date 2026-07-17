@@ -6,7 +6,8 @@ It is reference material only and is intentionally outside
 
 - Final commit with the legacy migrations active: `8926758`
 - Archived on: 2026-07-13
-- Archived migrations: 27 files under `migrations/`
+- Archived migrations: 28 files under `migrations/`, including the final
+  production migration ownership probe applied before the v2 cutover
 - Archived deterministic seed: `seeds/seed.sql`
 - Schema-only local dump: `legacy-schema.sql`
 

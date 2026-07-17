@@ -151,13 +151,13 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   `RAILWAY_TOKEN_PRD` env secrets, required-reviewer rule enabled
   (all API-verified 2026-07-11). Repo-level Railway token copies deleted;
   only `DOPPLER_TOKEN` remains repo-level.
-  - [ ] **[R]** reviewer list currently = `dkoodev` only — confirm an
-    account that can approve promptly (e.g. the repo owner) is on it, or
-    every promote waits on one person.
-- [x] **[C]** `deploy-dev` (`railway up`, blocking, SHA-stamped) and
-  `promote` (`needs: integ`, environment `production`) both live in
-  `cd.yml`. The dev-side idempotent `supabase db push` joins in Phase 4
-  with the prod one.
+  - [x] **[R]** protected-environment reviewers include `dkoodev` and repo
+    owner `dwrlee8517` (API-verified while approving run `29617130431` on
+    2026-07-17).
+- [x] **[C]** `deploy-dev` and `promote` both contain fail-closed target and
+  migration-history validation, dry-run, apply, and zero-pending postflight
+  before `railway up`. Production also runs the v2 schema postflight before
+  code. Remote execution remains blocked by the release freeze and gates.
 - [x] **[C]** Development now deploys the private outbox worker after the
   same-SHA web health check. `app/railway.worker.json` owns its start,
   restart, drain, and single-region replica contract; CD builds a clean
@@ -171,13 +171,28 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 4 — pipeline owns prod migrations (last, highest blast radius)
 
-- [ ] **[R]** Add `SUPABASE_ACCESS_TOKEN` secret.
-- [ ] **[C]** `promote` gains `supabase db push` → prod **before**
-  `railway up`, non-interactive, with the password from environment secrets.
-- [ ] **[C+R]** Dry-run: a no-op migration through the full path first.
-- [ ] **[R]** Supabase dashboard → prod project → Integrations → **disconnect
-  the GitHub integration** (this also ends preview branches — see ADR 0014).
-- [ ] **[C+R]** Verify: one real additive migration end-to-end.
+- [x] **[C]** Prepare a temporary, manual-only production migration ownership
+  workflow with an exact project/SHA target validator, migration-history
+  preflight, dry-run, non-interactive push, and postflight. The Supabase CLI is
+  repository-pinned and CI enforces the workflow's migration-only boundary.
+  Preparation does **not** authorize running it: freeze the legacy GitHub CD
+  and both Railway source deploy triggers before merging this change.
+- [x] **[C+R]** The production migration path uses the scoped
+  `DOPPLER_TOKEN_PRD` plus `SUPABASE_DB_URL`; no account-wide
+  `SUPABASE_ACCESS_TOKEN` is required for `db push --db-url`.
+- [x] **[C]** `promote` has repository-pinned `supabase db push` → prod
+  **before** `railway up`, non-interactive, with the DB URL injected by Doppler
+  and never printed. Static tests enforce ordering and forbid seed/reset/repair.
+- [x] **[C+R]** Dry-run: no-op migration proof completed 2026-07-17 at
+  `af02523df30adaada93520b035ca1296dee3991b` (run `29614712165`).
+- [x] **[R]** Supabase dashboard → prod project → Integrations → **disconnect
+  the GitHub integration** — completed and evidenced 2026-07-17 (this also ends
+  preview branches — see ADR 0014).
+- [x] **[C+R]** Verify: one real additive migration end-to-end — ownership
+  probe `20260717213750` applied at
+  `89b1578fb3aac26b09c6dde6a97f9f3b899e32d0` by run `29617130431`;
+  preflight was 28 local / 27 remote with only that version pending, and
+  postflight was 28 / 28 with none pending. No application deployment ran.
 
 ## Phase 5 — guardrails
 
@@ -196,9 +211,9 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 6 — docs settle
 
-- [ ] **[C]** Update `migration-workflow.md` (drop "the integration owns
-  prod"; describe the pipeline; fix the stale "Free project" + pre-Doppler
-  wording), `environments.md`, `app/CLAUDE.md`, `INDEX.md`; archive this doc.
+- [x] **[C]** Reconcile `migration-workflow.md`, `environments.md`, and the
+  production cutover/ownership records for PR C preparation. Archive this
+  transitional doc only after the production cutover is complete.
 - [x] **[C]** The v2 development cutover removed the hold above, documented
   the private worker topology in `environments.md`, and added same-SHA worker
   deployment to `cd.yml`. The broader production-pipeline documentation work

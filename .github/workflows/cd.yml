@@ -1,11 +1,10 @@
 # CD — the scripted promotion pipeline (ADR 0014).
 #
 #   push to main
-#     └─ deploy-dev   doppler(dev) → railway up → dev env → dev.bridgecircle.org
+#     └─ deploy-dev   dev DB push → web + worker → dev.bridgecircle.org
 #     └─ integ        Playwright against the deployed dev stage
 #     ── gate: integ green + manual approval (GitHub `production` environment) ──
-#     └─ promote      doppler(prd) → railway up → production
-#                     (Phase 4 adds `supabase db push` → prod DB before the up)
+#     └─ promote      prod DB push → schema postflight → web + worker
 #
 # Secrets model: GitHub holds ONLY the two Doppler service tokens.
 #   DOPPLER_TOKEN      (repo-level)              → bridgecircle/dev
@@ -38,6 +37,7 @@ env:
   RAILWAY_SERVICE: BridgeCircle
   RAILWAY_WORKER_SERVICE: BridgeCircle Worker
   DEV_URL: https://dev.bridgecircle.org
+  PROD_URL: https://bridgecircle.org
 
 defaults:
   run:
@@ -57,7 +57,38 @@ jobs:
         with:
           node-version: 22
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
       - uses: dopplerhq/cli-action@v3
+
+      - run: pnpm --dir app install --frozen-lockfile
+
+      - name: Validate development database target and migration history
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=dev --mode=preflight
+
+      - name: Dry-run development migrations
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=dev --mode=dry-run
+
+      - name: Apply development migrations
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          ALLOW_REMOTE_MIGRATION_PUSH: APPLY dev ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=dev --mode=apply
+
+      - name: Verify development has no pending migrations
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=dev --mode=postflight
 
       - name: Install Railway CLI
         run: npm i -g @railway/cli
@@ -237,17 +268,47 @@ jobs:
         with:
           node-version: 22
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
       - uses: dopplerhq/cli-action@v3
+
+      - run: pnpm --dir app install --frozen-lockfile
+
+      - name: Validate production database target and migration history
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=preflight
+
+      - name: Dry-run production migrations
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=dry-run
+
+      - name: Apply production migrations
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          ALLOW_REMOTE_MIGRATION_PUSH: APPLY production ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=apply
+
+      - name: Verify production has no pending migrations
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=postflight
+
+      - name: Verify production v2 schema invariants
+        env:
+          CUTOVER_SHA: ${{ github.sha }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/production-v2-postflight.ts
 
       - name: Install Railway CLI
         run: npm i -g @railway/cli
-
-      # Phase 4 (ADR 0014) inserts prod migrations here, BEFORE the code
-      # deploy, once the Supabase GitHub integration is retired:
-      #   doppler run --preserve-env -- bash -c \
-      #     'cd app && supabase db push --db-url "$SUPABASE_DB_URL"'
-      # (SUPABASE_DB_URL comes from the prd Doppler config — no account-wide
-      # access token in CI; see the rollout doc.)
 
       - name: Stamp commit SHA on production
         env:
@@ -258,6 +319,40 @@ jobs:
             --service "$RAILWAY_SERVICE" \
             --environment production \
             --skip-deploys
+          doppler run --preserve-env -- railway variables \
+            --set "COMMIT_SHA=${{ github.sha }}" \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment production \
+            --skip-deploys
+
+      - name: Verify production private worker targets and variable names
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway variable list \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment production \
+            --json | jq -e '
+              . as $variables |
+              $variables.APP_ENV == "prod" and
+              $variables.COMMIT_SHA == "${{ github.sha }}" and
+              $variables.NEXT_PUBLIC_APP_URL == "https://bridgecircle.org" and
+              $variables.NEXT_PUBLIC_SUPABASE_URL == "https://edumxwzilfgvamzarwvo.supabase.co" and
+              ([
+                "SUPABASE_SECRET_KEY",
+                "RESEND_API_KEY",
+                "RESEND_FROM",
+                "ANTHROPIC_API_KEY",
+                "VOYAGE_API_KEY"
+              ] | all(. as $key | ($variables[$key] | type == "string" and length > 0)))
+            ' >/dev/null
+
+      - name: Prepare production private worker source bundle
+        run: |
+          worker_bundle="$RUNNER_TEMP/bridgecircle-worker"
+          mkdir "$worker_bundle"
+          cp -R app/. "$worker_bundle/"
+          cp app/railway.worker.json "$worker_bundle/railway.json"
 
       - name: railway up → production
         env:
@@ -265,5 +360,33 @@ jobs:
         run: |
           doppler run --preserve-env -- railway up \
             --service "$RAILWAY_SERVICE" \
+            --environment production \
+            --ci
+
+      - name: Wait until production serves this commit
+        run: |
+          echo "Polling $PROD_URL/api/health for ${{ github.sha }}"
+          for i in $(seq 1 60); do
+            body=$(curl -sf -m 10 "$PROD_URL/api/health" || true)
+            sha=$(echo "$body" | jq -r '.sha' 2>/dev/null || true)
+            env=$(echo "$body" | jq -r '.env' 2>/dev/null || true)
+            if [ "$sha" = "${{ github.sha }}" ] && [ "$env" = "prod" ]; then
+              echo "Production is serving ${{ github.sha }} (env: prod)"
+              exit 0
+            fi
+            echo "  attempt $i/60: serving sha=${sha:-<none>} env=${env:-<none>}"
+            sleep 10
+          done
+          echo "::error::Production never reported ${{ github.sha }} (10 min timeout)"
+          exit 1
+
+      - name: railway up → production worker
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway up \
+            "$RUNNER_TEMP/bridgecircle-worker" \
+            --path-as-root \
+            --service "$RAILWAY_WORKER_SERVICE" \
             --environment production \
             --ci
