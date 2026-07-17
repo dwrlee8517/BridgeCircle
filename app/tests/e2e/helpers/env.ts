@@ -1,4 +1,8 @@
 import { execSync } from "node:child_process";
+import {
+  authorizeDevSmoke,
+  authorizeHostedDevSeed,
+} from "../../../src/lib/cutover/dev-target";
 
 /**
  * E2E mode detection + env loading, shared by playwright.config.ts, the
@@ -19,6 +23,24 @@ import { execSync } from "node:child_process";
 export const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3002";
 
 export const isRemote = !/^https?:\/\/(localhost|127\.0\.0\.1)/.test(baseURL);
+
+/**
+ * Ordinary remote integration remains factory-owned. Seed-owned acceptance
+ * roads unlock only for the exact hosted dev origin plus APP_ENV=dev and the
+ * explicit one-time flag; a flagged non-dev target throws during config load.
+ */
+export const allowHostedDevSeedAcceptance = authorizeHostedDevSeed({
+  baseUrl: baseURL,
+  appEnv: process.env.APP_ENV,
+  allowSeed: process.env.E2E_ALLOW_DEV_SEED,
+});
+
+export const allowDevSmoke = authorizeDevSmoke({
+  baseUrl: baseURL,
+  appEnv: process.env.APP_ENV,
+  enabled: process.env.E2E_DEV_SMOKE,
+  cutoverSha: process.env.CUTOVER_SHA,
+});
 
 const DOPPLER_PROJECT = "bridgecircle";
 const DOPPLER_CONFIG = "dev_local";

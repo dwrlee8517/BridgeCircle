@@ -1,4 +1,5 @@
--- Deterministic v2 local/CI seed. Never run against a remote project.
+-- Deterministic v2 seed for local/CI and an explicitly authorized disposable hosted development reset.
+-- Production use is forbidden.
 
 insert into public.organizations (
   id, slug, name, requires_admin_approval

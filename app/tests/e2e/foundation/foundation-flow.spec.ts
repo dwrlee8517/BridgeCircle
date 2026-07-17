@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { isRemote } from "../helpers/env";
+import { allowHostedDevSeedAcceptance, isRemote } from "../helpers/env";
 import { FoundationScenario } from "../helpers/foundation";
 
 const browserErrors = new WeakMap<Page, string[]>();
@@ -18,7 +18,10 @@ async function finishOnboarding(page: Page) {
 }
 
 test.describe("database v2 Foundation", () => {
-  test.skip(isRemote, "Foundation reset tests are local-only");
+  test.skip(
+    isRemote && !allowHostedDevSeedAcceptance,
+    "Foundation acceptance needs local seed ownership or explicit hosted-dev authorization",
+  );
   test.describe.configure({ mode: "serial" });
 
   test.beforeEach(async ({ page }) => {

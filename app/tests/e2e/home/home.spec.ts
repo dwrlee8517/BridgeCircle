@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'
-import { isRemote } from '../helpers/env'
+import { allowHostedDevSeedAcceptance, isRemote } from '../helpers/env'
 
 const RICHARD = {
   email: 'richard@example.com',
@@ -27,7 +27,10 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 test.describe.configure({ mode: 'serial' })
-test.skip(isRemote, 'Home acceptance roads depend on the disposable local seed.')
+test.skip(
+  isRemote && !allowHostedDevSeedAcceptance,
+  'Home acceptance needs local seed ownership or explicit hosted-dev authorization.',
+)
 
 test('Home composes the current circle into one calm, accessible dashboard', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })

@@ -131,7 +131,7 @@ export type AdminSchoolEvent = {
   status: 'draft' | 'published' | 'cancelled'
   title: string
   description: string | null
-  location: string
+  location: string | null
   startsAt: string
   endsAt: string | null
   capacity: number | null

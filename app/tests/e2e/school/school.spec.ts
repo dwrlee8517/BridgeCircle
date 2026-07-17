@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'
-import { isRemote } from '../helpers/env'
+import { allowHostedDevSeedAcceptance, isRemote } from '../helpers/env'
 
 const RICHARD = { email: 'richard@example.com', password: 'devseed-password-richard' }
 const AMY = { email: 'admin-amy@example.com', password: 'devseed-password-amy' }
@@ -18,7 +18,10 @@ async function expectNoAccessibilityViolations(page: Page) {
 }
 
 test.describe.configure({ mode: 'serial' })
-test.skip(isRemote, 'School acceptance roads depend on the disposable local seed.')
+test.skip(
+  isRemote && !allowHostedDevSeedAcceptance,
+  'School acceptance needs local seed ownership or explicit hosted-dev authorization.',
+)
 
 test('School hub, event detail, announcements, and newsletter form one coherent reading flow', async ({
   page,

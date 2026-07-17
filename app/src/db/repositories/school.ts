@@ -194,7 +194,7 @@ const adminEventSchema = z
     status: z.enum(['draft', 'published', 'cancelled']),
     title: z.string().min(1),
     description: nullableText,
-    location: z.string().min(1),
+    location: nullableText,
     startsAt: timestamp,
     endsAt: timestamp.nullable(),
     capacity: z.number().int().positive().nullable(),
@@ -216,6 +216,16 @@ const adminAnnouncementSchema = z
 function transportError(operation: string, error: { code?: string } | null): never {
   const code = error?.code ? ` (${error.code})` : ''
   throw new Error(`School ${operation} transport failed${code}`)
+}
+
+export function parseAdminSchoolEvents(value: unknown) {
+  const parsed = z
+    .union([
+      unavailableSchema,
+      z.object({ resultCode: z.literal('ok'), items: z.array(adminEventSchema) }).strict(),
+    ])
+    .parse(value)
+  return parsed.resultCode === 'ok' ? parsed.items : null
 }
 
 export function createSchoolRepository(client: SupabaseClient<Database>): SchoolRepository {
@@ -318,13 +328,7 @@ export function createSchoolRepository(client: SupabaseClient<Database>): School
         .schema('api')
         .rpc('get_admin_school_events', { p_membership_id: membershipId })
       if (error) transportError('getAdminEvents', error)
-      const parsed = z
-        .union([
-          unavailableSchema,
-          z.object({ resultCode: z.literal('ok'), items: z.array(adminEventSchema) }).strict(),
-        ])
-        .parse(data)
-      return parsed.resultCode === 'ok' ? parsed.items : null
+      return parseAdminSchoolEvents(data)
     },
 
     async saveAdminEvent(input) {

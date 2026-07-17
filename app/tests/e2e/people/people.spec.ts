@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'
-import { isRemote } from '../helpers/env'
+import { allowHostedDevSeedAcceptance, isRemote } from '../helpers/env'
 
 const RICHARD = {
   email: 'richard@example.com',
@@ -23,7 +23,10 @@ async function waitForOwnAnimations(locator: Locator) {
 }
 
 test.describe.configure({ mode: 'serial' })
-test.skip(isRemote, 'People acceptance roads depend on the disposable local seed.')
+test.skip(
+  isRemote && !allowHostedDevSeedAcceptance,
+  'People acceptance needs local seed ownership or explicit hosted-dev authorization.',
+)
 
 test('directory selection, filters, Connect, profile navigation, and mobile preview stay coherent', async ({
   page,

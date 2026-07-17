@@ -9,11 +9,11 @@ and Vitest for pure behavior.
 
 ## Current rebuild status
 
-The database is v2, while application domains are being ported one at a time.
-Foundation, Conversation, Help, and Messages have focused green gates.
-People/Profile, School/Admin, and their older E2E files remain a migration
-inventory. Until those domains are ported, do not describe the repository-wide
-Playwright suite or production build as green.
+The application and local database are v2 across Foundation, Conversation,
+Help, Messages, People/Profile, School/Admin, Home, and entry/operations. The
+complete local Playwright suite and production build are release gates. Hosted
+development remains pending until the separately approved clean reset and
+same-SHA deployment in the dev cutover plan.
 
 Focused Help acceptance is recorded in
 [`database-v2-help-test-inventory.md`](../architecture/database-v2-help-test-inventory.md).
@@ -52,8 +52,12 @@ tests/e2e/
 ├── foundation/       v2 identity/membership/profile boundary
 ├── help/             v2 Help settings and browser flows
 ├── messages/         v2 list, thread, Connection, safety, and responsive roads
+├── home/             v2 dashboard composition and outcome consent
+├── people,profiles/  directory, profile privacy, and Connection roads
+├── school/           School reading and transactional member roads
+├── dev-cutover/      opt-in read-only exact-dev smoke
 ├── api/              health and auth-proxy contracts
-└── <later domains>/  migration inventory until that domain is ported
+└── entry-operations/ destructive lifecycle durability, local-only
 ```
 
 Retired Ask/Inbox E2E files were deleted with their routes. Do not preserve an
@@ -105,7 +109,8 @@ reset because it deliberately walks lifecycle state across the fixed seed:
    768, 390, and 320 px.
 
 This file is one reset-owned scenario, not a dependency between independent
-specs. Do not shard it or run it against a persistent remote project.
+specs. Do not shard it. It may run against hosted development only during the
+explicit one-time, reset-owned acceptance matrix described below.
 
 ## Integ mode and remote safety
 
@@ -113,10 +118,33 @@ specs. Do not shard it or run it against a persistent remote project.
 Remote tests must be fully self-seeding and self-cleaning because the dev
 database is persistent. They must never reset a remote database.
 
-The current v2 branch is not eligible for integ deployment until every later
-application domain is ported and the global TypeScript/build gates are green.
-Do not weaken the CD gate to run a locally complete Help slice against an
-incompatible remote application/database pair.
+Ordinary recurring integ mode remains factory-owned. Seed-dependent suites
+stay skipped remotely unless all of these are present:
+
+- `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org` exactly;
+- `APP_ENV=dev`;
+- the explicit one-time `E2E_ALLOW_DEV_SEED=1` flag.
+
+`pnpm test:e2e:dev-acceptance` supplies only the flag. The target helper throws
+during Playwright configuration for production, preview, localhost, path, or
+wrong-environment targets. Run this mode only immediately after the separately
+approved clean dev reset, with the worker stopped. It intentionally advances
+the fictional seed; restore the canonical seed with another approved linked
+reset afterward.
+
+The final seeded-state smoke is separate and read-only:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org \
+APP_ENV=dev \
+CUTOVER_SHA=<40-character-verified-sha> \
+pnpm test:e2e:dev-smoke
+```
+
+Hosted smoke refuses every remote origin except exact dev and requires the
+captured SHA. It verifies health, seeded member sign-in, all five primary
+sections, and the four minimal admin surfaces without changing application
+rows. The same smoke may be run against localhost during local preparation.
 
 ## Adding a test
 

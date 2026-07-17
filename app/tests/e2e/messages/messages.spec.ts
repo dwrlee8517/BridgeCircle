@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createAdminClient } from '../../../src/db/admin'
 import { signIn, sendComposerMessage } from '../helpers/auth'
-import { isRemote, loadE2eEnv } from '../helpers/env'
+import { allowHostedDevSeedAcceptance, isRemote, loadE2eEnv } from '../helpers/env'
 
 const RICHARD = {
   email: 'richard@example.com',
@@ -32,7 +32,10 @@ async function waitForOwnAnimations(locator: Locator) {
 }
 
 test.describe.configure({ mode: 'serial', timeout: 90_000 })
-test.skip(isRemote, 'Messages acceptance roads mutate the disposable local seed only.')
+test.skip(
+  isRemote && !allowHostedDevSeedAcceptance,
+  'Messages acceptance needs local seed ownership or explicit hosted-dev authorization.',
+)
 
 test.beforeAll(() => loadE2eEnv())
 

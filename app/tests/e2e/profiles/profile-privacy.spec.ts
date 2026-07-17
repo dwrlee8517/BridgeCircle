@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'
-import { isRemote } from '../helpers/env'
+import { allowHostedDevSeedAcceptance, isRemote } from '../helpers/env'
 
 const PERSONAS = {
   owner: {
@@ -38,7 +38,10 @@ async function switchPersona(
 }
 
 test.describe.configure({ mode: 'serial' })
-test.skip(isRemote, 'Profile privacy acceptance depends on the disposable local v2 seed.')
+test.skip(
+  isRemote && !allowHostedDevSeedAcceptance,
+  'Profile privacy acceptance needs local seed ownership or explicit hosted-dev authorization.',
+)
 
 test('profile links follow organization, connection, and self audiences in the rendered app', async ({
   page,
