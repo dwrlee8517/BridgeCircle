@@ -54,10 +54,26 @@ jobs:
 
       - uses: dopplerhq/cli-action@v3
 
+      - name: Relocate Doppler CLI outside checkout
+        working-directory: .
+        run: |
+          test -x "$GITHUB_WORKSPACE/bin/doppler"
+          test ! -e "$RUNNER_TEMP/doppler-bin"
+          mv "$GITHUB_WORKSPACE/bin" "$RUNNER_TEMP/doppler-bin"
+          echo "$RUNNER_TEMP/doppler-bin" >> "$GITHUB_PATH"
+
       - run: pnpm install --frozen-lockfile
 
       - name: Verify migration-only workflow boundaries
         run: pnpm check:production-migration-ownership
+
+      - name: Verify checkout remains clean
+        working-directory: .
+        run: |
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "::error::Production migration workflow setup modified the checkout"
+            exit 1
+          fi
 
       - name: Verify typed operator confirmation
         run: |
@@ -68,6 +84,7 @@ jobs:
 
       - name: Verify pinned Supabase and Postgres clients
         run: |
+          doppler --version
           pnpm exec supabase --version
           psql --version
 
