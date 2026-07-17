@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { HelpWorkerRepository } from '@/db/repositories/help-worker'
-import type { ClaimedOutboxJob } from '@/lib/outbox/contracts'
+import { type ClaimedOutboxJob, OutboxJobError } from '@/lib/outbox/contracts'
 import {
   createHelpOutboxHandlers,
   type HelpOutboxHandlerDependencies,
@@ -48,6 +48,10 @@ function repository(): HelpWorkerRepository {
       offers_closed: 0,
       helpers_paused: 0,
     })),
+    runSchoolMaintenance: vi.fn<HelpWorkerRepository['runSchoolMaintenance']>(async () => ({
+      expired_offers: 0,
+      opened_offers: 0,
+    })),
   }
 }
 
@@ -65,6 +69,9 @@ function dependencies(repo = repository()): HelpOutboxHandlerDependencies {
     entryOperations: {
       sendInvite: vi.fn(async () => undefined),
       generateAccountExport: vi.fn(async () => undefined),
+      failAccountExport: vi.fn(async () => undefined),
+      processAccountDeletion: vi.fn(async () => 'completed' as const),
+      deleteStorageObjects: vi.fn(async () => 'completed' as const),
     },
   }
 }
@@ -157,6 +164,98 @@ describe('Help outbox handlers', () => {
         actionUrl: 'http://localhost:3000/messages/50000000-0000-4000-8000-000000000001',
       }),
       expect.any(AbortSignal),
+    )
+  })
+
+  it('links School email notifications to their canonical detail pages', async () => {
+    const repo = repository()
+    vi.mocked(repo.getEmailContext)
+      .mockResolvedValueOnce({
+        jobId: 41,
+        notificationType: 'event_reminder',
+        recipientUserId: '10000000-0000-4000-8000-000000000001',
+        recipientEmail: 'member@example.test',
+        recipientDisplayName: 'Jordan',
+        actorDisplayName: null,
+        targetType: 'event',
+        targetId: '50000000-0000-4000-8000-000000000001',
+        idempotencyKey: 'outbox:41',
+        providerResultId: null,
+      })
+      .mockResolvedValueOnce({
+        jobId: 42,
+        notificationType: 'announcement_published',
+        recipientUserId: '10000000-0000-4000-8000-000000000001',
+        recipientEmail: 'member@example.test',
+        recipientDisplayName: 'Jordan',
+        actorDisplayName: null,
+        targetType: 'announcement',
+        targetId: '60000000-0000-4000-8000-000000000001',
+        idempotencyKey: 'outbox:42',
+        providerResultId: null,
+      })
+    const deps = dependencies(repo)
+    const handlers = createHelpOutboxHandlers(deps)
+
+    await handlers.send_email({ ...job, jobType: 'send_email' }, new AbortController().signal)
+    await handlers.send_email(
+      { ...job, id: 42, jobType: 'send_email' },
+      new AbortController().signal,
+    )
+
+    expect(deps.emailSender.send).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        notificationType: 'event_reminder',
+        actionUrl: 'http://localhost:3000/school/events/50000000-0000-4000-8000-000000000001',
+      }),
+      expect.any(AbortSignal),
+    )
+    expect(deps.emailSender.send).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        notificationType: 'announcement_published',
+        actionUrl:
+          'http://localhost:3000/school/announcements/60000000-0000-4000-8000-000000000001',
+      }),
+      expect.any(AbortSignal),
+    )
+  })
+
+  it('delegates account deletion and Storage cleanup to the lifecycle worker', async () => {
+    const deps = dependencies()
+    const handlers = createHelpOutboxHandlers(deps)
+
+    await expect(
+      handlers.process_account_deletion(
+        { ...job, jobType: 'process_account_deletion' },
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ outcome: 'completed' })
+    await expect(
+      handlers.delete_storage_objects(
+        { ...job, jobType: 'delete_storage_objects' },
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ outcome: 'completed' })
+  })
+
+  it('marks an export failed when its final worker attempt cannot complete', async () => {
+    const deps = dependencies()
+    vi.mocked(deps.entryOperations.generateAccountExport).mockRejectedValue(
+      new OutboxJobError('account_export_upload_failed', false),
+    )
+    const handlers = createHelpOutboxHandlers(deps)
+
+    await expect(
+      handlers.generate_account_export(
+        { ...job, jobType: 'generate_account_export', attempts: 8, maxAttempts: 8 },
+        new AbortController().signal,
+      ),
+    ).rejects.toMatchObject({ code: 'account_export_upload_failed' })
+    expect(deps.entryOperations.failAccountExport).toHaveBeenCalledWith(
+      job.payload,
+      'account_export_upload_failed',
     )
   })
 

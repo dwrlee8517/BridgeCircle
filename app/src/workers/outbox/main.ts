@@ -6,7 +6,7 @@ import { createAnthropicHelpProviderFromEnvironment } from '@/integrations/ai/he
 import { createVoyageHelpProviderFromEnvironment } from '@/integrations/ai/help-voyage'
 import { OutboxJobError } from '@/lib/outbox/contracts'
 import type { OutboxWorkerDependencies } from './contracts'
-import { resendHelpEmailSender } from './email-sender'
+import { resendNotificationEmailSender } from './email-sender'
 import { createEntryOperationsWorker } from './entry-operations'
 import { createHelpOutboxHandlers } from './handlers'
 import { reportHelpWorkerError } from './monitoring'
@@ -26,20 +26,21 @@ export async function runHelpWorker(
   const anthropic = createAnthropicHelpProviderFromEnvironment()
   const workerId = `help-${randomUUID()}`
   const sleep = abortableSleep
+  const entryOperations = createEntryOperationsWorker(
+    serviceClient,
+    process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  )
   const handlers = createHelpOutboxHandlers({
     repository,
     embeddings: voyage,
     reranker: voyage,
     profilePassages: anthropic,
-    emailSender: resendHelpEmailSender,
+    emailSender: resendNotificationEmailSender,
     appBaseUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
     profileIndexingEnabled: voyage !== null,
     pipelineVersion: 'help-hybrid-v1',
     modelVersion: voyage ? 'voyage-4+rerank-2.5' : 'deterministic-v1',
-    entryOperations: createEntryOperationsWorker(
-      serviceClient,
-      process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
-    ),
+    entryOperations,
   })
   const options = {
     workerId,
@@ -70,6 +71,7 @@ export async function runHelpWorker(
   if (mode === 'once') {
     reportBatch(await runOutboxBatch(options, dependencies, signal))
     await runMaintenanceOnce(repository)
+    await entryOperations.expireAccountExports()
     return
   }
   if (mode === 'drain') {
@@ -79,23 +81,26 @@ export async function runHelpWorker(
       if (result.claimed === 0) break
     }
     await runMaintenanceOnce(repository)
+    await entryOperations.expireAccountExports()
     return
   }
 
   await Promise.all([
     runOutboxLoop(options, dependencies, signal),
-    runMaintenanceLoop(repository, signal, sleep),
+    runMaintenanceLoop(repository, entryOperations, signal, sleep),
   ])
 }
 
 async function runMaintenanceLoop(
   repository: ReturnType<typeof createHelpWorkerRepository>,
+  entryOperations: ReturnType<typeof createEntryOperationsWorker>,
   signal: AbortSignal,
   sleep: (milliseconds: number, signal: AbortSignal) => Promise<void>,
 ) {
   while (!signal.aborted) {
     try {
       await runMaintenanceOnce(repository)
+      await entryOperations.expireAccountExports()
     } catch {
       reportHelpWorkerError('maintenance_failed')
       console.error('[help-worker] maintenance failed', { errorCode: 'maintenance_failed' })
@@ -109,9 +114,13 @@ async function runMaintenanceLoop(
 }
 
 async function runMaintenanceOnce(repository: ReturnType<typeof createHelpWorkerRepository>) {
-  const result = await repository.runMaintenance(new Date().toISOString(), 100)
-  if (Object.values(result).some((count) => count > 0)) {
-    console.info('[help-worker] maintenance', result)
+  const now = new Date().toISOString()
+  const [help, school] = await Promise.all([
+    repository.runMaintenance(now, 100),
+    repository.runSchoolMaintenance(now, 100),
+  ])
+  if ([...Object.values(help), ...Object.values(school)].some((count) => count > 0)) {
+    console.info('[help-worker] maintenance', { help, school })
   }
 }
 

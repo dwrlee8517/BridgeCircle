@@ -95,7 +95,20 @@ DMARC is currently in monitor-only mode (`p=none`) — failures are *not* reject
 
 - [ ] Add `bridgecircle.org` under **Railway → service → Settings → Networking → Custom Domain**. Without this, Railway responds 404 to traffic arriving at the hostname.
 - [ ] Set `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` in Railway Variables. The code in `src/lib/auth/app-url.ts` reads this env var to build absolute URLs in outbound emails (e.g. the "View on BridgeCircle" button in announcement emails) and OAuth `redirectTo` URLs. If it still points at `*.up.railway.app`, members see Railway URLs in their inbox.
-- [ ] In **Supabase Dashboard → Authentication → URL Configuration**: set **Site URL** to `https://bridgecircle.org` and add `https://bridgecircle.org/auth/callback` to **Additional Redirect URLs**. Supabase rejects any post-auth redirect not in this allowlist; without it, sign-in succeeds but the redirect back to the app fails.
+- [ ] In **Supabase Dashboard → Authentication → URL Configuration**: set
+  **Site URL** to `https://bridgecircle.org` and add both
+  `https://bridgecircle.org/auth/callback` and
+  `https://bridgecircle.org/auth/confirm` to **Additional Redirect URLs**.
+  Supabase rejects any post-auth redirect not in this allowlist; without it,
+  sign-in or password recovery can verify successfully but fail to return to
+  the app.
+- [ ] In **Supabase Dashboard → Authentication → Email Templates → Reset
+  password**, copy the committed
+  `app/supabase/templates/recovery.html` template. It deliberately sends the
+  one-use `TokenHash` to `/auth/confirm` so the Next.js server can verify the
+  recovery OTP and persist secure session cookies. The default Supabase
+  recovery template returns session tokens in a URL fragment and is not
+  compatible with the server-rendered recovery route.
 
 **What you do NOT need to do** for the custom domain: add `bridgecircle.org` to the Google Cloud OAuth client's authorized redirect URIs. Google only redirects to the Supabase callback (`<supabase-ref>.supabase.co/auth/v1/callback`), never directly to the app — so the Google client only needs the Supabase callback URLs (one per project today, plus the custom-domain callback once the checklist below is executed).
 

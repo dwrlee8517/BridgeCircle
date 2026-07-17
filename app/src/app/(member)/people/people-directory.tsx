@@ -14,7 +14,6 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState, useTransition } from 'react'
-import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
@@ -227,7 +226,6 @@ export function PeopleDirectory({
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-[1180px]">
-        <ConnectivityNotice />
         <header>
           <p className="text-body-sm font-semibold text-[var(--text-secondary)]">
             Directory ·{' '}

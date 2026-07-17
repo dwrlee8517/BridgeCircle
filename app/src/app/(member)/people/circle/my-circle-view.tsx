@@ -4,7 +4,6 @@ import { LoaderCircle, MessageCircle, UserMinus, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useMemberShellHeader } from '@/app/(member)/member-shell-header-context'
-import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -61,7 +60,6 @@ export function MyCircleView({
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-[760px]">
-        <ConnectivityNotice />
         <header>
           <h1 className="text-page-title leading-tight font-extrabold tracking-display">
             My circle

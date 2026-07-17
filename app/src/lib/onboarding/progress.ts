@@ -25,6 +25,24 @@ export function parseOnboardingStep(raw: string | null | undefined): OnboardingS
   return Math.min(n, TOTAL_ONBOARDING_STEPS) as OnboardingStep
 }
 
+export function resolveOnboardingStep({
+  explicit,
+  cookie,
+  durable,
+  inferred,
+}: {
+  explicit: OnboardingStep | null
+  cookie: OnboardingStep | null
+  durable: OnboardingStep | null
+  inferred: OnboardingStep
+}): OnboardingStep {
+  if (explicit) return explicit
+  if (cookie || durable) {
+    return Math.max(cookie ?? 1, durable ?? 1) as OnboardingStep
+  }
+  return inferred
+}
+
 export function inferOnboardingStep(profile: OnboardingProgressProfile): OnboardingStep {
   if (!hasText(profile.name) || !profile.graduationYear) return 1
 

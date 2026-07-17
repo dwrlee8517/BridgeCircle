@@ -83,14 +83,24 @@ export default async function SettingsPage({
             </form>
           </div>
           {accountExport ? (
-            <div className="flex items-center gap-3">
-              <p className="text-xs text-muted-foreground">Latest export: {accountExport.status}</p>
+            <div className="flex flex-wrap items-center gap-3 rounded-xl bg-[var(--surface-inset)] px-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold">{exportStatusTitle(accountExport.status)}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {exportStatusDescription(accountExport.status)}
+                </p>
+              </div>
               {accountExport.status === 'ready' ? (
                 <form action={downloadExportAction}>
                   <Button type="submit" size="sm" variant="ghost">
                     Download
                   </Button>
                 </form>
+              ) : null}
+              {accountExport.status === 'queued' || accountExport.status === 'processing' ? (
+                <Button asChild size="sm" variant="ghost">
+                  <Link href="/settings">Refresh status</Link>
+                </Button>
               ) : null}
             </div>
           ) : null}
@@ -210,4 +220,34 @@ export default async function SettingsPage({
       </Card>
     </div>
   )
+}
+
+function exportStatusTitle(status: 'queued' | 'processing' | 'ready' | 'failed' | 'expired') {
+  switch (status) {
+    case 'queued':
+      return 'Your export is queued'
+    case 'processing':
+      return 'Your export is being prepared'
+    case 'ready':
+      return 'Your export is ready'
+    case 'failed':
+      return 'Your export needs another try'
+    case 'expired':
+      return 'Your export link expired'
+  }
+}
+
+function exportStatusDescription(status: 'queued' | 'processing' | 'ready' | 'failed' | 'expired') {
+  switch (status) {
+    case 'queued':
+      return 'You can leave this page. It will keep working in the background.'
+    case 'processing':
+      return 'This usually takes less than a minute.'
+    case 'ready':
+      return 'The private download link expires after seven days.'
+    case 'failed':
+      return 'Request a new export when you’re ready.'
+    case 'expired':
+      return 'Request a new export to create a fresh private download.'
+  }
 }

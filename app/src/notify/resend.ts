@@ -1,6 +1,7 @@
 import { render } from '@react-email/components'
 import type * as React from 'react'
 import { Resend } from 'resend'
+import type { EmailNotificationType } from '@/lib/notifications/types'
 import { resolveDevRecipient } from './devGuard'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
 import { AnnouncementEmail } from './emails/announcement-email'
@@ -84,31 +85,19 @@ async function sendRenderedEmail({
   return { ok: true, id: data.id }
 }
 
-export type SendHelpNotificationInput = {
+export type SendTransactionalNotificationInput = {
   to: string
   recipientName: string
-  notificationType:
-    | 'ask_received'
-    | 'ask_accepted'
-    | 'ask_declined'
-    | 'ask_reminder'
-    | 'ask_closed'
-    | 'offer_received'
-    | 'offer_accepted'
-    | 'offer_declined'
-    | 'offer_closed'
-    | 'circle_ask_match'
-    | 'circle_ask_closed'
-    | 'message_received'
+  notificationType: EmailNotificationType
   actorName: string | null
   actionUrl: string
   idempotencyKey: string
 }
 
-export async function sendHelpNotificationEmail(
-  input: SendHelpNotificationInput,
+export async function sendTransactionalNotificationEmail(
+  input: SendTransactionalNotificationInput,
 ): Promise<NotifyResult> {
-  const copy = helpEmailCopy(input.notificationType, input.actorName)
+  const copy = transactionalEmailCopy(input.notificationType, input.actorName)
   return sendRenderedEmail({
     to: input.to,
     subject: copy.subject,
@@ -123,13 +112,13 @@ export async function sendHelpNotificationEmail(
   })
 }
 
-function helpEmailCopy(
-  type: SendHelpNotificationInput['notificationType'],
+function transactionalEmailCopy(
+  type: SendTransactionalNotificationInput['notificationType'],
   actorName: string | null,
 ) {
   const actor = actorName ?? 'A member'
   const copies: Record<
-    SendHelpNotificationInput['notificationType'],
+    SendTransactionalNotificationInput['notificationType'],
     { subject: string; heading: string; body: string; actionLabel: string }
   > = {
     ask_received: {
@@ -203,6 +192,36 @@ function helpEmailCopy(
       heading: `New message from ${actor}`,
       body: 'Open BridgeCircle to continue the conversation.',
       actionLabel: 'Open the conversation',
+    },
+    announcement_published: {
+      subject: 'A new announcement from your school',
+      heading: 'A new announcement from your school',
+      body: 'There is a new update waiting for you in School.',
+      actionLabel: 'Read the announcement',
+    },
+    event_changed: {
+      subject: 'An event you’re attending changed',
+      heading: 'The event details changed',
+      body: 'Please review the current time and place before you go.',
+      actionLabel: 'Review the event',
+    },
+    event_cancelled: {
+      subject: 'An event you were following was cancelled',
+      heading: 'The event was cancelled',
+      body: 'The event page has the latest note from your school.',
+      actionLabel: 'View the event',
+    },
+    event_reminder: {
+      subject: 'Your event is coming up',
+      heading: 'A quick reminder for tomorrow',
+      body: 'Review the event details before you go.',
+      actionLabel: 'View the event',
+    },
+    event_waitlist_spot_opened: {
+      subject: 'A spot opened for an event',
+      heading: 'A spot opened — still want in?',
+      body: 'The place is held briefly for you. Confirm on the event page when you’re ready.',
+      actionLabel: 'Review the offer',
     },
   }
   return copies[type]

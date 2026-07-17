@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { loadMemberContext } from '@/app/_lib/load-member-context'
 import { clearMembershipPreference } from '@/app/_lib/membership-cookie'
+import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { createNotificationRepository } from '@/db/repositories/notifications'
 import { requireSession } from '@/lib/auth/session'
 import { memberDestination, selectedMembership } from '@/lib/membership/selection'
@@ -88,6 +89,7 @@ export default async function MemberLayout({
               </main>
               {profileModal}
             </MemberShellHeaderProvider>
+            <ConnectivityNotice />
             <MemberTabBar />
           </div>
         </div>

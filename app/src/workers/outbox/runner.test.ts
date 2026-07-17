@@ -43,6 +43,8 @@ function fixture(
     index_profile: handler,
     send_invite_email: handler,
     generate_account_export: handler,
+    process_account_deletion: handler,
+    delete_storage_objects: handler,
   }
   const dependencies: OutboxWorkerDependencies = {
     queue: {
@@ -75,6 +77,8 @@ describe('outbox runner', () => {
         'index_profile',
         'send_invite_email',
         'generate_account_export',
+        'process_account_deletion',
+        'delete_storage_objects',
       ],
       10,
     )

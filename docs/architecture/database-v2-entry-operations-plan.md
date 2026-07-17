@@ -1,13 +1,18 @@
 # Database v2 Entry and Operations vertical-slice implementation plan
 
-> **Status (2026-07-16): approved and implemented through the local hardening
-> checkpoint.** Schema contracts, fixed repositories, canonical routing,
-> seven-step onboarding, Welcome and All set bookends, private Help cold start,
-> canonical Offer handoff, classmate Connections, review-first LinkedIn/résumé
-> Fast Fill, Settings, Notifications, account jobs, and minimal admin operations
-> are landed locally. The remaining exhaustive browser roads stay follow-on
-> work. No remote database, deployment, push, merge, or commit is
-> authorized by this document.
+> **Status (2026-07-16): approved and implemented through the durability
+> hardening checkpoint.** Schema contracts, fixed repositories, canonical
+> routing, seven-step onboarding, Welcome and All set bookends, private Help
+> cold start, canonical Offer handoff, classmate Connections, review-first
+> LinkedIn/résumé Fast Fill, Settings, Notifications, account lifecycle
+> workers, minimal admin operations, and shared system states are landed
+> locally. Invitation terminal states, one-use password recovery, two-device
+> onboarding resume, export/deletion finalization, offline notice, reduced
+> motion, focus recovery, and 320px safety now have factory-owned browser roads
+> that also pass with five parallel workers. The remaining exhaustive
+> Notifications/admin/offline-form and full breakpoint roads stay follow-on
+> work. No remote database, deployment, push, merge, or commit is authorized by
+> this document.
 
 ## Goal
 
@@ -187,7 +192,11 @@ Auth APIs rather than writing `auth.users`.
 
 - sign-in errors are non-enumerating;
 - password reset always shows the same confirmation result;
-- callback and recovery nonces are single-use and time-bounded;
+- password recovery emails use a custom Supabase template that sends
+  `token_hash` to `/auth/confirm`; the server verifies the one-use recovery OTP,
+  writes the session cookies, and removes the secret from the destination URL;
+- OAuth callback codes and recovery token hashes are single-use and
+  time-bounded;
 - session refresh and sign-out work across tabs;
 - email change uses Auth's confirmation flow and displays pending confirmation
   without changing authorization identity prematurely;
@@ -317,8 +326,9 @@ inbox:
 - mark all read up to a server timestamp so concurrently arriving items stay
   unread;
 - unknown, unauthorized, or retired targets fall back to `/notifications`;
-- priority popovers are a bounded subset of durable notifications, shown once
-  per delivery instance and never used for marketing;
+- the bell popover is a bounded recent subset of durable notifications; read
+  rows remain visible while unread rows retain explicit tint, weight, and dot
+  treatment, and it is never used for marketing;
 - Realtime invalidates counts/list state but cannot authorize or fabricate a
   row;
 - newsletter and weekly digest do not enter this inbox.

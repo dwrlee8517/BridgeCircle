@@ -184,6 +184,11 @@ export type Database = {
           result_code: string
         }[]
       }
+      expire_account_exports: { Args: { p_limit?: number }; Returns: number }
+      fail_account_export: {
+        Args: { p_error: string; p_export_request_id: string }
+        Returns: string
+      }
       fail_outbox_job: {
         Args: { p_error: string; p_job_id: number; p_worker_id: string }
         Returns: string
@@ -793,6 +798,10 @@ export type Database = {
           result_code: string
         }[]
       }
+      process_scheduled_account_deletion: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       publish_admin_school_announcement: {
         Args: {
           p_body: string
@@ -1126,6 +1135,10 @@ export type Database = {
       }
       set_my_avatar_path: {
         Args: { p_avatar_path: string; p_membership_id: string }
+        Returns: string
+      }
+      start_account_export: {
+        Args: { p_export_request_id: string }
         Returns: string
       }
       submit_report: {
@@ -1773,6 +1786,7 @@ export type Database = {
           offered_at: string | null
           organization_id: string
           organization_membership_id: string
+          reminder_sent_at: string | null
           responded_at: string
           status: string
           updated_at: string
@@ -1783,6 +1797,7 @@ export type Database = {
           offered_at?: string | null
           organization_id: string
           organization_membership_id: string
+          reminder_sent_at?: string | null
           responded_at?: string
           status: string
           updated_at?: string
@@ -1793,6 +1808,7 @@ export type Database = {
           offered_at?: string | null
           organization_id?: string
           organization_membership_id?: string
+          reminder_sent_at?: string | null
           responded_at?: string
           status?: string
           updated_at?: string

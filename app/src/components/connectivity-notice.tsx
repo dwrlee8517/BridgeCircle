@@ -22,10 +22,11 @@ export function ConnectivityNotice() {
   return (
     <div
       role="status"
-      className="mb-4 flex items-center gap-2 rounded-xl bg-[var(--warning-tint)] px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] shadow-[inset_0_0_0_1px_rgb(245_166_35_/_0.16)]"
+      aria-live="polite"
+      className="fixed inset-x-3 bottom-[calc(72px+env(safe-area-inset-bottom))] z-50 mx-auto flex max-w-md items-center gap-2 rounded-xl bg-[var(--surface-card)] px-4 py-3 text-xs font-semibold text-[var(--text-secondary)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] md:bottom-5"
     >
       <WifiOff aria-hidden className="size-4 shrink-0" />
-      You’re offline. You can keep reading, but changes will not save until you reconnect.
+      You’re offline. Nothing was lost; reconnect before saving a change.
     </div>
   )
 }

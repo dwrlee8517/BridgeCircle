@@ -94,7 +94,7 @@ SQL
 )"
 
 required_indexes=(
-  organization_memberships_org_active_idx
+  organization_memberships_org_joined_active_idx
   profile_experiences_user_sort_idx
   ask_outcome_shares_participant_idx
 )

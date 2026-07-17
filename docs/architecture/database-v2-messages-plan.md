@@ -81,10 +81,9 @@ The v2 contract therefore resolves four visible specimen drifts:
   attachment button and fabricated file/photo rail do not ship;
 - presence/last-seen is not modeled, so the UI shows verified class/context
   rather than inventing “Active now”;
-- bilateral “share this win” consent has no complete persistence or second-
-  participant flow. This slice keeps the approved optional outcome note and
-  defers public outcome cards until Home owns a separately approved consent
-  contract.
+- at the Messages checkpoint, bilateral “share this win” consent had no
+  complete persistence or second-participant flow. The later Home slice now
+  owns and implements that consent contract and its privacy-safe outcome cards.
 
 The Messages implementation must update the handoff notes/docs for these
 differences. It must not silently add dead controls or client-only fake state.
@@ -796,7 +795,9 @@ The linked inventory is the executable acceptance contract. Ownership is:
 - full-text message-body search;
 - presence, online state, or last-seen tracking;
 - archive, mute, pin, folders, bulk read, or message retention controls;
-- public outcome-story cards or bilateral identity-sharing consent;
+- public outcome-story cards or bilateral identity-sharing consent were out of
+  scope for this Messages-only checkpoint; the later Home slice implemented
+  them through its separately tested consent contract;
 - complete People/Profile Connection send UI and deletion of every legacy
   friendship caller; that is the next domain port;
 - native app or push-notification work;

@@ -5,6 +5,8 @@ export const HELP_WORKER_JOB_TYPES = [
   'index_profile',
   'send_invite_email',
   'generate_account_export',
+  'process_account_deletion',
+  'delete_storage_objects',
 ] as const
 
 export type HelpWorkerJobType = (typeof HELP_WORKER_JOB_TYPES)[number]

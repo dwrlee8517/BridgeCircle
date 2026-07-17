@@ -24,6 +24,7 @@ import {
   inferOnboardingStep,
   ONBOARDING_STEP_COOKIE,
   parseOnboardingStep,
+  resolveOnboardingStep,
 } from '@/lib/onboarding/progress'
 import { searchPeople } from '@/lib/people/operations'
 import { displayOrgName } from '@/lib/utils'
@@ -98,24 +99,26 @@ export default async function OnboardingPage({
       />
     )
   }
-  const requestedStep =
-    explicitStep ??
-    cookieStep ??
-    storedStep ??
-    inferOnboardingStep({
-      name: profile.identity.displayName,
-      graduationYear: profile.identity.graduationYear,
-      university: profile.current.university,
-      major: profile.current.major,
-      educationHistory: profile.education,
-      currentEmployer: profile.current.employer,
-      currentTitle: profile.current.title,
-      city: profile.current.city,
-      headline: profile.current.headline,
-      industry: profile.current.industry,
-      careerHistory: profile.experiences,
-      skills: profile.skills.map((skill) => skill.name),
-    })
+  const inferredStep = inferOnboardingStep({
+    name: profile.identity.displayName,
+    graduationYear: profile.identity.graduationYear,
+    university: profile.current.university,
+    major: profile.current.major,
+    educationHistory: profile.education,
+    currentEmployer: profile.current.employer,
+    currentTitle: profile.current.title,
+    city: profile.current.city,
+    headline: profile.current.headline,
+    industry: profile.current.industry,
+    careerHistory: profile.experiences,
+    skills: profile.skills.map((skill) => skill.name),
+  })
+  const requestedStep = resolveOnboardingStep({
+    explicit: explicitStep,
+    cookie: cookieStep,
+    durable: storedStep,
+    inferred: inferredStep,
+  })
   const step = requiredFloorMet ? requestedStep : 1
   const firstName = profile.identity.displayName?.split(' ')[0] ?? null
 

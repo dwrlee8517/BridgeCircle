@@ -46,11 +46,13 @@ test("sending a single invite writes a pending invites row, and reports success 
   await expect(
     page.getByText("Invite members", { exact: true }).filter({ visible: true }),
   ).toBeVisible();
+  await page.waitForLoadState("networkidle");
 
-  await page.locator("#email").fill(inviteeEmail);
-  await page.locator("#graduationYear").fill("2019");
-  await page.locator("#fullName").fill("Form Invitee");
-  await page.getByRole("button", { name: "Send invite" }).click();
+  const singleInvitePanel = page.locator('[data-slot="tabs-content"][data-state="active"]');
+  await singleInvitePanel.locator("#email").fill(inviteeEmail);
+  await singleInvitePanel.locator("#graduationYear").fill("2019");
+  await singleInvitePanel.locator("#fullName").fill("Form Invitee");
+  await singleInvitePanel.getByRole("button", { name: "Send invite" }).click();
 
   await expect
     .poll(async () => {

@@ -19,7 +19,6 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useMemberShellHeader } from '@/app/(member)/member-shell-header-context'
 import { ConnectionComposer } from '@/app/(member)/people/connection-composer'
-import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { SafetyReportDialog } from '@/components/safety-report-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -154,7 +153,6 @@ export function MemberProfileView({
       )}
     >
       <div className={cn('mx-auto max-w-[1180px]', presentation === 'overlay' && 'max-w-none')}>
-        <ConnectivityNotice />
         <article className="overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
           <header
             className={cn(

@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import type { Database, Json } from '@/db/database.types'
 import type { ExistingHelpProfileChunk, HelpProfileFact } from '@/lib/help/profile-index'
+import { EMAIL_NOTIFICATION_TYPES } from '@/lib/notifications/types'
 import { parseHelpCandidateRow } from './help'
 
 const matchingContextSchema = z
@@ -45,25 +46,12 @@ const profileSourceSchema = z
 const emailContextSchema = z
   .object({
     job_id: z.number().int().positive(),
-    notification_type: z.enum([
-      'ask_received',
-      'ask_accepted',
-      'ask_declined',
-      'ask_reminder',
-      'ask_closed',
-      'offer_received',
-      'offer_accepted',
-      'offer_declined',
-      'offer_closed',
-      'circle_ask_match',
-      'circle_ask_closed',
-      'message_received',
-    ]),
+    notification_type: z.enum(EMAIL_NOTIFICATION_TYPES),
     recipient_user_id: z.guid(),
     recipient_email: z.email(),
     recipient_display_name: z.string().min(1),
     actor_display_name: z.string().nullable(),
-    target_type: z.enum(['ask', 'offer', 'conversation']),
+    target_type: z.enum(['ask', 'offer', 'conversation', 'event', 'announcement']),
     target_id: z.guid(),
     idempotency_key: z.string().min(1).max(100),
     provider_result_id: z.string().min(1).max(500).nullable(),
@@ -91,7 +79,7 @@ export type HelpWorkerEmailContext = {
   recipientEmail: string
   recipientDisplayName: string
   actorDisplayName: string | null
-  targetType: 'ask' | 'offer' | 'conversation'
+  targetType: 'ask' | 'offer' | 'conversation' | 'event' | 'announcement'
   targetId: string
   idempotencyKey: string
   providerResultId: string | null
@@ -281,6 +269,21 @@ export function createHelpWorkerRepository(serviceClient: SupabaseClient<Databas
           asks_closed: z.number().int().nonnegative(),
           offers_closed: z.number().int().nonnegative(),
           helpers_paused: z.number().int().nonnegative(),
+        })
+        .strict()
+        .parse(data)
+    },
+
+    async runSchoolMaintenance(now: string, limit: number) {
+      const { data, error } = await serviceClient
+        .schema('api')
+        .rpc('run_school_maintenance', { p_now: now, p_limit: limit })
+        .single()
+      if (error) transportError('runSchoolMaintenance', error)
+      return z
+        .object({
+          expired_offers: z.number().int().nonnegative(),
+          opened_offers: z.number().int().nonnegative(),
         })
         .strict()
         .parse(data)

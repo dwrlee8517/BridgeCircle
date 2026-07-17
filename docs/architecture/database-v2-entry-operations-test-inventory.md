@@ -1,11 +1,14 @@
 # Database v2 Entry and Operations test inventory
 
-> **Status (2026-07-16): destructive cutover and local hardening complete.**
-> The database, focused application contracts, authenticated operational smoke
-> roads, complete seven-step onboarding cold start, and provider-backed Fast
-> Fill contracts are green. Retired pre-v2 callers and routes are removed, the
-> repository-wide compiler/build are green, and the complete current E2E suite
-> passes hermetically. The remaining exhaustive durability/state roads are
+> **Status (2026-07-16): destructive cutover and durability hardening
+> complete.** The database, focused application contracts, authenticated
+> operational roads, complete seven-step onboarding cold start,
+> provider-backed Fast Fill, account lifecycle workers, one-use recovery, and
+> shared system states are green. Retired pre-v2 callers and routes are
+> removed, the repository-wide compiler/build are green, and the complete
+> current E2E suite passes hermetically. Five new factory-owned durability roads
+> also pass concurrently with five workers. The remaining exhaustive
+> Notifications/admin/offline-form and full breakpoint matrix remains
 > follow-on work. No remote environment action is authorized.
 
 ## Planning checkpoint
@@ -28,22 +31,26 @@
 
 ## Measured implementation checkpoint
 
-- clean local reset replayed the baseline and all seven follow-up migrations,
+- clean local reset replayed the baseline and all ten follow-up migrations,
   then rebuilt the development seed successfully;
-- migration `20260716061606_entry_operations_vertical_slice.sql` and database
-  contract `016_entry_operations_vertical_slice.test.sql` are active;
-- pgTAP: 17 files and 661 assertions passed after the clean reset, including
+- migrations `20260716061606_entry_operations_vertical_slice.sql`,
+  `20260716143000_onboarding_fast_fill.sql`, and
+  `20260716195725_complete_account_lifecycle_workers.sql` are active with
+  database contracts through `019_school_transactional_email.test.sql`;
+- pgTAP: 19 files and 698 assertions passed after the clean reset, including
   import idempotency, owner-only proposal reads, atomic apply, one-time review,
-  privilege allowlists, and foreign-key index coverage;
+  privilege allowlists, foreign-key index coverage, export state convergence,
+  delayed deletion, cancellation/rescheduling, idempotent finalization, and
+  preference-aware School notification email fan-out;
 - generated `public,api` TypeScript types were produced twice with identical
   SHA-256 output
-  (`8732c5fdf165a5661c3906b9e9b3a71d4b2e4ba32d8856a53dcefbddd8a15051`);
+  (`68bf8179cdf575cedcba010879b033416875f52bdb88e7cfa88a49d520d55019`);
 - all eight focused vertical-slice TypeScript projects, repository-wide ESLint
   and Biome, the design-token ratchet, every domain boundary/cutover ratchet,
   and `git diff --check` passed;
 - project-owned database lint (`public,api,private`) passed at warning level;
   migration diff against a shadow rebuild was empty;
-- Vitest: 59 files and 263 tests passed after the destructive removal of
+- Vitest: 59 files and 270 tests passed after the destructive removal of
   retired search, enrichment-sweep, analytics, member-management, and legacy
   E2E modules;
 - Playwright authenticated browser suite: 3 tests passed after its own clean
@@ -85,17 +92,28 @@
 - the default Playwright suite now uses one worker because current acceptance
   roads intentionally mutate the canonical disposable seed. A clean reset
   happens before the browser run, and pgTAP must run after its own clean reset;
-- Playwright: all 36 current E2E tests passed, covering Foundation, Help, Home,
+- Playwright: all 41 current E2E tests passed, covering Foundation, Help, Home,
   Messages, People/Profile, School, auth, minimal Admin, responsive layouts,
   keyboard behavior, and automated accessibility checks;
+- the five new Entry/Operations durability roads cover expired/revoked/reused
+  invitations, one-use recovery plus password update, two-device onboarding
+  resume, private export generation/download plus deletion
+  cancel/reschedule/finalize, and shared not-found/offline/focus/reduced-motion/
+  320px behavior;
+- those five roads passed again with `--workers=5 --fully-parallel`, proving
+  their factory-owned organizations, users, and artifacts are order-independent;
+- production build passed on the supported Node 22.22.2 runtime with Sentry
+  source-map upload and Next telemetry disabled for the local validation run;
 - the complete 17-road browser/accessibility matrix is not claimed green yet.
   Fast Fill now implements LinkedIn primary/fallback providers, private PDF or
   Word résumé extraction, explicit review, atomic apply, resumable pending
   proposals, safe errors, and deterministic non-network browser fixtures.
   Welcome, All set, private-question preservation, canonical Offer, and
-  classmate Connect orchestration are implemented and exercised; invitation
-  expiry/reuse, cross-device resume, full offline recovery, export/deletion
-  worker roads, and the full breakpoint matrix remain explicit follow-on work.
+  classmate Connect orchestration are implemented and exercised. Remaining
+  follow-on work is the Notifications cross-tab/pagination race, admin
+  resend/revoke and opposite-decision race, email-change round trip, input
+  preservation across interrupted forms, and the full 1440/1024/768/390/320
+  visual matrix.
 
 ## Required evidence matrix
 
@@ -118,7 +136,7 @@
 | export | one active job, private artifact, expiring owner link | pgTAP + worker test |
 | deletion | schedule/cancel/finalize legal states and cleanup | race pgTAP + browser |
 | notifications | keyset paging, unread parity, mark-one/all, safe targets | pgTAP + browser |
-| popovers | durable priority subset shown once | Vitest + browser clock |
+| popovers | bounded recent history; read rows retained and unread rows explicitly marked | Vitest + browser |
 | admin | only invite/approval scope and database role authorization | privacy matrix + browser |
 | system states | accepted loading/error/offline/denied/not-found geometry | browser + visual QA |
 | responsive/a11y | 320 through wide desktop, keyboard, axe, reduced motion | Playwright + manual QA |
@@ -287,7 +305,8 @@ Prove for every new object that:
 ### Notifications and admin
 
 - notification target allowlist and fallback behavior;
-- priority popover selection, once-only presentation, and bounded queue;
+- bounded popover selection, retained read history, explicit unread treatment,
+  and bounded queue behavior;
 - optimistic mark-read reconciliation under stale/retry outcomes;
 - invite/approval repository parsers reject extra or malformed authority fields;
 - admin forms preserve safe input on transport failure and converge on stable

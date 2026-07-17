@@ -23,6 +23,28 @@ export const NOTIFICATION_TYPES = [
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number]
 
+export const EMAIL_NOTIFICATION_TYPES = [
+  'ask_received',
+  'ask_accepted',
+  'ask_declined',
+  'ask_reminder',
+  'ask_closed',
+  'offer_received',
+  'offer_accepted',
+  'offer_declined',
+  'offer_closed',
+  'circle_ask_match',
+  'circle_ask_closed',
+  'message_received',
+  'announcement_published',
+  'event_changed',
+  'event_cancelled',
+  'event_reminder',
+  'event_waitlist_spot_opened',
+] as const satisfies readonly NotificationType[]
+
+export type EmailNotificationType = (typeof EMAIL_NOTIFICATION_TYPES)[number]
+
 export type NotificationRow = {
   id: number
   type: NotificationType

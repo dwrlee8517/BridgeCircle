@@ -186,7 +186,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
             </Link>
           </div>
           <p className="border-t border-[var(--divider-row)] px-5 py-2.5 text-left text-label font-medium text-muted-foreground">
-            A tap on the shoulder, once — after this, the full record lives in Notifications.
+            Recent updates stay here for context. Unread ones carry a dot.
           </p>
         </PopoverContent>
       </Popover>

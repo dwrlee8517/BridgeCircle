@@ -1,8 +1,9 @@
 # Database v2 School vertical-slice test inventory
 
-> **Status (2026-07-15): locally complete.** The approved School slice is
-> implemented and verified against the disposable local stack. Remote reset and
-> deployment remain out of scope.
+> **Status (2026-07-16): locally complete.** The approved School slice and its
+> transactional email fan-out are implemented and verified against the
+> disposable local stack. Remote reset, delivery proof, and deployment remain
+> out of scope.
 
 ## Pre-School checkpoint
 
@@ -28,6 +29,7 @@
 | newsletter flow | published reverse chronology, ordered sections, safe optional links | green — pgTAP + browser road |
 | admin seam | authorized event/announcement writes and notifications | green — fixed APIs, admin port, pgTAP |
 | maintenance | expired offers and reminders are idempotent and resumable | green — maintenance harness |
+| transactional email | reminder/change/cancellation/waitlist/announcement jobs honor per-type preferences and deep-link safely | green — outbox pgTAP + worker tests |
 | query plans | hub, attendee, waitlist, announcement, newsletter hot paths | green — representative plan harness |
 | application contracts | strict repository parsers and framework-free domain operations | green — focused TypeScript + Vitest |
 | responsive UI | hub and all readers at desktop/tablet/mobile without overflow | green — Playwright + in-app visual pass |
@@ -52,29 +54,28 @@
 - recommendation and personalization ranking beyond deterministic next event;
 - remote environment evidence;
 - newsletter authoring UI;
-- external email/provider delivery proof.
+- external Resend delivery proof in the shared development environment.
 
 These deferrals do not weaken the database invariants, member privacy, or the
 visual/interaction acceptance criteria in this slice.
 
 ## Final local evidence
 
-- destructive reset: all five v2 migrations and the canonical seed apply cleanly;
-- pgTAP: 14 files / 589 assertions green, including 64 School assertions;
+- destructive reset: the baseline, all ten follow-up migrations, and the
+  canonical seed apply cleanly;
+- pgTAP: 19 files / 698 assertions green, including the original 64 School
+  assertions and 15 transactional-email assertions;
 - School reliability: capacity contention, offer-expiry maintenance, and
   representative query-plan harnesses green;
-- TypeScript: Foundation, Conversations, Help, Messages, People/Profile, and
-  School focused projects green;
-- Vitest: 62 files / 264 tests green;
+- TypeScript: all eight focused vertical-slice projects and repository-wide
+  TypeScript green;
+- Vitest: 59 files / 270 tests green;
 - ESLint and Biome: green;
-- Playwright: 8 combined People, Messages, and School roads green from one clean
-  reset; the School suite contributes three roads and includes axe checks;
-- generated Supabase types regenerated from the verified local schema;
+- Playwright: all 41 current E2E tests green from one clean reset; the School
+  suite contributes three roads and includes responsive and accessibility
+  checks;
+- generated Supabase types reproduced twice from the verified local schema with
+  identical SHA-256 output;
+- database lint is clean and the migration shadow diff is empty;
+- the production build, including its route manifest, is green;
 - final local database restored to the canonical seed.
-
-The repository-wide production build reaches application TypeScript and then
-stops in the already-deferred search pipeline at
-`scripts/check-profile-embedding-index.ts`, which still names the superseded
-public embedding tables. School's focused compiler project is green; repairing
-that search-operations script belongs to the later search-pipeline slice rather
-than hiding the mismatch with a cast or compatibility view.

@@ -19,7 +19,9 @@ export default async function CancelDeletePage() {
     <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-4">
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>Your account is scheduled for deletion</CardTitle>
+          <CardTitle>
+            <h1>Your account is scheduled for deletion</h1>
+          </CardTitle>
           <CardDescription>
             Your profile data is scheduled to be removed on {dueText}. You can safely cancel any
             time before finalization.

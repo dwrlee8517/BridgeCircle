@@ -3,7 +3,6 @@
 import { ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 import { useMemberShellHeader } from '@/app/(member)/member-shell-header-context'
-import { ConnectivityNotice } from '@/components/connectivity-notice'
 import { Button } from '@/components/ui/button'
 import type { SelfProfile } from '@/lib/profile/contracts'
 import { SelfProfileHeader } from './self-profile-header'
@@ -25,9 +24,6 @@ export function SelfProfileView({
 
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
-      <div className="mx-auto max-w-[1180px]">
-        <ConnectivityNotice />
-      </div>
       <article className="mx-auto max-w-[1180px] overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
         <SelfProfileHeader
           identity={profile.identity}

@@ -11,34 +11,23 @@ import type {
   HelpProfilePassageProvider,
   HelpRerankProvider,
 } from '@/lib/help/providers'
+import type { EmailNotificationType } from '@/lib/notifications/types'
 import { type OutboxHandlerRegistry, OutboxJobError } from '@/lib/outbox/contracts'
 
 const EMBEDDING_MODEL = 'voyage-4'
 const EMBEDDING_DIMENSIONS = 1024
 
-export type HelpEmailSendInput = {
+export type NotificationEmailSendInput = {
   to: string
   recipientName: string
-  notificationType:
-    | 'ask_received'
-    | 'ask_accepted'
-    | 'ask_declined'
-    | 'ask_reminder'
-    | 'ask_closed'
-    | 'offer_received'
-    | 'offer_accepted'
-    | 'offer_declined'
-    | 'offer_closed'
-    | 'circle_ask_match'
-    | 'circle_ask_closed'
-    | 'message_received'
+  notificationType: EmailNotificationType
   actorName: string | null
   actionUrl: string
   idempotencyKey: string
 }
 
-export type HelpEmailSender = {
-  send(input: HelpEmailSendInput, signal: AbortSignal): Promise<{ providerId: string }>
+export type NotificationEmailSender = {
+  send(input: NotificationEmailSendInput, signal: AbortSignal): Promise<{ providerId: string }>
 }
 
 export type HelpOutboxHandlerDependencies = {
@@ -46,7 +35,7 @@ export type HelpOutboxHandlerDependencies = {
   embeddings: HelpEmbeddingProvider | null
   reranker: HelpRerankProvider | null
   profilePassages: HelpProfilePassageProvider | null
-  emailSender: HelpEmailSender
+  emailSender: NotificationEmailSender
   appBaseUrl: string
   profileIndexingEnabled: boolean
   pipelineVersion: string
@@ -54,6 +43,15 @@ export type HelpOutboxHandlerDependencies = {
   entryOperations: {
     sendInvite(payload: unknown, idempotencyKey: string, signal: AbortSignal): Promise<void>
     generateAccountExport(payload: unknown, signal: AbortSignal): Promise<void>
+    failAccountExport(payload: unknown, errorCode: string): Promise<void>
+    processAccountDeletion(
+      payload: unknown,
+      signal: AbortSignal,
+    ): Promise<'completed' | 'already_applied' | 'skipped'>
+    deleteStorageObjects(
+      payload: unknown,
+      signal: AbortSignal,
+    ): Promise<'completed' | 'already_applied'>
   }
 }
 
@@ -68,8 +66,31 @@ export function createHelpOutboxHandlers(
     },
 
     async generate_account_export(job, signal) {
-      await dependencies.entryOperations.generateAccountExport(job.payload, signal)
-      return { outcome: 'completed' }
+      try {
+        await dependencies.entryOperations.generateAccountExport(job.payload, signal)
+        return { outcome: 'completed' }
+      } catch (error) {
+        const jobError =
+          error instanceof OutboxJobError
+            ? error
+            : new OutboxJobError('account_export_handler_failed', false)
+        if (jobError.terminal || job.attempts >= job.maxAttempts) {
+          await dependencies.entryOperations.failAccountExport(job.payload, jobError.code)
+        }
+        throw jobError
+      }
+    },
+
+    async process_account_deletion(job, signal) {
+      return {
+        outcome: await dependencies.entryOperations.processAccountDeletion(job.payload, signal),
+      }
+    },
+
+    async delete_storage_objects(job, signal) {
+      return {
+        outcome: await dependencies.entryOperations.deleteStorageObjects(job.payload, signal),
+      }
     },
 
     async create_notification(job) {
@@ -278,5 +299,7 @@ async function generateSyntheticPassages(
 function actionUrl(baseUrl: string, targetType: string, targetId: string): string {
   if (targetType === 'conversation') return `${baseUrl}/messages/${targetId}`
   if (targetType === 'offer') return `${baseUrl}/help/asks`
+  if (targetType === 'event') return `${baseUrl}/school/events/${targetId}`
+  if (targetType === 'announcement') return `${baseUrl}/school/announcements/${targetId}`
   return `${baseUrl}/help/asks/${targetId}`
 }
