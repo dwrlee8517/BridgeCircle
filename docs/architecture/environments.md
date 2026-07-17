@@ -193,9 +193,11 @@ Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points th
 - **Branching integration**: the production Supabase GitHub integration was
   disconnected on 2026-07-17. The protected manual workflow is the temporary
   production migration owner until the final scripted pipeline replaces it.
-- **Required status checks**: branch protection requires the GitHub Actions
-  checks `Lint & test`, `Build (validates types vs. migrations)`, and
-  `E2E gate`. The retired `Supabase Preview` check is no longer required.
+- **Required status checks**: branch protection requires the always-report
+  GitHub Actions checks `CI gate` and `E2E gate`. For code changes, `CI gate`
+  depends on `Lint & test` plus `Build (validates types vs. migrations)`; both
+  aggregate gates also report a legitimate skip for docs-only PRs. The retired
+  `Supabase Preview` check is no longer required.
 - **CI**: GitHub Actions wired at `.github/workflows/`. Two workflows trigger on every PR to `main`:
   - `ci.yml` — `Lint & test` (biome + vitest) and `Build (validates types vs. migrations)` jobs. The build job is the load-bearing migration-safety check: `next build` type-checks the whole codebase against `src/db/database.types.ts`, so a migration that drops a column app code still references fails the PR before merge.
   - `e2e.yml` — Playwright against a **local Supabase stack booted on the runner** (migrations + `supabase/seeds/`). Env resolves from the Doppler `bridgecircle/dev_local` config via the `DOPPLER_TOKEN_LOCAL` repo secret (service token scoped to that config only — local values and dummies, no real secrets). The `E2E gate` job always reports (green on pass or on a legitimately-skipped docs-only PR) so it can be a required check. See [e2e-testing.md](../runbooks/e2e-testing.md).
@@ -344,8 +346,9 @@ Workflow when adding a column or table:
 5. Update the app code that depends on the new schema.
 6. Test locally against the now-migrated dev database.
 7. Commit migration + regenerated types + code together to a feature branch.
-8. Push the branch and open a PR. Require `Lint & test`,
-   `Build (validates types vs. migrations)`, and `E2E gate`.
+8. Push the branch and open a PR. Require the always-report `CI gate` and
+   `E2E gate`; code PRs cannot pass them unless lint/test, the migration-aware
+   build, and hermetic E2E succeed.
 9. During the release freeze, merge only an explicitly approved legacy
    migration, then dispatch the protected production migration workflow with
    its exact version and merge SHA. Do not deploy application code.
@@ -489,8 +492,9 @@ These exist as concepts in the broader docs but are **not** in the current setup
 - **No staging environment.** There are three runtime contexts — your **laptop**, the Railway **`dev` stage** (`dev.bridgecircle.org`, added by [ADR 0014](../decisions/0014-scripted-cd-pipeline.md)), and Railway **`production`** (`bridgecircle.org`) — but no separate *staging* tier between dev and prod. The scripted CD pipeline's integ gate runs against the `dev` stage before the manual prod promote, which covers the "catch it before prod" role a staging tier would play. Add a real staging tier only when production has real users and a regression has real cost.
 - **CI checks on PRs are wired.** `.github/workflows/ci.yml` runs biome,
   vitest, and `next build`; `.github/workflows/e2e.yml` runs hermetic
-  Playwright. Branch protection requires the lint/test, migration-aware build,
-  and E2E gate checks.
+  Playwright. Branch protection requires the aggregate `CI gate` and
+  `E2E gate`, which cover those jobs for code PRs and safely report docs-only
+  skips.
 - **Supabase PR preview branches are paused.** The production GitHub integration
   is disconnected for the v2 cutover, so schema safety comes from clean local
   replay/lint/diff, generated types, hermetic E2E, and reviewed migration SQL.

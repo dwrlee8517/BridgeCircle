@@ -70,8 +70,9 @@ pipeline.
 - **Do not push to prod outside the protected workflow.** Direct CLI pushes and
   the disconnected Supabase integration are not production owners.
 - **Do not expect a Supabase Preview check during the freeze.** Branch
-  protection instead requires `Lint & test`,
-  `Build (validates types vs. migrations)`, and `E2E gate` from GitHub Actions.
+  protection instead requires the always-report `CI gate` and `E2E gate`.
+  For code changes those gates depend on lint/test, the migration-aware build,
+  and hermetic Playwright; for docs-only changes they report a legitimate skip.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. Preview branches *can* be deleted destructively — they're throwaway by design — but prod's history is append-only.
 - **Never apply the legacy probe to shared development.** Validate it in an
   isolated local stack; PR C reconciles the legacy probe into the v2 history.
