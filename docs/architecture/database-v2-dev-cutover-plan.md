@@ -1,10 +1,12 @@
 # Database v2 development cutover plan
 
 > **Status (2026-07-17): approved; local guardrails and release gate complete.
-> The first linked dev reset completed at `997dc7c`, and verification correctly
-> stopped on one missing explicit service-role grant. The deterministic
-> migration repair is locally green and requires a new committed SHA plus a
-> separately approved repeat reset before deployment.**
+> The first linked dev reset at `997dc7c` exposed and repaired a missing
+> explicit service-role grant. The repeat reset at `a5eea0b` passed migration,
+> seed, lint, and schema-diff gates, then the expanded hosted manifest check
+> correctly stopped on five School support tables without RLS. That final
+> migration repair and environment-neutral type generation require a new
+> committed SHA plus a separately approved reset before deployment.**
 > This plan moves the already verified `codex/redesign-v2` application,
 > database, and worker to the shared development environment. It authorizes no
 > destructive or remote mutation command by itself.

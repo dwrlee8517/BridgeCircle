@@ -1262,6 +1262,12 @@ as $$ select private.publish_admin_school_announcement(
   p_membership_id, p_title, p_body, p_tag, p_pinned
 ); $$;
 
+alter table public.event_schedule_items enable row level security;
+alter table public.event_facts enable row level security;
+alter table public.announcement_reads enable row level security;
+alter table public.newsletter_issues enable row level security;
+alter table public.newsletter_sections enable row level security;
+
 revoke select on public.events, public.event_rsvps, public.announcements from authenticated;
 revoke all on public.event_schedule_items, public.event_facts, public.announcement_reads,
   public.newsletter_issues, public.newsletter_sections from public, anon, authenticated;

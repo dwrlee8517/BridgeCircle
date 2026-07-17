@@ -1,13 +1,24 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(64);
+select extensions.plan(65);
 
 select extensions.has_table('public', 'event_schedule_items', 'School events have ordered schedules');
 select extensions.has_table('public', 'event_facts', 'School events have structured facts');
 select extensions.has_table('public', 'announcement_reads', 'announcement reads are durable');
 select extensions.has_table('public', 'newsletter_issues', 'newsletter issues have a first-class archive');
 select extensions.has_table('public', 'newsletter_sections', 'newsletter issues have ordered sections');
+select extensions.ok(
+  (
+    select bool_and(c.relrowsecurity)
+    from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relname in (
+      'event_schedule_items', 'event_facts', 'announcement_reads',
+      'newsletter_issues', 'newsletter_sections'
+    )
+  ),
+  'all School support tables enforce RLS behind the API boundary'
+);
 select extensions.has_column('public', 'event_rsvps', 'offer_expires_at', 'waitlist offers have a deadline');
 select extensions.ok(
   pg_get_constraintdef((

@@ -66,8 +66,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db --local",
-    "db:types:local": "supabase gen types typescript --local --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts && biome format --write src/db/database.types.ts",
-    "db:types": "supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && perl -0pi -e 's/\\n+\\z/\\n/' src/db/database.types.ts && biome format --write src/db/database.types.ts",
+    "db:types:local": "supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
+    "db:types": "supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
     "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts"
   },
   "dependencies": {
