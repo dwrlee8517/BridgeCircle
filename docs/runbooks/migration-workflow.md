@@ -6,11 +6,45 @@ How to author and ship a Supabase migration in BridgeCircle. Effective post-2026
 
 We use a **hybrid branching setup**: `bridgecircle-dev` is still a separate Free project for daily local development, but the prod project (`bridgecircle`) has the Supabase + GitHub branching integration enabled. See [`../architecture/branching-strategy.html`](../architecture/branching-strategy.html) for the full rationale.
 
+## Temporary production-ownership proof during the database-v2 cutover
+
+The manual-only **Production migration ownership** GitHub Actions workflow is
+a temporary bridge for the database-v2 cutover. It proves that the repository
+can validate and apply one explicitly approved production migration before the
+final application CD pipeline takes ownership. It does not deploy application
+code and it cannot reset, repair, or seed a database.
+
+Do not run or merge the workflow until the cutover release freeze is active:
+the current `main` application is not compatible with the already-reset dev
+database, so both the existing GitHub CD workflow and Railway source deploy
+triggers must be paused first. The Supabase GitHub integration remains the
+canonical production owner until the no-op proof succeeds and the release
+owner explicitly disconnects it.
+
+The protected `production` environment must provide `DOPPLER_TOKEN_PRD`. Its
+`bridgecircle/prd` config must provide these names (never copy their values into
+GitHub, logs, or this repository):
+
+- `APP_ENV=prod`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_DB_URL`
+
+Dispatch from the exact `main` commit to be proven. Enter `none` for the no-op
+proof, or the one approved 14-digit migration version for the later additive
+probe, and type `RUN_PRODUCTION_MIGRATION_OWNERSHIP`. The workflow fails closed
+unless the repository, branch, full commit SHA, production API origin,
+production database identity, clean checkout, and local/remote migration
+histories all match. It then performs preflight, `db push --dry-run`, the
+non-interactive push, and a zero-pending postflight in that order.
+
+This section and the temporary workflow are removed when the redesigned
+application's final CD pipeline becomes the sole migration owner.
+
 ## Per-migration workflow
 
 ```
 1. edit / add SQL file in app/supabase/migrations/
-2. pnpm dlx supabase db push                       (applies to bridgecircle-dev)
+2. pnpm exec supabase db push                      (applies to bridgecircle-dev)
 3. pnpm db:types                                   (regenerate database.types.ts)
 4. test locally
 5. git push branch + open PR

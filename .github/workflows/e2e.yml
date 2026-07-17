@@ -91,7 +91,7 @@ jobs:
       # every migration and seed. Studio and the log pipeline aren't needed
       # for tests.
       - name: Start local Supabase stack
-        run: pnpm dlx supabase start -x studio,imgproxy,vector,logflare
+        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
 
       # The runner and the nested dev server both resolve env from the
       # bridgecircle/dev_local Doppler config (tests/e2e/helpers/env.ts).

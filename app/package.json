@@ -14,12 +14,13 @@
     "start": "NODE_ENV=production next start",
     "lint": "eslint",
     "check:tokens": "bash scripts/check-design-tokens.sh",
+    "check:production-migration-ownership": "node --import tsx scripts/check-production-migration-ownership.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "db:start": "bash scripts/db-start.sh",
-    "db:stop": "pnpm dlx supabase stop",
-    "db:reset": "pnpm dlx supabase db reset",
-    "db:types": "pnpm dlx supabase gen types typescript --linked > src/db/database.types.ts"
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --linked > src/db/database.types.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
@@ -60,7 +61,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "supabase": "2.109.1",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.1.5"
   }

@@ -59,6 +59,9 @@ jobs:
       - name: Design-token ratchet
         run: pnpm check:tokens
 
+      - name: Production migration ownership ratchet
+        run: pnpm check:production-migration-ownership
+
       - name: TypeScript
         run: pnpm tsc --noEmit
 
