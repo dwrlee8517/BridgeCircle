@@ -1237,6 +1237,8 @@ create policy communication_preferences_select_owner
 
 revoke all on table public.user_communication_preferences
   from public, anon, authenticated;
+grant select, insert, update, delete
+  on table public.user_communication_preferences to service_role;
 revoke all on table private.invite_operation_requests,
   private.onboarding_drafts, private.account_export_requests
   from public, anon, authenticated;

@@ -28,8 +28,10 @@ exception is narrow:
   until the application is compatible;
 - no one may push the baseline to shared development or production merely
   because it passes locally;
-- each remote reset still requires its own approved snapshot and cutover
-  runbook.
+- each remote reset still requires its own explicit target/SHA approval and
+  approved cutover runbook; that runbook decides whether a snapshot is needed.
+  The disposable zero-data development cutover deliberately omits one, as
+  documented in `database-v2-dev-cutover-plan.md`.
 
 During this transition, validate from `app/` with:
 

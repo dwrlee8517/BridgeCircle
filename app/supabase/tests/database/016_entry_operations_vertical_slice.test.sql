@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(24);
+select extensions.plan(25);
 
 select extensions.has_table(
   'private', 'onboarding_drafts',
@@ -10,6 +10,13 @@ select extensions.has_table(
 select extensions.has_table(
   'public', 'user_communication_preferences',
   'user communication preferences exist'
+);
+select extensions.ok(
+  has_table_privilege('service_role', 'public.user_communication_preferences', 'select')
+    and has_table_privilege('service_role', 'public.user_communication_preferences', 'insert')
+    and has_table_privilege('service_role', 'public.user_communication_preferences', 'update')
+    and has_table_privilege('service_role', 'public.user_communication_preferences', 'delete'),
+  'service role can operate on user communication preferences'
 );
 select extensions.has_table(
   'private', 'account_export_requests',

@@ -1,7 +1,10 @@
 # Database v2 development cutover plan
 
-> **Status (2026-07-16): approved; local guardrails and release gate complete,
-> pending the cutover-preparation commit.**
+> **Status (2026-07-17): approved; local guardrails and release gate complete.
+> The first linked dev reset completed at `997dc7c`, and verification correctly
+> stopped on one missing explicit service-role grant. The deterministic
+> migration repair is locally green and requires a new committed SHA plus a
+> separately approved repeat reset before deployment.**
 > This plan moves the already verified `codex/redesign-v2` application,
 > database, and worker to the shared development environment. It authorizes no
 > destructive or remote mutation command by itself.
