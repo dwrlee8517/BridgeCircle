@@ -7,7 +7,7 @@ This document explains the current BridgeCircle environment setup, how to develo
 > **Status (2026-07) — two shifts postdate parts of this doc; read these first:**
 >
 > 1. **Secrets moved to Doppler.** [`../runbooks/doppler.md`](../runbooks/doppler.md) is now the source of truth for every env var. The `.env.local` references throughout this doc are **legacy** — local dev pulls env from Doppler (`doppler run -- pnpm dev` against the real dev DB, or `pnpm dev:local` against a local Docker stack). Prod/dev env vars are edited in the Doppler `prd`/`dev` configs and **synced to Railway**, not hand-typed into Railway's Variables tab.
-> 2. **There is now a Railway `dev` stage.** [ADR 0014](../decisions/0014-scripted-cd-pipeline.md) added a deployed dev environment at **`https://dev.bridgecircle.org`** plus a scripted CD pipeline (`.github/workflows/cd.yml`: deploy-dev → integ tests → **manual prod gate** → promote). It currently runs *alongside* Railway's built-in auto-deploy (both fire on merge to `main` — harmless, same commit) until rollout **Phase 3** turns auto-deploy off; prod DB migrations still auto-apply via the Supabase GitHub integration until pipeline **Phase 4**. Canonical: [`dev-stage-cd-rollout.md`](dev-stage-cd-rollout.md).
+> 2. **There is now a Railway `dev` stage.** [ADR 0014](../decisions/0014-scripted-cd-pipeline.md) added a deployed dev environment at **`https://dev.bridgecircle.org`** plus a scripted CD pipeline (`.github/workflows/cd.yml`: deploy-dev → integ tests → **manual prod gate** → promote). During the database-v2 release freeze, that workflow is manually disabled, production Railway source deployment is disconnected, and the Supabase GitHub integration is disconnected. The protected migration-only workflow temporarily owns production migrations; the final v2 PR completes database-before-code promotion before CD is re-enabled. Canonical: [`dev-stage-cd-rollout.md`](dev-stage-cd-rollout.md).
 >
 > So the current topology is **three runtime contexts** — your laptop, the Railway `dev` stage, and Railway `production` — with **no staging tier**. The sections below are being reconciled; where they say "`.env.local`" read "Doppler", and where they imply only prod is on Railway, add the `dev` stage.
 
@@ -188,9 +188,16 @@ Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points th
 
 ### GitHub repository
 
-- **Default branch**: `main`. Pushes here trigger Railway auto-deploy + Supabase prod migration auto-apply.
-- **Branching integration**: Supabase's GitHub app installed and pointed at this repo with working directory `app/`. Runs migrations on PR preview branches; merging to `main` auto-applies them to the prod Supabase project.
-- **Required status checks**: "Supabase Preview" should be required on `main`. **Currently "Not enforced"** because that requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory until Pro is enabled or the repo moves to an org plan.
+- **Default branch**: `main`. During the database-v2 release freeze, GitHub
+  `CD`, Railway source triggers, and automatic production migration are paused.
+- **Branching integration**: the production Supabase GitHub integration was
+  disconnected on 2026-07-17. The protected manual workflow is the temporary
+  production migration owner until the final scripted pipeline replaces it.
+- **Required status checks**: branch protection requires the always-report
+  GitHub Actions checks `CI gate` and `E2E gate`. For code changes, `CI gate`
+  depends on `Lint & test` plus `Build (validates types vs. migrations)`; both
+  aggregate gates also report a legitimate skip for docs-only PRs. The retired
+  `Supabase Preview` check is no longer required.
 - **CI**: GitHub Actions wired at `.github/workflows/`. Two workflows trigger on every PR to `main`:
   - `ci.yml` — `Lint & test` (biome + vitest) and `Build (validates types vs. migrations)` jobs. The build job is the load-bearing migration-safety check: `next build` type-checks the whole codebase against `src/db/database.types.ts`, so a migration that drops a column app code still references fails the PR before merge.
   - `e2e.yml` — Playwright against a **local Supabase stack booted on the runner** (migrations + `supabase/seeds/`). Env resolves from the Doppler `bridgecircle/dev_local` config via the `DOPPLER_TOKEN_LOCAL` repo secret (service token scoped to that config only — local values and dummies, no real secrets). The `E2E gate` job always reports (green on pass or on a legitimately-skipped docs-only PR) so it can be a required check. See [e2e-testing.md](../runbooks/e2e-testing.md).
@@ -205,7 +212,7 @@ Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points th
 | Errors in admin actions | Sentry dashboard → Issues (filtered to environment=production) |
 | Database query failures | Supabase prod dashboard → Logs → Postgres |
 | OAuth login failing | Supabase prod dashboard → Logs → Auth + Google Cloud → OAuth consent screen |
-| Migration didn't apply on merge | Supabase prod dashboard → Database → Migrations + the GitHub PR's "Supabase Preview" check |
+| Migration didn't apply | GitHub Actions → protected migration/promotion run + Supabase prod dashboard → Database → Migrations |
 
 ## Where The Env Vars Live
 
@@ -311,7 +318,12 @@ If the build fails, the previous version keeps serving — there's no downtime r
 
 ### Schema (database) changes
 
-> **This section was rewritten on 2026-04-29 when we cut over to Supabase + GitHub branching.** The pre-cutover process required a manual `supabase link --project-ref <prod>` + `db push` after merge. That step is gone — Supabase auto-applies on merge. See `branching-strategy.html` for the architecture decision and `../runbooks/migration-workflow.md` for the canonical step-by-step.
+> **Release-freeze override (2026-07-17):** the Supabase GitHub integration is
+> disconnected and production code deployment is paused. The protected manual
+> workflow temporarily owns explicitly approved legacy migrations. The final
+> database-v2 pipeline will apply ordinary migrations before deploying the
+> exact same application SHA. See `../runbooks/migration-workflow.md` for the
+> canonical current procedure.
 
 Schema is managed by **migration files** in `app/supabase/migrations/`. Forward-only — once applied to any DB, treat the file as immutable history.
 
@@ -334,22 +346,24 @@ Workflow when adding a column or table:
 5. Update the app code that depends on the new schema.
 6. Test locally against the now-migrated dev database.
 7. Commit migration + regenerated types + code together to a feature branch.
-8. Push the branch and open a PR. **Supabase's GitHub integration spins up a preview branch off the prod project and runs the migration on it.** A "Supabase Preview" check appears on the PR — wait for it to turn green before merging.
-9. Merge the PR. Two things happen automatically:
-   - Railway picks up the merge and redeploys the app.
-   - Supabase auto-applies the migration to the prod project (`bridgecircle`).
-10. The preview branch auto-deletes after merge.
+8. Push the branch and open a PR. Require the always-report `CI gate` and
+   `E2E gate`; code PRs cannot pass them unless lint/test, the migration-aware
+   build, and hermetic E2E succeed.
+9. During the release freeze, merge only an explicitly approved legacy
+   migration, then dispatch the protected production migration workflow with
+   its exact version and merge SHA. Do not deploy application code.
+10. After the database-v2 cutover, the normal `cd.yml` promotion path replaces
+    the temporary workflow and applies migrations before deploying that same
+    tested SHA.
 
-**Do not** run `supabase db push` against prod manually anymore. The integration owns the prod side; manual pushes risk schema drift.
+**Do not** run `supabase db push` against production from a developer-linked
+checkout. Only the protected workflow—and later `cd.yml`—owns production.
 
-### Order of operations on merge — it's a race, not lockstep
+### Order of operations after the v2 cutover
 
-When a PR is merged to `main`, two independent webhooks fire:
-
-- **Supabase** applies the migration to the prod project (`bridgecircle`). Usually <30s.
-- **Railway** runs `pnpm install` + `pnpm build` and swaps the container atomically. Usually 2–5 min.
-
-Supabase almost always finishes first because Railway's build is the bottleneck. That creates a **deploy window** (2–5 min) where the prod database is on the new schema while the prod app is still running the old code:
+The final scripted pipeline serializes database migration before application
+deployment from one SHA. A deploy window can still exist where the new schema
+is live while the previous code is serving:
 
 - **Additive migration** (add column / table / index / nullable / NOT-NULL-with-default) — old code ignores the new schema. The window is harmless. Ship as one PR.
 - **Destructive migration** (drop, rename, tighten CHECK, add FK to existing data, change type) — old code references things that no longer exist or violates new rules. 100% of traffic on the affected path errors until Railway catches up. **Do not ship as one PR — use the expand/contract pattern.**
@@ -476,9 +490,17 @@ If the deploy succeeds but a bug shows up:
 These exist as concepts in the broader docs but are **not** in the current setup:
 
 - **No staging environment.** There are three runtime contexts — your **laptop**, the Railway **`dev` stage** (`dev.bridgecircle.org`, added by [ADR 0014](../decisions/0014-scripted-cd-pipeline.md)), and Railway **`production`** (`bridgecircle.org`) — but no separate *staging* tier between dev and prod. The scripted CD pipeline's integ gate runs against the `dev` stage before the manual prod promote, which covers the "catch it before prod" role a staging tier would play. Add a real staging tier only when production has real users and a regression has real cost.
-- **CI checks on PRs are now wired** (was previously listed as out-of-scope). `.github/workflows/ci.yml` runs biome, vitest, and `next build` on every PR. `.github/workflows/e2e.yml` runs Playwright. The Supabase Preview check still validates the migration itself on a real preview branch — together this gives three layers of migration safety: schema replay (Supabase), type compatibility (build), runtime behavior (E2E).
-- **Branch protection on `main` is configured but "Not enforced".** A classic branch protection rule exists requiring the "Supabase Preview" check, but enforcement requires GitHub Pro ($4/mo) on a personal-account private repo. Treat the green check as advisory. Either upgrade to Pro, move the repo to an org, or accept the soft enforcement until launch.
-- **No PR preview environments on Railway.** Each PR doesn't get its own app URL. Supabase preview branches handle DB schema validation; for app preview you'd enable Railway's PR preview feature in the service settings.
+- **CI checks on PRs are wired.** `.github/workflows/ci.yml` runs biome,
+  vitest, and `next build`; `.github/workflows/e2e.yml` runs hermetic
+  Playwright. Branch protection requires the aggregate `CI gate` and
+  `E2E gate`, which cover those jobs for code PRs and safely report docs-only
+  skips.
+- **Supabase PR preview branches are paused.** The production GitHub integration
+  is disconnected for the v2 cutover, so schema safety comes from clean local
+  replay/lint/diff, generated types, hermetic E2E, and reviewed migration SQL.
+- **No PR preview environments on Railway.** Each PR does not get its own app
+  URL. During the release freeze there are also no Supabase preview branches;
+  hermetic E2E and local schema replay provide PR validation.
 - **No persistent dev branch on the prod Supabase project.** We use `bridgecircle-dev` (separate project under the same Pro org) for daily development instead. The cost rationale from ADR 0005 has shifted now that dev sits under Pro — see [decision 0005](../decisions/0005-hybrid-supabase-branching.md) "Current state" note and the post-launch backlog for the trade-off.
 - **DMARC reporting not configured.** A `_dmarc` record exists in monitor-only mode (`p=none`) but has no `rua=` reporting address, so no daily auth reports are collected. Add a reporting mailbox + tighten the policy post-launch.
 - **No cost monitoring on Anthropic API.** Resume extraction + NL search both call Claude Haiku. Low volume during pilot but no observability today. Sentry breadcrumbs or a counter row would suffice; see `app/CLAUDE.md` post-launch backlog.
@@ -492,16 +514,16 @@ These are all good upgrades to make incrementally. None are urgent for launch.
 | Which database does local dev write to? | Local Docker stack via `pnpm dev:local:live` (daily driver) or `pnpm dev:local` (E2E config); `bridgecircle-dev` via `doppler run -- pnpm dev` (`dev_personal`) when you need shared cloud data |
 | Which database does `dev.bridgecircle.org` write to? | `bridgecircle-dev` (Railway `dev` stage, via Doppler `dev`) |
 | Which database does the live site write to? | `bridgecircle` (Railway `production`, via Doppler `prd`) |
-| What triggers a production deploy? | Push or merge to `main` |
-| What triggers a production migration? | Merge to `main` — Supabase auto-applies via the GitHub integration |
+| What triggers a production deploy? | Nothing during the release freeze; final `cd.yml` promotion requires a protected production approval |
+| What triggers a production migration? | An explicitly approved protected workflow run; after v2, the protected `cd.yml` promotion |
 | Where are env vars set for prod? | Doppler `prd` config (synced to Railway `production`) — edit in Doppler, not Railway |
 | Where are env vars set for local dev? | Doppler `dev_personal` / `dev_local` — see [doppler.md](../runbooks/doppler.md) |
 | What's the source of truth for schema? | `supabase/migrations/` files in the repo |
 | What's the source of truth for prod env vars + DNS? | This file's "Manual Production Configuration" section |
 | Can I edit the schema in the Supabase dashboard? | No. Always write a migration. |
 | Can I run SQL queries in the Supabase dashboard? | Reads yes, writes no — especially against prod. |
-| Can I run `supabase db push --linked` against prod? | No. The branching integration owns prod migrations now. |
-| What if I push a broken commit to `main`? | Build fails on Railway, prod keeps running the previous version. Fix on a new PR. |
+| Can I run `supabase db push --linked` against prod? | No. Only the protected workflow/pipeline may use the reviewed production DB URL. |
+| What if I try to merge a broken commit to `main`? | Required GitHub checks block the merge. During the freeze nothing deploys automatically; after v2, protected promotion keeps the previous production version until the gated pipeline succeeds. |
 | Where does prod email come from? | `noreply@bridgecircle.org` (set via `RESEND_FROM` in Railway). Dev uses the default `invites@bridgecircle.org`. |
 
 ## When This Doc Gets Outdated
