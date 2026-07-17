@@ -320,12 +320,23 @@ current uncommitted preparation state.
 - The worker's first maintenance interval legitimately created and completed
   two durable event-reminder jobs. They remain as normal worker history, not
   test residue. No job is pending, processing, failed, or retrying.
-- The Supabase advisor connector was attempted after the function migration but
-  the current connector identity lacks advisor permission. This is recorded as
-  an environment-access limitation, not silently treated as a green advisor
-  result; schema lint, pgTAP security contracts, hosted manifests, and empty
-  schema diff are the available gates. Recheck the dashboard advisors when an
-  authorized identity is available.
+- A later authenticated CLI advisor check replaced the earlier connector-
+  permission deferral. It found six profile-import RPCs still inheriting
+  anonymous `PUBLIC` execution and one broad avatar-object listing policy.
+  Forward migration `20260717190521_harden_advisor_permissions.sql` revokes the
+  anonymous RPC surface, removes public Storage metadata listing, and adds an
+  authenticated UUID-folder owner policy so upload and replacement remain
+  supported while known public avatar URLs still work.
+- Final permission evidence is green locally and on hosted development: 20
+  pgTAP files / 705 assertions, warning-level schema lint, empty shadow diff,
+  deterministic local/linked types at the checksum above, zero anonymous
+  profile-import RPCs, zero anonymous Storage read policies, one owner avatar
+  SELECT policy, and passing owner-upload/upsert/list, cross-member denial,
+  anonymous non-listing, public-byte retrieval, and cleanup behavior. Hosted
+  performance advisors report no warnings. Hosted security advisors retain 54
+  explained authenticated `SECURITY DEFINER` API-boundary notices plus the
+  dashboard-only leaked-password-protection warning; the latter remains an
+  Auth configuration item when the project plan supports it.
 
 ### Phase 6 — make the development cutover durable
 
