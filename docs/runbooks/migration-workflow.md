@@ -18,12 +18,13 @@ can validate and apply one explicitly approved production migration before the
 final application CD pipeline takes ownership. It does not deploy application
 code and it cannot reset, repair, or seed a database.
 
-Do not run or merge the workflow until the cutover release freeze is active:
-the current `main` application is not compatible with the already-reset dev
-database, so both the existing GitHub CD workflow and Railway source deploy
-triggers must be paused first. The no-op proof succeeded and the release owner
-disconnected the Supabase GitHub integration on 2026-07-17. Do not reconnect
-it during the cutover.
+The release freeze is active: the current `main` application is not compatible
+with the already-reset dev database, so GitHub CD and Railway source deploy
+triggers remain paused. The no-op proof, integration disconnection, and real
+additive ownership proof all succeeded on 2026-07-17. The additive proof was
+run `29617130431` at `89b1578fb3aac26b09c6dde6a97f9f3b899e32d0` and moved
+production from 27 to 28 recorded legacy migrations with none pending. Do not
+reconnect the Supabase integration during the cutover.
 
 The protected `production` environment must provide `DOPPLER_TOKEN_PRD`. Its
 `bridgecircle/prd` config must provide these names (never copy their values into
@@ -33,9 +34,9 @@ GitHub, logs, or this repository):
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `SUPABASE_DB_URL`
 
-Dispatch from the exact `main` commit to be proven. Enter `none` for the no-op
-proof, or the one approved 14-digit migration version for the later additive
-probe, and type `RUN_PRODUCTION_MIGRATION_OWNERSHIP`. The workflow fails closed
+Dispatch from the exact `main` commit to be proven. Enter `none` for a no-op or
+one explicitly approved 14-digit legacy migration version, and type
+`RUN_PRODUCTION_MIGRATION_OWNERSHIP`. The workflow fails closed
 unless the repository, branch, full commit SHA, production API origin,
 production database identity, clean checkout, and local/remote migration
 histories all match. It then performs preflight, `db push --dry-run`, the
@@ -68,8 +69,9 @@ pipeline.
 
 - **Do not push to prod outside the protected workflow.** Direct CLI pushes and
   the disconnected Supabase integration are not production owners.
-- **Do not expect a Supabase Preview check during the freeze.** Require the
-  repository CI and hermetic E2E gates before merging.
+- **Do not expect a Supabase Preview check during the freeze.** Branch
+  protection instead requires `Lint & test`,
+  `Build (validates types vs. migrations)`, and `E2E gate` from GitHub Actions.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. Preview branches *can* be deleted destructively — they're throwaway by design — but prod's history is append-only.
 - **Never apply the legacy probe to shared development.** Validate it in an
   isolated local stack; PR C reconciles the legacy probe into the v2 history.
@@ -77,7 +79,11 @@ pipeline.
 
 ## Classify the migration before writing it
 
-On merge, Supabase auto-applies the migration to prod (~30s) and Railway redeploys the app (~2–5 min). Supabase almost always wins the race, which means there's a 2–5 minute window where the new schema is live but the old code is still serving traffic. The pattern that's safe depends on what kind of change you're making.
+During the release freeze, only the protected manual workflow can apply an
+approved legacy migration and application deployment remains paused. After the
+database-v2 cutover, the scripted pipeline applies ordinary migrations before
+deploying the exact same application SHA. The compatibility pattern that is
+safe still depends on what kind of change is being made.
 
 **Additive** — safe to ship in a single PR. The old code in the deploy window doesn't see the new shape, so it can't break.
 

@@ -144,9 +144,9 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   `RAILWAY_TOKEN_PRD` env secrets, required-reviewer rule enabled
   (all API-verified 2026-07-11). Repo-level Railway token copies deleted;
   only `DOPPLER_TOKEN` remains repo-level.
-  - [ ] **[R]** reviewer list currently = `dkoodev` only — confirm an
-    account that can approve promptly (e.g. the repo owner) is on it, or
-    every promote waits on one person.
+  - [x] **[R]** protected-environment reviewers include `dkoodev` and repo
+    owner `dwrlee8517` (API-verified while approving run `29617130431` on
+    2026-07-17).
 - [x] **[C]** `deploy-dev` (`railway up`, blocking, SHA-stamped) and
   `promote` (`needs: integ`, environment `production`) both live in
   `cd.yml`. The dev-side idempotent `supabase db push` joins in Phase 4
@@ -164,7 +164,9 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   repository-pinned and CI enforces the workflow's migration-only boundary.
   Preparation does **not** authorize running it: freeze the legacy GitHub CD
   and both Railway source deploy triggers before merging this change.
-- [ ] **[R]** Add `SUPABASE_ACCESS_TOKEN` secret.
+- [x] **[C+R]** The production migration path uses the scoped
+  `DOPPLER_TOKEN_PRD` plus `SUPABASE_DB_URL`; no account-wide
+  `SUPABASE_ACCESS_TOKEN` is required for `db push --db-url`.
 - [ ] **[C]** `promote` gains `supabase db push` → prod **before**
   `railway up`, non-interactive, with the password from environment secrets.
 - [x] **[C+R]** Dry-run: no-op migration proof completed 2026-07-17 at
@@ -172,7 +174,11 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 - [x] **[R]** Supabase dashboard → prod project → Integrations → **disconnect
   the GitHub integration** — completed and evidenced 2026-07-17 (this also ends
   preview branches — see ADR 0014).
-- [ ] **[C+R]** Verify: one real additive migration end-to-end.
+- [x] **[C+R]** Verify: one real additive migration end-to-end — ownership
+  probe `20260717213750` applied at
+  `89b1578fb3aac26b09c6dde6a97f9f3b899e32d0` by run `29617130431`;
+  preflight was 28 local / 27 remote with only that version pending, and
+  postflight was 28 / 28 with none pending. No application deployment ran.
 
 ## Phase 5 — guardrails
 
