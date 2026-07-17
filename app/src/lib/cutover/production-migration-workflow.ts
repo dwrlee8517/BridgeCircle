@@ -1,6 +1,14 @@
 const REQUIRED_CONFIRMATION = 'RUN_PRODUCTION_MIGRATION_OWNERSHIP'
 const DRY_RUN_COMMAND = 'pnpm exec supabase db push --db-url "$SUPABASE_DB_URL" --dry-run'
 const PUSH_COMMAND = 'pnpm exec supabase db push --db-url "$SUPABASE_DB_URL" --yes'
+const DOPPLER_ACTION = 'uses: dopplerhq/cli-action@v3'
+const DOPPLER_RELOCATION_STEP = 'name: Relocate Doppler CLI outside checkout'
+const DOPPLER_RELOCATION_COMMAND = 'mv "$GITHUB_WORKSPACE/bin" "$RUNNER_TEMP/doppler-bin"'
+const DOPPLER_PATH_COMMAND = 'echo "$RUNNER_TEMP/doppler-bin" >> "$GITHUB_PATH"'
+const INSTALL_COMMAND = 'pnpm install --frozen-lockfile'
+const CLEAN_CHECKOUT_STEP = 'name: Verify checkout remains clean'
+const CLEAN_CHECKOUT_COMMAND = 'git status --porcelain --untracked-files=all'
+const PRODUCTION_CREDENTIAL = 'DOPPLER_TOKEN_PRD'
 
 export function productionMigrationWorkflowErrors(
   workflow: string,
@@ -41,6 +49,21 @@ export function productionMigrationWorkflowErrors(
     'EXPECTED_PENDING_MIGRATION: none',
     'workflow must verify zero pending migrations afterward',
   )
+  requireText(DOPPLER_ACTION, 'workflow must install the Doppler CLI')
+  requireText(
+    DOPPLER_RELOCATION_STEP,
+    'workflow must relocate the Doppler CLI outside the checkout',
+  )
+  requireText(
+    DOPPLER_RELOCATION_COMMAND,
+    'workflow must move the Doppler CLI directory into runner temp',
+  )
+  requireText(
+    DOPPLER_PATH_COMMAND,
+    'workflow must add the relocated Doppler CLI to the runner path',
+  )
+  requireText(CLEAN_CHECKOUT_STEP, 'workflow must have an explicit clean-checkout gate')
+  requireText(CLEAN_CHECKOUT_COMMAND, 'workflow clean-checkout gate must include untracked files')
 
   if (/\brailway\b/i.test(workflow))
     errors.push('migration-only workflow must not deploy Railway code')
@@ -60,6 +83,39 @@ export function productionMigrationWorkflowErrors(
     !(preflightIndex < dryRunIndex && dryRunIndex < pushIndex && pushIndex < postflightIndex)
   ) {
     errors.push('workflow order must be preflight, dry-run, push, postflight')
+  }
+
+  const dopplerActionIndex = workflow.indexOf(DOPPLER_ACTION)
+  const relocationStepIndex = workflow.indexOf(DOPPLER_RELOCATION_STEP)
+  const relocationCommandIndex = workflow.indexOf(DOPPLER_RELOCATION_COMMAND)
+  const dopplerPathIndex = workflow.indexOf(DOPPLER_PATH_COMMAND)
+  const installIndex = workflow.indexOf(INSTALL_COMMAND)
+  const cleanStepIndex = workflow.indexOf(CLEAN_CHECKOUT_STEP)
+  const cleanCommandIndex = workflow.indexOf(CLEAN_CHECKOUT_COMMAND)
+  const productionCredentialIndex = workflow.indexOf(PRODUCTION_CREDENTIAL)
+  if (
+    dopplerActionIndex < 0 ||
+    relocationStepIndex < 0 ||
+    relocationCommandIndex < 0 ||
+    dopplerPathIndex < 0 ||
+    installIndex < 0 ||
+    cleanStepIndex < 0 ||
+    cleanCommandIndex < 0 ||
+    productionCredentialIndex < 0 ||
+    !(
+      dopplerActionIndex < relocationStepIndex &&
+      relocationStepIndex < relocationCommandIndex &&
+      relocationCommandIndex < dopplerPathIndex &&
+      dopplerPathIndex < installIndex &&
+      installIndex < cleanStepIndex &&
+      cleanStepIndex < cleanCommandIndex &&
+      cleanCommandIndex < productionCredentialIndex &&
+      productionCredentialIndex < preflightIndex
+    )
+  ) {
+    errors.push(
+      'workflow order must be Doppler install, relocation, dependency install, clean gate, credentials, preflight',
+    )
   }
 
   if (packageJson.devDependencies?.supabase !== '2.109.1') {

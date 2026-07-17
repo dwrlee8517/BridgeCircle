@@ -16,11 +16,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: \${{ github.sha }}
+      - uses: dopplerhq/cli-action@v3
+      - name: Relocate Doppler CLI outside checkout
+        run: |
+          mv "$GITHUB_WORKSPACE/bin" "$RUNNER_TEMP/doppler-bin"
+          echo "$RUNNER_TEMP/doppler-bin" >> "$GITHUB_PATH"
+      - run: pnpm install --frozen-lockfile
+      - name: Verify checkout remains clean
+        run: test -z "$(git status --porcelain --untracked-files=all)"
       - env:
           CONFIRMATION: \${{ inputs.confirmation }}
           PRODUCTION_PROJECT_REF: edumxwzilfgvamzarwvo
         run: test "$CONFIRMATION" = RUN_PRODUCTION_MIGRATION_OWNERSHIP
-      - run: node --import tsx scripts/production-migration-ownership-preflight.ts
+      - env:
+          DOPPLER_TOKEN: \${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: node --import tsx scripts/production-migration-ownership-preflight.ts
       - run: pnpm exec supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
       - run: pnpm exec supabase db push --db-url "$SUPABASE_DB_URL" --yes
       - env:
@@ -42,6 +52,51 @@ describe('productionMigrationWorkflowErrors', () => {
     ['seed flag', validWorkflow.replace('--yes', '--include-seed --yes')],
     ['database reset', `${validWorkflow}\n      - run: supabase db reset\n`],
     ['missing production gate', validWorkflow.replace('environment: production', '')],
+    [
+      'missing Doppler relocation',
+      validWorkflow.replace(
+        '          mv "$GITHUB_WORKSPACE/bin" "$RUNNER_TEMP/doppler-bin"\n',
+        '',
+      ),
+    ],
+    [
+      'Doppler relocation after dependency install',
+      validWorkflow.replace(
+        `      - name: Relocate Doppler CLI outside checkout
+        run: |
+          mv "$GITHUB_WORKSPACE/bin" "$RUNNER_TEMP/doppler-bin"
+          echo "$RUNNER_TEMP/doppler-bin" >> "$GITHUB_PATH"
+      - run: pnpm install --frozen-lockfile`,
+        `      - run: pnpm install --frozen-lockfile
+      - name: Relocate Doppler CLI outside checkout
+        run: |
+          mv "$GITHUB_WORKSPACE/bin" "$RUNNER_TEMP/doppler-bin"
+          echo "$RUNNER_TEMP/doppler-bin" >> "$GITHUB_PATH"`,
+      ),
+    ],
+    [
+      'clean gate after production credentials',
+      validWorkflow
+        .replace(
+          `      - name: Verify checkout remains clean
+        run: test -z "$(git status --porcelain --untracked-files=all)"
+`,
+          '',
+        )
+        .replace(
+          '        run: node --import tsx scripts/production-migration-ownership-preflight.ts',
+          `        run: node --import tsx scripts/production-migration-ownership-preflight.ts
+      - name: Verify checkout remains clean
+        run: test -z "$(git status --porcelain --untracked-files=all)"`,
+        ),
+    ],
+    [
+      'clean gate that ignores untracked files',
+      validWorkflow.replace(
+        'git status --porcelain --untracked-files=all',
+        'git status --porcelain --untracked-files=no',
+      ),
+    ],
     [
       'reversed push order',
       validWorkflow
