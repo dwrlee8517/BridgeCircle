@@ -4,7 +4,11 @@ How to author and ship a Supabase migration in BridgeCircle. Effective post-2026
 
 ## Setup
 
-We use a **hybrid branching setup**: `bridgecircle-dev` is still a separate Free project for daily local development, but the prod project (`bridgecircle`) has the Supabase + GitHub branching integration enabled. See [`../architecture/branching-strategy.html`](../architecture/branching-strategy.html) for the full rationale.
+`bridgecircle-dev` remains a separate shared development project. During the
+active database-v2 release freeze, the production Supabase GitHub integration
+is disconnected and the protected, manual-only GitHub workflow is the sole
+production migration owner. The current evidence is recorded in
+[`production-migration-ownership-record.md`](../architecture/production-migration-ownership-record.md).
 
 ## Temporary production-ownership proof during the database-v2 cutover
 
@@ -17,9 +21,9 @@ code and it cannot reset, repair, or seed a database.
 Do not run or merge the workflow until the cutover release freeze is active:
 the current `main` application is not compatible with the already-reset dev
 database, so both the existing GitHub CD workflow and Railway source deploy
-triggers must be paused first. The Supabase GitHub integration remains the
-canonical production owner until the no-op proof succeeds and the release
-owner explicitly disconnects it.
+triggers must be paused first. The no-op proof succeeded and the release owner
+disconnected the Supabase GitHub integration on 2026-07-17. Do not reconnect
+it during the cutover.
 
 The protected `production` environment must provide `DOPPLER_TOKEN_PRD`. Its
 `bridgecircle/prd` config must provide these names (never copy their values into
@@ -42,24 +46,33 @@ application's final CD pipeline becomes the sole migration owner.
 
 ## Per-migration workflow
 
+The following temporary sequence applies only while the database-v2 release
+freeze is active:
+
 ```
 1. edit / add SQL file in app/supabase/migrations/
-2. pnpm exec supabase db push                      (applies to bridgecircle-dev)
-3. pnpm db:types                                   (regenerate database.types.ts)
-4. test locally
-5. git push branch + open PR
-6. → Supabase auto-creates a preview branch off prod and runs migrations
-   → "Supabase Preview" status check on the PR turns green
-7. merge PR → Supabase auto-applies migrations to bridgecircle (prod)
-8. preview branch auto-deletes
+2. rebuild and test in an isolated local Supabase stack
+3. open a PR and require CI + hermetic E2E
+4. merge only with the migration version explicitly approved
+5. confirm production still lacks the migration
+6. dispatch the protected workflow with that exact version and merge SHA
+7. require preflight, dry-run, push, and zero-pending postflight
 ```
+
+Do not push the legacy ownership probe to `bridgecircle-dev`; shared
+development already runs database v2 while `main` still contains the legacy
+history. PR C replaces this temporary sequence with the normal scripted CD
+pipeline.
 
 ## Hard rules
 
-- **Do not push to prod manually.** The integration owns the prod side; manual pushes risk drift. (Step 7 replaced the old manual `supabase link --project-ref <prod>` + `db push --dry-run` + `db push` + re-link dance.)
-- **Branch protection on `main` requires the Supabase Preview check to pass before merging.** Don't merge a PR with a failing migration check.
+- **Do not push to prod outside the protected workflow.** Direct CLI pushes and
+  the disconnected Supabase integration are not production owners.
+- **Do not expect a Supabase Preview check during the freeze.** Require the
+  repository CI and hermetic E2E gates before merging.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. Preview branches *can* be deleted destructively — they're throwaway by design — but prod's history is append-only.
-- **Always run step 2 before opening the PR.** The local dev project (`bridgecircle-dev`) and prod stay in sync only because of this. If you skip step 2, dev will be behind main; harmless until you try to test a future feature locally that depends on the missed migration.
+- **Never apply the legacy probe to shared development.** Validate it in an
+  isolated local stack; PR C reconciles the legacy probe into the v2 history.
 - **Use expand/contract for any non-additive change.** See the next section. This is the single most important authoring rule in this runbook.
 
 ## Classify the migration before writing it

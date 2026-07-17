@@ -167,9 +167,11 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 - [ ] **[R]** Add `SUPABASE_ACCESS_TOKEN` secret.
 - [ ] **[C]** `promote` gains `supabase db push` → prod **before**
   `railway up`, non-interactive, with the password from environment secrets.
-- [ ] **[C+R]** Dry-run: a no-op migration through the full path first.
-- [ ] **[R]** Supabase dashboard → prod project → Integrations → **disconnect
-  the GitHub integration** (this also ends preview branches — see ADR 0014).
+- [x] **[C+R]** Dry-run: no-op migration proof completed 2026-07-17 at
+  `af02523df30adaada93520b035ca1296dee3991b` (run `29614712165`).
+- [x] **[R]** Supabase dashboard → prod project → Integrations → **disconnect
+  the GitHub integration** — completed and evidenced 2026-07-17 (this also ends
+  preview branches — see ADR 0014).
 - [ ] **[C+R]** Verify: one real additive migration end-to-end.
 
 ## Phase 5 — guardrails
