@@ -56,6 +56,8 @@ function countRows(urlValue: string, relation: string): number | 'absent' {
       '--no-align',
       '--set',
       'ON_ERROR_STOP=1',
+      '--set',
+      'VERBOSITY=verbose',
       '--host',
       url.hostname,
       '--port',
@@ -65,7 +67,7 @@ function countRows(urlValue: string, relation: string): number | 'absent' {
       '--dbname',
       url.pathname.replace(/^\//, '') || 'postgres',
       '--command',
-      `\\set VERBOSITY verbose\nselect count(*)::bigint from ${relation}`,
+      `select count(*)::bigint from ${relation}`,
     ],
     {
       encoding: 'utf8',
