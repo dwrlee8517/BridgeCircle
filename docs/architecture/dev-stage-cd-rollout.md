@@ -158,6 +158,12 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 4 — pipeline owns prod migrations (last, highest blast radius)
 
+- [x] **[C]** Prepare a temporary, manual-only production migration ownership
+  workflow with an exact project/SHA target validator, migration-history
+  preflight, dry-run, non-interactive push, and postflight. The Supabase CLI is
+  repository-pinned and CI enforces the workflow's migration-only boundary.
+  Preparation does **not** authorize running it: freeze the legacy GitHub CD
+  and both Railway source deploy triggers before merging this change.
 - [ ] **[R]** Add `SUPABASE_ACCESS_TOKEN` secret.
 - [ ] **[C]** `promote` gains `supabase db push` → prod **before**
   `railway up`, non-interactive, with the password from environment secrets.
