@@ -280,11 +280,15 @@ explicitly approves the clean replacement.
       design-token check, production build, concurrency, Realtime, worker,
       maintenance, query-plan, and Playwright suites.
     - **Verify:** one evidence record ties every result to the candidate SHA.
-25. Deploy that exact candidate SHA to development web and worker, run hosted
-    integration/acceptance, avatar behavior, advisor, email safety, and
-    controlled outbox recovery checks.
+25. Temporarily enable `CD` and manually dispatch that exact candidate SHA from
+    `codex/redesign-v2`, typing the same full SHA into `candidate_sha`. The
+    fail-closed dev-candidate guard permits only that branch, target, and SHA;
+    `promote` is skipped because the ref is not `main`. Deploy development web
+    and worker, run hosted integration/acceptance, avatar behavior, advisor,
+    email safety, and controlled outbox recovery checks, then disable `CD`
+    again while review continues.
     - **Verify:** development health and both deploy records match the SHA; no
-      production resource changed.
+      production environment job is created and no production resource changed.
 26. Freeze the candidate. Any code, migration, workflow, or cutover-tool change
     invalidates the SHA and repeats steps 24–25.
 

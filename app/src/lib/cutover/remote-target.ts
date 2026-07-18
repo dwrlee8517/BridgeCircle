@@ -1,6 +1,7 @@
 export const DEV_PROJECT_REF = 'ojpvahiuafdcynbdbmri'
 export const PROD_PROJECT_REF = 'edumxwzilfgvamzarwvo'
 export const PROD_APP_ORIGIN = 'https://bridgecircle.org'
+export const DEV_CANDIDATE_BRANCH = 'codex/redesign-v2'
 
 export type RemoteTarget = 'dev' | 'production'
 
@@ -18,6 +19,8 @@ type GitInput = {
   branch: string
   githubRef?: string
   requireDetached?: boolean
+  remoteTarget?: RemoteTarget
+  devCandidateConfirmation?: string
 }
 
 export type ResetAuthorizationInput = GitInput &
@@ -85,7 +88,17 @@ export function validateExactGitState(input: GitInput): void {
   }
 
   const onMain = input.branch === 'main' || input.githubRef === 'refs/heads/main'
-  if (!onMain) throw new Error('Remote migration commands run only from main')
+  const onDevCandidate =
+    input.branch === DEV_CANDIDATE_BRANCH ||
+    input.githubRef === `refs/heads/${DEV_CANDIDATE_BRANCH}`
+  const expectedCandidateConfirmation = `DEPLOY dev ${input.headSha}`
+  const explicitlyAuthorizedDevCandidate =
+    input.remoteTarget === 'dev' &&
+    onDevCandidate &&
+    input.devCandidateConfirmation === expectedCandidateConfirmation
+  if (!onMain && !explicitlyAuthorizedDevCandidate) {
+    throw new Error('Remote migration commands require main or an exact-SHA dev candidate')
+  }
 }
 
 export function migrationVersionsFromFilenames(filenames: string[]): string[] {

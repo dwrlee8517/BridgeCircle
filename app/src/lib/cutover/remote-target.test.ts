@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DEV_CANDIDATE_BRANCH,
   DEV_PROJECT_REF,
   migrationVersionsFromFilenames,
   PROD_PROJECT_REF,
@@ -65,6 +66,40 @@ describe('git and reset guard', () => {
         confirmation: `RESET ${PROD_PROJECT_REF} AT ${sha}`,
       }),
     ).not.toThrow()
+  })
+
+  it('accepts only an exact-SHA development candidate from the reviewed branch', () => {
+    expect(() =>
+      validateExactGitState({
+        headSha: sha,
+        expectedSha: sha,
+        cleanWorktree: true,
+        branch: '',
+        githubRef: `refs/heads/${DEV_CANDIDATE_BRANCH}`,
+        remoteTarget: 'dev',
+        devCandidateConfirmation: `DEPLOY dev ${sha}`,
+      }),
+    ).not.toThrow()
+  })
+
+  it.each([
+    { remoteTarget: 'production' as const },
+    { devCandidateConfirmation: undefined },
+    { devCandidateConfirmation: `DEPLOY dev ${'b'.repeat(40)}` },
+    { githubRef: 'refs/heads/another-branch' },
+  ])('rejects a weakened development-candidate authorization', (change) => {
+    expect(() =>
+      validateExactGitState({
+        headSha: sha,
+        expectedSha: sha,
+        cleanWorktree: true,
+        branch: '',
+        githubRef: `refs/heads/${DEV_CANDIDATE_BRANCH}`,
+        remoteTarget: 'dev',
+        devCandidateConfirmation: `DEPLOY dev ${sha}`,
+        ...change,
+      }),
+    ).toThrow()
   })
 
   it.each([

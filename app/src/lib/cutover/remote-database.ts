@@ -89,6 +89,8 @@ export function validateRemoteExecution(target: RemoteTarget): {
     cleanWorktree: git(['status', '--porcelain']) === '',
     branch: git(['branch', '--show-current']),
     githubRef: process.env.GITHUB_REF,
+    remoteTarget: target,
+    devCandidateConfirmation: process.env.ALLOW_DEV_CANDIDATE_DEPLOY,
   })
   return { databaseUrl, headSha }
 }

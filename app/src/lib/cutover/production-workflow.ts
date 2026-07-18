@@ -16,6 +16,17 @@ export function productionWorkflowErrors(workflow: string): string[] {
     errors.push('production approval gate is missing')
   if (!workflow.includes('DOPPLER_TOKEN_PRD'))
     errors.push('production Doppler credential is missing')
+  for (const marker of [
+    'candidate_sha:',
+    'REQUESTED_CANDIDATE_SHA',
+    'refs/heads/codex/redesign-v2',
+    '"$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"',
+    'ALLOW_DEV_CANDIDATE_DEPLOY',
+  ]) {
+    if (!workflow.includes(marker)) {
+      errors.push(`exact-SHA development candidate dispatch is missing: ${marker}`)
+    }
+  }
   if (FORBIDDEN_REPEATABLE_DATABASE_COMMAND.test(workflow)) {
     errors.push('repeatable CD contains a destructive, repair, or seed command')
   }
@@ -28,6 +39,10 @@ export function productionWorkflowErrors(workflow: string): string[] {
   }
   const dev = workflow.slice(devStart, prodStart)
   const prod = workflow.slice(prodStart)
+
+  if (!prod.includes("if: github.ref == 'refs/heads/main'")) {
+    errors.push('production promotion must be restricted to main')
+  }
 
   const migrationOrder = (target: 'dev' | 'production') => [
     `--target=${target} --mode=preflight`,

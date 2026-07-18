@@ -9,10 +9,16 @@ const migrationSteps = (target: string) => `
 
 const valid = `
 name: CD
+candidate_sha:
 name: Deploy dev stage
+REQUESTED_CANDIDATE_SHA
+refs/heads/codex/redesign-v2
+"$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"
+ALLOW_DEV_CANDIDATE_DEPLOY
 ${migrationSteps('dev')}
 railway up
 name: Promote to production
+if: github.ref == 'refs/heads/main'
 environment: production
 DOPPLER_TOKEN_PRD
 ${migrationSteps('production')}
@@ -32,6 +38,9 @@ describe('production workflow ratchet', () => {
     valid.replace('--target=production --mode=postflight', ''),
     valid.replace('/api/health', ''),
     valid.replace('railway up\nrailway up', 'railway up'),
+    valid.replace("if: github.ref == 'refs/heads/main'", ''),
+    valid.replace('refs/heads/codex/redesign-v2', 'refs/heads/another-branch'),
+    valid.replace('ALLOW_DEV_CANDIDATE_DEPLOY', ''),
     `${valid}\nsupabase db reset`,
   ])('rejects a weakened workflow', (workflow) => {
     expect(productionWorkflowErrors(workflow)).not.toEqual([])
