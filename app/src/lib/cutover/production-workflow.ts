@@ -1,5 +1,12 @@
 const FORBIDDEN_REPEATABLE_DATABASE_COMMAND = /db reset|migration repair|--include-seed|seed\.sql/i
 
+export function cutoverGitignoreErrors(gitignore: string): string[] {
+  const rules = gitignore.split(/\r?\n/).map((line) => line.trim())
+  return rules.includes('/bin/doppler')
+    ? []
+    : ['Doppler GitHub Action runtime binary must be ignored at /bin/doppler']
+}
+
 function ordered(haystack: string, markers: string[]): boolean {
   let cursor = -1
   for (const marker of markers) {

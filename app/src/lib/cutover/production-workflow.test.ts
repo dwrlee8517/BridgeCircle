@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { destructiveEntryPointErrors, productionWorkflowErrors } from './production-workflow'
+import {
+  cutoverGitignoreErrors,
+  destructiveEntryPointErrors,
+  productionWorkflowErrors,
+} from './production-workflow'
 
 const migrationSteps = (target: string) => `
   --target=${target} --mode=preflight
@@ -29,6 +33,11 @@ railway up
 railway up`
 
 describe('production workflow ratchet', () => {
+  it('requires the Doppler action runtime artifact to stay outside Git status', () => {
+    expect(cutoverGitignoreErrors('/bin/doppler\n')).toEqual([])
+    expect(cutoverGitignoreErrors('node_modules\n')).not.toEqual([])
+  })
+
   it('accepts database-before-code with exact-SHA web and worker deployment', () => {
     expect(productionWorkflowErrors(valid)).toEqual([])
   })
