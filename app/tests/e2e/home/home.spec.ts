@@ -8,8 +8,6 @@ const RICHARD = {
   password: 'devseed-password-richard',
 }
 const RESOLVED_ASK_THREAD = '50000000-0000-4000-8000-000000000003'
-const DESKTOP_SCREENSHOT =
-  '/private/tmp/bridgecircle-home-implementation/playwright-home-1440.png'
 
 async function expectNoAccessibilityViolations(page: Page) {
   const { violations } = await new AxeBuilder({ page }).analyze()
@@ -32,7 +30,9 @@ test.skip(
   'Home acceptance needs local seed ownership or explicit hosted-dev authorization.',
 )
 
-test('Home composes the current circle into one calm, accessible dashboard', async ({ page }) => {
+test('Home composes the current circle into one calm, accessible dashboard', async ({
+  page,
+}, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1440, height: 1000 })
   await signIn(page, RICHARD.email, RICHARD.password)
@@ -53,7 +53,10 @@ test('Home composes the current circle into one calm, accessible dashboard', asy
 
   await expectNoHorizontalOverflow(page)
   await expectNoAccessibilityViolations(page)
-  await page.screenshot({ path: DESKTOP_SCREENSHOT, animations: 'disabled' })
+  await page.screenshot({
+    path: testInfo.outputPath('playwright-home-1440.png'),
+    animations: 'disabled',
+  })
 })
 
 test('a private Home question arrives in Help intact and leaves no question in the URL', async ({

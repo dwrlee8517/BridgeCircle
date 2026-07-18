@@ -163,12 +163,12 @@ export function MessagesWorkspace({
       <aside
         aria-label="Messages list"
         className={cn(
-          'min-h-0 w-full shrink-0 flex-col border-r border-border-subtle bg-card md:w-[300px]',
+          'min-h-0 min-w-0 w-full shrink-0 flex-col overflow-hidden border-r border-border-subtle bg-card md:w-[300px]',
           selectedId ? 'hidden md:flex' : 'flex',
         )}
       >
-        <div className="grid shrink-0 gap-2.5 p-3.5 pb-2.5">
-          <div className="flex h-10 items-center gap-2 rounded-[11px] bg-surface-subtle px-3 text-muted-foreground focus-within:outline-2 focus-within:outline-focus-ring">
+        <div className="grid min-w-0 shrink-0 gap-2.5 p-3.5 pb-2.5">
+          <div className="flex h-10 min-w-0 items-center gap-2 rounded-[11px] bg-surface-subtle px-3 text-muted-foreground focus-within:outline-2 focus-within:outline-focus-ring">
             <Search aria-hidden className="size-4 shrink-0" />
             <label htmlFor="message-search" className="sr-only">
               Search messages
@@ -179,7 +179,7 @@ export function MessagesWorkspace({
               onChange={(event) => setQuery(event.target.value)}
               maxLength={100}
               placeholder="Search messages…"
-              className="min-w-0 flex-1 border-0 bg-transparent text-caption font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              className="w-0 min-w-0 flex-1 border-0 bg-transparent text-caption font-medium text-foreground outline-none placeholder:text-muted-foreground"
             />
             {query ? (
               <button
