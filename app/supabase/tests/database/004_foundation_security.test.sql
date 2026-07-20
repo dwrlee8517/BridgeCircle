@@ -97,7 +97,6 @@ select extensions.is(
     'get_my_notification_preferences', 'get_my_onboarding_draft', 'get_my_profile',
     'get_or_create_direct_conversation',
     'is_active_member_of', 'is_admin_of', 'is_blocked', 'is_connected',
-    'issue_invite',
     'list_conversation_messages_after', 'list_conversation_messages_before',
     'list_help_matches', 'list_invites',
     'list_my_blocked_members', 'list_my_notifications', 'list_pending_memberships',
@@ -109,10 +108,10 @@ select extensions.is(
     'save_my_onboarding_progress',
     'save_profile_current',
     'save_profile_education', 'save_profile_history', 'save_profile_identity',
-    'save_profile_preferences', 'schedule_my_account_deletion', 'send_message',
-    'set_my_avatar_path', 'submit_report', 'unblock_member'
+    'save_profile_preferences', 'schedule_my_account_deletion',
+    'set_my_avatar_path', 'unblock_member'
   ]::text[],
-  'authenticated private execution matches API implementations and RLS helpers'
+  'authenticated private execution contains only reviewed RLS helpers and legacy boundaries'
 );
 
 select extensions.ok(

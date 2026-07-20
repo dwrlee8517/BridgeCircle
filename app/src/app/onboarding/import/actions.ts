@@ -18,6 +18,7 @@ import {
   currentProfileAsExtracted,
   parseApplySelections,
 } from '@/lib/onboarding/import-proposal'
+import { resumeImportSourceKey } from '@/lib/onboarding/import-source'
 import { extractFromResume } from '@/lib/resume/extract'
 import { storeResumeUpload } from '@/lib/resume/storeUpload'
 import { fastFillAction } from '../actions'
@@ -55,6 +56,9 @@ export async function startLinkedInImportAction(
   }
   if (begin.result_code === 'in_progress') {
     return { error: 'That import is already running. Give it a moment, then try again.' }
+  }
+  if (begin.result_code === 'limited') {
+    return { error: 'You have reached the import limit for now. Try again in about an hour.' }
   }
   if (begin.result_code !== 'started' || !begin.request_id) {
     return { error: 'We could not start that import. Refresh and try again.' }
@@ -123,13 +127,16 @@ export async function startResumeImportAction(
   if (!isUuid(clientRequestId))
     return { error: 'This import could not be started. Refresh and try again.' }
 
+  const bytes = Buffer.from(await file.arrayBuffer())
+  const contentHash = resumeImportSourceKey(bytes)
+
   const context = await importContext()
   const current = await getImportCurrentProfile(context.profiles, context.membershipId)
   const begin = await context.imports.begin({
     membershipId: context.membershipId,
     clientRequestId,
     source: 'resume',
-    sourceKey: `${file.name}:${file.size}:${file.lastModified}`,
+    sourceKey: contentHash,
   })
   if (begin.result_code === 'existing' && begin.proposal_id) {
     redirect(`/onboarding/import/${begin.proposal_id}`)
@@ -137,11 +144,15 @@ export async function startResumeImportAction(
   if (begin.result_code === 'in_progress') {
     return { error: 'That résumé is already being read. Give it a moment, then try again.' }
   }
+  if (begin.result_code === 'limited') {
+    return {
+      error: 'You have reached the résumé import limit for now. Try again in about an hour.',
+    }
+  }
   if (begin.result_code !== 'started' || !begin.request_id) {
     return { error: 'We could not start that import. Refresh and try again.' }
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer())
   const stored = await storeResumeUpload(
     context.client,
     session.userId,

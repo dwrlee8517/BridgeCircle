@@ -392,6 +392,7 @@ insert into public.conversations (
   '10000000-0000-4000-8000-000000000003',
   '10000000-0000-4000-8000-000000000005'
 );
+select set_config('request.jwt.claim.sub', '10000000-0000-4000-8000-000000000003', true);
 update public.asks
 set status = 'accepted', accepted_at = now(), responded_at = now(),
     conversation_id = '93000000-0000-4000-8000-000000000001'

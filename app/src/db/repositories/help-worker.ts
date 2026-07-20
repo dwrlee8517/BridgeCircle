@@ -128,6 +128,17 @@ export function createHelpWorkerRepository(serviceClient: SupabaseClient<Databas
       return z.array(z.unknown()).parse(data).map(parseHelpCandidateRow)
     },
 
+    async consumeAskMatchingProviderBudget(jobId: number, workerId: string) {
+      const { data, error } = await serviceClient
+        .schema('api')
+        .rpc('consume_ask_matching_provider_budget', {
+          p_job_id: jobId,
+          p_worker_id: workerId,
+        })
+      if (error) transportError('consumeAskMatchingProviderBudget', error)
+      return z.enum(['allowed', 'limited', 'not_available']).parse(data)
+    },
+
     async applyMatches(input: {
       askId: string
       pipelineVersion: string
@@ -171,6 +182,26 @@ export function createHelpWorkerRepository(serviceClient: SupabaseClient<Databas
         facts: parsed.facts,
         existingChunks: parsed.existing_chunks,
       }
+    },
+
+    async beginProfileIndexAttempt(jobId: number, workerId: string, sourceFingerprint: string) {
+      const { data, error } = await serviceClient.schema('api').rpc('begin_profile_index_attempt', {
+        p_job_id: jobId,
+        p_worker_id: workerId,
+        p_source_fingerprint: sourceFingerprint,
+      })
+      if (error) transportError('beginProfileIndexAttempt', error)
+      return z
+        .enum([
+          'allowed',
+          'unchanged',
+          'coalesced',
+          'busy',
+          'limited',
+          'invalid_input',
+          'not_available',
+        ])
+        .parse(data)
     },
 
     async syncProfileIndex(input: {

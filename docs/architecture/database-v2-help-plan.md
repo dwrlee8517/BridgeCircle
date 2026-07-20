@@ -653,6 +653,11 @@ ordering, bounded reranking, factual reason templates, and no evidence padding.
 - Voyage receives at most the bounded eligible pool and reranks at most 20
   candidates. Anthropic assistance is optional and fail-open to editable
   deterministic text; neither provider can submit a member command.
+- Queued provider-backed matching is authorized after lexical retrieval and
+  before either external call. A service-only database command derives the
+  actor from the claimed job and current Ask membership, then atomically allows
+  at most 10 provider attempts per actor per hour. Empty candidate pools do not
+  consume the budget; limited jobs retain deterministic lexical results.
 - Profile indexing uses content-, model-, prompt-, and pipeline-aware SHA-256
   fingerprints. Atomic synchronization inserts only changed chunks and deletes
   obsolete fingerprints; synthetic passages can improve retrieval but can

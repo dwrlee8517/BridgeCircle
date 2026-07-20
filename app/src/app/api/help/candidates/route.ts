@@ -6,7 +6,7 @@ import { createHelpRepository } from '@/db/repositories/help'
 import { getMemberContext } from '@/db/repositories/member-context'
 import { createClient } from '@/db/server'
 import { createVoyageHelpProviderFromEnvironment } from '@/integrations/ai/help-voyage'
-import { findHelpCandidates } from '@/lib/help/matching'
+import { findMemberHelpCandidates } from '@/lib/help/matching'
 import { selectedMembership } from '@/lib/membership/selection'
 
 export const dynamic = 'force-dynamic'
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
 
     const repository = createHelpRepository(client)
     const voyage = createVoyageHelpProviderFromEnvironment()
-    const result = await findHelpCandidates(
+    const result = await findMemberHelpCandidates(
       {
         membershipId: membership.membershipId,
         question: parsed.data.question,

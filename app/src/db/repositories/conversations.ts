@@ -81,6 +81,7 @@ const sendRowSchema = z
       'duplicate',
       'connection_required',
       'invalid_message',
+      'rate_limited',
       'not_available',
     ]),
     message_id: messageIdSchema.nullable(),

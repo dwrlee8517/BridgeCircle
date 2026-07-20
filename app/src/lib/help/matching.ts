@@ -10,6 +10,7 @@ export type HelpMatchingFallback =
   | 'vector_retrieval_failed'
   | 'reranker_unavailable'
   | 'reranker_failed'
+  | 'provider_limited'
 
 export type RankedHelpCandidate = HelpCandidate & {
   deterministicScore: number
@@ -37,6 +38,32 @@ export type HelpMatchingDependencies = {
   repository: Pick<HelpRepository, 'searchCandidates'>
   embeddings: HelpEmbeddingProvider | null
   reranker: HelpRerankProvider | null
+  authorizeProviderUse?: () => Promise<boolean>
+}
+
+export type MemberHelpMatchingDependencies = Omit<
+  HelpMatchingDependencies,
+  'repository' | 'authorizeProviderUse'
+> & {
+  repository: Pick<HelpRepository, 'searchCandidates' | 'consumeAiBudget'>
+}
+
+/**
+ * Member-initiated candidate search is the only synchronous matching path that
+ * can spend provider budget. Keep that policy in the domain boundary so HTTP
+ * callers cannot accidentally bypass or misread the atomic database result.
+ */
+export function findMemberHelpCandidates(
+  input: FindHelpCandidatesInput,
+  dependencies: MemberHelpMatchingDependencies,
+): Promise<HelpMatchingResult> {
+  return findHelpCandidates(input, {
+    ...dependencies,
+    authorizeProviderUse: async () => {
+      const budget = await dependencies.repository.consumeAiBudget('candidate_search')
+      return budget.status === 'allowed'
+    },
+  })
 }
 
 export async function findHelpCandidates(
@@ -56,8 +83,17 @@ export async function findHelpCandidates(
   })
   if (lexicalCandidates.length === 0) return emptyResult(fallbacks)
 
+  const hasProvider = Boolean(dependencies.embeddings || dependencies.reranker)
+  let providerUseAllowed = !hasProvider
+  if (hasProvider && dependencies.authorizeProviderUse) {
+    providerUseAllowed = await dependencies.authorizeProviderUse()
+  }
+  if (hasProvider && !providerUseAllowed) fallbacks.push('provider_limited')
+
   let candidates = lexicalCandidates
-  if (!dependencies.embeddings) {
+  if (!providerUseAllowed) {
+    // Keep the permission-gated lexical result useful without spending more.
+  } else if (!dependencies.embeddings) {
     fallbacks.push('embedding_unavailable')
   } else {
     try {
@@ -88,7 +124,9 @@ export async function findHelpCandidates(
     .sort(compareCandidates)
 
   let rerankedCount = 0
-  if (!dependencies.reranker) {
+  if (!providerUseAllowed) {
+    // The deterministic rank below is the bounded fallback.
+  } else if (!dependencies.reranker) {
     fallbacks.push('reranker_unavailable')
   } else if (ranked.length > 0) {
     const rerankPool = ranked.slice(0, RERANK_LIMIT)

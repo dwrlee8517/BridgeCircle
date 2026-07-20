@@ -1,10 +1,17 @@
 import 'server-only'
+import { inflateRawSync } from 'node:zlib'
 import Anthropic from '@anthropic-ai/sdk'
 import * as mammoth from 'mammoth'
 import { type ExtractedProfile, extractedProfileSchema } from './schemas'
 
 const MODEL = 'claude-haiku-4-5-20251001'
 const MAX_OUTPUT_TOKENS = 2048
+const MAX_DOCX_ENTRIES = 2_000
+const MAX_DOCX_EXPANDED_BYTES = 20 * 1024 * 1024
+const MAX_DOCX_ENTRY_BYTES = 10 * 1024 * 1024
+const MAX_DOCX_COMPRESSION_RATIO = 100
+const MAX_DOCX_TEXT_CHARS = 2_000_000
+const DOCX_EXTRACTION_TIMEOUT_MS = 3_000
 
 export type ExtractInput = {
   mimeType:
@@ -112,8 +119,14 @@ export async function extractFromResume(input: ExtractInput): Promise<ExtractRes
   } else {
     let text: string
     try {
-      const result = await mammoth.extractRawText({ buffer: input.bytes })
+      const inspection = inspectDocxArchive(input.bytes)
+      if (!inspection.ok) throw new Error(inspection.reason)
+      const result = await withTimeout(
+        mammoth.extractRawText({ buffer: input.bytes }),
+        DOCX_EXTRACTION_TIMEOUT_MS,
+      )
       text = result.value
+      if (text.length > MAX_DOCX_TEXT_CHARS) throw new Error('docx_text_too_large')
     } catch (err) {
       return {
         ok: false,
@@ -167,4 +180,156 @@ export async function extractFromResume(input: ExtractInput): Promise<ExtractRes
   }
 
   return { ok: true, profile: validated.data }
+}
+
+export type DocxInspection =
+  | { ok: true; entryCount: number; expandedBytes: number }
+  | { ok: false; reason: string }
+
+/**
+ * Inspect the ZIP central directory before Mammoth expands any DOCX entry.
+ * ZIP64 and encrypted documents are rejected because their resource bounds
+ * cannot be established from the classic central-directory fields below.
+ */
+export function inspectDocxArchive(bytes: Buffer): DocxInspection {
+  const eocdOffset = findEndOfCentralDirectory(bytes)
+  if (eocdOffset < 0 || eocdOffset + 22 > bytes.length) {
+    return { ok: false, reason: 'docx_central_directory_missing' }
+  }
+  const entryCount = bytes.readUInt16LE(eocdOffset + 10)
+  const centralSize = bytes.readUInt32LE(eocdOffset + 12)
+  const centralOffset = bytes.readUInt32LE(eocdOffset + 16)
+  if (entryCount === 0xffff || centralSize === 0xffffffff || centralOffset === 0xffffffff) {
+    return { ok: false, reason: 'docx_zip64_not_supported' }
+  }
+  if (
+    entryCount === 0 ||
+    entryCount > MAX_DOCX_ENTRIES ||
+    centralOffset + centralSize > eocdOffset
+  ) {
+    return { ok: false, reason: 'docx_central_directory_invalid' }
+  }
+
+  let cursor = centralOffset
+  let expandedBytes = 0
+  let hasContentTypes = false
+  let hasDocument = false
+  for (let index = 0; index < entryCount; index++) {
+    if (cursor + 46 > eocdOffset || bytes.readUInt32LE(cursor) !== 0x02014b50) {
+      return { ok: false, reason: 'docx_entry_invalid' }
+    }
+    const flags = bytes.readUInt16LE(cursor + 8)
+    const compressionMethod = bytes.readUInt16LE(cursor + 10)
+    const compressedBytes = bytes.readUInt32LE(cursor + 20)
+    const uncompressedBytes = bytes.readUInt32LE(cursor + 24)
+    const nameLength = bytes.readUInt16LE(cursor + 28)
+    const extraLength = bytes.readUInt16LE(cursor + 30)
+    const commentLength = bytes.readUInt16LE(cursor + 32)
+    const localOffset = bytes.readUInt32LE(cursor + 42)
+    const next = cursor + 46 + nameLength + extraLength + commentLength
+    if (
+      (flags & 0x1) !== 0 ||
+      ![0, 8].includes(compressionMethod) ||
+      compressedBytes === 0xffffffff ||
+      uncompressedBytes === 0xffffffff ||
+      localOffset === 0xffffffff ||
+      next > eocdOffset ||
+      uncompressedBytes > MAX_DOCX_ENTRY_BYTES
+    ) {
+      return { ok: false, reason: 'docx_entry_unbounded' }
+    }
+    if (
+      uncompressedBytes > 0 &&
+      (compressedBytes === 0 || uncompressedBytes / compressedBytes > MAX_DOCX_COMPRESSION_RATIO)
+    ) {
+      return { ok: false, reason: 'docx_compression_ratio_exceeded' }
+    }
+    expandedBytes += uncompressedBytes
+    if (expandedBytes > MAX_DOCX_EXPANDED_BYTES) {
+      return { ok: false, reason: 'docx_expanded_size_exceeded' }
+    }
+    const localEntry = inspectAndExpandLocalEntry(bytes, {
+      localOffset,
+      centralOffset,
+      flags,
+      compressionMethod,
+      compressedBytes,
+      uncompressedBytes,
+    })
+    if (!localEntry.ok) return localEntry
+    const name = bytes.toString('utf8', cursor + 46, cursor + 46 + nameLength)
+    if (name === '[Content_Types].xml') hasContentTypes = true
+    if (name === 'word/document.xml') hasDocument = true
+    cursor = next
+  }
+  if (cursor !== centralOffset + centralSize || !hasContentTypes || !hasDocument) {
+    return { ok: false, reason: 'docx_required_entries_missing' }
+  }
+  return { ok: true, entryCount, expandedBytes }
+}
+
+function inspectAndExpandLocalEntry(
+  bytes: Buffer,
+  entry: {
+    localOffset: number
+    centralOffset: number
+    flags: number
+    compressionMethod: number
+    compressedBytes: number
+    uncompressedBytes: number
+  },
+): { ok: true } | { ok: false; reason: string } {
+  if (
+    entry.localOffset + 30 > entry.centralOffset ||
+    bytes.readUInt32LE(entry.localOffset) !== 0x04034b50 ||
+    bytes.readUInt16LE(entry.localOffset + 6) !== entry.flags ||
+    bytes.readUInt16LE(entry.localOffset + 8) !== entry.compressionMethod
+  ) {
+    return { ok: false, reason: 'docx_local_entry_invalid' }
+  }
+  const localNameLength = bytes.readUInt16LE(entry.localOffset + 26)
+  const localExtraLength = bytes.readUInt16LE(entry.localOffset + 28)
+  const dataStart = entry.localOffset + 30 + localNameLength + localExtraLength
+  const dataEnd = dataStart + entry.compressedBytes
+  if (dataEnd > entry.centralOffset) {
+    return { ok: false, reason: 'docx_local_entry_invalid' }
+  }
+  const compressed = bytes.subarray(dataStart, dataEnd)
+  if (entry.compressionMethod === 0) {
+    return compressed.length === entry.uncompressedBytes
+      ? { ok: true }
+      : { ok: false, reason: 'docx_entry_size_mismatch' }
+  }
+  try {
+    const expanded = inflateRawSync(compressed, {
+      maxOutputLength: Math.max(1, entry.uncompressedBytes),
+    })
+    return expanded.length === entry.uncompressedBytes
+      ? { ok: true }
+      : { ok: false, reason: 'docx_entry_size_mismatch' }
+  } catch {
+    return { ok: false, reason: 'docx_entry_expansion_invalid' }
+  }
+}
+
+function findEndOfCentralDirectory(bytes: Buffer): number {
+  const minimum = Math.max(0, bytes.length - 65_557)
+  for (let offset = bytes.length - 22; offset >= minimum; offset--) {
+    if (bytes.readUInt32LE(offset) === 0x06054b50) return offset
+  }
+  return -1
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error('docx_extract_timeout')), timeoutMs)
+      }),
+    ])
+  } finally {
+    if (timer) clearTimeout(timer)
+  }
 }

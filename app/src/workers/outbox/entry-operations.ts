@@ -4,10 +4,13 @@ import type { Database } from '@/db/database.types'
 import { OutboxJobError } from '@/lib/outbox/contracts'
 import { sendInviteEmail } from '@/notify/resend'
 
+const CANONICAL_EMAIL_PATTERN =
+  /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/
+
 const invitePayloadSchema = z.object({
   inviteId: z.guid(),
   organizationId: z.guid(),
-  recipientEmail: z.email(),
+  recipientEmail: z.string().max(320).regex(CANONICAL_EMAIL_PATTERN),
   token: z.string().min(32),
 })
 
@@ -55,7 +58,9 @@ export function createEntryOperationsWorker(
   return {
     async sendInvite(payload, idempotencyKey, signal) {
       if (signal.aborted) throw new OutboxJobError('invite_send_aborted', false)
-      const input = invitePayloadSchema.parse(payload)
+      const parsed = invitePayloadSchema.safeParse(payload)
+      if (!parsed.success) throw new OutboxJobError('invalid_invite_payload', true)
+      const input = parsed.data
       const [
         { data: organization, error: organizationError },
         { data: invite, error: inviteError },

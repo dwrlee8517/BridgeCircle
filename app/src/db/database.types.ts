@@ -51,6 +51,14 @@ export type Database = {
           result_code: string
         }[]
       }
+      begin_profile_index_attempt: {
+        Args: {
+          p_job_id: number
+          p_source_fingerprint: string
+          p_worker_id: string
+        }
+        Returns: string
+      }
       block_member: {
         Args: { p_blocked_user_id: string }
         Returns: {
@@ -106,6 +114,10 @@ export type Database = {
         }[]
       }
       complete_outbox_job: {
+        Args: { p_job_id: number; p_worker_id: string }
+        Returns: string
+      }
+      consume_ask_matching_provider_budget: {
         Args: { p_job_id: number; p_worker_id: string }
         Returns: string
       }

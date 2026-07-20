@@ -13,6 +13,9 @@ cleanup() {
   "${psql_base[@]}" <<'SQL' >/dev/null 2>&1 || true
 delete from private.outbox_jobs where dedupe_key like 'help:worker-baseline:%';
 delete from private.profile_embedding_chunks where fingerprint = repeat('b', 64);
+delete from private.profile_embedding_status
+where organization_membership_id = '20000000-0000-4000-8000-000000000004'
+  and (dirty_reason = 'worker_fixture' or last_source_fingerprint = repeat('c', 64));
 delete from public.asks where id = '82000000-0000-4000-8000-000000000002';
 delete from public.asks where id = '82000000-0000-4000-8000-000000000001';
 SQL
@@ -83,6 +86,19 @@ insert into public.ask_offers (
   '83000000-0000-4000-8000-000000000101'
 );
 
+insert into private.profile_embedding_status (
+  organization_membership_id, organization_id, user_id,
+  status, dirty_reason, dirty_since
+) values (
+  '20000000-0000-4000-8000-000000000004',
+  '11111111-1111-4111-8111-111111111111',
+  '10000000-0000-4000-8000-000000000004',
+  'dirty', 'worker_fixture', now()
+) on conflict (organization_membership_id) do update
+set status = 'dirty', dirty_reason = 'worker_fixture', dirty_since = now(),
+    locked_at = null, locked_by = null,
+    processing_source_fingerprint = null, processing_job_id = null;
+
 insert into private.outbox_jobs (job_type, payload, dedupe_key, available_at) values
   (
     'run_ask_matching',
@@ -98,7 +114,7 @@ insert into private.outbox_jobs (job_type, payload, dedupe_key, available_at) va
   ),
   (
     'send_email',
-    '{"notificationType":"offer_received","recipientUserId":"10000000-0000-4000-8000-000000000004","askId":"82000000-0000-4000-8000-000000000001","offerId":"83000000-0000-4000-8000-000000000001"}',
+    '{"notificationType":"offer_received","recipientUserId":"10000000-0000-4000-8000-000000000005","actorUserId":"10000000-0000-4000-8000-000000000004","askId":"82000000-0000-4000-8000-000000000001","offerId":"83000000-0000-4000-8000-000000000001"}',
     'help:worker-baseline:email',
     now() - interval '1 minute'
   );
@@ -170,6 +186,11 @@ begin
       and jsonb_array_length(facts) > 0
   ) then
     raise exception 'claimed profile source was unavailable';
+  end if;
+  if api.begin_profile_index_attempt(
+    v_index_job, 'help-worker-runtime', repeat('c', 64)
+  ) <> 'allowed' then
+    raise exception 'claimed profile index attempt was not authorized';
   end if;
   if not exists (
     select 1 from api.sync_profile_index(

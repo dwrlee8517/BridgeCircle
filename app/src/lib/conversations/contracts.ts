@@ -74,7 +74,7 @@ export type GetOrCreateDirectResult =
 
 export type SendMessageResult =
   | { status: 'sent' | 'duplicate'; messageId: number; createdAt: string }
-  | { status: 'connection_required' | 'invalid_message' | 'not_available' }
+  | { status: 'connection_required' | 'invalid_message' | 'rate_limited' | 'not_available' }
 
 export type MarkReadResult =
   | {

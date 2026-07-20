@@ -15,6 +15,7 @@ const beginRowSchema = z.object({
     'started',
     'existing',
     'in_progress',
+    'limited',
     'idempotency_conflict',
     'invalid_input',
     'not_available',
@@ -102,7 +103,7 @@ export function createProfileImportRepository(client: SupabaseClient<Database>) 
         p_attempts: toJson(attempts),
       })
       if (error) throw new Error(`failProfileImport: ${error.message}`)
-      return z.enum(['failed', 'not_owned', 'invalid_input']).parse(data)
+      return z.enum(['failed', 'not_owned', 'not_processing', 'invalid_input']).parse(data)
     },
 
     async get(membershipId: string, proposalId?: string): Promise<ImportProposal | null> {

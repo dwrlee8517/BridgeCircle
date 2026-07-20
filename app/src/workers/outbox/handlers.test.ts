@@ -24,11 +24,17 @@ function repository(): HelpWorkerRepository {
     searchMatchingCandidates: vi.fn<HelpWorkerRepository['searchMatchingCandidates']>(
       async () => [],
     ),
+    consumeAskMatchingProviderBudget: vi.fn<
+      HelpWorkerRepository['consumeAskMatchingProviderBudget']
+    >(async () => 'allowed'),
     applyMatches: vi.fn<HelpWorkerRepository['applyMatches']>(async () => ({
       result_code: 'applied',
       applied_count: 0,
     })),
     getProfileIndexSource: vi.fn<HelpWorkerRepository['getProfileIndexSource']>(async () => null),
+    beginProfileIndexAttempt: vi.fn<HelpWorkerRepository['beginProfileIndexAttempt']>(
+      async () => 'allowed',
+    ),
     syncProfileIndex: vi.fn<HelpWorkerRepository['syncProfileIndex']>(async () => ({
       result_code: 'synced',
       chunk_count: 0,
@@ -302,6 +308,71 @@ describe('Help outbox handlers', () => {
     })
   })
 
+  it('uses lexical matching without provider calls when queued matching is limited', async () => {
+    const repo = repository()
+    vi.mocked(repo.getMatchingContext).mockResolvedValue({
+      askId: '30000000-0000-4000-8000-000000000001',
+      askerMembershipId: '20000000-0000-4000-8000-000000000001',
+      question: 'Could someone help with product strategy?',
+    })
+    vi.mocked(repo.searchMatchingCandidates).mockResolvedValue([
+      {
+        membershipId: '20000000-0000-4000-8000-000000000002',
+        userId: '10000000-0000-4000-8000-000000000002',
+        displayName: 'Sam',
+        headline: null,
+        avatarPath: null,
+        graduationYear: 2001,
+        topics: ['Product strategy'],
+        lexicalScore: 0.8,
+        semanticScore: 0,
+        matchReason: 'Speaks to Product strategy',
+        evidenceChunkIds: ['70000000-0000-4000-8000-000000000001'],
+      },
+    ])
+    vi.mocked(repo.consumeAskMatchingProviderBudget).mockResolvedValue('limited')
+    const deps = dependencies(repo)
+    deps.embeddings = {
+      embedQuery: vi.fn(async () => [0.1, 0.2]),
+      embedDocuments: vi.fn(async () => []),
+    }
+    deps.reranker = { rerank: vi.fn(async () => []) }
+
+    await createHelpOutboxHandlers(deps).run_ask_matching(
+      { ...job, jobType: 'run_ask_matching' },
+      new AbortController().signal,
+    )
+
+    expect(repo.consumeAskMatchingProviderBudget).toHaveBeenCalledWith(41, 'worker-1')
+    expect(deps.embeddings.embedQuery).not.toHaveBeenCalled()
+    expect(deps.reranker.rerank).not.toHaveBeenCalled()
+    expect(repo.applyMatches).toHaveBeenCalledWith(
+      expect.objectContaining({ matches: [expect.objectContaining({ rank: 1 })] }),
+    )
+  })
+
+  it('does not consume queued provider budget when lexical retrieval is empty', async () => {
+    const repo = repository()
+    vi.mocked(repo.getMatchingContext).mockResolvedValue({
+      askId: '30000000-0000-4000-8000-000000000001',
+      askerMembershipId: '20000000-0000-4000-8000-000000000001',
+      question: 'Could someone help?',
+    })
+    const deps = dependencies(repo)
+    deps.embeddings = {
+      embedQuery: vi.fn(async () => [0.1, 0.2]),
+      embedDocuments: vi.fn(async () => []),
+    }
+
+    await createHelpOutboxHandlers(deps).run_ask_matching(
+      { ...job, jobType: 'run_ask_matching' },
+      new AbortController().signal,
+    )
+
+    expect(repo.consumeAskMatchingProviderBudget).not.toHaveBeenCalled()
+    expect(deps.embeddings.embedQuery).not.toHaveBeenCalled()
+  })
+
   it('embeds only changed profile chunks and synchronizes the desired fingerprint set', async () => {
     const repo = repository()
     vi.mocked(repo.getProfileIndexSource).mockResolvedValue({
@@ -342,5 +413,72 @@ describe('Help outbox handlers', () => {
         ],
       }),
     )
+  })
+
+  it.each([
+    'unchanged',
+    'coalesced',
+  ] as const)('skips provider work when the profile index attempt is %s', async (authorization) => {
+    const repo = repository()
+    vi.mocked(repo.getProfileIndexSource).mockResolvedValue({
+      organizationId: '11111111-1111-4111-8111-111111111111',
+      userId: '10000000-0000-4000-8000-000000000001',
+      membershipId: '20000000-0000-4000-8000-000000000001',
+      facts: [
+        {
+          id: 'directory',
+          sourceSection: 'directory',
+          visibility: 'organization',
+          content: 'Product leader',
+        },
+      ],
+      existingChunks: [],
+    })
+    vi.mocked(repo.beginProfileIndexAttempt).mockResolvedValue(authorization)
+    const deps = dependencies(repo)
+    deps.profileIndexingEnabled = true
+    deps.embeddings = {
+      embedQuery: vi.fn(async () => []),
+      embedDocuments: vi.fn(async () => []),
+    }
+
+    await expect(
+      createHelpOutboxHandlers(deps).index_profile(
+        { ...job, jobType: 'index_profile' },
+        new AbortController().signal,
+      ),
+    ).resolves.toEqual({ outcome: 'skipped' })
+    expect(deps.embeddings.embedDocuments).not.toHaveBeenCalled()
+    expect(repo.syncProfileIndex).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    'busy',
+    'limited',
+  ] as const)('retries without provider work when the profile index attempt is %s', async (authorization) => {
+    const repo = repository()
+    vi.mocked(repo.getProfileIndexSource).mockResolvedValue({
+      organizationId: '11111111-1111-4111-8111-111111111111',
+      userId: '10000000-0000-4000-8000-000000000001',
+      membershipId: '20000000-0000-4000-8000-000000000001',
+      facts: [],
+      existingChunks: [],
+    })
+    vi.mocked(repo.beginProfileIndexAttempt).mockResolvedValue(authorization)
+    const deps = dependencies(repo)
+    deps.profileIndexingEnabled = true
+    deps.embeddings = {
+      embedQuery: vi.fn(async () => []),
+      embedDocuments: vi.fn(async () => []),
+    }
+
+    await expect(
+      createHelpOutboxHandlers(deps).index_profile(
+        { ...job, jobType: 'index_profile' },
+        new AbortController().signal,
+      ),
+    ).rejects.toMatchObject({ code: `profile_index_${authorization}`, terminal: false })
+    expect(deps.embeddings.embedDocuments).not.toHaveBeenCalled()
+    expect(repo.syncProfileIndex).not.toHaveBeenCalled()
   })
 })

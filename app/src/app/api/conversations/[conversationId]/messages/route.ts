@@ -96,7 +96,13 @@ export async function POST(
   try {
     const result = await sendMessage({ conversationId, ...parsed.data }, repository)
     const status =
-      result.status === 'not_available' ? 404 : result.status === 'invalid_message' ? 400 : 200
+      result.status === 'not_available'
+        ? 404
+        : result.status === 'invalid_message'
+          ? 400
+          : result.status === 'rate_limited'
+            ? 429
+            : 200
     return NextResponse.json(result, { status, headers: NO_STORE_HEADERS })
   } catch (error) {
     Sentry.captureException(error, { tags: { scope: 'conversation-message-send' } })

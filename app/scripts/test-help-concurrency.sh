@@ -31,6 +31,10 @@ delete from private.outbox_jobs
 where job_type = 'create_notification'
   and payload ->> 'recipientUserId' = '$helper_user_id'
   and payload ->> 'actorUserId' in ('$asker_one_user_id', '$asker_two_user_id');
+delete from private.outbox_jobs where dedupe_key like 'help:matching-budget:%';
+delete from private.security_usage_windows
+where actor_user_id = '$asker_one_user_id'
+  and resource = 'ask_matching_provider';
 delete from public.asks where organization_id = '$org_id';
 delete from public.organization_memberships where organization_id = '$org_id';
 delete from public.users where id in (
@@ -51,6 +55,10 @@ delete from private.outbox_jobs
 where job_type = 'create_notification'
   and payload ->> 'recipientUserId' = '$helper_user_id'
   and payload ->> 'actorUserId' in ('$asker_one_user_id', '$asker_two_user_id');
+delete from private.outbox_jobs where dedupe_key like 'help:matching-budget:%';
+delete from private.security_usage_windows
+where actor_user_id = '$asker_one_user_id'
+  and resource = 'ask_matching_provider';
 delete from public.asks where organization_id = '$org_id';
 delete from public.organization_memberships where organization_id = '$org_id';
 delete from public.users where id in (
@@ -224,6 +232,68 @@ if (( capacity_failures != 0 )) || [[ "$capacity_rows" != "1" ]]; then
   failure=1
 else
   echo "Parallel direct creates preserve the helper request limit"
+fi
+
+"${psql_base[@]}" <<SQL >/dev/null
+insert into public.asks (
+  id, organization_id, asker_membership_id, kind, status, question, reach,
+  anonymous_until_accepted, client_request_id
+) values (
+  '81000000-0000-4000-8000-000000000301',
+  '$org_id', '$asker_one_membership_id', 'circle', 'open',
+  'Who can help test the queued matching budget?', 'matched', true,
+  '81000000-0000-4000-8000-000000000302'
+);
+insert into private.outbox_jobs (
+  job_type, payload, dedupe_key, status, locked_at, locked_by
+)
+select
+  'run_ask_matching',
+  jsonb_build_object('askId', '81000000-0000-4000-8000-000000000301'),
+  'help:matching-budget:' || sequence,
+  'processing', now(), 'help-budget-worker-' || sequence
+from generate_series(1, 12) sequence;
+SQL
+
+run_matching_budget() {
+  local item="$1"
+  local output="$2"
+  PGAPPNAME="bridgecircle-help-budget-$item" "${psql_base[@]}" \
+    --tuples-only --no-align >"$output" 2>&1 <<SQL
+set role service_role;
+select api.consume_ask_matching_provider_budget(
+  (select id from private.outbox_jobs where dedupe_key = 'help:matching-budget:$item'),
+  'help-budget-worker-$item'
+);
+SQL
+}
+
+pids=()
+for item in $(seq 1 12); do
+  run_matching_budget "$item" "$work_dir/budget-$item.out" &
+  pids+=("$!")
+done
+budget_failures=0
+for pid in "${pids[@]}"; do
+  wait "$pid" || budget_failures=$((budget_failures + 1))
+done
+budget_allowed=0
+budget_limited=0
+for item in $(seq 1 12); do
+  budget_result="$(tr -d '[:space:]' <"$work_dir/budget-$item.out")"
+  if [[ "$budget_result" == "allowed" ]]; then
+    budget_allowed=$((budget_allowed + 1))
+  elif [[ "$budget_result" == "limited" ]]; then
+    budget_limited=$((budget_limited + 1))
+  fi
+done
+budget_count="$("${psql_base[@]}" --tuples-only --no-align --command "select request_count from private.security_usage_windows where actor_user_id = '$asker_one_user_id' and resource = 'ask_matching_provider' and resource_key = ''")"
+if (( budget_failures != 0 )) || (( budget_allowed != 10 )) \
+   || (( budget_limited != 2 )) || [[ "$budget_count" != "10" ]]; then
+  echo "parallel matching budget was not enforced atomically (failed=$budget_failures allowed=$budget_allowed limited=$budget_limited count=$budget_count)" >&2
+  failure=1
+else
+  echo "Parallel queued matching attempts stop atomically at the actor limit"
 fi
 
 if (( failure != 0 )); then

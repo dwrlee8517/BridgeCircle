@@ -5,6 +5,7 @@ import {
   buildHelpProfileIndexPlan,
   type HelpProfileFact,
   type HelpSyntheticPassage,
+  helpProfileSourceFingerprint,
 } from '@/lib/help/profile-index'
 import type {
   HelpEmbeddingProvider,
@@ -149,6 +150,11 @@ export function createHelpOutboxHandlers(
           },
           embeddings: dependencies.embeddings,
           reranker: dependencies.reranker,
+          authorizeProviderUse: async () =>
+            (await dependencies.repository.consumeAskMatchingProviderBudget(
+              job.id,
+              job.lockedBy,
+            )) === 'allowed',
         },
       )
       const matches: Json = result.candidates.map((candidate, index) => ({
@@ -178,6 +184,25 @@ export function createHelpOutboxHandlers(
       if (!dependencies.embeddings) {
         throw new OutboxJobError('embedding_not_configured', true)
       }
+      const sourceFingerprint = helpProfileSourceFingerprint(source.facts)
+      const authorization = await dependencies.repository.beginProfileIndexAttempt(
+        job.id,
+        job.lockedBy,
+        sourceFingerprint,
+      )
+      if (
+        authorization === 'not_available' ||
+        authorization === 'unchanged' ||
+        authorization === 'coalesced'
+      ) {
+        return { outcome: 'skipped' }
+      }
+      if (authorization === 'busy' || authorization === 'limited') {
+        throw new OutboxJobError(`profile_index_${authorization}`, false)
+      }
+      if (authorization !== 'allowed') {
+        throw new OutboxJobError('invalid_profile_index_authorization', true)
+      }
       const syntheticPassages = await generateSyntheticPassages(
         source.facts,
         dependencies.profilePassages,
@@ -190,10 +215,13 @@ export function createHelpOutboxHandlers(
         embeddingModel: EMBEDDING_MODEL,
         embeddingDimensions: EMBEDDING_DIMENSIONS,
       })
-      const embeddings = await dependencies.embeddings.embedDocuments(
-        plan.chunksToEmbed.map((chunk) => chunk.content),
-        signal,
-      )
+      const embeddings =
+        plan.chunksToEmbed.length === 0
+          ? []
+          : await dependencies.embeddings.embedDocuments(
+              plan.chunksToEmbed.map((chunk) => chunk.content),
+              signal,
+            )
       if (
         embeddings.length !== plan.chunksToEmbed.length ||
         embeddings.some(

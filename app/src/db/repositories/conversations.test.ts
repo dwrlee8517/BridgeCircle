@@ -202,6 +202,13 @@ describe('conversation repository command mappings', () => {
         created_at: null,
       }),
     ).toEqual({ status: 'connection_required' })
+    expect(
+      parseSendMessageRow({
+        result_code: 'rate_limited',
+        message_id: null,
+        created_at: null,
+      }),
+    ).toEqual({ status: 'rate_limited' })
   })
 
   it('maps monotonic read and typing results', () => {

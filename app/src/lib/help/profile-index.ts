@@ -51,6 +51,18 @@ export type HelpProfileIndexPlan = {
   obsoleteChunkIds: string[]
 }
 
+export function helpProfileSourceFingerprint(facts: readonly HelpProfileFact[]): string {
+  const canonical = [...facts]
+    .map((fact) => ({
+      id: fact.id,
+      sourceSection: fact.sourceSection,
+      visibility: fact.visibility,
+      content: normalize(fact.content),
+    }))
+    .sort((left, right) => left.id.localeCompare(right.id))
+  return hash(JSON.stringify(canonical))
+}
+
 export function buildHelpProfileIndexPlan(input: {
   facts: readonly HelpProfileFact[]
   syntheticPassages?: readonly HelpSyntheticPassage[]

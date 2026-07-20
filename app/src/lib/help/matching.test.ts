@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { HelpCandidate, HelpRepository } from './contracts'
-import { findHelpCandidates, rankDeterministically } from './matching'
+import { findHelpCandidates, findMemberHelpCandidates, rankDeterministically } from './matching'
 import type { HelpEmbeddingProvider, HelpRerankProvider } from './providers'
 
 const membershipId = '20000000-0000-4000-8000-000000000001'
@@ -65,6 +65,92 @@ describe('Help matching', () => {
     expect(reranker.rerank).not.toHaveBeenCalled()
   })
 
+  it('falls back to lexical ranking when the atomic provider budget is exhausted', async () => {
+    const row = candidate('20000000-0000-4000-8000-000000000002', {
+      topics: ['Product'],
+      lexicalScore: 0.5,
+    })
+    const repo = repository([[row]])
+    const embeddingProvider = embeddings()
+    const reranker: HelpRerankProvider = { rerank: vi.fn(async () => []) }
+    const authorizeProviderUse = vi.fn(async () => false)
+
+    const result = await findHelpCandidates(
+      {
+        membershipId,
+        question: 'Product help',
+        signal: new AbortController().signal,
+      },
+      {
+        repository: repo,
+        embeddings: embeddingProvider,
+        reranker,
+        authorizeProviderUse,
+      },
+    )
+
+    expect(authorizeProviderUse).toHaveBeenCalledOnce()
+    expect(embeddingProvider.embedQuery).not.toHaveBeenCalled()
+    expect(reranker.rerank).not.toHaveBeenCalled()
+    expect(result.candidates).toHaveLength(1)
+    expect(result.diagnostics.fallbacks).toEqual(['provider_limited'])
+  })
+
+  it('fails closed when a provider caller omits authorization', async () => {
+    const row = candidate('20000000-0000-4000-8000-000000000002', {
+      topics: ['Product'],
+      lexicalScore: 0.5,
+    })
+    const repo = repository([[row]])
+    const embeddingProvider = embeddings()
+    const reranker: HelpRerankProvider = { rerank: vi.fn(async () => []) }
+
+    const result = await findHelpCandidates(
+      {
+        membershipId,
+        question: 'Product help',
+        signal: new AbortController().signal,
+      },
+      { repository: repo, embeddings: embeddingProvider, reranker },
+    )
+
+    expect(embeddingProvider.embedQuery).not.toHaveBeenCalled()
+    expect(reranker.rerank).not.toHaveBeenCalled()
+    expect(result.candidates).toHaveLength(1)
+    expect(result.diagnostics.fallbacks).toEqual(['provider_limited'])
+  })
+
+  it('enforces the candidate-search budget at the member domain boundary', async () => {
+    const row = candidate('20000000-0000-4000-8000-000000000002', {
+      topics: ['Product'],
+      lexicalScore: 0.5,
+    })
+    const searchCandidates = repository([[row]]).searchCandidates
+    const consumeAiBudget = vi.fn<HelpRepository['consumeAiBudget']>(async () => ({
+      status: 'limited',
+      remaining: 0,
+      resetsAt: '2026-07-18T12:00:00.000Z',
+    }))
+    const embeddingProvider = embeddings()
+
+    const result = await findMemberHelpCandidates(
+      {
+        membershipId,
+        question: 'Product help',
+        signal: new AbortController().signal,
+      },
+      {
+        repository: { searchCandidates, consumeAiBudget },
+        embeddings: embeddingProvider,
+        reranker: null,
+      },
+    )
+
+    expect(consumeAiBudget).toHaveBeenCalledWith('candidate_search')
+    expect(embeddingProvider.embedQuery).not.toHaveBeenCalled()
+    expect(result.diagnostics.fallbacks).toContain('provider_limited')
+  })
+
   it('merges semantic retrieval and reranks only the bounded top pool', async () => {
     const lexical = Array.from({ length: 25 }, (_, index) =>
       candidate(`20000000-0000-4000-8000-${String(index + 2).padStart(12, '0')}`, {
@@ -92,7 +178,12 @@ describe('Help matching', () => {
         limit: 10,
         signal: new AbortController().signal,
       },
-      { repository: repo, embeddings: embeddings(), reranker: { rerank } },
+      {
+        repository: repo,
+        embeddings: embeddings(),
+        reranker: { rerank },
+        authorizeProviderUse: async () => true,
+      },
     )
     expect(repo.searchCandidates).toHaveBeenCalledTimes(2)
     expect(rerank.mock.calls[0]?.[1]).toHaveLength(20)
@@ -119,7 +210,12 @@ describe('Help matching', () => {
         question: 'Product help',
         signal: new AbortController().signal,
       },
-      { repository: repo, embeddings: embeddingProvider, reranker },
+      {
+        repository: repo,
+        embeddings: embeddingProvider,
+        reranker,
+        authorizeProviderUse: async () => true,
+      },
     )
     expect(result.candidates).toHaveLength(1)
     expect(result.diagnostics.fallbacks).toEqual(['embedding_failed', 'reranker_failed'])
