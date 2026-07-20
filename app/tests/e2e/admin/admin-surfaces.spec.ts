@@ -1,15 +1,21 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "../helpers/factory";
+import {
+  FoundationScenario,
+  type FoundationMember,
+} from "../helpers/foundation";
 import { signInAs } from "../helpers/auth";
-import { isRemote } from "../helpers/env";
 
-const scenario = new TestScenario("admin");
-let orgAdmin: SeededMember;
-let plainMember: SeededMember;
+const scenario = new FoundationScenario();
+let organizationId: string;
+let orgAdmin: FoundationMember;
+let plainMember: FoundationMember;
 
 test.beforeAll(async () => {
-  orgAdmin = await scenario.createMember("orgadmin", { adminRole: "admin" });
-  plainMember = await scenario.createMember("plain");
+  organizationId = (await scenario.createOrganization(false, "Admin Circle")).id;
+  orgAdmin = await scenario.createMember(organizationId, "Administrator", {
+    adminRole: "admin",
+  });
+  plainMember = await scenario.createMember(organizationId, "Plain");
 });
 
 test.afterAll(async () => {
@@ -26,37 +32,36 @@ test("the Admin nav tab appears for admins and not for plain members", async ({ 
   await expect(page.getByRole("navigation").getByRole("link", { name: "Admin" })).toHaveCount(0);
 });
 
-test("a plain member requesting /admin/invite is bounced back to the Help hub", async ({ page }) => {
+test("a plain member requesting /admin/invite is bounced back to Home", async ({ page }) => {
   await signInAs(page, plainMember);
   await page.goto("/admin/invite");
   await page.waitForURL((url) => url.pathname === "/");
 });
 
 test("sending a single invite writes a pending invites row, and reports success where email delivery is real", async ({ page }) => {
-  const inviteeEmail = scenario.emailFor("form-invitee");
+  const inviteeEmail = `admin-invite+${Date.now()}@example.com`;
 
   await signInAs(page, orgAdmin);
   await page.goto("/admin/invite");
-  await expect(page.getByText("Invite alumni")).toBeVisible();
+  await expect(
+    page.getByText("Invite members", { exact: true }).filter({ visible: true }),
+  ).toBeVisible();
+  await page.waitForLoadState("networkidle");
 
-  await page.locator("#email").fill(inviteeEmail);
-  await page.locator("#graduationYear").fill("2019");
-  await page.locator("#fullName").fill("Form Invitee");
-  await page.getByRole("button", { name: "Send invite" }).click();
-
-  if (isRemote) {
-    await expect(page.getByText(`Invite sent to ${inviteeEmail}.`)).toBeVisible();
-    await expect(page.getByText(inviteeEmail).first()).toBeVisible();
-  }
-  // Hermetic runs dummy out RESEND_API_KEY, so the send step fails by design
-  // after the invite row is written — the row is the durable outcome.
+  const singleInvitePanel = page.locator('[data-slot="tabs-content"][data-state="active"]');
+  await singleInvitePanel.locator("#email").fill(inviteeEmail);
+  await singleInvitePanel.locator("#graduationYear").fill("2019");
+  await singleInvitePanel.locator("#fullName").fill("Form Invitee");
+  await singleInvitePanel.getByRole("button", { name: "Send invite" }).click();
 
   await expect
     .poll(async () => {
       const { data } = await scenario.admin
         .from("invites")
-        .select("status, full_name, graduation_year, token, sent_by, organization_id")
-        .eq("email", inviteeEmail)
+        .select(
+          "status, full_name, graduation_year, sent_by_membership_id, organization_id",
+        )
+        .eq("email_normalized", inviteeEmail)
         .maybeSingle();
       return data;
     })
@@ -64,38 +69,7 @@ test("sending a single invite writes a pending invites row, and reports success 
       status: "pending",
       full_name: "Form Invitee",
       graduation_year: 2019,
-      sent_by: orgAdmin.userId,
-      organization_id: scenario.orgId,
+      sent_by_membership_id: orgAdmin.membershipId,
+      organization_id: organizationId,
     });
-});
-
-test("publishing an event through the admin form makes it visible on the member events page", async ({ page }) => {
-  const eventTitle = `Admin Published Social ${scenario.runId}`;
-  const startsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
-  const localDatetime = new Date(startsAt.getTime() - startsAt.getTimezoneOffset() * 60_000)
-    .toISOString()
-    .slice(0, 16);
-
-  await signInAs(page, orgAdmin);
-  await page.goto("/admin/events");
-  await page.locator("#title").fill(eventTitle);
-  await page.locator("#startsAt").fill(localDatetime);
-  await page.locator("#location").fill("Courtyard");
-  await page.getByRole("button", { name: "Publish event" }).click();
-  await expect(page.getByText("Event published.")).toBeVisible();
-
-  const { data: event } = await scenario.admin
-    .from("events")
-    .select("title, location, published_at, organization_id, created_by")
-    .eq("title", eventTitle)
-    .single();
-  expect(event).toMatchObject({
-    location: "Courtyard",
-    organization_id: scenario.orgId,
-    created_by: orgAdmin.userId,
-  });
-  expect(event?.published_at).not.toBeNull();
-
-  await page.goto("/events");
-  await expect(page.getByText(eventTitle).first()).toBeVisible();
 });

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { Wordmark } from '@/components/ui/wordmark'
 import { cn } from '@/lib/utils'
 
-export const TOTAL_STEPS = 5
+export const TOTAL_STEPS = 7
 
 type Props = {
   step: number
@@ -16,7 +16,7 @@ type Props = {
 
 /**
  * Shared shell for the staged onboarding flow. Centers a narrow card with
- * a wordmark, a 5-dot progress indicator, and the step's content. Each
+ * a wordmark, a seven-segment progress indicator, and the step's content. Each
  * step component renders its form (and its own Continue / Skip controls)
  * as the children prop, since the controls' enabled state depends on
  * step-local state (e.g. step 1's "name" must have a value).
@@ -36,7 +36,7 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
         <Link href="/" aria-label="BridgeCircle home" className="inline-flex">
           <Wordmark withIcon={false} textClassName="text-xl tracking-tight" />
         </Link>
-        <p className="text-xs font-medium text-muted-foreground">
+        <p className="text-xs font-medium text-[var(--text-secondary)]">
           Step {step} of {TOTAL_STEPS}
         </p>
       </header>
@@ -50,7 +50,7 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
       {step > 1 ? (
         <Link
           href={`/onboarding?step=${step - 1}`}
-          className="mt-6 inline-flex items-center gap-1.5 self-start text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="mt-6 inline-flex items-center gap-1.5 self-start text-sm text-[var(--text-secondary)] transition-colors hover:text-foreground"
         >
           <ArrowLeft className="size-3.5" aria-hidden />
           Back
@@ -58,13 +58,15 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
       ) : null}
 
       <section className={step > 1 ? 'mt-4' : 'mt-10'}>
-        <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
+        <p className="text-kicker font-semibold tracking-hero text-[var(--text-secondary)] uppercase">
           {eyebrow}
         </p>
         <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {title}
         </h1>
-        <div className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">{lede}</div>
+        <div className="mt-3 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">
+          {lede}
+        </div>
       </section>
 
       <div className="mt-8 flex-1">{children}</div>
@@ -77,6 +79,7 @@ function ProgressDots({ step }: { step: number }) {
     <div
       className="flex items-center gap-2"
       role="progressbar"
+      aria-label="Onboarding progress"
       aria-valuenow={step}
       aria-valuemin={1}
       aria-valuemax={TOTAL_STEPS}

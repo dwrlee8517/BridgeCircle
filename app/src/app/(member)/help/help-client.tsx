@@ -439,7 +439,7 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/profile/${pick.personId}`}
-            className="font-heading text-sm font-semibold tracking-[-0.005em] text-foreground hover:text-primary"
+            className="font-heading text-sm font-semibold tracking-copy text-foreground hover:text-primary"
           >
             {pick.name}
           </Link>
@@ -448,7 +448,7 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
           ) : null}
           <span className="text-kicker text-muted-foreground">· {pick.role}</span>
         </div>
-        <p className="mt-1.5 font-heading text-sm leading-[1.4] tracking-[-0.003em] text-foreground">
+        <p className="mt-1.5 font-heading text-sm leading-[1.4] tracking-body-tight text-foreground">
           {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
         </p>
         <p className="mt-2 flex flex-wrap items-center gap-1.5 text-kicker text-muted-foreground">

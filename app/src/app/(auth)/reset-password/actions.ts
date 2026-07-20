@@ -24,11 +24,12 @@ export async function requestPasswordReset(
 
   const supabase = await createClient()
   const origin = await getAppOrigin()
-  // The recovery link signs the member in via /auth/callback, then lands on
-  // the update form. Errors are intentionally not surfaced — the response
-  // must not reveal whether an email is in the circle.
+  // The custom Supabase recovery template sends its token hash to
+  // /auth/confirm, which verifies it server-side and persists the session
+  // before landing on the update form. Errors are intentionally not surfaced
+  // here — the response must not reveal whether an email is in the circle.
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${origin}/auth/callback?next=${encodeURIComponent('/reset-password/update')}`,
+    redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent('/reset-password/update')}`,
   })
 
   return { done: true }

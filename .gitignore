@@ -1,6 +1,9 @@
 .DS_Store
 docs/screenshots/
 
+# dopplerhq/cli-action@v3 installs this runtime binary in the GitHub workspace.
+/bin/doppler
+
 # Test artifacts from running Playwright from the repository root.
 /test-results/
 /playwright-report/

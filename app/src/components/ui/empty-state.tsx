@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
  *
  * Two sizes:
  *   - default  → for whole-page empties (e.g. /friends with no friends)
- *   - inline   → for empty sections within a denser page (e.g. /inbox's
+ *   - inline   → for empty sections within a denser page (e.g. /messages'
  *                 three sub-sections, each of which can be empty
  *                 independently)
  */

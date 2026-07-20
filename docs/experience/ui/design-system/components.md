@@ -1,6 +1,6 @@
-# Civic Editorial Component Usage
+# BridgeCircle Component Usage
 
-This is the production component guide for BridgeCircle's Civic Editorial system.
+This is the production component guide for the BridgeCircle brand fork.
 Use it with [`tokens.md`](tokens.md), [`states-and-motion.md`](states-and-motion.md),
 and the live app primitives in `app/src/components/ui/`.
 
@@ -13,15 +13,15 @@ files remain visual history unless explicitly promoted.
 ## Production Rules
 
 - Start from existing app primitives before creating local component styling.
-- Use Civic tokens through Tailwind variables, not raw hex values.
+- Use BridgeCircle role tokens through Tailwind variables, not raw hex values.
 - Use role tokens such as `action-primary`, `state-success`, and
   `surface-panel` for new surfaces. Base hue tokens remain a compatibility
   layer for existing primitive APIs.
-- Keep 6px editorial corners by default. Use full circles only for avatars,
-  dots, radio controls, notification counters, progress bars, and search
-  capsules.
+- Use the approved shape tiers: 12px controls, 14px inner boxes, 18px message
+  bubbles and compact overlays, 20px cards/sheets, 22px elevated cards, and
+  pills where the template calls for a capsule.
 - Important labels must be at least caption/body scale. The smallest allowed
-  size in the scale is `mono-sm` (10.5px); the 9px `mono-xs` token was removed.
+  size in the scale is 12px.
 - Cards are decision surfaces. Do not use cards as page section wrappers or
   stack cards inside cards unless the inner item is a repeated row/list item.
 - Member screens must expose the next relationship action without requiring
@@ -33,8 +33,8 @@ files remain visual history unless explicitly promoted.
 
 | Primitive | Use For | Production Notes |
 |---|---|---|
-| `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. **CTA actions (the single best-next per surface) use `variant="cta"` — amber fill.** Primary blue covers navigation, secondary positive actions, and link-as-button. Use `asChild` for links. |
-| `Card` | Repeated decision surfaces, modals, compact panels | Default radius and border should be enough. Avoid decorative shadows unless the screen pattern requires lift. |
+| `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. `variant="cta"` is the O8 blue-gradient lead action; `variant="offer"` is the O2 green Give commitment. Use `asChild` for links. |
+| `Card` | Repeated decision surfaces, modals, compact panels | Default cards use the O7 faint inset edge. Use `variant="elevated"` only for major content cards that need the O9 treatment. |
 | `Input`, `Textarea`, `Select` | Forms and filters | Prefer shared primitives over raw fields. Raw search inputs are acceptable only when the shell needs custom layout. |
 | `Badge` | Topics, tags, compact labels | Use for non-status labels. Keep topic labels readable and avoid making critical state depend on tiny mono text. |
 | `StatusBadge` | Semantic state | Use for mentor availability, request lifecycle, membership state, RSVP state, and admin status. Uses role and tint tokens so warning text stays readable. |
@@ -54,11 +54,11 @@ strings unless the screen pattern is genuinely unique.
 
 | Primitive | Required Variants | Required States |
 |---|---|---|
-| `Button` | `default`, `secondary`, `outline`, `ghost`, `destructive`, `link`; sizes `xs`, `sm`, `default`, `lg`, `icon*` | Hover, active, focus-visible, disabled, aria-invalid, icon spacing |
-| `Card` | `default`, `sm` density | Default, hover where the card is interactive, footer, media edge cases |
+| `Button` | `default`, `cta`, `offer`, `secondary`, `outline`, `ghost`, `destructive`, `link`; sizes `xs`, `sm`, `default`, `lg`, `icon*` | Hover, active, focus-visible, disabled, aria-invalid, icon spacing |
+| `Card` | `default`, `elevated`; `default` and `sm` density | Default, background-shift hover where interactive, selected, footer, media edge cases |
 | `Input`, `Textarea`, `Select` | Default and compact only when needed | Focus-visible, disabled, aria-invalid, placeholder, autofill/password-manager tolerance |
 | `Badge` | `default`, `secondary`, `destructive`, `outline`, `ghost`, `link` | Focus-visible, link hover, icon spacing |
-| `StatusBadge` | `info`, `open`, `warn`, `alert`, `muted`, legacy hue aliases | Dot and no-dot, compact and default, light and dark mode |
+| `StatusBadge` | `info`, `open`, `warn`, `alert`, `muted`, legacy hue aliases | Dot and no-dot, compact and default; Pending and Declined lifecycle states use the calm neutral treatment |
 | `LifecycleStatusBadge` | `pending`, `accepted`, `active`, `completed`, `declined`, `revoked`, `expired`, `paused`, `unread`, `disabled`, `error` | Common lifecycle words mapped to canonical tones |
 | `EmptyState` | `default`, `inline` | With icon, without icon, with action, without action |
 | `CapacityGauge` | `default`, `compact`, `inline` | Low, medium, high, full, zero-limit handling |
@@ -73,7 +73,7 @@ State rules:
   `state-warning` for marks and `state-warning-foreground` for copy.
 - Loading states should preserve the final control footprint. Do not shrink a
   button or row when swapping text for a spinner.
-- Interactive cards may lift 1-2px, but static cards should not animate.
+- Desktop pointer feedback is a background/shadow shift, not a positional lift.
 - Use `states-and-motion.md` for lifecycle mapping before adding route-local
   status color logic.
 
@@ -81,20 +81,17 @@ State rules:
 
 | Action Level | Component Treatment | Use |
 |---|---|---|
-| **CTA** | `Button` `variant="cta"` | The **single** highest-stakes action per surface — Send request, RSVP, Accept, Ask for advice. Amber. |
-| Primary | `Button` `variant="default"` | Secondary positive actions, navigation buttons, link-as-button. Electric Sky blue. |
+| **CTA** | `Button` `variant="cta"` | The single lead action per local decision area — O8 blue gradient and soft blue shadow. |
+| Give commitment | `Button` `variant="offer"` | The single lead commitment on a bounded Give workflow — O2 green fill. |
+| Primary | `Button` `variant="default"` | Smaller or repeated blue actions where the gradient would over-claim. |
 | Secondary | `Button` `variant="secondary"` or `outline` | Useful alternative action |
 | Tertiary | `Button` `variant="ghost"` or `link` | Navigation, disclosure, or low-risk secondary movement |
 | Destructive | `Button` `variant="destructive"` | Delete, revoke, cancel, decline, destructive account actions |
 | Status-only | `StatusBadge` | Communicates state but does not invite action |
 
-Every screen should have at most one CTA per local decision area. If two amber
-CTAs compete, the product decision is unresolved.
-
-In `density-pro` (admin/operator surfaces), `variant="cta"` automatically
-reverts to primary blue because admin contexts have many equal-weight actions
-and amber would over-claim. No code change required — the CSS variable cascade
-handles it.
+Every screen should have at most one lead CTA per local decision area. In a
+Give workflow that lead action is green; supporting cues may use the scoped
+green roles documented in O2, but may not become competing lead actions.
 
 ## Product Component Specs
 
@@ -426,9 +423,8 @@ Responsive rules:
 
 Do not:
 
-- Use text below `mono-sm` (10.5px) anywhere; the 9px `mono-xs` token was
-  removed because the "don't use it for important meaning" rule was easier to
-  break than to enforce.
+- Use member-facing text below 12px; the old sub-12px metadata tokens were
+  removed because they were too easy to misuse.
 - Put destructive actions in the same visual weight as neutral row actions.
 
 ### Notification
@@ -476,7 +472,7 @@ Current shared source: `app/src/notify/emails/civic-email.tsx`.
 Lifecycle templates live in `app/src/notify/emails/*`; delivery is centralized
 in `app/src/notify/resend.ts`.
 
-Purpose: carry lifecycle messages into email while preserving Civic Editorial
+Purpose: carry lifecycle messages into email while preserving BridgeCircle
 trust, typography, and action clarity.
 
 Required content:

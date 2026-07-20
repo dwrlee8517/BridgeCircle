@@ -8,9 +8,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { cn } from '@/lib/utils'
-import { type SettingsFormState, saveHelpSettings } from './actions'
+import {
+  type HelpPreferencesFormState,
+  saveHelpPreferencesAction,
+} from '../help-preferences-actions'
 
-const initialState: SettingsFormState = {}
+const initialState: HelpPreferencesFormState = {}
 
 type Props = {
   defaults: {
@@ -27,7 +30,7 @@ type Props = {
  */
 export function SettingsForm({ defaults }: Props) {
   const router = useRouter()
-  const [state, action, pending] = useActionState(saveHelpSettings, initialState)
+  const [state, action, pending] = useActionState(saveHelpPreferencesAction, initialState)
   const fe = state.fieldErrors ?? {}
 
   const [open, setOpen] = useState(defaults.openToHelp)

@@ -1,41 +1,50 @@
 'use client'
 
-import { LogOut, Monitor, Moon, Settings, Sun, UserRound } from 'lucide-react'
+import {
+  Bell,
+  HandHelping,
+  LogOut,
+  Monitor,
+  Moon,
+  Shield,
+  Sun,
+  UserRound,
+  Users,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { avatarColorClasses, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { signOut } from '../(auth)/sign-in/actions'
 
 type Props = {
-  userId: string
   name: string | null
   avatarUrl: string | null
+  graduationYear: number | null
+  isAdmin: boolean
 }
 
-export function AccountMenu({ userId, name, avatarUrl }: Props) {
+export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props) {
   const initial = (name ?? '?').slice(0, 1).toUpperCase()
-  // Seeded on userId so the viewer's color matches their avatar everywhere.
-  const fallbackColorClass = avatarColorClasses(userId)
+  const cohort = graduationYear ? `Class of ’${String(graduationYear).slice(-2)}` : 'Member account'
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label="Account menu"
-        className="flex cursor-pointer items-center rounded-md p-0.5 text-foreground transition-colors hover:bg-secondary focus-visible:border-focus-ring focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
+        className="flex cursor-pointer items-center rounded-full text-foreground transition-transform hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
       >
-        <Avatar className="size-8 rounded-md after:rounded-md">
-          {avatarUrl ? (
-            <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-md" />
-          ) : null}
-          <AvatarFallback className={cn('rounded-md font-semibold', fallbackColorClass)}>
+        <Avatar className="size-10 after:border-white/20">
+          {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
+          <AvatarFallback className="bg-[image:var(--gradient-avatar)] font-bold text-white">
             {initial}
           </AvatarFallback>
         </Avatar>
@@ -44,64 +53,76 @@ export function AccountMenu({ userId, name, avatarUrl }: Props) {
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-64 rounded-md border border-border bg-popover p-1.5 text-popover-foreground shadow-card-hover"
+        className="w-[300px] overflow-hidden rounded-[18px] border-0 bg-popover p-0 text-popover-foreground shadow-[var(--ring-card-elevated),0_20px_50px_-14px_rgb(25_31_40_/_0.3)]"
       >
-        <div className="flex items-center gap-3 px-3 py-2.5">
-          <Avatar className="size-9 rounded-md after:rounded-md">
-            {avatarUrl ? (
-              <AvatarImage src={avatarUrl} alt={name ?? ''} className="rounded-md" />
-            ) : null}
-            <AvatarFallback className={cn('rounded-md font-semibold', fallbackColorClass)}>
+        <Link
+          href="/profile/me"
+          className="flex items-center gap-3 px-5 pt-4 pb-3.5 transition-colors hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+        >
+          <Avatar className="size-[42px] after:border-white/20">
+            {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
+            <AvatarFallback className="bg-[image:var(--gradient-avatar)] font-bold text-white">
               {initial}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">{name ?? 'Account'}</p>
-            <p className="text-xs text-muted-foreground">Member account</p>
+            <p className="truncate text-sm font-bold text-foreground">{name ?? 'Your profile'}</p>
+            <p className="mt-0.5 text-xs font-medium text-muted-foreground">{cohort}</p>
           </div>
-        </div>
-        <DropdownMenuSeparator className="my-1.5" />
-        <DropdownMenuItem
-          asChild
-          className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
-        >
-          <Link href={`/profile/${userId}`}>
-            <UserRound className="size-4 text-muted-foreground" />
-            My profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          asChild
-          className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
-        >
-          <Link href="/profile/edit">
-            <UserRound className="size-4 text-muted-foreground" />
-            Edit profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          asChild
-          className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
-        >
-          <Link href="/help/settings">
-            <Settings className="size-4 text-muted-foreground" />
-            Help settings
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="my-1.5" />
-        <ThemeRow />
-        <DropdownMenuSeparator className="my-1.5" />
-        <form action={signOut}>
-          <DropdownMenuItem
-            asChild
-            className="cursor-pointer gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground focus:bg-secondary focus:text-foreground"
-          >
-            <button type="submit" className="w-full text-left">
-              <LogOut className="size-4 text-muted-foreground" />
-              Sign out
-            </button>
+        </Link>
+        <DropdownMenuSeparator className="m-0" />
+        <DropdownMenuGroup className="p-1.5">
+          <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
+            <Link href="/profile/me">
+              <UserRound className="text-muted-foreground" />
+              Edit profile
+            </Link>
           </DropdownMenuItem>
-        </form>
+          <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
+            <Link href="/people/circle">
+              <Users className="text-muted-foreground" />
+              My circle
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
+            <Link href="/help/settings">
+              <HandHelping className="text-muted-foreground" />
+              Help settings
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
+            <Link href="/notifications">
+              <Bell className="text-muted-foreground" />
+              Notifications
+            </Link>
+          </DropdownMenuItem>
+          {isAdmin ? (
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 md:hidden"
+            >
+              <Link href="/admin/invite">
+                <Shield className="text-muted-foreground" />
+                Admin
+              </Link>
+            </DropdownMenuItem>
+          ) : null}
+          <ThemeRow />
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator className="m-0" />
+        <DropdownMenuGroup className="bg-[var(--surface-thread)] p-1.5">
+          <form action={signOut}>
+            <DropdownMenuItem
+              asChild
+              className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 text-foreground"
+            >
+              <button type="submit" className="flex w-full items-center gap-2.5 text-left">
+                <LogOut className="text-muted-foreground" />
+                Sign out
+              </button>
+            </DropdownMenuItem>
+          </form>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -113,25 +134,20 @@ const THEME_OPTIONS = [
   { value: 'system', label: 'System', icon: Monitor },
 ] as const
 
-/**
- * Light / Dark / System segmented row. Follows the OS by default
- * (defaultTheme="system" in the root ThemeProvider); this is the manual
- * override. Plain buttons with onSelect-preventDefault so picking a theme
- * doesn't close the menu.
- */
 function ThemeRow() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <div className="flex items-center justify-between gap-2.5 px-3 py-2">
+    <div className="flex items-center justify-between gap-2.5 rounded-lg px-3 py-2">
       <span className="text-sm text-foreground">Theme</span>
       <fieldset
-        className="flex rounded-md border border-border bg-secondary p-0.5"
+        className="flex rounded-[var(--radius-standard)] bg-surface-panel p-0.5 shadow-[var(--ring-outline)]"
         aria-label="Theme"
       >
         {THEME_OPTIONS.map((option) => {
           const Icon = option.icon
           const active = (theme ?? 'system') === option.value
+
           return (
             <button
               key={option.value}
@@ -144,9 +160,9 @@ function ThemeRow() {
               aria-label={option.label}
               title={option.label}
               className={cn(
-                'flex size-7 items-center justify-center rounded-sm transition-colors',
+                'flex size-7 items-center justify-center rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                 active
-                  ? 'bg-card text-foreground shadow-card'
+                  ? 'bg-surface-card text-foreground shadow-card'
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >

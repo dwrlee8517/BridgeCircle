@@ -5,7 +5,7 @@ import { baseURL, e2eEnv, isRemote } from './tests/e2e/helpers/env'
  * BridgeCircle e2e config. Two modes, detected from the base URL:
  *
  * Local/hermetic (default, also PR CI): the suite owns a dev server on port
- * 3002 (separate from `pnpm dev`'s 3001 so it can never silently reuse a
+ * 3002 (separate from `pnpm dev`'s 3000 so it can never silently reuse a
  * server pointed at a remote database) wired to the LOCAL Supabase stack.
  * Env comes from the Doppler `bridgecircle/dev_local` config — nothing
  * remote, nothing deployed. global-setup wipes and reseeds the local
@@ -19,7 +19,12 @@ import { baseURL, e2eEnv, isRemote } from './tests/e2e/helpers/env'
  */
 export default defineConfig({
   testDir: './tests/e2e',
-  fullyParallel: true,
+  // Most acceptance roads intentionally exercise the canonical disposable
+  // seed and mutate shared rows (messages, blocks, memberships, events).
+  // A single worker keeps those roads hermetic until every suite owns a
+  // factory-built organization and cast.
+  fullyParallel: false,
+  workers: 1,
   // The webServer is `next dev`, which compiles routes on first hit. With
   // parallel workers all landing on a cold server, first navigations can
   // exceed Playwright's default 30s test timeout — give cold compiles room.

@@ -1,5 +1,11 @@
 # Dev stage + scripted CD — rollout plan
 
+> **Database-v2 update (2026-07-17):** every application domain has cut over to
+> the v2 development database and the private dev outbox worker is running. The
+> former development hold is spent. Production database reset, worker
+> provisioning, and deployment remain blocked on their own explicit cutover
+> approval; nothing in this older rollout plan authorizes them.
+
 Working plan for [ADR 0014](../decisions/0014-scripted-cd-pipeline.md).
 Executed on branch `dev-stage-cd`. Check items off as they land; delete this
 doc (or archive it) when Phase 6 folds the durable parts into
@@ -26,6 +32,7 @@ outside this effort.
 |---|---|
 | Railway project | `BridgeCircle` · `07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1` |
 | Railway service | `BridgeCircle` · `70333670-3490-45f5-b87a-9e5be862ab1c` |
+| Railway dev worker | `BridgeCircle Worker` · `f39ee7fd-1ecc-4071-9794-f0c399b216b2` |
 | Railway prod env | `production` · `f4d76a24-6718-4801-932e-d676aef653d7` |
 | Railway dev env | *created in Phase 1* |
 | Supabase dev | `bridgecircle-dev` · `ojpvahiuafdcynbdbmri` |
@@ -147,10 +154,16 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
   - [x] **[R]** protected-environment reviewers include `dkoodev` and repo
     owner `dwrlee8517` (API-verified while approving run `29617130431` on
     2026-07-17).
-- [x] **[C]** `deploy-dev` (`railway up`, blocking, SHA-stamped) and
-  `promote` (`needs: integ`, environment `production`) both live in
-  `cd.yml`. The dev-side idempotent `supabase db push` joins in Phase 4
-  with the prod one.
+- [x] **[C]** `deploy-dev` and `promote` both contain fail-closed target and
+  migration-history validation, dry-run, apply, and zero-pending postflight
+  before `railway up`. Production also runs the v2 schema postflight before
+  code. Remote execution remains blocked by the release freeze and gates.
+- [x] **[C]** Development now deploys the private outbox worker after the
+  same-SHA web health check. `app/railway.worker.json` owns its start,
+  restart, drain, and single-region replica contract; CD builds a clean
+  app-root archive so the web and worker keep distinct Railway configs.
+  Production worker deployment is intentionally absent until production-v2
+  cutover approval and service provisioning.
 - [ ] **[R]** Railway: turn **off** auto-deploy in **both** envs (service →
   Settings → Source/Deploy triggers) once the first scripted run is green.
 - [ ] **[C+R]** Verify both directions: a good merge promotes after approval;
@@ -167,8 +180,9 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 - [x] **[C+R]** The production migration path uses the scoped
   `DOPPLER_TOKEN_PRD` plus `SUPABASE_DB_URL`; no account-wide
   `SUPABASE_ACCESS_TOKEN` is required for `db push --db-url`.
-- [ ] **[C]** `promote` gains `supabase db push` → prod **before**
-  `railway up`, non-interactive, with the password from environment secrets.
+- [x] **[C]** `promote` has repository-pinned `supabase db push` → prod
+  **before** `railway up`, non-interactive, with the DB URL injected by Doppler
+  and never printed. Static tests enforce ordering and forbid seed/reset/repair.
 - [x] **[C+R]** Dry-run: no-op migration proof completed 2026-07-17 at
   `af02523df30adaada93520b035ca1296dee3991b` (run `29614712165`).
 - [x] **[R]** Supabase dashboard → prod project → Integrations → **disconnect
@@ -197,9 +211,13 @@ that day — the Supabase dev project keeps the `bridgecircle-dev` name.
 
 ## Phase 6 — docs settle
 
-- [ ] **[C]** Update `migration-workflow.md` (drop "the integration owns
-  prod"; describe the pipeline; fix the stale "Free project" + pre-Doppler
-  wording), `environments.md`, `app/CLAUDE.md`, `INDEX.md`; archive this doc.
+- [x] **[C]** Reconcile `migration-workflow.md`, `environments.md`, and the
+  production cutover/ownership records for PR C preparation. Archive this
+  transitional doc only after the production cutover is complete.
+- [x] **[C]** The v2 development cutover removed the hold above, documented
+  the private worker topology in `environments.md`, and added same-SHA worker
+  deployment to `cd.yml`. The broader production-pipeline documentation work
+  remains pending with Phase 4.
 
 ## Sequencing rules
 

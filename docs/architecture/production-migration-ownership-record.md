@@ -9,11 +9,11 @@ used during the database-v2 cutover. This record contains no credentials.
 - Railway production web remains healthy on
   `19247789f2018f025fd5cf149730f6d54dbd1d2e`, with its repository source
   disconnected.
-- The temporary `Production migration ownership` GitHub workflow can migrate
-  production only after exact-SHA validation and protected-environment review.
-- The no-op and one-migration ownership proofs are complete. The workflow is
-  now the sole production migration owner until the database-v2 cutover
-  replaces it with the reviewed `cd.yml` promotion path.
+- The temporary `Production migration ownership` workflow completed its proof
+  and is removed on PR C after `main` is synchronized into the v2 branch.
+- The no-op and one-migration ownership proofs are complete. Production remains
+  frozen while the reviewed `cd.yml` successor is prepared and validated; no
+  second migration owner is active in parallel.
 - No destructive database-v2 reset or production application deployment has
   been authorized by either proof.
 
@@ -85,9 +85,9 @@ The next production-changing operation is the one-time destructive database-v2
 reset. It is not authorized by this record or by merging a preparation PR.
 Before requesting that approval:
 
-1. merge the updated `main` into `codex/redesign-v2` and reconcile the legacy
-   ownership probe outside the active v2 migration history;
-2. finish and validate database-before-code promotion, guarded reset,
+1. validate the synchronized v2 candidate with the ownership probe archived
+   outside active migration history;
+2. finish verification of database-before-code promotion, guarded reset,
    bootstrap, postflight, and same-SHA web/worker deployment tooling;
 3. pass local CI, hermetic E2E, migration/RLS review, and hosted development
    verification on one frozen candidate;

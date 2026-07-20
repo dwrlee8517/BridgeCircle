@@ -1,9 +1,39 @@
 # 0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface
 
-- **Status:** proposed · amended 2026-07-06 (D5 superseded in part by the Help-flow
-  review — see [Amendment](#amendment--2026-07-06-flow-review-richard))
+- **Status:** accepted · amended 2026-07-15; v2 persistence implemented locally
+  under [0015](0015-prelaunch-v2-database-reset.md)
 - **Date:** 2026-07-02
 - **Decider:** Richard
+
+> **Persistence amendment (2026-07-13):** ADR 0015 now approves one unified
+> `asks` table, one `conversations` table, real message foreign keys, and
+> Connection naming in the schema. This supersedes this ADR's decisions to
+> defer the thread-table merge, retain `friend_*` database names indefinitely,
+> and layer offers onto separate `open_asks`. The product gates remain:
+> Connections are mutual, Asks are one-sided, and accepted interactions land
+> in Messages.
+
+> **Cutover amendment (2026-07-15):** the pre-launch v2 Help slice now uses the
+> unified `asks`, `ask_offers`, `conversations`, and `messages` contracts.
+> Helper availability is `open_to_help` with normalized `helper_topics`.
+> Declining a direct Ask or an offer stores the cushioned note in the v2
+> lifecycle; Connection declines remain quiet. Help is rooted at `/help` and
+> accepted threads at `/messages/[id]`. Because no real users or durable data
+> exist yet, the retired route families and compatibility redirects were
+> deleted instead of maintained. The detailed older phases below are retained
+> as decision history, not current implementation instructions.
+
+> **Messages amendment (2026-07-15):** the complete local v2 Messages slice now
+> uses `/messages` and `/messages/[id]` only. One `conversations` table and one
+> `messages` table serve both accepted Asks and accepted Connections; fixed
+> projections provide Waiting, counts, bounded search, keyset pagination, and
+> viewer-shaped context. Connection accept preserves the intro as the first
+> durable user message. A single shell-owned `user:<id>` Broadcast subscription
+> invalidates Help, Messages, Connection, and permission state; each thread has
+> its separate content topic. `/inbox`, `/ask/thread/*`, split thread tables,
+> redirect aliases, and Messages compatibility adapters are retired. The older
+> Phase 3, Consequences, and Alternatives text below is historical and is
+> superseded where it argues for UI-only unification or indefinite redirects.
 
 ## Context
 

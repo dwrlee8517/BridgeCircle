@@ -1,153 +1,177 @@
-# End-To-End Testing With Playwright
+# End-to-end testing with Playwright
 
 ## Purpose
 
-BridgeCircle uses [Playwright](https://playwright.dev) for end-to-end browser tests. These run a real browser against a real running app and verify user-facing behavior — sign-in flows, ask submission, RSVP buttons, etc. They are the slowest tier of test in the project but the only tier that catches regressions in the integration between client components, server actions, middleware, RLS, and Supabase.
+Playwright verifies rendered member flows across Next.js, server actions,
+Supabase Auth, fixed database APIs, RLS, and Realtime. Use it for browser-visible
+integration truth; use pgTAP and concurrency harnesses for database invariants,
+and Vitest for pure behavior.
 
-Unit-level tests (component logic, pure functions) live alongside their source under `src/` and use a separate runner. This doc is only about the E2E suite. The canonical spec of the shipped system is [Production/testing-suite](../../product-spec-obsidian-vault/Production/testing-suite.md); the direction and guardrails it implements live in [Vision/Testing Suite](../../product-spec-obsidian-vault/Vision/Testing%20Suite.md).
+## Current rebuild status
 
-## The Two Modes
+The application and local database are v2 across Foundation, Conversation,
+Help, Messages, People/Profile, School/Admin, Home, and entry/operations. The
+complete local Playwright suite and production build are release gates. Hosted
+development remains pending until the separately approved clean reset and
+same-SHA deployment in the dev cutover plan.
 
-The suite runs in one of two modes, detected from the base URL in `app/playwright.config.ts`:
+Focused Help acceptance is recorded in
+[`database-v2-help-test-inventory.md`](../architecture/database-v2-help-test-inventory.md).
+Focused Messages acceptance is recorded in
+[`database-v2-messages-test-inventory.md`](../architecture/database-v2-messages-test-inventory.md).
 
-| | Local / hermetic (default, PR CI) | Integ (CD pipeline) |
-|---|---|---|
-| Target app | dev server the suite starts on **port 3002** | `https://dev.bridgecircle.org` |
-| Database | **local Supabase stack** (Docker) | remote `bridgecircle-dev` |
-| Env source | Doppler `bridgecircle/dev_local` | Doppler `bridgecircle/dev` |
-| DB state | wiped + reseeded every run (`supabase db reset`) | live dev data; specs clean up after themselves |
-| Trigger | `pnpm test:e2e`, every PR (`e2e.yml`) | push to `main` (`cd.yml` integ job) |
+## Local hermetic mode
 
-The hermetic mode is the vision-note contract: no remote project, nothing deployed, and a database that is wiped at will. Doppler stays the single secrets mechanism: `dev_local` is a **branch config of `dev`** that overrides the Supabase values to the local stack (the CLI's well-known local development keys, identical for every `supabase start` stack) and dummies out outbound services (`RESEND_API_KEY=e2e-dummy`, empty `ANTHROPIC_API_KEY`, `ASK_MATCHING_PIPELINE=legacy`) so runs stay offline and deterministic. It also pins `NODE_ENV=development` (see [doppler.md](doppler.md) "The NODE_ENV Gotcha").
+The default local workflow uses:
 
-## The Local Database
+- app server: an E2E-owned port from `playwright.config.ts`, separate from the
+  developer server on port 3000;
+- database: disposable local Supabase;
+- configuration: Doppler `bridgecircle/dev_local`;
+- external providers: deterministic fakes or disabled keys;
+- reset: `supabase db reset`, which loads `supabase/seeds/seed.sql`.
 
-One local stack, one seed, one reset command — shared by local development and E2E:
+From `app/`:
 
 ```bash
-cd app
-pnpm db:start    # boots the local stack — starts Docker Desktop first if needed
-pnpm db:reset    # wipe → re-apply all migrations → load supabase/seeds/*.sql
-pnpm db:stop     # shut the stack down
-pnpm dev:local   # run the app at :3001 against the local stack (Doppler dev_local)
+pnpm db:start
+pnpm db:reset
+pnpm test:e2e tests/e2e/foundation/foundation-flow.spec.ts
+pnpm test:e2e tests/e2e/help/help-settings.spec.ts
+pnpm test:e2e tests/e2e/messages/messages.spec.ts --workers=1
 ```
 
-- Migrations come from `app/supabase/migrations/` — the same files every other environment uses.
-- The seed (`app/supabase/seeds/seed.sql`) creates the deterministic world: the local org, 15 recognizable personas (`richard@example.com` / `devseed-password-richard` has the richest home feed), asks in every status, threads with messages, friendships, DMs, five events, announcements, and notifications. It mirrors the cast in `scripts/seed-dev.ts` (which seeds the **remote** dev project and stays admin-API based).
-- Seeded auth users are inserted directly into `auth.users` + `auth.identities` with deterministic UUIDs, so the `on_auth_user_created` trigger fires exactly as in real sign-up.
+Use `E2E_SKIP_RESET=1` only for a short local iteration when the test owns and
+cleans up every mutation. Never use it as CI policy.
 
-`supabase db reset` only ever touches the local stack (it is not `--linked`). The SQL seed must never be pointed at a remote project.
+## Test organization
 
-## How A Test Run Works
-
-`pnpm test:e2e` reads `playwright.config.ts` and:
-
-1. **Global setup wipes and reseeds** the local database (`supabase db reset`). Skip with `E2E_SKIP_RESET=1` when iterating on a spec. Never runs in integ mode.
-2. Checks whether something is already serving on `http://localhost:3002` — the E2E-owned port, deliberately separate from `pnpm dev`'s 3001 so the suite can never silently reuse a server pointed at the remote dev database.
-3. If not, starts `pnpm exec next dev -p 3002` with the `dev_local` env injected (explicit process env beats Next's `.env.local` loading, so your remote-dev `.env.local` can't leak in). The fetch uses your personal `doppler login` locally, or `DOPPLER_TOKEN` in CI.
-4. Runs every spec in `tests/e2e/**/*.spec.ts` in parallel and reports pass/fail. In CI there is one retry, purely so a flake captures its trace — treat any retry as a bug to investigate.
-
-## Suites Are Organized By Feature
-
-Specs live in per-feature directories that converge toward 1:1 parity with the specs in `product-spec-obsidian-vault/Production/` (the vision-note parity rule — a spec graduating out of `Prototype/` arrives with its suite):
-
-```
+```text
 tests/e2e/
-├── helpers/            env loading + signIn(page, email, password)
-├── global-setup.ts     the wipe-and-reseed step
-├── invites-sign-in/    redirect smoke + seeded-persona sign-in
-├── asks/               core-loop.spec.ts — invite → onboard → ask → accept → chat
-└── events/             seeded events list + RSVP
+├── helpers/          environment, auth, and v2 scenario helpers
+├── foundation/       v2 identity/membership/profile boundary
+├── help/             v2 Help settings and browser flows
+├── messages/         v2 list, thread, Connection, safety, and responsive roads
+├── home/             v2 dashboard composition and outcome consent
+├── people,profiles/  directory, profile privacy, and Connection roads
+├── school/           School reading and transactional member roads
+├── dev-cutover/      opt-in read-only exact-dev smoke
+├── api/              health and auth-proxy contracts
+└── entry-operations/ destructive lifecycle durability, local-only
 ```
 
-Isolation rules:
+Retired Ask/Inbox E2E files were deleted with their routes. Do not preserve an
+old test merely to document obsolete behavior; the v2 domain plan and test
+inventory are the historical record.
 
-- The seed provides the shared world. A suite that **mutates** state creates its own uniquely-identified entities (the core loop signs up a fresh `e2e-invitee-ivan@example.com`, which is not in the seed) or touches rows no other suite reads (the events suite RSVPs Richard to the one event he's seeded as *not* attending).
-- No suite depends on another suite having run. Every suite passes alone and the whole set passes in parallel.
-- Don't re-test what a Vitest suite already covers — E2E is for integration truth.
-- **Fully self-seeding suites** (the strongest isolation, and the only kind that also runs in integ mode against the persistent dev database): construct one `TestScenario` from `helpers/factory.ts` per spec file. It seeds a per-run org + `test_`-prefixed members through the admin client (emails go to the `delivered+…@resend.dev` sink so nothing bounces), lets specs assert against both the UI and the database via `scenario.admin`, and `scenario.destroy()` in `afterAll` removes everything by cascade. These suites never touch the seeded personas, so they need no `test.skip(isRemote, …)`.
+## Isolation rules
 
-  Those `delivered+<label>@resend.dev` factory addresses survive on purpose: the non-prod email guard (`app/src/notify/devGuard.ts`, applied at the `sendRenderedEmail` choke point) **passes any `@resend.dev` recipient through untouched**, so your `+label` reaches Resend intact and specs can assert per-recipient. Every *other* non-prod recipient (real or `@example.com`) is redirected to a safe sink instead — which is why a stray non-`resend.dev` address in a factory seed silently lands in the sink rather than where you addressed it. Full behavior, env knobs (`EMAIL_DEV_REDIRECT`, `EMAIL_DEV_ALLOWLIST`), and the developer allowlist are documented in [doppler.md → "The non-prod email guard"](doppler.md#the-non-prod-email-guard).
+- No spec depends on another spec having run.
+- A mutating spec creates a unique organization and users with
+  `helpers/foundation.ts`, then deletes them in `afterAll`.
+- Stable seeded personas are for browser inspection and bounded read fixtures,
+  not shared mutable state.
+- Tests never call real AI or email providers in hermetic mode.
+- Prefer accessible locators: `getByRole`, `getByLabel`, and `getByText`.
+- Fail on browser console errors and uncaught page errors for critical roads.
+- Trace and screenshot output belongs under Playwright's test-results output,
+  not in committed source unless it is an approved design baseline.
 
-To run one suite or spec:
+## Help acceptance road
+
+The focused Help browser gate covers:
+
+1. private question search with no Ask side effect;
+2. direct Ask create, recipient accept/decline, and idempotent retry;
+3. circle Ask create, eligible offer, asker acceptance, and anonymity;
+4. accepted conversation origin/opening message/send/refresh;
+5. Ask resolution without disabling the conversation;
+6. settings default-open, topic normalization, and manual pause;
+7. error/fallback states, keyboard flow, reduced motion, and no horizontal
+   overflow at 320, 390, 768, and desktop width.
+
+Database truth for these roads is also asserted by the Help pgTAP,
+concurrency, worker, maintenance, Realtime, and query-plan suites. Browser tests
+do not replace those gates.
+
+## Messages acceptance road
+
+The focused Messages browser gate is serial and begins from a canonical local
+reset because it deliberately walks lifecycle state across the fixed seed:
+
+1. Waiting direct Ask acceptance into the unified thread, send, and reload;
+2. Connection accept and quiet decline with durable database checks;
+3. two authenticated contexts converging unread/read state through Realtime;
+4. post-Ask Connection nudge, Ask resolution, and continued send;
+5. report acknowledgement, disconnect retention, and block revocation;
+6. All/Open asks/search/tied keyset paging and deleted-member fallback;
+7. axe checks for root, dialogs, and mobile context plus no overflow at 1440,
+   768, 390, and 320 px.
+
+This file is one reset-owned scenario, not a dependency between independent
+specs. Do not shard it. It may run against hosted development only during the
+explicit one-time, reset-owned acceptance matrix described below.
+
+## Integ mode and remote safety
+
+`PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org` selects remote integ mode.
+Remote tests must be fully self-seeding and self-cleaning because the dev
+database is persistent. They must never reset a remote database.
+
+Ordinary recurring integ mode remains factory-owned. Seed-dependent suites
+stay skipped remotely unless all of these are present:
+
+- `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org` exactly;
+- `APP_ENV=dev`;
+- the explicit one-time `E2E_ALLOW_DEV_SEED=1` flag.
+
+`pnpm test:e2e:dev-acceptance` supplies only the flag. The target helper throws
+during Playwright configuration for production, preview, localhost, path, or
+wrong-environment targets. Run this mode only immediately after the separately
+approved clean dev reset, with the worker stopped. It intentionally advances
+the fictional seed; restore the canonical seed with another approved linked
+reset afterward.
+
+The final seeded-state smoke is separate and read-only:
 
 ```bash
-pnpm test:e2e tests/e2e/events
-pnpm test:e2e -g "redirects unauthenticated"
-pnpm test:e2e:ui         # interactive UI mode for authoring
+PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org \
+APP_ENV=dev \
+CUTOVER_SHA=<40-character-verified-sha> \
+pnpm test:e2e:dev-smoke
 ```
 
-## CI Setup
+Hosted smoke refuses every remote origin except exact dev and requires the
+captured SHA. It verifies health, seeded member sign-in, all five primary
+sections, and the four minimal admin surfaces without changing application
+rows. The same smoke may be run against localhost during local preparation.
 
-Wired at `.github/workflows/e2e.yml`, on every PR to `main` plus manual dispatch. The job boots the local Supabase stack on the runner (`supabase start`); app + runner resolve env from `bridgecircle/dev_local` via the `DOPPLER_TOKEN_LOCAL` repo secret — a Doppler **service token scoped to `dev_local` only** (it can read local-stack values and dummies, never real dev/prod secrets). Create it with:
+## Adding a test
 
-```bash
-doppler configs tokens create e2e-ci -p bridgecircle -c dev_local --plain | \
-  gh secret set DOPPLER_TOKEN_LOCAL --repo dwrlee8517/BridgeCircle
-```
-
-Three jobs:
-
-1. `changes` — detects docs-only PRs by diffing against the PR base.
-2. `playwright` — the suite, skipped when the PR is docs-only.
-3. `e2e-gate` — **always reports**: green when the suite passed or was legitimately skipped for a docs-only PR, red otherwise. This is the job to add to required status checks — a plain `paths-ignore` skip would leave a required check pending forever.
-
-### Making it required
-
-Once a run has registered the check, add **E2E gate** to the required status checks for `main` (Settings → Branches → Branch protection rules). Enforcement requires GitHub Pro on a personal-account private repo — see [environments.md](../architecture/environments.md) "GitHub repository". There is deliberately no skip label: a red suite means the code or the test is wrong, and both get fixed, not bypassed.
-
-The integ run in `cd.yml` is unchanged: it sets `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org`, pulls env from Doppler, and re-drives the suites against the deployed dev stage before the prod promote. Suites whose assertions depend on the wiped-and-reseeded local world (currently `events/`) call `test.skip(isRemote, …)` and run only in hermetic mode — the integ database is persistent, so "Richard hasn't RSVP'd yet" style preconditions don't survive repeated runs there.
-
-## Writing A New Test
-
-The pattern:
-
-```ts
-import { expect, test } from "@playwright/test";
-import { signIn } from "../helpers/auth";
-
-test.describe("<feature>", () => {
-  test("<what it does>", async ({ page }) => {
-    await signIn(page, "richard@example.com", "devseed-password-richard");
-    await page.goto("/some-route");
-    await expect(page.getByText(/expected copy/i)).toBeVisible();
-  });
-});
-```
-
-Project-specific notes:
-
-- **Locators.** Prefer `getByRole`, `getByLabel`, and `getByText` over CSS selectors. Not every shadcn/ui component renders as the role you'd expect — `CardTitle` renders as a `<div>`, not a heading. When in doubt, fall back to `getByText`.
-- **Seeded personas.** Sign in with the cast from `supabase/seeds/seed.sql`. Deterministic IDs (`10000000-…-00NN` users, `eeee0000-…` events) let specs reference rows directly when needed.
-- **Admin setup.** For programmatic setup (like the core loop's invite), call `loadE2eEnv()` from `../helpers/env` in `beforeAll`, then use `createAdminClient()` — it targets the local stack in hermetic mode and the dev DB (via Doppler) in integ mode.
-- **Screenshots and traces.** On failure Playwright drops a trace under `test-results/<test-name>/`. Open it with `pnpm exec playwright show-trace <path>`.
+1. Put the spec under the domain it proves.
+2. Use the v2 fixed API and current route contract.
+3. Create the minimum data for the scenario.
+4. Assert the member-visible outcome and the durable database result after a
+   refresh.
+5. Add the test to that domain's inventory.
+6. Run it alone, with the focused domain suite, and with all currently ported
+   domain suites.
 
 ## Troubleshooting
 
-**`supabase db reset` fails in global setup**
+- If reset fails, run `pnpm db:start` and confirm Docker/local Supabase is
+  healthy.
+- If the E2E port is occupied, stop the unrelated process; do not silently reuse
+  the developer server on port 3000.
+- If sign-in fails, compare configuration names/status only and confirm
+  `dev_local` points to the local stack. Never print secret values.
+- If a later-domain spec fails on a retired table or route, classify it as port
+  inventory. Port that domain; do not add a compatibility column or redirect.
 
-The local stack isn't running. `pnpm db:start` boots it — and launches Docker Desktop and waits for the daemon first if it isn't already up (`scripts/db-start.sh`). Docker Desktop must be installed (`brew install --cask docker`). First boot pulls container images and takes a few minutes.
+## Related documentation
 
-**"Error: connect ECONNREFUSED 127.0.0.1:3002"**
-
-Playwright's `webServer` couldn't boot the dev server within 120s. Check that `pnpm dev:local` works in isolation; if port 3002 is occupied by an unrelated process, free it.
-
-**Sign-in fails for every seeded persona**
-
-The local keys in the `dev_local` Doppler config no longer match your stack (a CLI upgrade can change them). Compare with `pnpm dlx supabase status` and update the config: `doppler secrets set -p bridgecircle -c dev_local NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=... SUPABASE_SECRET_KEY=...`.
-
-**A `getByRole("heading")` assertion fails with "element(s) not found"**
-
-The component probably doesn't render as a heading element. Use `getByText` or inspect the failure trace.
-
-**Tests pass locally, fail in CI**
-
-With hermetic mode both run the identical stack, so look for machine-specific leakage first: an `.env.local` var that `dev_local` doesn't override (add the override to the Doppler config), or a dependence on `E2E_SKIP_RESET` state.
-
-## Related Documentation
-
-- [Production/testing-suite](../../product-spec-obsidian-vault/Production/testing-suite.md) — canonical spec of the shipped system
-- [Testing Suite vision](../../product-spec-obsidian-vault/Vision/Testing%20Suite.md) — the direction and guardrails it implements
-- [Seeding the dev database](seed-dev.md) — the **remote** dev project's seed script (same cast, different mechanism)
-- [Environments and dev/prod separation](../architecture/environments.md)
-- [ADR 0014 — Scripted CD pipeline](../decisions/0014-scripted-cd-pipeline.md) — where the integ run fits
+- [Help test inventory](../architecture/database-v2-help-test-inventory.md)
+- [Messages test inventory](../architecture/database-v2-messages-test-inventory.md)
+- [Local seed](seed-dev.md)
+- [Environment model](../architecture/environments.md)
+- [Migration workflow](migration-workflow.md)

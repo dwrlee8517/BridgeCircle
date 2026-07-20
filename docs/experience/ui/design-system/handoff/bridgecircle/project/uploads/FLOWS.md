@@ -18,9 +18,10 @@ help? · check-box classmate connects). New §7b **navigation/back model** (5 se
 one back rule, profiles+dialogs as overlays), §7c **trust & safety** (report → moderation
 pipeline · block · disconnect · anonymity guard), §7d **account/settings + notifications
 section + ask history + circle management**. Also 2026-07-06: **one recipient per ask**
-(no multi-send — send separately per person); **decline gains an AI-relay layer** (tell the
-AI casually, it relays the cushioned no); **14-day clock → a "3 days left" warning only**
-(no running countdown); **People/Help do not cross-route** — People search auto-picks
+(no multi-send — send separately per person); **declines always carry a note** through a
+default reason or a custom note with optional AI polish (the conversational AI-relay mode is
+deferred); **the pre-acceptance 14-day clock → a "3 days left" warning only** (no running
+countdown, and no expiry warning after acceptance); **People/Help do not cross-route** — People search auto-picks
 keyword-vs-NL backend invisibly, always returns people with an explanation. All prior
 "proposed for review" items (event page, Help·Give availability home) are now **decided**.
 **Scope:** the complete member webapp (desktop-first, mobile follows).
@@ -64,11 +65,12 @@ product decisions.
   source reconciled 2026-07-06: search pill/⌘K removed from `desktop-shell.html`
   + `people-directory.html`, `--topbar-height` comment + `SKILL.md` + OVERRIDES
   E3 amended. Only the DesignSync push itself remains.)*
-- **Notifications popover (DECIDED, Richard 2026-07-06):** ships in v1. The bell
-  surfaces the moments neither side may miss — ask received, offer received,
-  accepted, decline notes — **each shown once**, deep-linking. After that they
-  live only in the notification section and Messages; the popover is a tap on
-  the shoulder, not a second inbox.
+- **Notifications popover (UPDATED, Richard 2026-07-16):** ships in v1. The bell
+  shows a bounded recent history of the moments neither side may miss — asks,
+  offers, acceptances, decline notes, messages, and School updates — with
+  unread rows called out by stronger type, tint, and a dot. Opening a row marks
+  it read before deep-linking; read rows remain in the recent list for useful
+  context. The full, pageable record lives in Notifications.
 
 ## 1 · Onboarding — seamless, prefilled, three phases (REVISED 2026-07-06 · modeled on the Field Pro v2 reference)
 
@@ -280,23 +282,20 @@ mode; Get for first-timers.
 8. **Decline with a note — there is no quiet pass (DECIDED 2026-07-06;
    supersedes ADR 0011 D5 — record the drift in the ADR at implementation).**
    Every decline, in both directions, sends a cushioned note in real time.
-   **Three ways to produce it, escalating cushion (DECIDED, Richard
-   2026-07-06):**
+   **Two v1 ways to produce it, with a later third mode (UPDATED, Richard
+   2026-07-16):**
    - **Pick a default reason** — "I can't take this on right now" · "This
      one's outside what I can speak to." One tap.
    - **Write your own** — AI polishes it toward kindness.
-   - **Let the AI relay it** — the helper just tells the AI casually what's
-     going on ("slammed this month, can't do it") and the AI composes and
-     sends the cushioned note on their behalf. The helper never has to address
-     the asker directly at all — the AI is the buffer. This is the softest
-     path and the new default for anyone who hesitates to write a no.
+   - **Deferred — conversational AI relay.** A later version may let the helper
+     explain the situation casually and have AI compose the cushioned decline.
+     It is not required for the current v1 flow and no dead control is shown.
    Recipient declining a direct ask → the asker's row flips to "Declined" +
    the note; the ask closes early with the same recovery actions as the
    14-day close. Asker declining an offer → the helper gets the same cushioned
    treatment ("Went another way on this one — thank you for raising your
-   hand"). The buffer moves from *invisibility* to *cushioning*: nobody writes
-   a rejection from scratch, nobody reads a bare one, and — with the AI-relay
-   layer — nobody even has to speak the no in their own voice. (Scope: asks
+   hand"). The buffer moves from *invisibility* to *cushioning*: nobody has to
+   draft a rejection from scratch and nobody reads a bare one. (Scope: asks
    only — connect-request declines stay quiet as before.)
 9. **The 14-day close, narrowed to silence.** If nothing has answered an ask
    by day 14, the backend closes it — now covering **pure silence only**,
@@ -348,11 +347,9 @@ notification about this ask)
 - Where it surfaces elsewhere: Home "Your open asks" module rows → here;
   Messages "Waiting" group shows a compact echo row → here.
 
-**Page 3 — the thread** (Messages) — origin line; **no running day clock —
-only a "3 days left before this ask closes" flag in the last 3 days** (CHANGED
-2026-07-06: a countdown on an active conversation is quietly anxious and
-against calm-not-urgent; the clock disappears once a thread is underway and
-returns only as a gentle late warning); Mark resolved with an optional
+**Page 3 — the thread** (Messages) — origin line; **no day clock or expiry
+warning after acceptance** (UPDATED 2026-07-16: accepted Asks hold their slot
+until resolved and do not expire); Mark resolved with an optional
 one-line outcome note (DECIDED 2026-07-06: yes — skippable, feeds the ADR 0010
 D4 flywheel), then the "Add to your circle" nudge. From here the ask is just a
 conversation.
@@ -474,6 +471,15 @@ unranked; if visible declines make hesitant members ask less, revisit.
 **Job:** relationship lifecycle. List priorities: ① needs reply ② active
 ③ history. Filters as chips (All / Unread / My circle / Open asks), not tabs.
 
+**Local v2 implementation note — updated 2026-07-16:** the list, Waiting group,
+Ask/Connection threads, context, resolve, post-Ask Connection nudge,
+report/block/disconnect, Realtime, responsive layouts, bilateral outcome
+consent, and consent-safe Home outcome cards below are implemented. Three
+details are intentionally parked rather than represented by dead controls:
+accepted Asks do not expire, so there is no three-day thread warning;
+attachments/shared files have no approved storage contract; and presence is
+not modeled.
+
 1. **Conversation list** — avatar, name + class year, preview, time; unread =
    heavy + blue dot; selected = tint + left accent. Pending items live in a
    **"Waiting on you" group pinned above conversations (DECIDED, Richard
@@ -487,9 +493,8 @@ unranked; if visible declines make hesitant members ask less, revisit.
    names; **origin as a quiet system line** ("You connected", "Maya accepted
    your ask"); day dividers; read receipts; typing.
 3. **Context rail** ("Profile") — who (chips: Verified '14, ● Open to help),
-   **About this conversation** (which ask; **an expiry flag only in the last
-   3 days** — "3 days left before this ask closes" — not a running Day-N-of-14
-   counter, CHANGED 2026-07-06) when the thread came from an ask, one action
+   **About this conversation** (which ask; no expiry clock after acceptance)
+   when the thread came from an ask, one action
    (**Mark ask resolved**), shared files/links. **Fold/expandable within the chat (DECIDED, Richard
    2026-07-06):** a chevron collapses the rail so the conversation takes the
    full width; state remembered per member; expanded ⇒ sidebar collapses to
@@ -670,6 +675,10 @@ about *you*, which keeps the cover).
   Approve / Dismiss, nothing publishes without approval. This machinery lives
   only here; a visitor sees just the "last updated" line. Home's profile-
   freshness module points here.
+  **Local v2 scope note — 2026-07-16:** the owner queue and Home module remain
+  disabled until the later enrichment slice supplies the authenticated
+  proposal list and accept/dismiss contract. No production notification or
+  member link may lead to an unavailable review queue.
 - **Links & contact, visibility per item (DECIDED 2026-07-06):** add a
   LinkedIn URL, portfolio, email, socials — each with its own audience:
   **Public** (any member) · **Circle** (connected only) · **Private** (just
@@ -780,8 +789,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
 - **The notification section** (`/notifications`, opened from the bell's "see
   all" or a sidebar-less route) — the durable list behind the popover:
   every notification in reverse-chron, each deep-linking to its target per
-  §7b. The popover shows the *unmissable* few once; this page is the full
-  record. Read-state clears the bell dot.
+  §7b. The popover retains a bounded recent slice with explicit unread
+  treatment; this page is the full pageable record. Read-state clears the bell
+  dot without removing the recent row.
 - **Your asks — history** (`/help/asks`, reached from Home's "Your open asks"
   → "See all", and from Help) — the index of *all* your asks: the ≤5 open ones
   with their status pills up top, then resolved / retracted / closed ones as
@@ -794,8 +804,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
 ## 8 · Cross-cutting
 
 - **Empty states** — every module: one warm line + one useful action, no
-  illustration theater. (E1 neutral-pending hue is the ledger entry that will
-  cover "Waiting" states — promote when designing these.)
+  illustration theater. Waiting and Declined use the calm neutral base roles
+  directly (`--text-secondary` on `--surface-subtle`); E1's redundant aliases
+  were retired 2026-07-13 after the templates settled that treatment.
 - **System states (NEW 2026-07-06)** — a consistent, calm set: **not-found /
   gone** (a retracted ask, a cancelled event, a deleted profile you followed a
   stale link to → "This isn't here anymore" + a way back to the section root,
@@ -809,9 +820,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
   ask received, ask accepted, offer received, offer accepted, **decline note
   received**, connect request, connect accepted, event reminder, expiry
   warning, **event changed**, **event cancelled**, **waitlist spot opened**
-  ("still want in?"). Each surfaces once in the bell popover, then lives in
-  notifications / Messages. Weekly digest: **not yet (DECIDED 2026-07-06)** —
-  transactional only for v1.
+  ("still want in?"). Recent read and unread items remain in the bounded bell
+  popover, with the durable record in Notifications / Messages. Weekly digest:
+  **not yet (DECIDED 2026-07-06)** — transactional only for v1.
 - **The two-sided buffer, audited per flow (revised 2026-07-06):** every
   decline is cushioned and symmetric — default reasons + AI help on both
   sides, so saying no never means drafting a rejection and hearing no never
@@ -819,8 +830,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
   path shows the sender exactly who will see it; search results are private
   to the asker; every "waiting" state is honest but calm. Any screen that
   violates this is wrong regardless of how it looks.
-- **CircleMark (E4)** — promote the ledger entry when Messages/People screens
-  are designed (names of connected members carry the mark).
+- **CircleMark (E4)** — stays proposed for a future brand pass. In v1,
+  "In your circle" chips carry the relationship state; do not add the mark to
+  Messages or People names.
 
 ## 9 · Suggested design order (Claude Design)
 

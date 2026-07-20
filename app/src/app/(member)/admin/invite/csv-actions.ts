@@ -1,10 +1,10 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/db/server'
-import { requireAdmin } from '@/lib/auth/session'
+import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
+import { createAdminInviteRepository } from '@/db/repositories/invites'
 import type { CsvRow } from '@/lib/invite/parseCsv'
-import { type BatchInviteResult, sendInviteBatch } from '@/lib/invite/sendBatch'
+import { type BatchInviteResult, issueInviteBatch } from '@/lib/invite/sendBatch'
 
 export type CsvSubmitState = {
   result?: BatchInviteResult
@@ -17,7 +17,7 @@ export async function submitCsvInvites(
   _prev: CsvSubmitState,
   formData: FormData,
 ): Promise<CsvSubmitState> {
-  const session = await requireAdmin()
+  const { client, membership } = await loadSchoolAdminContext()
 
   const raw = formData.get('rows')
   if (typeof raw !== 'string' || raw.length === 0) {
@@ -38,23 +38,11 @@ export async function submitCsvInvites(
     return { error: `Batches are capped at ${MAX_BATCH} rows. Split the file.` }
   }
 
-  const supabase = await createClient()
-  const { data: roles } = await supabase
-    .from('admin_role_assignments')
-    .select('organization_id')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-    .limit(1)
-  const orgId = roles?.[0]?.organization_id
-  if (!orgId) return { error: 'No admin role found.' }
-
-  const result = await sendInviteBatch({
-    organizationId: orgId,
-    sentBy: session.userId,
+  const result = await issueInviteBatch(createAdminInviteRepository(client), {
+    organizationId: membership.organization.id,
     rows,
   })
 
   revalidatePath('/admin/invite')
-  revalidatePath('/admin/members')
   return { result }
 }

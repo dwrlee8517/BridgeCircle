@@ -18,18 +18,21 @@ duplicated here — this document only frames what's different.
 1. **Default = Toss.** Any question this doc doesn't answer is answered by
    the `toss-base` spec.
 2. **Divergence = ledger entry.** Overrides (changed values) and extensions
-   (new ground: desktop, pending-status, avatar palette, brand marks) live in
+   (new ground: desktop, avatar palette, brand marks) live in
    `OVERRIDES.md` with evidence and status. Unlogged divergence is drift.
 3. **Applied vs proposed.** Only *applied* entries exist in the tokens and
    specimens. **2026-07-04 brand batch applied:** O1–O4, O6, O7 + E2 (green
    give action, section identity, Display XL, softer radii, hairline + card
    ring, avatar palette) — the fork now renders visibly differently from the
-   baseline. **2026-07-05:** E3 desktop extension applied (breakpoints,
-   1320px shell, sidebar nav, hover/focus states, operator table — all
+   baseline. **2026-07-05 (shell width amended 2026-07-14):** E3 desktop extension applied (breakpoints,
+   full-viewport shell with measured inner columns, sidebar nav, hover/focus states, operator table — all
    invention in the Toss spirit; TDS is mobile-only). **2026-07-12 template
    reconciliation:** the full `templates/**` set landed; the saturated section
-   bands were retired for **wash heroes + navy covers**; E1 (pending) applied
-   and E5/E6/E7 minted (template surfaces, closing-soon amber, give-tint);
+   bands were retired for **wash heroes + navy covers**; E5/E6/E7 minted
+   (template surfaces, closing-soon amber, give-tint). **2026-07-13:** the
+   stabilized templates won again — E1's redundant pending aliases were
+   retired in favor of direct neutral base roles, and O2/O8 were amended to
+   preserve GiveOffer's scoped green drafting composition;
    `--border-subtle` → `#eef1f5`; **dark mode parked (v1 light-only)**; the
    profile helping section is titled "Can help with". **Rejected:** O5
    (warning stays TDS orange `#fe9800`, 2026-07-05). Still proposed: E4

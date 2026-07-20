@@ -1,154 +1,88 @@
-# Phase 1 Screen Briefs
+# Phase 1 screen map
 
-This file bridges product behavior and the Civic Editorial design system.
-Product behavior remains canonical in specs and architecture docs; visual rules
-remain canonical in [`../ui/design-system/`](../ui/design-system/).
+This map records the canonical v2 screen families. The detailed route contract
+lives in [information architecture](../../architecture/information-architecture.md),
+and the approved redesign specimens live under
+[`../ui/design-system/handoff/bridgecircle/`](../ui/design-system/handoff/bridgecircle/).
 
-## Current Member Surfaces
+## Member shell
 
-The current member navigation is defined by
-`app/src/app/(member)/nav-links.ts` and contains four visible items:
-**Help, People, School, Messages** (ADR
-[0011](../../decisions/0011-two-verbs-one-inbox.md)). Help is the hub at `/`
-— the former separate Ask and Help tabs collapsed into a segmented ask/give
-toggle there, and `/ask` and `/help` light the same tab. Messages (route
-still `/inbox`) absorbs direct messages.
+The shared responsive shell has five roots: Home, Help, People, Messages, and
+School. Desktop uses the full sidebar, tablet uses a compact rail, and mobile
+uses the bottom navigation. `MEMBER_NAV_LINKS` is the single implementation
+source.
 
-| Surface | Route | Behavior source | UI source |
-|---|---|---|---|
-| Help hub (home) | `/` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Ask (get help) | `/ask` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Give help | `/help` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| People | `/people` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
-| School | `/school` | [`../../architecture/information-architecture.md`](../../architecture/information-architecture.md) | [`../ui/design-system/`](../ui/design-system/) |
-| Messages | `/inbox` | [`../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md`](../../../product-spec-obsidian-vault/Production/phase-1/user-flows.md) | [`../ui/design-system/`](../ui/design-system/) |
+## Primary screens
 
-Supporting routes such as `/profile/*`, `/events/*`, `/announcements/*`,
-`/help/settings`, `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`, auth, and
-`/admin/*` remain important, but they are not top-level member navigation.
-
-## Cross-Screen Rules
-
-- Every member screen should make the next useful relationship action visible
-  without requiring browsing.
-- Do not use cards as the default page-building unit. Use cards only for
-  repeated decision objects, modals/popovers, or genuinely bounded interaction
-  surfaces.
-- Prefer full-width sections, rows, split layouts, lists, tables, and command
-  surfaces for page structure.
-- Do not stack cards inside cards unless the inner object is a repeated row/list
-  item.
-- Use Civic Editorial hierarchy: sharp 6px radii, Obsidian/Electric Sky action
-  states, readable metadata, and restrained decorative motifs.
-- Do not introduce generic SaaS gradients, social-feed mechanics, bubbly
-  community styling, or CRM tables as the default member experience.
-- If behavior changes, update the linked spec or architecture doc first.
-
-## Home
-
-Route: `/`
-
-Primary job: orient the member and surface the next useful relationship action.
-
-Priority order:
-
-1. the ask/search command
-2. people who can help the member
-3. people or requests the member could help with
-4. school pulse and profile upkeep as supporting context
-
-Home should not become a generic dashboard. It should open with relationship
-work and use school/activity/profile modules as secondary context.
-
-## Ask
-
-Route: `/ask`
-
-Primary job: turn a member's question into explained people matches and a
-guided ask.
-
-Ask is the primary command surface. It should feel more active and focused than
-People. Use hybrid match evidence, suggested first asks, and one clear next
-step rather than making the member browse a directory. The target Ask matching
-architecture is ADR 0009: structured + lexical + vector retrieval,
-warm-network scoring, and LLM rerank.
-
-Workflow routes:
-
-- `/ask/new`
-- `/ask/[id]`
-- `/ask/thread/[id]`
-
-These are supporting routes reached from Ask, People, Home, Help, Inbox, or
-notifications.
-
-## Help
-
-Route: `/help`
-
-Primary job: help the member understand where their experience is useful.
-
-Help should distinguish:
-
-- requests that need a reply
-- people or situations the member could help with
-- helper availability and preference maintenance
-
-Avoid burying help opportunities inside passive profile browsing. The screen
-should present clear helper actions and readable state.
-
-## People
-
-Route: `/people`
-
-Primary job: help members find the right person and decide whether to reach out.
-
-People should combine natural-language search, structured filters, match
-reasons, helper availability, and one primary action per person. Result objects
-may be cards when comparison benefits from containment, but the page should not
-feel like a wall of equal-weight cards.
-
-## School
-
-Route: `/school`
-
-Primary job: keep the school pulse close to relationship work.
-
-School combines events and announcements as supporting context. It should make
-the next relevant school item clear while keeping Ask/Help/People as the
-product center. Use lists, timelines, or grouped sections where possible;
-reserve cards for specific repeated event or announcement objects.
-
-Supporting routes:
-
-- `/events`, `/events/[id]`
-- `/announcements`, `/announcements/[id]`
-
-## Inbox
-
-Route: `/inbox`
-
-Primary job: manage relationship lifecycle across asks, friend requests, direct
-messages, and notifications that require attention.
-
-Inbox should prioritize:
-
-1. needs reply
-2. active/helping/getting-help threads
-3. sent/done/history
-
-Use clear lifecycle state, not just tabs. Empty states should point members
-back to a useful next action, such as asking someone, reviewing helper
-preferences, or finding people they know.
-
-## Supporting Surfaces
-
-These routes support the current member nav but should not be treated as
-primary member surfaces when evaluating navigation-level UI quality:
-
-| Surface | Routes | Notes |
+| Screen | Canonical route | Current v2 status |
 |---|---|---|
-| Profile | `/profile/[id]`, `/profile/me/*` | Detail and editing surfaces reached from People, Home, Inbox, and account actions |
-| Helper settings | `/help/settings` | Supply-side preferences reached from Help, Home, and account/header utilities (`/mentorship/settings` 308-redirects here) |
-| Auth and join | `/sign-in`, `/join` | Entry surfaces, not authenticated member navigation |
-| Admin | `/admin/*` | Admin-only operational area |
+| Home | `/` | Later domain port |
+| Help home | `/help` | Implemented |
+| Direct Ask | `/help/ask/[membershipId]` | Implemented |
+| Ask the circle | `/help/ask-circle` | Implemented |
+| Help history | `/help/asks` | Implemented |
+| Ask detail/response | `/help/asks/[askId]` | Implemented |
+| Circle offer | `/help/asks/[askId]/offer` | Implemented |
+| Help settings | `/help/settings` | Implemented |
+| People | `/people` | Later People/Profile port; canonical direct-Help link is implemented |
+| Profile | `/profile/[id]` | Later People/Profile port; canonical direct-Help link is implemented |
+| Messages list | `/messages` | Implemented |
+| Conversation | `/messages/[id]` | Implemented for Ask and Connection origins |
+| School | `/school` | Later School/Admin port |
+| Events | `/events`, `/events/[id]` | Later School/Admin port |
+| Announcements | `/announcements`, `/announcements/[id]` | Later School/Admin port |
+| Admin | `/admin/*` | Later School/Admin port |
+
+## Help states that must be designed and tested
+
+- private question search: blank, loading, results, no results, provider
+  fallback, and no side effects;
+- direct composer: initial draft, AI refinement, validation, unavailable
+  recipient, capacity reached, created, and idempotent retry;
+- circle composer: matched/organization reach, anonymous disclosure,
+  refinement, active limit, and created;
+- Ask detail: owner, direct recipient, eligible helper, offer helper, accepted
+  participant, blocked/removed, expired, declined, retracted, and resolved;
+- offer composer: private note, refinement, duplicate retry, and no longer
+  eligible;
+- Help history: open/waiting/accepted/terminal rows, cursor paging, empty and
+  transport-error states;
+- settings: default-open, manual pause, admin pause, normalized topics, save
+  success, validation, and transport failure;
+- accepted conversation: origin line, opening message, send, reconnect,
+  resolution line, and continued messaging after resolution.
+
+## Responsive acceptance sizes
+
+The Help implementation is checked at:
+
+- desktop: 1440 px class, plus the exact source capture width when different;
+- tablet: 768 px;
+- mobile: 390 px;
+- narrow guard: 320 px.
+
+No screen may depend on a fixed specimen canvas. Content can remain centered
+inside a readable max width while the shell background and layout fill the
+viewport. Horizontal overflow at the acceptance widths is a failure.
+
+## Messages states that must be designed and tested
+
+- Waiting: direct Ask, incoming Connection, folded/unfolded, accept/decline,
+  zero-hidden, stale decision, and transport recovery;
+- list: All/Unread/My circle/Open asks, bounded search, selected/unread,
+  tied-cursor pagination, deleted-member fallback, and truthful empty/error;
+- thread: Ask/Connection origin, history paging, idempotent send retry, typing,
+  visible-end read, latest receipt, reconnect, and continued send after resolve;
+- context and safety: desktop rail, mobile sheet with focus return, Ask resolve,
+  post-Ask Connection nudge, report acknowledgement, disconnect, and block;
+- responsive composition: three columns at 1200 px and above, two panes at
+  tablet width, and separate list/thread routes below 768 px, with no overflow
+  at 1440, 768, 390, or 320 px.
+
+## Pre-launch cutover
+
+No compatibility screen or redirect is kept for retired Ask/Inbox route
+families. New links and notification targets must point directly to the
+canonical Help or Messages route. The old mock/seed world may be recreated
+domain by domain against the v2 contracts; it is not a reason to preserve a
+legacy UI.

@@ -80,8 +80,8 @@ jobs:
       - name: Design-token ratchet
         run: pnpm check:tokens
 
-      - name: Production migration ownership ratchet
-        run: pnpm check:production-migration-ownership
+      - name: Production cutover ratchet
+        run: pnpm check:production-cutover
 
       - name: TypeScript
         run: pnpm tsc --noEmit

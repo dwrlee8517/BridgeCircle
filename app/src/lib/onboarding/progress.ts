@@ -1,7 +1,7 @@
-export const TOTAL_ONBOARDING_STEPS = 5
+export const TOTAL_ONBOARDING_STEPS = 7
 export const ONBOARDING_STEP_COOKIE = 'bridgecircle_onboarding_step'
 
-export type OnboardingStep = 1 | 2 | 3 | 4 | 5
+export type OnboardingStep = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
 export type OnboardingProgressProfile = {
   name: string | null | undefined
@@ -13,7 +13,7 @@ export type OnboardingProgressProfile = {
   currentTitle: string | null | undefined
   city: string | null | undefined
   headline: string | null | undefined
-  linkedinUrl: string | null | undefined
+  industry: string | null | undefined
   careerHistory: unknown[] | null | undefined
   skills: string[] | null | undefined
 }
@@ -25,6 +25,24 @@ export function parseOnboardingStep(raw: string | null | undefined): OnboardingS
   return Math.min(n, TOTAL_ONBOARDING_STEPS) as OnboardingStep
 }
 
+export function resolveOnboardingStep({
+  explicit,
+  cookie,
+  durable,
+  inferred,
+}: {
+  explicit: OnboardingStep | null
+  cookie: OnboardingStep | null
+  durable: OnboardingStep | null
+  inferred: OnboardingStep
+}): OnboardingStep {
+  if (explicit) return explicit
+  if (cookie || durable) {
+    return Math.max(cookie ?? 1, durable ?? 1) as OnboardingStep
+  }
+  return inferred
+}
+
 export function inferOnboardingStep(profile: OnboardingProgressProfile): OnboardingStep {
   if (!hasText(profile.name) || !profile.graduationYear) return 1
 
@@ -33,7 +51,7 @@ export function inferOnboardingStep(profile: OnboardingProgressProfile): Onboard
     !hasText(profile.major) &&
     !hasItems(profile.educationHistory)
   ) {
-    return 2
+    return 3
   }
 
   if (
@@ -41,14 +59,14 @@ export function inferOnboardingStep(profile: OnboardingProgressProfile): Onboard
     !hasText(profile.currentTitle) &&
     !hasText(profile.city) &&
     !hasText(profile.headline) &&
-    !hasText(profile.linkedinUrl)
+    !hasText(profile.industry)
   ) {
-    return 3
+    return 4
   }
 
-  if (!hasItems(profile.careerHistory) && !hasItems(profile.skills)) return 4
+  if (!hasItems(profile.careerHistory) && !hasItems(profile.skills)) return 5
 
-  return 5
+  return 6
 }
 
 function hasText(value: string | null | undefined): boolean {

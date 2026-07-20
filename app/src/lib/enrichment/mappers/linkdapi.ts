@@ -1,5 +1,6 @@
 import type { ExtractedProfile } from '@/lib/resume/schemas'
 import { extractedProfileSchema } from '@/lib/resume/schemas'
+import { findSupportedCurrentRole } from '../current-role'
 import type { EnrichmentResult } from '../types'
 
 /**
@@ -67,19 +68,18 @@ export function mapLinkdApiProfile(raw: unknown): EnrichmentResult {
     }))
     .filter((e) => e.employer !== 'unknown' || e.title !== 'unknown')
 
-  // currentPositions carries the company but not the title. Look up the
-  // title by matching companyName in fullPositions (LinkedIn returns these
-  // most-recent-first). When currentPositions is empty, fall back to the
-  // most recent fullPosition only if it's open-ended (endDate === null).
+  // currentPositions carries the company but not the title, and can remain
+  // stale after a role ends. Only accept it when a matching fullPosition is
+  // open-ended. When currentPositions is absent, the first open-ended role is
+  // the best supported current-role candidate.
   const currentEmployerFromCurrent =
     takeString(r.currentPositions?.[0]?.companyName) ??
     takeString(r.currentPositions?.[0]?.company?.name)
-  const currentEmployer =
-    currentEmployerFromCurrent ??
-    (career[0]?.endDate === null ? (career[0]?.employer ?? null) : null)
-  const currentTitle = currentEmployer
-    ? (career.find((c) => c.employer === currentEmployer)?.title ?? null)
-    : null
+  const supportedCurrentRole = currentEmployerFromCurrent
+    ? findSupportedCurrentRole(career, { employer: currentEmployerFromCurrent })
+    : findSupportedCurrentRole(career)
+  const currentEmployer = supportedCurrentRole?.employer ?? null
+  const currentTitle = supportedCurrentRole?.title ?? null
 
   const profile: ExtractedProfile = {
     name: fullName,

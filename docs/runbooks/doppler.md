@@ -16,7 +16,7 @@ The project has these configs, all under the `dev` environment except staging an
 
 - **`dev`** — root config. The team-shared dev secret values. Whenever a new shared dev secret is added (e.g. a new third-party API key for local development), it goes here. Real Supabase (cloud dev project) and real third-party keys. This is the config the CI/CD pipeline reads for the dev stage.
 - **`dev_personal`** — branch off `dev`. Each developer overrides values here for personal local development without affecting the team's `dev`. Talks to the **real** dev Supabase and real services. This is the config your repo binding should point to for `doppler run -- pnpm dev`.
-- **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty `ANTHROPIC_API_KEY`, `ASK_MATCHING_PIPELINE=legacy`) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
+- **`dev_local`** — branch off `dev`. Points Supabase at the **local** stack (`supabase start`, 127.0.0.1) and **dummies out** outbound services (`RESEND_API_KEY=e2e-dummy`, empty AI-provider keys) so runs are offline and deterministic. Used by `pnpm dev:local`, the hermetic E2E suite, and CI (via the `DOPPLER_TOKEN_LOCAL` service token). See [e2e-testing.md](e2e-testing.md).
 - **`dev_local_live`** — branch off `dev`. Local Supabase like `dev_local`, but **real** Anthropic/Voyage **and real Resend** (safe because the [non-prod email guard](#the-non-prod-email-guard) redirects everything not allowlisted to a sink) — so you can develop AI and email features against a wipeable local DB. Used by `pnpm dev:local:live`. See "Local dev against real services" below. Not read by CI or the pipeline.
 - **`stg`** — staging. Root config, **currently unused** — there is no staging environment on Railway (the pipeline goes dev → prod). Kept as a placeholder for a future staging tier.
 - **`prd`** — production. Root config. Syncs to the Railway `production` environment; read by the CD pipeline's promote job.
@@ -82,7 +82,7 @@ Anything that needs the application's env vars goes through `doppler run`:
 ```bash
 doppler run -- pnpm dev               # Next.js dev server
 doppler run -- pnpm build             # production build with prod-style env
-doppler run -- pnpm exec tsx scripts/seed-dev.ts   # ad-hoc scripts
+doppler run -- pnpm worker:outbox -- --once        # one local worker batch
 doppler run -- pnpm test:e2e          # E2E tests against the dev DB
 ```
 
@@ -96,14 +96,31 @@ The following keys are set in `dev_personal` (and inherited from `dev` where sha
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — anon key for client-side Supabase calls
 - `SUPABASE_SECRET_KEY` — service-role key for server-side Supabase calls (RLS-bypassing)
 - `ANTHROPIC_API_KEY` — for the AI-powered features
-- `VOYAGE_API_KEY` — for Voyage Ask matching embeddings and reranking when `ASK_MATCHING_PIPELINE=voyage_hybrid`
-- `ASK_MATCHING_PIPELINE` — Ask matching mode; defaults to `legacy` until the Voyage hybrid path is verified
-- `ASK_MATCHING_EXPLANATIONS` — Ask explanation mode; defaults to `templated`
+- `VOYAGE_API_KEY` — v2 Help embeddings/reranking and profile indexing
+- `ASK_MATCHING_PIPELINE` / `ASK_MATCHING_EXPLANATIONS` — temporary settings
+  used only by the still-unported People search implementation; v2 Help does
+  not branch on them
 - `RESEND_API_KEY` — for transactional email
 - `SENTRY_AUTH_TOKEN` — for source-map upload during build
+- `OUTBOX_BATCH_SIZE`, `OUTBOX_CONCURRENCY`, `OUTBOX_HANDLER_TIMEOUT_MS`, and
+  `OUTBOX_IDLE_DELAY_MS` — optional bounded tuning for the v2 Help worker; code
+  defaults are safe when these are absent
 - `NODE_ENV` / `APP_ENV` — see "The NODE_ENV Gotcha" and "APP_ENV" below
 
 If you add a new secret, add it to `dev` first (so the whole team gets it on next run) and only override in `dev_personal` if your value needs to differ from the team's.
+
+### Railway dev worker binding
+
+`BridgeCircle Worker` does not hold copied secret values. Its required Railway
+variables reference the matching `BridgeCircle` web-service variables, and the
+web service remains populated by the Doppler `dev` sync. Rotate or change a dev
+secret in Doppler; after the sync, redeploy both services so both processes read
+the new value. `COMMIT_SHA` is stamped independently on both services by CD.
+
+`EMAIL_DEV_REDIRECT` is intentionally optional. When it is absent, the shared
+mail guard uses `delivered@resend.dev`; `EMAIL_DEV_ALLOWLIST` remains the only
+way to let a maintainer's exact address receive dev mail. Do not add a broad
+domain or wildcard allowlist.
 
 ## The NODE_ENV Gotcha
 
@@ -134,7 +151,7 @@ Never branch on `NODE_ENV` for environment identity — the dev stage and produc
 
 There *is* now an email guard (this used to read "no allowlist yet"). It lives in [`app/src/notify/devGuard.ts`](../../app/src/notify/devGuard.ts) and runs inside `sendRenderedEmail` — the single Resend send choke point in `app/src/notify/resend.ts`.
 
-Whenever `APP_ENV !== 'prod'`, a recipient is delivered as-is only if it is a known-safe address (a `@resend.dev` sink, or one you put on the dev allowlist); **everything else is redirected to a single safe sink** (`delivered@resend.dev`) before the send, and the redirect is logged (`[notify] APP_ENV=… redirected …`). This exists because non-prod now runs against real Resend keys — the `dev_local_live` config and remote-dev both use a live key — so without the guard the dev seed's `@example.com` addresses would bounce (denting sender reputation) and any triggered flow would mail real people from a dev box.
+Whenever `APP_ENV !== 'prod'`, a recipient is delivered as-is only if it is a known-safe address (a `@resend.dev` sink, or one you put on the dev allowlist); **everything else is redirected to a single safe sink** (`delivered@resend.dev`) before the send, and a content-free redirect event is logged without either email address. This exists because non-prod now runs against real Resend keys — the `dev_local_live` config and remote-dev both use a live key — so without the guard the dev seed's `@example.com` addresses would bounce (denting sender reputation) and any triggered flow would mail real people from a dev box.
 
 Resolution order in non-prod:
 
@@ -184,7 +201,7 @@ Run it:
 
 ```bash
 pnpm db:start && pnpm db:reset   # fresh local DB
-pnpm dev:local:live              # app at :3001, local DB + real AI + guarded real email
+pnpm dev:local:live              # app at :3000, local DB + real AI + guarded real email
 ```
 
 **If the local Supabase keys drift** (a Supabase CLI upgrade can change the local stack's well-known keys): compare with `pnpm dlx supabase status` and re-set the two key overrides here, same as the `dev_local` procedure in [e2e-testing.md](e2e-testing.md).
@@ -248,6 +265,11 @@ CI and CD are wired (see [`.github/workflows/`](../../.github/workflows/) and [e
 
 Jobs run `doppler run -- <command>` exactly as you do locally; the token in the env authenticates non-interactively. The `DOPPLER_TOKEN_LOCAL` scoping is deliberate — the E2E runner can read local-stack values and dummies but **never** real dev/prod secrets. Rotate any token through the Doppler dashboard and update the matching GitHub secret in the same step.
 
+The dev deploy job uses that one `DOPPLER_TOKEN` to authenticate Railway, then
+deploys the web service and the private worker from the same checkout. It does
+not export Doppler secret values into workflow output or a generated `.env`
+file; worker runtime secrets resolve inside Railway through service references.
+
 ## Troubleshooting
 
 **"Doppler Error: You must specify a project"**
@@ -269,5 +291,5 @@ Either the explicit `NODE_ENV=development` secret was removed from your `dev_per
 ## Related Documentation
 
 - [Environments and dev/prod separation](../architecture/environments.md) — which Supabase project each Doppler config talks to and the rules around prod safety.
-- [Dev seeding](seed-dev.md) — the seed script reads its env vars via `doppler run` too.
+- [Development seeding](seed-dev.md) — the local v2 SQL seed is applied by `pnpm db:reset` and does not need remote secrets.
 - [E2E testing](e2e-testing.md) — Playwright runs the dev server through Doppler.

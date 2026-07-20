@@ -13,13 +13,14 @@ to production flow-by-flow (ADR 0013 Phase E, design-first). Civic Editorial
 similar name) describes live production only and is archived when the
 redesign lands.
 
-The fork carries the applied O1–O4 and O6–O9 overrides plus E1–E3 and E5–E7:
-Pretendard, the green Give lead action, section identity via wash heroes and
+The fork carries the applied O1–O4 and O6–O9 overrides plus E2–E3 and E5–E7:
+Pretendard, the green Give composition, section identity via wash heroes and
 navy covers (the saturated bands were retired 2026-07-12), the larger type
 ceiling, softer radii, refined hairlines, gradient primary finish, elevated
-cards, the avatar palette, the desktop shell, the neutral-pending / template-
-surface / closing-soon / give-tint tokens, and the full template + specimen
-set. O5 was rejected; E4 (CircleMark) stays proposed. **v1 ships light-only**
+cards, the avatar palette, the desktop shell, the template-surface /
+closing-soon / give-tint tokens, and the full template + specimen set. E1's
+redundant pending aliases were retired 2026-07-13 in favor of the neutral base
+roles already used by the templates. O5 was rejected; E4 (CircleMark) stays proposed. **v1 ships light-only**
 (dark mode parked). `project/uploads/OVERRIDES.md` is authoritative.
 
 ## Layout

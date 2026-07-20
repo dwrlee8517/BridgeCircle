@@ -27,19 +27,35 @@ export function isAcceptableResult(prev: ExtractedProfile, next: ExtractedProfil
     return { ok: false, reason: 'name_mismatch' }
   }
 
-  if (prev.currentTitle && prev.currentTitle.trim().length > 0 && !next.currentTitle) {
-    return { ok: false, reason: 'current_title_dropped' }
-  }
-
-  if (prev.currentEmployer && prev.currentEmployer.trim().length > 0 && !next.currentEmployer) {
-    return { ok: false, reason: 'current_employer_dropped' }
-  }
-
   if (!Array.isArray(next.careerHistory)) {
     return { ok: false, reason: 'career_array_invalid' }
   }
   if (!Array.isArray(next.educationHistory)) {
     return { ok: false, reason: 'education_array_invalid' }
+  }
+
+  const providerSupportsNoCurrentRole =
+    next.currentEmployer === null &&
+    next.currentTitle === null &&
+    next.careerHistory.length > 0 &&
+    next.careerHistory.every((entry) => entry.endDate !== null)
+
+  if (
+    prev.currentTitle &&
+    prev.currentTitle.trim().length > 0 &&
+    !next.currentTitle &&
+    !providerSupportsNoCurrentRole
+  ) {
+    return { ok: false, reason: 'current_title_dropped' }
+  }
+
+  if (
+    prev.currentEmployer &&
+    prev.currentEmployer.trim().length > 0 &&
+    !next.currentEmployer &&
+    !providerSupportsNoCurrentRole
+  ) {
+    return { ok: false, reason: 'current_employer_dropped' }
   }
 
   if (looksLikeTotalReplacement(prev, next)) {

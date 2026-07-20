@@ -1,4 +1,4 @@
-<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="Home · Help · People · Messages · School — icons · topbar (title + actions, no ⌘K) · 1320 shell [E3]" viewport-width="1320" -->
+<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="Home · Help · People · Messages · School — icons · topbar (title + actions, no ⌘K) · full-viewport shell [E3]" viewport-width="1512" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased}
-  .shell{display:flex;min-height:100vh;max-width:var(--container-shell);margin:0 auto}
+  .shell{display:flex;min-height:100vh;width:100%}
   /* sidebar */
   .side{width:var(--sidebar-width);flex:none;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px}
   .wordmark{display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em}
@@ -92,7 +92,7 @@
               <span style="flex:1;min-width:0"><span class="t">David Okafor &rsquo;98</span><span class="s">My daughter&rsquo;s thinking about design school. Portfolio advice?</span></span>
               <button class="gbtn">Offer to help</button>
             </div>
-            <p class="note">IA (locked 2026-07-05): Home = dashboard · Help = ask/give toggle in-page · People = directory · Messages = all member communication · School = events + announcements. Nav = icons (reference), item radius --radius-box, hover --hover-tint (≈grey-100 on white). Shell max 1320, fluid below.</p>
+            <p class="note">IA (locked 2026-07-05): Home = dashboard · Help = ask/give toggle in-page · People = directory · Messages = all member communication · School = events + announcements. Nav = icons (reference), item radius --radius-box, hover --hover-tint (≈grey-100 on white). The shell fills the viewport; content retains measured columns.</p>
           </div>
           <div class="card">
             <p class="label">Your open asks</p>

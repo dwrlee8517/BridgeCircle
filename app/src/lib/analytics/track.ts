@@ -11,8 +11,8 @@ import 'server-only'
  * facts only. The intent is funnel/usage analytics, not behavioral tracking.
  */
 export type AnalyticsEvent =
-  | { type: 'onboarding_step_completed'; userId: string; step: 1 | 2 | 3 | 4 | 5 }
-  | { type: 'onboarding_skipped'; userId: string; step: 2 | 3 | 4 | 5 }
+  | { type: 'onboarding_step_completed'; userId: string; step: 1 | 2 | 3 | 4 | 5 | 6 | 7 }
+  | { type: 'onboarding_skipped'; userId: string; step: 2 | 3 | 4 | 5 | 6 | 7 }
   | { type: 'onboarding_finished'; userId: string; skippedFinal: boolean }
 
 export function track(event: AnalyticsEvent): void {

@@ -29,7 +29,9 @@ Both live in `us-west-1` on Postgres 17. Confirm at any time via `list_projects`
 - Connected to **Railway** via env vars in Railway's Variables tab.
 - Google OAuth callback URL registered with Google Cloud.
 - Treated as untouchable from day-to-day development.
-- Has the **Supabase + GitHub branching integration** enabled — this is what makes the Pro plan load-bearing.
+- The former Supabase GitHub branching integration was disconnected on
+  2026-07-17. Production migration ownership is transferring to the protected
+  scripted pipeline; do not reconnect the integration.
 
 ### `bridgecircle-dev` (development)
 
@@ -95,7 +97,20 @@ DMARC is currently in monitor-only mode (`p=none`) — failures are *not* reject
 
 - [ ] Add `bridgecircle.org` under **Railway → service → Settings → Networking → Custom Domain**. Without this, Railway responds 404 to traffic arriving at the hostname.
 - [ ] Set `NEXT_PUBLIC_APP_URL=https://bridgecircle.org` in Railway Variables. The code in `src/lib/auth/app-url.ts` reads this env var to build absolute URLs in outbound emails (e.g. the "View on BridgeCircle" button in announcement emails) and OAuth `redirectTo` URLs. If it still points at `*.up.railway.app`, members see Railway URLs in their inbox.
-- [ ] In **Supabase Dashboard → Authentication → URL Configuration**: set **Site URL** to `https://bridgecircle.org` and add `https://bridgecircle.org/auth/callback` to **Additional Redirect URLs**. Supabase rejects any post-auth redirect not in this allowlist; without it, sign-in succeeds but the redirect back to the app fails.
+- [ ] In **Supabase Dashboard → Authentication → URL Configuration**: set
+  **Site URL** to `https://bridgecircle.org` and add both
+  `https://bridgecircle.org/auth/callback` and
+  `https://bridgecircle.org/auth/confirm` to **Additional Redirect URLs**.
+  Supabase rejects any post-auth redirect not in this allowlist; without it,
+  sign-in or password recovery can verify successfully but fail to return to
+  the app.
+- [ ] In **Supabase Dashboard → Authentication → Email Templates → Reset
+  password**, copy the committed
+  `app/supabase/templates/recovery.html` template. It deliberately sends the
+  one-use `TokenHash` to `/auth/confirm` so the Next.js server can verify the
+  recovery OTP and persist secure session cookies. The default Supabase
+  recovery template returns session tokens in a URL fragment and is not
+  compatible with the server-rendered recovery route.
 
 **What you do NOT need to do** for the custom domain: add `bridgecircle.org` to the Google Cloud OAuth client's authorized redirect URIs. Google only redirects to the Supabase callback (`<supabase-ref>.supabase.co/auth/v1/callback`), never directly to the app — so the Google client only needs the Supabase callback URLs (one per project today, plus the custom-domain callback once the checklist below is executed).
 
@@ -136,22 +151,63 @@ Source-of-truth note: exact DKIM public key, Resend DNS values, and Railway veri
 | `RESEND_API_KEY` | Resend API key | `re_…` |
 | `RESEND_FROM` | Sender address used by every Resend send. Set 2026-04-29 to `BridgeCircle <noreply@bridgecircle.org>`. Defaults to `BridgeCircle <invites@bridgecircle.org>` if unset. | `BridgeCircle <noreply@bridgecircle.org>` |
 | `ANTHROPIC_API_KEY` | Claude Haiku key for resume extraction + current NL search extraction/rerank | `sk-ant-…` |
-| `VOYAGE_API_KEY` | Voyage key for Ask matching embeddings and reranking when `ASK_MATCHING_PIPELINE=voyage_hybrid` | `pa-…` |
-| `ASK_MATCHING_PIPELINE` | Ask matching mode. Keep `legacy` until migration, backfill, and E2E verification pass; set `voyage_hybrid` for the new path. | `legacy` |
-| `ASK_MATCHING_EXPLANATIONS` | Ask explanation mode. Use `templated` by default; `haiku_polish` only polishes final matches. | `templated` |
+| `VOYAGE_API_KEY` | Voyage key for v2 Help retrieval/reranking and profile indexing | `pa-…` |
+| `ASK_MATCHING_PIPELINE` | Temporary unported-People search switch; not used by v2 Help | `legacy` |
+| `ASK_MATCHING_EXPLANATIONS` | Temporary unported-People explanation switch; not used by v2 Help | `templated` |
 | `NEXT_PUBLIC_APP_URL` | Public origin used for absolute URLs in emails (e.g. `${origin}/events/${id}`). Should match the prod domain. | `https://bridgecircle.org` |
 | `SENTRY_AUTH_TOKEN` | Build-time only — Sentry source map upload during `next build`. | `sntrys_…` |
+| `OUTBOX_BATCH_SIZE` | Optional Help worker claim size; defaults to `20`, bounded `1–100`. | `20` |
+| `OUTBOX_CONCURRENCY` | Optional Help worker provider/handler concurrency; defaults to `4`, bounded `1–10`. | `4` |
+| `OUTBOX_HANDLER_TIMEOUT_MS` | Optional per-job timeout; defaults to 30 seconds, bounded 1–120 seconds. | `30000` |
+| `OUTBOX_IDLE_DELAY_MS` | Optional empty-queue/backoff delay; defaults to one second, bounded 0.1–60 seconds. | `1000` |
 
 Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points the Supabase keys at `bridgecircle-dev` and inherits the shared Resend/Anthropic/Voyage/Sentry keys from `dev` (they're cheap and activity is environment-tagged provider-side); `dev_local` instead points at the local Docker stack and dummies the outbound services. **Don't set `RESEND_FROM` locally** — leave the default so dev emails come from `invites@`. Note real dev sends can't reach real inboxes anyway: outside prod the email guard (`app/src/notify/devGuard.ts`) redirects to a sink unless the address is on `EMAIL_DEV_ALLOWLIST` (see [doppler.md](../runbooks/doppler.md)).
+
+### Outbox worker topology
+
+The Railway `dev` environment has one private, non-HTTP service named
+`BridgeCircle Worker` (`f39ee7fd-1ecc-4071-9794-f0c399b216b2`). It runs the
+same `app/` source and commit as the web service with `pnpm worker:outbox`, has
+one `us-west2` replica, no public domain or HTTP health check, retries a failed
+process at most three times, and receives 30 seconds to drain after `SIGTERM`.
+[`app/railway.worker.json`](../../app/railway.worker.json) is the checked-in
+runtime contract.
+
+The worker's secret-bearing variables are Railway reference variables to the
+matching `BridgeCircle` web service, whose values remain managed by the
+Doppler `dev` sync. This keeps one dev source of truth without copying secret
+values. CD stamps `COMMIT_SHA` on both services, constructs a clean app-root
+archive with `railway.worker.json` as its deployment config, and deploys web
+then worker from the same checkout. Production has no worker service yet; add
+and verify it only during the separately approved production-v2 cutover.
+
+The worker requires `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SECRET_KEY`,
+`NEXT_PUBLIC_APP_URL`, `APP_ENV`, `RESEND_API_KEY`, `RESEND_FROM`,
+`EMAIL_DEV_ALLOWLIST`, `ANTHROPIC_API_KEY`, and `VOYAGE_API_KEY`. The four
+`OUTBOX_*` settings above are optional bounded tuning controls, not secrets.
+When `EMAIL_DEV_REDIRECT` is absent, non-production mail safely defaults to
+`delivered@resend.dev`; an exact `EMAIL_DEV_ALLOWLIST` entry may opt a
+maintainer's own address into delivery. Structured logs and Sentry contain
+result codes and durable IDs only—never questions, notes, profile text,
+provider output, or email addresses.
+
+For local operational checks, run the same entry point with `--once` for one
+claim batch plus one maintenance pass, or `--drain` to process supported jobs
+until none remain. Both modes still require the correct Doppler/local Supabase
+environment; they are not remote deployment commands.
 
 ### Third-party services
 
 **Supabase**
 - Single org: `bridgecircle` (id `wvwbvvdxogbeipqrzbqs`) on the **Pro plan** (~$25/mo base + per-project compute + usage). The plan is org-level — both projects below inherit it.
-- `bridgecircle` (production, ref `edumxwzilfgvamzarwvo`) — holds real alumni data. The Pro plan is required here for the GitHub branching integration that runs migrations on PR preview branches.
+- `bridgecircle` (production, ref `edumxwzilfgvamzarwvo`) — will hold real
+  alumni data. The former GitHub integration is disconnected; the Pro plan now
+  supports the production service tier rather than PR preview branches.
 - `bridgecircle-dev` (development, ref `ojpvahiuafdcynbdbmri`) — throwaway dev data. Sits under the same Pro org (so it's no longer on Free as the original ADR 0005 assumed — see [decision 0005](../decisions/0005-hybrid-supabase-branching.md) "Current state" note). Pays second-project compute on the Pro plan; still cheaper and simpler than a persistent dev branch on the prod project.
 - Both have Google OAuth provider enabled (Auth → Providers → Google), pointing at the same Google Cloud OAuth client with two registered redirect URIs (one per project).
-- Prod has the **GitHub integration** turned on (Settings → Integrations → GitHub) with the working directory set to `app`. This is what triggers preview branches on PR + auto-deploy on merge.
+- Prod's **GitHub integration is disconnected**. GitHub Actions is the reviewed
+  successor, with an exact-SHA protected production gate and database-before-
+  code ordering.
 
 **Resend**
 - One workspace for both dev and prod.
@@ -181,10 +237,9 @@ Local dev env comes from **Doppler**, not `.env.local`: `dev_personal` points th
 **Voyage**
 - Separate API key from Anthropic. Anthropic recommends Voyage for embeddings, but
   Voyage calls authenticate against Voyage with `VOYAGE_API_KEY`.
-- Used by `ASK_MATCHING_PIPELINE=voyage_hybrid` for `voyage-4` embeddings and
-  `rerank-2.5-lite`.
-- Keep the production flag at `legacy` until the additive migration, profile
-  embedding backfill, and Ask/People verification pass.
+- Used by the bounded v2 Help provider adapter for embeddings and reranking.
+- The older `ASK_MATCHING_PIPELINE` switch remains only until the People search
+  domain is ported; do not route v2 Help through it.
 
 ### GitHub repository
 
@@ -229,7 +284,7 @@ For the full prod inventory + descriptions, see **Manual Production Configuratio
 | `VOYAGE_API_KEY` | Voyage key | Voyage key |
 | `ASK_MATCHING_PIPELINE` | `legacy` or `voyage_hybrid` | `legacy` until verified |
 | `ASK_MATCHING_EXPLANATIONS` | `templated` or `haiku_polish` | `templated` |
-| `NEXT_PUBLIC_APP_URL` | `http://localhost:3001` | prod origin (`https://bridgecircle.org`) |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | prod origin (`https://bridgecircle.org`) |
 | `SENTRY_AUTH_TOKEN` | (build-time only, optional locally) | set by Sentry wizard |
 
 `.env.local` is in `.gitignore` and must never be committed. Railway's Variables tab is the only place production secrets live in human-readable form — keep a backup copy in your password manager.
@@ -257,7 +312,7 @@ pnpm dev:local:live              # daily driver: local DB, real AI, guarded emai
 # or: pnpm dev:local             # the deterministic E2E config (services dummied)
 ```
 
-Open http://localhost:3001. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md) "Which config, when". With the local configs, writes go to your throwaway Docker stack; with `doppler run -- pnpm dev` they go to the shared `bridgecircle-dev` cloud project.
+Open http://localhost:3000. Env comes from Doppler (not `.env.local`) — see [`../runbooks/doppler.md`](../runbooks/doppler.md) "Which config, when". With the local configs, writes go to your throwaway Docker stack; with `doppler run -- pnpm dev` they go to the shared `bridgecircle-dev` cloud project.
 
 ### Useful commands
 
@@ -329,32 +384,34 @@ Schema is managed by **migration files** in `app/supabase/migrations/`. Forward-
 
 Workflow when adding a column or table:
 
-1. Write a migration:
+1. Create a migration with the repository-pinned CLI:
    ```bash
-   pnpm dlx supabase migration new <descriptive_name>
+   pnpm exec supabase migration new <descriptive_name>
    ```
 2. Edit the generated SQL file under `supabase/migrations/`.
-3. Apply to dev:
+3. Rebuild and validate locally:
    ```bash
-   pnpm dlx supabase db push   # bridgecircle-dev (linked locally)
+   pnpm db:reset
+   pnpm db:test
+   pnpm exec supabase db lint --local --level warning --fail-on warning
+   pnpm exec supabase db diff --local --schema public,api,private
    ```
-4. Regenerate typed schema and commit it:
+4. Regenerate typed schema twice and confirm byte-identical output:
    ```bash
-   pnpm db:types               # writes src/db/database.types.ts
+   pnpm db:types:local          # writes src/db/database.types.ts
    ```
    Skipping this step works locally until your next `pnpm build` — at which point TypeScript fails on the missing tables/columns.
 5. Update the app code that depends on the new schema.
-6. Test locally against the now-migrated dev database.
+6. Test locally against the rebuilt database.
 7. Commit migration + regenerated types + code together to a feature branch.
 8. Push the branch and open a PR. Require the always-report `CI gate` and
    `E2E gate`; code PRs cannot pass them unless lint/test, the migration-aware
    build, and hermetic E2E succeed.
-9. During the release freeze, merge only an explicitly approved legacy
-   migration, then dispatch the protected production migration workflow with
-   its exact version and merge SHA. Do not deploy application code.
-10. After the database-v2 cutover, the normal `cd.yml` promotion path replaces
-    the temporary workflow and applies migrations before deploying that same
-    tested SHA.
+9. During the release freeze, do not add another legacy production migration;
+   finish PR C instead.
+10. After the database-v2 cutover, `cd.yml` validates, dry-runs, and pushes to
+    development, runs hosted integration, waits for production approval, then
+    validates, dry-runs, and pushes production before deploying that same SHA.
 
 **Do not** run `supabase db push` against production from a developer-linked
 checkout. Only the protected workflow—and later `cd.yml`—owns production.
@@ -515,7 +572,7 @@ These are all good upgrades to make incrementally. None are urgent for launch.
 | Which database does `dev.bridgecircle.org` write to? | `bridgecircle-dev` (Railway `dev` stage, via Doppler `dev`) |
 | Which database does the live site write to? | `bridgecircle` (Railway `production`, via Doppler `prd`) |
 | What triggers a production deploy? | Nothing during the release freeze; final `cd.yml` promotion requires a protected production approval |
-| What triggers a production migration? | An explicitly approved protected workflow run; after v2, the protected `cd.yml` promotion |
+| What triggers a production migration? | Nothing while PR C is being prepared; after v2, the protected `cd.yml` promotion |
 | Where are env vars set for prod? | Doppler `prd` config (synced to Railway `production`) — edit in Doppler, not Railway |
 | Where are env vars set for local dev? | Doppler `dev_personal` / `dev_local` — see [doppler.md](../runbooks/doppler.md) |
 | What's the source of truth for schema? | `supabase/migrations/` files in the repo |

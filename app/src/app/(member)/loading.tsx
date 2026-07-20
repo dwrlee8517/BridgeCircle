@@ -1,104 +1,31 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-/**
- * Loading fallback for member route navigation. Mirrors the merged home/ask
- * surface (ask-home.tsx): ink editorial band, overlapping command bar, asks
- * rail, examples + helper carousel, how-asking-works. Keep in sync with
- * ask-home.tsx so the cross-fade is structural, not a jump.
- *
- * Routes that don't share this shape (Ask results, People, Inbox, Thread)
- * define their own loading.tsx so navigation lands on the right skeleton.
- */
+/** Home owns the member-root loading boundary; child domains provide theirs. */
 export default function MemberLoading() {
   return (
-    <div className="density-cozy min-h-screen bg-background">
-      <section className="bg-surface-editorial">
-        <div className="mx-auto max-w-5xl px-4 pt-8 pb-14 sm:px-8 lg:pt-10">
-          <Skeleton className="h-3 w-56 bg-surface-editorial-muted/20" />
-          <Skeleton className="mt-4 h-8 w-3/4 max-w-xl bg-surface-editorial-muted/20" />
-          <Skeleton className="mt-3 h-4 w-2/3 max-w-lg bg-surface-editorial-muted/20" />
+    <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 sm:py-8 xl:px-8">
+      <div className="mx-auto grid w-full max-w-[1020px] gap-5" aria-hidden>
+        <div>
+          <Skeleton className="h-8 w-72 max-w-[72%] rounded-[9px]" />
+          <Skeleton className="mt-2 h-3.5 w-[420px] max-w-[82%] rounded-full" />
         </div>
-      </section>
 
-      <section className="relative z-10 mx-auto -mt-8 max-w-5xl px-4 sm:px-8">
-        <div className="bc-command-surface">
-          <div className="flex items-center gap-3 px-4 py-3.5">
-            <Skeleton className="size-11 shrink-0 rounded-md" />
-            <Skeleton className="h-6 flex-1" />
-            <Skeleton className="h-11 w-32 rounded-md" />
-          </div>
-          <div className="border-border/70 border-t px-4 py-2">
-            <Skeleton className="h-3 w-72 max-w-full" />
-          </div>
-        </div>
-      </section>
+        <section className="grid gap-2">
+          <Skeleton className="h-3.5 w-44 rounded-full" />
+          <Skeleton className="h-[184px] rounded-[var(--radius-card-xl)]" />
+        </section>
 
-      <section className="mx-auto max-w-5xl px-4 pt-7 sm:px-8">
-        <div className="flex h-fit w-full flex-col gap-3.5 rounded-md border border-border bg-card px-5 py-4.5 shadow-card">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-3 w-28" />
-            <Skeleton className="h-3 w-12" />
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,1fr)]">
+          <div className="grid gap-4">
+            <Skeleton className="h-[126px] rounded-[var(--radius-card-xl)]" />
+            <Skeleton className="h-[156px] rounded-[var(--radius-card-xl)]" />
+            <Skeleton className="h-[172px] rounded-[var(--radius-card-xl)]" />
           </div>
-          {['ask-a', 'ask-b'].map((id) => (
-            <div key={id} className="flex items-start gap-2.5">
-              <Skeleton className="mt-1.5 size-1.5 shrink-0 rounded-full" />
-              <div className="min-w-0 flex-1 space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-3 w-1/2" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-5xl px-4 py-7 sm:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-          <div>
-            <Skeleton className="h-3 w-40" />
-            <div className="mt-3 space-y-2.5">
-              {['ex-a', 'ex-b', 'ex-c'].map((id) => (
-                <div
-                  key={id}
-                  className="flex items-start gap-3 rounded-md border border-border bg-card p-3.5 shadow-card"
-                >
-                  <Skeleton className="mt-0.5 size-4 shrink-0 rounded-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Skeleton className="h-3 w-44" />
-            <div className="mt-3 rounded-md border border-border bg-card shadow-card">
-              <div className="flex items-center gap-2 p-3">
-                <Skeleton className="size-7 shrink-0 rounded-md" />
-                <div className="min-w-0 flex-1 space-y-2 px-1">
-                  <div className="flex items-center gap-2.5">
-                    <Skeleton className="size-10 shrink-0 rounded-md" />
-                    <div className="min-w-0 flex-1 space-y-1.5">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-3/4" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-3 w-11/12" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-                <Skeleton className="size-7 shrink-0 rounded-md" />
-              </div>
-              <div className="flex items-center justify-center gap-1.5 pb-2.5">
-                {['d-a', 'd-b', 'd-c', 'd-d'].map((id) => (
-                  <Skeleton key={id} className="size-1.5 rounded-full" />
-                ))}
-              </div>
-              <div className="flex items-center justify-between border-border/70 border-t px-3.5 py-2">
-                <Skeleton className="h-3 w-36" />
-                <Skeleton className="h-3 w-16" />
-              </div>
-            </div>
+          <div className="grid gap-4">
+            <Skeleton className="h-[230px] rounded-[var(--radius-card-xl)]" />
           </div>
         </div>
-      </section>
+      </div>
     </div>
   )
 }

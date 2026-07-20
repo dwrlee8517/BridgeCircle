@@ -1,5 +1,6 @@
 import 'server-only'
 import { redirect } from 'next/navigation'
+import { getMemberContext } from '@/db/repositories/member-context'
 import { createClient } from '@/db/server'
 
 export type Session = {
@@ -38,17 +39,13 @@ export async function requireAdmin(orgId?: string): Promise<Session> {
   const session = await requireSession()
   const supabase = await createClient()
 
-  const query = supabase
-    .from('admin_role_assignments')
-    .select('organization_id, role')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-
-  if (orgId) query.eq('organization_id', orgId)
-
-  const { data, error } = await query.limit(1)
-  if (error || !data || data.length === 0) {
-    redirect('/')
-  }
+  const context = await getMemberContext(supabase)
+  const isAdmin = context.memberships.some(
+    (membership) =>
+      membership.status === 'active' &&
+      (!orgId || membership.organization.id === orgId) &&
+      membership.roles.some((role) => role === 'super_admin' || role === 'admin'),
+  )
+  if (!isAdmin) redirect('/')
   return session
 }

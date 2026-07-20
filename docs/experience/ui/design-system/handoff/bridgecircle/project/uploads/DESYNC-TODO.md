@@ -5,7 +5,8 @@
 > whose hero consumed the removed green band, and spacing-radius's stale card
 > body; help-heroes' get hero also moved to the v3 search-first flow); §2 all
 > ten specimens authored under `preview/` group "Patterns"; §3 tokens minted /
-> changed / removed as listed (E1 applied); §3b brand card rebuilt; §4 ledger
+> changed / removed as listed (E1 was applied in that pass, then retired
+> 2026-07-13); §3b brand card rebuilt; §4 ledger
 > updated (see OVERRIDES.md). **Second pass (same day): E7 MINTED**
 > (--give-tint / --give-tint-weak, Richard: "mint the pair"), dark mode
 > PARKED (v1 light-only), expiry copy = both-by-context, "Can help with"
@@ -16,6 +17,13 @@
 > blue-tint drift list in OVERRIDES pattern guidance.
 > Also this run: the Codex `screens/**` slice was removed (Richard,
 > 2026-07-12) as redundant with `templates/**`.
+>
+> **FOLLOW-UP 2026-07-13 — TEMPLATES WIN:** E1's pending aliases were retired
+> because the stabilized templates use the identical neutral base roles
+> directly and never consumed the aliases. O2/O8 were amended to preserve the
+> current GiveOffer composition: scoped green AI/draft/completion cues, with
+> Send offer still the only lead CTA. This supersedes the E1-applied items in
+> the dated work log below; those lines remain as history of the July 12 pass.
 
 2026-07-12 · Audit of `templates/*` (35 files) vs DS sources, with verdicts applied.
 Rules used: unused-but-plausibly-needed → **keep**; unused + superseded by a decision →
@@ -75,8 +83,10 @@ Log each as a specimen + OVERRIDES extension; templates are the source of truth:
 - `--closing-soon-text: #b26f00` / `--closing-soon-tint` — the "Closes in 3d" pill.
   NEW role, does NOT reopen O5: `--warning` stays TDS orange; this is the calm
   expiry hue the templates chose (calm-not-urgent). Log as an extension.
-- **E1 promoted**: `--pending-text` = quiet grey (text-secondary on subtle tint) —
-  templates settled "Waiting" as grey-quiet everywhere; mint the pair, flip E1 to applied.
+- ~~**E1 promoted**: `--pending-text` = quiet grey (text-secondary on subtle tint) —
+  templates settled "Waiting" as grey-quiet everywhere; mint the pair, flip E1 to applied.~~
+  **Superseded 2026-07-13:** the visual treatment remains, but the redundant aliases
+  were retired because templates use the base neutral roles directly.
 
 **Change (templates win):**
 - `--border-subtle: #edf0f2` → **`#eef1f5`** — templates used #eef1f5 as the hairline
@@ -119,7 +129,8 @@ The Brand card is half-dead — rebuild it around what the product actually uses
 
 ## 4 · Ledger updates
 
-- **E1** neutral-pending → applied (values above)
+- ~~**E1** neutral-pending → applied (values above)~~ — superseded 2026-07-13;
+  the aliases are retired and the neutral base roles remain canonical.
 - **E4** CircleMark → v1 decision: "In your circle" chips carry circle state; the mark
   stays proposed for a future brand pass (wordmark already draws the two-circle motif)
 - **O3** amend scope (onboarding bookends); **O8** CTA rename

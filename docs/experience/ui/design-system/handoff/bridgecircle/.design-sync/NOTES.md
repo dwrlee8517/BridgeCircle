@@ -150,7 +150,8 @@ stale by the 07-12 changes. Fixed: **SKILL.md** (retired the band-anatomy
 applied block; E1 applied not proposed; in-row give pill → `--give-tint-weak`;
 `--border-subtle #eef1f5`; dark parked), **uploads/DESIGN.md** (batch-3 line:
 bands→washes, E1/E5/E6/E7, dark parked, "Can help with"; also fixed a
-pre-existing "1140px shell" → 1320), the repo-facing **README.md** (applied-
+	pre-existing historical "1140px shell" → 1320 correction, superseded by the
+	2026-07-14 full-viewport shell rule), the repo-facing **README.md** (applied-
 overrides paragraph: E1–E3+E5–E7, washes not bands, v1 light-only), and a
 dated snapshot-note on **ADR 0013 Appendix C** pointing at OVERRIDES.md for
 live status (the appendix is a 2026-07-04 snapshot; not retro-edited).

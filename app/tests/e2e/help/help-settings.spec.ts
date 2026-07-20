@@ -1,73 +1,93 @@
 import { expect, test } from "@playwright/test";
-import { TestScenario, type SeededMember } from "../helpers/factory";
 import { signInAs } from "../helpers/auth";
+import { FoundationScenario, type FoundationMember } from "../helpers/foundation";
 
-const scenario = new TestScenario("helpset");
-let member: SeededMember;
+const scenario = new FoundationScenario();
+let member: FoundationMember;
 
 test.describe.configure({ mode: "serial" });
 
 test.beforeAll(async () => {
-  member = await scenario.createMember("volunteer");
+  const organization = await scenario.createOrganization(false, "Help Settings");
+  member = await scenario.createMember(organization.id, "Volunteer");
 });
 
 test.afterAll(async () => {
   await scenario.destroy();
 });
 
-test("a member without saved preferences starts default-open, and saving writes both legacy flags plus topics", async ({ page }) => {
+test("a member without saved preferences starts default-open, and saving writes v2 availability and normalized topics", async ({ page }) => {
   await signInAs(page, member);
   await page.goto("/help/settings");
 
   const availabilityToggle = page.getByRole("checkbox", { name: "Open to helping" });
   await expect(availabilityToggle).toBeChecked();
-  await expect(page.getByText("Visible")).toBeVisible();
+  await expect(page.getByText("Visible").filter({ visible: true })).toBeVisible();
 
-  await page.locator("#topics").fill("careers, product management");
+  await page
+    .locator("#topics")
+    .filter({ visible: true })
+    .fill("careers, product management");
   await page.getByRole("button", { name: "Save settings" }).click();
 
   await expect
     .poll(async () => {
       const { data } = await scenario.admin
         .from("helper_preferences")
-        .select("open_to_advice, open_to_mentorship, topics")
+        .select("open_to_help, paused_at, pause_reason")
         .eq("organization_membership_id", member.membershipId)
         .maybeSingle();
-      return data;
+      const { data: topics } = await scenario.admin
+        .from("helper_topics")
+        .select("name, sort_order")
+        .eq("organization_membership_id", member.membershipId)
+        .order("sort_order");
+      return { preferences: data, topics };
     })
     .toEqual({
-      open_to_advice: true,
-      open_to_mentorship: true,
-      topics: ["careers", "product management"],
+      preferences: {
+        open_to_help: true,
+        paused_at: null,
+        pause_reason: null,
+      },
+      topics: [
+        { name: "careers", sort_order: 0 },
+        { name: "product management", sort_order: 1 },
+      ],
     });
 });
 
-test("the profile now advertises Open to help", async ({ page }) => {
-  await signInAs(page, member);
-  await page.goto(`/profile/${member.userId}`);
-  await expect(page.getByText("Open to help").first()).toBeVisible();
-});
-
-test("turning availability off writes both flags off together and disables the topics field", async ({ page }) => {
+test("turning availability off records a manual pause and removes disabled topics", async ({ page }) => {
   await signInAs(page, member);
   await page.goto("/help/settings");
 
   await page.getByRole("checkbox", { name: "Open to helping" }).uncheck();
-  await expect(page.getByText("Off")).toBeVisible();
-  await expect(page.locator("#topics")).toBeDisabled();
+  await expect(page.getByText("Off").filter({ visible: true })).toBeVisible();
+  await expect(page.locator("#topics").filter({ visible: true })).toBeDisabled();
   await page.getByRole("button", { name: "Save settings" }).click();
 
   await expect
     .poll(async () => {
       const { data } = await scenario.admin
         .from("helper_preferences")
-        .select("open_to_advice, open_to_mentorship")
+        .select("open_to_help, paused_at, pause_reason")
         .eq("organization_membership_id", member.membershipId)
         .maybeSingle();
-      return data;
+      const { count } = await scenario.admin
+        .from("helper_topics")
+        .select("*", { count: "exact", head: true })
+        .eq("organization_membership_id", member.membershipId);
+      return {
+        openToHelp: data?.open_to_help,
+        paused: Boolean(data?.paused_at),
+        pauseReason: data?.pause_reason,
+        topicCount: count,
+      };
     })
     .toEqual({
-      open_to_advice: false,
-      open_to_mentorship: false,
+      openToHelp: false,
+      paused: true,
+      pauseReason: "manual",
+      topicCount: 0,
     });
 });

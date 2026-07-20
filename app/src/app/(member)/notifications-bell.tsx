@@ -1,7 +1,19 @@
 'use client'
 
 import { formatDistanceToNow } from 'date-fns'
-import { Bell, CalendarX, Handshake, Megaphone, MessageSquare, UserPlus } from 'lucide-react'
+import {
+  Bell,
+  CalendarCheck,
+  CalendarClock,
+  CalendarSync,
+  CalendarX,
+  CircleHelp,
+  Handshake,
+  Megaphone,
+  MessageSquare,
+  UserPlus,
+  UserRoundCheck,
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState, useTransition } from 'react'
@@ -9,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { createClient } from '@/db/client'
 import {
+  isNotificationType,
   type NotificationRow,
   type NotificationType,
   notificationLabel,
@@ -60,19 +73,21 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${viewerId}`,
+          filter: `recipient_user_id=eq.${viewerId}`,
         },
         (payload) => {
           const r = payload.new as Record<string, unknown>
+          if (!isNotificationType(r.type) || typeof r.id !== 'number') return
           const row: NotificationRow = {
-            id: r.id as string,
-            type: r.type as NotificationType,
+            id: r.id,
+            type: r.type,
             targetType: (r.target_type as string | null) ?? null,
             targetId: (r.target_id as string | null) ?? null,
             organizationId: (r.organization_id as string | null) ?? null,
+            actorUserId: (r.actor_user_id as string | null) ?? null,
             readAt: (r.read_at as string | null) ?? null,
             createdAt: r.created_at as string,
-            payload: (r.payload as Record<string, unknown> | null) ?? null,
+            payload: (r.payload as Record<string, unknown> | null) ?? {},
           }
           setItems((prev) => {
             // Dedup by id in case the realtime event races with a server-
@@ -104,7 +119,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
       )
       setUnread((u) => Math.max(0, u - 1))
       const fd = new FormData()
-      fd.set('notificationId', row.id)
+      fd.set('notificationId', String(row.id))
       startTransition(() => {
         markNotificationReadAction(fd).catch(() => {
           // If the mark-read fails the next page-load refresh will reconcile.
@@ -124,53 +139,55 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
     })
   }
 
-  const badgeText = unread > 9 ? '9+' : String(unread)
-
   return (
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
-            size="icon-sm"
+            size="icon"
             aria-label={`Notifications${unread > 0 ? ` (${unread} unread)` : ''}`}
-            className="relative border border-border bg-background text-muted-foreground shadow-card hover:border-primary/30 hover:bg-primary/[0.06] hover:text-primary"
+            className="relative size-[42px] rounded-full border-0 bg-surface-subtle text-muted-foreground shadow-none hover:bg-muted hover:text-foreground"
           >
-            <Bell className="h-4 w-4" />
+            <Bell aria-hidden />
             {unread > 0 ? (
-              <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-[18px] items-center justify-center rounded-full bg-request-attention px-1 font-mono text-xs font-semibold leading-[18px] text-foreground">
-                {badgeText}
-              </span>
+              <span
+                aria-hidden
+                className="absolute top-2.5 right-2.5 size-2 rounded-full bg-destructive ring-2 ring-card"
+              />
             ) : null}
           </Button>
         </PopoverTrigger>
         <PopoverContent
           align="end"
-          className="w-[calc(100vw-1rem)] max-w-[420px] gap-0 overflow-hidden p-0 sm:w-80"
+          className="w-[calc(100vw-1rem)] max-w-[390px] gap-0 overflow-hidden rounded-[18px] border-0 p-0 shadow-[var(--ring-card-elevated),0_20px_50px_-14px_rgb(25_31_40_/_0.3)] sm:w-[390px]"
         >
-          <div className="flex items-center justify-between border-b px-3 py-2">
-            <span className="text-sm font-medium">Notifications</span>
+          <div className="flex items-center justify-between px-5 pt-3.5 pb-2.5">
+            <span className="text-sm font-extrabold tracking-tight">Notifications</span>
             {unread > 0 ? (
               <button
                 type="button"
                 onClick={handleMarkAll}
                 disabled={pending}
-                className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                className="text-xs font-semibold text-primary hover:text-primary-hover disabled:opacity-50"
               >
                 Mark all as read
               </button>
             ) : null}
           </div>
           <NotificationList items={items} onItemClick={handleClickItem} />
-          <div className="border-t px-3 py-2 text-center">
+          <div className="border-t border-[var(--divider-row)] px-5 py-2.5 text-center">
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="text-xs text-muted-foreground hover:text-foreground"
+              className="text-xs font-bold text-primary hover:text-primary-hover"
             >
-              See all
+              See all notifications
             </Link>
           </div>
+          <p className="border-t border-[var(--divider-row)] px-5 py-2.5 text-left text-label font-medium text-muted-foreground">
+            Recent updates stay here for context. Unread ones carry a dot.
+          </p>
         </PopoverContent>
       </Popover>
 
@@ -187,18 +204,18 @@ function NotificationList({
   onItemClick: (row: NotificationRow) => void
 }) {
   if (items.length === 0) {
-    return <p className="px-3 py-6 text-center text-sm text-muted-foreground">Nothing new.</p>
+    return <p className="px-5 py-6 text-left text-sm text-muted-foreground">You’re caught up.</p>
   }
   return (
-    <ul className="max-h-80 divide-y overflow-y-auto">
+    <ul className="max-h-80 divide-y divide-[var(--divider-row)] overflow-y-auto">
       {items.map((row) => (
-        <li key={row.id} className={row.readAt ? undefined : 'bg-warning-tint/55'}>
+        <li key={row.id} className={row.readAt ? undefined : 'bg-primary-tint/40'}>
           <button
             type="button"
             onClick={() => onItemClick(row)}
             className={cn(
-              'flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors',
-              row.readAt ? 'hover:bg-muted/50' : 'hover:bg-warning-tint',
+              'flex w-full items-start gap-2.5 px-5 py-3 text-left transition-colors',
+              row.readAt ? 'hover:bg-[var(--row-hover)]' : 'hover:bg-primary-tint',
             )}
           >
             <Icon type={row.type} />
@@ -213,10 +230,7 @@ function NotificationList({
             {!row.readAt ? (
               <>
                 <span className="sr-only">Unread</span>
-                <span
-                  className="mt-1 size-2 shrink-0 rounded-full bg-request-attention"
-                  aria-hidden
-                />
+                <span className="mt-1 size-2 shrink-0 rounded-full bg-destructive" aria-hidden />
               </>
             ) : null}
           </button>
@@ -229,20 +243,36 @@ function NotificationList({
 function Icon({ type }: { type: NotificationType }) {
   const className = 'mt-0.5 size-4 shrink-0 text-muted-foreground'
   switch (type) {
-    case 'friend_request_received':
-    case 'friend_request_accepted':
+    case 'connection_requested':
+    case 'connection_accepted':
       return <UserPlus className={className} />
     case 'ask_received':
     case 'ask_accepted':
     case 'ask_declined':
+    case 'ask_reminder':
+    case 'ask_closed':
+    case 'offer_received':
+    case 'offer_accepted':
+    case 'offer_declined':
+    case 'offer_closed':
       return <Handshake className={className} />
-    case 'direct_message':
-    case 'ask_message':
+    case 'message_received':
       return <MessageSquare className={className} />
-    case 'announcement':
+    case 'announcement_published':
       return <Megaphone className={className} />
-    case 'event_canceled':
+    case 'event_cancelled':
       return <CalendarX className={className} />
+    case 'event_changed':
+      return <CalendarSync className={className} />
+    case 'event_reminder':
+      return <CalendarClock className={className} />
+    case 'event_waitlist_spot_opened':
+      return <CalendarCheck className={className} />
+    case 'circle_ask_match':
+    case 'circle_ask_closed':
+      return <CircleHelp className={className} />
+    case 'profile_update_ready':
+      return <UserRoundCheck className={className} />
   }
 }
 
@@ -254,7 +284,7 @@ function RealtimeToast({ row, onClose }: { row: NotificationRow; onClose: () => 
     <div
       role="status"
       aria-live="polite"
-      className="fixed right-4 top-20 z-50 w-72 animate-in fade-in slide-in-from-top-2"
+      className="fixed top-20 right-4 z-50 w-72 animate-in fade-in slide-in-from-top-2"
     >
       <Link
         href={url ?? '#'}

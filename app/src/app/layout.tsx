@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
-import { ThemeProvider } from 'next-themes'
 import './globals.css'
 
 // Type system (Field Pro / ADR 0012 D4): one family — Pretendard. Self-hosted
@@ -52,17 +51,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {/* Dark tokens live in globals.css `.dark`; next-themes applies the
-            class from the OS preference by default, with a manual override
-            in the account menu. */}
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   )

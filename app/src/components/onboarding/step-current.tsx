@@ -4,7 +4,6 @@ import { useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { OnboardingImportOptions } from './step-education'
 import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepCurrentState = {
@@ -21,17 +20,16 @@ type Props = {
     currentTitle: string
     city: string
     headline: string
-    linkedinUrl: string
+    industry: string
   }
   action: (state: StepCurrentState, formData: FormData) => Promise<StepCurrentState>
 }
 
 /**
- * Step 3 of 5 — Where you are now. Skippable.
+ * Step 4 of 7 — Where you are now. Skippable.
  *
  * All fields optional. Most members will fill at least employer + title +
- * city; LinkedIn is a useful shortcut for the rest of the network to
- * verify, but plenty of members won't include it.
+ * city and industry. Empty values are stored as null.
  *
  * No requirement to have a current job — students, retirees, parents at
  * home, between roles. Empty values are stored as null.
@@ -43,7 +41,6 @@ export function StepCurrent({ defaults, action }: Props) {
 
   return (
     <form action={formAction} className="space-y-5">
-      <OnboardingImportOptions step={3} />
       <div className="space-y-1.5">
         <Label htmlFor="currentEmployer">Current employer</Label>
         <Input
@@ -97,18 +94,18 @@ export function StepCurrent({ defaults, action }: Props) {
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="linkedinUrl" className="flex items-baseline gap-2">
-          LinkedIn URL
+        <Label htmlFor="industry" className="flex items-baseline gap-2">
+          Industry
           <span className="text-xs font-normal text-muted-foreground">Optional</span>
         </Label>
         <Input
-          id="linkedinUrl"
-          name="linkedinUrl"
-          type="url"
-          defaultValue={defaults.linkedinUrl}
-          placeholder="https://linkedin.com/in/…"
+          id="industry"
+          name="industry"
+          defaultValue={defaults.industry}
+          placeholder="e.g. Climate investing"
+          maxLength={120}
         />
-        {fe.linkedinUrl ? <p className="text-xs text-destructive">{fe.linkedinUrl}</p> : null}
+        {fe.industry ? <p className="text-xs text-destructive">{fe.industry}</p> : null}
       </div>
 
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}

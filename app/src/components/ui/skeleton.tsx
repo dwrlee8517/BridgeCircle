@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('bc-loading-pulse rounded-md bg-surface-subtle/70', className)}
+      className={cn('bc-skeleton rounded-[var(--radius-comfortable)]', className)}
       aria-hidden
       {...props}
     />

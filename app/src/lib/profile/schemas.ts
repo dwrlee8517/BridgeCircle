@@ -45,8 +45,7 @@ const graduationYearField = z
   .refine((n) => n >= 1900 && n <= 2100, 'Graduation year out of range.')
 
 // Optional URL: accepts an empty string OR a valid URL. Used for fields like
-// linkedinUrl and avatarUrl where the form may submit "" when the user
-// hasn't filled in anything.
+// avatarUrl where the form may submit "" when the user has not filled it in.
 const optionalUrl = z
   .union([z.url(), z.literal('')])
   .optional()
@@ -68,7 +67,6 @@ export const profileFormSchema = z.object({
   currentTitle: z.string().trim().min(1, 'Current title is required.'),
   university: z.string().trim().min(1, 'University is required.'),
   major: z.string().trim().min(1, 'Major is required.'),
-  openToMentor: z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean()),
   headline: z.string().trim().max(200).optional().nullable(),
   bio: z.string().trim().max(1000).optional().nullable(),
   linkedinUrl: z
@@ -79,7 +77,6 @@ export const profileFormSchema = z.object({
     .union([z.url(), z.literal('')])
     .optional()
     .nullable(),
-  mentoringTopics: z.string().trim().max(500).optional().nullable(),
   skills: jsonArrayPreprocessor(z.string().trim().min(1).max(80)),
   careerHistory: jsonArrayPreprocessor(careerEntrySchema),
   educationHistory: jsonArrayPreprocessor(educationEntrySchema),
@@ -98,12 +95,10 @@ export function parseProfileForm(formData: FormData) {
     currentTitle: formData.get('currentTitle'),
     university: formData.get('university'),
     major: formData.get('major'),
-    openToMentor: formData.get('openToMentor'),
     headline: formData.get('headline'),
     bio: formData.get('bio'),
     linkedinUrl: formData.get('linkedinUrl'),
     avatarUrl: formData.get('avatarUrl'),
-    mentoringTopics: formData.get('mentoringTopics'),
     skills: formData.get('skills'),
     careerHistory: formData.get('careerHistory'),
     educationHistory: formData.get('educationHistory'),
@@ -162,7 +157,7 @@ export const onboardingCurrentSchema = z.object({
   currentTitle: z.string().trim().max(200).optional().nullable(),
   city: z.string().trim().max(120).optional().nullable(),
   headline: z.string().trim().max(200).optional().nullable(),
-  linkedinUrl: optionalUrl,
+  industry: z.string().trim().max(120).optional().nullable(),
 })
 export type OnboardingCurrentInput = z.infer<typeof onboardingCurrentSchema>
 
@@ -172,7 +167,7 @@ export function parseOnboardingCurrent(formData: FormData) {
     currentTitle: formData.get('currentTitle'),
     city: formData.get('city'),
     headline: formData.get('headline'),
-    linkedinUrl: formData.get('linkedinUrl'),
+    industry: formData.get('industry'),
   })
 }
 
@@ -190,13 +185,11 @@ export function parseOnboardingPast(formData: FormData) {
   })
 }
 
-// Step 5 — How you can help (mentorship + avatar). Avatar lives here per
-// the user's preference to keep step 1 light. openToMentor defaults to
-// false (unchecked) — a brand-new alumnus shouldn't be defaulted to "yes,
-// mentor me right away."
+// Step 5 — How you can help. Avatar lives here per the user's preference to
+// keep step 1 light. Availability defaults to false so it is an explicit opt-in.
 export const onboardingHelpSchema = z.object({
-  openToMentor: z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean()),
-  mentoringTopics: z.string().trim().max(500).optional().nullable(),
+  openToHelp: z.preprocess((v) => v === 'on' || v === 'true' || v === true, z.boolean()),
+  helperTopics: z.string().trim().max(500).optional().nullable(),
   bio: z.string().trim().max(1000).optional().nullable(),
   avatarUrl: optionalUrl,
   /**
@@ -214,8 +207,8 @@ export type OnboardingHelpInput = z.infer<typeof onboardingHelpSchema>
 
 export function parseOnboardingHelp(formData: FormData) {
   return onboardingHelpSchema.safeParse({
-    openToMentor: formData.get('openToMentor'),
-    mentoringTopics: formData.get('mentoringTopics'),
+    openToHelp: formData.get('openToHelp'),
+    helperTopics: formData.get('helperTopics'),
     bio: formData.get('bio'),
     avatarUrl: formData.get('avatarUrl'),
     freshnessPolicy: formData.get('freshnessPolicy'),

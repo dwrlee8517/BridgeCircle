@@ -9,6 +9,7 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
 - [Phase 1 launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what ships in the launch cut
 - [Phase 1 launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md) — readiness criteria
+- [Database v2 contract](architecture/database-v2-contract.md) — Foundation and Conversation Primitive verified locally; later domains and remote cutovers pending
 
 ## Product
 
@@ -46,13 +47,33 @@ What we're building. These now live in the [product-spec Obsidian vault](../prod
 
 How the system is shaped. Reference material — facts, not how-to.
 
-- [Data model](architecture/data-model.md) — tables, relations, RLS posture
-- [Profile enrichment and freshness](architecture/profile-enrichment.md) — LinkdAPI for onboarding/manual update, Bright Data Dataset Filter API for monthly sweep, PDL fallback; provider interface, proposal workflow, cost guardrails
+- [Data model](architecture/data-model.md) — legacy remote schema, tables, relations, and RLS posture during the v2 transition
+- [Database v2 contract](architecture/database-v2-contract.md) — approved target schema, ERD, constraints, RLS matrix, locally verified Foundation/Conversation slices, and cutover gates
+- [Database v2 Foundation plan](architecture/database-v2-foundation-plan.md) — completed local implementation record for identity, memberships, self-profile/onboarding, grants, blocking, audit, outbox, and app boundaries
+- [Database v2 Foundation test inventory](architecture/database-v2-foundation-test-inventory.md) — exact database, unit, concurrency, browser, and compiler gates
+- [Database v2 Conversation Primitive plan](architecture/database-v2-conversation-plan.md) — completed transactional, RLS, pagination, Realtime, and application-boundary implementation record
+- [Database v2 Conversation Primitive test inventory](architecture/database-v2-conversation-test-inventory.md) — completed database, concurrency, Realtime, performance, and compiler evidence
+- [Database v2 Help vertical-slice plan](architecture/database-v2-help-plan.md) — completed local plan for Help data, matching, worker, Realtime, UI, and destructive cutover
+- [Database v2 Help vertical-slice test inventory](architecture/database-v2-help-test-inventory.md) — completed local evidence plus the classified later-domain port inventory
+- [Database v2 Messages vertical-slice plan](architecture/database-v2-messages-plan.md) — completed local inbox, Connection seam, owner Realtime, responsive thread, and destructive cutover record
+- [Database v2 Messages vertical-slice test inventory](architecture/database-v2-messages-test-inventory.md) — completed database, race, Realtime, performance, application, browser, and accessibility evidence
+- [Database v2 People/Profile vertical-slice plan](architecture/database-v2-people-profile-plan.md) — completed local UI/UX, privacy, Connections, safety, self editing, and destructive-cutover record; detailed search/ranking tuning is deferred
+- [Database v2 People/Profile vertical-slice test inventory](architecture/database-v2-people-profile-test-inventory.md) — completed UI/UX checkpoint evidence plus the explicitly deferred search/performance verification ledger
+- [Database v2 School vertical-slice plan](architecture/database-v2-school-plan.md) — approved clean-slate member School architecture for events, held waitlist offers, announcements, newsletters, privacy, and destructive route cutover
+- [Database v2 School vertical-slice test inventory](architecture/database-v2-school-test-inventory.md) — active database, race, application, responsive, accessibility, and cutover evidence ledger
+- [Database v2 Home vertical-slice plan](architecture/database-v2-home-plan.md) — implemented pure-composition dashboard architecture, bilateral outcome-story consent, responsive states, and owner-domain seams
+- [Database v2 Home vertical-slice test inventory](architecture/database-v2-home-test-inventory.md) — measured database, privacy, composition, interaction, responsive, accessibility, fidelity, and regression evidence
+- [Database v2 Entry and Operations vertical-slice plan](architecture/database-v2-entry-operations-plan.md) — implemented local invite-to-member, seven-step onboarding and cold start, review-first LinkedIn/résumé Fast Fill, settings, notification, account-lifecycle, and minimal admin architecture; exhaustive roads remain
+- [Database v2 Entry and Operations test inventory](architecture/database-v2-entry-operations-test-inventory.md) — measured database, application, browser, accessibility, visual, and destructive-cutover evidence plus the explicit remaining road matrix
+- [Database v2 development cutover plan](architecture/database-v2-dev-cutover-plan.md) — approved zero-data linked reset plan, implemented local guardrails, exact-SHA web/worker deployment, hosted acceptance, and production-safe approval boundary
+- [Database v2 production cutover plan](architecture/database-v2-production-cutover-plan.md) — proposed migration-ownership transfer, three-PR release topology, guarded one-time production reset, exact-SHA web/worker promotion, bootstrap, verification, and abort gates
+- [Profile enrichment and freshness](architecture/profile-enrichment.md) — active onboarding Fast Fill plus the approved future manual-update/scheduled-sweep architecture; LinkdAPI primary, Bright Data sweep, PDL fallback, proposal workflow, and cost guardrails
 - [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
 - [Dev stage + CD rollout](architecture/dev-stage-cd-rollout.md) — phased plan for ADR 0014: dev.bridgecircle.org, integ gate, scripted promote
 - [Production migration ownership record](architecture/production-migration-ownership-record.md) — release-freeze evidence, completed no-op/additive ownership proofs, integration transfer, and the next exact-SHA boundary
+- [Production v2 cutover operator runbook](runbooks/production-v2-cutover.md) — fail-closed exact-SHA snapshot, reset, postflight, bootstrap, deployment, and owner-grant sequence (prepared, not yet authorized)
 - [Branching strategy](architecture/branching-strategy.html) — Supabase + GitHub branching workflow — *prod side superseded by ADR 0014*
 - [Data model (interactive)](architecture/data-model.html)
 
@@ -61,7 +82,7 @@ How the system is shaped. Reference material — facts, not how-to.
 How-to guides. Read when touching the relevant area.
 
 - [Day 0 setup](runbooks/day-0-setup.md) — initial scaffold and `/lib` rationale
-- [Seed dev DB](runbooks/seed-dev.md) — personas + mentorship requests + events
+- [Seed development data](runbooks/seed-dev.md) — disposable local v2 seed and remote-cutover boundary
 - [Supabase conventions](runbooks/supabase-conventions.md) — keys, clients, type generation, role grants
 - [Migration workflow](runbooks/migration-workflow.md) — branching + db push + prod safety
 - [E2E testing](runbooks/e2e-testing.md)
@@ -87,6 +108,7 @@ Locked architectural decisions in MADR format.
 - [0012 — TDS design system ("Field Pro")](decisions/0012-tds-design-system.md) — *superseded by 0013*
 - [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer `toss-base` + `bridgecircle` fork
 - [0014 — Scripted CD pipeline](decisions/0014-scripted-cd-pipeline.md) — dev stage → integ gate → prod promote; supersedes the prod side of 0005 + 0008
+- [0015 — Pre-launch v2 database reset](decisions/0015-prelaunch-v2-database-reset.md) — accepted one-time application-schema rebuild and fresh migration baseline
 
 ## UI
 

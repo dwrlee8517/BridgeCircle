@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { createMembershipDecisionRepository } from '@/db/repositories/memberships'
+import { createClient } from '@/db/server'
 import { decideMembership } from '@/lib/admin/decideMembership'
 import { requireAdmin } from '@/lib/auth/session'
 
@@ -21,7 +23,7 @@ export async function decideMembershipAction(
   _prev: DecideFormState,
   formData: FormData,
 ): Promise<DecideFormState> {
-  const session = await requireAdmin()
+  await requireAdmin()
 
   const parsed = decideSchema.safeParse({
     membershipId: formData.get('membershipId'),
@@ -31,24 +33,24 @@ export async function decideMembershipAction(
     return { error: 'Invalid request.' }
   }
 
-  const result = await decideMembership({
+  const result = await decideMembership(createMembershipDecisionRepository(await createClient()), {
     membershipId: parsed.data.membershipId,
-    adminUserId: session.userId,
     decision: parsed.data.decision,
   })
 
   if (!result.ok) {
-    if (result.error === 'membership_not_found') return { error: 'Membership not found.' }
+    if (result.error === 'not_found') return { error: 'Membership not found.' }
     if (result.error === 'not_pending') return { error: 'This member is no longer pending.' }
+    if (result.error === 'not_authorized')
+      return { error: 'You no longer have access to decide this membership.' }
     return { error: 'Could not save the decision. Try again.' }
   }
 
   revalidatePath('/admin/approvals')
-  revalidatePath('/admin/members')
   revalidatePath('/admin')
   return {
     ok: true,
-    decidedFor: result.userName ?? result.userEmail,
+    decidedFor: null,
     decision: parsed.data.decision,
   }
 }
