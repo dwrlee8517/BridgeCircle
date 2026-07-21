@@ -1,7 +1,8 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -36,16 +37,31 @@ type Props = {
 export function StepAbout({ defaults, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form ref={formRef} action={formAction} className="space-y-5">
       <Field
         id="name"
         label="Full name"
         hint="Your name as it should appear on your profile."
         error={fe.name}
       >
-        <Input id="name" name="name" defaultValue={defaults.name} required autoComplete="name" />
+        <Input
+          id="name"
+          name="name"
+          defaultValue={defaults.name}
+          required
+          autoComplete="name"
+          aria-invalid={fe.name ? true : undefined}
+          aria-describedby={fe.name ? 'name-hint name-error' : 'name-hint'}
+        />
       </Field>
 
       <Field
@@ -60,6 +76,10 @@ export function StepAbout({ defaults, action }: Props) {
           name="preferredName"
           defaultValue={defaults.preferredName}
           placeholder="e.g. Sue"
+          aria-invalid={fe.preferredName ? true : undefined}
+          aria-describedby={
+            fe.preferredName ? 'preferredName-hint preferredName-error' : 'preferredName-hint'
+          }
         />
       </Field>
 
@@ -75,6 +95,8 @@ export function StepAbout({ defaults, action }: Props) {
           name="nameOther"
           defaultValue={defaults.nameOther}
           placeholder="e.g. Sam"
+          aria-invalid={fe.nameOther ? true : undefined}
+          aria-describedby={fe.nameOther ? 'nameOther-hint nameOther-error' : 'nameOther-hint'}
         />
       </Field>
 
@@ -92,13 +114,17 @@ export function StepAbout({ defaults, action }: Props) {
           maxLength={4}
           defaultValue={defaults.graduationYear}
           required
+          aria-invalid={fe.graduationYear ? true : undefined}
+          aria-describedby={
+            fe.graduationYear ? 'graduationYear-hint graduationYear-error' : 'graduationYear-hint'
+          }
         />
       </Field>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
       <div className="pt-2">
-        <Button type="submit" disabled={pending} className="w-full">
+        <Button type="submit" disabled={pending} aria-busy={pending} className="w-full">
           {pending ? 'Saving…' : 'Save and continue'}
         </Button>
       </div>
@@ -130,11 +156,12 @@ function Field({
         ) : null}
       </Label>
       {children}
-      {error ? (
-        <p className="text-xs text-destructive">{error}</p>
-      ) : hint ? (
-        <p className="text-xs text-muted-foreground">{hint}</p>
+      {hint ? (
+        <p id={`${id}-hint`} className="text-xs text-muted-foreground">
+          {hint}
+        </p>
       ) : null}
+      <FieldError id={`${id}-error`} error={error} />
     </div>
   )
 }

@@ -1,9 +1,10 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { AvatarUploader } from '@/components/avatar-uploader'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -58,9 +59,16 @@ export function StepHelp({ defaults, name, action }: Props) {
   const [openToHelp, setOpenToHelp] = useState(defaults.openToHelp)
   const [freshnessPolicy, setFreshnessPolicy] = useState<FreshnessPolicy>(defaults.freshnessPolicy)
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form ref={formRef} action={formAction} className="space-y-6">
       <div className="space-y-2">
         <Label className="text-sm">Profile photo</Label>
         <p className="text-xs text-muted-foreground">
@@ -81,8 +89,10 @@ export function StepHelp({ defaults, name, action }: Props) {
           defaultValue={defaults.bio}
           placeholder="A few lines about who you are and what you're up to."
           maxLength={1000}
+          aria-invalid={fe.bio ? true : undefined}
+          aria-describedby={fe.bio ? 'bio-error' : undefined}
         />
-        {fe.bio ? <p className="text-xs text-destructive">{fe.bio}</p> : null}
+        <FieldError id="bio-error" error={fe.bio} />
       </div>
 
       <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
@@ -112,11 +122,15 @@ export function StepHelp({ defaults, name, action }: Props) {
             defaultValue={defaults.helperTopics}
             placeholder="e.g. consulting, business school, returning to Korea"
             disabled={!openToHelp}
+            aria-invalid={fe.helperTopics ? true : undefined}
+            aria-describedby={
+              fe.helperTopics ? 'helperTopics-hint helperTopics-error' : 'helperTopics-hint'
+            }
           />
-          <p className="text-xs text-muted-foreground">
+          <p id="helperTopics-hint" className="text-xs text-muted-foreground">
             Comma-separated. Helps members find you in search.
           </p>
-          {fe.helperTopics ? <p className="text-xs text-destructive">{fe.helperTopics}</p> : null}
+          <FieldError id="helperTopics-error" error={fe.helperTopics} />
         </div>
       </div>
 
@@ -157,10 +171,16 @@ export function StepHelp({ defaults, name, action }: Props) {
         </div>
       </div>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
+        <Button
+          type="submit"
+          onClick={onSaveClick}
+          disabled={pending}
+          aria-busy={pending && submittingKind === 'save'}
+          className="sm:flex-1"
+        >
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
@@ -170,6 +190,7 @@ export function StepHelp({ defaults, name, action }: Props) {
           onClick={onSkipClick}
           variant="outline"
           disabled={pending}
+          aria-busy={pending && submittingKind === 'skip'}
           className="sm:flex-1"
         >
           {pending && submittingKind === 'skip' ? 'Skipping…' : 'Skip for now'}
