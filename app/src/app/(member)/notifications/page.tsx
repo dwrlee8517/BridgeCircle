@@ -55,7 +55,7 @@ export default async function NotificationsPage({
   const last = items.at(-1)
 
   return (
-    <div className="density-cozy mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-8">
+    <div className="density-cozy mx-auto max-w-[680px] space-y-5 px-4 py-8 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <p className="bc-section-kicker">Your activity</p>

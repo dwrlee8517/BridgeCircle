@@ -38,7 +38,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div className="relative max-w-md">
           <p className="text-kicker font-semibold uppercase tracking-hero text-primary-on-dark">
-            Verified alumni network
+            Verified school circle
           </p>
           <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-tight">
             Build from a circle you already trust.

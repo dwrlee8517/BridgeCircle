@@ -19,6 +19,7 @@ import {
   scheduleDeletionAction,
   unblockMemberAction,
 } from './actions'
+import { settingsSavedMessage } from './settings-messages'
 
 type SearchParams = { saved?: string; error?: string }
 
@@ -28,13 +29,18 @@ export default async function SettingsPage({
   searchParams: Promise<SearchParams>
 }) {
   const [session, params] = await Promise.all([requireSession('/settings'), searchParams])
-  const repository = createSettingsRepository(await createClient())
-  const [preferences, communication, blocked, accountExport] = await Promise.all([
+  const client = await createClient()
+  const repository = createSettingsRepository(client)
+  const [authUser, preferences, communication, blocked, accountExport] = await Promise.all([
+    client.auth.getUser(),
     repository.listNotificationPreferences(),
     repository.getCommunicationPreferences(),
     repository.listBlockedMembers(),
     repository.getExport(),
   ])
+  const currentEmail = authUser.data.user?.email ?? session.email
+  const pendingEmail = authUser.data.user?.new_email ?? null
+  const savedMessage = settingsSavedMessage(params.saved, currentEmail, pendingEmail)
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-8">
@@ -46,9 +52,9 @@ export default async function SettingsPage({
         </p>
       </div>
 
-      {params.saved ? (
+      {savedMessage ? (
         <FormMessage tone="success" className="rounded-xl bg-success-tint px-4 py-3">
-          Your settings were saved.
+          {savedMessage}
         </FormMessage>
       ) : null}
       {params.error ? (
@@ -60,18 +66,37 @@ export default async function SettingsPage({
       <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
-          <CardDescription>Signed in as {session.email}</CardDescription>
+          <CardDescription>Signed in as {currentEmail}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <form action={changeEmailAction} className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <div className="flex-1 space-y-1.5">
               <Label htmlFor="email">New email</Label>
-              <Input id="email" name="email" type="email" required defaultValue={session.email} />
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                defaultValue={pendingEmail ?? currentEmail}
+                aria-describedby={pendingEmail ? 'pending-email-change' : undefined}
+              />
             </div>
             <FormSubmitButton variant="outline" pendingLabel="Changing…">
               Change email
             </FormSubmitButton>
           </form>
+          {pendingEmail ? (
+            <div
+              id="pending-email-change"
+              className="rounded-xl bg-[var(--surface-inset)] px-4 py-3"
+            >
+              <p className="text-sm font-semibold">Email change awaiting confirmation</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                Confirm {pendingEmail} from your email. Until then, keep signing in with{' '}
+                {currentEmail}.
+              </p>
+            </div>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             <form action={requestExportAction}>
               <FormSubmitButton variant="outline" pendingLabel="Requesting…">

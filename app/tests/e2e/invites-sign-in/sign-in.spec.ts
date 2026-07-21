@@ -14,7 +14,7 @@ test.describe("sign-in", () => {
 
     await expect(page.getByText(/welcome back/i)).toBeVisible();
     await expect(
-      page.getByText(/sign in to your verified alumni network/i),
+      page.getByText(/sign in to your verified school circle/i),
     ).toBeVisible();
 
     await expect(page.getByLabel(/email/i)).toBeVisible();

@@ -29,7 +29,7 @@ const pretendard = localFont({
 
 export const metadata: Metadata = {
   title: 'BridgeCircle',
-  description: 'A verified alumni network.',
+  description: 'A verified school circle.',
 }
 
 // Required for proper mobile rendering — without this iOS Safari renders the

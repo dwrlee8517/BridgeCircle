@@ -36,7 +36,7 @@ export default async function SchoolAnnouncementsPage({
   return (
     <div className="min-h-full bg-surface-canvas">
       <ArchiveHeader title="Announcements" />
-      <div className="mx-auto w-full max-w-[920px] px-4 py-6 sm:px-7 sm:py-8">
+      <div className="mx-auto w-full max-w-[680px] px-4 py-6 sm:px-7 sm:py-8">
         <fieldset className="flex flex-wrap gap-2">
           <legend className="sr-only">Announcement filters</legend>
           {filters.map(([value, label]) => (
