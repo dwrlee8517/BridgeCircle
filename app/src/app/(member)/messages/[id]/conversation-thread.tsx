@@ -511,7 +511,7 @@ export function ConversationThread({
           <Link
             href="/messages"
             aria-label="Back to messages"
-            className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring md:hidden"
+            className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-primary-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
           >
             <ChevronLeft aria-hidden className="size-4" />
           </Link>

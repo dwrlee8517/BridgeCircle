@@ -96,7 +96,10 @@ export function SafetyReportDialog({
           className="w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
         />
         {result ? (
-          <p role="status" className="text-xs font-semibold text-[var(--text-secondary)]">
+          <p
+            role={result === REPORT_SUCCESS ? 'status' : 'alert'}
+            className="text-xs font-semibold text-[var(--text-secondary)]"
+          >
             {result}
           </p>
         ) : null}

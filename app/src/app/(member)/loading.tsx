@@ -4,6 +4,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 export default function MemberLoading() {
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 sm:py-8 xl:px-8">
+      <p role="status" className="sr-only">
+        Loading your BridgeCircle home.
+      </p>
       <div className="mx-auto grid w-full max-w-[1020px] gap-5" aria-hidden>
         <div>
           <Skeleton className="h-8 w-72 max-w-[72%] rounded-[9px]" />

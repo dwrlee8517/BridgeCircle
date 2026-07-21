@@ -3,7 +3,7 @@
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import type { MessagesWaitingItem } from '@/lib/messages/contracts'
@@ -25,6 +25,7 @@ export function WaitingGroup({
   const router = useRouter()
   const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set())
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const contentId = useId()
 
   if (items.length === 0) return null
 
@@ -84,6 +85,7 @@ export function WaitingGroup({
       <button
         type="button"
         aria-expanded={!folded}
+        aria-controls={contentId}
         onClick={() => setFolded(!folded)}
         className="flex min-h-11 w-full items-center gap-2 px-3.5 text-left hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
       >
@@ -102,87 +104,85 @@ export function WaitingGroup({
         />
       </button>
 
-      {!folded ? (
-        <ul className="grid gap-1.5 px-2 pb-2.5">
-          {items.map((item) => {
-            const id = item.kind === 'direct_ask' ? item.askId : item.requestId
-            const avatarUrl = item.counterpart.avatarPath
-              ? avatarUrls[item.counterpart.avatarPath]
-              : null
-            const busy = pendingIds.has(id)
-            return (
-              <li
-                key={`${item.kind}:${id}`}
-                className="rounded-[14px] bg-card p-3 shadow-[var(--ring-card)]"
-              >
-                <div className="flex items-center gap-2.5">
-                  <Avatar size="sm" aria-hidden>
-                    {avatarUrl ? (
-                      <AvatarImage src={avatarUrl} alt="" />
-                    ) : (
-                      <AvatarFallback seed={item.counterpart.userId}>
-                        {getInitials(item.counterpart.displayName)}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-caption font-bold text-foreground">
-                      {item.counterpart.displayName}
-                      {item.counterpart.graduationYear ? (
-                        <span className="ml-1 text-kicker font-semibold text-muted-foreground">
-                          ’{String(item.counterpart.graduationYear).slice(-2)}
-                        </span>
-                      ) : null}
-                    </span>
-                    <span className="block text-kicker font-semibold text-text-secondary">
-                      {item.kind === 'direct_ask' ? 'Asked for your help' : 'Wants to connect'}
-                    </span>
-                  </span>
-                </div>
-                <p className="mt-2 line-clamp-2 text-kicker leading-relaxed text-text-secondary">
-                  {item.kind === 'direct_ask'
-                    ? item.requestMessage
-                    : (item.introMessage ?? 'Would like to add you to their circle.')}
-                </p>
-                <div className="mt-2 flex gap-1.5">
-                  {item.kind === 'direct_ask' ? (
-                    <Button asChild variant="secondary" size="xs">
-                      <Link href={`/help/asks/${item.askId}`}>View ask</Link>
-                    </Button>
+      <ul id={contentId} hidden={folded} className="grid gap-1.5 px-2 pb-2.5">
+        {items.map((item) => {
+          const id = item.kind === 'direct_ask' ? item.askId : item.requestId
+          const avatarUrl = item.counterpart.avatarPath
+            ? avatarUrls[item.counterpart.avatarPath]
+            : null
+          const busy = pendingIds.has(id)
+          return (
+            <li
+              key={`${item.kind}:${id}`}
+              className="rounded-[14px] bg-card p-3 shadow-[var(--ring-card)]"
+            >
+              <div className="flex items-center gap-2.5">
+                <Avatar size="sm" aria-hidden>
+                  {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt="" />
                   ) : (
-                    <>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        size="xs"
-                        disabled={busy}
-                        aria-busy={busy}
-                        onClick={() => void decide(item.requestId, 'accept')}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="xs"
-                        disabled={busy}
-                        onClick={() => void decide(item.requestId, 'decline')}
-                      >
-                        Decline
-                      </Button>
-                    </>
+                    <AvatarFallback seed={item.counterpart.userId}>
+                      {getInitials(item.counterpart.displayName)}
+                    </AvatarFallback>
                   )}
-                </div>
-                {errors[id] ? (
-                  <p role="alert" className="mt-2 text-kicker text-destructive">
-                    {errors[id]}
-                  </p>
-                ) : null}
-              </li>
-            )
-          })}
-        </ul>
-      ) : null}
+                </Avatar>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-caption font-bold text-foreground">
+                    {item.counterpart.displayName}
+                    {item.counterpart.graduationYear ? (
+                      <span className="ml-1 text-kicker font-semibold text-muted-foreground">
+                        ’{String(item.counterpart.graduationYear).slice(-2)}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="block text-kicker font-semibold text-text-secondary">
+                    {item.kind === 'direct_ask' ? 'Asked for your help' : 'Wants to connect'}
+                  </span>
+                </span>
+              </div>
+              <p className="mt-2 line-clamp-2 text-kicker leading-relaxed text-text-secondary">
+                {item.kind === 'direct_ask'
+                  ? item.requestMessage
+                  : (item.introMessage ?? 'Would like to add you to their circle.')}
+              </p>
+              <div className="mt-2 flex gap-1.5">
+                {item.kind === 'direct_ask' ? (
+                  <Button asChild variant="secondary" size="xs">
+                    <Link href={`/help/asks/${item.askId}`}>View ask</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="xs"
+                      disabled={busy}
+                      aria-busy={busy}
+                      onClick={() => void decide(item.requestId, 'accept')}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="xs"
+                      disabled={busy}
+                      onClick={() => void decide(item.requestId, 'decline')}
+                    >
+                      Decline
+                    </Button>
+                  </>
+                )}
+              </div>
+              {errors[id] ? (
+                <p role="alert" className="mt-2 text-kicker text-destructive">
+                  {errors[id]}
+                </p>
+              ) : null}
+            </li>
+          )
+        })}
+      </ul>
     </section>
   )
 }

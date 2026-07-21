@@ -303,6 +303,7 @@ export function PeopleDirectory({
                       }
                       selected={person.userId === selectedId}
                       searched={Boolean(initialSearch.query)}
+                      previewId="people-profile-preview"
                       onSelect={() => selectPerson(person)}
                       onConnect={() => openConnection(person)}
                     />
@@ -326,6 +327,7 @@ export function PeopleDirectory({
                       }
                       selected={person.userId === selectedId}
                       searched={Boolean(initialSearch.query)}
+                      previewId="people-profile-preview"
                       onSelect={() => selectPerson(person)}
                       onConnect={() => openConnection(person)}
                       mobile
@@ -352,6 +354,7 @@ export function PeopleDirectory({
 
           {selectedPerson && widePreview ? (
             <PeoplePreview
+              id="people-profile-preview"
               person={selectedPerson}
               relationship={relationships[selectedPerson.userId] ?? selectedPerson.relationship}
               state={preview}
@@ -384,6 +387,7 @@ export function PeopleDirectory({
               Review this member without leaving the People directory.
             </DialogDescription>
             <PeoplePreview
+              id="people-profile-preview"
               person={selectedPerson}
               relationship={relationships[selectedPerson.userId] ?? selectedPerson.relationship}
               state={preview}
@@ -740,6 +744,7 @@ function PeopleRow({
   avatarUrl,
   selected,
   searched,
+  previewId,
   onSelect,
   onConnect,
   mobile = false,
@@ -749,6 +754,7 @@ function PeopleRow({
   avatarUrl?: string
   selected: boolean
   searched: boolean
+  previewId: string
   onSelect: () => void
   onConnect: () => void
   mobile?: boolean
@@ -780,6 +786,7 @@ function PeopleRow({
           type="button"
           aria-label={`${selected ? 'Close' : 'Open'} preview for ${name}`}
           aria-expanded={selected}
+          aria-controls={previewId}
           data-preview-person={person.userId}
           className="absolute inset-0 z-[1] cursor-pointer rounded-[inherit] outline-none focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
           onClick={onSelect}
@@ -888,6 +895,7 @@ function RelationshipAction({
 }
 
 function PeoplePreview({
+  id,
   person,
   relationship,
   state,
@@ -896,6 +904,7 @@ function PeoplePreview({
   onConnect,
   sheet = false,
 }: {
+  id: string
   person: PeopleDirectoryItem
   relationship: PeopleRelationship
   state: PreviewState
@@ -911,6 +920,7 @@ function PeoplePreview({
   const evidence = person.matchEvidence[0]
   return (
     <aside
+      id={id}
       aria-label={`Profile preview for ${name}`}
       className={cn(
         'box-border bg-[var(--surface-card)] p-5.5',

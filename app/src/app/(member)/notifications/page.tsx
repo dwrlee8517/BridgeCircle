@@ -65,12 +65,14 @@ export default async function NotificationsPage({
           <div className="flex gap-3 text-sm">
             <Link
               href="/notifications"
+              aria-current={params.unread === '1' ? undefined : 'page'}
               className={params.unread === '1' ? 'text-muted-foreground' : 'font-semibold'}
             >
               All
             </Link>
             <Link
               href="/notifications?unread=1"
+              aria-current={params.unread === '1' ? 'page' : undefined}
               className={params.unread === '1' ? 'font-semibold' : 'text-muted-foreground'}
             >
               Unread

@@ -104,7 +104,7 @@ export function HomeSpotlightDeck({
                 type="button"
                 aria-label="Previous spotlight"
                 onClick={() => move(-1)}
-                className="inline-flex size-8 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <ChevronLeft aria-hidden className="size-4" />
               </button>
@@ -112,7 +112,7 @@ export function HomeSpotlightDeck({
                 type="button"
                 aria-label="Next spotlight"
                 onClick={() => move(1)}
-                className="inline-flex size-8 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
               >
                 <ChevronRight aria-hidden className="size-4" />
               </button>
@@ -171,13 +171,18 @@ export function HomeSpotlightDeck({
                   aria-label={`Show ${candidate.label}`}
                   aria-current={candidateIndex === index ? 'true' : undefined}
                   onClick={() => setIndex(candidateIndex)}
-                  className={cn(
-                    'h-[7px] rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-                    candidateIndex === safeIndex
-                      ? 'w-[18px] bg-primary'
-                      : 'w-[7px] bg-[var(--grey-300)]',
-                  )}
-                />
+                  className="inline-flex size-8 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'h-[7px] rounded-full',
+                      candidateIndex === safeIndex
+                        ? 'w-[18px] bg-primary'
+                        : 'w-[7px] bg-[var(--grey-300)]',
+                    )}
+                  />
+                </button>
               ))}
             </fieldset>
           ) : null}

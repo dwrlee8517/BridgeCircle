@@ -6,6 +6,7 @@ import type {
   SchoolEventCard,
   SchoolHome,
 } from '@/lib/school/contracts'
+import { newsletterDisplayTitle } from '@/lib/school/presentation'
 import { formatEventDate } from '@/lib/school/time'
 import { cn } from '@/lib/utils'
 import { EventTime } from './event-time'
@@ -201,22 +202,32 @@ function UpcomingEvents({
       {upcoming.length > 0 ? (
         <div>
           {upcoming.map((event) => (
-            <Link
+            <article
               key={event.id}
-              href={`/school?event=${event.id}`}
-              className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-t border-divider-row px-5 py-3 transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-stretch border-t border-divider-row transition-colors hover:bg-surface-subtle"
             >
-              <DateTile event={event} compact />
-              <span className="min-w-0">
-                <span className="block truncate text-control font-bold text-text-primary">
-                  {event.title}
+              <Link
+                href={`/school?event=${event.id}`}
+                className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 px-5 py-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+              >
+                <DateTile event={event} compact />
+                <span className="min-w-0">
+                  <span className="block truncate text-control font-bold text-text-primary">
+                    {event.title}
+                  </span>
+                  <span className="mt-1 block truncate text-chip font-medium text-text-muted">
+                    {event.locationName ?? 'Online'} · {event.goingCount} going
+                  </span>
                 </span>
-                <span className="mt-1 block truncate text-chip font-medium text-text-muted">
-                  {event.locationName ?? 'Online'} · {event.goingCount} going
-                </span>
-              </span>
-              <ChevronRight className="size-4 text-icon-muted" aria-hidden="true" />
-            </Link>
+              </Link>
+              <Link
+                href={`/school/events/${event.id}`}
+                aria-label={`View details for ${event.title}`}
+                className="flex w-11 items-center justify-center text-icon-muted hover:text-action-weak-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+              >
+                <ChevronRight className="size-4" aria-hidden="true" />
+              </Link>
+            </article>
           ))}
         </div>
       ) : (
@@ -282,7 +293,9 @@ function NewsletterPanel({ issue }: { issue: NewsletterSummary | null }) {
   return (
     <section className="rounded-2xl bg-surface-card p-5 shadow-card ring-1 ring-border-subtle">
       <p className="text-fine font-bold tracking-caps text-text-muted uppercase">Newsletter</p>
-      <h2 className="mt-2 text-body font-extrabold text-text-primary">{issue.title}</h2>
+      <h2 className="mt-2 text-body font-extrabold text-text-primary">
+        {newsletterDisplayTitle(issue.title)}
+      </h2>
       {issue.summary ? (
         <p className="mt-2 text-caption leading-relaxed text-text-secondary">{issue.summary}</p>
       ) : null}

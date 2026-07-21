@@ -4,6 +4,7 @@ import { loadMemberContext } from '@/app/_lib/load-member-context'
 import { createSchoolRepository } from '@/db/repositories/school'
 import { selectedMembership } from '@/lib/membership/selection'
 import { loadNewsletterIssues } from '@/lib/school/operations'
+import { newsletterDisplayTitle } from '@/lib/school/presentation'
 import { ArchiveHeader } from '../archive-header'
 
 export default async function NewsletterArchivePage() {
@@ -37,7 +38,7 @@ export default async function NewsletterArchivePage() {
                 Issue {issue.issueNumber} · {formatMonth(issue.publishedAt)}
               </span>
               <span className="mt-1.5 block text-body font-extrabold text-text-primary">
-                {issue.title}
+                {newsletterDisplayTitle(issue.title)}
               </span>
               {issue.summary ? (
                 <span className="mt-1 block text-caption leading-relaxed text-text-secondary">

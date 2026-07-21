@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { SchoolEventAttendees, SchoolEventDetail } from '@/lib/school/contracts'
 import { formatEventTimeRange } from '@/lib/school/time'
+import { cn } from '@/lib/utils'
 import { EventTime } from '../../event-time'
 import { RsvpControl } from '../../rsvp-control'
 
@@ -15,6 +16,8 @@ export function SchoolEventDetailPage({
   attendees: SchoolEventAttendees
   avatarUrls: Record<string, string>
 }) {
+  const attendanceOpen = event.phase === 'upcoming' || event.phase === 'changed'
+
   return (
     <div className="min-h-full bg-surface-canvas">
       <header className="border-b border-divider-row bg-surface-card px-4 py-3 sm:px-7">
@@ -43,7 +46,12 @@ export function SchoolEventDetailPage({
           </p>
         ) : null}
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.75fr)]">
+        <div
+          className={cn(
+            'mt-4 grid gap-4',
+            attendanceOpen && 'lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.75fr)]',
+          )}
+        >
           <div className="min-w-0 space-y-4">
             {event.description ? (
               <ContentCard title="About">
@@ -116,9 +124,11 @@ export function SchoolEventDetailPage({
             ) : null}
           </div>
 
-          <aside className="min-w-0 space-y-4" aria-label="Event attendance">
-            <AttendeeCard attendees={attendees} avatarUrls={avatarUrls} />
-          </aside>
+          {attendanceOpen ? (
+            <aside className="min-w-0 space-y-4" aria-label="Event attendance">
+              <AttendeeCard attendees={attendees} avatarUrls={avatarUrls} />
+            </aside>
+          ) : null}
         </div>
       </div>
     </div>
@@ -126,6 +136,8 @@ export function SchoolEventDetailPage({
 }
 
 function EventHero({ event }: { event: SchoolEventDetail }) {
+  const attendanceOpen = event.phase === 'upcoming' || event.phase === 'changed'
+
   return (
     <section className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero before:pointer-events-none before:absolute before:inset-0 before:bg-[image:var(--cover-texture)] before:bg-size-[7px_7px] before:opacity-45">
       <div className="relative grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
@@ -186,28 +198,31 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
           </div>
         </div>
       </div>
-      <div className="relative flex flex-wrap items-center gap-2 border-t border-white/10 px-6 py-4 sm:px-8">
-        <RsvpControl event={event} tone="dark" />
-        {event.joinUrl ? (
-          <a
-            href={event.joinUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-extrabold text-action-on-primary hover:bg-[var(--blue-800)]"
+      {attendanceOpen ? (
+        <div className="relative flex flex-wrap items-center gap-2 border-t border-white/10 px-6 py-4 sm:px-8">
+          <RsvpControl event={event} tone="dark" />
+          {event.joinUrl ? (
+            <a
+              href={event.joinUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-extrabold text-action-on-primary hover:bg-[var(--blue-800)]"
+            >
+              <Video className="size-4" aria-hidden="true" /> Join now
+            </a>
+          ) : null}
+          <Link
+            href={`/school/events/${event.id}/calendar`}
+            className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-caption font-bold text-surface-ink-muted hover:bg-white/8 hover:text-white"
           >
-            <Video className="size-4" aria-hidden="true" /> Join now
-          </a>
-        ) : null}
-        <Link
-          href={`/school/events/${event.id}/calendar`}
-          className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-caption font-bold text-surface-ink-muted hover:bg-white/8 hover:text-white"
-        >
-          <CalendarPlus className="size-4" aria-hidden="true" /> Add to calendar
-        </Link>
-        <span className="ml-auto text-chip font-semibold text-surface-ink-muted">
-          <UsersRound className="mr-1 inline size-4" aria-hidden="true" /> {event.goingCount} going
-        </span>
-      </div>
+            <CalendarPlus className="size-4" aria-hidden="true" /> Add to calendar
+          </Link>
+          <span className="ml-auto text-chip font-semibold text-surface-ink-muted">
+            <UsersRound className="mr-1 inline size-4" aria-hidden="true" /> {event.goingCount}{' '}
+            going
+          </span>
+        </div>
+      ) : null}
     </section>
   )
 }

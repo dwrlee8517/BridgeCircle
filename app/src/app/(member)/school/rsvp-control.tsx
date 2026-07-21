@@ -25,9 +25,13 @@ export function RsvpControl({
 }) {
   const [state, action, pending] = useActionState(respondToEventAction, initialState)
   const [offerDismissed, setOfferDismissed] = useState(false)
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const cancelTriggerRef = useRef<HTMLButtonElement>(null)
+  const keepRsvpRef = useRef<HTMLButtonElement>(null)
   const passOfferRef = useRef<HTMLButtonElement>(null)
   const offerTriggerRef = useRef<HTMLButtonElement>(null)
   const offerOpen = event.viewerRsvp === 'offered' && !offerDismissed && state.status !== 'success'
+
   const base = cn(
     'rounded-xl px-4 py-2.5 text-caption font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60',
     tone === 'dark'
@@ -46,11 +50,56 @@ export function RsvpControl({
   return (
     <div className="contents">
       {event.viewerRsvp === 'going' ? (
-        <ResponseForm eventId={event.id} intent="not_going" action={action}>
-          <button type="submit" disabled={pending} className={quiet}>
-            You&apos;re going · Change
+        <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+          <button
+            ref={cancelTriggerRef}
+            type="button"
+            onClick={() => setCancelOpen(true)}
+            className={quiet}
+          >
+            Cancel RSVP
           </button>
-        </ResponseForm>
+          <DialogContent
+            className="w-full max-w-[420px] gap-0 rounded-2xl bg-surface-card p-6 text-text-primary shadow-hero"
+            onOpenAutoFocus={(event) => {
+              event.preventDefault()
+              keepRsvpRef.current?.focus()
+            }}
+            onCloseAutoFocus={(event) => {
+              event.preventDefault()
+              cancelTriggerRef.current?.focus()
+            }}
+          >
+            <DialogHeader>
+              <DialogTitle className="text-body font-extrabold">Cancel your RSVP?</DialogTitle>
+              <DialogDescription className="mt-2 text-caption leading-relaxed text-text-secondary">
+                You will come off the attendee list. If the event is full, the next person will be
+                offered the spot.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mx-0 mt-5 mb-0 grid grid-cols-2 gap-2 rounded-none border-0 bg-transparent p-0">
+              <DialogClose asChild>
+                <button
+                  ref={keepRsvpRef}
+                  type="button"
+                  className="w-full rounded-xl bg-surface-subtle px-4 py-2.5 text-caption font-bold text-text-primary transition-colors hover:bg-primary-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                >
+                  Keep RSVP
+                </button>
+              </DialogClose>
+              <ResponseForm eventId={event.id} intent="not_going" action={action}>
+                <button
+                  type="submit"
+                  disabled={pending}
+                  onClick={() => setCancelOpen(false)}
+                  className="w-full rounded-xl bg-state-danger px-4 py-2.5 text-caption font-extrabold text-white transition-colors hover:bg-state-danger/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
+                >
+                  {pending ? 'Cancelling…' : 'Cancel RSVP'}
+                </button>
+              </ResponseForm>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : event.viewerRsvp === 'waitlisted' ? (
         <ResponseForm eventId={event.id} intent="not_going" action={action}>
           <button type="submit" disabled={pending} className={quiet}>

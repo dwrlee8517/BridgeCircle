@@ -19,11 +19,11 @@ export function RouteStateCard({
   href?: string
   onRetry?: () => void
 }) {
-  const actionRef = useRef<HTMLAnchorElement | HTMLButtonElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
   const resolvedKind = kind ?? (onRetry ? 'recoverable-error' : 'not-found')
 
   useEffect(() => {
-    actionRef.current?.focus()
+    headingRef.current?.focus()
   }, [])
 
   return (
@@ -34,8 +34,10 @@ export function RouteStateCard({
       >
         <StateGlyph kind={resolvedKind} />
         <h1
+          ref={headingRef}
           id="route-state-title"
-          className="mt-[18px] text-xl font-extrabold tracking-heading text-[var(--text-primary)]"
+          tabIndex={-1}
+          className="mt-[18px] text-xl font-extrabold tracking-heading text-[var(--text-primary)] outline-none"
         >
           {title}
         </h1>
@@ -44,19 +46,11 @@ export function RouteStateCard({
         </p>
         {href ? (
           <Button asChild variant="secondary" className="mt-5">
-            <Link ref={actionRef as React.RefObject<HTMLAnchorElement>} href={href}>
-              {actionLabel}
-            </Link>
+            <Link href={href}>{actionLabel}</Link>
           </Button>
         ) : null}
         {onRetry ? (
-          <Button
-            ref={actionRef as React.RefObject<HTMLButtonElement>}
-            type="button"
-            variant="cta"
-            className="mt-5"
-            onClick={onRetry}
-          >
+          <Button type="button" variant="cta" className="mt-5" onClick={onRetry}>
             {actionLabel}
           </Button>
         ) : null}
