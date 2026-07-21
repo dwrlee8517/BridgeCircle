@@ -1,6 +1,6 @@
 'use client'
 
-import { CircleHelp, HeartHandshake, Search, Users } from 'lucide-react'
+import { Search, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -12,8 +12,11 @@ import {
   writeHelpCandidateDraft,
   writeHelpQuestionDraft,
 } from './help-draft-storage'
+import { HelpModeSwitch } from './help-mode-switch'
 
 const MAX_QUESTION_LENGTH = 2_000
+const DEBOUNCE_MIN_QUESTION_LENGTH = 12
+const SEARCH_DEBOUNCE_MS = 700
 
 type Candidate = HelpDraftCandidate
 
@@ -27,11 +30,13 @@ export function HelpQuestionForm({
   activeAskCount,
   activeAskLimit,
   autostart = false,
+  explicitMode = false,
 }: {
   membershipId: string
   activeAskCount: number
   activeAskLimit: number
   autostart?: boolean
+  explicitMode?: boolean
 }) {
   const router = useRouter()
   const [question, setQuestion] = useState('')
@@ -41,9 +46,14 @@ export function HelpQuestionForm({
   const requestRef = useRef<AbortController | null>(null)
   const questionRef = useRef<HTMLTextAreaElement | null>(null)
   const autostartedRef = useRef(false)
+  const hasEditedRef = useRef(false)
+  const lastSearchedQuestionRef = useRef<string | null>(null)
   const atCapacity = activeAskCount >= activeAskLimit
 
-  const performSearch = useCallback(async (value: string) => {
+  const performSearch = useCallback(async (value: string, force = false) => {
+    const normalizedQuestion = value.trim()
+    if (!force && lastSearchedQuestionRef.current === normalizedQuestion) return
+    lastSearchedQuestionRef.current = normalizedQuestion
     requestRef.current?.abort()
     const controller = new AbortController()
     requestRef.current = controller
@@ -54,7 +64,7 @@ export function HelpQuestionForm({
       const response = await fetch('/api/help/candidates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: value.trim() }),
+        body: JSON.stringify({ question: normalizedQuestion }),
         cache: 'no-store',
         signal: controller.signal,
       })
@@ -82,7 +92,7 @@ export function HelpQuestionForm({
       if (autostart && !autostartedRef.current) {
         autostartedRef.current = true
         questionRef.current?.focus()
-        void performSearch(stored.question)
+        void performSearch(stored.question, true)
         router.replace('/help', { scroll: false })
       }
     })
@@ -92,7 +102,23 @@ export function HelpQuestionForm({
     }
   }, [autostart, membershipId, performSearch, router])
 
+  useEffect(() => {
+    const normalizedQuestion = question.trim()
+    if (
+      !hasEditedRef.current ||
+      normalizedQuestion.length < DEBOUNCE_MIN_QUESTION_LENGTH ||
+      normalizedQuestion.length > MAX_QUESTION_LENGTH
+    ) {
+      return
+    }
+    const timeout = window.setTimeout(() => {
+      void performSearch(normalizedQuestion)
+    }, SEARCH_DEBOUNCE_MS)
+    return () => window.clearTimeout(timeout)
+  }, [performSearch, question])
+
   function updateQuestion(next: string) {
+    hasEditedRef.current = true
     setQuestion(next)
     setError(null)
     if (status !== 'idle') {
@@ -130,36 +156,13 @@ export function HelpQuestionForm({
       return
     }
 
-    await performSearch(question)
+    await performSearch(question, true)
   }
 
   return (
     <>
       <div className="flex flex-wrap items-center gap-3">
-        <div
-          role="tablist"
-          aria-label="Get help or give help"
-          className="inline-flex gap-0.5 rounded-full bg-[var(--wash-toggle-track)] p-1 shadow-[inset_0_0_0_1px_rgb(25_31_40_/_0.06)]"
-        >
-          <Link
-            href="/help"
-            role="tab"
-            aria-selected="true"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-card px-4 text-body-sm font-bold text-[var(--blue-600)] shadow-sm"
-          >
-            <CircleHelp aria-hidden className="size-[15px]" strokeWidth={2} />
-            Get help
-          </Link>
-          <Link
-            href="/help?mode=give"
-            role="tab"
-            aria-selected="false"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-body-sm font-semibold text-[var(--grey-600)] hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-          >
-            <HeartHandshake aria-hidden className="size-[15px]" strokeWidth={2} />
-            Give help
-          </Link>
-        </div>
+        <HelpModeSwitch membershipId={membershipId} mode="get" explicitMode={explicitMode} />
         <span className="ml-auto text-xs font-semibold text-[var(--text-faint)]">
           Asks stay open 14 days
         </span>
@@ -253,7 +256,13 @@ export function HelpQuestionForm({
 
       {status === 'searching' ? <CandidateSkeleton /> : null}
       {status === 'results' ? (
-        <CandidateList candidates={candidates} membershipId={membershipId} question={question} />
+        <CandidateList
+          candidates={candidates}
+          membershipId={membershipId}
+          question={question}
+          atCapacity={atCapacity}
+          onAskCircle={askCircle}
+        />
       ) : null}
     </>
   )
@@ -287,21 +296,39 @@ function CandidateList({
   candidates,
   membershipId,
   question,
+  atCapacity,
+  onAskCircle,
 }: {
   candidates: Candidate[]
   membershipId: string
   question: string
+  atCapacity: boolean
+  onAskCircle(): void
 }) {
   if (candidates.length === 0) {
     return (
-      <section className="mt-6 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-8 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-        <h2 className="text-body-lg font-extrabold text-[var(--text-primary)]">
+      <section
+        aria-labelledby="no-help-matches-title"
+        className="mt-6 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-8 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]"
+      >
+        <h2
+          id="no-help-matches-title"
+          className="text-body-lg font-extrabold text-[var(--text-primary)]"
+        >
           No strong matches yet
         </h2>
         <p className="mx-auto mt-2 max-w-lg text-body-sm leading-relaxed font-medium text-[var(--text-faint)]">
           Try adding the kind of experience you need, or ask the circle so someone can recognize
           themselves in the question.
         </p>
+        <button
+          type="button"
+          onClick={onAskCircle}
+          disabled={atCapacity}
+          className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--gradient-primary-btn)] px-5 text-body-sm font-bold text-white shadow-[var(--shadow-primary-btn)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          <Users aria-hidden className="size-4" /> Ask the circle
+        </button>
       </section>
     )
   }

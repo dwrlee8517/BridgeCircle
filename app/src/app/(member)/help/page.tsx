@@ -17,6 +17,7 @@ export default async function HelpPage({
 }) {
   const { mode, from, q } = await searchParams
   const give = mode === 'give'
+  const explicitMode = mode === 'get' || mode === 'give' || from === 'home'
   const giveQuery = q?.trim() || null
 
   const { client, context } = await loadMemberContext()
@@ -65,8 +66,14 @@ export default async function HelpPage({
       searchableAsks={browseAsks}
       searchQuery={giveQuery}
       avatarUrls={avatarUrls}
+      explicitMode={explicitMode}
     />
   ) : (
-    <HelpGetHome home={home} recentAsks={recentAsks} autostart={from === 'home'} />
+    <HelpGetHome
+      home={home}
+      recentAsks={recentAsks}
+      autostart={from === 'home'}
+      explicitMode={explicitMode}
+    />
   )
 }

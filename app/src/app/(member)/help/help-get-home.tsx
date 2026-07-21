@@ -6,10 +6,12 @@ export function HelpGetHome({
   home,
   recentAsks,
   autostart = false,
+  explicitMode = false,
 }: {
   home: HelpHome
   recentAsks: HelpAskSummary[]
   autostart?: boolean
+  explicitMode?: boolean
 }) {
   return (
     <div className="min-h-full bg-[var(--surface-page)]">
@@ -20,6 +22,7 @@ export function HelpGetHome({
             activeAskCount={home.activeAskCount}
             activeAskLimit={home.activeAskLimit}
             autostart={autostart}
+            explicitMode={explicitMode}
           />
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { CircleHelp, HeartHandshake, Pause, Search } from 'lucide-react'
+import { Pause, Search } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type {
@@ -9,6 +9,7 @@ import type {
   HelpSuggestedAsk,
 } from '@/lib/help/contracts'
 import { cn, getInitials } from '@/lib/utils'
+import { HelpModeSwitch } from './help-mode-switch'
 import { HelpPreferencesForm } from './help-preferences-form'
 
 export function HelpGiveHome({
@@ -16,11 +17,13 @@ export function HelpGiveHome({
   searchableAsks,
   searchQuery,
   avatarUrls,
+  explicitMode,
 }: {
   home: HelpHome
   searchableAsks: GiveHelpItem[]
   searchQuery: string | null
   avatarUrls: Record<string, string>
+  explicitMode: boolean
 }) {
   const available = home.openToHelp && !home.pausedAt
   const opportunityCount = home.directRequests.length + home.suggestedAsks.length
@@ -30,30 +33,11 @@ export function HelpGiveHome({
       <section className="bg-[image:var(--wash-give)] px-4 pt-5 pb-7 sm:px-6 sm:pt-7 sm:pb-8 xl:px-8">
         <div className="mx-auto max-w-[860px]">
           <div className="flex flex-wrap items-center gap-3">
-            <div
-              role="tablist"
-              aria-label="Get help or give help"
-              className="inline-flex gap-0.5 rounded-full bg-[var(--wash-toggle-track)] p-1 shadow-[inset_0_0_0_1px_rgb(25_31_40_/_0.06)]"
-            >
-              <Link
-                href="/help"
-                role="tab"
-                aria-selected="false"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-body-sm font-semibold text-[var(--grey-600)] hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-              >
-                <CircleHelp aria-hidden className="size-[15px]" strokeWidth={2} />
-                Get help
-              </Link>
-              <Link
-                href="/help?mode=give"
-                role="tab"
-                aria-selected="true"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-card px-4 text-body-sm font-bold text-[var(--action-give-text)] shadow-sm"
-              >
-                <HeartHandshake aria-hidden className="size-[15px]" strokeWidth={2} />
-                Give help
-              </Link>
-            </div>
+            <HelpModeSwitch
+              membershipId={home.membershipId}
+              mode="give"
+              explicitMode={explicitMode}
+            />
             <span className="ml-auto text-xs font-semibold text-[var(--text-faint)]">
               {opportunityCount > 0
                 ? `${opportunityCount} ${opportunityCount === 1 ? 'ask' : 'asks'} may fit`
