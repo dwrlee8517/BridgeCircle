@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { FieldError } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { type ResetRequestState, requestPasswordReset } from './actions'
@@ -12,6 +13,12 @@ const initialState: ResetRequestState = {}
 
 export function ResetPasswordForm() {
   const [state, action, pending] = useActionState(requestPasswordReset, initialState)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const errorId = state.error ? 'reset-password-email-error' : undefined
+
+  useEffect(() => {
+    if (state.error) emailRef.current?.focus()
+  }, [state.error])
 
   return (
     <Card className="text-base shadow-card-hover">
@@ -25,7 +32,10 @@ export function ResetPasswordForm() {
       </CardHeader>
       <CardContent className="space-y-5 pb-6">
         {state.done ? (
-          <div className="rounded-md border border-border bg-surface-panel p-4 text-sm leading-relaxed text-foreground">
+          <div
+            role="status"
+            className="rounded-md border border-border bg-surface-panel p-4 text-sm leading-relaxed text-foreground"
+          >
             If that email is in the circle, a reset link is on its way. It may take a minute.
           </div>
         ) : (
@@ -36,15 +46,23 @@ export function ResetPasswordForm() {
               </Label>
               <Input
                 id="email"
+                ref={emailRef}
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
+                aria-invalid={state.error ? true : undefined}
+                aria-describedby={errorId}
                 className="h-11 text-base md:text-base"
               />
             </div>
-            {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-            <Button type="submit" className="h-11 w-full text-base" disabled={pending}>
+            <FieldError id={errorId} error={state.error} className="text-sm" />
+            <Button
+              type="submit"
+              className="h-11 w-full text-base"
+              disabled={pending}
+              aria-busy={pending}
+            >
               {pending ? 'Sending…' : 'Send reset link'}
             </Button>
           </form>

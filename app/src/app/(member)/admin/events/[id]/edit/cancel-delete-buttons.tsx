@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { FormMessage } from '@/components/ui/form-message'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { type CancelEventFormState, cancelEventAction, deleteEventAction } from './actions'
@@ -47,8 +48,7 @@ export function CancelDeleteButtons({
     DELETE_INITIAL,
   )
 
-  // Close cancel dialog on success.
-  if (cancelState.ok && cancelOpen) setCancelOpen(false)
+  const cancelDialogOpen = cancelState.ok ? false : cancelOpen
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -64,7 +64,7 @@ export function CancelDeleteButtons({
       </Button>
 
       {/* Cancel dialog */}
-      <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Cancel this event?</DialogTitle>
@@ -89,9 +89,7 @@ export function CancelDeleteButtons({
                 placeholder="e.g. venue had to be rebooked"
               />
             </div>
-            {cancelState.error ? (
-              <p className="text-sm text-destructive">{cancelState.error}</p>
-            ) : null}
+            {cancelState.error ? <FormMessage tone="error">{cancelState.error}</FormMessage> : null}
             <DialogFooter>
               <Button
                 type="button"
@@ -101,7 +99,12 @@ export function CancelDeleteButtons({
               >
                 Keep event
               </Button>
-              <Button type="submit" variant="destructive" disabled={cancelPending}>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={cancelPending}
+                aria-busy={cancelPending}
+              >
                 {cancelPending ? 'Canceling…' : 'Cancel event'}
               </Button>
             </DialogFooter>
@@ -121,9 +124,7 @@ export function CancelDeleteButtons({
           </DialogHeader>
           <form action={deleteAction} className="space-y-4">
             <input type="hidden" name="eventId" value={eventId} />
-            {deleteState.error ? (
-              <p className="text-sm text-destructive">{deleteState.error}</p>
-            ) : null}
+            {deleteState.error ? <FormMessage tone="error">{deleteState.error}</FormMessage> : null}
             <DialogFooter>
               <Button
                 type="button"
@@ -133,7 +134,12 @@ export function CancelDeleteButtons({
               >
                 Keep event
               </Button>
-              <Button type="submit" variant="destructive" disabled={deletePending}>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={deletePending}
+                aria-busy={deletePending}
+              >
                 {deletePending ? 'Deleting…' : 'Delete event'}
               </Button>
             </DialogFooter>

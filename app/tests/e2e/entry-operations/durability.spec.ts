@@ -56,7 +56,7 @@ test.describe('entry and operations durability', () => {
       await firstPage.goto('/reset-password')
       await firstPage.locator('#email').fill(member.email)
       await firstPage.getByRole('button', { name: 'Send reset link' }).click()
-      await expect(firstPage.getByText(/a reset link is on its way/i)).toBeVisible()
+      await expect(firstPage.getByRole('status')).toContainText(/a reset link is on its way/i)
 
       const actionLink = await waitForRecoveryLink(member.email)
       await firstPage.goto(actionLink)

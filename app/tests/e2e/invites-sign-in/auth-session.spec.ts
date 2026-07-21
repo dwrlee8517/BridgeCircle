@@ -28,7 +28,14 @@ test("wrong password shows 'Invalid email or password.' and stays on the sign-in
   await page.locator("#password").fill("definitely-the-wrong-password");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
 
-  await expect(page.getByText("Invalid email or password.")).toBeVisible();
+  const error = page.locator("#sign-in-error");
+  await expect(error).toHaveText("Invalid email or password.");
+  await expect(error).toHaveAttribute("role", "alert");
+  await expect(page.locator("#email")).toBeFocused();
+  await expect(page.locator("#email")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.locator("#email")).toHaveAttribute("aria-describedby", "sign-in-error");
+  await expect(page.locator("#password")).toHaveAttribute("aria-invalid", "true");
+  await expect(error).toHaveAttribute("id", "sign-in-error");
   await expect(page).toHaveURL(/\/sign-in/);
 });
 

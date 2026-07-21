@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -54,6 +55,12 @@ export function EventForm({
     if (state.ok && formRef.current && !preserveOnSuccess) formRef.current.reset()
   }, [state.ok, preserveOnSuccess])
 
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
+
   return (
     <form ref={formRef} action={formAction} className="space-y-4">
       {hiddenFields
@@ -69,6 +76,8 @@ export function EventForm({
           maxLength={200}
           placeholder="Spring alumni mixer"
           defaultValue={defaults.title}
+          aria-invalid={fe.title ? true : undefined}
+          aria-describedby={fe.title ? 'title-error' : undefined}
         />
       </Field>
 
@@ -80,6 +89,8 @@ export function EventForm({
             type="datetime-local"
             required
             defaultValue={defaults.startsAtLocal}
+            aria-invalid={fe.startsAt ? true : undefined}
+            aria-describedby={fe.startsAt ? 'startsAt-error' : undefined}
           />
         </Field>
         <Field id="location" label="Location" error={fe.location} required>
@@ -90,6 +101,8 @@ export function EventForm({
             maxLength={200}
             placeholder="Palos Verdes campus"
             defaultValue={defaults.location}
+            aria-invalid={fe.location ? true : undefined}
+            aria-describedby={fe.location ? 'location-error' : undefined}
           />
         </Field>
       </div>
@@ -104,6 +117,8 @@ export function EventForm({
           inputMode="numeric"
           placeholder="e.g. 50"
           defaultValue={defaults.capacity}
+          aria-invalid={fe.capacity ? true : undefined}
+          aria-describedby={fe.capacity ? 'capacity-error' : undefined}
         />
       </Field>
 
@@ -115,17 +130,19 @@ export function EventForm({
           maxLength={2000}
           placeholder="What's the agenda? Anything attendees should bring?"
           defaultValue={defaults.description}
+          aria-invalid={fe.description ? true : undefined}
+          aria-describedby={fe.description ? 'description-error' : undefined}
         />
       </Field>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
       {state.ok ? (
-        <p className="text-sm text-accent-sage">
+        <FormMessage tone="success">
           {preserveOnSuccess ? 'Saved.' : 'Event published.'}
-        </p>
+        </FormMessage>
       ) : null}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} aria-busy={pending}>
         {pending
           ? preserveOnSuccess
             ? 'Saving…'
@@ -156,7 +173,7 @@ function Field({
         {required ? <span className="text-destructive"> *</span> : null}
       </Label>
       {children}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      <FieldError id={`${id}-error`} error={error} />
     </div>
   )
 }
