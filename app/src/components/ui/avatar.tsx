@@ -3,6 +3,7 @@
 import { Avatar as AvatarPrimitive } from 'radix-ui'
 import type * as React from 'react'
 
+import { avatarColorClass } from '@/lib/avatar'
 import { cn } from '@/lib/utils'
 
 function Avatar({
@@ -37,13 +38,15 @@ function AvatarImage({ className, ...props }: React.ComponentProps<typeof Avatar
 
 function AvatarFallback({
   className,
+  seed,
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+}: React.ComponentProps<typeof AvatarPrimitive.Fallback> & { seed?: string }) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
         'flex size-full items-center justify-center rounded-full bg-[var(--avatar-neutral)] text-sm font-semibold text-text-secondary group-data-[size=sm]/avatar:text-xs',
+        seed && avatarColorClass(seed),
         className,
       )}
       {...props}

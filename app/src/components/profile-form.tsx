@@ -8,7 +8,8 @@ import {
   EducationHistoryField,
   SkillsField,
 } from '@/components/profile-history-fields'
-import { Button } from '@/components/ui/button'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
+import { FormSubmitButton } from '@/components/ui/form-submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -53,7 +54,7 @@ export function ProfileForm({
   submitLabel = 'Save and continue',
   submittingLabel = 'Saving…',
 }: Props) {
-  const [state, formAction, pending] = useActionState(action, initialState)
+  const [state, formAction] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
 
   return (
@@ -120,19 +121,17 @@ export function ProfileForm({
           <Input id="major" name="major" defaultValue={defaults.major} required />
         </Field>
         <EducationHistoryField initial={defaults.educationHistory} />
-        {fe.educationHistory ? (
-          <p className="text-xs text-destructive">{fe.educationHistory}</p>
-        ) : null}
+        <FieldError error={fe.educationHistory} />
       </Section>
 
       <Section title="Career history">
         <CareerHistoryField initial={defaults.careerHistory} />
-        {fe.careerHistory ? <p className="text-xs text-destructive">{fe.careerHistory}</p> : null}
+        <FieldError error={fe.careerHistory} />
       </Section>
 
       <Section title="Skills">
         <SkillsField initial={defaults.skills} />
-        {fe.skills ? <p className="text-xs text-destructive">{fe.skills}</p> : null}
+        <FieldError error={fe.skills} />
       </Section>
 
       <Section title="Optional">
@@ -167,11 +166,11 @@ export function ProfileForm({
         </Field>
       </Section>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? submittingLabel : submitLabel}
-      </Button>
+      <FormSubmitButton className="w-full" pendingLabel={submittingLabel}>
+        {submitLabel}
+      </FormSubmitButton>
     </form>
   )
 }
@@ -207,7 +206,7 @@ function Field({
         {required ? <span className="text-destructive"> *</span> : null}
       </Label>
       {children}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      <FieldError error={error} />
     </div>
   )
 }

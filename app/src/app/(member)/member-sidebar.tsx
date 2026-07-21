@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Wordmark } from '@/components/ui/wordmark'
 import { MemberNav } from './member-nav'
+import { MemberProfileLink } from './member-profile-link'
 
 type Props = {
   name: string | null
@@ -40,11 +41,7 @@ export function MemberSidebar({ name, avatarUrl, graduationYear, isAdmin }: Prop
           </nav>
         ) : null}
 
-        <Link
-          href="/profile/me"
-          aria-label={name ? `Open ${name}'s profile` : 'Open your profile'}
-          className="flex items-center justify-center gap-3 rounded-[var(--radius-box)] px-1 py-2 transition-colors hover:bg-[var(--hover-tint)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring xl:justify-start xl:px-2"
-        >
+        <MemberProfileLink label={name ? `Open ${name}'s profile` : 'Open your profile'}>
           <Avatar className="size-9 shrink-0 after:border-white/20">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt={name ?? ''} /> : null}
             <AvatarFallback className="bg-[image:var(--gradient-avatar)] font-bold text-white">
@@ -59,7 +56,7 @@ export function MemberSidebar({ name, avatarUrl, graduationYear, isAdmin }: Prop
               {graduationYear ? `Class of ’${String(graduationYear).slice(-2)}` : 'Member profile'}
             </span>
           </span>
-        </Link>
+        </MemberProfileLink>
       </div>
     </aside>
   )

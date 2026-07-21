@@ -301,6 +301,16 @@ export type Database = {
           viewer_outcome_share_story: boolean
         }[]
       }
+      get_direct_ask_target: {
+        Args: {
+          p_asker_membership_id: string
+          p_recipient_membership_id: string
+        }
+        Returns: {
+          recipient: Json
+          result_code: string
+        }[]
+      }
       get_help_ask_detail: {
         Args: { p_ask_id: string }
         Returns: {

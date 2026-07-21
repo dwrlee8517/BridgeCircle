@@ -49,7 +49,8 @@ export default async function HelperSettingsPage() {
         </h1>
         <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
           One switch — open to helping, or not — and the topics where classmates should find you.
-          Status auto-expires after 14 days away.
+          Your availability stays as you set it. If matching pauses after unanswered direct asks,
+          we&apos;ll tell you here.
         </p>
       </div>
 

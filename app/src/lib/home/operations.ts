@@ -26,7 +26,7 @@ export function homePulse(native: HomeNative | null): string {
   if (!native) return 'Your circle is here when you need it.'
   const { newMembers, refreshedProfiles } = native.weeklyPulse
   if (newMembers === 0 && refreshedProfiles === 0) {
-    return 'All quiet. Nothing is waiting on you this week.'
+    return 'All quiet. No new circle updates this week.'
   }
 
   const parts: string[] = []

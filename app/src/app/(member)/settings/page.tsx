@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { signOut } from '@/app/(auth)/sign-in/actions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { FormMessage } from '@/components/ui/form-message'
+import { FormSubmitButton } from '@/components/ui/form-submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createSettingsRepository } from '@/db/repositories/settings'
@@ -45,14 +47,14 @@ export default async function SettingsPage({
       </div>
 
       {params.saved ? (
-        <p className="rounded-xl bg-success-tint px-4 py-3 text-sm text-accent-sage">
+        <FormMessage tone="success" className="rounded-xl bg-success-tint px-4 py-3">
           Your settings were saved.
-        </p>
+        </FormMessage>
       ) : null}
       {params.error ? (
-        <p className="rounded-xl bg-danger-tint px-4 py-3 text-sm text-state-danger">
+        <FormMessage tone="error" className="rounded-xl bg-danger-tint px-4 py-3">
           That change could not be saved. Please try again.
-        </p>
+        </FormMessage>
       ) : null}
 
       <Card>
@@ -66,20 +68,20 @@ export default async function SettingsPage({
               <Label htmlFor="email">New email</Label>
               <Input id="email" name="email" type="email" required defaultValue={session.email} />
             </div>
-            <Button type="submit" variant="outline">
+            <FormSubmitButton variant="outline" pendingLabel="Changing…">
               Change email
-            </Button>
+            </FormSubmitButton>
           </form>
           <div className="flex flex-wrap gap-2">
             <form action={requestExportAction}>
-              <Button type="submit" variant="outline">
+              <FormSubmitButton variant="outline" pendingLabel="Requesting…">
                 Request data export
-              </Button>
+              </FormSubmitButton>
             </form>
             <form action={signOut}>
-              <Button type="submit" variant="outline">
+              <FormSubmitButton variant="outline" pendingLabel="Signing out…">
                 Sign out
-              </Button>
+              </FormSubmitButton>
             </form>
           </div>
           {accountExport ? (
@@ -92,9 +94,9 @@ export default async function SettingsPage({
               </div>
               {accountExport.status === 'ready' ? (
                 <form action={downloadExportAction}>
-                  <Button type="submit" size="sm" variant="ghost">
+                  <FormSubmitButton size="sm" variant="ghost" pendingLabel="Preparing…">
                     Download
-                  </Button>
+                  </FormSubmitButton>
                 </form>
               ) : null}
               {accountExport.status === 'queued' || accountExport.status === 'processing' ? (
@@ -137,9 +139,14 @@ export default async function SettingsPage({
                   <label className="flex items-center gap-2">
                     <input name="email" type="checkbox" defaultChecked={email} /> Email
                   </label>
-                  <Button type="submit" size="sm" variant="outline" className="ml-auto">
+                  <FormSubmitButton
+                    size="sm"
+                    variant="outline"
+                    className="ml-auto"
+                    pendingLabel="Saving…"
+                  >
                     Save
-                  </Button>
+                  </FormSubmitButton>
                 </div>
               </form>
             )
@@ -162,9 +169,9 @@ export default async function SettingsPage({
               />
               Email me the school newsletter
             </label>
-            <Button type="submit" size="sm" variant="outline">
+            <FormSubmitButton size="sm" variant="outline" pendingLabel="Saving…">
               Save
-            </Button>
+            </FormSubmitButton>
           </form>
         </CardContent>
       </Card>
@@ -191,9 +198,9 @@ export default async function SettingsPage({
                     <span className="text-sm">{person.displayName}</span>
                     <form action={unblockMemberAction}>
                       <input type="hidden" name="userId" value={person.userId} />
-                      <Button type="submit" size="sm" variant="ghost">
+                      <FormSubmitButton size="sm" variant="ghost" pendingLabel="Unblocking…">
                         Unblock
-                      </Button>
+                      </FormSubmitButton>
                     </form>
                   </li>
                 ))}
@@ -212,9 +219,9 @@ export default async function SettingsPage({
         </CardHeader>
         <CardContent>
           <form action={scheduleDeletionAction}>
-            <Button type="submit" variant="destructive">
+            <FormSubmitButton variant="destructive" pendingLabel="Scheduling…">
               Schedule account deletion
-            </Button>
+            </FormSubmitButton>
           </form>
         </CardContent>
       </Card>

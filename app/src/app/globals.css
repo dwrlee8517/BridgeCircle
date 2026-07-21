@@ -451,6 +451,7 @@
   --surface-editorial-foreground: var(--surface-ink-foreground);
   --surface-editorial-muted: var(--surface-ink-muted);
   --divider-row: #f4f5f7;
+  --divider: var(--divider-row);
 
   --action-primary: var(--primary);
   --action-primary-hover: var(--primary-hover);

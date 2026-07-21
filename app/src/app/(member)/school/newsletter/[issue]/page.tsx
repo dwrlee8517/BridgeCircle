@@ -27,7 +27,7 @@ export default async function NewsletterIssuePage({
       <div className="mx-auto w-full max-w-[680px] px-5 py-8 sm:py-12">
         <article>
           <p className="text-overline font-bold tracking-caps text-action-weak-text uppercase">
-            The Bridge · Issue {issue.issueNumber}
+            Newsletter · Issue {issue.issueNumber}
           </p>
           <h1 className="mt-3 font-heading text-display-md font-black leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
             {issue.title}

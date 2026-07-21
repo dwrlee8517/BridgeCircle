@@ -4,6 +4,7 @@ import {
   createCircleHelpAsk,
   createDirectHelpAsk,
   decideHelpOffer,
+  getDirectAskTarget,
   offerHelp,
   resolveHelpAsk,
   respondToDirectHelpAsk,
@@ -17,6 +18,32 @@ const offerId = '40000000-0000-4000-8000-000000000001'
 const requestId = '60000000-0000-4000-8000-000000000001'
 
 describe('Help domain operations', () => {
+  it('loads only a UUID-shaped direct Ask recipient projection', async () => {
+    const getTarget = vi.fn<HelpRepository['getDirectAskTarget']>().mockResolvedValue({
+      membershipId: recipientMembershipId,
+      userId: '10000000-0000-4000-8000-000000000002',
+      displayName: 'Ari Park',
+      headline: 'Product leader',
+      avatarPath: null,
+      graduationYear: 2001,
+      topics: ['Product'],
+    })
+
+    await expect(
+      getDirectAskTarget(
+        { membershipId, recipientMembershipId },
+        { getDirectAskTarget: getTarget },
+      ),
+    ).resolves.toMatchObject({ membershipId: recipientMembershipId, displayName: 'Ari Park' })
+    await expect(
+      getDirectAskTarget(
+        { membershipId: 'not-a-uuid', recipientMembershipId },
+        { getDirectAskTarget: getTarget },
+      ),
+    ).resolves.toBeNull()
+    expect(getTarget).toHaveBeenCalledTimes(1)
+  })
+
   it('normalizes valid direct and circle Asks before persistence', async () => {
     const createDirectAsk = vi.fn<HelpRepository['createDirectAsk']>().mockResolvedValue({
       status: 'created',

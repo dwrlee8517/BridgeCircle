@@ -13,17 +13,18 @@ import { HelpGiveHome } from './help-give-home'
 export default async function HelpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; from?: string }>
+  searchParams: Promise<{ mode?: string; from?: string; q?: string }>
 }) {
-  const { mode, from } = await searchParams
+  const { mode, from, q } = await searchParams
   const give = mode === 'give'
+  const giveQuery = q?.trim() || null
 
   const { client, context } = await loadMemberContext()
   const membership = selectedMembership(context)
   if (!membership || membership.status !== 'active') notFound()
 
   const repository = createHelpRepository(client)
-  const [home, recentAsks] = await Promise.all([
+  const [home, recentAsks, searchableAsks] = await Promise.all([
     repository.getHome(membership.membershipId),
     give
       ? Promise.resolve([])
@@ -32,12 +33,24 @@ export default async function HelpPage({
           cursor: null,
           limit: 4,
         }),
+    give
+      ? repository.listGiveHelp({
+          membershipId: membership.membershipId,
+          arm: 'search',
+          query: giveQuery,
+          cursor: null,
+          limit: 12,
+        })
+      : Promise.resolve([]),
   ])
   if (!home) notFound()
 
+  const suggestedAskIds = new Set(home.suggestedAsks.map((ask) => ask.askId))
+  const browseAsks = searchableAsks.filter((ask) => !suggestedAskIds.has(ask.id))
+
   const avatarStorage = createAvatarStorageRepository(client)
   const avatarUrls = Object.fromEntries(
-    [...home.directRequests, ...home.suggestedAsks]
+    [...home.directRequests, ...home.suggestedAsks, ...searchableAsks]
       .map((item) => item.asker)
       .flatMap((person) =>
         person.identity === 'identified' && person.avatarPath
@@ -47,7 +60,12 @@ export default async function HelpPage({
   )
 
   return give ? (
-    <HelpGiveHome home={home} avatarUrls={avatarUrls} />
+    <HelpGiveHome
+      home={home}
+      searchableAsks={browseAsks}
+      searchQuery={giveQuery}
+      avatarUrls={avatarUrls}
+    />
   ) : (
     <HelpGetHome home={home} recentAsks={recentAsks} autostart={from === 'home'} />
   )

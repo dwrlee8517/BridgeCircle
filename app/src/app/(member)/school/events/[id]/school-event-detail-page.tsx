@@ -1,6 +1,6 @@
 import { ArrowLeft, CalendarPlus, ExternalLink, MapPin, UsersRound, Video } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { SchoolEventAttendees, SchoolEventDetail } from '@/lib/school/contracts'
 import { formatEventTimeRange } from '@/lib/school/time'
 import { EventTime } from '../../event-time'
@@ -127,10 +127,10 @@ export function SchoolEventDetailPage({
 
 function EventHero({ event }: { event: SchoolEventDetail }) {
   return (
-    <section className="overflow-hidden rounded-2xl bg-surface-ink text-surface-ink-foreground shadow-hero">
-      <div className="grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
-        <div className="flex h-32 w-28 shrink-0 flex-col items-center justify-center rounded-2xl bg-white text-surface-ink shadow-sm">
-          <span className="text-overline font-extrabold tracking-caps text-action-weak-text uppercase">
+    <section className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero before:pointer-events-none before:absolute before:inset-0 before:bg-[image:var(--cover-texture)] before:bg-size-[7px_7px] before:opacity-45">
+      <div className="relative grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
+        <div className="flex h-32 w-28 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass),var(--shadow-raised)] backdrop-blur-sm">
+          <span className="text-overline font-extrabold tracking-caps text-[var(--cover-accent)] uppercase">
             {new Intl.DateTimeFormat('en-US', { month: 'short', timeZone: event.timeZone }).format(
               new Date(event.startsAt),
             )}
@@ -140,7 +140,7 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
               new Date(event.startsAt),
             )}
           </span>
-          <span className="text-micro font-bold tracking-caps text-text-muted uppercase">
+          <span className="text-micro font-bold tracking-caps text-white/75 uppercase">
             {new Intl.DateTimeFormat('en-US', {
               weekday: 'short',
               timeZone: event.timeZone,
@@ -186,7 +186,7 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2 border-t border-white/10 px-6 py-4 sm:px-8">
+      <div className="relative flex flex-wrap items-center gap-2 border-t border-white/10 px-6 py-4 sm:px-8">
         <RsvpControl event={event} tone="dark" />
         {event.joinUrl ? (
           <a
@@ -245,19 +245,12 @@ function AttendeeCard({
             href={`/profile/${person.userId}`}
             className="flex items-center gap-3 border-t border-divider-row px-5 py-3 hover:bg-surface-subtle"
           >
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt=""
-                width={36}
-                height={36}
-                className="size-9 rounded-full object-cover ring-1 ring-border"
-              />
-            ) : (
-              <span className="flex size-9 items-center justify-center rounded-full bg-[var(--avatar-1-bg)] text-chip font-extrabold text-[var(--avatar-1-fg)] ring-1 ring-border">
+            <Avatar className="size-9 ring-1 ring-border">
+              {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
+              <AvatarFallback seed={person.userId} className="text-chip font-extrabold">
                 {initials(name)}
-              </span>
-            )}
+              </AvatarFallback>
+            </Avatar>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-control font-bold text-text-primary">
                 {name}

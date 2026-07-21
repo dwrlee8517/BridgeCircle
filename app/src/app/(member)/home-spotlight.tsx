@@ -37,7 +37,7 @@ export function HomeSpotlightDeck({
 
   if (items.length === 0) {
     return (
-      <section aria-labelledby="home-week-heading" className="grid gap-2">
+      <section aria-labelledby="home-week-heading" className="grid min-w-0 grid-cols-1 gap-2">
         <h2
           id="home-week-heading"
           className="px-0.5 text-caption font-extrabold tracking-wide text-text-secondary"
@@ -64,7 +64,7 @@ export function HomeSpotlightDeck({
   return (
     <section
       aria-labelledby="home-week-heading"
-      className="grid gap-2"
+      className="grid min-w-0 grid-cols-1 gap-2"
       onMouseEnter={() => setHeld(true)}
       onMouseLeave={() => setHeld(false)}
       onFocusCapture={() => setHeld(true)}

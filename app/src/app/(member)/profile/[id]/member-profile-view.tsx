@@ -130,8 +130,13 @@ export function MemberProfileView({
       const response = await fetch(endpoint, { method: 'POST', cache: 'no-store' })
       if (!response.ok) throw new Error('safety action unavailable')
       if (confirmAction === 'block') {
-        router.replace('/people')
-        router.refresh()
+        if (presentation === 'overlay') {
+          router.back()
+          window.setTimeout(() => router.refresh(), 0)
+        } else {
+          router.replace('/people')
+          router.refresh()
+        }
         return
       }
       setRelationship({ state: 'none', requestId: null, conversationId: null })
@@ -164,7 +169,9 @@ export function MemberProfileView({
           >
             <Avatar className="size-20 ring-2 ring-[rgb(49_130_246_/_0.28)] ring-offset-2 ring-offset-white sm:size-[84px]">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback className="text-2xl">{initials(name)}</AvatarFallback>
+              <AvatarFallback seed={profile.userId} className="text-2xl">
+                {initials(name)}
+              </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">

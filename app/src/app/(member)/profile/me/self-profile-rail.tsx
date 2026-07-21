@@ -146,13 +146,13 @@ export function SelfProfileRail({
       </RailCard>
       <RailCard title="Email & quiet">
         <p className="mt-2 text-overline leading-relaxed font-medium text-[var(--text-faint)]">
-          Notification history and controls stay outside your public profile.
+          Email, quiet hours, notifications, and blocked members stay outside your public profile.
         </p>
         <Link
-          href="/notifications"
+          href="/settings"
           className="mt-2 inline-flex text-overline font-bold text-[var(--blue-600)]"
         >
-          Open notifications
+          Open settings
         </Link>
       </RailCard>
     </aside>

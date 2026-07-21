@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   parseCreateHelpAskRow,
   parseCreateHelpOfferRow,
+  parseDirectAskTargetRow,
   parseGiveHelpRow,
   parseHelpAiBudgetRow,
   parseHelpAskDecisionRow,
@@ -34,6 +35,23 @@ function identifiedProfile() {
 }
 
 describe('Help repository projections', () => {
+  it('fails closed for unavailable or malformed direct Ask targets', () => {
+    const target = {
+      membershipId,
+      userId,
+      displayName: 'Mark Chen',
+      headline: 'Product leader',
+      avatarPath: null,
+      graduationYear: 2001,
+      topics: ['Product'],
+    }
+    expect(parseDirectAskTargetRow({ result_code: 'ok', recipient: target })).toEqual(target)
+    expect(parseDirectAskTargetRow({ result_code: 'not_available', recipient: null })).toBeNull()
+    expect(() =>
+      parseDirectAskTargetRow({ result_code: 'not_available', recipient: target }),
+    ).toThrow('unavailable target has recipient')
+  })
+
   it('parses one bounded Help home snapshot', () => {
     expect(
       parseHelpHomeRow({

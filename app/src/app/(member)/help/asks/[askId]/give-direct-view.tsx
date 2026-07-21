@@ -179,7 +179,7 @@ export function GiveDirectView({
           <div className="mt-4 flex items-center gap-2.5">
             <Avatar className="size-10 shadow-[var(--ring-avatar)]">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback>{getInitials(asker.displayName)}</AvatarFallback>
+              <AvatarFallback seed={asker.userId}>{getInitials(asker.displayName)}</AvatarFallback>
             </Avatar>
             <span className="min-w-0">
               <span className="flex flex-wrap items-baseline gap-2">

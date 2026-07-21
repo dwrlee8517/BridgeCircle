@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { getMemberNavIcon } from './member-nav-icons'
 import { MessagesAttentionBadge } from './messages-attention-badge'
 import { isMemberNavLinkActive, MEMBER_NAV_LINKS } from './nav-links'
+import { useMemberNavPathname } from './use-member-nav-pathname'
 import { useUserControl } from './user-control-provider'
 
 /**
@@ -16,7 +16,7 @@ import { useUserControl } from './user-control-provider'
  * metadata while the desktop and mobile surfaces share the same icon set.
  */
 export function MemberTabBar() {
-  const pathname = usePathname()
+  const pathname = useMemberNavPathname()
   const { messagesAttentionCount } = useUserControl()
 
   return (

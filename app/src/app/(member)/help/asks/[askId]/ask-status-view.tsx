@@ -263,11 +263,10 @@ export function AskStatusView({
               <p className="text-xs font-semibold text-[var(--text-faint)]">you hold the accept</p>
             </div>
             <div className="grid gap-2.5">
-              {detail.offers.map((offer, index) => (
+              {detail.offers.map((offer) => (
                 <OfferCard
                   key={offer.id}
                   offer={offer}
-                  index={index + 1}
                   askStatus={detail.status}
                   conversationId={detail.conversationId}
                   avatarUrls={avatarUrls}
@@ -361,7 +360,7 @@ function DirectStatusCard({
         Sent to
       </p>
       <div className="mt-3 flex items-center gap-3">
-        <ProfileAvatar profile={recipient} avatarUrls={avatarUrls} index={0} size="lg" />
+        <ProfileAvatar profile={recipient} avatarUrls={avatarUrls} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-1.5">
             <strong className="text-sm font-bold text-[var(--text-primary)]">
@@ -464,7 +463,6 @@ function ClosedCircleRecovery({ onRest, onRenew }: { onRest(): void; onRenew(): 
 
 function OfferCard({
   offer,
-  index,
   askStatus,
   conversationId,
   avatarUrls,
@@ -474,7 +472,6 @@ function OfferCard({
   onReport,
 }: {
   offer: HelpOffer
-  index: number
   askStatus: HelpAskDetail['status']
   conversationId: string | null
   avatarUrls: Record<string, string>
@@ -488,7 +485,7 @@ function OfferCard({
   return (
     <article className="rounded-2xl bg-[image:var(--surface-card-elevated)] px-4.5 py-4 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
       <div className="flex items-center gap-3">
-        <ProfileAvatar profile={offer.helper} avatarUrls={avatarUrls} index={index} />
+        <ProfileAvatar profile={offer.helper} avatarUrls={avatarUrls} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-1.5">
             <strong className="text-sm font-bold text-[var(--text-primary)]">
@@ -597,25 +594,17 @@ function StatusPill({ status }: { status: HelpAskDetail['status'] }) {
 function ProfileAvatar({
   profile,
   avatarUrls,
-  index,
   size = 'default',
 }: {
   profile: IdentifiedHelpProfile
   avatarUrls: Record<string, string>
-  index: number
   size?: 'default' | 'lg'
 }) {
   const url = profile.avatarPath ? avatarUrls[profile.avatarPath] : undefined
-  const colors = [
-    'bg-[var(--avatar-1-bg)] text-[var(--avatar-1-fg)]',
-    'bg-[var(--avatar-2-bg)] text-[var(--avatar-2-fg)]',
-    'bg-[var(--avatar-3-bg)] text-[var(--avatar-3-fg)]',
-    'bg-[var(--avatar-4-bg)] text-[var(--avatar-4-fg)]',
-  ]
   return (
     <Avatar className={size === 'lg' ? 'size-[42px]' : 'size-[38px]'}>
       {url ? <AvatarImage src={url} alt="" /> : null}
-      <AvatarFallback className={cn(colors[index % colors.length], 'text-xs font-bold')}>
+      <AvatarFallback seed={profile.userId} className="text-xs font-bold">
         {initials(profile.displayName)}
       </AvatarFallback>
     </Avatar>

@@ -123,7 +123,7 @@ function Row({ row }: { row: NotificationRow }) {
   const inner = (
     <div
       className={`flex items-start gap-3 px-4 py-3 ${
-        row.readAt ? '' : 'bg-warning-tint/55'
+        row.readAt ? '' : 'bg-primary-tint/55'
       } ${url ? 'hover:bg-muted/40' : ''}`}
     >
       <Icon type={row.type} />

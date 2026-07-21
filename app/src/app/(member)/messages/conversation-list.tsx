@@ -77,7 +77,9 @@ export function ConversationList({
                   {avatarUrl ? (
                     <AvatarImage src={avatarUrl} alt="" />
                   ) : (
-                    <AvatarFallback>{getInitials(item.counterpart.displayName)}</AvatarFallback>
+                    <AvatarFallback seed={item.counterpart.userId}>
+                      {getInitials(item.counterpart.displayName)}
+                    </AvatarFallback>
                   )}
                 </Avatar>
                 <span className="min-w-0 flex-1">

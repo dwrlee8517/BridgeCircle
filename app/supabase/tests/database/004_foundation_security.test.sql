@@ -46,7 +46,7 @@ select extensions.is(
     'decide_membership', 'decide_offer', 'decline_profile_import', 'delete_admin_school_event', 'disconnect',
     'fail_profile_import', 'finish_profile_import',
     'get_admin_school_announcements', 'get_admin_school_events', 'get_ask_detail',
-    'get_conversation_detail', 'get_help_ask_detail', 'get_help_home',
+    'get_conversation_detail', 'get_direct_ask_target', 'get_help_ask_detail', 'get_help_home',
     'get_helper_preferences', 'get_home_native', 'get_member_profile', 'get_messages_counts',
     'get_my_account_export', 'get_my_account_export_download', 'get_my_communication_preferences',
     'get_my_member_context', 'get_my_notification_preferences',

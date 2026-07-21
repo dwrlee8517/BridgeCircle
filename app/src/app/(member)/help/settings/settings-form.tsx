@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation'
 import { useActionState, useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
+import { FormSubmitButton } from '@/components/ui/form-submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { StatusBadge } from '@/components/ui/status-badge'
@@ -30,7 +31,7 @@ type Props = {
  */
 export function SettingsForm({ defaults }: Props) {
   const router = useRouter()
-  const [state, action, pending] = useActionState(saveHelpPreferencesAction, initialState)
+  const [state, action] = useActionState(saveHelpPreferencesAction, initialState)
   const fe = state.fieldErrors ?? {}
 
   const [open, setOpen] = useState(defaults.openToHelp)
@@ -44,7 +45,7 @@ export function SettingsForm({ defaults }: Props) {
       <div className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
         <SettingRow
           title="Open to helping"
-          description="Members can ask you for help. Say yes ask by ask — passing quietly is always an option."
+          description="Members can ask you for help. You decide each Ask individually; a direct decline includes a kind note."
           control={
             <div className="flex items-center gap-3">
               <StatusBadge tone={open ? 'open' : 'muted'} dot>
@@ -82,11 +83,11 @@ export function SettingsForm({ defaults }: Props) {
       </div>
 
       <div className="flex items-center justify-end gap-3">
-        {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-        {state.ok ? <p className="text-sm text-accent-sage">Saved.</p> : null}
-        <Button type="submit" variant="cta" disabled={pending}>
-          {pending ? 'Saving...' : 'Save settings'}
-        </Button>
+        {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
+        {state.ok ? <FormMessage tone="success">Saved.</FormMessage> : null}
+        <FormSubmitButton variant="cta" pendingLabel="Saving…">
+          Save settings
+        </FormSubmitButton>
       </div>
     </form>
   )
@@ -117,8 +118,4 @@ function SettingRow({
       <div className="flex justify-start sm:justify-end">{control}</div>
     </div>
   )
-}
-
-function FieldError({ error }: { error?: string }) {
-  return error ? <p className="mt-1.5 text-xs text-destructive">{error}</p> : null
 }

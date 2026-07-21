@@ -145,7 +145,13 @@ export function GiveOfferView({
           <div className="mt-4 flex items-center gap-2.5">
             <Avatar className="size-10 shadow-[var(--ring-avatar)]">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback>
+              <AvatarFallback
+                seed={
+                  detail.asker.identity === 'identified'
+                    ? detail.asker.userId
+                    : `anonymous:${detail.asker.graduationYear ?? 'member'}`
+                }
+              >
                 {detail.asker.identity === 'identified'
                   ? getInitials(detail.asker.displayName)
                   : 'AM'}

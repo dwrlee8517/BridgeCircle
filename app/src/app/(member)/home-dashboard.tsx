@@ -97,8 +97,8 @@ export function HomeDashboard({
         </p>
       ) : null}
 
-      <div className="mt-1 grid items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,1fr)]">
-        <div className="grid min-w-0 gap-4">
+      <div className="mt-1 grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,1fr)]">
+        <div className="grid min-w-0 grid-cols-1 gap-4">
           <section className="rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-4.5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
             <h2 className="text-body-sm font-extrabold tracking-tight text-foreground">
               What do you need?
@@ -179,7 +179,7 @@ export function HomeDashboard({
           )}
         </div>
 
-        <div className="grid min-w-0 gap-4">
+        <div className="grid min-w-0 grid-cols-1 gap-4">
           {dashboard.school.status === 'failed' ? (
             <SourceUnavailable label="From the school" />
           ) : school ? (
@@ -206,7 +206,7 @@ export function HomeDashboard({
 function HomeSurface({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 sm:py-8 xl:px-8">
-      <div className="mx-auto grid w-full max-w-[1020px] gap-5">{children}</div>
+      <div className="mx-auto grid w-full min-w-0 max-w-[1020px] grid-cols-1 gap-5">{children}</div>
     </div>
   )
 }

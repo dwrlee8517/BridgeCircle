@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { cn, getInitials } from '@/lib/utils'
+import { getInitials } from '@/lib/utils'
 import {
   type HelpDraftCandidate,
   readHelpDraft,
@@ -317,14 +317,14 @@ function CandidateList({
         </span>
       </div>
       <div className="overflow-hidden rounded-[18px] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-        {candidates.map((candidate, index) => (
+        {candidates.map((candidate) => (
           <article
             key={candidate.membershipId}
             className="flex flex-col gap-3 border-t border-[var(--divider-row)] px-4 py-4 first:border-t-0 sm:flex-row sm:items-center sm:px-5"
           >
             <Avatar className="size-10 shrink-0 after:border-black/5">
               {candidate.avatarUrl ? <AvatarImage src={candidate.avatarUrl} alt="" /> : null}
-              <AvatarFallback className={cn(avatarClass(index), 'text-body-sm font-bold')}>
+              <AvatarFallback seed={candidate.userId} className="text-body-sm font-bold">
                 {getInitials(candidate.displayName)}
               </AvatarFallback>
             </Avatar>
@@ -358,7 +358,7 @@ function CandidateList({
               </div>
             </div>
             <Link
-              href={`/help/ask/${candidate.membershipId}`}
+              href={`/help/ask/${candidate.membershipId}?draft=1`}
               onClick={() =>
                 writeHelpCandidateDraft(window.sessionStorage, membershipId, question, candidate)
               }
@@ -371,16 +371,4 @@ function CandidateList({
       </div>
     </section>
   )
-}
-
-function avatarClass(index: number) {
-  const classes = [
-    'bg-[var(--avatar-1-bg)] text-[var(--avatar-1-fg)]',
-    'bg-[var(--avatar-5-bg)] text-[var(--avatar-5-fg)]',
-    'bg-[var(--avatar-2-bg)] text-[var(--avatar-2-fg)]',
-    'bg-[var(--avatar-3-bg)] text-[var(--avatar-3-fg)]',
-    'bg-[var(--avatar-4-bg)] text-[var(--avatar-4-fg)]',
-    'bg-[var(--avatar-6-bg)] text-[var(--avatar-6-fg)]',
-  ]
-  return classes[index % classes.length]
 }

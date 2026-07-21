@@ -114,8 +114,8 @@ function AttendingStrip({
 function EventCover({ event }: { event: SchoolEventCard }) {
   const capacityMatters = event.spotsLeft !== null && event.spotsLeft <= 8
   return (
-    <article className="overflow-hidden rounded-2xl bg-surface-ink text-surface-ink-foreground shadow-hero">
-      <div className="grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
+    <article className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero before:pointer-events-none before:absolute before:inset-0 before:bg-[image:var(--cover-texture)] before:bg-size-[7px_7px] before:opacity-45">
+      <div className="relative grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
         <div className="min-w-0">
           <p className="text-overline font-extrabold tracking-caps text-surface-ink-muted uppercase">
             Chadwick · {event.category}
@@ -154,14 +154,14 @@ function EventCover({ event }: { event: SchoolEventCard }) {
             {capacityMatters ? <span>· {event.spotsLeft} spots left</span> : null}
           </div>
         </div>
-        <DateTile event={event} />
+        <DateTile event={event} variant="glass" />
       </div>
       {event.changeNote ? (
-        <p className="border-t border-white/10 px-5 py-3 text-chip font-semibold text-surface-ink-muted sm:px-7">
+        <p className="relative border-t border-white/10 px-5 py-3 text-chip font-semibold text-surface-ink-muted sm:px-7">
           Updated · {event.changeNote}
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center gap-2 border-t border-white/10 px-5 py-4 sm:px-7">
+      <div className="relative flex flex-wrap items-center gap-2 border-t border-white/10 px-5 py-4 sm:px-7">
         <RsvpControl event={event} tone="dark" />
         <Link
           href={`/school/events/${event.id}/calendar`}
@@ -281,9 +281,7 @@ function NewsletterPanel({ issue }: { issue: NewsletterSummary | null }) {
   if (!issue) return null
   return (
     <section className="rounded-2xl bg-surface-card p-5 shadow-card ring-1 ring-border-subtle">
-      <p className="text-fine font-bold tracking-caps text-text-muted uppercase">
-        The Bridge · Newsletter
-      </p>
+      <p className="text-fine font-bold tracking-caps text-text-muted uppercase">Newsletter</p>
       <h2 className="mt-2 text-body font-extrabold text-text-primary">{issue.title}</h2>
       {issue.summary ? (
         <p className="mt-2 text-caption leading-relaxed text-text-secondary">{issue.summary}</p>
@@ -306,7 +304,15 @@ function NewsletterPanel({ issue }: { issue: NewsletterSummary | null }) {
   )
 }
 
-function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?: boolean }) {
+function DateTile({
+  event,
+  compact = false,
+  variant = 'default',
+}: {
+  event: SchoolEventCard
+  compact?: boolean
+  variant?: 'default' | 'glass'
+}) {
   const date = new Date(event.startsAt)
   const month = new Intl.DateTimeFormat('en-US', { timeZone: event.timeZone, month: 'short' })
     .format(date)
@@ -320,14 +326,18 @@ function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?
   return (
     <span
       className={cn(
-        'flex shrink-0 flex-col items-center justify-center rounded-xl bg-white text-surface-ink shadow-sm ring-1 ring-black/5',
+        'flex shrink-0 flex-col items-center justify-center rounded-xl text-surface-ink shadow-sm',
+        variant === 'glass'
+          ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass),var(--shadow-raised)] backdrop-blur-sm'
+          : 'bg-white ring-1 ring-black/5',
         compact ? 'h-12 w-12' : 'h-28 w-24',
       )}
     >
       <span className="sr-only">{formatEventDate(event.startsAt, event.timeZone)}</span>
       <span
         className={cn(
-          'font-extrabold tracking-caps text-action-weak-text',
+          'font-extrabold tracking-caps',
+          variant === 'glass' ? 'text-[var(--cover-accent)]' : 'text-action-weak-text',
           compact ? 'text-micro' : 'text-overline',
         )}
       >
@@ -342,7 +352,14 @@ function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?
         {day}
       </span>
       {!compact ? (
-        <span className="text-micro font-bold tracking-caps text-text-muted">{weekday}</span>
+        <span
+          className={cn(
+            'text-micro font-bold tracking-caps',
+            variant === 'glass' ? 'text-white/75' : 'text-text-muted',
+          )}
+        >
+          {weekday}
+        </span>
       ) : null}
     </span>
   )

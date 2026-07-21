@@ -517,7 +517,9 @@ export function ConversationThread({
           </Link>
           <Avatar className="size-10 shadow-[var(--ring-avatar)]">
             {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-            <AvatarFallback>{getInitials(conversation.counterpart.displayName)}</AvatarFallback>
+            <AvatarFallback seed={conversation.counterpart.userId}>
+              {getInitials(conversation.counterpart.displayName)}
+            </AvatarFallback>
           </Avatar>
           <span className="min-w-0 flex-1">
             <h1

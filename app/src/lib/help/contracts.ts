@@ -90,6 +90,16 @@ export type HelpCandidate = {
   evidenceChunkIds: string[]
 }
 
+export type HelpDirectAskTarget = {
+  membershipId: string
+  userId: string
+  displayName: string
+  headline: string | null
+  avatarPath: string | null
+  graduationYear: number | null
+  topics: string[]
+}
+
 export type HelpOffer = {
   id: string
   status: HelpOfferStatus
@@ -271,6 +281,10 @@ export type HelpRepository = {
     queryEmbedding: string | null
     limit: number
   }): Promise<HelpCandidate[]>
+  getDirectAskTarget(input: {
+    membershipId: string
+    recipientMembershipId: string
+  }): Promise<HelpDirectAskTarget | null>
   getAskDetail(askId: string): Promise<HelpAskDetail | null>
   listMyAsks(input: {
     membershipId: string

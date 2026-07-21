@@ -786,7 +786,7 @@ function PeopleRow({
         />
         <Avatar className="size-[46px]">
           {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-          <AvatarFallback>{initials(name)}</AvatarFallback>
+          <AvatarFallback seed={person.userId}>{initials(name)}</AvatarFallback>
         </Avatar>
         <div className="relative min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -934,7 +934,9 @@ function PeoplePreview({
       <div className="mt-3 flex items-center gap-3.5">
         <Avatar className="size-14 ring-2 ring-[rgb(49_130_246_/_0.28)] ring-offset-2 ring-offset-white">
           {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-          <AvatarFallback className="text-lg">{initials(name)}</AvatarFallback>
+          <AvatarFallback seed={person.userId} className="text-lg">
+            {initials(name)}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <h2 className="truncate text-section-title font-extrabold tracking-heading">{name}</h2>

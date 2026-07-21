@@ -101,7 +101,7 @@ export function HomeWaiting({
       </button>
 
       {!folded ? (
-        <div className="grid gap-2 px-3 pt-0.5 pb-3.5">
+        <div className="grid min-w-0 grid-cols-1 gap-2 px-3 pt-0.5 pb-3.5">
           {acceptedConversationId ? (
             <div
               role="status"
@@ -131,7 +131,9 @@ export function HomeWaiting({
                 <div className="flex items-center gap-2.5">
                   <Avatar size="sm" aria-hidden>
                     {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-                    <AvatarFallback>{getInitials(item.counterpart.displayName)}</AvatarFallback>
+                    <AvatarFallback seed={item.counterpart.userId}>
+                      {getInitials(item.counterpart.displayName)}
+                    </AvatarFallback>
                   </Avatar>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-caption font-bold text-foreground">

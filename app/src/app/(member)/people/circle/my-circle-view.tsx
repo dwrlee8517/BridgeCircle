@@ -106,7 +106,7 @@ export function MyCircleView({
                     {person.avatarPath && avatarUrls[person.avatarPath] ? (
                       <AvatarImage src={avatarUrls[person.avatarPath]} alt="" />
                     ) : null}
-                    <AvatarFallback>{initials(name)}</AvatarFallback>
+                    <AvatarFallback seed={person.userId}>{initials(name)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-2">

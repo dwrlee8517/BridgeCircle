@@ -15,7 +15,7 @@ export default async function NewsletterArchivePage() {
 
   return (
     <div className="min-h-full bg-surface-canvas">
-      <ArchiveHeader title="The Bridge · Newsletter" />
+      <ArchiveHeader title="Newsletter" />
       <div className="mx-auto w-full max-w-[820px] px-4 py-7 sm:px-7 sm:py-10">
         <header className="mb-6">
           <p className="text-overline font-bold tracking-caps text-text-muted uppercase">Archive</p>
