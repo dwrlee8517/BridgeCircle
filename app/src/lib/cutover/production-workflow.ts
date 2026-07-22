@@ -26,7 +26,7 @@ export function productionWorkflowErrors(workflow: string): string[] {
   for (const marker of [
     'candidate_sha:',
     'REQUESTED_CANDIDATE_SHA',
-    'refs/heads/codex/redesign-v2',
+    'refs/heads/codex/ui-ux-iteration-2',
     '"$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"',
     'ALLOW_DEV_CANDIDATE_DEPLOY',
   ]) {

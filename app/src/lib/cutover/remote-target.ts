@@ -1,7 +1,7 @@
 export const DEV_PROJECT_REF = 'ojpvahiuafdcynbdbmri'
 export const PROD_PROJECT_REF = 'edumxwzilfgvamzarwvo'
 export const PROD_APP_ORIGIN = 'https://bridgecircle.org'
-export const DEV_CANDIDATE_BRANCH = 'codex/redesign-v2'
+export const DEV_CANDIDATE_BRANCH = 'codex/ui-ux-iteration-2'
 
 export type RemoteTarget = 'dev' | 'production'
 

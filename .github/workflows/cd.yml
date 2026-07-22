@@ -63,8 +63,8 @@ jobs:
         env:
           REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
         run: |
-          if [ "$GITHUB_REF" != "refs/heads/main" ] && [ "$GITHUB_REF" != "refs/heads/codex/redesign-v2" ]; then
-            echo "::error::Manual CD permits only main or codex/redesign-v2"
+          if [ "$GITHUB_REF" != "refs/heads/main" ] && [ "$GITHUB_REF" != "refs/heads/codex/ui-ux-iteration-2" ]; then
+            echo "::error::Manual CD permits only main or codex/ui-ux-iteration-2"
             exit 1
           fi
           if [ "$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA" ]; then
