@@ -230,4 +230,27 @@ describe('Help domain operations', () => {
       topics: ['Product', 'Health'],
     })
   })
+
+  it('clears submitted topics whenever availability closes', async () => {
+    const saveHelperPreferences = vi
+      .fn<HelpRepository['saveHelperPreferences']>()
+      .mockResolvedValue({
+        status: 'saved',
+        openToHelp: false,
+        pausedAt: null,
+        pauseReason: null,
+        topics: [],
+      })
+
+    await saveHelpPreferences(
+      { membershipId, openToHelp: false, topics: ['Crafted retained topic'] },
+      { saveHelperPreferences },
+    )
+
+    expect(saveHelperPreferences).toHaveBeenCalledWith({
+      membershipId,
+      openToHelp: false,
+      topics: [],
+    })
+  })
 })

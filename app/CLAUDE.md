@@ -165,7 +165,7 @@ Before declaring a task done:
 | `/help/asks` | Member's Help history | Durable status and role-shaped links |
 | `/help/asks/[askId]` | Ask detail or direct-recipient response | Projection is viewer-role shaped |
 | `/help/asks/[askId]/offer` | Circle-offer composer | Private offer note and bounded AI assistance |
-| `/help/settings` | Helper availability and topics | Sole settings surface for Help supply |
+| `/help/settings` | Compatibility redirect to `/settings#helping` | Keeps older links safe; does not own preferences |
 | `/people` | Member exploration — bounded search, All/Open-to-help/In-your-circle scopes, and profile preview | Was `/discover`; folded `/friends` in |
 | `/people/circle` | Managed circle view | Per-row Message and confirmed, mutual Disconnect |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |

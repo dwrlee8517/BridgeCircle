@@ -1,8 +1,8 @@
 import type {
   CreateHelpAskResult,
   CreateHelpOfferResult,
-  HelpDirectAskTarget,
   HelpAskDecisionResult,
+  HelpDirectAskTarget,
   HelpOfferDecisionResult,
   HelpRepository,
   SaveHelperPreferencesResult,
@@ -142,6 +142,9 @@ export async function saveHelpPreferences(
   input: Parameters<HelpRepository['saveHelperPreferences']>[0],
   repository: Pick<HelpRepository, 'saveHelperPreferences'>,
 ): Promise<SaveHelperPreferencesResult> {
+  if (!input.openToHelp) {
+    return repository.saveHelperPreferences({ ...input, topics: [] })
+  }
   const topicsByKey = new Map<string, string>()
   for (const rawTopic of input.topics) {
     const topic = clean(rawTopic)

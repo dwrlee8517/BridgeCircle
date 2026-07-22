@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, HandHelping, LogOut, Settings, Shield, UserRound, Users } from 'lucide-react'
+import { Bell, LogOut, Settings, Shield, UserRound, Users } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -70,12 +70,6 @@ export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props)
             <Link href="/people/circle">
               <Users className="text-muted-foreground" />
               My circle
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
-            <Link href="/help/settings">
-              <HandHelping className="text-muted-foreground" />
-              Help settings
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">

@@ -456,7 +456,7 @@ select extensions.is(
   (select result_code from api.decide_membership(
     '71000000-0000-4000-8000-000000000043', 'approve'
   )),
-  'not_authorized',
+  'not_available',
   'ordinary same-org member cannot decide memberships'
 );
 reset role;
@@ -469,7 +469,7 @@ select extensions.is(
   (select result_code from api.decide_membership(
     '71000000-0000-4000-8000-000000000043', 'approve'
   )),
-  'not_authorized',
+  'not_available',
   'admin of another organization cannot decide memberships'
 );
 reset role;

@@ -1,6 +1,7 @@
 import { Pause, Search } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import type {
   GiveHelpItem,
   HelpDirectRequest,
@@ -10,7 +11,6 @@ import type {
 } from '@/lib/help/contracts'
 import { cn, getInitials } from '@/lib/utils'
 import { HelpModeSwitch } from './help-mode-switch'
-import { HelpPreferencesForm } from './help-preferences-form'
 
 export function HelpGiveHome({
   home,
@@ -104,10 +104,11 @@ export function HelpGiveHome({
               </div>
             </div>
 
-            <HelpPreferencesForm
-              key={`${home.openToHelp}:${home.helperTopics.join('|')}`}
-              defaults={{ openToHelp: home.openToHelp, topics: home.helperTopics }}
-            />
+            <div className="mt-4 border-t border-[var(--divider)] pt-4">
+              <Button asChild size="sm" variant="outline">
+                <Link href="/settings#helping">Manage in Settings</Link>
+              </Button>
+            </div>
 
             {home.pausedAt ? (
               <div className="mt-4 flex items-start gap-2.5 rounded-[var(--radius-box)] bg-[var(--surface-inset)] px-3.5 py-3">

@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(65);
+select extensions.plan(66);
 
 select extensions.has_table('public', 'event_schedule_items', 'School events have ordered schedules');
 select extensions.has_table('public', 'event_facts', 'School events have structured facts');
@@ -183,6 +183,12 @@ select extensions.is(
   )->'event'->>'joinUrl',
   'https://meet.example.com/chadwick-office-hours',
   'a confirmed attendee sees the online join URL inside its release window'
+);
+select extensions.ok(
+  not (api.get_school_home(
+    '20000000-0000-4000-8000-000000000002'
+  )->'events'->0 ? 'joinUrl'),
+  'the School hub omits join URLs even for confirmed attendees inside the release window'
 );
 select extensions.is(
   jsonb_array_length(api.get_school_event(

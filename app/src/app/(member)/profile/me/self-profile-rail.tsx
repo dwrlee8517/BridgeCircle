@@ -138,7 +138,7 @@ export function SelfProfileRail({
           {openToHelp ? 'Open to help' : 'Not open right now'}
         </p>
         <Link
-          href="/help/settings"
+          href="/settings#helping"
           className="mt-2 inline-flex text-overline font-bold text-[var(--blue-600)]"
         >
           Edit availability

@@ -55,7 +55,7 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
   await page.getByRole('link', { name: 'Back to School' }).click()
   await page.getByRole('link', { name: 'View all' }).click()
   await expect(page).toHaveURL('/school/announcements')
-  await page.getByRole('link', { name: 'Mentorship', exact: true }).click()
+  await page.getByRole('link', { name: 'Career guidance', exact: true }).click()
   await expect(page).toHaveURL('/school/announcements?tag=mentorship')
   await expect(page.getByText('Career conversations for this summer')).toBeVisible()
   await page.getByText('Career conversations for this summer').click()

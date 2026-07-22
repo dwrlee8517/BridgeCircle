@@ -268,7 +268,7 @@ function AvailabilityRail({
       </div>
 
       <Button asChild variant="outline" size="sm" className="w-full rounded-md detail:w-auto">
-        <Link href="/help/settings">Edit availability</Link>
+        <Link href="/settings#helping">Edit availability</Link>
       </Button>
 
       {availability.paused ? (
@@ -425,7 +425,7 @@ function EmptyNextHelpCard() {
     <EmptyState
       title="No one is waiting today"
       description="You can still browse recent members below, or adjust the topics where classmates should find you."
-      action={{ label: 'Edit availability', href: '/help/settings' }}
+      action={{ label: 'Edit availability', href: '/settings#helping' }}
       className="w-full max-w-[720px]"
     />
   )
@@ -525,7 +525,7 @@ function SubjectSideRail({ subject }: { subject: HelpSubject }) {
           <ToggleRow label="Email me new requests" on />
         </div>
         <Button asChild variant="outline" size="sm" className="mt-3.5 w-full rounded-md">
-          <Link href="/help/settings">Pause this subject</Link>
+          <Link href="/settings#helping">Pause this subject</Link>
         </Button>
       </div>
     </aside>
@@ -616,7 +616,7 @@ function SubjectPicker({
           <div className="-mx-1.5 -mb-1.5 mt-1.5 flex items-center justify-between border-t border-muted px-3 py-2 text-kicker text-muted-foreground">
             <span>{subjects.length} subjects total</span>
             <Link
-              href="/help/settings"
+              href="/settings#helping"
               className="inline-flex items-center gap-1 font-semibold text-foreground"
             >
               <Plus className="size-[11px]" />
@@ -635,7 +635,7 @@ function EmptyHelpCard() {
       size="inline"
       title="No open requests in this view right now"
       description="When someone in the circle asks for help here, they'll show up for you."
-      action={{ label: 'Edit availability', href: '/help/settings' }}
+      action={{ label: 'Edit availability', href: '/settings#helping' }}
     />
   )
 }

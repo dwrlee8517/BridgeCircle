@@ -2,8 +2,10 @@
 
 import * as Sentry from '@sentry/nextjs'
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { loadMemberContext } from '@/app/_lib/load-member-context'
 import { createHelpRepository } from '@/db/repositories/help'
+import { requireSession } from '@/lib/auth/session'
 import { saveHelpPreferences } from '@/lib/help/operations'
 import { selectedMembership } from '@/lib/membership/selection'
 
@@ -13,25 +15,28 @@ export type HelpPreferencesFormState = {
   fieldErrors?: { topics?: string }
 }
 
+const helpPreferencesFormSchema = z.object({
+  openToHelp: z.preprocess((value) => value === 'on', z.boolean()),
+  topics: z.preprocess(
+    (value) => (typeof value === 'string' ? value : undefined),
+    z.string().optional(),
+  ),
+})
+
 export async function saveHelpPreferencesAction(
   _previous: HelpPreferencesFormState,
   formData: FormData,
 ): Promise<HelpPreferencesFormState> {
-  const openToHelp = formData.get('openToHelp') === 'on'
-  const topicsValue = formData.get('topics')
-  if (openToHelp && typeof topicsValue !== 'string') {
-    return { error: 'Check the topics and try again.' }
-  }
+  await requireSession('/settings')
+  const parsed = helpPreferencesFormSchema.safeParse({
+    openToHelp: formData.get('openToHelp'),
+    topics: formData.get('topics'),
+  })
+  if (!parsed.success) return { error: 'Check the topics and try again.' }
 
-  // Disabled form controls are omitted from FormData. Closing availability
-  // intentionally clears topics, so absence is valid only in the closed state.
-  const topics = openToHelp && typeof topicsValue === 'string' ? topicsValue.split(',') : []
-  if (topics.length > 5) {
-    return {
-      error: 'Choose up to five topics.',
-      fieldErrors: { topics: 'Use commas to separate no more than five topics.' },
-    }
-  }
+  // Disabled topic controls are omitted. The domain operation owns trimming,
+  // deduplication, limits, and clearing topics when availability closes.
+  const topics = parsed.data.topics?.split(',') ?? []
 
   try {
     const { client, context } = await loadMemberContext()
@@ -43,7 +48,7 @@ export async function saveHelpPreferencesAction(
     const result = await saveHelpPreferences(
       {
         membershipId: membership.membershipId,
-        openToHelp,
+        openToHelp: parsed.data.openToHelp,
         topics,
       },
       createHelpRepository(client),
@@ -64,6 +69,7 @@ export async function saveHelpPreferencesAction(
 
     revalidatePath('/help')
     revalidatePath('/help/settings')
+    revalidatePath('/settings')
     return { ok: true }
   } catch (error) {
     Sentry.captureException(error, { tags: { area: 'help', action: 'save_preferences' } })

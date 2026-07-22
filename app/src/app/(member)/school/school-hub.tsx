@@ -38,7 +38,9 @@ export function SchoolHub({
           </div>
         </header>
 
-        <AttendingStrip events={attending} selectedId={selectedEvent?.id ?? null} />
+        {attending.length > 0 ? (
+          <AttendingStrip events={attending} selectedId={selectedEvent?.id ?? null} />
+        ) : null}
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.85fr)]">
           <section className="min-w-0 space-y-4" aria-label="School events">
@@ -80,33 +82,27 @@ function AttendingStrip({
           <CalendarPlus className="size-4 text-action-weak-text" aria-hidden="true" />
           Your events
         </span>
-        {events.length > 0 ? (
-          events.map((event) => (
-            <Link
-              key={event.id}
-              href={`/school?event=${event.id}`}
-              aria-current={event.id === selectedId ? 'true' : undefined}
-              className={cn(
-                'flex min-w-[188px] shrink-0 items-center gap-3 rounded-xl px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-                event.id === selectedId ? 'bg-primary-tint-strong' : 'hover:bg-surface-subtle',
-              )}
-            >
-              <DateTile event={event} compact />
-              <span className="min-w-0">
-                <span className="block truncate text-caption font-bold text-text-primary">
-                  {event.title}
-                </span>
-                <span className="mt-0.5 block truncate text-fine font-semibold text-text-secondary">
-                  {event.locationName ?? 'Online'}
-                </span>
+        {events.map((event) => (
+          <Link
+            key={event.id}
+            href={`/school?event=${event.id}`}
+            aria-current={event.id === selectedId ? 'true' : undefined}
+            className={cn(
+              'flex min-w-[188px] shrink-0 items-center gap-3 rounded-xl px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+              event.id === selectedId ? 'bg-primary-tint-strong' : 'hover:bg-surface-subtle',
+            )}
+          >
+            <DateTile event={event} compact />
+            <span className="min-w-0">
+              <span className="block truncate text-caption font-bold text-text-primary">
+                {event.title}
               </span>
-            </Link>
-          ))
-        ) : (
-          <span className="text-caption font-medium text-text-muted">
-            Nothing saved yet · browse the next events below
-          </span>
-        )}
+              <span className="mt-0.5 block truncate text-fine font-semibold text-text-secondary">
+                {event.locationName ?? 'Online'}
+              </span>
+            </span>
+          </Link>
+        ))}
       </div>
     </section>
   )

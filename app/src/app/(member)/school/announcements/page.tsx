@@ -11,7 +11,7 @@ import { ArchiveHeader } from '../archive-header'
 
 const filters = [
   ['all', 'All'],
-  ['mentorship', 'Mentorship'],
+  ['mentorship', 'Career guidance'],
   ['hiring', 'Hiring'],
   ['reunion', 'Reunion'],
   ['general', 'General'],

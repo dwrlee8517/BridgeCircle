@@ -66,7 +66,7 @@ export function AnnouncementForm() {
           aria-describedby={fe.tag ? 'ann-tag-error' : undefined}
         >
           <option value="general">General</option>
-          <option value="mentorship">Mentorship</option>
+          <option value="mentorship">Career guidance</option>
           <option value="hiring">Hiring</option>
           <option value="reunion">Reunion</option>
         </select>

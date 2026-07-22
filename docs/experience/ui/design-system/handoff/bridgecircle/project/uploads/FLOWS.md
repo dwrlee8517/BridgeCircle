@@ -77,11 +77,13 @@ product decisions.
 Entry: invite email / join link → verify. Because members are **invited
 through the school**, the profile **starts prefilled** (name, class year,
 email from the school roster) — onboarding is *confirm and enrich*, not *fill
-a blank form*. The whole thing is **bookended**: a warm navy **Welcome**, light
+a blank form*. The identity floor (**name + class year**) is required before a
+member enters the shell; Fast Fill and every enrichment step after it are
+skippable. The whole thing is **bookended**: a warm navy **Welcome**, light
 working steps, a navy **"you're in."** Every step shares the same chrome — a
-**segmented progress bar**, a one-line **"why this matters"** subtitle, **Skip
-for now** on everything, **Back** always available. Nothing traps; nothing
-guilts. Copy uses current vocabulary — **helping, never "mentoring"** (ADR
+**segmented progress bar**, a one-line **"why this matters"** subtitle, and
+**Back** always available. Nothing traps; nothing guilts. Copy uses current
+vocabulary — **helping, never "mentoring"** (ADR
 0011); **"the Chadwick network," not "alumni-only"** (members are alumni +
 students ≤4 years to graduation).
 
@@ -127,8 +129,9 @@ profile. Because of Phase 3, Home already has real content — a pending ask, an
 offer in flight, or connect requests out.
 
 Buffer note: onboarding never asks for commitments — availability is a mood,
-not a contract (pause exists from day one). Every step and every cold-start
-prompt is skippable; none guilt.
+not a contract (pause exists from day one). Every enrichment step and every
+cold-start prompt is skippable; none guilt. The identity floor remains
+required so the circle can recognize a member.
 **Safety note (build time):** the cohort checklist exposes the class roster to
 a just-verified member — it must obey the same directory-privacy + block rules
 as People (`rls-auditor` at Phase 5).
@@ -604,7 +607,7 @@ the same reading page.
 
 **Announcements — two pages:**
 - Index (`/school/announcements`, the "View all →" target): tag filter chips
-  (All / Mentorship / Hiring / Reunion / General), pinned item held on top
+  (All / Career guidance / Hiring / Reunion / General), pinned item held on top
   regardless of filter, reverse-chron rows (title · tag · date · unread dot),
   each a door; month dividers only when volume earns them.
 - Reading page (`/school/announcements/[id]`): reading column
@@ -630,7 +633,7 @@ Facts in the main column, warmth in the rail, exactly two verbs. **Off the
 page always:** no "helped N people" stats, no endorsements, no followers, no
 activity feed — numbers turn helping into a scoreboard.
 
-### Other member (`/people/[id]`)
+### Other member (`/profile/[id]`)
 
 - **Header** — avatar (rotation pair), name + class year + Verified + ● Open
   to help chips, role line (role · company · city), and the only two verbs
@@ -655,7 +658,7 @@ activity feed — numbers turn helping into a scoreboard.
   in front of me?", a question for the directory's scanning rail (§4.3), not
   for a page you've already opened; kept on the directory, dropped here.
 
-### Connect moment (`/people/[id]` intro panel)
+### Connect moment (`/profile/[id]` intro panel)
 
 Two intro modes (ADR 0011 D2): quick-hello chips for someone you know (one
 tap); conversational AI intro for a stranger (say why, AI shapes it into the
@@ -685,10 +688,11 @@ about *you*, which keeps the cover).
   you) · or don't add it. The other-member rail renders exactly the subset the
   viewer is entitled to (a circle-only email is invisible to a stranger,
   present to a connection). Nothing shared by default; every link is opt-in.
-- **Helping has one home (DECIDED, Richard 2026-07-06):** the availability
-  switch + topics are *managed* on Help·Give (per ADR 0011 folding settings
-  into `/help`); the profile shows a read-only mirror with a link — one source
-  of truth, no divergent settings.
+- **Helping has one home (UPDATED, Richard 2026-07-21):** the availability
+  switch + topics are *managed* on Settings. Help·Give and the profile show
+  compact read-only summaries with a link to `Settings#helping` — one source
+  of truth, no divergent settings. `/help/settings` remains only as a
+  compatibility redirect for older links.
 - **Email & quiet:** newsletter-by-email preference (the settled Subscribe
   question) alongside transactional prefs, and the **pause switch** — stepping
   away is a setting, never announced to anyone.
@@ -784,8 +788,9 @@ The connective-tissue surfaces the core flows reference but hadn't mapped.
 - **Settings** (from the member card, alongside self profile): account (email,
   sign-out, **delete account + data export** — school-community compliance,
   not optional), notification & email preferences (per-type, plus the
-  newsletter-by-email toggle from §7), the **blocked-users list** (unblock
-  here), and **pause**. One quiet settings page, no sub-maze.
+  newsletter-by-email toggle from §7), **helping availability and topics**, the
+  **blocked-users list** (unblock here), and account-lifecycle actions. One
+  quiet settings page, no sub-maze.
 - **The notification section** (`/notifications`, opened from the bell's "see
   all" or a sidebar-less route) — the durable list behind the popover:
   every notification in reverse-chron, each deep-linking to its target per

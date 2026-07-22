@@ -193,11 +193,41 @@ const adminEventSchema = z
     id: z.uuid(),
     status: z.enum(['draft', 'published', 'cancelled']),
     title: z.string().min(1),
+    summary: nullableText,
     description: nullableText,
+    category: z.string().min(1),
+    format: z.enum(['in_person', 'online', 'hybrid']),
+    timeZone: z.string().min(1),
+    campus: z.enum(['palos_verdes', 'songdo', 'other', 'online']),
     location: nullableText,
+    locationAddress: nullableText,
+    mapsUrl: nullableText,
+    joinUrl: nullableText,
+    joinWindowMinutes: z.number().int().min(15).max(1_440),
+    hostName: nullableText,
     startsAt: timestamp,
     endsAt: timestamp.nullable(),
     capacity: z.number().int().positive().nullable(),
+    allowWaitlist: z.boolean(),
+    changeNote: nullableText,
+    schedule: z.array(
+      z
+        .object({
+          startsAt: timestamp.nullable(),
+          label: z.string().min(1),
+        })
+        .strict(),
+    ),
+    facts: z.array(
+      z
+        .object({
+          label: z.string().min(1),
+          value: z.string().min(1),
+          linkLabel: nullableText,
+          linkUrl: nullableText,
+        })
+        .strict(),
+    ),
     goingCount: z.number().int().nonnegative(),
     waitlistCount: z.number().int().nonnegative(),
   })
@@ -332,14 +362,29 @@ export function createSchoolRepository(client: SupabaseClient<Database>): School
     },
 
     async saveAdminEvent(input) {
-      const { data, error } = await client.schema('api').rpc('save_admin_school_event', {
+      const { data, error } = await client.schema('api').rpc('save_admin_school_event_v2', {
         p_membership_id: input.membershipId,
         p_event_id: input.eventId ?? undefined,
         p_title: input.title,
+        p_summary: input.summary,
         p_description: input.description ?? undefined,
-        p_location: input.location,
+        p_category: input.category,
+        p_format: input.format,
+        p_time_zone: input.timeZone,
+        p_campus: input.campus,
         p_starts_at: input.startsAt,
+        p_ends_at: input.endsAt,
+        p_location_name: input.locationName ?? undefined,
+        p_location_address: input.locationAddress ?? undefined,
+        p_maps_url: input.mapsUrl ?? undefined,
+        p_join_url: input.joinUrl ?? undefined,
+        p_join_window_minutes: input.joinWindowMinutes,
+        p_host_name: input.hostName,
         p_capacity: input.capacity ?? undefined,
+        p_allow_waitlist: input.allowWaitlist,
+        p_change_note: input.changeNote ?? undefined,
+        p_schedule: input.schedule,
+        p_facts: input.facts,
       })
       if (error) transportError('saveAdminEvent', error)
       const parsed = z
