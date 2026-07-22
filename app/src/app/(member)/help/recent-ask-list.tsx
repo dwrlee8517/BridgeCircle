@@ -1,8 +1,8 @@
 import { formatDistanceToNowStrict } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { StatusBadge } from '@/components/ui/status-badge'
 import type { HelpAskStatus, HelpAskSummary } from '@/lib/help/contracts'
-import { cn } from '@/lib/utils'
 
 export function RecentAskList({
   asks,
@@ -16,7 +16,7 @@ export function RecentAskList({
   return (
     <section aria-labelledby="your-asks-title">
       <div className="mb-2.5 flex items-center gap-2">
-        <h2 id="your-asks-title" className="text-body-lg font-extrabold text-[var(--text-primary)]">
+        <h2 id="your-asks-title" className="text-body-lg font-bold text-[var(--text-primary)]">
           Your asks
         </h2>
         <span className="text-xs font-semibold text-[var(--text-faint)]">
@@ -80,9 +80,13 @@ function AskStatus({ status, expiresAt }: { status: HelpAskStatus; expiresAt: st
   const closingDays = daysUntil(expiresAt)
   if ((status === 'waiting' || status === 'open') && closingDays >= 0 && closingDays <= 3) {
     return (
-      <span className="shrink-0 rounded-full bg-[var(--closing-soon-tint)] px-2 py-0.5 text-kicker font-bold text-[var(--closing-soon-text)]">
+      <StatusBadge
+        size="sm"
+        tone="muted"
+        className="bg-[var(--closing-soon-tint)] text-[var(--closing-soon-text)]"
+      >
         Closes in {closingDays}d
-      </span>
+      </StatusBadge>
     )
   }
 
@@ -98,16 +102,9 @@ function AskStatus({ status, expiresAt }: { status: HelpAskStatus; expiresAt: st
   const positive = status === 'accepted' || status === 'resolved'
   const active = status === 'open'
   return (
-    <span
-      className={cn(
-        'shrink-0 rounded-full px-2 py-0.5 text-kicker font-bold',
-        positive && 'bg-[var(--give-tint)] text-[var(--action-give-text)]',
-        active && 'bg-[var(--action-weak)] text-[var(--blue-600)]',
-        !positive && !active && 'bg-[var(--surface-subtle)] text-[var(--text-secondary)]',
-      )}
-    >
+    <StatusBadge size="sm" tone={positive ? 'open' : active ? 'info' : 'muted'}>
       {label[status]}
-    </span>
+    </StatusBadge>
   )
 }
 

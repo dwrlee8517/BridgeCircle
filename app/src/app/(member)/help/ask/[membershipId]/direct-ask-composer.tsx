@@ -470,7 +470,7 @@ function QuestionPrompt({
         aria-describedby={error ? 'direct-ask-question-error' : undefined}
         onChange={(event) => onChange(event.target.value)}
         placeholder="I’m trying to figure out…"
-        className="mt-2 min-h-18 w-full resize-y rounded-xl border-0 bg-[var(--surface-subtle)] px-3.5 py-3 text-body-sm leading-relaxed font-medium text-[var(--text-primary)] outline-none shadow-[var(--ring-outline)] placeholder:text-[var(--text-faint)] focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+        className="mt-2 min-h-18 w-full resize-none rounded-xl border-0 bg-[var(--surface-subtle)] px-3.5 py-3 text-body-sm leading-relaxed font-medium text-[var(--text-primary)] outline-none shadow-[var(--ring-outline)] placeholder:text-[var(--text-faint)] focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
       />
       {error ? (
         <p
@@ -533,7 +533,7 @@ function PlainComposer({
         aria-invalid={noteError}
         onChange={(event) => onNoteChange(event.target.value)}
         placeholder={`Write your note to ${firstName} — a line or two is plenty.`}
-        className="mt-3 min-h-64 flex-1 resize-y rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+        className="mt-3 min-h-64 flex-1 resize-none rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
       />
       {noteError ? (
         <p className="mt-2 text-xs font-semibold text-[var(--state-danger-text)]">
@@ -588,7 +588,7 @@ function NotePanel({
         maxLength={4_000}
         aria-invalid={noteError}
         onChange={(event) => onNoteChange(event.target.value)}
-        className="mt-3 min-h-64 flex-1 resize-y rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:min-h-0 lg:resize-none"
+        className="mt-3 min-h-64 flex-1 resize-none rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:min-h-0 lg:resize-none"
       />
       {noteError ? (
         <p className="mt-2 text-xs font-semibold text-[var(--state-danger-text)]">
@@ -695,7 +695,7 @@ function ComposerSuccess({ firstName }: { firstName: string }) {
         <span className="mx-auto inline-flex size-12 items-center justify-center rounded-full bg-[image:var(--gradient-primary-btn)] text-white shadow-[var(--shadow-primary-btn)]">
           <Check aria-hidden className="size-5.5" strokeWidth={2.6} />
         </span>
-        <h1 className="mt-4 text-xl font-extrabold tracking-tight text-[var(--text-primary)]">
+        <h1 className="mt-4 text-xl font-bold tracking-tight text-[var(--text-primary)]">
           Sent to {firstName}
         </h1>
         <p className="mt-2 text-body-sm leading-relaxed font-medium text-[var(--grey-600)]">

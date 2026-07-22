@@ -62,7 +62,7 @@ export default async function SettingsPage({
     <div className="min-h-full bg-[var(--wash-page)]">
       <div className="mx-auto grid w-full max-w-[720px] gap-3.5 px-4 py-6 sm:px-6 sm:py-7">
         <header className="mb-1">
-          <h1 className="text-display-section font-extrabold tracking-tight text-[var(--text-primary)]">
+          <h1 className="text-display-section font-bold tracking-tight text-[var(--text-primary)]">
             Settings
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed font-medium text-[var(--grey-600)]">
@@ -156,14 +156,14 @@ export default async function SettingsPage({
           <div className="flex items-end gap-2 px-4 pt-4 pb-2.5 sm:px-5">
             <h2
               id="notification-settings"
-              className="min-w-0 flex-1 text-body-sm font-extrabold tracking-tight text-[var(--text-primary)]"
+              className="min-w-0 flex-1 text-body-sm font-bold tracking-tight text-[var(--text-primary)]"
             >
               Notifications &amp; email
             </h2>
-            <span className="hidden w-12 text-center text-overline font-extrabold tracking-label text-[var(--text-faint)] uppercase sm:block">
+            <span className="hidden w-12 text-center text-overline font-bold tracking-label text-[var(--text-faint)] uppercase sm:block">
               Bell
             </span>
-            <span className="hidden w-12 text-center text-overline font-extrabold tracking-label text-[var(--text-faint)] uppercase sm:block">
+            <span className="hidden w-12 text-center text-overline font-bold tracking-label text-[var(--text-faint)] uppercase sm:block">
               Email
             </span>
             <span aria-hidden className="hidden w-14 sm:block" />
@@ -314,7 +314,7 @@ function SectionHeading({ id, children }: { id: string; children: React.ReactNod
   return (
     <h2
       id={id}
-      className="px-4 pt-4 pb-2.5 text-body-sm font-extrabold tracking-tight text-[var(--text-primary)] sm:px-5"
+      className="px-4 pt-4 pb-2.5 text-body-sm font-bold tracking-tight text-[var(--text-primary)] sm:px-5"
     >
       {children}
     </h2>

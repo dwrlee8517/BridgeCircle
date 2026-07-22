@@ -8,6 +8,13 @@
       "port": 3001
     },
     {
+      "name": "next-dev-local",
+      "cwd": "app",
+      "runtimeExecutable": "doppler",
+      "runtimeArgs": ["run", "-p", "bridgecircle", "-c", "dev_local", "--", "pnpm", "exec", "next", "dev", "-p", "3000"],
+      "port": 3000
+    },
+    {
       "name": "next-dev-preview",
       "cwd": "app",
       "runtimeExecutable": "sh",

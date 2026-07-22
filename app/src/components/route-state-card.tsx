@@ -37,7 +37,7 @@ export function RouteStateCard({
           ref={headingRef}
           id="route-state-title"
           tabIndex={-1}
-          className="mt-[18px] text-xl font-extrabold tracking-heading text-[var(--text-primary)] outline-none"
+          className="mt-[18px] text-xl font-bold tracking-heading text-[var(--text-primary)] outline-none"
         >
           {title}
         </h1>

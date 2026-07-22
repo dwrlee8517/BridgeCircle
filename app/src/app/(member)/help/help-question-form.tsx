@@ -168,14 +168,16 @@ export function HelpQuestionForm({
         </span>
       </div>
 
-      <h1 className="mt-5 text-display-hero leading-10 font-extrabold text-[var(--text-primary)]">
+      <h1 className="mt-5 text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
         What do you need?
       </h1>
       <p className="mt-2 text-sm leading-[1.55] font-medium text-[var(--grey-600)]">
         Ask it the way it comes out — we’ll find who can help. Nothing here is sent to anyone.
       </p>
 
-      <div className="mt-4.5 rounded-[var(--radius-large)] bg-card px-4 pt-4 pb-3 shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.2),0_10px_30px_-14px_rgb(25_31_40_/_0.25)] sm:px-5 sm:pt-4.5">
+      {/* The card carries the focus affordance so the borderless textarea
+          inside it never draws its own ring (globals.css textarea:focus). */}
+      <div className="mt-4.5 rounded-[var(--radius-large)] bg-card px-4 pt-4 pb-3 shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.2),0_10px_30px_-14px_rgb(25_31_40_/_0.25)] focus-within:shadow-[inset_0_0_0_1.5px_rgb(49_130_246_/_0.55),0_10px_30px_-14px_rgb(25_31_40_/_0.25)] sm:px-5 sm:pt-4.5">
         <label htmlFor="help-question" className="sr-only">
           What do you need help with?
         </label>
@@ -191,7 +193,7 @@ export function HelpQuestionForm({
             error ? 'help-question-error help-question-privacy' : 'help-question-privacy'
           }
           aria-invalid={Boolean(error)}
-          className="min-h-20 w-full resize-y border-0 bg-transparent p-0 text-body-lg leading-[1.65] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-faint)]"
+          className="min-h-20 w-full resize-none border-0 bg-transparent p-0 text-body-lg leading-[1.65] font-medium text-[var(--text-primary)] outline-none focus:shadow-none placeholder:text-[var(--text-faint)]"
         />
         {error ? (
           <p
@@ -201,7 +203,7 @@ export function HelpQuestionForm({
             {error}
           </p>
         ) : null}
-        <div className="mt-3 flex flex-col gap-3 border-t border-[var(--divider)] pt-3 sm:flex-row sm:items-center">
+        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
           <p
             id="help-question-privacy"
             className="text-xs leading-relaxed font-medium text-[var(--text-faint)]"
@@ -313,7 +315,7 @@ function CandidateList({
       >
         <h2
           id="no-help-matches-title"
-          className="text-body-lg font-extrabold text-[var(--text-primary)]"
+          className="text-body-lg font-bold text-[var(--text-primary)]"
         >
           No strong matches yet
         </h2>
@@ -336,7 +338,7 @@ function CandidateList({
   return (
     <section className="mt-6">
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
-        <h2 className="text-body-lg font-extrabold text-[var(--text-primary)]">
+        <h2 className="text-body-lg font-bold text-[var(--text-primary)]">
           People who can speak to it
         </h2>
         <span className="text-xs font-semibold text-[var(--text-faint)]">

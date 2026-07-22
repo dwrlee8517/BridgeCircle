@@ -89,7 +89,7 @@ export function WaitingGroup({
         onClick={() => setFolded(!folded)}
         className="flex min-h-11 w-full items-center gap-2 px-3.5 text-left hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
       >
-        <span className="text-kicker font-extrabold tracking-label text-text-secondary">
+        <span className="text-caption font-bold tracking-title text-text-secondary">
           Waiting on you
         </span>
         <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-kicker font-bold text-destructive-foreground tabular-nums">
@@ -104,7 +104,11 @@ export function WaitingGroup({
         />
       </button>
 
-      <ul id={contentId} hidden={folded} className="grid gap-1.5 px-2 pb-2.5">
+      <ul
+        id={contentId}
+        hidden={folded}
+        className="divide-y divide-[var(--divider-row)] border-t border-[var(--divider-row)] bg-card"
+      >
         {items.map((item) => {
           const id = item.kind === 'direct_ask' ? item.askId : item.requestId
           const avatarUrl = item.counterpart.avatarPath
@@ -112,10 +116,7 @@ export function WaitingGroup({
             : null
           const busy = pendingIds.has(id)
           return (
-            <li
-              key={`${item.kind}:${id}`}
-              className="rounded-[14px] bg-card p-3 shadow-[var(--ring-card)]"
-            >
+            <li key={`${item.kind}:${id}`} className="px-3.5 py-3">
               <div className="flex items-center gap-2.5">
                 <Avatar size="sm" aria-hidden>
                   {avatarUrl ? (
@@ -127,20 +128,20 @@ export function WaitingGroup({
                   )}
                 </Avatar>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-caption font-bold text-foreground">
+                  <span className="block truncate text-body-sm font-bold text-foreground">
                     {item.counterpart.displayName}
                     {item.counterpart.graduationYear ? (
-                      <span className="ml-1 text-kicker font-semibold text-muted-foreground">
+                      <span className="ml-1 text-caption font-semibold text-muted-foreground">
                         ’{String(item.counterpart.graduationYear).slice(-2)}
                       </span>
                     ) : null}
                   </span>
-                  <span className="block text-kicker font-semibold text-text-secondary">
+                  <span className="block text-caption font-semibold text-text-secondary">
                     {item.kind === 'direct_ask' ? 'Asked for your help' : 'Wants to connect'}
                   </span>
                 </span>
               </div>
-              <p className="mt-2 line-clamp-2 text-kicker leading-relaxed text-text-secondary">
+              <p className="mt-2 line-clamp-2 text-caption leading-relaxed font-medium text-text-secondary">
                 {item.kind === 'direct_ask'
                   ? item.requestMessage
                   : (item.introMessage ?? 'Would like to add you to their circle.')}

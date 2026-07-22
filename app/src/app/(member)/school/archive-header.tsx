@@ -12,7 +12,7 @@ export function ArchiveHeader({ title }: { title: string }) {
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
         </Link>
-        <p className="truncate text-body font-extrabold text-text-primary">{title}</p>
+        <p className="truncate text-body font-bold text-text-primary">{title}</p>
       </div>
     </header>
   )

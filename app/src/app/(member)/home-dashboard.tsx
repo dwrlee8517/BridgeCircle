@@ -74,7 +74,7 @@ export function HomeDashboard({
   return (
     <HomeSurface>
       <header>
-        <h1 className="text-page-title leading-tight font-extrabold tracking-display text-foreground">
+        <h1 className="text-page-title leading-tight font-bold tracking-display text-foreground">
           {firstName ? `Welcome back, ${firstName}.` : 'Welcome back.'}
         </h1>
         <p className="mt-1.5 text-body-sm font-medium text-text-secondary">{dashboard.pulse}</p>
@@ -100,7 +100,7 @@ export function HomeDashboard({
       <div className="mt-1 grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(280px,1fr)]">
         <div className="grid min-w-0 grid-cols-1 gap-4">
           <section className="rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-4.5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-            <h2 className="text-body-sm font-extrabold tracking-tight text-foreground">
+            <h2 className="text-body-sm font-bold tracking-tight text-foreground">
               What do you need?
             </h2>
             <form
@@ -194,7 +194,7 @@ export function HomeDashboard({
               className="rounded-[var(--radius-card-xl)] bg-card px-5 py-4 text-left text-xs font-semibold text-text-secondary shadow-[var(--ring-card)] hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
             >
               Some Home details could not refresh. Everything else is still current.{' '}
-              <span className="font-extrabold text-primary">Try again →</span>
+              <span className="font-bold text-primary">Try again →</span>
             </button>
           ) : null}
         </div>
@@ -246,7 +246,7 @@ function ColdStart({
   return (
     <>
       <header>
-        <h1 className="text-page-title leading-tight font-extrabold tracking-display text-foreground">
+        <h1 className="text-page-title leading-tight font-bold tracking-display text-foreground">
           {firstName ? `Welcome, ${firstName}.` : 'Welcome to your circle.'}
         </h1>
         <p className="mt-1.5 text-body-sm font-medium text-text-secondary">
@@ -264,7 +264,7 @@ function ColdStart({
             className="flex min-h-20 items-center gap-4 border-t border-border-subtle px-5 py-4 text-foreground first:border-t-0 hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring sm:px-6"
           >
             <span className="min-w-0 flex-1">
-              <span className="block text-body-sm font-extrabold tracking-tight">{row.title}</span>
+              <span className="block text-body-sm font-bold tracking-tight">{row.title}</span>
               <span className="mt-1 block text-xs leading-relaxed font-medium text-text-secondary">
                 {row.body}
               </span>
@@ -299,7 +299,7 @@ function OpenAsks({
   return (
     <section className="overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
       <div className="flex items-baseline gap-2 px-5 py-3.5">
-        <h2 className="text-body-sm font-extrabold tracking-tight text-foreground">Your asks</h2>
+        <h2 className="text-body-sm font-bold tracking-tight text-foreground">Your asks</h2>
         <span className="text-xs font-semibold text-muted-foreground">
           {activeLimit ? `${activeCount} of ${activeLimit} open` : `${activeCount} open`}
         </span>
@@ -379,9 +379,7 @@ function SchoolRail({ school }: { school: SchoolHome }) {
   return (
     <section className="overflow-hidden rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
       <div className="flex items-center gap-2 px-5 py-3.5">
-        <h2 className="text-body-sm font-extrabold tracking-tight text-foreground">
-          From the school
-        </h2>
+        <h2 className="text-body-sm font-bold tracking-tight text-foreground">From the school</h2>
         <Link href="/school" className="ml-auto text-xs font-bold text-primary">
           School →
         </Link>
@@ -395,10 +393,10 @@ function SchoolRail({ school }: { school: SchoolHome }) {
             className="flex items-center gap-3 border-t border-border-subtle px-5 py-3 text-foreground hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
           >
             <span className="flex size-10 shrink-0 flex-col items-center justify-center rounded-[var(--radius-comfortable)] bg-[linear-gradient(180deg,#eef5ff,#e2eeff)] leading-none shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.16)]">
-              <span className="text-micro font-extrabold tracking-wider text-primary uppercase">
+              <span className="text-micro font-bold tracking-wider text-primary uppercase">
                 {date.toLocaleDateString('en-US', { month: 'short', timeZone: event.timeZone })}
               </span>
-              <span className="mt-0.5 text-caption font-extrabold text-foreground">
+              <span className="mt-0.5 text-caption font-bold text-foreground">
                 {date.toLocaleDateString('en-US', { day: 'numeric', timeZone: event.timeZone })}
               </span>
             </span>
@@ -440,7 +438,7 @@ function SourceUnavailable({ label }: { label: string }) {
   const router = useRouter()
   return (
     <section className="rounded-[var(--radius-card-xl)] bg-card px-5 py-4 shadow-[var(--ring-card)]">
-      <h2 className="text-body-sm font-extrabold text-foreground">{label}</h2>
+      <h2 className="text-body-sm font-bold text-foreground">{label}</h2>
       <p className="mt-1 text-xs font-medium text-text-secondary">
         This part couldn’t refresh. The rest of Home is still available.
       </p>

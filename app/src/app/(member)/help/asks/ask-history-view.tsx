@@ -110,7 +110,7 @@ function AskSection({
       <div className="mb-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <h1
           id={`${title.toLowerCase()}-asks-title`}
-          className="text-body-lg font-extrabold tracking-tight text-[var(--text-primary)]"
+          className="text-body-lg font-bold tracking-tight text-[var(--text-primary)]"
         >
           {title}
         </h1>

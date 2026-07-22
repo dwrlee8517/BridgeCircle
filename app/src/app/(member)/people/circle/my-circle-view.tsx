@@ -61,9 +61,7 @@ export function MyCircleView({
     <div className="min-h-full bg-[var(--surface-canvas)] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <div className="mx-auto max-w-[760px]">
         <header>
-          <h1 className="text-page-title leading-tight font-extrabold tracking-display">
-            My circle
-          </h1>
+          <h1 className="text-page-title leading-tight font-bold tracking-display">My circle</h1>
           <p className="mt-1.5 text-body-sm font-medium text-[var(--text-secondary)]">
             {items.length} {items.length === 1 ? 'person' : 'people'}. Connections see your
             circle-only links; disconnecting is mutual and never announced.

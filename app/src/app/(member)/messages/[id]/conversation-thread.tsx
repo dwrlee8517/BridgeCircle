@@ -682,7 +682,7 @@ export function ConversationThread({
                 maxLength={10_000}
                 rows={1}
                 placeholder={`Message ${conversation.counterpart.displayName.split(/\s+/)[0]}…`}
-                className="max-h-36 min-h-11 min-w-0 flex-1 resize-y rounded-xl border-0 bg-card px-4 py-3 text-body-sm font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:bg-surface-inset"
+                className="max-h-36 min-h-11 min-w-0 flex-1 resize-none rounded-xl border-0 bg-card px-4 py-3 text-body-sm font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:bg-surface-inset"
               />
               <button
                 type="submit"
@@ -728,7 +728,7 @@ export function ConversationThread({
 
       <Dialog open={resolveOpen} onOpenChange={setResolveOpen}>
         <DialogContent className="sm:max-w-[440px]">
-          <DialogTitle className="text-body-lg font-extrabold tracking-tight">
+          <DialogTitle className="text-body-lg font-bold tracking-tight">
             Mark this ask resolved?
           </DialogTitle>
           <DialogDescription className="text-body-sm leading-relaxed font-medium">
@@ -743,7 +743,7 @@ export function ConversationThread({
             onChange={(event) => setResolveNote(event.target.value)}
             maxLength={2_000}
             rows={3}
-            className="w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+            className="w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
           />
           <button
             type="button"
@@ -761,7 +761,7 @@ export function ConversationThread({
         onOpenChange={(open) => !open && setConfirmAction(null)}
       >
         <DialogContent className="sm:max-w-[440px]">
-          <DialogTitle className="text-body-lg font-extrabold tracking-tight">
+          <DialogTitle className="text-body-lg font-bold tracking-tight">
             {confirmAction === 'block'
               ? `Block ${conversation.counterpart.displayName}?`
               : `Disconnect from ${conversation.counterpart.displayName}?`}

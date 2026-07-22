@@ -3,7 +3,15 @@
 import { Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { type ReactNode, useCallback, useEffect, useRef, useState, useTransition } from 'react'
+import {
+  type CSSProperties,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from 'react'
 import type {
   MessageConversationPage,
   MessagesCounts,
@@ -29,6 +37,18 @@ const FILTERS: Array<{ value: MessagesFilter; label: string; count: keyof Messag
   { value: 'my_circle', label: 'My circle', count: 'myCircle' },
   { value: 'open_asks', label: 'Open asks', count: 'openAsks' },
 ]
+
+const RAIL_MIN = 260
+const RAIL_MAX = 480
+const RAIL_DEFAULT = 300
+
+function railWidthKey(userId: string) {
+  return `bridgecircle:messages:v1:${userId}:rail-width`
+}
+
+function clampRailWidth(value: number) {
+  return Math.min(RAIL_MAX, Math.max(RAIL_MIN, Math.round(value)))
+}
 
 function selectedConversationId(pathname: string): string | null {
   const parts = pathname.split('/').filter(Boolean)
@@ -79,6 +99,33 @@ export function MessagesWorkspace({
   const [isRefreshing, startRefresh] = useTransition()
   const requestSequence = useRef(0)
   const requestController = useRef<AbortController | null>(null)
+  const [railWidth, setRailWidth] = useState(RAIL_DEFAULT)
+  const [resizing, setResizing] = useState(false)
+  const dragOrigin = useRef<{ pointerX: number; width: number } | null>(null)
+
+  const persistRailWidth = useCallback(
+    (value: number) => {
+      try {
+        window.localStorage.setItem(railWidthKey(userId), String(value))
+      } catch {
+        // Private mode — the width simply resets next visit.
+      }
+    },
+    [userId],
+  )
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        const stored = Number(window.localStorage.getItem(railWidthKey(userId)))
+        setRailWidth(Number.isFinite(stored) && stored > 0 ? clampRailWidth(stored) : RAIL_DEFAULT)
+      } catch {
+        // Private mode — keep the deterministic default width.
+      }
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [userId])
   const firstQueryEffect = useRef(true)
   const lastMessagesRevision = useRef(messagesRevision)
   const waiting = initialWaiting.filter((item) => {
@@ -159,11 +206,22 @@ export function MessagesWorkspace({
   }
 
   return (
-    <div className="flex h-[calc(100dvh_-_var(--topbar-height)_-_60px_-_env(safe-area-inset-bottom))] min-h-0 w-full overflow-hidden bg-[var(--surface-thread)] md:h-[calc(100dvh-var(--topbar-height))]">
+    <div
+      className={cn(
+        // `- 1px` accounts for the header's bottom border, which sits outside
+        // --topbar-height (same compensation the Help composers use).
+        // `contain:paint` keeps the rail's scrollable content from inflating
+        // the document's scroll region — without it the page itself scrolled
+        // ~80px and exposed a band of empty canvas under the workspace.
+        'flex h-[calc(100dvh_-_var(--topbar-height)_-_60px_-_1px_-_env(safe-area-inset-bottom))] min-h-0 w-full overflow-hidden bg-[var(--surface-thread)] [contain:paint] md:h-[calc(100dvh_-_var(--topbar-height)_-_1px)]',
+        resizing && 'cursor-col-resize select-none',
+      )}
+      style={{ '--messages-rail-width': `${railWidth}px` } as CSSProperties}
+    >
       <aside
         aria-label="Messages list"
         className={cn(
-          'min-h-0 min-w-0 w-full shrink-0 flex-col overflow-hidden border-r border-border-subtle bg-card md:w-[300px]',
+          'min-h-0 min-w-0 w-full shrink-0 flex-col overflow-hidden bg-card md:w-[var(--messages-rail-width)]',
           selectedId ? 'hidden md:flex' : 'flex',
         )}
       >
@@ -179,7 +237,7 @@ export function MessagesWorkspace({
               onChange={(event) => setQuery(event.target.value)}
               maxLength={100}
               placeholder="Search messages…"
-              className="w-0 min-w-0 flex-1 border-0 bg-transparent text-caption font-medium text-foreground outline-none placeholder:text-muted-foreground"
+              className="w-0 min-w-0 flex-1 border-0 bg-transparent text-body-sm font-medium text-foreground outline-none placeholder:text-muted-foreground"
             />
             {query ? (
               <button
@@ -203,7 +261,7 @@ export function MessagesWorkspace({
                   aria-pressed={active}
                   onClick={() => setFilter(option.value)}
                   className={cn(
-                    'min-h-8 rounded-full px-3 text-kicker font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                    'min-h-7 rounded-full px-2.5 text-caption font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                     active
                       ? 'bg-primary-tint-strong font-bold text-[var(--blue-800)]'
                       : 'bg-surface-subtle text-text-secondary hover:bg-muted',
@@ -259,6 +317,47 @@ export function MessagesWorkspace({
           {isRefreshing ? <span className="sr-only">Refreshing messages</span> : null}
         </div>
       </aside>
+
+      {/* Drag to resize the list rail. Doubles as the rail/thread divider on
+          desktop; mobile keeps the stacked layout with no divider. */}
+      <hr
+        aria-orientation="vertical"
+        aria-label="Resize messages list"
+        aria-valuemin={RAIL_MIN}
+        aria-valuemax={RAIL_MAX}
+        aria-valuenow={railWidth}
+        tabIndex={0}
+        onPointerDown={(event) => {
+          dragOrigin.current = { pointerX: event.clientX, width: railWidth }
+          setResizing(true)
+          event.currentTarget.setPointerCapture(event.pointerId)
+        }}
+        onPointerMove={(event) => {
+          if (!dragOrigin.current) return
+          setRailWidth(
+            clampRailWidth(dragOrigin.current.width + event.clientX - dragOrigin.current.pointerX),
+          )
+        }}
+        onPointerUp={(event) => {
+          if (!dragOrigin.current) return
+          dragOrigin.current = null
+          setResizing(false)
+          event.currentTarget.releasePointerCapture(event.pointerId)
+          persistRailWidth(railWidth)
+        }}
+        onKeyDown={(event) => {
+          const step = event.key === 'ArrowLeft' ? -16 : event.key === 'ArrowRight' ? 16 : 0
+          if (!step) return
+          event.preventDefault()
+          const next = clampRailWidth(railWidth + step)
+          setRailWidth(next)
+          persistRailWidth(next)
+        }}
+        className={cn(
+          'relative m-0 hidden h-auto w-[5px] shrink-0 self-stretch cursor-col-resize touch-none border-0 bg-border-subtle bg-clip-content px-0.5 hover:bg-[var(--blue-200)] focus-visible:bg-[var(--blue-300)] focus-visible:outline-none md:block',
+          resizing && 'bg-[var(--blue-300)]',
+        )}
+      />
 
       <section
         aria-label={selectedId ? 'Conversation' : 'Messages welcome'}

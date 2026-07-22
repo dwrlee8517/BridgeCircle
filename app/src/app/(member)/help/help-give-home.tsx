@@ -45,7 +45,7 @@ export function HelpGiveHome({
             </span>
           </div>
 
-          <h1 className="mt-5 text-display-hero leading-10 font-extrabold text-[var(--text-primary)]">
+          <h1 className="mt-5 text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
             Where your experience matters.
           </h1>
           <p className="mt-2 text-sm leading-[1.55] font-medium text-[var(--grey-600)]">
@@ -158,10 +158,7 @@ function BrowseAskList({
   return (
     <section aria-labelledby="browse-asks-title">
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
-        <h2
-          id="browse-asks-title"
-          className="text-body-lg font-extrabold text-[var(--text-primary)]"
-        >
+        <h2 id="browse-asks-title" className="text-body-lg font-bold text-[var(--text-primary)]">
           Browse open asks
         </h2>
         <span className="text-xs font-semibold text-[var(--text-faint)]">
@@ -186,7 +183,7 @@ function BrowseAskList({
         />
         <button
           type="submit"
-          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--give-tint)] px-4 text-caption font-extrabold text-[var(--action-give-text)] hover:bg-[var(--green-100)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--give-tint)] px-4 text-caption font-bold text-[var(--action-give-text)] hover:bg-[var(--green-100)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           <Search aria-hidden className="size-4" />
           Search
@@ -229,7 +226,7 @@ function DirectRequestList({
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
         <h2
           id="direct-requests-title"
-          className="text-body-lg font-extrabold text-[var(--text-primary)]"
+          className="text-body-lg font-bold text-[var(--text-primary)]"
         >
           Asked you directly
         </h2>
@@ -266,10 +263,7 @@ function SuggestedAskList({
   return (
     <section aria-labelledby="suggested-asks-title">
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
-        <h2
-          id="suggested-asks-title"
-          className="text-body-lg font-extrabold text-[var(--text-primary)]"
-        >
+        <h2 id="suggested-asks-title" className="text-body-lg font-bold text-[var(--text-primary)]">
           Matched to your topics
         </h2>
         <span className="text-xs font-semibold text-[var(--text-faint)]">

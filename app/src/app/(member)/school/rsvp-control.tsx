@@ -33,7 +33,7 @@ export function RsvpControl({
   const offerOpen = event.viewerRsvp === 'offered' && !offerDismissed && state.status !== 'success'
 
   const base = cn(
-    'rounded-xl px-4 py-2.5 text-caption font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60',
+    'rounded-xl px-4 py-2.5 text-caption font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60',
     tone === 'dark'
       ? 'bg-white text-surface-ink hover:bg-primary-tint-strong'
       : 'bg-action-primary-pressed text-action-on-primary hover:bg-[var(--blue-800)]',
@@ -71,7 +71,7 @@ export function RsvpControl({
             }}
           >
             <DialogHeader>
-              <DialogTitle className="text-body font-extrabold">Cancel your RSVP?</DialogTitle>
+              <DialogTitle className="text-body font-bold">Cancel your RSVP?</DialogTitle>
               <DialogDescription className="mt-2 text-caption leading-relaxed text-text-secondary">
                 You will come off the attendee list. If the event is full, the next person will be
                 offered the spot.
@@ -92,7 +92,7 @@ export function RsvpControl({
                   type="submit"
                   disabled={pending}
                   onClick={() => setCancelOpen(false)}
-                  className="w-full rounded-xl bg-state-danger px-4 py-2.5 text-caption font-extrabold text-white transition-colors hover:bg-state-danger/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
+                  className="w-full rounded-xl bg-state-danger px-4 py-2.5 text-caption font-bold text-white transition-colors hover:bg-state-danger/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
                 >
                   {pending ? 'Cancelling…' : 'Cancel RSVP'}
                 </button>
@@ -161,7 +161,7 @@ export function RsvpControl({
             }}
           >
             <DialogHeader>
-              <DialogTitle className="text-body font-extrabold">
+              <DialogTitle className="text-body font-bold">
                 A spot opened — still want in?
               </DialogTitle>
               <DialogDescription className="mt-2 text-caption leading-relaxed text-text-secondary">
@@ -183,7 +183,7 @@ export function RsvpControl({
                 <button
                   type="submit"
                   disabled={pending}
-                  className="w-full rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-extrabold text-action-on-primary transition-colors hover:bg-[var(--blue-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
+                  className="w-full rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-bold text-action-on-primary transition-colors hover:bg-[var(--blue-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
                 >
                   Yes — I&apos;m in
                 </button>

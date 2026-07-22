@@ -139,7 +139,7 @@ export function GiveOfferView({
           <span className="inline-flex rounded-full bg-[var(--give-tint-weak)] px-2.5 py-1 text-kicker font-bold text-[var(--action-give-text)]">
             {source}
           </span>
-          <h1 className="mt-3 max-w-[800px] text-display-large leading-[1.25] font-extrabold tracking-tight text-[var(--text-primary)] sm:text-display-hero">
+          <h1 className="mt-3 max-w-[800px] text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
             “{detail.question}”
           </h1>
           <div className="mt-4 flex items-center gap-2.5">
@@ -301,7 +301,7 @@ export function GiveOfferView({
             }}
             maxLength={4_000}
             rows={9}
-            className="mt-3 w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.65] font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+            className="mt-3 w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.65] font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
           />
           <p className="mt-2 text-kicker leading-relaxed font-medium text-[var(--text-faint)]">
             AI keeps this up to date as you revise — or edit it directly. Offers are private; only
@@ -358,7 +358,7 @@ function OfferSuccess({
         <span className="mx-auto inline-flex size-11 items-center justify-center rounded-full bg-[var(--give-tint)] text-[var(--action-give-text)]">
           <Check aria-hidden className="size-5" />
         </span>
-        <h1 className="mt-4 text-display-section font-extrabold text-[var(--text-primary)]">
+        <h1 className="mt-4 text-display-section font-bold text-[var(--text-primary)]">
           Your offer is in
         </h1>
         <p className="mx-auto mt-2 max-w-md text-body-sm leading-relaxed font-medium text-[var(--text-secondary)]">

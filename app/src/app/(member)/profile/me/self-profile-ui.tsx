@@ -2,6 +2,7 @@ import { LoaderCircle, type LucideIcon, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { cn } from '@/lib/utils'
 import type { ProfileActionState } from './actions'
 
@@ -131,7 +132,7 @@ export function EditorPanel({
       )}
     >
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-extrabold">{title}</h2>
+        <h2 className="text-sm font-bold">{title}</h2>
         <Button type="button" variant="ghost" size="sm" onClick={onClose}>
           Done
         </Button>
@@ -189,7 +190,7 @@ export function SelfSection({
   return (
     <section className={cn(divided && 'border-t border-[var(--divider-row)] pt-7')}>
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-nav font-extrabold tracking-title">{title}</h2>
+        <h2 className="text-nav font-bold tracking-title">{title}</h2>
         {onEdit ? (
           <Button
             variant="ghost"
@@ -303,17 +304,9 @@ export function ProfileTag({
   children: React.ReactNode
 }) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-chip font-bold',
-        tone === 'blue'
-          ? 'bg-[var(--blue-50)] text-[var(--blue-600)]'
-          : 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
-      )}
-    >
-      {tone === 'green' ? <i className="size-1.5 rounded-full bg-[var(--green-500)]" /> : null}
+    <StatusBadge size="sm" tone={tone === 'green' ? 'open' : 'info'} dot={tone === 'green'}>
       {children}
-    </span>
+    </StatusBadge>
   )
 }
 export function patchAt<T>(items: T[], index: number, patch: Partial<T>): T[] {

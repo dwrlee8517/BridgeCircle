@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { StatusBadge } from '@/components/ui/status-badge'
 import type {
   MemberProfile,
   PeopleDirectoryItem,
@@ -232,7 +233,7 @@ export function PeopleDirectory({
             {initialResult.capped ? `${initialResult.items.length}+` : initialResult.totalCount}{' '}
             {initialResult.totalCount === 1 ? 'member' : 'members'}
           </p>
-          <h1 className="mt-1.5 text-page-title leading-tight font-extrabold tracking-display text-[var(--text-primary)]">
+          <h1 className="mt-1.5 text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
             Find people to connect with.
           </h1>
         </header>
@@ -486,7 +487,7 @@ function PeopleToolbar({
   return (
     <div className="mt-3.5">
       <div className="flex flex-wrap items-center gap-2.5">
-        <fieldset className="flex rounded-xl bg-[#e8eaee] p-0.75">
+        <fieldset className="flex rounded-full bg-surface-subtle p-1 shadow-[var(--ring-outline)]">
           <legend className="sr-only">People scopes</legend>
           {scopes.map((scope) => (
             <button
@@ -494,7 +495,7 @@ function PeopleToolbar({
               type="button"
               aria-pressed={search.scope === scope.key}
               className={cn(
-                'min-h-8 rounded-[9px] px-3.5 text-xs font-semibold outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                'min-h-8 rounded-full px-3.5 text-caption font-semibold outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                 search.scope === scope.key
                   ? 'bg-white font-bold text-[var(--text-primary)] shadow-sm'
                   : 'text-[var(--grey-700)] hover:text-[var(--text-primary)]',
@@ -530,7 +531,7 @@ function PeopleToolbar({
           }
         />
         {search.scope === 'in_circle' ? (
-          <Button asChild variant="ghost" size="sm" className="rounded-full text-[var(--blue-600)]">
+          <Button asChild variant="ghost" size="xs" className="rounded-full text-[var(--blue-600)]">
             <Link href="/people/circle">Manage circle</Link>
           </Button>
         ) : null}
@@ -560,7 +561,7 @@ function TextFilterPopover({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xs"
           className={cn('rounded-full', value && 'border-[var(--blue-200)] bg-[var(--blue-50)]')}
         >
           {value ? `${label} · ${value}` : label}
@@ -632,7 +633,7 @@ function ClassYearFilterPopover({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="xs"
           className={cn(
             'rounded-full',
             activeLabel && 'border-[var(--blue-200)] bg-[var(--blue-50)]',
@@ -781,7 +782,7 @@ function PeopleRow({
           className="absolute inset-y-0 left-0 w-[3px] bg-[var(--action-primary)]"
         />
       ) : null}
-      <div className="flex items-center gap-3.5 px-4 py-3.5 sm:px-5.5">
+      <div className="flex items-center gap-3.5 px-4 py-3 sm:px-5.5">
         <button
           type="button"
           aria-label={`${selected ? 'Close' : 'Open'} preview for ${name}`}
@@ -825,7 +826,7 @@ function PeopleRow({
               {person.helperTopics.slice(0, 3).map((topic) => (
                 <span
                   key={topic}
-                  className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-chip font-semibold text-[var(--text-secondary)]"
+                  className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-0.5 text-chip font-semibold text-[var(--text-secondary)]"
                 >
                   {topic}
                 </span>
@@ -949,7 +950,7 @@ function PeoplePreview({
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <h2 className="truncate text-section-title font-extrabold tracking-heading">{name}</h2>
+          <h2 className="truncate text-section-title font-bold tracking-heading">{name}</h2>
           <p className="mt-0.5 text-xs font-medium text-[var(--grey-700)]">
             {[person.currentTitle, person.currentEmployer, person.city].filter(Boolean).join(' · ')}
           </p>
@@ -1152,17 +1153,13 @@ function PeopleEmpty({ hasSearch, inCircle }: { hasSearch: boolean; inCircle: bo
 
 function Tag({ tone, children }: { tone: 'blue' | 'green' | 'grey'; children: React.ReactNode }) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-overline font-bold',
-        tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-600)]',
-        tone === 'green' && 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
-        tone === 'grey' && 'bg-[var(--surface-subtle)] text-[var(--text-secondary)]',
-      )}
+    <StatusBadge
+      size="sm"
+      tone={tone === 'blue' ? 'info' : tone === 'green' ? 'open' : 'muted'}
+      dot={tone === 'green'}
     >
-      {tone === 'green' ? <i className="size-1.5 rounded-full bg-[var(--green-500)]" /> : null}
       {children}
-    </span>
+    </StatusBadge>
   )
 }
 

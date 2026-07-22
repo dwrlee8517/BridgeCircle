@@ -40,14 +40,12 @@ export function HomeSpotlightDeck({
       <section aria-labelledby="home-week-heading" className="grid min-w-0 grid-cols-1 gap-2">
         <h2
           id="home-week-heading"
-          className="px-0.5 text-caption font-extrabold tracking-wide text-text-secondary"
+          className="px-0.5 text-body-sm font-bold tracking-tight text-foreground"
         >
           This week in the circle
         </h2>
         <div className="rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-6 py-7 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-          <p className="text-body-lg font-extrabold tracking-tight text-foreground">
-            You’re caught up.
-          </p>
+          <p className="text-body-lg font-bold tracking-tight text-foreground">You’re caught up.</p>
           <p className="mt-1.5 text-body-sm leading-relaxed font-medium text-text-secondary">
             Nothing needs the spotlight right now. Your circle will fill this in as things happen.
           </p>
@@ -75,7 +73,7 @@ export function HomeSpotlightDeck({
       <div className="flex items-baseline gap-2 px-0.5">
         <h2
           id="home-week-heading"
-          className="text-caption font-extrabold tracking-wide text-text-secondary"
+          className="text-body-sm font-bold tracking-tight text-foreground"
         >
           This week in the circle
         </h2>
@@ -83,19 +81,35 @@ export function HomeSpotlightDeck({
           {safeIndex + 1} of {items.length}
         </span>
       </div>
-      <div className="rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] sm:px-6.5 sm:pt-5 sm:pb-4.5">
+      <div
+        className={cn(
+          'rounded-[var(--radius-card-xl)] px-5 py-5 sm:px-6.5 sm:pt-5 sm:pb-4.5',
+          item.kind === 'event'
+            ? 'bg-[image:var(--cover-event)] text-white shadow-[var(--shadow-band-card)]'
+            : 'bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]',
+        )}
+      >
         <div className="flex items-center gap-2.5">
           <span
             className={cn(
               'shrink-0 rounded-full px-2.5 py-1 text-kicker font-bold',
-              item.tone === 'green' && 'bg-[var(--give-tint)] text-[var(--action-give-text)]',
-              item.tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-800)]',
-              item.tone === 'neutral' && 'bg-surface-subtle text-text-secondary',
+              item.kind === 'event'
+                ? 'bg-[var(--glass-tile)] text-[var(--cover-accent)] shadow-[var(--ring-glass)]'
+                : [
+                    item.tone === 'green' && 'bg-[var(--give-tint)] text-[var(--action-give-text)]',
+                    item.tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-800)]',
+                    item.tone === 'neutral' && 'bg-surface-subtle text-text-secondary',
+                  ],
             )}
           >
             {item.label}
           </span>
-          <span className="min-w-0 truncate text-xs font-semibold text-muted-foreground">
+          <span
+            className={cn(
+              'min-w-0 truncate text-xs font-semibold',
+              item.kind === 'event' ? 'text-white/70' : 'text-muted-foreground',
+            )}
+          >
             {item.meta}
           </span>
           {items.length > 1 ? (
@@ -104,7 +118,12 @@ export function HomeSpotlightDeck({
                 type="button"
                 aria-label="Previous spotlight"
                 onClick={() => move(-1)}
-                className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className={cn(
+                  'inline-flex size-10 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                  item.kind === 'event'
+                    ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass)] hover:bg-white/20'
+                    : 'bg-surface-subtle text-text-secondary hover:bg-muted',
+                )}
               >
                 <ChevronLeft aria-hidden className="size-4" />
               </button>
@@ -112,7 +131,12 @@ export function HomeSpotlightDeck({
                 type="button"
                 aria-label="Next spotlight"
                 onClick={() => move(1)}
-                className="inline-flex size-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className={cn(
+                  'inline-flex size-10 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                  item.kind === 'event'
+                    ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass)] hover:bg-white/20'
+                    : 'bg-surface-subtle text-text-secondary hover:bg-muted',
+                )}
               >
                 <ChevronRight aria-hidden className="size-4" />
               </button>
@@ -121,11 +145,21 @@ export function HomeSpotlightDeck({
         </div>
 
         <div className="mt-3.5 min-h-[88px]">
-          <h3 className="text-heading leading-tight font-extrabold tracking-tight text-balance text-foreground">
+          <h3
+            className={cn(
+              'text-heading leading-tight font-bold tracking-tight text-balance',
+              item.kind === 'event' ? 'text-white' : 'text-foreground',
+            )}
+          >
             {item.title}
           </h3>
           {item.body ? (
-            <p className="mt-1.5 line-clamp-2 text-body-sm leading-relaxed font-medium text-text-secondary text-pretty">
+            <p
+              className={cn(
+                'mt-1.5 line-clamp-2 text-body-sm leading-relaxed font-medium text-pretty',
+                item.kind === 'event' ? 'text-white/75' : 'text-text-secondary',
+              )}
+            >
               {item.body}
             </p>
           ) : null}
@@ -145,9 +179,11 @@ export function HomeSpotlightDeck({
               href={item.href}
               className={cn(
                 'inline-flex min-h-9 items-center rounded-full px-4 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-                item.tone === 'green'
-                  ? 'bg-[var(--give-tint)] text-[var(--action-give-text)]'
-                  : 'bg-[var(--action-weak)] text-[var(--action-weak-text)]',
+                item.kind === 'event'
+                  ? 'bg-white/95 text-[var(--cover-ink)] hover:bg-white'
+                  : item.tone === 'green'
+                    ? 'bg-[var(--give-tint)] text-[var(--action-give-text)]'
+                    : 'bg-[var(--action-weak)] text-[var(--action-weak-text)]',
               )}
             >
               {item.actionLabel}
@@ -156,7 +192,10 @@ export function HomeSpotlightDeck({
           {item.moreHref && item.moreLabel ? (
             <Link
               href={item.moreHref}
-              className="rounded-md text-xs font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              className={cn(
+                'rounded-md text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                item.kind === 'event' ? 'text-[var(--cover-accent)]' : 'text-primary',
+              )}
             >
               {item.moreLabel} →
             </Link>
@@ -178,8 +217,11 @@ export function HomeSpotlightDeck({
                     className={cn(
                       'h-[7px] rounded-full',
                       candidateIndex === safeIndex
-                        ? 'w-[18px] bg-primary'
-                        : 'w-[7px] bg-[var(--grey-300)]',
+                        ? cn('w-[18px]', item.kind === 'event' ? 'bg-white' : 'bg-primary')
+                        : cn(
+                            'w-[7px]',
+                            item.kind === 'event' ? 'bg-white/35' : 'bg-[var(--grey-300)]',
+                          ),
                     )}
                   />
                 </button>

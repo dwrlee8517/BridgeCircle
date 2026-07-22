@@ -202,7 +202,11 @@
   --text-chip: 0.71875rem; /* 11.5px */
   --text-control: 0.84375rem; /* 13.5px */
   --text-section-title: 1.1875rem; /* 19px */
-  --text-page-title: 1.75rem; /* 28px */
+  /* 2026-07 title demotion: in-app page headlines dropped 28px → 24px so the
+     top bar owns the functional title and content headlines read as product,
+     not marketing. Display sizes above 24px are reserved for auth/marketing
+     and the featured event surface. */
+  --text-page-title: 1.5rem; /* 24px */
   --text-display-event: 2.25rem; /* 36px */
   --text-event-date: 3.25rem; /* 52px */
   --text-event-date-md: 3.5rem; /* 56px */
@@ -644,9 +648,12 @@
   --radius-standard: 8px;
   --radius-comfortable: 12px;
   --radius-box: 14px;
-  --radius-large: 20px;
+  /* 2026-07 surface normalization: card surfaces share one 16px radius.
+     The former 20/22px steps made stacked cards read as puffy bubbles;
+     16px keeps the Toss softness while the shadow token carries elevation. */
+  --radius-large: 16px;
   --radius-bubble: 18px;
-  --radius-card-xl: 22px;
+  --radius-card-xl: 16px;
   --radius-pill: 9999px;
 
   /* O4 type scale. Existing production aliases map onto these roles until

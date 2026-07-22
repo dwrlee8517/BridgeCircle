@@ -46,6 +46,16 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
   await page.getByRole('link', { name: 'Back to School' }).click()
   await page.locator(`a[href="/school?event=${DINNER}"]`).click()
   await expect(page).toHaveURL(new RegExp(`/school\\?event=${DINNER}$`))
+  const selectedUpcomingEvent = page
+    .getByRole('region', { name: 'School events' })
+    .locator(`a[href="/school?event=${DINNER}"][aria-current="true"]`)
+  await expect(selectedUpcomingEvent).toBeVisible()
+  await expect(selectedUpcomingEvent).toContainText('Showing above')
+  await expect(
+    page.getByRole('region', { name: 'School events' }).getByRole('heading', {
+      name: 'Founders Dinner at The Riviera',
+    }),
+  ).toBeVisible()
   await page.getByRole('link', { name: 'View details', exact: true }).click()
   await expect(page).toHaveURL(`/school/events/${DINNER}`)
   await expect(page.getByRole('heading', { name: 'Itinerary' })).toBeVisible()

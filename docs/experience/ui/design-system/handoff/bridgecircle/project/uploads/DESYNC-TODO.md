@@ -146,3 +146,27 @@ The Brand card is half-dead — rebuild it around what the product actually uses
   `#c8cfd8`(7) `#b26f00`(6) + closing/give tints swapped to vars; `#eef1f5`(7
   non-shimmer) swapped; the 71 `#f6f8fa` + 142 `#eef1f5` inside the skeleton
   shimmer gradient were EXCLUDED on purpose (parked skeleton-drift item).
+
+## 6 · App-side token changes (2026-07-21 cohesion pass — DS side not yet re-synced)
+
+Repo `globals.css` changed ahead of the bundle; carry these into tokens/specimens
+on the next DesignSync pass:
+
+- **Weight cap 700**: every `font-extrabold`(800) and `font-black`(900) call site
+  in `app/src` is now `font-bold`. The School/event editorial display moments keep
+  identity via the navy cover + display sizes, not ultra weights.
+- **`--text-page-title` 28px → 24px** (title demotion): the top bar owns the
+  functional page title; in-content headlines (Home greeting, Help heroes, People,
+  profile names, ask/give/offer views) all sit on `text-page-title` now.
+  `display-hero`/`display-large` no longer appear on member pages.
+- **`--radius-card-xl` 22px → 16px and `--radius-large` 20px → 16px** (one card
+  radius). `--radius-bubble` 18px unchanged.
+- **Un-nested sub-cards**: Home "Waiting on you" and the Messages rail waiting
+  group render as divided rows inside the parent card, not white sub-cards.
+- **Featured surface reuse**: Home spotlight items of kind `event` now use
+  `--cover-event`/`--glass-tile`/`--cover-accent` (same language as the School
+  event hero). Other spotlight kinds keep the elevated white card.
+- **Runtime fix worth knowing on the DS side**: custom `text-<size>` utilities
+  were being dropped by tailwind-merge when combined with text colors (bucketed
+  as colors). Fixed in `app/src/lib/utils.ts` (`FONT_SIZE_TOKENS`); any new
+  `--text-*` token must be added there too.

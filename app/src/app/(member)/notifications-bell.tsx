@@ -176,7 +176,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
           className="w-[calc(100vw-1rem)] max-w-[390px] gap-0 overflow-hidden rounded-[18px] border-0 p-0 shadow-[var(--ring-card-elevated),0_20px_50px_-14px_rgb(25_31_40_/_0.3)] sm:w-[390px]"
         >
           <div className="flex items-center justify-between px-5 pt-3.5 pb-2.5">
-            <span className="text-sm font-extrabold tracking-tight">Notifications</span>
+            <span className="text-sm font-bold tracking-tight">Notifications</span>
             {unread > 0 ? (
               <button
                 type="button"

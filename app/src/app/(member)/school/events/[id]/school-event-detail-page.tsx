@@ -29,7 +29,7 @@ export function SchoolEventDetailPage({
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
           </Link>
-          <span className="text-caption font-extrabold text-text-primary">{event.title}</span>
+          <span className="text-caption font-bold text-text-primary">{event.title}</span>
         </div>
       </header>
 
@@ -76,10 +76,10 @@ export function SchoolEventDetailPage({
 
             {event.schedule.length > 0 ? (
               <section className="overflow-hidden rounded-2xl bg-surface-card shadow-card ring-1 ring-border-subtle">
-                <h2 className="px-5 py-4 text-body font-extrabold text-text-primary">Itinerary</h2>
+                <h2 className="px-5 py-4 text-body font-bold text-text-primary">Itinerary</h2>
                 {event.schedule.map((item) => (
                   <div key={item.id} className="flex gap-4 border-t border-divider-row px-5 py-3">
-                    <span className="w-24 shrink-0 text-caption font-extrabold text-action-weak-text">
+                    <span className="w-24 shrink-0 text-caption font-bold text-action-weak-text">
                       {item.startsAt
                         ? formatEventTimeRange(item.startsAt, null, event.timeZone)
                         : `Step ${item.position + 1}`}
@@ -94,7 +94,7 @@ export function SchoolEventDetailPage({
 
             {event.facts.length > 0 ? (
               <section>
-                <h2 className="mb-3 text-body font-extrabold text-text-primary">Good to know</h2>
+                <h2 className="mb-3 text-body font-bold text-text-primary">Good to know</h2>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {event.facts.map((fact) => (
                     <article
@@ -139,15 +139,15 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
   const attendanceOpen = event.phase === 'upcoming' || event.phase === 'changed'
 
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero before:pointer-events-none before:absolute before:inset-0 before:bg-[image:var(--cover-texture)] before:bg-size-[7px_7px] before:opacity-45">
+    <section className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero">
       <div className="relative grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
         <div className="flex h-32 w-28 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass),var(--shadow-raised)] backdrop-blur-sm">
-          <span className="text-overline font-extrabold tracking-caps text-[var(--cover-accent)] uppercase">
+          <span className="text-overline font-bold tracking-caps text-[var(--cover-accent)] uppercase">
             {new Intl.DateTimeFormat('en-US', { month: 'short', timeZone: event.timeZone }).format(
               new Date(event.startsAt),
             )}
           </span>
-          <span className="font-heading text-event-date-md font-black leading-none tracking-heading">
+          <span className="font-heading text-event-date-md font-bold leading-none tracking-heading">
             {new Intl.DateTimeFormat('en-US', { day: 'numeric', timeZone: event.timeZone }).format(
               new Date(event.startsAt),
             )}
@@ -160,10 +160,10 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
           </span>
         </div>
         <div className="min-w-0">
-          <p className="text-overline font-extrabold tracking-caps text-surface-ink-muted uppercase">
+          <p className="text-overline font-bold tracking-caps text-surface-ink-muted uppercase">
             Event · {event.category}
           </p>
-          <h1 className="mt-2 font-heading text-display-event font-black leading-tight tracking-heading text-balance">
+          <h1 className="mt-2 font-heading text-display-event font-bold leading-tight tracking-heading text-balance">
             {event.title}
           </h1>
           {event.summary ? (
@@ -206,7 +206,7 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
               href={event.joinUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-extrabold text-action-on-primary hover:bg-[var(--blue-800)]"
+              className="inline-flex items-center gap-2 rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-bold text-action-on-primary hover:bg-[var(--blue-800)]"
             >
               <Video className="size-4" aria-hidden="true" /> Join now
             </a>
@@ -230,7 +230,7 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
 function ContentCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl bg-surface-card p-5 shadow-card ring-1 ring-border-subtle">
-      <h2 className="text-body font-extrabold text-text-primary">{title}</h2>
+      <h2 className="text-body font-bold text-text-primary">{title}</h2>
       <div className="mt-2">{children}</div>
     </section>
   )
@@ -246,7 +246,7 @@ function AttendeeCard({
   return (
     <section className="overflow-hidden rounded-2xl bg-surface-card shadow-card ring-1 ring-border-subtle">
       <div className="px-5 py-4">
-        <h2 className="text-body font-extrabold text-text-primary">Who&apos;s going</h2>
+        <h2 className="text-body font-bold text-text-primary">Who&apos;s going</h2>
         <p className="mt-0.5 text-chip font-semibold text-text-muted">
           {attendees.totalCount} going · your circle first
         </p>
@@ -262,7 +262,7 @@ function AttendeeCard({
           >
             <Avatar className="size-9 ring-1 ring-border">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback seed={person.userId} className="text-chip font-extrabold">
+              <AvatarFallback seed={person.userId} className="text-chip font-bold">
                 {initials(name)}
               </AvatarFallback>
             </Avatar>

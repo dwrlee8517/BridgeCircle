@@ -84,7 +84,7 @@ export default async function SchoolAnnouncementsPage({
                   <span className="text-fine font-bold tracking-caps text-text-muted uppercase">
                     {item.tag} · {formatPublished(item.publishedAt)}
                   </span>
-                  <span className="mt-1 block text-body font-extrabold text-text-primary">
+                  <span className="mt-1 block text-body font-bold text-text-primary">
                     {item.title}
                   </span>
                   <span className="mt-1 line-clamp-2 block text-caption leading-relaxed text-text-secondary">
@@ -101,9 +101,7 @@ export default async function SchoolAnnouncementsPage({
             ))
           ) : (
             <div className="px-6 py-14 text-center">
-              <h2 className="text-body font-extrabold text-text-primary">
-                Nothing in this section yet
-              </h2>
+              <h2 className="text-body font-bold text-text-primary">Nothing in this section yet</h2>
               <p className="mt-2 text-caption text-text-secondary">
                 Try All, or come back when the school has another note.
               </p>

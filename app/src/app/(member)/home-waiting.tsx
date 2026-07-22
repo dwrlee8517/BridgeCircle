@@ -84,7 +84,7 @@ export function HomeWaiting({
         onClick={() => setFolded(!folded)}
         className="flex min-h-13 w-full items-center gap-2 px-5 text-left hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
       >
-        <span className="text-body-sm font-extrabold tracking-tight text-foreground">
+        <span className="text-body-sm font-bold tracking-tight text-foreground">
           Waiting on you
         </span>
         {items.length > 0 ? (
@@ -105,15 +105,15 @@ export function HomeWaiting({
       <div
         id={contentId}
         hidden={folded}
-        className="grid min-w-0 grid-cols-1 gap-2 px-3 pt-0.5 pb-3.5"
+        className="min-w-0 divide-y divide-[var(--divider-row)] border-t border-[var(--divider-row)]"
       >
         {acceptedConversationId ? (
           <div
             role="status"
-            className="rounded-[14px] bg-[var(--give-tint)] px-4 py-3 text-xs font-semibold text-[var(--action-give-text)]"
+            className="bg-[var(--give-tint)] px-5 py-3 text-xs font-semibold text-[var(--action-give-text)]"
           >
             You’re connected.{' '}
-            <Link href={`/messages/${acceptedConversationId}`} className="font-extrabold underline">
+            <Link href={`/messages/${acceptedConversationId}`} className="font-bold underline">
               Open the conversation
             </Link>
             .
@@ -126,10 +126,7 @@ export function HomeWaiting({
             : null
           const busy = pendingIds.has(id)
           return (
-            <article
-              key={`${item.kind}:${id}`}
-              className="rounded-[14px] bg-card px-3.5 py-3 shadow-[var(--ring-card)]"
-            >
+            <article key={`${item.kind}:${id}`} className="px-5 py-3.5">
               <div className="flex items-center gap-2.5">
                 <Avatar size="sm" aria-hidden>
                   {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}

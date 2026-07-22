@@ -49,7 +49,7 @@ export function SelfProfileAbout({ bio }: { bio: string | null }) {
               maxLength={4000}
               defaultValue={bio ?? ''}
               placeholder="Share the context that helps people know when to reach out."
-              className="mt-2 min-h-36 resize-y rounded-[10px]"
+              className="mt-2 min-h-36 resize-none rounded-[10px]"
             />
             <ActionFooter state={state} pending={pending} />
           </form>

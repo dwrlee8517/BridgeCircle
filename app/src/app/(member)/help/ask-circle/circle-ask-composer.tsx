@@ -367,7 +367,7 @@ export function CircleAskComposer({
                 updateQuestion(event.target.value, 'member')
               }}
               placeholder="What do you need?"
-              className="mt-[11px] min-h-[132px] resize-y rounded-xl border-0 bg-card px-3.75 py-3.25 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:resize-none"
+              className="mt-[11px] min-h-[132px] resize-none rounded-xl border-0 bg-card px-3.75 py-3.25 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:resize-none"
             />
             <p className="mt-2 text-kicker leading-relaxed font-medium text-[var(--text-faint)]">
               This is what the circle sees. AI keeps it up to date as you chat — or edit it
@@ -375,7 +375,7 @@ export function CircleAskComposer({
             </p>
 
             <fieldset className="mt-4">
-              <legend className="text-body-sm font-extrabold tracking-tight text-[var(--text-primary)]">
+              <legend className="text-body-sm font-bold tracking-tight text-[var(--text-primary)]">
                 Who can find this?
               </legend>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
@@ -495,7 +495,7 @@ function ReachOption({
         onChange={onSelect}
         className="sr-only"
       />
-      <strong className="block text-xs font-extrabold text-[var(--text-primary)]">{title}</strong>
+      <strong className="block text-xs font-bold text-[var(--text-primary)]">{title}</strong>
       <span className="mt-1 block text-kicker leading-relaxed font-medium text-[var(--grey-600)]">
         {description}
       </span>
@@ -550,7 +550,7 @@ function ComposerSuccess({ askId }: { askId: string }) {
         <span className="mx-auto inline-flex size-12 items-center justify-center rounded-full bg-[image:var(--gradient-primary-btn)] text-white shadow-[var(--shadow-primary-btn)]">
           <Check aria-hidden className="size-5.5" strokeWidth={2.6} />
         </span>
-        <h1 className="mt-4 text-xl font-extrabold tracking-tight text-[var(--text-primary)]">
+        <h1 className="mt-4 text-xl font-bold tracking-tight text-[var(--text-primary)]">
           Your ask is out
         </h1>
         <p className="mt-2 text-body-sm leading-relaxed font-medium text-[var(--grey-600)]">

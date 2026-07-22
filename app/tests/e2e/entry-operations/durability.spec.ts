@@ -129,8 +129,10 @@ test.describe('entry and operations durability', () => {
 
       await signInAs(page, member)
       await page.goto('/settings')
-      await page.getByRole('button', { name: 'Request data export' }).click()
-      await expect(page.getByText('Your export is queued')).toBeVisible()
+      await page.getByRole('button', { name: 'Request export' }).click()
+      await expect(
+        page.getByText('We’re checking your data export. Its current status appears below.'),
+      ).toBeVisible()
 
       const exportRequest = await waitForExport(memberClient)
       const worker = createEntryOperationsWorker(scenario.admin, baseURL)
@@ -140,7 +142,7 @@ test.describe('entry and operations durability', () => {
       )
 
       await page.reload()
-      await expect(page.locator('#main-content').getByText('Your export is ready')).toBeVisible()
+      await expect(page.locator('#main-content').getByText('Export ready')).toBeVisible()
       const download = await memberClient.schema('api').rpc('get_my_account_export_download')
       exportPath = download.data?.[0]?.storage_path ?? null
       expect(exportPath).toBeTruthy()
@@ -153,7 +155,8 @@ test.describe('entry and operations durability', () => {
       const archive = await archiveResponse.json()
       expect(archive.user.id).toBe(member.userId)
 
-      await page.getByRole('button', { name: 'Schedule account deletion' }).click()
+      await page.getByRole('button', { name: 'Delete…' }).click()
+      await page.getByRole('button', { name: 'Schedule deletion' }).click()
       await expect(
         page.getByRole('heading', { name: 'Your account is scheduled for deletion' }),
       ).toBeVisible()
@@ -161,7 +164,8 @@ test.describe('entry and operations durability', () => {
       await page.waitForURL((url) => url.pathname === '/')
 
       await page.goto('/settings')
-      await page.getByRole('button', { name: 'Schedule account deletion' }).click()
+      await page.getByRole('button', { name: 'Delete…' }).click()
+      await page.getByRole('button', { name: 'Schedule deletion' }).click()
       await expect(
         page.getByRole('heading', { name: 'Your account is scheduled for deletion' }),
       ).toBeVisible()
@@ -204,8 +208,9 @@ test.describe('entry and operations durability', () => {
       await page.setViewportSize({ width: 320, height: 720 })
 
       await page.goto('/school/events/00000000-0000-4000-8000-000000000000')
-      await expect(page.getByRole('heading', { name: 'This isn’t here anymore.' })).toBeVisible()
-      await expect(page.getByRole('link', { name: '← Back to School' })).toBeFocused()
+      const stateHeading = page.getByRole('heading', { name: 'This isn’t here anymore.' })
+      await expect(stateHeading).toBeVisible()
+      await expect(stateHeading).toBeFocused()
       await expectNoHorizontalOverflow(page)
       await expectAccessible(page)
 

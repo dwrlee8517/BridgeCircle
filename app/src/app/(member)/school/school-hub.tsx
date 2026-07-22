@@ -29,7 +29,7 @@ export function SchoolHub({
             <p className="text-overline font-bold tracking-caps text-text-secondary uppercase">
               {home.organization.name}
             </p>
-            <h1 className="mt-1 font-heading text-page-title font-extrabold tracking-heading text-text-primary">
+            <h1 className="mt-1 font-heading text-page-title font-bold tracking-heading text-text-primary">
               Close to school, not buried in it.
             </h1>
             <p className="mt-1 text-control font-medium text-text-secondary">
@@ -111,13 +111,13 @@ function AttendingStrip({
 function EventCover({ event }: { event: SchoolEventCard }) {
   const capacityMatters = event.spotsLeft !== null && event.spotsLeft <= 8
   return (
-    <article className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero before:pointer-events-none before:absolute before:inset-0 before:bg-[image:var(--cover-texture)] before:bg-size-[7px_7px] before:opacity-45">
+    <article className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero">
       <div className="relative grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
         <div className="min-w-0">
-          <p className="text-overline font-extrabold tracking-caps text-surface-ink-muted uppercase">
+          <p className="text-overline font-bold tracking-caps text-surface-ink-muted uppercase">
             Chadwick · {event.category}
           </p>
-          <h2 className="mt-2 max-w-xl font-heading text-display-md font-extrabold tracking-heading text-balance">
+          <h2 className="mt-2 max-w-xl font-heading text-display-md font-bold tracking-heading text-balance">
             {event.title}
           </h2>
           {event.summary ? (
@@ -168,7 +168,7 @@ function EventCover({ event }: { event: SchoolEventCard }) {
         </Link>
         <Link
           href={`/school/events/${event.id}`}
-          className="ml-auto inline-flex items-center gap-1 rounded-xl px-3 py-2.5 text-caption font-extrabold text-primary-on-dark hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          className="ml-auto inline-flex items-center gap-1 rounded-xl px-3 py-2.5 text-caption font-bold text-primary-on-dark hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           View details <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
@@ -184,47 +184,63 @@ function UpcomingEvents({
   events: SchoolEventCard[]
   selectedId: string | null
 }) {
-  const upcoming = events.filter((event) => event.id !== selectedId).slice(0, 5)
+  const upcoming = events.slice(0, 5)
   return (
     <section className="overflow-hidden rounded-2xl bg-surface-card shadow-card ring-1 ring-border-subtle">
       <div className="flex items-center justify-between px-5 py-4">
         <div>
           <p className="text-fine font-bold tracking-caps text-text-muted uppercase">Upcoming</p>
-          <h2 className="mt-0.5 text-body font-extrabold text-text-primary">
-            More on the calendar
-          </h2>
+          <h2 className="mt-0.5 text-body font-bold text-text-primary">More on the calendar</h2>
         </div>
       </div>
       {upcoming.length > 0 ? (
         <div>
-          {upcoming.map((event) => (
-            <article
-              key={event.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-stretch border-t border-divider-row transition-colors hover:bg-surface-subtle"
-            >
-              <Link
-                href={`/school?event=${event.id}`}
-                className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 px-5 py-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+          {upcoming.map((event) => {
+            const selected = event.id === selectedId
+            return (
+              <article
+                key={event.id}
+                className={cn(
+                  'grid grid-cols-[minmax(0,1fr)_auto] items-stretch border-t border-divider-row transition-colors',
+                  selected
+                    ? 'bg-primary-tint-strong shadow-[inset_3px_0_0_var(--action-primary)]'
+                    : 'hover:bg-surface-subtle',
+                )}
               >
-                <DateTile event={event} compact />
-                <span className="min-w-0">
-                  <span className="block truncate text-control font-bold text-text-primary">
-                    {event.title}
+                <Link
+                  href={`/school?event=${event.id}`}
+                  aria-current={selected ? 'true' : undefined}
+                  className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 px-5 py-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+                >
+                  <DateTile event={event} compact />
+                  <span className="min-w-0">
+                    <span className="block truncate text-control font-bold text-text-primary">
+                      {event.title}
+                    </span>
+                    <span
+                      className={cn(
+                        'mt-1 block truncate text-chip font-medium',
+                        selected ? 'text-action-weak-text' : 'text-text-muted',
+                      )}
+                    >
+                      {event.locationName ?? 'Online'} · {event.goingCount} going
+                      {selected ? ' · Showing above' : ''}
+                    </span>
                   </span>
-                  <span className="mt-1 block truncate text-chip font-medium text-text-muted">
-                    {event.locationName ?? 'Online'} · {event.goingCount} going
-                  </span>
-                </span>
-              </Link>
-              <Link
-                href={`/school/events/${event.id}`}
-                aria-label={`View details for ${event.title}`}
-                className="flex w-11 items-center justify-center text-icon-muted hover:text-action-weak-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
-              >
-                <ChevronRight className="size-4" aria-hidden="true" />
-              </Link>
-            </article>
-          ))}
+                </Link>
+                <Link
+                  href={`/school/events/${event.id}`}
+                  aria-label={`View details for ${event.title}`}
+                  className={cn(
+                    'flex w-11 items-center justify-center hover:text-action-weak-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring',
+                    selected ? 'text-action-weak-text' : 'text-icon-muted',
+                  )}
+                >
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </Link>
+              </article>
+            )
+          })}
         </div>
       ) : (
         <p className="border-t border-divider-row px-5 py-6 text-caption text-text-muted">
@@ -241,7 +257,7 @@ function AnnouncementPanel({ items }: { items: SchoolAnnouncementSummary[] }) {
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center gap-2">
           <Megaphone className="size-4 text-action-weak-text" aria-hidden="true" />
-          <h2 className="text-body font-extrabold text-text-primary">From the school</h2>
+          <h2 className="text-body font-bold text-text-primary">From the school</h2>
         </div>
         <Link href="/school/announcements" className="text-chip font-bold text-action-weak-text">
           View all <span aria-hidden="true">→</span>
@@ -267,7 +283,7 @@ function AnnouncementPanel({ items }: { items: SchoolAnnouncementSummary[] }) {
               {item.pinned ? 'Pinned · ' : ''}
               {item.tag}
             </span>
-            <span className="mt-1.5 block text-control font-extrabold text-text-primary">
+            <span className="mt-1.5 block text-control font-bold text-text-primary">
               {item.title}
             </span>
             <span className="mt-1 line-clamp-2 block text-chip leading-relaxed text-text-secondary">
@@ -289,7 +305,7 @@ function NewsletterPanel({ issue }: { issue: NewsletterSummary | null }) {
   return (
     <section className="rounded-2xl bg-surface-card p-5 shadow-card ring-1 ring-border-subtle">
       <p className="text-fine font-bold tracking-caps text-text-muted uppercase">Newsletter</p>
-      <h2 className="mt-2 text-body font-extrabold text-text-primary">
+      <h2 className="mt-2 text-body font-bold text-text-primary">
         {newsletterDisplayTitle(issue.title)}
       </h2>
       {issue.summary ? (
@@ -345,7 +361,7 @@ function DateTile({
       <span className="sr-only">{formatEventDate(event.startsAt, event.timeZone)}</span>
       <span
         className={cn(
-          'font-extrabold tracking-caps',
+          'font-bold tracking-caps',
           variant === 'glass' ? 'text-[var(--cover-accent)]' : 'text-action-weak-text',
           compact ? 'text-micro' : 'text-overline',
         )}
@@ -354,7 +370,7 @@ function DateTile({
       </span>
       <span
         className={cn(
-          'font-heading font-black tracking-heading',
+          'font-heading font-bold tracking-heading',
           compact ? 'text-section-title leading-5' : 'text-event-date leading-none',
         )}
       >
@@ -377,7 +393,7 @@ function DateTile({
 function EmptyPanel({ title, body }: { title: string; body: string }) {
   return (
     <section className="rounded-2xl bg-surface-card px-6 py-12 text-center shadow-card ring-1 ring-border-subtle">
-      <h2 className="text-body font-extrabold text-text-primary">{title}</h2>
+      <h2 className="text-body font-bold text-text-primary">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-caption leading-relaxed text-text-secondary">
         {body}
       </p>

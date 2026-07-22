@@ -37,6 +37,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { StatusBadge } from '@/components/ui/status-badge'
 import type { MemberProfile, MemberProfileRelationship } from '@/lib/people/contracts'
 import { cn, directHelpHref } from '@/lib/utils'
 
@@ -175,9 +176,7 @@ export function MemberProfileView({
             </Avatar>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-display-large leading-tight font-extrabold tracking-display">
-                  {name}
-                </h1>
+                <h1 className="text-page-title leading-tight font-bold tracking-display">{name}</h1>
                 {relationship.state === 'connected' ? (
                   <ProfileTag tone="blue">In your circle</ProfileTag>
                 ) : null}
@@ -583,7 +582,7 @@ function ProfileSection({
 }) {
   return (
     <section className={cn(divided && 'border-t border-[var(--divider-row)] pt-7')}>
-      <h2 className="text-nav font-extrabold tracking-title">{title}</h2>
+      <h2 className="text-nav font-bold tracking-title">{title}</h2>
       <div className="mt-3.5">{children}</div>
     </section>
   )
@@ -666,17 +665,13 @@ function ProfileTag({
   children: React.ReactNode
 }) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-chip font-bold',
-        tone === 'blue' && 'bg-[var(--blue-50)] text-[var(--blue-600)]',
-        tone === 'green' && 'bg-[var(--give-tint-weak)] text-[var(--action-give-text)]',
-        tone === 'grey' && 'bg-[var(--surface-subtle)] text-[var(--text-secondary)]',
-      )}
+    <StatusBadge
+      size="sm"
+      tone={tone === 'blue' ? 'info' : tone === 'green' ? 'open' : 'muted'}
+      dot={tone === 'green'}
     >
-      {tone === 'green' ? <i className="size-1.5 rounded-full bg-[var(--green-500)]" /> : null}
       {children}
-    </span>
+    </StatusBadge>
   )
 }
 

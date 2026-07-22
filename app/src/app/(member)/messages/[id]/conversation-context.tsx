@@ -57,7 +57,7 @@ export function ConversationContext({
         </Avatar>
         <Link
           href={`/profile/${counterpart.userId}`}
-          className="mt-3 block text-body-md font-extrabold text-foreground hover:text-primary hover:underline"
+          className="mt-3 block text-body-md font-bold text-foreground hover:text-primary hover:underline"
         >
           {counterpart.displayName}
         </Link>

@@ -30,7 +30,7 @@ export default async function NewsletterIssuePage({
           <p className="text-overline font-bold tracking-caps text-action-weak-text uppercase">
             Newsletter · Issue {issue.issueNumber}
           </p>
-          <h1 className="mt-3 font-heading text-display-md font-black leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
+          <h1 className="mt-3 font-heading text-display-md font-bold leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
             {newsletterDisplayTitle(issue.title)}
           </h1>
           {issue.summary ? (
@@ -42,7 +42,7 @@ export default async function NewsletterIssuePage({
           <div className="mt-8 space-y-9 border-t border-divider-row pt-8">
             {issue.sections.map((section) => (
               <section key={section.id}>
-                <h2 className="text-section-title font-extrabold tracking-heading text-text-primary">
+                <h2 className="text-section-title font-bold tracking-heading text-text-primary">
                   {section.heading}
                 </h2>
                 <p className="mt-3 text-body leading-[1.75] whitespace-pre-line text-text-secondary">
