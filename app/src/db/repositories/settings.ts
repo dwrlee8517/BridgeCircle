@@ -2,6 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import type { Database } from '@/db/database.types'
 import { isNotificationType, type NotificationType } from '@/lib/notifications/types'
+import type {
+  AccountExport,
+  BlockedMember,
+  NotificationPreference,
+  SettingsRepository,
+} from '@/lib/settings/contracts'
 
 const notificationPreferenceSchema = z.object({
   notification_type: z.string(),
@@ -51,28 +57,6 @@ const exportSchema = z.object({
 
 const exportDownloadSchema = z.object({ storage_bucket: z.string(), storage_path: z.string() })
 
-export type NotificationPreference = {
-  type: NotificationType
-  inAppEnabled: boolean
-  emailEnabled: boolean
-  updatedAt: string
-}
-
-export type BlockedMember = {
-  userId: string
-  displayName: string
-  avatarPath: string | null
-  blockedAt: string
-}
-
-export type AccountExport = {
-  id: string
-  status: 'queued' | 'processing' | 'ready' | 'failed' | 'expired'
-  createdAt: string
-  completedAt: string | null
-  expiresAt: string | null
-}
-
 function parseExport(row: unknown): AccountExport | null {
   const parsed = exportSchema.parse(row)
   if (!parsed.export_request_id || !parsed.status || !parsed.created_at) return null
@@ -85,7 +69,7 @@ function parseExport(row: unknown): AccountExport | null {
   }
 }
 
-export function createSettingsRepository(client: SupabaseClient<Database>) {
+export function createSettingsRepository(client: SupabaseClient<Database>): SettingsRepository {
   return {
     async listNotificationPreferences(): Promise<NotificationPreference[]> {
       const { data, error } = await client.schema('api').rpc('get_my_notification_preferences')

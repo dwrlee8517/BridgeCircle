@@ -80,7 +80,7 @@ export function ConnectionComposer({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="right-0 left-auto top-0 flex h-dvh max-w-[92vw] translate-x-0 translate-y-0 flex-col gap-0 overflow-y-auto rounded-none p-6 pb-28 sm:w-[440px] sm:max-w-[440px]">
         <DialogHeader>
-          <DialogTitle className="text-lg font-extrabold">Connect with {firstName}</DialogTitle>
+          <DialogTitle className="text-lg font-bold">Connect with {firstName}</DialogTitle>
           <DialogDescription className="leading-relaxed">
             Your note lands in {firstName}’s “Waiting on you.” Connecting is mutual, and declines
             stay quiet both ways.
@@ -132,7 +132,7 @@ export function ConnectionComposer({
               maxLength={800}
               rows={3}
               placeholder="“their path is the move I’m trying to make”"
-              className="mt-2 w-full resize-y rounded-xl border border-[var(--border-subtle)] bg-white p-3 text-sm leading-relaxed font-medium outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
+              className="mt-2 w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-white p-3 text-sm leading-relaxed font-medium outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
               onChange={(event) => {
                 setReason(event.target.value)
                 setDraftStatus('idle')
@@ -180,7 +180,7 @@ export function ConnectionComposer({
           aria-invalid={noteError || undefined}
           placeholder="Pick a hello above, or write your own…"
           className={cn(
-            'mt-2 min-h-32 resize-y rounded-xl border bg-white p-3 text-sm leading-relaxed font-medium outline-none focus-visible:ring-4',
+            'mt-2 min-h-32 resize-none rounded-xl border bg-white p-3 text-sm leading-relaxed font-medium outline-none focus-visible:ring-4',
             noteError
               ? 'border-[var(--state-danger)] focus-visible:ring-[rgb(222_49_69_/_0.14)]'
               : 'border-[var(--border-subtle)] focus-visible:border-focus-ring focus-visible:ring-focus-ring-muted',

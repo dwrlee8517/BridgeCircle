@@ -16,22 +16,27 @@ source.
 
 | Screen | Canonical route | Current v2 status |
 |---|---|---|
-| Home | `/` | Later domain port |
+| Home | `/` | Implemented v2 composition dashboard |
 | Help home | `/help` | Implemented |
 | Direct Ask | `/help/ask/[membershipId]` | Implemented |
 | Ask the circle | `/help/ask-circle` | Implemented |
 | Help history | `/help/asks` | Implemented |
 | Ask detail/response | `/help/asks/[askId]` | Implemented |
 | Circle offer | `/help/asks/[askId]/offer` | Implemented |
-| Help settings | `/help/settings` | Implemented |
-| People | `/people` | Later People/Profile port; canonical direct-Help link is implemented |
-| Profile | `/profile/[id]` | Later People/Profile port; canonical direct-Help link is implemented |
+| Settings | `/settings` | Implemented account, communication, helping, safety, export, and deletion owner |
+| Help settings compatibility | `/help/settings` | Redirects to `/settings#helping` |
+| People | `/people` | Implemented directory, search, filters, preview, and direct-Help entry |
+| My circle | `/people/circle` | Implemented Connection management list |
+| Other-member profile | `/profile/[id]` | Implemented canonical deep link; contextual in-shell opens use the profile modal |
+| Self profile | `/profile/me` | Implemented inline member-profile editing |
 | Messages list | `/messages` | Implemented |
 | Conversation | `/messages/[id]` | Implemented for Ask and Connection origins |
-| School | `/school` | Later School/Admin port |
-| Events | `/events`, `/events/[id]` | Later School/Admin port |
-| Announcements | `/announcements`, `/announcements/[id]` | Later School/Admin port |
-| Admin | `/admin/*` | Later School/Admin port |
+| Notifications | `/notifications` | Implemented durable history and unread filter |
+| School | `/school` | Implemented member pulse |
+| Event detail | `/school/events/[id]` | Implemented member RSVP and held-offer flows |
+| Announcements | `/school/announcements`, `/school/announcements/[id]` | Implemented archive and reader |
+| Newsletter | `/school/newsletter`, `/school/newsletter/[issue]` | Implemented archive and reader |
+| Admin | `/admin/invite`, `/admin/approvals`, `/admin/reports`, `/admin/events`, `/admin/announcements` | Implemented invite, membership decisions, report moderation, full event authoring, and announcements |
 
 ## Help states that must be designed and tested
 
@@ -51,6 +56,15 @@ source.
   success, validation, and transport failure;
 - accepted conversation: origin line, opening message, send, reconnect,
   resolution line, and continued messaging after resolution.
+
+## Entry and onboarding states
+
+- `/join`, `/sign-in`, password recovery, pending approval, circle selection,
+  and cancellation recovery;
+- onboarding identity floor: name and graduation year are required before a
+  member can enter the shell;
+- optional enrichment: Fast Fill, education, current/past experience, Help
+  preferences, and the cold-start prompt are all skippable and revisitable.
 
 ## Responsive acceptance sizes
 

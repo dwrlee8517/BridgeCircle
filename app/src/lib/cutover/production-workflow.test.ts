@@ -16,7 +16,7 @@ name: CD
 candidate_sha:
 name: Deploy dev stage
 REQUESTED_CANDIDATE_SHA
-refs/heads/codex/redesign-v2
+refs/heads/codex/ui-ux-iteration-2
 "$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"
 ALLOW_DEV_CANDIDATE_DEPLOY
 ${migrationSteps('dev')}
@@ -48,7 +48,7 @@ describe('production workflow ratchet', () => {
     valid.replace('/api/health', ''),
     valid.replace('railway up\nrailway up', 'railway up'),
     valid.replace("if: github.ref == 'refs/heads/main'", ''),
-    valid.replace('refs/heads/codex/redesign-v2', 'refs/heads/another-branch'),
+    valid.replace('refs/heads/codex/ui-ux-iteration-2', 'refs/heads/another-branch'),
     valid.replace('ALLOW_DEV_CANDIDATE_DEPLOY', ''),
     `${valid}\nsupabase db reset`,
   ])('rejects a weakened workflow', (workflow) => {

@@ -159,8 +159,29 @@ export type Database = {
           result_code: string
         }[]
       }
+      decide_admin_report: {
+        Args: {
+          p_decision: string
+          p_membership_id: string
+          p_note?: string
+          p_report_id: string
+        }
+        Returns: string
+      }
       decide_membership: {
         Args: { p_decision: string; p_membership_id: string }
+        Returns: {
+          membership_status: string
+          result_code: string
+        }[]
+      }
+      decide_membership_with_reason: {
+        Args: {
+          p_decision: string
+          p_membership_id: string
+          p_private_note?: string
+          p_reason_code?: string
+        }
         Returns: {
           membership_status: string
           result_code: string
@@ -299,6 +320,16 @@ export type Database = {
           viewer_last_read_message_id: number
           viewer_outcome_share_identity: boolean
           viewer_outcome_share_story: boolean
+        }[]
+      }
+      get_direct_ask_target: {
+        Args: {
+          p_asker_membership_id: string
+          p_recipient_membership_id: string
+        }
+        Returns: {
+          recipient: Json
+          result_code: string
         }[]
       }
       get_help_ask_detail: {
@@ -511,6 +542,10 @@ export type Database = {
           invite_status: string
           result_code: string
         }[]
+      }
+      list_admin_reports: {
+        Args: { p_limit?: number; p_membership_id: string; p_status?: string }
+        Returns: Json
       }
       list_conversation_messages_after: {
         Args: {
@@ -943,6 +978,33 @@ export type Database = {
           p_location?: string
           p_membership_id: string
           p_starts_at?: string
+          p_title?: string
+        }
+        Returns: Json
+      }
+      save_admin_school_event_v2: {
+        Args: {
+          p_allow_waitlist?: boolean
+          p_campus?: string
+          p_capacity?: number
+          p_category?: string
+          p_change_note?: string
+          p_description?: string
+          p_ends_at?: string
+          p_event_id?: string
+          p_facts?: Json
+          p_format?: string
+          p_host_name?: string
+          p_join_url?: string
+          p_join_window_minutes?: number
+          p_location_address?: string
+          p_location_name?: string
+          p_maps_url?: string
+          p_membership_id: string
+          p_schedule?: Json
+          p_starts_at?: string
+          p_summary?: string
+          p_time_zone?: string
           p_title?: string
         }
         Returns: Json

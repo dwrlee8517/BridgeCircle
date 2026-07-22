@@ -10,7 +10,7 @@ export function MessagesAttentionBadge({ className }: { className?: string }) {
     <span
       aria-hidden
       className={cn(
-        'inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-kicker font-extrabold leading-none text-primary-foreground tabular-nums',
+        'inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-kicker font-bold leading-none text-primary-foreground tabular-nums',
         className,
       )}
     >

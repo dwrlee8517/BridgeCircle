@@ -51,13 +51,13 @@ export function ConversationContext({
       <div className="text-center">
         <Avatar className="mx-auto size-16 shadow-[var(--ring-avatar)]">
           {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-          <AvatarFallback className="text-body-lg">
+          <AvatarFallback seed={counterpart.userId} className="text-body-lg">
             {getInitials(counterpart.displayName)}
           </AvatarFallback>
         </Avatar>
         <Link
           href={`/profile/${counterpart.userId}`}
-          className="mt-3 block text-body-md font-extrabold text-foreground hover:text-primary hover:underline"
+          className="mt-3 block text-body-md font-bold text-foreground hover:text-primary hover:underline"
         >
           {counterpart.displayName}
         </Link>

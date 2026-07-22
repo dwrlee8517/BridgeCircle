@@ -55,7 +55,7 @@ export default async function NotificationsPage({
   const last = items.at(-1)
 
   return (
-    <div className="density-cozy mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-8">
+    <div className="density-cozy mx-auto max-w-[680px] space-y-5 px-4 py-8 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <p className="bc-section-kicker">Your activity</p>
@@ -65,12 +65,14 @@ export default async function NotificationsPage({
           <div className="flex gap-3 text-sm">
             <Link
               href="/notifications"
+              aria-current={params.unread === '1' ? undefined : 'page'}
               className={params.unread === '1' ? 'text-muted-foreground' : 'font-semibold'}
             >
               All
             </Link>
             <Link
               href="/notifications?unread=1"
+              aria-current={params.unread === '1' ? 'page' : undefined}
               className={params.unread === '1' ? 'font-semibold' : 'text-muted-foreground'}
             >
               Unread
@@ -123,7 +125,7 @@ function Row({ row }: { row: NotificationRow }) {
   const inner = (
     <div
       className={`flex items-start gap-3 px-4 py-3 ${
-        row.readAt ? '' : 'bg-warning-tint/55'
+        row.readAt ? '' : 'bg-primary-tint/55'
       } ${url ? 'hover:bg-muted/40' : ''}`}
     >
       <Icon type={row.type} />

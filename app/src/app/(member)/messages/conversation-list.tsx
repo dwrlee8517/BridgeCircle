@@ -77,15 +77,17 @@ export function ConversationList({
                   {avatarUrl ? (
                     <AvatarImage src={avatarUrl} alt="" />
                   ) : (
-                    <AvatarFallback>{getInitials(item.counterpart.displayName)}</AvatarFallback>
+                    <AvatarFallback seed={item.counterpart.userId}>
+                      {getInitials(item.counterpart.displayName)}
+                    </AvatarFallback>
                   )}
                 </Avatar>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-1.5">
                     <span
                       className={cn(
-                        'truncate text-caption text-foreground',
-                        unread ? 'font-extrabold' : 'font-bold',
+                        'truncate text-control text-foreground',
+                        unread ? 'font-bold' : 'font-semibold',
                       )}
                     >
                       {item.counterpart.preferredName ?? item.counterpart.displayName}
@@ -93,7 +95,7 @@ export function ConversationList({
                     {item.counterpart.graduationYear ? (
                       <span
                         className={cn(
-                          'shrink-0 text-kicker font-semibold',
+                          'shrink-0 text-chip font-semibold',
                           selected ? 'text-text-secondary' : 'text-muted-foreground',
                         )}
                       >
@@ -103,7 +105,8 @@ export function ConversationList({
                     <time
                       dateTime={item.activityAt}
                       className={cn(
-                        'ml-auto shrink-0 text-kicker font-bold tabular-nums',
+                        'ml-auto shrink-0 text-chip tabular-nums',
+                        unread ? 'font-bold' : 'font-medium',
                         unread
                           ? 'text-[var(--blue-800)]'
                           : selected
@@ -116,7 +119,7 @@ export function ConversationList({
                   </span>
                   <span
                     className={cn(
-                      'mt-0.5 block truncate text-caption',
+                      'mt-0.5 block truncate text-body-sm',
                       unread ? 'font-bold text-foreground' : 'font-medium text-text-secondary',
                     )}
                   >
@@ -125,7 +128,7 @@ export function ConversationList({
                   {item.kind === 'ask' && item.askQuestion ? (
                     <span
                       className={cn(
-                        'mt-0.5 block truncate text-kicker',
+                        'mt-0.5 block truncate text-caption',
                         selected ? 'text-text-secondary' : 'text-muted-foreground',
                       )}
                     >

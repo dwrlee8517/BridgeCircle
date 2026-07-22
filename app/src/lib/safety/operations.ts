@@ -53,3 +53,12 @@ export async function blockMember(
   if (!UUID_PATTERN.test(userId)) return { status: 'not_available' }
   return repository.blockMember(userId)
 }
+
+export async function unblockMember(
+  userId: string,
+  repository: { unblock(userId: string): Promise<void> },
+): Promise<'unblocked' | 'not_available'> {
+  if (!UUID_PATTERN.test(userId)) return 'not_available'
+  await repository.unblock(userId)
+  return 'unblocked'
+}

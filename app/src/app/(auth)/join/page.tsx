@@ -51,7 +51,7 @@ function InviteStateCard({
     <Card className="shadow-card-hover">
       <CardHeader className="pb-2">
         <CardTitle>
-          <h1 className="font-heading text-h1 font-extrabold tracking-heading">{copy.title}</h1>
+          <h1 className="font-heading text-h1 font-bold tracking-heading">{copy.title}</h1>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-5 pb-6">

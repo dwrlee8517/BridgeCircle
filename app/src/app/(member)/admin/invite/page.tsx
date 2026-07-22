@@ -15,9 +15,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { createAdminInviteRepository } from '@/db/repositories/invites'
 import { displayOrgName } from '@/lib/utils'
-import { resendInviteAction, revokeInviteAction } from './actions'
 import { CsvInviteForm } from './csv-form'
 import { InviteForm } from './invite-form'
+import { InviteRowActions } from './invite-row-actions'
 
 export default async function AdminInvitePage() {
   const { client, membership } = await loadSchoolAdminContext()
@@ -92,26 +92,7 @@ export default async function AdminInvitePage() {
                     </TableCell>
                     <TableCell>
                       {invite.status === 'pending' ? (
-                        <div className="flex justify-end gap-1">
-                          <form action={resendInviteAction}>
-                            <input type="hidden" name="inviteId" value={invite.id} />
-                            <button
-                              type="submit"
-                              className="rounded-md px-2 py-1 text-xs font-semibold text-primary hover:bg-primary-tint"
-                            >
-                              Resend
-                            </button>
-                          </form>
-                          <form action={revokeInviteAction}>
-                            <input type="hidden" name="inviteId" value={invite.id} />
-                            <button
-                              type="submit"
-                              className="rounded-md px-2 py-1 text-xs font-semibold text-state-danger hover:bg-danger-tint"
-                            >
-                              Revoke
-                            </button>
-                          </form>
-                        </div>
+                        <InviteRowActions inviteId={invite.id} email={invite.email} />
                       ) : null}
                     </TableCell>
                   </TableRow>

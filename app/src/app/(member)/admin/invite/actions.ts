@@ -20,6 +20,11 @@ export type InviteFormState = {
   emailJustSent?: string
 }
 
+export type InviteRowActionState = {
+  success?: 'resent' | 'revoked'
+  error?: string
+}
+
 export async function inviteFromForm(
   _prev: InviteFormState,
   formData: FormData,
@@ -51,20 +56,38 @@ export async function inviteFromForm(
   return { success: true, emailJustSent: parsed.data.email }
 }
 
-export async function resendInviteAction(formData: FormData) {
+export async function resendInviteAction(
+  _prev: InviteRowActionState,
+  formData: FormData,
+): Promise<InviteRowActionState> {
   const { client } = await loadSchoolAdminContext()
   const inviteId = z.guid().safeParse(formData.get('inviteId'))
-  if (!inviteId.success) return
-  await createAdminInviteRepository(client).resend(inviteId.data, crypto.randomUUID())
+  if (!inviteId.success)
+    return { error: 'This invite is no longer available. Refresh and try again.' }
+  const result = await createAdminInviteRepository(client).resend(
+    inviteId.data,
+    crypto.randomUUID(),
+  )
+  if (!result.ok) return { error: inviteErrorMessage(result.error) }
   revalidatePath('/admin/invite')
+  return { success: 'resent' }
 }
 
-export async function revokeInviteAction(formData: FormData) {
+export async function revokeInviteAction(
+  _prev: InviteRowActionState,
+  formData: FormData,
+): Promise<InviteRowActionState> {
   const { client } = await loadSchoolAdminContext()
   const inviteId = z.guid().safeParse(formData.get('inviteId'))
-  if (!inviteId.success) return
-  await createAdminInviteRepository(client).revoke(inviteId.data, crypto.randomUUID())
+  if (!inviteId.success)
+    return { error: 'This invite is no longer available. Refresh and try again.' }
+  const result = await createAdminInviteRepository(client).revoke(
+    inviteId.data,
+    crypto.randomUUID(),
+  )
+  if (!result.ok) return { error: inviteErrorMessage(result.error) }
   revalidatePath('/admin/invite')
+  return { success: 'revoked' }
 }
 
 function inviteErrorMessage(error: 'accepted' | 'expired' | 'not_available' | 'invalid_input') {

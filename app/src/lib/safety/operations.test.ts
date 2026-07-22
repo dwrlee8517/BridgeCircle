@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { blockMember, reportMessage, reportProfile } from './operations'
+import { blockMember, reportMessage, reportProfile, unblockMember } from './operations'
 
 describe('Safety operations', () => {
   it('normalizes a valid report note', async () => {
@@ -25,5 +25,15 @@ describe('Safety operations', () => {
     ).resolves.toEqual({ status: 'invalid_input' })
     expect(report).not.toHaveBeenCalled()
     expect(block).not.toHaveBeenCalled()
+  })
+
+  it('validates unblock ids before calling the adapter', async () => {
+    const unblock = vi.fn(async () => undefined)
+    await expect(unblockMember('bad', { unblock })).resolves.toBe('not_available')
+    expect(unblock).not.toHaveBeenCalled()
+    await expect(unblockMember('10000000-0000-4000-8000-000000000001', { unblock })).resolves.toBe(
+      'unblocked',
+    )
+    expect(unblock).toHaveBeenCalledOnce()
   })
 })

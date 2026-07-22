@@ -2,6 +2,7 @@
 
 import { useActionState, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { type CsvRow, type CsvRowError, parseInviteCsv } from '@/lib/invite/parseCsv'
@@ -68,14 +69,20 @@ export function CsvInviteForm() {
               type="file"
               accept=".csv,text/csv"
               onChange={onFile}
+              aria-invalid={parseError ? true : undefined}
+              aria-describedby={parseError ? 'csv-parse-error csv-help' : 'csv-help'}
             />
-            <p className="text-xs text-muted-foreground">
+            <p id="csv-help" className="text-xs text-muted-foreground">
               Required column: <code>email</code>. Optional: <code>full name</code>,{' '}
               <code>graduation year</code>. Header names matched case-insensitively.
             </p>
           </div>
 
-          {parseError ? <p className="text-sm text-destructive">{parseError}</p> : null}
+          {parseError ? (
+            <FormMessage tone="error" id="csv-parse-error">
+              {parseError}
+            </FormMessage>
+          ) : null}
 
           {fileName && (valid.length > 0 || invalid.length > 0) ? (
             <div className="space-y-3 rounded-md border p-3">
@@ -132,9 +139,14 @@ export function CsvInviteForm() {
                 </details>
               ) : null}
 
-              {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+              {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
-              <Button type="button" onClick={onSubmit} disabled={pending || valid.length === 0}>
+              <Button
+                type="button"
+                onClick={onSubmit}
+                disabled={pending || valid.length === 0}
+                aria-busy={pending}
+              >
                 {pending
                   ? `Sending ${valid.length} invites…`
                   : `Send ${valid.length} invite${valid.length === 1 ? '' : 's'}`}

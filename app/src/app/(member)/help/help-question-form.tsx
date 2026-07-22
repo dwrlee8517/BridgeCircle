@@ -1,19 +1,22 @@
 'use client'
 
-import { CircleHelp, HeartHandshake, Search, Users } from 'lucide-react'
+import { Search, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { cn, getInitials } from '@/lib/utils'
+import { getInitials } from '@/lib/utils'
 import {
   type HelpDraftCandidate,
   readHelpDraft,
   writeHelpCandidateDraft,
   writeHelpQuestionDraft,
 } from './help-draft-storage'
+import { HelpModeSwitch } from './help-mode-switch'
 
 const MAX_QUESTION_LENGTH = 2_000
+const DEBOUNCE_MIN_QUESTION_LENGTH = 12
+const SEARCH_DEBOUNCE_MS = 700
 
 type Candidate = HelpDraftCandidate
 
@@ -27,11 +30,13 @@ export function HelpQuestionForm({
   activeAskCount,
   activeAskLimit,
   autostart = false,
+  explicitMode = false,
 }: {
   membershipId: string
   activeAskCount: number
   activeAskLimit: number
   autostart?: boolean
+  explicitMode?: boolean
 }) {
   const router = useRouter()
   const [question, setQuestion] = useState('')
@@ -41,9 +46,14 @@ export function HelpQuestionForm({
   const requestRef = useRef<AbortController | null>(null)
   const questionRef = useRef<HTMLTextAreaElement | null>(null)
   const autostartedRef = useRef(false)
+  const hasEditedRef = useRef(false)
+  const lastSearchedQuestionRef = useRef<string | null>(null)
   const atCapacity = activeAskCount >= activeAskLimit
 
-  const performSearch = useCallback(async (value: string) => {
+  const performSearch = useCallback(async (value: string, force = false) => {
+    const normalizedQuestion = value.trim()
+    if (!force && lastSearchedQuestionRef.current === normalizedQuestion) return
+    lastSearchedQuestionRef.current = normalizedQuestion
     requestRef.current?.abort()
     const controller = new AbortController()
     requestRef.current = controller
@@ -54,7 +64,7 @@ export function HelpQuestionForm({
       const response = await fetch('/api/help/candidates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: value.trim() }),
+        body: JSON.stringify({ question: normalizedQuestion }),
         cache: 'no-store',
         signal: controller.signal,
       })
@@ -82,7 +92,7 @@ export function HelpQuestionForm({
       if (autostart && !autostartedRef.current) {
         autostartedRef.current = true
         questionRef.current?.focus()
-        void performSearch(stored.question)
+        void performSearch(stored.question, true)
         router.replace('/help', { scroll: false })
       }
     })
@@ -92,7 +102,23 @@ export function HelpQuestionForm({
     }
   }, [autostart, membershipId, performSearch, router])
 
+  useEffect(() => {
+    const normalizedQuestion = question.trim()
+    if (
+      !hasEditedRef.current ||
+      normalizedQuestion.length < DEBOUNCE_MIN_QUESTION_LENGTH ||
+      normalizedQuestion.length > MAX_QUESTION_LENGTH
+    ) {
+      return
+    }
+    const timeout = window.setTimeout(() => {
+      void performSearch(normalizedQuestion)
+    }, SEARCH_DEBOUNCE_MS)
+    return () => window.clearTimeout(timeout)
+  }, [performSearch, question])
+
   function updateQuestion(next: string) {
+    hasEditedRef.current = true
     setQuestion(next)
     setError(null)
     if (status !== 'idle') {
@@ -130,49 +156,28 @@ export function HelpQuestionForm({
       return
     }
 
-    await performSearch(question)
+    await performSearch(question, true)
   }
 
   return (
     <>
       <div className="flex flex-wrap items-center gap-3">
-        <div
-          role="tablist"
-          aria-label="Get help or give help"
-          className="inline-flex gap-0.5 rounded-full bg-[var(--wash-toggle-track)] p-1 shadow-[inset_0_0_0_1px_rgb(25_31_40_/_0.06)]"
-        >
-          <Link
-            href="/help"
-            role="tab"
-            aria-selected="true"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-card px-4 text-body-sm font-bold text-[var(--blue-600)] shadow-sm"
-          >
-            <CircleHelp aria-hidden className="size-[15px]" strokeWidth={2} />
-            Get help
-          </Link>
-          <Link
-            href="/help?mode=give"
-            role="tab"
-            aria-selected="false"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-body-sm font-semibold text-[var(--grey-600)] hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-          >
-            <HeartHandshake aria-hidden className="size-[15px]" strokeWidth={2} />
-            Give help
-          </Link>
-        </div>
+        <HelpModeSwitch membershipId={membershipId} mode="get" explicitMode={explicitMode} />
         <span className="ml-auto text-xs font-semibold text-[var(--text-faint)]">
           Asks stay open 14 days
         </span>
       </div>
 
-      <h1 className="mt-5 text-display-hero leading-10 font-extrabold text-[var(--text-primary)]">
+      <h1 className="mt-5 text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
         What do you need?
       </h1>
       <p className="mt-2 text-sm leading-[1.55] font-medium text-[var(--grey-600)]">
         Ask it the way it comes out — we’ll find who can help. Nothing here is sent to anyone.
       </p>
 
-      <div className="mt-4.5 rounded-[var(--radius-large)] bg-card px-4 pt-4 pb-3 shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.2),0_10px_30px_-14px_rgb(25_31_40_/_0.25)] sm:px-5 sm:pt-4.5">
+      {/* The card carries the focus affordance so the borderless textarea
+          inside it never draws its own ring (globals.css textarea:focus). */}
+      <div className="mt-4.5 rounded-[var(--radius-large)] bg-card px-4 pt-4 pb-3 shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.2),0_10px_30px_-14px_rgb(25_31_40_/_0.25)] focus-within:shadow-[inset_0_0_0_1.5px_rgb(49_130_246_/_0.55),0_10px_30px_-14px_rgb(25_31_40_/_0.25)] sm:px-5 sm:pt-4.5">
         <label htmlFor="help-question" className="sr-only">
           What do you need help with?
         </label>
@@ -188,7 +193,7 @@ export function HelpQuestionForm({
             error ? 'help-question-error help-question-privacy' : 'help-question-privacy'
           }
           aria-invalid={Boolean(error)}
-          className="min-h-20 w-full resize-y border-0 bg-transparent p-0 text-body-lg leading-[1.65] font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-faint)]"
+          className="min-h-20 w-full resize-none border-0 bg-transparent p-0 text-body-lg leading-[1.65] font-medium text-[var(--text-primary)] outline-none focus:shadow-none placeholder:text-[var(--text-faint)]"
         />
         {error ? (
           <p
@@ -198,7 +203,7 @@ export function HelpQuestionForm({
             {error}
           </p>
         ) : null}
-        <div className="mt-3 flex flex-col gap-3 border-t border-[var(--divider)] pt-3 sm:flex-row sm:items-center">
+        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
           <p
             id="help-question-privacy"
             className="text-xs leading-relaxed font-medium text-[var(--text-faint)]"
@@ -253,7 +258,13 @@ export function HelpQuestionForm({
 
       {status === 'searching' ? <CandidateSkeleton /> : null}
       {status === 'results' ? (
-        <CandidateList candidates={candidates} membershipId={membershipId} question={question} />
+        <CandidateList
+          candidates={candidates}
+          membershipId={membershipId}
+          question={question}
+          atCapacity={atCapacity}
+          onAskCircle={askCircle}
+        />
       ) : null}
     </>
   )
@@ -287,21 +298,39 @@ function CandidateList({
   candidates,
   membershipId,
   question,
+  atCapacity,
+  onAskCircle,
 }: {
   candidates: Candidate[]
   membershipId: string
   question: string
+  atCapacity: boolean
+  onAskCircle(): void
 }) {
   if (candidates.length === 0) {
     return (
-      <section className="mt-6 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-8 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-        <h2 className="text-body-lg font-extrabold text-[var(--text-primary)]">
+      <section
+        aria-labelledby="no-help-matches-title"
+        className="mt-6 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-8 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]"
+      >
+        <h2
+          id="no-help-matches-title"
+          className="text-body-lg font-bold text-[var(--text-primary)]"
+        >
           No strong matches yet
         </h2>
         <p className="mx-auto mt-2 max-w-lg text-body-sm leading-relaxed font-medium text-[var(--text-faint)]">
           Try adding the kind of experience you need, or ask the circle so someone can recognize
           themselves in the question.
         </p>
+        <button
+          type="button"
+          onClick={onAskCircle}
+          disabled={atCapacity}
+          className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[image:var(--gradient-primary-btn)] px-5 text-body-sm font-bold text-white shadow-[var(--shadow-primary-btn)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          <Users aria-hidden className="size-4" /> Ask the circle
+        </button>
       </section>
     )
   }
@@ -309,7 +338,7 @@ function CandidateList({
   return (
     <section className="mt-6">
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
-        <h2 className="text-body-lg font-extrabold text-[var(--text-primary)]">
+        <h2 className="text-body-lg font-bold text-[var(--text-primary)]">
           People who can speak to it
         </h2>
         <span className="text-xs font-semibold text-[var(--text-faint)]">
@@ -317,14 +346,14 @@ function CandidateList({
         </span>
       </div>
       <div className="overflow-hidden rounded-[18px] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-        {candidates.map((candidate, index) => (
+        {candidates.map((candidate) => (
           <article
             key={candidate.membershipId}
             className="flex flex-col gap-3 border-t border-[var(--divider-row)] px-4 py-4 first:border-t-0 sm:flex-row sm:items-center sm:px-5"
           >
             <Avatar className="size-10 shrink-0 after:border-black/5">
               {candidate.avatarUrl ? <AvatarImage src={candidate.avatarUrl} alt="" /> : null}
-              <AvatarFallback className={cn(avatarClass(index), 'text-body-sm font-bold')}>
+              <AvatarFallback seed={candidate.userId} className="text-body-sm font-bold">
                 {getInitials(candidate.displayName)}
               </AvatarFallback>
             </Avatar>
@@ -358,7 +387,7 @@ function CandidateList({
               </div>
             </div>
             <Link
-              href={`/help/ask/${candidate.membershipId}`}
+              href={`/help/ask/${candidate.membershipId}?draft=1`}
               onClick={() =>
                 writeHelpCandidateDraft(window.sessionStorage, membershipId, question, candidate)
               }
@@ -371,16 +400,4 @@ function CandidateList({
       </div>
     </section>
   )
-}
-
-function avatarClass(index: number) {
-  const classes = [
-    'bg-[var(--avatar-1-bg)] text-[var(--avatar-1-fg)]',
-    'bg-[var(--avatar-5-bg)] text-[var(--avatar-5-fg)]',
-    'bg-[var(--avatar-2-bg)] text-[var(--avatar-2-fg)]',
-    'bg-[var(--avatar-3-bg)] text-[var(--avatar-3-fg)]',
-    'bg-[var(--avatar-4-bg)] text-[var(--avatar-4-fg)]',
-    'bg-[var(--avatar-6-bg)] text-[var(--avatar-6-fg)]',
-  ]
-  return classes[index % classes.length]
 }

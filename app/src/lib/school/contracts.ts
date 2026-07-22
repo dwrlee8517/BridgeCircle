@@ -130,13 +130,73 @@ export type AdminSchoolEvent = {
   id: string
   status: 'draft' | 'published' | 'cancelled'
   title: string
+  summary: string | null
   description: string | null
+  category: string
+  format: SchoolEventFormat
+  timeZone: string
+  campus: 'palos_verdes' | 'songdo' | 'other' | 'online'
   location: string | null
+  locationAddress: string | null
+  mapsUrl: string | null
+  joinUrl: string | null
+  joinWindowMinutes: number
+  hostName: string | null
   startsAt: string
   endsAt: string | null
   capacity: number | null
+  allowWaitlist: boolean
+  changeNote: string | null
+  schedule: Array<{ startsAt: string | null; label: string }>
+  facts: Array<{
+    label: string
+    value: string
+    linkLabel: string | null
+    linkUrl: string | null
+  }>
   goingCount: number
   waitlistCount: number
+}
+
+export type SaveAdminSchoolEventInput = {
+  membershipId: string
+  eventId: string | null
+  title: string
+  summary: string
+  description: string | null
+  category: string
+  format: SchoolEventFormat
+  timeZone: string
+  campus: AdminSchoolEvent['campus']
+  startsAt: string
+  endsAt: string
+  locationName: string | null
+  locationAddress: string | null
+  mapsUrl: string | null
+  joinUrl: string | null
+  joinWindowMinutes: number
+  hostName: string
+  capacity: number | null
+  allowWaitlist: boolean
+  changeNote: string | null
+  schedule: Array<{ startsAt: string | null; label: string }>
+  facts: Array<{
+    label: string
+    value: string
+    linkLabel: string | null
+    linkUrl: string | null
+  }>
+}
+
+export type AdminSchoolEventFields = Omit<SaveAdminSchoolEventInput, 'membershipId' | 'eventId'>
+
+export type CreateAdminSchoolEventInput = AdminSchoolEventFields & {
+  membershipId: string
+}
+
+export type UpdateAdminSchoolEventInput = AdminSchoolEventFields & {
+  membershipId: string
+  eventId: string
 }
 
 export type AdminSchoolAnnouncement = {
@@ -169,17 +229,9 @@ export type SchoolRepository = {
   listNewsletterIssues(membershipId: string): Promise<NewsletterSummary[] | null>
   getNewsletterIssue(membershipId: string, issueSlug: string): Promise<NewsletterIssue | null>
   getAdminEvents(membershipId: string): Promise<AdminSchoolEvent[] | null>
-  saveAdminEvent(input: {
-    membershipId: string
-    eventId: string | null
-    title: string
-    description: string | null
-    location: string
-    startsAt: string
-    capacity: number | null
-  }): Promise<
-    'created' | 'updated' | 'past_start' | 'invalid_input' | 'cancelled' | 'not_available'
-  >
+  saveAdminEvent(
+    input: SaveAdminSchoolEventInput,
+  ): Promise<'created' | 'updated' | 'past_start' | 'invalid_input' | 'cancelled' | 'not_available'>
   cancelAdminEvent(
     membershipId: string,
     eventId: string,

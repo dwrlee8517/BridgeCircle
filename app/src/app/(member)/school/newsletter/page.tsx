@@ -4,6 +4,7 @@ import { loadMemberContext } from '@/app/_lib/load-member-context'
 import { createSchoolRepository } from '@/db/repositories/school'
 import { selectedMembership } from '@/lib/membership/selection'
 import { loadNewsletterIssues } from '@/lib/school/operations'
+import { newsletterDisplayTitle } from '@/lib/school/presentation'
 import { ArchiveHeader } from '../archive-header'
 
 export default async function NewsletterArchivePage() {
@@ -15,11 +16,11 @@ export default async function NewsletterArchivePage() {
 
   return (
     <div className="min-h-full bg-surface-canvas">
-      <ArchiveHeader title="The Bridge · Newsletter" />
-      <div className="mx-auto w-full max-w-[820px] px-4 py-7 sm:px-7 sm:py-10">
+      <ArchiveHeader title="Newsletter" />
+      <div className="mx-auto w-full max-w-[680px] px-4 py-7 sm:px-7 sm:py-10">
         <header className="mb-6">
           <p className="text-overline font-bold tracking-caps text-text-muted uppercase">Archive</p>
-          <h1 className="mt-1 font-heading text-page-title font-black tracking-heading text-text-primary">
+          <h1 className="mt-1 font-heading text-page-title font-bold tracking-heading text-text-primary">
             Notes worth keeping
           </h1>
           <p className="mt-2 text-control text-text-secondary">
@@ -36,8 +37,8 @@ export default async function NewsletterArchivePage() {
               <span className="text-fine font-bold tracking-caps text-text-muted uppercase">
                 Issue {issue.issueNumber} · {formatMonth(issue.publishedAt)}
               </span>
-              <span className="mt-1.5 block text-body font-extrabold text-text-primary">
-                {issue.title}
+              <span className="mt-1.5 block text-body font-bold text-text-primary">
+                {newsletterDisplayTitle(issue.title)}
               </span>
               {issue.summary ? (
                 <span className="mt-1 block text-caption leading-relaxed text-text-secondary">

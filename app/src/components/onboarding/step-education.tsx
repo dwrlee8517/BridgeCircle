@@ -1,11 +1,12 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import {
   type EducationEntryInput,
   EducationHistoryField,
 } from '@/components/profile-history-fields'
 import { Button } from '@/components/ui/button'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSubmitterTracker } from './use-form-has-content'
@@ -45,9 +46,16 @@ export function StepEducation({ defaults, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form ref={formRef} action={formAction} className="space-y-5">
       <div className="space-y-1.5">
         <Label htmlFor="university">University</Label>
         <Input
@@ -55,8 +63,10 @@ export function StepEducation({ defaults, action }: Props) {
           name="university"
           defaultValue={defaults.university}
           placeholder="Where you studied"
+          aria-invalid={fe.university ? true : undefined}
+          aria-describedby={fe.university ? 'university-error' : undefined}
         />
-        {fe.university ? <p className="text-xs text-destructive">{fe.university}</p> : null}
+        <FieldError id="university-error" error={fe.university} />
       </div>
 
       <div className="space-y-1.5">
@@ -66,21 +76,33 @@ export function StepEducation({ defaults, action }: Props) {
           name="major"
           defaultValue={defaults.major}
           placeholder="What you studied"
+          aria-invalid={fe.major ? true : undefined}
+          aria-describedby={fe.major ? 'major-error' : undefined}
         />
-        {fe.major ? <p className="text-xs text-destructive">{fe.major}</p> : null}
+        <FieldError id="major-error" error={fe.major} />
       </div>
 
-      <div className="rounded-lg border bg-muted/30 p-4">
+      <fieldset
+        className="rounded-lg border bg-muted/30 p-4"
+        aria-invalid={fe.educationHistory ? true : undefined}
+        aria-describedby={fe.educationHistory ? 'educationHistory-error' : undefined}
+        tabIndex={fe.educationHistory ? -1 : undefined}
+      >
+        <legend className="sr-only">Education history</legend>
         <EducationHistoryField initial={defaults.educationHistory} />
-        {fe.educationHistory ? (
-          <p className="mt-2 text-xs text-destructive">{fe.educationHistory}</p>
-        ) : null}
-      </div>
+        <FieldError id="educationHistory-error" error={fe.educationHistory} className="mt-2" />
+      </fieldset>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
+        <Button
+          type="submit"
+          onClick={onSaveClick}
+          disabled={pending}
+          aria-busy={pending && submittingKind === 'save'}
+          className="sm:flex-1"
+        >
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
@@ -90,6 +112,7 @@ export function StepEducation({ defaults, action }: Props) {
           onClick={onSkipClick}
           variant="outline"
           disabled={pending}
+          aria-busy={pending && submittingKind === 'skip'}
           className="sm:flex-1"
         >
           {pending && submittingKind === 'skip' ? 'Skipping…' : 'Skip for now'}

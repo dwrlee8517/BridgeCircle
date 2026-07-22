@@ -2,13 +2,26 @@ import type {
   CreateHelpAskResult,
   CreateHelpOfferResult,
   HelpAskDecisionResult,
+  HelpDirectAskTarget,
   HelpOfferDecisionResult,
   HelpRepository,
   SaveHelperPreferencesResult,
 } from './contracts'
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 function clean(value: string): string {
   return value.trim()
+}
+
+export async function getDirectAskTarget(
+  input: { membershipId: string; recipientMembershipId: string },
+  repository: Pick<HelpRepository, 'getDirectAskTarget'>,
+): Promise<HelpDirectAskTarget | null> {
+  if (!UUID_PATTERN.test(input.membershipId) || !UUID_PATTERN.test(input.recipientMembershipId)) {
+    return null
+  }
+  return repository.getDirectAskTarget(input)
 }
 
 export async function createDirectHelpAsk(
@@ -129,6 +142,9 @@ export async function saveHelpPreferences(
   input: Parameters<HelpRepository['saveHelperPreferences']>[0],
   repository: Pick<HelpRepository, 'saveHelperPreferences'>,
 ): Promise<SaveHelperPreferencesResult> {
+  if (!input.openToHelp) {
+    return repository.saveHelperPreferences({ ...input, topics: [] })
+  }
   const topicsByKey = new Map<string, string>()
   for (const rawTopic of input.topics) {
     const topic = clean(rawTopic)

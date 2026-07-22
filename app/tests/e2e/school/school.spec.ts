@@ -36,7 +36,7 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
     'Seoul alumni office hours',
   )
   await expect(page.getByRole('heading', { name: 'Seoul alumni office hours' })).toBeVisible()
-  await page.getByRole('link', { name: 'View details' }).click()
+  await page.getByRole('link', { name: 'View details', exact: true }).click()
   await expect(page.getByRole('link', { name: 'Join now' })).toHaveAttribute(
     'href',
     'https://meet.example.com/chadwick-office-hours',
@@ -44,9 +44,19 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
   await expectNoAccessibilityViolations(page)
 
   await page.getByRole('link', { name: 'Back to School' }).click()
-  await page.getByRole('link', { name: /Founders Dinner at The Riviera/ }).click()
+  await page.locator(`a[href="/school?event=${DINNER}"]`).click()
   await expect(page).toHaveURL(new RegExp(`/school\\?event=${DINNER}$`))
-  await page.getByRole('link', { name: 'View details' }).click()
+  const selectedUpcomingEvent = page
+    .getByRole('region', { name: 'School events' })
+    .locator(`a[href="/school?event=${DINNER}"][aria-current="true"]`)
+  await expect(selectedUpcomingEvent).toBeVisible()
+  await expect(selectedUpcomingEvent).toContainText('Showing above')
+  await expect(
+    page.getByRole('region', { name: 'School events' }).getByRole('heading', {
+      name: 'Founders Dinner at The Riviera',
+    }),
+  ).toBeVisible()
+  await page.getByRole('link', { name: 'View details', exact: true }).click()
   await expect(page).toHaveURL(`/school/events/${DINNER}`)
   await expect(page.getByRole('heading', { name: 'Itinerary' })).toBeVisible()
   await expect(page.getByText('Doors open and drinks')).toBeVisible()
@@ -55,7 +65,7 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
   await page.getByRole('link', { name: 'Back to School' }).click()
   await page.getByRole('link', { name: 'View all' }).click()
   await expect(page).toHaveURL('/school/announcements')
-  await page.getByRole('link', { name: 'Mentorship', exact: true }).click()
+  await page.getByRole('link', { name: 'Career guidance', exact: true }).click()
   await expect(page).toHaveURL('/school/announcements?tag=mentorship')
   await expect(page.getByText('Career conversations for this summer')).toBeVisible()
   await page.getByText('Career conversations for this summer').click()
@@ -69,7 +79,7 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
 
   await page.goto('/school/newsletter')
   await expect(page.getByRole('heading', { name: 'Notes worth keeping' })).toBeVisible()
-  await page.getByRole('link', { name: /The Bridge · July 2026/ }).click()
+  await page.getByRole('link', { name: /July 2026/ }).click()
   await expect(page).toHaveURL('/school/newsletter/july-2026')
   await expect(page.getByRole('heading', { name: 'A summer return to campus' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'One useful conversation' })).toBeVisible()
@@ -89,7 +99,15 @@ test('full event uses a held offer and requires an explicit yes before confirmin
 
   await signInPersona(page, AMY)
   await page.goto(`/school/events/${DINNER}`)
-  await page.getByRole('button', { name: "You're going · Change" }).click()
+  await page.getByRole('button', { name: 'Cancel RSVP' }).click()
+  const cancelRsvp = page.getByRole('dialog', { name: 'Cancel your RSVP?' })
+  await expect(cancelRsvp).toBeVisible()
+  await expect(cancelRsvp.getByRole('button', { name: 'Keep RSVP' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  const cancelRsvpTrigger = page.getByRole('button', { name: 'Cancel RSVP' })
+  await expect(cancelRsvpTrigger).toBeFocused()
+  await cancelRsvpTrigger.click()
+  await cancelRsvp.getByRole('button', { name: 'Cancel RSVP' }).click()
   await expect(page.getByRole('status')).toHaveText(
     'You are off the list. If it was full, the next person is asked.',
   )
@@ -99,9 +117,16 @@ test('full event uses a held offer and requires an explicit yes before confirmin
   const offer = page.getByRole('dialog', { name: 'A spot opened — still want in?' })
   await expect(offer).toBeVisible()
   await expect(offer).toContainText('Nothing happens unless you say yes.')
+  await expect(offer.getByRole('button', { name: 'Let it go' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  const offerTrigger = page.getByRole('button', { name: 'A spot is held for you' })
+  await expect(offerTrigger).toBeFocused()
+  await offerTrigger.click()
+  await expect(offer).toBeVisible()
+  await expect(offer.getByRole('button', { name: 'Let it go' })).toBeFocused()
   await offer.getByRole('button', { name: "Yes — I'm in" }).click()
   await expect(offer).toHaveCount(0)
-  await expect(page.getByRole('button', { name: "You're going · Change" })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cancel RSVP' })).toBeVisible()
 })
 
 test('School remains readable and free of horizontal overflow on a phone viewport', async ({

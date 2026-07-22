@@ -11,7 +11,9 @@ export const MEMBER_NAV_LINKS = [
   { href: '/', label: 'Home', match: ['/'] },
   // Help owns both asking and giving, plus every Ask detail/composer route.
   { href: '/help', label: 'Help', match: ['/help'] },
-  { href: '/people', label: 'People', match: ['/people', '/profile'] },
+  // Profile overlays inherit the section that opened them. A direct profile URL
+  // has no primary owner, while /profile/me belongs to the identity control.
+  { href: '/people', label: 'People', match: ['/people'] },
   { href: '/messages', label: 'Messages', match: ['/messages'] },
   { href: '/school', label: 'School', match: ['/school'] },
 ] as const

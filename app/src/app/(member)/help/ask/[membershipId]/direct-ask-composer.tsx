@@ -34,12 +34,16 @@ type ChatMessage = {
 
 export function DirectAskComposer({
   viewerMembershipId,
-  recipientMembershipId,
+  recipient,
+  initialQuestion,
   skipAi,
+  useSearchDraft,
 }: {
   viewerMembershipId: string
-  recipientMembershipId: string
+  recipient: HelpDraftCandidate
+  initialQuestion: string
   skipAi: boolean
+  useSearchDraft: boolean
 }) {
   const [draft, setDraft] = useState<HelpDraft | null | undefined>(undefined)
   const [plain, setPlain] = useState(skipAi)
@@ -49,6 +53,7 @@ export function DirectAskComposer({
   const [assisting, setAssisting] = useState(false)
   const [flash, setFlash] = useState(false)
   const [sending, setSending] = useState(false)
+  const [questionError, setQuestionError] = useState(false)
   const [noteError, setNoteError] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
   const [sentAskId, setSentAskId] = useState<string | null>(null)
@@ -61,22 +66,29 @@ export function DirectAskComposer({
     let controller: AbortController | null = null
     const initialize = window.setTimeout(() => {
       if (cancelled) return
-      const stored = readHelpDraft(window.sessionStorage, viewerMembershipId)
-      setDraft(stored)
-      const candidate =
-        stored?.candidate?.membershipId === recipientMembershipId ? stored.candidate : null
-      if (!stored || !candidate) return
+      const stored = useSearchDraft
+        ? readHelpDraft(window.sessionStorage, viewerMembershipId)
+        : null
+      const carriedQuestion =
+        stored?.candidate?.membershipId === recipient.membershipId ? stored.question : null
+      const question = carriedQuestion ?? initialQuestion
+      const nextDraft: HelpDraft = {
+        question,
+        candidate: recipient,
+        expiresAt: stored?.expiresAt ?? 0,
+      }
+      setDraft(nextDraft)
 
-      const fallback = buildInitialNote(stored.question, candidate)
-      setNote(skipAi ? stored.question : fallback)
-      if (skipAi) return
+      const fallback = question ? buildInitialNote(question, recipient) : ''
+      setNote(fallback)
+      if (skipAi || !question) return
 
       controller = new AbortController()
       assistanceRef.current = controller
       setAssisting(true)
       void requestHelpAssistance({
-        currentText: stored.question,
-        context: candidateContext(candidate, 'Draft a warm first note from the carried question.'),
+        currentText: question,
+        context: candidateContext(recipient, 'Draft a warm first note from the member’s question.'),
         fallbackText: fallback,
         signal: controller.signal,
       }).then((result) => {
@@ -101,7 +113,7 @@ export function DirectAskComposer({
       window.clearTimeout(initialize)
       controller?.abort('composer_unmounted')
     }
-  }, [recipientMembershipId, skipAi, viewerMembershipId])
+  }, [initialQuestion, recipient, skipAi, useSearchDraft, viewerMembershipId])
 
   useEffect(
     () => () => {
@@ -111,8 +123,7 @@ export function DirectAskComposer({
     [],
   )
 
-  const candidate =
-    draft?.candidate?.membershipId === recipientMembershipId ? draft.candidate : null
+  const candidate = draft?.candidate
   const firstName = candidate ? firstNameOf(candidate.displayName) : 'them'
   useMemberShellHeader(
     candidate
@@ -126,7 +137,7 @@ export function DirectAskComposer({
   )
 
   async function reviseNote(nextInstruction: string) {
-    if (!draft || !candidate || assisting) return
+    if (!draft || !candidate || assisting || !draft.question.trim()) return
     const cleaned = nextInstruction.trim()
     if (!cleaned) return
 
@@ -191,7 +202,7 @@ export function DirectAskComposer({
   }
 
   function switchToAi() {
-    if (!draft || !candidate) return
+    if (!draft || !candidate || !draft.question.trim()) return
     setPlain(false)
     setNote(buildInitialNote(draft.question, candidate))
     void reviseNote('Start over')
@@ -199,11 +210,17 @@ export function DirectAskComposer({
 
   async function sendAsk() {
     if (!draft || !candidate || sending) return
+    const question = draft.question.trim()
+    if (!question) {
+      setQuestionError(true)
+      return
+    }
     const requestMessage = note.trim()
     if (!requestMessage) {
       setNoteError(true)
       return
     }
+    setQuestionError(false)
     setNoteError(false)
     setSendError(null)
     setSending(true)
@@ -214,8 +231,8 @@ export function DirectAskComposer({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          recipientMembershipId,
-          question: draft.question,
+          recipientMembershipId: recipient.membershipId,
+          question,
           requestMessage,
           clientRequestId: requestIdRef.current,
         }),
@@ -241,9 +258,7 @@ export function DirectAskComposer({
     return <ComposerLoading />
   }
 
-  if (!draft || !candidate) {
-    return <ComposerRecovery />
-  }
+  if (!draft || !candidate) return <ComposerLoading />
 
   if (sentAskId) {
     return <ComposerSuccess firstName={firstName} />
@@ -253,6 +268,14 @@ export function DirectAskComposer({
     <div className="min-h-full bg-[image:var(--wash-page)] lg:h-[calc(100dvh-var(--topbar-height)_-_1px)]">
       <div className="mx-auto flex w-full max-w-[1140px] flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5 lg:h-full xl:px-7">
         <CandidateSummary candidate={candidate} />
+        <QuestionPrompt
+          question={draft.question}
+          error={questionError}
+          onChange={(question) => {
+            setDraft((current) => (current ? { ...current, question } : current))
+            setQuestionError(false)
+          }}
+        />
 
         {plain ? (
           <PlainComposer
@@ -390,7 +413,7 @@ function CandidateSummary({ candidate }: { candidate: HelpDraftCandidate }) {
     <section className="flex items-center gap-3 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-4 py-3 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] sm:px-5">
       <Avatar className="size-10 shrink-0 after:border-black/5">
         {candidate.avatarUrl ? <AvatarImage src={candidate.avatarUrl} alt="" /> : null}
-        <AvatarFallback className="bg-[var(--avatar-1-bg)] text-body-sm font-bold text-[var(--avatar-1-fg)]">
+        <AvatarFallback seed={candidate.userId} className="text-body-sm font-bold">
           {getInitials(candidate.displayName)}
         </AvatarFallback>
       </Avatar>
@@ -417,6 +440,46 @@ function CandidateSummary({ candidate }: { candidate: HelpDraftCandidate }) {
       >
         Profile →
       </Link>
+    </section>
+  )
+}
+
+function QuestionPrompt({
+  question,
+  error,
+  onChange,
+}: {
+  question: string
+  error: boolean
+  onChange(question: string): void
+}) {
+  return (
+    <section className="rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-4 py-3.5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] sm:px-5">
+      <label
+        htmlFor="direct-ask-question"
+        className="text-kicker font-bold tracking-label text-[var(--text-faint)] uppercase"
+      >
+        What would you like help with?
+      </label>
+      <textarea
+        id="direct-ask-question"
+        value={question}
+        rows={2}
+        maxLength={2_000}
+        aria-invalid={error}
+        aria-describedby={error ? 'direct-ask-question-error' : undefined}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="I’m trying to figure out…"
+        className="mt-2 min-h-18 w-full resize-none rounded-xl border-0 bg-[var(--surface-subtle)] px-3.5 py-3 text-body-sm leading-relaxed font-medium text-[var(--text-primary)] outline-none shadow-[var(--ring-outline)] placeholder:text-[var(--text-faint)] focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+      />
+      {error ? (
+        <p
+          id="direct-ask-question-error"
+          className="mt-2 text-xs font-semibold text-[var(--state-danger-text)]"
+        >
+          Add a short question so your helper knows what you need.
+        </p>
+      ) : null}
     </section>
   )
 }
@@ -470,7 +533,7 @@ function PlainComposer({
         aria-invalid={noteError}
         onChange={(event) => onNoteChange(event.target.value)}
         placeholder={`Write your note to ${firstName} — a line or two is plenty.`}
-        className="mt-3 min-h-64 flex-1 resize-y rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+        className="mt-3 min-h-64 flex-1 resize-none rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
       />
       {noteError ? (
         <p className="mt-2 text-xs font-semibold text-[var(--state-danger-text)]">
@@ -525,7 +588,7 @@ function NotePanel({
         maxLength={4_000}
         aria-invalid={noteError}
         onChange={(event) => onNoteChange(event.target.value)}
-        className="mt-3 min-h-64 flex-1 resize-y rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:min-h-0 lg:resize-none"
+        className="mt-3 min-h-64 flex-1 resize-none rounded-xl border-0 bg-card p-4 text-body-sm leading-[1.65] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:min-h-0 lg:resize-none"
       />
       {noteError ? (
         <p className="mt-2 text-xs font-semibold text-[var(--state-danger-text)]">
@@ -625,28 +688,6 @@ function ComposerLoading() {
   )
 }
 
-function ComposerRecovery() {
-  return (
-    <div className="min-h-full bg-[image:var(--wash-page)] px-4 py-12">
-      <section className="mx-auto max-w-xl rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-6 py-8 text-center shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-        <h1 className="text-xl font-extrabold tracking-tight text-[var(--text-primary)]">
-          Pick someone from your private matches
-        </h1>
-        <p className="mt-2 text-body-sm leading-relaxed font-medium text-[var(--text-faint)]">
-          This draft is tied to the question and person you selected. Go back to Help and choose a
-          match again so nothing gets sent to the wrong person.
-        </p>
-        <Link
-          href="/help"
-          className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-[image:var(--gradient-primary-btn)] px-5 text-body-sm font-bold text-white shadow-[var(--shadow-primary-btn)]"
-        >
-          Back to Help
-        </Link>
-      </section>
-    </div>
-  )
-}
-
 function ComposerSuccess({ firstName }: { firstName: string }) {
   return (
     <div className="min-h-full bg-[image:var(--wash-page)] px-4 py-12">
@@ -654,7 +695,7 @@ function ComposerSuccess({ firstName }: { firstName: string }) {
         <span className="mx-auto inline-flex size-12 items-center justify-center rounded-full bg-[image:var(--gradient-primary-btn)] text-white shadow-[var(--shadow-primary-btn)]">
           <Check aria-hidden className="size-5.5" strokeWidth={2.6} />
         </span>
-        <h1 className="mt-4 text-xl font-extrabold tracking-tight text-[var(--text-primary)]">
+        <h1 className="mt-4 text-xl font-bold tracking-tight text-[var(--text-primary)]">
           Sent to {firstName}
         </h1>
         <p className="mt-2 text-body-sm leading-relaxed font-medium text-[var(--grey-600)]">

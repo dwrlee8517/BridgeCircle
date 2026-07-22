@@ -19,23 +19,25 @@ import { cn } from '@/lib/utils'
  *   - "muted"   -> muted (no signal, deactivated)
  */
 const statusBadgeVariants = cva(
-  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-full whitespace-nowrap',
+  'bc-motion-control inline-flex w-fit shrink-0 items-center rounded-full leading-none whitespace-nowrap',
   {
     variants: {
       tone: {
         open: 'bg-success-tint text-state-success-foreground',
         warn: 'bg-warning-tint text-state-warning-foreground',
         alert: 'bg-danger-tint text-state-danger-foreground',
-        info: 'bg-primary-tint text-state-info-foreground',
-        muted: 'bg-surface-subtle text-state-muted',
+        // Blue tint pairs with blue ink — the teal state-info ink read as
+        // "green text on a blue pill" against primary-tint.
+        info: 'bg-primary-tint text-action-weak-text',
+        muted: 'bg-surface-subtle text-text-secondary',
         sage: 'bg-success-tint text-state-success-foreground',
         ochre: 'bg-warning-tint text-state-warning-foreground',
         rust: 'bg-danger-tint text-state-danger-foreground',
         plum: 'bg-plum-tint text-state-categorized-foreground',
       },
       size: {
-        sm: 'min-h-5 px-2 py-0.5 text-xs font-medium gap-1',
-        md: 'min-h-6 px-2 py-0.5 text-caption font-normal gap-1',
+        sm: 'min-h-5 gap-1 px-2 py-0.5 text-overline font-bold',
+        md: 'min-h-6 gap-1 px-2.5 py-0.5 text-caption font-semibold',
       },
     },
     defaultVariants: {
@@ -91,7 +93,7 @@ function dotClass(tone: NonNullable<StatusBadgeProps['tone']>) {
     case 'plum':
       return 'bg-state-categorized'
     case 'info':
-      return 'bg-state-info'
+      return 'bg-action-primary'
     case 'muted':
       return 'bg-state-muted'
   }

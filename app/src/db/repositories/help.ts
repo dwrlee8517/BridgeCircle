@@ -10,6 +10,7 @@ import type {
   HelpAskDetail,
   HelpAskSummary,
   HelpCandidate,
+  HelpDirectAskTarget,
   HelperPreferences,
   HelpHome,
   HelpOfferDecisionResult,
@@ -114,6 +115,25 @@ const candidateRowSchema = z
     semantic_score: z.number().finite(),
     match_reason: z.string().min(1),
     evidence_chunk_ids: z.array(z.guid()),
+  })
+  .strict()
+
+const directAskTargetSchema = z
+  .object({
+    membershipId: z.guid(),
+    userId: z.guid(),
+    displayName: z.string().min(1),
+    headline: z.string().nullable(),
+    avatarPath: z.string().nullable(),
+    graduationYear: z.number().int().nullable(),
+    topics: z.array(z.string().min(1).max(100)).max(5),
+  })
+  .strict()
+
+const directAskTargetRowSchema = z
+  .object({
+    result_code: z.enum(['ok', 'not_available']),
+    recipient: directAskTargetSchema.nullable(),
   })
   .strict()
 
@@ -362,6 +382,18 @@ export function parseHelpCandidateRow(row: unknown): HelpCandidate {
     matchReason: parsed.match_reason,
     evidenceChunkIds: parsed.evidence_chunk_ids,
   }
+}
+
+export function parseDirectAskTargetRow(row: unknown): HelpDirectAskTarget | null {
+  const parsed = directAskTargetRowSchema.parse(row)
+  if (parsed.result_code === 'not_available') {
+    if (parsed.recipient)
+      return contractError('directAskTarget', 'unavailable target has recipient')
+    return null
+  }
+  if (!parsed.recipient)
+    return contractError('directAskTarget', 'available target omitted recipient')
+  return parsed.recipient
 }
 
 export function parseHelpAskDetailRow(row: unknown): HelpAskDetail {
@@ -659,6 +691,18 @@ export function createHelpRepository(memberClient: SupabaseClient<Database>): He
       const { data, error } = await memberClient.schema('api').rpc('search_help_candidates', args)
       if (error) transportError('searchCandidates', error)
       return z.array(z.unknown()).parse(data).map(parseHelpCandidateRow)
+    },
+
+    async getDirectAskTarget(input) {
+      const { data, error } = await memberClient
+        .schema('api')
+        .rpc('get_direct_ask_target', {
+          p_asker_membership_id: input.membershipId,
+          p_recipient_membership_id: input.recipientMembershipId,
+        })
+        .maybeSingle()
+      if (error) transportError('getDirectAskTarget', error)
+      return data ? parseDirectAskTargetRow(data) : null
     },
 
     async getAskDetail(askId) {

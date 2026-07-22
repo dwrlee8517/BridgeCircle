@@ -1,21 +1,29 @@
-import { CircleHelp, HeartHandshake, Pause } from 'lucide-react'
+import { Pause, Search } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import type {
+  GiveHelpItem,
   HelpDirectRequest,
   HelpHome,
   HelpProfilePreview,
   HelpSuggestedAsk,
 } from '@/lib/help/contracts'
 import { cn, getInitials } from '@/lib/utils'
-import { HelpPreferencesForm } from './help-preferences-form'
+import { HelpModeSwitch } from './help-mode-switch'
 
 export function HelpGiveHome({
   home,
+  searchableAsks,
+  searchQuery,
   avatarUrls,
+  explicitMode,
 }: {
   home: HelpHome
+  searchableAsks: GiveHelpItem[]
+  searchQuery: string | null
   avatarUrls: Record<string, string>
+  explicitMode: boolean
 }) {
   const available = home.openToHelp && !home.pausedAt
   const opportunityCount = home.directRequests.length + home.suggestedAsks.length
@@ -25,30 +33,11 @@ export function HelpGiveHome({
       <section className="bg-[image:var(--wash-give)] px-4 pt-5 pb-7 sm:px-6 sm:pt-7 sm:pb-8 xl:px-8">
         <div className="mx-auto max-w-[860px]">
           <div className="flex flex-wrap items-center gap-3">
-            <div
-              role="tablist"
-              aria-label="Get help or give help"
-              className="inline-flex gap-0.5 rounded-full bg-[var(--wash-toggle-track)] p-1 shadow-[inset_0_0_0_1px_rgb(25_31_40_/_0.06)]"
-            >
-              <Link
-                href="/help"
-                role="tab"
-                aria-selected="false"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-body-sm font-semibold text-[var(--grey-600)] hover:bg-white/45 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-              >
-                <CircleHelp aria-hidden className="size-[15px]" strokeWidth={2} />
-                Get help
-              </Link>
-              <Link
-                href="/help?mode=give"
-                role="tab"
-                aria-selected="true"
-                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-card px-4 text-body-sm font-bold text-[var(--action-give-text)] shadow-sm"
-              >
-                <HeartHandshake aria-hidden className="size-[15px]" strokeWidth={2} />
-                Give help
-              </Link>
-            </div>
+            <HelpModeSwitch
+              membershipId={home.membershipId}
+              mode="give"
+              explicitMode={explicitMode}
+            />
             <span className="ml-auto text-xs font-semibold text-[var(--text-faint)]">
               {opportunityCount > 0
                 ? `${opportunityCount} ${opportunityCount === 1 ? 'ask' : 'asks'} may fit`
@@ -56,7 +45,7 @@ export function HelpGiveHome({
             </span>
           </div>
 
-          <h1 className="mt-5 text-display-hero leading-10 font-extrabold text-[var(--text-primary)]">
+          <h1 className="mt-5 text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
             Where your experience matters.
           </h1>
           <p className="mt-2 text-sm leading-[1.55] font-medium text-[var(--grey-600)]">
@@ -115,10 +104,11 @@ export function HelpGiveHome({
               </div>
             </div>
 
-            <HelpPreferencesForm
-              key={`${home.openToHelp}:${home.helperTopics.join('|')}`}
-              defaults={{ openToHelp: home.openToHelp, topics: home.helperTopics }}
-            />
+            <div className="mt-4 border-t border-[var(--divider)] pt-4">
+              <Button asChild size="sm" variant="outline">
+                <Link href="/settings#helping">Manage in Settings</Link>
+              </Button>
+            </div>
 
             {home.pausedAt ? (
               <div className="mt-4 flex items-start gap-2.5 rounded-[var(--radius-box)] bg-[var(--surface-inset)] px-3.5 py-3">
@@ -149,8 +139,78 @@ export function HelpGiveHome({
             </p>
           </div>
         ) : null}
+
+        <BrowseAskList asks={searchableAsks} query={searchQuery} avatarUrls={avatarUrls} />
       </div>
     </div>
+  )
+}
+
+function BrowseAskList({
+  asks,
+  query,
+  avatarUrls,
+}: {
+  asks: GiveHelpItem[]
+  query: string | null
+  avatarUrls: Record<string, string>
+}) {
+  return (
+    <section aria-labelledby="browse-asks-title">
+      <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
+        <h2 id="browse-asks-title" className="text-body-lg font-bold text-[var(--text-primary)]">
+          Browse open asks
+        </h2>
+        <span className="text-xs font-semibold text-[var(--text-faint)]">
+          Search stays private until you choose to offer help.
+        </span>
+      </div>
+      <form
+        className="flex gap-2 rounded-[var(--radius-large)] bg-card p-3 shadow-[var(--ring-card),var(--shadow-card)]"
+        action="/help"
+        method="get"
+      >
+        <input type="hidden" name="mode" value="give" />
+        <label className="sr-only" htmlFor="give-search">
+          Search open asks
+        </label>
+        <input
+          id="give-search"
+          name="q"
+          defaultValue={query ?? ''}
+          placeholder="Try a topic, role, or question"
+          className="min-w-0 flex-1 rounded-xl bg-surface-subtle px-3.5 text-body-sm font-medium text-text-primary outline-none placeholder:text-text-muted focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+        />
+        <button
+          type="submit"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--give-tint)] px-4 text-caption font-bold text-[var(--action-give-text)] hover:bg-[var(--green-100)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+        >
+          <Search aria-hidden className="size-4" />
+          Search
+        </button>
+      </form>
+      {asks.length > 0 ? (
+        <div className="mt-3 overflow-hidden rounded-[18px] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
+          {asks.map((ask) => (
+            <HelpOpportunityRow
+              key={ask.id}
+              href={`/help/asks/${ask.id}/offer`}
+              question={ask.question}
+              person={ask.asker}
+              meta={ask.matchReason ?? 'Open to help from the circle'}
+              action="Read & offer"
+              avatarUrls={avatarUrls}
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="mt-3 rounded-[var(--radius-large)] bg-card px-5 py-6 text-center text-caption leading-relaxed font-medium text-[var(--text-faint)] shadow-[var(--ring-card),var(--shadow-card)]">
+          {query
+            ? `No open asks match “${query}” yet.`
+            : 'No other open asks are available right now.'}
+        </p>
+      )}
+    </section>
   )
 }
 
@@ -166,7 +226,7 @@ function DirectRequestList({
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
         <h2
           id="direct-requests-title"
-          className="text-body-lg font-extrabold text-[var(--text-primary)]"
+          className="text-body-lg font-bold text-[var(--text-primary)]"
         >
           Asked you directly
         </h2>
@@ -176,7 +236,7 @@ function DirectRequestList({
         <span className="text-xs font-semibold text-[var(--text-faint)]">Waiting on you</span>
       </div>
       <div className="overflow-hidden rounded-[18px] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-        {requests.map((request, index) => (
+        {requests.map((request) => (
           <HelpOpportunityRow
             key={request.askId}
             href={`/help/asks/${request.askId}`}
@@ -184,7 +244,6 @@ function DirectRequestList({
             person={request.asker}
             meta="asked you by name"
             action="View ask"
-            index={index}
             direct
             avatarUrls={avatarUrls}
           />
@@ -204,10 +263,7 @@ function SuggestedAskList({
   return (
     <section aria-labelledby="suggested-asks-title">
       <div className="mb-2.5 flex flex-wrap items-baseline gap-2">
-        <h2
-          id="suggested-asks-title"
-          className="text-body-lg font-extrabold text-[var(--text-primary)]"
-        >
+        <h2 id="suggested-asks-title" className="text-body-lg font-bold text-[var(--text-primary)]">
           Matched to your topics
         </h2>
         <span className="text-xs font-semibold text-[var(--text-faint)]">
@@ -217,7 +273,7 @@ function SuggestedAskList({
 
       {asks.length > 0 ? (
         <div className="overflow-hidden rounded-[18px] bg-[image:var(--surface-card-elevated)] shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
-          {asks.map((ask, index) => (
+          {asks.map((ask) => (
             <HelpOpportunityRow
               key={ask.askId}
               href={`/help/asks/${ask.askId}/offer`}
@@ -225,7 +281,6 @@ function SuggestedAskList({
               person={ask.asker}
               meta={ask.matchReason}
               action="Read & offer"
-              index={index + 2}
               avatarUrls={avatarUrls}
             />
           ))}
@@ -250,7 +305,6 @@ function HelpOpportunityRow({
   person,
   meta,
   action,
-  index,
   avatarUrls,
   direct = false,
 }: {
@@ -259,7 +313,6 @@ function HelpOpportunityRow({
   person: HelpProfilePreview
   meta: string
   action: string
-  index: number
   avatarUrls: Record<string, string>
   direct?: boolean
 }) {
@@ -272,7 +325,7 @@ function HelpOpportunityRow({
         direct && 'shadow-[inset_3px_0_0_var(--action-primary)]',
       )}
     >
-      <HelpAvatar person={person} index={index} avatarUrls={avatarUrls} />
+      <HelpAvatar person={person} avatarUrls={avatarUrls} />
       <span className="min-w-0 flex-1">
         <span className="block text-sm leading-snug font-bold text-[var(--text-primary)]">
           “{question}”
@@ -297,11 +350,9 @@ function HelpOpportunityRow({
 
 function HelpAvatar({
   person,
-  index,
   avatarUrls,
 }: {
   person: HelpProfilePreview
-  index: number
   avatarUrls: Record<string, string>
 }) {
   const avatarUrl =
@@ -311,21 +362,16 @@ function HelpAvatar({
   return (
     <Avatar className="size-10 shrink-0 after:border-black/5">
       {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-      <AvatarFallback className={cn(avatarClass(index), 'text-body-sm font-bold')}>
+      <AvatarFallback
+        seed={
+          person.identity === 'identified'
+            ? person.userId
+            : `anonymous:${person.graduationYear ?? 'member'}`
+        }
+        className="text-body-sm font-bold"
+      >
         {getInitials(person.displayName)}
       </AvatarFallback>
     </Avatar>
   )
-}
-
-function avatarClass(index: number) {
-  const classes = [
-    'bg-[var(--avatar-1-bg)] text-[var(--avatar-1-fg)]',
-    'bg-[var(--avatar-5-bg)] text-[var(--avatar-5-fg)]',
-    'bg-[var(--avatar-2-bg)] text-[var(--avatar-2-fg)]',
-    'bg-[var(--avatar-3-bg)] text-[var(--avatar-3-fg)]',
-    'bg-[var(--avatar-4-bg)] text-[var(--avatar-4-fg)]',
-    'bg-[var(--avatar-6-bg)] text-[var(--avatar-6-fg)]',
-  ]
-  return classes[index % classes.length]
 }

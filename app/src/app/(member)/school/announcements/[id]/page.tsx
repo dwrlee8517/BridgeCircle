@@ -31,7 +31,7 @@ export default async function SchoolAnnouncementPage({
           <p className="text-overline font-bold tracking-caps text-action-weak-text uppercase">
             {announcement.tag}
           </p>
-          <h1 className="mt-3 font-heading text-display-md font-black leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
+          <h1 className="mt-3 font-heading text-display-md font-bold leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
             {announcement.title}
           </h1>
           <p className="mt-4 text-caption font-semibold text-text-secondary">

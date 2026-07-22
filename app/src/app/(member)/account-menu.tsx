@@ -1,18 +1,7 @@
 'use client'
 
-import {
-  Bell,
-  HandHelping,
-  LogOut,
-  Monitor,
-  Moon,
-  Shield,
-  Sun,
-  UserRound,
-  Users,
-} from 'lucide-react'
+import { Bell, LogOut, Settings, Shield, UserRound, Users } from 'lucide-react'
 import Link from 'next/link'
-import { useTheme } from 'next-themes'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -22,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils'
 import { signOut } from '../(auth)/sign-in/actions'
 
 type Props = {
@@ -85,9 +73,9 @@ export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props)
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
-            <Link href="/help/settings">
-              <HandHelping className="text-muted-foreground" />
-              Help settings
+            <Link href="/settings">
+              <Settings className="text-muted-foreground" />
+              Settings
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5">
@@ -107,7 +95,6 @@ export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props)
               </Link>
             </DropdownMenuItem>
           ) : null}
-          <ThemeRow />
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="m-0" />
         <DropdownMenuGroup className="bg-[var(--surface-thread)] p-1.5">
@@ -125,52 +112,5 @@ export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props)
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
-
-const THEME_OPTIONS = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
-] as const
-
-function ThemeRow() {
-  const { theme, setTheme } = useTheme()
-
-  return (
-    <div className="flex items-center justify-between gap-2.5 rounded-lg px-3 py-2">
-      <span className="text-sm text-foreground">Theme</span>
-      <fieldset
-        className="flex rounded-[var(--radius-standard)] bg-surface-panel p-0.5 shadow-[var(--ring-outline)]"
-        aria-label="Theme"
-      >
-        {THEME_OPTIONS.map((option) => {
-          const Icon = option.icon
-          const active = (theme ?? 'system') === option.value
-
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={(event) => {
-                event.preventDefault()
-                setTheme(option.value)
-              }}
-              aria-pressed={active}
-              aria-label={option.label}
-              title={option.label}
-              className={cn(
-                'flex size-7 items-center justify-center rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-                active
-                  ? 'bg-surface-card text-foreground shadow-card'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              <Icon className="size-3.5" />
-            </button>
-          )
-        })}
-      </fieldset>
-    </div>
   )
 }

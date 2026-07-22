@@ -24,6 +24,20 @@ async function expectNoHorizontalOverflow(page: Page) {
     .toBe(true)
 }
 
+async function expectMobileTabBarIsReachable(page: Page) {
+  const nav = page.getByRole('navigation', { name: 'Primary' })
+  await expect(nav).toBeVisible()
+
+  for (const href of ['/', '/help', '/people', '/messages', '/school']) {
+    const link = nav.locator(`a[href="${href}"]`)
+    await expect(link).toBeVisible()
+    const box = await link.boundingBox()
+    expect(box).not.toBeNull()
+    expect(box?.x).toBeGreaterThanOrEqual(0)
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(320)
+  }
+}
+
 test.describe.configure({ mode: 'serial' })
 test.skip(
   isRemote && !allowHostedDevSeedAcceptance,
@@ -120,5 +134,6 @@ test('Home keeps its core actions visible without horizontal overflow at accepta
     await expect(page.getByRole('button', { name: 'Find people' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Your asks' })).toBeVisible()
     await expectNoHorizontalOverflow(page)
+    if (width === 320) await expectMobileTabBarIsReachable(page)
   }
 })

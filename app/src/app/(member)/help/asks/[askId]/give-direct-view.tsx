@@ -173,13 +173,13 @@ export function GiveDirectView({
           <span className="inline-flex rounded-full bg-[var(--blue-50)] px-2.5 py-1 text-kicker font-bold text-[var(--blue-600)]">
             Asked you by name
           </span>
-          <h1 className="mt-3 max-w-[740px] text-display-large leading-[1.25] font-extrabold tracking-tight text-[var(--text-primary)] sm:text-display-hero">
+          <h1 className="mt-3 max-w-[740px] text-page-title leading-tight font-bold tracking-display text-[var(--text-primary)]">
             “{detail.question}”
           </h1>
           <div className="mt-4 flex items-center gap-2.5">
             <Avatar className="size-10 shadow-[var(--ring-avatar)]">
               {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-              <AvatarFallback>{getInitials(asker.displayName)}</AvatarFallback>
+              <AvatarFallback seed={asker.userId}>{getInitials(asker.displayName)}</AvatarFallback>
             </Avatar>
             <span className="min-w-0">
               <span className="flex flex-wrap items-baseline gap-2">
@@ -236,9 +236,7 @@ export function GiveDirectView({
         ) : mode === 'accept' ? (
           <section className="mt-3 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] sm:px-6">
             <div className="flex flex-wrap items-baseline gap-2">
-              <h2 className="text-body-lg font-extrabold text-[var(--text-primary)]">
-                Accept & reply
-              </h2>
+              <h2 className="text-body-lg font-bold text-[var(--text-primary)]">Accept & reply</h2>
               <span className="text-xs font-semibold text-[var(--text-faint)]">
                 the thread never starts cold
               </span>
@@ -253,7 +251,7 @@ export function GiveDirectView({
               maxLength={10_000}
               rows={4}
               aria-label="Your opening message"
-              className="mt-3 w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.6] font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+              className="mt-3 w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.6] font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
             />
             <div className="mt-2.5 flex flex-wrap items-center gap-2">
               <span className="text-kicker font-semibold text-[var(--text-faint)]">
@@ -299,9 +297,7 @@ export function GiveDirectView({
         ) : (
           <section className="mt-3 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] sm:px-6">
             <div className="flex flex-wrap items-baseline gap-2">
-              <h2 className="text-body-lg font-extrabold text-[var(--text-primary)]">
-                Say no, kindly
-              </h2>
+              <h2 className="text-body-lg font-bold text-[var(--text-primary)]">Say no, kindly</h2>
               <span className="text-xs font-semibold text-[var(--text-faint)]">
                 {firstName(name)} gets a note, never a bare no
               </span>
@@ -363,7 +359,7 @@ export function GiveDirectView({
               }}
               maxLength={2_000}
               rows={3}
-              className="mt-2 w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.6] font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+              className="mt-2 w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.6] font-medium shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
             />
             <button
               type="button"
@@ -416,7 +412,7 @@ function TerminalDirectState({ detail }: { detail: HelpAskDetail }) {
       <span className="mx-auto inline-flex size-10 items-center justify-center rounded-full bg-[var(--give-tint)] text-[var(--action-give-text)]">
         <Check aria-hidden className="size-5" />
       </span>
-      <h2 className="mt-3 text-body-lg font-extrabold text-[var(--text-primary)]">
+      <h2 className="mt-3 text-body-lg font-bold text-[var(--text-primary)]">
         {accepted ? 'You answered this ask' : 'Your note was sent'}
       </h2>
       <p className="mx-auto mt-1.5 max-w-md text-body-sm leading-relaxed font-medium text-[var(--text-secondary)]">

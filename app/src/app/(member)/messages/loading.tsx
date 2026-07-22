@@ -7,7 +7,7 @@ export default function MessagesLoading() {
     <div
       role="status"
       aria-label="Loading Messages"
-      className="flex h-[calc(100dvh-var(--topbar-height))] min-h-0 w-full overflow-hidden"
+      className="flex h-[calc(100dvh_-_var(--topbar-height)_-_1px)] min-h-0 w-full overflow-hidden"
     >
       <div className="hidden w-[300px] shrink-0 border-r border-border-subtle bg-card p-3.5 md:grid md:content-start md:gap-4">
         <Skeleton className="h-10 w-full" />

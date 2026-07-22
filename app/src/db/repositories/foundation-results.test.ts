@@ -10,6 +10,16 @@ describe('Foundation command repository mapping', () => {
     expect(
       parseMembershipDecisionRow({ result_code: 'not_authorized', membership_status: 'pending' }),
     ).toEqual({ ok: false, error: 'not_authorized', membershipStatus: 'pending' })
+    expect(
+      parseMembershipDecisionRow({ result_code: 'invalid_reason', membership_status: null }),
+    ).toEqual({ ok: false, error: 'invalid_reason', membershipStatus: null })
+    expect(() =>
+      parseMembershipDecisionRow({
+        result_code: 'rejected',
+        membership_status: 'rejected',
+        private_note: 'must not cross the boundary',
+      }),
+    ).toThrow()
   })
 
   it('maps claimed outbox jobs without widening payloads', () => {

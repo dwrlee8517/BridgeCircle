@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createSchoolRepository } from '@/db/repositories/school'
 import { parseAdminEventForm } from '@/lib/school/admin-schemas'
+import { createAdminEvent } from '@/lib/school/operations'
 import { loadSchoolAdminContext } from '../_lib/school-admin'
 
 export type EventCreateFormState = {
@@ -27,10 +28,11 @@ export async function createEventAction(
   }
 
   const { client, membership } = await loadSchoolAdminContext()
-  const result = await createSchoolRepository(client).saveAdminEvent({
-    membershipId: membership.membershipId,
-    ...parsed.data,
-  })
+  const { eventId: _ignoredEventId, ...event } = parsed.data
+  const result = await createAdminEvent(
+    { membershipId: membership.membershipId, ...event },
+    createSchoolRepository(client),
+  )
 
   if (result !== 'created') {
     if (result === 'past_start') {

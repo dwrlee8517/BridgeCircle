@@ -1,6 +1,15 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import type { SchoolEventCard } from '@/lib/school/contracts'
 import { cn } from '@/lib/utils'
 import { respondToEventAction, type SchoolActionState } from './actions'
@@ -16,9 +25,15 @@ export function RsvpControl({
 }) {
   const [state, action, pending] = useActionState(respondToEventAction, initialState)
   const [offerDismissed, setOfferDismissed] = useState(false)
-  const offerOpen = event.viewerRsvp === 'offered' && !offerDismissed
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const cancelTriggerRef = useRef<HTMLButtonElement>(null)
+  const keepRsvpRef = useRef<HTMLButtonElement>(null)
+  const passOfferRef = useRef<HTMLButtonElement>(null)
+  const offerTriggerRef = useRef<HTMLButtonElement>(null)
+  const offerOpen = event.viewerRsvp === 'offered' && !offerDismissed && state.status !== 'success'
+
   const base = cn(
-    'rounded-xl px-4 py-2.5 text-caption font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60',
+    'rounded-xl px-4 py-2.5 text-caption font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60',
     tone === 'dark'
       ? 'bg-white text-surface-ink hover:bg-primary-tint-strong'
       : 'bg-action-primary-pressed text-action-on-primary hover:bg-[var(--blue-800)]',
@@ -35,11 +50,56 @@ export function RsvpControl({
   return (
     <div className="contents">
       {event.viewerRsvp === 'going' ? (
-        <ResponseForm eventId={event.id} intent="not_going" action={action}>
-          <button type="submit" disabled={pending} className={quiet}>
-            You&apos;re going · Change
+        <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+          <button
+            ref={cancelTriggerRef}
+            type="button"
+            onClick={() => setCancelOpen(true)}
+            className={quiet}
+          >
+            Cancel RSVP
           </button>
-        </ResponseForm>
+          <DialogContent
+            className="w-full max-w-[420px] gap-0 rounded-2xl bg-surface-card p-6 text-text-primary shadow-hero"
+            onOpenAutoFocus={(event) => {
+              event.preventDefault()
+              keepRsvpRef.current?.focus()
+            }}
+            onCloseAutoFocus={(event) => {
+              event.preventDefault()
+              cancelTriggerRef.current?.focus()
+            }}
+          >
+            <DialogHeader>
+              <DialogTitle className="text-body font-bold">Cancel your RSVP?</DialogTitle>
+              <DialogDescription className="mt-2 text-caption leading-relaxed text-text-secondary">
+                You will come off the attendee list. If the event is full, the next person will be
+                offered the spot.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mx-0 mt-5 mb-0 grid grid-cols-2 gap-2 rounded-none border-0 bg-transparent p-0">
+              <DialogClose asChild>
+                <button
+                  ref={keepRsvpRef}
+                  type="button"
+                  className="w-full rounded-xl bg-surface-subtle px-4 py-2.5 text-caption font-bold text-text-primary transition-colors hover:bg-primary-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                >
+                  Keep RSVP
+                </button>
+              </DialogClose>
+              <ResponseForm eventId={event.id} intent="not_going" action={action}>
+                <button
+                  type="submit"
+                  disabled={pending}
+                  onClick={() => setCancelOpen(false)}
+                  className="w-full rounded-xl bg-state-danger px-4 py-2.5 text-caption font-bold text-white transition-colors hover:bg-state-danger/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
+                >
+                  {pending ? 'Cancelling…' : 'Cancel RSVP'}
+                </button>
+              </ResponseForm>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : event.viewerRsvp === 'waitlisted' ? (
         <ResponseForm eventId={event.id} intent="not_going" action={action}>
           <button type="submit" disabled={pending} className={quiet}>
@@ -47,7 +107,12 @@ export function RsvpControl({
           </button>
         </ResponseForm>
       ) : event.viewerRsvp === 'offered' ? (
-        <button type="button" onClick={() => setOfferDismissed(false)} className={base}>
+        <button
+          ref={offerTriggerRef}
+          type="button"
+          onClick={() => setOfferDismissed(false)}
+          className={base}
+        >
           A spot is held for you
         </button>
       ) : (
@@ -81,46 +146,59 @@ export function RsvpControl({
       ) : null}
 
       {offerOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-5">
-          <button
-            type="button"
-            aria-label="Close spot offer"
-            className="absolute inset-0 cursor-default"
-            onClick={() => setOfferDismissed(true)}
-          />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={`spot-title-${event.id}`}
-            className="relative w-full max-w-[420px] rounded-2xl bg-surface-card p-6 text-text-primary shadow-hero"
+        <Dialog open={offerOpen} onOpenChange={(open) => !open && setOfferDismissed(true)}>
+          <DialogContent
+            showCloseButton={false}
+            className="w-full max-w-[420px] gap-0 rounded-2xl bg-surface-card p-6 text-text-primary shadow-hero"
+            overlayClassName="bg-black/45"
+            onOpenAutoFocus={(event) => {
+              event.preventDefault()
+              passOfferRef.current?.focus()
+            }}
+            onCloseAutoFocus={(event) => {
+              event.preventDefault()
+              offerTriggerRef.current?.focus()
+            }}
           >
-            <h2 id={`spot-title-${event.id}`} className="text-body font-extrabold">
-              A spot opened — still want in?
-            </h2>
-            <p className="mt-2 text-caption leading-relaxed text-text-secondary">
-              Nothing happens unless you say yes. Letting it go passes the spot along quietly.
-            </p>
-            <div className="mt-5 grid grid-cols-2 gap-2">
+            <DialogHeader>
+              <DialogTitle className="text-body font-bold">
+                A spot opened — still want in?
+              </DialogTitle>
+              <DialogDescription className="mt-2 text-caption leading-relaxed text-text-secondary">
+                Nothing happens unless you say yes. Letting it go passes the spot along quietly.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="mx-0 mt-5 mb-0 grid grid-cols-2 gap-2 rounded-none border-0 bg-transparent p-0">
               <ResponseForm eventId={event.id} intent="pass_offer" action={action}>
-                <button type="submit" disabled={pending} className={`${quiet} w-full`}>
+                <button
+                  type="submit"
+                  ref={passOfferRef}
+                  disabled={pending}
+                  className="w-full rounded-xl bg-surface-subtle px-4 py-2.5 text-caption font-bold text-text-primary transition-colors hover:bg-primary-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
+                >
                   Let it go
                 </button>
               </ResponseForm>
               <ResponseForm eventId={event.id} intent="accept_offer" action={action}>
-                <button type="submit" disabled={pending} className={`${base} w-full`}>
+                <button
+                  type="submit"
+                  disabled={pending}
+                  className="w-full rounded-xl bg-action-primary-pressed px-4 py-2.5 text-caption font-bold text-action-on-primary transition-colors hover:bg-[var(--blue-800)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60"
+                >
                   Yes — I&apos;m in
                 </button>
               </ResponseForm>
-            </div>
-            <button
-              type="button"
-              onClick={() => setOfferDismissed(true)}
-              className="mt-3 w-full rounded-lg px-3 py-2 text-chip font-semibold text-text-muted hover:bg-surface-subtle"
-            >
-              Decide later — the spot holds for a day
-            </button>
-          </div>
-        </div>
+            </DialogFooter>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="mt-3 w-full rounded-lg px-3 py-2 text-chip font-semibold text-text-muted hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+              >
+                Decide later — the spot holds for a day
+              </button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
       ) : null}
     </div>
   )

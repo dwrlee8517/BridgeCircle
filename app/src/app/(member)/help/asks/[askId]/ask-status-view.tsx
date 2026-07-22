@@ -207,7 +207,7 @@ export function AskStatusView({
               </span>
             ) : null}
           </div>
-          <h1 className="mt-3 text-h1 leading-[1.35] font-extrabold tracking-tight text-[var(--text-primary)]">
+          <h1 className="mt-3 text-h1 leading-[1.35] font-bold tracking-tight text-[var(--text-primary)]">
             “{detail.question}”
           </h1>
           <p className="mt-2.5 text-xs leading-relaxed font-medium text-[var(--grey-600)]">
@@ -256,18 +256,17 @@ export function AskStatusView({
             <div className="mb-2.5 flex items-baseline gap-2">
               <h2
                 id="offers-title"
-                className="text-body-lg font-extrabold tracking-tight text-[var(--text-primary)]"
+                className="text-body-lg font-bold tracking-tight text-[var(--text-primary)]"
               >
                 Offers
               </h2>
               <p className="text-xs font-semibold text-[var(--text-faint)]">you hold the accept</p>
             </div>
             <div className="grid gap-2.5">
-              {detail.offers.map((offer, index) => (
+              {detail.offers.map((offer) => (
                 <OfferCard
                   key={offer.id}
                   offer={offer}
-                  index={index + 1}
                   askStatus={detail.status}
                   conversationId={detail.conversationId}
                   avatarUrls={avatarUrls}
@@ -361,7 +360,7 @@ function DirectStatusCard({
         Sent to
       </p>
       <div className="mt-3 flex items-center gap-3">
-        <ProfileAvatar profile={recipient} avatarUrls={avatarUrls} index={0} size="lg" />
+        <ProfileAvatar profile={recipient} avatarUrls={avatarUrls} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-1.5">
             <strong className="text-sm font-bold text-[var(--text-primary)]">
@@ -436,7 +435,7 @@ function DirectStatusCard({
 function ClosedCircleRecovery({ onRest, onRenew }: { onRest(): void; onRenew(): void }) {
   return (
     <section className="mt-3.5 rounded-[var(--radius-card-xl)] bg-[image:var(--surface-card-elevated)] px-5 py-5 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)] sm:px-6">
-      <h2 className="text-sm font-extrabold tracking-tight text-[var(--text-primary)]">
+      <h2 className="text-sm font-bold tracking-tight text-[var(--text-primary)]">
         Your ask has closed — nothing answered it this time.
       </h2>
       <p className="mt-1.5 text-xs leading-relaxed font-medium text-[var(--grey-600)]">
@@ -464,7 +463,6 @@ function ClosedCircleRecovery({ onRest, onRenew }: { onRest(): void; onRenew(): 
 
 function OfferCard({
   offer,
-  index,
   askStatus,
   conversationId,
   avatarUrls,
@@ -474,7 +472,6 @@ function OfferCard({
   onReport,
 }: {
   offer: HelpOffer
-  index: number
   askStatus: HelpAskDetail['status']
   conversationId: string | null
   avatarUrls: Record<string, string>
@@ -488,7 +485,7 @@ function OfferCard({
   return (
     <article className="rounded-2xl bg-[image:var(--surface-card-elevated)] px-4.5 py-4 shadow-[var(--ring-card-elevated),var(--shadow-card-elevated)]">
       <div className="flex items-center gap-3">
-        <ProfileAvatar profile={offer.helper} avatarUrls={avatarUrls} index={index} />
+        <ProfileAvatar profile={offer.helper} avatarUrls={avatarUrls} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-1.5">
             <strong className="text-sm font-bold text-[var(--text-primary)]">
@@ -597,25 +594,17 @@ function StatusPill({ status }: { status: HelpAskDetail['status'] }) {
 function ProfileAvatar({
   profile,
   avatarUrls,
-  index,
   size = 'default',
 }: {
   profile: IdentifiedHelpProfile
   avatarUrls: Record<string, string>
-  index: number
   size?: 'default' | 'lg'
 }) {
   const url = profile.avatarPath ? avatarUrls[profile.avatarPath] : undefined
-  const colors = [
-    'bg-[var(--avatar-1-bg)] text-[var(--avatar-1-fg)]',
-    'bg-[var(--avatar-2-bg)] text-[var(--avatar-2-fg)]',
-    'bg-[var(--avatar-3-bg)] text-[var(--avatar-3-fg)]',
-    'bg-[var(--avatar-4-bg)] text-[var(--avatar-4-fg)]',
-  ]
   return (
     <Avatar className={size === 'lg' ? 'size-[42px]' : 'size-[38px]'}>
       {url ? <AvatarImage src={url} alt="" /> : null}
-      <AvatarFallback className={cn(colors[index % colors.length], 'text-xs font-bold')}>
+      <AvatarFallback seed={profile.userId} className="text-xs font-bold">
         {initials(profile.displayName)}
       </AvatarFallback>
     </Avatar>
@@ -640,7 +629,7 @@ function RetractDialog({
         overlayClassName="bg-[var(--scrim)] backdrop-blur-none"
         className="max-w-[420px] gap-0 rounded-[20px] p-6 [box-shadow:0_24px_60px_rgb(25_31_40_/_0.25)]"
       >
-        <DialogTitle className="text-body-lg leading-tight font-extrabold tracking-tight">
+        <DialogTitle className="text-body-lg leading-tight font-bold tracking-tight">
           Retract this ask?
         </DialogTitle>
         <DialogDescription className="mt-2 text-body-sm leading-[1.6] font-medium text-[var(--text-secondary)]">
@@ -693,7 +682,7 @@ function DeclineDialog({
         overlayClassName="bg-[var(--scrim)] backdrop-blur-none"
         className="max-w-[440px] gap-0 rounded-[20px] p-6 [box-shadow:0_24px_60px_rgb(25_31_40_/_0.25)]"
       >
-        <DialogTitle className="text-body-lg leading-tight font-extrabold tracking-tight">
+        <DialogTitle className="text-body-lg leading-tight font-bold tracking-tight">
           Decline {first}’s offer
         </DialogTitle>
         <DialogDescription className="mt-1.5 text-xs leading-relaxed font-medium text-[var(--grey-600)]">
@@ -709,7 +698,7 @@ function DeclineDialog({
           value={value}
           disabled={busy}
           onChange={(event) => onChange(event.target.value)}
-          className="mt-3.5 w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.55] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:opacity-60"
+          className="mt-3.5 w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.55] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:opacity-60"
         />
         <p className="mt-2 text-kicker font-medium text-[var(--text-faint)]">
           A ready draft — make it yours.
@@ -764,7 +753,7 @@ function ReportDialog({
         overlayClassName="bg-[var(--scrim)] backdrop-blur-none"
         className="max-w-[400px] gap-0 rounded-[20px] p-6 [box-shadow:0_24px_60px_rgb(25_31_40_/_0.25)]"
       >
-        <DialogTitle className="text-body-lg leading-tight font-extrabold tracking-tight">
+        <DialogTitle className="text-body-lg leading-tight font-bold tracking-tight">
           Report {first}’s offer
         </DialogTitle>
         <DialogDescription className="mt-1.5 text-xs leading-relaxed font-medium text-[var(--grey-600)]">
@@ -818,7 +807,7 @@ function ReportDialog({
           disabled={busy}
           onChange={(event) => onNoteChange(event.target.value)}
           placeholder="Anything that helps us look into it (optional)"
-          className="mt-2.5 w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.55] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none placeholder:text-[var(--text-faint)] focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:opacity-60"
+          className="mt-2.5 w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm leading-[1.55] font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none placeholder:text-[var(--text-faint)] focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] disabled:opacity-60"
         />
         <div className="mt-3.5 flex gap-2">
           <button

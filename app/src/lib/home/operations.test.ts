@@ -109,7 +109,7 @@ describe('Home composition', () => {
         recognition: null,
         outcomeStory: null,
       }),
-    ).toContain('All quiet')
+    ).toBe('All quiet. No new circle updates this week.')
     expect(
       homePulse({
         weeklyPulse: { newMembers: 1, refreshedProfiles: 1 },

@@ -1,11 +1,10 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
 const SETTINGS_CARD_SKELETONS = [
-  { id: 'account', height: 190 },
-  { id: 'notifications', height: 310 },
-  { id: 'newsletter', height: 150 },
-  { id: 'privacy', height: 220 },
-  { id: 'danger-zone', height: 150 },
+  { id: 'account', height: 260 },
+  { id: 'notifications', height: 390 },
+  { id: 'helping', height: 220 },
+  { id: 'blocked', height: 120 },
 ] as const
 
 export default function SettingsLoading() {

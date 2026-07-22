@@ -2,27 +2,13 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createSchoolRepository } from '@/db/repositories/school'
+import { isoToLocalDateTime } from '@/lib/school/admin-event-time'
 import { loadSchoolAdminContext } from '../../../_lib/school-admin'
 import { EventForm } from '../../event-form'
 import { editEventAction } from './actions'
 import { CancelDeleteButtons } from './cancel-delete-buttons'
 
 type Params = { id: string }
-
-/**
- * Convert an ISO timestamp to the local-time string `<input type="datetime-local">`
- * expects: `YYYY-MM-DDTHH:mm`. We can't use toISOString (UTC) because the
- * input shows local time and would display "wrong" hours after timezone
- * conversion. The browser submits this back as local-naïve too.
- */
-function isoToLocalDatetime(iso: string): string {
-  const d = new Date(iso)
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  return (
-    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
-    `T${pad(d.getHours())}:${pad(d.getMinutes())}`
-  )
-}
 
 export default async function EditEventPage({ params }: { params: Promise<Params> }) {
   const { id } = await params
@@ -54,10 +40,35 @@ export default async function EditEventPage({ params }: { params: Promise<Params
             hiddenFields={{ eventId: event.id }}
             defaults={{
               title: event.title,
-              startsAtLocal: isoToLocalDatetime(event.startsAt),
-              location: event.location ?? '',
+              summary: event.summary ?? '',
               description: event.description ?? '',
+              category: event.category,
+              format: event.format,
+              timeZone: event.timeZone,
+              campus: event.campus,
+              startsAtLocal: isoToLocalDateTime(event.startsAt, event.timeZone),
+              endsAtLocal: event.endsAt ? isoToLocalDateTime(event.endsAt, event.timeZone) : '',
+              locationName: event.location ?? '',
+              locationAddress: event.locationAddress ?? '',
+              mapsUrl: event.mapsUrl ?? '',
+              joinUrl: event.joinUrl ?? '',
+              joinWindowMinutes: event.joinWindowMinutes.toString(),
+              hostName: event.hostName ?? 'Alumni Office',
               capacity: event.capacity?.toString() ?? '',
+              allowWaitlist: event.allowWaitlist,
+              changeNote: '',
+              schedule: event.schedule.map((item) => ({
+                startsAtLocal: item.startsAt
+                  ? isoToLocalDateTime(item.startsAt, event.timeZone)
+                  : '',
+                label: item.label,
+              })),
+              facts: event.facts.map((fact) => ({
+                label: fact.label,
+                value: fact.value,
+                linkLabel: fact.linkLabel ?? '',
+                linkUrl: fact.linkUrl ?? '',
+              })),
             }}
           />
         </CardContent>

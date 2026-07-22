@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createSchoolRepository } from '@/db/repositories/school'
 import { parseAdminEventForm } from '@/lib/school/admin-schemas'
+import { cancelAdminEvent, deleteAdminEvent, updateAdminEvent } from '@/lib/school/operations'
 import { loadSchoolAdminContext } from '../../../_lib/school-admin'
 
 // Identical shape to EventCreateFormState — kept as a re-export so the
@@ -33,10 +34,10 @@ export async function editEventAction(
 
   if (!parsed.data.eventId) return { error: 'Missing event id.' }
   const { client, membership } = await loadSchoolAdminContext()
-  const result = await createSchoolRepository(client).saveAdminEvent({
-    membershipId: membership.membershipId,
-    ...parsed.data,
-  })
+  const result = await updateAdminEvent(
+    { membershipId: membership.membershipId, ...parsed.data, eventId: parsed.data.eventId },
+    createSchoolRepository(client),
+  )
 
   if (result !== 'updated') {
     if (result === 'past_start') {
@@ -75,10 +76,13 @@ export async function cancelEventAction(
   if (!parsed.success) return { error: 'Invalid request.' }
 
   const { client, membership } = await loadSchoolAdminContext()
-  const result = await createSchoolRepository(client).cancelAdminEvent(
-    membership.membershipId,
-    parsed.data.eventId,
-    parsed.data.reason ?? null,
+  const result = await cancelAdminEvent(
+    {
+      membershipId: membership.membershipId,
+      eventId: parsed.data.eventId,
+      reason: parsed.data.reason ?? null,
+    },
+    createSchoolRepository(client),
   )
 
   if (result !== 'cancelled') {
@@ -105,9 +109,9 @@ export async function deleteEventAction(
   if (!parsed.success) return { error: 'Invalid request.' }
 
   const { client, membership } = await loadSchoolAdminContext()
-  const result = await createSchoolRepository(client).deleteAdminEvent(
-    membership.membershipId,
-    parsed.data.eventId,
+  const result = await deleteAdminEvent(
+    { membershipId: membership.membershipId, eventId: parsed.data.eventId },
+    createSchoolRepository(client),
   )
 
   if (result !== 'deleted') {

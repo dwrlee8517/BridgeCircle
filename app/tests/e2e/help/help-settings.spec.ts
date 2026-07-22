@@ -19,16 +19,14 @@ test.afterAll(async () => {
 test("a member without saved preferences starts default-open, and saving writes v2 availability and normalized topics", async ({ page }) => {
   await signInAs(page, member);
   await page.goto("/help/settings");
+  await expect(page).toHaveURL(/\/settings#helping$/);
 
-  const availabilityToggle = page.getByRole("checkbox", { name: "Open to helping" });
+  const availabilityToggle = page.getByRole("switch", { name: /Open to helping/ });
   await expect(availabilityToggle).toBeChecked();
-  await expect(page.getByText("Visible").filter({ visible: true })).toBeVisible();
+  await expect(page.getByText("Open", { exact: true }).filter({ visible: true })).toBeVisible();
 
-  await page
-    .locator("#topics")
-    .filter({ visible: true })
-    .fill("careers, product management");
-  await page.getByRole("button", { name: "Save settings" }).click();
+  await page.getByLabel("Help topics").fill("careers, product management");
+  await page.getByRole("button", { name: "Save helping preferences" }).click();
 
   await expect
     .poll(async () => {
@@ -59,12 +57,14 @@ test("a member without saved preferences starts default-open, and saving writes 
 
 test("turning availability off records a manual pause and removes disabled topics", async ({ page }) => {
   await signInAs(page, member);
-  await page.goto("/help/settings");
+  await page.goto("/settings#helping");
 
-  await page.getByRole("checkbox", { name: "Open to helping" }).uncheck();
-  await expect(page.getByText("Off").filter({ visible: true })).toBeVisible();
-  await expect(page.locator("#topics").filter({ visible: true })).toBeDisabled();
-  await page.getByRole("button", { name: "Save settings" }).click();
+  const availabilityToggle = page.getByRole("switch", { name: /Open to helping/ });
+  await page.getByText("Open", { exact: true }).click();
+  await expect(availabilityToggle).not.toBeChecked();
+  await expect(page.getByText("Not right now", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Help topics")).toBeDisabled();
+  await page.getByRole("button", { name: "Save helping preferences" }).click();
 
   await expect
     .poll(async () => {

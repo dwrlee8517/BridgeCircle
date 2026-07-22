@@ -60,7 +60,7 @@ export function SafetyReportDialog({
       }}
     >
       <DialogContent className="sm:max-w-[440px]">
-        <DialogTitle className="text-body-lg font-extrabold tracking-tight">
+        <DialogTitle className="text-body-lg font-bold tracking-tight">
           Report this {subject}
         </DialogTitle>
         <DialogDescription className="text-body-sm leading-relaxed font-medium">
@@ -93,10 +93,13 @@ export function SafetyReportDialog({
           onChange={(event) => setNote(event.target.value)}
           maxLength={4_000}
           rows={3}
-          className="w-full resize-y rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
+          className="w-full resize-none rounded-xl border-0 bg-card px-3.5 py-3 text-body-sm shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)]"
         />
         {result ? (
-          <p role="status" className="text-xs font-semibold text-[var(--text-secondary)]">
+          <p
+            role={result === REPORT_SUCCESS ? 'status' : 'alert'}
+            className="text-xs font-semibold text-[var(--text-secondary)]"
+          >
             {result}
           </p>
         ) : null}

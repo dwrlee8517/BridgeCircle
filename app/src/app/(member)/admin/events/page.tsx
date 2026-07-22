@@ -29,12 +29,14 @@ export default async function AdminEventsPage() {
   const past = availableEvents.filter((event) => new Date(event.startsAt).getTime() < now)
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-10">
       <Card>
         <CardHeader>
-          <CardTitle>New event</CardTitle>
+          <CardTitle>
+            <h1>New event</h1>
+          </CardTitle>
           <CardDescription>
-            Publishes immediately to {orgName}. Anyone in the org can RSVP.
+            Publishes immediately to {orgName}. Review the member-facing details before publishing.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -44,7 +46,9 @@ export default async function AdminEventsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Events</CardTitle>
+          <CardTitle>
+            <h2>Events</h2>
+          </CardTitle>
           <CardDescription>
             {upcoming.length} upcoming · {past.length} past
           </CardDescription>

@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select extensions.plan(36);
+select extensions.plan(43);
 
 -- A self-contained tenant fixture keeps this matrix independent from product
 -- seed copy while exercising every authorization persona against one target.
@@ -268,6 +268,16 @@ select extensions.ok(
   ),
   'owner directory excludes self, blocked, other-organization, deleted, and revoked targets'
 );
+select extensions.ok(
+  (
+    select result_code = 'not_available' and recipient is null
+    from api.get_direct_ask_target(
+      '83000000-0000-4000-8000-000000000001',
+      '83000000-0000-4000-8000-000000000001'
+    )
+  ),
+  'a member cannot load themselves as a direct Ask target'
+);
 reset role;
 
 -- Same-organization stranger: organization fields only.
@@ -299,6 +309,22 @@ select extensions.ok(
     )
   ),
   'same-organization stranger receives the Help-owned public availability projection'
+);
+select extensions.ok(
+  (
+    select result_code = 'ok'
+      and recipient #>> '{membershipId}' = '83000000-0000-4000-8000-000000000001'
+      and recipient #>> '{userId}' = '82000000-0000-4000-8000-000000000001'
+      and recipient #>> '{displayName}' = 'Privacy Owner'
+      and recipient #>> '{topics,0}' = 'Privacy-safe helping topic'
+      and recipient::text not like '%Connections-only career sentinel%'
+      and recipient::text not like '%report-evidence-sentinel%'
+    from api.get_direct_ask_target(
+      '83000000-0000-4000-8000-000000000002',
+      '83000000-0000-4000-8000-000000000001'
+    )
+  ),
+  'a same-organization member gets only the direct Ask recipient projection'
 );
 select extensions.ok(
   (
@@ -352,6 +378,16 @@ select extensions.ok(
 );
 select extensions.ok(
   (
+    select result_code = 'not_available' and recipient is null
+    from api.get_direct_ask_target(
+      '83000000-0000-4000-8000-000000000002',
+      '83000000-0000-4000-8000-000000000005'
+    )
+  ),
+  'a same-organization member cannot load an out-of-organization direct Ask target'
+);
+select extensions.ok(
+  (
     select result_code = 'not_available' and profile is null
     from api.get_member_profile(
       '83000000-0000-4000-8000-000000000002',
@@ -371,6 +407,28 @@ select extensions.ok(
   'revoked target is unavailable'
 );
 reset role;
+update public.helper_preferences
+set open_to_help = false,
+    paused_at = now(),
+    pause_reason = 'manual'
+where organization_membership_id = '83000000-0000-4000-8000-000000000001';
+set local role authenticated;
+select extensions.ok(
+  (
+    select result_code = 'not_available' and recipient is null
+    from api.get_direct_ask_target(
+      '83000000-0000-4000-8000-000000000002',
+      '83000000-0000-4000-8000-000000000001'
+    )
+  ),
+  'a paused or closed helper is unavailable as a direct Ask target'
+);
+reset role;
+update public.helper_preferences
+set open_to_help = true,
+    paused_at = null,
+    pause_reason = null
+where organization_membership_id = '83000000-0000-4000-8000-000000000001';
 
 -- Connected viewer: connection tier is added, self tier remains absent.
 select set_config('request.jwt.claim.sub', '82000000-0000-4000-8000-000000000003', true);
@@ -416,6 +474,16 @@ select extensions.ok(
     )
   ),
   'blocked viewer receives the non-enumerating unavailable result'
+);
+select extensions.ok(
+  (
+    select result_code = 'not_available' and recipient is null
+    from api.get_direct_ask_target(
+      '83000000-0000-4000-8000-000000000004',
+      '83000000-0000-4000-8000-000000000001'
+    )
+  ),
+  'a blocked member receives the non-enumerating direct Ask target result'
 );
 select extensions.is(
   (
@@ -626,6 +694,20 @@ select extensions.ok(
     'execute'
   ),
   'anonymous role cannot execute either People/Profile member projection'
+);
+select extensions.ok(
+  has_function_privilege(
+    'authenticated', to_regprocedure('api.get_direct_ask_target(uuid,uuid)'), 'execute'
+  ) and not has_function_privilege(
+    'anon', to_regprocedure('api.get_direct_ask_target(uuid,uuid)'), 'execute'
+  ),
+  'only authenticated members can execute the direct Ask target projection'
+);
+select extensions.ok(
+  not has_function_privilege(
+    'authenticated', to_regprocedure('private.get_direct_ask_target(uuid,uuid)'), 'execute'
+  ),
+  'members cannot bypass the direct Ask target API projection'
 );
 
 select * from extensions.finish();

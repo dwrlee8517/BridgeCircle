@@ -13,6 +13,7 @@ import {
   MessageSquare,
   UserPlus,
   UserRoundCheck,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -54,6 +55,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
   const [unread, setUnread] = useState<number>(initialUnread)
   const [open, setOpen] = useState(false)
   const [pending, startTransition] = useTransition()
+  const [operationError, setOperationError] = useState<string | null>(null)
   const router = useRouter()
 
   // Toast banner state — shown briefly when a high-signal realtime arrival
@@ -98,7 +100,6 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
           setUnread((u) => u + 1)
           if (notificationShouldToast(row.type)) {
             setToast(row)
-            window.setTimeout(() => setToast(null), 4500)
           }
         },
       )
@@ -114,6 +115,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
     const url = notificationTargetUrl(row)
     // Optimistically mark read in local state first so the badge feels snappy.
     if (!row.readAt) {
+      setOperationError(null)
       setItems((prev) =>
         prev.map((x) => (x.id === row.id ? { ...x, readAt: new Date().toISOString() } : x)),
       )
@@ -122,7 +124,11 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
       fd.set('notificationId', String(row.id))
       startTransition(() => {
         markNotificationReadAction(fd).catch(() => {
-          // If the mark-read fails the next page-load refresh will reconcile.
+          setItems((prev) =>
+            prev.map((item) => (item.id === row.id ? { ...item, readAt: null } : item)),
+          )
+          setUnread((value) => value + 1)
+          setOperationError('That notification is still unread. Try again from the bell.')
         })
       })
     }
@@ -130,11 +136,18 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
   }
 
   function handleMarkAll() {
+    const previousUnread = unread
+    const unreadIds = new Set(items.filter((item) => !item.readAt).map((item) => item.id))
+    setOperationError(null)
     setItems((prev) => prev.map((x) => (x.readAt ? x : { ...x, readAt: new Date().toISOString() })))
     setUnread(0)
     startTransition(() => {
       markAllNotificationsReadAction().catch(() => {
-        // best-effort
+        setItems((prev) =>
+          prev.map((item) => (unreadIds.has(item.id) ? { ...item, readAt: null } : item)),
+        )
+        setUnread((value) => value + previousUnread)
+        setOperationError('Those notifications are still unread. Please try again.')
       })
     })
   }
@@ -163,7 +176,7 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
           className="w-[calc(100vw-1rem)] max-w-[390px] gap-0 overflow-hidden rounded-[18px] border-0 p-0 shadow-[var(--ring-card-elevated),0_20px_50px_-14px_rgb(25_31_40_/_0.3)] sm:w-[390px]"
         >
           <div className="flex items-center justify-between px-5 pt-3.5 pb-2.5">
-            <span className="text-sm font-extrabold tracking-tight">Notifications</span>
+            <span className="text-sm font-bold tracking-tight">Notifications</span>
             {unread > 0 ? (
               <button
                 type="button"
@@ -192,6 +205,22 @@ export function NotificationsBell({ initial, initialUnread, viewerId }: Props) {
       </Popover>
 
       {toast ? <RealtimeToast row={toast} onClose={() => setToast(null)} /> : null}
+      {operationError ? (
+        <div
+          role="alert"
+          className="fixed top-20 right-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] items-start gap-3 rounded-xl bg-surface-card p-3 text-caption font-semibold text-text-secondary shadow-card-hover ring-1 ring-border-subtle"
+        >
+          <span className="min-w-0 flex-1">{operationError}</span>
+          <button
+            type="button"
+            aria-label="Dismiss notification error"
+            onClick={() => setOperationError(null)}
+            className="flex size-8 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          >
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
     </>
   )
 }
@@ -276,27 +305,58 @@ function Icon({ type }: { type: NotificationType }) {
   }
 }
 
-/** Inline banner that briefly appears when a realtime notification arrives.
- * Auto-dismisses after a few seconds; clicking it navigates + marks read. */
+/** Inline banner for a realtime notification. It pauses while hovered or focused. */
 function RealtimeToast({ row, onClose }: { row: NotificationRow; onClose: () => void }) {
   const url = useMemo(() => notificationTargetUrl(row), [row])
+  const [paused, setPaused] = useState(false)
+
+  useEffect(() => {
+    if (paused) return
+    const timeout = window.setTimeout(onClose, 8_000)
+    return () => window.clearTimeout(timeout)
+  }, [onClose, paused])
+
+  const content = (
+    <>
+      <Bell className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm leading-tight">{notificationLabel(row)}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">just now</p>
+      </div>
+    </>
+  )
+
   return (
     <div
       role="status"
       aria-live="polite"
-      className="fixed top-20 right-4 z-50 w-72 animate-in fade-in slide-in-from-top-2"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocusCapture={() => setPaused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false)
+      }}
+      className="fixed top-32 right-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] items-start gap-1 rounded-xl bg-surface-card p-1 shadow-card-hover ring-1 ring-border-subtle animate-in fade-in slide-in-from-top-2"
     >
-      <Link
-        href={url ?? '#'}
+      {url ? (
+        <Link
+          href={url}
+          onClick={onClose}
+          className="flex min-w-0 flex-1 items-start gap-2 rounded-lg p-3 hover:bg-muted/30"
+        >
+          {content}
+        </Link>
+      ) : (
+        <div className="flex min-w-0 flex-1 items-start gap-2 p-3">{content}</div>
+      )}
+      <button
+        type="button"
+        aria-label="Dismiss notification"
         onClick={onClose}
-        className="flex items-start gap-2 rounded-md border bg-background p-3 shadow-card-hover hover:bg-muted/30"
+        className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full text-text-muted hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
       >
-        <Bell className="mt-0.5 size-4 shrink-0 text-primary" />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm leading-tight">{notificationLabel(row)}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">just now</p>
-        </div>
-      </Link>
+        <X className="size-4" aria-hidden="true" />
+      </button>
     </div>
   )
 }

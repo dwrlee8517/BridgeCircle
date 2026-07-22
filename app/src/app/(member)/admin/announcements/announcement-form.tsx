@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -23,6 +24,12 @@ export function AnnouncementForm() {
     if (state.ok && formRef.current) formRef.current.reset()
   }, [state.ok])
 
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
+
   return (
     <form ref={formRef} action={action} className="space-y-4">
       <Field id="ann-title" label="Title" error={fe.title} required>
@@ -32,6 +39,8 @@ export function AnnouncementForm() {
           required
           maxLength={200}
           placeholder="Spring fundraiser this Saturday"
+          aria-invalid={fe.title ? true : undefined}
+          aria-describedby={fe.title ? 'ann-title-error' : undefined}
         />
       </Field>
 
@@ -42,6 +51,8 @@ export function AnnouncementForm() {
           rows={6}
           maxLength={5000}
           placeholder={"What's the news? Be specific — date, time, what you need from members."}
+          aria-invalid={fe.body ? true : undefined}
+          aria-describedby={fe.body ? 'ann-body-error' : undefined}
         />
       </Field>
 
@@ -51,9 +62,11 @@ export function AnnouncementForm() {
           name="tag"
           defaultValue="general"
           className="h-10 w-full rounded-[var(--radius-md)] border border-input bg-background px-3 text-sm"
+          aria-invalid={fe.tag ? true : undefined}
+          aria-describedby={fe.tag ? 'ann-tag-error' : undefined}
         >
           <option value="general">General</option>
-          <option value="mentorship">Mentorship</option>
+          <option value="mentorship">Career guidance</option>
           <option value="hiring">Hiring</option>
           <option value="reunion">Reunion</option>
         </select>
@@ -69,10 +82,10 @@ export function AnnouncementForm() {
         </div>
       </div>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-      {state.ok ? <p className="text-sm text-accent-sage">Announcement published.</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
+      {state.ok ? <FormMessage tone="success">Announcement published.</FormMessage> : null}
 
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} aria-busy={pending}>
         {pending ? 'Publishing…' : 'Publish announcement'}
       </Button>
     </form>
@@ -99,7 +112,7 @@ function Field({
         {required ? <span className="text-destructive"> *</span> : null}
       </Label>
       {children}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      <FieldError id={`${id}-error`} error={error} />
     </div>
   )
 }

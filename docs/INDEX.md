@@ -9,7 +9,7 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
 - [Phase 1 launch cut](../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what ships in the launch cut
 - [Phase 1 launch checklist](../product-spec-obsidian-vault/Production/phase-1/launch-checklist.md) — readiness criteria
-- [Database v2 contract](architecture/database-v2-contract.md) — Foundation and Conversation Primitive verified locally; later domains and remote cutovers pending
+- [Database v2 contract](architecture/database-v2-contract.md) — local v2 vertical slices implemented; remote cutover gates remain
 
 ## Product
 
@@ -68,7 +68,7 @@ How the system is shaped. Reference material — facts, not how-to.
 - [Database v2 development cutover plan](architecture/database-v2-dev-cutover-plan.md) — approved zero-data linked reset plan, implemented local guardrails, exact-SHA web/worker deployment, hosted acceptance, and production-safe approval boundary
 - [Database v2 production cutover plan](architecture/database-v2-production-cutover-plan.md) — proposed migration-ownership transfer, three-PR release topology, guarded one-time production reset, exact-SHA web/worker promotion, bootstrap, verification, and abort gates
 - [Profile enrichment and freshness](architecture/profile-enrichment.md) — active onboarding Fast Fill plus the approved future manual-update/scheduled-sweep architecture; LinkdAPI primary, Bright Data sweep, PDL fallback, proposal workflow, and cost guardrails
-- [Information architecture](architecture/information-architecture.md) — routes, screens, navigation
+- [Information architecture](architecture/information-architecture.md) — current routes, ownership, navigation, and implementation boundaries
 - [Ask matching model research](architecture/ask-matching-model-research.md) — embedding/reranker model comparison for ADR 0009, with cost, latency, accuracy, and evaluation guidance
 - [Environments](architecture/environments.md) — Supabase + Railway env layout
 - [Dev stage + CD rollout](architecture/dev-stage-cd-rollout.md) — phased plan for ADR 0014: dev.bridgecircle.org, integ gate, scripted promote
@@ -117,8 +117,9 @@ UX, UI, screen-level decisions, and active visual references.
 - [Experience index](experience/README.md) — trust hierarchy for current UX, UI, and screen guidance
 - [UX](experience/ux/) — active UX interpretation and links to canonical behavior docs
 - [Design system](experience/ui/design-system/) — **main system: [`bridgecircle`](experience/ui/design-system/handoff/bridgecircle/)** (brand fork of the faithful [`toss-base`](experience/ui/design-system/handoff/toss-base/) TDS baseline; divergences logged in its `OVERRIDES.md` — ADR [0013](decisions/0013-toss-baseline-then-brand-overlay.md)). The full redesign is designed in the `bridgecircle` Claude Design project first, then translated to production. Civic Editorial describes live production only and is archived when the redesign lands.
-- [Current member UI quality plan](experience/audits/current-member-ui-quality-plan.md) — active UI alignment checklist for Home, Ask, Help, People, School, and Inbox
-- [Screen map](experience/screens/phase-1-screen-map.md) — screen-level bridge between behavior and UI
+- [Current member UI quality plan](experience/audits/current-member-ui-quality-plan.md) — active UI alignment follow-up for Home, Help, People, Messages, and School
+- [UI/UX audit resolution addendum](experience/audits/ui-ux-audit-resolution-2026-07-21.md) — repo-local disposition and implementation evidence for C-01 through C-46
+- [Screen map](experience/screens/phase-1-screen-map.md) — current screen families, canonical routes, and implementation boundaries
 - [Explorations](experience/explorations/) — experimental workspace, not canonical unless promoted
 
 ## Presentations

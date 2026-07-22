@@ -1,15 +1,55 @@
 import { type ClassValue, clsx } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
-// Teach tailwind-merge about Civic Editorial's custom theme tokens so that
+// Teach tailwind-merge about the custom theme tokens so that
 // e.g. `cn('shadow-none', 'shadow-card-hover')` collapses to just
 // `shadow-card-hover`. Without this, custom utilities aren't recognized as
 // part of the shadow conflict group and both classes survive — the earlier
 // one wins by CSS order, silently defeating the consumer override.
+//
+// The font-size group is load-bearing: tailwind-merge cannot tell a custom
+// `text-<size>` utility from a `text-<color>` utility. Unregistered size
+// names (text-control, text-chip, …) get bucketed as colors and are DROPPED
+// whenever a real color class follows in the same cn() call — the element
+// then silently inherits the 16px root size. Every named size from
+// globals.css @theme must be listed here.
+const FONT_SIZE_TOKENS = [
+  'micro',
+  'fine',
+  'overline',
+  'chip',
+  'control',
+  'kicker',
+  'caption',
+  'label',
+  'nav',
+  'body',
+  'body-sm',
+  'body-md',
+  'body-lg',
+  'subtitle',
+  'heading',
+  'heading-large',
+  'section-title',
+  'page-title',
+  'h1',
+  'h2',
+  'display-md',
+  'display-lg',
+  'display-xl',
+  'display-hero',
+  'display-large',
+  'display-event',
+  'event-date',
+  'event-date-md',
+  'event-date-lg',
+] as const
+
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
       shadow: ['shadow-card', 'shadow-card-hover', 'shadow-hero'],
+      'font-size': [{ text: [...FONT_SIZE_TOKENS] }],
     },
   },
 })

@@ -43,9 +43,15 @@ remain global shell utilities.
 |---|---|
 | `/sign-in` | Authenticate an existing member |
 | `/join` | Verify and accept an organization invitation |
-| `/onboarding` | Complete the selected membership's required profile |
+| `/onboarding` | Confirm the required identity floor (name and graduation year), then optionally enrich the profile |
 | `/pending` | Explain pending membership approval |
 | `/select-circle` | Select an active organization membership |
+| `/cancel-delete` | Confirm or cancel an account-deletion request |
+| `/reset-password`, `/reset-password/update` | Request and complete password recovery |
+
+The identity floor is the only required onboarding step. Fast Fill, education,
+current and past experience, Help preferences, and the cold-start prompt are
+skippable; they improve the profile but do not block entry to the member shell.
 
 ### Home
 
@@ -53,8 +59,9 @@ remain global shell utilities.
 |---|---|
 | `/` | Default member destination and cross-domain summary |
 
-Home is a later v2 application port. It may summarize other domains, but it
-must not own Ask creation, message persistence, or duplicate domain queries.
+Home is implemented as a v2 composition dashboard. It may summarize other
+domains, but it must not own Ask creation, message persistence, or duplicate
+domain queries.
 
 ### Help
 
@@ -66,7 +73,7 @@ must not own Ask creation, message persistence, or duplicate domain queries.
 | `/help/asks` | The member's Help history |
 | `/help/asks/[askId]` | Role-shaped Ask detail, response, offers, and lifecycle actions |
 | `/help/asks/[askId]/offer` | Private offer composer for an eligible helper |
-| `/help/settings` | Availability and normalized Help topics |
+| `/help/settings` | Compatibility redirect to the Helping section of Settings |
 
 Help owns direct and circle Asks. Direct Asks move from `waiting` to accepted,
 declined, retracted, or expired. Circle Asks are `open` until the asker accepts
@@ -93,7 +100,8 @@ managed circle view is a People-owned detail route reached from the directory,
 Messages' My-circle lens, and the account menu. Profile
 URLs use `userId`, while the self route derives its selected membership on the
 server. The removed edit/import/proposal routes have no compatibility aliases;
-future enrichment review belongs to its later dedicated slice.
+future enrichment review remains a planned dedicated slice; it is not exposed
+as a member route today.
 
 ### Messages
 
@@ -101,6 +109,7 @@ future enrichment review belongs to its later dedicated slice.
 |---|---|
 | `/messages` | Canonical conversation list root |
 | `/messages/[id]` | Unified conversation thread |
+| `/notifications` | Durable notification history and unread filtering |
 
 Messages is implemented locally as one responsive workspace for accepted Asks
 and accepted Connections. The root owns the foldable Waiting group, canonical
@@ -115,22 +124,35 @@ every visible state is refetched from fixed v2 projections.
 | Route | Responsibility |
 |---|---|
 | `/school` | Member-facing school pulse |
-| `/events`, `/events/[id]` | Event list and detail |
-| `/announcements`, `/announcements/[id]` | Announcement archive and detail |
+| `/school/events/[id]` | Event detail, RSVP, held-offer, and calendar download |
+| `/school/announcements`, `/school/announcements/[id]` | Announcement archive and reader |
+| `/school/newsletter`, `/school/newsletter/[issue]` | Newsletter archive and reader |
 
-School/Admin remains a later v2 application port.
+The member School surface is implemented. It owns member-facing reading and
+RSVP behavior; it does not imply that all administration or authoring work is
+complete.
 
 ### Administration
 
 | Route | Responsibility |
 |---|---|
 | `/admin` | Organization operations overview |
-| `/admin/members` | Membership and account state |
 | `/admin/approvals` | Pending membership decisions |
 | `/admin/invite` | Invitations |
 | `/admin/events` | Event administration |
+| `/admin/events/[id]/edit` | Edit or cancel an existing event |
 | `/admin/announcements` | Announcement administration |
-| `/admin/analytics` | Authorized aggregate metrics |
+
+The current Admin surface covers invitations, approvals, basic event management,
+and announcements. A report-review queue and the fuller event-authoring model
+remain planned work; do not describe either as complete.
+
+### Settings
+
+| Route | Responsibility |
+|---|---|
+| `/settings` | Account, email, notification, helping, safety, export, and deletion preferences |
+| `/help/settings` | Compatibility redirect to `/settings#helping` |
 
 ## Organization context
 
@@ -175,9 +197,12 @@ changes require an explicit compatibility and data-migration decision.
 | Conversation primitive | Complete |
 | Help | Complete through local domain cutover |
 | Messages list and Connection threads | Complete through local domain cutover |
-| People/Profile/Connections | Pending |
-| School/Admin/account lifecycle | Pending |
+| Home | Complete local v2 composition dashboard |
+| People/Profile/Connections | Complete local v2 member slice |
+| School member surfaces | Complete local v2 member slice |
+| Entry, account lifecycle, and settings | Complete local v2 slice; settings composition follow-up (C-13) remains in progress |
+| Admin basics | Implemented for invites, approvals, events, and announcements; moderation queue (C-43) and fuller event authoring (C-44) remain in progress |
 | Remote dev/prod reset | Blocked until every application domain and the global build are green |
 
-Do not describe the full application as deployable while a later domain still
-references the retired schema.
+Do not describe the full application as remotely deployable until the remote
+cutover gates are satisfied and the planned Admin boundaries above are closed.

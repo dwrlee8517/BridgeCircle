@@ -6,6 +6,7 @@ import type {
   SchoolEventCard,
   SchoolHome,
 } from '@/lib/school/contracts'
+import { newsletterDisplayTitle } from '@/lib/school/presentation'
 import { formatEventDate } from '@/lib/school/time'
 import { cn } from '@/lib/utils'
 import { EventTime } from './event-time'
@@ -28,7 +29,7 @@ export function SchoolHub({
             <p className="text-overline font-bold tracking-caps text-text-secondary uppercase">
               {home.organization.name}
             </p>
-            <h1 className="mt-1 font-heading text-page-title font-extrabold tracking-heading text-text-primary">
+            <h1 className="mt-1 font-heading text-page-title font-bold tracking-heading text-text-primary">
               Close to school, not buried in it.
             </h1>
             <p className="mt-1 text-control font-medium text-text-secondary">
@@ -37,7 +38,9 @@ export function SchoolHub({
           </div>
         </header>
 
-        <AttendingStrip events={attending} selectedId={selectedEvent?.id ?? null} />
+        {attending.length > 0 ? (
+          <AttendingStrip events={attending} selectedId={selectedEvent?.id ?? null} />
+        ) : null}
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.85fr)]">
           <section className="min-w-0 space-y-4" aria-label="School events">
@@ -79,33 +82,27 @@ function AttendingStrip({
           <CalendarPlus className="size-4 text-action-weak-text" aria-hidden="true" />
           Your events
         </span>
-        {events.length > 0 ? (
-          events.map((event) => (
-            <Link
-              key={event.id}
-              href={`/school?event=${event.id}`}
-              aria-current={event.id === selectedId ? 'true' : undefined}
-              className={cn(
-                'flex min-w-[188px] shrink-0 items-center gap-3 rounded-xl px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-                event.id === selectedId ? 'bg-primary-tint-strong' : 'hover:bg-surface-subtle',
-              )}
-            >
-              <DateTile event={event} compact />
-              <span className="min-w-0">
-                <span className="block truncate text-caption font-bold text-text-primary">
-                  {event.title}
-                </span>
-                <span className="mt-0.5 block truncate text-fine font-semibold text-text-secondary">
-                  {event.locationName ?? 'Online'}
-                </span>
+        {events.map((event) => (
+          <Link
+            key={event.id}
+            href={`/school?event=${event.id}`}
+            aria-current={event.id === selectedId ? 'true' : undefined}
+            className={cn(
+              'flex min-w-[188px] shrink-0 items-center gap-3 rounded-xl px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+              event.id === selectedId ? 'bg-primary-tint-strong' : 'hover:bg-surface-subtle',
+            )}
+          >
+            <DateTile event={event} compact />
+            <span className="min-w-0">
+              <span className="block truncate text-caption font-bold text-text-primary">
+                {event.title}
               </span>
-            </Link>
-          ))
-        ) : (
-          <span className="text-caption font-medium text-text-muted">
-            Nothing saved yet · browse the next events below
-          </span>
-        )}
+              <span className="mt-0.5 block truncate text-fine font-semibold text-text-secondary">
+                {event.locationName ?? 'Online'}
+              </span>
+            </span>
+          </Link>
+        ))}
       </div>
     </section>
   )
@@ -114,13 +111,13 @@ function AttendingStrip({
 function EventCover({ event }: { event: SchoolEventCard }) {
   const capacityMatters = event.spotsLeft !== null && event.spotsLeft <= 8
   return (
-    <article className="overflow-hidden rounded-2xl bg-surface-ink text-surface-ink-foreground shadow-hero">
-      <div className="grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
+    <article className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero">
+      <div className="relative grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
         <div className="min-w-0">
-          <p className="text-overline font-extrabold tracking-caps text-surface-ink-muted uppercase">
+          <p className="text-overline font-bold tracking-caps text-surface-ink-muted uppercase">
             Chadwick · {event.category}
           </p>
-          <h2 className="mt-2 max-w-xl font-heading text-display-md font-extrabold tracking-heading text-balance">
+          <h2 className="mt-2 max-w-xl font-heading text-display-md font-bold tracking-heading text-balance">
             {event.title}
           </h2>
           {event.summary ? (
@@ -154,14 +151,14 @@ function EventCover({ event }: { event: SchoolEventCard }) {
             {capacityMatters ? <span>· {event.spotsLeft} spots left</span> : null}
           </div>
         </div>
-        <DateTile event={event} />
+        <DateTile event={event} variant="glass" />
       </div>
       {event.changeNote ? (
-        <p className="border-t border-white/10 px-5 py-3 text-chip font-semibold text-surface-ink-muted sm:px-7">
+        <p className="relative border-t border-white/10 px-5 py-3 text-chip font-semibold text-surface-ink-muted sm:px-7">
           Updated · {event.changeNote}
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center gap-2 border-t border-white/10 px-5 py-4 sm:px-7">
+      <div className="relative flex flex-wrap items-center gap-2 border-t border-white/10 px-5 py-4 sm:px-7">
         <RsvpControl event={event} tone="dark" />
         <Link
           href={`/school/events/${event.id}/calendar`}
@@ -171,7 +168,7 @@ function EventCover({ event }: { event: SchoolEventCard }) {
         </Link>
         <Link
           href={`/school/events/${event.id}`}
-          className="ml-auto inline-flex items-center gap-1 rounded-xl px-3 py-2.5 text-caption font-extrabold text-primary-on-dark hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          className="ml-auto inline-flex items-center gap-1 rounded-xl px-3 py-2.5 text-caption font-bold text-primary-on-dark hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           View details <ArrowRight className="size-4" aria-hidden="true" />
         </Link>
@@ -187,37 +184,63 @@ function UpcomingEvents({
   events: SchoolEventCard[]
   selectedId: string | null
 }) {
-  const upcoming = events.filter((event) => event.id !== selectedId).slice(0, 5)
+  const upcoming = events.slice(0, 5)
   return (
     <section className="overflow-hidden rounded-2xl bg-surface-card shadow-card ring-1 ring-border-subtle">
       <div className="flex items-center justify-between px-5 py-4">
         <div>
           <p className="text-fine font-bold tracking-caps text-text-muted uppercase">Upcoming</p>
-          <h2 className="mt-0.5 text-body font-extrabold text-text-primary">
-            More on the calendar
-          </h2>
+          <h2 className="mt-0.5 text-body font-bold text-text-primary">More on the calendar</h2>
         </div>
       </div>
       {upcoming.length > 0 ? (
         <div>
-          {upcoming.map((event) => (
-            <Link
-              key={event.id}
-              href={`/school?event=${event.id}`}
-              className="grid grid-cols-[auto_1fr_auto] items-center gap-3 border-t border-divider-row px-5 py-3 transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
-            >
-              <DateTile event={event} compact />
-              <span className="min-w-0">
-                <span className="block truncate text-control font-bold text-text-primary">
-                  {event.title}
-                </span>
-                <span className="mt-1 block truncate text-chip font-medium text-text-muted">
-                  {event.locationName ?? 'Online'} · {event.goingCount} going
-                </span>
-              </span>
-              <ChevronRight className="size-4 text-icon-muted" aria-hidden="true" />
-            </Link>
-          ))}
+          {upcoming.map((event) => {
+            const selected = event.id === selectedId
+            return (
+              <article
+                key={event.id}
+                className={cn(
+                  'grid grid-cols-[minmax(0,1fr)_auto] items-stretch border-t border-divider-row transition-colors',
+                  selected
+                    ? 'bg-primary-tint-strong shadow-[inset_3px_0_0_var(--action-primary)]'
+                    : 'hover:bg-surface-subtle',
+                )}
+              >
+                <Link
+                  href={`/school?event=${event.id}`}
+                  aria-current={selected ? 'true' : undefined}
+                  className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 px-5 py-3 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+                >
+                  <DateTile event={event} compact />
+                  <span className="min-w-0">
+                    <span className="block truncate text-control font-bold text-text-primary">
+                      {event.title}
+                    </span>
+                    <span
+                      className={cn(
+                        'mt-1 block truncate text-chip font-medium',
+                        selected ? 'text-action-weak-text' : 'text-text-muted',
+                      )}
+                    >
+                      {event.locationName ?? 'Online'} · {event.goingCount} going
+                      {selected ? ' · Showing above' : ''}
+                    </span>
+                  </span>
+                </Link>
+                <Link
+                  href={`/school/events/${event.id}`}
+                  aria-label={`View details for ${event.title}`}
+                  className={cn(
+                    'flex w-11 items-center justify-center hover:text-action-weak-text focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring',
+                    selected ? 'text-action-weak-text' : 'text-icon-muted',
+                  )}
+                >
+                  <ChevronRight className="size-4" aria-hidden="true" />
+                </Link>
+              </article>
+            )
+          })}
         </div>
       ) : (
         <p className="border-t border-divider-row px-5 py-6 text-caption text-text-muted">
@@ -234,7 +257,7 @@ function AnnouncementPanel({ items }: { items: SchoolAnnouncementSummary[] }) {
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center gap-2">
           <Megaphone className="size-4 text-action-weak-text" aria-hidden="true" />
-          <h2 className="text-body font-extrabold text-text-primary">From the school</h2>
+          <h2 className="text-body font-bold text-text-primary">From the school</h2>
         </div>
         <Link href="/school/announcements" className="text-chip font-bold text-action-weak-text">
           View all <span aria-hidden="true">→</span>
@@ -260,7 +283,7 @@ function AnnouncementPanel({ items }: { items: SchoolAnnouncementSummary[] }) {
               {item.pinned ? 'Pinned · ' : ''}
               {item.tag}
             </span>
-            <span className="mt-1.5 block text-control font-extrabold text-text-primary">
+            <span className="mt-1.5 block text-control font-bold text-text-primary">
               {item.title}
             </span>
             <span className="mt-1 line-clamp-2 block text-chip leading-relaxed text-text-secondary">
@@ -281,10 +304,10 @@ function NewsletterPanel({ issue }: { issue: NewsletterSummary | null }) {
   if (!issue) return null
   return (
     <section className="rounded-2xl bg-surface-card p-5 shadow-card ring-1 ring-border-subtle">
-      <p className="text-fine font-bold tracking-caps text-text-muted uppercase">
-        The Bridge · Newsletter
-      </p>
-      <h2 className="mt-2 text-body font-extrabold text-text-primary">{issue.title}</h2>
+      <p className="text-fine font-bold tracking-caps text-text-muted uppercase">Newsletter</p>
+      <h2 className="mt-2 text-body font-bold text-text-primary">
+        {newsletterDisplayTitle(issue.title)}
+      </h2>
       {issue.summary ? (
         <p className="mt-2 text-caption leading-relaxed text-text-secondary">{issue.summary}</p>
       ) : null}
@@ -306,7 +329,15 @@ function NewsletterPanel({ issue }: { issue: NewsletterSummary | null }) {
   )
 }
 
-function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?: boolean }) {
+function DateTile({
+  event,
+  compact = false,
+  variant = 'default',
+}: {
+  event: SchoolEventCard
+  compact?: boolean
+  variant?: 'default' | 'glass'
+}) {
   const date = new Date(event.startsAt)
   const month = new Intl.DateTimeFormat('en-US', { timeZone: event.timeZone, month: 'short' })
     .format(date)
@@ -320,14 +351,18 @@ function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?
   return (
     <span
       className={cn(
-        'flex shrink-0 flex-col items-center justify-center rounded-xl bg-white text-surface-ink shadow-sm ring-1 ring-black/5',
+        'flex shrink-0 flex-col items-center justify-center rounded-xl text-surface-ink shadow-sm',
+        variant === 'glass'
+          ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass),var(--shadow-raised)] backdrop-blur-sm'
+          : 'bg-white ring-1 ring-black/5',
         compact ? 'h-12 w-12' : 'h-28 w-24',
       )}
     >
       <span className="sr-only">{formatEventDate(event.startsAt, event.timeZone)}</span>
       <span
         className={cn(
-          'font-extrabold tracking-caps text-action-weak-text',
+          'font-bold tracking-caps',
+          variant === 'glass' ? 'text-[var(--cover-accent)]' : 'text-action-weak-text',
           compact ? 'text-micro' : 'text-overline',
         )}
       >
@@ -335,14 +370,21 @@ function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?
       </span>
       <span
         className={cn(
-          'font-heading font-black tracking-heading',
+          'font-heading font-bold tracking-heading',
           compact ? 'text-section-title leading-5' : 'text-event-date leading-none',
         )}
       >
         {day}
       </span>
       {!compact ? (
-        <span className="text-micro font-bold tracking-caps text-text-muted">{weekday}</span>
+        <span
+          className={cn(
+            'text-micro font-bold tracking-caps',
+            variant === 'glass' ? 'text-white/75' : 'text-text-muted',
+          )}
+        >
+          {weekday}
+        </span>
       ) : null}
     </span>
   )
@@ -351,7 +393,7 @@ function DateTile({ event, compact = false }: { event: SchoolEventCard; compact?
 function EmptyPanel({ title, body }: { title: string; body: string }) {
   return (
     <section className="rounded-2xl bg-surface-card px-6 py-12 text-center shadow-card ring-1 ring-border-subtle">
-      <h2 className="text-body font-extrabold text-text-primary">{title}</h2>
+      <h2 className="text-body font-bold text-text-primary">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-caption leading-relaxed text-text-secondary">
         {body}
       </p>

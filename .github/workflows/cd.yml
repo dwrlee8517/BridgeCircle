@@ -63,8 +63,8 @@ jobs:
         env:
           REQUESTED_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
         run: |
-          if [ "$GITHUB_REF" != "refs/heads/main" ] && [ "$GITHUB_REF" != "refs/heads/codex/redesign-v2" ]; then
-            echo "::error::Manual CD permits only main or codex/redesign-v2"
+          if [ "$GITHUB_REF" != "refs/heads/main" ] && [ "$GITHUB_REF" != "refs/heads/codex/ui-ux-iteration-2" ]; then
+            echo "::error::Manual CD permits only main or codex/ui-ux-iteration-2"
             exit 1
           fi
           if [ "$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA" ]; then
@@ -114,7 +114,9 @@ jobs:
         run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=dev --mode=postflight
 
       - name: Install Railway CLI
-        run: npm i -g @railway/cli
+        run: |
+          npm i -g @railway/cli@5.27.1
+          railway --version
 
       # /api/health reads COMMIT_SHA so the readiness poll (and the integ
       # job) can confirm which commit is actually serving. `railway up`
@@ -332,7 +334,9 @@ jobs:
         run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/production-v2-postflight.ts
 
       - name: Install Railway CLI
-        run: npm i -g @railway/cli
+        run: |
+          npm i -g @railway/cli@5.27.1
+          railway --version
 
       - name: Stamp commit SHA on production
         env:
