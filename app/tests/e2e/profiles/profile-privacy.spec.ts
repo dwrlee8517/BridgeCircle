@@ -111,7 +111,9 @@ test('an intercepted profile preserves its originating section and restores focu
   page,
 }) => {
   await switchPersona(page, PERSONAS.owner)
-  await page.goto(`/messages/${JORDAN_THREAD}`)
+  await page.goto('/messages')
+  await page.getByRole('link', { name: 'Jordan Kim' }).click()
+  await expect(page).toHaveURL(`/messages/${JORDAN_THREAD}`)
 
   const profileLink = page
     .getByLabel('Conversation details')
