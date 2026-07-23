@@ -17,6 +17,22 @@ export type Database = {
           result_code: string
         }[]
       }
+      admin_grant_role: {
+        Args: {
+          p_membership_id: string
+          p_role: string
+          p_target_membership_id: string
+        }
+        Returns: Json
+      }
+      admin_revoke_role: {
+        Args: {
+          p_membership_id: string
+          p_role: string
+          p_target_membership_id: string
+        }
+        Returns: Json
+      }
       apply_ask_matches: {
         Args: {
           p_ask_id: string
@@ -542,6 +558,19 @@ export type Database = {
           invite_status: string
           result_code: string
         }[]
+      }
+      list_admin_members: {
+        Args: {
+          p_class_year?: number
+          p_inactive_days?: number
+          p_limit?: number
+          p_membership_id: string
+          p_offset?: number
+          p_open_to_help?: boolean
+          p_search?: string
+          p_status?: string
+        }
+        Returns: Json
       }
       list_admin_reports: {
         Args: { p_limit?: number; p_membership_id: string; p_status?: string }

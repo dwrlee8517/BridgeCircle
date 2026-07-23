@@ -31,7 +31,7 @@ export function MemberSidebar({ name, avatarUrl, graduationYear, isAdmin }: Prop
         {isAdmin ? (
           <nav aria-label="Administration">
             <Link
-              href="/admin/invite"
+              href="/admin"
               aria-label="Admin"
               className="flex min-h-10 items-center justify-center gap-3 rounded-[var(--radius-box)] px-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-[var(--hover-tint)] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring xl:justify-start"
             >
