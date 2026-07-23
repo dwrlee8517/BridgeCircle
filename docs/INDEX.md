@@ -62,6 +62,7 @@ How-to guides. Read when touching the relevant area.
 - [Supabase conventions](runbooks/supabase-conventions.md) — keys, clients, type generation, role grants
 - [Migration workflow](runbooks/migration-workflow.md) — branching + db push + prod safety
 - [E2E testing](runbooks/e2e-testing.md)
+- [Mobile development (Expo)](runbooks/mobile-dev.md) — `mobile/` app, parity loop, Maestro e2e
 - [Doppler](runbooks/doppler.md) — secrets management
 
 ## Decisions
@@ -70,7 +71,7 @@ Locked architectural decisions in MADR format.
 
 - [How we use ADRs](decisions/README.md)
 - [0001 — Supabase end-to-end](decisions/0001-supabase-not-prisma.md)
-- [0002 — Web-first](decisions/0002-web-first-defer-native.md)
+- [0002 — Web-first](decisions/0002-web-first-defer-native.md) — *superseded by 0014*
 - [0003 — Friendship and mentorship as separate tracks](decisions/0003-friendship-mentorship-split.md)
 - [0004 — Controlled vocab over ethnicity labels](decisions/0004-controlled-vocab-not-ethnicity-labels.md)
 - [0005 — Hybrid Supabase branching](decisions/0005-hybrid-supabase-branching.md)
@@ -82,6 +83,7 @@ Locked architectural decisions in MADR format.
 - [0011 — Two verbs, one inbox](decisions/0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics
 - [0012 — TDS design system ("Field Pro")](decisions/0012-tds-design-system.md) — *superseded by 0013*
 - [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer `toss-base` + `bridgecircle` fork
+- [0014 — Expo native apps + parity ratchet](decisions/0014-expo-native-with-parity-ratchet.md) — supersedes 0002; `mobile/` app, `parity/` enforcement, window-class breakpoints
 
 ## UI
 

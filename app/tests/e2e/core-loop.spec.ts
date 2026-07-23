@@ -25,7 +25,27 @@ function loadEnv() {
   }
 }
 
-test.describe("Core User Loop", () => {
+// Feature tags map this suite into parity/features.json coverage — the
+// core loop exercises each of these surfaces end-to-end.
+test.describe(
+  "Core User Loop",
+  {
+    tag: [
+      "@feature:auth.join-invite",
+      "@feature:auth.sign-in",
+      "@feature:onboarding",
+      "@feature:help.hub",
+      "@feature:ask.matching",
+      "@feature:ask.compose",
+      "@feature:ask.detail",
+      "@feature:ask.thread",
+      "@feature:people.directory",
+      "@feature:profile.view",
+      "@feature:inbox.unified",
+      "@feature:shell.navigation",
+    ],
+  },
+  () => {
   let inviteToken = "";
 
   test.beforeAll(async () => {

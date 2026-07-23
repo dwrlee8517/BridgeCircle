@@ -20,7 +20,7 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 
 **Specs:**
 - `../docs/product/feature-roadmap.md` — phase sequencing and pricing
-- `../docs/decisions/0002-web-first-defer-native.md` — web-first decision and mobile gating criteria
+- `../docs/decisions/0014-expo-native-with-parity-ratchet.md` — native mobile decision (supersedes 0002) and the parity mechanism
 - `../product-spec-obsidian-vault/Production/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
 - `../product-spec-obsidian-vault/Production/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
 - `../product-spec-obsidian-vault/Production/phase-1/week-3-4.md` — week 3–4 additive features
@@ -136,7 +136,7 @@ Before declaring a task done:
 
 ## Working Conventions
 
-- Web-first; mobile responsiveness yes, native mobile no until repeat-engagement signals appear (see `../docs/decisions/0002-web-first-defer-native.md`)
+- Native mobile is live (ADR 0014 superseded 0002): the Expo app in `../mobile/` must track this app feature-for-feature via the parity ratchet in `../parity/`. A new `page.tsx` fails CI until `parity/features.json` claims it; declared platforms/layouts fail CI without tagged tests (Playwright `@feature:`/`@layout:`, Maestro `# feature:`). See `../docs/runbooks/mobile-dev.md`.
 - Single-engineer build — prefer the smallest credible thing that ships, not the most general one
 - Friendship, asks, and direct messages are separate tracks at the data layer. They share a unified surface on /inbox but the gates differ: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
 - There is ONE ask type (ADR 0011 Phase 2). The `asks.ask_type` enum column still exists until the Phase 6 contract migration; `createAsk` writes the constant `'advice'`. Helper availability is one state: saves write `open_to_advice` and `open_to_mentorship` together, and reads treat either flag as open (`isOpenToHelp` in `lib/utils`). `max_pending_requests` is enforced invisibly in `createAsk` (the abuse valve); `max_active_mentees`, `commitment`, and `screening_prompt`/`screening_answer` are no longer written or read — they drop in Phase 6. The composer is the conversational `chat-composer.tsx` (default) + `request-form.tsx` (`?skip=1`).
@@ -172,7 +172,6 @@ Vocabulary (ADR 0011 Phases 1–2, applied 2026-07-03): user-facing copy never s
 
 Do not build (without explicit user request):
 
-- native mobile app
 - meetup proposals or ambassador role workflows
 - mentorship scheduler or Zoom integration
 - social feed

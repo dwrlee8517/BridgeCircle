@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
  * builds without errors. If this fails, something is wrong with either
  * the middleware redirect or the sign-in page render.
  */
-test.describe("sign-in", () => {
+test.describe("sign-in", { tag: ["@feature:auth.sign-in"] }, () => {
   test("redirects unauthenticated root visit to /sign-in", async ({ page }) => {
     await page.goto("/");
 

@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "BridgeCircle",
+    "slug": "bridgecircle",
+    "version": "0.1.0",
+    "orientation": "default",
+    "icon": "./assets/images/icon.png",
+    "scheme": "bridgecircle",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.bridgecircle.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.bridgecircle.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#f2f4f6",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#f2f4f6",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

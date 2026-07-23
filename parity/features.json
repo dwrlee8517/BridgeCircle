@@ -1,0 +1,192 @@
+{
+  "$comment": "BridgeCircle feature-parity manifest. Every user-facing feature is declared here with the platforms and window-size layouts it must be tested on. parity/check-parity.mjs enforces it: web coverage = a Playwright spec tagged @feature:<id> (app/tests/e2e), mobile coverage = a Maestro flow tagged feature:<id> (mobile/e2e/flows). Layout coverage: web 'expanded' is satisfied by any tagged spec (desktop project); 'compact'/'medium' need a spec also tagged @layout:compact / @layout:medium; mobile 'compact' is satisfied by any tagged flow (phone runner); mobile 'expanded' needs a flow tagged layout:expanded (tablet runner). Every page.tsx route must be claimed by exactly one feature — adding a page without a manifest entry fails CI, and a manifest entry without tests on every declared platform fails CI unless the gap is consciously recorded in parity-baseline.txt. Run: node parity/check-parity.mjs [--update]",
+  "features": [
+    {
+      "id": "auth.sign-in",
+      "title": "Email/password + Google sign-in",
+      "routes": ["/sign-in"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "auth.password-reset",
+      "title": "Password reset request + update",
+      "routes": ["/reset-password", "/reset-password/update"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "auth.join-invite",
+      "title": "Invite landing + account creation",
+      "routes": ["/join"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "onboarding",
+      "title": "5-step onboarding + LinkedIn import entry",
+      "routes": ["/onboarding", "/onboarding/import"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "help.hub",
+      "title": "Help hub — ask-for-help / give-help toggle",
+      "routes": ["/", "/help"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "help.settings",
+      "title": "Helper availability settings",
+      "routes": ["/help/settings"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.matching",
+      "title": "Question-driven matching results",
+      "routes": ["/ask"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.compose",
+      "title": "Ask composer (conversational + form)",
+      "routes": ["/ask/new"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.detail",
+      "title": "Ask detail + lifecycle",
+      "routes": ["/ask/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.thread",
+      "title": "Ask thread chat",
+      "routes": ["/ask/thread/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "people.directory",
+      "title": "People directory — browse, NL search, filters",
+      "routes": ["/people"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "profile.view",
+      "title": "Profile detail with connect + ask CTAs",
+      "routes": ["/profile/[id]", "/profile/me"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "profile.edit",
+      "title": "Own-profile editing",
+      "routes": ["/profile/edit"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "profile.import",
+      "title": "Profile import + change proposals",
+      "routes": ["/profile/import", "/profile/proposals/[id]", "/proposals/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "school.hub",
+      "title": "School pulse — events + announcements together",
+      "routes": ["/school"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "events.browse",
+      "title": "Events list",
+      "routes": ["/events"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "events.detail",
+      "title": "Event detail, RSVP, iCal",
+      "routes": ["/events/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "announcements.browse",
+      "title": "Announcements archive",
+      "routes": ["/announcements"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "inbox.unified",
+      "title": "Unified inbox — asks, connections, DMs",
+      "routes": ["/inbox"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "dm.conversation",
+      "title": "Direct message conversation",
+      "routes": ["/messages/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications list + realtime bell",
+      "routes": ["/notifications"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "account.lifecycle",
+      "title": "Reactivation + cancel-delete",
+      "routes": ["/reactivate", "/cancel-delete"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.dashboard",
+      "title": "Admin home",
+      "routes": ["/admin"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.invites",
+      "title": "Admin invites",
+      "routes": ["/admin/invite"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.members",
+      "title": "Admin members",
+      "routes": ["/admin/members"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.events",
+      "title": "Admin events management",
+      "routes": ["/admin/events", "/admin/events/[id]/edit"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.announcements",
+      "title": "Admin announcements",
+      "routes": ["/admin/announcements"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.approvals",
+      "title": "Admin approvals",
+      "routes": ["/admin/approvals"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.analytics",
+      "title": "Admin analytics",
+      "routes": ["/admin/analytics"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "shell.navigation",
+      "title": "Member shell navigation (Help · People · School · Messages)",
+      "routes": [],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    }
+  ]
+}

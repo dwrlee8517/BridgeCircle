@@ -1,0 +1,91 @@
+name: Mobile CI
+
+# The mobile mirror of ci.yml: same quality gates (biome, eslint, tsc,
+# vitest, parity ratchet) plus `expo export` standing in for `next build` —
+# it bundles the JS for both platforms and catches import/config errors
+# before a device ever sees them. Docs-only changes skip, same as web.
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'product-spec-obsidian-vault/**'
+      - '.gitignore'
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'product-spec-obsidian-vault/**'
+      - '.gitignore'
+
+concurrency:
+  group: mobile-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: mobile
+
+jobs:
+  quality:
+    name: Lint & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Biome check
+        run: pnpm biome check .
+
+      - name: ESLint
+        run: pnpm lint
+
+      - name: Feature-parity ratchet
+        run: pnpm check:parity
+
+      - name: TypeScript
+        run: pnpm tsc --noEmit
+
+      - name: Vitest
+        run: pnpm vitest run --passWithNoTests
+
+  export:
+    name: Bundle (expo export, both platforms)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # No secrets needed: app.config.ts tolerates missing Supabase env at
+      # bundle time (the runtime guard in src/lib/supabase.ts is what
+      # requires them on-device).
+      - name: Expo export
+        env:
+          CI: 'true'
+        run: pnpm expo export --platform ios --platform android --output-dir /tmp/expo-export

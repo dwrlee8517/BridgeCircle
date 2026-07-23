@@ -15,6 +15,8 @@ There is no fixed launch deadline. Optimize for product quality and competitive 
 ## Where things live
 
 - [`app/`](app/) — Next.js 16 application. See [`app/CLAUDE.md`](app/CLAUDE.md) for stack, conventions, and commands.
+- [`mobile/`](mobile/) — Expo iOS/Android app (ADR 0014). See [`mobile/AGENTS.md`](mobile/AGENTS.md) and [`docs/runbooks/mobile-dev.md`](docs/runbooks/mobile-dev.md).
+- [`parity/`](parity/) — the web↔mobile↔breakpoint feature-parity ratchet. **Every new user-facing feature must be declared in [`parity/features.json`](parity/features.json)** — CI enforces it. See [`parity/README.md`](parity/README.md).
 - [`docs/`](docs/) — specs, architecture, runbooks, decisions, experience. **Start at [`docs/INDEX.md`](docs/INDEX.md)** — it indexes every active doc and points to [`docs/_archive/`](docs/_archive/) for superseded ones.
 - [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/) — active visual system (Civic Editorial). Use these tokens and components; do not invent new ones or default to raw shadcn primitives unless explicitly told to invent new ones.
 - [`project-summary.md`](project-summary.md) — deepest product framing.
