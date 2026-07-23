@@ -8,8 +8,8 @@ import {
   EducationHistoryField,
   SkillsField,
 } from '@/components/profile-history-fields'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
+import { FormSubmitButton } from '@/components/ui/form-submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -29,12 +29,10 @@ export type ProfileFormDefaults = {
   university: string
   major: string
   graduationYear: string
-  openToMentor: boolean
   headline: string
   bio: string
   linkedinUrl: string
   avatarUrl: string
-  mentoringTopics: string
   /** Already-saved JSONB arrays. Editors are seeded from these. */
   skills: string[]
   careerHistory: CareerEntryInput[]
@@ -56,7 +54,7 @@ export function ProfileForm({
   submitLabel = 'Save and continue',
   submittingLabel = 'Saving…',
 }: Props) {
-  const [state, formAction, pending] = useActionState(action, initialState)
+  const [state, formAction] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
 
   return (
@@ -123,43 +121,17 @@ export function ProfileForm({
           <Input id="major" name="major" defaultValue={defaults.major} required />
         </Field>
         <EducationHistoryField initial={defaults.educationHistory} />
-        {fe.educationHistory ? (
-          <p className="text-xs text-destructive">{fe.educationHistory}</p>
-        ) : null}
+        <FieldError error={fe.educationHistory} />
       </Section>
 
       <Section title="Career history">
         <CareerHistoryField initial={defaults.careerHistory} />
-        {fe.careerHistory ? <p className="text-xs text-destructive">{fe.careerHistory}</p> : null}
+        <FieldError error={fe.careerHistory} />
       </Section>
 
       <Section title="Skills">
         <SkillsField initial={defaults.skills} />
-        {fe.skills ? <p className="text-xs text-destructive">{fe.skills}</p> : null}
-      </Section>
-
-      <Section title="Helping others">
-        <div className="flex items-start gap-3">
-          <Checkbox id="openToMentor" name="openToMentor" defaultChecked={defaults.openToMentor} />
-          <div className="space-y-1">
-            <Label htmlFor="openToMentor">I&apos;m open to helping other alumni</Label>
-            <p className="text-xs text-muted-foreground">
-              You can change this any time in help settings.
-            </p>
-          </div>
-        </div>
-        <Field
-          id="mentoringTopics"
-          label="Topics you can help with (comma-separated, optional)"
-          error={fe.mentoringTopics}
-        >
-          <Input
-            id="mentoringTopics"
-            name="mentoringTopics"
-            placeholder="e.g. consulting, business school, returning to Korea"
-            defaultValue={defaults.mentoringTopics}
-          />
-        </Field>
+        <FieldError error={fe.skills} />
       </Section>
 
       <Section title="Optional">
@@ -194,11 +166,11 @@ export function ProfileForm({
         </Field>
       </Section>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? submittingLabel : submitLabel}
-      </Button>
+      <FormSubmitButton className="w-full" pendingLabel={submittingLabel}>
+        {submitLabel}
+      </FormSubmitButton>
     </form>
   )
 }
@@ -234,7 +206,7 @@ function Field({
         {required ? <span className="text-destructive"> *</span> : null}
       </Label>
       {children}
-      {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      <FieldError error={error} />
     </div>
   )
 }

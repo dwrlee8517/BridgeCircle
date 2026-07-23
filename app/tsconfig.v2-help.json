@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/database.types.ts",
+    "src/db/repositories/help*.ts",
+    "src/db/repositories/conversations.ts",
+    "src/db/realtime/help*.ts",
+    "src/db/realtime/conversation-channel.ts",
+    "src/lib/help/**/*.ts",
+    "src/lib/conversations/**/*.ts",
+    "src/lib/outbox/**/*.ts",
+    "src/integrations/ai/help*.ts",
+    "src/workers/outbox/**/*.ts",
+    "src/app/(member)/help/page.tsx",
+    "src/app/(member)/help/help-get-home.tsx",
+    "src/app/(member)/help/help-give-home.tsx",
+    "src/app/(member)/help/help-preferences-actions.ts",
+    "src/app/(member)/help/help-preferences-form.tsx",
+    "src/app/(member)/help/help-question-form.tsx",
+    "src/app/(member)/help/help-draft-storage*.ts",
+    "src/app/(member)/help/help-assistance-client.ts",
+    "src/app/(member)/help/help-report-dialog.tsx",
+    "src/app/(member)/help/helper-response-draft*.ts",
+    "src/app/(member)/help/recent-ask-list.tsx",
+    "src/app/(member)/help/ask/**/*.tsx",
+    "src/app/(member)/help/ask-circle/**/*",
+    "src/app/(member)/help/asks/**/*",
+    "src/app/(member)/messages/[id]/**/*",
+    "src/app/api/help/**/*.ts",
+    "src/app/api/conversations/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "tests/e2e"]
+}

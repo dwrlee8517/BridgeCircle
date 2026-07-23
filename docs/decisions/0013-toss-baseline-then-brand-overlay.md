@@ -73,8 +73,9 @@ it is now defined as **Toss Base + BridgeCircle Brand**.
 - **D4 — The existing Field Pro divergences become the *candidate* overlay
   backlog, not the baseline.** The brand mechanics 0012 established are
   preserved as **proposed overrides**, each applied only when we decide to:
-  per-surface action color (**green give button**, `--action-give` green-700
-  `#0b8a57`), **section-identity bands** (School blue, give green, dark grey-
+  per-workflow action composition (**green give commitment**, `--action-give`
+  green-700 `#0b8a57`, plus scoped supporting cues inside offer drafting),
+  **section-identity bands** (School blue, give green, dark grey-
   ink), **ochre warning** `#c98a1a`, **softer radii** (card 20 / bubble 18),
   **heavier/larger type** (display 40/800), and the **CircleMark + two-sided-
   buffer copy**. These are BridgeCircle's, not Toss's — so they live in
@@ -289,6 +290,15 @@ mono: SF Mono; emoji: Tossface):
 
 What `bridgecircle-brand` currently diverges on, vs `toss-base`. Each is a
 candidate override (D4); all but the font are deferred until a surface needs it.
+
+> **Snapshot note (2026-07-12).** This table is the overlay backlog *as of
+> 2026-07-04* and is not kept live — every row has since changed status. Live
+> status lives in the ledger,
+> [`OVERRIDES.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/OVERRIDES.md):
+> the give action, radii, type scale, grey-200 and blue-400 are now **applied**;
+> the ochre warning was **rejected** (TDS orange kept); and the **section bands
+> were applied then retired** (2026-07-12) in favour of wash heroes + navy
+> covers.
 
 | Dimension | Toss Base | Field Pro override | Status |
 |---|---|---|---|

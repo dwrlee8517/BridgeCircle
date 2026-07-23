@@ -1,13 +1,13 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import {
   type CareerEntryInput,
   CareerHistoryField,
   SkillsField,
 } from '@/components/profile-history-fields'
 import { Button } from '@/components/ui/button'
-import { OnboardingImportOptions } from './step-education'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { useSubmitterTracker } from './use-form-has-content'
 
 export type StepPastState = {
@@ -27,7 +27,7 @@ type Props = {
 }
 
 /**
- * Step 4 of 5 — Where you've been. Skippable but argued for.
+ * Step 5 of 7 — Where you've been. Skippable but argued for.
  *
  * This is the strategic step: past roles are what make NL search work for
  * the harder questions ("someone who used to work in fintech before
@@ -44,28 +44,49 @@ export function StepPast({ defaults, action }: Props) {
   const fe = state.fieldErrors ?? {}
 
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
 
   return (
-    <form action={formAction} className="space-y-5">
-      <OnboardingImportOptions step={4} resumeRoleCount={defaults.careerHistory.length} />
-
+    <form ref={formRef} action={formAction} className="space-y-5">
       {/* Manual editor — secondary path, but still always visible. */}
-      <div className="rounded-lg border bg-muted/30 p-4">
+      <fieldset
+        className="rounded-lg border bg-muted/30 p-4"
+        aria-invalid={fe.careerHistory ? true : undefined}
+        aria-describedby={fe.careerHistory ? 'careerHistory-error' : undefined}
+        tabIndex={fe.careerHistory ? -1 : undefined}
+      >
+        <legend className="sr-only">Career history</legend>
         <CareerHistoryField initial={defaults.careerHistory} />
-        {fe.careerHistory ? (
-          <p className="mt-2 text-xs text-destructive">{fe.careerHistory}</p>
-        ) : null}
-      </div>
+        <FieldError id="careerHistory-error" error={fe.careerHistory} className="mt-2" />
+      </fieldset>
 
-      <div className="rounded-lg border bg-muted/30 p-4">
+      <fieldset
+        className="rounded-lg border bg-muted/30 p-4"
+        aria-invalid={fe.skills ? true : undefined}
+        aria-describedby={fe.skills ? 'skills-error' : undefined}
+        tabIndex={fe.skills ? -1 : undefined}
+      >
+        <legend className="sr-only">Skills</legend>
         <SkillsField initial={defaults.skills} />
-        {fe.skills ? <p className="mt-2 text-xs text-destructive">{fe.skills}</p> : null}
-      </div>
+        <FieldError id="skills-error" error={fe.skills} className="mt-2" />
+      </fieldset>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
+        <Button
+          type="submit"
+          onClick={onSaveClick}
+          disabled={pending}
+          aria-busy={pending && submittingKind === 'save'}
+          className="sm:flex-1"
+        >
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
@@ -75,6 +96,7 @@ export function StepPast({ defaults, action }: Props) {
           onClick={onSkipClick}
           variant="outline"
           disabled={pending}
+          aria-busy={pending && submittingKind === 'skip'}
           className="sm:flex-1"
         >
           {pending && submittingKind === 'skip' ? 'Skipping…' : 'Skip for now'}

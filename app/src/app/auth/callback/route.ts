@@ -1,9 +1,13 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { clearMembershipPreference, setMembershipPreference } from '@/app/_lib/membership-cookie'
+import { createInviteAcceptanceRepository } from '@/db/repositories/invites'
+import { getMemberContext } from '@/db/repositories/member-context'
 import { createClient } from '@/db/server'
 import { getAppOrigin } from '@/lib/auth/app-url'
+import { deleteAuthUser, verifyInviteFromServer } from '@/lib/entry/invite-service'
+import { memberEntryPath } from '@/lib/entry/routing'
 import { acceptInvite } from '@/lib/invite/accept'
-import { verifyInviteToken } from '@/lib/invite/verify'
 
 const PENDING_INVITE_COOKIE = 'pending_invite_token'
 
@@ -49,14 +53,16 @@ export async function GET(request: Request) {
   if (pendingToken) {
     cookieStore.delete(PENDING_INVITE_COOKIE)
 
-    const verified = await verifyInviteToken(pendingToken)
+    const verified = await verifyInviteFromServer(pendingToken)
     if (verified.ok && verified.invite.email.toLowerCase() === data.user.email?.toLowerCase()) {
-      await acceptInvite({ inviteId: verified.invite.id, userId: data.user.id })
-      return NextResponse.redirect(`${origin}/onboarding?step=1`)
+      const accepted = await acceptInvite(pendingToken, createInviteAcceptanceRepository(supabase))
+      if (accepted.ok) {
+        await setMembershipPreference(accepted.membershipId)
+        return NextResponse.redirect(`${origin}/onboarding?step=1`)
+      }
     }
-    // Mismatched email or invalid token. Fall through to the no-invite check
-    // below — if they have a prior membership that's fine, otherwise we
-    // bounce them out.
+    // Mismatched/invalid invite. Existing members keep their account; a new
+    // empty Auth account is removed below after the context check.
   }
 
   // Returning user (no pending invite cookie). Branch on lifecycle state:
@@ -69,45 +75,17 @@ export async function GET(request: Request) {
   // Admin-initiated deletions ban the auth user immediately, so they never
   // reach this branch — the auth.exchangeCodeForSession above fails for
   // banned users and we redirect to /sign-in with the error.
-  const [{ data: memberships }, { data: userRow }] = await Promise.all([
-    supabase.from('organization_memberships').select('status').eq('user_id', data.user.id),
-    supabase
-      .from('users')
-      .select(
-        'delete_scheduled_for, delete_initiated_by_admin, deleted_at, onboarding_completed_at',
-      )
-      .eq('id', data.user.id)
-      .maybeSingle(),
-  ])
-
-  const hasActive = memberships?.some((m) => m.status === 'active') ?? false
-  const hasPending = memberships?.some((m) => m.status === 'pending') ?? false
-  const hasSelfDeactivated = memberships?.some((m) => m.status === 'self_deactivated') ?? false
-
-  if (hasActive) {
-    // Onboarding gate for returning users: if their onboarding wasn't
-    // finished (e.g. they signed up via password, bailed mid-flow, then
-    // signed back in via Google later), route them to the staged flow.
-    if (!userRow?.onboarding_completed_at) {
-      return NextResponse.redirect(`${origin}/onboarding`)
-    }
-    const safeNext = nextParam?.startsWith('/') ? nextParam : '/'
-    return NextResponse.redirect(`${origin}${safeNext}`)
-  }
-
-  if (userRow?.delete_scheduled_for && !userRow.delete_initiated_by_admin && !userRow.deleted_at) {
-    return NextResponse.redirect(`${origin}/cancel-delete`)
-  }
-
-  if (hasSelfDeactivated) {
-    return NextResponse.redirect(`${origin}/reactivate`)
-  }
-
-  if (hasPending) {
-    return NextResponse.redirect(`${origin}/onboarding`)
+  const context = await getMemberContext(supabase)
+  const destination = memberEntryPath(context, nextParam)
+  if (!destination.startsWith('/sign-in?error=')) {
+    return NextResponse.redirect(`${origin}${destination}`)
   }
 
   await supabase.auth.signOut()
+  await clearMembershipPreference()
+  if (context.memberships.length === 0) {
+    await deleteAuthUser(data.user.id)
+  }
   return NextResponse.redirect(
     `${origin}/sign-in?error=${encodeURIComponent(
       "We couldn't find an invite for this email. Ask your admin to send you one.",

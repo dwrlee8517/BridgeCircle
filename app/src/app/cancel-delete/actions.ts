@@ -1,7 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { cancelScheduledDeletion } from '@/lib/admin/cancelScheduledDeletion'
+import { createSettingsRepository } from '@/db/repositories/settings'
+import { createClient } from '@/db/server'
 import { requireSession } from '@/lib/auth/session'
 
 export type CancelSelfState = { ok?: boolean; error?: string }
@@ -10,23 +11,12 @@ export async function cancelSelfDeletionAction(
   _prev: CancelSelfState,
   _formData: FormData,
 ): Promise<CancelSelfState> {
-  const session = await requireSession()
-  const result = await cancelScheduledDeletion({
-    userId: session.userId,
-    actorUserId: session.userId,
-    actorIsAdmin: false,
-  })
+  await requireSession()
+  const result = await createSettingsRepository(await createClient()).cancelDeletion()
 
-  if (!result.ok) {
-    if (result.error === 'forbidden_admin_initiated') {
-      return {
-        error:
-          'This deletion was initiated by an admin. You can’t cancel it from here — please contact your admin.',
-      }
-    }
-    if (result.error === 'no_active_schedule') {
-      return { error: 'There is no pending deletion on your account.' }
-    }
+  if (result.result_code !== 'cancelled' && result.result_code !== 'active') {
+    if (result.result_code === 'too_late')
+      return { error: 'The deletion can no longer be canceled.' }
     return { error: 'Could not cancel. Try again.' }
   }
 

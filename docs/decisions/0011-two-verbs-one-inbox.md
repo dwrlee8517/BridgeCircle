@@ -1,8 +1,39 @@
 # 0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface
 
-- **Status:** proposed
+- **Status:** accepted · amended 2026-07-15; v2 persistence implemented locally
+  under [0015](0015-prelaunch-v2-database-reset.md)
 - **Date:** 2026-07-02
 - **Decider:** Richard
+
+> **Persistence amendment (2026-07-13):** ADR 0015 now approves one unified
+> `asks` table, one `conversations` table, real message foreign keys, and
+> Connection naming in the schema. This supersedes this ADR's decisions to
+> defer the thread-table merge, retain `friend_*` database names indefinitely,
+> and layer offers onto separate `open_asks`. The product gates remain:
+> Connections are mutual, Asks are one-sided, and accepted interactions land
+> in Messages.
+
+> **Cutover amendment (2026-07-15):** the pre-launch v2 Help slice now uses the
+> unified `asks`, `ask_offers`, `conversations`, and `messages` contracts.
+> Helper availability is `open_to_help` with normalized `helper_topics`.
+> Declining a direct Ask or an offer stores the cushioned note in the v2
+> lifecycle; Connection declines remain quiet. Help is rooted at `/help` and
+> accepted threads at `/messages/[id]`. Because no real users or durable data
+> exist yet, the retired route families and compatibility redirects were
+> deleted instead of maintained. The detailed older phases below are retained
+> as decision history, not current implementation instructions.
+
+> **Messages amendment (2026-07-15):** the complete local v2 Messages slice now
+> uses `/messages` and `/messages/[id]` only. One `conversations` table and one
+> `messages` table serve both accepted Asks and accepted Connections; fixed
+> projections provide Waiting, counts, bounded search, keyset pagination, and
+> viewer-shaped context. Connection accept preserves the intro as the first
+> durable user message. A single shell-owned `user:<id>` Broadcast subscription
+> invalidates Help, Messages, Connection, and permission state; each thread has
+> its separate content topic. `/inbox`, `/ask/thread/*`, split thread tables,
+> redirect aliases, and Messages compatibility adapters are retired. The older
+> Phase 3, Consequences, and Alternatives text below is historical and is
+> superseded where it argues for UI-only unification or indefinite redirects.
 
 ## Context
 
@@ -67,6 +98,9 @@ Collapse the member-facing model to **two verbs and one room**:
 - **D5 — The buffer goes invisible, not away.** Quiet pass (`decline_reason`
   never facing the asker), pause (`paused_until`, inactivity auto-pause), and
   ask expiry/reminders all survive as plumbing.
+  **⚠ Superseded in part, 2026-07-06:** the quiet pass is replaced by
+  decline-with-note for asks in both directions; pause and expiry/reminder
+  plumbing survive with revised triggers. See the Amendment below.
 
 This supersedes 0010's D1 mechanics (visible commitment axis, screening,
 reverse/peer *lanes* — direction-neutral matching now falls out of the single
@@ -182,6 +216,39 @@ identifiers outside migrations; full pre-PR stack (`/ship`); e2e smoke.
 Phases 1–2 are independent of 3–5 and can ship first (they're the visible
 simplification). Phase 3 before 4 and 5 (both land conversations in the
 unified surface). Phase 6 last, after pilot-stable.
+
+## Amendment — 2026-07-06 flow review (Richard)
+
+The Help-flow review (recorded in FLOWS.md draft v2,
+`docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md` §3)
+supersedes parts of this ADR:
+
+- **D5's quiet pass → decline-with-note, for asks in both directions.**
+  Declining always sends the other side a cushioned note — default reasons
+  ("I can't take this on right now", "This one's outside what I can speak
+  to"), custom text, or an AI-drafted line. This applies to a recipient
+  declining a direct ask *and* an asker declining an offer. `decline_reason`
+  (or a successor column) becomes asker-facing message content, no longer
+  private plumbing. **Connect-request declines stay quiet** — D2's two-sided
+  gate is untouched.
+- **The 14-day close narrows to pure silence.** No-fault wording and the
+  recovery actions stay; the close no longer needs to mask passes, because
+  passes no longer exist.
+- **Availability triggers change.** "Open to helping" has no clock expiry;
+  auto-pause fires after three direct asks time out unanswered (any response,
+  accept or decline, resets the count). `paused_until` survives; the
+  inactivity trigger is replaced by the 3-strike rule.
+- **New asker-side valve:** five open asks per member at once; slots free on
+  resolve / retract / declined-by-all / day-14 close. `max_pending_requests`
+  stays as the invisible per-helper valve.
+- **D1's composer is search-first:** question → matched people (tailored-note
+  composer, one or several recipients — asker's choice) or an open ask
+  (two-tier reach + anonymous-until-accept, shipping v1).
+
+Phases 1–6 remain directionally valid. Re-read against FLOWS.md v2 §3 before
+implementing: **Phase 2** (composer shape), **Phase 5** (offer lifecycle — an
+asker's decline now notifies the helper; add the decline-note email), and
+**Phase 6** (`decline_reason` disposition).
 
 ## Consequences
 

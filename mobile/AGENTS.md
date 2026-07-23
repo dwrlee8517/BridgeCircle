@@ -4,7 +4,7 @@ Read the exact versioned docs at https://docs.expo.dev/versions/v57.0.0/ before 
 
 # BridgeCircle mobile
 
-The Expo iOS/Android counterpart of [`../app/`](../app/). Governing decision: [`../docs/decisions/0014-expo-native-with-parity-ratchet.md`](../docs/decisions/0014-expo-native-with-parity-ratchet.md). Daily commands + the parity loop: [`../docs/runbooks/mobile-dev.md`](../docs/runbooks/mobile-dev.md).
+The Expo iOS/Android counterpart of [`../app/`](../app/). Governing decision: [`../docs/decisions/0016-expo-native-with-parity-ratchet.md`](../docs/decisions/0016-expo-native-with-parity-ratchet.md). Daily commands + the parity loop: [`../docs/runbooks/mobile-dev.md`](../docs/runbooks/mobile-dev.md).
 
 Rules that are easy to get wrong:
 

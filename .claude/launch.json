@@ -4,7 +4,14 @@
     {
       "name": "next-dev",
       "runtimeExecutable": "doppler",
-      "runtimeArgs": ["run", "-p", "bridgecircle-dev", "-c", "dev", "--", "sh", "-c", "pnpm --dir app install && pnpm --dir app dev"],
+      "runtimeArgs": ["run", "-p", "bridgecircle", "-c", "dev_personal", "--", "sh", "-c", "pnpm --dir app install && pnpm --dir app dev"],
+      "port": 3001
+    },
+    {
+      "name": "next-dev-local",
+      "cwd": "app",
+      "runtimeExecutable": "doppler",
+      "runtimeArgs": ["run", "-p", "bridgecircle", "-c", "dev_local", "--", "pnpm", "exec", "next", "dev", "-p", "3000"],
       "port": 3000
     },
     {
@@ -13,6 +20,13 @@
       "runtimeExecutable": "sh",
       "runtimeArgs": ["-c", "pnpm exec next dev --port $PORT"],
       "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "static-docs",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "python3 -m http.server $PORT"],
+      "port": 8137,
       "autoPort": true
     }
   ]

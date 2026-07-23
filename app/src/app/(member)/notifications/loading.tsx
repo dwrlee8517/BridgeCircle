@@ -1,11 +1,11 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-// Mirrors notifications/page.tsx — max-w-3xl list of notification rows
+// Mirrors notifications/page.tsx — measured 680px list of notification rows
 // inside a single divided card.
 export default function NotificationsLoading() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 space-y-4">
+    <div className="mx-auto max-w-[680px] space-y-4 px-4 py-8">
       <div className="space-y-2">
         <Skeleton className="h-7 w-44" />
         <Skeleton className="h-4 w-80 max-w-full" />

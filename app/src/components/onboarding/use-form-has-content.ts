@@ -16,7 +16,7 @@ import { type FormEvent, useCallback, useState } from 'react'
  * educationHistory, skills) read as "no content."
  *
  * Note on checkboxes: HTML omits unchecked checkboxes from FormData
- * entirely, so "openToMentor=on" only appears when the user explicitly
+ * entirely, so "openToHelp=on" only appears when the user explicitly
  * opted in. That naturally counts as content here.
  *
  * Note on avatar: AvatarUploader saves to base_profiles.avatar_url

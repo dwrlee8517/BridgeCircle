@@ -1,7 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { FieldError } from '@/components/ui/form-message'
+import { FormSubmitButton } from '@/components/ui/form-submit-button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { type JoinState, signUpWithPassword, startGoogleSignup } from './actions'
@@ -17,6 +19,12 @@ type Props = {
 
 export function JoinForm({ token, email, fullName, organizationName }: Props) {
   const [state, action, pending] = useActionState(signUpWithPassword, initialState)
+  const passwordRef = useRef<HTMLInputElement>(null)
+  const errorId = state.error ? 'join-password-error' : undefined
+
+  useEffect(() => {
+    if (state.error) passwordRef.current?.focus()
+  }, [state.error])
 
   return (
     <div className="space-y-5 text-base">
@@ -31,9 +39,13 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
 
       <form action={startGoogleSignup}>
         <input type="hidden" name="token" value={token} />
-        <Button type="submit" variant="outline" className="h-11 w-full text-base">
+        <FormSubmitButton
+          variant="outline"
+          className="h-11 w-full text-base"
+          pendingLabel="Opening Google…"
+        >
           Sign up with Google
-        </Button>
+        </FormSubmitButton>
       </form>
 
       <div className="relative">
@@ -67,17 +79,25 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
           </Label>
           <Input
             id="password"
+            ref={passwordRef}
             name="password"
             type="password"
             autoComplete="new-password"
             required
             minLength={8}
             placeholder="At least 8 characters"
+            aria-invalid={state.error ? true : undefined}
+            aria-describedby={errorId}
             className="h-11 text-base md:text-base"
           />
         </div>
-        {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-        <Button type="submit" className="h-11 w-full text-base" disabled={pending}>
+        <FieldError id={errorId} error={state.error} className="text-sm" />
+        <Button
+          type="submit"
+          className="h-11 w-full text-base"
+          disabled={pending}
+          aria-busy={pending}
+        >
           {pending ? 'Creating account…' : 'Create account'}
         </Button>
       </form>

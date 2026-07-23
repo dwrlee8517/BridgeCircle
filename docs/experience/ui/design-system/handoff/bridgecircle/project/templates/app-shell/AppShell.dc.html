@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="App shell" description="Desktop member shell — 240px sidebar (Home · Help · People · Messages · School), 66px topbar with the bell popover (unmissable few, shown once), empty content area to fill per page" -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../notifications/notifications-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)}</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh;width:100%">
+
+  <aside style="width:var(--sidebar-width);flex:none;align-self:flex-start;position:sticky;top:0;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+
+    <!-- Active item = gradient bg + blue text + weight 700 + stroke 2.1 (no ring). When copying this shell for another page, move that treatment to its nav item and update the topbar title. -->
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <sc-if value="{{ showBadge }}" hint-placeholder-val="{{ true }}">
+          <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+        </sc-if>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="flex:none;position:sticky;top:0;z-index:10;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 30px">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Home</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <span style="position:relative;display:inline-flex">
+          <button onClick="{{ bellToggle }}" aria-label="Notifications" aria-expanded="{{ popOpen }}" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+            <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+            <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+              <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+            </sc-if>
+          </button>
+          <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}">
+            <span onClick="{{ popClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
+            <div role="dialog" aria-label="Notifications" style="position:absolute;top:50px;right:0;z-index:31;width:390px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden">
+              <span style="display:flex;align-items:baseline;gap:8px;padding:14px 18px 10px">
+                <b style="font-size:14px;font-weight:800;letter-spacing:-0.02em">Notifications</b>
+                <a href="../notifications/Notifications.dc.html" style="margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">See all &rarr;</a>
+              </span>
+              <sc-if value="{{ popEmpty }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:0;padding:6px 18px 16px;font-size:12.5px;line-height:1.5;color:var(--text-faint);font-weight:500;text-align:left">You&rsquo;re caught up &mdash; the full record lives in <a href="../notifications/Notifications.dc.html" style="color:var(--action-primary);font-weight:700">Notifications</a>.</p>
+              </sc-if>
+              <sc-for list="{{ popItems }}" as="n" hint-placeholder-count="3">
+                <a href="{{ n.href }}" onClick="{{ n.markRead }}" style="display:flex;align-items:center;gap:11px;padding:11px 18px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <sc-if value="{{ n.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <sc-if value="{{ n.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
+                  <span style="flex:1;min-width:0">
+                    <span style="display:block;font-size:13px;font-weight:800;line-height:1.4">{{ n.actor }} <span style="font-weight:600">{{ n.line }}</span></span>
+                    <sc-if value="{{ n.subShow }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.sub }}</span></sc-if>
+                  </span>
+                  <span style="flex:none;font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ n.when }}</span>
+                </a>
+              </sc-for>
+              <p style="margin:0;padding:10px 18px 12px;border-top:1px solid var(--divider-row);font-size:11px;color:var(--text-faint);font-weight:500;text-align:left">Recent updates stay here for context. Unread ones carry a dot.</p>
+            </div>
+          </sc-if>
+        </span>
+        <span style="position:relative;display:inline-flex">
+          <button onClick="{{ acctToggle }}" aria-label="Account menu" aria-expanded="{{ acctOpen }}" style="width:40px;height:40px;border-radius:50%;border:0;padding:0;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);color:#fff;font-family:var(--font-sans);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">IL</button>
+          <sc-if value="{{ acctOpen }}" hint-placeholder-val="{{ false }}">
+            <span onClick="{{ acctClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
+            <div role="dialog" aria-label="Account" style="position:absolute;top:48px;right:0;z-index:31;width:300px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden;text-align:left">
+              <a href="../profile-self/ProfileSelf.dc.html" style="display:flex;align-items:center;gap:12px;padding:16px 18px 14px;text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                <span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff">IL</span>
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font-size:14px;font-weight:800;letter-spacing:-0.01em">Iris Lau</span>
+                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">iris.lau@alum.chadwick.edu</span>
+                </span>
+                <span style="flex:none;color:var(--text-faint);font-size:14px">&rsaquo;</span>
+              </a>
+
+              <span style="display:block;border-top:1px solid var(--divider-row);padding:6px 0">
+                <a href="../profile-self/ProfileSelf.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">View profile</a>
+                <a href="../my-circle/MyCircle.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">My circle</a>
+                <a href="../help/AskHistory.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Your asks</a>
+                <a href="../notifications/Notifications.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Notifications</a>
+                <a href="../settings/Settings.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Settings</a>
+              </span>
+
+              <span style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--divider-row)">
+                <span style="flex:1;min-width:0">
+                  <span style="display:block;font-size:13px;font-weight:700">Open to helping</span>
+                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Pausing stops matching &mdash; never announced</span>
+                </span>
+                <sc-if value="{{ pauseOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ togglePause }}" role="switch" aria-checked="true" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+                <sc-if value="{{ pauseOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ togglePause }}" role="switch" aria-checked="false" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+              </span>
+
+              <span style="display:flex;align-items:center;gap:14px;padding:11px 18px 13px;border-top:1px solid var(--divider-row);background:#fbfcfd">
+                <a href="mailto:bridgecircle@chadwick.edu" style="font-size:12.5px;color:var(--text-secondary);font-weight:700;text-decoration:none" style-hover="color:var(--text-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Send feedback</a>
+                <a href="../settings/SignedOut.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--text-secondary);font-weight:700;text-decoration:none" style-hover="color:var(--text-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Sign out</a>
+              </span>
+            </div>
+          </sc-if>
+        </span>
+      </span>
+    </header>
+
+    <div style="flex:1;padding:26px 30px">
+      <div style="min-height:340px;border:1.5px dashed var(--grey-300);border-radius:var(--radius-large);display:flex;align-items:center;justify-content:center">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-faint)">page content &mdash; replace this block</span>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;messagesUnread&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;min&quot;: 0, &quot;max&quot;: 99, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Shell&quot;},
+  &quot;notificationDot&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = { pop: false, notifRead: {}, notifSeen: {}, acct: false, openTo: true };
+
+  componentDidMount() {
+    try {
+      this.setState({
+        notifRead: JSON.parse(sessionStorage.getItem('bcNotifRead') || '{}'),
+        notifSeen: JSON.parse(sessionStorage.getItem('bcNotifSeen') || '{}')
+      });
+    } catch (e) { /* ignore corrupt state */ }
+    try {
+      const help = JSON.parse(sessionStorage.getItem('bcHelpPageState') || '{}') || {};
+      if (help.openTo === false) this.setState({ openTo: false });
+    } catch (e) { /* ignore corrupt state */ }
+    if (!window.BCNotifData) {
+      this._poll = setInterval(() => { if (window.BCNotifData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+    this._esc = (e) => {
+      if (e.key !== 'Escape') return;
+      if (this.state.pop) this.closePop();
+      else if (this.state.acct) this.setState({ acct: false });
+    };
+    window.addEventListener('keydown', this._esc);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._esc);
+    if (this._poll) clearInterval(this._poll);
+  }
+
+  // Bell popover — the unmissable few, each shown once (FLOWS §0/§7d).
+  // Items are marked "seen" when the popover closes; unread state clears
+  // only on click or on the Notifications page.
+  popList() {
+    const items = (window.BCNotifData && window.BCNotifData.items) || [];
+    const s = this.state;
+    return items.filter((n) => n.unmissable && !n.read && !s.notifRead[n.id] && !s.notifSeen[n.id]);
+  }
+
+  closePop() {
+    const seen = { ...this.state.notifSeen };
+    for (const n of this.popList()) seen[n.id] = true;
+    this.setState({ pop: false, notifSeen: seen });
+    try { sessionStorage.setItem('bcNotifSeen', JSON.stringify(seen)); } catch (e) { /* ignore */ }
+  }
+
+  renderVals() {
+    const s = this.state;
+    const unread = this.props.messagesUnread ?? 3;
+    const items = (window.BCNotifData && window.BCNotifData.items) || [];
+    const unreadNotifs = items.filter((n) => !n.read && !s.notifRead[n.id]).length;
+    const popItems = this.popList().map((n) => ({
+      href: n.href, i: n.i || '', actor: n.actor, line: n.line, sub: n.sub || '', subShow: !!n.sub, when: n.when,
+      av1: n.av === 1, av2: n.av === 2, av3: n.av === 3, av4: n.av === 4, av5: n.av === 5,
+      markRead: () => {
+        const notifRead = { ...this.state.notifRead, [n.id]: true };
+        this.setState({ notifRead, pop: false });
+        try { sessionStorage.setItem('bcNotifRead', JSON.stringify(notifRead)); } catch (e) { /* ignore */ }
+      }
+    }));
+    return {
+      showBadge: unread > 0,
+      badgeCount: unread,
+      showDot: (this.props.notificationDot ?? true) && unreadNotifs > 0,
+      popOpen: s.pop,
+      popItems,
+      popEmpty: popItems.length === 0,
+      bellToggle: () => { if (s.pop) { this.closePop(); } else { this.setState({ pop: true }); } },
+      popClose: () => this.closePop(),
+
+      // Account menu — self identity + general destinations; the pause switch
+      // shares bcHelpPageState.openTo with Help·Give (one source of truth).
+      acctOpen: s.acct,
+      acctToggle: () => this.setState({ acct: !s.acct }),
+      acctClose: () => this.setState({ acct: false }),
+      pauseOn: s.openTo,
+      pauseOff: !s.openTo,
+      togglePause: () => {
+        const openTo = !s.openTo;
+        this.setState({ openTo });
+        try {
+          const help = JSON.parse(sessionStorage.getItem('bcHelpPageState') || '{}') || {};
+          help.openTo = openTo;
+          sessionStorage.setItem('bcHelpPageState', JSON.stringify(help));
+        } catch (e) { /* ignore */ }
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

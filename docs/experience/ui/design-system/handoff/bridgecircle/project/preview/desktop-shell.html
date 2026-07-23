@@ -1,4 +1,4 @@
-<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="Home · Help · People · Messages · School — icons · topbar with ⌘K search · 1320 shell [E3]" viewport-width="1320" -->
+<!-- @dsCard group="Desktop" name="App shell — sidebar" subtitle="Home · Help · People · Messages · School — icons · topbar (title + actions, no ⌘K) · full-viewport shell [E3]" viewport-width="1512" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased}
-  .shell{display:flex;min-height:100vh;max-width:var(--container-shell);margin:0 auto}
+  .shell{display:flex;min-height:100vh;width:100%}
   /* sidebar */
   .side{width:var(--sidebar-width);flex:none;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px}
   .wordmark{display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em}
@@ -27,9 +27,7 @@
   .main{flex:1;min-width:0;display:flex;flex-direction:column}
   .topbar{flex:none;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 30px}
   .topbar .title{font-size:18px;font-weight:700;letter-spacing:-0.02em}
-  .search{flex:1;max-width:440px;margin-left:10px;display:flex;align-items:center;gap:10px;height:42px;padding:0 16px;background:var(--surface-subtle);box-shadow:inset 0 1px 2px rgb(25 31 40 / 0.04);border-radius:var(--radius-pill);font-size:14px;color:var(--text-faint);font-weight:500}
-  .search svg{width:17px;height:17px;fill:none;stroke:var(--text-faint);stroke-width:2.2;stroke-linecap:round}
-  .search .kbd{margin-left:auto;font-size:11px;font-weight:700;color:var(--grey-400);background:#fff;border-radius:6px;padding:2px 7px;box-shadow:inset 0 0 0 1px var(--border)}
+  /* [.search / .kbd removed 2026-07-06 — global search / ⌘K dropped from the topbar] */
   .topbar .acts{margin-left:auto;display:flex;align-items:center;gap:10px}
   .iconbtn{width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:default}
   .iconbtn svg{width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
@@ -74,11 +72,7 @@
     <main class="main">
       <header class="topbar">
         <span class="title">Home</span>
-        <span class="search">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          Search people, topics…
-          <span class="kbd">⌘K</span>
-        </span>
+        <!-- global search / ⌘K removed 2026-07-06 — search is per-surface (People, Help), no topbar palette -->
         <span class="acts">
           <button class="iconbtn" aria-label="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dotn"></span></button>
           <button class="iconbtn" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h0a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55h0a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v0a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></button>
@@ -98,7 +92,7 @@
               <span style="flex:1;min-width:0"><span class="t">David Okafor &rsquo;98</span><span class="s">My daughter&rsquo;s thinking about design school. Portfolio advice?</span></span>
               <button class="gbtn">Offer to help</button>
             </div>
-            <p class="note">IA (locked 2026-07-05): Home = dashboard · Help = ask/give toggle in-page · People = directory · Messages = all member communication · School = events + announcements. Nav = icons (reference), item radius --radius-box, hover --hover-tint (≈grey-100 on white). Shell max 1320, fluid below.</p>
+            <p class="note">IA (locked 2026-07-05): Home = dashboard · Help = ask/give toggle in-page · People = directory · Messages = all member communication · School = events + announcements. Nav = icons (reference), item radius --radius-box, hover --hover-tint (≈grey-100 on white). The shell fills the viewport; content retains measured columns.</p>
           </div>
           <div class="card">
             <p class="label">Your open asks</p>

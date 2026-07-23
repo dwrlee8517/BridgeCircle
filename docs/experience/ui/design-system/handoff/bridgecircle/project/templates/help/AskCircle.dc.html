@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <script src="./help-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)} @keyframes bcDot{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;width:100%" data-screen-label="Help — ask the circle">
+
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="./Help.dc.html" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:13px;padding:0 26px;z-index:2">
+      <a href="./Help.dc.html" aria-label="Back to Help" style="width:38px;height:38px;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--text-secondary);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m14 6-6 6 6 6"></path></svg>
+      </a>
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Ask the circle</span>
+      <span style="margin-left:auto"><bc-account-menu></bc-account-menu></span>
+    </header>
+
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;background:var(--wash-page)">
+      <div style="flex:1;min-height:0;width:100%;max-width:1140px;margin:0 auto;box-sizing:border-box;padding:18px 26px 22px;display:flex;flex-direction:column">
+
+        <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;min-height:0;display:flex;gap:13px;align-items:stretch">
+
+            <section aria-label="Chat with AI" style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);overflow:hidden">
+              <span style="flex:none;display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--border-subtle)">
+                <span style="width:22px;height:22px;flex:none;border-radius:50%;background:var(--gradient-primary-btn);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:#fff"><path d="M12 3l1.9 5.4L19.5 10l-5.6 1.6L12 17l-1.9-5.4L4.5 10l5.6-1.6z"></path></svg></span>
+                <span style="font-size:12px;font-weight:700;color:var(--text-secondary)">Refine with AI</span>
+                <span style="margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:500">Every change lands in your ask &rarr;</span>
+              </span>
+
+              <div ref="{{ chatRef }}" style="flex:1;min-height:0;overflow-y:auto;padding:6px 18px 16px">
+                <sc-for list="{{ messages }}" as="m" hint-placeholder-count="1">
+                  <sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:9px;align-items:flex-start;margin-top:13px">
+                      <span style="width:26px;height:26px;flex:none;margin-top:2px;border-radius:50%;background:var(--gradient-primary-btn);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#fff"><path d="M12 3l1.9 5.4L19.5 10l-5.6 1.6L12 17l-1.9-5.4L4.5 10l5.6-1.6z"></path></svg></span>
+                      <span style="max-width:76%;background:var(--surface-subtle);border-radius:4px 15px 15px 15px;padding:10px 14px;font-size:13.5px;line-height:1.55;font-weight:500;color:var(--text-primary)">{{ m.text }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;justify-content:flex-end;margin-top:13px">
+                      <span style="max-width:76%;background:var(--action-primary);color:#fff;border-radius:15px 4px 15px 15px;padding:10px 14px;font-size:13.5px;line-height:1.55;font-weight:500">{{ m.text }}</span>
+                    </div>
+                  </sc-if>
+                </sc-for>
+                <sc-if value="{{ typing }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:9px;align-items:flex-start;margin-top:13px">
+                    <span style="width:26px;height:26px;flex:none;margin-top:2px;border-radius:50%;background:var(--gradient-primary-btn);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#fff"><path d="M12 3l1.9 5.4L19.5 10l-5.6 1.6L12 17l-1.9-5.4L4.5 10l5.6-1.6z"></path></svg></span>
+                    <span style="background:var(--surface-subtle);border-radius:4px 15px 15px 15px;padding:12px 14px;display:flex;align-items:center">{{ typingDots }}</span>
+                  </div>
+                </sc-if>
+              </div>
+
+              <span style="flex:none;display:flex;gap:7px;flex-wrap:wrap;padding:0 18px 10px">
+                <button onClick="{{ chipClearer }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Make it clearer</button>
+                <button onClick="{{ chipWarm }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Warmer</button>
+                <button onClick="{{ chipShort }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Shorter</button>
+                <button onClick="{{ chipReset }}" style="border:0;background:var(--surface-subtle);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Start over</button>
+              </span>
+
+              <span style="flex:none;display:flex;gap:9px;align-items:center;padding:12px 16px 14px;border-top:1px solid var(--border-subtle)">
+                <input value="{{ chatText }}" onChange="{{ onChat }}" onKeyDown="{{ onChatKey }}" placeholder="Tell it anything &mdash; &ldquo;mention I&rsquo;m graduating in spring&rdquo;&hellip;" aria-label="Message to AI" style="flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);border-radius:var(--radius-pill);padding:11px 16px;font-size:13.5px;font-weight:500;color:var(--text-primary);outline:none;background:#fff" style-focus="box-shadow:0 0 0 2px var(--focus-ring)">
+                <button onClick="{{ sendChatClick }}" aria-label="Send to AI" style="width:40px;height:40px;flex:none;border:0;border-radius:50%;background:var(--gradient-primary-btn);box-shadow:var(--shadow-primary-btn);display:flex;align-items:center;justify-content:center;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+                  <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 19V5"></path><path d="m6 11 6-6 6 6"></path></svg>
+                </button>
+              </span>
+            </section>
+
+            <aside aria-label="Your ask" style="width:398px;flex:none;box-sizing:border-box;display:flex;flex-direction:column;overflow-y:auto;background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:16px 20px 18px">
+              <span style="flex:none;display:flex;align-items:center;gap:8px">
+                <span style="font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.04em">Your ask</span>
+                <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--blue-600);background:var(--blue-50)">AI updated</span></sc-if>
+                <sc-if value="{{ editedByYou }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--text-secondary);background:var(--surface-subtle)">Edited by you</span></sc-if>
+              </span>
+
+              <sc-if value="{{ draftOk }}" hint-placeholder-val="{{ true }}">
+                <textarea value="{{ draft }}" onChange="{{ onDraft }}" rows="5" placeholder="What do you need?" aria-label="Your ask" style="width:100%;box-sizing:border-box;margin-top:11px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:13px 15px;font-size:13.5px;line-height:1.65;font-weight:500;color:var(--text-primary);resize:vertical;outline:none;transition:box-shadow 0.35s" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+              </sc-if>
+              <sc-if value="{{ draftFlash }}" hint-placeholder-val="{{ false }}">
+                <textarea value="{{ draft }}" onChange="{{ onDraft }}" rows="5" placeholder="What do you need?" aria-label="Your ask" style="width:100%;box-sizing:border-box;margin-top:11px;border:0;box-shadow:0 0 0 2px var(--focus-ring);border-radius:12px;padding:13px 15px;font-size:13.5px;line-height:1.65;font-weight:500;color:var(--text-primary);resize:vertical;outline:none;transition:box-shadow 0.35s"></textarea>
+              </sc-if>
+              <p style="flex:none;margin:9px 0 0;font-size:11px;color:var(--text-faint);font-weight:500;line-height:1.5">This is what the circle sees. AI keeps it up to date as you chat &mdash; or edit it directly.</p>
+
+              <span style="flex:none;font-size:13px;font-weight:800;letter-spacing:-0.02em;margin-top:16px">Who can find this?</span>
+              <div style="flex:none;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px">
+                <sc-if value="{{ reachMatches }}" hint-placeholder-val="{{ true }}">
+                  <button style="text-align:left;border:0;background:var(--selected-tint);box-shadow:var(--selected-accent), var(--ring-card);border-radius:12px;padding:11px 13px;cursor:pointer">
+                    <b style="font-size:12.5px;font-weight:800;color:var(--text-primary)">Good matches</b>
+                    <span style="display:block;font-size:11px;color:var(--grey-600);font-weight:500;margin-top:2px;line-height:1.45">Routed to fitting experience, never browsable.</span>
+                  </button>
+                  <button onClick="{{ pickSchool }}" style="text-align:left;border:0;background:#fff;box-shadow:var(--ring-card);border-radius:12px;padding:11px 13px;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+                    <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Anyone at Chadwick</b>
+                    <span style="display:block;font-size:11px;color:var(--grey-600);font-weight:500;margin-top:2px;line-height:1.45">Findable in Help &middot; Give.</span>
+                  </button>
+                </sc-if>
+                <sc-if value="{{ reachSchool }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ pickMatches }}" style="text-align:left;border:0;background:#fff;box-shadow:var(--ring-card);border-radius:12px;padding:11px 13px;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+                    <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Good matches</b>
+                    <span style="display:block;font-size:11px;color:var(--grey-600);font-weight:500;margin-top:2px;line-height:1.45">Routed to fitting experience, never browsable.</span>
+                  </button>
+                  <button style="text-align:left;border:0;background:var(--selected-tint);box-shadow:var(--selected-accent), var(--ring-card);border-radius:12px;padding:11px 13px;cursor:pointer">
+                    <b style="font-size:12.5px;font-weight:800;color:var(--text-primary)">Anyone at Chadwick</b>
+                    <span style="display:block;font-size:11px;color:var(--grey-600);font-weight:500;margin-top:2px;line-height:1.45">Findable in Help &middot; Give.</span>
+                  </button>
+                </sc-if>
+              </div>
+              <p style="flex:none;margin:8px 2px 0;font-size:11px;color:var(--text-faint);font-weight:500">Set once &mdash; reach can&rsquo;t change after posting. Retract anytime.</p>
+
+              <span onClick="{{ toggleAnon }}" style="flex:none;display:flex;align-items:flex-start;gap:10px;margin-top:12px;cursor:pointer;padding:11px 13px;border-radius:12px;background:var(--surface-inset)">
+                <sc-if value="{{ anonOn }}" hint-placeholder-val="{{ false }}"><span style="flex:none;width:18px;height:18px;border-radius:6px;background:var(--action-primary);display:flex;align-items:center;justify-content:center;margin-top:1px"><svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg></span></sc-if>
+                <sc-if value="{{ anonOff }}" hint-placeholder-val="{{ true }}"><span style="flex:none;width:18px;height:18px;border-radius:6px;background:#fff;box-shadow:var(--ring-outline);margin-top:1px"></span></sc-if>
+                <span style="min-width:0">
+                  <b style="display:block;font-size:12.5px;font-weight:700;color:var(--text-primary)">Post without your name</b>
+                  <span style="display:block;font-size:11px;color:var(--text-faint);font-weight:500;margin-top:2px;line-height:1.5">Helpers see &ldquo;A member &middot; Class of &rsquo;22&rdquo;. Your name is shared only with the helper you accept.</span>
+                </span>
+              </span>
+
+              <sc-if value="{{ postFailed }}" hint-placeholder-val="{{ false }}">
+                <div style="flex:none;display:flex;align-items:center;gap:12px;margin-top:12px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--red-200);border-radius:12px;padding:12px 15px">
+                  <span style="flex:1;font-size:12.5px;font-weight:600;color:var(--text-secondary);line-height:1.5">Couldn&rsquo;t post that &mdash; check your connection. Your ask is safe right here.</span>
+                  <button onClick="{{ post }}" style="flex:none;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Try again</button>
+                </div>
+              </sc-if>
+
+              <span style="flex:none;display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:14px">
+                <span style="font-size:11.5px;color:var(--text-faint);font-weight:500;line-height:1.5">Open 14 days &middot; you&rsquo;ll only hear from members who offer.</span>
+                <sc-if value="{{ postIdle }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ post }}" style="margin-left:auto;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:12px 22px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow-primary-btn);flex:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Post your ask</button>
+                </sc-if>
+                <sc-if value="{{ postBusy }}" hint-placeholder-val="{{ false }}">
+                  <button disabled="{{ true }}" style="margin-left:auto;background:var(--surface-subtle);color:var(--grey-400);border:0;border-radius:11px;padding:12px 22px;font-size:13.5px;font-weight:700;flex:none;cursor:default">Posting&hellip;</button>
+                </sc-if>
+              </span>
+            </aside>
+
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isSent }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:30px 24px;margin-top:2px;text-align:center">
+            <span style="width:48px;height:48px;margin:0 auto;border-radius:50%;background:var(--gradient-primary-btn);box-shadow:var(--shadow-primary-btn);display:flex;align-items:center;justify-content:center">
+              <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round"><path d="m5 13 4 4L19 7"></path></svg>
+            </span>
+            <h3 style="margin:16px 0 0;font-size:19px;font-weight:800;letter-spacing:-0.02em">Your ask is out</h3>
+            <p style="margin:7px 0 0;font-size:13px;color:var(--grey-600);font-weight:500;line-height:1.6">Your question is shown to people who can help &mdash; you&rsquo;ll only hear from members who offer.</p>
+            <span style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+              <a href="./Help.dc.html" style="border-radius:12px;padding:12px 22px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Back to Help</a>
+              <a href="{{ statusHref }}" style="border-radius:12px;padding:12px 22px;background:var(--gradient-primary-btn);color:#fff;font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">View status</a>
+            </span>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;demoSendFailure&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo&quot;}
+}">
+class Component extends DCLogic {
+  state = {
+    draft: null, original: '', lastEditor: null,
+    messages: [], chatText: '', typing: false, flash: false,
+    reach: 'matches', anon: false,
+    sent: false, sentId: '', toast: '', posting: false, failed: false, attempts: 0
+  };
+
+  componentDidMount() {
+    try {
+      const q = sessionStorage.getItem('bcQuestion') || '';
+      this.setState({ draft: q || null, original: q });
+    } catch (e) { /* ignore */ }
+    if (!window.BCHelpData) {
+      this._poll = setInterval(() => { if (window.BCHelpData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+
+  componentDidUpdate() {
+    const count = this.state.messages.length + (this.state.typing ? 1 : 0);
+    if (this._chatEl && this._lastCount !== count) {
+      this._lastCount = count;
+      this._chatEl.scrollTop = this._chatEl.scrollHeight;
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._poll) clearInterval(this._poll);
+    if (this._toastT) clearTimeout(this._toastT);
+    if (this._aiT) clearTimeout(this._aiT);
+    if (this._postT) clearTimeout(this._postT);
+    if (this._flashT) clearTimeout(this._flashT);
+  }
+
+  draft() { return this.state.draft === null ? '' : this.state.draft; }
+
+  setDraft(v, editor) {
+    this.setState({ draft: v, lastEditor: editor });
+    try { sessionStorage.setItem('bcQuestion', v); } catch (e) { /* ignore */ }
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  // ---- canned AI transforms (prototype stand-ins) ----
+  clean(q) {
+    q = q.trim().replace(/\s+/g, ' ');
+    for (const h of ['i was wondering if ', 'i was wondering ', 'sorry to ask, but ', 'sorry, but ', 'maybe ', 'i think ']) {
+      if (q.toLowerCase().startsWith(h)) q = q.slice(h.length);
+    }
+    return q.charAt(0).toUpperCase() + q.slice(1);
+  }
+  makeClearer(d) {
+    let q = this.clean(d);
+    if (!/[?]$/.test(q)) q = q.replace(/[.!]+$/, '') + '?';
+    return q;
+  }
+  makeWarmer(d) {
+    let q = this.clean(d);
+    if (!/[?.!]$/.test(q)) q = q + '?';
+    return q + ' Any experience helps \u2014 even a quick pointer.';
+  }
+  makeShorter(d) {
+    const q = this.clean(d);
+    const idx = q.indexOf('?');
+    if (idx > 20) return q.slice(0, idx + 1);
+    return q.length > 110 ? q.slice(0, 110).trimEnd() + '\u2026' : q;
+  }
+  foldIn(d, extra) {
+    let q = this.clean(d);
+    if (!/[?.!]$/.test(q)) q = q + '?';
+    let x = extra.trim().replace(/^["']|["']$/g, '');
+    x = x.charAt(0).toUpperCase() + x.slice(1);
+    if (!/[.?!]$/.test(x)) x = x + '.';
+    return q + ' For context: ' + x;
+  }
+
+  greeting() {
+    return 'This is what busy helpers will skim \u2014 your ask is on the right. Tell me what to change: clearer, warmer, shorter, or anything to fold in, like \u201cmention I\u2019m graduating in spring.\u201d';
+  }
+
+  sendChat(text) {
+    const v = (text != null ? text : this.state.chatText).trim();
+    if (!v || this.state.typing) return;
+    this.setState((s) => ({ messages: [...s.messages, { role: 'user', text: v }], chatText: '', typing: true }));
+    if (this._aiT) clearTimeout(this._aiT);
+    this._aiT = setTimeout(() => this.aiRespond(v), 850);
+  }
+
+  aiRespond(v) {
+    const t = v.toLowerCase();
+    const d = this.draft();
+    let reply; let newDraft = null;
+    if (!d.trim() && !/(start over|reset|undo)/.test(t)) {
+      reply = 'Write your ask first \u2014 a sentence in the box on the right is plenty. Then I can work on it.';
+    } else if (/(thanks|thank you|perfect|great|looks good|love it)/.test(t)) {
+      reply = 'Anytime \u2014 post it whenever it feels right.';
+    } else if (/(clear|clean|tight|direct)/.test(t)) {
+      reply = 'Tighter, with the question up front.';
+      newDraft = this.makeClearer(d);
+    } else if (/(warm|friendl|nicer|softer|kind)/.test(t)) {
+      reply = 'Same ask, with a warmer close.';
+      newDraft = this.makeWarmer(d);
+    } else if (/(short|brief|trim|concise)/.test(t)) {
+      reply = 'Cut to the core question.';
+      newDraft = this.makeShorter(d);
+    } else if (/(start over|reset|undo|original|scrap)/.test(t)) {
+      reply = 'Fresh start \u2014 back to what you first wrote.';
+      newDraft = this.state.original;
+    } else {
+      reply = 'Folded that in \u2014 take a look.';
+      newDraft = this.foldIn(d, v);
+    }
+    this.setState({ typing: false, messages: [...this.state.messages, { role: 'ai', text: reply }] });
+    if (newDraft !== null) {
+      this.setDraft(newDraft, 'ai');
+      this.setState({ flash: true });
+      if (this._flashT) clearTimeout(this._flashT);
+      this._flashT = setTimeout(() => this.setState({ flash: false }), 1400);
+    }
+  }
+
+  post() {
+    const text = this.draft().trim();
+    if (!text) { this.showToast('Write your ask first \u2014 a sentence is plenty.'); return; }
+    if (this.state.posting) return;
+    this.setState({ posting: true, failed: false });
+    // In-flight beat — demoSendFailure makes the first attempt fail so the
+    // failed-post treatment (inline, draft preserved, retry) is visible.
+    this._postT = setTimeout(() => {
+      if ((this.props.demoSendFailure ?? false) && this.state.attempts === 0) {
+        this.setState({ posting: false, failed: true, attempts: 1 });
+        return;
+      }
+      const id = 'sent-' + Date.now();
+      try {
+        const sent = JSON.parse(sessionStorage.getItem('bcSentAsks') || '[]');
+        sent.unshift({
+          id, kind: 'open', status: 'quiet', sent: 'just now', daysLeft: 14,
+          reach: this.state.reach, anon: this.state.anon, text, offers: []
+        });
+        sessionStorage.setItem('bcSentAsks', JSON.stringify(sent));
+        sessionStorage.setItem('bcQuestion', '');
+      } catch (e) { /* storage unavailable */ }
+      this.setState({ sent: true, sentId: id, posting: false });
+    }, 900);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const d = this.draft();
+
+    const messages = [];
+    if (s.original.trim()) messages.push({ text: s.original.trim(), isUser: true, isAi: false });
+    messages.push({ text: this.greeting(), isAi: true, isUser: false });
+    s.messages.forEach((m) => messages.push({ text: m.text, isAi: m.role === 'ai', isUser: m.role === 'user' }));
+
+    const typingDots = React.createElement('span', { style: { display: 'inline-flex', gap: '4px', alignItems: 'center' } },
+      [0, 1, 2].map((i) => React.createElement('span', { key: i, style: { width: '6px', height: '6px', borderRadius: '50%', background: 'var(--grey-400)', animation: 'bcDot 1.2s ' + (i * 0.15) + 's infinite ease-in-out' } })));
+
+    return {
+      notSent: !s.sent, isSent: s.sent,
+
+      messages, typing: s.typing, typingDots,
+      chatRef: (el) => { this._chatEl = el; },
+      chatText: s.chatText,
+      onChat: (e) => this.setState({ chatText: e.target.value }),
+      onChatKey: (e) => { if (e.key === 'Enter') { e.preventDefault(); this.sendChat(); } },
+      sendChatClick: () => this.sendChat(),
+      chipClearer: () => this.sendChat('Make it clearer'),
+      chipWarm: () => this.sendChat('Make it warmer'),
+      chipShort: () => this.sendChat('Make it shorter'),
+      chipReset: () => this.sendChat('Start over'),
+
+      draft: d,
+      onDraft: (e) => { this.setDraft(e.target.value, 'me'); this.setState({ flash: false }); },
+      draftOk: !s.flash, draftFlash: s.flash,
+      flashOn: s.flash, editedByYou: s.lastEditor === 'me' && !s.flash,
+
+      reachMatches: s.reach === 'matches', reachSchool: s.reach === 'school',
+      pickMatches: () => this.setState({ reach: 'matches' }),
+      pickSchool: () => this.setState({ reach: 'school' }),
+      anonOn: s.anon, anonOff: !s.anon,
+      toggleAnon: () => this.setState({ anon: !s.anon }),
+      post: () => this.post(),
+      postIdle: !s.posting, postBusy: s.posting,
+      postFailed: s.failed && !s.posting,
+      statusHref: './AskStatus.dc.html?id=' + s.sentId,
+
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+}
+
+</script>
+</body>
+</html>

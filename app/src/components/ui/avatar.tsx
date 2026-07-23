@@ -3,6 +3,7 @@
 import { Avatar as AvatarPrimitive } from 'radix-ui'
 import type * as React from 'react'
 
+import { avatarColorClass } from '@/lib/avatar'
 import { cn } from '@/lib/utils'
 
 function Avatar({
@@ -17,7 +18,7 @@ function Avatar({
       data-slot="avatar"
       data-size={size}
       className={cn(
-        'group/avatar relative flex size-10 shrink-0 rounded-full select-none after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-12 data-[size=sm]:size-8 dark:after:mix-blend-lighten',
+        'group/avatar relative flex size-10 shrink-0 overflow-hidden rounded-full shadow-[var(--ring-avatar)] select-none data-[size=lg]:size-12 data-[size=sm]:size-8',
         className,
       )}
       {...props}
@@ -37,13 +38,15 @@ function AvatarImage({ className, ...props }: React.ComponentProps<typeof Avatar
 
 function AvatarFallback({
   className,
+  seed,
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+}: React.ComponentProps<typeof AvatarPrimitive.Fallback> & { seed?: string }) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        'flex size-full items-center justify-center rounded-full bg-surface-panel text-sm font-medium text-muted-foreground group-data-[size=sm]/avatar:text-xs',
+        'flex size-full items-center justify-center rounded-full bg-[var(--avatar-neutral)] text-sm font-semibold text-text-secondary group-data-[size=sm]/avatar:text-xs',
+        seed && avatarColorClass(seed),
         className,
       )}
       {...props}

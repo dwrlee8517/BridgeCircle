@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/database.types.ts",
+    "src/db/repositories/conversations.ts",
+    "src/db/repositories/conversations.test.ts",
+    "src/db/realtime/**/*.ts",
+    "src/lib/conversations/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "tests/e2e"]
+}

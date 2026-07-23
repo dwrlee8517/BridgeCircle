@@ -1,150 +1,177 @@
-# End-To-End Testing With Playwright
+# End-to-end testing with Playwright
 
 ## Purpose
 
-BridgeCircle uses [Playwright](https://playwright.dev) for end-to-end browser tests. These run a real browser against a real running app and verify user-facing behavior — sign-in flows, mentorship request submission, RSVP buttons, etc. They are the slowest tier of test in the project but the only tier that catches regressions in the integration between client components, server actions, middleware, and Supabase.
+Playwright verifies rendered member flows across Next.js, server actions,
+Supabase Auth, fixed database APIs, RLS, and Realtime. Use it for browser-visible
+integration truth; use pgTAP and concurrency harnesses for database invariants,
+and Vitest for pure behavior.
 
-Unit-level tests (component logic, pure functions) live alongside their source under `src/` and use a separate runner. This doc is only about the E2E suite.
+## Current rebuild status
 
-## What Is Set Up
+The application and local database are v2 across Foundation, Conversation,
+Help, Messages, People/Profile, School/Admin, Home, and entry/operations. The
+complete local Playwright suite and production build are release gates. Hosted
+development remains pending until the separately approved clean reset and
+same-SHA deployment in the dev cutover plan.
 
-- `@playwright/test` is a `devDependency` in `app/package.json`.
-- `app/playwright.config.ts` is the Playwright config — testDir, baseURL, webServer, browser projects.
-- `app/tests/e2e/` is where every spec file lives. New tests go here.
-- `app/tests/e2e/sign-in.spec.ts` is the first smoke test, covering the unauthenticated-redirect flow.
-- `app/.gitignore` is updated to ignore Playwright's per-run artifacts (`/test-results`, `/playwright-report`, `/playwright/.cache`).
-- Two scripts are wired up in `app/package.json`:
-  - `pnpm test:e2e` — run the suite headless with the list reporter.
-  - `pnpm test:e2e:ui` — open Playwright's interactive UI mode for writing and debugging tests.
+Focused Help acceptance is recorded in
+[`database-v2-help-test-inventory.md`](../architecture/database-v2-help-test-inventory.md).
+Focused Messages acceptance is recorded in
+[`database-v2-messages-test-inventory.md`](../architecture/database-v2-messages-test-inventory.md).
 
-The Chromium binary itself lives in `~/Library/Caches/ms-playwright/` (machine-global, not in the repo). `pnpm exec playwright install chromium` downloads it the first time.
+## Local hermetic mode
 
-## How A Test Run Works
+The default local workflow uses:
 
-When you run `pnpm test:e2e`, Playwright reads `playwright.config.ts` and:
+- app server: an E2E-owned port from `playwright.config.ts`, separate from the
+  developer server on port 3000;
+- database: disposable local Supabase;
+- configuration: Doppler `bridgecircle/dev_local`;
+- external providers: deterministic fakes or disabled keys;
+- reset: `supabase db reset`, which loads `supabase/seeds/seed.sql`.
 
-1. Checks whether something is already serving on `http://localhost:3000`.
-2. If the dev server is up (the common local case), it reuses it. Tests start immediately.
-3. If nothing is on port 3000, it runs the configured `webServer.command` — `doppler run -- pnpm dev` — and waits for the server to respond before starting the suite.
-4. Spins up Chromium, runs every spec in `tests/e2e/**/*.spec.ts`, and reports pass/fail.
-
-The `reuseExistingServer: !process.env.CI` flag is the important bit:
-
-- **Locally:** `CI` is unset, so the flag is `true`. If you already have `doppler run -- pnpm dev` running in a Terminal window, tests piggyback on it. They run in ~3 seconds instead of 30+.
-- **In CI:** `CI=true` is set, so the flag is `false`. Playwright always starts its own dev server, ensuring tests run against a known-clean state.
-
-The Doppler dependency means E2E tests need the same `bridgecircle-dev` / `dev_personal` Doppler config the dev server uses. Locally that's transparent because your shell is already authenticated. In CI it requires a Doppler service token (see "CI Setup" below).
-
-## Running Tests Locally
-
-Default workflow:
+From `app/`:
 
 ```bash
-cd app
-
-# In one Terminal, start the dev server (if it isn't already running):
-doppler run -- pnpm dev
-
-# In another Terminal, run the tests:
-pnpm test:e2e
+pnpm db:start
+pnpm db:reset
+pnpm test:e2e tests/e2e/foundation/foundation-flow.spec.ts
+pnpm test:e2e tests/e2e/help/help-settings.spec.ts
+pnpm test:e2e tests/e2e/messages/messages.spec.ts --workers=1
 ```
 
-If you don't have the dev server running, Playwright will start it automatically — but the run will be slower (~30s warmup) and the server will shut down with the test process.
+Use `E2E_SKIP_RESET=1` only for a short local iteration when the test owns and
+cleans up every mutation. Never use it as CI policy.
 
-For an interactive workflow when authoring new tests, use UI mode:
+## Test organization
+
+```text
+tests/e2e/
+├── helpers/          environment, auth, and v2 scenario helpers
+├── foundation/       v2 identity/membership/profile boundary
+├── help/             v2 Help settings and browser flows
+├── messages/         v2 list, thread, Connection, safety, and responsive roads
+├── home/             v2 dashboard composition and outcome consent
+├── people,profiles/  directory, profile privacy, and Connection roads
+├── school/           School reading and transactional member roads
+├── dev-cutover/      opt-in read-only exact-dev smoke
+├── api/              health and auth-proxy contracts
+└── entry-operations/ destructive lifecycle durability, local-only
+```
+
+Retired Ask/Inbox E2E files were deleted with their routes. Do not preserve an
+old test merely to document obsolete behavior; the v2 domain plan and test
+inventory are the historical record.
+
+## Isolation rules
+
+- No spec depends on another spec having run.
+- A mutating spec creates a unique organization and users with
+  `helpers/foundation.ts`, then deletes them in `afterAll`.
+- Stable seeded personas are for browser inspection and bounded read fixtures,
+  not shared mutable state.
+- Tests never call real AI or email providers in hermetic mode.
+- Prefer accessible locators: `getByRole`, `getByLabel`, and `getByText`.
+- Fail on browser console errors and uncaught page errors for critical roads.
+- Trace and screenshot output belongs under Playwright's test-results output,
+  not in committed source unless it is an approved design baseline.
+
+## Help acceptance road
+
+The focused Help browser gate covers:
+
+1. private question search with no Ask side effect;
+2. direct Ask create, recipient accept/decline, and idempotent retry;
+3. circle Ask create, eligible offer, asker acceptance, and anonymity;
+4. accepted conversation origin/opening message/send/refresh;
+5. Ask resolution without disabling the conversation;
+6. settings default-open, topic normalization, and manual pause;
+7. error/fallback states, keyboard flow, reduced motion, and no horizontal
+   overflow at 320, 390, 768, and desktop width.
+
+Database truth for these roads is also asserted by the Help pgTAP,
+concurrency, worker, maintenance, Realtime, and query-plan suites. Browser tests
+do not replace those gates.
+
+## Messages acceptance road
+
+The focused Messages browser gate is serial and begins from a canonical local
+reset because it deliberately walks lifecycle state across the fixed seed:
+
+1. Waiting direct Ask acceptance into the unified thread, send, and reload;
+2. Connection accept and quiet decline with durable database checks;
+3. two authenticated contexts converging unread/read state through Realtime;
+4. post-Ask Connection nudge, Ask resolution, and continued send;
+5. report acknowledgement, disconnect retention, and block revocation;
+6. All/Open asks/search/tied keyset paging and deleted-member fallback;
+7. axe checks for root, dialogs, and mobile context plus no overflow at 1440,
+   768, 390, and 320 px.
+
+This file is one reset-owned scenario, not a dependency between independent
+specs. Do not shard it. It may run against hosted development only during the
+explicit one-time, reset-owned acceptance matrix described below.
+
+## Integ mode and remote safety
+
+`PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org` selects remote integ mode.
+Remote tests must be fully self-seeding and self-cleaning because the dev
+database is persistent. They must never reset a remote database.
+
+Ordinary recurring integ mode remains factory-owned. Seed-dependent suites
+stay skipped remotely unless all of these are present:
+
+- `PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org` exactly;
+- `APP_ENV=dev`;
+- the explicit one-time `E2E_ALLOW_DEV_SEED=1` flag.
+
+`pnpm test:e2e:dev-acceptance` supplies only the flag. The target helper throws
+during Playwright configuration for production, preview, localhost, path, or
+wrong-environment targets. Run this mode only immediately after the separately
+approved clean dev reset, with the worker stopped. It intentionally advances
+the fictional seed; restore the canonical seed with another approved linked
+reset afterward.
+
+The final seeded-state smoke is separate and read-only:
 
 ```bash
-pnpm test:e2e:ui
+PLAYWRIGHT_BASE_URL=https://dev.bridgecircle.org \
+APP_ENV=dev \
+CUTOVER_SHA=<40-character-verified-sha> \
+pnpm test:e2e:dev-smoke
 ```
 
-This opens the Playwright UI where you can pick individual tests, watch them run live, replay traces, inspect locators, and time-travel through assertions.
+Hosted smoke refuses every remote origin except exact dev and requires the
+captured SHA. It verifies health, seeded member sign-in, all five primary
+sections, and the four minimal admin surfaces without changing application
+rows. The same smoke may be run against localhost during local preparation.
 
-To run a single spec or filter by name:
+## Adding a test
 
-```bash
-pnpm test:e2e tests/e2e/sign-in.spec.ts
-pnpm test:e2e -g "redirects unauthenticated"
-```
-
-## Writing A New Test
-
-Specs live at `app/tests/e2e/<feature>.spec.ts`. Each spec file should focus on one feature or page. The pattern is:
-
-```ts
-import { expect, test } from "@playwright/test";
-
-test.describe("<feature name>", () => {
-  test("<what it does>", async ({ page }) => {
-    await page.goto("/some-route");
-
-    // Assert what the user should see.
-    await expect(page.getByText(/expected copy/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /^submit$/i })).toBeEnabled();
-
-    // Drive interactions.
-    await page.getByLabel(/email/i).fill("test@example.com");
-    await page.getByRole("button", { name: /^submit$/i }).click();
-
-    // Assert the post-action state.
-    await expect(page).toHaveURL(/\/thank-you/);
-  });
-});
-```
-
-A few project-specific notes:
-
-- **Locators.** Prefer `getByRole`, `getByLabel`, and `getByText` over CSS selectors. They are more resilient to refactors and they push us toward accessible markup. Be aware that not every shadcn/ui component renders as the role you'd expect — `CardTitle` for example is rendered as a `<div>` in this version, not a heading. When in doubt, fall back to `getByText`.
-- **Authenticated flows.** Most tests will need a signed-in user. Use the seeded test accounts from `docs/seed-dev.md` (e.g., `mentor-mark@example.com` / `devseed-password-2`). For now, sign in via the form at the start of the test. Once we have several auth-required specs, we'll factor a shared `storageState` fixture so each test doesn't pay the sign-in cost.
-- **Test data isolation.** Tests run against `bridgecircle-dev`, which is shared. Avoid leaving residue (created mentorship requests, sent messages, etc.) — clean up at the end of the test, or use API-level reset helpers instead of UI flows for setup.
-- **Screenshots and traces.** On test failure Playwright drops a trace under `test-results/<test-name>/`. Open it with `pnpm exec playwright show-trace <path>`.
-
-## CI Setup
-
-Wired at `.github/workflows/e2e.yml`. The job runs on every PR to `main` and via manual dispatch.
-
-What it does:
-
-- Installs pnpm 10.33.2 and Node 22, restoring the pnpm store from cache.
-- Installs the Doppler CLI and authenticates non-interactively via the `DOPPLER_TOKEN` secret.
-- Caches and installs the Playwright Chromium binary (`pnpm exec playwright install --with-deps chromium`).
-- Runs `pnpm test:e2e`. Playwright's `webServer.command` (`doppler run -- pnpm dev`) inherits the `DOPPLER_TOKEN` from env and boots the Next.js dev server with `bridgecircle-dev` secrets.
-- Uploads the Playwright HTML report on every run and per-test traces on failure (artifact retention: 14 days).
-
-To bypass on a specific PR (hotfixes, doc-only changes), apply the `skip-e2e` label.
-
-### Required GitHub secret
-
-Add a single repo secret named `DOPPLER_TOKEN`:
-
-1. In the Doppler dashboard, generate a **service token** scoped to the config you want CI to use. The simplest setup is the existing `bridgecircle-dev` / `dev` config; a dedicated `ci` config (sibling of `dev`) is cleaner long-term. Whichever you pick must have `NODE_ENV=development` set explicitly (see [doppler.md](doppler.md) "The NODE_ENV Gotcha") so the dev server boots correctly.
-2. In GitHub: **Settings → Secrets and variables → Actions → New repository secret**, name it `DOPPLER_TOKEN`, paste the value.
-
-Rotate the token through the Doppler dashboard and update the GitHub secret in the same operation.
-
-### Adding it to required status checks
-
-Once a successful run has registered the check name with GitHub, add **Playwright (chromium)** to the required status checks for `main` (Settings → Branches → Branch protection rules). This is the same caveat as the Supabase Preview check: enforcement requires GitHub Pro on a personal-account private repo. See [environments.md](../architecture/environments.md) "GitHub repository" for the trade-off.
+1. Put the spec under the domain it proves.
+2. Use the v2 fixed API and current route contract.
+3. Create the minimum data for the scenario.
+4. Assert the member-visible outcome and the durable database result after a
+   refresh.
+5. Add the test to that domain's inventory.
+6. Run it alone, with the focused domain suite, and with all currently ported
+   domain suites.
 
 ## Troubleshooting
 
-**"Error: connect ECONNREFUSED 127.0.0.1:3000"**
+- If reset fails, run `pnpm db:start` and confirm Docker/local Supabase is
+  healthy.
+- If the E2E port is occupied, stop the unrelated process; do not silently reuse
+  the developer server on port 3000.
+- If sign-in fails, compare configuration names/status only and confirm
+  `dev_local` points to the local stack. Never print secret values.
+- If a later-domain spec fails on a retired table or route, classify it as port
+  inventory. Port that domain; do not add a compatibility column or redirect.
 
-Playwright's `webServer` couldn't reach the dev server within its 120s timeout. Either start the server yourself and re-run, or check whether `doppler run -- pnpm dev` actually works in isolation (`NODE_ENV` set wrong, missing Doppler binding, port 3000 occupied by an unrelated process).
+## Related documentation
 
-**A test that asserts on a `getByRole("heading")` fails with "element(s) not found"**
-
-The component you're targeting probably doesn't render as a heading element. Use `getByText` or check the rendered DOM in the failure trace. shadcn/ui's `CardTitle` is a common offender.
-
-**"Another next dev server is already running"**
-
-Stale `.next/dev/lock` from a previous run. Usually benign — Next.js clears it on the next startup. If it doesn't, delete `app/.next/dev/lock` and try again.
-
-**Tests pass locally, fail in CI**
-
-Most often means the `dev_personal` Doppler config has a secret your local machine has cached but CI's service token doesn't have access to. Compare `doppler secrets` locally versus what's available to the CI token.
-
-## Related Documentation
-
-- [Environments and dev/prod separation](../architecture/environments.md) — why we run tests against `bridgecircle-dev`, not prod.
-- [Seeding the dev database](seed-dev.md) — what test users are available and how to reset state.
-- [Phase 1 launch spec](../../product-spec-obsidian-vault/Production/phase-1/launch-cut.md) — what flows need to be covered before launch.
+- [Help test inventory](../architecture/database-v2-help-test-inventory.md)
+- [Messages test inventory](../architecture/database-v2-messages-test-inventory.md)
+- [Local seed](seed-dev.md)
+- [Environment model](../architecture/environments.md)
+- [Migration workflow](migration-workflow.md)

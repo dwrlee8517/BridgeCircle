@@ -1,4 +1,4 @@
-<!-- @dsCard group="Pages" name="Messages — thread + profile rail (1e)" subtitle="Conversation list · gradient bubbles · composer bar · about-this-conversation rail" viewport-width="1100" -->
+<!-- @dsCard group="Pages" name="Messages — inbox + thread + context rail (1e)" subtitle="Chip filters · pinned Waiting-on-you group with red count + inline accept/decline · gradient bubbles · Open-to-help mark · closing-soon flag · resolve" viewport-width="1180" -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,36 +7,58 @@
 <link rel="stylesheet" href="../colors_and_type.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;max-width:1040px;margin-inline:auto}
-  .frame{display:flex;border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);background:var(--surface-card);min-height:560px}
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;max-width:1120px;margin-inline:auto}
+  .frame{display:flex;border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);background:var(--surface-card);min-height:620px}
   /* conversation list */
-  .clist{width:280px;flex:none;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column}
-  .ctop{padding:16px 14px 12px}
-  .cseg{display:flex;background:#eceef1;border-radius:10px;padding:2px}
-  .cseg span{font-size:11.5px;font-weight:600;color:var(--grey-600);padding:4px 10px;border-radius:8px}
-  .cseg .on{font-weight:700;color:var(--text-primary);background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.08)}
-  .csearch{display:flex;align-items:center;gap:9px;height:38px;padding:0 13px;background:var(--surface-subtle);border-radius:11px;margin-top:12px;font-size:13px;color:var(--text-faint);font-weight:500}
-  .cv{display:flex;align-items:center;gap:11px;padding:12px 14px}
+  .clist{width:300px;flex:none;border-right:1px solid var(--border-subtle);display:flex;flex-direction:column}
+  .ctop{padding:14px 14px 10px;display:grid;gap:10px}
+  .csearch{display:flex;align-items:center;gap:9px;height:38px;padding:0 13px;background:var(--surface-subtle);border-radius:11px;font-size:13px;color:var(--text-faint);font-weight:500}
+  .chips-f{display:flex;gap:6px;flex-wrap:wrap}
+  .fchip{border:0;border-radius:var(--radius-pill);padding:6px 12px;font-family:var(--font-sans);font-size:12px;font-weight:600;background:var(--surface-subtle);color:var(--text-secondary)}
+  .fchip.on{background:rgb(49 130 246 / 0.12);color:var(--blue-600);font-weight:700}
+  /* pinned Waiting-on-you group */
+  .wait{border-bottom:1px solid var(--border-subtle);background:var(--surface-thread)}
+  .whead{width:100%;display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:12px 14px;font-family:var(--font-sans);text-align:left;cursor:pointer}
+  .whead .wl{font-size:12px;font-weight:800;letter-spacing:0.02em;color:var(--text-secondary)}
+  .wbadge{min-width:12px;height:18px;padding:0 6px;border-radius:var(--radius-pill);background:var(--error);color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  .whead .chev{margin-left:auto;color:var(--grey-400);font-size:14px;font-weight:700;transform:rotate(90deg)}
+  .wbody{display:grid;gap:2px;padding:0 8px 10px}
+  .wcard{background:var(--surface-card);border-radius:14px;box-shadow:var(--ring-card);padding:11px 12px}
+  .wrow{display:flex;align-items:center;gap:9px}
+  .wav{width:34px;height:34px;flex:none;border-radius:50%;box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .wrow .wn{display:block;font-size:13px;font-weight:700}
+  .wrow .wn i{font-style:normal;color:var(--text-faint);font-weight:600;font-size:11.5px}
+  .wrow .wr{display:block;font-size:11.5px;color:var(--grey-600);font-weight:600}
+  .wrow .wt{font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .wnote{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--text-secondary);font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .wacts{display:flex;gap:6px;margin-top:9px}
+  .wbtn{border:0;border-radius:var(--radius-pill);padding:7px 14px;font-family:var(--font-sans);font-size:12px;font-weight:700;background:var(--action-weak);color:var(--blue-600)}
+  .wbtn.q{background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);font-weight:600}
+  /* rows */
+  .cv{position:relative;display:flex;align-items:center;gap:11px;padding:12px 14px}
   .cv.sel{background:var(--selected-tint);box-shadow:var(--selected-accent)}
   .cv:not(.sel):hover{background:var(--row-hover)}
-  .cav{width:42px;height:42px;flex:none;border-radius:50%;background:var(--avatar-neutral);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--text-secondary)}
-  .cv .nm{font-size:13.5px;font-weight:700}
+  .cav{width:42px;height:42px;flex:none;border-radius:50%;box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .cv .nm{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cv.unread .nm{font-weight:800}
-  .cv .tm{margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
-  .cv.unread .tm{color:var(--blue-600);font-weight:700}
-  .cv .pv{font-size:12.5px;color:var(--grey-600);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+  .cv .yr{font-size:11px;color:var(--text-faint);font-weight:600}
+  .cv .tm{margin-left:auto;font-size:11px;color:var(--text-faint);font-weight:700;font-variant-numeric:tabular-nums}
+  .cv.unread .tm{color:var(--blue-600)}
+  .cv .pv{display:block;font-size:12.5px;color:var(--grey-600);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
   .cv.unread .pv{color:var(--text-primary);font-weight:700}
   .dotu{flex:none;width:8px;height:8px;border-radius:50%;background:var(--action-primary)}
   /* thread */
   .thread{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-thread)}
-  .thead{display:flex;align-items:center;gap:12px;padding:13px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)}
+  .thead{display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid var(--border-subtle)}
   .pres{position:relative}
   .pres .pd{position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;background:var(--green-500);border:2px solid #fff}
   .thead .nm{font-size:14.5px;font-weight:700}
+  .thead .yr{font-size:11.5px;color:var(--text-faint);font-weight:600}
   .thead .st{font-size:11.5px;color:var(--text-faint);font-weight:500}
-  .railbtn{margin-left:auto;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:8px 15px;font-family:var(--font-sans);font-size:12px;font-weight:700}
+  .railbtn{margin-left:auto;background:var(--surface-subtle);color:var(--text-secondary);border:0;border-radius:var(--radius-pill);padding:8px 15px;font-family:var(--font-sans);font-size:12px;font-weight:700}
   .msgs{flex:1;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
   .day{align-self:center;font-size:11px;font-weight:700;color:var(--text-faint);background:#eceef1;border-radius:var(--radius-pill);padding:3px 11px}
+  .sys{align-self:center;font-size:11.5px;font-weight:600;color:var(--text-faint);text-align:center}
   .m{max-width:72%}
   .m.them{align-self:flex-start}
   .m.me{align-self:flex-end}
@@ -54,31 +76,32 @@
   .field{flex:1;display:flex;align-items:center;height:44px;padding:0 16px;background:#fff;box-shadow:var(--ring-outline);border-radius:13px;font-size:13.5px;color:var(--text-faint);font-weight:500}
   .send{flex:none;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:11px 19px;font-family:var(--font-sans);font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn)}
   /* context rail */
-  .rail{width:270px;flex:none;border-left:1px solid var(--border-subtle);background:#fff;padding:20px 16px;display:flex;flex-direction:column;gap:14px}
-  .rav{width:64px;height:64px;margin:0 auto;border-radius:50%;background:var(--avatar-neutral);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:var(--text-secondary)}
+  .rail{width:290px;flex:none;border-left:1px solid var(--border-subtle);background:#fff;padding:18px 16px;display:flex;flex-direction:column;gap:14px}
+  .rav{width:64px;height:64px;margin:0 auto;border-radius:50%;box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px}
   .rail h4{font-size:16px;font-weight:800;letter-spacing:-0.02em;margin:10px 0 0;text-align:center}
   .rail .rt{font-size:12px;color:var(--grey-600);font-weight:500;text-align:center;margin-top:2px}
-  .chips{display:flex;justify-content:center;gap:6px;margin-top:9px}
+  .chips{display:flex;justify-content:center;gap:6px;margin-top:9px;flex-wrap:wrap}
   .chip{font-size:10.5px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px}
   .c-b{color:var(--blue-600);background:var(--blue-50)}
-  .c-g{display:inline-flex;align-items:center;gap:4px;color:#029a5e;background:rgb(3 178 108 / 0.1)}
+  .c-g{display:inline-flex;align-items:center;gap:4px;color:var(--action-give-text);background:var(--give-tint-weak)}
   .c-g i{width:4px;height:4px;border-radius:50%;background:var(--green-500)}
+  .c-exp{color:var(--closing-soon-text);background:var(--closing-soon-tint)}
   .flink{display:block;text-align:center;font-size:12px;color:var(--action-primary);font-weight:700;margin-top:10px}
-  .about{background:#f7f9fc;border-radius:14px;padding:13px 14px}
+  .about{background:var(--surface-inset);border-radius:14px;padding:13px 14px}
   .about .al{font-size:11px;font-weight:700;color:var(--text-faint)}
-  .about .at{font-size:12.5px;font-weight:700;margin-top:6px;line-height:1.4}
-  .about .arow{display:flex;align-items:center;gap:6px;margin-top:7px}
-  .about .track{margin-top:8px;height:4px;border-radius:var(--radius-pill);background:#e8ebef;overflow:hidden}
-  .about .fill{width:36%;height:100%;background:var(--action-primary);border-radius:var(--radius-pill);display:block}
-  .rbtn{width:100%;border:0;border-radius:12px;padding:11px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
-  .rbtn.w{background:var(--action-weak);color:var(--blue-600)}
-  .rbtn.o{background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline)}
-  .shared .sl{font-size:11px;font-weight:700;color:var(--text-faint);margin-bottom:8px}
+  .about .at{display:block;font-size:12.5px;font-weight:700;margin-top:6px;line-height:1.4}
+  .about .arow{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap}
+  .rbtn{width:100%;border:0;border-radius:12px;padding:11px;font-family:var(--font-sans);font-size:12.5px;font-weight:700;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline)}
+  .shared .sl{font-size:11px;font-weight:700;color:var(--text-faint);margin:0 0 8px}
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .ph{aspect-ratio:1 / 1;border-radius:10px;background:repeating-linear-gradient(45deg,#eef1f5 0 6px,#e7ebf1 6px 12px);box-shadow:inset 0 0 0 1px rgb(25 31 40 / 0.05);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:9px;color:var(--text-faint);font-weight:600}
   .file{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:11px}
   .file:hover{background:var(--row-hover)}
   .fic{flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;font-size:13px}
-  .file .fn{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file .fn{display:block;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .file .fm{font-size:10.5px;color:var(--text-faint);font-weight:500}
+  .rfoot{margin-top:auto;display:flex;justify-content:center;gap:14px;padding-top:8px}
+  .rfoot button{border:0;background:transparent;color:var(--text-faint);font-family:var(--font-sans);font-size:11.5px;font-weight:600;padding:4px 6px;border-radius:7px}
 
   /* E2 default: rotating colored pairs (Richard, 2026-07-05) */
   .av-1{background:var(--avatar-1-bg);color:var(--avatar-1-fg)}
@@ -86,7 +109,6 @@
   .av-3{background:var(--avatar-3-bg);color:var(--avatar-3-fg)}
   .av-4{background:var(--avatar-4-bg);color:var(--avatar-4-fg)}
   .av-5{background:var(--avatar-5-bg);color:var(--avatar-5-fg)}
-  .av-6{background:var(--avatar-6-bg);color:var(--avatar-6-fg)}
 </style>
 </head>
 <body>
@@ -94,32 +116,68 @@
   <div class="frame">
     <div class="clist">
       <div class="ctop">
-        <span class="cseg"><span class="on">All</span><span>Unread 2</span><span>My circle</span></span>
         <div class="csearch">⌕ Search messages…</div>
+        <div class="chips-f">
+          <button class="fchip on">All 5</button>
+          <button class="fchip">Unread 2</button>
+          <button class="fchip">My circle 3</button>
+          <button class="fchip">Open asks 3</button>
+        </div>
       </div>
-      <div class="cv sel"><span class="cav av-1">MC</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Maya Chen</span><span class="tm">1h</span></span><span class="pv" style="display:block">Thursday works — see you then.</span></span></div>
-      <div class="cv unread"><span class="cav av-3">SO</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Sam Okafor</span><span class="tm">5h</span></span><span class="pv" style="display:block">How risky is design instead of SWE?</span></span><span class="dotu"></span></div>
-      <div class="cv unread"><span class="cav av-4">EV</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Eva Park</span><span class="tm">1d</span></span><span class="pv" style="display:block">Would you look over my first portfolio?</span></span><span class="dotu"></span></div>
-      <div class="cv"><span class="cav av-5">JB</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline"><span class="nm">Jordan Blake</span><span class="tm">1d</span></span><span class="pv" style="display:block">Sounds good, talk soon.</span></span></div>
+
+      <div class="wait">
+        <button class="whead" aria-expanded="true">
+          <span class="wl">Waiting on you</span>
+          <span class="wbadge">2</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </button>
+        <div class="wbody">
+          <div class="wcard">
+            <span class="wrow">
+              <span class="wav av-3">DK</span>
+              <span style="flex:1;min-width:0"><span class="wn">Dan Kim <i>’19</i></span><span class="wr">Product Designer · Toss · Seoul</span></span>
+              <span class="wt">2h</span>
+            </span>
+            <p class="wnote">Hi Iris — I saw you moved from brand work into product at a fintech. I’m putting a portfolio together for fintech product roles and I’m not sure which two case studies to lead with.</p>
+            <span class="wacts"><button class="wbtn">View ask</button></span>
+          </div>
+          <div class="wcard">
+            <span class="wrow">
+              <span class="wav av-5">RM</span>
+              <span style="flex:1;min-width:0"><span class="wn">Rosa Marquez <i>’17</i></span><span class="wr">UX Writer · Intercom · Dublin</span></span>
+              <span class="wt">1d</span>
+            </span>
+            <p class="wnote">Hi Iris — we were both in Prof. Whitman’s studio, a few years apart. Would love to stay in touch.</p>
+            <span class="wacts"><button class="wbtn">Accept</button><button class="wbtn q">Decline</button></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv sel"><span class="cav av-1">MC</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline;gap:6px"><span class="nm">Maya Chen</span><span class="yr">’14</span><span class="tm">1h</span></span><span class="pv">Not at all. The skills transfer — the game is just different. I wrote up some…</span></span></div>
+      <div class="cv unread"><span class="cav av-4">SO</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline;gap:6px"><span class="nm">Sam Okafor</span><span class="yr">’16</span><span class="tm">5h</span></span><span class="pv">Also — is a full brand book overkill at this stage?</span></span><span class="dotu"></span></div>
+      <div class="cv unread"><span class="cav av-2">HY</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline;gap:6px"><span class="nm">Hana Yoon</span><span class="yr">’21</span><span class="tm">1d</span></span><span class="pv">Just shared the link. Honest notes welcome — I’d rather hear it from you…</span></span><span class="dotu"></span></div>
+      <div class="cv"><span class="cav av-2">JB</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline;gap:6px"><span class="nm">Jordan Blake</span><span class="yr">’12</span><span class="tm">2d</span></span><span class="pv">Sounds good, talk soon.</span></span></div>
+      <div class="cv"><span class="cav av-1">TH</span><span style="flex:1;min-width:0"><span style="display:flex;align-items:baseline;gap:6px"><span class="nm">Tom Hale</span><span class="yr">’08</span><span class="tm">2w</span></span><span class="pv">There it is. Next time add twenty percent for the nerves.</span></span></div>
     </div>
 
     <div class="thread">
       <div class="thead">
         <span class="pres"><span class="cav av-1" style="width:40px;height:40px;font-size:13px">MC</span><span class="pd"></span></span>
-        <span><span class="nm">Maya Chen</span><span class="st" style="display:block">Active now</span></span>
-        <button class="railbtn">Hide profile ›</button>
+        <span><span style="display:flex;align-items:center;gap:7px"><span class="nm">Maya Chen</span><span class="yr">’14</span><span class="chip c-b">In your circle</span></span><span class="st" style="display:block">Active now</span></span>
+        <button class="railbtn">Hide details ›</button>
       </div>
       <div class="msgs">
+        <span class="sys">Maya accepted your ask · Jul 6</span>
         <span class="day">Today</span>
-        <div class="m them"><div class="bub">Hey Alex — saw you&rsquo;re weighing the in-house move. Happy to talk it through.</div><div class="tm">9:12 AM</div></div>
+        <div class="m them"><div class="bub">Hey Iris — saw you’re weighing the in-house move. Happy to talk it through.</div><div class="tm">9:12 AM</div></div>
         <div class="m me"><div class="bub">Yes please. Mostly trying to figure out timing — did you regret jumping when you did?</div><div class="tm">9:20 AM · Read</div></div>
-        <div class="m them"><div class="bub">Not at all. The skills transfer — the game is just different.</div><div class="tm">9:24 AM</div></div>
+        <div class="m them"><div class="bub">Not at all. The skills transfer — the game is just different. I wrote up some notes after my own move; sending them over.</div><div class="tm">9:24 AM</div></div>
         <div class="typing"><span class="bub"><span class="d"></span><span class="d"></span><span class="d"></span></span><span class="cap">Maya is typing…</span></div>
       </div>
       <div class="cbar">
-        <button class="attach">🖇</button>
+        <button class="attach" aria-label="Attach a file">🖇</button>
         <span class="field">Message Maya…</span>
-        <button class="send">Send ↗</button>
+        <button class="send">Send</button>
       </div>
     </div>
 
@@ -128,28 +186,29 @@
         <span class="rav av-1">MC</span>
         <h4>Maya Chen</h4>
         <p class="rt">Design Lead · Figma · San Francisco</p>
-        <div class="chips"><span class="chip c-b">Verified '14</span><span class="chip c-g"><i></i>Open to mentor</span></div>
+        <div class="chips"><span class="chip c-b">Verified ’14</span><span class="chip c-g"><i></i>Open to help</span></div>
         <a class="flink" href="#" onclick="return false">Open full profile →</a>
       </div>
       <div class="about">
         <span class="al">About this conversation</span>
-        <span class="at" style="display:block">Ask · Timing an in-house move</span>
-        <span class="arow"><span class="chip c-b">Open</span><span style="font-size:11px;color:var(--text-faint);font-weight:600">Day 5 of 14</span></span>
-        <span class="track"><span class="fill"></span></span>
+        <span class="at">Ask · Timing an in-house move</span>
+        <span class="arow"><span class="chip c-b">Open</span><span class="chip c-exp">3 days left before this ask closes</span></span>
       </div>
-      <div style="display:grid;gap:8px">
-        <button class="rbtn w">Schedule a call</button>
-        <button class="rbtn o">Mark ask resolved</button>
+      <button class="rbtn">Mark ask resolved</button>
+      <div class="shared">
+        <p class="sl">Shared photos</p>
+        <div class="pgrid"><span class="ph">IMG 01</span><span class="ph">IMG 02</span><span class="ph">IMG 03</span></div>
       </div>
       <div class="shared">
-        <p class="sl">Shared in this chat</p>
-        <div class="file"><span class="fic">📄</span><span style="min-width:0"><span class="fn" style="display:block">portfolio-reframe-notes.pdf</span><span class="fm">Maya · 9:24 AM</span></span></div>
-        <div class="file"><span class="fic" style="background:var(--surface-subtle)">🔗</span><span style="min-width:0"><span class="fn" style="display:block">figma.com/@maya/case-studies</span><span class="fm">You · 9:31 AM</span></span></div>
+        <p class="sl">Files &amp; links</p>
+        <div class="file"><span class="fic">📄</span><span style="min-width:0"><span class="fn">portfolio-reframe-notes.pdf</span><span class="fm">Maya · 9:24 AM</span></span></div>
+        <div class="file"><span class="fic" style="background:var(--surface-subtle)">🔗</span><span style="min-width:0"><span class="fn">figma.com/@maya/case-studies</span><span class="fm">You · 9:31 AM</span></span></div>
       </div>
+      <div class="rfoot"><button>Report</button><button>Block</button></div>
     </div>
   </div>
 
-  <p style="font-size:12px;color:var(--text-faint);margin-top:12px">Interaction rule (1e): opening the profile rail collapses the app sidebar to its 72px icon rail so the thread never squeezes; closing it restores the full nav. Thread canvas is --surface-thread #fbfcfd.</p>
+  <p style="font-size:12px;color:var(--text-faint);margin-top:12px">Interaction rules: opening the details rail collapses the app sidebar to its 72px icon rail so the thread never squeezes. The Waiting-on-you group stays pinned above the list; its red count badge persists when the group is folded. The closing-soon flag (--closing-soon-*) appears only in an ask’s last 3 days — no counter or progress track otherwise. Thread canvas is --surface-thread #fbfcfd.</p>
 
 </body>
 </html>

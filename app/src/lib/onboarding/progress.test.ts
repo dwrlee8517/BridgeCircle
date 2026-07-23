@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { inferOnboardingStep, parseOnboardingStep } from './progress'
+import { inferOnboardingStep, parseOnboardingStep, resolveOnboardingStep } from './progress'
 
 const completeProfile = {
   name: 'Onboarding QA',
@@ -11,7 +11,7 @@ const completeProfile = {
   currentTitle: 'Member',
   city: 'Los Angeles, CA',
   headline: 'Helping fellow alumni',
-  linkedinUrl: 'https://linkedin.com/in/example',
+  industry: 'Technology',
   careerHistory: [{ employer: 'BridgeCircle' }],
   skills: ['fundraising'],
 }
@@ -22,7 +22,7 @@ describe('onboarding progress', () => {
     expect(parseOnboardingStep('0')).toBeNull()
     expect(parseOnboardingStep('abc')).toBeNull()
     expect(parseOnboardingStep('3')).toBe(3)
-    expect(parseOnboardingStep('99')).toBe(5)
+    expect(parseOnboardingStep('99')).toBe(7)
   })
 
   it('forces step 1 until the required identity floor exists', () => {
@@ -40,7 +40,7 @@ describe('onboarding progress', () => {
         major: '',
         educationHistory: [],
       }),
-    ).toBe(2)
+    ).toBe(3)
 
     expect(
       inferOnboardingStep({
@@ -49,9 +49,9 @@ describe('onboarding progress', () => {
         currentTitle: '',
         city: '',
         headline: '',
-        linkedinUrl: '',
+        industry: '',
       }),
-    ).toBe(3)
+    ).toBe(4)
 
     expect(
       inferOnboardingStep({
@@ -59,10 +59,54 @@ describe('onboarding progress', () => {
         careerHistory: [],
         skills: [],
       }),
-    ).toBe(4)
+    ).toBe(5)
   })
 
-  it('uses step 5 once profile setup content exists through step 4', () => {
-    expect(inferOnboardingStep(completeProfile)).toBe(5)
+  it('uses Help once profile setup content exists through Activities', () => {
+    expect(inferOnboardingStep(completeProfile)).toBe(6)
+  })
+
+  it('allows intentional Back navigation through an explicit step', () => {
+    expect(
+      resolveOnboardingStep({
+        explicit: 3,
+        cookie: 6,
+        durable: 6,
+        inferred: 5,
+      }),
+    ).toBe(3)
+  })
+
+  it('prefers cross-device durable progress over a stale cookie', () => {
+    expect(
+      resolveOnboardingStep({
+        explicit: null,
+        cookie: 3,
+        durable: 6,
+        inferred: 5,
+      }),
+    ).toBe(6)
+  })
+
+  it('does not let inferred profile fields skip an intentionally durable optional step', () => {
+    expect(
+      resolveOnboardingStep({
+        explicit: null,
+        cookie: null,
+        durable: 2,
+        inferred: 3,
+      }),
+    ).toBe(2)
+  })
+
+  it('uses inferred profile truth only when no saved progress marker exists', () => {
+    expect(
+      resolveOnboardingStep({
+        explicit: null,
+        cookie: null,
+        durable: null,
+        inferred: 5,
+      }),
+    ).toBe(5)
   })
 })

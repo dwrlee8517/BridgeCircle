@@ -1,8 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { FieldError } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { type UpdatePasswordState, updatePassword } from '../actions'
@@ -11,6 +12,12 @@ const initialState: UpdatePasswordState = {}
 
 export function UpdatePasswordForm() {
   const [state, action, pending] = useActionState(updatePassword, initialState)
+  const passwordRef = useRef<HTMLInputElement>(null)
+  const errorId = state.error ? 'update-password-error' : undefined
+
+  useEffect(() => {
+    if (state.error) passwordRef.current?.focus()
+  }, [state.error])
 
   return (
     <Card className="text-base shadow-card-hover">
@@ -30,17 +37,29 @@ export function UpdatePasswordForm() {
             </Label>
             <Input
               id="password"
+              ref={passwordRef}
               name="password"
               type="password"
               autoComplete="new-password"
               minLength={8}
               required
+              aria-invalid={state.error ? true : undefined}
+              aria-describedby={
+                errorId ? `${errorId} password-requirements` : 'password-requirements'
+              }
               className="h-11 text-base md:text-base"
             />
-            <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+            <p id="password-requirements" className="text-xs text-muted-foreground">
+              At least 8 characters.
+            </p>
           </div>
-          {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-          <Button type="submit" className="h-11 w-full text-base" disabled={pending}>
+          <FieldError id={errorId} error={state.error} className="text-sm" />
+          <Button
+            type="submit"
+            className="h-11 w-full text-base"
+            disabled={pending}
+            aria-busy={pending}
+          >
             {pending ? 'Saving…' : 'Save new password'}
           </Button>
         </form>

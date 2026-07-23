@@ -1,7 +1,4 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { createAdminClient } from '@/db/admin'
-import type { Database } from '@/db/database.types'
 import type { ExtractedProfile } from '@/lib/resume/schemas'
 import { hashFingerprint, projectFingerprint } from './fingerprint'
 import { fallbackChainFor, providerFor } from './registry'
@@ -21,12 +18,22 @@ export type OnboardingFetchSuccess = {
   providerRecordId: string
   linkedinUsername: string | null
   fingerprintHash: string
+  attempts: OnboardingFetchAttempt[]
 }
 
 export type OnboardingFetchFailure = {
   ok: false
   error: 'all_providers_failed'
-  attempts: Array<{ provider: ProviderName; error: string }>
+  attempts: OnboardingFetchAttempt[]
+}
+
+export type OnboardingFetchAttempt = {
+  provider: ProviderName
+  purpose: 'onboarding_import' | 'fallback_verification'
+  status: 'succeeded' | 'no_match' | 'failed'
+  costUnits: number
+  fingerprint: string | null
+  error: string | null
 }
 
 export type OnboardingFetchResult = OnboardingFetchSuccess | OnboardingFetchFailure
@@ -46,8 +53,7 @@ export type OnboardingFetchResult = OnboardingFetchSuccess | OnboardingFetchFail
 export async function fetchForOnboarding(
   input: OnboardingFetchInput,
 ): Promise<OnboardingFetchResult> {
-  const admin = createAdminClient()
-  const attempts: Array<{ provider: ProviderName; error: string }> = []
+  const attempts: OnboardingFetchAttempt[] = []
 
   const primary = providerFor('onboarding')
   const chain: EnrichmentProvider[] = [primary, ...fallbackChainFor('onboarding')]
@@ -59,28 +65,15 @@ export async function fetchForOnboarding(
 
     // 1) Try by-URL on every provider in the chain.
     const urlResult = await provider.fetchByLinkedInUrl(input.url)
-    await logRun(admin, {
-      userId: input.userId,
-      provider: provider.name,
-      purpose,
-      result: urlResult,
-    })
-    if (urlResult.ok) return successFrom(urlResult, provider.name)
-
-    attempts.push({ provider: provider.name, error: urlResult.error })
+    attempts.push(attemptFrom(provider.name, purpose, urlResult))
+    if (urlResult.ok) return successFrom(urlResult, provider.name, attempts)
 
     // 2) PDL also supports identity lookup — give it the second pass before
     //    moving on. Other providers don't, so this branch only fires for pdl.
     if (provider.name === 'pdl' && input.identity) {
       const idResult = await provider.fetchByIdentity(input.identity)
-      await logRun(admin, {
-        userId: input.userId,
-        provider: provider.name,
-        purpose: 'fallback_verification',
-        result: idResult,
-      })
-      if (idResult.ok) return successFrom(idResult, provider.name)
-      attempts.push({ provider: provider.name, error: `identity:${idResult.error}` })
+      attempts.push(attemptFrom(provider.name, 'fallback_verification', idResult, 'identity'))
+      if (idResult.ok) return successFrom(idResult, provider.name, attempts)
     }
   }
 
@@ -90,6 +83,7 @@ export async function fetchForOnboarding(
 function successFrom(
   result: Extract<EnrichmentResult, { ok: true }>,
   provider: ProviderName,
+  attempts: OnboardingFetchAttempt[],
 ): OnboardingFetchSuccess {
   const fp = projectFingerprint(result.profile)
   return {
@@ -99,36 +93,26 @@ function successFrom(
     providerRecordId: result.providerRecordId,
     linkedinUsername: result.linkedinUsername,
     fingerprintHash: hashFingerprint(fp),
+    attempts,
   }
 }
 
-async function logRun(
-  admin: SupabaseClient<Database>,
-  args: {
-    userId: string
-    provider: ProviderName
-    purpose: 'onboarding_import' | 'fallback_verification'
-    result: EnrichmentResult
-  },
-) {
-  const status = args.result.ok
-    ? 'succeeded'
-    : args.result.error === 'not_found'
-      ? 'no_match'
-      : 'failed'
-  const fingerprint = args.result.ok
-    ? hashFingerprint(projectFingerprint(args.result.profile))
-    : null
-  await admin.from('profile_enrichment_runs').insert({
-    user_id: args.userId,
-    provider: args.provider,
-    purpose: args.purpose,
+function attemptFrom(
+  provider: ProviderName,
+  purpose: OnboardingFetchAttempt['purpose'],
+  result: EnrichmentResult,
+  prefix?: string,
+): OnboardingFetchAttempt {
+  const status = result.ok ? 'succeeded' : result.error === 'not_found' ? 'no_match' : 'failed'
+  const fingerprint = result.ok ? hashFingerprint(projectFingerprint(result.profile)) : null
+  return {
+    provider,
+    purpose,
     status,
-    cost_units: args.result.ok ? 1 : 0,
+    costUnits: result.ok ? 1 : 0,
     fingerprint,
-    error: args.result.ok
+    error: result.ok
       ? null
-      : `${args.result.error}${args.result.detail ? `: ${args.result.detail}` : ''}`,
-    fetched_at: new Date().toISOString(),
-  })
+      : `${prefix ? `${prefix}:` : ''}${result.error}${result.detail ? `: ${result.detail}` : ''}`,
+  }
 }

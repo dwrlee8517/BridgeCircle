@@ -1,0 +1,41 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/**/*.ts",
+    "src/lib/auth/**/*.ts",
+    "src/lib/admin/contracts.ts",
+    "src/lib/admin/decideMembership.ts",
+    "src/lib/invite/accept.ts",
+    "src/lib/invite/schemas.ts",
+    "src/lib/invite/verify.ts",
+    "src/lib/notifications/types.ts",
+    "src/lib/notifications/listNotifications.ts",
+    "src/lib/notifications/markRead.ts",
+    "src/lib/membership/**/*.ts",
+    "src/lib/onboarding/**/*.ts",
+    "src/lib/profile/contracts.ts",
+    "src/lib/profile/savePartialProfile.ts",
+    "src/lib/profile/schemas.ts",
+    "src/lib/profile/uploadAvatar.ts",
+    "src/app/(auth)/join/**/*.ts",
+    "src/app/(auth)/join/**/*.tsx",
+    "src/app/auth/callback/route.ts",
+    "src/app/onboarding/**/*.ts",
+    "src/app/onboarding/**/*.tsx",
+    "src/app/select-circle/**/*.ts",
+    "src/app/select-circle/**/*.tsx",
+    "src/app/avatar-actions.ts",
+    "src/app/_lib/**/*.ts",
+    "src/components/onboarding/**/*.ts",
+    "src/components/onboarding/**/*.tsx",
+    "src/app/(member)/layout.tsx",
+    "src/app/(member)/notifications-actions.ts",
+    "src/app/(member)/notifications-bell.tsx",
+    "src/app/(member)/admin/approvals/actions.ts"
+  ],
+  "exclude": ["node_modules", ".next", "tests/e2e", "src/app/onboarding/import/**"]
+}

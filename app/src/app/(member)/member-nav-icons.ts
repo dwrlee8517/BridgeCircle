@@ -1,22 +1,22 @@
 import {
   GraduationCap,
   HandHelping,
-  Inbox,
+  House,
   type LucideIcon,
-  MessageCircleQuestion,
+  MessageCircle,
   Shield,
   Users,
 } from 'lucide-react'
 
 const MEMBER_NAV_ICONS: Record<string, LucideIcon> = {
-  '/': MessageCircleQuestion,
+  '/': House,
   '/help': HandHelping,
   '/people': Users,
   '/school': GraduationCap,
-  '/inbox': Inbox,
+  '/messages': MessageCircle,
   '/admin/invite': Shield,
 }
 
 export function getMemberNavIcon(href: string) {
-  return MEMBER_NAV_ICONS[href] ?? MessageCircleQuestion
+  return MEMBER_NAV_ICONS[href] ?? House
 }

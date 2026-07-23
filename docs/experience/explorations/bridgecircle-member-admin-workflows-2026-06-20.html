@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BridgeCircle Member And Admin Workflow Map</title>
+    <style>
+      :root {
+        --background: #fafaf9;
+        --foreground: #0c0c0b;
+        --card: #ffffff;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --primary-tint: rgb(37 99 235 / 10%);
+        --surface-ink: #1b1813;
+        --surface-ink-foreground: #fafaf9;
+        --surface-ink-muted: rgb(250 250 249 / 68%);
+        --secondary: #f4f3ee;
+        --muted: #ebebe5;
+        --muted-foreground: #4d4d4a;
+        --border: #dcdcd6;
+        --cta: #f59e0b;
+        --cta-foreground: #0c0c0b;
+        --accent-sage: #15a05f;
+        --accent-ochre: #a16207;
+        --accent-rust: #c4314b;
+        --accent-plum: #7c3aed;
+        --success-tint: rgb(21 160 95 / 10%);
+        --warning-tint: rgb(161 98 7 / 12%);
+        --danger-tint: rgb(155 44 31 / 10%);
+        --plum-tint: rgb(124 58 237 / 10%);
+        --shadow: 0 18px 45px rgb(12 12 11 / 8%);
+        --radius: 6px;
+        --max: 1440px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(180deg, rgb(244 243 238 / 88%), transparent 320px),
+          var(--background);
+        color: var(--foreground);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        line-height: 1.45;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid var(--border);
+        background: rgb(250 250 249 / 92%);
+        backdrop-filter: blur(16px);
+      }
+
+      .topbar-inner {
+        align-items: center;
+        display: flex;
+        gap: 18px;
+        justify-content: space-between;
+        margin: 0 auto;
+        max-width: var(--max);
+        min-height: 64px;
+        padding: 0 28px;
+      }
+
+      .brand {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        min-width: 230px;
+        text-decoration: none;
+      }
+
+      .mark {
+        align-items: center;
+        background: var(--surface-ink);
+        border-radius: var(--radius);
+        color: var(--surface-ink-foreground);
+        display: grid;
+        font-size: 13px;
+        font-weight: 800;
+        height: 34px;
+        justify-items: center;
+        letter-spacing: 0;
+        width: 34px;
+      }
+
+      .brand-title {
+        display: grid;
+        gap: 1px;
+      }
+
+      .brand-title strong {
+        font-size: 14px;
+        letter-spacing: 0;
+      }
+
+      .brand-title span {
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+
+      .nav {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+      }
+
+      .nav a {
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        color: var(--muted-foreground);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 8px 10px;
+        text-decoration: none;
+      }
+
+      .nav a:hover,
+      .nav a:focus-visible {
+        background: var(--primary-tint);
+        border-color: rgb(37 99 235 / 22%);
+        color: var(--primary-hover);
+        outline: none;
+      }
+
+      .hero {
+        background: var(--surface-ink);
+        color: var(--surface-ink-foreground);
+        padding: 54px 28px 42px;
+      }
+
+      .hero-grid {
+        display: grid;
+        gap: 36px;
+        grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .kicker {
+        color: var(--muted-foreground);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.11em;
+        margin: 0 0 18px;
+        text-transform: uppercase;
+      }
+
+      .hero .kicker,
+      .north-star .kicker,
+      .core-loop .kicker {
+        color: var(--surface-ink-muted);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: clamp(40px, 7vw, 84px);
+        letter-spacing: 0;
+        line-height: 0.94;
+        margin-bottom: 22px;
+        max-width: 980px;
+      }
+
+      .hero-copy {
+        color: var(--surface-ink-muted);
+        font-size: 17px;
+        max-width: 760px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+      }
+
+      .hero-actions a {
+        border-radius: var(--radius);
+        font-size: 13px;
+        font-weight: 800;
+        padding: 10px 13px;
+        text-decoration: none;
+      }
+
+      .hero-actions .primary {
+        background: var(--cta);
+        color: var(--cta-foreground);
+      }
+
+      .hero-actions .secondary {
+        border: 1px solid rgb(250 250 249 / 26%);
+        color: var(--surface-ink-foreground);
+      }
+
+      .north-star {
+        border: 1px solid rgb(250 250 249 / 18%);
+        border-radius: var(--radius);
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .north-star h2 {
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .north-star p {
+        color: var(--surface-ink-muted);
+        font-size: 13px;
+        margin: 0;
+      }
+
+      .signal-row {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .signal {
+        border-top: 1px solid rgb(250 250 249 / 20%);
+        padding-top: 10px;
+      }
+
+      .signal strong {
+        display: block;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .signal span {
+        color: var(--surface-ink-muted);
+        display: block;
+        font-size: 11px;
+        line-height: 1.3;
+        margin-top: 6px;
+      }
+
+      section {
+        padding: 42px 28px;
+      }
+
+      .section-head {
+        align-items: end;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.45fr);
+        margin: 0 auto 24px;
+        max-width: var(--max);
+      }
+
+      .section-head h2 {
+        font-size: clamp(30px, 4vw, 48px);
+        letter-spacing: 0;
+        line-height: 1;
+        margin: 0;
+      }
+
+      .section-head p {
+        color: var(--muted-foreground);
+        font-size: 14px;
+        margin: 0;
+      }
+
+      .band {
+        border-top: 1px solid var(--border);
+      }
+
+      .two-col {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .journey {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .journey-header {
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 14px;
+        justify-content: space-between;
+        padding: 16px 18px;
+      }
+
+      .journey-header h3 {
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .badge {
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: 11px;
+        font-weight: 800;
+        gap: 6px;
+        padding: 5px 8px;
+        white-space: nowrap;
+      }
+
+      .badge.member {
+        background: var(--primary-tint);
+        border-color: rgb(37 99 235 / 20%);
+        color: var(--primary-hover);
+      }
+
+      .badge.admin {
+        background: var(--plum-tint);
+        border-color: rgb(124 58 237 / 18%);
+        color: var(--accent-plum);
+      }
+
+      .badge.success {
+        background: var(--success-tint);
+        border-color: rgb(21 160 95 / 20%);
+        color: var(--accent-sage);
+      }
+
+      .journey-body {
+        display: grid;
+        gap: 0;
+      }
+
+      .step {
+        border-bottom: 1px solid var(--border);
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 72px minmax(0, 1fr);
+        padding: 18px;
+      }
+
+      .step:last-child {
+        border-bottom: 0;
+      }
+
+      .step-id {
+        color: var(--muted-foreground);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .step h4 {
+        font-size: 17px;
+        letter-spacing: 0;
+        margin: 0 0 5px;
+      }
+
+      .step p {
+        color: var(--muted-foreground);
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .micro-flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .pill {
+        align-items: center;
+        background: var(--secondary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--foreground);
+        display: inline-flex;
+        font-size: 11px;
+        font-weight: 750;
+        gap: 6px;
+        padding: 6px 8px;
+      }
+
+      .pill.primary {
+        background: var(--primary-tint);
+        border-color: rgb(37 99 235 / 20%);
+        color: var(--primary-hover);
+      }
+
+      .pill.success {
+        background: var(--success-tint);
+        border-color: rgb(21 160 95 / 20%);
+        color: var(--accent-sage);
+      }
+
+      .pill.warn {
+        background: var(--warning-tint);
+        border-color: rgb(161 98 7 / 18%);
+        color: var(--foreground);
+      }
+
+      .pill.danger {
+        background: var(--danger-tint);
+        border-color: rgb(155 44 31 / 18%);
+        color: var(--accent-rust);
+      }
+
+      .flow-board {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(5, minmax(170px, 1fr));
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .nav-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: grid;
+        gap: 12px;
+        min-height: 232px;
+        padding: 16px;
+        position: relative;
+      }
+
+      .nav-card::after {
+        background: var(--border);
+        content: "";
+        height: 1px;
+        left: calc(100% + 1px);
+        position: absolute;
+        top: 32px;
+        width: 13px;
+      }
+
+      .nav-card:last-child::after {
+        display: none;
+      }
+
+      .nav-card h3 {
+        font-size: 19px;
+        margin: 0;
+      }
+
+      .nav-card p {
+        color: var(--muted-foreground);
+        font-size: 13px;
+        margin: 0;
+      }
+
+      .nav-card ul {
+        display: grid;
+        gap: 7px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-card li {
+        align-items: baseline;
+        display: grid;
+        gap: 6px;
+        grid-template-columns: 7px minmax(0, 1fr);
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+
+      .nav-card li::before {
+        background: var(--primary);
+        border-radius: 999px;
+        content: "";
+        display: block;
+        height: 7px;
+        transform: translateY(-1px);
+        width: 7px;
+      }
+
+      .system-map {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 0.78fr 1.1fr 0.78fr;
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .lane {
+        display: grid;
+        gap: 12px;
+      }
+
+      .lane-title {
+        color: var(--muted-foreground);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .object-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px;
+      }
+
+      .object-card h3 {
+        font-size: 16px;
+        margin: 0 0 6px;
+      }
+
+      .object-card p {
+        color: var(--muted-foreground);
+        font-size: 12px;
+        margin: 0;
+      }
+
+      .core-loop {
+        background: var(--surface-ink);
+        border-radius: var(--radius);
+        color: var(--surface-ink-foreground);
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+      }
+
+      .core-loop h3 {
+        font-size: 22px;
+        margin: 0;
+      }
+
+      .loop-grid {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .loop-item {
+        border: 1px solid rgb(250 250 249 / 18%);
+        border-radius: var(--radius);
+        min-height: 94px;
+        padding: 12px;
+      }
+
+      .loop-item strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      .loop-item span {
+        color: var(--surface-ink-muted);
+        display: block;
+        font-size: 12px;
+      }
+
+      .admin-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .admin-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .admin-card h3 {
+        font-size: 18px;
+        margin: 0;
+      }
+
+      .admin-card p {
+        color: var(--muted-foreground);
+        font-size: 13px;
+        margin: 0;
+      }
+
+      .admin-card .metric-row {
+        border-top: 1px solid var(--border);
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+        padding-top: 12px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 22px;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      .metric span {
+        color: var(--muted-foreground);
+        display: block;
+        font-size: 11px;
+        line-height: 1.25;
+        margin-top: 5px;
+      }
+
+      .decision-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .decision {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .decision h3 {
+        font-size: 15px;
+        margin: 0;
+      }
+
+      .decision p {
+        color: var(--muted-foreground);
+        font-size: 12px;
+        margin: 0;
+      }
+
+      .comment-id {
+        color: var(--primary-hover);
+        font-family:
+          "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .comment-strip {
+        background: var(--secondary);
+        border-top: 1px solid var(--border);
+        padding: 24px 28px 44px;
+      }
+
+      .comment-inner {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(0, 0.75fr) minmax(280px, 0.45fr);
+        margin: 0 auto;
+        max-width: var(--max);
+      }
+
+      .comment-inner h2 {
+        font-size: 28px;
+        margin: 0 0 8px;
+      }
+
+      .comment-inner p {
+        color: var(--muted-foreground);
+        font-size: 13px;
+        margin: 0;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .small-note {
+        color: var(--muted-foreground);
+        font-size: 12px;
+      }
+
+      @media (max-width: 1180px) {
+        .flow-board,
+        .admin-grid,
+        .decision-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .nav-card::after {
+          display: none;
+        }
+
+        .system-map,
+        .hero-grid,
+        .section-head,
+        .comment-inner {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 780px) {
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 10px;
+          padding: 14px 18px;
+        }
+
+        .brand {
+          min-width: 0;
+        }
+
+        .hero,
+        section,
+        .comment-strip {
+          padding-left: 18px;
+          padding-right: 18px;
+        }
+
+        .two-col,
+        .flow-board,
+        .admin-grid,
+        .decision-grid,
+        .loop-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          grid-template-columns: 1fr;
+        }
+
+        .signal-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#top" aria-label="BridgeCircle workflow map home">
+          <span class="mark">BC</span>
+          <span class="brand-title">
+            <strong>BridgeCircle workflows</strong>
+            <span>Member and admin usage map</span>
+          </span>
+        </a>
+        <nav class="nav" aria-label="Page sections">
+          <a href="#member">Member</a>
+          <a href="#admin">Admin</a>
+          <a href="#system">System model</a>
+          <a href="#comments">Comment anchors</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <div class="hero">
+        <div class="hero-grid">
+          <div>
+            <p class="kicker">Working visual for product refinement</p>
+            <h1>Find help, offer help, and keep the school circle alive.</h1>
+            <p class="hero-copy">
+              This board reframes BridgeCircle around low-barrier trusted help, not a
+              formal mentor/mentee program. Use the comment IDs to mark what should
+              change before this becomes product guidance.
+            </p>
+            <div class="hero-actions" aria-label="Jump links">
+              <a class="primary" href="#member">Review member paths</a>
+              <a class="secondary" href="#admin">Review admin paths</a>
+            </div>
+          </div>
+          <aside class="north-star" aria-label="North star">
+            <div>
+              <p class="kicker">North star</p>
+              <h2>Turn verified school affiliation into useful support.</h2>
+            </div>
+            <p>
+              The member should feel safe asking. The helper should feel free to
+              respond, pass, or set boundaries. The school should see an active,
+              current, reachable community without turning the app into a donor CRM.
+            </p>
+            <div class="signal-row">
+              <div class="signal">
+                <strong>Ask</strong>
+                <span>Start with a need, not a hierarchy.</span>
+              </div>
+              <div class="signal">
+                <strong>Help</strong>
+                <span>Make small useful replies easy.</span>
+              </div>
+              <div class="signal">
+                <strong>School</strong>
+                <span>Keep events and news in the circle.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <section id="member" class="band">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Member side</p>
+            <h2>Main ways members use BridgeCircle</h2>
+          </div>
+          <p>
+            The member experience is built around four natural jobs: ask for help,
+            offer help, explore people, and stay connected to the school.
+          </p>
+        </div>
+
+        <div class="flow-board" aria-label="Member navigation workflow">
+          <article class="nav-card" id="M1">
+            <span class="comment-id">M1</span>
+            <h3>Ask</h3>
+            <p>Start with a question or situation.</p>
+            <ul>
+              <li>Type a quick question in plain language</li>
+              <li>See why each person might fit</li>
+              <li>Send a bounded ask or leave it open</li>
+            </ul>
+            <div class="micro-flow">
+              <span class="pill primary">Quick question</span>
+              <span class="pill warn">Ongoing guidance</span>
+            </div>
+          </article>
+
+          <article class="nav-card" id="M2">
+            <span class="comment-id">M2</span>
+            <h3>Help</h3>
+            <p>See where your experience can be useful.</p>
+            <ul>
+              <li>Review incoming asks without obligation</li>
+              <li>Offer a reply, pass, or pause availability</li>
+              <li>Answer standing asks when a good fit appears</li>
+            </ul>
+            <div class="micro-flow">
+              <span class="pill success">Accept</span>
+              <span class="pill">Pass</span>
+              <span class="pill warn">Pause</span>
+            </div>
+          </article>
+
+          <article class="nav-card" id="M3">
+            <span class="comment-id">M3</span>
+            <h3>People</h3>
+            <p>Explore the trusted directory.</p>
+            <ul>
+              <li>Search by role, place, school, interest, or name</li>
+              <li>Browse people you know or should know</li>
+              <li>Move into Ask only when there is a clear need</li>
+            </ul>
+            <div class="micro-flow">
+              <span class="pill primary">Search</span>
+              <span class="pill">Profile</span>
+            </div>
+          </article>
+
+          <article class="nav-card" id="M4">
+            <span class="comment-id">M4</span>
+            <h3>School</h3>
+            <p>Browse the school pulse.</p>
+            <ul>
+              <li>Read events, announcements, and community news</li>
+              <li>RSVP or revisit attendee context</li>
+              <li>Return through relevant school prompts</li>
+            </ul>
+            <div class="micro-flow">
+              <span class="pill primary">Events</span>
+              <span class="pill">News</span>
+            </div>
+          </article>
+
+          <article class="nav-card" id="M5">
+            <span class="comment-id">M5</span>
+            <h3>Inbox</h3>
+            <p>Handle relationship state after something starts.</p>
+            <ul>
+              <li>Needs response</li>
+              <li>Helping others</li>
+              <li>Getting help</li>
+              <li>Direct messages</li>
+            </ul>
+            <div class="micro-flow">
+              <span class="pill warn">Pending</span>
+              <span class="pill success">Active</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="band">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Member journeys</p>
+            <h2>Three paths that should feel low barrier</h2>
+          </div>
+          <p>
+            The product should not force a vertical relationship. A member can ask
+            once, help once, explore peers, or grow into an ongoing support thread.
+          </p>
+        </div>
+
+        <div class="two-col">
+          <article class="journey" id="M6">
+            <div class="journey-header">
+              <h3>Find help for a real situation</h3>
+              <span class="badge member">Member path</span>
+            </div>
+            <div class="journey-body">
+              <div class="step">
+                <div class="step-id">M6.1</div>
+                <div>
+                  <h4>Describe the need</h4>
+                  <p>
+                    The member writes what they are trying to figure out. The UI
+                    avoids asking them to choose a role first.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill primary">"Who has done this before?"</span>
+                    <span class="pill">Need type chips</span>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-id">M6.2</div>
+                <div>
+                  <h4>Compare people with context</h4>
+                  <p>
+                    Matches show visible evidence, capacity, shared circle signals,
+                    and a clear next action.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill success">Available</span>
+                    <span class="pill primary">Why this person</span>
+                    <span class="pill">View profile</span>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-id">M6.3</div>
+                <div>
+                  <h4>Send a bounded ask</h4>
+                  <p>
+                    The composer helps the member ask respectfully and keeps the
+                    request specific enough for the helper to answer.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill primary">Draft</span>
+                    <span class="pill warn">Specific time or topic</span>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-id">M6.4</div>
+                <div>
+                  <h4>Continue or close naturally</h4>
+                  <p>
+                    A useful reply can stay a quick conversation or become ongoing
+                    guidance only if both sides want that.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill success">Accepted</span>
+                    <span class="pill">Thread</span>
+                    <span class="pill">Thanks and close</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="journey" id="M7">
+            <div class="journey-header">
+              <h3>Give help without a heavy promise</h3>
+              <span class="badge success">Helper path</span>
+            </div>
+            <div class="journey-body">
+              <div class="step">
+                <div class="step-id">M7.1</div>
+                <div>
+                  <h4>Set availability by commitment</h4>
+                  <p>
+                    Helpers can be open to quick advice, ongoing guidance, both, or
+                    neither. This keeps boundaries explicit.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill success">Quick advice on</span>
+                    <span class="pill warn">Ongoing limited</span>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-id">M7.2</div>
+                <div>
+                  <h4>Review requests in context</h4>
+                  <p>
+                    Incoming asks show the actual question, why the system suggested
+                    them, and whether the asker expects a quick or longer reply.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill">Need summary</span>
+                    <span class="pill primary">Fit reason</span>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-id">M7.3</div>
+                <div>
+                  <h4>Accept, pass, or redirect</h4>
+                  <p>
+                    Declines should be normal, private, and low friction. Passing can
+                    still help the network route better.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill success">Accept</span>
+                    <span class="pill">Not this time</span>
+                    <span class="pill primary">Suggest another path</span>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <div class="step-id">M7.4</div>
+                <div>
+                  <h4>Stay useful over time</h4>
+                  <p>
+                    The system protects helper goodwill through capacity, pause,
+                    expired standing asks, and respectful nudges.
+                  </p>
+                  <div class="micro-flow">
+                    <span class="pill warn">Capacity</span>
+                    <span class="pill">Pause</span>
+                    <span class="pill success">Re-open later</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="admin" class="band">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Admin side</p>
+            <h2>Main ways schools use BridgeCircle</h2>
+          </div>
+          <p>
+            Admin work should feel like running a trusted circle, not maintaining a
+            general-purpose CRM. The app helps staff launch, keep data current,
+            communicate, and see where to act next.
+          </p>
+        </div>
+
+        <div class="admin-grid" aria-label="Admin workflow cards">
+          <article class="admin-card" id="A1">
+            <span class="comment-id">A1</span>
+            <h3>Launch the circle</h3>
+            <p>
+              Import a roster, send invites, approve members, and make sure the
+              first cohort understands what kind of help network they are joining.
+            </p>
+            <div class="micro-flow">
+              <span class="pill primary">CSV import</span>
+              <span class="pill">Invite</span>
+              <span class="pill success">Approve</span>
+            </div>
+            <div class="metric-row">
+              <div class="metric">
+                <strong>Invited</strong>
+                <span>Reachable pool</span>
+              </div>
+              <div class="metric">
+                <strong>Active</strong>
+                <span>Joined members</span>
+              </div>
+              <div class="metric">
+                <strong>Pending</strong>
+                <span>Needs review</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-card" id="A2">
+            <span class="comment-id">A2</span>
+            <h3>Keep profiles current</h3>
+            <p>
+              Prompt updates, review freshness, and use user-confirmed enrichment
+              instead of silently overwriting member profiles.
+            </p>
+            <div class="micro-flow">
+              <span class="pill warn">Stale fields</span>
+              <span class="pill primary">Refresh campaign</span>
+              <span class="pill success">Confirmed</span>
+            </div>
+            <div class="metric-row">
+              <div class="metric">
+                <strong>Complete</strong>
+                <span>Required fields</span>
+              </div>
+              <div class="metric">
+                <strong>Fresh</strong>
+                <span>Updated recently</span>
+              </div>
+              <div class="metric">
+                <strong>Review</strong>
+                <span>Proposals waiting</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-card" id="A3">
+            <span class="comment-id">A3</span>
+            <h3>Activate help supply</h3>
+            <p>
+              See where helper supply is thin, identify active helpers, and recruit
+              availability around real student or alumni needs.
+            </p>
+            <div class="micro-flow">
+              <span class="pill success">Open helpers</span>
+              <span class="pill warn">Unanswered asks</span>
+              <span class="pill primary">Recruit cohort</span>
+            </div>
+            <div class="metric-row">
+              <div class="metric">
+                <strong>Asks</strong>
+                <span>Requests sent</span>
+              </div>
+              <div class="metric">
+                <strong>7d</strong>
+                <span>Response window</span>
+              </div>
+              <div class="metric">
+                <strong>Load</strong>
+                <span>Helper capacity</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-card" id="A4">
+            <span class="comment-id">A4</span>
+            <h3>Communicate school pulse</h3>
+            <p>
+              Publish announcements, events, and news so the network has reasons to
+              return beyond direct help requests.
+            </p>
+            <div class="micro-flow">
+              <span class="pill primary">Announcement</span>
+              <span class="pill primary">Event</span>
+              <span class="pill success">RSVP</span>
+            </div>
+            <div class="metric-row">
+              <div class="metric">
+                <strong>Posted</strong>
+                <span>Recent news</span>
+              </div>
+              <div class="metric">
+                <strong>RSVP</strong>
+                <span>Event intent</span>
+              </div>
+              <div class="metric">
+                <strong>Open</strong>
+                <span>Future events</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-card" id="A5">
+            <span class="comment-id">A5</span>
+            <h3>See what to do next</h3>
+            <p>
+              The admin home should translate metrics into actions: resend invites,
+              ask alumni to refresh profiles, seed helpers, or promote an event.
+            </p>
+            <div class="micro-flow">
+              <span class="pill warn">Needs attention</span>
+              <span class="pill primary">Recommended action</span>
+              <span class="pill">Export update</span>
+            </div>
+            <div class="metric-row">
+              <div class="metric">
+                <strong>Health</strong>
+                <span>Circle status</span>
+              </div>
+              <div class="metric">
+                <strong>Next</strong>
+                <span>Best admin task</span>
+              </div>
+              <div class="metric">
+                <strong>Proof</strong>
+                <span>Board-ready stats</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-card" id="A6">
+            <span class="comment-id">A6</span>
+            <h3>Work with existing CRMs</h3>
+            <p>
+              BridgeCircle should import and export clean alumni updates without
+              claiming to own donor, household, gift, or advancement records.
+            </p>
+            <div class="micro-flow">
+              <span class="pill">CSV in</span>
+              <span class="pill success">Verified updates</span>
+              <span class="pill primary">CSV/API out</span>
+            </div>
+            <div class="metric-row">
+              <div class="metric">
+                <strong>Map</strong>
+                <span>External IDs</span>
+              </div>
+              <div class="metric">
+                <strong>Clean</strong>
+                <span>Confirmed fields</span>
+              </div>
+              <div class="metric">
+                <strong>Sync</strong>
+                <span>Safe deltas only</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="system" class="band">
+        <div class="section-head">
+          <div>
+            <p class="kicker">System model</p>
+            <h2>One loop, two audiences</h2>
+          </div>
+          <p>
+            The same product loop should create member value and admin value. Members
+            get useful help. Schools get current, engaged, reachable alumni.
+          </p>
+        </div>
+
+        <div class="system-map">
+          <div class="lane" aria-label="Member inputs">
+            <div class="lane-title">Member inputs</div>
+            <article class="object-card" id="S1">
+              <span class="comment-id">S1</span>
+              <h3>Profile and availability</h3>
+              <p>Current role, city, school context, skills, topics, quick or ongoing availability.</p>
+            </article>
+            <article class="object-card" id="S2">
+              <span class="comment-id">S2</span>
+              <h3>Questions and intent</h3>
+              <p>Natural-language asks, standing asks, saved interests, event conditions later.</p>
+            </article>
+            <article class="object-card" id="S3">
+              <span class="comment-id">S3</span>
+              <h3>Responses and boundaries</h3>
+              <p>Accept, pass, decline reason, pause, capacity, active thread state.</p>
+            </article>
+          </div>
+
+          <div class="core-loop" aria-label="Core loop">
+            <p class="kicker">Core loop</p>
+            <h3>Verified circle -> relevant people -> respectful ask -> useful response -> stronger circle</h3>
+            <div class="loop-grid">
+              <div class="loop-item">
+                <strong>Trust gate</strong>
+                <span>Invite, approval, org membership, field privacy.</span>
+              </div>
+              <div class="loop-item">
+                <strong>Matching</strong>
+                <span>Search, helper preferences, capacity, shared context, visible evidence.</span>
+              </div>
+              <div class="loop-item">
+                <strong>Conversation</strong>
+                <span>Ask review, accepted thread, direct message when friendship applies.</span>
+              </div>
+              <div class="loop-item">
+                <strong>School pulse</strong>
+                <span>Events, announcements, profile freshness, admin next actions.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane" aria-label="Admin outputs">
+            <div class="lane-title">Admin outputs</div>
+            <article class="object-card" id="S4">
+              <span class="comment-id">S4</span>
+              <h3>Activation dashboard</h3>
+              <p>Invite-to-active, active members, help request response, freshness, RSVP activity.</p>
+            </article>
+            <article class="object-card" id="S5">
+              <span class="comment-id">S5</span>
+              <h3>Community actions</h3>
+              <p>Recruit helpers, launch events, refresh stale profiles, resend invites, approve members.</p>
+            </article>
+            <article class="object-card" id="S6">
+              <span class="comment-id">S6</span>
+              <h3>Clean data handoff</h3>
+              <p>Export confirmed profile updates and engagement summaries back to existing systems.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="comments" class="band">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Refinement prompts</p>
+            <h2>Decisions to comment on first</h2>
+          </div>
+          <p>
+            These are the product choices most likely to affect whether the app feels
+            easy and horizontal instead of formal and role-heavy.
+          </p>
+        </div>
+
+        <div class="decision-grid">
+          <article class="decision" id="D1">
+            <span class="comment-id">D1</span>
+            <h3>Should the public ask types be "quick" and "ongoing"?</h3>
+            <p>
+              Current implementation maps to advice and mentorship. The public mental
+              model can be commitment-based without exposing hierarchy.
+            </p>
+          </article>
+          <article class="decision" id="D2">
+            <span class="comment-id">D2</span>
+            <h3>Where should casual peer conversations live?</h3>
+            <p>
+              Inbox can include direct messages, accepted asks, and friend requests,
+              but the groupings need to feel natural rather than bureaucratic.
+            </p>
+          </article>
+          <article class="decision" id="D3">
+            <span class="comment-id">D3</span>
+            <h3>How strong should admin communication be in v1?</h3>
+            <p>
+              Events and announcements can increase engagement, but they should not
+              turn the member app into a school bulletin board.
+            </p>
+          </article>
+          <article class="decision" id="D4">
+            <span class="comment-id">D4</span>
+            <h3>What should count as a successful ask?</h3>
+            <p>
+              A reply, an accepted thread, a helpful pass, or a completed outcome may
+              all matter. The product needs one primary success metric.
+            </p>
+          </article>
+          <article class="decision" id="D5">
+            <span class="comment-id">D5</span>
+            <h3>How should BridgeCircle coexist with CRMs?</h3>
+            <p>
+              Best first version: import rosters, export confirmed profile deltas,
+              and avoid donor/gift/household ownership.
+            </p>
+          </article>
+          <article class="decision" id="D6">
+            <span class="comment-id">D6</span>
+            <h3>Should the School surface be a tab or a feed on Home?</h3>
+            <p>
+              A dedicated School tab is calm and scannable. A Home feed can increase
+              discovery. The balance affects repeat use.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="comment-strip">
+      <div class="comment-inner">
+        <div>
+          <h2>How to comment</h2>
+          <p>
+            Use the visible IDs like M1, A3, S4, or D2 when giving feedback. The
+            board is intentionally non-canonical until the workflow language is
+            refined.
+          </p>
+        </div>
+        <div class="legend" aria-label="Legend">
+          <span class="badge member">Member-facing</span>
+          <span class="badge success">Helper-side</span>
+          <span class="badge admin">Admin-facing</span>
+          <span class="pill warn">Needs policy decision</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

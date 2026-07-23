@@ -1,0 +1,206 @@
+<!-- @dsCard group="Patterns" name="Onboarding chrome" subtitle="Navy bookends (Welcome / all-set) · segmented step progress · import accelerator · cold-start hand-off cards" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:14px;max-width:1040px;margin-inline:auto}
+  .sh{font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase;margin:10px 0 -4px}
+  svg{flex:none}
+  /* navy bookends */
+  .bookends{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .bookend{position:relative;overflow:hidden;border-radius:var(--radius-card-xl);background:var(--cover-event);box-shadow:0 18px 44px -16px rgb(13 27 54 / 0.55);color:#fff;padding:34px 30px;text-align:center}
+  .bookend .tex{position:absolute;inset:0;background-image:var(--cover-texture);background-size:18px 18px;pointer-events:none}
+  .bookend .in{position:relative;max-width:400px;margin:0 auto}
+  .wordmark{display:inline-flex;align-items:center;gap:9px;font-size:15px;font-weight:800;letter-spacing:-0.02em}
+  .bookend h2{margin:18px 0 0;font-size:26px;font-weight:800;letter-spacing:-0.025em}
+  .bookend p{margin:10px 0 0;font-size:14px;line-height:1.6;color:rgb(255 255 255 / 0.85);font-weight:500}
+  .glassrow{display:flex;align-items:center;gap:12px;background:var(--glass-tile);box-shadow:var(--ring-glass);border-radius:var(--radius-box);padding:11px 14px;text-align:left}
+  .glassrow i{width:24px;height:24px;flex:none;border-radius:50%;background:rgb(255 255 255 / 0.14);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--cover-accent);font-style:normal}
+  .glassrow b{flex:1;min-width:0;font-size:13.5px;font-weight:700}
+  .glassrow b span{font-weight:500;color:rgb(255 255 255 / 0.7)}
+  .cta-white{display:inline-flex;align-items:center;border:0;background:#fff;color:var(--cover-ink);border-radius:12px;padding:13px 28px;font-family:var(--font-sans);font-size:14px;font-weight:700;box-shadow:0 6px 20px -6px rgb(0 0 0 / 0.4)}
+  .cta-ghost{display:inline-flex;align-items:center;border:0;background:rgb(255 255 255 / 0.16);box-shadow:inset 0 0 0 1.5px rgb(255 255 255 / 0.55);color:#fff;border-radius:12px;padding:13px 22px;font-family:var(--font-sans);font-size:14px;font-weight:700}
+  .privacy{margin-top:14px !important;font-size:12.5px !important;color:rgb(255 255 255 / 0.62) !important}
+  .donebadge{width:56px;height:56px;margin:0 auto;border-radius:50%;background:var(--glass-tile);box-shadow:var(--ring-glass);display:flex;align-items:center;justify-content:center}
+  /* cards */
+  .card{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:22px 26px}
+  /* segmented progress */
+  .stepbar{display:flex;align-items:center;gap:18px}
+  .backpill{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:var(--radius-pill);background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);font-family:var(--font-sans);font-size:13.5px;font-weight:600;padding:9px 16px 9px 12px}
+  .backpill svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .segs{flex:1;display:flex;gap:6px}
+  .seg{flex:1;height:7px;border-radius:var(--radius-pill);background:var(--grey-200)}
+  .seg.on{background:var(--action-primary)}
+  .skiplink{flex:none;border:0;background:transparent;color:var(--text-faint);font-family:var(--font-sans);font-size:13.5px;font-weight:600;padding:6px 8px;border-radius:8px}
+  .seglabels{display:flex;gap:6px;margin-top:8px}
+  .seglabels span{flex:1;text-align:center;font-size:11px;font-weight:600;color:var(--text-faint)}
+  .seglabels span.on{color:var(--action-primary);font-weight:700}
+  .kicker{display:block;margin-top:20px;font-size:12.5px;font-weight:700;color:var(--blue-600);letter-spacing:0.06em;text-transform:uppercase}
+  .steph{margin:8px 0 0;font-size:24px;font-weight:700;letter-spacing:-0.02em}
+  .stepwhy{margin:8px 0 0;font-size:14px;color:var(--text-secondary);font-weight:500;line-height:1.6}
+  /* import accelerator */
+  .cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  .fld{display:grid;gap:8px}
+  .fld span{font-size:13.5px;font-weight:600;color:var(--text-secondary)}
+  .fld input{border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:14px 16px;font-family:var(--font-sans);font-size:15px;font-weight:500;color:var(--text-primary);outline:none}
+  .fld input::placeholder{color:var(--grey-400)}
+  .btn-primary{border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:14px;font-family:var(--font-sans);font-size:14px;font-weight:700;box-shadow:var(--shadow-primary-btn);width:100%}
+  .alt-link{border:0;background:transparent;color:var(--blue-600);font-family:var(--font-sans);font-size:13.5px;font-weight:700;padding:6px 10px;border-radius:8px}
+  .banner{display:flex;align-items:center;gap:12px;background:var(--blue-50);border-radius:var(--radius-box);padding:13px 16px}
+  .banner svg{width:17px;height:17px;flex:none;fill:none;stroke:var(--blue-600);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .banner b{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:var(--blue-700)}
+  .banner button{flex:none;border:0;background:transparent;color:var(--blue-600);font-family:var(--font-sans);font-size:13px;font-weight:700;padding:4px 8px;border-radius:8px}
+  .foundline{margin:12px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.55}
+  /* cold-start cards */
+  .cold{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:start}
+  .cold .card{padding:20px 22px}
+  .cold h3{margin:0;font-size:15px;font-weight:700;letter-spacing:-0.01em}
+  .cold .sub{display:block;font-size:12.5px;color:var(--text-secondary);font-weight:500;margin-top:3px}
+  .askrow{display:flex;gap:8px;margin-top:12px}
+  .askrow input{flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:12px 14px;font-family:var(--font-sans);font-size:14px;font-weight:500;color:var(--text-primary);outline:none}
+  .askrow input::placeholder{color:var(--grey-400)}
+  .askrow button{flex:none;border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:0 18px;font-family:var(--font-sans);font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn)}
+  .oarow{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid var(--divider-row)}
+  .oarow:first-of-type{margin-top:12px}
+  .oav{width:34px;height:34px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:var(--ring-avatar)}
+  .oarow .q{flex:1;min-width:0}
+  .oarow .q b{display:block;font-size:12.5px;font-weight:700;line-height:1.45}
+  .oarow .q i{display:block;font-style:normal;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px}
+  .offerbtn{flex:none;border:0;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:8px 15px;font-family:var(--font-sans);font-size:12.5px;font-weight:700}
+  .offered{flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border:0;border-radius:var(--radius-pill);padding:8px 14px;font-family:var(--font-sans)}
+  .offered svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+  .hirow{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--divider-row)}
+  .hirow:first-of-type{margin-top:12px}
+  .cb{width:19px;height:19px;flex:none;border-radius:6px;box-sizing:border-box;background:#fff;border:1.5px solid var(--grey-300)}
+  .cb.on{border:0;background:var(--action-primary);display:flex;align-items:center;justify-content:center}
+  .cb.on svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+  .hirow .who{flex:1;min-width:0}
+  .hirow .who b{display:block;font-size:13px;font-weight:700}
+  .hirow .who i{display:block;font-style:normal;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px}
+</style>
+</head>
+<body>
+
+  <p class="sh">Navy bookends &mdash; Welcome &amp; all-set (cover-event, scope widened to onboarding)</p>
+  <div class="bookends">
+    <div class="bookend">
+      <div class="tex"></div>
+      <div class="in">
+        <span class="wordmark">
+          <svg width="24" height="24" viewBox="0 0 28 28"><circle cx="11" cy="14" r="9" fill="none" stroke="#ffffff" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#9cc3ff" stroke-width="1.7"></circle></svg>
+          BridgeCircle
+        </span>
+        <h2>Welcome, Iris.</h2>
+        <p>A few quick steps, about two minutes. Your profile starts prefilled from the Chadwick roster &mdash; mostly you&rsquo;ll just confirm.</p>
+        <div style="display:grid;gap:8px;margin-top:20px">
+          <div class="glassrow"><i>1</i><b>Confirm who you are <span>&mdash; your roster details, mostly done already</span></b></div>
+          <div class="glassrow"><i>2</i><b>Bring in your history <span>&mdash; import from LinkedIn or a r&eacute;sum&eacute;, or type it</span></b></div>
+          <div class="glassrow"><i>3</i><b>Say hello <span>&mdash; what you can speak to, and a first hi</span></b></div>
+        </div>
+        <button class="cta-white" style="margin-top:22px">Get started</button>
+        <p class="privacy">Your details stay within Chadwick.</p>
+      </div>
+    </div>
+    <div class="bookend" style="display:flex;align-items:center;justify-content:center">
+      <div class="tex"></div>
+      <div class="in">
+        <span class="donebadge"><svg viewBox="0 0 24 24" style="width:26px;height:26px;fill:none;stroke:#ffffff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+        <h2>You&rsquo;re all set, Iris.</h2>
+        <p>Your profile is live, and we&rsquo;ve lined up a few classmates worth meeting.</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:24px">
+          <a class="cta-white" href="#" onclick="return false" style="text-decoration:none">Go to your dashboard</a>
+          <a class="cta-ghost" href="#" onclick="return false" style="text-decoration:none">Review profile</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="sh">Segmented step progress &mdash; five steps, filled through the current one</p>
+  <div class="card">
+    <div class="stepbar">
+      <button class="backpill"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>Back</button>
+      <span class="segs">
+        <span class="seg on"></span>
+        <span class="seg on"></span>
+        <span class="seg on"></span>
+        <span class="seg"></span>
+        <span class="seg"></span>
+      </span>
+      <button class="skiplink">Skip this step</button>
+    </div>
+    <div class="seglabels" style="padding:0 92px 0 98px">
+      <span class="on">You</span><span class="on">Education</span><span class="on">Career</span><span>Activities</span><span>Help &amp; connect</span>
+    </div>
+    <span class="kicker">Step 3 of 5 &middot; Career</span>
+    <h3 class="steph">What do you do now?</h3>
+    <p class="stepwhy">This is how the right people find you &mdash; and how we find the right people for you.</p>
+  </div>
+
+  <p class="sh">Import accelerator &mdash; prefill entry &amp; imported confirmation</p>
+  <div class="cols2">
+    <div class="card" style="display:grid;gap:14px">
+      <label class="fld"><span>LinkedIn profile URL</span><input placeholder="linkedin.com/in/yourname"></label>
+      <button class="btn-primary">Import from LinkedIn</button>
+      <div style="display:flex;justify-content:center"><button class="alt-link">or upload a r&eacute;sum&eacute; instead &middot; PDF or Word</button></div>
+    </div>
+    <div class="card">
+      <div class="banner">
+        <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+        <b>Imported from LinkedIn &mdash; review below.</b>
+        <button>Undo</button>
+      </div>
+      <p class="foundline">We found <b>1 school</b>, <b>1 current role</b> and <b>3 skills</b>. Nothing publishes until you&rsquo;ve reviewed it on the next steps.</p>
+    </div>
+  </div>
+
+  <p class="sh">Cold-start cards &mdash; in-flow ask / offer / say-hi hand-off</p>
+  <div class="cold">
+    <div class="card">
+      <h3>Anything you&rsquo;re trying to figure out?</h3>
+      <span class="sub">Ask it the way it comes out &mdash; we&rsquo;ll find who can help.</span>
+      <div class="askrow">
+        <input placeholder="What do you need?">
+        <button>Ask it</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Want to help someone?</h3>
+      <span class="sub">Two open asks near what you just entered.</span>
+      <div class="oarow">
+        <span class="oav" style="background:var(--avatar-3-bg);color:var(--avatar-3-fg)">DP</span>
+        <span class="q"><b>&ldquo;How do I make a portfolio site without knowing how to code?&rdquo;</b><i>Devon Park &middot; Class of &rsquo;25 &middot; matches &ldquo;design&rdquo;</i></span>
+        <button class="offerbtn">Offer</button>
+      </div>
+      <div class="oarow">
+        <span class="oav" style="background:var(--avatar-4-bg);color:var(--avatar-4-fg)">SK</span>
+        <span class="q"><b>&ldquo;Is an art-school MFA worth it, or should I keep working?&rdquo;</b><i>A member &middot; Class of &rsquo;24 &middot; matches &ldquo;design&rdquo;</i></span>
+        <button class="offered"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>Offered</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Say hi to your class</h3>
+      <span class="sub">One connect request each &mdash; a quick hello, nothing formal.</span>
+      <div class="hirow">
+        <span class="cb on"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg></span>
+        <span class="oav" style="width:30px;height:30px;background:var(--avatar-2-bg);color:var(--avatar-2-fg)">NR</span>
+        <span class="who"><b>Noah Reyes</b><i>Engineering student &middot; UCLA</i></span>
+      </div>
+      <div class="hirow">
+        <span class="cb"></span>
+        <span class="oav" style="width:30px;height:30px;background:var(--avatar-3-bg);color:var(--avatar-3-fg)">GK</span>
+        <span class="who"><b>Grace Kim</b><i>Analyst &middot; New York</i></span>
+      </div>
+      <div class="hirow">
+        <span class="cb"></span>
+        <span class="oav" style="width:30px;height:30px;background:var(--avatar-4-bg);color:var(--avatar-4-fg)">TM</span>
+        <span class="who"><b>Theo Marsh</b><i>Film production &middot; Los Angeles</i></span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,14 +1,12 @@
 'use client'
 
-import { FileText, Link2 } from 'lucide-react'
-import Link from 'next/link'
-import type { ReactNode } from 'react'
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
 import {
   type EducationEntryInput,
   EducationHistoryField,
 } from '@/components/profile-history-fields'
 import { Button } from '@/components/ui/button'
+import { FieldError, FormMessage } from '@/components/ui/form-message'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useSubmitterTracker } from './use-form-has-content'
@@ -34,7 +32,7 @@ type Props = {
 }
 
 /**
- * Step 2 of 5 — Education. Skippable.
+ * Step 3 of 7 — Education. Skippable.
  *
  * University and major are typed in the Basics row. Education history is
  * a separate dynamic editor; it starts empty and the user opens it via
@@ -48,10 +46,16 @@ export function StepEducation({ defaults, action }: Props) {
   const [state, formAction, pending] = useActionState(action, initialState)
   const fe = state.fieldErrors ?? {}
   const { submittingKind, onSaveClick, onSkipClick } = useSubmitterTracker(pending)
+  const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    if (state.error || state.fieldErrors) {
+      formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus()
+    }
+  }, [state.error, state.fieldErrors])
 
   return (
-    <form action={formAction} className="space-y-5">
-      <OnboardingImportOptions step={2} />
+    <form ref={formRef} action={formAction} className="space-y-5">
       <div className="space-y-1.5">
         <Label htmlFor="university">University</Label>
         <Input
@@ -59,8 +63,10 @@ export function StepEducation({ defaults, action }: Props) {
           name="university"
           defaultValue={defaults.university}
           placeholder="Where you studied"
+          aria-invalid={fe.university ? true : undefined}
+          aria-describedby={fe.university ? 'university-error' : undefined}
         />
-        {fe.university ? <p className="text-xs text-destructive">{fe.university}</p> : null}
+        <FieldError id="university-error" error={fe.university} />
       </div>
 
       <div className="space-y-1.5">
@@ -70,21 +76,33 @@ export function StepEducation({ defaults, action }: Props) {
           name="major"
           defaultValue={defaults.major}
           placeholder="What you studied"
+          aria-invalid={fe.major ? true : undefined}
+          aria-describedby={fe.major ? 'major-error' : undefined}
         />
-        {fe.major ? <p className="text-xs text-destructive">{fe.major}</p> : null}
+        <FieldError id="major-error" error={fe.major} />
       </div>
 
-      <div className="rounded-lg border bg-muted/30 p-4">
+      <fieldset
+        className="rounded-lg border bg-muted/30 p-4"
+        aria-invalid={fe.educationHistory ? true : undefined}
+        aria-describedby={fe.educationHistory ? 'educationHistory-error' : undefined}
+        tabIndex={fe.educationHistory ? -1 : undefined}
+      >
+        <legend className="sr-only">Education history</legend>
         <EducationHistoryField initial={defaults.educationHistory} />
-        {fe.educationHistory ? (
-          <p className="mt-2 text-xs text-destructive">{fe.educationHistory}</p>
-        ) : null}
-      </div>
+        <FieldError id="educationHistory-error" error={fe.educationHistory} className="mt-2" />
+      </fieldset>
 
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      {state.error ? <FormMessage tone="error">{state.error}</FormMessage> : null}
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row-reverse">
-        <Button type="submit" onClick={onSaveClick} disabled={pending} className="sm:flex-1">
+        <Button
+          type="submit"
+          onClick={onSaveClick}
+          disabled={pending}
+          aria-busy={pending && submittingKind === 'save'}
+          className="sm:flex-1"
+        >
           {pending && submittingKind === 'save' ? 'Saving…' : 'Save and continue'}
         </Button>
         <Button
@@ -94,6 +112,7 @@ export function StepEducation({ defaults, action }: Props) {
           onClick={onSkipClick}
           variant="outline"
           disabled={pending}
+          aria-busy={pending && submittingKind === 'skip'}
           className="sm:flex-1"
         >
           {pending && submittingKind === 'skip' ? 'Skipping…' : 'Skip for now'}
@@ -101,73 +120,4 @@ export function StepEducation({ defaults, action }: Props) {
       </div>
     </form>
   )
-}
-
-/**
- * Inline import prompt for Steps 2/3/4. A single import fills education,
- * current role, career history, and skills — so once a user accepts the
- * import, the steps that follow are pre-filled.
- *
- * `step` controls where the user lands after the import confirm step.
- */
-export function OnboardingImportOptions({
-  step,
-  resumeRoleCount,
-}: {
-  step: 2 | 3 | 4
-  resumeRoleCount?: number
-}) {
-  const returnTo = `/onboarding?step=${step}`
-  const linkedinHref = onboardingImportHref(returnTo, 'linkedin')
-  const resumeHref = onboardingImportHref(returnTo, 'resume')
-  const hasImportedResume = typeof resumeRoleCount === 'number' && resumeRoleCount > 0
-
-  return (
-    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
-      <div className="flex items-start gap-2.5">
-        <Link2 className="size-4 mt-0.5 text-primary" aria-hidden />
-        <div className="min-w-0 flex-1 space-y-2.5">
-          <p className="font-medium text-foreground">Want to fill this faster?</p>
-          <p className="text-xs text-muted-foreground">
-            Import once to pre-fill education, current role, career history, and skills. You review
-            every field before anything is saved.
-          </p>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <ImportOption href={linkedinHref} icon={<Link2 className="size-3.5" aria-hidden />}>
-              Import from LinkedIn
-            </ImportOption>
-            <ImportOption href={resumeHref} icon={<FileText className="size-3.5" aria-hidden />}>
-              {hasImportedResume
-                ? `Re-import resume/CV (${resumeRoleCount} role${resumeRoleCount === 1 ? '' : 's'})`
-                : 'Upload resume/CV'}
-            </ImportOption>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ImportOption({
-  href,
-  icon,
-  children,
-}: {
-  href: string
-  icon: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-md border border-primary/20 bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/35 hover:bg-primary-tint"
-    >
-      {icon}
-      {children}
-    </Link>
-  )
-}
-
-function onboardingImportHref(returnTo: string, source: 'linkedin' | 'resume') {
-  return `/onboarding/import?source=${source}&return=${encodeURIComponent(returnTo)}`
 }

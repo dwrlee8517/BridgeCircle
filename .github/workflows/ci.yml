@@ -1,19 +1,12 @@
 name: CI
 
-# Docs-only changes don't affect lint/test/build outcomes, so skip the
-# pipeline when a push or PR touches nothing but docs. `paths-ignore` skips
-# the run only when EVERY changed file matches — any code change still runs
-# the full suite. These checks are not required for merge, so a skipped run
-# leaves no PR stuck "pending"; if they're ever made required, this needs the
-# always-report gate-job pattern instead.
+# `CI gate` is the required branch-protection check. It always reports for PRs:
+# green after lint/test/build pass, or green when a PR is legitimately
+# docs-only and those expensive jobs are skipped. Pushes that touch only docs
+# still skip this workflow because required checks apply at PR merge time.
 on:
   pull_request:
     branches: [main]
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - 'product-spec-obsidian-vault/**'
-      - '.gitignore'
   push:
     branches: [main]
     paths-ignore:
@@ -31,8 +24,36 @@ defaults:
     working-directory: app
 
 jobs:
+  changes:
+    name: Detect docs-only PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD)
+          echo "Changed files:"; echo "$files"
+          non_docs=$(echo "$files" | grep -vE '(^docs/|^product-spec-obsidian-vault/|\.md$|^\.gitignore$)' || true)
+          if [ -n "$non_docs" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   quality:
     name: Lint & test
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -66,6 +87,9 @@ jobs:
       - name: Feature-parity ratchet
         run: pnpm check:parity
 
+      - name: Production cutover ratchet
+        run: pnpm check:production-cutover
+
       - name: TypeScript
         run: pnpm tsc --noEmit
 
@@ -74,6 +98,8 @@ jobs:
 
   build:
     name: Build (validates types vs. migrations)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -102,3 +128,28 @@ jobs:
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           NODE_ENV: production
         run: doppler run --preserve-env=NODE_ENV -- pnpm build
+
+  ci-gate:
+    name: CI gate
+    needs: [changes, quality, build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Report
+        run: |
+          code="${{ needs.changes.outputs.code }}"
+          quality="${{ needs.quality.result }}"
+          build="${{ needs.build.result }}"
+          echo "code=$code quality=$quality build=$build"
+          if [ "$quality" = "success" ] && [ "$build" = "success" ]; then
+            echo "CI quality and build jobs passed."
+          elif [ "$code" != "true" ] && [ "$quality" = "skipped" ] && [ "$build" = "skipped" ]; then
+            echo "Docs-only PR — CI jobs legitimately skipped."
+          else
+            echo "::error::CI did not pass (quality: $quality, build: $build)."
+            exit 1
+          fi

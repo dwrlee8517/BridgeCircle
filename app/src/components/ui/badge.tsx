@@ -5,17 +5,18 @@ import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'group/badge bc-motion-control inline-flex min-h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-state-danger aria-invalid:ring-danger-tint [&>svg]:pointer-events-none [&>svg]:size-3!',
+  'group/badge bc-motion-control inline-flex min-h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 aria-invalid:border-state-danger aria-invalid:ring-danger-tint [&>svg]:pointer-events-none [&>svg]:size-3!',
   {
     variants: {
       variant: {
         default: 'bg-action-primary text-action-on-primary [a]:hover:bg-action-primary-hover',
-        secondary: 'bg-surface-panel text-secondary-foreground [a]:hover:bg-surface-subtle',
+        secondary: 'bg-surface-subtle text-text-secondary [a]:hover:bg-border',
         destructive:
-          'bg-danger-tint text-state-danger-foreground focus-visible:ring-danger-tint [a]:hover:bg-state-danger/15',
+          'bg-state-danger-tint text-state-danger-text focus-visible:ring-danger-tint [a]:hover:bg-danger-tint',
         outline:
-          'border-border text-foreground [a]:hover:bg-surface-subtle [a]:hover:text-muted-foreground',
-        ghost: 'hover:bg-surface-subtle hover:text-muted-foreground dark:hover:bg-muted/50',
+          'border-transparent bg-surface-card text-text-secondary shadow-[var(--ring-outline)] [a]:hover:bg-surface-subtle [a]:hover:text-text-primary',
+        ghost:
+          'text-text-secondary hover:bg-surface-subtle hover:text-text-primary dark:hover:bg-muted/50',
         link: 'text-link underline-offset-4 hover:text-link-hover hover:underline',
       },
     },

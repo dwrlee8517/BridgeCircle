@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { Mail } from 'lucide-react'
+import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { LifecycleStatusBadge } from '@/components/ui/status-badge'
@@ -12,46 +13,28 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { createClient } from '@/db/server'
-import { requireAdmin } from '@/lib/auth/session'
+import { createAdminInviteRepository } from '@/db/repositories/invites'
 import { displayOrgName } from '@/lib/utils'
 import { CsvInviteForm } from './csv-form'
 import { InviteForm } from './invite-form'
-
-type InviteStatus = 'pending' | 'accepted' | 'expired' | 'revoked'
+import { InviteRowActions } from './invite-row-actions'
 
 export default async function AdminInvitePage() {
-  const session = await requireAdmin()
-  const supabase = await createClient()
-
-  const { data: roles } = await supabase
-    .from('admin_role_assignments')
-    .select('organization_id, organizations!admin_role_assignments_organization_id_fkey(name)')
-    .eq('user_id', session.userId)
-    .in('role', ['super_admin', 'admin'])
-    .limit(1)
-  const adminOrg = roles?.[0] ?? null
-  const orgName = displayOrgName(
-    (adminOrg?.organizations as { name: string } | null)?.name ?? 'your organization',
-  )
-
-  const { data: invites } = adminOrg
-    ? await supabase
-        .from('invites')
-        .select('id, email, status, full_name, graduation_year, created_at, accepted_at')
-        .eq('organization_id', adminOrg.organization_id)
-        .order('created_at', { ascending: false })
-        .limit(50)
-    : { data: [] }
+  const { client, membership } = await loadSchoolAdminContext()
+  const orgName = displayOrgName(membership.organization.name)
+  const invites = await createAdminInviteRepository(client).list({
+    organizationId: membership.organization.id,
+    limit: 50,
+  })
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6 px-4 py-10">
       <Card>
         <CardHeader>
-          <CardTitle>Invite alumni</CardTitle>
+          <CardTitle>Invite members</CardTitle>
           <CardDescription>
-            Send join links from invites@bridgecircle.org. Recipients join {orgName} when they
-            accept.
+            Send secure, 14-day join links for {orgName}. Existing pending invites are reused safely
+            instead of creating duplicate access paths.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -73,36 +56,44 @@ export default async function AdminInvitePage() {
       <Card>
         <CardHeader>
           <CardTitle>Recent invites</CardTitle>
-          <CardDescription>Last 50 sent.</CardDescription>
+          <CardDescription>The most recent 50 invitations.</CardDescription>
         </CardHeader>
         <CardContent>
-          {invites && invites.length > 0 ? (
+          {invites.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Email</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Sent</TableHead>
-                  <TableHead>Accepted</TableHead>
+                  <TableHead>Issued</TableHead>
+                  <TableHead>Expires</TableHead>
+                  <TableHead>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invites.map((i) => (
-                  <TableRow key={i.id}>
+                {invites.map((invite) => (
+                  <TableRow key={invite.id}>
                     <TableCell>
-                      <div className="font-medium">{i.email}</div>
-                      {i.full_name ? (
-                        <div className="text-xs text-muted-foreground">{i.full_name}</div>
+                      <div className="font-medium">{invite.email}</div>
+                      {invite.fullName ? (
+                        <div className="text-xs text-muted-foreground">{invite.fullName}</div>
                       ) : null}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={i.status as InviteStatus} />
+                      <LifecycleStatusBadge status={invite.status} size="sm" />
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {format(new Date(i.created_at), 'MMM d')}
+                      {format(new Date(invite.createdAt), 'MMM d')}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {i.accepted_at ? format(new Date(i.accepted_at), 'MMM d') : '—'}
+                      {format(new Date(invite.expiresAt), 'MMM d')}
+                    </TableCell>
+                    <TableCell>
+                      {invite.status === 'pending' ? (
+                        <InviteRowActions inviteId={invite.id} email={invite.email} />
+                      ) : null}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -112,7 +103,7 @@ export default async function AdminInvitePage() {
             <EmptyState
               icon={Mail}
               title="No invites yet"
-              description="Send your first invites with the form above. Recipients join as members when they redeem the link."
+              description="Send the first invite above. The join link is delivered by the outbox worker."
               size="inline"
               className="border-none bg-transparent shadow-none"
             />
@@ -121,10 +112,4 @@ export default async function AdminInvitePage() {
       </Card>
     </div>
   )
-}
-
-function StatusBadge({ status }: { status: InviteStatus }) {
-  // Shared lifecycle mapping — same tone + sentence-case label as every
-  // other status surface (no route-local color maps).
-  return <LifecycleStatusBadge status={status} size="sm" />
 }

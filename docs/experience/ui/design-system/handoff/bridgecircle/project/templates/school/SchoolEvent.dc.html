@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <script src="./school-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;width:100%" data-screen-label="School — event page">
+
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="./School.dc.html" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:13px;padding:0 26px;z-index:2">
+      <a href="{{ backHref }}" aria-label="Back to School" style="width:38px;height:38px;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--text-secondary);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m14 6-6 6 6 6"></path></svg>
+      </a>
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">{{ evShort }}</span>
+      <span style="font-size:12.5px;color:var(--text-faint);font-weight:600">&middot; {{ evMetaTop }}</span>
+      <span style="margin-left:auto"><bc-account-menu></bc-account-menu></span>
+    </header>
+
+    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
+      <div style="max-width:860px;margin:0 auto;padding:26px 30px 44px;display:grid;gap:16px">
+
+        <div style="position:relative;overflow:hidden;border-radius:var(--radius-card-xl);padding:24px 26px;background:var(--cover-event);box-shadow:0 18px 44px -16px rgb(13 27 54 / 0.55);color:#fff">
+          <div style="position:relative">
+            <div style="display:flex;align-items:flex-start;gap:18px">
+              <span style="flex:none;width:62px;height:66px;border-radius:var(--radius-large);background:var(--glass-tile);box-shadow:var(--ring-glass);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
+                <span style="font-size:10px;font-weight:800;color:var(--cover-accent);letter-spacing:0.06em">{{ evMo }}</span>
+                <span style="font-size:25px;font-weight:800;letter-spacing:-0.02em">{{ evDd }}</span>
+                <span style="font-size:9.5px;font-weight:700;color:rgb(255 255 255 / 0.65)">{{ evDw }}</span>
+              </span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-size:11.5px;font-weight:700;color:var(--cover-accent)">{{ evCat }}</span>
+                <h1 style="margin:3px 0 0;font-size:24px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">{{ evTitle }}</h1>
+                <p style="margin:7px 0 0;font-size:12.5px;line-height:1.55;color:rgb(255 255 255 / 0.82);font-weight:500">{{ evDesc }} <span style="color:var(--cover-accent);font-weight:600">Hosted by {{ evHost }}.</span></p>
+              </span>
+              <span style="flex:none;display:flex;align-items:center;gap:8px">
+                <sc-if value="{{ stGoing }}" hint-placeholder-val="{{ true }}">
+                  <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--cover-ink);background:#fff;border-radius:var(--radius-pill);padding:6px 12px">&#10003; You&rsquo;re going</span>
+                  <button onClick="{{ actChange }}" style="border:0;background:transparent;color:var(--cover-accent);font-size:11.5px;font-weight:700;cursor:pointer;padding:6px 4px" style-hover="color:#fff" style-focus="outline:2px solid #fff;outline-offset:2px;border-radius:6px">Change</button>
+                </sc-if>
+                <sc-if value="{{ stRsvp }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ actRsvp }}" style="border:0;background:#fff;color:var(--cover-ink);border-radius:11px;padding:10px 20px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px -4px rgb(0 0 0 / 0.4)" style-focus="outline:2px solid #fff;outline-offset:2px">I&rsquo;m going</button>
+                </sc-if>
+                <sc-if value="{{ stFull }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:11.5px;font-weight:600;color:rgb(255 255 255 / 0.75)">This one&rsquo;s full &mdash;</span>
+                  <button onClick="{{ actWait }}" style="border:0;background:rgb(255 255 255 / 0.14);color:#fff;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:11px;padding:9px 16px;font-size:12px;font-weight:700;backdrop-filter:blur(4px);cursor:pointer" style-focus="outline:2px solid #fff;outline-offset:2px">Join the waitlist</button>
+                </sc-if>
+                <sc-if value="{{ stWaitlisted }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:#fff;background:rgb(255 255 255 / 0.14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:var(--radius-pill);padding:6px 12px">On the waitlist</span>
+                </sc-if>
+                <sc-if value="{{ stJoinNow }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ actJoin }}" style="border:0;background:#fff;color:var(--cover-ink);border-radius:11px;padding:10px 20px;font-size:12.5px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px -4px rgb(0 0 0 / 0.4)" style-focus="outline:2px solid #fff;outline-offset:2px">Join now</button>
+                </sc-if>
+                <sc-if value="{{ stPast }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:#fff;background:rgb(255 255 255 / 0.14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:var(--radius-pill);padding:6px 12px">{{ pastPill }}</span>
+                </sc-if>
+                <sc-if value="{{ stCancelled }}" hint-placeholder-val="{{ false }}">
+                  <span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:#fff;background:rgb(255 255 255 / 0.14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:var(--radius-pill);padding:6px 12px">Cancelled</span>
+                </sc-if>
+              </span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:18px;background:rgb(255 255 255 / 0.07);border-radius:var(--radius-box);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.12)">
+              <div style="padding:13px 18px">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cover-accent)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M8 3v4M16 3v4M3.5 10h17"></path></svg>When</span>
+                <span style="display:block;margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ evWhen1 }}</span>
+                <span style="display:block;font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px">{{ evWhen2 }}</span>
+              </div>
+              <div style="padding:13px 18px;border-left:1px solid rgb(255 255 255 / 0.12)">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cover-accent)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 21.5s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"></path><circle cx="12" cy="10.2" r="2.5"></circle></svg>Where</span>
+                <span style="display:block;margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ evWhere1 }}</span>
+                <span style="display:block;font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px">{{ evWhere2 }}</span>
+              </div>
+              <div style="padding:13px 18px;border-left:1px solid rgb(255 255 255 / 0.12)">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cover-accent)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c.6-3.2 2.8-5.2 5.5-5.2s4.9 2 5.5 5.2"></path><path d="M15.5 5.3a3.2 3.2 0 0 1 0 5.4M17.6 14.6c1.7.9 2.7 2.6 2.9 4.9"></path></svg>Format</span>
+                <span style="display:block;margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ evFormat1 }}</span>
+                <span style="display:block;font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px">{{ evFormat2 }}</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:16px;margin-top:16px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:9px">
+                <span style="display:flex">
+                  <span style="width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink)">{{ evAv1 }}</span>
+                  <span style="width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink);margin-left:-6px">{{ evAv2 }}</span>
+                  <span style="width:24px;height:24px;border-radius:50%;background:#cfe2ff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink);margin-left:-6px">{{ evPlus }}</span>
+                </span>
+                <span>
+                  <span style="display:block;font-size:12px;font-weight:600;color:rgb(255 255 255 / 0.88);font-variant-numeric:tabular-nums">{{ evGoingLine }}</span>
+                  <span style="display:block;font-size:11.5px;font-weight:700;color:var(--cover-accent)">{{ evCircleLine }}</span>
+                </span>
+              </span>
+              <sc-if value="{{ spotsShow }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:11.5px;color:rgb(255 255 255 / 0.65);font-weight:600;font-variant-numeric:tabular-nums">{{ spotsText }}</span>
+              </sc-if>
+              <sc-if value="{{ joinGateShow }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:11.5px;color:rgb(255 255 255 / 0.65);font-weight:600">The join link unlocks when you RSVP.</span>
+              </sc-if>
+              <sc-if value="{{ calShow }}" hint-placeholder-val="{{ true }}">
+                <span style="margin-left:auto;flex:none">
+                  <button onClick="{{ actCal }}" style="border:0;background:rgb(255 255 255 / 0.14);color:#fff;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:11px;padding:9px 16px;font-size:12px;font-weight:700;backdrop-filter:blur(4px);cursor:pointer" style-focus="outline:2px solid #fff;outline-offset:2px"><span style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M8 3v4M16 3v4M3.5 10h17M12 13.5v5M9.5 16h5"></path></svg>Add to calendar</span></button>
+                </span>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ noticeShow }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:13px 18px">
+            <i style="flex:none;width:7px;height:7px;border-radius:50%;background:var(--grey-400)"></i>
+            <span style="font-size:12.5px;color:var(--text-secondary);font-weight:500;line-height:1.5">{{ noticeText }}</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ aboutShow }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 24px">
+            <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.02em">About</h2>
+            <p style="margin:9px 0 0;font-size:13.5px;line-height:1.7;color:var(--text-secondary);font-weight:500;white-space:pre-line;text-wrap:pretty">{{ evAbout }}</p>
+            <sc-if value="{{ hostRowShow }}" hint-placeholder-val="{{ true }}">
+              <span style="display:flex;align-items:center;gap:8px;margin-top:14px;border-top:1px solid var(--divider-row);padding-top:13px">
+                <span style="font-size:12px;color:var(--text-faint);font-weight:600">Hosted by</span>
+                <sc-if value="{{ hostLinkShow }}" hint-placeholder-val="{{ false }}">
+                  <a href="{{ hostHref }}" style="font-size:12.5px;font-weight:700;color:var(--action-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">{{ evHost }} &rsaquo;</a>
+                </sc-if>
+                <sc-if value="{{ hostTextShow }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-size:12.5px;font-weight:700;color:var(--text-primary)">{{ evHost }}</span>
+                </sc-if>
+                <span style="margin-left:auto;font-size:12px;color:var(--text-faint);font-weight:500">Questions? Hosts answer in Messages.</span>
+              </span>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ itinShow }}" hint-placeholder-val="{{ true }}">
+          <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+            <div style="padding:18px 24px 10px"><h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.02em">Itinerary</h2></div>
+            <sc-for list="{{ itin }}" as="i" hint-placeholder-count="3">
+              <div style="display:flex;align-items:baseline;gap:14px;padding:11px 24px;border-top:1px solid var(--divider-row)">
+                <span style="flex:none;width:46px;font-size:12.5px;font-weight:800;color:var(--blue-600);font-variant-numeric:tabular-nums">{{ i.t }}</span>
+                <span style="font-size:13.5px;font-weight:600;color:var(--text-primary);line-height:1.5">{{ i.x }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ factsShow }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <h2 style="margin:0 0 10px;font-size:15px;font-weight:800;letter-spacing:-0.02em">Good to know</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <sc-for list="{{ facts }}" as="f" hint-placeholder-count="2">
+                <div style="background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:14px 18px">
+                  <span style="display:block;font-size:11px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.05em">{{ f.l }}</span>
+                  <span style="display:block;font-size:13.5px;font-weight:700;color:var(--text-primary);margin-top:5px;line-height:1.45">{{ f.v }}</span>
+                  <sc-if value="{{ f.linkShow }}" hint-placeholder-val="{{ false }}">
+                    <a href="{{ f.href }}" target="_blank" style="display:inline-block;margin-top:5px;font-size:12px;font-weight:700;color:var(--action-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">{{ f.link }}</a>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <div id="going" style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+          <div style="display:flex;align-items:baseline;gap:8px;padding:18px 24px 10px">
+            <h2 style="margin:0;font-size:15px;font-weight:800;letter-spacing:-0.02em">{{ wgTitle }}</h2>
+            <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ wgCount }} &middot; your circle first</span>
+          </div>
+          <sc-for list="{{ wgRows }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 24px;border-top:1px solid var(--divider-row)" style-hover="background:var(--row-hover)">
+              <sc-if value="{{ p.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ p.i }}</span></sc-if>
+              <sc-if value="{{ p.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ p.i }}</span></sc-if>
+              <sc-if value="{{ p.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ p.i }}</span></sc-if>
+              <sc-if value="{{ p.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ p.i }}</span></sc-if>
+              <span style="flex:1;min-width:0;display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                <b style="font-size:13.5px;font-weight:700">{{ p.name }}</b>
+                <span style="font-size:11px;color:var(--text-faint);font-weight:600">&rsquo;{{ p.yr }}</span>
+                <sc-if value="{{ p.circle }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 8px;color:var(--blue-600);background:var(--blue-50)">In your circle</span>
+                </sc-if>
+              </span>
+              <sc-if value="{{ p.linkShow }}" hint-placeholder-val="{{ true }}">
+                <a href="{{ p.href }}" style="flex:none;font-size:12px;font-weight:700;color:var(--text-secondary);background:transparent;border-radius:8px;padding:6px 10px;text-decoration:none" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Profile &rsaquo;</a>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ wgMoreShow }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ wgExpand }}" style="width:100%;border:0;background:transparent;padding:12px 24px;border-top:1px solid var(--divider-row);font-size:12.5px;font-weight:700;color:var(--action-primary);cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">{{ wgMoreLabel }}</button>
+          </sc-if>
+          <p style="margin:0;padding:11px 24px 14px;border-top:1px solid var(--divider-row);font-size:11.5px;color:var(--text-faint);font-weight:500">A few members share their attendance with their circle only &mdash; they&rsquo;re counted, not listed.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ promoShow }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ promoLater }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ promoStop }}" role="dialog" aria-label="A spot opened" style="width:420px;max-width:100%;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+      <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">A spot opened &mdash; still want in?</h3>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.6">You&rsquo;re next on the waitlist for {{ promoTitle }}. Nothing happens unless you say yes &mdash; letting it go passes the spot along quietly.</p>
+      <span style="display:flex;gap:8px;margin-top:18px">
+        <button onClick="{{ promoPass }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Let it go</button>
+        <button onClick="{{ promoAccept }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Yes &mdash; I&rsquo;m in</button>
+      </span>
+      <button onClick="{{ promoLater }}" style="display:block;width:100%;margin-top:10px;border:0;background:transparent;color:var(--text-faint);font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer;padding:6px;border-radius:8px" style-hover="color:var(--text-secondary)">Decide later &mdash; the spot holds for a day</button>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;eventState&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;upcoming&quot;, &quot;tsType&quot;: &quot;'upcoming' | 'starting-soon' | 'full' | 'spot-opened' | 'changed' | 'cancelled' | 'past'&quot;, &quot;options&quot;: [&quot;upcoming&quot;, &quot;starting-soon&quot;, &quot;full&quot;, &quot;spot-opened&quot;, &quot;changed&quot;, &quot;cancelled&quot;, &quot;past&quot;], &quot;section&quot;: &quot;Event state&quot;}
+}">
+class Component extends DCLogic {
+  state = { rsvp: {}, waitlist: {}, expanded: false, toast: '', promoDone: false };
+
+  componentDidMount() {
+    try {
+      this.setState({
+        rsvp: JSON.parse(sessionStorage.getItem('bcRsvp') || '{}'),
+        waitlist: JSON.parse(sessionStorage.getItem('bcWaitlist') || '{}')
+      });
+    } catch (e) { /* ignore corrupt state */ }
+    if (!window.BCSchoolData) {
+      this._poll = setInterval(() => { if (window.BCSchoolData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._poll) clearInterval(this._poll);
+    if (this._toastT) clearTimeout(this._toastT);
+  }
+
+  data() { return window.BCSchoolData || { events: [], attendees: {} }; }
+
+  event() {
+    const d = this.data();
+    const events = [...(d.events || []), ...(d.endedEvents || [])];
+    let id = null;
+    try { id = new URLSearchParams(window.location.search).get('id'); } catch (e) { /* ignore */ }
+    return events.find((e) => e.id === id) || events[0] || null;
+  }
+
+  // State can arrive by deep link too (?state=cancelled from an old
+  // notification); the eventState tweak wins when set. Ended events carry
+  // their own cancelled flag.
+  urlState() {
+    try { return new URLSearchParams(window.location.search).get('state'); } catch (e) { return null; }
+  }
+
+  setRsvp(id, v) {
+    const rsvp = { ...this.state.rsvp, [id]: v };
+    this.setState({ rsvp });
+    try { sessionStorage.setItem('bcRsvp', JSON.stringify(rsvp)); } catch (e) { /* ignore */ }
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  ics(ev) {
+    const txt = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//BridgeCircle//EN\nBEGIN:VEVENT\nSUMMARY:' + ev.short + '\nDTSTART:' + ev.ics + '\nLOCATION:' + ev.place + '\nEND:VEVENT\nEND:VCALENDAR';
+    const a = document.createElement('a');
+    a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(txt);
+    a.download = ev.short + '.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    this.showToast(ev.short + '.ics saved \u2014 import it into your calendar.');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const ev = this.event();
+    const evObj = this.event();
+    const st = this.props.eventState ?? this.urlState() ?? (evObj && evObj.cancelled ? 'cancelled' : 'upcoming');
+    const live = st !== 'past' && st !== 'cancelled';
+    const going = ev ? (s.rsvp[ev.id] !== undefined ? s.rsvp[ev.id] : !!ev.going) : false;
+    const isFull = ev ? (st === 'full' || st === 'spot-opened' || ev.full) : false;
+    const wl = ev ? (s.waitlist[ev.id] !== undefined ? !!s.waitlist[ev.id] : st === 'spot-opened') : false;
+    const total = ev ? ev.goingCount + (going ? 1 : 0) : 0;
+    const others = Math.max(0, total - 2);
+
+    // who's going — circle first (data already ordered), expandable
+    const att = ev ? (this.data().attendees || {})[ev.id] : null;
+    const list = att ? att.list : [];
+    const shown = s.expanded ? list : list.slice(0, 5);
+    const wgRows = shown.map((p) => ({
+      i: p.i, name: p.name, yr: p.yr, circle: !!p.circle,
+      av1: p.av === 1, av2: p.av === 2, av3: p.av === 3, av4: p.av === 4,
+      linkShow: !!p.pid,
+      href: p.pid ? '../profile/Profile.dc.html?id=' + p.pid : '#'
+    }));
+    const hiddenN = (list.length - shown.length) + (att ? att.more : 0);
+
+    // state notices — quiet lines, never banners (FLOWS §6-detail)
+    let notice = '';
+    if (st === 'changed') notice = 'Updated Tuesday \u2014 the start time moved. Everyone who RSVP\u2019d was notified once.';
+    if (st === 'cancelled') notice = 'This event was cancelled \u2014 everyone who RSVP\u2019d was notified once. Nothing else to do.';
+    if (st === 'past') notice = 'This one\u2019s wrapped. ' + total + ' members attended.';
+
+    return {
+      backHref: ev ? './School.dc.html?event=' + ev.id : './School.dc.html',
+      evShort: ev ? ev.short : '', evMetaTop: ev ? ev.dateLine + ' \u00b7 ' + ev.place : '',
+      evMo: ev ? ev.mo : '', evDd: ev ? ev.dd : '', evDw: ev ? ev.dw : '',
+      evCat: ev ? 'Event \u00b7 ' + ev.cat : '', evTitle: ev ? ev.title : '',
+      evDesc: ev ? ev.desc : '', evHost: ev ? ev.host.name : '',
+      evWhen1: ev ? ev.dateLine : '', evWhen2: ev ? ev.timeLine : '',
+      evWhere1: ev ? ev.place : '', evWhere2: ev ? ev.place2 : '',
+      evFormat1: ev ? ev.format : '', evFormat2: ev ? ev.format2 : '',
+      evAv1: ev ? ev.avs[0].i : '', evAv2: ev ? ev.avs[1].i : '', evPlus: '+' + others,
+      evGoingLine: ev ? (st === 'past' ? total + ' members attended' : ev.goingNames + ' and ' + others + ' others going') : '',
+      evCircleLine: ev ? (ev.circleGoing > 0 ? ev.circleGoing + ' from your circle ' + (st === 'past' ? 'went' : (ev.circleGoing === 1 ? 'is going' : 'are going')) : 'No one from your circle yet') : '',
+
+      // cover controls by state
+      stGoing: live && going,
+      stRsvp: live && !going && !isFull && st !== 'starting-soon',
+      stFull: live && !going && isFull && !wl,
+      stWaitlisted: live && !going && isFull && wl,
+      stJoinNow: st === 'starting-soon' && !!ev && ev.online && going,
+      stPast: st === 'past',
+      stCancelled: st === 'cancelled',
+      pastPill: going ? 'You went' : 'It happened',
+      joinGateShow: !!ev && ev.online && !going && live,
+      spotsShow: live && !!ev && !isFull && ev.spotsLeft > 0,
+      spotsText: ev ? ev.spotsLeft + ' spots left' : '',
+      calShow: live,
+      actRsvp: () => { if (ev) { this.setRsvp(ev.id, true); this.showToast('You\u2019re going \u2014 it\u2019s on your School page now.'); } },
+      actChange: () => { if (ev) { this.setRsvp(ev.id, false); this.showToast('Taken off your list \u2014 no one is notified.'); } },
+      actWait: () => {
+        if (!ev) return;
+        const waitlist = { ...s.waitlist, [ev.id]: true };
+        this.setState({ waitlist });
+        try { sessionStorage.setItem('bcWaitlist', JSON.stringify(waitlist)); } catch (e) { /* ignore */ }
+        this.showToast('You\u2019re on the list \u2014 we\u2019ll ask before taking a spot.');
+      },
+
+      // Waitlist promotion — asks, never auto-commits (FLOWS §6-detail).
+      promoShow: st === 'spot-opened' && wl && !going && !s.promoDone,
+      promoTitle: ev ? ev.title : 'this event',
+      promoStop: (e) => e.stopPropagation(),
+      promoLater: () => this.setState({ promoDone: true }),
+      promoAccept: () => {
+        if (!ev) return;
+        const rsvp = { ...s.rsvp, [ev.id]: true };
+        const waitlist = { ...s.waitlist, [ev.id]: false };
+        this.setState({ rsvp, waitlist, promoDone: true });
+        try {
+          sessionStorage.setItem('bcRsvp', JSON.stringify(rsvp));
+          sessionStorage.setItem('bcWaitlist', JSON.stringify(waitlist));
+        } catch (e) { /* ignore */ }
+        this.showToast('You\u2019re in \u2014 see you there.');
+      },
+      promoPass: () => {
+        if (!ev) return;
+        const waitlist = { ...s.waitlist, [ev.id]: false };
+        this.setState({ waitlist, promoDone: true });
+        try { sessionStorage.setItem('bcWaitlist', JSON.stringify(waitlist)); } catch (e) { /* ignore */ }
+        this.showToast('Let it go \u2014 the spot passes along quietly.');
+      },
+      actJoin: () => this.showToast('This would open the event room.'),
+      actCal: () => { if (ev) this.ics(ev); },
+
+      noticeShow: !!notice, noticeText: notice,
+
+      // blocks appear only when filled
+      aboutShow: !!(ev && ev.about),
+      evAbout: ev ? (ev.about || '') : '',
+      hostRowShow: !!ev,
+      hostLinkShow: !!(ev && ev.host.pid),
+      hostTextShow: !!ev && !ev.host.pid,
+      hostHref: ev && ev.host.pid ? '../profile/Profile.dc.html?id=' + ev.host.pid : '#',
+      itinShow: !!(ev && ev.itinerary && ev.itinerary.length),
+      itin: ev ? (ev.itinerary || []) : [],
+      factsShow: !!(ev && ev.facts && ev.facts.length),
+      facts: ev ? (ev.facts || []).map((f) => ({ l: f.l, v: f.v, linkShow: !!f.link, link: f.link || '', href: f.href || '#' })) : [],
+
+      wgTitle: st === 'past' ? 'Who was there' : 'Who\u2019s going',
+      wgCount: total + (st === 'past' ? ' attended' : ' going'),
+      wgRows,
+      wgMoreShow: !s.expanded && hiddenN > 0,
+      wgMoreLabel: 'Show all ' + total + ' \u2192',
+      wgExpand: () => this.setState({ expanded: true }),
+
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

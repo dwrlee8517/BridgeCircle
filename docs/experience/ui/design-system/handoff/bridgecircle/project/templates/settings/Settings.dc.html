@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Settings page" description="One quiet settings page, no sub-maze (FLOWS §7d): account (email, export, sign out, delete), per-type notification & email prefs + newsletter toggle, pause (shared with Help·Give), blocked-users list with unblock." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <script src="./settings-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;width:100%" data-screen-label="Settings">
+
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <a href="../profile/Profile.dc.html" style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box);color:inherit;text-decoration:none;cursor:pointer">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </a>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 26px;z-index:2">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Settings</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;text-decoration:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
+      <div style="max-width:var(--container-reading);margin:0 auto;padding:26px 24px 40px;display:grid;gap:14px">
+
+        <div>
+          <h1 style="margin:0;font-weight:800;font-size:28px;letter-spacing:-0.03em">Settings</h1>
+          <p style="margin:6px 0 0;font-size:13px;color:var(--grey-600);font-weight:500">One quiet page. Helping topics live on <a href="../help/Help.dc.html" style="color:var(--action-primary);font-weight:700">Help&thinsp;&middot;&thinsp;Give</a>; your profile has its own <a href="../profile/Profile.dc.html" style="color:var(--action-primary);font-weight:700">page</a>.</p>
+        </div>
+
+        <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+          <div style="padding:15px 20px 11px"><b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Account</b></div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row)">
+            <span style="flex:1;min-width:0">
+              <span style="display:block;font-size:13.5px;font-weight:700">Email</span>
+              <sc-if value="{{ emailStill }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ emailValue }}</span></sc-if>
+              <sc-if value="{{ emailEditing }}" hint-placeholder-val="{{ false }}">
+                <span style="display:flex;gap:8px;margin-top:8px">
+                  <input value="{{ emailDraft }}" onChange="{{ onEmailDraft }}" style="flex:1;min-width:0;border:0;box-shadow:var(--ring-outline);background:var(--surface-card);border-radius:12px;padding:9px 13px;font-size:13px;font-weight:500;color:var(--text-primary);outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></input>
+                  <button onClick="{{ emailSave }}" style="flex:none;border:0;background:var(--action-primary);color:#fff;border-radius:var(--radius-pill);padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Save</button>
+                  <button onClick="{{ emailCancel }}" style="flex:none;border:0;background:transparent;color:var(--text-secondary);font-size:12.5px;font-weight:600;cursor:pointer;padding:8px 6px" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Cancel</button>
+                </span>
+              </sc-if>
+            </span>
+            <sc-if value="{{ emailStill }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ emailEdit }}" style="flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Change</button>
+            </sc-if>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row)">
+            <span style="flex:1;min-width:0">
+              <span style="display:block;font-size:13.5px;font-weight:700">Export your data</span>
+              <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">A copy of your profile, asks, and messages &mdash; yours to keep.</span>
+            </span>
+            <button onClick="{{ openExport }}" style="flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Request export</button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row)">
+            <span style="flex:1;min-width:0">
+              <span style="display:block;font-size:13.5px;font-weight:700">Sign out</span>
+              <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">{{ joinedLine }}</span>
+            </span>
+            <a href="./SignedOut.dc.html" style="flex:none;display:inline-flex;align-items:center;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Sign out</a>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 20px;border-top:1px solid var(--divider-row)">
+            <span style="flex:1;min-width:0">
+              <span style="display:block;font-size:13.5px;font-weight:700;color:var(--error)">Delete account</span>
+              <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px">Profile, asks, and messages leave BridgeCircle within 30 days.</span>
+            </span>
+            <button onClick="{{ openDelete }}" style="flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--error);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:rgb(240 68 82 / 0.06)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Delete&hellip;</button>
+          </div>
+        </div>
+
+        <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+          <div style="display:flex;align-items:baseline;gap:8px;padding:15px 20px 11px">
+            <b style="flex:1;font-size:15px;font-weight:800;letter-spacing:-0.02em">Notifications &amp; email</b>
+            <span style="width:52px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.02em;color:var(--text-faint)">BELL</span>
+            <span style="width:52px;text-align:center;font-size:11px;font-weight:800;letter-spacing:0.02em;color:var(--text-faint)">EMAIL</span>
+          </div>
+          <sc-for list="{{ prefRows }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--divider-row)">
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-size:13.5px;font-weight:700">{{ p.label }}</span>
+                <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ p.desc }}</span>
+              </span>
+              <span style="width:52px;display:flex;justify-content:center">
+                <sc-if value="{{ p.bellOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ p.toggleBell }}" role="switch" aria-checked="true" aria-label="{{ p.label }} in the bell" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--action-primary);position:relative;border:0;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+                <sc-if value="{{ p.bellOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.toggleBell }}" role="switch" aria-checked="false" aria-label="{{ p.label }} in the bell" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;border:0;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+              </span>
+              <span style="width:52px;display:flex;justify-content:center">
+                <sc-if value="{{ p.emailOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ p.toggleEmail }}" role="switch" aria-checked="true" aria-label="{{ p.label }} by email" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--action-primary);position:relative;border:0;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+                <sc-if value="{{ p.emailOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ p.toggleEmail }}" role="switch" aria-checked="false" aria-label="{{ p.label }} by email" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;border:0;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+              </span>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--divider-row)">
+            <span style="flex:1;min-width:0">
+              <span style="display:block;font-size:13.5px;font-weight:700">School newsletter by email</span>
+              <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">Each issue in your inbox &mdash; the archive stays on School either way</span>
+            </span>
+            <span style="width:52px"></span>
+            <span style="width:52px;display:flex;justify-content:center">
+              <sc-if value="{{ nlOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ toggleNl }}" role="switch" aria-checked="true" aria-label="School newsletter by email" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--action-primary);position:relative;border:0;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+              <sc-if value="{{ nlOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleNl }}" role="switch" aria-checked="false" aria-label="School newsletter by email" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;border:0;padding:0;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
+            </span>
+          </div>
+          <p style="margin:0;padding:11px 20px 14px;border-top:1px solid var(--divider-row);font-size:12px;color:var(--text-faint);font-weight:500">Transactional only &mdash; there&rsquo;s no weekly digest, and nothing here is promotional.</p>
+        </div>
+
+        <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:16px 20px 17px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="flex:1;min-width:0">
+              <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.02em">Helping</b>
+              <sc-if value="{{ pauseOn }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">You&rsquo;re open to helping. Pausing stops matching until you flip it back &mdash; never announced to anyone.</span></sc-if>
+              <sc-if value="{{ pauseOff }}" hint-placeholder-val="{{ false }}"><span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">You&rsquo;re paused. No one is told, nothing is matched to you until you&rsquo;re back.</span></sc-if>
+            </span>
+            <sc-if value="{{ pauseOn }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ togglePause }}" role="switch" aria-checked="true" aria-label="Open to helping" style="display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--radius-pill)">
+                <span style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;flex:none;display:inline-block"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></span>
+                <b style="font-size:13px;font-weight:700;color:var(--text-primary)">Open to helping</b>
+              </button>
+            </sc-if>
+            <sc-if value="{{ pauseOff }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ togglePause }}" role="switch" aria-checked="false" aria-label="Open to helping" style="display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:var(--radius-pill)">
+                <span style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;flex:none;display:inline-block"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></span>
+                <b style="font-size:13px;font-weight:700;color:var(--text-secondary)">Not right now</b>
+              </button>
+            </sc-if>
+          </div>
+          <p style="margin:10px 0 0;font-size:12px;color:var(--text-faint);font-weight:500">One switch, one home &mdash; this is the same switch as <a href="../help/Help.dc.html" style="color:var(--action-primary);font-weight:700">Help&thinsp;&middot;&thinsp;Give</a>, where your topics live.</p>
+        </div>
+
+        <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+          <div style="padding:15px 20px 11px"><b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Blocked</b></div>
+          <sc-if value="{{ blockedEmpty }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;padding:4px 20px 16px;font-size:12.5px;color:var(--text-faint);font-weight:500">No one is blocked. If you ever block someone, you can lift it here.</p>
+          </sc-if>
+          <sc-for list="{{ blockedRows }}" as="b" hint-placeholder-count="1">
+            <div style="display:flex;align-items:center;gap:11px;padding:12px 20px;border-top:1px solid var(--divider-row)">
+              <span style="width:36px;height:36px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ b.i }}</span>
+              <span style="flex:1;min-width:0">
+                <span style="display:block;font-size:13.5px;font-weight:700">{{ b.name }} <span style="color:var(--text-faint);font-weight:600;font-size:11.5px">&rsquo;{{ b.yr }}</span></span>
+                <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500">{{ b.since }} &middot; they can&rsquo;t see you, and were never told</span>
+              </span>
+              <button onClick="{{ b.unblock }}" style="flex:none;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Unblock&hellip;</button>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ dlgShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div onClick="{{ closeDlg }}" style="position:absolute;inset:0;background:rgb(25 31 40 / 0.4)"></div>
+    <div role="dialog" aria-label="Confirm" style="position:relative;width:440px;max-width:92vw;background:var(--surface-card);border-radius:20px;box-shadow:0 24px 64px -16px rgb(25 31 40 / 0.4);padding:22px 24px">
+      <b style="display:block;font-size:16px;font-weight:800;letter-spacing:-0.02em">{{ dlgTitle }}</b>
+      <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:var(--text-secondary);font-weight:500">{{ dlgBody }}</p>
+      <span style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+        <button onClick="{{ closeDlg }}" style="border:0;background:var(--surface-subtle);color:var(--text-primary);border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <sc-if value="{{ dlgDanger }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ dlgConfirm }}" style="border:0;background:var(--error);color:#fff;border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dlgAction }}</button>
+        </sc-if>
+        <sc-if value="{{ dlgCalm }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ dlgConfirm }}" style="border:0;background:var(--action-primary);color:#fff;border-radius:var(--radius-pill);padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ dlgAction }}</button>
+        </sc-if>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    prefs: null, nl: true,
+    openTo: true,
+    emailEditing: false, emailDraft: '', emailValue: '',
+    unblocked: {}, sessionBlocked: {},
+    dlg: null, dlgTarget: null,
+    toast: ''
+  };
+
+  componentDidMount() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('bcSettingsPrefs') || 'null');
+      if (saved && typeof saved === 'object') this.setState({ prefs: saved.prefs || null, nl: saved.nl !== false, emailValue: saved.email || '' });
+      this.setState({
+        unblocked: JSON.parse(sessionStorage.getItem('bcUnblocked') || '{}'),
+        sessionBlocked: JSON.parse(sessionStorage.getItem('bcBlocked') || '{}')
+      });
+      const help = JSON.parse(sessionStorage.getItem('bcHelpPageState') || 'null');
+      if (help && typeof help.openTo === 'boolean') this.setState({ openTo: help.openTo });
+    } catch (e) { /* ignore corrupt state */ }
+    if (!window.BCSettingsData) {
+      this._poll = setInterval(() => { if (window.BCSettingsData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+    this._esc = (e) => { if (e.key === 'Escape' && this.state.dlg) this.setState({ dlg: null }); };
+    window.addEventListener('keydown', this._esc);
+  }
+
+  componentWillUnmount() {
+    if (this._poll) clearInterval(this._poll);
+    if (this._toastT) clearTimeout(this._toastT);
+    window.removeEventListener('keydown', this._esc);
+  }
+
+  data() { return window.BCSettingsData || { account: { email: '', joined: '' }, prefTypes: [], blocked: [] }; }
+
+  savePrefs(patch) {
+    const next = { prefs: this.state.prefs, nl: this.state.nl, email: this.state.emailValue, ...patch };
+    this.setState(patch);
+    try { sessionStorage.setItem('bcSettingsPrefs', JSON.stringify(next)); } catch (e) { /* ignore */ }
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const d = this.data();
+    const email = s.emailValue || d.account.email;
+
+    // Per-type prefs — default: everything in the bell, email off for decline
+    // notes + expiry (they're already cushioned in-product).
+    const prefs = s.prefs || { asksB: true, asksE: true, notesB: true, notesE: false, connectB: true, connectE: true, eventsB: true, eventsE: true, expiryB: true, expiryE: false };
+    const prefRows = d.prefTypes.map((t) => {
+      const bKey = t.key + 'B', eKey = t.key + 'E';
+      return {
+        label: t.label, desc: t.desc,
+        bellOn: !!prefs[bKey], bellOff: !prefs[bKey],
+        emailOn: !!prefs[eKey], emailOff: !prefs[eKey],
+        toggleBell: () => this.savePrefs({ prefs: { ...prefs, [bKey]: !prefs[bKey] } }),
+        toggleEmail: () => this.savePrefs({ prefs: { ...prefs, [eKey]: !prefs[eKey] } })
+      };
+    });
+
+    // Session blocks (bcBlocked, written by Profile / Messages / the slide-over)
+    // surface here so a block can always be lifted — FLOWS §7d.
+    const sessRows = Object.entries(s.sessionBlocked || {}).map(([pid, v]) => ({
+      id: 'pid-' + pid,
+      i: (v && v.i) || '?', name: (v && v.n) || 'A member', yr: (v && v.yr) || '\u2014',
+      since: 'Just now'
+    }));
+    const blocked = [...sessRows, ...d.blocked.filter((b) => !s.unblocked[b.id])];
+    const dlgB = s.dlg === 'unblock' ? blocked.find((b) => b.id === s.dlgTarget) : null;
+    const dlgFirstB = dlgB ? dlgB.name.split(' ')[0] : '';
+
+    const dlgs = {
+      'export': {
+        title: 'Request a copy of your data?',
+        body: 'We\u2019ll gather your profile, asks, and messages and email a download link to ' + email + ' \u2014 usually within a day.',
+        action: 'Request export', danger: false,
+        confirm: () => { this.setState({ dlg: null }); this.showToast('Export requested \u2014 watch your inbox.'); }
+      },
+      'delete': {
+        title: 'Delete your account?',
+        body: 'Your profile, asks, and messages leave BridgeCircle within 30 days. We\u2019ll email a confirmation link to ' + email + ' \u2014 nothing happens until you click it.',
+        action: 'Send the confirmation', danger: true,
+        confirm: () => { this.setState({ dlg: null }); this.showToast('Confirmation sent \u2014 the last step is in your inbox.'); }
+      },
+      'unblock': {
+        title: 'Unblock ' + dlgFirstB + '?',
+        body: 'You\u2019ll see each other\u2019s asks, messages, and profiles again. ' + dlgFirstB + ' was never told about the block, and won\u2019t be told now.',
+        action: 'Unblock', danger: false,
+        confirm: () => {
+          if (String(s.dlgTarget).indexOf('pid-') === 0) {
+            const pid = String(s.dlgTarget).slice(4);
+            const sessionBlocked = { ...s.sessionBlocked };
+            delete sessionBlocked[pid];
+            this.setState({ sessionBlocked, dlg: null });
+            try { sessionStorage.setItem('bcBlocked', JSON.stringify(sessionBlocked)); } catch (e) { /* ignore */ }
+          } else {
+            const unblocked = { ...s.unblocked, [s.dlgTarget]: true };
+            this.setState({ unblocked, dlg: null });
+            try { sessionStorage.setItem('bcUnblocked', JSON.stringify(unblocked)); } catch (e) { /* ignore */ }
+          }
+          this.showToast(dlgFirstB + ' is unblocked.');
+        }
+      }
+    };
+    const dlg = s.dlg ? dlgs[s.dlg] : null;
+
+    return {
+      // account
+      emailValue: email,
+      emailStill: !s.emailEditing, emailEditing: s.emailEditing,
+      emailEdit: () => this.setState({ emailEditing: true, emailDraft: email }),
+      emailDraft: s.emailDraft,
+      onEmailDraft: (e) => this.setState({ emailDraft: e.target.value }),
+      emailSave: () => {
+        const v = s.emailDraft.trim();
+        if (!v || v.indexOf('@') < 1) { this.showToast('That doesn\u2019t look like an email address.'); return; }
+        this.savePrefs({ emailValue: v });
+        this.setState({ emailEditing: false });
+        this.showToast('We sent a confirmation to ' + v + ' \u2014 the change lands when you click it.');
+      },
+      emailCancel: () => this.setState({ emailEditing: false }),
+      joinedLine: d.account.joined,
+      openExport: () => this.setState({ dlg: 'export' }),
+      openDelete: () => this.setState({ dlg: 'delete' }),
+
+      // prefs
+      prefRows,
+      nlOn: s.nl, nlOff: !s.nl,
+      toggleNl: () => this.savePrefs({ nl: !s.nl }),
+
+      // pause — one source of truth, shared with Help·Give
+      pauseOn: s.openTo, pauseOff: !s.openTo,
+      togglePause: () => {
+        const openTo = !s.openTo;
+        this.setState({ openTo });
+        try {
+          const help = JSON.parse(sessionStorage.getItem('bcHelpPageState') || '{}') || {};
+          help.openTo = openTo;
+          sessionStorage.setItem('bcHelpPageState', JSON.stringify(help));
+        } catch (e) { /* ignore */ }
+      },
+
+      // blocked
+      blockedEmpty: blocked.length === 0,
+      blockedRows: blocked.map((b) => ({
+        i: b.i, name: b.name, yr: b.yr, since: b.since,
+        unblock: () => this.setState({ dlg: 'unblock', dlgTarget: b.id })
+      })),
+
+      // dialog
+      dlgShow: !!dlg,
+      dlgTitle: dlg ? dlg.title : '', dlgBody: dlg ? dlg.body : '',
+      dlgAction: dlg ? dlg.action : '',
+      dlgDanger: !!dlg && dlg.danger, dlgCalm: !!dlg && !dlg.danger,
+      dlgConfirm: () => { if (dlg) dlg.confirm(); },
+      closeDlg: () => this.setState({ dlg: null }),
+
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

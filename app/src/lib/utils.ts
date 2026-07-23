@@ -1,15 +1,55 @@
 import { type ClassValue, clsx } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
-// Teach tailwind-merge about Civic Editorial's custom theme tokens so that
+// Teach tailwind-merge about the custom theme tokens so that
 // e.g. `cn('shadow-none', 'shadow-card-hover')` collapses to just
 // `shadow-card-hover`. Without this, custom utilities aren't recognized as
 // part of the shadow conflict group and both classes survive — the earlier
 // one wins by CSS order, silently defeating the consumer override.
+//
+// The font-size group is load-bearing: tailwind-merge cannot tell a custom
+// `text-<size>` utility from a `text-<color>` utility. Unregistered size
+// names (text-control, text-chip, …) get bucketed as colors and are DROPPED
+// whenever a real color class follows in the same cn() call — the element
+// then silently inherits the 16px root size. Every named size from
+// globals.css @theme must be listed here.
+const FONT_SIZE_TOKENS = [
+  'micro',
+  'fine',
+  'overline',
+  'chip',
+  'control',
+  'kicker',
+  'caption',
+  'label',
+  'nav',
+  'body',
+  'body-sm',
+  'body-md',
+  'body-lg',
+  'subtitle',
+  'heading',
+  'heading-large',
+  'section-title',
+  'page-title',
+  'h1',
+  'h2',
+  'display-md',
+  'display-lg',
+  'display-xl',
+  'display-hero',
+  'display-large',
+  'display-event',
+  'event-date',
+  'event-date-md',
+  'event-date-lg',
+] as const
+
 const twMerge = extendTailwindMerge({
   extend: {
     classGroups: {
       shadow: ['shadow-card', 'shadow-card-hover', 'shadow-hero'],
+      'font-size': [{ text: [...FONT_SIZE_TOKENS] }],
     },
   },
 })
@@ -99,23 +139,9 @@ export function classYearShort(year: number | null | undefined): string | null {
 }
 
 /**
- * Canonical link into the ask composer. Centralized so the intent param
- * can't silently drop on some surfaces (it did on Home and People).
+ * Canonical link into the v2 direct-Ask composer. Help is membership-scoped,
+ * so callers must use the candidate's membership ID rather than a user ID.
  */
-export function askComposeHref(userId: string, intent?: string): string {
-  const params = new URLSearchParams({ to: userId })
-  if (intent?.trim()) params.set('intent', intent.trim())
-  return `/ask/new?${params.toString()}`
-}
-
-/**
- * Whether a card's ask CTA should render at all — one availability state
- * (ADR 0011 Phase 2). Either legacy flag counts as open until the Phase 6
- * column collapse, so members with divergent legacy rows stay reachable.
- */
-export function isOpenToHelp(person: {
-  isOpenAsAdviceHelper?: boolean
-  isOpenAsMentor?: boolean
-}): boolean {
-  return Boolean(person.isOpenAsAdviceHelper || person.isOpenAsMentor)
+export function directHelpHref(membershipId: string): string {
+  return `/help/ask/${membershipId}`
 }

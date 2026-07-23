@@ -17,8 +17,8 @@ export function HelpModeToggle({ mode }: { mode: 'ask' | 'give' }) {
           aria-label="Ask for help or give help"
           className="inline-flex rounded-full border border-border bg-card p-1 shadow-card"
         >
-          <Segment href="/" active={mode === 'ask'} label="Ask for help" />
-          <Segment href="/?mode=give" active={mode === 'give'} label="Give help" />
+          <Segment href="/help" active={mode === 'ask'} label="Ask for help" />
+          <Segment href="/help?mode=give" active={mode === 'give'} label="Give help" />
         </div>
       </div>
     </div>

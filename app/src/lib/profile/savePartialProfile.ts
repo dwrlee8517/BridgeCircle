@@ -1,10 +1,4 @@
-import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { createAdminClient } from '@/db/admin'
-import type { Database } from '@/db/database.types'
-import { setOpenToHelp } from '@/lib/asks/preferences'
-import { upsertRefreshPolicy } from '@/lib/enrichment/persistSettings'
-import { markProfileEmbeddingDirty } from '@/lib/search/matching/indexStatus'
+import type { ProfileCommandResult, ProfileRepository } from './contracts'
 import type {
   OnboardingAboutInput,
   OnboardingCurrentInput,
@@ -15,216 +9,148 @@ import type {
 
 export type SavePartialResult =
   | { ok: true }
-  | { ok: false; error: 'no_membership' | 'db_error'; detail?: string }
-
-/**
- * Onboarding step-by-step save helpers. Each function writes only the fields
- * its step touches, leaving everything else null/untouched. This is what
- * lets a user skip a step without breaking validation or wiping prior fields.
- *
- * Compare to saveProfile() which is the all-at-once edit path used by
- * /profile/edit. That one validates the *full* profile; these don't.
- *
- * RLS: the supabase client is the user's own (server-side, with their auth
- * cookie). Each user can update their own base_profiles / org_profiles /
- * helper_preferences rows under existing policies — no admin escalation.
- */
-
-// --- Step 1: About you --------------------------------------------------
+  | {
+      ok: false
+      error: 'no_membership' | 'incomplete_profile' | 'db_error'
+      detail?: string
+    }
 
 export async function saveOnboardingAbout(
-  supabase: SupabaseClient<Database>,
-  userId: string,
+  repository: ProfileRepository,
+  membershipId: string,
   input: OnboardingAboutInput,
 ): Promise<SavePartialResult> {
-  const { error: baseErr } = await supabase
-    .from('base_profiles')
-    .update({
-      name: input.name,
-      preferred_name: input.preferredName || null,
-      name_other: input.nameOther || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId)
-  if (baseErr) return { ok: false, error: 'db_error', detail: baseErr.message }
-
-  const membership = await getActiveMembership(supabase, userId)
-  if (!membership) return { ok: false, error: 'no_membership' }
-
-  const { error: orgErr } = await supabase
-    .from('organization_profiles')
-    .update({
-      graduation_year: input.graduationYear,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('organization_membership_id', membership.id)
-  if (orgErr) return { ok: false, error: 'db_error', detail: orgErr.message }
-
-  return { ok: true }
+  return mapCommandResult(
+    await repository.saveIdentity(membershipId, {
+      displayName: input.name,
+      preferredName: input.preferredName ?? null,
+      nameOther: input.nameOther ?? null,
+      graduationYear: input.graduationYear,
+    }),
+  )
 }
-
-// --- Step 2: Education --------------------------------------------------
 
 export async function saveOnboardingEducation(
-  supabase: SupabaseClient<Database>,
-  userId: string,
+  repository: ProfileRepository,
+  membershipId: string,
   input: OnboardingEducationInput,
 ): Promise<SavePartialResult> {
-  const educationHistory = input.educationHistory.map((e) => ({
-    school: e.school,
-    degree: e.degree,
-    field: e.field,
-    start_date: e.startDate,
-    end_date: e.endDate,
-  }))
-
-  const { error: baseErr } = await supabase
-    .from('base_profiles')
-    .update({
-      university: input.university || null,
-      major: input.major || null,
-      education_history: educationHistory.length > 0 ? educationHistory : null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId)
-  if (baseErr) return { ok: false, error: 'db_error', detail: baseErr.message }
-  return { ok: true }
+  return mapCommandResult(
+    await repository.saveEducation(membershipId, {
+      university: input.university ?? null,
+      major: input.major ?? null,
+      education: input.educationHistory.map((entry) => ({
+        school: entry.school,
+        degree: entry.degree,
+        field: entry.field,
+        ...period(entry.startDate, entry.endDate),
+        description: null,
+      })),
+    }),
+  )
 }
-
-// --- Step 3: Where you are now -----------------------------------------
 
 export async function saveOnboardingCurrent(
-  supabase: SupabaseClient<Database>,
-  userId: string,
+  repository: ProfileRepository,
+  membershipId: string,
   input: OnboardingCurrentInput,
 ): Promise<SavePartialResult> {
-  const { error: baseErr } = await supabase
-    .from('base_profiles')
-    .update({
-      current_employer: input.currentEmployer || null,
-      current_title: input.currentTitle || null,
-      city: input.city || null,
-      headline: input.headline || null,
-      linkedin_url: input.linkedinUrl || null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId)
-  if (baseErr) return { ok: false, error: 'db_error', detail: baseErr.message }
-  return { ok: true }
+  return mapCommandResult(
+    await repository.saveCurrent(membershipId, {
+      currentEmployer: input.currentEmployer ?? null,
+      currentTitle: input.currentTitle ?? null,
+      city: input.city ?? null,
+      headline: input.headline ?? null,
+      industry: input.industry ?? null,
+    }),
+  )
 }
-
-// --- Step 4: Where you've been -----------------------------------------
 
 export async function saveOnboardingPast(
-  supabase: SupabaseClient<Database>,
-  userId: string,
+  repository: ProfileRepository,
+  membershipId: string,
   input: OnboardingPastInput,
 ): Promise<SavePartialResult> {
-  const careerHistory = input.careerHistory.map((e) => ({
-    employer: e.employer,
-    title: e.title,
-    start_date: e.startDate,
-    end_date: e.endDate,
-    description: e.description,
-  }))
-
-  const { error: baseErr } = await supabase
-    .from('base_profiles')
-    .update({
-      career_history: careerHistory.length > 0 ? careerHistory : null,
-      skills: input.skills.length > 0 ? input.skills : null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', userId)
-  if (baseErr) return { ok: false, error: 'db_error', detail: baseErr.message }
-  return { ok: true }
+  return mapCommandResult(
+    await repository.saveHistory(membershipId, {
+      experiences: input.careerHistory.map((entry) => ({
+        employer: entry.employer,
+        title: entry.title,
+        ...period(entry.startDate, entry.endDate),
+        description: entry.description,
+      })),
+      skills: input.skills,
+    }),
+  )
 }
-
-// --- Step 5: How you can help ------------------------------------------
 
 export async function saveOnboardingHelp(
-  supabase: SupabaseClient<Database>,
-  userId: string,
+  repository: ProfileRepository,
+  membershipId: string,
   input: OnboardingHelpInput,
 ): Promise<SavePartialResult> {
-  const topics = input.mentoringTopics
-    ? input.mentoringTopics
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean)
-    : null
+  const current = await repository.get(membershipId)
+  if (!current.ok) return { ok: false, error: 'no_membership' }
 
-  const membership = await getActiveMembership(supabase, userId)
-  if (!membership) return { ok: false, error: 'no_membership' }
+  const linkedinUrl = current.profile.preferences.freshness.linkedinUrl
+  const topics = (input.helperTopics ?? '')
+    .split(',')
+    .map((topic) => topic.trim())
+    .filter(Boolean)
 
-  const { error: orgErr } = await supabase
-    .from('organization_profiles')
-    .update({
-      bio: input.bio || null,
-      mentoring_topics: topics,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('organization_membership_id', membership.id)
-  if (orgErr) return { ok: false, error: 'db_error', detail: orgErr.message }
-
-  const prefResult = await setOpenToHelp(supabase, membership.id, input.openToMentor)
-  if (!prefResult.ok) return prefResult
-
-  // Freshness consent for the LinkedIn enrichment loop. Admin client because
-  // profile_enrichment_settings is service-role write-only — users can read
-  // their own row but the table is mutated by enrichment lib code only.
-  const admin = createAdminClient()
-  const policyResult = await upsertRefreshPolicy(admin, userId, input.freshnessPolicy)
-  if (!policyResult.ok) {
-    return { ok: false, error: 'db_error', detail: policyResult.error }
-  }
-
-  return { ok: true }
+  return mapCommandResult(
+    await repository.savePreferences(membershipId, {
+      bio: input.bio ?? null,
+      openToHelp: input.openToHelp,
+      topics,
+      linkedinUrl,
+      refreshPolicy: input.freshnessPolicy,
+      refreshInterval: current.profile.preferences.freshness.refreshInterval,
+      freshnessConsent: linkedinUrl !== null,
+    }),
+  )
 }
-
-// --- Mark onboarding complete + helpers --------------------------------
 
 export async function markOnboardingComplete(
-  _userClient: SupabaseClient<Database>,
-  userId: string,
+  repository: ProfileRepository,
+  membershipId: string,
 ): Promise<SavePartialResult> {
-  // Why admin client: RLS on `users` has read-only policies for the user's
-  // own row (see 20260426233156_rls.sql — `users read self`, `users read
-  // org mates`). There's no UPDATE policy. Using the user-scoped client
-  // makes Supabase silently succeed with 0 rows affected — no error
-  // surfaces, but onboarding_completed_at never actually gets set, and
-  // the user gets bounced back to step 1 on next visit. The admin client
-  // bypasses RLS for this one targeted column.
-  //
-  // We accept the user-scoped client as the first arg (and ignore it) for
-  // call-site symmetry with the other save* helpers. The narrow surface
-  // of this update — only the onboarding_completed_at column on the
-  // signed-in user's own row — is what makes the admin escalation safe.
-  const admin = createAdminClient()
-  const { error } = await admin
-    .from('users')
-    .update({ onboarding_completed_at: new Date().toISOString() })
-    .eq('id', userId)
-  if (error) return { ok: false, error: 'db_error', detail: error.message }
-
-  await markProfileEmbeddingDirty({
-    userId,
-    reason: 'onboarding_complete',
-  })
-
-  return { ok: true }
+  const result = await repository.completeOnboarding(membershipId)
+  if (result.ok) return { ok: true }
+  if (result.error === 'not_owned' || result.error === 'membership_unavailable') {
+    return { ok: false, error: 'no_membership' }
+  }
+  if (result.error === 'incomplete_profile') {
+    return { ok: false, error: 'incomplete_profile' }
+  }
+  return { ok: false, error: 'db_error', detail: result.error }
 }
 
-async function getActiveMembership(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-): Promise<{ id: string } | null> {
-  const { data } = await supabase
-    .from('organization_memberships')
-    .select('id')
-    .eq('user_id', userId)
-    .eq('status', 'active')
-    .limit(1)
-    .maybeSingle()
-  return data
+function mapCommandResult(result: ProfileCommandResult): SavePartialResult {
+  if (result === 'saved') return { ok: true }
+  if (result === 'not_owned' || result === 'membership_unavailable') {
+    return { ok: false, error: 'no_membership' }
+  }
+  return { ok: false, error: 'db_error', detail: result }
+}
+
+function period(start: string | null, end: string | null) {
+  const startParts = dateParts(start)
+  const endParts = dateParts(end)
+  return {
+    startYear: startParts.year,
+    startMonth: startParts.month,
+    endYear: endParts.year,
+    endMonth: endParts.month,
+  }
+}
+
+function dateParts(value: string | null): { year: number | null; month: number | null } {
+  if (!value) return { year: null, month: null }
+  const match = /^(\d{4})(?:-(\d{2}))?/.exec(value)
+  if (!match) return { year: null, month: null }
+  return {
+    year: Number(match[1]),
+    month: match[2] ? Number(match[2]) : null,
+  }
 }

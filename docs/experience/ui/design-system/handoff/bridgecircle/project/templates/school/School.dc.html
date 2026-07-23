@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="School page" description="School — events + announcements (FLOWS §6, 1h refined). Attending strip selects into the navy event cover (RSVP states, warm going-signal, quiet capacity), upcoming list with selection, pinned announcements, light newsletter card." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <script src="./school-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}
+  @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+  @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
+</helmet>
+
+<div style="display:flex;height:100vh;width:100%" data-screen-label="School">
+
+  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
+      </a>
+      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 26px;z-index:2">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">School</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+            <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+          </sc-if>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
+      <div style="max-width:1040px;margin:0 auto;padding:26px 34px 40px;display:grid;gap:14px">
+
+        <sc-if value="{{ pageLoading }}" hint-placeholder-val="{{ false }}">
+          <div aria-label="Loading" role="status" style="display:grid;gap:14px">
+            <span data-skel="" style="display:block;height:46px;border-radius:14px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <span data-skel="" style="display:block;height:230px;border-radius:var(--radius-card-xl);background:linear-gradient(90deg,#dfe6ee 25%,#ebf0f5 50%,#dfe6ee 75%);background-size:200% 100%"></span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:18px 20px;display:grid;gap:14px">
+                <span data-skel="" style="display:block;width:40%;height:14px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <div style="display:flex;align-items:center;gap:12px"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:12px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:60%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:45%;height:10px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span></div>
+                <div style="display:flex;align-items:center;gap:12px"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:12px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:52%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:40%;height:10px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span></div>
+              </div>
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:18px 20px;display:grid;gap:14px">
+                <span data-skel="" style="display:block;width:50%;height:14px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;width:85%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;width:70%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;width:78%;height:12px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ pageReady }}" hint-placeholder-val="{{ true }}">
+
+        <div>
+          <p style="margin:0;font-size:13px;font-weight:600;color:var(--text-faint)">Chadwick</p>
+          <h1 style="margin:6px 0 0;font-weight:800;font-size:28px;letter-spacing:-0.03em">What&rsquo;s on at Chadwick.</h1>
+        </div>
+
+        <sc-if value="{{ eventsEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:26px 24px;text-align:center">
+            <p style="margin:0;font-size:13.5px;color:var(--grey-600);font-weight:500">Nothing on the calendar right now &mdash; we&rsquo;ll email you when something is.</p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ eventsShow }}" hint-placeholder-val="{{ true }}">
+
+          <sc-if value="{{ stripShow }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:stretch;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),0 8px 24px -14px rgb(25 31 40 / 0.12);overflow:hidden">
+              <span style="flex:none;display:flex;align-items:center;gap:8px;padding:0 18px;border-right:1px solid var(--divider);background:linear-gradient(180deg,#fbfefc,#f4fcf8)">
+                <i style="width:7px;height:7px;border-radius:50%;background:var(--green-500);box-shadow:0 0 0 3px rgb(3 178 108 / 0.14)"></i>
+                <b style="font-size:12px;font-weight:800">Attending</b>
+                <span style="font-size:11px;font-weight:800;color:var(--action-give-text);font-variant-numeric:tabular-nums">{{ attendCount }}</span>
+              </span>
+              <sc-for list="{{ goingChips }}" as="g" hint-placeholder-count="2">
+                <button onClick="{{ g.pick }}" style="display:flex;align-items:center;gap:11px;padding:10px 18px;border:0;border-right:1px solid var(--divider);background:transparent;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <span style="flex:none;width:34px;text-align:center;line-height:1.05">
+                    <span style="display:block;font-size:8.5px;font-weight:800;color:var(--blue-600);letter-spacing:0.07em">{{ g.mo }}</span>
+                    <span style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.02em;color:var(--text-primary)">{{ g.dd }}</span>
+                  </span>
+                  <span>
+                    <span style="display:block;font-size:12.5px;font-weight:700;white-space:nowrap;color:var(--text-primary)">{{ g.t }}</span>
+                    <span style="display:block;font-size:10.5px;font-weight:500;color:var(--text-faint);white-space:nowrap">{{ g.m }}</span>
+                  </span>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ stripEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:8px;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),0 8px 24px -14px rgb(25 31 40 / 0.12);padding:13px 18px">
+              <i style="width:7px;height:7px;border-radius:50%;border:1.5px dashed var(--grey-400);box-sizing:border-box;flex:none"></i>
+              <span style="font-size:12.5px;color:var(--grey-600);font-weight:500">You&rsquo;re not signed up for anything yet &mdash; the list below is a good place to start.</span>
+            </div>
+          </sc-if>
+
+          <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start">
+
+            <div style="display:grid;gap:16px">
+              <div style="position:relative;overflow:hidden;border-radius:var(--radius-card-xl);padding:24px 26px;background:var(--cover-event);box-shadow:0 18px 44px -16px rgb(13 27 54 / 0.55);color:#fff">
+                <div style="position:relative">
+                  <div style="display:flex;align-items:flex-start;gap:18px">
+                    <span style="flex:none;width:62px;height:66px;border-radius:var(--radius-large);background:var(--glass-tile);box-shadow:var(--ring-glass);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
+                      <span style="font-size:10px;font-weight:800;color:var(--cover-accent);letter-spacing:0.06em">{{ cvMo }}</span>
+                      <span style="font-size:25px;font-weight:800;letter-spacing:-0.02em">{{ cvDd }}</span>
+                      <span style="font-size:9.5px;font-weight:700;color:rgb(255 255 255 / 0.65)">{{ cvDw }}</span>
+                    </span>
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font-size:11.5px;font-weight:700;color:var(--cover-accent)">{{ cvCat }}</span>
+                      <h2 style="margin:3px 0 0;font-size:23px;font-weight:800;letter-spacing:-0.02em;line-height:1.15">{{ cvTitle }}</h2>
+                      <p style="margin:7px 0 0;font-size:12.5px;line-height:1.55;color:rgb(255 255 255 / 0.82);font-weight:500">{{ cvDesc }} <span style="color:var(--cover-accent);font-weight:600">Hosted by {{ cvHost }}.</span></p>
+                    </span>
+                    <span style="flex:none;display:flex;align-items:center;gap:8px">
+                      <sc-if value="{{ cvGoing }}" hint-placeholder-val="{{ true }}">
+                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--cover-ink);background:#fff;border-radius:var(--radius-pill);padding:6px 12px">&#10003; You&rsquo;re going</span>
+                        <button onClick="{{ cvChange }}" style="border:0;background:transparent;color:var(--cover-accent);font-size:11.5px;font-weight:700;cursor:pointer;padding:6px 4px" style-hover="color:#fff" style-focus="outline:2px solid #fff;outline-offset:2px;border-radius:6px">Change</button>
+                      </sc-if>
+                      <sc-if value="{{ cvRsvpShow }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ cvRsvp }}" style="border:0;background:#fff;color:var(--cover-ink);border-radius:11px;padding:10px 20px;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px -4px rgb(0 0 0 / 0.4)" style-focus="outline:2px solid #fff;outline-offset:2px">I&rsquo;m going</button>
+                      </sc-if>
+                      <sc-if value="{{ cvFullShow }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size:11.5px;font-weight:600;color:rgb(255 255 255 / 0.75)">This one&rsquo;s full &mdash;</span>
+                        <button onClick="{{ cvWait }}" style="border:0;background:rgb(255 255 255 / 0.14);color:#fff;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:11px;padding:9px 16px;font-size:12px;font-weight:700;backdrop-filter:blur(4px);cursor:pointer" style-focus="outline:2px solid #fff;outline-offset:2px">Join the waitlist</button>
+                      </sc-if>
+                      <sc-if value="{{ cvWaitlisted }}" hint-placeholder-val="{{ false }}">
+                        <span style="display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;color:#fff;background:rgb(255 255 255 / 0.14);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:var(--radius-pill);padding:6px 12px">On the waitlist</span>
+                      </sc-if>
+                    </span>
+                  </div>
+
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:18px;background:rgb(255 255 255 / 0.07);border-radius:var(--radius-box);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.12)">
+                    <div style="padding:13px 18px">
+                      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cover-accent)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M8 3v4M16 3v4M3.5 10h17"></path></svg>When</span>
+                      <span style="display:block;margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ cvWhen1 }}</span>
+                      <span style="display:block;font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px">{{ cvWhen2 }}</span>
+                    </div>
+                    <div style="padding:13px 18px;border-left:1px solid rgb(255 255 255 / 0.12)">
+                      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cover-accent)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 21.5s-7-5.8-7-11a7 7 0 0 1 14 0c0 5.2-7 11-7 11z"></path><circle cx="12" cy="10.2" r="2.5"></circle></svg>Where</span>
+                      <span style="display:block;margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ cvWhere1 }}</span>
+                      <span style="display:block;font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px">{{ cvWhere2 }}</span>
+                    </div>
+                    <div style="padding:13px 18px;border-left:1px solid rgb(255 255 255 / 0.12)">
+                      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cover-accent)"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 19.5c.6-3.2 2.8-5.2 5.5-5.2s4.9 2 5.5 5.2"></path><path d="M15.5 5.3a3.2 3.2 0 0 1 0 5.4M17.6 14.6c1.7.9 2.7 2.6 2.9 4.9"></path></svg>Format</span>
+                      <span style="display:block;margin-top:6px;font-size:14px;font-weight:700;letter-spacing:-0.01em">{{ cvFormat1 }}</span>
+                      <span style="display:block;font-size:11.5px;color:rgb(255 255 255 / 0.62);font-weight:500;margin-top:1px">{{ cvFormat2 }}</span>
+                    </div>
+                  </div>
+
+                  <div style="display:flex;align-items:center;gap:16px;margin-top:16px;flex-wrap:wrap">
+                    <a href="{{ cvGoingHref }}" style="display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none" style-focus="outline:2px solid #fff;outline-offset:2px;border-radius:8px">
+                      <span style="display:flex">
+                        <span style="width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink)">{{ cvAv1 }}</span>
+                        <span style="width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink);margin-left:-6px">{{ cvAv2 }}</span>
+                        <span style="width:24px;height:24px;border-radius:50%;background:#cfe2ff;box-shadow:0 0 0 2px rgb(22 48 92 / 0.9);display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:var(--cover-ink);margin-left:-6px">{{ cvPlus }}</span>
+                      </span>
+                      <span>
+                        <span style="display:block;font-size:12px;font-weight:600;color:rgb(255 255 255 / 0.88);font-variant-numeric:tabular-nums">{{ cvGoingLine }}</span>
+                        <span style="display:block;font-size:11.5px;font-weight:700;color:var(--cover-accent)">{{ cvCircleLine }}</span>
+                      </span>
+                    </a>
+                    <sc-if value="{{ cvSpotsShow }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:11.5px;color:rgb(255 255 255 / 0.65);font-weight:600;font-variant-numeric:tabular-nums">{{ cvSpots }}</span>
+                    </sc-if>
+                    <span style="margin-left:auto;display:flex;gap:8px;flex:none">
+                      <button onClick="{{ cvCal }}" style="border:0;background:rgb(255 255 255 / 0.14);color:#fff;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.28);border-radius:11px;padding:9px 16px;font-size:12px;font-weight:700;backdrop-filter:blur(4px);cursor:pointer" style-focus="outline:2px solid #fff;outline-offset:2px"><span style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><rect x="3.5" y="5" width="17" height="16" rx="2.5"></rect><path d="M8 3v4M16 3v4M3.5 10h17M12 13.5v5M9.5 16h5"></path></svg>Add to calendar</span></button>
+                      <a href="{{ cvHref }}" style="display:inline-flex;align-items:center;background:#fff;color:var(--cover-ink);border-radius:11px;padding:9px 16px;font-size:12px;font-weight:700;text-decoration:none" style-focus="outline:2px solid #fff;outline-offset:2px">View details &rarr;</a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                <div style="display:flex;align-items:baseline;gap:9px;padding:15px 20px 11px">
+                  <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Upcoming</b>
+                  <span style="font-size:12px;color:var(--text-faint);font-weight:600">{{ upcomingSub }}</span>
+                </div>
+                <sc-for list="{{ upcoming }}" as="e" hint-placeholder-count="4">
+                  <sc-if value="{{ e.sel }}" hint-placeholder-val="{{ false }}">
+                    <div onClick="{{ e.pick }}" style="display:flex;align-items:center;gap:13px;padding:11px 20px;border-top:1px solid var(--divider-row);background:var(--selected-tint);box-shadow:var(--selected-accent);cursor:pointer">
+                      <span style="flex:none;width:40px;height:40px;border-radius:var(--radius-comfortable);background:linear-gradient(180deg,#eef5ff,#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
+                        <span style="font-size:9px;font-weight:800;color:var(--blue-600);letter-spacing:0.05em">{{ e.mo }}</span>
+                        <span style="font-size:15px;font-weight:800">{{ e.dd }}</span>
+                      </span>
+                      <span style="flex:1;min-width:0">
+                        <span style="display:block;font-size:13.5px;font-weight:700">{{ e.t }}</span>
+                        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ e.m }}</span>
+                      </span>
+                      <sc-if value="{{ e.going }}" hint-placeholder-val="{{ false }}">
+                        <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--action-give-text);background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
+                      </sc-if>
+                      <a href="{{ e.href }}" aria-label="Event page" style="flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--grey-400);font-size:16px;font-weight:700;text-decoration:none" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</a>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ e.unsel }}" hint-placeholder-val="{{ true }}">
+                    <div onClick="{{ e.pick }}" style="display:flex;align-items:center;gap:13px;padding:11px 20px;border-top:1px solid var(--divider-row);cursor:pointer" style-hover="background:var(--row-hover)">
+                      <span style="flex:none;width:40px;height:40px;border-radius:var(--radius-comfortable);background:linear-gradient(180deg,#eef5ff,#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
+                        <span style="font-size:9px;font-weight:800;color:var(--blue-600);letter-spacing:0.05em">{{ e.mo }}</span>
+                        <span style="font-size:15px;font-weight:800">{{ e.dd }}</span>
+                      </span>
+                      <span style="flex:1;min-width:0">
+                        <span style="display:block;font-size:13.5px;font-weight:700">{{ e.t }}</span>
+                        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:1px">{{ e.m }}</span>
+                      </span>
+                      <sc-if value="{{ e.going }}" hint-placeholder-val="{{ false }}">
+                        <span style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--action-give-text);background:var(--action-give-weak);border-radius:var(--radius-pill);padding:3px 9px">&#10003; Going</span>
+                      </sc-if>
+                      <a href="{{ e.href }}" aria-label="Event page" style="flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:var(--grey-400);font-size:16px;font-weight:700;text-decoration:none" style-hover="background:var(--surface-subtle);color:var(--text-secondary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</a>
+                    </div>
+                  </sc-if>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:grid;gap:16px">
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                <div style="display:flex;align-items:center;gap:9px;padding:15px 20px 11px">
+                  <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Announcements</b>
+                  <sc-if value="{{ newShow }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size:11px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border-radius:var(--radius-pill);padding:3px 10px;font-variant-numeric:tabular-nums">{{ newCount }}</span>
+                  </sc-if>
+                  <a href="./Announcements.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">View all &rarr;</a>
+                </div>
+                <sc-if value="{{ pinnedShow }}" hint-placeholder-val="{{ true }}">
+                  <a href="{{ pinnedHref }}" style="display:block;padding:12px 20px 12px 18px;border-top:1px solid var(--divider-row);background:linear-gradient(90deg,#eaf3ff,#fbfdff);box-shadow:inset 3px 0 0 var(--action-primary);color:inherit;text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                    <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--blue-600)"><svg viewBox="0 0 24 24" style="width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M9 4h6l-.8 5.2 3.3 3.3H6.5l3.3-3.3L9 4z"></path><path d="M12 12.5V20"></path></svg>Pinned</span>
+                    <span style="display:block;font-size:13.5px;font-weight:700;line-height:1.35;margin-top:4px;color:var(--text-primary)">{{ pinnedTitle }}</span>
+                    <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:3px">{{ pinnedMeta }}</span>
+                  </a>
+                </sc-if>
+                <sc-for list="{{ annRows }}" as="n" hint-placeholder-count="3">
+                  <a href="{{ n.href }}" style="display:block;padding:11px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                    <span style="display:flex;align-items:baseline;gap:7px">
+                      <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}">
+                        <i style="flex:none;width:7px;height:7px;border-radius:50%;background:var(--action-primary);align-self:center"></i>
+                      </sc-if>
+                      <span style="font-size:13.5px;font-weight:700;line-height:1.35;color:var(--text-primary)">{{ n.title }}</span>
+                    </span>
+                    <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:3px">{{ n.meta }}</span>
+                  </a>
+                </sc-for>
+              </div>
+
+              <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+                <div style="display:flex;align-items:center;gap:9px;padding:15px 20px 9px">
+                  <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Newsletter</b>
+                  <a href="./NewsletterArchive.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">View more &rarr;</a>
+                </div>
+                <a href="{{ nlHref }}" style="display:block;padding:4px 20px 16px;color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                  <span style="font-size:11.5px;font-weight:700;color:var(--blue-600)">Issue {{ nlIssue }} &middot; {{ nlMonth }}</span>
+                  <span style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.02em;margin-top:4px;color:var(--text-primary)">{{ nlHeadline }}</span>
+                  <sc-for list="{{ nlLines }}" as="l" hint-placeholder-count="3">
+                    <span style="display:flex;gap:8px;align-items:baseline;margin-top:6px;font-size:12.5px;line-height:1.45;color:var(--grey-600);font-weight:500">
+                      <i style="flex:none;width:5px;height:5px;border-radius:50%;background:var(--blue-300);align-self:center"></i>
+                      {{ l.t }}
+                    </span>
+                  </sc-for>
+                  <span style="display:inline-block;margin-top:10px;font-size:12.5px;color:var(--action-primary);font-weight:700">Read the issue &rarr;</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </sc-if>
+
+        </sc-if>
+      </div>
+    </div>
+  </main>
+</div>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;demo&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;as-is&quot;, &quot;tsType&quot;: &quot;'as-is' | 'nothing-going' | 'no-events'&quot;, &quot;options&quot;: [&quot;as-is&quot;, &quot;nothing-going&quot;, &quot;no-events&quot;], &quot;section&quot;: &quot;Demo states&quot;},
+  &quot;loading&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo states&quot;},
+  &quot;notificationDot&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = { selectedId: null, rsvp: {}, waitlist: {}, read: {}, toast: '' };
+
+  componentDidMount() {
+    try {
+      this.setState({
+        rsvp: JSON.parse(sessionStorage.getItem('bcRsvp') || '{}'),
+        waitlist: JSON.parse(sessionStorage.getItem('bcWaitlist') || '{}'),
+        read: JSON.parse(sessionStorage.getItem('bcAnnRead') || '{}')
+      });
+    } catch (e) { /* ignore corrupt state */ }
+    try {
+      const id = new URLSearchParams(window.location.search).get('event');
+      if (id) this.setState({ selectedId: id });
+    } catch (e) { /* ignore */ }
+    if (!window.BCSchoolData) {
+      this._poll = setInterval(() => { if (window.BCSchoolData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._poll) clearInterval(this._poll);
+    if (this._toastT) clearTimeout(this._toastT);
+  }
+
+  data() { return window.BCSchoolData || { events: [], announcements: [], newsletter: { issues: [] } }; }
+  demo() { return this.props.demo ?? 'as-is'; }
+
+  isGoing(ev) {
+    const o = this.state.rsvp[ev.id];
+    if (o !== undefined) return o;
+    return this.demo() === 'nothing-going' ? false : !!ev.going;
+  }
+
+  setRsvp(id, v) {
+    const rsvp = { ...this.state.rsvp, [id]: v };
+    this.setState({ rsvp });
+    try { sessionStorage.setItem('bcRsvp', JSON.stringify(rsvp)); } catch (e) { /* ignore */ }
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  // ICS download — plain calendar file, no integration (FLOWS §6.2).
+  ics(ev) {
+    const txt = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//BridgeCircle//EN\nBEGIN:VEVENT\nSUMMARY:' + ev.short + '\nDTSTART:' + ev.ics + '\nLOCATION:' + ev.place + '\nEND:VEVENT\nEND:VCALENDAR';
+    const a = document.createElement('a');
+    a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(txt);
+    a.download = ev.short + '.ics';
+    document.body.appendChild(a); a.click(); a.remove();
+    this.showToast(ev.short + '.ics saved \u2014 import it into your calendar.');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const d = this.data();
+    const events = this.demo() === 'no-events' ? [] : (d.events || []);
+    const going = (ev) => this.isGoing(ev);
+
+    const sel = events.find((e) => e.id === s.selectedId) || events.find(going) || events[0] || null;
+
+    const goingChips = events.filter(going).map((e) => ({
+      mo: e.mo, dd: e.dd, t: e.short, m: e.listTime + ' \u00b7 ' + e.place,
+      pick: () => this.setState({ selectedId: e.id })
+    }));
+
+    const upcoming = events.map((e) => ({
+      mo: e.mo, dd: e.dd, t: e.short,
+      m: e.listTime + ' \u00b7 ' + e.place + ' \u00b7 ' + e.cat + (e.full && !going(e) ? ' \u00b7 Full \u2014 waitlist open' : ''),
+      going: going(e),
+      sel: !!(sel && e.id === sel.id), unsel: !(sel && e.id === sel.id),
+      pick: () => this.setState({ selectedId: e.id }),
+      href: './SchoolEvent.dc.html?id=' + e.id
+    }));
+
+    const c = sel;
+    const cGoing = c ? going(c) : false;
+    const total = c ? c.goingCount + (cGoing ? 1 : 0) : 0;
+    const others = Math.max(0, total - 2);
+    const wl = c ? !!s.waitlist[c.id] : false;
+
+    const anns = d.announcements || [];
+    const pinned = anns.find((a) => a.pinned);
+    const read = s.read;
+    const annRows = anns.filter((a) => !a.pinned).slice(0, 3).map((a) => ({
+      title: a.title, unread: !!a.unread && !read[a.id],
+      meta: a.tag + ' \u00b7 ' + a.time,
+      href: './AnnouncementRead.dc.html?id=' + a.id
+    }));
+    const newCount = anns.filter((a) => a.unread && !read[a.id]).length;
+    const iss = ((d.newsletter || {}).issues || [])[0];
+
+    return {
+      showDot: this.props.notificationDot ?? true,
+      eventsShow: events.length > 0, eventsEmpty: events.length === 0,
+      stripShow: goingChips.length > 0,
+      stripEmpty: events.length > 0 && goingChips.length === 0,
+      attendCount: goingChips.length, goingChips,
+      upcoming,
+      upcomingSub: events.length + (events.length === 1 ? ' event' : ' events') + ' \u00b7 select one to open it above',
+
+      // cover
+      cvMo: c ? c.mo : '', cvDd: c ? c.dd : '', cvDw: c ? c.dw : '',
+      cvCat: c ? c.cat : '', cvTitle: c ? c.title : '', cvDesc: c ? c.desc : '',
+      cvHost: c ? c.host.name : '',
+      cvGoing: cGoing,
+      cvRsvpShow: !!c && !cGoing && !c.full,
+      cvFullShow: !!c && !cGoing && c.full && !wl,
+      cvWaitlisted: !!c && !cGoing && c.full && wl,
+      cvRsvp: () => { if (c) { this.setRsvp(c.id, true); this.showToast('You\u2019re going \u2014 it\u2019s on your list above.'); } },
+      cvChange: () => { if (c) { this.setRsvp(c.id, false); this.showToast('Taken off your list \u2014 no one is notified.'); } },
+      cvWait: () => {
+        if (!c) return;
+        const waitlist = { ...s.waitlist, [c.id]: true };
+        this.setState({ waitlist });
+        try { sessionStorage.setItem('bcWaitlist', JSON.stringify(waitlist)); } catch (e) { /* ignore */ }
+        this.showToast('You\u2019re on the list \u2014 we\u2019ll ask before taking a spot.');
+      },
+      cvWhen1: c ? c.dateLine : '', cvWhen2: c ? c.timeLine : '',
+      cvWhere1: c ? c.place : '', cvWhere2: c ? c.place2 : '',
+      cvFormat1: c ? c.format : '', cvFormat2: c ? c.format2 : '',
+      cvAv1: c ? c.avs[0].i : '', cvAv2: c ? c.avs[1].i : '', cvPlus: '+' + others,
+      cvGoingLine: c ? c.goingNames + ' and ' + others + ' others going' : '',
+      cvCircleLine: c ? (c.circleGoing > 0 ? c.circleGoing + ' from your circle ' + (c.circleGoing === 1 ? 'is' : 'are') + ' going' : 'No one from your circle yet') : '',
+      cvSpotsShow: !!c && !c.full && c.spotsLeft > 0,
+      cvSpots: c ? c.spotsLeft + ' spots left' : '',
+      cvCal: () => { if (c) this.ics(c); },
+      cvHref: c ? './SchoolEvent.dc.html?id=' + c.id : '#',
+      cvGoingHref: c ? './SchoolEvent.dc.html?id=' + c.id + '#going' : '#',
+
+      // announcements + newsletter
+      newShow: newCount > 0, newCount: newCount + ' new',
+      pinnedShow: !!pinned,
+      pinnedTitle: pinned ? pinned.title : '',
+      pinnedMeta: pinned ? pinned.tag + ' \u00b7 ' + pinned.time : '',
+      pinnedHref: pinned ? './AnnouncementRead.dc.html?id=' + pinned.id : '#',
+      annRows,
+      nlIssue: iss ? iss.n : '', nlMonth: iss ? iss.month : '', nlHeadline: iss ? iss.headline : '',
+      nlLines: iss ? (iss.lines || []).map((t) => ({ t })) : [],
+      nlHref: iss ? './NewsletterIssue.dc.html?issue=' + iss.n : '#',
+
+      pageLoading: this.props.loading ?? false,
+      pageReady: !(this.props.loading ?? false),
+
+      toastShow: !!s.toast, toastText: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

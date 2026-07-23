@@ -1,6 +1,6 @@
 # 0002 — Web-first; defer native mobile until repeat-engagement signals
 
-- **Status:** superseded by [0014](0014-expo-native-with-parity-ratchet.md) (2026-07-22 — owner directed the Expo build; parity is now enforced by the ratchet in `parity/`)
+- **Status:** superseded by [0016](0016-expo-native-with-parity-ratchet.md) (2026-07-22 — owner directed the Expo build; parity is now enforced by the ratchet in `parity/`)
 - **Date:** 2026-04-21
 - **Decider:** Richard
 

@@ -1,17 +1,21 @@
 # UI
 
-This folder contains the active visual design system.
+This folder contains the visual design systems.
 
 Start with:
 
 - [Design system](design-system/)
 - [Production tokens](design-system/tokens.md)
-- [Mockups status](mockups/)
-- [Screenshots status](screenshots/)
 
-The active visual source of truth is the Civic Editorial system in [`design-system/`](design-system/). Start with [`design-system/tokens.md`](design-system/tokens.md), then use the interactive HTML reference for visual patterns.
+The main system is the [`bridgecircle`](design-system/handoff/bridgecircle/)
+handoff bundle — the Toss-baseline brand fork where the redesign is designed
+(ADR [0013](../../decisions/0013-toss-baseline-then-brand-overlay.md)). The
+Civic Editorial system ([`tokens.md`](design-system/tokens.md),
+[`components.md`](design-system/components.md)) describes **live production
+only** and is archived when the redesign lands.
 
-The current clean screenshot capture is
-`output/playwright/fresh-screenshots-2026-05-24-clean/`. Older option
-explorations and screenshots are archived and should not be used for current
-design or build iteration.
+Screenshot captures of the live app are Playwright output under
+`output/playwright/` (gitignored; latest clean capture:
+`fresh-screenshots-2026-05-24-clean/`). Older option explorations and
+screenshots are archived under [`../_archive/`](../_archive/) and should not
+be used for current design or build iteration.

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="People page" description="Directory (1a) in the member shell — full flow: browse, NL search, expandable profile rows, scope filters, pagination" -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="../app-shell/account-menu.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input{font-family:var(--font-sans)}
+  @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+  @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
+</helmet>
+
+<div style="display:flex;min-height:100vh;width:100%">
+
+  <aside style="width:var(--sidebar-width);flex:none;align-self:flex-start;position:sticky;top:0;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        Home
+      </a>
+      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        Help
+      </a>
+      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        People
+      </a>
+      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        <span style="flex:1">Messages</span>
+        <sc-if value="{{ showBadge }}" hint-placeholder-val="{{ true }}">
+          <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+        </sc-if>
+      </a>
+      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        School
+      </a>
+    </nav>
+
+    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
+      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
+      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
+    </span>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="flex:none;position:sticky;top:0;z-index:10;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 30px">
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">People</span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+            <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+          </sc-if>
+        </a>
+        <bc-account-menu></bc-account-menu>
+      </span>
+    </header>
+
+    <div style="flex:1;padding:26px 30px;background:var(--wash-page)">
+      <div style="display:grid;gap:14px">
+
+        <sc-if value="{{ pageLoading }}" hint-placeholder-val="{{ false }}">
+          <div aria-label="Loading" role="status" style="display:grid;gap:14px">
+            <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 26px;display:grid;gap:14px">
+              <span data-skel="" style="display:block;width:280px;max-width:60%;height:22px;border-radius:8px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;height:54px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <div style="display:flex;gap:8px">
+                <span data-skel="" style="width:90px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="width:110px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="width:100px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              </div>
+            </div>
+            <span data-skel="" style="display:block;width:200px;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);overflow:hidden">
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:35%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:55%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:42%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:60%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:38%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:52%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:45%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:58%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ pageReady }}" hint-placeholder-val="{{ true }}">
+
+        <div>
+          <p style="font-size:13px;font-weight:600;color:var(--text-faint);margin:0">Directory &middot; 2,412 members</p>
+          <h1 style="margin:6px 0 0;font-weight:800;font-size:28px;letter-spacing:-0.03em">Find people to connect with.</h1>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface-card);border-radius:var(--radius-large);padding:8px 8px 8px 18px;box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16), 0 2px 8px rgb(25 31 40 / 0.06)">
+          <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:var(--action-primary);stroke-width:2.2;stroke-linecap:round;flex:none"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+          <input type="text" placeholder="Try: designers who moved in-house in the Bay Area" value="{{ query }}" onChange="{{ onQuery }}" onKeyDown="{{ onKey }}" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:15px;font-weight:500;color:var(--text-primary);padding:6px 0"></input>
+          <button onClick="{{ doSearch }}" style="background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:11px;padding:11px 22px;font-family:var(--font-sans);font-size:14px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Search</button>
+        </div>
+
+        <sc-if value="{{ searched }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:9px">
+            <span style="display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--blue-600);background:var(--blue-50);border-radius:var(--radius-pill);padding:7px 14px">&#9678; Ranked for &ldquo;{{ echoQuery }}&rdquo;</span>
+            <span style="font-size:12.5px;font-weight:600;color:var(--text-faint);font-variant-numeric:tabular-nums">{{ matchLabel }}</span>
+            <button onClick="{{ clearSearch }}" style="border:0;background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:var(--radius-pill);padding:7px 13px;font-family:var(--font-sans);font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Clear search &times;</button>
+          </div>
+        </sc-if>
+
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="display:flex;background:#e8eaee;border-radius:var(--radius-comfortable);padding:3px">
+            <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="3">
+              <sc-if value="{{ tab.active }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ tab.go }}" style="border:0;font-family:var(--font-sans);font-size:12.5px;font-weight:700;color:var(--text-primary);background:#fff;border-radius:9px;box-shadow:0 1px 3px rgb(25 31 40 / 0.1);padding:6px 14px;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ tab.label }}</button>
+              </sc-if>
+              <sc-if value="{{ tab.inactive }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ tab.go }}" style="border:0;font-family:var(--font-sans);font-size:12.5px;font-weight:600;color:var(--grey-600);background:transparent;border-radius:9px;box-shadow:none;padding:6px 14px;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ tab.label }}</button>
+              </sc-if>
+            </sc-for>
+          </span>
+          <span style="font-size:12.5px;font-weight:600;color:var(--text-secondary);background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:var(--radius-pill);padding:7px 13px">Industry &#9662;</span>
+          <span style="font-size:12.5px;font-weight:600;color:var(--text-secondary);background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:var(--radius-pill);padding:7px 13px">Class year &#9662;</span>
+          <span style="font-size:12.5px;font-weight:600;color:var(--text-secondary);background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:var(--radius-pill);padding:7px 13px">Location &#9662;</span>
+          <span style="margin-left:auto;font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ countLabel }}</span>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="flex:1;min-width:0;display:grid;gap:1px;background:var(--divider-row);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
+
+          <sc-for list="{{ rows }}" as="p" hint-placeholder-count="6">
+            <div style="background:var(--surface-card-elevated)">
+              <div onClick="{{ p.toggle }}" style="position:relative;display:flex;align-items:center;gap:14px;padding:14px 22px;cursor:pointer" style-hover="background:var(--row-hover)">
+                <sc-if value="{{ p.selected }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--action-primary)"></span></sc-if>
+                <sc-if value="{{ p.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ p.initials }}</span></sc-if>
+                <sc-if value="{{ p.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ p.initials }}</span></sc-if>
+                <sc-if value="{{ p.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ p.initials }}</span></sc-if>
+                <sc-if value="{{ p.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ p.initials }}</span></sc-if>
+                <sc-if value="{{ p.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ p.initials }}</span></sc-if>
+                <span style="flex:1;min-width:0">
+                  <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <a href="../profile/Profile.dc.html?id={{ p.pid }}" onClick="{{ p.stop }}" style="font-size:15px;font-weight:700;color:var(--text-primary);text-decoration:none" style-hover="color:var(--blue-600);text-decoration:underline" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:4px">{{ p.name }}</a>
+                    <sc-if value="{{ p.isCircle }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--blue-600);background:var(--blue-50)">In your circle</span>
+                    </sc-if>
+                    <sc-if value="{{ p.isOpen }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--action-give-text);background:var(--give-tint-weak)"><i style="width:5px;height:5px;border-radius:50%;background:var(--green-500)"></i>Open to help</span>
+                    </sc-if>
+                    <sc-if value="{{ p.isRequested }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--grey-600);background:var(--surface-subtle)">Requested</span>
+                    </sc-if>
+                    <sc-if value="{{ p.showMatch }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:11.5px;font-weight:700;color:var(--blue-600)">Strong match</span>
+                    </sc-if>
+                  </span>
+                  <span style="display:block;font-size:12.5px;color:var(--grey-600);margin-top:2px;font-weight:500">{{ p.meta }}</span>
+                  <sc-if value="{{ p.showTopics }}" hint-placeholder-val="{{ true }}">
+                    <span style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap">
+                      <sc-for list="{{ p.topics }}" as="t" hint-placeholder-count="2">
+                        <span style="font-size:11.5px;font-weight:600;color:var(--text-secondary);background:var(--surface-subtle);border-radius:var(--radius-pill);padding:3px 10px">{{ t }}</span>
+                      </sc-for>
+                    </span>
+                  </sc-if>
+                </span>
+                <sc-if value="{{ p.isRequested }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ p.stop }}" style="flex:none;background:var(--surface-subtle);color:var(--grey-400);border:0;border-radius:var(--radius-pill);padding:9px 20px;font-family:var(--font-sans);font-size:12.5px;font-weight:700;cursor:default">Pending</button>
+                </sc-if>
+                <sc-if value="{{ p.notRequested }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ p.act }}" style="flex:none;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:var(--radius-pill);padding:9px 20px;font-family:var(--font-sans);font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ p.btnLabel }}</button>
+                </sc-if>
+                <sc-if value="{{ p.selected }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="flex:none;width:16px;text-align:center;color:var(--blue-600);font-size:15px;font-weight:700;transform:rotate(90deg);transition:transform .18s ease">&rsaquo;</span></sc-if>
+                <sc-if value="{{ p.notSelected }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="flex:none;width:16px;text-align:center;color:var(--grey-400);font-size:15px;font-weight:700;transition:transform .18s ease">&rsaquo;</span></sc-if>
+
+              </div>
+
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--surface-card-elevated);padding:36px;text-align:center;font-size:13.5px;color:var(--text-faint);font-weight:600">No one matches this scope yet.</div>
+          </sc-if>
+
+          <sc-if value="{{ showPager }}" hint-placeholder-val="{{ true }}">
+            <div style="background:var(--surface-card-elevated);display:flex;align-items:center;gap:6px;padding:13px 22px">
+              <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ rangeLabel }}</span>
+              <span style="margin-left:auto;display:flex;gap:6px;align-items:center">
+                <button aria-label="Previous page" onClick="{{ prevPage }}" style="width:34px;height:34px;border:0;border-radius:10px;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--grey-600);font-size:15px;cursor:pointer;font-family:var(--font-sans)" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&lsaquo;</button>
+                <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="3">
+                  <sc-if value="{{ pg.current }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ pg.go }}" style="min-width:34px;height:34px;border:0;border-radius:10px;background:var(--action-primary);color:#fff;box-shadow:none;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-sans);font-variant-numeric:tabular-nums" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ pg.num }}</button>
+                  </sc-if>
+                  <sc-if value="{{ pg.other }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ pg.go }}" style="min-width:34px;height:34px;border:0;border-radius:10px;background:var(--surface-card);color:var(--grey-600);box-shadow:var(--ring-outline);font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font-sans);font-variant-numeric:tabular-nums" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ pg.num }}</button>
+                  </sc-if>
+                </sc-for>
+                <button aria-label="Next page" onClick="{{ nextPage }}" style="width:34px;height:34px;border:0;border-radius:10px;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--grey-600);font-size:15px;cursor:pointer;font-family:var(--font-sans)" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&rsaquo;</button>
+              </span>
+            </div>
+          </sc-if>
+
+          </div>
+
+          <sc-if value="{{ railOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="width:340px;flex:none;position:sticky;top:calc(var(--topbar-height) + 20px);background:var(--surface-card);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 22px;box-sizing:border-box">
+              <div style="display:flex;align-items:center">
+                <span style="font-size:12px;font-weight:700;color:var(--text-faint)">Profile preview</span>
+                <button aria-label="Close profile preview" onClick="{{ closeRail }}" style="margin-left:auto;width:28px;height:28px;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);color:var(--grey-600);font-size:14px;cursor:pointer;font-family:var(--font-sans)" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&times;</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;margin-top:12px">
+                <sc-if value="{{ sel.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:56px;height:56px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">{{ sel.initials }}</span></sc-if>
+                <sc-if value="{{ sel.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:56px;height:56px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">{{ sel.initials }}</span></sc-if>
+                <sc-if value="{{ sel.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:56px;height:56px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">{{ sel.initials }}</span></sc-if>
+                <sc-if value="{{ sel.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:56px;height:56px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">{{ sel.initials }}</span></sc-if>
+                <sc-if value="{{ sel.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:56px;height:56px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:0 0 0 2px #fff, 0 0 0 4px rgb(49 130 246 / 0.28);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px">{{ sel.initials }}</span></sc-if>
+                <span><h3 style="font-size:19px;font-weight:800;letter-spacing:-0.02em;margin:0">{{ sel.name }}</h3><span style="display:block;font-size:12.5px;color:var(--grey-600);margin-top:2px;font-weight:500">{{ sel.meta }}</span></span>
+              </div>
+              <sc-if value="{{ sel.showWhy }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:14px;background:linear-gradient(180deg,#f3f8ff,#eef5ff);border-radius:13px;padding:12px 14px;box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.14)">
+                  <span style="font-size:11px;font-weight:700;color:var(--blue-600)">&#9678; Why this match</span>
+                  <p style="margin:7px 0 0;font-size:13px;line-height:1.55;color:#33404e;font-weight:500">{{ sel.why }}</p>
+                  <span style="display:block;margin-top:8px;font-size:10.5px;color:var(--text-faint);font-weight:500">From verified profile facts &middot; ranked for &ldquo;{{ echoQuery }}&rdquo;</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{ sel.showShare }}" hint-placeholder-val="{{ false }}">
+                <div style="background:var(--surface-inset);border-radius:13px;padding:12px 14px;margin-top:12px">
+                  <span style="font-size:11px;font-weight:700;color:var(--text-faint)">You share</span>
+                  <sc-for list="{{ sel.shared }}" as="sh" hint-placeholder-count="2">
+                    <span style="display:block;margin-top:8px"><span style="display:block;font-size:12.5px;font-weight:700">{{ sh.t }}</span><span style="font-size:11px;color:var(--text-faint);font-weight:500">{{ sh.s }}</span></span>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <div style="background:var(--surface-inset);border-radius:13px;padding:12px 14px;margin-top:12px"><span style="font-size:11px;font-weight:700;color:var(--text-faint)">Career</span><span style="display:block;font-size:12.5px;font-weight:700;margin-top:6px">{{ sel.careerTitle }}</span><span style="font-size:11px;color:var(--text-faint);font-weight:500">{{ sel.careerYears }}</span></div>
+              <div style="display:flex;gap:8px;margin-top:16px">
+                <button style="flex:1;background:var(--gradient-primary-btn);color:#fff;border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700;box-shadow:var(--shadow-primary-btn);cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Ask for help</button>
+                <sc-if value="{{ sel.isRequested }}" hint-placeholder-val="{{ false }}">
+                  <button style="flex:1;background:var(--surface-subtle);color:var(--grey-400);border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:default">Requested</button>
+                </sc-if>
+                <sc-if value="{{ sel.notRequested }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ sel.act }}" style="flex:1;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ sel.btnLabel }}</button>
+                </sc-if>
+              </div>
+              <a href="../profile/Profile.dc.html?id={{ sel.pid }}" style="display:block;text-align:center;margin-top:10px;color:var(--blue-600);font-size:12.5px;font-weight:700;padding:8px;border-radius:10px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">View full profile &rsaquo;</a>
+              <p style="margin:10px 0 0;text-align:center;font-size:10.5px;color:var(--text-faint);font-weight:500">Profile auto-updated from public sources &middot; last checked May 2026</p>
+            </div>
+          </sc-if>
+        </div>
+
+        </sc-if>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<sc-if value="{{ connectOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:40">
+    <span onClick="{{ closeConnect }}" style="position:absolute;inset:0;background:rgb(25 31 40 / 0.35);display:block"></span>
+    <div role="dialog" aria-modal="true" aria-label="Connect request" style="position:absolute;top:0;right:0;bottom:0;width:440px;max-width:92vw;background:#fff;box-shadow:-24px 0 60px rgb(25 31 40 / 0.2);display:flex;flex-direction:column;padding:24px 26px;box-sizing:border-box;overflow-y:auto">
+      <span style="display:flex;align-items:center;gap:10px">
+        <h3 style="margin:0;font-size:18px;font-weight:800;letter-spacing:-0.02em">Connect with {{ connFirst }}</h3>
+        <button onClick="{{ closeConnect }}" aria-label="Close" style="margin-left:auto;width:34px;height:34px;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);color:var(--text-secondary);font-size:15px;cursor:pointer;font-family:var(--font-sans)" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&#10005;</button>
+      </span>
+      <p style="margin:7px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.55">Your note lands in {{ connFirst }}&rsquo;s &ldquo;Waiting on you.&rdquo; Connecting is mutual &mdash; and declines stay quiet, both ways.</p>
+
+      <span style="display:flex;gap:4px;margin-top:18px;background:var(--surface-subtle);border-radius:var(--radius-pill);padding:4px">
+        <sc-if value="{{ modeQuick }}" hint-placeholder-val="{{ true }}"><button style="flex:1;border:0;background:#fff;color:var(--text-primary);border-radius:var(--radius-pill);padding:8px 10px;font-family:var(--font-sans);font-size:12px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-card)">Quick hello</button></sc-if>
+        <sc-if value="{{ modeAI }}" hint-placeholder-val="{{ false }}"><button onClick="{{ pickQuick }}" style="flex:1;border:0;background:transparent;color:var(--text-faint);border-radius:var(--radius-pill);padding:8px 10px;font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer">Quick hello</button></sc-if>
+        <sc-if value="{{ modeAI }}" hint-placeholder-val="{{ false }}"><button style="flex:1;border:0;background:#fff;color:var(--text-primary);border-radius:var(--radius-pill);padding:8px 10px;font-family:var(--font-sans);font-size:12px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-card)">Say why &mdash; AI shapes it</button></sc-if>
+        <sc-if value="{{ modeQuick }}" hint-placeholder-val="{{ true }}"><button onClick="{{ pickAI }}" style="flex:1;border:0;background:transparent;color:var(--text-faint);border-radius:var(--radius-pill);padding:8px 10px;font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer">Say why &mdash; AI shapes it</button></sc-if>
+      </span>
+
+      <sc-if value="{{ modeQuick }}" hint-placeholder-val="{{ true }}">
+        <span style="display:block;margin-top:16px;font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">For someone you know &mdash; one tap</span>
+        <span style="display:grid;gap:7px;margin-top:9px">
+          <sc-for list="{{ helloChips }}" as="ch" hint-placeholder-count="3">
+            <button onClick="{{ ch.pick }}" style="text-align:left;border:0;background:var(--surface-subtle);border-radius:12px;padding:11px 14px;font-family:var(--font-sans);font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;line-height:1.5" style-hover="background:var(--hover-tint)">{{ ch.text }}</button>
+          </sc-for>
+        </span>
+      </sc-if>
+
+      <sc-if value="{{ modeAI }}" hint-placeholder-val="{{ false }}">
+        <span style="display:block;margin-top:16px;font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">For someone new &mdash; say why, casually</span>
+        <textarea value="{{ whyText }}" onChange="{{ onWhyText }}" rows="2" placeholder="&ldquo;their path is the move I&rsquo;m trying to make&rdquo;" style="width:100%;box-sizing:border-box;margin-top:9px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-family:var(--font-sans);font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+        <button onClick="{{ shapeNote }}" style="align-self:flex-start;margin-top:9px;border:0;border-radius:11px;padding:9px 16px;background:var(--action-weak);color:var(--blue-600);font-family:var(--font-sans);font-size:12.5px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Shape my note</button>
+      </sc-if>
+
+      <span style="display:block;margin-top:18px;font-size:11px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase">Your request message</span>
+      <sc-if value="{{ connNoteOk }}" hint-placeholder-val="{{ true }}">
+        <textarea value="{{ noteText }}" onChange="{{ onNoteText }}" rows="4" placeholder="Pick a hello above, or write your own&hellip;" style="width:100%;box-sizing:border-box;margin-top:9px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-family:var(--font-sans);font-size:13px;line-height:1.6;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--focus-ring)"></textarea>
+      </sc-if>
+      <sc-if value="{{ connNoteError }}" hint-placeholder-val="{{ false }}">
+        <textarea value="{{ noteText }}" onChange="{{ onNoteText }}" rows="4" aria-invalid="true" placeholder="Pick a hello above, or write your own&hellip;" style="width:100%;box-sizing:border-box;margin-top:9px;border:0;box-shadow:inset 0 0 0 1.5px var(--error);border-radius:12px;padding:12px 14px;font-family:var(--font-sans);font-size:13px;line-height:1.6;font-weight:500;color:var(--text-primary);resize:vertical;outline:none" style-focus="box-shadow:0 0 0 2px var(--error)"></textarea>
+        <span style="display:block;margin-top:7px;font-size:11.5px;font-weight:600;color:var(--error)">The request can&rsquo;t send empty &mdash; pick a hello or write a line.</span>
+      </sc-if>
+      <p style="margin:8px 0 0;font-size:11px;color:var(--text-faint);font-weight:500">AI-helped &mdash; edit anything before it sends.</p>
+
+      <span style="margin-top:auto;display:flex;gap:8px;padding-top:18px">
+        <button onClick="{{ closeConnect }}" style="border:0;border-radius:12px;padding:12px 16px;background:#fff;color:var(--text-secondary);box-shadow:var(--ring-outline);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-hover="background:var(--surface-subtle)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Cancel</button>
+        <button onClick="{{ sendConnect }}" style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Send to {{ connFirst }}</button>
+      </span>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;startSearched&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;People&quot;},
+  &quot;pageSize&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 20, &quot;min&quot;: 4, &quot;max&quot;: 20, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;People&quot;},
+  &quot;showTopics&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;People&quot;},
+  &quot;loading&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo states&quot;},
+  &quot;messagesUnread&quot;: {&quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;min&quot;: 0, &quot;max&quot;: 99, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Shell&quot;},
+  &quot;notificationDot&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Shell&quot;}
+}">
+class Component extends DCLogic {
+  state = { query: '', searchedSet: null, scope: 'all', page: 1, expandedId: null, connectFor: null, connectMode: 'quick', whyText: '', noteText: '', connNoteError: false, requested: {}, blocked: {}, toast: '' };
+
+  componentDidMount() {
+    this._esc = (e) => {
+      if (e.key !== 'Escape') return;
+      if (this.state.connectFor) this.setState({ connectFor: null });
+      else this.setState({ expandedId: null });
+    };
+    window.addEventListener('keydown', this._esc);
+    try {
+      this.setState({
+        requested: JSON.parse(sessionStorage.getItem('bcConnectReq') || '{}'),
+        blocked: JSON.parse(sessionStorage.getItem('bcBlocked') || '{}')
+      });
+    } catch (e) { /* ignore corrupt state */ }
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('bcPeopleState') || 'null');
+      if (saved && typeof saved === 'object') {
+        this.setState({
+          query: saved.query || '',
+          searchedSet: saved.searchedSet ?? null,
+          scope: saved.scope || 'all',
+          page: saved.page || 1,
+        });
+      }
+    } catch (e) { /* ignore corrupt state */ }
+  }
+
+  componentDidUpdate() {
+    const { query, searchedSet, scope, page } = this.state;
+    try { sessionStorage.setItem('bcPeopleState', JSON.stringify({ query, searchedSet, scope, page })); } catch (e) { /* storage unavailable */ }
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this._esc);
+    if (this._toastT) clearTimeout(this._toastT);
+  }
+
+  showToast(t) {
+    this.setState({ toast: t });
+    if (this._toastT) clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => this.setState({ toast: '' }), 3800);
+  }
+
+  // Quick-hello seeds — shared history first (ADR 0011 D2); the AI path is for strangers.
+  helloChips(first, shared) {
+    const chips = (shared || []).slice(0, 2).map((sh) => sh.t + ' \u2014 seemed like a good reason to finally say hi.');
+    chips.push('Hi ' + first + ' \u2014 fellow Chadwick member, just saying hello.');
+    return chips;
+  }
+
+  shapeDraft(first, why) {
+    const w = why.trim().replace(/\s+/g, ' ');
+    if (!w) return '';
+    const core = w.charAt(0).toUpperCase() + w.slice(1).replace(/[.!?]?$/, '.');
+    return 'Hi ' + first + ' \u2014 ' + core + ' No agenda beyond that \u2014 glad to be connected either way.';
+  }
+
+  sendConnect() {
+    const st = this.state;
+    const id = st.connectFor;
+    if (!id) return;
+    if (!st.noteText.trim()) { this.setState({ connNoteError: true }); return; }
+    const p = this.people.find((x) => x.id === id);
+    const requested = { ...st.requested, [id]: true };
+    this.setState({ requested, connectFor: null });
+    try { sessionStorage.setItem('bcConnectReq', JSON.stringify(requested)); } catch (e) { /* storage unavailable */ }
+    this.showToast('Your hello is on its way to ' + (p ? p.n.split(' ')[0] : 'them') + ' \u2014 declines stay quiet, both ways.');
+  }
+
+  people = [
+    { id: 1,  i: 'MC', n: 'Maya Chen',     role: 'Design Lead',            co: 'Figma',       loc: 'San Francisco', yr: '14', st: 'circle',    since: 2021, topics: ['Agency \u2192 in-house', 'Design interviews', 'Leadership'] },
+    { id: 2,  i: 'JB', n: 'Jordan Blake',  role: 'Design Manager',         co: 'Airbnb',      loc: 'New York',      yr: '12', st: 'open',      since: 2019, topics: ['Hiring', 'Portfolio reviews', 'In-house design'] },
+    { id: 3,  i: 'PN', n: 'Priya Nair',    role: 'PM',                     co: 'Notion',      loc: 'Remote',        yr: '17', st: 'requested', since: 2022, topics: ['Design \u2192 PM', 'Product sense'] },
+    { id: 4,  i: 'SO', n: 'Sam Okafor',    role: 'Brand Designer',         co: 'Stripe',      loc: 'San Francisco', yr: '16', st: 'open',      since: 2022, topics: ['Brand systems', 'Agency \u2192 in-house'] },
+    { id: 5,  i: 'ER', n: 'Elena Ruiz',    role: 'Staff Product Designer', co: 'Google',      loc: 'Mountain View', yr: '11', st: 'none',      since: 2018, topics: ['Design systems', 'Mentoring'] },
+    { id: 6,  i: 'TH', n: 'Tom Hale',      role: 'Design Director',        co: 'IDEO',        loc: 'San Francisco', yr: '08', st: 'circle',    since: 2015, topics: ['Agency life', 'Creative leadership'] },
+    { id: 7,  i: 'AB', n: 'Aisha Bello',   role: 'UX Researcher',          co: 'Meta',        loc: 'Seattle',       yr: '18', st: 'open',      since: 2021, topics: ['Research ops', 'Interviewing'] },
+    { id: 8,  i: 'DK', n: 'Dan Kim',       role: 'Product Designer',       co: 'Toss',        loc: 'Seoul',         yr: '19', st: 'open',      since: 2023, topics: ['Fintech design', 'Relocating abroad'] },
+    { id: 9,  i: 'GL', n: 'Grace Liu',     role: 'Design Ops Lead',        co: 'Shopify',     loc: 'Toronto',       yr: '13', st: 'none',      since: 2020, topics: ['Design ops', 'Scaling teams'] },
+    { id: 10, i: 'MW', n: 'Marcus Webb',   role: 'Freelance Designer',     co: 'Independent', loc: 'Austin',        yr: '15', st: 'open',      since: 2019, topics: ['Freelancing', 'Client work'] },
+    { id: 11, i: 'NP', n: 'Nina Petrova',  role: 'VP Design',              co: 'Ramp',        loc: 'New York',      yr: '07', st: 'circle',    since: 2021, topics: ['Executive path', 'Org design'] },
+    { id: 12, i: 'OH', n: 'Omar Haddad',   role: 'Design Engineer',        co: 'Vercel',      loc: 'Remote',        yr: '20', st: 'none',      since: 2023, topics: ['Design engineering', 'Portfolio sites'] },
+    { id: 13, i: 'SM', n: 'Sofia Marino',  role: 'Content Designer',       co: 'Slack',       loc: 'Denver',        yr: '16', st: 'open',      since: 2021, topics: ['Content design', 'Career switch'] },
+    { id: 14, i: 'KT', n: 'Ken Tanaka',    role: 'Motion Designer',        co: 'Apple',       loc: 'Cupertino',     yr: '14', st: 'none',      since: 2020, topics: ['Motion', 'Prototyping'] },
+    { id: 15, i: 'LF', n: 'Lauren Fox',    role: 'Marketing Lead',         co: 'Canva',       loc: 'Sydney',        yr: '13', st: 'open',      since: 2019, topics: ['Brand marketing', 'Positioning'] },
+    { id: 16, i: 'DS', n: 'Diego Santos',  role: 'Founder',                co: 'Plum Studio', loc: 'Lisbon',        yr: '10', st: 'circle',    since: 2017, topics: ['Starting a studio', 'Pricing'] },
+    { id: 17, i: 'HY', n: 'Hana Yoon',     role: 'Product Designer',       co: 'Linear',      loc: 'Remote',        yr: '21', st: 'open',      since: 2024, topics: ['First design job', 'Startups'] },
+    { id: 18, i: 'BC', n: 'Ben Carter',    role: 'Data Scientist',         co: 'Duolingo',    loc: 'Pittsburgh',    yr: '18', st: 'none',      since: 2022, topics: ['Analytics', 'Experimentation'] },
+    { id: 19, i: 'RA', n: 'Ruth Adler',    role: 'Design Recruiter',       co: 'Sequoia',     loc: 'San Francisco', yr: '09', st: 'open',      since: 2016, topics: ['Hiring market', 'Portfolios'] },
+    { id: 20, i: 'LZ', n: 'Leo Zhang',     role: 'iOS Engineer',           co: 'Airbnb',      loc: 'San Francisco', yr: '17', st: 'none',      since: 2021, topics: ['Mobile', 'Swift'] },
+    { id: 21, i: 'CD', n: 'Carmen Diaz',   role: 'Service Designer',       co: 'NHS Digital', loc: 'London',        yr: '12', st: 'open',      since: 2018, topics: ['Service design', 'Public sector'] },
+    { id: 22, i: 'JW', n: 'Jonas Weber',   role: 'Creative Director',      co: 'Zalando',     loc: 'Berlin',        yr: '09', st: 'none',      since: 2019, topics: ['Brand', 'Agency \u2192 in-house'] },
+    { id: 23, i: 'AO', n: 'Amara Osei',    role: 'PM',                     co: 'Figma',       loc: 'San Francisco', yr: '19', st: 'requested', since: 2023, topics: ['Platform PM', 'APIs'] },
+    { id: 24, i: 'YS', n: 'Yuki Sato',     role: 'Illustrator',            co: 'Freelance',   loc: 'Tokyo',         yr: '15', st: 'open',      since: 2018, topics: ['Illustration', 'Licensing'] },
+    { id: 25, i: 'RM', n: 'Rosa Marquez',  role: 'UX Writer',              co: 'Intercom',    loc: 'Dublin',        yr: '17', st: 'open',      since: 2022, topics: ['UX writing', 'Docs'] },
+    { id: 26, i: 'TN', n: 'Theo Nguyen',   role: 'Product Designer',       co: 'Grab',        loc: 'Singapore',     yr: '18', st: 'none',      since: 2022, topics: ['Marketplace design', 'SEA tech'] },
+    { id: 27, i: 'IK', n: 'Ingrid Koh',    role: 'Design Manager',         co: 'Spotify',     loc: 'Stockholm',     yr: '11', st: 'open',      since: 2019, topics: ['Management', 'Design crits'] },
+    { id: 28, i: 'AF', n: 'Alex Fournier', role: 'Interaction Designer',   co: 'Ubisoft',     loc: 'Montreal',      yr: '16', st: 'none',      since: 2020, topics: ['Game UX', 'Prototyping'] },
+    { id: 29, i: 'WB', n: 'Wes Barnes',    role: 'Design Systems Lead',    co: 'Atlassian',   loc: 'Remote',        yr: '13', st: 'open',      since: 2021, topics: ['Design tokens', 'Systems adoption'] },
+    { id: 30, i: 'CN', n: 'Chloe Nakamura',role: 'Visual Designer',        co: 'Nintendo',    loc: 'Kyoto',         yr: '19', st: 'none',      since: 2023, topics: ['Visual craft', 'Working in Japan'] },
+    { id: 31, i: 'RS', n: 'Raj Singh',     role: 'Principal Designer',     co: 'Adobe',       loc: 'San Jose',      yr: '09', st: 'open',      since: 2016, topics: ['Principal track', 'Craft reviews'] },
+    { id: 32, i: 'EM', n: 'Emma M\u00fcller',   role: 'UX Researcher',          co: 'SAP',         loc: 'Berlin',        yr: '14', st: 'none',      since: 2019, topics: ['Enterprise research', 'Stakeholders'] },
+    { id: 33, i: 'FA', n: 'Femi Adeyemi',  role: 'Product Designer',       co: 'Flutterwave', loc: 'Lagos',         yr: '20', st: 'open',      since: 2023, topics: ['Fintech in Africa', 'Remote work'] },
+    { id: 34, i: 'LB', n: 'Lucie Bernard', role: 'Art Director',           co: 'Herm\u00e8s',      loc: 'Paris',         yr: '12', st: 'none',      since: 2018, topics: ['Luxury brand', 'Print'] },
+    { id: 35, i: 'GK', n: 'Gus Kowalski',  role: 'Staff Designer',         co: 'Netflix',     loc: 'Los Angeles',   yr: '10', st: 'open',      since: 2019, topics: ['TV interfaces', 'Staff track'] },
+    { id: 36, i: 'MJ', n: 'Mina Jang',     role: 'Product Designer',       co: 'Coupang',     loc: 'Seoul',         yr: '18', st: 'circle',    since: 2022, topics: ['E-commerce', 'Korea tech'] },
+    { id: 37, i: 'OB', n: 'Owen Brady',    role: 'Brand Designer',         co: 'Independent', loc: 'Dublin',        yr: '15', st: 'open',      since: 2020, topics: ['Freelancing', 'Brand sprints'] },
+    { id: 38, i: 'ZA', n: 'Zara Ahmed',    role: 'Design Lead',            co: 'Careem',      loc: 'Dubai',         yr: '13', st: 'open',      since: 2020, topics: ['Super apps', 'Leading remote teams'] },
+    { id: 39, i: 'PL', n: 'Pedro Lima',    role: 'Motion Designer',        co: 'Nubank',      loc: 'S\u00e3o Paulo',     yr: '17', st: 'none',      since: 2021, topics: ['Motion systems', 'Fintech brand'] },
+    { id: 40, i: 'KW', n: 'Kate Wilson',   role: 'Content Strategist',     co: 'Airtable',    loc: 'San Francisco', yr: '14', st: 'none',      since: 2021, topics: ['Content strategy', 'Information architecture'] },
+    { id: 41, i: 'VH', n: 'Viktor Horvat', role: 'Design Engineer',        co: 'Framer',      loc: 'Amsterdam',     yr: '19', st: 'open',      since: 2022, topics: ['Design engineering', 'Interactive demos'] },
+    { id: 42, i: 'SB', n: 'Sara Bianchi',  role: 'Service Designer',       co: 'Deloitte',    loc: 'Milan',         yr: '12', st: 'none',      since: 2017, topics: ['Consulting', 'Workshops'] },
+    { id: 43, i: 'JP', n: 'Jae Park',      role: 'UX Designer',            co: 'Samsung',     loc: 'Seoul',         yr: '16', st: 'none',      since: 2020, topics: ['Hardware UX', 'Big-org navigation'] },
+    { id: 44, i: 'NM', n: 'Nadia Mansour', role: 'Design Director',        co: 'Shopify',     loc: 'Ottawa',        yr: '08', st: 'open',      since: 2018, topics: ['Director path', 'Hiring seniors'] },
+    { id: 45, i: 'CB', n: 'Cole Bennett',  role: 'Product Designer',       co: 'Robinhood',   loc: 'New York',      yr: '18', st: 'requested', since: 2022, topics: ['Trading UX', 'Data viz'] },
+    { id: 46, i: 'AL', n: 'Anya Lebedeva', role: 'Illustrator',            co: 'Duolingo',    loc: 'Pittsburgh',    yr: '17', st: 'open',      since: 2021, topics: ['Brand illustration', 'Character design'] },
+    { id: 47, i: 'HW', n: 'Harry Whitfield', role: 'Creative Director',    co: 'AKQA',        loc: 'London',        yr: '07', st: 'none',      since: 2014, topics: ['Agency leadership', 'Pitching'] },
+    { id: 48, i: 'DM', n: 'Dana Moreau',   role: 'UX Lead',                co: 'Doctolib',    loc: 'Paris',         yr: '15', st: 'open',      since: 2021, topics: ['Health tech', 'Regulated UX'] },
+    { id: 49, i: 'TS', n: 'Tara Shah',     role: 'Product Designer',       co: 'Canva',       loc: 'Sydney',        yr: '20', st: 'none',      since: 2023, topics: ['Templates', 'Growth design'] },
+    { id: 50, i: 'MB', n: 'Miguel Barros', role: 'Design Ops',             co: 'Spotify',     loc: 'New York',      yr: '16', st: 'open',      since: 2021, topics: ['Design ops', 'Tooling'] },
+  ];
+
+  matchOrder = [1, 4, 2, 5, 22, 13, 11, 8, 17, 9, 6, 14, 19, 3, 21, 25, 28, 7, 31, 12, 35, 10, 26, 38, 15, 29, 41, 16, 33, 44, 18, 27, 36, 47, 20, 30, 39, 23, 42, 24, 32, 45, 34, 48, 37, 40, 43, 46, 49, 50];
+
+  whyText = {
+    1: 'Made the agency \u2192 in-house jump in 2018 and has reviewed 20+ portfolios for people making the same move.',
+    4: 'Left BBDO for Stripe\u2019s brand team in 2022 \u2014 knows exactly what in-house brand hiring looks for.',
+    2: 'Manages a 12-person in-house team at Airbnb and hires directly from agency backgrounds.',
+    5: 'Went in-house at Google after seven agency years; mentors designers through the transition.',
+    22: 'Moved from Sid Lee to Zalando to build the in-house creative org from scratch.',
+    13: 'Switched from agency copywriting to content design at Slack in 2021.',
+    11: 'Built Ramp\u2019s design org after a decade in agencies \u2014 hires ex-agency designers on purpose.',
+    8: 'Went in-house at Toss after agency work in two countries; happy to talk fintech portfolios.',
+    17: 'Landed an in-house startup role straight out of school; fresh read on the current market.',
+    9: 'Runs design ops at Shopify and onboards ex-agency hires every quarter.',
+    6: 'Directs at IDEO and has placed dozens of alumni into in-house teams.',
+    14: 'Joined Apple\u2019s in-house motion team from a boutique studio.',
+    19: 'Recruits designers for Sequoia portfolio companies \u2014 sees the in-house market weekly.',
+    3: 'PM\u2019d Notion\u2019s design-tools area; interviewed in-house designers across three teams.',
+  };
+
+  cannedQuery = 'designers who moved in-house in the Bay Area';
+
+  mutuals = {
+    1: { t: '3 mutual connections', s: 'Jordan, Priya, and Tom' },
+    2: { t: '2 mutual connections', s: 'Maya and Ruth' },
+    4: { t: '1 mutual connection', s: 'Maya' },
+    6: { t: '2 mutual connections', s: 'Maya and Nina' },
+    11: { t: '2 mutual connections', s: 'Maya and Diego' },
+    16: { t: '1 mutual connection', s: 'Nina' },
+    19: { t: '1 mutual connection', s: 'Tom' },
+    36: { t: '1 mutual connection', s: 'Dan' },
+  };
+
+  sharedItems(p) {
+    const items = [];
+    if (this.mutuals[p.id]) items.push(this.mutuals[p.id]);
+    if (p.id === 1) items.push({ t: 'Prof. Whitman\u2019s studio', s: 'RISD \u00b7 8 years apart' });
+    if (p.loc === 'San Francisco') items.push({ t: 'San Francisco', s: 'You both live in the city' });
+    const grad = 2000 + parseInt(p.yr, 10);
+    if (grad >= 2020) items.push({ t: 'Overlapped at RISD', s: 'Class of \u2019' + p.yr + ' \u00b7 you\u2019re \u201922' });
+    return items;
+  }
+
+  renderVals() {
+    const st = this.state;
+    const pageSize = Math.max(1, this.props.pageSize ?? 20);
+    const showTopics = this.props.showTopics ?? true;
+    const searched = st.searchedSet ?? (this.props.startSearched ?? false);
+    const echoQuery = (st.query && st.query.trim()) || this.cannedQuery;
+
+    const pool = this.people.filter((p) => !st.blocked[p.id]);
+    const byId = {};
+    for (const p of pool) byId[p.id] = p;
+    let source = searched ? this.matchOrder.map((id) => byId[id]).filter(Boolean) : pool;
+    const scopeCounts = {
+      all: source.length,
+      open: source.filter((p) => p.st === 'open').length,
+      circle: source.filter((p) => p.st === 'circle').length,
+    };
+    if (st.scope === 'open') source = source.filter((p) => p.st === 'open');
+    if (st.scope === 'circle') source = source.filter((p) => p.st === 'circle');
+
+    const totalPages = Math.max(1, Math.ceil(source.length / pageSize));
+    const page = Math.min(Math.max(1, st.page), totalPages);
+    const start = (page - 1) * pageSize;
+    const slice = source.slice(start, start + pageSize);
+
+    const goPage = (n) => this.setState({ page: Math.min(Math.max(1, n), totalPages), expandedId: null });
+
+    const rows = slice.map((p) => {
+      const av = ((p.id - 1) % 5) + 1;
+      const rank = searched ? this.matchOrder.indexOf(p.id) : -1;
+      const why = this.whyText[p.id];
+      return {
+        pid: p.id,
+        selected: st.expandedId === p.id,
+        notSelected: st.expandedId !== p.id,
+        initials: p.i,
+        name: p.n,
+        meta: p.role + ' \u00b7 ' + p.co + ' \u00b7 ' + p.loc + ' \u00b7 \u2019' + p.yr,
+        av1: av === 1,
+        av2: av === 2,
+        av3: av === 3,
+        av4: av === 4,
+        av5: av === 5,
+        isCircle: p.st === 'circle',
+        isOpen: p.st === 'open',
+        isRequested: p.st === 'requested' || !!st.requested[p.id],
+        notRequested: p.st !== 'requested' && !st.requested[p.id],
+        btnLabel: p.st === 'circle' ? 'Message' : 'Connect',
+        act: (e) => {
+          e.stopPropagation();
+          if (p.st === 'circle') { window.location.href = '../messages/Messages.dc.html'; return; }
+          this.setState({ connectFor: p.id, connectMode: 'quick', whyText: '', noteText: '', connNoteError: false });
+        },
+        showMatch: searched && rank > -1 && rank < 3,
+        showTopics,
+        topics: p.topics,
+        toggle: () => this.setState((s) => ({ expandedId: s.expandedId === p.id ? null : p.id })),
+        stop: (e) => e.stopPropagation(),
+      };
+    });
+
+    const tabDefs = [['all', 'All'], ['open', 'Open to help'], ['circle', 'In your circle']];
+    const tabs = tabDefs.map(([key, label]) => {
+      const active = st.scope === key;
+      return {
+        label: label + ' (' + scopeCounts[key] + ')',
+        active,
+        inactive: !active,
+        go: () => this.setState({ scope: key, page: 1, expandedId: null }),
+      };
+    });
+
+    const pages = Array.from({ length: totalPages }, (_, k) => {
+      const num = k + 1;
+      const current = num === page;
+      return {
+        num,
+        current,
+        other: !current,
+        go: () => goPage(num),
+      };
+    });
+
+    const end = Math.min(start + pageSize, source.length);
+    const unread = this.props.messagesUnread ?? 3;
+
+    const selP = source.find((p) => p.id === st.expandedId) || null;
+    const selWhy = selP ? (this.whyText[selP.id] || ('Matches your search \u2014 ask about ' + selP.topics.map((t) => t.toLowerCase()).join(' or ') + '.')) : '';
+    const selShared = selP ? this.sharedItems(selP) : [];
+    const selAv = selP ? ((selP.id - 1) % 5) + 1 : 0;
+    const sel = selP ? {
+      pid: selP.id,
+      initials: selP.i,
+      name: selP.n,
+      meta: selP.role + ' \u00b7 ' + selP.co + ' \u00b7 ' + selP.loc + ' \u00b7 \u2019' + selP.yr,
+      av1: selAv === 1, av2: selAv === 2, av3: selAv === 3, av4: selAv === 4, av5: selAv === 5,
+      showWhy: searched,
+      why: selWhy || '',
+      showShare: selShared.length > 0,
+      shared: selShared,
+      careerTitle: selP.role + ', ' + selP.co,
+      careerYears: selP.since + ' \u2014 now',
+      isRequested: selP.st === 'requested' || !!st.requested[selP.id],
+      notRequested: selP.st !== 'requested' && !st.requested[selP.id],
+      btnLabel: selP.st === 'circle' ? 'Message' : 'Connect',
+      act: () => {
+        if (selP.st === 'circle') { window.location.href = '../messages/Messages.dc.html'; return; }
+        this.setState({ connectFor: selP.id, connectMode: 'quick', whyText: '', noteText: '', connNoteError: false });
+      },
+    } : {};
+
+    const cp = st.connectFor ? this.people.find((x) => x.id === st.connectFor) : null;
+    const cpFirst = cp ? cp.n.split(' ')[0] : '';
+
+    return {
+      railOpen: !!selP,
+      closeRail: () => this.setState({ expandedId: null }),
+      sel,
+      // Connect intro panel (ADR 0011 D2 — quick hello / AI-shaped), opened from any row or the rail.
+      connectOpen: !!cp,
+      connFirst: cpFirst,
+      closeConnect: () => this.setState({ connectFor: null }),
+      modeQuick: st.connectMode === 'quick',
+      modeAI: st.connectMode === 'ai',
+      pickQuick: () => this.setState({ connectMode: 'quick' }),
+      pickAI: () => this.setState({ connectMode: 'ai' }),
+      helloChips: cp ? this.helloChips(cpFirst, this.sharedItems(cp)).map((text) => ({ text, pick: () => this.setState({ noteText: text, connNoteError: false }) })) : [],
+      whyText: st.whyText,
+      onWhyText: (e) => this.setState({ whyText: e.target.value }),
+      shapeNote: () => this.setState({ noteText: this.shapeDraft(cpFirst, st.whyText), connNoteError: false }),
+      noteText: st.noteText,
+      onNoteText: (e) => this.setState({ noteText: e.target.value, connNoteError: false }),
+      connNoteOk: !st.connNoteError,
+      connNoteError: st.connNoteError,
+      sendConnect: () => this.sendConnect(),
+      toastShow: !!st.toast, toastText: st.toast,
+      showBadge: unread > 0,
+      badgeCount: unread,
+      showDot: this.props.notificationDot ?? true,
+      query: st.query,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      onKey: (e) => { if (e.key === 'Enter') this.doSearch(); },
+      doSearch: () => this.doSearch(),
+      clearSearch: () => this.setState({ searchedSet: false, query: '', page: 1, expandedId: null }),
+      searched,
+      echoQuery,
+      matchLabel: source.length + (source.length === 1 ? ' person matches' : ' people match') + ' \u00b7 sorted by relevance',
+      tabs,
+      countLabel: searched
+        ? source.length + ' matches \u00b7 Best match'
+        : source.length + ' people \u00b7 Recently active',
+      rows,
+      showEmpty: source.length === 0,
+      pageLoading: this.props.loading ?? false,
+      pageReady: !(this.props.loading ?? false),
+      showPager: totalPages > 1,
+      pages,
+      prevPage: () => goPage(page - 1),
+      nextPage: () => goPage(page + 1),
+      rangeLabel: source.length === 0 ? '' : 'Showing ' + (start + 1) + '\u2013' + end + ' of ' + source.length,
+    };
+  }
+
+  doSearch() {
+    this.setState({ searchedSet: true, page: 1, expandedId: null });
+  }
+}
+</script>
+</body>
+</html>

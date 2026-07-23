@@ -3,7 +3,10 @@ import { Wordmark } from '@/components/ui/wordmark'
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="relative hidden overflow-hidden bg-surface-ink p-10 text-surface-ink-foreground lg:flex lg:flex-col lg:justify-between">
+      <section
+        aria-label="About BridgeCircle"
+        className="relative hidden overflow-hidden bg-surface-ink p-10 text-surface-ink-foreground lg:flex lg:flex-col lg:justify-between"
+      >
         <div
           aria-hidden
           className="absolute inset-0 opacity-40"
@@ -35,7 +38,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div className="relative max-w-md">
           <p className="text-kicker font-semibold uppercase tracking-hero text-primary-on-dark">
-            Verified alumni network
+            Verified school circle
           </p>
           <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-tight">
             Build from a circle you already trust.

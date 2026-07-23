@@ -1,0 +1,139 @@
+<!-- @dsCard group="Patterns" name="Profile patterns" subtitle="Can-help-with entry cards · enrichment review queue (owner-only) · per-item link visibility" viewport-width="1100" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:28px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;max-width:1040px;margin-inline:auto;display:grid;gap:26px;align-content:start}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .card{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:26px 34px 30px}
+
+  /* (a) can-speak-to entry cards — as Profile.dc.html builds them */
+  .sec-h2{margin:0;font-size:15px;font-weight:800;letter-spacing:-0.01em;color:var(--text-primary)}
+  .topics{display:grid;grid-template-columns:1fr 1fr;gap:16px 28px;margin-top:14px}
+  .topic{display:flex;gap:10px}
+  .topic .dot{width:6px;height:6px;flex:none;border-radius:50%;background:var(--action-primary);margin-top:6px}
+  .topic .tt{display:block;font-size:13.5px;font-weight:700}
+  .topic .tc{display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px}
+  .mirror-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mirror-h .manage{font-size:12px;font-weight:700;color:var(--action-primary);margin-left:auto}
+  .mirror-cap{margin:8px 0 0;font-size:12px;color:var(--text-faint);font-weight:500}
+
+  /* (b) enrichment review queue — ProfileSelf.dc.html owner-only card */
+  .queue{background:linear-gradient(180deg,#f3f8ff,#eef5ff);border-radius:var(--radius-card-xl);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.14);padding:18px 22px}
+  .queue .head{display:flex;align-items:center;gap:10px}
+  .queue .ic{width:34px;height:34px;flex:none;border-radius:50%;background:#fff;box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center}
+  .queue .ht{display:block;font-size:14.5px;font-weight:800;letter-spacing:-0.01em}
+  .queue .hc{display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:2px}
+  .queue .rows{display:grid;gap:8px;margin-top:14px}
+  .qrow{display:flex;align-items:center;gap:13px;background:#fff;border-radius:var(--radius-box);box-shadow:var(--ring-card);padding:12px 16px}
+  .qrow .tt{display:block;font-size:13px;font-weight:700}
+  .qrow .src{display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px}
+  .qrow .approve{flex:none;background:var(--action-weak);color:var(--blue-600);border-radius:var(--radius-pill);padding:7px 15px;font-size:12px;font-weight:700}
+  .qrow .dismiss{flex:none;color:var(--text-faint);font-size:12px;font-weight:600;padding:7px 6px}
+
+  /* (c) per-item link visibility — ProfileSelf.dc.html links & contact */
+  .links-h{display:flex;align-items:center;gap:8px}
+  .links-h h2{margin:0;font-size:12px;font-weight:700;color:var(--text-faint);letter-spacing:0.04em;text-transform:uppercase;flex:1}
+  .links-h .add{color:var(--action-primary);font-size:12px;font-weight:700}
+  .links-cap{margin:9px 0 0;font-size:11.5px;color:var(--text-faint);font-weight:500;line-height:1.5}
+  .links{display:grid;gap:10px;margin-top:13px;max-width:312px}
+  .lrow{display:flex;align-items:center;gap:10px}
+  .lrow .lt{display:block;font-size:13px;font-weight:700}
+  .lrow .lv{display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vis{flex:none;display:inline-flex;align-items:center;gap:5px;border-radius:var(--radius-pill);padding:5px 11px;font-size:11px;font-weight:700}
+  .vis i{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .vis.pub{background:var(--blue-50);color:var(--blue-600)}
+  .vis.cir{background:var(--give-tint-weak);color:var(--action-give-text)}
+  .vis.pri{background:var(--surface-subtle);color:var(--text-faint)}
+  .legend{margin:12px 0 0;font-size:11px;color:var(--text-faint);font-weight:500;line-height:1.5}
+</style>
+</head>
+<body>
+
+  <section>
+    <p class="label">(a) &ldquo;Can help with&rdquo; entry cards &mdash; viewer-facing helping topics (Profile.dc.html)</p>
+    <div class="card">
+      <h2 class="sec-h2">Can help with</h2>
+      <div class="topics">
+        <div class="topic"><span class="dot"></span><span><span class="tt">Agency &rarr; in-house moves</span><span class="tc">Made the jump in 2018; 20+ portfolios reviewed</span></span></div>
+        <div class="topic"><span class="dot"></span><span><span class="tt">Design interview prep</span><span class="tc">Runs interview loops at Figma</span></span></div>
+        <div class="topic"><span class="dot"></span><span><span class="tt">Stepping into leadership</span><span class="tc">IC &rarr; lead transition, managing seniors</span></span></div>
+        <div class="topic"><span class="dot"></span><span><span class="tt">Portfolio reviews</span><span class="tc">2&ndash;3 a month, async or 30-min call</span></span></div>
+      </div>
+    </div>
+
+    <p class="label" style="margin-top:14px">(a&prime;) owner&rsquo;s read-only mirror on the self profile (ProfileSelf.dc.html)</p>
+    <div class="card">
+      <div class="mirror-h">
+        <h2 class="sec-h2">Can help with</h2>
+        <span class="manage">Manage on Help &middot; Give &rarr;</span>
+      </div>
+      <p class="mirror-cap">A read-only mirror of your helping topics &mdash; one source of truth, managed on Help &middot; Give.</p>
+      <div class="topics">
+        <div class="topic"><span class="dot"></span><span><span class="tt">College applications</span><span class="tc">Went through it in 2022 &mdash; essays, portfolios, the waiting</span></span></div>
+        <div class="topic"><span class="dot"></span><span><span class="tt">Design portfolios</span><span class="tc">Reviews student work weekly as a design-lab TA</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">(b) Enrichment review queue &mdash; owner-only, nothing publishes without approval</p>
+    <div class="queue">
+      <div class="head">
+        <span class="ic"><svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--blue-600);stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M12 3v3"></path><path d="m18.4 5.6-2.1 2.1"></path><path d="M21 12h-3"></path><circle cx="12" cy="14" r="5"></circle></svg></span>
+        <span style="flex:1;min-width:0">
+          <span class="ht">We found 2 changes &mdash; approve?</span>
+          <span class="hc">Only you see this. Nothing publishes without your OK.</span>
+        </span>
+      </div>
+      <div class="rows">
+        <div class="qrow">
+          <span style="flex:1;min-width:0"><span class="tt">Role: Design Intern &rarr; Junior Designer at Studio Loop</span><span class="src">From LinkedIn &middot; spotted this week</span></span>
+          <span class="approve">Approve</span>
+          <span class="dismiss">Dismiss</span>
+        </div>
+        <div class="qrow">
+          <span style="flex:1;min-width:0"><span class="tt">New skill: Webflow</span><span class="src">From your portfolio site &middot; spotted this week</span></span>
+          <span class="approve">Approve</span>
+          <span class="dismiss">Dismiss</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">(c) Per-item link visibility &mdash; Public / Circle / Private, click to cycle</p>
+    <div class="card">
+      <div class="links-h">
+        <h2>Links &amp; contact</h2>
+        <span class="add">+ Add</span>
+      </div>
+      <p class="links-cap">Each link has its own audience. Others see only what they&rsquo;re entitled to.</p>
+      <div class="links">
+        <div class="lrow">
+          <span style="flex:1;min-width:0"><span class="lt">LinkedIn</span><span class="lv">linkedin.com/in/irislau</span></span>
+          <span class="vis pub" title="Who can see this — click to change"><i></i>Public</span>
+        </div>
+        <div class="lrow">
+          <span style="flex:1;min-width:0"><span class="lt">Portfolio</span><span class="lv">irislau.design</span></span>
+          <span class="vis pub" title="Who can see this — click to change"><i></i>Public</span>
+        </div>
+        <div class="lrow">
+          <span style="flex:1;min-width:0"><span class="lt">Email</span><span class="lv">iris@irislau.design</span></span>
+          <span class="vis cir" title="Who can see this — click to change"><i></i>Circle</span>
+        </div>
+        <div class="lrow">
+          <span style="flex:1;min-width:0"><span class="lt">Instagram</span><span class="lv">@iris.makes.things</span></span>
+          <span class="vis pri" title="Who can see this — click to change"><i></i>Private</span>
+        </div>
+      </div>
+      <p class="legend">Public &mdash; any member &middot; Circle &mdash; connections only &middot; Private &mdash; just you.</p>
+    </div>
+  </section>
+
+</body>
+</html>

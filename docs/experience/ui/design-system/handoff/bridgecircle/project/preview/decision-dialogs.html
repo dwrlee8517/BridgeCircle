@@ -1,0 +1,127 @@
+<!-- @dsCard group="Patterns" name="Decision dialogs" subtitle="Decline with a note (3 paths) · decline modal · block guard · disconnect guard" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);display:grid;gap:14px}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .stage{background:var(--scrim);border-radius:var(--radius-comfortable);padding:28px 20px;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       (a) Decline with a note — the three-path option treatment.
+       Extracted verbatim from templates/help/GiveDirect.dc.html
+       (viewDecline card). Asker: Lena Petrova (help-data.js d1).
+       ============================================================ -->
+  <div class="card">
+    <p class="label">Decline with a note — three paths (help/GiveDirect.dc.html)</p>
+    <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:20px 24px;max-width:640px">
+      <span style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Say no, kindly</span>
+        <span style="font-size:12px;color:var(--text-faint);font-weight:600">Lena gets a cushioned note, never a bare no</span>
+        <button style="margin-left:auto;border:0;background:transparent;color:var(--action-primary);font-size:12px;font-weight:700;cursor:pointer;padding:3px 8px;border-radius:7px;font-family:var(--font-sans)">Back</button>
+      </span>
+
+      <div style="margin-top:14px;padding:14px 16px;background:var(--surface-inset);border-radius:14px">
+        <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">One tap &mdash; pick a reason</b>
+        <span style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap">
+          <button style="border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font-sans)">I can&rsquo;t take this on right now</button>
+          <button style="border:0;background:var(--surface-card);box-shadow:var(--ring-outline);color:var(--text-secondary);border-radius:var(--radius-pill);padding:8px 15px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font-sans)">This one&rsquo;s outside what I can speak to</button>
+        </span>
+      </div>
+
+      <div style="margin-top:10px;padding:14px 16px;background:var(--surface-inset);border-radius:14px">
+        <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Write your own</b>
+        <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px">The AI polishes it toward kindness before it sends.</span>
+        <textarea rows="2" placeholder="A line for Lena&hellip;" style="width:100%;box-sizing:border-box;margin-top:9px;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:11px;padding:11px 13px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none;font-family:var(--font-sans)"></textarea>
+        <button style="margin-top:9px;border:0;border-radius:11px;padding:9px 16px;background:var(--gradient-primary-btn);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn);font-family:var(--font-sans)">Send note &amp; decline</button>
+      </div>
+
+      <div style="margin-top:10px;padding:14px 16px;background:var(--surface-inset);border-radius:14px">
+        <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Or just tell the AI &mdash; it relays the no for you</b>
+        <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px">Say it casually. The AI composes and sends the kind note on your behalf &mdash; you never have to write the rejection yourself.</span>
+        <textarea rows="2" placeholder="&ldquo;slammed this month, can&rsquo;t do it&rdquo;" style="width:100%;box-sizing:border-box;margin-top:9px;border:0;background:var(--surface-card);box-shadow:var(--ring-outline);border-radius:11px;padding:11px 13px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none;font-family:var(--font-sans)"></textarea>
+        <button style="margin-top:9px;border:0;border-radius:11px;padding:9px 16px;background:var(--gradient-primary-btn);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn);font-family:var(--font-sans)">Relay my no</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty-textarea guard state, verbatim from GiveDirect.dc.html (ownErr) -->
+  <div class="card">
+    <p class="label">Decline — can&rsquo;t send empty (help/GiveDirect.dc.html error state)</p>
+    <div style="padding:14px 16px;background:var(--surface-inset);border-radius:14px;max-width:592px">
+      <b style="font-size:12.5px;font-weight:700;color:var(--text-primary)">Write your own</b>
+      <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:2px">The AI polishes it toward kindness before it sends.</span>
+      <textarea rows="2" aria-invalid="true" placeholder="A line for Lena&hellip;" style="width:100%;box-sizing:border-box;margin-top:9px;border:0;background:var(--surface-card);box-shadow:inset 0 0 0 1.5px var(--error);border-radius:11px;padding:11px 13px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none;font-family:var(--font-sans)"></textarea>
+      <span style="display:block;margin-top:6px;font-size:11.5px;font-weight:600;color:var(--error)">A few words is all it takes &mdash; it can&rsquo;t send empty.</span>
+      <button style="margin-top:9px;border:0;border-radius:11px;padding:9px 16px;background:var(--gradient-primary-btn);color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn);font-family:var(--font-sans)">Send note &amp; decline</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Decline modal variant — templates/messages/Messages.dc.html
+       (dlgDecline). wName: Dan Kim (messages-data.js w1).
+       ============================================================ -->
+  <div class="card">
+    <p class="label">Decline with a note — modal (messages/Messages.dc.html)</p>
+    <div class="stage">
+      <div role="dialog" aria-label="Decline with a note" style="width:440px;max-width:100%;background:var(--surface-card);border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+        <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Decline with a note</h3>
+        <p style="margin:6px 0 0;font-size:12.5px;color:var(--grey-600);font-weight:500;line-height:1.5">Every decline carries a note &mdash; Dan Kim sees the note, never a bare no.</p>
+        <textarea rows="4" placeholder="A line for Dan Kim&hellip;" style="width:100%;box-sizing:border-box;margin-top:14px;border:0;box-shadow:var(--ring-outline);border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.55;font-weight:500;color:var(--text-primary);resize:vertical;outline:none;font-family:var(--font-sans)"></textarea>
+        <p style="margin:8px 0 0;font-size:11px;color:var(--text-faint);font-weight:500">This starts from an AI-helped draft &mdash; make it yours.</p>
+        <span style="display:flex;gap:8px;margin-top:14px">
+          <button style="border:0;border-radius:12px;padding:12px 16px;background:var(--surface-card);color:var(--text-secondary);box-shadow:var(--ring-outline);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-sans)">Back</button>
+          <button style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--gradient-primary-btn);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn);font-family:var(--font-sans)">Send note &amp; decline</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       (b) Block confirmation guard — verbatim copy shared by
+       messages/Messages.dc.html (dlgBlock) and profile/Profile.dc.html.
+       Solid --error fill on the destructive action; undo path named.
+       ============================================================ -->
+  <div class="card">
+    <p class="label">Block guard (messages/Messages.dc.html · profile/Profile.dc.html)</p>
+    <div class="stage">
+      <div role="dialog" aria-label="Block" style="width:400px;max-width:100%;background:var(--surface-card);border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+        <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Block Maya Chen?</h3>
+        <p style="margin:8px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.6">You won&rsquo;t see each other&rsquo;s asks or messages, and neither of you can reach the other. You can undo this in Settings.</p>
+        <span style="display:flex;gap:8px;margin-top:18px">
+          <button style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+          <button style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--error);color:#fff;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer">Block</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       (c) Disconnect confirmation guard — verbatim from
+       profile/Profile.dc.html (dlgDisconnect); same dialog in
+       profile-slideover/ProfileSlideOver.dc.html. Softer than block:
+       outlined red (inset --red-200 ring, --error text), not solid.
+       ============================================================ -->
+  <div class="card">
+    <p class="label">Disconnect guard (profile/Profile.dc.html · profile-slideover/ProfileSlideOver.dc.html)</p>
+    <div class="stage">
+      <div role="dialog" aria-label="Disconnect confirmation" style="width:400px;max-width:100%;background:var(--surface-card);border-radius:20px;box-shadow:0 24px 60px rgb(25 31 40 / 0.25);padding:24px;box-sizing:border-box">
+        <h3 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">Disconnect from Maya Chen?</h3>
+        <p style="margin:8px 0 0;font-size:13px;color:var(--text-secondary);font-weight:500;line-height:1.6">You&rsquo;ll both leave each other&rsquo;s circle. Your messages stay, and neither of you is notified.</p>
+        <span style="display:flex;gap:8px;margin-top:18px">
+          <button style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer">Cancel</button>
+          <button style="flex:1;border:0;border-radius:12px;padding:12px;background:var(--surface-card);box-shadow:inset 0 0 0 1.5px var(--red-200);color:var(--error);font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer">Disconnect</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

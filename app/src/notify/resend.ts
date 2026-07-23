@@ -1,6 +1,8 @@
 import { render } from '@react-email/components'
 import type * as React from 'react'
 import { Resend } from 'resend'
+import type { EmailNotificationType } from '@/lib/notifications/types'
+import { resolveDevRecipient } from './devGuard'
 import { AccountDeleteScheduledEmail } from './emails/account-delete-scheduled-email'
 import { AnnouncementEmail } from './emails/announcement-email'
 import { AskAcceptedEmail } from './emails/ask-accepted-email'
@@ -12,6 +14,7 @@ import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-ema
 import { EventWaitlistPromotedEmail } from './emails/event-waitlist-promoted-email'
 import { FriendRequestAcceptedEmail } from './emails/friend-request-accepted-email'
 import { FriendRequestEmail } from './emails/friend-request-email'
+import { HelpNotificationEmail } from './emails/help-notification-email'
 import { InviteEmail } from './emails/invite-email'
 import { MembershipApprovedEmail } from './emails/membership-approved-email'
 import { MembershipDeactivatedEmail } from './emails/membership-deactivated-email'
@@ -36,6 +39,7 @@ export type SendInviteInput = {
   fullName: string | null
   schoolName: string
   joinUrl: string
+  idempotencyKey?: string
 }
 
 export type NotifyResult = { ok: true; id: string } | { ok: false; error: string }
@@ -44,26 +48,183 @@ async function sendRenderedEmail({
   to,
   subject,
   email,
+  idempotencyKey,
 }: {
   to: string
   subject: string
   email: React.ReactNode
+  idempotencyKey?: string
 }): Promise<NotifyResult> {
   if (!resend) return { ok: false, error: 'RESEND_API_KEY not configured' }
 
+  // Non-prod guard: never let a dev/local box send real mail to real (or
+  // bouncing) addresses. Redirects to a safe sink unless APP_ENV=prod. See
+  // ./devGuard.
+  const { to: recipient, redirectedFrom } = resolveDevRecipient(to)
+  if (redirectedFrom) {
+    console.info('[notify] development redirect applied', {
+      appEnv: process.env.APP_ENV ?? 'unset',
+    })
+  }
+
   const [html, text] = await Promise.all([render(email), render(email, { plainText: true })])
 
-  const { data, error } = await resend.emails.send({
-    from: FROM,
-    to: [to],
-    subject,
-    html,
-    text,
-  })
+  const { data, error } = await resend.emails.send(
+    {
+      from: FROM,
+      to: [recipient],
+      subject,
+      html,
+      text,
+    },
+    idempotencyKey ? { idempotencyKey } : undefined,
+  )
 
   if (error) return { ok: false, error: error.message }
   if (!data?.id) return { ok: false, error: 'no id returned' }
   return { ok: true, id: data.id }
+}
+
+export type SendTransactionalNotificationInput = {
+  to: string
+  recipientName: string
+  notificationType: EmailNotificationType
+  actorName: string | null
+  actionUrl: string
+  idempotencyKey: string
+}
+
+export async function sendTransactionalNotificationEmail(
+  input: SendTransactionalNotificationInput,
+): Promise<NotifyResult> {
+  const copy = transactionalEmailCopy(input.notificationType, input.actorName)
+  return sendRenderedEmail({
+    to: input.to,
+    subject: copy.subject,
+    email: HelpNotificationEmail({
+      recipientName: input.recipientName,
+      heading: copy.heading,
+      body: copy.body,
+      actionLabel: copy.actionLabel,
+      actionUrl: input.actionUrl,
+    }),
+    idempotencyKey: input.idempotencyKey,
+  })
+}
+
+function transactionalEmailCopy(
+  type: SendTransactionalNotificationInput['notificationType'],
+  actorName: string | null,
+) {
+  const actor = actorName ?? 'A member'
+  const copies: Record<
+    SendTransactionalNotificationInput['notificationType'],
+    { subject: string; heading: string; body: string; actionLabel: string }
+  > = {
+    ask_received: {
+      subject: `${actor} is hoping you can help`,
+      heading: `${actor} is hoping you can help`,
+      body: 'Take a look when you have a moment. Passing kindly is always an option.',
+      actionLabel: 'Review the request',
+    },
+    ask_accepted: {
+      subject: `${actor} said yes`,
+      heading: `${actor} said yes`,
+      body: 'Your conversation is ready whenever you are.',
+      actionLabel: 'Open the conversation',
+    },
+    ask_declined: {
+      subject: 'An update on your request',
+      heading: 'An update on your request',
+      body: 'The member could not help this time. Your request is ready to revisit.',
+      actionLabel: 'View your request',
+    },
+    ask_reminder: {
+      subject: 'A request is waiting for you',
+      heading: 'A request is waiting for you',
+      body: 'A member is still waiting for your response. A quick yes or kind decline helps them move forward.',
+      actionLabel: 'Review the request',
+    },
+    ask_closed: {
+      subject: 'Your request has closed',
+      heading: 'Your request has closed',
+      body: 'This request reached the end of its response window. You can ask again with a fresh request.',
+      actionLabel: 'View Help',
+    },
+    offer_received: {
+      subject: `${actor} offered to help`,
+      heading: `${actor} offered to help`,
+      body: 'Review their note and decide when you are ready.',
+      actionLabel: 'Review the offer',
+    },
+    offer_accepted: {
+      subject: 'Your offer was accepted',
+      heading: 'Your offer was accepted',
+      body: 'The conversation is ready whenever you are.',
+      actionLabel: 'Open the conversation',
+    },
+    offer_declined: {
+      subject: 'An update on your offer',
+      heading: 'An update on your offer',
+      body: 'The member went another direction this time. Thank you for offering.',
+      actionLabel: 'View Help',
+    },
+    offer_closed: {
+      subject: 'This offer has closed',
+      heading: 'This offer has closed',
+      body: 'The request is no longer open. Thank you for being willing to help.',
+      actionLabel: 'View Help',
+    },
+    circle_ask_match: {
+      subject: 'A request may be a good fit for you',
+      heading: 'A request may be a good fit for you',
+      body: 'BridgeCircle found a request that matches what you can speak to.',
+      actionLabel: 'Take a look',
+    },
+    circle_ask_closed: {
+      subject: 'Your circle request has closed',
+      heading: 'Your circle request has closed',
+      body: 'This request reached the end of its response window. You can ask the circle again any time.',
+      actionLabel: 'View Help',
+    },
+    message_received: {
+      subject: `New message from ${actor}`,
+      heading: `New message from ${actor}`,
+      body: 'Open BridgeCircle to continue the conversation.',
+      actionLabel: 'Open the conversation',
+    },
+    announcement_published: {
+      subject: 'A new announcement from your school',
+      heading: 'A new announcement from your school',
+      body: 'There is a new update waiting for you in School.',
+      actionLabel: 'Read the announcement',
+    },
+    event_changed: {
+      subject: 'An event you’re attending changed',
+      heading: 'The event details changed',
+      body: 'Please review the current time and place before you go.',
+      actionLabel: 'Review the event',
+    },
+    event_cancelled: {
+      subject: 'An event you were following was cancelled',
+      heading: 'The event was cancelled',
+      body: 'The event page has the latest note from your school.',
+      actionLabel: 'View the event',
+    },
+    event_reminder: {
+      subject: 'Your event is coming up',
+      heading: 'A quick reminder for tomorrow',
+      body: 'Review the event details before you go.',
+      actionLabel: 'View the event',
+    },
+    event_waitlist_spot_opened: {
+      subject: 'A spot opened for an event',
+      heading: 'A spot opened — still want in?',
+      body: 'The place is held briefly for you. Confirm on the event page when you’re ready.',
+      actionLabel: 'Review the offer',
+    },
+  }
+  return copies[type]
 }
 
 export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyResult> {
@@ -71,6 +232,7 @@ export async function sendInviteEmail(input: SendInviteInput): Promise<NotifyRes
     to: input.to,
     subject: `You're invited to join ${input.schoolName} on BridgeCircle`,
     email: InviteEmail(input),
+    idempotencyKey: input.idempotencyKey,
   })
 }
 

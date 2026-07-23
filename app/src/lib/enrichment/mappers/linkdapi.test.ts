@@ -104,4 +104,78 @@ describe('mapLinkdApiProfile', () => {
     if (!result.ok) throw new Error('expected ok')
     expect(result.profile.name).toBe('Dongwoo (Richard) Lee')
   })
+
+  it('does not treat an ended role as current when currentPositions is stale', () => {
+    const result = mapLinkdApiProfile({
+      ...sample,
+      firstName: 'Dongwoo (Richard)',
+      lastName: 'Lee',
+      headline: 'Ph.D Student at UCLA (Medical Informatics)',
+      currentPositions: [
+        {
+          companyName: 'A2 Biotherapeutics, Inc.',
+          company: { name: 'A2 Biotherapeutics, Inc.' },
+        },
+      ],
+      fullPositions: [
+        {
+          companyName: 'A2 Biotherapeutics, Inc.',
+          title: 'Research Associate II',
+          start: { year: 2023, month: 9 },
+          end: { year: 2024, month: 7 },
+        },
+        {
+          companyName: 'A2 Biotherapeutics, Inc.',
+          title: 'Research Associate I',
+          start: { year: 2022, month: 6 },
+          end: { year: 2023, month: 9 },
+        },
+      ],
+      educations: [
+        {
+          schoolName: 'UCLA',
+          degree: 'Doctor of Philosophy - PhD',
+          fieldOfStudy: 'Medical Informatics',
+          start: { year: 2024, month: 9 },
+          end: { year: 2029, month: 5 },
+        },
+        {
+          schoolName: 'Johns Hopkins Whiting School of Engineering',
+          degree: "Bachelor's degree",
+          fieldOfStudy: 'Biomedical Engineering',
+          start: { year: 2016 },
+          end: { year: 2022, month: 5 },
+        },
+        {
+          schoolName: 'Chadwick International',
+          start: { year: 2011 },
+          end: { year: 2016 },
+        },
+      ],
+      skills: [
+        { name: 'Machine Learning' },
+        { name: 'TensorFlow' },
+        { name: 'PyTorch' },
+        { name: 'Python' },
+        { name: 'ELISA' },
+        { name: 'Flow Cytometry' },
+        { name: 'Cell Culture' },
+        { name: 'Immunology' },
+        { name: 'Microsoft Office' },
+      ],
+    })
+
+    if (!result.ok) throw new Error(`expected ok, got ${result.error}`)
+    expect(result.profile).toMatchObject({
+      name: 'Dongwoo (Richard) Lee',
+      headline: 'Ph.D Student at UCLA (Medical Informatics)',
+      currentEmployer: null,
+      currentTitle: null,
+      university: 'UCLA',
+      major: 'Medical Informatics',
+    })
+    expect(result.profile.careerHistory).toHaveLength(2)
+    expect(result.profile.educationHistory).toHaveLength(3)
+    expect(result.profile.skills).toHaveLength(9)
+  })
 })

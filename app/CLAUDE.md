@@ -20,7 +20,7 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 
 **Specs:**
 - `../docs/product/feature-roadmap.md` — phase sequencing and pricing
-- `../docs/decisions/0014-expo-native-with-parity-ratchet.md` — native mobile decision (supersedes 0002) and the parity mechanism
+- `../docs/decisions/0016-expo-native-with-parity-ratchet.md` — native mobile decision (supersedes 0002) and the parity mechanism
 - `../product-spec-obsidian-vault/Production/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
 - `../product-spec-obsidian-vault/Production/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
 - `../product-spec-obsidian-vault/Production/phase-1/week-3-4.md` — week 3–4 additive features
@@ -45,10 +45,9 @@ app/src/
 │   ├── api/              route handlers
 │   ├── (auth)/           sign in / signup / invite landing
 │   └── (member)/         authenticated app shell
-│       ├── people/       directory + NL search + request-start actions
-│       ├── ask/          internal ask workflow routes (new/detail/thread)
-│       ├── inbox/        asks + friend requests + DMs in one surface
-│       ├── messages/[id] DM conversation viewer (list folded into /inbox)
+│       ├── help/         v2 Help home, composers, history, detail, offers, settings
+│       ├── messages/     v2 list, Waiting, Ask/Connection thread, context, safety
+│       ├── people/       directory + NL search + direct-Help entry
 │       ├── events/
 │       ├── announcements/
 │       ├── profile/[id]
@@ -56,15 +55,18 @@ app/src/
 ├── components/
 │   └── ui/               shadcn primitives (we own this code)
 ├── lib/                  business logic, framework-agnostic
-│   ├── asks/             advice + mentorship asks (renamed from mentorship/)
+│   ├── conversations/    shared v2 thread contracts and pure behavior
+│   ├── messages/         v2 list/count contracts and pure behavior
+│   ├── connections/      v2 Connection commands and pure behavior
+│   ├── safety/           v2 report/block command boundary
+│   ├── help/             v2 Help domain contracts and pure behavior
+│   ├── outbox/           durable worker job contracts
 │   ├── friendship/
-│   ├── dm/               direct messages
 │   ├── search/
 │   ├── profile/
 │   ├── notifications/
 │   ├── events/
 │   ├── announcements/
-│   ├── home/             home-feed aggregation
 │   └── invite/
 ├── db/                   typed Supabase wrappers + generated database.types.ts
 └── notify/               Resend wrappers
@@ -96,15 +98,12 @@ See `../docs/runbooks/day-0-setup.md` Step 6 for the canonical example. If you f
 - Database: Supabase Postgres
 - Auth: Supabase Auth (Google OAuth + email/password)
 - Email: Resend with Chadwick-branded verified sender
-- Background jobs: Railway worker (invite fan-out, mentor inactivity sweeps, email retries)
+- Background jobs: Railway outbox worker (matching, indexing, Help lifecycle, notification/email delivery)
 - File storage: Supabase Storage (public `avatars`, private `resumes`)
 - Error tracking: Sentry
-- LLM/search: Claude Haiku for resume extraction, legacy NL search
-  extraction/rerank, semantic passage generation, and optional Ask explanation
-  polish. Ask also has a feature-gated Voyage hybrid path
-  (`ASK_MATCHING_PIPELINE=voyage_hybrid`) for embeddings + dedicated reranking
-  per `../docs/decisions/0009-hybrid-ask-matching.md`; People remains the broad
-  directory/filter surface.
+- LLM/search: bounded provider adapters for Help drafting, matching, and profile
+  indexing, with deterministic fallbacks. People search remains a later v2
+  port and must not be copied into Help.
 
 Do not introduce alternative providers or frameworks without checking with the user. Do not add Prisma, Drizzle, tRPC, or auth libraries other than Supabase Auth.
 
@@ -113,14 +112,15 @@ Do not introduce alternative providers or frameworks without checking with the u
 From `app/`:
 
 ```bash
-pnpm dev          # local dev at http://localhost:3001
+pnpm dev          # local dev at http://localhost:3000
 pnpm build        # production build (also runs Sentry source map upload in CI)
 pnpm start        # serve production build
 pnpm lint         # eslint
 pnpm biome format --write .   # format
 pnpm biome check .            # lint via biome
 pnpm vitest                   # run tests
-pnpm db:types                 # regenerate src/db/database.types.ts after migration
+pnpm db:types:local           # regenerate types from local v2 during the rebuild
+pnpm check:messages-cutover   # prevent retired Messages URLs/imports from returning
 ```
 
 Package manager is **pnpm 10.33.2** — do not use npm or yarn.
@@ -131,42 +131,65 @@ Before declaring a task done:
 
 - `pnpm biome check . && pnpm lint`
 - `pnpm tsc --noEmit`
-- if you touched SQL: `pnpm db:types` and confirm `database.types.ts` regenerated cleanly
+- if you touched SQL during the rebuild: run `pnpm db:types:local` twice and
+  confirm `database.types.ts` is byte-identical, then lint and shadow-diff the
+  local schema per `docs/runbooks/migration-workflow.md`
 - if you touched a route: there is a Vitest covering the `/lib` function (or write one)
 
 ## Working Conventions
 
-- Native mobile is live (ADR 0014 superseded 0002): the Expo app in `../mobile/` must track this app feature-for-feature via the parity ratchet in `../parity/`. A new `page.tsx` fails CI until `parity/features.json` claims it; declared platforms/layouts fail CI without tagged tests (Playwright `@feature:`/`@layout:`, Maestro `# feature:`). See `../docs/runbooks/mobile-dev.md`.
+- Native mobile is live (ADR 0016 superseded 0002): the Expo app in `../mobile/` must track this app feature-for-feature via the parity ratchet in `../parity/`. A new `page.tsx` fails CI until `parity/features.json` claims it; declared platforms/layouts fail CI without tagged tests (Playwright `@feature:`/`@layout:`, Maestro `# feature:`). See `../docs/runbooks/mobile-dev.md`.
 - Single-engineer build — prefer the smallest credible thing that ships, not the most general one
-- Friendship, asks, and direct messages are separate tracks at the data layer. They share a unified surface on /inbox but the gates differ: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
-- There is ONE ask type (ADR 0011 Phase 2). The `asks.ask_type` enum column still exists until the Phase 6 contract migration; `createAsk` writes the constant `'advice'`. Helper availability is one state: saves write `open_to_advice` and `open_to_mentorship` together, and reads treat either flag as open (`isOpenToHelp` in `lib/utils`). `max_pending_requests` is enforced invisibly in `createAsk` (the abuse valve); `max_active_mentees`, `commitment`, and `screening_prompt`/`screening_answer` are no longer written or read — they drop in Phase 6. The composer is the conversational `chat-composer.tsx` (default) + `request-form.tsx` (`?skip=1`).
-- Use one combined profile in the UI for now. The `base_profile` / `organization_profile` separation lives in the schema for multi-org later (unlocks when Chadwick International onboards as org #2).
+- Connections, Asks, and conversations have distinct gates even though accepted
+  interactions share the `conversations` and `messages` primitives. Connections
+  are mutual; Help is one-sided until the recipient accepts or the asker accepts
+  an offer.
+- There is one Help availability state: `helper_preferences.open_to_help` plus
+  pause metadata and normalized `helper_topics`. Pending capacity is enforced
+  transactionally by the v2 command functions and is not a separate UI mode.
+- Identity is user-scoped; organization context and all Help actions are
+  membership-scoped. Never substitute a user ID for a membership ID.
 - Field-level privacy UI is week 3+. Until then, hardcode the defaults from `../product-spec-obsidian-vault/Production/phase-1/spec.md` (name/year/city/employer/title/university/major org-visible; contact links friends-only) on the read path.
-- Mentor inactivity auto-pause: 14 days without responding to any pending request → "paused while away", unpause on next login.
+- Help lifecycle maintenance owns reminders, 14-day expiry, and the consecutive-
+  timeout auto-pause rule through durable outbox work.
 - Default to web-friendly responsive layouts. Admin tables can be desktop-primary.
 
 ## Top-Level Routes (post-IA-reorg)
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/` | The Help hub — one page with a segmented **Ask for help / Give help** toggle (`?mode=give` = give). Ask side = `AskHome` (NL ask prompt, people who can help); give side = `GiveHelpPanel` (requests needing reply, availability). Default after sign-in | Ask + Help tabs collapsed into one "Help" nav tab pointing here |
-| `/ask` | Question-driven matching results — `?nl=` → hybrid retrieved/reranked matches; `?edit=1` → composer front door | Workflow routes stay: `/ask/new`, `/ask/[id]`, `/ask/thread/[id]`; matching plan is ADR 0009 |
-| `/help` | 307 → `/?mode=give` (folded into the Help hub) | Give-side body lives in `help/give-help-panel.tsx`; `/help/settings` still resolves |
-| `/people` | Alumni exploration — NL search, structured filters, "People I know" toggle, match-brief result cards | Was `/discover`; folded `/friends` in |
+| `/` | Home and default post-sign-in destination | v2 composition dashboard over canonical Help, Messages, School, and Home-native projections |
+| `/help` | Help home with **Get help / Give help** modes | Uses v2 fixed API projections only |
+| `/help/ask/[membershipId]` | Private direct-Ask composer | Recipient is membership-scoped |
+| `/help/ask-circle` | Circle-Ask composer | Supports matched or organization-wide reach |
+| `/help/asks` | Member's Help history | Durable status and role-shaped links |
+| `/help/asks/[askId]` | Ask detail or direct-recipient response | Projection is viewer-role shaped |
+| `/help/asks/[askId]/offer` | Circle-offer composer | Private offer note and bounded AI assistance |
+| `/help/settings` | Compatibility redirect to `/settings#helping` | Keeps older links safe; does not own preferences |
+| `/people` | Member exploration — bounded search, All/Open-to-help/In-your-circle scopes, and profile preview | Was `/discover`; folded `/friends` in |
+| `/people/circle` | Managed circle view | Per-row Message and confirmed, mutual Disconnect |
 | `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
-| `/inbox` | Unified request lifecycle — needs reply, helping, getting help, connections, direct messages | Folded in `/messages` (root), `/friends` (incoming reqs) |
-| `/messages/[id]` | DM conversation viewer | Linked from `/inbox`; root `/messages` 308 → `/inbox` |
+| `/messages` | Canonical Messages root | Waiting, counts, filters/search, keyset list, and responsive workspace use fixed v2 projections |
+| `/messages/[id]` | Unified v2 conversation thread | Ask and Connection origins share history, send/read/typing, context, and safety controls |
 | `/events`, `/events/[id]` | Events list + detail | |
 | `/announcements`, `/announcements/[id]` | Archive | Off top nav post-#55; entry via home banner + notifications |
 | `/profile/[id]` | Profile detail with friendship + helper-ask CTAs | |
 | `/profile/me/*` | Own-profile editing surfaces | |
 | `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
 
-Top nav (members): **Help · People · School · Messages**. The Help tab is the combined ask/give hub at `/` (the former Ask and Help tabs merged into it); the Messages tab points at the `/inbox` route (route rename deferred to a later ADR 0011 phase). The `MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth — desktop nav and the mobile dropdown both render from it.
+Member navigation: **Home · Help · People · Messages · School**. Help owns
+`/help/*`; Messages owns `/messages/*`. `MEMBER_NAV_LINKS` in
+`src/app/(member)/nav-links.ts` is the single source of truth for the desktop
+sidebar, tablet rail, and mobile tab bar.
 
-Legacy URLs redirect (308): `/search → /people`, `/discover → /people`, `/friends → /people?peopleIKnow=on`, `/mentorship/request/* → /ask/*`, `/mentorship/thread/* → /ask/thread/*`, `/mentorship/settings → /help/settings`, `/messages → /inbox`. `/ask` is a current top-level member page, not a redirect. See `next.config.ts`.
+This is a pre-launch destructive rebuild. Retired `/ask`, `/inbox`, `/search`,
+`/discover`, `/friends`, and `/mentorship/*` routes have no compatibility
+redirects. Do not recreate them. Update callers to the canonical routes;
+`check:help-cutover` and `check:messages-cutover` enforce this boundary.
 
-Vocabulary (ADR 0011 Phases 1–2, applied 2026-07-03): user-facing copy never says "mentor", "mentee", or "mentorship" — an ask is just an **ask**, helper availability is one state ("open to helping"), and friend requests read as **connect** language. Database columns and enum values (`open_to_mentorship`, `ask_type 'advice'|'mentorship'`) intentionally keep the old names until the ADR 0011 Phase 6 contract migration.
+Vocabulary (ADR 0011 + ADR 0015): user-facing copy says **Ask**, **Help**,
+**Connect**, and **Messages**. The v2 schema uses these concepts directly; no
+legacy mentorship columns or compatibility modules are retained.
 
 ## Out Of Scope For Phase 1
 
@@ -175,7 +198,7 @@ Do not build (without explicit user request):
 - meetup proposals or ambassador role workflows
 - mentorship scheduler or Zoom integration
 - social feed
-- saved mentor interest / passive matching — **except** the bounded standing-ask slice (user-approved 2026-06-11): one `open_asks` row per member per org, 14-day TTL with auto-expiry, nightly sweep re-match with count-only notifications (`lib/asks/openAskSweep.ts`). Anything beyond that slice (helper-side /help surfacing, event-driven triggers, renewal flows) still needs explicit approval
+- a second standing-Ask model outside the unified v2 `asks` lifecycle
 - direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach. The supported path is `lib/enrichment/` (LinkdAPI primary, Bright Data for the monthly sweep, PDL fallback) — see [`../docs/architecture/profile-enrichment.md`](../docs/architecture/profile-enrichment.md) for the full plan.
 - unbounded agentic matching as the default page-load search path. Hybrid Ask
   matching is allowed only within the bounded ADR 0009 plan: hard gates,

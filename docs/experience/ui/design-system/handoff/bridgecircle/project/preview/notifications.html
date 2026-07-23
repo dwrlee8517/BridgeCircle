@@ -1,0 +1,164 @@
+<!-- @dsCard group="Patterns" name="Notifications" subtitle="Bell + unread dot · anchored popover · row vocabulary (unread / read / system / event)" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../colors_and_type.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  body{margin:0;padding:24px;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:grid;gap:14px;max-width:760px;margin-inline:auto}
+  .card{background:var(--surface-card);border-radius:var(--radius-large);box-shadow:var(--ring-card),var(--shadow-card);padding:18px 20px}
+  .label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+  .fine{font-size:12px;color:var(--text-faint);font-weight:500;margin:10px 0 0}
+
+  /* --- bell trigger (app-shell topbar, Home.dc.html) --- */
+  .bellrow{display:flex;align-items:center;gap:26px}
+  .bellwrap{display:grid;justify-items:center;gap:8px}
+  .bell{width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer}
+  .bell:hover{background:var(--grey-200)}
+  .bell svg{width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .bell .dot{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff}
+  .bell.active{background:var(--nav-active-bg)}
+  .bell.active svg{stroke:var(--nav-active-text);stroke-width:2.1}
+  .cap{font-size:11px;color:var(--text-faint);font-weight:600}
+
+  /* --- anchored popover (Home.dc.html bell popover, verbatim anatomy) --- */
+  .pop{width:390px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden}
+  .pop .head{display:flex;align-items:baseline;gap:8px;padding:14px 18px 10px}
+  .pop .head b{font-size:14px;font-weight:800;letter-spacing:-0.02em}
+  .pop .head a{margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700;text-decoration:none}
+  .pop .row{display:flex;align-items:center;gap:11px;padding:11px 18px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer;text-align:left}
+  .pop .row:hover{background:var(--row-hover)}
+  .pav{width:34px;height:34px;flex:none;border-radius:50%;box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .pop .main{flex:1;min-width:0}
+  .pop .l1{display:block;font-size:13px;font-weight:800;line-height:1.4}
+  .pop .l1 span{font-weight:600}
+  .pop .l2{display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pop .when{flex:none;font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .pop .foot{margin:0;padding:10px 18px 12px;border-top:1px solid var(--divider-row);font-size:11px;color:var(--text-faint);font-weight:500;text-align:left}
+  .pop .empty{margin:0;padding:6px 18px 16px;font-size:12.5px;line-height:1.5;color:var(--text-faint);font-weight:500;text-align:left}
+  .pop .empty a{color:var(--action-primary);font-weight:700;text-decoration:none}
+
+  /* --- durable-list rows (Notifications.dc.html, verbatim anatomy) --- */
+  .list{background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)}
+  .list .dayhead{padding:14px 20px 8px;border-top:1px solid var(--divider-row)}
+  .list .dayhead:first-child{border-top:0}
+  .list .dayhead b{font-size:12px;font-weight:800;letter-spacing:0.02em;color:var(--text-faint)}
+  .list .row{display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer}
+  .list .row:hover{background:var(--row-hover)}
+  .nav38{width:38px;height:38px;flex:none;border-radius:50%;box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .tile{flex:none;width:38px;height:38px;border-radius:var(--radius-comfortable);display:flex;align-items:center;justify-content:center}
+  .tile.sys{background:var(--closing-soon-tint)}
+  .tile.sys svg{width:17px;height:17px;fill:none;stroke:var(--closing-soon-text);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .tile.ev{background:linear-gradient(180deg,#eef5ff,#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);flex-direction:column;line-height:1.1}
+  .tile.ev .mo{font-size:8.5px;font-weight:800;color:var(--blue-600);letter-spacing:0.05em}
+  .tile.ev .dd{font-size:14px;font-weight:800;color:var(--text-primary)}
+  .list .main{flex:1;min-width:0}
+  .list .l1u{display:block;font-size:13.5px;font-weight:800;line-height:1.4;color:var(--text-primary)}
+  .list .l1u span{font-weight:600}
+  .list .l1r{display:block;font-size:13.5px;font-weight:700;line-height:1.4;color:var(--text-primary)}
+  .list .l1r span{font-weight:500;color:var(--text-secondary)}
+  .list .l2{display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .list .when{flex:none;font-size:11px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums}
+  .dotu{flex:none;width:8px;height:8px;border-radius:50%;background:var(--action-primary)}
+
+  .av-1{background:var(--avatar-1-bg);color:var(--avatar-1-fg)}
+  .av-2{background:var(--avatar-2-bg);color:var(--avatar-2-fg)}
+  .av-3{background:var(--avatar-3-bg);color:var(--avatar-3-fg)}
+  .av-4{background:var(--avatar-4-bg);color:var(--avatar-4-fg)}
+  .av-5{background:var(--avatar-5-bg);color:var(--avatar-5-fg)}
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <p class="label">Bell trigger — topbar, 42px round</p>
+    <div class="bellrow">
+      <span class="bellwrap">
+        <button class="bell" aria-label="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+        </button>
+        <span class="cap">Read — no dot</span>
+      </span>
+      <span class="bellwrap">
+        <button class="bell" aria-label="Notifications, unread">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <span class="dot"></span>
+        </button>
+        <span class="cap">Unread — 8px --error dot, 2px white ring</span>
+      </span>
+      <span class="bellwrap">
+        <span class="bell active" aria-label="Notifications" aria-current="page">
+          <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+        </span>
+        <span class="cap">On the Notifications page — nav-active fill</span>
+      </span>
+    </div>
+    <p class="fine">The dot means unmissable-and-unread; opening the target (not the popover) clears it. Hover fill is --grey-200.</p>
+  </div>
+
+  <div class="card">
+    <p class="label">Bell popover — anchored panel, ships in v1</p>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+      <div class="pop" role="dialog" aria-label="Notifications">
+        <span class="head"><b>Notifications</b><a href="#" onclick="return false">See all &rarr;</a></span>
+        <a class="row" href="#" onclick="return false">
+          <span class="pav av-3">DK</span>
+          <span class="main"><span class="l1">Dan Kim <span>asked you directly</span></span><span class="l2">&ldquo;Portfolio for fintech roles&rdquo;</span></span>
+          <span class="when">2h</span>
+        </a>
+        <a class="row" href="#" onclick="return false">
+          <span class="pav av-2">TW</span>
+          <span class="main"><span class="l1">Tess Winter <span>offered on your ask</span></span><span class="l2">&ldquo;Could someone intro me to a design-led startup&hellip;&rdquo;</span></span>
+          <span class="when">4h</span>
+        </a>
+        <a class="row" href="#" onclick="return false">
+          <span class="pav av-5">RM</span>
+          <span class="main"><span class="l1">Rosa Marquez <span>wants to connect</span></span><span class="l2">&ldquo;We were both in Prof. Whitman&rsquo;s studio, a few years apart.&rdquo;</span></span>
+          <span class="when">6h</span>
+        </a>
+        <p class="foot">Recent updates stay here for context. Unread ones carry a dot.</p>
+      </div>
+      <div class="pop" role="dialog" aria-label="Notifications" style="width:300px">
+        <span class="head"><b>Notifications</b><a href="#" onclick="return false">See all &rarr;</a></span>
+        <p class="empty">You&rsquo;re caught up &mdash; the full record lives in <a href="#" onclick="return false">Notifications</a>.</p>
+      </div>
+    </div>
+    <p class="fine">390px panel anchored top-right under the bell (top:50px, right:0), radius 18, shadow --ring-card-elevated + 0 20px 50px -14px rgb(25 31 40 / 0.3). Shows only unmissable items the popover hasn&rsquo;t surfaced before (FLOWS &sect;7d); everything else waits in the durable list.</p>
+  </div>
+
+  <div class="card">
+    <p class="label">Row vocabulary — durable list (Notifications page)</p>
+    <div class="list">
+      <div class="dayhead"><b>Today</b></div>
+      <a class="row" href="#" onclick="return false">
+        <span class="nav38 av-3">DK</span>
+        <span class="main"><span class="l1u">Dan Kim <span>asked you directly</span></span><span class="l2">&ldquo;Portfolio for fintech roles&rdquo;</span></span>
+        <span class="when">2h</span>
+        <i class="dotu"></i>
+      </a>
+      <div class="dayhead"><b>Yesterday</b></div>
+      <a class="row" href="#" onclick="return false">
+        <span class="nav38 av-1">MC</span>
+        <span class="main"><span class="l1r">Maya Chen <span>accepted your ask &mdash; the thread is open</span></span><span class="l2">&ldquo;How did you know it was time to move in-house?&rdquo;</span></span>
+        <span class="when">1d</span>
+      </a>
+      <a class="row" href="#" onclick="return false">
+        <span class="tile sys"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg></span>
+        <span class="main"><span class="l1u">Your ask closes in 2 days</span><span class="l2">&ldquo;Is a coding bootcamp worth it alongside a design degree?&rdquo;</span></span>
+        <span class="when">1d</span>
+        <i class="dotu"></i>
+      </a>
+      <div class="dayhead"><b>Earlier</b></div>
+      <a class="row" href="#" onclick="return false">
+        <span class="tile ev"><span class="mo">MAY</span><span class="dd">14</span></span>
+        <span class="main"><span class="l1r">Spring Mixer is tomorrow <span>&mdash; you&rsquo;re going</span></span><span class="l2">Main Court Patio &middot; 6:00 PM</span></span>
+        <span class="when">May 13</span>
+      </a>
+    </div>
+    <p class="fine">Unread: actor at w800, line at w600, trailing 8px --action-primary dot. Read: w700/w500, line drops to --text-secondary, no dot. System rows get the clock on a --closing-soon-tint tile with a --closing-soon-text stroke; event rows reuse the school date tile. Every row deep-links to where it happened; clicking marks it read.</p>
+  </div>
+
+</body>
+</html>

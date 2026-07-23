@@ -1,54 +1,54 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-
 import { cn } from '@/lib/utils'
 import { getMemberNavIcon } from './member-nav-icons'
-import { activeMemberNavStyle, getMemberNavAccent } from './member-nav-style'
-import { MEMBER_NAV_LINKS } from './nav-links'
+import { MessagesAttentionBadge } from './messages-attention-badge'
+import { isMemberNavLinkActive, MEMBER_NAV_LINKS } from './nav-links'
+import { useMemberNavPathname } from './use-member-nav-pathname'
+import { useUserControl } from './user-control-provider'
 
 export { MEMBER_NAV_LINKS }
 
-export function MemberNav({ isAdmin }: { isAdmin: boolean }) {
-  const pathname = usePathname()
-  const links = isAdmin
-    ? [...MEMBER_NAV_LINKS, { href: '/admin/invite', label: 'Admin', match: ['/admin'] }]
-    : MEMBER_NAV_LINKS
+export function MemberNav({ className }: { className?: string }) {
+  const pathname = useMemberNavPathname()
+  const { messagesAttentionCount } = useUserControl()
 
   return (
-    <nav className="hidden h-full items-center gap-1.5 text-sm @[900px]:flex">
-      {links.map((link) => {
+    <nav aria-label="Primary" className={cn('flex flex-col gap-1', className)}>
+      {MEMBER_NAV_LINKS.map((link) => {
         const Icon = getMemberNavIcon(link.href)
-        const active = link.match.some((prefix) => {
-          if (prefix === '/') {
-            return pathname === '/'
-          }
-          return pathname === prefix || pathname.startsWith(`${prefix}/`)
-        })
-        const activeAccent = getMemberNavAccent(link.href)
+        const active = isMemberNavLinkActive(pathname, link)
+        const isMessages = link.href === '/messages'
         return (
           <Link
             key={link.href}
             href={link.href}
+            aria-label={
+              isMessages && messagesAttentionCount > 0
+                ? `${link.label} (${messagesAttentionCount} items need attention)`
+                : link.label
+            }
             aria-current={active ? 'page' : undefined}
-            style={active ? activeMemberNavStyle(activeAccent, '--member-nav-accent') : undefined}
             className={cn(
-              'relative flex h-10 items-center gap-1.5 self-center rounded-md border border-transparent px-2.5 text-sm font-medium tracking-tight transition-[color,background-color,border-color,box-shadow]',
+              'relative flex min-h-11 items-center justify-center gap-3 rounded-[var(--radius-box)] px-3 text-nav font-semibold transition-[color,background-color] xl:justify-start',
               active
-                ? 'text-foreground shadow-card after:absolute after:inset-x-2 after:bottom-[-1px] after:h-0.5 after:rounded-full after:bg-[var(--member-nav-accent)]'
-                : 'text-muted-foreground hover:border-border/70 hover:bg-muted/35 hover:text-foreground',
+                ? 'bg-[image:var(--nav-active-bg)] font-bold text-[var(--nav-active-text)]'
+                : 'text-muted-foreground hover:bg-[var(--hover-tint)] hover:text-foreground',
             )}
           >
             <Icon
               className={cn(
-                'size-3.5 transition-colors',
-                active ? 'text-[var(--member-nav-accent)]' : 'text-muted-foreground/75',
+                'size-5 shrink-0 transition-colors',
+                active ? 'text-current' : 'text-muted-foreground/75',
               )}
-              strokeWidth={1.8}
+              strokeWidth={active ? 2.1 : 1.9}
               aria-hidden
             />
-            <span>{link.label}</span>
+            <span className="hidden min-w-0 flex-1 xl:inline">{link.label}</span>
+            {isMessages ? (
+              <MessagesAttentionBadge className="absolute top-1.5 right-1.5 xl:static" />
+            ) : null}
           </Link>
         )
       })}

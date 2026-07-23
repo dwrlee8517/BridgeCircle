@@ -21,8 +21,8 @@ export function Wordmark({
 }) {
   const isEditorial = variant === 'editorial'
   const baseInk = isEditorial ? 'text-surface-editorial-foreground' : 'text-foreground'
-  const accentInk = isEditorial ? 'text-primary-on-dark' : 'text-primary'
-  const accentStroke = isEditorial ? 'var(--primary-on-dark)' : 'var(--primary)'
+  const accentInk = isEditorial ? 'text-primary-on-dark' : 'text-[var(--blue-700)]'
+  const accentStroke = isEditorial ? 'var(--primary-on-dark)' : 'var(--blue-700)'
 
   return (
     <span className={cn('inline-flex items-center gap-2.5', baseInk, className)}>

@@ -2,7 +2,7 @@
 
 The native iOS/Android app lives in `mobile/` — a standalone Expo SDK 57 +
 expo-router app with its own pnpm lockfile. Governing decision:
-[ADR 0014](../decisions/0014-expo-native-with-parity-ratchet.md). Parity
+[ADR 0016](../decisions/0016-expo-native-with-parity-ratchet.md). Parity
 machinery: [`parity/README.md`](../../parity/README.md).
 
 ## Daily commands

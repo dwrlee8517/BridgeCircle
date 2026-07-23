@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/db/database.types.ts",
+    "src/db/repositories/member-context.ts",
+    "src/db/repositories/school.ts",
+    "src/lib/membership/selection.ts",
+    "src/lib/school/**/*.ts",
+    "src/lib/utils.ts",
+    "src/app/_lib/**/*.ts",
+    "src/app/(member)/school/**/*.ts",
+    "src/app/(member)/school/**/*.tsx",
+    "src/components/ui/skeleton.tsx"
+  ],
+  "exclude": ["node_modules", "tests/e2e"]
+}

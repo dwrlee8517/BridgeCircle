@@ -8,10 +8,9 @@ import { cn } from '@/lib/utils'
 const TABS = [
   { href: '/admin/invite', label: 'Invite' },
   { href: '/admin/approvals', label: 'Approvals' },
-  { href: '/admin/members', label: 'Members' },
+  { href: '/admin/reports', label: 'Reports' },
   { href: '/admin/events', label: 'Org events' },
   { href: '/admin/announcements', label: 'Announcements' },
-  { href: '/admin/analytics', label: 'Analytics' },
 ] as const
 
 /**

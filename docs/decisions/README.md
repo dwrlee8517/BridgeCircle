@@ -57,3 +57,5 @@ What else we looked at and why we rejected it.
 - [0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface](0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics, preserves 0003 gating
 - [0012 — Adopt a TDS-based design system ("Field Pro"), retire Civic Editorial](0012-tds-design-system.md) — *superseded by 0013*; canonical source = Claude Design design-system project synced via DesignSync
 - [0013 — Build a complete Toss (TDS) baseline first, then a thin BridgeCircle brand overlay](0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer tokens (`toss-base` + `bridgecircle-brand`) from official `@toss/tds` docs
+- [0014 — Scripted CD pipeline: dev stage → integ gate → prod promote](0014-scripted-cd-pipeline.md) — *accepted*; commit-precise dev/integ/manual-prod promotion
+- [0015 — Replace the pre-launch application schema with a v2 baseline](0015-prelaunch-v2-database-reset.md) — *accepted*; one-time clean rebuild while no real member data exists

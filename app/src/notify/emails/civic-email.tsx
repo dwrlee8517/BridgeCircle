@@ -46,7 +46,7 @@ export function CivicEmail({ preview, children, footer }: CivicEmailProps) {
         <Container style={emailStyles.container}>
           <Section style={emailStyles.header}>
             <Text style={emailStyles.wordmark}>BridgeCircle</Text>
-            <Text style={emailStyles.headerLabel}>Verified alumni network</Text>
+            <Text style={emailStyles.headerLabel}>Verified school circle</Text>
           </Section>
           <Section style={emailStyles.content}>{children}</Section>
           {footer ? (
