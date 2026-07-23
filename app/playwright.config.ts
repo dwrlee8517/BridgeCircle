@@ -45,10 +45,32 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
+  // Window-class viewport projects. Widths come from parity/window-classes.json
+  // (compact <761, medium 761–1023, expanded ≥1024 — the same classes the
+  // mobile app's useWindowClass resolves). Untagged specs run desktop-only;
+  // a spec tagged @layout:compact / @layout:medium opts into the matching
+  // viewport project. parity/check-parity.mjs enforces which features need
+  // which layouts covered.
   projects: [
     {
       name: 'chromium',
+      grepInvert: /@layout:(compact|medium)/,
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'chromium-medium',
+      grep: /@layout:medium/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 834, height: 1112 } },
+    },
+    {
+      name: 'chromium-compact',
+      grep: /@layout:compact/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
+      },
     },
   ],
   webServer: isRemote

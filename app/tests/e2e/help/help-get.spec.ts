@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:help.hub @feature:ask.compose @feature:shell.navigation
 import { expect, test } from '@playwright/test'
 import { signIn } from '../helpers/auth'
 import { allowHostedDevSeedAcceptance, isRemote } from '../helpers/env'

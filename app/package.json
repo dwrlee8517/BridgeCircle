@@ -58,6 +58,7 @@
     "test:db:home-concurrency": "bash scripts/test-home-concurrency.sh",
     "test:db:home-query-plans": "bash scripts/test-home-query-plans.sh",
     "check:tokens": "bash scripts/check-design-tokens.sh",
+    "check:parity": "node ../parity/check-parity.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:dev-acceptance": "E2E_ALLOW_DEV_SEED=1 playwright test",

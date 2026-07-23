@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:help.hub @feature:ask.offer
 import * as crypto from 'node:crypto'
 import { expect, test } from '@playwright/test'
 import { signInAs } from '../helpers/auth'

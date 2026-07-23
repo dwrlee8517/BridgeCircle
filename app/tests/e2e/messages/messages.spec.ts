@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:inbox.unified @feature:dm.conversation
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createAdminClient } from '../../../src/db/admin'

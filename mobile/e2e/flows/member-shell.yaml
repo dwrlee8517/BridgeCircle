@@ -1,0 +1,41 @@
+# feature:shell.navigation
+# feature:home.hub
+# feature:help.hub
+# feature:people.directory
+# feature:school.hub
+# Walks the five member tabs (Home · Help · People · Messages · School) —
+# the same nav contract as MEMBER_NAV_LINKS on the web. Assumes a signed-in
+# session (run sign-in.yaml first; `maestro test e2e/flows` runs in filename
+# order).
+appId: com.bridgecircle.app
+tags:
+  - parity
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 15000
+- tapOn:
+    id: 'nav-help'
+- assertVisible:
+    id: 'help-screen'
+- assertVisible: 'Get help'
+- assertVisible: 'Give help'
+- tapOn:
+    id: 'nav-people'
+- assertVisible:
+    id: 'people-screen'
+- tapOn:
+    id: 'nav-messages'
+- assertVisible:
+    id: 'messages-screen'
+- tapOn:
+    id: 'nav-school'
+- assertVisible:
+    id: 'school-screen'
+- assertVisible: 'Upcoming events'
+- tapOn:
+    id: 'nav-home'
+- assertVisible:
+    id: 'home-screen'

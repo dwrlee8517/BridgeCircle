@@ -80,6 +80,13 @@ jobs:
       - name: Design-token ratchet
         run: pnpm check:tokens
 
+      # Web↔mobile feature-parity ratchet (parity/README.md). Fails when a
+      # page ships without a manifest entry or a declared platform/layout
+      # loses its tagged test. Mirrored in mobile-ci.yml so either side of a
+      # parity regression goes red.
+      - name: Feature-parity ratchet
+        run: pnpm check:parity
+
       - name: Production cutover ratchet
         run: pnpm check:production-cutover
 

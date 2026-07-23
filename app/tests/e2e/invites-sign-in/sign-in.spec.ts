@@ -5,7 +5,7 @@ import { signIn } from "../helpers/auth";
  * Sign-in flows: the unauthenticated redirect smoke test, and a real sign-in
  * with a seeded persona (supabase/seeds/seed.sql) landing on the home page.
  */
-test.describe("sign-in", () => {
+test.describe("sign-in", { tag: ["@feature:auth.sign-in"] }, () => {
   test("redirects unauthenticated root visit to /sign-in", async ({ page }) => {
     await page.goto("/");
 

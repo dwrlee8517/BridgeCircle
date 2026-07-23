@@ -1,0 +1,186 @@
+{
+  "$comment": "BridgeCircle feature-parity manifest. Every user-facing feature is declared here with the platforms and window-size layouts it must be tested on. parity/check-parity.mjs enforces it: web coverage = a Playwright spec tagged @feature:<id> (app/tests/e2e), mobile coverage = a Maestro flow tagged feature:<id> (mobile/e2e/flows). Layout coverage: web 'expanded' is satisfied by any tagged spec (desktop project); 'compact'/'medium' need a spec also tagged @layout:compact / @layout:medium; mobile 'compact' is satisfied by any tagged flow (phone runner); mobile 'expanded' needs a flow tagged layout:expanded (tablet runner). Every page.tsx route must be claimed by exactly one feature — adding a page without a manifest entry fails CI, and a manifest entry without tests on every declared platform fails CI unless the gap is consciously recorded in parity-baseline.txt. Run: node parity/check-parity.mjs [--update]",
+  "features": [
+    {
+      "id": "auth.sign-in",
+      "title": "Email/password + Google sign-in, session handling",
+      "routes": ["/sign-in"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "auth.password-reset",
+      "title": "Password reset request + update",
+      "routes": ["/reset-password", "/reset-password/update"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "auth.join-invite",
+      "title": "Invite landing + account creation",
+      "routes": ["/join"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "membership.entry",
+      "title": "Pending-approval landing + circle selection",
+      "routes": ["/pending", "/select-circle"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "onboarding",
+      "title": "Onboarding steps, Fast Fill import review, cold-start offers",
+      "routes": ["/onboarding", "/onboarding/import/[proposalId]", "/onboarding/offers/[askId]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "home.hub",
+      "title": "Home dashboard",
+      "routes": ["/"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "help.hub",
+      "title": "Help — get-help / give-help surface",
+      "routes": ["/help"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "help.settings",
+      "title": "Helper availability settings",
+      "routes": ["/help/settings"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.compose",
+      "title": "Direct ask + circle ask composers",
+      "routes": ["/help/ask/[membershipId]", "/help/ask-circle"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.detail",
+      "title": "Ask list + detail lifecycle",
+      "routes": ["/help/asks", "/help/asks/[askId]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "ask.offer",
+      "title": "Offer-to-help flow",
+      "routes": ["/help/asks/[askId]/offer"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "people.directory",
+      "title": "People directory — browse, search, circle scope",
+      "routes": ["/people", "/people/circle"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "profile.view",
+      "title": "Profile detail (org/connection/self audiences) + own profile",
+      "routes": ["/profile/[id]", "/profile/me"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "inbox.unified",
+      "title": "Messages inbox — asks, connections, conversations",
+      "routes": ["/messages"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "dm.conversation",
+      "title": "Conversation thread",
+      "routes": ["/messages/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications list + unread state",
+      "routes": ["/notifications"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "account.settings",
+      "title": "Account settings — communication, notifications, lifecycle",
+      "routes": ["/settings"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "account.lifecycle",
+      "title": "Deletion scheduling + cancel-delete",
+      "routes": ["/cancel-delete"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "school.hub",
+      "title": "School pulse — events + announcements together",
+      "routes": ["/school"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "events.detail",
+      "title": "Event detail, RSVP, waitlist offers",
+      "routes": ["/school/events/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "school.announcements",
+      "title": "Announcements archive + detail",
+      "routes": ["/school/announcements", "/school/announcements/[id]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "school.newsletter",
+      "title": "Newsletter issues",
+      "routes": ["/school/newsletter", "/school/newsletter/[issue]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.dashboard",
+      "title": "Admin home",
+      "routes": ["/admin"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.invites",
+      "title": "Admin invites",
+      "routes": ["/admin/invite"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.approvals",
+      "title": "Admin membership approvals",
+      "routes": ["/admin/approvals"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.events",
+      "title": "Admin events management",
+      "routes": ["/admin/events", "/admin/events/[id]/edit"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.announcements",
+      "title": "Admin announcements",
+      "routes": ["/admin/announcements"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "admin.reports",
+      "title": "Admin member reports",
+      "routes": ["/admin/reports"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "shell.navigation",
+      "title": "Member shell navigation (Home · Help · People · Messages · School)",
+      "routes": [],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    }
+  ]
+}

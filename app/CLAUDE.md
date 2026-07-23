@@ -20,7 +20,7 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 
 **Specs:**
 - `../docs/product/feature-roadmap.md` — phase sequencing and pricing
-- `../docs/decisions/0002-web-first-defer-native.md` — web-first decision and mobile gating criteria
+- `../docs/decisions/0016-expo-native-with-parity-ratchet.md` — native mobile decision (supersedes 0002) and the parity mechanism
 - `../product-spec-obsidian-vault/Production/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
 - `../product-spec-obsidian-vault/Production/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
 - `../product-spec-obsidian-vault/Production/phase-1/week-3-4.md` — week 3–4 additive features
@@ -138,7 +138,7 @@ Before declaring a task done:
 
 ## Working Conventions
 
-- Web-first; mobile responsiveness yes, native mobile no until repeat-engagement signals appear (see `../docs/decisions/0002-web-first-defer-native.md`)
+- Native mobile is live (ADR 0016 superseded 0002): the Expo app in `../mobile/` must track this app feature-for-feature via the parity ratchet in `../parity/`. A new `page.tsx` fails CI until `parity/features.json` claims it; declared platforms/layouts fail CI without tagged tests (Playwright `@feature:`/`@layout:`, Maestro `# feature:`). See `../docs/runbooks/mobile-dev.md`.
 - Single-engineer build — prefer the smallest credible thing that ships, not the most general one
 - Connections, Asks, and conversations have distinct gates even though accepted
   interactions share the `conversations` and `messages` primitives. Connections
@@ -195,7 +195,6 @@ legacy mentorship columns or compatibility modules are retained.
 
 Do not build (without explicit user request):
 
-- native mobile app
 - meetup proposals or ambassador role workflows
 - mentorship scheduler or Zoom integration
 - social feed
