@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
+import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
 import { createAdminInviteRepository } from '@/db/repositories/invites'
 import type { CsvRow } from '@/lib/invite/parseCsv'
 import { type BatchInviteResult, issueInviteBatch } from '@/lib/invite/sendBatch'
