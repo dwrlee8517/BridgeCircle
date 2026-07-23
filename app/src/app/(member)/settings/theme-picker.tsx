@@ -24,7 +24,7 @@ export function ThemePicker() {
 
   return (
     <div
-      role="radiogroup"
+      role="group"
       aria-label="Interface theme"
       className="flex w-fit gap-1 rounded-full bg-[var(--surface-subtle)] p-1"
     >
@@ -35,8 +35,7 @@ export function ThemePicker() {
           <button
             key={option.value}
             type="button"
-            role="radio"
-            aria-checked={selected}
+            aria-pressed={selected}
             onClick={() => setTheme(option.value)}
             className={cn(
               'bc-motion-control inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
