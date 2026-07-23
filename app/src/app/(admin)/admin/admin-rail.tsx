@@ -1,6 +1,14 @@
 'use client'
 
-import { CalendarDays, Flag, type LucideIcon, MailPlus, Megaphone, UserCheck } from 'lucide-react'
+import {
+  CalendarDays,
+  Flag,
+  type LucideIcon,
+  MailPlus,
+  Megaphone,
+  UserCheck,
+  Users,
+} from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -25,6 +33,7 @@ const GROUPS: RailGroup[] = [
   {
     label: 'Members',
     items: [
+      { href: '/admin/members', label: 'Directory', icon: Users },
       { href: '/admin/invite', label: 'Invites', icon: MailPlus },
       { href: '/admin/approvals', label: 'Approvals', icon: UserCheck, count: 'approvals' },
     ],
@@ -58,7 +67,7 @@ export function AdminRail({
   const isActive = (href: string) =>
     pathname === href ||
     pathname.startsWith(`${href}/`) ||
-    (href === '/admin/invite' && pathname === '/admin')
+    (href === '/admin/members' && pathname === '/admin')
 
   if (horizontal) {
     return (
