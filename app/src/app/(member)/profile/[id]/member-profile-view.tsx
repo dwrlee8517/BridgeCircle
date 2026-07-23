@@ -266,7 +266,7 @@ export function MemberProfileView({
               <span className="min-w-0 flex-1">{actionNotice}</span>
               <button
                 type="button"
-                className="shrink-0 rounded-md px-2 py-1 text-[var(--blue-600)] hover:bg-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                className="shrink-0 rounded-md px-2 py-1 text-[var(--blue-600)] hover:bg-[var(--hover-tint)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                 onClick={() => setActionNotice(null)}
               >
                 Dismiss
@@ -606,7 +606,7 @@ function ProfileTimeline({
                 'mt-1 size-2.5 shrink-0 rounded-full',
                 index === 0
                   ? 'bg-[var(--action-primary)] shadow-[0_0_0_4px_var(--blue-50)]'
-                  : 'bg-white shadow-[inset_0_0_0_2px_var(--grey-400)]',
+                  : 'bg-card shadow-[inset_0_0_0_2px_var(--grey-400)]',
               )}
             />
             {index < items.length - 1 ? (

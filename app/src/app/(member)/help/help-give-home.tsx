@@ -2,6 +2,7 @@ import { Pause, Search } from 'lucide-react'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { CirclesMotif } from '@/components/ui/circles-motif'
 import type {
   GiveHelpItem,
   HelpDirectRequest,
@@ -73,7 +74,7 @@ export function HelpGiveHome({
                   <span className="block text-body-sm font-bold text-[var(--text-primary)]">
                     {available ? 'Open to helping' : 'Matching is paused'}
                   </span>
-                  <span className="mt-0.5 block text-xs font-medium text-[var(--text-faint)]">
+                  <span className="mt-0.5 block text-xs font-medium text-[var(--text-muted)]">
                     Pausing is never announced.
                   </span>
                 </span>
@@ -286,11 +287,12 @@ function SuggestedAskList({
           ))}
         </div>
       ) : (
-        <div className="rounded-[var(--radius-large)] bg-card px-5 py-8 text-center shadow-[var(--ring-card),var(--shadow-card)]">
-          <p className="text-sm font-bold text-[var(--text-primary)]">
+        <div className="relative overflow-hidden rounded-[var(--radius-large)] bg-card px-5 py-8 text-center shadow-[var(--ring-card),var(--shadow-card)]">
+          <CirclesMotif className="absolute -top-10 -right-8 h-32 w-48 text-muted-foreground opacity-[0.12]" />
+          <p className="relative text-sm font-bold text-[var(--text-primary)]">
             Nothing needs you right now
           </p>
-          <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed font-medium text-[var(--text-faint)]">
+          <p className="relative mx-auto mt-1.5 max-w-md text-xs leading-relaxed font-medium text-[var(--text-muted)]">
             We’ll bring a private match here when your experience fits. No feed to keep up with.
           </p>
         </div>

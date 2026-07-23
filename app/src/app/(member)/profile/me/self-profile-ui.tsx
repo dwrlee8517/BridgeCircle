@@ -7,9 +7,9 @@ import { cn } from '@/lib/utils'
 import type { ProfileActionState } from './actions'
 
 export const fieldClass =
-  'h-10 rounded-[10px] border-[var(--border-subtle)] bg-white text-sm shadow-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted'
+  'h-10 rounded-[10px] border-[var(--border-subtle)] bg-card text-sm shadow-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted'
 export const selectClass =
-  'h-10 w-full rounded-[10px] border border-[var(--border-subtle)] bg-white px-3 text-sm outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted'
+  'h-10 w-full rounded-[10px] border border-[var(--border-subtle)] bg-card px-3 text-sm outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted'
 
 export function Field({
   label,
@@ -94,7 +94,7 @@ export function DraftCard({
   children: React.ReactNode
 }) {
   return (
-    <fieldset className="rounded-xl border border-[var(--border-subtle)] bg-white p-4">
+    <fieldset className="rounded-xl border border-[var(--border-subtle)] bg-card p-4">
       <legend className="sr-only">{title}</legend>
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-xs font-bold text-[var(--text-secondary)]">{title}</p>
@@ -225,7 +225,7 @@ export function ProfileTimeline({
                 'mt-1 size-2.5 shrink-0 rounded-full',
                 index === 0
                   ? 'bg-[var(--action-primary)] shadow-[0_0_0_4px_var(--blue-50)]'
-                  : 'bg-white shadow-[inset_0_0_0_2px_var(--grey-400)]',
+                  : 'bg-card shadow-[inset_0_0_0_2px_var(--grey-400)]',
               )}
             />
             {index < items.length - 1 ? (

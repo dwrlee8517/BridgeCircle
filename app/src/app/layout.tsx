@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
+import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 // Type system (Field Pro / ADR 0012 D4): one family — Pretendard. Self-hosted
@@ -51,7 +52,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

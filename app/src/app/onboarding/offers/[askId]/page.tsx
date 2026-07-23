@@ -49,7 +49,7 @@ export default async function OnboardingOfferPage({
 
   return (
     <div className="min-h-dvh bg-[image:var(--wash-page)]">
-      <header className="flex min-h-16 items-center border-b border-[var(--border-subtle)] bg-white px-4 sm:px-8">
+      <header className="flex min-h-16 items-center border-b border-[var(--border-subtle)] bg-card px-4 sm:px-8">
         <Link
           href="/onboarding?step=7"
           aria-label="Back to onboarding"

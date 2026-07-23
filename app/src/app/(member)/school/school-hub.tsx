@@ -1,5 +1,6 @@
-import { ArrowRight, CalendarPlus, ChevronRight, MapPin, Megaphone, UsersRound } from 'lucide-react'
+import { ArrowRight, ChevronRight, MapPin, Megaphone, UsersRound } from 'lucide-react'
 import Link from 'next/link'
+import { CirclesMotif } from '@/components/ui/circles-motif'
 import type {
   NewsletterSummary,
   SchoolAnnouncementSummary,
@@ -19,8 +20,6 @@ export function SchoolHub({
   home: SchoolHome
   selectedEvent: SchoolEventCard | null
 }) {
-  const attending = home.events.filter((event) => ['going', 'offered'].includes(event.viewerRsvp))
-
   return (
     <div className="min-h-full bg-surface-canvas px-4 py-6 sm:px-7 lg:px-10 lg:py-8">
       <div className="mx-auto w-full max-w-[1060px]">
@@ -38,11 +37,7 @@ export function SchoolHub({
           </div>
         </header>
 
-        {attending.length > 0 ? (
-          <AttendingStrip events={attending} selectedId={selectedEvent?.id ?? null} />
-        ) : null}
-
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.85fr)]">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.7fr)_minmax(280px,0.85fr)]">
           <section className="min-w-0 space-y-4" aria-label="School events">
             {selectedEvent ? (
               <EventCover event={selectedEvent} />
@@ -62,49 +57,6 @@ export function SchoolHub({
         </div>
       </div>
     </div>
-  )
-}
-
-function AttendingStrip({
-  events,
-  selectedId,
-}: {
-  events: SchoolEventCard[]
-  selectedId: string | null
-}) {
-  return (
-    <section
-      aria-label="Events you are attending"
-      className="overflow-hidden rounded-2xl bg-surface-card px-4 py-3 shadow-card ring-1 ring-border-subtle [contain:paint] sm:px-5"
-    >
-      <div className="flex items-center gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <span className="flex shrink-0 items-center gap-2 pr-2 text-chip font-bold text-text-secondary">
-          <CalendarPlus className="size-4 text-action-weak-text" aria-hidden="true" />
-          Your events
-        </span>
-        {events.map((event) => (
-          <Link
-            key={event.id}
-            href={`/school?event=${event.id}`}
-            aria-current={event.id === selectedId ? 'true' : undefined}
-            className={cn(
-              'flex min-w-[188px] shrink-0 items-center gap-3 rounded-xl px-3 py-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-              event.id === selectedId ? 'bg-primary-tint-strong' : 'hover:bg-surface-subtle',
-            )}
-          >
-            <DateTile event={event} compact />
-            <span className="min-w-0">
-              <span className="block truncate text-caption font-bold text-text-primary">
-                {event.title}
-              </span>
-              <span className="mt-0.5 block truncate text-fine font-semibold text-text-secondary">
-                {event.locationName ?? 'Online'}
-              </span>
-            </span>
-          </Link>
-        ))}
-      </div>
-    </section>
   )
 }
 
@@ -224,7 +176,6 @@ function UpcomingEvents({
                       )}
                     >
                       {event.locationName ?? 'Online'} · {event.goingCount} going
-                      {selected ? ' · Showing above' : ''}
                     </span>
                   </span>
                 </Link>
@@ -351,10 +302,10 @@ function DateTile({
   return (
     <span
       className={cn(
-        'flex shrink-0 flex-col items-center justify-center rounded-xl text-surface-ink shadow-sm',
+        'flex shrink-0 flex-col items-center justify-center rounded-xl shadow-sm',
         variant === 'glass'
           ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass),var(--shadow-raised)] backdrop-blur-sm'
-          : 'bg-white ring-1 ring-black/5',
+          : 'bg-card text-foreground ring-1 ring-foreground/5',
         compact ? 'h-12 w-12' : 'h-28 w-24',
       )}
     >
@@ -392,9 +343,10 @@ function DateTile({
 
 function EmptyPanel({ title, body }: { title: string; body: string }) {
   return (
-    <section className="rounded-2xl bg-surface-card px-6 py-12 text-center shadow-card ring-1 ring-border-subtle">
-      <h2 className="text-body font-bold text-text-primary">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-caption leading-relaxed text-text-secondary">
+    <section className="relative overflow-hidden rounded-2xl bg-surface-card px-6 py-12 text-center shadow-card ring-1 ring-border-subtle">
+      <CirclesMotif className="absolute -top-10 -right-8 h-32 w-48 text-muted-foreground opacity-[0.12]" />
+      <h2 className="relative text-body font-bold text-text-primary">{title}</h2>
+      <p className="relative mx-auto mt-2 max-w-md text-caption leading-relaxed text-text-secondary">
         {body}
       </p>
     </section>
