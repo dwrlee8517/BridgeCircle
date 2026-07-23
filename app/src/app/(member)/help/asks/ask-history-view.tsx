@@ -174,8 +174,10 @@ function AskRow({
 }
 
 function AskStatusPill({ ask, closingDays }: { ask: HelpAskSummary; closingDays: number | null }) {
-  const positive = ask.status === 'accepted' || ask.status === 'resolved'
-  const blue = ask.status === 'open' && ask.offerCount > 0
+  // Tier rule: active states carry color (accepted green, open blue); finished
+  // states (resolved, closed, retracted) recede to neutral.
+  const positive = ask.status === 'accepted'
+  const blue = ask.status === 'open'
   return (
     <span
       className={cn(

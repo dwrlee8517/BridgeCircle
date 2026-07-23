@@ -2,6 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const SETTINGS_CARD_SKELETONS = [
   { id: 'account', height: 260 },
+  { id: 'appearance', height: 110 },
   { id: 'notifications', height: 390 },
   { id: 'helping', height: 220 },
   { id: 'blocked', height: 120 },
@@ -15,8 +16,7 @@ export default function SettingsLoading() {
       aria-label="Loading settings"
     >
       <div>
-        <Skeleton className="h-3 w-28 rounded-full" />
-        <Skeleton className="mt-2 h-8 w-40" />
+        <Skeleton className="h-8 w-40" />
         <Skeleton className="mt-3 h-4 w-[420px] max-w-[90%] rounded-full" />
       </div>
       {SETTINGS_CARD_SKELETONS.map(({ id, height }) => (

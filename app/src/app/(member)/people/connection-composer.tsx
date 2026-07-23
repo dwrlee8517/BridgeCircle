@@ -132,7 +132,7 @@ export function ConnectionComposer({
               maxLength={800}
               rows={3}
               placeholder="“their path is the move I’m trying to make”"
-              className="mt-2 w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-white p-3 text-sm leading-relaxed font-medium outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
+              className="mt-2 w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-card p-3 text-sm leading-relaxed font-medium outline-none focus-visible:border-focus-ring focus-visible:ring-4 focus-visible:ring-focus-ring-muted"
               onChange={(event) => {
                 setReason(event.target.value)
                 setDraftStatus('idle')
@@ -180,7 +180,7 @@ export function ConnectionComposer({
           aria-invalid={noteError || undefined}
           placeholder="Pick a hello above, or write your own…"
           className={cn(
-            'mt-2 min-h-32 resize-none rounded-xl border bg-white p-3 text-sm leading-relaxed font-medium outline-none focus-visible:ring-4',
+            'mt-2 min-h-32 resize-none rounded-xl border bg-card p-3 text-sm leading-relaxed font-medium outline-none focus-visible:ring-4',
             noteError
               ? 'border-[var(--state-danger)] focus-visible:ring-[rgb(222_49_69_/_0.14)]'
               : 'border-[var(--border-subtle)] focus-visible:border-focus-ring focus-visible:ring-focus-ring-muted',
@@ -243,7 +243,7 @@ function ModeButton({
       className={cn(
         'min-h-9 flex-1 rounded-full px-2.5 text-xs font-semibold outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
         active
-          ? 'bg-white font-bold text-[var(--text-primary)] shadow-[var(--shadow-card)]'
+          ? 'bg-card font-bold text-[var(--text-primary)] shadow-[var(--shadow-card)]'
           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
       )}
       onClick={onClick}

@@ -1,8 +1,10 @@
 import { formatDistanceToNowStrict } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { CirclesMotif } from '@/components/ui/circles-motif'
 import { StatusBadge } from '@/components/ui/status-badge'
 import type { HelpAskStatus, HelpAskSummary } from '@/lib/help/contracts'
+import { askStatusLabel } from './asks/ask-presentation'
 
 export function RecentAskList({
   asks,
@@ -64,9 +66,10 @@ export function RecentAskList({
           ))}
         </div>
       ) : (
-        <div className="rounded-[var(--radius-large)] bg-card px-5 py-8 text-center shadow-[var(--ring-card),var(--shadow-card)]">
-          <p className="text-sm font-bold text-[var(--text-primary)]">No asks yet</p>
-          <p className="mx-auto mt-1.5 max-w-md text-xs leading-relaxed font-medium text-[var(--text-faint)]">
+        <div className="relative overflow-hidden rounded-[var(--radius-large)] bg-card px-5 py-8 text-center shadow-[var(--ring-card),var(--shadow-card)]">
+          <CirclesMotif className="absolute -top-10 -right-8 h-32 w-48 text-muted-foreground opacity-[0.12]" />
+          <p className="relative text-sm font-bold text-[var(--text-primary)]">No asks yet</p>
+          <p className="relative mx-auto mt-1.5 max-w-md text-xs leading-relaxed font-medium text-[var(--text-muted)]">
             Start with the question above. You choose a person or the circle before anything is
             sent.
           </p>
@@ -90,20 +93,15 @@ function AskStatus({ status, expiresAt }: { status: HelpAskStatus; expiresAt: st
     )
   }
 
-  const label: Record<HelpAskStatus, string> = {
-    waiting: 'Waiting',
-    open: 'Open',
-    accepted: 'Accepted',
-    declined: 'Declined',
-    retracted: 'Retracted',
-    resolved: 'Resolved',
-    closed: 'Closed',
-  }
-  const positive = status === 'accepted' || status === 'resolved'
+  const accepted = status === 'accepted'
   const active = status === 'open'
   return (
-    <StatusBadge size="sm" tone={positive ? 'open' : active ? 'info' : 'muted'}>
-      {label[status]}
+    <StatusBadge
+      size="sm"
+      tone={accepted ? 'open' : active ? 'info' : 'muted'}
+      dot={accepted || active}
+    >
+      {askStatusLabel(status)}
     </StatusBadge>
   )
 }

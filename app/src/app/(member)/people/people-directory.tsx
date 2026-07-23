@@ -497,7 +497,7 @@ function PeopleToolbar({
               className={cn(
                 'min-h-8 rounded-full px-3.5 text-caption font-semibold outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                 search.scope === scope.key
-                  ? 'bg-white font-bold text-[var(--text-primary)] shadow-sm'
+                  ? 'bg-card font-bold text-[var(--text-primary)] shadow-sm'
                   : 'text-[var(--grey-700)] hover:text-[var(--text-primary)]',
               )}
               onClick={() => onNavigate({ ...search, scope: scope.key })}
@@ -810,10 +810,6 @@ function PeopleRow({
             </Link>
             {relationship.state === 'connected' ? <Tag tone="blue">In your circle</Tag> : null}
             {person.openToHelp ? <Tag tone="green">Open to help</Tag> : null}
-            {relationship.state === 'pending_incoming' ||
-            relationship.state === 'pending_outgoing' ? (
-              <Tag tone="grey">Requested</Tag>
-            ) : null}
             {searched && person.matchEvidence.length > 0 ? (
               <span className="text-chip font-bold text-[var(--blue-600)]">Strong match</span>
             ) : null}
@@ -824,10 +820,10 @@ function PeopleRow({
           {person.helperTopics.length > 0 ? (
             <div className="mt-1.5 hidden flex-wrap gap-1.5 sm:flex">
               {person.helperTopics.slice(0, 3).map((topic) => (
-                <span
-                  key={topic}
-                  className="rounded-full bg-[var(--surface-subtle)] px-2.5 py-0.5 text-chip font-semibold text-[var(--text-secondary)]"
-                >
+                <span key={topic} className="text-chip font-semibold text-[var(--text-secondary)]">
+                  <span aria-hidden className="mr-px opacity-60">
+                    #
+                  </span>
                   {topic}
                 </span>
               ))}
@@ -876,10 +872,12 @@ function RelationshipAction({
     )
   }
   if (relationship.state === 'pending_incoming' || relationship.state === 'pending_outgoing') {
+    // A quiet status chip, not a disabled button — nothing here is clickable,
+    // and "Requested · awaiting reply" says why.
     return (
-      <Button type="button" size="sm" disabled className={cn('rounded-full', full && 'w-full')}>
-        Pending
-      </Button>
+      <StatusBadge tone="muted" className={cn(full && 'w-full justify-center')}>
+        Requested · awaiting reply
+      </StatusBadge>
     )
   }
   return (
@@ -958,7 +956,7 @@ function PeoplePreview({
       </div>
 
       {evidence ? (
-        <div className="mt-3.5 rounded-[13px] bg-gradient-to-b from-[#f3f8ff] to-[#eef5ff] p-3.5 shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.14)]">
+        <div className="mt-3.5 rounded-[13px] bg-[image:var(--preview-tint-bg)] p-3.5 shadow-[var(--date-tile-ring)]">
           <p className="text-overline font-bold text-[var(--blue-600)]">◉ Why this match</p>
           <p className="mt-1.5 text-body-sm leading-relaxed font-medium text-[#33404e]">
             {matchEvidenceCopy(evidence)}
@@ -1108,7 +1106,7 @@ function PageButton({
         'flex size-[34px] items-center justify-center rounded-[10px] text-xs font-bold outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:opacity-40',
         current
           ? 'bg-[var(--action-primary)] text-white'
-          : 'bg-white text-[var(--grey-600)] shadow-[var(--ring-outline)] hover:bg-[var(--surface-subtle)]',
+          : 'bg-card text-[var(--grey-600)] shadow-[var(--ring-outline)] hover:bg-[var(--surface-subtle)]',
       )}
       onClick={onClick}
     >
@@ -1151,15 +1149,21 @@ function PeopleEmpty({ hasSearch, inCircle }: { hasSearch: boolean; inCircle: bo
   )
 }
 
+// Relationship/availability tier: outlined, quieter than tinted status pills so
+// state chips (Requested, ask status) stay the only filled badges on a row.
 function Tag({ tone, children }: { tone: 'blue' | 'green' | 'grey'; children: React.ReactNode }) {
   return (
-    <StatusBadge
-      size="sm"
-      tone={tone === 'blue' ? 'info' : tone === 'green' ? 'open' : 'muted'}
-      dot={tone === 'green'}
+    <span
+      className={cn(
+        'inline-flex w-fit shrink-0 items-center rounded-full border px-2 py-0.5 text-overline leading-none font-bold whitespace-nowrap',
+        'border-[color-mix(in_srgb,currentColor_35%,transparent)]',
+        tone === 'blue' && 'text-[var(--action-weak-text)]',
+        tone === 'green' && 'text-[var(--state-success-foreground)]',
+        tone === 'grey' && 'text-[var(--text-secondary)]',
+      )}
     >
       {children}
-    </StatusBadge>
+    </span>
   )
 }
 

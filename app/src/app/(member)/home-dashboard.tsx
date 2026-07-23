@@ -348,7 +348,7 @@ function AskStatus({ ask, renderedAt }: { ask: HelpAskSummary; renderedAt: strin
   const closing = ask.status !== 'accepted' && days <= 3
   const label =
     ask.status === 'accepted'
-      ? 'Answered'
+      ? 'Accepted'
       : ask.offerCount > 0
         ? `${ask.offerCount} ${ask.offerCount === 1 ? 'offer' : 'offers'}`
         : closing
@@ -392,7 +392,7 @@ function SchoolRail({ school }: { school: SchoolHome }) {
             href={`/school/events/${event.id}`}
             className="flex items-center gap-3 border-t border-border-subtle px-5 py-3 text-foreground hover:bg-[var(--row-hover)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
           >
-            <span className="flex size-10 shrink-0 flex-col items-center justify-center rounded-[var(--radius-comfortable)] bg-[linear-gradient(180deg,#eef5ff,#e2eeff)] leading-none shadow-[inset_0_0_0_1px_rgb(49_130_246_/_0.16)]">
+            <span className="flex size-10 shrink-0 flex-col items-center justify-center rounded-[var(--radius-comfortable)] bg-[image:var(--date-tile-bg)] leading-none shadow-[var(--date-tile-ring)]">
               <span className="text-micro font-bold tracking-wider text-primary uppercase">
                 {date.toLocaleDateString('en-US', { month: 'short', timeZone: event.timeZone })}
               </span>
@@ -419,7 +419,7 @@ function SchoolRail({ school }: { school: SchoolHome }) {
       {pinned ? (
         <Link
           href={`/school/announcements/${pinned.id}`}
-          className="block border-t border-border-subtle bg-[linear-gradient(90deg,#eaf3ff,#fbfdff)] px-5 py-3.5 text-foreground shadow-[inset_3px_0_0_var(--action-primary)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
+          className="block border-t border-border-subtle bg-[image:var(--pinned-wash)] px-5 py-3.5 text-foreground shadow-[inset_3px_0_0_var(--action-primary)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-focus-ring"
         >
           <span className="inline-flex items-center gap-1.5 text-kicker font-bold text-primary">
             <Pin aria-hidden className="size-3" /> Pinned

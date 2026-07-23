@@ -26,7 +26,7 @@ export function askStatusLabel(status: HelpAskStatus, offerCount = 0) {
   const labels: Record<HelpAskStatus, string> = {
     waiting: 'Waiting',
     open: 'Open',
-    accepted: 'Answered',
+    accepted: 'Accepted',
     declined: 'Declined',
     retracted: 'Retracted',
     resolved: 'Resolved',
