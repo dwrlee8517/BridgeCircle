@@ -23,11 +23,8 @@ export function ThemePicker() {
   const current = mounted ? (theme ?? 'system') : null
 
   return (
-    <div
-      role="group"
-      aria-label="Interface theme"
-      className="flex w-fit gap-1 rounded-full bg-[var(--surface-subtle)] p-1"
-    >
+    <fieldset className="flex w-fit gap-1 rounded-full bg-[var(--surface-subtle)] p-1">
+      <legend className="sr-only">Interface theme</legend>
       {OPTIONS.map((option) => {
         const selected = current === option.value
         const Icon = option.icon
@@ -49,7 +46,7 @@ export function ThemePicker() {
           </button>
         )
       })}
-    </div>
+    </fieldset>
   )
 }
 
