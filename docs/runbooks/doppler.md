@@ -75,6 +75,8 @@ doppler configure
 
 The output should show `project = bridgecircle` and `config = dev_personal` scoped to your `app/` directory.
 
+**Worktrees:** the binding is per-path, so every fresh `.claude/worktrees/*` checkout starts unbound — a bare `doppler run` there fails with "You must specify a project". `pnpm setup:local` (the one-command local setup, `app/scripts/setup-local.sh`) binds the worktree's `app/` to **`dev_local`** as part of setup, since a worktree's default posture is the hermetic local stack. Re-bind to `dev_personal` by hand if that worktree needs the shared cloud dev world.
+
 ## Running Commands With Secrets
 
 Anything that needs the application's env vars goes through `doppler run`:

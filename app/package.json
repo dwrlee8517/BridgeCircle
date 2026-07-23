@@ -63,6 +63,7 @@
     "test:e2e:dev-acceptance": "E2E_ALLOW_DEV_SEED=1 playwright test",
     "test:e2e:dev-smoke": "E2E_DEV_SMOKE=1 playwright test tests/e2e/dev-cutover/hosted-smoke.spec.ts",
     "test:browser:entry-operations": "pnpm run db:reset && playwright test --config=playwright.entry-operations.config.ts",
+    "setup:local": "bash scripts/setup-local.sh",
     "db:start": "bash scripts/db-start.sh",
     "db:stop": "pnpm exec supabase stop",
     "db:reset": "pnpm exec supabase db reset",
