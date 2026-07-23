@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
+import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
 import { createAdminInviteRepository } from '@/db/repositories/invites'
 
 const formSchema = z.object({
