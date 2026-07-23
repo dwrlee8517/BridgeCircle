@@ -67,6 +67,7 @@
     "db:stop": "pnpm exec supabase stop",
     "db:reset": "pnpm exec supabase db reset",
     "db:test": "pnpm exec supabase test db --local",
+    "seed:demo": "bash scripts/seed-demo.sh",
     "db:types:local": "pnpm exec supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
     "db:types": "pnpm exec supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
     "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts"

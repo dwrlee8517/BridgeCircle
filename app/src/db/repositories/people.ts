@@ -12,6 +12,10 @@ import type {
 const timestampSchema = z.string().refine((value) => Number.isFinite(Date.parse(value)))
 const nullableText = z.string().nullable()
 const nullableInteger = z.number().int().nullable()
+// profile_experiences.id and profile_education.id are bigint identity columns,
+// so the projection serializes them as JSON numbers rather than UUIDs. The
+// self-profile repository normalizes them the same way.
+const databaseId = z.union([z.string(), z.number().int().positive()]).transform(String)
 const evidenceKindSchema = z.enum([
   'directory',
   'current_role',
@@ -89,7 +93,7 @@ const memberProfileSchema = z
     experiences: z.array(
       z
         .object({
-          id: z.uuid(),
+          id: databaseId,
           employer: z.string().trim().min(1),
           title: z.string().trim().min(1),
           ...periodSchema,
@@ -100,7 +104,7 @@ const memberProfileSchema = z
     education: z.array(
       z
         .object({
-          id: z.uuid(),
+          id: databaseId,
           school: z.string().trim().min(1),
           degree: nullableText,
           field: nullableText,

@@ -173,11 +173,13 @@ select set_config(
 );
 set local role authenticated;
 
+-- Five, not four: Elena holds a membership in both pilot organizations, so she
+-- appears in this directory as well as Chadwick International's.
 select extensions.is(
   (select count(*)::integer from api.list_people(
     '20000000-0000-4000-8000-000000000002'
   )),
-  4,
+  5,
   'blank directory excludes self and the blocked seeded member before count'
 );
 select extensions.is(
@@ -187,7 +189,8 @@ select extensions.is(
     '10000000-0000-4000-8000-000000000003'::uuid,
     '10000000-0000-4000-8000-000000000004'::uuid,
     '10000000-0000-4000-8000-000000000005'::uuid,
-    '10000000-0000-4000-8000-000000000006'::uuid
+    '10000000-0000-4000-8000-000000000006'::uuid,
+    '10000000-0000-4000-8000-000000000013'::uuid
   ],
   'directory membership IDs are stable and contain no blocked/self row'
 );
@@ -279,7 +282,7 @@ select extensions.is(
   'the owner edit projection includes their self-only link'
 );
 select extensions.ok(
-  (select count(*) = 2 and min(total_count) = 4
+  (select count(*) = 2 and min(total_count) = 5
    from api.list_people(
      p_membership_id => '20000000-0000-4000-8000-000000000002',
      p_limit => 2
