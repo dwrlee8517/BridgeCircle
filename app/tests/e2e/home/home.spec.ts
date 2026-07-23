@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:home.hub @feature:shell.navigation
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'

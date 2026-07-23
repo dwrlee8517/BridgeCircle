@@ -2,46 +2,45 @@ import { useEffect, useState } from 'react'
 import { StyleSheet, Text } from 'react-native'
 import { Screen } from '@/components/screen'
 import { Button, Card, CardDescription, CardTitle } from '@/components/ui'
+import { getMemberContextLite } from '@/lib/member-context'
 import { useSession } from '@/lib/session'
 import { supabase } from '@/lib/supabase'
 import { colors, fontSize } from '@/theme/tokens'
 
 /**
- * The Help hub. On the web this is the two-sided Ask-for-help / Give-help
- * surface (app/src/app/(member)/home-ui.tsx); the mobile hub starts with the
- * greeting and honest signposts while those flows land. Each missing flow is
- * a tracked parity gap — see parity/features.json.
+ * Home — the mobile face of the web dashboard (`api.get_home_native` feeds
+ * the web's pure-composition Home). The mobile hub starts with the greeting
+ * and honest signposts while the dashboard slices land; each missing slice
+ * is a tracked parity gap — see parity/features.json.
  */
-export default function HelpScreen() {
+export default function HomeScreen() {
   const { session } = useSession()
   const [firstName, setFirstName] = useState<string | null>(null)
 
   useEffect(() => {
     if (!session) return
-    supabase
-      .from('base_profiles')
-      .select('preferred_name, name')
-      .eq('user_id', session.user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        const name = data?.preferred_name || data?.name
+    let cancelled = false
+    getMemberContextLite()
+      .then((context) => {
+        if (cancelled) return
+        const name = context.preferredName || context.displayName
         setFirstName(name ? name.split(' ')[0] : null)
       })
+      .catch(() => {
+        // Greeting is decorative — the neutral title is fine if this fails.
+      })
+    return () => {
+      cancelled = true
+    }
   }, [session])
 
   return (
-    <Screen testID="help-screen" title={firstName ? `Hi ${firstName}` : 'Help'}>
+    <Screen testID="home-screen" title={firstName ? `Welcome back, ${firstName}.` : 'Home'}>
       <Card>
-        <CardTitle>Ask for help</CardTitle>
+        <CardTitle>Your circle, in your pocket</CardTitle>
         <CardDescription>
-          Describe what you&rsquo;re working through and see the people in your network who can
-          help. Asking from the app is on its way — for now, asks live on the web.
-        </CardDescription>
-      </Card>
-      <Card>
-        <CardTitle>Give help</CardTitle>
-        <CardDescription>
-          Requests waiting on you, and your availability to help. Coming to the app next.
+          Browse people, see what your school is up to, and keep an eye on your conversations. Asks,
+          offers, and messages are coming to the app — until then, those live on the web.
         </CardDescription>
       </Card>
       <Button onPress={() => supabase.auth.signOut()} title="Sign out" variant="outline" />

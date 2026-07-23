@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:onboarding @feature:auth.password-reset @feature:account.settings
 import AxeBuilder from '@axe-core/playwright'
 import { createClient } from '@supabase/supabase-js'
 import { expect, test, type Page } from '@playwright/test'

@@ -3,7 +3,7 @@
   "features": [
     {
       "id": "auth.sign-in",
-      "title": "Email/password + Google sign-in",
+      "title": "Email/password + Google sign-in, session handling",
       "routes": ["/sign-in"],
       "platforms": ["web", "mobile"],
       "layouts": ["compact", "medium", "expanded"]
@@ -21,15 +21,28 @@
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "onboarding",
-      "title": "5-step onboarding + LinkedIn import entry",
-      "routes": ["/onboarding", "/onboarding/import"],
+      "id": "membership.entry",
+      "title": "Pending-approval landing + circle selection",
+      "routes": ["/pending", "/select-circle"],
       "platforms": ["web", "mobile"]
     },
     {
+      "id": "onboarding",
+      "title": "Onboarding steps, Fast Fill import review, cold-start offers",
+      "routes": ["/onboarding", "/onboarding/import/[proposalId]", "/onboarding/offers/[askId]"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "home.hub",
+      "title": "Home dashboard",
+      "routes": ["/"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
       "id": "help.hub",
-      "title": "Help hub — ask-for-help / give-help toggle",
-      "routes": ["/", "/help"],
+      "title": "Help — get-help / give-help surface",
+      "routes": ["/help"],
       "platforms": ["web", "mobile"],
       "layouts": ["compact", "medium", "expanded"]
     },
@@ -40,52 +53,65 @@
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "ask.matching",
-      "title": "Question-driven matching results",
-      "routes": ["/ask"],
-      "platforms": ["web", "mobile"]
-    },
-    {
       "id": "ask.compose",
-      "title": "Ask composer (conversational + form)",
-      "routes": ["/ask/new"],
+      "title": "Direct ask + circle ask composers",
+      "routes": ["/help/ask/[membershipId]", "/help/ask-circle"],
       "platforms": ["web", "mobile"]
     },
     {
       "id": "ask.detail",
-      "title": "Ask detail + lifecycle",
-      "routes": ["/ask/[id]"],
+      "title": "Ask list + detail lifecycle",
+      "routes": ["/help/asks", "/help/asks/[askId]"],
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "ask.thread",
-      "title": "Ask thread chat",
-      "routes": ["/ask/thread/[id]"],
+      "id": "ask.offer",
+      "title": "Offer-to-help flow",
+      "routes": ["/help/asks/[askId]/offer"],
       "platforms": ["web", "mobile"]
     },
     {
       "id": "people.directory",
-      "title": "People directory — browse, NL search, filters",
-      "routes": ["/people"],
+      "title": "People directory — browse, search, circle scope",
+      "routes": ["/people", "/people/circle"],
       "platforms": ["web", "mobile"],
       "layouts": ["compact", "medium", "expanded"]
     },
     {
       "id": "profile.view",
-      "title": "Profile detail with connect + ask CTAs",
+      "title": "Profile detail (org/connection/self audiences) + own profile",
       "routes": ["/profile/[id]", "/profile/me"],
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "profile.edit",
-      "title": "Own-profile editing",
-      "routes": ["/profile/edit"],
+      "id": "inbox.unified",
+      "title": "Messages inbox — asks, connections, conversations",
+      "routes": ["/messages"],
+      "platforms": ["web", "mobile"],
+      "layouts": ["compact", "medium", "expanded"]
+    },
+    {
+      "id": "dm.conversation",
+      "title": "Conversation thread",
+      "routes": ["/messages/[id]"],
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "profile.import",
-      "title": "Profile import + change proposals",
-      "routes": ["/profile/import", "/profile/proposals/[id]", "/proposals/[id]"],
+      "id": "notifications",
+      "title": "Notifications list + unread state",
+      "routes": ["/notifications"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "account.settings",
+      "title": "Account settings — communication, notifications, lifecycle",
+      "routes": ["/settings"],
+      "platforms": ["web", "mobile"]
+    },
+    {
+      "id": "account.lifecycle",
+      "title": "Deletion scheduling + cancel-delete",
+      "routes": ["/cancel-delete"],
       "platforms": ["web", "mobile"]
     },
     {
@@ -96,47 +122,21 @@
       "layouts": ["compact", "medium", "expanded"]
     },
     {
-      "id": "events.browse",
-      "title": "Events list",
-      "routes": ["/events"],
-      "platforms": ["web", "mobile"],
-      "layouts": ["compact", "medium", "expanded"]
-    },
-    {
       "id": "events.detail",
-      "title": "Event detail, RSVP, iCal",
-      "routes": ["/events/[id]"],
+      "title": "Event detail, RSVP, waitlist offers",
+      "routes": ["/school/events/[id]"],
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "announcements.browse",
-      "title": "Announcements archive",
-      "routes": ["/announcements"],
+      "id": "school.announcements",
+      "title": "Announcements archive + detail",
+      "routes": ["/school/announcements", "/school/announcements/[id]"],
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "inbox.unified",
-      "title": "Unified inbox — asks, connections, DMs",
-      "routes": ["/inbox"],
-      "platforms": ["web", "mobile"],
-      "layouts": ["compact", "medium", "expanded"]
-    },
-    {
-      "id": "dm.conversation",
-      "title": "Direct message conversation",
-      "routes": ["/messages/[id]"],
-      "platforms": ["web", "mobile"]
-    },
-    {
-      "id": "notifications",
-      "title": "Notifications list + realtime bell",
-      "routes": ["/notifications"],
-      "platforms": ["web", "mobile"]
-    },
-    {
-      "id": "account.lifecycle",
-      "title": "Reactivation + cancel-delete",
-      "routes": ["/reactivate", "/cancel-delete"],
+      "id": "school.newsletter",
+      "title": "Newsletter issues",
+      "routes": ["/school/newsletter", "/school/newsletter/[issue]"],
       "platforms": ["web", "mobile"]
     },
     {
@@ -152,9 +152,9 @@
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "admin.members",
-      "title": "Admin members",
-      "routes": ["/admin/members"],
+      "id": "admin.approvals",
+      "title": "Admin membership approvals",
+      "routes": ["/admin/approvals"],
       "platforms": ["web", "mobile"]
     },
     {
@@ -170,20 +170,14 @@
       "platforms": ["web", "mobile"]
     },
     {
-      "id": "admin.approvals",
-      "title": "Admin approvals",
-      "routes": ["/admin/approvals"],
-      "platforms": ["web", "mobile"]
-    },
-    {
-      "id": "admin.analytics",
-      "title": "Admin analytics",
-      "routes": ["/admin/analytics"],
+      "id": "admin.reports",
+      "title": "Admin member reports",
+      "routes": ["/admin/reports"],
       "platforms": ["web", "mobile"]
     },
     {
       "id": "shell.navigation",
-      "title": "Member shell navigation (Help · People · School · Messages)",
+      "title": "Member shell navigation (Home · Help · People · Messages · School)",
       "routes": [],
       "platforms": ["web", "mobile"],
       "layouts": ["compact", "medium", "expanded"]

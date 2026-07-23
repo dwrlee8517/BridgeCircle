@@ -19,14 +19,19 @@ run on an iPad-class device.
 
 ## Running locally
 
+Hermetic, like the web suite — flows run against the LOCAL Supabase stack
+and its seeded personas (`app/supabase/seeds/seed.sql`):
+
 1. Install Maestro: `curl -Ls https://get.maestro.mobile.dev | bash`
-2. Build + install a dev build on a simulator/emulator:
-   `doppler run -p bridgecircle -c dev_personal -- pnpm expo run:ios` (or `run:android`)
-3. Run the suite against the seeded dev database (`docs/runbooks/seed-dev.md`):
+2. Start the local stack: from `app/`, `pnpm db:start`
+3. Build + install a dev build pointed at the local stack (simulators reach
+   the host on localhost; Android emulators use 10.0.2.2):
+   `EXPO_PUBLIC_SUPABASE_URL=http://localhost:54321 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<anon key from 'supabase status'> pnpm expo run:ios`
+4. Run the suite:
 
 ```bash
-MAESTRO_EMAIL=mentor-mark@example.com MAESTRO_PASSWORD=devseed-password-2 pnpm test:e2e
+MAESTRO_EMAIL=richard@example.com MAESTRO_PASSWORD=devseed-password-richard pnpm test:e2e
 ```
 
-CI runs the same flows on an Android emulator — see
-`.github/workflows/mobile-e2e.yml`.
+CI runs the same flows on an Android emulator against the same local stack —
+see `.github/workflows/mobile-e2e.yml`.

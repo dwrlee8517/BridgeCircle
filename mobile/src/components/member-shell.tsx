@@ -45,7 +45,7 @@ export function MemberTabBar({ state, descriptors, navigation }: BottomTabBarPro
           expanded ? styles.railItem : styles.barItem,
           focused && (expanded ? styles.railItemActive : null),
         ]}
-        testID={`nav-${route.name === 'index' ? 'help' : route.name}`}
+        testID={`nav-${route.name === 'index' ? 'home' : route.name}`}
       >
         <Text
           style={[

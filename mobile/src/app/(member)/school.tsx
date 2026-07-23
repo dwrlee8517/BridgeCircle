@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Screen } from '@/components/screen'
 import { Card, EmptyState } from '@/components/ui'
-import { getActiveOrganizationId } from '@/lib/org'
+import { getMemberContextLite } from '@/lib/member-context'
 import { useSession } from '@/lib/session'
 import { supabase } from '@/lib/supabase'
 import { colors, fontSize, space } from '@/theme/tokens'
@@ -10,21 +10,21 @@ import { colors, fontSize, space } from '@/theme/tokens'
 type EventItem = {
   id: string
   title: string
-  location: string | null
-  starts_at: string
+  startsAt: string
+  locationName: string | null
+  hostName: string | null
 }
 
 type AnnouncementItem = {
   id: string
   title: string
-  published_at: string | null
+  pinned: boolean
 }
 
 /**
- * School pulse — upcoming events + the latest announcement, read directly
- * from Supabase under RLS (the same rows the web's listEvents /
- * listAnnouncements return for this viewer). RSVP and detail screens are
- * tracked parity gaps.
+ * School pulse — the mobile face of `api.get_school_home`, the same RPC the
+ * web School hub calls (app/src/db/repositories/school.ts). Event detail,
+ * RSVP, announcements archive, and newsletters are tracked parity gaps.
  */
 export default function SchoolScreen() {
   const { session } = useSession()
@@ -37,33 +37,35 @@ export default function SchoolScreen() {
     let cancelled = false
     async function load() {
       try {
-        const userId = session?.user.id
-        if (!userId) return
-        const orgId = await getActiveOrganizationId(userId)
-        if (!orgId) throw new Error('No active membership')
-        const nowIso = new Date().toISOString()
-        const [eventsRes, annRes] = await Promise.all([
-          supabase
-            .from('events')
-            .select('id, title, location, starts_at')
-            .eq('organization_id', orgId)
-            .not('published_at', 'is', null)
-            .gte('starts_at', nowIso)
-            .order('starts_at', { ascending: true })
-            .limit(20),
-          supabase
-            .from('announcements')
-            .select('id, title, published_at')
-            .eq('organization_id', orgId)
-            .not('published_at', 'is', null)
-            .order('published_at', { ascending: false })
-            .limit(1),
-        ])
-        if (eventsRes.error) throw new Error(eventsRes.error.message)
-        if (annRes.error) throw new Error(annRes.error.message)
+        const context = await getMemberContextLite()
+        if (!context.membershipId) throw new Error('No active membership')
+        const { data, error: rpcError } = await supabase
+          .schema('api')
+          .rpc('get_school_home', { p_membership_id: context.membershipId })
+        if (rpcError) throw new Error(rpcError.message)
+        const home = data as {
+          resultCode: string
+          events?: {
+            id: string
+            title: string
+            startsAt: string
+            locationName?: string | null
+            hostName?: string | null
+          }[]
+          announcements?: { id: string; title: string; pinned: boolean }[]
+        }
+        if (home.resultCode !== 'ok') throw new Error('School is not available for this circle')
         if (!cancelled) {
-          setEvents(eventsRes.data ?? [])
-          setAnnouncement(annRes.data?.[0] ?? null)
+          setEvents(
+            (home.events ?? []).map((e) => ({
+              id: e.id,
+              title: e.title,
+              startsAt: e.startsAt,
+              locationName: e.locationName ?? null,
+              hostName: e.hostName ?? null,
+            })),
+          )
+          setAnnouncement(home.announcements?.[0] ?? null)
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Could not load')
@@ -79,7 +81,9 @@ export default function SchoolScreen() {
     <Screen testID="school-screen" title="School">
       {announcement ? (
         <Card testID="latest-announcement">
-          <Text style={styles.sectionLabel}>Latest announcement</Text>
+          <Text style={styles.sectionLabel}>
+            {announcement.pinned ? 'Pinned announcement' : 'Latest announcement'}
+          </Text>
           <Text style={styles.announcementTitle}>{announcement.title}</Text>
         </Card>
       ) : null}
@@ -99,14 +103,16 @@ export default function SchoolScreen() {
           {events.map((event) => (
             <Card key={event.id}>
               <Text style={styles.eventDate}>
-                {new Date(event.starts_at).toLocaleDateString(undefined, {
+                {new Date(event.startsAt).toLocaleDateString(undefined, {
                   weekday: 'short',
                   month: 'short',
                   day: 'numeric',
                 })}
               </Text>
               <Text style={styles.eventTitle}>{event.title}</Text>
-              {event.location ? <Text style={styles.eventLocation}>{event.location}</Text> : null}
+              {event.locationName ? (
+                <Text style={styles.eventLocation}>{event.locationName}</Text>
+              ) : null}
             </Card>
           ))}
         </View>

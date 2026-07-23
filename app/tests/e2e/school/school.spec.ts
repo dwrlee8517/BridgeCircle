@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:school.hub @feature:events.detail @feature:school.announcements @feature:school.newsletter @layout:compact (@layout:compact via the inline phone-viewport test)
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'

@@ -1,13 +1,16 @@
 name: Mobile E2E
 
 # Maestro flows (mobile/e2e/flows) on an Android emulator — the mobile
-# mirror of e2e.yml. Like the web suite it runs against the shared
-# bridgecircle-dev Supabase (via Doppler) and the seeded dev accounts.
+# mirror of e2e.yml, and hermetic the same way: the runner boots the LOCAL
+# Supabase stack (migrations + seeds from app/supabase), the release APK is
+# built with the local stack's URL/key baked in (10.0.2.2 is the emulator's
+# loopback to the runner), and the flows sign in with the seeded personas.
+# No remote project, no secrets.
 #
 # Opt-in for now: apply the `run-mobile-e2e` label on a PR, or dispatch
 # manually. Building the native app in CI takes ~15–25 min; once the
-# pipeline has proven itself, flip this to run on every PR (drop the label
-# condition) so it matches e2e.yml exactly.
+# pipeline has proven itself, add a gate job and run it on every PR so it
+# matches e2e.yml exactly.
 on:
   pull_request:
     branches: [main]
@@ -18,16 +21,15 @@ concurrency:
   group: mobile-e2e-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: mobile
-
 jobs:
   maestro:
-    name: Maestro (android emulator)
+    name: Maestro vs local stack (android emulator)
     if: ${{ github.event_name == 'workflow_dispatch' || contains(github.event.pull_request.labels.*.name, 'run-mobile-e2e') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: mobile
     steps:
       - uses: actions/checkout@v4
 
@@ -46,25 +48,39 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: dopplerhq/cli-action@v3
-
       - run: pnpm install --frozen-lockfile
+
+      # The web app's supabase CLI + config own the local stack (same
+      # migrations and seeds the Playwright suite uses).
+      - name: Install app dependencies (supabase CLI)
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      - name: Start local Supabase stack
+        working-directory: app
+        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+
+      - name: Export local stack credentials
+        working-directory: app
+        run: |
+          pnpm exec supabase status -o env | tee /tmp/supabase-status.env
+          # API_URL is localhost from the runner; the emulator reaches the
+          # runner via 10.0.2.2.
+          anon_key=$(grep '^ANON_KEY=' /tmp/supabase-status.env | cut -d= -f2- | tr -d '"')
+          echo "EXPO_PUBLIC_SUPABASE_URL=http://10.0.2.2:54321" >> "$GITHUB_ENV"
+          echo "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$anon_key" >> "$GITHUB_ENV"
 
       # Generate the android project and build a release APK (release so the
       # JS bundle is baked in — no Metro server on the emulator; Expo's
       # default release config signs with the debug keystore, which is fine
-      # for CI). Doppler supplies the Supabase URL/key that app.config.ts
-      # inlines into the bundle.
+      # for CI). The EXPO_PUBLIC_* values above are inlined into the bundle
+      # by app.config.ts.
       - name: Prebuild android project
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
-        run: doppler run -- pnpm expo prebuild --platform android --no-install
+        run: pnpm expo prebuild --platform android --no-install
 
       - name: Build release APK
-        env:
-          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         working-directory: mobile/android
-        run: doppler run -- ./gradlew assembleRelease
+        run: ./gradlew assembleRelease
 
       - name: Install Maestro
         run: |
@@ -86,7 +102,7 @@ jobs:
           working-directory: mobile
           script: |
             adb install android/app/build/outputs/apk/release/app-release.apk
-            MAESTRO_EMAIL=mentor-mark@example.com MAESTRO_PASSWORD=devseed-password-2 maestro test e2e/flows
+            MAESTRO_EMAIL=richard@example.com MAESTRO_PASSWORD=devseed-password-richard maestro test e2e/flows
 
       - name: Upload Maestro artifacts
         if: failure()

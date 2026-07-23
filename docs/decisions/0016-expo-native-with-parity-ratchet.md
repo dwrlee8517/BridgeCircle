@@ -28,12 +28,12 @@ call.
    import), `parity/window-classes.json` (breakpoints), and the design
    tokens transcribed into `mobile/src/theme/tokens.ts` (same role-token
    names as `globals.css`).
-2. **Mobile talks to Supabase directly under RLS** with a token session
-   (AsyncStorage), the same policies that gate the web's per-user server
-   clients. Flows with server-side business rules (createAsk, gating,
-   notifications fan-out) will be re-hosted behind thin bearer-auth route
-   handlers wrapping the existing `/lib` functions as those features reach
-   mobile — never reimplemented on-device.
+2. **Mobile talks to Supabase directly with a token session** (AsyncStorage)
+   and calls the same `api`-schema RPC boundary the web repositories use
+   (`get_my_member_context`, `get_school_home`, `list_people`, …). Those
+   functions run as the signed-in user and own the business rules — the v2
+   database rewrite made the server boundary natively consumable, so
+   nothing is reimplemented on-device and no extra HTTP layer is needed.
 3. **Parity is enforced by a ratchet, not a doc** — `parity/features.json`
    declares every user-facing feature, its routes, platforms, and window-
    class layouts; `parity/check-parity.mjs` fails CI when a `page.tsx` ships

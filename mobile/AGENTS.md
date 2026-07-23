@@ -9,7 +9,7 @@ The Expo iOS/Android counterpart of [`../app/`](../app/). Governing decision: [`
 Rules that are easy to get wrong:
 
 - **Parity ratchet.** Every feature here maps to an id in [`../parity/features.json`](../parity/features.json); Maestro flows in `e2e/flows/` claim coverage via `# feature:<id>` comment tags. Run `pnpm check:parity` before declaring work done, and ratchet the baseline down (`node ../parity/check-parity.mjs --update`) in the PR that closes a gap.
-- **Data access.** Reads: direct Supabase under RLS (`src/lib/supabase.ts`, token session). Writes with business rules: call a bearer-auth API route wrapping the web app's `/lib` function — never reimplement `/lib` logic on-device, never use a service key here.
+- **Data access is RPC-first.** Call the same `api`-schema functions the web repositories use (`supabase.schema('api').rpc('list_people', …)` — see `app/src/db/repositories/*.ts` for the contracts). They run as the signed-in user (token session in `src/lib/supabase.ts`). Never reimplement their business rules on-device, never use a service key here.
 - **Types** come from the web app's generated `database.types.ts` via the type-only bridge `src/db/types.ts`. Do not fork the types.
 - **Design tokens** (`src/theme/tokens.ts`) transcribe `app/src/app/globals.css` `:root` under the same role names — change both in the same PR. No hardcoded hex in components.
 - **Window classes** (`useWindowClass()` — compact/medium/expanded from [`../parity/window-classes.json`](../parity/window-classes.json)) drive the shell: bottom tab bar vs. navigation rail. New screens use the `Screen` scaffold so expanded widths get a bounded column, not full-bleed stretch.

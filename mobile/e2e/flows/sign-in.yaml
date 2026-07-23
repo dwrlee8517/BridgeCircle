@@ -1,6 +1,6 @@
 # feature:auth.sign-in
-# Signs in with the seeded dev account (see docs/runbooks/seed-dev.md) and
-# lands on the Help hub. Mirrors app/tests/e2e/sign-in.spec.ts on the web.
+# Signs in with a seeded persona (app/supabase/seeds/seed.sql) and lands on
+# Home. Mirrors app/tests/e2e/invites-sign-in/sign-in.spec.ts on the web.
 # Requires MAESTRO_EMAIL / MAESTRO_PASSWORD (see mobile/e2e/README.md).
 appId: com.bridgecircle.app
 tags:
@@ -9,7 +9,7 @@ tags:
 - launchApp:
     clearState: true
 - assertVisible: 'Welcome back'
-- assertVisible: 'Sign in to your verified alumni network.'
+- assertVisible: 'Sign in to your verified school circle.'
 - tapOn:
     id: 'sign-in-email'
 - inputText: ${MAESTRO_EMAIL}
@@ -20,5 +20,5 @@ tags:
 - tapOn: 'Sign in'
 - extendedWaitUntil:
     visible:
-      id: 'help-screen'
+      id: 'home-screen'
     timeout: 15000

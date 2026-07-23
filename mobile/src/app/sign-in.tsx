@@ -52,12 +52,12 @@ export default function SignInScreen() {
         keyboardShouldPersistTaps="handled"
         testID="sign-in-screen"
       >
-        <Text style={styles.kicker}>Verified alumni network</Text>
+        <Text style={styles.kicker}>Verified school circle</Text>
         <Text style={styles.wordmark}>BridgeCircle</Text>
 
         <Card style={styles.card}>
           <CardTitle>Welcome back</CardTitle>
-          <CardDescription>Sign in to your verified alumni network.</CardDescription>
+          <CardDescription>Sign in to your verified school circle.</CardDescription>
 
           {error ? <ErrorNote>{error}</ErrorNote> : null}
 

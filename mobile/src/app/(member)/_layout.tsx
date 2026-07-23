@@ -8,9 +8,9 @@ import { colors } from '@/theme/tokens'
 
 /**
  * Authenticated member shell. Tab order mirrors MEMBER_NAV_LINKS in
- * app/src/app/(member)/nav-links.ts — Help · People · School · Messages.
- * If the web nav changes, change this in the same PR (the parity manifest's
- * shell.navigation feature is the tripwire).
+ * app/src/app/(member)/nav-links.ts — Home · Help · People · Messages ·
+ * School. If the web nav changes, change this in the same PR (the parity
+ * manifest's shell.navigation feature is the tripwire).
  */
 export default function MemberLayout() {
   const { session, loading } = useSession()
@@ -38,10 +38,11 @@ export default function MemberLayout() {
       }}
       tabBar={(props) => <MemberTabBar {...props} />}
     >
-      <Tabs.Screen name="index" options={{ title: 'Help' }} />
+      <Tabs.Screen name="index" options={{ title: 'Home' }} />
+      <Tabs.Screen name="help" options={{ title: 'Help' }} />
       <Tabs.Screen name="people" options={{ title: 'People' }} />
+      <Tabs.Screen name="messages" options={{ title: 'Messages' }} />
       <Tabs.Screen name="school" options={{ title: 'School' }} />
-      <Tabs.Screen name="inbox" options={{ title: 'Messages' }} />
     </Tabs>
   )
 }
