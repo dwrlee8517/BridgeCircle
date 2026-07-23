@@ -45,4 +45,33 @@ if ! docker info >/dev/null 2>&1; then
   fi
 fi
 
-pnpm exec supabase start
+# `supabase start` exits 1 — and tears the whole stack down — when ANY
+# container misses its healthcheck window, including auxiliary ones the app
+# doesn't need (Studio is a repeat offender on a loaded Mac). It also isn't
+# race-proof right after the Docker daemon boots: leftover containers
+# auto-restart, `start` reports "already running" while the DB is still
+# starting, and exits 1. In both cases, retry with --ignore-health-check
+# (keeps slow-but-fine services up) and then verify the services the app
+# actually needs: Postgres and the API gateway.
+# Extra args pass through to `supabase start` (e.g. -x studio,vector in CI).
+if ! pnpm exec supabase start "$@"; then
+  echo "supabase start failed its health checks — retrying, tolerating slow auxiliary services."
+  pnpm exec supabase start --ignore-health-check "$@" || true
+
+  printf "Waiting for Postgres and the API gateway"
+  deadline=$((SECONDS + 120))
+  while ((SECONDS < deadline)); do
+    api_code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:54321/rest/v1/ || true)
+    if [[ "$api_code" != "000" ]] &&
+      docker exec supabase_db_bridgecircle pg_isready -U postgres -q >/dev/null 2>&1; then
+      echo " ready."
+      exit 0
+    fi
+    printf "."
+    sleep 2
+  done
+  echo "" >&2
+  echo "Local Supabase didn't become ready within ~2min. Inspect with" >&2
+  echo "'pnpm exec supabase status', or 'pnpm exec supabase stop' and re-run." >&2
+  exit 1
+fi

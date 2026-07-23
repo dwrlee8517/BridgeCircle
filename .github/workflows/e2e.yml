@@ -74,8 +74,6 @@ jobs:
 
       - uses: dopplerhq/cli-action@v3
 
-      - run: pnpm install --frozen-lockfile
-
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
@@ -84,14 +82,15 @@ jobs:
           restore-keys: |
             playwright-${{ runner.os }}-
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install --with-deps chromium
-
-      # Boots Postgres + Auth + PostgREST + Storage + Realtime and applies
-      # every migration and seed. Studio and the log pipeline aren't needed
-      # for tests.
-      - name: Start local Supabase stack
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+      # One-command setup, same script developers run in a fresh worktree
+      # (scripts/setup-local.sh): pnpm install, local Supabase stack (minus
+      # Studio/log pipeline in CI), migrations + seed, Playwright Chromium.
+      # DOPPLER_TOKEN switches the script into CI mode for Doppler auth.
+      - name: Set up local stack (deps, Supabase, seed, browsers)
+        env:
+          CI: 'true'
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_LOCAL }}
+        run: pnpm run setup:local --e2e
 
       # The runner and the nested dev server both resolve env from the
       # bridgecircle/dev_local Doppler config (tests/e2e/helpers/env.ts).
