@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { Mail } from 'lucide-react'
-import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
+import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { LifecycleStatusBadge } from '@/components/ui/status-badge'
