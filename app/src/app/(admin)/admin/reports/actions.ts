@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
+import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
 import { createAdminModerationRepository } from '@/db/repositories/admin-moderation'
 import { decideAdminReport } from '@/lib/admin/moderation'
 

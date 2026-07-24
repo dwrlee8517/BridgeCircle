@@ -26,7 +26,7 @@ test("the Admin nav tab appears for admins and not for plain members", async ({ 
   await signInAs(page, orgAdmin);
   await expect(
     page.getByRole("navigation").getByRole("link", { name: "Admin" }),
-  ).toHaveAttribute("href", "/admin/invite");
+  ).toHaveAttribute("href", "/admin");
 
   await signInAs(page, plainMember);
   await expect(page.getByRole("navigation").getByRole("link", { name: "Admin" })).toHaveCount(0);

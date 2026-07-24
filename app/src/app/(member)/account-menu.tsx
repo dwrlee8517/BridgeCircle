@@ -89,7 +89,7 @@ export function AccountMenu({ name, avatarUrl, graduationYear, isAdmin }: Props)
               asChild
               className="cursor-pointer gap-2.5 rounded-lg px-3 py-2.5 md:hidden"
             >
-              <Link href="/admin/invite">
+              <Link href="/admin">
                 <Shield className="text-muted-foreground" />
                 Admin
               </Link>

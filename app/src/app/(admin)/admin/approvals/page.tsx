@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns'
-import { loadSchoolAdminContext } from '@/app/(member)/admin/_lib/school-admin'
+import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createAdminEntryRepository } from '@/db/repositories/admin-entry'
