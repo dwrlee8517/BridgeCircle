@@ -176,7 +176,7 @@ function LinkFields({
   onRemove: () => void
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border-subtle)] bg-white p-3">
+    <div className="rounded-xl border border-[var(--border-subtle)] bg-card p-3">
       <div className="flex justify-end">
         <button
           type="button"

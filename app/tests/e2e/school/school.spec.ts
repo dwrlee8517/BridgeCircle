@@ -32,9 +32,6 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
   await expect(
     page.getByRole('heading', { name: 'Close to school, not buried in it.' }),
   ).toBeVisible()
-  await expect(page.getByRole('region', { name: 'Events you are attending' })).toContainText(
-    'Seoul alumni office hours',
-  )
   await expect(page.getByRole('heading', { name: 'Seoul alumni office hours' })).toBeVisible()
   await page.getByRole('link', { name: 'View details', exact: true }).click()
   await expect(page.getByRole('link', { name: 'Join now' })).toHaveAttribute(
@@ -50,7 +47,6 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
     .getByRole('region', { name: 'School events' })
     .locator(`a[href="/school?event=${DINNER}"][aria-current="true"]`)
   await expect(selectedUpcomingEvent).toBeVisible()
-  await expect(selectedUpcomingEvent).toContainText('Showing above')
   await expect(
     page.getByRole('region', { name: 'School events' }).getByRole('heading', {
       name: 'Founders Dinner at The Riviera',

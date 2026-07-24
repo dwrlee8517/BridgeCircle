@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useId, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { QuietNote } from '@/components/ui/quiet-note'
 import type { MessagesWaitingItem } from '@/lib/messages/contracts'
 import { cn, getInitials } from '@/lib/utils'
 import { useWaitingFoldedPreference } from './use-waiting-preference'
@@ -104,86 +105,103 @@ export function WaitingGroup({
         />
       </button>
 
-      <ul
-        id={contentId}
-        hidden={folded}
-        className="divide-y divide-[var(--divider-row)] border-t border-[var(--divider-row)] bg-card"
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-medium ease-emphasized motion-reduce:transition-none',
+          folded ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+        )}
       >
-        {items.map((item) => {
-          const id = item.kind === 'direct_ask' ? item.askId : item.requestId
-          const avatarUrl = item.counterpart.avatarPath
-            ? avatarUrls[item.counterpart.avatarPath]
-            : null
-          const busy = pendingIds.has(id)
-          return (
-            <li key={`${item.kind}:${id}`} className="px-3.5 py-3">
-              <div className="flex items-center gap-2.5">
-                <Avatar size="sm" aria-hidden>
-                  {avatarUrl ? (
-                    <AvatarImage src={avatarUrl} alt="" />
-                  ) : (
-                    <AvatarFallback seed={item.counterpart.userId}>
-                      {getInitials(item.counterpart.displayName)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-body-sm font-bold text-foreground">
-                    {item.counterpart.displayName}
-                    {item.counterpart.graduationYear ? (
-                      <span className="ml-1 text-caption font-semibold text-muted-foreground">
-                        ’{String(item.counterpart.graduationYear).slice(-2)}
-                      </span>
-                    ) : null}
+        <ul
+          id={contentId}
+          inert={folded}
+          className="min-h-0 divide-y divide-[var(--divider-row)] overflow-hidden border-t border-[var(--divider-row)] bg-card"
+        >
+          {items.map((item) => {
+            const id = item.kind === 'direct_ask' ? item.askId : item.requestId
+            const avatarUrl = item.counterpart.avatarPath
+              ? avatarUrls[item.counterpart.avatarPath]
+              : null
+            const busy = pendingIds.has(id)
+            return (
+              <li key={`${item.kind}:${id}`} className="px-3.5 py-3">
+                <div className="flex items-center gap-2.5">
+                  <Avatar size="sm" aria-hidden>
+                    {avatarUrl ? (
+                      <AvatarImage src={avatarUrl} alt="" />
+                    ) : (
+                      <AvatarFallback seed={item.counterpart.userId}>
+                        {getInitials(item.counterpart.displayName)}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-body-sm font-bold text-foreground">
+                      {item.counterpart.displayName}
+                      {item.counterpart.graduationYear ? (
+                        <span className="ml-1 text-caption font-semibold text-muted-foreground">
+                          ’{String(item.counterpart.graduationYear).slice(-2)}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="block text-caption font-semibold text-text-secondary">
+                      {item.kind === 'direct_ask' ? 'Asked for your help' : 'Wants to connect'}
+                    </span>
                   </span>
-                  <span className="block text-caption font-semibold text-text-secondary">
-                    {item.kind === 'direct_ask' ? 'Asked for your help' : 'Wants to connect'}
-                  </span>
-                </span>
-              </div>
-              <p className="mt-2 line-clamp-2 text-caption leading-relaxed font-medium text-text-secondary">
-                {item.kind === 'direct_ask'
-                  ? item.requestMessage
-                  : (item.introMessage ?? 'Would like to add you to their circle.')}
-              </p>
-              <div className="mt-2 flex gap-1.5">
-                {item.kind === 'direct_ask' ? (
-                  <Button asChild variant="secondary" size="xs">
-                    <Link href={`/help/asks/${item.askId}`}>View ask</Link>
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="xs"
-                      disabled={busy}
-                      aria-busy={busy}
-                      onClick={() => void decide(item.requestId, 'accept')}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="xs"
-                      disabled={busy}
-                      onClick={() => void decide(item.requestId, 'decline')}
-                    >
-                      Decline
-                    </Button>
-                  </>
-                )}
-              </div>
-              {errors[id] ? (
-                <p role="alert" className="mt-2 text-kicker text-destructive">
-                  {errors[id]}
+                </div>
+                <p className="mt-2 line-clamp-2 text-caption leading-relaxed font-medium text-text-secondary">
+                  {item.kind === 'direct_ask'
+                    ? item.requestMessage
+                    : (item.introMessage ?? 'Would like to add you to their circle.')}
                 </p>
-              ) : null}
-            </li>
-          )
-        })}
-      </ul>
+                <div className="mt-2 flex gap-1.5">
+                  {item.kind === 'direct_ask' ? (
+                    <Button asChild variant="secondary" size="xs">
+                      <Link href={`/help/asks/${item.askId}`}>View ask</Link>
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="xs"
+                        disabled={busy}
+                        aria-busy={busy}
+                        onClick={() => void decide(item.requestId, 'accept')}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="xs"
+                        disabled={busy}
+                        onClick={() => void decide(item.requestId, 'decline')}
+                      >
+                        Decline
+                      </Button>
+                    </>
+                  )}
+                </div>
+                {item.kind !== 'direct_ask' ? (
+                  <QuietNote className="mt-1.5 text-kicker">
+                    Declining is quiet — {firstName(item.counterpart.displayName)} isn’t notified,
+                    and it’s never announced.
+                  </QuietNote>
+                ) : null}
+                {errors[id] ? (
+                  <p role="alert" className="mt-2 text-kicker text-destructive">
+                    {errors[id]}
+                  </p>
+                ) : null}
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </section>
   )
+}
+
+function firstName(displayName: string) {
+  return displayName.trim().split(/\s+/)[0] || 'The other person'
 }

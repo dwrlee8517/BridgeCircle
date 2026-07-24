@@ -581,6 +581,7 @@
     rgb(49 130 246 / 0) 72%
   );
   --wash-toggle-track: rgb(255 255 255 / 0.7);
+  --pinned-wash: linear-gradient(90deg, #eaf3ff, #fbfdff);
   --cover-event:
     radial-gradient(95% 130% at 88% -10%, rgb(73 147 252 / 0.55) 0%, rgb(73 147 252 / 0) 55%),
     radial-gradient(80% 120% at 0% 115%, rgb(49 130 246 / 0.35) 0%, rgb(49 130 246 / 0) 60%),
@@ -611,6 +612,9 @@
   --avatar-6-fg: #ffffff;
 
   --selected-tint: #eef5ff;
+  --date-tile-bg: linear-gradient(180deg, #eef5ff, #e2eeff);
+  --date-tile-ring: inset 0 0 0 1px rgb(49 130 246 / 0.16);
+  --preview-tint-bg: linear-gradient(180deg, #f3f8ff, #eef5ff);
   --selected-accent: inset 2px 0 0 #3182f6;
   --ring-outline: inset 0 0 0 1px #e2e5ea;
   --nav-active-bg: linear-gradient(135deg, #eaf4ff, #e2efff);
@@ -719,47 +723,50 @@
 }
 
 .dark {
-  --background: #101418;
-  --foreground: #f2f4f6; /* grey-100 */
-  --card: #1b222c;
-  --card-foreground: #f2f4f6;
-  --popover: #1b222c;
-  --popover-foreground: #f2f4f6;
+  /* Dark palette — neutral-first (hue ~228, sat ≤7%) so surfaces read as
+     charcoal, not navy. Elevation steps stay close in luminance: inset <
+     canvas < card < raised. Text is soft white, never #fff, to cut glare. */
+  --background: #16171d;
+  --foreground: #e7e9ee;
+  --card: #1e2027;
+  --card-foreground: #e7e9ee;
+  --popover: #1e2027;
+  --popover-foreground: #e7e9ee;
   --primary: #64a8ff; /* blue-300 on dark */
   --primary-hover: #90c2ff; /* blue-200 */
   --primary-on-dark: #90c2ff;
-  --primary-foreground: #101418;
+  --primary-foreground: #101216;
   /* CTA retires to primary on dark too (D3) */
   --cta: #64a8ff;
   --cta-hover: #90c2ff;
-  --cta-foreground: #101418;
-  /* Dark band surface, lifted above the #101418 canvas so it stays distinct */
-  --surface-ink: #222a35;
-  --surface-ink-foreground: #f2f4f6;
-  --surface-ink-muted: rgb(242 244 246 / 68%);
-  --secondary: #222a35;
-  --secondary-foreground: #f2f4f6;
-  --muted: #222a35;
-  --muted-foreground: #b0b8c1; /* grey-400 */
-  --accent: #222a35;
+  --cta-foreground: #101216;
+  /* Dark band surface, one step above the card so it stays distinct */
+  --surface-ink: #262933;
+  --surface-ink-foreground: #e7e9ee;
+  --surface-ink-muted: rgb(231 233 238 / 66%);
+  --secondary: #282a33;
+  --secondary-foreground: #e7e9ee;
+  --muted: #282a33;
+  --muted-foreground: #9aa0ac;
+  --accent: #282a33;
   --accent-foreground: #64a8ff;
-  --destructive: #f04452; /* red-500 */
+  --destructive: #f16572;
   --destructive-foreground: #f9fafb;
-  --border: rgb(255 255 255 / 10%);
-  --input: rgb(255 255 255 / 14%);
+  --border: rgb(255 255 255 / 8%);
+  --input: rgb(255 255 255 / 12%);
   --ring: #64a8ff;
   --chart-1: #64a8ff;
   --chart-2: #15c47e; /* green-400 */
   --chart-3: #d69f32; /* ochre-400 */
   --chart-4: #f05d6c; /* red-400 */
-  --chart-5: #f2f4f6;
-  --sidebar: #1b222c;
-  --sidebar-foreground: #f2f4f6;
+  --chart-5: #e7e9ee;
+  --sidebar: #1a1c22;
+  --sidebar-foreground: #e7e9ee;
   --sidebar-primary: #64a8ff;
-  --sidebar-primary-foreground: #101418;
-  --sidebar-accent: #222a35;
-  --sidebar-accent-foreground: #f2f4f6;
-  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-primary-foreground: #101216;
+  --sidebar-accent: #282a33;
+  --sidebar-accent-foreground: #e7e9ee;
+  --sidebar-border: rgb(255 255 255 / 8%);
   --sidebar-ring: #64a8ff;
 
   /* Editorial accent roles on dark — ramp stops lifted for legibility;
@@ -772,32 +779,121 @@
   /* Give action lifts to a brighter green on dark; label flips to ink */
   --action-offer: #15c47e; /* green-400 */
   --action-offer-hover: #03b26c; /* green-500 */
-  --action-on-offer: #191f28;
-  --action-offer-weak: rgb(3 178 108 / 16%);
+  --action-on-offer: #14161b;
+  --action-offer-weak: rgb(3 178 108 / 14%);
   --action-offer-weak-text: #4dd49b; /* green-300 */
 
   --state-warning-foreground: var(--accent-ochre);
   --state-danger-foreground: #fecaca;
   --state-categorized-foreground: var(--foreground);
-  --primary-tint: rgb(100 168 255 / 14%);
-  --primary-tint-strong: rgb(100 168 255 / 22%);
-  --success-tint: rgb(21 196 126 / 16%);
-  --warning-tint: rgb(214 159 50 / 16%);
-  --danger-tint: rgb(240 93 108 / 16%);
-  --plum-tint: rgb(100 168 255 / 16%); /* A6: plum folds to blue */
-  --editorial-rule: rgb(242 244 246 / 16%);
-  --editorial-rule-strong: rgb(242 244 246 / 28%);
+  --primary-tint: rgb(100 168 255 / 12%);
+  --primary-tint-strong: rgb(100 168 255 / 18%);
+  --success-tint: rgb(21 196 126 / 14%);
+  --warning-tint: rgb(214 159 50 / 14%);
+  --danger-tint: rgb(240 93 108 / 14%);
+  --plum-tint: rgb(100 168 255 / 14%); /* A6: plum folds to blue */
+  --editorial-rule: rgb(231 233 238 / 14%);
+  --editorial-rule-strong: rgb(231 233 238 / 26%);
   --focus-ring-muted: rgb(100 168 255 / 14%);
 
   /* Shadow scale — slightly stronger on dark to remain visible */
   --shadow-card: 0 1px 0 rgb(0 0 0 / 0.25);
   --shadow-card-hover: 0 4px 12px -2px rgb(0 0 0 / 0.35);
   --shadow-hero: 0 12px 34px -8px rgb(0 0 0 / 0.45);
-  --ring-card: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --ring-card: inset 0 0 0 1px rgb(255 255 255 / 0.05);
 
   /* Page band — flip the white sheen to a faint lift; soften the glow */
-  --page-band-sheen: rgb(255 255 255 / 0.04);
-  --page-band-glow: rgb(100 168 255 / 0.06);
+  --page-band-sheen: rgb(255 255 255 / 0.03);
+  --page-band-glow: rgb(100 168 255 / 0.05);
+
+  /* Inverted grey ramp — the member UI's semantic aliases (--text-*,
+     --surface-panel, dividers) and raw var(--grey-N) call sites all cascade
+     from these, so flipping the ramp themes them in one place. 50 stays
+     lighter than 100 (raised surface over canvas), mirroring light mode.
+     Stops are desaturated toward neutral so greys never read as blue. */
+  --grey-50: #282a33;
+  --grey-100: #16171d;
+  --grey-200: #2e313a;
+  --grey-300: #454952;
+  --grey-400: #5c626d;
+  --grey-500: #79808c;
+  --grey-600: #9aa0ac;
+  --grey-700: #b8bcc6;
+  --grey-800: #d5d8df;
+  --grey-900: #e7e9ee;
+
+  /* Hardcoded light surfaces that don't ride the ramp */
+  --surface-canvas: #16171d;
+  --surface-inset: #131419;
+  --surface-thread: #18191f;
+  --surface-card-elevated: linear-gradient(180deg, #22242c, #1e2027);
+  --divider-row: rgb(255 255 255 / 0.05);
+  --icon-muted: #454952;
+  --ring-outline: inset 0 0 0 1px rgb(255 255 255 / 0.11);
+  --hover-tint: rgb(255 255 255 / 0.04);
+  --row-hover: rgb(255 255 255 / 0.03);
+  --nav-active-bg: linear-gradient(135deg, rgb(100 168 255 / 0.14), rgb(100 168 255 / 0.08));
+  --nav-active-text: var(--blue-300);
+  --action-weak: rgb(100 168 255 / 0.12);
+  --action-weak-text: #8db9ff;
+  --action-quiet: #282a33;
+  --action-quiet-text: var(--grey-700);
+  --action-disabled: #2e313a;
+  --action-disabled-text: #5c626d;
+  --action-give-weak: rgb(3 178 108 / 0.12);
+  --action-give-text: #4dd49b;
+  --closing-soon-text: #ffbd51;
+  --wash-page: radial-gradient(
+    85% 42% at 50% 0%,
+    rgb(100 168 255 / 0.04) 0%,
+    rgb(100 168 255 / 0) 72%
+  );
+  --wash-get: linear-gradient(180deg, rgb(100 168 255 / 0.06) 0%, rgb(100 168 255 / 0) 100%);
+  --wash-give: linear-gradient(180deg, rgb(3 178 108 / 0.05) 0%, rgb(3 178 108 / 0) 100%);
+  --wash-toggle-track: rgb(255 255 255 / 0.12);
+  --pinned-wash: linear-gradient(90deg, rgb(100 168 255 / 0.12), rgb(100 168 255 / 0.04));
+  --avatar-neutral: linear-gradient(135deg, #2e313a, #282a33);
+  --avatar-1-bg: rgb(100 168 255 / 0.16);
+  --avatar-1-fg: #90c2ff;
+  --avatar-2-bg: #2e313a;
+  --avatar-2-fg: #c6cad2;
+  --avatar-3-bg: rgb(255 169 39 / 0.14);
+  --avatar-3-fg: #ffcd80;
+  --avatar-4-bg: rgb(246 101 112 / 0.14);
+  --avatar-4-fg: #feafb4;
+  --avatar-5-bg: rgb(3 178 108 / 0.14);
+  --avatar-5-fg: #76e4b8;
+  --avatar-6-bg: #c6cad2;
+  --avatar-6-fg: #16171d;
+
+  /* Structure lines and elevated-card chrome — the light values are ink-based
+     insets and a near-white hairline, both wrong on dark. White-alpha keeps
+     them visible but quiet. */
+  --border-subtle: rgb(255 255 255 / 0.07);
+  --ring-card-elevated: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  --shadow-card-elevated: 0 1px 0 rgb(0 0 0 / 0.3);
+  --shadow-raised: 0 4px 12px rgb(0 0 0 / 0.4), 0 12px 32px rgb(0 0 0 / 0.35);
+  --shadow-band-card: 0 20px 44px -14px rgb(0 0 0 / 0.6);
+  --ring-avatar: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --surface-base: #16171d;
+  --selected-tint: rgb(100 168 255 / 0.12);
+  --selected-accent: inset 2px 0 0 #64a8ff;
+  --date-tile-bg: linear-gradient(180deg, rgb(100 168 255 / 0.16), rgb(100 168 255 / 0.1));
+  --date-tile-ring: inset 0 0 0 1px rgb(100 168 255 / 0.22);
+  --preview-tint-bg: linear-gradient(180deg, rgb(100 168 255 / 0.1), rgb(100 168 255 / 0.05));
+
+  /* Blue/green ramp remap — components pair tint stops (50/100) with text
+     stops (600-900). On dark, tints become blue alphas and text stops walk
+     up the light end, so `bg-blue-50 text-blue-800` themes itself. Solid
+     action stops (400/500) stay untouched for buttons and gradients. */
+  --blue-50: rgb(100 168 255 / 0.12);
+  --blue-100: rgb(100 168 255 / 0.2);
+  --blue-600: #7cb3ff;
+  --blue-700: #90c2ff;
+  --blue-800: #a6ccff;
+  --blue-900: #c9e2ff;
+  --green-50: rgb(3 178 108 / 0.12);
+  --green-100: rgb(3 178 108 / 0.2);
 }
 
 @layer base {
@@ -892,8 +988,31 @@
 
 .bc-motion-control {
   transition-duration: var(--motion-medium);
-  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform, scale;
   transition-timing-function: var(--ease-emphasized);
+}
+
+/* Toss-style press: controls compress slightly under the pointer. Pair with
+   bc-motion-control so the scale eases back out on release. */
+.bc-press {
+  @media (prefers-reduced-motion: no-preference) {
+    &:active {
+      scale: 0.98;
+    }
+  }
+}
+
+/* Hover lift for standalone clickable cards — shadow deepens, card rises 1px. */
+.bc-card-lift {
+  transition:
+    box-shadow var(--motion-medium) var(--ease-emphasized),
+    translate var(--motion-medium) var(--ease-emphasized);
+  @media (prefers-reduced-motion: no-preference) {
+    &:hover {
+      translate: 0 -1px;
+      box-shadow: var(--ring-card), var(--shadow-card-hover);
+    }
+  }
 }
 
 .bc-motion-surface {

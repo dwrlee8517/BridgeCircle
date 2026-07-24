@@ -393,7 +393,7 @@ export function CircleAskComposer({
                 />
               </div>
             </fieldset>
-            <p className="mx-0.5 mt-2 text-kicker leading-relaxed font-medium text-[var(--text-faint)]">
+            <p className="mx-0.5 mt-2 text-kicker leading-relaxed font-medium text-[var(--text-muted)]">
               Set once — reach can’t change after posting. Retract anytime.
             </p>
 
@@ -442,7 +442,7 @@ export function CircleAskComposer({
             ) : null}
 
             <div className="mt-auto flex flex-col gap-3 pt-4 sm:flex-row sm:items-center">
-              <p className="text-kicker leading-relaxed font-medium text-[var(--text-faint)]">
+              <p className="text-kicker leading-relaxed font-medium text-[var(--text-muted)]">
                 Open 14 days · you’ll only hear from members who offer.
               </p>
               <button

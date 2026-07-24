@@ -25,6 +25,6 @@ describe('Ask presentation', () => {
 
   it('uses offer count as the useful open-circle status', () => {
     expect(askStatusLabel('open', 2)).toBe('2 offers')
-    expect(askStatusLabel('accepted')).toBe('Answered')
+    expect(askStatusLabel('accepted')).toBe('Accepted')
   })
 })

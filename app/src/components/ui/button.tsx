@@ -5,7 +5,7 @@ import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "group/button bc-motion-control inline-flex shrink-0 items-center justify-center rounded-[var(--radius-comfortable)] border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:opacity-80 disabled:pointer-events-none disabled:bg-action-disabled disabled:text-action-disabled-text disabled:opacity-100 aria-busy:pointer-events-none aria-busy:opacity-80 aria-invalid:border-state-danger aria-invalid:ring-4 aria-invalid:ring-danger-tint dark:aria-invalid:border-state-danger/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button bc-motion-control bc-press inline-flex shrink-0 items-center justify-center rounded-[var(--radius-comfortable)] border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring active:opacity-80 disabled:pointer-events-none disabled:bg-action-disabled disabled:text-action-disabled-text disabled:opacity-100 aria-busy:pointer-events-none aria-busy:opacity-80 aria-invalid:border-state-danger aria-invalid:ring-4 aria-invalid:ring-danger-tint dark:aria-invalid:border-state-danger/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

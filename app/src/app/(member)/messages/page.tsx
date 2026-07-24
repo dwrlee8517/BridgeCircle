@@ -1,10 +1,12 @@
 import { MessageCircle } from 'lucide-react'
+import { CirclesMotif } from '@/components/ui/circles-motif'
 
 export default function MessagesPage() {
   return (
-    <div className="flex min-h-0 w-full flex-1 items-center justify-center bg-[var(--surface-thread)] px-8 text-center">
+    <div className="relative flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden bg-[var(--surface-thread)] px-8 text-center">
+      <CirclesMotif className="absolute top-1/2 left-1/2 h-52 w-80 -translate-x-1/2 -translate-y-[62%] text-muted-foreground opacity-[0.1]" />
       <h1 className="sr-only">Messages</h1>
-      <div className="max-w-sm">
+      <div className="relative max-w-sm">
         <span className="mx-auto flex size-11 items-center justify-center rounded-full bg-surface-subtle text-muted-foreground">
           <MessageCircle aria-hidden className="size-5" />
         </span>

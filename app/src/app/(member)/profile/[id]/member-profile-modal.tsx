@@ -36,7 +36,7 @@ export function MemberProfileModal({ name, children }: { name: string; children:
           }, 0)
         }}
       >
-        <div className="flex min-h-13 shrink-0 items-center border-b border-[var(--divider-row)] bg-white px-5 pr-13">
+        <div className="flex min-h-13 shrink-0 items-center border-b border-[var(--divider-row)] bg-card px-5 pr-13">
           <DialogTitle className="truncate text-sm font-bold">{name}</DialogTitle>
           <DialogDescription className="sr-only">
             Profile details and relationship actions for {name}.

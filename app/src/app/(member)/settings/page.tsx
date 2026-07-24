@@ -26,6 +26,7 @@ import {
   exportStatusTitle,
   settingsSavedMessage,
 } from './settings-messages'
+import { ThemePicker } from './theme-picker'
 
 type SearchParams = { saved?: string; error?: string }
 
@@ -150,6 +151,19 @@ export default async function SettingsPage({
             description="Schedule account deletion with a seven-day window to restore access."
             control={<DeletionConfirmation />}
           />
+        </section>
+
+        <section aria-labelledby="appearance-settings" className={CARD_CLASS}>
+          <SectionHeading id="appearance-settings">Appearance</SectionHeading>
+          <div className="flex flex-col gap-2 border-t border-[var(--divider-row)] px-4 py-3.5 sm:flex-row sm:items-center sm:px-5">
+            <span className="min-w-0 flex-1">
+              <span className="block text-label font-bold text-[var(--text-primary)]">Theme</span>
+              <span className="mt-0.5 block text-xs font-medium text-[var(--text-muted)]">
+                System follows your device.
+              </span>
+            </span>
+            <ThemePicker />
+          </div>
         </section>
 
         <section aria-labelledby="notification-settings" className={CARD_CLASS}>

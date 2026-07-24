@@ -80,7 +80,7 @@ function ModeLink({
               'bg-card font-bold shadow-sm',
               give ? 'text-[var(--action-give-text)]' : 'text-[var(--blue-600)]',
             )
-          : 'font-semibold text-[var(--grey-600)] hover:bg-white/45',
+          : 'font-semibold text-[var(--grey-600)] hover:bg-[var(--hover-tint)]',
       )}
     >
       {icon}

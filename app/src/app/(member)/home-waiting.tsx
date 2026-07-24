@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useId, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { QuietNote } from '@/components/ui/quiet-note'
 import type { MessagesWaitingItem } from '@/lib/messages/contracts'
 import { cn, getInitials } from '@/lib/utils'
 import { useWaitingFoldedPreference } from './messages/use-waiting-preference'
@@ -103,96 +104,109 @@ export function HomeWaiting({
       </button>
 
       <div
-        id={contentId}
-        hidden={folded}
-        className="min-w-0 divide-y divide-[var(--divider-row)] border-t border-[var(--divider-row)]"
+        className={cn(
+          'grid transition-[grid-template-rows] duration-medium ease-emphasized motion-reduce:transition-none',
+          folded ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+        )}
       >
-        {acceptedConversationId ? (
-          <div
-            role="status"
-            className="bg-[var(--give-tint)] px-5 py-3 text-xs font-semibold text-[var(--action-give-text)]"
-          >
-            You’re connected.{' '}
-            <Link href={`/messages/${acceptedConversationId}`} className="font-bold underline">
-              Open the conversation
-            </Link>
-            .
-          </div>
-        ) : null}
-        {items.map((item) => {
-          const id = waitingId(item)
-          const avatarUrl = item.counterpart.avatarPath
-            ? avatarUrls[item.counterpart.avatarPath]
-            : null
-          const busy = pendingIds.has(id)
-          return (
-            <article key={`${item.kind}:${id}`} className="px-5 py-3.5">
-              <div className="flex items-center gap-2.5">
-                <Avatar size="sm" aria-hidden>
-                  {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-                  <AvatarFallback seed={item.counterpart.userId}>
-                    {getInitials(item.counterpart.displayName)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-caption font-bold text-foreground">
-                    {item.counterpart.displayName}
-                    {item.counterpart.graduationYear ? (
-                      <span className="ml-1 text-kicker font-semibold text-muted-foreground">
-                        ’{String(item.counterpart.graduationYear).slice(-2)}
-                      </span>
-                    ) : null}
+        <div
+          id={contentId}
+          inert={folded}
+          className="min-h-0 min-w-0 divide-y divide-[var(--divider-row)] overflow-hidden border-t border-[var(--divider-row)]"
+        >
+          {acceptedConversationId ? (
+            <div
+              role="status"
+              className="bg-[var(--give-tint)] px-5 py-3 text-xs font-semibold text-[var(--action-give-text)]"
+            >
+              You’re connected.{' '}
+              <Link href={`/messages/${acceptedConversationId}`} className="font-bold underline">
+                Open the conversation
+              </Link>
+              .
+            </div>
+          ) : null}
+          {items.map((item) => {
+            const id = waitingId(item)
+            const avatarUrl = item.counterpart.avatarPath
+              ? avatarUrls[item.counterpart.avatarPath]
+              : null
+            const busy = pendingIds.has(id)
+            return (
+              <article key={`${item.kind}:${id}`} className="px-5 py-3.5">
+                <div className="flex items-center gap-2.5">
+                  <Avatar size="sm" aria-hidden>
+                    {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
+                    <AvatarFallback seed={item.counterpart.userId}>
+                      {getInitials(item.counterpart.displayName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-caption font-bold text-foreground">
+                      {item.counterpart.displayName}
+                      {item.counterpart.graduationYear ? (
+                        <span className="ml-1 text-kicker font-semibold text-muted-foreground">
+                          ’{String(item.counterpart.graduationYear).slice(-2)}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="block text-kicker font-semibold text-text-secondary">
+                      {item.kind === 'direct_ask' ? 'Asked you directly' : 'Wants to connect'}
+                    </span>
                   </span>
-                  <span className="block text-kicker font-semibold text-text-secondary">
-                    {item.kind === 'direct_ask' ? 'Asked you directly' : 'Wants to connect'}
-                  </span>
-                </span>
-                <time className="shrink-0 text-kicker font-semibold text-muted-foreground">
-                  {formatWhen(item.createdAt)}
-                </time>
-              </div>
-              <p className="mt-2 line-clamp-2 text-xs leading-relaxed font-medium text-text-secondary">
-                {item.kind === 'direct_ask'
-                  ? item.requestMessage
-                  : (item.introMessage ?? 'Would like to add you to their circle.')}
-              </p>
-              <div className="mt-2.5 flex gap-2">
-                {item.kind === 'direct_ask' ? (
-                  <Link
-                    href={`/help/asks/${item.askId}`}
-                    className="inline-flex min-h-10 items-center rounded-full bg-[var(--action-weak)] px-3.5 text-xs font-bold text-[var(--action-weak-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-                  >
-                    View ask
-                  </Link>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void decide(item.requestId, 'accept')}
-                      className="min-h-10 rounded-full bg-[var(--action-weak)] px-3.5 text-xs font-bold text-[var(--action-weak-text)] disabled:opacity-55"
-                    >
-                      {busy ? 'Working…' : 'Accept'}
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void decide(item.requestId, 'decline')}
-                      className="min-h-10 rounded-full bg-card px-3.5 text-xs font-semibold text-text-secondary shadow-[var(--ring-outline)] disabled:opacity-55"
-                    >
-                      Decline
-                    </button>
-                  </>
-                )}
-              </div>
-              {errors[id] ? (
-                <p role="alert" className="mt-2 text-kicker font-semibold text-destructive">
-                  {errors[id]}
+                  <time className="shrink-0 text-kicker font-semibold text-muted-foreground">
+                    {formatWhen(item.createdAt)}
+                  </time>
+                </div>
+                <p className="mt-2 line-clamp-2 text-xs leading-relaxed font-medium text-text-secondary">
+                  {item.kind === 'direct_ask'
+                    ? item.requestMessage
+                    : (item.introMessage ?? 'Would like to add you to their circle.')}
                 </p>
-              ) : null}
-            </article>
-          )
-        })}
+                <div className="mt-2.5 flex gap-2">
+                  {item.kind === 'direct_ask' ? (
+                    <Link
+                      href={`/help/asks/${item.askId}`}
+                      className="inline-flex min-h-10 items-center rounded-full bg-[var(--action-weak)] px-3.5 text-xs font-bold text-[var(--action-weak-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    >
+                      View ask
+                    </Link>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void decide(item.requestId, 'accept')}
+                        className="bc-motion-control bc-press min-h-10 rounded-full bg-[var(--action-weak)] px-3.5 text-xs font-bold text-[var(--action-weak-text)] disabled:opacity-55"
+                      >
+                        {busy ? 'Working…' : 'Accept'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void decide(item.requestId, 'decline')}
+                        className="bc-motion-control bc-press min-h-10 rounded-full bg-card px-3.5 text-xs font-semibold text-text-secondary shadow-[var(--ring-outline)] disabled:opacity-55"
+                      >
+                        Decline
+                      </button>
+                    </>
+                  )}
+                </div>
+                {item.kind !== 'direct_ask' ? (
+                  <QuietNote className="mt-2 text-kicker">
+                    Declining is quiet — {firstName(item.counterpart.displayName)} isn’t notified,
+                    and it’s never announced.
+                  </QuietNote>
+                ) : null}
+                {errors[id] ? (
+                  <p role="alert" className="mt-2 text-kicker font-semibold text-destructive">
+                    {errors[id]}
+                  </p>
+                ) : null}
+              </article>
+            )
+          })}
+        </div>
       </div>
     </section>
   )
@@ -200,6 +214,10 @@ export function HomeWaiting({
 
 function waitingId(item: MessagesWaitingItem) {
   return item.kind === 'direct_ask' ? item.askId : item.requestId
+}
+
+function firstName(displayName: string) {
+  return displayName.trim().split(/\s+/)[0] || 'The other person'
 }
 
 function formatWhen(value: string) {

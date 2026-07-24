@@ -32,7 +32,7 @@ export default async function NewsletterArchivePage() {
             <Link
               key={issue.id}
               href={`/school/newsletter/${issue.slug}`}
-              className="block rounded-2xl bg-surface-card px-5 py-5 shadow-card ring-1 ring-border-subtle transition-colors hover:bg-surface-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:px-6"
+              className="bc-card-lift block rounded-2xl bg-surface-card px-5 py-5 shadow-card ring-1 ring-border-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring sm:px-6"
             >
               <span className="text-fine font-bold tracking-caps text-text-muted uppercase">
                 Issue {issue.issueNumber} · {formatMonth(issue.publishedAt)}

@@ -119,7 +119,7 @@ export function HomeSpotlightDeck({
                 aria-label="Previous spotlight"
                 onClick={() => move(-1)}
                 className={cn(
-                  'inline-flex size-10 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                  'bc-motion-control bc-press inline-flex size-10 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                   item.kind === 'event'
                     ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass)] hover:bg-white/20'
                     : 'bg-surface-subtle text-text-secondary hover:bg-muted',
@@ -132,7 +132,7 @@ export function HomeSpotlightDeck({
                 aria-label="Next spotlight"
                 onClick={() => move(1)}
                 className={cn(
-                  'inline-flex size-10 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                  'bc-motion-control bc-press inline-flex size-10 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
                   item.kind === 'event'
                     ? 'bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass)] hover:bg-white/20'
                     : 'bg-surface-subtle text-text-secondary hover:bg-muted',
@@ -144,7 +144,10 @@ export function HomeSpotlightDeck({
           ) : null}
         </div>
 
-        <div className="mt-3.5 min-h-[88px]">
+        <div
+          key={safeIndex}
+          className="mt-3.5 min-h-[88px] duration-medium ease-emphasized animate-in fade-in-0 slide-in-from-right-2 motion-reduce:animate-none"
+        >
           <h3
             className={cn(
               'text-heading leading-tight font-bold tracking-tight text-balance',

@@ -11,6 +11,11 @@ export default function MessagesLoading() {
     >
       <div className="hidden w-[300px] shrink-0 border-r border-border-subtle bg-card p-3.5 md:grid md:content-start md:gap-4">
         <Skeleton className="h-10 w-full" />
+        <div className="flex flex-wrap gap-1.5">
+          <Skeleton className="h-6 w-12 rounded-full" />
+          <Skeleton className="h-6 w-20 rounded-full" />
+          <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
         {SKELETON_ROWS.map((row) => (
           <div key={row} className="flex items-center gap-2.5">
             <Skeleton className="size-[42px] rounded-full" />

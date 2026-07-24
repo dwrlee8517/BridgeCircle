@@ -58,10 +58,12 @@ export default async function NotificationsPage({
     <div className="density-cozy mx-auto max-w-[680px] space-y-5 px-4 py-8 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
-          <p className="bc-section-kicker">Your activity</p>
-          <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-display-section font-bold tracking-tight text-[var(--text-primary)]">
             Notifications
           </h1>
+          <p className="text-sm leading-relaxed font-medium text-[var(--text-muted)]">
+            Everything your circle has sent your way, newest first.
+          </p>
           <div className="flex gap-3 text-sm">
             <Link
               href="/notifications"

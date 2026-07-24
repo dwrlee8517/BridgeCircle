@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { QuietNote } from '@/components/ui/quiet-note'
 import { getInitials } from '@/lib/utils'
 import {
   type HelpDraftCandidate,
@@ -204,12 +205,9 @@ export function HelpQuestionForm({
           </p>
         ) : null}
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <p
-            id="help-question-privacy"
-            className="text-xs leading-relaxed font-medium text-[var(--text-faint)]"
-          >
+          <QuietNote id="help-question-privacy">
             Searches are private — members never know they matched.
-          </p>
+          </QuietNote>
           <div className="flex flex-col gap-2 sm:ml-auto sm:flex-row">
             <button
               type="button"
