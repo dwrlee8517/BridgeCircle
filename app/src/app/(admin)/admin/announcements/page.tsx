@@ -1,5 +1,6 @@
 import { format, formatDistanceToNow } from 'date-fns'
 import { Megaphone } from 'lucide-react'
+import { AdminPage } from '@/app/(admin)/admin/admin-page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { createSchoolRepository } from '@/db/repositories/school'
@@ -14,7 +15,10 @@ export default async function AdminAnnouncementsPage() {
     (await createSchoolRepository(client).getAdminAnnouncements(membership.membershipId)) ?? []
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 space-y-6">
+    <AdminPage
+      title="Announcements"
+      description="Notes to the circle. Members read them on School."
+    >
       <Card>
         <CardHeader>
           <CardTitle>New announcement</CardTitle>
@@ -68,6 +72,6 @@ export default async function AdminAnnouncementsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   )
 }

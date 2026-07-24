@@ -29,11 +29,11 @@ test('administrator invite and approval operations render', async ({ page }) => 
   await signIn(page, 'admin-amy@example.com', 'devseed-password-amy')
   await page.goto('/admin/invite')
   const main = page.locator('#main-content')
-  await expect(main.getByText('Invite members', { exact: true })).toBeVisible()
+  await expect(main.getByRole('heading', { name: 'Invites', level: 1 })).toBeVisible()
   await expect(main.getByText('Recent invites', { exact: true })).toBeVisible()
   await page.screenshot({ path: '/private/tmp/bridgecircle-entry-admin-invites.png', fullPage: true })
 
   await page.goto('/admin/approvals')
-  await expect(main.getByText('Approval queue', { exact: true })).toBeVisible()
+  await expect(main.getByRole('heading', { name: 'Approvals', level: 1 })).toBeVisible()
   await page.screenshot({ path: '/private/tmp/bridgecircle-entry-admin-approvals.png', fullPage: true })
 })

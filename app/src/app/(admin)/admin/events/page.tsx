@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { CalendarDays } from 'lucide-react'
 import Link from 'next/link'
+import { AdminPage } from '@/app/(admin)/admin/admin-page'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -29,12 +30,10 @@ export default async function AdminEventsPage() {
   const past = availableEvents.filter((event) => new Date(event.startsAt).getTime() < now)
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-10">
+    <AdminPage title="Events" description="Create and manage what members see on the School page.">
       <Card>
         <CardHeader>
-          <CardTitle>
-            <h1>New event</h1>
-          </CardTitle>
+          <CardTitle>New event</CardTitle>
           <CardDescription>
             Publishes immediately to {orgName}. Review the member-facing details before publishing.
           </CardDescription>
@@ -130,6 +129,6 @@ export default async function AdminEventsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   )
 }

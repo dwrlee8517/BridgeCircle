@@ -43,9 +43,7 @@ test("sending a single invite writes a pending invites row, and reports success 
 
   await signInAs(page, orgAdmin);
   await page.goto("/admin/invite");
-  await expect(
-    page.getByText("Invite members", { exact: true }).filter({ visible: true }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Invites", level: 1 })).toBeVisible();
   await page.waitForLoadState("networkidle");
 
   const singleInvitePanel = page.locator('[data-slot="tabs-content"][data-state="active"]');
