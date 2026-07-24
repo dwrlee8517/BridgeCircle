@@ -64,8 +64,8 @@ test.describe('read-only v2 dev smoke', () => {
     await signInAs(page, AMY)
 
     const roads: Array<[string, string]> = [
-      ['/admin/invite', 'Invite members'],
-      ['/admin/approvals', 'Approval queue'],
+      ['/admin/invite', 'Invites'],
+      ['/admin/approvals', 'Approvals'],
       ['/admin/events', 'New event'],
       ['/admin/announcements', 'New announcement'],
     ]

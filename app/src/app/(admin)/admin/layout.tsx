@@ -32,6 +32,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="density-pro flex min-h-dvh bg-[var(--surface-canvas)]">
+      <a
+        href="#main-content"
+        className="fixed top-2 left-2 z-[60] -translate-y-20 rounded-md bg-foreground px-3 py-2 text-sm font-semibold text-background transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
       <aside className="sticky top-0 hidden h-dvh w-[228px] shrink-0 flex-col border-r border-border-subtle bg-card px-3 py-4 md:flex">
         <Link
           href="/"
@@ -69,7 +75,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
           <AdminRail counts={counts} horizontal />
         </div>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main id="main-content" className="min-w-0 flex-1">
+          {children}
+        </main>
       </div>
     </div>
   )
