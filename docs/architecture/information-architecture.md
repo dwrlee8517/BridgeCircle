@@ -136,16 +136,21 @@ complete.
 
 | Route | Responsibility |
 |---|---|
-| `/admin` | Organization operations overview |
+| `/admin` | Health overview — attention queues and community pulse |
+| `/admin/members` | Member directory and console-role management |
 | `/admin/approvals` | Pending membership decisions |
 | `/admin/invite` | Invitations |
+| `/admin/reports` | Report-review queue |
 | `/admin/events` | Event administration |
 | `/admin/events/[id]/edit` | Edit or cancel an existing event |
 | `/admin/announcements` | Announcement administration |
 
-The current Admin surface covers invitations, approvals, basic event management,
-and announcements. A report-review queue and the fuller event-authoring model
-remain planned work; do not describe either as complete.
+The Admin console is a takeover shell (its own route group with a grouped rail;
+the member navigation never renders inside it). The current surface covers the
+health overview, member directory with role grants, invitations, approvals, the
+report-review queue, basic event management, and announcements. The fuller
+event-authoring model and moderation-action depth remain planned work; do not
+describe them as complete.
 
 ### Settings
 

@@ -32,6 +32,14 @@ test("the Admin nav tab appears for admins and not for plain members", async ({ 
   await expect(page.getByRole("navigation").getByRole("link", { name: "Admin" })).toHaveCount(0);
 });
 
+test("/admin lands on the health overview with its two sections", async ({ page }) => {
+  await signInAs(page, orgAdmin);
+  await page.goto("/admin");
+  await expect(page.getByRole("heading", { name: "Overview", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Waiting on you" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /is doing$/ })).toBeVisible();
+});
+
 test("a plain member requesting /admin/invite is bounced back to Home", async ({ page }) => {
   await signInAs(page, plainMember);
   await page.goto("/admin/invite");
