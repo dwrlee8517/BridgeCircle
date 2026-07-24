@@ -99,7 +99,7 @@ export function AdminRail({
     <nav aria-label="Admin sections" className="flex flex-col gap-4">
       {GROUPS.map((group) => (
         <div key={group.label}>
-          <p className="px-3 pb-1 text-[11px] font-bold tracking-[0.1em] text-[var(--text-faint)] uppercase">
+          <p className="px-3 pb-1 text-overline font-bold tracking-label text-[var(--text-faint)] uppercase">
             {group.label}
           </p>
           <div className="flex flex-col gap-0.5">
@@ -133,7 +133,7 @@ export function AdminRail({
 function RailCount({ value }: { value: number }) {
   if (value <= 0) return null
   return (
-    <span className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[var(--closing-soon-tint)] px-1.5 text-[10.5px] font-bold text-[var(--closing-soon-text)] tabular-nums">
+    <span className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-[var(--closing-soon-tint)] px-1.5 text-fine font-bold text-[var(--closing-soon-text)] tabular-nums">
       {value > 99 ? '99+' : value}
     </span>
   )

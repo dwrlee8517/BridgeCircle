@@ -354,7 +354,7 @@ function MemberDrawer({
             </dl>
 
             <div className="border-t border-[var(--divider-row)] pt-3">
-              <p className="text-xs font-bold tracking-[0.08em] text-[var(--text-faint)] uppercase">
+              <p className="text-xs font-bold tracking-label text-[var(--text-faint)] uppercase">
                 Console roles
               </p>
               {member.roles.includes('super_admin') ? (
@@ -413,7 +413,7 @@ function MemberDrawer({
 function DrawerFact({ label, value }: { label: string; value: string | null }) {
   return (
     <div className={cn(!value && 'opacity-60')}>
-      <dt className="font-bold tracking-[0.08em] text-[var(--text-faint)] uppercase">{label}</dt>
+      <dt className="font-bold tracking-label text-[var(--text-faint)] uppercase">{label}</dt>
       <dd className="mt-0.5 font-medium text-[var(--text-secondary)]">{value ?? '—'}</dd>
     </div>
   )
