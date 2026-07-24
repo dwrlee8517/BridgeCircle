@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { Mail } from 'lucide-react'
 import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
+import { AdminPage } from '@/app/(admin)/admin/admin-page'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { LifecycleStatusBadge } from '@/components/ui/status-badge'
@@ -28,15 +29,11 @@ export default async function AdminInvitePage() {
   })
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-10">
+    <AdminPage
+      title="Invites"
+      description={`Send secure, 14-day join links for ${orgName}. Existing pending invites are reused instead of creating duplicate access paths.`}
+    >
       <Card>
-        <CardHeader>
-          <CardTitle>Invite members</CardTitle>
-          <CardDescription>
-            Send secure, 14-day join links for {orgName}. Existing pending invites are reused safely
-            instead of creating duplicate access paths.
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           <Tabs defaultValue="single">
             <TabsList>
@@ -110,6 +107,6 @@ export default async function AdminInvitePage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   )
 }

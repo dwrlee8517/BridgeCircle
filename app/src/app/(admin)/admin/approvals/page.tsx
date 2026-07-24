@@ -1,7 +1,8 @@
 import { formatDistanceToNow } from 'date-fns'
 import { loadSchoolAdminContext } from '@/app/(admin)/admin/_lib/school-admin'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AdminPage } from '@/app/(admin)/admin/admin-page'
+import { Card, CardContent } from '@/components/ui/card'
+import { StatusBadge } from '@/components/ui/status-badge'
 import { createAdminEntryRepository } from '@/db/repositories/admin-entry'
 import { DecisionButtons } from './decision-buttons'
 
@@ -13,27 +14,18 @@ export default async function AdminApprovalsPage() {
   })
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 px-4 py-10">
+    <AdminPage
+      title="Approvals"
+      description={`People who finished their ${membership.organization.name} setup and are waiting for access.`}
+      actions={
+        <StatusBadge tone={membership.organization.requiresAdminApproval ? 'info' : 'muted'}>
+          {membership.organization.requiresAdminApproval
+            ? 'Approval required'
+            : 'Auto-approve mode'}
+        </StatusBadge>
+      }
+    >
       <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>Approval queue</CardTitle>
-              <CardDescription>
-                People who finished their {membership.organization.name} setup and are waiting for
-                access.
-              </CardDescription>
-            </div>
-            <Badge
-              variant={membership.organization.requiresAdminApproval ? 'default' : 'outline'}
-              className="shrink-0"
-            >
-              {membership.organization.requiresAdminApproval
-                ? 'Approval required'
-                : 'Auto-approve mode'}
-            </Badge>
-          </div>
-        </CardHeader>
         <CardContent>
           {!membership.organization.requiresAdminApproval ? (
             <p className="mb-4 rounded-md border border-dashed bg-muted/30 p-3 text-sm text-muted-foreground">
@@ -76,6 +68,6 @@ export default async function AdminApprovalsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   )
 }
