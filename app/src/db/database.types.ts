@@ -25,6 +25,7 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_overview: { Args: { p_membership_id: string }; Returns: Json }
       admin_revoke_role: {
         Args: {
           p_membership_id: string

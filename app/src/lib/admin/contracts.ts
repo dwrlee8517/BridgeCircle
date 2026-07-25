@@ -135,6 +135,38 @@ export type AdminRoleChangeResult =
   | { ok: true; status: 'granted' | 'already_granted' | 'revoked' | 'not_found' }
   | { ok: false; error: 'invalid_input' | 'not_available' | 'forbidden' }
 
+// --- Health overview ---------------------------------------------------------
+
+/** A queue that may be waiting on a person: how many, and since when. */
+export type AdminAttentionSignal = { count: number; oldestAt: string | null }
+
+export type AdminOverview = {
+  attention: {
+    approvals: AdminAttentionSignal
+    reports: AdminAttentionSignal
+    staleInvites: AdminAttentionSignal
+    /** Aggregate only — ask content stays private from admins. */
+    quietAsks: AdminAttentionSignal
+    quietNewMembers: { count: number }
+  }
+  pulse: {
+    activeMembers: number
+    openToHelp: number
+    asksLast30: number
+    heardBackLast30: number
+    newMembersLast30: number
+    nextEvent: { id: string; title: string; startsAt: string; goingCount: number } | null
+  }
+}
+
+export type AdminOverviewResult =
+  | { ok: true; overview: AdminOverview }
+  | { ok: false; error: 'not_available' }
+
+export type AdminOverviewRepository = {
+  get(input: { membershipId: string }): Promise<AdminOverviewResult>
+}
+
 export type AdminMembersRepository = {
   list(
     input: { membershipId: string; limit?: number; offset?: number } & AdminMemberFilters,

@@ -3,6 +3,7 @@
 import {
   CalendarDays,
   Flag,
+  Gauge,
   type LucideIcon,
   MailPlus,
   Megaphone,
@@ -26,6 +27,9 @@ type RailItem = {
 }
 
 type RailGroup = { label: string; items: RailItem[] }
+
+// Overview is the console's front page — it sits above the groups, ungrouped.
+const OVERVIEW: RailItem = { href: '/admin', label: 'Overview', icon: Gauge }
 
 // The Members group grows a Directory item when /admin/members lands; groups
 // exist so the rail scales without another IA pass.
@@ -64,10 +68,10 @@ export function AdminRail({
   horizontal?: boolean
 }) {
   const pathname = usePathname()
+  // /admin is the overview itself, so it only matches exactly — every other
+  // item also owns its subtree.
   const isActive = (href: string) =>
-    pathname === href ||
-    pathname.startsWith(`${href}/`) ||
-    (href === '/admin/members' && pathname === '/admin')
+    pathname === href || (href !== '/admin' && pathname.startsWith(`${href}/`))
 
   if (horizontal) {
     return (
@@ -75,7 +79,7 @@ export function AdminRail({
         aria-label="Admin sections"
         className="flex gap-1 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {GROUPS.flatMap((group) => group.items).map((item) => (
+        {[OVERVIEW, ...GROUPS.flatMap((group) => group.items)].map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -97,6 +101,19 @@ export function AdminRail({
 
   return (
     <nav aria-label="Admin sections" className="flex flex-col gap-4">
+      <Link
+        href={OVERVIEW.href}
+        aria-current={isActive(OVERVIEW.href) ? 'page' : undefined}
+        className={cn(
+          'bc-motion-control flex min-h-9 items-center gap-2.5 rounded-[var(--radius-box)] px-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+          isActive(OVERVIEW.href)
+            ? 'bg-[image:var(--nav-active-bg)] text-[var(--nav-active-text)]'
+            : 'text-muted-foreground hover:bg-[var(--hover-tint)] hover:text-foreground',
+        )}
+      >
+        <OVERVIEW.icon aria-hidden className="size-4 shrink-0" strokeWidth={1.9} />
+        <span className="min-w-0 flex-1 truncate">{OVERVIEW.label}</span>
+      </Link>
       {GROUPS.map((group) => (
         <div key={group.label}>
           <p className="px-3 pb-1 text-overline font-bold tracking-label text-[var(--text-faint)] uppercase">
