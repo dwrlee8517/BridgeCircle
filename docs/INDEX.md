@@ -4,6 +4,7 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 
 ## Start here
 
+- [Pilot launch plan](product/pilot-launch-plan.md) — everything between here and the Chadwick pilot: gates, workstreams, critical path
 - [Brand & product strategy](product/brand-strategy.md) — positioning and north star
 - [Voice guidelines](product/voice-guidelines.md) — voice and copy rules
 - [Feature roadmap](product/feature-roadmap.md) — phases, pricing, out-of-scope
@@ -15,6 +16,7 @@ Wiki entry. Each link is one click to the document. Agents can use this as a man
 
 Positioning, voice, market, roadmap.
 
+- [Pilot launch plan](product/pilot-launch-plan.md)
 - [Brand & product strategy](product/brand-strategy.md)
 - [Voice guidelines](product/voice-guidelines.md)
 - [Feature roadmap](product/feature-roadmap.md)
