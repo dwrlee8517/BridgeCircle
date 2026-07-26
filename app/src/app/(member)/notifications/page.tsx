@@ -58,7 +58,7 @@ export default async function NotificationsPage({
     <div className="density-cozy mx-auto max-w-[680px] space-y-5 px-4 py-8 sm:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
-          <h1 className="text-display-section font-bold tracking-tight text-[var(--text-primary)]">
+          <h1 className="text-page-title font-bold tracking-tight text-[var(--text-primary)]">
             Notifications
           </h1>
           <p className="text-sm leading-relaxed font-medium text-[var(--text-muted)]">
@@ -92,7 +92,7 @@ export default async function NotificationsPage({
         <EmptyState
           icon={Bell}
           title="No notifications yet"
-          description="Connection requests, ask replies, messages, and announcements will show up here as they happen."
+          description="Requests, replies, and announcements show up here."
           action={{ label: 'Find people', href: '/people' }}
         />
       ) : (
@@ -187,26 +187,25 @@ const NOTIF_ICON: Record<NotificationType, typeof Bell> = {
 }
 
 /**
- * Tone-tinted icon chip per notification type — mirrors the Civic Editorial
- * prototype's notification dropdown, which color-codes by semantic: ochre for
- * an incoming ask (needs reply), sage for an acceptance, blue for
+ * Tone-tinted icon chip per notification type, color-coded by semantic: amber
+ * for an incoming ask (needs reply), green for an acceptance, blue for
  * connections/messages, muted for announcements, danger for cancellations.
- * Icon-as-fill is contrast-safe in ochre even though small ochre body text is not.
+ * Icon-as-fill is contrast-safe in amber even though small amber body text is not.
  */
 function notifTone(type: NotificationType): string {
   switch (type) {
     case 'ask_received':
-      return 'bg-warning-tint text-accent-ochre'
+      return 'bg-warning-tint text-palette-amber'
     case 'ask_accepted':
     case 'offer_accepted':
     case 'connection_accepted':
-      return 'bg-success-tint text-accent-sage'
+      return 'bg-success-tint text-palette-green'
     case 'ask_declined':
     case 'offer_declined':
     case 'event_cancelled':
       return 'bg-danger-tint text-state-danger'
     case 'event_waitlist_spot_opened':
-      return 'bg-success-tint text-accent-sage'
+      return 'bg-success-tint text-palette-green'
     case 'connection_requested':
     case 'message_received':
       return 'bg-primary-tint text-primary'

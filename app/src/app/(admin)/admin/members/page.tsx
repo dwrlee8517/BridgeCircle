@@ -36,7 +36,7 @@ export default async function AdminMembersPage({
   return (
     <div className="mx-auto max-w-5xl space-y-4 px-4 py-8 sm:px-6">
       <header>
-        <h1 className="text-display-section font-bold tracking-tight text-[var(--text-primary)]">
+        <h1 className="text-page-title font-bold tracking-tight text-[var(--text-primary)]">
           Members
         </h1>
         <p className="mt-1 text-sm leading-relaxed font-medium text-[var(--text-muted)]">

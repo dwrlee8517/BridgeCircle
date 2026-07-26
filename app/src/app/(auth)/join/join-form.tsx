@@ -33,7 +33,7 @@ export function JoinForm({ token, email, fullName, organizationName }: Props) {
         <p className="text-kicker font-semibold uppercase tracking-hero text-primary">
           You&apos;re invited to
         </p>
-        <h1 className="font-heading text-3xl font-bold tracking-tight">{organizationName}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{organizationName}</h1>
         <p className="text-sm text-muted-foreground">on BridgeCircle</p>
       </div>
 

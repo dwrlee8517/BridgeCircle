@@ -12,9 +12,8 @@ const buttonVariants = cva(
         default: 'bg-action-primary text-action-on-primary hover:bg-action-primary-hover',
         // O8 — the single lead action on a local decision surface.
         cta: 'bg-cta bg-[image:var(--gradient-primary-btn)] text-cta-foreground shadow-[var(--shadow-primary-btn)] hover:opacity-95',
-        // O2 — lead give-help commitments. The legacy name is retained while
-        // route call sites migrate to the canonical action-give vocabulary.
-        offer: 'bg-action-offer text-action-on-offer hover:bg-action-offer-hover',
+        // O2 — lead give-help commitments.
+        give: 'bg-action-give text-action-on-give hover:bg-action-give-hover',
         outline:
           'border-transparent bg-surface-card text-text-secondary shadow-[var(--ring-outline)] hover:bg-surface-subtle hover:text-text-primary aria-expanded:bg-surface-subtle aria-expanded:text-text-primary dark:bg-input/30 dark:hover:bg-input/50',
         secondary:

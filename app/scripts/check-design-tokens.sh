@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Design-token ratchet: arbitrary Tailwind literals may only go DOWN.
 #
-# The Civic Editorial scale has named utilities for every sanctioned value
-# (text-kicker/caption/body-*/h1/display-*, tracking-label/kicker, the
+# The brand-fork type scale has named utilities for every sanctioned value
+# (text-kicker/caption/body-*/heading-*/display-*, tracking-label/kicker, the
 # `detail:` breakpoint, the 4px spacing scale). New code should use those;
 # this script counts the banned literal patterns in src/ and fails when the
 # count rises above the checked-in baseline. When you remove literals,

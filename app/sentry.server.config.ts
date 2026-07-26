@@ -10,7 +10,7 @@ Sentry.init({
   // Sample 100% of traces in dev for debugging, 10% in production to stay within free-tier quota.
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1,
 
-  // Disabled to avoid sending private content (mentor messages, profile data) to Sentry on errors.
+  // Disabled to avoid sending private content (member messages, profile data) to Sentry on errors.
   // Attach user.id explicitly via Sentry.setUser() in auth helpers instead.
   sendDefaultPii: false,
 })

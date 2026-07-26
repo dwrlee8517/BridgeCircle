@@ -33,7 +33,7 @@ export function Wordmark({
         </svg>
       ) : null}
       <span
-        className={cn('bc-fraunces text-lg font-bold leading-none tracking-tight', textClassName)}
+        className={cn('bc-display text-lg font-bold leading-none tracking-tight', textClassName)}
       >
         Bridge
         <span className={accentInk}>Circle</span>

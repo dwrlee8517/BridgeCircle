@@ -23,9 +23,7 @@ export function ResetPasswordForm() {
   return (
     <Card className="text-base shadow-card-hover">
       <CardHeader className="pt-7 pb-2">
-        <CardTitle className="font-heading text-3xl font-bold tracking-tight">
-          Reset your password
-        </CardTitle>
+        <CardTitle className="text-3xl font-bold tracking-tight">Reset your password</CardTitle>
         <CardDescription className="text-base">
           Enter your email and we&rsquo;ll send a reset link.
         </CardDescription>

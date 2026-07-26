@@ -18,11 +18,11 @@ export function EventTime({ event }: { event: SchoolEventCard }) {
     <span className="block">
       <span className="block">{local}</span>
       {localZone !== event.timeZone ? (
-        <span className="mt-0.5 block text-fine font-medium text-surface-ink-muted">
+        <span className="mt-0.5 block text-fine font-medium text-surface-editorial-muted">
           {campus} · {campusTimeLabel(event)}
         </span>
       ) : (
-        <span className="mt-0.5 block text-fine font-medium text-surface-ink-muted">
+        <span className="mt-0.5 block text-fine font-medium text-surface-editorial-muted">
           {campusTimeLabel(event)}
         </span>
       )}

@@ -215,7 +215,7 @@ export function GiveDirectView({
             .map((paragraph) => (
               <p
                 key={paragraph}
-                className="mt-3 text-body-md leading-[1.7] font-medium text-[var(--text-primary)]"
+                className="mt-3 text-body leading-[1.7] font-medium text-[var(--text-primary)]"
               >
                 {paragraph}
               </p>

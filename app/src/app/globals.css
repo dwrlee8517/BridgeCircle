@@ -8,8 +8,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -42,9 +40,6 @@
   --color-cta: var(--cta);
   --color-cta-hover: var(--cta-hover);
   --color-cta-foreground: var(--cta-foreground);
-  --color-surface-ink: var(--surface-ink);
-  --color-surface-ink-foreground: var(--surface-ink-foreground);
-  --color-surface-ink-muted: var(--surface-ink-muted);
   --color-surface-page: var(--surface-page);
   --color-surface-base: var(--surface-base);
   --color-surface-card: var(--surface-card);
@@ -81,12 +76,6 @@
   --color-action-give-text: var(--action-give-text);
   --color-give-tint: var(--give-tint);
   --color-give-tint-weak: var(--give-tint-weak);
-  /* Temporary production aliases while existing give-help call sites migrate. */
-  --color-action-offer: var(--action-offer);
-  --color-action-offer-hover: var(--action-offer-hover);
-  --color-action-on-offer: var(--action-on-offer);
-  --color-action-offer-weak: var(--action-offer-weak);
-  --color-action-offer-weak-text: var(--action-offer-weak-text);
   --color-link: var(--link);
   --color-link-hover: var(--link-hover);
   --color-focus-ring: var(--focus-ring);
@@ -118,8 +107,6 @@
   --color-state-categorized-foreground: var(--state-categorized-foreground);
   --color-state-muted: var(--state-muted);
   --color-match-signal: var(--match-signal);
-  --color-mentor-open: var(--mentor-open);
-  --color-mentor-paused: var(--mentor-paused);
   --color-request-attention: var(--request-attention);
   --color-request-declined: var(--request-declined);
   --color-verification: var(--verification);
@@ -130,16 +117,16 @@
   --color-success-tint: var(--success-tint);
   --color-warning-tint: var(--warning-tint);
   --color-danger-tint: var(--danger-tint);
-  --color-plum-tint: var(--plum-tint);
+  --color-palette-purple-tint: var(--palette-purple-tint);
   --color-editorial-rule: var(--editorial-rule);
   --color-editorial-rule-strong: var(--editorial-rule-strong);
   --color-focus-ring-muted: var(--focus-ring-muted);
   --color-icon-muted: var(--icon-muted);
   --color-divider-row: var(--divider-row);
-  --color-accent-ochre: var(--accent-ochre);
-  --color-accent-rust: var(--accent-rust);
-  --color-accent-sage: var(--accent-sage);
-  --color-accent-plum: var(--accent-plum);
+  --color-palette-amber: var(--palette-amber);
+  --color-palette-red: var(--palette-red);
+  --color-palette-green: var(--palette-green);
+  --color-palette-purple: var(--palette-purple);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -162,11 +149,7 @@
   --spacing-space-12: var(--space-12);
 
   /* Typographic Size scale */
-  --font-size-display-lg: var(--font-size-display-lg);
-  --font-size-display-md: var(--font-size-display-md);
-  --font-size-h1: var(--font-size-h1);
   --font-size-body-lg: var(--font-size-body-lg);
-  --font-size-body-md: var(--font-size-body-md);
   --font-size-caption: var(--font-size-caption);
   --font-size-mono-sm: var(--font-size-mono-sm);
 
@@ -186,12 +169,7 @@
   --text-nav: var(--font-size-nav);
   --text-caption: var(--font-size-caption);
   --text-body-sm: var(--font-size-body-sm);
-  --text-body-md: var(--font-size-body-md);
   --text-body-lg: var(--font-size-body-lg);
-  --text-h1: var(--font-size-h1);
-  --text-h2: var(--font-size-h2);
-  --text-display-md: var(--font-size-display-md);
-  --text-display-lg: var(--font-size-display-lg);
 
   /* Repeated handoff roles that intentionally sit between the core type
      steps. Naming them keeps the approved People/Profile and School detail
@@ -267,11 +245,9 @@
    Existing semantic names remain in place while the redesign lands page by
    page. New shell roles come from the canonical bridgecircle handoff bundle. */
 :root {
-  /* Type: one family — Pretendard (D4). next/font sets --font-sans on <html>;
-     the display + mono aliases fold to it so `font-heading` and mono call
-     sites survive until the Phase D cleanup. Data uses `tabular-nums`. */
-  --font-display: var(--font-sans);
-  --font-mono: var(--font-sans);
+  /* Type: one family — Pretendard (D4). next/font sets --font-sans on <html>.
+     The `--font-display` / `--font-mono` compatibility aliases were removed
+     2026-07-25; numeric data uses `tabular-nums`. */
 
   /* BridgeCircle fork ramps. These stay faithful to the Toss baseline except
      for the logged O7 grey-200 adjustment. Components consume role tokens
@@ -395,9 +371,9 @@
   --cta-foreground: #ffffff;
   /* Dark surface band — cool grey-ink, replaces Warm Ink navy. A6 confirmed a
      dark band survives; its gradient lives in --gradient-band-dark below. */
-  --surface-ink: var(--grey-900);
-  --surface-ink-foreground: var(--grey-50);
-  --surface-ink-muted: rgb(249 250 251 / 0.68);
+  --surface-editorial: var(--grey-900);
+  --surface-editorial-foreground: var(--grey-50);
+  --surface-editorial-muted: rgb(249 250 251 / 0.68);
   --secondary: var(--grey-50);
   --secondary-foreground: var(--grey-700);
   --muted: var(--grey-100);
@@ -427,10 +403,10 @@
 
   /* Legacy accents retain their names but now resolve through the final fork
      ramps. New code uses semantic state roles rather than these aliases. */
-  --accent-ochre: var(--orange-700);
-  --accent-rust: var(--red-500);
-  --accent-sage: #0b8a57;
-  --accent-plum: var(--purple-600);
+  --palette-amber: var(--orange-700);
+  --palette-red: var(--red-500);
+  --palette-green: #0b8a57;
+  --palette-purple: var(--purple-600);
 
   /* Canonical BridgeCircle roles (handoff Layer 2). */
   --surface-page: var(--background);
@@ -451,9 +427,6 @@
   --icon-muted: #c8cfd8;
 
   /* Compatibility aliases for the production editorial surface API. */
-  --surface-editorial: var(--surface-ink);
-  --surface-editorial-foreground: var(--surface-ink-foreground);
-  --surface-editorial-muted: var(--surface-ink-muted);
   --divider-row: #f4f5f7;
   --divider: var(--divider-row);
 
@@ -469,8 +442,7 @@
   --action-disabled-text: var(--grey-400);
   --action-on-editorial: var(--primary-on-dark);
 
-  /* O2 give composition. `action-offer*` remains a temporary alias for
-     existing production call sites; new work uses `action-give*`. */
+  /* O2 give composition — the canonical give-help action role. */
   --action-give: #0b8a57;
   --action-give-hover: #077046;
   --action-on-give: #ffffff;
@@ -479,11 +451,6 @@
   --action-give-text: #029a5e;
   --give-tint: rgb(3 178 108 / 0.12);
   --give-tint-weak: rgb(3 178 108 / 0.1);
-  --action-offer: var(--action-give);
-  --action-offer-hover: var(--action-give-hover);
-  --action-on-offer: var(--action-on-give);
-  --action-offer-weak: var(--action-give-weak);
-  --action-offer-weak-text: var(--action-give-weak-text);
 
   --link: var(--primary);
   --link-hover: var(--blue-700);
@@ -522,11 +489,9 @@
   --state-muted: var(--muted-foreground);
 
   --match-signal: var(--primary);
-  --mentor-open: var(--accent-sage);
-  --mentor-paused: var(--orange-700);
   --request-attention: var(--orange-500);
-  --request-declined: var(--accent-rust);
-  --verification: var(--accent-sage);
+  --request-declined: var(--palette-red);
+  --verification: var(--palette-green);
   --event-featured: var(--primary);
   --admin-operational: var(--foreground);
 
@@ -536,7 +501,7 @@
   --success-tint: var(--give-tint-weak);
   --warning-tint: rgb(254 152 0 / 0.14);
   --danger-tint: rgb(240 68 82 / 0.1);
-  --plum-tint: rgb(162 52 199 / 0.1);
+  --palette-purple-tint: rgb(162 52 199 / 0.1);
   --editorial-rule: rgb(249 250 251 / 16%);
   --editorial-rule-strong: rgb(249 250 251 / 28%);
   --focus-ring-muted: var(--focus-ring-soft);
@@ -623,7 +588,7 @@
   --hover-tint: rgb(25 31 40 / 0.04);
   --row-hover: #f7f8fa;
 
-  /* Page band (.bc-page-band) — white sheen + sapphire glow over the canvas.
+  /* Page band (.bc-page-band) — white sheen + primary-blue glow over the canvas.
      Themed via variables so dark mode overrides values, not selectors. */
   --page-band-sheen: rgb(255 255 255 / 0.72);
   --page-band-glow: rgb(49 130 246 / 0.07);
@@ -674,13 +639,10 @@
   --font-size-caption: 0.75rem; /* 12px */
   --font-size-label: 0.75rem; /* 12px */
   --font-size-nav: 0.9375rem; /* 15px — E3 sidebar label */
-  --font-size-display-lg: var(--font-size-display-xl);
-  --font-size-display-md: var(--font-size-display-hero);
-  --font-size-h1: var(--font-size-heading-large);
-  --font-size-h2: var(--font-size-heading);
-  --font-size-body-md: var(--font-size-body);
   --font-size-label-md: 0.875rem; /* 14px */
   --font-size-mono-sm: 0.75rem; /* 12px minimum */
+  /* `kicker` is a canonical role, not an alias: the small caps label above a
+     headline. Kept named because 28 call sites carry that editorial meaning. */
   --font-size-kicker: var(--font-size-label);
 
   --lh-display-xl: 3rem;
@@ -741,9 +703,9 @@
   --cta-hover: #90c2ff;
   --cta-foreground: #101216;
   /* Dark band surface, one step above the card so it stays distinct */
-  --surface-ink: #262933;
-  --surface-ink-foreground: #e7e9ee;
-  --surface-ink-muted: rgb(231 233 238 / 66%);
+  --surface-editorial: #262933;
+  --surface-editorial-foreground: #e7e9ee;
+  --surface-editorial-muted: rgb(231 233 238 / 66%);
   --secondary: #282a33;
   --secondary-foreground: #e7e9ee;
   --muted: #282a33;
@@ -771,19 +733,21 @@
 
   /* Editorial accent roles on dark — ramp stops lifted for legibility;
      plum still folds to blue (A6). */
-  --accent-ochre: #d69f32; /* ochre-400 */
-  --accent-rust: #f05d6c; /* red-400 */
-  --accent-sage: #15c47e; /* green-400 */
-  --accent-plum: #64a8ff; /* A6: violet folds to blue */
+  --palette-amber: #d69f32; /* ochre-400 */
+  --palette-red: #f05d6c; /* red-400 */
+  --palette-green: #15c47e; /* green-400 */
+  --palette-purple: #64a8ff; /* A6: violet folds to blue */
 
-  /* Give action lifts to a brighter green on dark; label flips to ink */
-  --action-offer: #15c47e; /* green-400 */
-  --action-offer-hover: #03b26c; /* green-500 */
-  --action-on-offer: #14161b;
-  --action-offer-weak: rgb(3 178 108 / 14%);
-  --action-offer-weak-text: #4dd49b; /* green-300 */
+  /* Give action lifts to a brighter green on dark; label flips to ink.
+     These were authored under the retired `action-offer*` names, which meant
+     the canonical `action-give*` roles silently inherited the light-mode green
+     on dark surfaces. They now sit on the canonical names. */
+  --action-give: #15c47e; /* green-400 */
+  --action-give-hover: #03b26c; /* green-500 */
+  --action-on-give: #14161b;
+  --action-give-weak-text: #4dd49b; /* green-300 */
 
-  --state-warning-foreground: var(--accent-ochre);
+  --state-warning-foreground: var(--palette-amber);
   --state-danger-foreground: #fecaca;
   --state-categorized-foreground: var(--foreground);
   --primary-tint: rgb(100 168 255 / 12%);
@@ -791,7 +755,7 @@
   --success-tint: rgb(21 196 126 / 14%);
   --warning-tint: rgb(214 159 50 / 14%);
   --danger-tint: rgb(240 93 108 / 14%);
-  --plum-tint: rgb(100 168 255 / 14%); /* A6: plum folds to blue */
+  --palette-purple-tint: rgb(100 168 255 / 14%); /* A6: plum folds to blue */
   --editorial-rule: rgb(231 233 238 / 14%);
   --editorial-rule-strong: rgb(231 233 238 / 26%);
   --focus-ring-muted: rgb(100 168 255 / 14%);
@@ -922,7 +886,7 @@
     background-color: var(--card);
     color: var(--foreground);
     padding: var(--space-2) var(--space-3);
-    font-size: var(--font-size-body-md);
+    font-size: var(--font-size-body);
     transition:
       border-color var(--motion-base) var(--ease-standard),
       box-shadow var(--motion-base) var(--ease-standard);
@@ -1057,17 +1021,16 @@
   }
 }
 
-/* Display heading helper — used on wordmark, profile names, hero h1s,
-   and other display moments. Resolves to Inter Tight (--font-display).
-   Class name `.bc-fraunces` is kept for backwards compatibility with the
-   ~10 existing call sites; it no longer pulls a serif. Rename to
-   `.bc-display` in a follow-up pass when convenient. */
-.bc-fraunces {
-  font-family: var(--font-display), system-ui, sans-serif;
+/* Display heading helper — used on wordmark, profile names, hero h1s, and
+   other display moments. One family (ADR 0013 D4), so this contributes the
+   display letter-spacing rather than a different face. Renamed from
+   `.bc-display` on 2026-07-25; Fraunces and the serif direction are retired. */
+.bc-display {
+  font-family: var(--font-sans), system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
 
-/* Italic pull-quote with a sapphire left rule — used on profile bios.
+/* Italic pull-quote with a primary-blue left rule — used on profile bios.
    Sans italic carries the editorial moment without a serif family. */
 .bc-pull-quote {
   border-left: 3px solid var(--primary);
@@ -1171,19 +1134,8 @@
   background: linear-gradient(
     180deg,
     var(--primary),
-    color-mix(in srgb, var(--accent-sage) 72%, var(--primary))
+    color-mix(in srgb, var(--palette-green) 72%, var(--primary))
   );
-}
-
-/* Mentor status badge hover indicator & tooltip */
-.mentor-status-badge:hover .mentor-indicator-default {
-  display: none;
-}
-.mentor-status-badge:hover .mentor-indicator-hover {
-  display: block;
-}
-.mentor-status-badge:hover .mentor-tooltip {
-  opacity: 1;
 }
 
 /* ============================================================
@@ -1204,12 +1156,12 @@
 
 /* ---- DENSITY: COZY ---- */
 .density-cozy {
-  --font-size-display-lg: 2.125rem; /* 34px */
-  --font-size-display-md: 1.75rem; /* 28px */
-  --font-size-h1: 1.375rem; /* 22px */
-  --font-size-h2: 1rem; /* 16px */
+  --font-size-display-xl: 2.125rem; /* 34px */
+  --font-size-display-hero: 1.75rem; /* 28px */
+  --font-size-heading-large: 1.375rem; /* 22px */
+  --font-size-heading: 1rem; /* 16px */
   --font-size-body-lg: 0.9375rem; /* 15px */
-  --font-size-body-md: 0.875rem; /* 14px */
+  --font-size-body: 0.875rem; /* 14px */
   --font-size-caption: 0.75rem; /* 12px */
   --space-card-padding: var(--space-4);
   --space-card-padding-compact: var(--space-3);
@@ -1228,15 +1180,15 @@
 
 /* ---- DENSITY: PRO ---- */
 /* Operator density for admin tables, analytics, ambassador dashboards.
- * Tightens further; CTA reverts to primary blue (admin surfaces have many
- * equal-weight actions; an amber button would over-claim). */
+ * Tightens further. (Historical note: this block once reverted an amber CTA to
+ * blue; the brand fork made blue the CTA everywhere, so nothing to revert.) */
 .density-pro {
-  --font-size-display-lg: 1.875rem; /* 30px */
-  --font-size-display-md: 1.5rem; /* 24px */
-  --font-size-h1: 1.25rem; /* 20px */
-  --font-size-h2: 1rem; /* 16px */
+  --font-size-display-xl: 1.875rem; /* 30px */
+  --font-size-display-hero: 1.5rem; /* 24px */
+  --font-size-heading-large: 1.25rem; /* 20px */
+  --font-size-heading: 1rem; /* 16px */
   --font-size-body-lg: 0.9375rem; /* 15px */
-  --font-size-body-md: 0.875rem; /* 14px */
+  --font-size-body: 0.875rem; /* 14px */
   --font-size-caption: 0.75rem; /* 12px */
   --space-card-padding: var(--space-3);
   --space-card-padding-compact: var(--space-2);

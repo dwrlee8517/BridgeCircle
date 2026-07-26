@@ -86,13 +86,13 @@ export function HelpClient({
         className="border-b border-border"
         style={{
           background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--card) 60%, transparent), transparent), radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--action-offer) 7%, transparent), transparent 38%), radial-gradient(circle at 82% 100%, color-mix(in srgb, var(--accent-ochre) 5%, transparent), transparent 40%), var(--background)',
+            'linear-gradient(180deg, color-mix(in srgb, var(--card) 60%, transparent), transparent), radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--action-give) 7%, transparent), transparent 38%), radial-gradient(circle at 82% 100%, color-mix(in srgb, var(--palette-amber) 5%, transparent), transparent 40%), var(--background)',
         }}
       >
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-12 text-center detail:px-8 detail:py-16">
           <div className="max-w-[720px] space-y-3">
             <div className="bc-section-kicker justify-center">Help queue</div>
-            <h1 className="font-heading text-display-lg font-semibold leading-[1.08] tracking-normal text-foreground max-[480px]:text-display-md">
+            <h1 className="text-display-xl font-semibold leading-[1.08] tracking-normal text-foreground max-[480px]:text-display-hero">
               {waitingCount > 0 ? 'Who should you help next?' : 'Your help queue is clear.'}
             </h1>
             <p className="mx-auto max-w-[620px] text-base leading-[1.55] text-muted-foreground">
@@ -117,7 +117,7 @@ export function HelpClient({
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8">
         <div className="mb-[18px] flex flex-col gap-4 detail:flex-row detail:items-end detail:justify-between detail:gap-6">
           <div>
-            <h2 className="font-heading text-h1 font-semibold leading-tight tracking-normal text-foreground">
+            <h2 className="text-heading-large font-semibold leading-tight tracking-normal text-foreground">
               More people you can help
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
@@ -142,7 +142,7 @@ export function HelpClient({
             type="button"
             onClick={() => setActive('featured')}
             className={cn(
-              'relative inline-flex items-center gap-2 px-3.5 py-3 pb-3.5 font-heading text-sm font-semibold',
+              'relative inline-flex items-center gap-2 px-3.5 py-3 pb-3.5 text-sm font-semibold',
               isFeatured ? 'text-foreground' : 'text-muted-foreground',
             )}
           >
@@ -163,7 +163,7 @@ export function HelpClient({
           {isFeatured ? (
             <div className="flex min-w-0 flex-col gap-4.5">
               <div className="flex items-baseline justify-between gap-3 pt-1">
-                <p className="font-heading text-caption font-semibold uppercase tracking-label text-foreground">
+                <p className="text-caption font-semibold uppercase tracking-label text-foreground">
                   People you could help
                 </p>
                 <span className="text-xs text-muted-foreground">Suggested first</span>
@@ -173,7 +173,7 @@ export function HelpClient({
                   moreFeaturedPicks.map((pick) => <AltPickCard key={pick.id} pick={pick} />)
                 ) : featuredPick ? (
                   <p className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
-                    That best next request is the only current match in this view.
+                    This is the only ask that matches you right now.
                   </p>
                 ) : (
                   <EmptyHelpCard />
@@ -227,7 +227,7 @@ function AvailabilityRail({
     <div className="flex flex-col gap-3 rounded-md border border-border bg-card px-4 py-3.5 shadow-card-hover detail:flex-row detail:items-center detail:gap-5 detail:px-4.5 py-3.5">
       <div className="flex flex-wrap items-center gap-3.5 detail:gap-5">
         <AvailabilityStatus
-          dot="var(--action-offer)"
+          dot="var(--action-give)"
           label="Open to helping"
           sub={availability.paused ? 'Paused' : availability.openToHelp ? 'Open' : 'Off'}
         />
@@ -272,7 +272,7 @@ function AvailabilityRail({
       </Button>
 
       {availability.paused ? (
-        <p className="rounded-md border border-accent-ochre/25 bg-accent-ochre/10 p-2 text-kicker leading-relaxed text-foreground detail:hidden">
+        <p className="rounded-md border border-palette-amber/25 bg-palette-amber/10 p-2 text-kicker leading-relaxed text-foreground detail:hidden">
           Paused while away. Editing availability clears the pause.
         </p>
       ) : null}
@@ -280,17 +280,7 @@ function AvailabilityRail({
   )
 }
 
-function AvailabilityStatus({
-  dot,
-  label,
-  sub,
-  mono = false,
-}: {
-  dot: string
-  label: string
-  sub: string
-  mono?: boolean
-}) {
+function AvailabilityStatus({ dot, label, sub }: { dot: string; label: string; sub: string }) {
   return (
     <div className="flex shrink-0 items-center gap-2.5">
       <span
@@ -303,14 +293,7 @@ function AvailabilityStatus({
       />
       <div>
         <p className="text-caption font-semibold leading-none text-foreground">{label}</p>
-        <p
-          className={cn(
-            'mt-0.5 text-kicker font-medium leading-tight text-muted-foreground',
-            mono && 'font-mono',
-          )}
-        >
-          {sub}
-        </p>
+        <p className="mt-0.5 text-kicker font-medium leading-tight text-muted-foreground">{sub}</p>
       </div>
     </div>
   )
@@ -323,7 +306,7 @@ function Divider({ className }: { className?: string }) {
 function TopicPill({ accent, children }: { accent: string; children: ReactNode }) {
   return (
     <span
-      className="whitespace-nowrap rounded-sm border px-2 py-1 font-mono text-xs font-medium"
+      className="whitespace-nowrap rounded-sm border px-2 py-1 text-xs font-medium"
       style={{
         background: `color-mix(in srgb, ${accent} 7%, var(--card))`,
         borderColor: `color-mix(in srgb, ${accent} 20%, transparent)`,
@@ -347,12 +330,12 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
               <div className="flex flex-wrap items-center gap-2.5">
                 <Link
                   href={`/profile/${pick.personId}`}
-                  className="font-heading text-xl font-semibold tracking-normal text-foreground hover:text-primary"
+                  className="text-xl font-semibold tracking-normal text-foreground hover:text-primary"
                 >
                   {pick.name}
                 </Link>
                 {pick.cohort ? (
-                  <span className="font-mono text-kicker text-muted-foreground">{pick.cohort}</span>
+                  <span className="text-kicker text-muted-foreground">{pick.cohort}</span>
                 ) : null}
               </div>
               <p className="mt-0.5 text-caption text-muted-foreground">
@@ -362,11 +345,11 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
           </div>
 
           {pick.isRealAsk ? (
-            <p className="mt-[18px] font-heading text-lg leading-[1.45] tracking-normal text-foreground">
+            <p className="mt-[18px] text-lg leading-[1.45] tracking-normal text-foreground">
               &ldquo;{pick.need}&rdquo;
             </p>
           ) : (
-            <p className="mt-[18px] font-heading text-lg leading-[1.45] tracking-normal text-foreground">
+            <p className="mt-[18px] text-lg leading-[1.45] tracking-normal text-foreground">
               {pick.need}
             </p>
           )}
@@ -378,7 +361,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
           <p className="bc-card-label">Today</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div>
-              <p className="font-heading text-2xl font-semibold leading-none text-foreground">
+              <p className="text-2xl font-semibold leading-none text-foreground">
                 {Math.max(waitingCount, 1)}
               </p>
               <p className="mt-1 text-kicker leading-tight text-muted-foreground">
@@ -386,9 +369,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
               </p>
             </div>
             <div>
-              <p className="font-heading text-2xl font-semibold leading-none text-foreground">
-                {pick.estReply}
-              </p>
+              <p className="text-2xl font-semibold leading-none text-foreground">{pick.estReply}</p>
               <p className="mt-1 text-kicker leading-tight text-muted-foreground">
                 for a useful reply
               </p>
@@ -401,7 +382,7 @@ function NextHelpCard({ pick, waitingCount }: { pick: HelpPick; waitingCount: nu
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-2.5">
-        <Button asChild variant="offer" size="default" className="rounded-md">
+        <Button asChild variant="give" size="default" className="rounded-md">
           <Link href={pick.href}>
             Offer help
             <ArrowRight className="size-3.5" />
@@ -439,16 +420,16 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
         <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/profile/${pick.personId}`}
-            className="font-heading text-sm font-semibold tracking-copy text-foreground hover:text-primary"
+            className="text-sm font-semibold tracking-copy text-foreground hover:text-primary"
           >
             {pick.name}
           </Link>
           {pick.cohort ? (
-            <span className="font-mono text-xs text-muted-foreground">{pick.cohort}</span>
+            <span className="text-xs text-muted-foreground">{pick.cohort}</span>
           ) : null}
           <span className="text-kicker text-muted-foreground">· {pick.role}</span>
         </div>
-        <p className="mt-1.5 font-heading text-sm leading-[1.4] tracking-body-tight text-foreground">
+        <p className="mt-1.5 text-sm leading-[1.4] tracking-body-tight text-foreground">
           {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
         </p>
         <p className="mt-2 flex flex-wrap items-center gap-1.5 text-kicker text-muted-foreground">
@@ -456,7 +437,7 @@ function AltPickCard({ pick }: { pick: HelpPick }) {
           <span className="text-border" aria-hidden>
             ·
           </span>
-          <span className="font-mono">{pick.posted}</span>
+          <span className="tabular-nums">{pick.posted}</span>
         </p>
       </div>
       <div className="flex items-center gap-2 detail:flex-col detail:items-end">
@@ -481,10 +462,10 @@ function SubjectFeedRow({ pick }: { pick: HelpPick }) {
             {pick.name}
           </Link>
           {pick.cohort ? (
-            <span className="font-mono text-kicker text-muted-foreground">{pick.cohort}</span>
+            <span className="text-kicker text-muted-foreground">{pick.cohort}</span>
           ) : null}
           <span className="text-xs text-muted-foreground">{pick.role}</span>
-          <span className="ml-auto font-mono text-kicker text-muted-foreground">{pick.posted}</span>
+          <span className="ml-auto text-kicker text-muted-foreground">{pick.posted}</span>
         </div>
         <p className="mt-2 text-caption leading-normal text-foreground">
           {pick.isRealAsk ? <>&ldquo;{pick.need}&rdquo;</> : pick.need}
@@ -503,7 +484,7 @@ function SubjectFeedRow({ pick }: { pick: HelpPick }) {
             >
               Not now
             </Button>
-            <Button asChild variant="offer" size="sm" className="rounded-md">
+            <Button asChild variant="give" size="sm" className="rounded-md">
               <Link href={pick.href}>Offer help</Link>
             </Button>
           </div>
@@ -554,7 +535,7 @@ function SubjectPicker({
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          'relative inline-grid max-w-[280px] grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-3.5 py-3 pb-3.5 font-heading text-sm font-semibold',
+          'relative inline-grid max-w-[280px] grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-3.5 py-3 pb-3.5 text-sm font-semibold',
           active ? 'text-foreground' : 'text-muted-foreground',
         )}
       >
@@ -565,9 +546,7 @@ function SubjectPicker({
         )}
         <span className="min-w-0 truncate">{active ? active.label : 'Browse by subject'}</span>
         {active ? (
-          <span className="font-mono text-kicker font-medium text-muted-foreground">
-            {active.ask}
-          </span>
+          <span className="text-kicker font-medium text-muted-foreground">{active.ask}</span>
         ) : null}
         <ChevronDown className={cn('size-3 transition-transform', open && 'rotate-180')} />
         {active ? <span className="absolute inset-x-0 bottom-[-1px] h-0.5 bg-foreground" /> : null}
@@ -604,7 +583,7 @@ function SubjectPicker({
                 >
                   <span className="size-2 rounded-full" style={{ background: subject.color }} />
                   <span className="min-w-0 truncate">{subject.label}</span>
-                  <span className="font-mono text-kicker text-muted-foreground">{subject.ask}</span>
+                  <span className="text-kicker text-muted-foreground">{subject.ask}</span>
                 </button>
               ))
             ) : (
@@ -633,8 +612,8 @@ function EmptyHelpCard() {
   return (
     <EmptyState
       size="inline"
-      title="No open requests in this view right now"
-      description="When someone in the circle asks for help here, they'll show up for you."
+      title="No open requests in this view"
+      description="New asks from the circle show up here."
       action={{ label: 'Edit availability', href: '/settings#helping' }}
     />
   )
@@ -652,7 +631,7 @@ function HelpAvatar({ pick, size }: { pick: HelpPick; size: number }) {
       {pick.avatarUrl ? (
         <Image src={pick.avatarUrl} alt="" fill sizes={`${size}px`} className="object-cover" />
       ) : (
-        <span className="flex size-full items-center justify-center font-heading text-sm font-semibold">
+        <span className="flex size-full items-center justify-center text-sm font-semibold">
           {getInitials(pick.name)}
         </span>
       )}
@@ -667,7 +646,7 @@ function ToggleRow({ label, on }: { label: string; on: boolean }) {
       <span
         className={cn(
           'relative h-[17px] w-[30px] rounded-full',
-          on ? 'bg-accent-sage' : 'bg-border',
+          on ? 'bg-palette-green' : 'bg-border',
         )}
         aria-hidden
       >

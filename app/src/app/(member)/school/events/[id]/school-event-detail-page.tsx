@@ -139,7 +139,7 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
   const attendanceOpen = event.phase === 'upcoming' || event.phase === 'changed'
 
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero">
+    <section className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-editorial-foreground shadow-hero">
       <div className="relative grid gap-6 p-6 sm:grid-cols-[auto_1fr] sm:p-8">
         <div className="flex h-32 w-28 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--glass-tile)] text-white shadow-[var(--ring-glass),var(--shadow-raised)] backdrop-blur-sm">
           <span className="text-overline font-bold tracking-caps text-[var(--cover-accent)] uppercase">
@@ -147,7 +147,7 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
               new Date(event.startsAt),
             )}
           </span>
-          <span className="font-heading text-event-date-md font-bold leading-none tracking-heading">
+          <span className="text-event-date-md font-bold leading-none tracking-heading">
             {new Intl.DateTimeFormat('en-US', { day: 'numeric', timeZone: event.timeZone }).format(
               new Date(event.startsAt),
             )}
@@ -160,33 +160,37 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
           </span>
         </div>
         <div className="min-w-0">
-          <p className="text-overline font-bold tracking-caps text-surface-ink-muted uppercase">
+          <p className="text-overline font-bold tracking-caps text-surface-editorial-muted uppercase">
             Event · {event.category}
           </p>
-          <h1 className="mt-2 font-heading text-display-event font-bold leading-tight tracking-heading text-balance">
+          <h1 className="mt-2 text-display-event font-bold leading-tight tracking-heading text-balance">
             {event.title}
           </h1>
           {event.summary ? (
-            <p className="mt-2 text-control leading-relaxed text-surface-ink-muted">
+            <p className="mt-2 text-control leading-relaxed text-surface-editorial-muted">
               {event.summary}
             </p>
           ) : null}
           <div className="mt-5 grid gap-3 text-caption font-semibold sm:grid-cols-3">
             <div>
-              <p className="text-fine tracking-caps text-surface-ink-muted uppercase">When</p>
+              <p className="text-fine tracking-caps text-surface-editorial-muted uppercase">When</p>
               <div className="mt-1">
                 <EventTime event={event} />
               </div>
             </div>
             <div>
-              <p className="text-fine tracking-caps text-surface-ink-muted uppercase">Where</p>
+              <p className="text-fine tracking-caps text-surface-editorial-muted uppercase">
+                Where
+              </p>
               <p className="mt-1 flex items-center gap-1.5">
                 <MapPin className="size-3.5" aria-hidden="true" />
                 {event.locationName ?? 'Online'}
               </p>
             </div>
             <div>
-              <p className="text-fine tracking-caps text-surface-ink-muted uppercase">Format</p>
+              <p className="text-fine tracking-caps text-surface-editorial-muted uppercase">
+                Format
+              </p>
               <p className="mt-1">
                 {event.format === 'in_person'
                   ? 'In person'
@@ -213,11 +217,11 @@ function EventHero({ event }: { event: SchoolEventDetail }) {
           ) : null}
           <Link
             href={`/school/events/${event.id}/calendar`}
-            className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-caption font-bold text-surface-ink-muted hover:bg-white/8 hover:text-white"
+            className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-caption font-bold text-surface-editorial-muted hover:bg-white/8 hover:text-white"
           >
             <CalendarPlus className="size-4" aria-hidden="true" /> Add to calendar
           </Link>
-          <span className="ml-auto text-chip font-semibold text-surface-ink-muted">
+          <span className="ml-auto text-chip font-semibold text-surface-editorial-muted">
             <UsersRound className="mr-1 inline size-4" aria-hidden="true" /> {event.goingCount}{' '}
             going
           </span>

@@ -28,7 +28,7 @@ export function SchoolHub({
             <p className="text-overline font-bold tracking-caps text-text-secondary uppercase">
               {home.organization.name}
             </p>
-            <h1 className="mt-1 font-heading text-page-title font-bold tracking-heading text-text-primary">
+            <h1 className="mt-1 text-page-title font-bold tracking-heading text-text-primary">
               Close to school, not buried in it.
             </h1>
             <p className="mt-1 text-control font-medium text-text-secondary">
@@ -44,7 +44,7 @@ export function SchoolHub({
             ) : (
               <EmptyPanel
                 title="Nothing on the calendar yet"
-                body="When the school publishes the next gathering, it will land here."
+                body="The next school event shows up here."
               />
             )}
             <UpcomingEvents events={home.events} selectedId={selectedEvent?.id ?? null} />
@@ -63,36 +63,40 @@ export function SchoolHub({
 function EventCover({ event }: { event: SchoolEventCard }) {
   const capacityMatters = event.spotsLeft !== null && event.spotsLeft <= 8
   return (
-    <article className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-ink-foreground shadow-hero">
+    <article className="relative overflow-hidden rounded-2xl bg-[image:var(--cover-event)] text-surface-editorial-foreground shadow-hero">
       <div className="relative grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:p-7">
         <div className="min-w-0">
-          <p className="text-overline font-bold tracking-caps text-surface-ink-muted uppercase">
+          <p className="text-overline font-bold tracking-caps text-surface-editorial-muted uppercase">
             Chadwick · {event.category}
           </p>
-          <h2 className="mt-2 max-w-xl font-heading text-display-md font-bold tracking-heading text-balance">
+          <h2 className="mt-2 max-w-xl text-display-hero font-bold tracking-heading text-balance">
             {event.title}
           </h2>
           {event.summary ? (
-            <p className="mt-2 max-w-2xl text-control leading-relaxed font-medium text-surface-ink-muted">
+            <p className="mt-2 max-w-2xl text-control leading-relaxed font-medium text-surface-editorial-muted">
               {event.summary}
             </p>
           ) : null}
           <dl className="mt-5 grid gap-3 text-caption font-semibold sm:grid-cols-2">
             <div>
-              <dt className="text-fine tracking-caps text-surface-ink-muted uppercase">When</dt>
+              <dt className="text-fine tracking-caps text-surface-editorial-muted uppercase">
+                When
+              </dt>
               <dd className="mt-1">
                 <EventTime event={event} />
               </dd>
             </div>
             <div>
-              <dt className="text-fine tracking-caps text-surface-ink-muted uppercase">Where</dt>
+              <dt className="text-fine tracking-caps text-surface-editorial-muted uppercase">
+                Where
+              </dt>
               <dd className="mt-1 flex items-center gap-1.5">
                 <MapPin className="size-3.5" aria-hidden="true" />
                 {event.locationName ?? 'Online'}
               </dd>
             </div>
           </dl>
-          <div className="mt-5 flex flex-wrap items-center gap-2 text-chip font-semibold text-surface-ink-muted">
+          <div className="mt-5 flex flex-wrap items-center gap-2 text-chip font-semibold text-surface-editorial-muted">
             <span className="flex items-center gap-1.5">
               <UsersRound className="size-4" aria-hidden="true" />
               {event.goingCount} going
@@ -106,7 +110,7 @@ function EventCover({ event }: { event: SchoolEventCard }) {
         <DateTile event={event} variant="glass" />
       </div>
       {event.changeNote ? (
-        <p className="relative border-t border-white/10 px-5 py-3 text-chip font-semibold text-surface-ink-muted sm:px-7">
+        <p className="relative border-t border-white/10 px-5 py-3 text-chip font-semibold text-surface-editorial-muted sm:px-7">
           Updated · {event.changeNote}
         </p>
       ) : null}
@@ -114,7 +118,7 @@ function EventCover({ event }: { event: SchoolEventCard }) {
         <RsvpControl event={event} tone="dark" />
         <Link
           href={`/school/events/${event.id}/calendar`}
-          className="rounded-xl px-3 py-2.5 text-caption font-bold text-surface-ink-muted hover:bg-white/8 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          className="rounded-xl px-3 py-2.5 text-caption font-bold text-surface-editorial-muted hover:bg-white/8 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
         >
           Add to calendar
         </Link>
@@ -321,7 +325,7 @@ function DateTile({
       </span>
       <span
         className={cn(
-          'font-heading font-bold tracking-heading',
+          'font-bold tracking-heading',
           compact ? 'text-section-title leading-5' : 'text-event-date leading-none',
         )}
       >

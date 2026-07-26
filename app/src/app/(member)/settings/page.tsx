@@ -63,7 +63,7 @@ export default async function SettingsPage({
     <div className="min-h-full bg-[var(--wash-page)]">
       <div className="mx-auto grid w-full max-w-[720px] gap-3.5 px-4 py-6 sm:px-6 sm:py-7">
         <header className="mb-1">
-          <h1 className="text-display-section font-bold tracking-tight text-[var(--text-primary)]">
+          <h1 className="text-page-title font-bold tracking-tight text-[var(--text-primary)]">
             Settings
           </h1>
           <p className="mt-1.5 text-sm leading-relaxed font-medium text-[var(--grey-600)]">
@@ -148,7 +148,7 @@ export default async function SettingsPage({
           <SettingsRow
             title="Delete account"
             titleClassName="text-[var(--state-danger-text)]"
-            description="Schedule account deletion with a seven-day window to restore access."
+            description="Delete your account. You have seven days to change your mind."
             control={<DeletionConfirmation />}
           />
         </section>

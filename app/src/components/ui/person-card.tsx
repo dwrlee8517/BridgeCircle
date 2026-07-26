@@ -45,7 +45,7 @@ export function PersonAvatar({
       {avatarUrl ? (
         <Image src={avatarUrl} alt="" fill sizes="96px" unoptimized className="object-cover" />
       ) : (
-        <span className="flex size-full items-center justify-center font-heading font-semibold">
+        <span className="flex size-full items-center justify-center font-semibold">
           {getInitials(name)}
         </span>
       )}

@@ -207,7 +207,7 @@ export function AskStatusView({
               </span>
             ) : null}
           </div>
-          <h1 className="mt-3 text-h1 leading-[1.35] font-bold tracking-tight text-[var(--text-primary)]">
+          <h1 className="mt-3 text-heading-large leading-[1.35] font-bold tracking-tight text-[var(--text-primary)]">
             “{detail.question}”
           </h1>
           <p className="mt-2.5 text-xs leading-relaxed font-medium text-[var(--grey-600)]">
