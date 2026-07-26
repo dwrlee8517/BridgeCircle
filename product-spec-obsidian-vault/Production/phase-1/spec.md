@@ -1,14 +1,25 @@
 # BridgeCircle Phase 1 Spec
 
-> **Product-model notice (2026-07-14):** The mentorship terminology and data
-> model later in this document describe unported legacy domains and both
-> remote databases. The
-> approved redesigned Help/Connection/Messages behavior lives in
-> [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
-> and the locally implemented Foundation plus remaining schema target is the
-> [database v2 contract](../../../docs/architecture/database-v2-contract.md)
-> under [ADR 0015](../../../docs/decisions/0015-prelaunch-v2-database-reset.md).
-> Code remains canonical as each remaining domain is ported.
+> **Product-model notice — updated 2026-07-25.** The mentorship terminology and
+> data model later in this document are **retired**, not merely unported. The
+> earlier version of this notice (2026-07-14) said the legacy contract was still
+> live on the remote databases; that is no longer true — **database v2 is live on
+> both remotes** (development 2026-07-17, production 2026-07-24), so no
+> `friendships`, `mentorship_requests`, or `ask_type` shapes exist anywhere.
+>
+> Sections in this document are **not uniformly stale**: the product thesis, core
+> user jobs, and out-of-scope guardrails still hold, while the discovery,
+> recommendation, and privacy-model mechanics describe a product we no longer
+> ship. Verify any specific mechanic against code before building on it.
+>
+> Current sources: the
+> [database v2 contract](../../../docs/architecture/database-v2-contract.md) for
+> schema, [ADR 0011](../../../docs/decisions/0011-two-verbs-one-inbox.md) for the
+> Connect/Ask model,
+> [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+> for redesigned behavior, and
+> [voice-guidelines §6.1](../../../docs/product/voice-guidelines.md) for the
+> retired-vs-current vocabulary table. Code is canonical.
 
 ## Purpose
 

@@ -7,8 +7,7 @@ and the live app primitives in `app/src/components/ui/`.
 The handoff bundle in [`handoff/`](handoff/) is the source of truth for intended
 UI/UX. Its prototype files define composition, hierarchy, interaction direction,
 and component behavior. Translate that output into production primitives and
-tokens; do not copy inline prototype styles mechanically. Older `reference-src/`
-files remain visual history unless explicitly promoted.
+tokens; do not copy inline prototype styles mechanically.
 
 ## Production Rules
 
@@ -33,18 +32,18 @@ files remain visual history unless explicitly promoted.
 
 | Primitive | Use For | Production Notes |
 |---|---|---|
-| `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. `variant="cta"` is the O8 blue-gradient lead action; `variant="offer"` is the O2 green Give commitment. Use `asChild` for links. |
+| `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. `variant="cta"` is the O8 blue-gradient lead action; `variant="give"` is the O2 green Give commitment. Use `asChild` for links. |
 | `Card` | Repeated decision surfaces, modals, compact panels | Default cards use the O7 faint inset edge. Use `variant="elevated"` only for major content cards that need the O9 treatment. |
 | `Input`, `Textarea`, `Select` | Forms and filters | Prefer shared primitives over raw fields. Raw search inputs are acceptable only when the shell needs custom layout. |
 | `Badge` | Topics, tags, compact labels | Use for non-status labels. Keep topic labels readable and avoid making critical state depend on tiny mono text. |
-| `StatusBadge` | Semantic state | Use for mentor availability, request lifecycle, membership state, RSVP state, and admin status. Uses role and tint tokens so warning text stays readable. |
+| `StatusBadge` | Semantic state | Use for Help availability, request lifecycle, membership state, RSVP state, and admin status. Uses role and tint tokens so warning text stays readable. |
 | `Avatar` | Member identity | Photo first. Fallback initials may use stable generated token colors. |
 | `Dialog` | Confirmation, explanation, focused secondary tasks | Keep content editorial and concise. Avoid turning dialogs into full pages. |
 | `DropdownMenu`, `Popover` | Menus and compact overlays | Use for navigation menus, account actions, and contextual controls. |
 | `Tabs` | Sibling views within one job | Keep tab labels concrete. Avoid using tabs for unrelated destinations. |
 | `EmptyState` | Empty lists and blank sections | Every empty state should name the state and offer the next useful action when possible. |
 | `Skeleton` | Loading placeholders | Match the final layout closely enough that loading does not reflow the page. |
-| `CapacityGauge` | Mentor/event capacity | Use when a numeric capacity affects a user's decision. |
+| `CapacityIndicatorGauge` | Helper/event capacity | Use when a numeric capacity affects a user's decision. |
 
 ## Variant And State Contract
 
@@ -54,14 +53,14 @@ strings unless the screen pattern is genuinely unique.
 
 | Primitive | Required Variants | Required States |
 |---|---|---|
-| `Button` | `default`, `cta`, `offer`, `secondary`, `outline`, `ghost`, `destructive`, `link`; sizes `xs`, `sm`, `default`, `lg`, `icon*` | Hover, active, focus-visible, disabled, aria-invalid, icon spacing |
+| `Button` | `default`, `cta`, `give`, `secondary`, `outline`, `ghost`, `destructive`, `link`; sizes `xs`, `sm`, `default`, `lg`, `icon*` | Hover, active, focus-visible, disabled, aria-invalid, icon spacing |
 | `Card` | `default`, `elevated`; `default` and `sm` density | Default, background-shift hover where interactive, selected, footer, media edge cases |
 | `Input`, `Textarea`, `Select` | Default and compact only when needed | Focus-visible, disabled, aria-invalid, placeholder, autofill/password-manager tolerance |
 | `Badge` | `default`, `secondary`, `destructive`, `outline`, `ghost`, `link` | Focus-visible, link hover, icon spacing |
-| `StatusBadge` | `info`, `open`, `warn`, `alert`, `muted`, legacy hue aliases | Dot and no-dot, compact and default; Pending and Declined lifecycle states use the calm neutral treatment |
+| `StatusBadge` | `info`, `open`, `warn`, `alert`, `muted`, `categorized` | Dot and no-dot, compact and default; Pending and Declined lifecycle states use the calm neutral treatment |
 | `LifecycleStatusBadge` | `pending`, `accepted`, `active`, `completed`, `declined`, `revoked`, `expired`, `paused`, `unread`, `disabled`, `error` | Common lifecycle words mapped to canonical tones |
 | `EmptyState` | `default`, `inline` | With icon, without icon, with action, without action |
-| `CapacityGauge` | `default`, `compact`, `inline` | Low, medium, high, full, zero-limit handling |
+| `CapacityIndicatorGauge` | `default`, `compact`, `inline` | Low, medium, high, full, zero-limit handling |
 
 State rules:
 
@@ -82,7 +81,7 @@ State rules:
 | Action Level | Component Treatment | Use |
 |---|---|---|
 | **CTA** | `Button` `variant="cta"` | The single lead action per local decision area — O8 blue gradient and soft blue shadow. |
-| Give commitment | `Button` `variant="offer"` | The single lead commitment on a bounded Give workflow — O2 green fill. |
+| Give commitment | `Button` `variant="give"` | The single lead commitment on a bounded Give workflow — O2 green fill. |
 | Primary | `Button` `variant="default"` | Smaller or repeated blue actions where the gradient would over-claim. |
 | Secondary | `Button` `variant="secondary"` or `outline` | Useful alternative action |
 | Tertiary | `Button` `variant="ghost"` or `link` | Navigation, disclosure, or low-risk secondary movement |
@@ -105,16 +104,13 @@ contract.
 
 Shared anatomy kit: `app/src/components/ui/person-card.tsx` — `PersonAvatar`,
 `MatchBandBadge`, `RationaleBlock`, `TopicChips`, plus `getInitials` /
-`classYearShort` / `askComposeHref` / `preferredAskType` in
-`app/src/lib/utils.ts`. There is intentionally no single `<PersonCard>`
-component: each surface owns its layout grid, action rail, and
-availability-badge philosophy, and composes the kit so the shared parts
-cannot drift. Compositions: `app/src/app/(member)/people/result-card.tsx`
-(directory row), `HomePersonCard` in
-`app/src/app/(member)/dashboard-client.tsx` (home feed tile), and
-`MatchBriefCard` in `app/src/app/(member)/help-network-ui.tsx` (ask-results
-decision brief; its skeleton shares geometry via the exported `MATCH_*`
-constants).
+`classYearShort` / `directHelpHref` in `app/src/lib/utils.ts`. (The pre-v2
+`askComposeHref` and `preferredAskType` helpers are gone — per-type ask
+selection is retired, so a Help link needs only a membership id.) There is
+intentionally no single `<PersonCard>` component: each surface owns its layout
+grid, action rail, and availability-badge philosophy, and composes the kit so
+the shared parts cannot drift. Composition:
+`app/src/app/(member)/people/people-directory.tsx` (directory row).
 
 Supply-side rows (`NextHelpCard` / `AltPickCard` / `SubjectFeedRow` in
 `app/src/app/(member)/help/help-client.tsx`) are a different species — they
@@ -165,10 +161,11 @@ Do not:
 
 ### Request Card
 
-Current local sources: `app/src/app/(member)/inbox/inbox-container.tsx`,
-`app/src/app/(member)/ask/[id]/page.tsx`, and dashboard request modules.
+Current local sources: `app/src/app/(member)/messages/waiting-group.tsx`,
+`app/src/app/(member)/help/asks/[askId]/page.tsx`, and the Home dashboard
+modules.
 
-Purpose: make an ask or friend request actionable without requiring inbox
+Purpose: make an Ask or Connect request actionable without requiring inbox
 archaeology.
 
 Required content:
@@ -244,8 +241,8 @@ Do not:
 
 ### Event Card
 
-Current local sources: `app/src/app/(member)/events/events-master-detail.tsx`,
-`app/src/app/(member)/events/[id]/page.tsx`, and admin event surfaces.
+Current local sources: `app/src/app/(member)/school/school-hub.tsx`,
+`app/src/app/(member)/school/events/[id]/school-event-detail-page.tsx`, and admin event surfaces.
 
 Purpose: help members decide whether an event is relevant and whether to RSVP.
 
@@ -281,9 +278,9 @@ Do not:
 - Use arbitrary per-event raw colors unless category colors are documented.
 - Let decorative index numbers outrank date and action.
 
-### Inbox Thread Row
+### Conversation Row
 
-Current local source: `app/src/app/(member)/inbox/inbox-container.tsx`.
+Current local source: `app/src/app/(member)/messages/conversation-list.tsx`.
 
 Purpose: let members scan for what needs attention and resume the right
 conversation.
@@ -468,7 +465,7 @@ Do not:
 
 ### Email Template
 
-Current shared source: `app/src/notify/emails/civic-email.tsx`.
+Current shared source: `app/src/notify/emails/email-kit.tsx`.
 Lifecycle templates live in `app/src/notify/emails/*`; delivery is centralized
 in `app/src/notify/resend.ts`.
 
@@ -579,12 +576,12 @@ Before turning a local route pattern into a shared component:
 
 ## Non-Canonical Sources
 
-Do not copy from:
+The old `reference-src/` exports were archived on 2026-07-25 to
+[`docs/_archive/design-2026-07/reference-src/`](../../../_archive/design-2026-07/reference-src/)
+precisely because they kept getting mistaken for a source. Do not copy from them,
+and do not copy any snippet labeled Atrium, Civic, terracotta, oat, lamplight, or
+token export.
 
-- `reference-src/ds-tokens-export.jsx`
-- `reference-src/ds-foundations.jsx`
-- `reference-src/ds-components.jsx`
-- Any snippet labeled Atrium, terracotta, oat, lamplight, or token export
-
-Those files remain useful for visual archaeology, but production work starts
-from this guide, [`tokens.md`](tokens.md), and the live app primitives.
+Production work starts from this guide, [`tokens.md`](tokens.md), the
+[`bridgecircle` handoff bundle](handoff/bridgecircle/), and the live app
+primitives.

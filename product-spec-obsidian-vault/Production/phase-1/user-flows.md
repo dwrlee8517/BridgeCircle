@@ -1,5 +1,20 @@
 # BridgeCircle Phase 1 User Flows
 
+> **Product-model notice (2026-07-25).** These flows predate the v2 rebuild and
+> had no staleness notice until now. Treat them with more caution than the other
+> phase-1 specs: a flow is *step-by-step*, so a retired step is a wrong
+> instruction rather than just a dated word. Flows here that route through `/ask`,
+> `/inbox`, `/search`, or a per-type advice-vs-mentorship choice describe a product
+> we no longer ship — the current shape is `/help/*`, `/messages`, and asks split
+> by reach (`direct` / `circle`) with one `open_to_help` availability state.
+>
+> Current sources: [ADR 0011](../../../docs/decisions/0011-two-verbs-one-inbox.md)
+> for the model,
+> [information-architecture.md](../../../docs/architecture/information-architecture.md)
+> for the route contract,
+> [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+> for redesigned behavior. Code is canonical.
+
 ## Purpose
 
 This document turns the Phase 1 spec into concrete user flows for the first pilot.

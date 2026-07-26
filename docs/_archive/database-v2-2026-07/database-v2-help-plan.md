@@ -6,9 +6,9 @@
 - **Branch:** `codex/redesign-v2`
 - **Depends on:** Conversation Primitive checkpoint `4a07b47`
 - **Approved-plan checkpoint:** `3b9815b`
-- **Contract:** [Database v2 contract](database-v2-contract.md)
-- **Behavior:** [`FLOWS.md` §3](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
-- **UI source:** [BridgeCircle Help templates](../experience/ui/design-system/handoff/bridgecircle/project/templates/help/)
+- **Contract:** [Database v2 contract](../../architecture/database-v2-contract.md)
+- **Behavior:** [`FLOWS.md` §3](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+- **UI source:** [BridgeCircle Help templates](../../experience/ui/design-system/handoff/bridgecircle/project/templates/help/)
 - **Test inventory:** [Help vertical-slice test inventory](database-v2-help-test-inventory.md)
 
 ## Goal
@@ -42,12 +42,12 @@ to work outside a developer's browser.
 
 Use this order when sources disagree:
 
-1. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the approved
-   [database v2 contract](database-v2-contract.md);
-2. [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+1. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md) and the approved
+   [database v2 contract](../../architecture/database-v2-contract.md);
+2. [`FLOWS.md`](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
    §§3, 5, 7c, and 8;
-3. ADR [0009](../decisions/0009-hybrid-ask-matching.md) for matching and ADR
-   [0011](../decisions/0011-two-verbs-one-inbox.md) for the Help/Messages seam;
+3. ADR [0009](../../decisions/0009-hybrid-ask-matching.md) for matching and ADR
+   [0011](../../decisions/0011-two-verbs-one-inbox.md) for the Help/Messages seam;
 4. the final Help templates for visual hierarchy, interactions, responsive
    behavior, and copy details;
 5. current code only as evidence to retain deliberately or replace.

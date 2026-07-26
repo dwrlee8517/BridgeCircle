@@ -9,12 +9,12 @@
 - **Starting checkpoint:** completed Messages slice `c9a1b77`
 - **Depends on:** completed Foundation, Conversation Primitive, Help, and
   Messages vertical slices
-- **Contract:** [Database v2 contract](database-v2-contract.md)
-- **Behavior:** [`FLOWS.md` §§4, 7, 7b, 7c, and 8](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
-- **UI sources:** [People](../experience/ui/design-system/handoff/bridgecircle/project/templates/people/People.dc.html),
-  [profile preview](../experience/ui/design-system/handoff/bridgecircle/project/templates/profile-slideover/ProfileSlideOver.dc.html),
-  [member profile](../experience/ui/design-system/handoff/bridgecircle/project/templates/profile/Profile.dc.html),
-  and [self profile](../experience/ui/design-system/handoff/bridgecircle/project/templates/profile-self/ProfileSelf.dc.html)
+- **Contract:** [Database v2 contract](../../architecture/database-v2-contract.md)
+- **Behavior:** [`FLOWS.md` §§4, 7, 7b, 7c, and 8](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+- **UI sources:** [People](../../experience/ui/design-system/handoff/bridgecircle/project/templates/people/People.dc.html),
+  [profile preview](../../experience/ui/design-system/handoff/bridgecircle/project/templates/profile-slideover/ProfileSlideOver.dc.html),
+  [member profile](../../experience/ui/design-system/handoff/bridgecircle/project/templates/profile/Profile.dc.html),
+  and [self profile](../../experience/ui/design-system/handoff/bridgecircle/project/templates/profile-self/ProfileSelf.dc.html)
 - **Test inventory:** [People/Profile vertical-slice test inventory](database-v2-people-profile-test-inventory.md)
 
 ## Goal
@@ -56,13 +56,13 @@ visibility, Connection, and block rules before data leaves Postgres.
 
 Use this order when sources disagree:
 
-1. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the approved
-   [database v2 contract](database-v2-contract.md);
+1. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md) and the approved
+   [database v2 contract](../../architecture/database-v2-contract.md);
 2. `FLOWS.md` People, Profile, navigation, safety, and cross-cutting rules;
-3. [ADR 0011](../decisions/0011-two-verbs-one-inbox.md), then the still-relevant
-   People portion of [ADR 0006](../decisions/0006-nl-search-entity-extraction.md)
+3. [ADR 0011](../../decisions/0011-two-verbs-one-inbox.md), then the still-relevant
+   People portion of [ADR 0006](../../decisions/0006-nl-search-entity-extraction.md)
    and shared low-level retrieval rules from
-   [ADR 0009](../decisions/0009-hybrid-ask-matching.md);
+   [ADR 0009](../../decisions/0009-hybrid-ask-matching.md);
 4. the final BridgeCircle handoff templates;
 5. current code only as evidence to keep deliberately or replace.
 

@@ -1,7 +1,10 @@
 # 0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface
 
-- **Status:** accepted · amended 2026-07-15; v2 persistence implemented locally
-  under [0015](0015-prelaunch-v2-database-reset.md)
+- **Status:** accepted · amended 2026-07-15; v2 persistence **live on both remotes**
+  under [0015](0015-prelaunch-v2-database-reset.md) (dev 2026-07-17, production
+  2026-07-24). Supersedes [0003](0003-friendship-mentorship-split.md)'s vocabulary
+  and relationship model, and [0010](0010-horizontal-help-warm-data-flywheel.md) D1's
+  mechanics.
 - **Date:** 2026-07-02
 - **Decider:** Richard
 

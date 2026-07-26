@@ -8,10 +8,10 @@ through logged entries in
 
 This is the system all new design work targets: the **complete redesign is
 designed in the `bridgecircle` Claude Design project first**, then translated
-to production flow-by-flow (ADR 0013 Phase E, design-first). Civic Editorial
-(`../bridgecircle-design-system/` — the old system, unrelated despite the
-similar name) describes live production only and is archived when the
-redesign lands.
+to production flow-by-flow (ADR 0013 Phase E, design-first). Production theming
+already runs this fork. Civic Editorial was archived on 2026-07-25 to
+[`docs/_archive/design-2026-07/`](../../../../../_archive/design-2026-07/), so
+this is no longer one of two similarly-named bundles.
 
 The fork carries the applied O1–O4 and O6–O9 overrides plus E2–E3 and E5–E7:
 Pretendard, the green Give composition, section identity via wash heroes and

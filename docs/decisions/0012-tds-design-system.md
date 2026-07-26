@@ -10,6 +10,13 @@
 > official `@toss/tds` tokens plus a **thin BridgeCircle brand overlay**. The
 > brand-mechanic *rationales* below (D3 per-surface action, D7 bands, D4
 > Pretendard, guardrails) still hold — they relocate into the overlay layer.
+>
+> **Path note (2026-07-25):** both bundles this ADR names were archived when
+> Civic was removed from the codebase. Read
+> `handoff/fieldpro-design-system/` and `handoff/bridgecircle-design-system/`
+> below as [`docs/_archive/design-2026-07/fieldpro-design-system/`](../_archive/design-2026-07/fieldpro-design-system/)
+> and [`docs/_archive/design-2026-07/bridgecircle-design-system-civic/`](../_archive/design-2026-07/bridgecircle-design-system-civic/).
+> The body is left unedited as the decision record.
 > The merged Phase B work (#118 colour, #119 Pretendard) is re-expressed under
 > 0013's two layers, not reverted.
 

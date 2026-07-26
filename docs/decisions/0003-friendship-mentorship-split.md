@@ -1,8 +1,19 @@
 # 0003 — Friendship and mentorship are separate tracks
 
-- **Status:** accepted — amendment proposed in [0010](0010-horizontal-help-warm-data-flywheel.md) (mentorship reframed as a commitment tier within a horizontal help model; the friendship/asks gating split defined here is preserved)
+- **Status:** accepted in principle — **vocabulary and relationship model superseded by [0011](0011-two-verbs-one-inbox.md)**; amended by [0010](0010-horizontal-help-warm-data-flywheel.md) D1
 - **Date:** 2026-04-23
 - **Decider:** Richard
+
+> **What survives, what does not (recorded 2026-07-25).** The *principle* here is
+> still load-bearing: relationship types have distinct gates, and collapsing them
+> loses signal. What is retired is this ADR's vocabulary and data model.
+> "Friendship" is now **Connect** (`connections`, `connection_requests`, mutual);
+> the separate mentorship track with its own capacity, screening, and inactivity
+> rules is gone, replaced by one **Ask/Help** lifecycle that is one-sided until
+> accepted. There are no `friendships` or `mentorship_requests` tables in either
+> remote. Read [ADR 0011](0011-two-verbs-one-inbox.md) for the current model and
+> [`../architecture/database-v2-contract.md`](../architecture/database-v2-contract.md)
+> for the schema; everything below is the original 2026-04 reasoning.
 
 ## Context
 

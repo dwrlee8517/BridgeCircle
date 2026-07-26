@@ -35,14 +35,24 @@ That means:
 - Warm-network scoring should stay mostly **deterministic**: do not let a model silently override trust, availability, privacy, or capacity.
 - LLMs are useful for **explanations and draft help**, but they are the slowest and least deterministic way to score every candidate.
 
-## Current Baseline In The Repo
+## Baseline This Research Was Written Against
 
-Current code still follows the ADR 0006-style baseline:
+> **Superseded as a description of the code (2026-07-25).** The `lib/search/**`
+> modules below were **deleted in the v2 rebuild**. Bounded People search now
+> lives in [`app/src/lib/people/`](../../app/src/lib/people/) (`query.ts`,
+> `contracts.ts`, `operations.ts`) and Help matching in
+> [`app/src/lib/help/matching.ts`](../../app/src/lib/help/matching.ts), with the
+> provider adapters in [`providers.ts`](../../app/src/lib/help/providers.ts).
+> The **model comparison and cost analysis in this document remain valid** — only
+> the "what the repo does today" framing is out of date. Read this as the research
+> input to ADR 0009, not as a map of current code.
 
-- `app/src/lib/search/extractFilters.ts` uses `claude-haiku-4-5-20251001` to extract structured filters and a thematic intent.
-- `app/src/lib/search/searchAlumni.ts` retrieves and scores active org members in JS using scalar filters and warm signals.
-- `app/src/lib/search/rerankCandidates.ts` sends up to 30 candidate JSON objects to Haiku and asks for the top 10 plus rationales.
-- Rich profile sections are redacted before reranking based on the viewer/candidate privacy relationship.
+When this was written, the code followed the ADR 0006-style baseline:
+
+- `app/src/lib/search/extractFilters.ts` used `claude-haiku-4-5-20251001` to extract structured filters and a thematic intent.
+- `app/src/lib/search/searchAlumni.ts` retrieved and scored active org members in JS using scalar filters and warm signals.
+- `app/src/lib/search/rerankCandidates.ts` sent up to 30 candidate JSON objects to Haiku and asked for the top 10 plus rationales.
+- Rich profile sections were redacted before reranking based on the viewer/candidate privacy relationship.
 
 That baseline is reasonable for sub-1000 members, but it has two structural limits:
 
@@ -292,7 +302,7 @@ Do not self-host Qwen for the first pass unless privacy policy or vendor review 
 ## Sources
 
 - BridgeCircle ADR: [0009 - Hybrid Ask matching](../decisions/0009-hybrid-ask-matching.md)
-- Current implementation: [extractFilters.ts](../../app/src/lib/search/extractFilters.ts), [searchAlumni.ts](../../app/src/lib/search/searchAlumni.ts), [rerankCandidates.ts](../../app/src/lib/search/rerankCandidates.ts)
+- Current implementation: [`lib/people/query.ts`](../../app/src/lib/people/query.ts) (bounded People search), [`lib/help/matching.ts`](../../app/src/lib/help/matching.ts) (Help matching), [`lib/help/providers.ts`](../../app/src/lib/help/providers.ts) (bounded provider adapters). The pre-v2 `lib/search/**` modules this document benchmarks were deleted — see `git log` for them.
 - OpenAI: [Embeddings guide](https://developers.openai.com/api/docs/guides/embeddings), [`text-embedding-3-small`](https://developers.openai.com/api/docs/models/text-embedding-3-small), [`text-embedding-3-large`](https://developers.openai.com/api/docs/models/text-embedding-3-large)
 - Google: [Gemini embeddings docs](https://ai.google.dev/gemini-api/docs/embeddings), [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing), [Gemini Embedding GA announcement](https://developers.googleblog.com/en/gemini-embedding-available-gemini-api/), [Gemini Embedding technical report](https://arxiv.org/abs/2503.07891)
 - Anthropic: [Embeddings guidance](https://platform.claude.com/docs/en/build-with-claude/embeddings), [Claude API pricing](https://platform.claude.com/docs/en/about-claude/pricing)

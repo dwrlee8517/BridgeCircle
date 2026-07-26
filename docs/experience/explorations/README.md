@@ -13,5 +13,5 @@ Promotion path:
 
 Current subfolders:
 
-- `civic/` - Civic design experiments not yet promoted into the active design system.
-- `home-ask-separation-2026-05/`, `home-radar-feature-directions-2026-05/`, `home-visual-directions-2026-05/`, `typography-2026-05/` - active exploration workspaces from May 2026.
+- `home-ask-separation-2026-05/`, `home-radar-feature-directions-2026-05/`, `home-visual-directions-2026-05/`, `typography-2026-05/` - exploration workspaces from May 2026.
+- The `civic/` experiments were archived 2026-07-25 to [`../../_archive/design-2026-07/explorations-civic/`](../../_archive/design-2026-07/explorations-civic/) along with the rest of Civic Editorial; the current design system is the Toss-baseline brand fork (ADR 0013).

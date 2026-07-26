@@ -1,17 +1,21 @@
 # Database v2 production cutover plan
 
-> **Status:** preparation plan approved by Richard on 2026-07-17; exact-SHA
-> production execution remains unapproved
+> **Status:** **executed.** Preparation plan approved by Richard on 2026-07-17;
+> the exact-SHA destructive execution ran on 2026-07-24 at
+> `8d9036f89dd1ab55e73b798c4a6333f2768bcb6b`. See
+> [Execution record](#execution-record) for measured evidence and the remaining
+> open item.
 >
 > **Prepared:** 2026-07-17; refreshed after merging `main` at `4394ea0` into
-> `codex/redesign-v2`; candidate SHA not yet frozen
+> `codex/redesign-v2`. **Executed:** 2026-07-24 at the frozen SHA above.
 >
 > **Production target:** `bridgecircle` / `edumxwzilfgvamzarwvo`
 >
-> This document does not authorize a push, pull request, merge, production
-> database command, dashboard change, or deployment. The eventual destructive
-> execution requires a second approval that names the exact production project
-> and immutable merge SHA.
+> The destructive reset this document governed is spent and cannot be
+> re-authorized by this file. Production now holds real objects, so the
+> zero-data guard refuses the reset path. Ordinary forward migration discipline
+> in [`../runbooks/migration-workflow.md`](../runbooks/migration-workflow.md)
+> governs production from here.
 
 ## Goal
 
@@ -471,12 +475,68 @@ The production-v2 cutover is complete only when:
 - ordinary forward migration discipline is active and the destructive reset
   path cannot run accidentally again.
 
+## Execution record
+
+Executed 2026-07-24 against `edumxwzilfgvamzarwvo` at SHA
+`8d9036f89dd1ab55e73b798c4a6333f2768bcb6b`. That SHA is an ancestor of `main`,
+is the first commit whose CD run recorded a successful `Promote to production`
+job (run `30120716124`, 2026-07-24T19:27Z — the 2026-07-18 and 2026-07-22 runs
+show that job `skipped`), and remains checked out in the operator worktree at
+`/private/tmp/bridgecircle-production-v2`.
+
+### Verified 2026-07-25 (read-only, via Doppler `bridgecircle/prd` and `dev`)
+
+| Criterion | dev `ojpvahiuafdcynbdbmri` | production `edumxwzilfgvamzarwvo` |
+| --- | --- | --- |
+| Migration history vs `supabase/migrations` | 21/21, 0 pending | 21/21, 0 pending |
+| Remote-only migration versions | none | none |
+| Database identity | `postgres`, pg 17.0006 | `postgres`, pg 17.0006 |
+| `PRODUCTION_V2_ASSERTIONS` (8) | 8/8 pass | 8/8 pass |
+| `/api/health` | `sha=0272ff31…`, `env=dev` | `sha=0272ff31…`, `env=prod` |
+
+The eight assertions are `core_relations`, `auth_user_trigger`,
+`storage_buckets`, `realtime_publication`, `public_rls`,
+`anonymous_import_denied`, `anonymous_storage_listing_denied`, and
+`legacy_probe_absent` (see
+[`../../app/src/lib/cutover/production-postflight.ts`](../../app/src/lib/cutover/production-postflight.ts)).
+Both remotes are an exact set match to the 21 active migration files, and
+therefore to each other. `scripts/check-production-cutover.ts` reports the
+migration, reset, deployment, and worker boundaries intact.
+
+Production content is clean-slate: 1 organization, 1 Auth user, 1 application
+user, 1 active membership, 1 accepted invite, 1 `super_admin` role assignment,
+0 messages, 1 Storage object. No development seed data.
+
+Railway `production` environment matches the planned topology: web and worker
+services each carry no connected GitHub repo (source auto-deploy off), one
+replica in `us-west2`, `bridgecircle.org` bound to web on port 8080, and the
+worker exposed only on the private endpoint `bridgecircle-worker`.
+
+### Not re-verified in this pass
+
+- Supabase GitHub integration disconnect (dashboard state; asserted by the
+  cutover, not measured here).
+- Owner Auth/onboarding walkthrough and outbox delivery behavior on production.
+- Snapshot restore test evidence from §3 of the runbook.
+
+### Production organization is an intentional pre-pilot test org
+
+The single production organization is `Test Org` / `test-org`, created
+2026-07-24, and the `super_admin` grant and accepted invite belong to it. This
+is deliberate: it is the test organization used to exercise production before
+the pilot begins, and it stays until then. The cutover is not waiting on it.
+
+Bootstrapping the real pilot organization is a pilot-launch step.
+`bootstrap-production.ts` is idempotent per input set, so the real org is a
+separate run with the approved slug/name/owner email; retiring `test-org` is a
+decision for that same step.
+
 ## Current references
 
 - [ADR 0014 — scripted CD pipeline](../decisions/0014-scripted-cd-pipeline.md)
 - [ADR 0015 — pre-launch v2 database reset](../decisions/0015-prelaunch-v2-database-reset.md)
 - [Database v2 contract](database-v2-contract.md)
-- [Development cutover record](database-v2-dev-cutover-plan.md)
+- [Development cutover record](../_archive/database-v2-2026-07/database-v2-dev-cutover-plan.md)
 - [Migration workflow](../runbooks/migration-workflow.md)
 - [Supabase CLI `db push` reference](https://supabase.com/docs/reference/cli/supabase-db-push)
 - [Supabase database migrations](https://supabase.com/docs/guides/deployment/database-migrations)

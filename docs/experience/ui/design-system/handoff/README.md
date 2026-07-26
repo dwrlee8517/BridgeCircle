@@ -3,15 +3,18 @@
 This folder holds the versioned Claude Design handoff bundles that define the
 intended BridgeCircle member-app UI/UX direction.
 
-> **Direction (2026-07-04, ADR 0013):** [`bridgecircle/`](bridgecircle/) is the
+> **Direction (ADR 0013, accepted):** [`bridgecircle/`](bridgecircle/) is the
 > **main design system** — the target every new design and the full redesign
 > build against. It forks [`toss-base/`](toss-base/) (faithful TDS, Layer 0)
 > and diverges only via its
 > [`OVERRIDES.md`](bridgecircle/project/uploads/OVERRIDES.md) ledger.
-> **Civic Editorial** (the `bridgecircle-design-system/` bundle below — note
-> the confusingly similar folder name; it is the old system) remains history
-> for feature pages that have not yet received their redesign slice. The live
-> production token/primitive foundation now maps to the BridgeCircle fork.
+> Production theming already runs the fork.
+>
+> **Civic Editorial and Field Pro are gone from this tree** (archived
+> 2026-07-25 to [`docs/_archive/design-2026-07/`](../../../../_archive/design-2026-07/)),
+> along with the `fidelity-ledger.md` that sourced from them. There are only two
+> bundles now, so the old "which `bridgecircle*` folder is this?" ambiguity is
+> resolved.
 
 ## Bundles
 
@@ -19,8 +22,6 @@ intended BridgeCircle member-app UI/UX direction.
 |---|---|---|
 | [`bridgecircle/`](bridgecircle/) | 1 — brand fork | **MAIN design system** — design + redesign target |
 | [`toss-base/`](toss-base/) | 0 — faithful TDS | pristine baseline; never carries brand material |
-| [`fieldpro-design-system/`](fieldpro-design-system/) | — | superseded (ADR 0012); its reconciled values seeded the fork's ledger |
-| [`bridgecircle-design-system/`](bridgecircle-design-system/) | — | **Civic Editorial (old)** — compatibility/history only; archive after the route redesign completes |
 
 ## Source Of Truth
 
@@ -30,7 +31,6 @@ Use this order for UI/UX decisions:
 2. [`bridgecircle/project/templates/`](bridgecircle/project/templates/) and [`bridgecircle/project/uploads/FLOWS.md`](bridgecircle/project/uploads/FLOWS.md) — current surface and flow truth.
 3. [`bridgecircle/project/uploads/OVERRIDES.md`](bridgecircle/project/uploads/OVERRIDES.md) — audit history for intentional divergence; not a second design source.
 4. [`toss-base/project/uploads/DESIGN.md`](toss-base/project/uploads/DESIGN.md) — the faithful baseline for areas the fork has not changed.
-5. [`bridgecircle-design-system/project/`](bridgecircle-design-system/project/) — old Civic compatibility/history only.
 
 ## Implementation Rule
 
@@ -55,5 +55,6 @@ When implementing from the handoff:
 Known export mismatch: `ui_kits/app/README.md` mentions `PersonCard.jsx`, but
 the actual file is `MemberCard.jsx`, which exports `BCPersonCard`.
 
-For the initial comparison against the current production app, see
-[`current-comparison-2026-06-02.md`](current-comparison-2026-06-02.md).
+The June 2026 comparison against the then-current production app is archived at
+[`docs/_archive/design-2026-07/current-comparison-2026-06-02.md`](../../../../_archive/design-2026-07/current-comparison-2026-06-02.md);
+it compares against the retired Civic implementation, so treat it as history.

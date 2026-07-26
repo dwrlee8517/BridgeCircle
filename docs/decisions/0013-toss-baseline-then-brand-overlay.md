@@ -1,8 +1,17 @@
 # 0013 — Build a complete Toss (TDS) baseline first, then a thin BridgeCircle brand overlay
 
-- **Status:** proposed — supersedes [0012](0012-tds-design-system.md)
-- **Date:** 2026-07-04
+- **Status:** accepted — supersedes [0012](0012-tds-design-system.md)
+- **Date:** 2026-07-04 (proposed) · 2026-07-25 (accepted)
 - **Decider:** Richard
+
+> **Implementation status (2026-07-25):** Phases A–D have landed. The production
+> theme in [`app/src/app/globals.css`](../../app/src/app/globals.css) is the Toss
+> baseline plus the applied brand fork, drawing shell roles from the canonical
+> `bridgecircle` handoff bundle; `design-system/tokens.md` and `components.md` are
+> already written as brand-fork contracts. Phase E (flow-by-flow redesign
+> translation) continues, and mobile plus motion remain deferred to later
+> iterations — those are remaining work under this ADR, not open questions about
+> it.
 
 ## Context
 

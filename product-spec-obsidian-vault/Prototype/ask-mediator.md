@@ -10,7 +10,7 @@
 
 ## Purpose
 
-The existing /ask guided composer ([composer.tsx](<../../app/src/app/(member)/ask/new/composer.tsx>) / [chat-composer.tsx](<../../app/src/app/(member)/ask/new/chat-composer.tsx>)) helps a member organize their thoughts and drafts a message to a chosen helper. Today the only send path is direct — the member edits and sends the draft themselves.
+The existing Help composers ([direct-ask-composer.tsx](<../../app/src/app/(member)/help/ask/[membershipId]/direct-ask-composer.tsx>) for a named recipient, and the circle composer at [help/ask-circle/](<../../app/src/app/(member)/help/ask-circle/>)) help a member organize their thoughts and draft a message, with bounded AI assistance via `/api/help/assist`. Today the only send path is direct — the member edits and sends the draft themselves.
 
 The mediator mode adds a second send path: **"Let BridgeCircle ask for you."** When chosen, BridgeCircle reaches out on the member's behalf, in the coordinator's institutional voice, to a sequence of potential helpers. Helpers accept or decline. When one accepts, the member is notified and the conversation begins.
 
@@ -30,9 +30,9 @@ The mediator isn't just an asker-side buffer. It's a two-sided one. BridgeCircle
 | Decision | Choice |
 | --- | --- |
 | AI identity | **Unnamed.** Surface label is "Ask BridgeCircle." No persona name, no character. Preserves [brand-strategy.md](../../docs/product/brand-strategy.md) "AI as quiet helper, not main character." |
-| Mediator voice | **BridgeCircle coordinator voice.** The institutional narrator from [voice-guidelines.md §2](../../docs/product/voice-guidelines.md) is the sender. Mentor knows it's mediated. Member is clearly named. |
+| Mediator voice | **BridgeCircle coordinator voice.** The institutional narrator from [voice-guidelines.md §2](../../docs/product/voice-guidelines.md) is the sender. The helper knows it is mediated. Member is clearly named. |
 | Disclosure | **Always disclose, with a small badge.** Every AI-touched send carries a visible "Sent with BridgeCircle" or "AI-assisted draft, reviewed by Maren" line. Matches [voice-guidelines.md §10.1](../../docs/product/voice-guidelines.md). |
-| Surface scope | **Extend existing /ask guided composer.** The draft step adds a third send option ("Let BridgeCircle ask for you") alongside the existing direct-send. Reuses all existing thought-organization + drafting logic. |
+| Surface scope | **Extend the existing Help composers** (`/help/ask/[membershipId]` and `/help/ask-circle`). The draft step adds a third send option ("Let BridgeCircle ask for you") alongside the existing direct-send. Reuses all existing thought-organization + drafting logic. |
 
 ---
 
@@ -93,8 +93,8 @@ The mediator isn't just an asker-side buffer. It's a two-sided one. BridgeCircle
 **v1 default: sequential.** One helper at a time, 48-hour silent timeout, then next.
 
 **Reasoning:**
-- Avoids the "two mentors said yes" coordination problem (member would have to politely decline one — the exact awkwardness this feature is meant to remove)
-- Respects mentor time — no mentor sees an ask another mentor is already considering
+- Avoids the "two helpers said yes" coordination problem (member would have to politely decline one — the exact awkwardness this feature is meant to remove)
+- Respects helper time — no helper sees an ask another helper is already considering
 - Matches the brand's calmness — no race, no urgency
 - Slower than parallel, but the member is kept informed and can fall back to direct-send any time
 
@@ -106,7 +106,7 @@ The mediator isn't just an asker-side buffer. It's a two-sided one. BridgeCircle
 
 The helper notification (app + email) is **clearly mediated** — the sender is BridgeCircle, the asker is named, and the context is provided. The helper sees one of two framings, depending on whether they're already a confirmed open helper or being approached cold:
 
-### For an open helper (`open_to_advice` or `open_to_mentorship` is true)
+### For an open helper (`helper_preferences.open_to_help` is true)
 
 > **A Class of '22 alum is hoping you can help.**
 >
@@ -129,10 +129,10 @@ The helper notification (app + email) is **clearly mediated** — the sender is 
 ### Helper protections
 
 - Declining is **never surfaced to the asker.** Maren only ever hears about who said yes.
-- Capacity caps on `helper_preferences` still apply. A mentor at capacity is not approached.
-- A mentor who declines an ask is dampened for that asker (no future mediator approaches from the same member for 30 days).
+- Capacity caps on `helper_preferences` still apply (`maxPendingRequests`). A helper at capacity is not approached.
+- A helper who declines an ask is dampened for that asker (no future mediator approaches from the same member for 30 days).
 - Repeated declines on a topic (≥3 in 90 days) prompt: *"Would you like to remove [topic] from your topics?"* — never silently.
-- Mentor inactivity auto-pause (existing 14-day rule) applies — paused mentors are skipped.
+- Existing auto-pause applies — paused helpers are skipped. Note the mechanism: v2 pauses on `helper_preferences.consecutiveTimeouts` (`pauseReason: 'unresponsive'`), not on a 14-day inactivity window; 14 days is the *ask* expiry (`asks.expiresAt`). A mediated approach that times out should increment the same counter rather than introduce a parallel rule.
 
 ---
 
@@ -151,7 +151,7 @@ All copy below complies with [voice-guidelines.md §9](../../docs/product/voice-
 | Asker sends → notify helper | Member (Maren) | New message from Maren. | (Standard ask body; thread carries the "BridgeCircle introduced you" badge.) |
 | Mediator opened a draft for asker | BridgeCircle | Your draft is ready to send. | Jane is open to helping. We saved your draft from earlier — edit if you want, then send. |
 
-Email versions follow the existing Civic email templates at [app/src/notify/emails/](../../app/src/notify/emails/) and respect the same length ceilings.
+Email versions follow the shared email kit at [app/src/notify/emails/](../../app/src/notify/emails/) and respect the same length ceilings.
 
 ---
 
@@ -215,10 +215,10 @@ Reusing existing infrastructure where possible. New work scoped tight.
 
 | Step | AI? | Source |
 | --- | --- | --- |
-| Organize member's thoughts | Yes | Existing guided composer ([app/src/app/(member)/ask/new/](<../../app/src/app/(member)/ask/new/>)) |
-| Find right helper | Yes | Existing ranking ([app/src/lib/asks/](../../app/src/lib/asks/)) |
-| Draft outgoing message (for direct or mediated) | Yes | Existing `/api/asks/draft` |
-| Generate mediator outreach copy | Yes (templated) | New: `/lib/asks/mediator/composeOutreach.ts` |
+| Organize member's thoughts | Yes | Existing composers ([app/src/app/(member)/help/ask-circle/](<../../app/src/app/(member)/help/ask-circle/>), [app/src/app/(member)/help/ask/[membershipId]/](<../../app/src/app/(member)/help/ask/[membershipId]/>)) |
+| Find right helper | Yes | Existing ranking ([app/src/lib/help/matching.ts](../../app/src/lib/help/matching.ts)) |
+| Draft outgoing message (for direct or mediated) | Yes | Existing `/api/help/assist` → [`lib/help/assistance.ts`](../../app/src/lib/help/assistance.ts) |
+| Generate mediator outreach copy | Yes (templated) | New: `/lib/help/mediator/composeOutreach.ts` |
 | Decide whether helper is good fit before approaching | No | Pure ranking + structured filters (capacity, opt-in, topic match) |
 | Decide when to escalate (timeout, next candidate) | No | Pure timer + structured queue |
 | Decide when to surface "search exhausted" | No | Configured threshold (3 declines or 7 days) |
@@ -247,7 +247,7 @@ The LLM fills the template variables and tunes for the specific helper (e.g., ad
 | Helper says yes, member sends, helper goes silent | Standard ask-reply flow; mediator's job ends at introduction. Member can use existing nudge tooling. |
 | Network has no candidates | Member notified immediately: *"We don't have a good match in your circle yet. Want to save the question for when more alumni join, or send directly to someone you've found?"* |
 | Helper marked as paused (auto-pause from inactivity) | Skipped in queue. No notification to helper. |
-| Helper marked at capacity | Skipped. Capacity is per-type (advice vs mentorship); a capacity-full mentor may still get an advice ask. |
+| Helper marked at capacity | Skipped in queue. v2 has one availability state (`open_to_help` plus pause metadata) rather than per-type capacity, and pending capacity is enforced transactionally in the command functions — so the mediator reads availability, it does not compute it. |
 | Member opens multiple mediated asks in parallel | Rate limit: 3 active mediated asks per member at once. Excess goes to direct-send only. |
 | Two askers approach the same helper near-simultaneously | Both go through; helper sees two notifications, makes independent decisions. The mediator does not batch or hide. |
 | Helper accepts; member's draft is now stale (sent days later) | Member sees a small note above the draft: *"This is your draft from May 24. Want to refresh it before sending?"* |
@@ -288,9 +288,9 @@ The LLM fills the template variables and tunes for the specific helper (e.g., ad
 
 ## Risks
 
-1. **AI-mediated outreach feels like spam to mentors.** A helper who gets several BridgeCircle-mediated notifications a week may start ignoring them. *Mitigation:* cap of one mediated approach per helper per 7 days; capacity caps respected; clear sender (institutional voice, not member-impersonating).
+1. **AI-mediated outreach feels like spam to helpers.** A helper who gets several BridgeCircle-mediated notifications a week may start ignoring them. *Mitigation:* cap of one mediated approach per helper per 7 days; capacity caps respected; clear sender (institutional voice, not member-impersonating).
 
-2. **Mentors distrust ALL asks once mediator exists.** Even direct-sent asks might be assumed AI-written. *Mitigation:* disclosure badge applies to direct AI-drafted sends too; mentors learn to trust the badge as honest signal.
+2. **Helpers distrust ALL asks once mediator exists.** Even direct-sent asks might be assumed AI-written. *Mitigation:* disclosure badge applies to direct AI-drafted sends too; helpers learn to trust the badge as honest signal.
 
    *Counter-effect to monitor:* the opposite outcome is also plausible and arguably more likely — mediated asks make declining low-cost, which keeps helpers *open* to being approached. The hypothesis is that helper-side engagement goes **up**, not down, because the guilt-to-decline drops. Track helper accept rate, helper opt-out rate, and helper-pause rate against the pre-mediator baseline. If helper engagement holds or improves, this risk has inverted into a strength.
 
@@ -311,13 +311,13 @@ The LLM fills the template variables and tunes for the specific helper (e.g., ad
 | Layer | Work |
 | --- | --- |
 | Schema | One migration: enum extension, `send_mode` column on `asks`, `ask_mediator_attempts` table, RLS. ~60 lines SQL. |
-| LLM | `lib/asks/mediator/composeOutreach.ts` — new template + prompt. Reuses Haiku. |
-| Matching | Reuses existing helper-ranking from `lib/asks/`. New: queue manager (`lib/asks/mediator/queue.ts`) that walks ranked candidates with timeout + dampening logic. |
-| API | Two new server actions: `initiateMediatedAskAction`, `respondToMediatorAction`. Both go through `/lib/asks/mediator/`. |
+| LLM | `lib/help/mediator/composeOutreach.ts` — new template + prompt. Reuses the bounded provider adapters in `lib/help/providers.ts`. |
+| Matching | Reuses existing helper-ranking from `lib/help/matching.ts`. New: queue manager (`lib/help/mediator/queue.ts`) that walks ranked candidates with timeout + dampening logic. |
+| API | Two new server actions: `initiateMediatedAskAction`, `respondToMediatorAction`. Both go through `/lib/help/mediator/`. |
 | Background | Existing Railway worker pattern; new job: `processMediatorTimeouts` (runs hourly, advances queues past 48h-stale approaches). |
 | Notifications | Extend `lib/notifications/` with `mediator_approach`, `mediator_accepted`, `mediator_search_exhausted`, `mediator_periodic_update` types. |
-| Emails | Five new templates: `mediator-approach-open-helper`, `mediator-approach-cold`, `mediator-accepted-to-asker`, `mediator-search-exhausted`, `mediator-helper-reminder`. Civic style. |
-| UI | Wizard Compose step gains the three-button choice; new confirmation card; mediator-status card in `/inbox`; conversation-thread badge component (`<IntroducedBadge>`); reusable `<AIDraftBadge>` per audit recommendation. |
+| Emails | Five new templates: `mediator-approach-open-helper`, `mediator-approach-cold`, `mediator-accepted-to-asker`, `mediator-search-exhausted`, `mediator-helper-reminder`. Built on the shared kit in `app/src/notify/emails/email-kit.tsx`. |
+| UI | Composer gains the three-button choice; new confirmation card; mediator-status card in `/messages`; conversation-thread badge component (`<IntroducedBadge>`); reusable `<AIDraftBadge>` per audit recommendation. |
 | Tests | Vitest for queue advancement, timeout, dampening, RLS on attempts table. |
 
 **Effort estimate:** ~3 weeks for one engineer, including the migration safety pass, the new email templates, and pilot copy review with a real helper.

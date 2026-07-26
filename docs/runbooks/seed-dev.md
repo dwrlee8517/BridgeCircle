@@ -170,7 +170,7 @@ target guard. It must never run against production.
 
 The development project has no real users or data to preserve. Its one-time v2
 cutover is therefore a clean rebuild, not a data migration. Follow
-[`database-v2-dev-cutover-plan.md`](../architecture/database-v2-dev-cutover-plan.md):
+[`database-v2-dev-cutover-plan.md`](../_archive/database-v2-2026-07/database-v2-dev-cutover-plan.md):
 
 1. commit and verify one clean cutover SHA;
 2. run `pnpm cutover:preflight:dev` from `app/` and retain only its non-secret

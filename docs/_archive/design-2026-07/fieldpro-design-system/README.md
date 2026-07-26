@@ -2,7 +2,7 @@
 
 This folder mirrors the **`fieldpro-design-system` Claude Design project** —
 the canonical home of BridgeCircle's visual system per
-[ADR 0012](../../../../decisions/0012-tds-design-system.md). Sync is via
+[ADR 0012](../../../decisions/0012-tds-design-system.md). Sync is via
 DesignSync (`/design-login` + `/design-sync`, interactive sessions only);
 edits flow both ways, one component at a time, never wholesale.
 
@@ -38,5 +38,5 @@ The handoff defines intended tokens, hierarchy, and composition. Production
 (`app/src/app/globals.css` + owned primitives) translates — it never copies
 inline styles. Drift gets recorded in `fidelity-ledger.md` (created at
 Phase C). The retired Civic Editorial handoff lives at
-[`../bridgecircle-design-system/`](../bridgecircle-design-system/) until
+[`../bridgecircle-design-system/`](../bridgecircle-design-system-civic/) until
 Phase D archives it.

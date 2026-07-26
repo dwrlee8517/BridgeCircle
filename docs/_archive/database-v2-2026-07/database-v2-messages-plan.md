@@ -6,9 +6,9 @@
 - **Branch:** `codex/redesign-v2`
 - **Starting checkpoint:** Help domain cutover `f0a09e1`
 - **Depends on:** completed Conversation Primitive and Help vertical slice
-- **Contract:** [Database v2 contract](database-v2-contract.md)
-- **Behavior:** [`FLOWS.md` §5](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
-- **UI source:** [BridgeCircle Messages template](../experience/ui/design-system/handoff/bridgecircle/project/templates/messages/Messages.dc.html)
+- **Contract:** [Database v2 contract](../../architecture/database-v2-contract.md)
+- **Behavior:** [`FLOWS.md` §5](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+- **UI source:** [BridgeCircle Messages template](../../experience/ui/design-system/handoff/bridgecircle/project/templates/messages/Messages.dc.html)
 - **Test inventory:** [Messages vertical-slice test inventory](database-v2-messages-test-inventory.md)
 
 ## Completion record
@@ -66,11 +66,11 @@ can encounter:
 
 Use this order when sources disagree:
 
-1. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the approved
-   [database v2 contract](database-v2-contract.md);
-2. [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+1. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md) and the approved
+   [database v2 contract](../../architecture/database-v2-contract.md);
+2. [`FLOWS.md`](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
    §§5, 7b, 7c, and 8;
-3. [ADR 0011](../decisions/0011-two-verbs-one-inbox.md);
+3. [ADR 0011](../../decisions/0011-two-verbs-one-inbox.md);
 4. the final Messages template for visual hierarchy and interaction detail;
 5. current code only as evidence to keep deliberately or replace.
 

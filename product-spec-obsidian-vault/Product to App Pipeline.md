@@ -114,7 +114,7 @@ Each environment is an **App + DB** pair. Code promotes left to right; nothing r
 - **Staging App / Staging DB** — a production-shaped rehearsal. QA and chaos testing happen here, where breaking things is safe.
 - **Prod App / Prod DB** — real members, real data. Treated as untouchable from day-to-day development.
 
-See [`environments.md`](../docs/architecture/environments.md) for the live env layout, [`branching-strategy.html`](../docs/architecture/branching-strategy.html) for how code promotes, and [`migration-workflow.md`](../docs/runbooks/migration-workflow.md) for how schema changes ride along safely.
+See [`environments.md`](../docs/architecture/environments.md) for the live env layout, [ADR 0014](../docs/decisions/0014-scripted-cd-pipeline.md) for how code promotes, and [`migration-workflow.md`](../docs/runbooks/migration-workflow.md) for how schema changes ride along safely.
 
 ## Testing layers
 

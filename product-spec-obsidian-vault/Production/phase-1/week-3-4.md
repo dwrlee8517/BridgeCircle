@@ -1,5 +1,12 @@
 # BridgeCircle Weeks 3–4 Plan
 
+> **Product-model notice (2026-07-25).** This plan predates the v2 rebuild and had
+> no staleness notice until now. The scope-phasing reasoning still holds; specific
+> schema, route, and vocabulary references may not. Verify against the
+> [database v2 contract](../../../docs/architecture/database-v2-contract.md) and
+> [ADR 0011](../../../docs/decisions/0011-two-verbs-one-inbox.md) before building
+> from any item here. Code is canonical.
+
 ## Purpose
 
 This document specifies what ships on top of `launch-cut.md` in the second slice of Phase 1. The "weeks 3–4" framing is scope phasing, not a calendar — there is no fixed launch deadline.
