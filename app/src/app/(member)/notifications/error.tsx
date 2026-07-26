@@ -6,7 +6,7 @@ export default function NotificationsError({ reset }: { reset: () => void }) {
   return (
     <RouteStateCard
       title="Couldn’t load notifications."
-      description="Check your connection and try again — your unread items are still there."
+      description="Check your connection and try again."
       actionLabel="Try again"
       onRetry={reset}
     />

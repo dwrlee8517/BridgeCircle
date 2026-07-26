@@ -5,7 +5,7 @@ export default function HelpNotFound() {
     <RouteStateCard
       kind="not-found"
       title="This help request is not available"
-      description="It may have closed, or it may not belong to your selected circle."
+      description="It closed, or it isn’t in your selected circle."
       actionLabel="Back to Help"
       href="/help"
     />

@@ -224,7 +224,7 @@ function ColdStart({
     {
       href: '/help',
       title: 'Anything you’re trying to figure out?',
-      body: 'Ask it the way it comes out — we’ll find who can speak to it.',
+      body: 'Write it in your own words — we’ll find the right people.',
       action: 'Ask',
     },
     {

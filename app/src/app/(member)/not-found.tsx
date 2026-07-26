@@ -5,7 +5,7 @@ export default function MemberNotFound() {
     <RouteStateCard
       kind="not-found"
       title="This isn’t here anymore."
-      description="The link may be old, or the page may have moved. Nothing you did — things just move."
+      description="This link is old, or the page moved."
       actionLabel="← Back home"
       href="/"
     />
