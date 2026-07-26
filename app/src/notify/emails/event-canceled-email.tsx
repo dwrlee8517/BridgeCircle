@@ -1,4 +1,4 @@
-import { CivicCallout, CivicEmail, CivicHeading, CivicText, greeting } from './civic-email'
+import { EmailCallout, EmailHeading, EmailShell, EmailText, greeting } from './email-kit'
 
 type Props = {
   recipientName: string | null
@@ -24,13 +24,13 @@ export function EventCanceledEmail({
   })
 
   return (
-    <CivicEmail
+    <EmailShell
       preview={`${eventTitle} has been canceled`}
       footer="You received this because you had RSVP'd to this BridgeCircle event. No action is needed; your RSVP has been removed."
     >
-      <CivicHeading>{eventTitle} has been canceled</CivicHeading>
-      <CivicText>{greeting(recipientName)}</CivicText>
-      <CivicText>
+      <EmailHeading>{eventTitle} has been canceled</EmailHeading>
+      <EmailText>{greeting(recipientName)}</EmailText>
+      <EmailText>
         The admin team canceled <strong>{eventTitle}</strong>, originally scheduled for{' '}
         <strong>{dateText}</strong>
         {eventLocation ? (
@@ -40,16 +40,14 @@ export function EventCanceledEmail({
           </>
         ) : null}
         .
-      </CivicText>
+      </EmailText>
       {reason ? (
         <>
-          <CivicText>Reason given:</CivicText>
-          <CivicCallout>{reason}</CivicCallout>
+          <EmailText>Reason given:</EmailText>
+          <EmailCallout>{reason}</EmailCallout>
         </>
       ) : null}
-      <CivicText>
-        No action is needed on your end. You will not see this event on the schedule anymore.
-      </CivicText>
-    </CivicEmail>
+      <EmailText>No action is needed on your end.</EmailText>
+    </EmailShell>
   )
 }

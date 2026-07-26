@@ -1,14 +1,14 @@
 import {
-  CivicButton,
-  CivicButtonRow,
-  CivicEmail,
-  CivicHeading,
-  CivicPlainLink,
-  CivicQuote,
-  CivicText,
+  EmailButton,
+  EmailButtonRow,
+  EmailHeading,
+  EmailPlainLink,
+  EmailQuote,
+  EmailShell,
+  EmailText,
   firstName,
   greeting,
-} from './civic-email'
+} from './email-kit'
 
 type Props = {
   helperName: string | null
@@ -26,25 +26,21 @@ export function AskReminderEmail({ helperName, askerName, askExcerpt, reviewUrl 
   const askerFirst = firstName(askerName) ?? askerName
 
   return (
-    <CivicEmail
-      preview={`${askerName}'s ask is still open — when you have a minute`}
+    <EmailShell
+      preview={`${askerName}'s ask is still open`}
       footer="You received this because you're open to helping on BridgeCircle. You can pause new asks anytime from your helper settings."
     >
-      <CivicHeading>An open ask, resurfaced</CivicHeading>
-      <CivicText>{greeting(helperName)}</CivicText>
-      <CivicText>
-        <strong>{askerName}</strong>&rsquo;s ask from last week is still open. Resurfacing it once,
-        in case it slipped by:
-      </CivicText>
-      {askExcerpt ? <CivicQuote>&ldquo;{askExcerpt}&rdquo;</CivicQuote> : null}
-      <CivicButtonRow>
-        <CivicButton href={reviewUrl}>Read {askerFirst}&rsquo;s ask</CivicButton>
-      </CivicButtonRow>
-      <CivicText small>
-        No pressure — if now isn&rsquo;t right, passing quietly is always okay, and {askerFirst}{' '}
-        will be pointed to someone else.
-      </CivicText>
-      <CivicPlainLink href={reviewUrl} />
-    </CivicEmail>
+      <EmailHeading>{askerName}&rsquo;s ask is still open</EmailHeading>
+      <EmailText>{greeting(helperName)}</EmailText>
+      <EmailText>Resurfacing it once, in case it slipped by:</EmailText>
+      {askExcerpt ? <EmailQuote>&ldquo;{askExcerpt}&rdquo;</EmailQuote> : null}
+      <EmailButtonRow>
+        <EmailButton href={reviewUrl}>Read {askerFirst}&rsquo;s ask</EmailButton>
+      </EmailButtonRow>
+      <EmailText small>
+        If now isn&rsquo;t right, passing is okay — {askerFirst} will be pointed to someone else.
+      </EmailText>
+      <EmailPlainLink href={reviewUrl} />
+    </EmailShell>
   )
 }

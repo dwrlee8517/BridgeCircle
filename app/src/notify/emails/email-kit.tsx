@@ -13,31 +13,48 @@ import {
 } from '@react-email/components'
 import type * as React from 'react'
 
+/**
+ * Email design kit — the BridgeCircle brand fork, expressed for mail clients.
+ *
+ * Values are the fork's light-mode ramp (ADR 0013), hard-coded because email
+ * cannot use CSS custom properties. When a fork token changes, mirror it here;
+ * these are the only place the palette is duplicated on purpose.
+ *
+ * Renamed from `civic-email.tsx` on 2026-07-25 when Civic Editorial was
+ * retired. The two email constraints that are NOT Civic residue and must stay:
+ * the system font stack (Pretendard will not load in most clients) and inline
+ * styles on table-based layout.
+ */
 export const emailTokens = {
-  background: '#fafaf9',
+  background: '#f2f4f6', // grey-100 — the fork canvas (was Civic warm #fafaf9)
   card: '#ffffff',
-  foreground: '#0c0c0b',
-  muted: '#4d4d4a',
-  border: '#dcdcd6',
-  primary: '#2563eb',
-  // CTA — amber, mirrors the app `--cta` token. Use CivicButton variant="cta"
-  // for the single highest-stakes action per email (Accept invitation, RSVP,
-  // Open the ask). Keep variant="primary" (blue) for links and secondary
-  // positive actions like "View profile" or "Open thread."
-  cta: '#f59e0b',
-  ctaForeground: '#0c0c0b',
-  destructive: '#9b2c1f',
-  radius: '10px',
+  foreground: '#191f28', // grey-900
+  muted: '#4e5968', // grey-700 / text-secondary
+  border: '#e6e9ee', // grey-200 — fork hairline
+  primary: '#3182f6', // blue-500
+  /**
+   * The lead action per email. Blue, matching the app: the fork made blue the
+   * CTA everywhere, so the amber Civic CTA is retired. `variant="cta"` and
+   * `variant="primary"` now render the same fill — `cta` is kept as the
+   * semantic marker for the single highest-stakes action (Accept invitation,
+   * RSVP, Open the ask) so call sites keep saying which action leads.
+   */
+  cta: '#3182f6',
+  ctaForeground: '#ffffff',
+  destructive: '#d22030', // red-700
+  calloutBackground: '#f9fafb', // grey-50
+  dangerCalloutBackground: '#ffeeee', // red-50
+  radius: '12px', // radius-comfortable
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
 } as const
 
-type CivicEmailProps = {
+type EmailShellProps = {
   preview: string
   children: React.ReactNode
   footer?: React.ReactNode
 }
 
-export function CivicEmail({ preview, children, footer }: CivicEmailProps) {
+export function EmailShell({ preview, children, footer }: EmailShellProps) {
   return (
     <Html>
       <Head />
@@ -45,7 +62,9 @@ export function CivicEmail({ preview, children, footer }: CivicEmailProps) {
       <Body style={emailStyles.body}>
         <Container style={emailStyles.container}>
           <Section style={emailStyles.header}>
-            <Text style={emailStyles.wordmark}>BridgeCircle</Text>
+            <Text style={emailStyles.wordmark}>
+              Bridge<span style={{ color: emailTokens.primary }}>Circle</span>
+            </Text>
             <Text style={emailStyles.headerLabel}>Verified school circle</Text>
           </Section>
           <Section style={emailStyles.content}>{children}</Section>
@@ -61,11 +80,11 @@ export function CivicEmail({ preview, children, footer }: CivicEmailProps) {
   )
 }
 
-export function CivicHeading({ children }: { children: React.ReactNode }) {
+export function EmailHeading({ children }: { children: React.ReactNode }) {
   return <Heading style={emailStyles.heading}>{children}</Heading>
 }
 
-export function CivicText({
+export function EmailText({
   children,
   small = false,
 }: {
@@ -75,7 +94,7 @@ export function CivicText({
   return <Text style={small ? emailStyles.smallText : emailStyles.paragraph}>{children}</Text>
 }
 
-export function CivicButton({
+export function EmailButton({
   href,
   children,
   variant = 'primary',
@@ -97,11 +116,11 @@ export function CivicButton({
   )
 }
 
-export function CivicButtonRow({ children }: { children: React.ReactNode }) {
+export function EmailButtonRow({ children }: { children: React.ReactNode }) {
   return <Section style={emailStyles.buttonSection}>{children}</Section>
 }
 
-export function CivicCallout({
+export function EmailCallout({
   children,
   tone = 'neutral',
 }: {
@@ -115,11 +134,11 @@ export function CivicCallout({
   )
 }
 
-export function CivicQuote({ children }: { children: React.ReactNode }) {
+export function EmailQuote({ children }: { children: React.ReactNode }) {
   return <Text style={emailStyles.quote}>{children}</Text>
 }
 
-export function CivicPlainLink({ href }: { href: string }) {
+export function EmailPlainLink({ href }: { href: string }) {
   return (
     <Text style={emailStyles.smallText}>
       Or paste this link into your browser:
@@ -131,7 +150,7 @@ export function CivicPlainLink({ href }: { href: string }) {
   )
 }
 
-export function CivicLink({ href, children }: { href: string; children: React.ReactNode }) {
+export function EmailLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} style={emailStyles.inlineLink}>
       {children}
@@ -243,14 +262,14 @@ export const emailStyles = {
     textDecoration: 'none',
   },
   callout: {
-    backgroundColor: '#f4f3ee',
+    backgroundColor: emailTokens.calloutBackground,
     border: `1px solid ${emailTokens.border}`,
     borderRadius: emailTokens.radius,
     margin: '16px 0',
     padding: '12px 16px',
   },
   dangerCallout: {
-    backgroundColor: '#f8ebe9',
+    backgroundColor: emailTokens.dangerCalloutBackground,
     border: `1px solid ${emailTokens.destructive}`,
     borderRadius: emailTokens.radius,
     margin: '16px 0',

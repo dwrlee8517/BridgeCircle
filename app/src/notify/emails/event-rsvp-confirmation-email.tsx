@@ -1,12 +1,12 @@
 import {
-  CivicButton,
-  CivicButtonRow,
-  CivicCallout,
-  CivicEmail,
-  CivicHeading,
-  CivicPlainLink,
-  CivicText,
-} from './civic-email'
+  EmailButton,
+  EmailButtonRow,
+  EmailCallout,
+  EmailHeading,
+  EmailPlainLink,
+  EmailShell,
+  EmailText,
+} from './email-kit'
 
 type Props = {
   eventTitle: string
@@ -31,22 +31,22 @@ export function EventRsvpConfirmationEmail({
   })
 
   return (
-    <CivicEmail
+    <EmailShell
       preview={`You're going to ${eventTitle}`}
       footer="You received this because you RSVP'd to a BridgeCircle event. We do not send event reminders, so add it to your calendar if you want a nudge later."
     >
-      <CivicHeading>You are going</CivicHeading>
-      <CivicText>
+      <EmailHeading>You&rsquo;re going</EmailHeading>
+      <EmailText>
         <strong>{eventTitle}</strong>
-      </CivicText>
-      <CivicCallout>
+      </EmailText>
+      <EmailCallout>
         {when}
         {eventLocation ? `\n${eventLocation}` : ''}
-      </CivicCallout>
-      <CivicButtonRow>
-        <CivicButton href={eventUrl}>View event</CivicButton>
-      </CivicButtonRow>
-      <CivicPlainLink href={eventUrl} />
-    </CivicEmail>
+      </EmailCallout>
+      <EmailButtonRow>
+        <EmailButton href={eventUrl}>View event</EmailButton>
+      </EmailButtonRow>
+      <EmailPlainLink href={eventUrl} />
+    </EmailShell>
   )
 }

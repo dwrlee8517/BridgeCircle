@@ -9,11 +9,11 @@ import { AskAcceptedEmail } from './emails/ask-accepted-email'
 import { AskExpiredEmail } from './emails/ask-expired-email'
 import { AskReminderEmail } from './emails/ask-reminder-email'
 import { AskRequestEmail } from './emails/ask-request-email'
+import { ConnectRequestAcceptedEmail } from './emails/connect-request-accepted-email'
+import { ConnectRequestEmail } from './emails/connect-request-email'
 import { EventCanceledEmail } from './emails/event-canceled-email'
 import { EventRsvpConfirmationEmail } from './emails/event-rsvp-confirmation-email'
 import { EventWaitlistPromotedEmail } from './emails/event-waitlist-promoted-email'
-import { FriendRequestAcceptedEmail } from './emails/friend-request-accepted-email'
-import { FriendRequestEmail } from './emails/friend-request-email'
 import { HelpNotificationEmail } from './emails/help-notification-email'
 import { InviteEmail } from './emails/invite-email'
 import { MembershipApprovedEmail } from './emails/membership-approved-email'
@@ -122,33 +122,33 @@ function transactionalEmailCopy(
     { subject: string; heading: string; body: string; actionLabel: string }
   > = {
     ask_received: {
-      subject: `${actor} is hoping you can help`,
-      heading: `${actor} is hoping you can help`,
+      subject: `${actor} asked for your help`,
+      heading: `${actor} asked for your help`,
       body: 'Take a look when you have a moment. Passing kindly is always an option.',
       actionLabel: 'Review the request',
     },
     ask_accepted: {
-      subject: `${actor} said yes`,
-      heading: `${actor} said yes`,
+      subject: `${actor} accepted your ask`,
+      heading: `${actor} accepted your ask`,
       body: 'Your conversation is ready whenever you are.',
       actionLabel: 'Open the conversation',
     },
     ask_declined: {
-      subject: 'An update on your request',
-      heading: 'An update on your request',
-      body: 'The member could not help this time. Your request is ready to revisit.',
-      actionLabel: 'View your request',
+      subject: 'An update on your ask',
+      heading: 'An update on your ask',
+      body: 'They weren’t able to help this time. Your ask is ready to revisit.',
+      actionLabel: 'View your ask',
     },
     ask_reminder: {
-      subject: 'A request is waiting for you',
-      heading: 'A request is waiting for you',
-      body: 'A member is still waiting for your response. A quick yes or kind decline helps them move forward.',
-      actionLabel: 'Review the request',
+      subject: 'An ask is waiting for you',
+      heading: 'An ask is waiting for you',
+      body: 'A member is still waiting on you. A quick yes or kind decline helps them move forward.',
+      actionLabel: 'Review the ask',
     },
     ask_closed: {
-      subject: 'Your request has closed',
-      heading: 'Your request has closed',
-      body: 'This request reached the end of its response window. You can ask again with a fresh request.',
+      subject: 'Your ask has closed',
+      heading: 'Your ask has closed',
+      body: 'It reached the end of its two-week window. You can send a fresh ask any time.',
       actionLabel: 'View Help',
     },
     offer_received: {
@@ -166,7 +166,7 @@ function transactionalEmailCopy(
     offer_declined: {
       subject: 'An update on your offer',
       heading: 'An update on your offer',
-      body: 'The member went another direction this time. Thank you for offering.',
+      body: 'They won’t need your offer this time. Thank you for offering.',
       actionLabel: 'View Help',
     },
     offer_closed: {
@@ -176,15 +176,15 @@ function transactionalEmailCopy(
       actionLabel: 'View Help',
     },
     circle_ask_match: {
-      subject: 'A request may be a good fit for you',
-      heading: 'A request may be a good fit for you',
-      body: 'BridgeCircle found a request that matches what you can speak to.',
+      subject: 'An ask may be a good fit for you',
+      heading: 'An ask may be a good fit for you',
+      body: 'BridgeCircle found an ask that matches your experience.',
       actionLabel: 'Take a look',
     },
     circle_ask_closed: {
-      subject: 'Your circle request has closed',
-      heading: 'Your circle request has closed',
-      body: 'This request reached the end of its response window. You can ask the circle again any time.',
+      subject: 'Your circle ask has closed',
+      heading: 'Your circle ask has closed',
+      body: 'It reached the end of its two-week window. You can ask the circle again any time.',
       actionLabel: 'View Help',
     },
     message_received: {
@@ -196,7 +196,7 @@ function transactionalEmailCopy(
     announcement_published: {
       subject: 'A new announcement from your school',
       heading: 'A new announcement from your school',
-      body: 'There is a new update waiting for you in School.',
+      body: 'Your school posted a new announcement.',
       actionLabel: 'Read the announcement',
     },
     event_changed: {
@@ -206,8 +206,8 @@ function transactionalEmailCopy(
       actionLabel: 'Review the event',
     },
     event_cancelled: {
-      subject: 'An event you were following was cancelled',
-      heading: 'The event was cancelled',
+      subject: 'An event you RSVP’d to was canceled',
+      heading: 'The event was canceled',
       body: 'The event page has the latest note from your school.',
       actionLabel: 'View the event',
     },
@@ -220,8 +220,8 @@ function transactionalEmailCopy(
     event_waitlist_spot_opened: {
       subject: 'A spot opened for an event',
       heading: 'A spot opened — still want in?',
-      body: 'The place is held briefly for you. Confirm on the event page when you’re ready.',
-      actionLabel: 'Review the offer',
+      body: 'The spot is held briefly for you. Confirm on the event page when you’re ready.',
+      actionLabel: 'Confirm your spot',
     },
   }
   return copies[type]
@@ -245,7 +245,7 @@ export type SendAskRequestInput = {
 export async function sendAskRequestEmail(input: SendAskRequestInput): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: `${input.askerName} is hoping you can help`,
+    subject: `${input.askerName} asked for your help`,
     email: AskRequestEmail(input),
   })
 }
@@ -259,7 +259,7 @@ export type SendAskAcceptedInput = {
 export async function sendAskAcceptedEmail(input: SendAskAcceptedInput): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: `${input.helperName} said yes to your ask`,
+    subject: `${input.helperName} accepted your ask`,
     email: AskAcceptedEmail(input),
   })
 }
@@ -282,18 +282,20 @@ export async function sendEventRsvpConfirmationEmail(
   })
 }
 
-export type SendFriendRequestInput = {
+export type SendConnectRequestInput = {
   to: string
   senderName: string
   reviewUrl: string
   message: string | null
 }
 
-export async function sendFriendRequestEmail(input: SendFriendRequestInput): Promise<NotifyResult> {
+export async function sendConnectRequestEmail(
+  input: SendConnectRequestInput,
+): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
     subject: `${input.senderName} would like to connect`,
-    email: FriendRequestEmail({
+    email: ConnectRequestEmail({
       senderName: input.senderName,
       reviewUrl: input.reviewUrl,
       message: input.message,
@@ -454,19 +456,19 @@ export async function sendAnnouncementEmail(input: SendAnnouncementInput): Promi
   })
 }
 
-export type SendFriendRequestAcceptedInput = {
+export type SendConnectRequestAcceptedInput = {
   to: string
   accepterName: string
   profileUrl: string
 }
 
-export async function sendFriendRequestAcceptedEmail(
-  input: SendFriendRequestAcceptedInput,
+export async function sendConnectRequestAcceptedEmail(
+  input: SendConnectRequestAcceptedInput,
 ): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
     subject: `You and ${input.accepterName} are connected`,
-    email: FriendRequestAcceptedEmail({
+    email: ConnectRequestAcceptedEmail({
       accepterName: input.accepterName,
       profileUrl: input.profileUrl,
     }),
@@ -491,7 +493,7 @@ export async function sendProposalReviewEmail(
 ): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: 'BridgeCircle: updates from your LinkedIn',
+    subject: 'Profile updates found on LinkedIn',
     email: ProposalReviewEmail({
       recipientName: input.recipientName,
       reviewUrl: input.reviewUrl,
@@ -514,7 +516,7 @@ export async function sendProposalAppliedEmail(
 ): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: 'BridgeCircle: we updated your profile from LinkedIn',
+    subject: 'Your profile was updated from LinkedIn',
     email: ProposalAppliedEmail({
       recipientName: input.recipientName,
       undoUrl: input.undoUrl,
@@ -534,7 +536,7 @@ export type SendAskReminderInput = {
 export async function sendAskReminderEmail(input: SendAskReminderInput): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: `${input.askerName}'s ask is still open — when you have a minute`,
+    subject: `${input.askerName}'s ask is still open`,
     email: AskReminderEmail({
       helperName: input.helperName,
       askerName: input.askerName,
@@ -554,7 +556,7 @@ export type SendAskExpiredInput = {
 export async function sendAskExpiredEmail(input: SendAskExpiredInput): Promise<NotifyResult> {
   return sendRenderedEmail({
     to: input.to,
-    subject: `Your ask to ${input.helperName} closed quietly`,
+    subject: `Your ask to ${input.helperName} has closed`,
     email: AskExpiredEmail({
       askerName: input.askerName,
       helperName: input.helperName,

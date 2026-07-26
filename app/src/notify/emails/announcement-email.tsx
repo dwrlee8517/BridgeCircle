@@ -1,13 +1,13 @@
 import {
-  CivicButton,
-  CivicButtonRow,
-  CivicCallout,
-  CivicEmail,
-  CivicHeading,
-  CivicPlainLink,
-  CivicText,
+  EmailButton,
+  EmailButtonRow,
+  EmailCallout,
+  EmailHeading,
+  EmailPlainLink,
+  EmailShell,
+  EmailText,
   greeting,
-} from './civic-email'
+} from './email-kit'
 
 type Props = {
   recipientName: string | null
@@ -25,18 +25,18 @@ export function AnnouncementEmail({
   announcementsUrl,
 }: Props) {
   return (
-    <CivicEmail
+    <EmailShell
       preview={`${orgName}: ${title}`}
-      footer={`You received this because you are an active member of ${orgName} on BridgeCircle. Admin announcements also appear in your BridgeCircle inbox.`}
+      footer={`You received this because you are an active member of ${orgName} on BridgeCircle. Announcements also appear on the School page.`}
     >
-      <CivicText small>{orgName}</CivicText>
-      <CivicHeading>{title}</CivicHeading>
-      <CivicText>{greeting(recipientName)}</CivicText>
-      {body ? <CivicCallout>{body}</CivicCallout> : null}
-      <CivicButtonRow>
-        <CivicButton href={announcementsUrl}>View on BridgeCircle</CivicButton>
-      </CivicButtonRow>
-      <CivicPlainLink href={announcementsUrl} />
-    </CivicEmail>
+      <EmailText small>{orgName}</EmailText>
+      <EmailHeading>{title}</EmailHeading>
+      <EmailText>{greeting(recipientName)}</EmailText>
+      {body ? <EmailCallout>{body}</EmailCallout> : null}
+      <EmailButtonRow>
+        <EmailButton href={announcementsUrl}>View on BridgeCircle</EmailButton>
+      </EmailButtonRow>
+      <EmailPlainLink href={announcementsUrl} />
+    </EmailShell>
   )
 }
