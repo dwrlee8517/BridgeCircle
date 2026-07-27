@@ -87,6 +87,13 @@ test('full event uses a held offer and requires an explicit yes before confirmin
 }) => {
   await signInPersona(page, RICHARD)
   await page.goto(`/school/events/${DINNER}`)
+  // The RSVP control is a useActionState form: the button is server-rendered and
+  // therefore already visible and enabled, so Playwright's own actionability
+  // checks do not imply it is wired. A click landing before hydration takes
+  // focus and nothing else — no request is issued, `state.message` stays empty,
+  // and the role="status" region is never rendered to be found. Same reason
+  // `sendComposerMessage` waits in helpers/auth.ts.
+  await page.waitForLoadState('networkidle')
   await page.getByRole('button', { name: 'Join waitlist' }).click()
   await expect(page.getByRole('status')).toHaveText(
     "You're on the list — we will ask before taking a spot.",
@@ -95,6 +102,7 @@ test('full event uses a held offer and requires an explicit yes before confirmin
 
   await signInPersona(page, AMY)
   await page.goto(`/school/events/${DINNER}`)
+  await page.waitForLoadState('networkidle')
   await page.getByRole('button', { name: 'Cancel RSVP' }).click()
   const cancelRsvp = page.getByRole('dialog', { name: 'Cancel your RSVP?' })
   await expect(cancelRsvp).toBeVisible()
@@ -110,6 +118,8 @@ test('full event uses a held offer and requires an explicit yes before confirmin
 
   await signInPersona(page, RICHARD)
   await page.goto(`/school/events/${DINNER}`)
+  // The held-offer dialog opens on mount, so it also needs hydration.
+  await page.waitForLoadState('networkidle')
   const offer = page.getByRole('dialog', { name: 'A spot opened — still want in?' })
   await expect(offer).toBeVisible()
   await expect(offer).toContainText('Nothing happens unless you say yes.')
