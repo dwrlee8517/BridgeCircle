@@ -1,12 +1,25 @@
 # Production v2 cutover operator runbook
 
-> **Status:** prepared, not authorized. Do not execute a production-changing
-> command until PR C is merged and Richard approves the exact production
-> project and 40-character merge SHA in the form required below.
+> **Status:** **executed 2026-07-24** against project `edumxwzilfgvamzarwvo` at
+> SHA `8d9036f89dd1ab55e73b798c4a6333f2768bcb6b`. Verified 2026-07-25: exact
+> 21/21 migration history with zero pending, all eight postflight assertions
+> passing, and `/api/health` serving `env=prod`. Evidence is recorded in
+> [`../architecture/database-v2-production-cutover-plan.md`](../../architecture/database-v2-production-cutover-plan.md).
+>
+> **The one-time destructive reset in §4 is spent.** Production is no longer a
+> zero-data project, so the §2 zero-data guard will now correctly refuse it.
+> Do not re-run §3–§6 to "re-cut" production; fix forward on v2 instead. The
+> sequence below is retained as the execution record and as the procedure for a
+> future project, not as an outstanding action.
+>
+> **Note on §6:** the production organization is `Test Org` / `test-org` by
+> design. It is the intentional pre-pilot test organization and stays in place
+> for testing until the pilot begins. Bootstrapping the real pilot organization
+> is a pilot-launch step, not unfinished cutover work.
 
 This runbook turns the approved architecture plan into one fail-closed operator
 sequence. The detailed rationale, abort matrix, and acceptance criteria remain
-in [`../architecture/database-v2-production-cutover-plan.md`](../architecture/database-v2-production-cutover-plan.md).
+in [`../architecture/database-v2-production-cutover-plan.md`](../../architecture/database-v2-production-cutover-plan.md).
 
 ## Fixed boundary
 

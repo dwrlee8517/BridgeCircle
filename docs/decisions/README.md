@@ -4,7 +4,7 @@ This directory holds locked decisions for BridgeCircle in [MADR](https://adr.git
 
 ## Why
 
-We've made decisions (Supabase over Prisma, web-first over native, friendship/mentorship split, controlled vocab over ethnicity labels) but the *why* lives scattered across CLAUDE.md, specs, and chat. ADRs make the reasoning persist and be searchable, so the agent (and future you) can rebuild context cold.
+We've made decisions (Supabase over Prisma, web-first over native, Connect/Ask over a single Messages surface, controlled vocab over ethnicity labels) but the *why* lives scattered across CLAUDE.md, specs, and chat. ADRs make the reasoning persist and be searchable, so the agent (and future you) can rebuild context cold.
 
 ## File naming
 
@@ -40,22 +40,24 @@ What else we looked at and why we rejected it.
 
 - One decision per file. Keep them short (~1 page).
 - Do not edit accepted ADRs. To change a decision, write a new ADR that supersedes the old one and update the old ADR's `Status` to `superseded by NNNN`.
+- **The one sanctioned edit to an accepted ADR is a status or supersession annotation** — updating `Status`, or adding a short dated block at the top saying what survives and what a later ADR replaced. The reasoning body stays untouched. Without this, a reader has to open every later ADR to learn that an old one no longer describes the product.
+- **An ADR bundling several sub-decisions may carry per-decision status** (see 0010). Prefer one decision per file; when a file already bundles them, annotate per decision rather than forcing one misleading label.
 - Reference ADRs from `CLAUDE.md` / specs by number when the decision shapes the code.
 
 ## Index
 
 - [0001 — Use Supabase end-to-end; no ORM](0001-supabase-not-prisma.md)
 - [0002 — Web-first; defer native mobile](0002-web-first-defer-native.md)
-- [0003 — Friendship and mentorship as separate tracks](0003-friendship-mentorship-split.md)
-- [0004 — Controlled vocabulary, not ethnicity labels, for mentor preference](0004-controlled-vocab-not-ethnicity-labels.md)
+- [0003 — Friendship and mentorship as separate tracks](0003-friendship-mentorship-split.md) — *principle accepted; vocabulary + relationship model superseded by 0011*
+- [0004 — Controlled vocabulary, not ethnicity labels, for mentor preference](0004-controlled-vocab-not-ethnicity-labels.md) — *accepted*; title predates ADR 0011 vocabulary — read "mentor preference" as helper-matching preference
 - [0005 — Hybrid Supabase setup (separate dev project + branching integration on prod)](0005-hybrid-supabase-branching.md)
 - [0006 — NL search via entity extraction, not vector search](0006-nl-search-entity-extraction.md) — superseded by 0009 for Ask matching
 - [0007 — `/lib` discipline: business logic out of route handlers](0007-lib-discipline.md)
 - [0008 — Deploy ordering and the expand/contract migration discipline](0008-deploy-ordering-expand-contract.md)
 - [0009 — Hybrid Ask matching](0009-hybrid-ask-matching.md)
-- [0010 — Horizontal help and the warm-data flywheel](0010-horizontal-help-warm-data-flywheel.md) — *proposed*; amends 0003; D1 superseded in part by 0011
-- [0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface](0011-two-verbs-one-inbox.md) — *proposed*; supersedes 0010 D1 mechanics, preserves 0003 gating
+- [0010 — Horizontal help and the warm-data flywheel](0010-horizontal-help-warm-data-flywheel.md) — *status is per sub-decision*: D1 superseded by 0011, D2 accepted and built, D3 accepted and partly built, D4 directional
+- [0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface](0011-two-verbs-one-inbox.md) — *accepted*; live on both remotes; supersedes 0010 D1 mechanics and 0003's vocabulary/model, preserves distinct-gates principle
 - [0012 — Adopt a TDS-based design system ("Field Pro"), retire Civic Editorial](0012-tds-design-system.md) — *superseded by 0013*; canonical source = Claude Design design-system project synced via DesignSync
-- [0013 — Build a complete Toss (TDS) baseline first, then a thin BridgeCircle brand overlay](0013-toss-baseline-then-brand-overlay.md) — *proposed*; supersedes 0012; two-layer tokens (`toss-base` + `bridgecircle-brand`) from official `@toss/tds` docs
+- [0013 — Build a complete Toss (TDS) baseline first, then a thin BridgeCircle brand overlay](0013-toss-baseline-then-brand-overlay.md) — *accepted*; supersedes 0012; two-layer tokens (`toss-base` + `bridgecircle-brand`) from official `@toss/tds` docs; Phases A–D live in production theming, Phase E ongoing
 - [0014 — Scripted CD pipeline: dev stage → integ gate → prod promote](0014-scripted-cd-pipeline.md) — *accepted*; commit-precise dev/integ/manual-prod promotion
 - [0015 — Replace the pre-launch application schema with a v2 baseline](0015-prelaunch-v2-database-reset.md) — *accepted*; one-time clean rebuild while no real member data exists

@@ -4,8 +4,8 @@ Status: reference only. Nothing in this folder is production code.
 
 The active production sources are:
 
-1. [`../tokens.md`](../tokens.md) for tokens
-2. [`../components.md`](../components.md) for component usage
+1. [`../tokens.md`](../../../experience/ui/design-system/tokens.md) for tokens
+2. [`../components.md`](../../../experience/ui/design-system/components.md) for component usage
 3. `../../../../../app/src/app/globals.css` for the live CSS contract
 4. `../../../../../app/src/components/ui/` for shared app primitives
 
@@ -32,7 +32,8 @@ Especially do not copy from:
 - `ds-patterns.jsx`
 
 These files contain obsolete Atrium token exports and copyable-looking snippets
-that no longer match the Civic Editorial production contract.
+that match neither the current brand-fork production contract nor the retired
+Civic Editorial one that preceded it.
 
 ## How To Use These Files
 
@@ -46,7 +47,7 @@ Use this folder only for:
 Before promoting anything from this folder:
 
 1. Translate the pattern into the current Civic token contract.
-2. Update [`../components.md`](../components.md) if it becomes a production
+2. Update [`../components.md`](../../../experience/ui/design-system/components.md) if it becomes a production
    component or reusable pattern.
 3. Implement through `app/src/components/ui/` or a route-local component that
    uses shared primitives.

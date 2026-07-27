@@ -30,7 +30,7 @@ export function OnboardingComplete({
         <p className="mt-6 text-xs font-bold tracking-hero text-[var(--cover-accent)] uppercase">
           You&apos;re in
         </p>
-        <h1 className="font-heading mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
           You&apos;re all set, {firstName}.
         </h1>
         <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed font-medium text-white/85">

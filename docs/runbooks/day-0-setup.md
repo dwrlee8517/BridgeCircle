@@ -135,57 +135,63 @@ See `../presentations/lib-pattern-slides.html` for the full walkthrough.
 Skeleton to copy for the first real feature:
 
 ```typescript
-// src/lib/mentorship/createRequest.ts
+// src/lib/help/createDirectAsk.ts
 import type { DbClient } from '@/db/types'
 import type { Notifier } from '@/notify/types'
 
-export type CreateRequestInput = {
-  menteeId: string
-  mentorId: string
-  reason: string
-  helpNeeded: string
+export type CreateDirectAskInput = {
+  askerMembershipId: string
+  recipientMembershipId: string
+  question: string
+  message: string
+  requestKey: string
 }
 
-export type CreateRequestResult =
-  | { ok: true; requestId: string }
-  | { ok: false; error: 'mentor_closed' | 'mentor_full' | 'not_found' }
+export type CreateDirectAskResult =
+  | { ok: true; askId: string }
+  | { ok: false; error: 'recipient_closed' | 'slot_limit_reached' | 'not_found' }
 
-export async function createMentorshipRequest(
-  input: CreateRequestInput,
+export async function createDirectAsk(
+  input: CreateDirectAskInput,
   deps: { db: DbClient; notify: Notifier }
-): Promise<CreateRequestResult> {
-  const mentor = await deps.db.profiles.findById(input.mentorId)
-  if (!mentor) return { ok: false, error: 'not_found' }
-  if (!mentor.mentor_open) return { ok: false, error: 'mentor_closed' }
+): Promise<CreateDirectAskResult> {
+  // The v2 command function owns the invariants that must hold atomically:
+  // the five-active-Ask cap, one-direct-recipient, and publish-time immutability.
+  // This layer shapes input, maps the outcome, and queues follow-up work.
+  const created = await deps.db.help.createDirectAsk(input)
+  if (!created.ok) return { ok: false, error: created.error }
 
-  const pending = await deps.db.mentorshipRequests.countPending(input.mentorId)
-  if (pending >= mentor.max_pending) return { ok: false, error: 'mentor_full' }
-
-  const request = await deps.db.mentorshipRequests.create({ ...input, status: 'pending' })
-  await deps.notify.mentorshipRequestCreated(mentor.email, request)
-  return { ok: true, requestId: request.id }
+  await deps.notify.askCreated(created.recipientEmail, created.ask)
+  return { ok: true, askId: created.ask.id }
 }
 ```
 
 ```typescript
-// src/app/api/mentorship/route.ts
-import { createMentorshipRequest } from '@/lib/mentorship/createRequest'
+// src/app/api/help/asks/route.ts
+import { createDirectAsk } from '@/lib/help/createDirectAsk'
 import { db } from '@/db/server'
 import { notify } from '@/notify/resend'
 import { requireSession } from '@/lib/auth/session'
-import { createRequestSchema } from '@/lib/mentorship/schemas'
+import { createDirectAskSchema } from '@/lib/help/schemas'
 
 export async function POST(req: Request) {
   const session = await requireSession()
-  const input = createRequestSchema.parse(await req.json())
-  const result = await createMentorshipRequest(
-    { ...input, menteeId: session.userId },
+  const input = createDirectAskSchema.parse(await req.json())
+  const result = await createDirectAsk(
+    { ...input, askerMembershipId: session.membershipId },
     { db, notify }
   )
   if (!result.ok) return Response.json({ error: result.error }, { status: 400 })
-  return Response.json({ requestId: result.requestId })
+  return Response.json({ askId: result.askId })
 }
 ```
+
+Two things this skeleton is deliberately showing beyond the four-step rule:
+Help actions are **membership-scoped**, never user-scoped (`session.membershipId`,
+not `session.userId`); and transactional invariants live in the v2 SQL command
+function, not in TypeScript — a cap checked in application code is a race
+condition. The real modules are under `app/src/lib/help/`; treat those as
+canonical over this illustration.
 
 ## Step 7: Deploy to Railway
 

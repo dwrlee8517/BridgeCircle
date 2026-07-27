@@ -3,16 +3,16 @@ import type * as React from 'react'
 import { cn } from '@/lib/utils'
 
 /**
- * Semantic status pill for member / mentorship / membership states.
+ * Semantic status pill for member / Help / membership states.
  *
  * Why a separate component instead of using Badge variants directly:
  * shadcn's Badge uses primary/secondary/destructive - fine for "is this an
- * action?" but it can't tell mentor-availability apart from request-status.
+ * action?" but it can't tell helper-availability apart from request-status.
  * StatusBadge owns the semantic mapping in one place so every page renders
  * the same color for the same state.
  *
  * Tone guide:
- *   - "open"    -> success (mentor accepting)
+ *   - "open"    -> success (helper open to help)
  *   - "warn"    -> warning (paused, stale, closing soon)
  *   - "alert"   -> danger (revoked, declined, error)
  *   - "info"    -> info (active, accepted, neutral-positive)
@@ -30,10 +30,7 @@ const statusBadgeVariants = cva(
         // "green text on a blue pill" against primary-tint.
         info: 'bg-primary-tint text-action-weak-text',
         muted: 'bg-surface-subtle text-text-secondary',
-        sage: 'bg-success-tint text-state-success-foreground',
-        ochre: 'bg-warning-tint text-state-warning-foreground',
-        rust: 'bg-danger-tint text-state-danger-foreground',
-        plum: 'bg-plum-tint text-state-categorized-foreground',
+        categorized: 'bg-palette-purple-tint text-state-categorized-foreground',
       },
       size: {
         sm: 'min-h-5 gap-1 px-2 py-0.5 text-overline font-bold',
@@ -81,16 +78,12 @@ export function StatusBadge({
 function dotClass(tone: NonNullable<StatusBadgeProps['tone']>) {
   switch (tone) {
     case 'open':
-    case 'sage':
       return 'bg-state-success'
     case 'warn':
-    case 'ochre':
       return 'bg-state-warning'
     case 'alert':
       return 'bg-state-danger'
-    case 'rust':
-      return 'bg-request-declined'
-    case 'plum':
+    case 'categorized':
       return 'bg-state-categorized'
     case 'info':
       return 'bg-action-primary'

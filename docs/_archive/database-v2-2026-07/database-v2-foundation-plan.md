@@ -3,7 +3,7 @@
 - **Status:** implemented and verified locally; not deployed
 - **Branch:** `codex/redesign-v2`
 - **Date:** 2026-07-14
-- **Depends on:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the [database v2 contract](database-v2-contract.md)
+- **Depends on:** [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md) and the [database v2 contract](../../architecture/database-v2-contract.md)
 - **Scope:** local schema and application port only; no shared-development or production mutation
 
 ## Goal
@@ -43,10 +43,10 @@ As of 2026-07-14:
 
 ## Sources and precedence
 
-1. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md)
-2. [Database v2 contract](database-v2-contract.md)
+1. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md)
+2. [Database v2 contract](../../architecture/database-v2-contract.md)
 3. Approved redesigned behavior in
-   [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+   [`FLOWS.md`](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 4. Current code for behavior not yet superseded by those sources
 5. Phase 1 spec and launch-cut documents for remaining product intent
 

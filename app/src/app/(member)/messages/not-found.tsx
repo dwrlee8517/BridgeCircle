@@ -5,7 +5,7 @@ export default function MessagesNotFound() {
     <RouteStateCard
       kind="not-found"
       title="This conversation is not available"
-      description="It may have ended, or it may not belong to your selected circle."
+      description="It ended, or it isn’t in your selected circle."
       actionLabel="Back to Messages"
       href="/messages"
     />

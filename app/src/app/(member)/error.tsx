@@ -18,7 +18,7 @@ export default function MemberError({
   return (
     <RouteStateCard
       title="Couldn’t load that."
-      description="Check your connection and try again — nothing was lost."
+      description="Check your connection and try again."
       actionLabel="Try again"
       onRetry={reset}
     />

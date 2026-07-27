@@ -1,14 +1,14 @@
 import {
-  CivicButton,
-  CivicButtonRow,
-  CivicCallout,
-  CivicEmail,
-  CivicHeading,
-  CivicLink,
-  CivicPlainLink,
-  CivicText,
+  EmailButton,
+  EmailButtonRow,
+  EmailCallout,
+  EmailHeading,
+  EmailLink,
+  EmailPlainLink,
+  EmailShell,
+  EmailText,
   greeting,
-} from './civic-email'
+} from './email-kit'
 
 type Props = {
   recipientName: string | null
@@ -33,25 +33,25 @@ export function ProposalReviewEmail({
   changeSummary,
 }: Props) {
   return (
-    <CivicEmail
+    <EmailShell
       preview="BridgeCircle found updates to your profile from LinkedIn"
       footer="You received this because your profile refresh preference is set to review before update. This proposal expires in 14 days, and you can change refresh preferences from profile settings."
     >
-      <CivicHeading>Review profile updates</CivicHeading>
-      <CivicText>{greeting(recipientName)}</CivicText>
-      <CivicText>Your monthly LinkedIn refresh found a few possible profile changes:</CivicText>
-      <CivicCallout>{changeSummary}</CivicCallout>
-      <CivicText>Choose how you want BridgeCircle to handle them.</CivicText>
-      <CivicButtonRow>
-        <CivicButton href={confirmUrl}>Confirm all</CivicButton>
-        <CivicButton href={reviewUrl} variant="secondary">
+      <EmailHeading>Review profile updates</EmailHeading>
+      <EmailText>{greeting(recipientName)}</EmailText>
+      <EmailText>Your monthly LinkedIn refresh found a few possible profile changes:</EmailText>
+      <EmailCallout>{changeSummary}</EmailCallout>
+      <EmailText>Choose how you want BridgeCircle to handle them.</EmailText>
+      <EmailButtonRow>
+        <EmailButton href={confirmUrl}>Confirm all</EmailButton>
+        <EmailButton href={reviewUrl} variant="secondary">
           Review and edit
-        </CivicButton>
-      </CivicButtonRow>
-      <CivicText small>
-        Or <CivicLink href={declineUrl}>decline these changes</CivicLink> to skip this refresh.
-      </CivicText>
-      <CivicPlainLink href={reviewUrl} />
-    </CivicEmail>
+        </EmailButton>
+      </EmailButtonRow>
+      <EmailText small>
+        Or <EmailLink href={declineUrl}>decline these changes</EmailLink> to skip this refresh.
+      </EmailText>
+      <EmailPlainLink href={reviewUrl} />
+    </EmailShell>
   )
 }

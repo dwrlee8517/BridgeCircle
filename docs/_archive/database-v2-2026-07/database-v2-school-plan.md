@@ -24,7 +24,7 @@ member work.
 When details disagree, use this order:
 
 1. runtime security and the v2 database invariants;
-2. [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
+2. [`FLOWS.md`](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
    especially section 6 and the standing detail-navigation rules;
 3. the six accepted School handoffs under
    `docs/experience/ui/design-system/handoff/bridgecircle/project/templates/school/`;

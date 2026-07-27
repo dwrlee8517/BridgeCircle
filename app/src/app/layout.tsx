@@ -3,11 +3,11 @@ import localFont from 'next/font/local'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
-// Type system (Field Pro / ADR 0012 D4): one family — Pretendard. Self-hosted
-// via next/font/local, no runtime CDN. Inter / Inter Tight / JetBrains Mono
-// retire; the display + mono aliases fold to Pretendard in globals.css
-// (--font-display / --font-mono → var(--font-sans)), so the ~10 `font-heading`
-// call sites and mono metadata keep working; data uses `tabular-nums`.
+// Type system (ADR 0013 D4): one family — Pretendard. Self-hosted via
+// next/font/local, no runtime CDN. Inter / Inter Tight / JetBrains Mono are
+// retired. The `--font-display` / `--font-mono` compatibility aliases and their
+// `font-heading` / `font-mono` call sites were removed 2026-07-25 now that the
+// one-family decision is settled; numeric data uses `tabular-nums`.
 //
 // The vendored woff2 is a LATIN-ONLY subset of the Pretendard variable font
 // (weight axis 45–930) — no Hangul / CJK glyphs (English-only, per Richard).

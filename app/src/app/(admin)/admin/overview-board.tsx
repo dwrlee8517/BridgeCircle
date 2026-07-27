@@ -240,7 +240,7 @@ function PulseStat({
         <Icon aria-hidden className="size-3.5" strokeWidth={1.9} />
         {label}
       </dt>
-      <dd className="mt-1 text-display-md font-bold text-[var(--text-primary)] tabular-nums">
+      <dd className="mt-1 text-display-hero font-bold text-[var(--text-primary)] tabular-nums">
         {value}
         {hint ? (
           <span className="mt-0.5 block text-xs leading-snug font-medium text-[var(--text-muted)] normal-case tabular-nums">

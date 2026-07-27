@@ -43,7 +43,7 @@ export function CapacityIndicatorGauge({
     return (
       <div
         className={cn(
-          'flex h-5 items-center gap-1.5 font-mono text-xs leading-none tracking-tight text-muted-foreground',
+          'flex h-5 items-center gap-1.5 text-xs leading-none tracking-tight text-muted-foreground',
           className,
         )}
       >
@@ -66,10 +66,7 @@ export function CapacityIndicatorGauge({
   if (mode === 'compact') {
     return (
       <div
-        className={cn(
-          'flex w-full flex-col gap-1 font-mono text-xs leading-none tracking-tight',
-          className,
-        )}
+        className={cn('flex w-full flex-col gap-1 text-xs leading-none tracking-tight', className)}
       >
         <div className="flex justify-between text-muted-foreground">
           <span>
@@ -95,7 +92,7 @@ export function CapacityIndicatorGauge({
   return (
     <div
       className={cn(
-        'flex flex-col gap-3.5 rounded-md border border-border bg-card/50 p-3.5 font-mono text-xs leading-none',
+        'flex flex-col gap-3.5 rounded-md border border-border bg-card/50 p-3.5 text-xs leading-none',
         className,
       )}
     >

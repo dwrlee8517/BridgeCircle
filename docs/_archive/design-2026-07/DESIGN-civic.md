@@ -209,7 +209,22 @@ components:
 
 # Civic Editorial
 
-BridgeCircle's production design system. Canonical specs and live implementation: [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/) and [`app/src/app/globals.css`](app/src/app/globals.css). When code and docs disagree, code wins — fix the doc in the same change.
+> **Archived 2026-07-25 — this is not the current design system.** This was the
+> repo-root `DESIGN.md`. Civic Editorial was retired by
+> [ADR 0012](../../decisions/0012-tds-design-system.md) and replaced by the
+> Toss-baseline BridgeCircle brand fork in
+> [ADR 0013](../../decisions/0013-toss-baseline-then-brand-overlay.md) (accepted).
+> Production theming runs that fork — see the theme bridge in
+> [`app/src/app/globals.css`](../../../app/src/app/globals.css).
+>
+> For the current system read
+> [`tokens.md`](../../experience/ui/design-system/tokens.md) and
+> [`components.md`](../../experience/ui/design-system/components.md), or the
+> canonical [`bridgecircle` handoff bundle](../../experience/ui/design-system/handoff/bridgecircle/).
+> Nothing active references this file; it is kept as the Civic-era token record.
+> The design-sync tooling uses each bundle's own `uploads/DESIGN.md`, not this one.
+
+The Civic-era record follows, unedited. Its own internal links point at paths as they were in June 2026 and may no longer resolve.
 
 ## Overview
 
@@ -288,7 +303,7 @@ Do not mix sharp (0px) corners with the system. Do not introduce new radius valu
 
 ## Components
 
-Component primitives live in [`app/src/components/ui/`](app/src/components/ui/). Start from the shared primitive and its variants before writing local class strings. Routes should not rebuild hover, focus, disabled, loading, or invalid behavior with one-off styles.
+Component primitives live in [`app/src/components/ui/`](../../../app/src/components/ui/). Start from the shared primitive and its variants before writing local class strings. Routes should not rebuild hover, focus, disabled, loading, or invalid behavior with one-off styles.
 
 ### Action hierarchy
 
@@ -309,7 +324,7 @@ Component primitives live in [`app/src/components/ui/`](app/src/components/ui/).
 
 Cards are **decision surfaces**, not section wrappers. Default radius 10px, 24px padding, hairline shadow. Interactive cards may lift 1–2px on hover; static cards do not animate. Do not stack cards inside cards unless the inner item is a repeated row or list item.
 
-Product cards (Person Card, Request Card, Event Card, Inbox Thread Row) follow documented content contracts in [`docs/experience/ui/design-system/components.md`](docs/experience/ui/design-system/components.md). Each card carries identity, status, rationale, and exactly one primary action; secondary actions move to overflow.
+Product cards (Person Card, Request Card, Event Card, Inbox Thread Row) follow documented content contracts in [`docs/experience/ui/design-system/components.md`](../../experience/ui/design-system/components.md). Each card carries identity, status, rationale, and exactly one primary action; secondary actions move to overflow.
 
 ### Status badges
 

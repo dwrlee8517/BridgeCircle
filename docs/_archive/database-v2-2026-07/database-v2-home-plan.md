@@ -48,15 +48,15 @@ Home is complete when:
 When sources disagree, use this order:
 
 1. runtime security and the implemented v2 database invariants;
-2. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the
-   [database v2 contract](database-v2-contract.md);
-3. [`FLOWS.md` section 2](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
+2. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md) and the
+   [database v2 contract](../../architecture/database-v2-contract.md);
+3. [`FLOWS.md` section 2](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
    plus sections 5.1, 5.4, 6, 7b, 7c, 7d, and 8;
 4. the accepted
-   [`Home.dc.html`](../experience/ui/design-system/handoff/bridgecircle/project/templates/home/Home.dc.html)
+   [`Home.dc.html`](../../experience/ui/design-system/handoff/bridgecircle/project/templates/home/Home.dc.html)
    handoff and its Home-native data notes;
-5. [ADR 0011](../decisions/0011-two-verbs-one-inbox.md) and
-   [ADR 0013](../decisions/0013-toss-baseline-then-brand-overlay.md);
+5. [ADR 0011](../../decisions/0011-two-verbs-one-inbox.md) and
+   [ADR 0013](../../decisions/0013-toss-baseline-then-brand-overlay.md);
 6. this plan;
 7. older launch-cut or legacy production code.
 

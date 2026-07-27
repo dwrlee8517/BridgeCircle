@@ -21,7 +21,7 @@ Start here depending on what you need:
 | Product thesis, MVP scope, market framing | [project-summary.md](project-summary.md) |
 | Experience docs and active design system | [docs/experience/README.md](docs/experience/README.md) |
 | What ships in Phase 1 | [product-spec-obsidian-vault/Production/phase-1/launch-cut.md](product-spec-obsidian-vault/Production/phase-1/launch-cut.md) |
-| Why the schema is shaped the way it is | [docs/architecture/data-model.md](docs/architecture/data-model.md) |
+| Why the schema is shaped the way it is | [docs/architecture/schema-rationale.md](docs/architecture/schema-rationale.md) |
 | Where dev/prod live and how schema changes flow | [docs/architecture/environments.md](docs/architecture/environments.md) |
 | Secrets management with Doppler | [docs/runbooks/doppler.md](docs/runbooks/doppler.md) |
 | Resetting and seeding the dev database | [docs/runbooks/seed-dev.md](docs/runbooks/seed-dev.md) |
@@ -36,24 +36,25 @@ Local dev runs against `bridgecircle-dev`, a separate Supabase project from prod
 ```bash
 cd app
 pnpm install
-pnpm dev   # http://localhost:3001
+pnpm dev   # http://localhost:3000
 ```
 
-The dev project is seeded with 9 hand-curated personas covering the main user roles. Sign in with any of them to test specific flows:
+The seed covers membership, Connection, conversation, Help, Messages, matching, and School fixtures.
 
-| Persona role | Sign in as | Password |
+| Role | Sign in as | Password |
 | --- | --- | --- |
-| Super admin | `admin-amy@example.com` | `devseed-password-1` |
-| Open mentor | `mentor-mark@example.com` | `devseed-password-2` |
-| Mentee | `student-sam@example.com` | `devseed-password-6` |
+| Primary member | `richard@example.com` | `devseed-password-richard` |
+| Super admin | `admin-amy@example.com` | `devseed-password-amy` |
 
-Full list of all 9 personas (capacity-full mentor, paused mentor, incomplete profile, etc.) with credentials and what each one is meant to test: [docs/runbooks/seed-dev.md → Test accounts](docs/runbooks/seed-dev.md#test-accounts).
+Other seeded members follow the same `devseed-password-<first-name>` pattern. `app/supabase/seeds/seed.sql` is canonical for the exact cast and credentials — read the seed rather than a prose table that can drift. Context on what each fixture exercises: [docs/runbooks/seed-dev.md](docs/runbooks/seed-dev.md).
 
-Re-run the seed after a schema change or when you want a clean slate:
+Reset and re-seed the local stack after a schema change or for a clean slate:
 
 ```bash
-SEED_CONFIRM=YES pnpm dlx tsx --env-file=.env.local scripts/seed-dev.ts
+pnpm db:reset
 ```
+
+That applies migrations in order and then runs `seed.sql`. For the larger generated demo population, follow with `pnpm seed:demo`.
 
 These dev credentials are intentionally checked into the repo. They only work against `bridgecircle-dev`; prod has no test users. See [docs/architecture/environments.md](docs/architecture/environments.md) for the dev/prod isolation model.
 

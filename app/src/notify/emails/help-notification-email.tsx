@@ -1,11 +1,11 @@
 import {
-  CivicButton,
-  CivicButtonRow,
-  CivicEmail,
-  CivicHeading,
-  CivicPlainLink,
-  CivicText,
-} from './civic-email'
+  EmailButton,
+  EmailButtonRow,
+  EmailHeading,
+  EmailPlainLink,
+  EmailShell,
+  EmailText,
+} from './email-kit'
 
 type Props = {
   recipientName: string
@@ -23,17 +23,17 @@ export function HelpNotificationEmail({
   actionUrl,
 }: Props) {
   return (
-    <CivicEmail
+    <EmailShell
       preview={heading}
       footer="You received this because of your Help activity or availability on BridgeCircle. You can change email preferences in your settings."
     >
-      <CivicHeading>{heading}</CivicHeading>
-      <CivicText>Hi {recipientName},</CivicText>
-      <CivicText>{body}</CivicText>
-      <CivicButtonRow>
-        <CivicButton href={actionUrl}>{actionLabel}</CivicButton>
-      </CivicButtonRow>
-      <CivicPlainLink href={actionUrl} />
-    </CivicEmail>
+      <EmailHeading>{heading}</EmailHeading>
+      <EmailText>Hi {recipientName},</EmailText>
+      <EmailText>{body}</EmailText>
+      <EmailButtonRow>
+        <EmailButton href={actionUrl}>{actionLabel}</EmailButton>
+      </EmailButtonRow>
+      <EmailPlainLink href={actionUrl} />
+    </EmailShell>
   )
 }

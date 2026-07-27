@@ -6,7 +6,7 @@
 - **Branch:** `codex/redesign-v2`
 - **Depends on:** Foundation checkpoint `b8d4a5b` and remediation checkpoint
   `842c7d4`
-- **Contract:** [Database v2 contract](database-v2-contract.md)
+- **Contract:** [Database v2 contract](../../architecture/database-v2-contract.md)
 - **Test inventory:**
   [Conversation Primitive test inventory](database-v2-conversation-test-inventory.md)
 
@@ -30,9 +30,9 @@ separate from this primitive's storage and transaction contract.
 
 Use this precedence when details disagree:
 
-1. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md);
-2. the [database v2 contract](database-v2-contract.md);
-3. [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
+1. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md);
+2. the [database v2 contract](../../architecture/database-v2-contract.md);
+3. [`FLOWS.md`](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
    §§3, 5, 7c, and 8;
 4. ADR 0011's Connect/Ask gating and one-Messages-surface decisions;
 5. current code only as evidence of behavior that must be deliberately kept or

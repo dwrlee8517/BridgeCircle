@@ -16,7 +16,7 @@ export default function NotFound() {
       <p className="text-kicker font-semibold uppercase tracking-hero text-muted-foreground">
         Page not found
       </p>
-      <h1 className="font-heading mt-3 max-w-xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+      <h1 className="mt-3 max-w-xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
         That page isn&rsquo;t in the circle.
       </h1>
       <p className="mt-4 max-w-md text-base text-muted-foreground">

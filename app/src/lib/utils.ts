@@ -25,17 +25,12 @@ const FONT_SIZE_TOKENS = [
   'nav',
   'body',
   'body-sm',
-  'body-md',
   'body-lg',
   'subtitle',
   'heading',
   'heading-large',
   'section-title',
   'page-title',
-  'h1',
-  'h2',
-  'display-md',
-  'display-lg',
   'display-xl',
   'display-hero',
   'display-large',
@@ -77,7 +72,7 @@ export function displayOrgName(name: string | null | undefined): string {
  * anchor). Falls back to a sane default if both are missing.
  *
  * Pass null/undefined for either field — the function handles all
- * combinations. Use this anywhere we'd otherwise read `base_profiles.name`
+ * combinations. Use this anywhere we'd otherwise read `profiles.name`
  * directly for display.
  */
 export function displayName(
@@ -93,20 +88,22 @@ export function displayName(
 }
 
 /**
- * Stable generated avatar colors for initials fallbacks (DESIGN.md § Avatars).
- * Six approved tint/ink pairs from the Civic palette — every pair is a
- * verified-contrast combination from tokens.md, so initials never fall below
- * 4.5:1. Full literal class strings so Tailwind's scanner picks them up.
+ * Stable generated avatar colors for initials fallbacks. Six approved
+ * tint/ink pairs from the brand-fork palette — every pair is a
+ * verified-contrast combination, so initials never fall below 4.5:1. These are
+ * categorical identity colors, deliberately not semantic state roles: do not
+ * remap them onto state-success/warning/danger, whose values differ.
+ * Full literal class strings so Tailwind's scanner picks them up.
  *
  * Seed on a stable id (userId) when available so a member's color never
  * changes; name is an acceptable fallback for display-only rows.
  */
 const AVATAR_COLOR_CLASSES = [
   'bg-primary-tint text-primary',
-  'bg-success-tint text-accent-sage',
-  'bg-plum-tint text-accent-plum',
-  'bg-warning-tint text-accent-ochre',
-  'bg-danger-tint text-accent-rust',
+  'bg-success-tint text-palette-green',
+  'bg-palette-purple-tint text-palette-purple',
+  'bg-warning-tint text-palette-amber',
+  'bg-danger-tint text-palette-red',
   'bg-surface-editorial text-surface-editorial-foreground',
 ] as const
 

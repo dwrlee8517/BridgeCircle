@@ -19,7 +19,7 @@ import { type FormEvent, useCallback, useState } from 'react'
  * entirely, so "openToHelp=on" only appears when the user explicitly
  * opted in. That naturally counts as content here.
  *
- * Note on avatar: AvatarUploader saves to base_profiles.avatar_url
+ * Note on avatar: AvatarUploader saves to profiles.avatar_url
  * out-of-band, but its corresponding hidden input is included in form
  * data. If the user uploaded a photo on this step, the avatar URL
  * counts as content — uploading is itself an engagement signal.

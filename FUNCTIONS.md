@@ -19,9 +19,9 @@ Five role surfaces share one product. A member can play several at once; capabil
 | Role | What they do |
 |---|---|
 | **Member** | Verified alumnus or student of a participating organization |
-| **Asker** | A member sending a request (advice or mentorship) |
-| **Helper** | A member opted in to receive advice and/or mentorship requests |
-| **Friend** | Two members who have mutually accepted a friend request — gates DMs |
+| **Asker** | A member sending a Help request — `direct` to one person, or `circle` to a bounded reach |
+| **Helper** | A member with `open_to_help` set, receiving Help requests on their chosen topics |
+| **Connection** | Two members who have mutually accepted a Connect request — gates direct messaging |
 | **Admin** | Staff who invite, approve, moderate, and run programming for one organization |
 
 Two parallel ask types run on the same data model: **Advice** (one-off, low-friction) and **Mentorship** (ongoing, capacity-capped).
@@ -31,11 +31,12 @@ Two parallel ask types run on the same data model: **Advice** (one-off, low-fric
 | Surface | Canonical doc |
 |---|---|
 | Information architecture, routes, navigation, legacy redirects | [`docs/architecture/information-architecture.md`](docs/architecture/information-architecture.md) |
-| Data model, RLS posture, table relations | [`docs/architecture/data-model.md`](docs/architecture/data-model.md) |
-| Full Phase 1 product spec (auth, onboarding, people, profiles, friendship, asks, inbox, DMs, events, announcements, notifications, admin) | [`product-spec-obsidian-vault/Production/phase-1/spec.md`](product-spec-obsidian-vault/Production/phase-1/spec.md) |
+| Data model, RLS posture, table relations | [`docs/architecture/database-v2-contract.md`](docs/architecture/database-v2-contract.md) |
+| Why the schema is shaped that way | [`docs/architecture/schema-rationale.md`](docs/architecture/schema-rationale.md) |
+| Full Phase 1 product spec (auth, onboarding, people, profiles, Connect, Help, Messages, events, announcements, notifications, admin) — **predates the v2 rebuild in places; verify against code** | [`product-spec-obsidian-vault/Production/phase-1/spec.md`](product-spec-obsidian-vault/Production/phase-1/spec.md) |
 | What ships in the launch cut | [`product-spec-obsidian-vault/Production/phase-1/launch-cut.md`](product-spec-obsidian-vault/Production/phase-1/launch-cut.md) |
 | Week 3–4 additive features | [`product-spec-obsidian-vault/Production/phase-1/week-3-4.md`](product-spec-obsidian-vault/Production/phase-1/week-3-4.md) |
-| User flows (state diagrams for asks, friendship, DMs) | [`product-spec-obsidian-vault/Production/phase-1/user-flows.md`](product-spec-obsidian-vault/Production/phase-1/user-flows.md) |
+| User flows (state diagrams for Help asks, Connect, messaging) — **predates the v2 rebuild in places; verify against code** | [`product-spec-obsidian-vault/Production/phase-1/user-flows.md`](product-spec-obsidian-vault/Production/phase-1/user-flows.md) |
 | Phase 2 drafts — conditional RSVP, ask mediator | [`product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md`](product-spec-obsidian-vault/Prototype/events-conditional-rsvp.md), [`product-spec-obsidian-vault/Prototype/ask-mediator.md`](product-spec-obsidian-vault/Prototype/ask-mediator.md) |
 | Screen-level bridge between behavior and UI | [`docs/experience/screens/phase-1-screen-map.md`](docs/experience/screens/phase-1-screen-map.md) |
 | Active visual system | [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/) |
@@ -47,7 +48,7 @@ Two parallel ask types run on the same data model: **Advice** (one-off, low-fric
 
 These are the cross-cutting rules that any redesign must preserve. They are stated in full in the specs above; reproduced here so they're hard to miss.
 
-- **Friendship, asks, and DMs are separate tracks at the data layer.** They share the `/inbox` surface but gate differently: DMs require mutual friendship; asks require helper acceptance. Do not collapse the gating.
-- **Asks are polymorphic.** One `asks` table, `ask_type` enum (`advice` | `mentorship`). Helper opt-in is per-type. Mentorship has the capacity cap and paused-at fields; advice is intentionally lower-friction.
+- **Connect and Help have distinct gates, even though accepted interactions share one surface.** They share the `conversations` / `messages` primitives and surface in `/messages`, but gate differently: a Connect is **mutual** (`connections`, `connection_requests`); a Help ask is **one-sided** until the recipient accepts or the asker accepts an offer. Do not collapse the gating. (ADR [0011](docs/decisions/0011-two-verbs-one-inbox.md) supersedes ADR 0003's friendship/mentorship-track framing; the distinct-gates *principle* is what survived.)
+- **Asks split by reach, not by commitment type.** One `asks` table keyed on `direct` vs `circle`. There is no `ask_type` / `advice` / `mentorship` enum — that model is retired. Availability is a single state (`helper_preferences.open_to_help` plus pause metadata and normalized `helper_topics`), and pending capacity is enforced transactionally by the v2 command functions rather than per-type in the UI.
 - **Two-sided buffer.** Any peer-to-peer mediation feature (asks, declines, RSVPs) is framed on both sides — symmetric psychological-barrier reduction is the brand mechanism.
 - **Verified-community trust.** Only invited / approved members access the directory. Field-level privacy controls are member-owned.

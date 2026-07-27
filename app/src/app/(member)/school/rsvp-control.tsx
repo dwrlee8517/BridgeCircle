@@ -35,7 +35,7 @@ export function RsvpControl({
   const base = cn(
     'rounded-xl px-4 py-2.5 text-caption font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring disabled:cursor-wait disabled:opacity-60',
     tone === 'dark'
-      ? 'bg-white text-surface-ink hover:bg-primary-tint-strong'
+      ? 'bg-white text-surface-editorial hover:bg-primary-tint-strong'
       : 'bg-action-primary-pressed text-action-on-primary hover:bg-[var(--blue-800)]',
   )
   const quiet = cn(
@@ -135,7 +135,7 @@ export function RsvpControl({
             tone === 'dark'
               ? state.status === 'error'
                 ? 'text-red-200'
-                : 'text-surface-ink-muted'
+                : 'text-surface-editorial-muted'
               : state.status === 'error'
                 ? 'text-state-danger-text'
                 : 'text-state-success-text',

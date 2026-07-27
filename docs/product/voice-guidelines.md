@@ -2,7 +2,7 @@
 
 > If you're writing copy for any surface — product strings, emails, AI drafts, marketing, slides — read this first.
 
-**Status:** v1 draft · 2026-05-24
+**Status:** v1.2 draft · 2026-07-26 (brevity principle added — see §5.6)
 **Owner:** _TBD_
 **Companion docs:** [brand-strategy.md](./brand-strategy.md) (positioning), [feature-roadmap.md](./feature-roadmap.md) (phases & pricing)
 
@@ -26,9 +26,9 @@ Picture one person speaking through every product surface: **a thoughtful alumni
 
 **What the coordinator sounds like:**
 
-- "Jane is in Brooklyn, works at Figma in product design, and is open to mentoring students. She might be a good person to reach out to."
+- "Jane is in Brooklyn, works at Figma in product design, and is open to helping students. She might be a good person to reach out to."
 - "You haven't heard back from Mark yet. Want to send a gentle reminder, or wait a few days?"
-- "Quiet week. 3 new alumni joined and 1 mentor refreshed their profile."
+- "Quiet week. 3 new alumni joined and 1 person refreshed their profile."
 
 When you're stuck on a line, read it aloud as if the coordinator were saying it across a coffee table. If it sounds off, it is.
 
@@ -38,7 +38,7 @@ When voice tradeoffs come up, default to writing for **the embarrassed asker**: 
 
 The test for any important line: *would this make someone afraid to ask feel slightly less afraid?* If not, rewrite.
 
-This does not mean coddling. Mentors and admins need different registers (see §11 Contextual matrix). But the **default voice is calibrated for the most hesitant reader in the room** — because that's the reader who quietly walks away when the voice is wrong.
+This does not mean coddling. Helpers and admins need different registers (see §11 Contextual matrix). But the **default voice is calibrated for the most hesitant reader in the room** — because that's the reader who quietly walks away when the voice is wrong.
 
 ## 4. Canonical tagline
 
@@ -70,7 +70,7 @@ Warm assumes the reader is already in the room. Chummy tries too hard to make th
 
 Numbers, names, and places beat abstractions.
 
-- ✅ "3 mentors in Brooklyn, open this month."
+- ✅ "3 alumni in Brooklyn, open to help this month."
 - ❌ "Find your perfect match."
 
 ### 5.3 Calm, not urgent
@@ -84,15 +84,26 @@ No countdowns. No "act now." No streaks, badges, or growth-hack ornament. Urgenc
 
 If a list is empty, say so. If the AI is unsure, hedge. If we don't know, don't make it up.
 
-- ✅ "No mentorship requests yet. When someone reaches out, they'll show up here."
+- ✅ "No asks yet. When someone in the circle reaches out for help, they'll show up here."
 - ❌ "Your inbox is bursting with possibilities!"
 
 ### 5.5 Human, not algorithmic
 
 The product should sound like a person made the choice — even when an algorithm did. (See §10 for when to disclose the AI.)
 
-- ✅ "Jane works in product design at Figma and mentors students. Could be a fit?"
+- ✅ "Jane works in product design at Figma and helps students. Could be a fit?"
 - ❌ "AI-matched: 94% compatibility."
+
+### 5.6 Brief, not padded
+
+Warmth is not word count. A second clause must carry new information, not reassurance. Respecting the reader's time is itself a form of warmth — terse, plain copy reads as professional and fast, not cold.
+
+- ✅ "Check your connection and try again."
+- ❌ "Check your connection and try again — your unread items are still there."
+
+Keep the reassurance clause only when it answers a question the reader actually has ("Your deletion schedule did not change," "Your completed steps are saved").
+
+**Where full warmth belongs.** Reserve the coordinator's longer register for the moments that carry real social risk: composing an ask, receiving a decline, mediator outreach, first-touch invitations, and approval/rejection notices. Everywhere the member is just *operating* the product — errors, empty states, not-founds, settings, confirmations, admin — default terse.
 
 ## 6. Avoid / Prefer (canonical terminology table)
 
@@ -119,10 +130,44 @@ This is the **canonical** terminology table. Other docs link here; do not duplic
 
 When in doubt: substitute the word a thoughtful alumni coordinator would use over coffee.
 
+### 6.1 Retired product vocabulary ([ADR 0011](../decisions/0011-two-verbs-one-inbox.md) + [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md))
+
+The table above is about tone. This one is about facts: the v2 rebuild replaced
+the mentorship and friendship models with **one Help lifecycle** and **mutual
+Connections**. The retired words name product objects that no longer exist, so
+using them describes a product we don't ship.
+
+| Retired | Current |
+| --- | --- |
+| mentor, mentee (role nouns) | Name the person, or "people open to help" |
+| mentorship request | Ask |
+| open to mentor, open-to-mentor | **Open to help** |
+| mentorship thread | Conversation, or Messages thread |
+| friendship, friend request | Connection, Connect request |
+| DM, direct message | Messages |
+| inbox (as a product noun) | Messages |
+| Discover, Friends (nav) | People, Your circle |
+
+Notes on the role nouns:
+
+- **"Open to help"** is the exact shipped label. Keep the capitalization when it
+  appears as a status or filter.
+- **"Helper"** is acceptable in system copy that has to count or describe people
+  in the abstract — "3 possible helpers found," "shown to potential helpers."
+  Prefer a name whenever you have one.
+- **"Asker" is internal only.** It's a useful word for us; it is not a word you
+  call a member to their face. In member-facing copy, say their name, or "the
+  person who asked."
+
+The four user-facing verbs are **Ask**, **Help**, **Connect**, and **Messages**.
+Route-level detail lives in the [`app/CLAUDE.md`](../../app/CLAUDE.md) route
+table; retired routes (`/ask`, `/inbox`, `/discover`, `/friends`,
+`/mentorship/*`, `/search`) have no compatibility redirects.
+
 ## 7. Format rules
 
 - **Case.** Sentence case for buttons, headings, nav, and labels. "Send request" not "Send Request."
-- **Numerals.** Digits for all numbers, including small ones. "3 mentors" not "three mentors." Exception: spell out at the start of a sentence ("Three new alumni joined this week").
+- **Numerals.** Digits for all numbers, including small ones. "3 alumni" not "three alumni." Exception: spell out at the start of a sentence ("Three new alumni joined this week").
 - **Dates.** Weekday + month + day for human-scannable dates: "Tue, May 24." Full form for formal contexts: "Tuesday, May 24, 2026."
 - **Times.** Lowercase am/pm, no space: "7:30pm." Always include timezone for events that may cross regions: "7:30pm ET."
 - **Punctuation.**
@@ -155,10 +200,12 @@ When in doubt: substitute the word a thoughtful alumni coordinator would use ove
 
 ### Empty states
 
-Name what's missing in plain language. Offer one warm next step.
+Name what's missing in plain language. Add a next step only when there's a real action to take — not a filler clause about the future.
 
 - ❌ "No data available."
-- ✅ "No mentorship requests yet. When someone reaches out, they'll show up here."
+- ❌ "No asks yet. When someone in the circle reaches out for help, they'll show up here as they happen."
+- ✅ "No asks yet. New asks from the circle show up here."
+- ✅ "No asks yet. [Add what you can help with] so the right people can find you."
 
 ### Buttons / CTAs
 
@@ -193,22 +240,22 @@ Lead with what's about to happen, not the question.
 - ❌ "Are you sure?"
 - ✅ "This will withdraw your request to Jane. She won't be notified. Withdraw?"
 
-### Decline copy (mentor declines a request)
+### Decline copy (helper declines an Ask)
 
-This is the **single most trust-defining surface in the product.** Default to: low-friction for the mentor, dignified for the asker.
+This is the **single most trust-defining surface in the product.** Default to: low-friction for the helper, dignified for the person who asked.
 
-For the mentor, offer these options without requiring a reason:
+For the helper, offer these options without requiring a reason:
 
 - "Not a fit right now"
 - "Too busy this month" (dampens requests to them for 30 days)
 - "Suggest someone else" (optional, opens a small picker)
 
-For the asker:
+For the person who asked:
 
 - ✅ "Jane isn't able to help with this right now. We'll keep looking — would you like to see other people who might be a fit?"
 - ❌ "Your request was declined."
 
-The mentor's reason, if given, is **never** surfaced to the asker.
+The helper's reason, if given, is **never** surfaced to the person who asked.
 
 ## 10. AI voice
 
@@ -270,8 +317,8 @@ Examples:
 | Member voice | Admin voice |
 | --- | --- |
 | "Your last role is from 2024. Want to confirm it's still current?" | "42 alumni have profiles older than 18 months. Run a freshness campaign?" |
-| "A few alumni near you joined this month." | "Bay Area: 7 joins, 3 mentor activations, 1 new cluster (biotech) crossed the meetup threshold." |
-| "No mentorship requests yet." | "0 requests in past 14 days. Cohort response rate trending below 12%." |
+| "A few alumni near you joined this month." | "Bay Area: 7 joins, 3 helper activations, 1 new cluster (biotech) crossed the meetup threshold." |
+| "No asks yet." | "0 asks in past 14 days. Cohort response rate trending below 12%." |
 
 Admin copy may use a small additional vocabulary: "cohort," "cluster," "activation rate," "freshness rate," "threshold." **These are admin-only.** Never use them in member-facing surfaces.
 
@@ -308,7 +355,7 @@ Anything sourced from a partner organization (company-hosted session, sponsored 
 
 ## 12. Copy cookbook — 10 worked examples
 
-Full copy, not word swaps. Use these as starting points; do not paste verbatim.
+Full copy, not word swaps. Use these as starting points; do not paste verbatim. **Illustrative, not binding** — match the register to the surface tier in §5.6. Several examples predate the brevity principle and run longer than today's bar for utility surfaces; the trust-defining flows (12.3, 12.4, 12.13–12.15) keep their full register on purpose.
 
 ### 12.1 Invitation email (school → new alum)
 
@@ -316,7 +363,7 @@ Full copy, not word swaps. Use these as starting points; do not paste verbatim.
 >
 > Hi Maren,
 >
-> I'm reaching out from the Chadwick alumni office. We've built a place for alumni to find and support each other — mentorship, referrals, advice, the occasional dinner — and I'd like to invite you in.
+> I'm reaching out from the Chadwick alumni office. We've built a place for alumni to find and support each other — advice, introductions, referrals, the occasional dinner — and I'd like to invite you in.
 >
 > It's invite-only, free, and you choose what you share.
 >
@@ -326,13 +373,13 @@ Full copy, not word swaps. Use these as starting points; do not paste verbatim.
 >
 > — Iris Chen, Chadwick Alumni Office
 
-### 12.2 First-time member empty state (no requests yet)
+### 12.2 First-time member empty state (no asks yet)
 
-> **No mentorship requests yet.**
+> **No asks yet.**
 >
 > When someone in the circle reaches out for help, they'll show up here. In the meantime, [browse alumni near you] or [add what you can help with] so the right people can find you.
 
-### 12.3 AI-drafted first message (member → mentor)
+### 12.3 AI-drafted first message (member → helper)
 
 > *Here's a draft to get you started — edit before sending.*
 >
@@ -346,7 +393,7 @@ Full copy, not word swaps. Use these as starting points; do not paste verbatim.
 >
 > — Maren
 
-### 12.4 Mentor decline (member-facing)
+### 12.4 Helper decline (member-facing)
 
 > Jane isn't able to help with this right now. We'll keep looking — [see other people who might be a fit].
 
@@ -358,7 +405,7 @@ Full copy, not word swaps. Use these as starting points; do not paste verbatim.
 
 > **Bay Area · 1 new cluster**
 >
-> 42 alumni in the Bay Area · 18 in technology · 7 open mentors · 11 students interested in product or engineering.
+> 42 alumni in the Bay Area · 18 in technology · 7 open to help · 11 students interested in product or engineering.
 >
 > [Draft a Bay Area product careers night]
 
@@ -366,7 +413,7 @@ Full copy, not word swaps. Use these as starting points; do not paste verbatim.
 
 > **Withdraw your request to Jane?**
 >
-> Jane won't be notified, and the request will be removed from her inbox.
+> Jane won't be notified, and the ask will be removed from her Messages.
 >
 > [Withdraw]   [Keep request]
 
@@ -511,4 +558,6 @@ _Placeholder._ As copy gets rewritten in review, capture 5–10 before/after exa
 
 ## 18. Changelog
 
+- **2026-07-26 — v1.2.** Brevity principle added after a copy audit found the shipped voice drifting wordy: warmth had become "add a soothing trailing clause" instead of specificity. Added §5.6 (brief, not padded; second clause must carry information; two-tier surface map — full warmth for socially risky moments, terse for utility surfaces). Tightened §9 empty-state pattern (next step only when there's a real action). Marked the §12 cookbook illustrative rather than binding. Shipped copy swept in the same change (route errors, empty states, not-founds, transactional email copy); "quiet/quietly" retired as a verbal tic outside the decline flow.
+- **2026-07-25 — v1.1.** Vocabulary aligned to the v2 product. Added §6.1 (retired product vocabulary) — the canonical table covered tone but none of the mentorship→Help / friendship→Connection retirements from ADR 0011 and ADR 0015, so this doc was teaching words for objects that no longer exist. Updated the affected examples in §2, §3, §5.2, §5.4, §5.5, §9 (empty state and decline copy), §11.1, and §12.1–12.7. No voice or principle changes.
 - **2026-05-24 — v1 draft.** First comprehensive voice guidelines doc. Absorbs prior `claude-design-context/02-brand-voice.md` and the voice sections of `brand-strategy.md`. Tagline canonicalized. Narrator persona named. Priority reader declared. AI voice rules made explicit. Contextual matrix added for admin and partner surfaces. Format rules and length ceilings added.

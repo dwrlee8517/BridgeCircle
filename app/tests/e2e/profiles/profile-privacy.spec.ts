@@ -83,7 +83,7 @@ test('profile links follow organization, connection, and self audiences in the r
 test('blocked profile and directory access converge on an unavailable surface', async ({ page }) => {
   await switchPersona(page, PERSONAS.owner)
   await page.goto(`/profile/${MEMBERS.blocked}`)
-  await expect(page.getByRole('heading', { name: 'This profile isn’t here anymore' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'This profile isn’t available' })).toBeVisible()
 
   await page.goto('/people')
   await expect(page.getByRole('link', { name: 'Amy Admin' })).toHaveCount(0)

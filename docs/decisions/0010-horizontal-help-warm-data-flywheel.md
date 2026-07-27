@@ -1,8 +1,21 @@
 # 0010 — Horizontal help and the warm-data flywheel
 
-- **Status:** proposed
-- **Date:** 2026-06-20
+- **Status:** partially accepted — status is **per sub-decision**, see below
+- **Date:** 2026-06-20 (proposed) · 2026-07-25 (per-decision status recorded)
 - **Decider:** Richard
+
+> **Per-decision status (2026-07-25).** This ADR bundles four sub-decisions that
+> have reached different maturities, so a single label would misdescribe it:
+>
+> | | Status |
+> | --- | --- |
+> | **D1** — horizontal help, mentorship as commitment tier | **Superseded by [ADR 0011](0011-two-verbs-one-inbox.md)**, which replaced the mechanics with two verbs over one Messages surface. D1's *principle* survives: roles attach to an exchange, never to a person. |
+> | **D2** — admin as operator console, not CRM | **Accepted and built.** The admin takeover shell, members directory, and health overview shipped 2026-07-23/24. |
+> | **D3** — school comms as the return engine, instrumented | **Accepted, partially built.** `/school` exists with events, announcements, and newsletter; the engagement instrumentation is not complete. |
+> | **D4** — the defensible core is the data flywheel | **Directional.** Strategic framing, not a shippable decision; no acceptance gate applies. |
+>
+> Treat D1 as history and read 0011 instead. D2 is live. D3 and D4 remain the
+> operative framing for work not yet done.
 
 ## Context
 

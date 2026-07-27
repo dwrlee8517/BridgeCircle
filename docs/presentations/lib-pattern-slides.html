@@ -99,6 +99,24 @@
 <section class="slide title-slide active">
   <h1>The /lib Pattern</h1>
   <p class="sub">Keeping BridgeCircle's business logic future-proof. Also: a quick tour of how a web app actually works.</p>
+  <div class="warn" style="margin-top: 32px; text-align: left;">
+    <p><strong>The pattern here is current. The example domain is not.</strong> This deck teaches
+    <a href="../decisions/0007-lib-discipline.md">ADR 0007</a>, which is unchanged &mdash; but it
+    illustrates it with the retired mentorship model. Since
+    <a href="../decisions/0011-two-verbs-one-inbox.md">ADR 0011</a> and the v2 rebuild, read the
+    examples as:</p>
+    <p style="font-family: ui-monospace, monospace; font-size: 15px;">
+      <code>/lib/mentorship/</code> &rarr; <code>/lib/help/</code> &middot;
+      <code>mentorship_request</code> &rarr; <code>asks</code> &middot;
+      <code>mentor_open</code> &rarr; <code>helper_preferences.open_to_help</code> &middot;
+      <code>/api/mentorship</code> &rarr; <code>/api/help/asks</code> &middot;
+      &ldquo;mentor&rdquo; &rarr; helper &middot; &ldquo;friends to DM&rdquo; &rarr; connected to message
+    </p>
+    <p>Two v2 rules the old example predates: Help actions are <strong>membership-scoped</strong>, not
+    user-scoped; and capacity caps are enforced <strong>transactionally in SQL command functions</strong>,
+    not in TypeScript as shown here. The up-to-date skeleton is in
+    <a href="../runbooks/day-0-setup.md">day-0-setup.md</a> Step 6.</p>
+  </div>
   <p style="font-size: 16px; color: var(--muted); margin-top: 40px;">Use <span class="kbd">→</span> to advance, <span class="kbd">←</span> to go back.</p>
 </section>
 

@@ -100,7 +100,7 @@ export default async function AdminInvitePage() {
             <EmptyState
               icon={Mail}
               title="No invites yet"
-              description="Send the first invite above. The join link is delivered by the outbox worker."
+              description="Send the first invite above. The join link goes out by email within a few minutes."
               size="inline"
               className="border-none bg-transparent shadow-none"
             />

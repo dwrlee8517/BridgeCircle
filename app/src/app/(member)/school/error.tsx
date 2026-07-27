@@ -6,7 +6,7 @@ export default function SchoolError({ reset }: { reset: () => void }) {
   return (
     <RouteStateCard
       title="Couldn’t load School."
-      description="Check your connection and try again — nothing was lost."
+      description="Check your connection and try again."
       actionLabel="Try again"
       onRetry={reset}
     />

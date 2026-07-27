@@ -9,8 +9,8 @@ import { useMemberNavPathname } from './use-member-nav-pathname'
 import { useUserControl } from './user-control-provider'
 
 /**
- * Mobile bottom tab bar — the Civic Editorial prototype's primary mobile
- * navigation. Shown below `md` (≈760px); the header's hamburger covers the
+ * Mobile bottom tab bar — the primary mobile navigation.
+ * Shown below `md` (≈760px); the header's hamburger covers the
  * 768–900px band and the inline nav takes over at ≥900px. Icons are keyed by
  * href so `nav-links.ts` (shared with the RSC header) stays as plain route
  * metadata while the desktop and mobile surfaces share the same icon set.

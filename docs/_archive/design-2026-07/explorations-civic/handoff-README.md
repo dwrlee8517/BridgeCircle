@@ -2,7 +2,7 @@
 
 This file is retained only as historical context from the original design export. It is not active implementation guidance.
 
-For current BridgeCircle design work, start at [`../../ui/design-system/`](../../ui/design-system/) and [`../../README.md`](../../README.md).
+For current BridgeCircle design work, start at [`../../ui/design-system/`](../../../experience/ui/design-system/) and [`../../README.md`](../../README.md).
 
 # CODING AGENTS: READ THIS FIRST
 

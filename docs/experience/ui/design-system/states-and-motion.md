@@ -1,10 +1,15 @@
-# Civic Editorial States And Motion
+# BridgeCircle States And Motion
 
 This is the production state and motion contract for BridgeCircle. Use it with
 [`tokens.md`](tokens.md), [`components.md`](components.md), and the live CSS
 contract in `app/src/app/globals.css`.
 
-Visual reference: [`state-motion-gallery.html`](state-motion-gallery.html).
+> **Naming note (2026-07-25):** this file was titled "Civic Editorial States And
+> Motion". The state model below is expressed in *semantic* token roles
+> (`surface-subtle`, `state-danger`, `warning-tint`), which the brand fork keeps —
+> so the contract carries over unchanged. Motion refinement under
+> [ADR 0013](../../../decisions/0013-toss-baseline-then-brand-overlay.md) Phase E
+> is still pending, so treat specific durations here as provisional.
 
 State styling must explain product meaning. Do not create one-off color maps in
 routes for lifecycle states that already exist here.
@@ -86,7 +91,7 @@ Motion rules:
 
 - Invent route-local hue maps for `pending`, `accepted`, `declined`, or
   `paused`.
-- Use `accent-ochre` as small warning text on light backgrounds.
+- Use `palette-amber` as small warning text on light backgrounds; use `state-warning-foreground` for warning copy.
 - Let hover be the only indication that a control is interactive.
 - Collapse mobile actions below long biographies, descriptions, or event notes.
 - Use dark/editorial treatment for ordinary cards, tables, inbox rows, or forms.

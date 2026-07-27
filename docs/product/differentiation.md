@@ -74,7 +74,7 @@ The competitive research surfaced four axes (cost, UX, engagement, simplicity). 
 
 **Commitment:** the logged-in home page leads with one job: helping the member ask, respond, or connect. Not browse, not check, not scroll.
 
-**Concrete shape under the Civic Editorial system:**
+**Concrete shape (written under Civic Editorial; the layout intent carries over to the current brand fork):**
 - The first viewport should present an editorial action surface: greeting, live community signal, and a primary next action that defaults to "Find someone to ask" unless the member has pending requests to review.
 - Suggested people, pending asks, and active threads should sit above passive browsing content. Each item needs a short "why this matters" reason and a clear next action.
 - Events and announcements can appear on home, but they are supporting civic signals, not the main object of the page.

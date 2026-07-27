@@ -148,7 +148,7 @@ The product should feel like a thoughtful alumni coordinator who knows the commu
 
 ## Visual brand standard
 
-The active visual expression is the **Civic Editorial system** in [`docs/experience/ui/design-system/`](../experience/ui/design-system/).
+The active visual expression is the **BridgeCircle brand fork of the Toss (TDS) baseline** — [ADR 0013](../decisions/0013-toss-baseline-then-brand-overlay.md), accepted — in [`docs/experience/ui/design-system/`](../experience/ui/design-system/). Civic Editorial is retired; references to it in older docs are history.
 
 Warmth in BridgeCircle should come from language, context, helpful defaults, and respectful pacing — not from soft, bubbly, decorative, or generic SaaS ornament. The interface should feel like a trusted civic record of a living community: precise, legible, structured, and personal.
 

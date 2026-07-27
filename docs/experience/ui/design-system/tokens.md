@@ -31,7 +31,6 @@ redesign can land route by route.
 | `action-primary` | `primary` |
 | `action-primary-hover` | `primary-hover` |
 | `action-on-primary` | `primary-foreground` |
-| `action-give*` | `action-offer*` until call sites migrate |
 | `focus-ring-soft` | `focus-ring-muted` |
 
 New code should use canonical role names. Compatibility aliases exist to avoid
@@ -92,9 +91,10 @@ area. Use the flat `default` variant for smaller or repeated blue actions.
 | `give-tint` | `rgb(3 178 108 / 0.12)` | Positive/Give pill |
 | `give-tint-weak` | `rgb(3 178 108 / 0.10)` | Open-to-help chip |
 
-Use `Button variant="offer"` for the lead Give commitment while the legacy
-variant name remains in production. A bounded Give drafting workflow may use
-supporting green cues, but `Send offer` remains its only lead CTA.
+Use `Button variant="give"` for the lead Give commitment. (The variant and its
+`action-offer*` token aliases were renamed from `offer` to the canonical `give`
+vocabulary on 2026-07-25.) A bounded Give drafting workflow may use supporting
+green cues, but `Send offer` remains its only lead CTA.
 
 ## Status
 
@@ -134,8 +134,10 @@ they do not replace the general warning roles.
 ## Typography
 
 Pretendard is the single production family, self-hosted through
-`next/font/local`. The legacy `font-heading`, `font-mono`, and `.bc-fraunces`
-entry points currently fold to Pretendard.
+`next/font/local`. The legacy `font-heading` / `font-mono` utilities and the
+`--font-display` / `--font-mono` aliases behind them were removed on 2026-07-25
+now that one family is settled; `.bc-fraunces` became `.bc-display` and
+contributes display letter-spacing only. Numeric data uses `tabular-nums`.
 
 | Role | Size / line height | Weight |
 |---|---:|---:|

@@ -202,7 +202,7 @@ export function GiveOfferView({
               .map((paragraph) => (
                 <p
                   key={paragraph}
-                  className="mt-3 text-body-md leading-[1.7] font-medium text-[var(--text-primary)]"
+                  className="mt-3 text-body leading-[1.7] font-medium text-[var(--text-primary)]"
                 >
                   {paragraph}
                 </p>
@@ -358,7 +358,7 @@ function OfferSuccess({
         <span className="mx-auto inline-flex size-11 items-center justify-center rounded-full bg-[var(--give-tint)] text-[var(--action-give-text)]">
           <Check aria-hidden className="size-5" />
         </span>
-        <h1 className="mt-4 text-display-section font-bold text-[var(--text-primary)]">
+        <h1 className="mt-4 text-page-title font-bold text-[var(--text-primary)]">
           Your offer is in
         </h1>
         <p className="mx-auto mt-2 max-w-md text-body-sm leading-relaxed font-medium text-[var(--text-secondary)]">

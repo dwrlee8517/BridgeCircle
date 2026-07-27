@@ -626,9 +626,7 @@ export function ConversationThread({
           {composer.pending?.status === 'uncertain' && !sending ? (
             <div role="alert" className="mb-2 rounded-xl bg-surface-inset p-3 text-xs">
               <p className="font-bold text-foreground">Delivery could not be confirmed.</p>
-              <p className="mt-1 text-text-secondary">
-                Retry checks the same message instead of creating another copy.
-              </p>
+              <p className="mt-1 text-text-secondary">Retry won’t send a duplicate.</p>
               <div className="mt-2 flex gap-2">
                 <button
                   type="button"

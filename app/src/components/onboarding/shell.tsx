@@ -61,7 +61,7 @@ export function OnboardingShell({ step, eyebrow, title, lede, children }: Props)
         <p className="text-kicker font-semibold tracking-hero text-[var(--text-secondary)] uppercase">
           {eyebrow}
         </p>
-        <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           {title}
         </h1>
         <div className="mt-3 max-w-md text-sm leading-relaxed text-[var(--text-secondary)]">

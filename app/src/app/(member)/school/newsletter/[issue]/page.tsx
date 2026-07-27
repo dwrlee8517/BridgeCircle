@@ -30,7 +30,7 @@ export default async function NewsletterIssuePage({
           <p className="text-overline font-bold tracking-caps text-action-weak-text uppercase">
             Newsletter · Issue {issue.issueNumber}
           </p>
-          <h1 className="mt-3 font-heading text-display-md font-bold leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
+          <h1 className="mt-3 text-display-hero font-bold leading-tight tracking-heading text-text-primary text-balance sm:text-display-event">
             {newsletterDisplayTitle(issue.title)}
           </h1>
           {issue.summary ? (

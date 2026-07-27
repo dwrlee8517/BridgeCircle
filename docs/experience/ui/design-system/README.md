@@ -1,17 +1,21 @@
 # BridgeCircle Design System
 
-> **⚠️ Direction change — 2026-07-04 (ADR 0012 → [0013](../../../decisions/0013-toss-baseline-then-brand-overlay.md)).**
-> Civic Editorial is retired as target direction. The **main design system is
-> now [`handoff/bridgecircle/`](handoff/bridgecircle/)** — the brand fork of
-> the faithful Toss baseline ([`handoff/toss-base/`](handoff/toss-base/),
-> Layer 0), diverging only via its
+> **Direction — [ADR 0013](../../../decisions/0013-toss-baseline-then-brand-overlay.md), accepted.**
+> The **main design system is [`handoff/bridgecircle/`](handoff/bridgecircle/)** —
+> the brand fork of the faithful Toss baseline
+> ([`handoff/toss-base/`](handoff/toss-base/), Layer 0), diverging only via its
 > [`OVERRIDES.md`](handoff/bridgecircle/project/uploads/OVERRIDES.md) ledger.
-> The full redesign is translated to production flow-by-flow (ADR 0013 Phase
-> E). The production token and primitive foundation now maps to the
-> BridgeCircle fork; individual feature pages may still use compatibility
-> aliases until their redesign slice lands. When the full redesign is done,
-> the old `handoff/bridgecircle-design-system/` Civic bundle moves to
-> `_archive/`.
+> Production theming runs the fork; the full redesign is translated to
+> production flow-by-flow (Phase E).
+>
+> **Civic Editorial is fully removed (2026-07-25), not just retired as
+> direction.** Its bundle, the Field Pro bundle, `fidelity-ledger.md`,
+> `reference-src/`, and the Civic explorations are archived under
+> [`docs/_archive/design-2026-07/`](../../../_archive/design-2026-07/). The app's
+> Civic-named token aliases (`action-offer`, `accent-ochre`, `surface-ink`, the
+> `font-size-h1`/`display-md` aliases) were migrated to their canonical fork
+> roles in the same change, so there are no compatibility aliases left to
+> outlive a page's redesign slice.
 
 > **Updated 2026-06-02.** The Claude Design handoff bundle in
 > [`handoff/`](handoff/) is now the source of truth for intended BridgeCircle

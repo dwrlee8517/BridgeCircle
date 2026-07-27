@@ -21,15 +21,21 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 **Specs:**
 - `../docs/product/feature-roadmap.md` — phase sequencing and pricing
 - `../docs/decisions/0002-web-first-defer-native.md` — web-first decision and mobile gating criteria
-- `../product-spec-obsidian-vault/Production/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, mentorship, friendship, events)
+- `../docs/architecture/information-architecture.md` — **canonical** route map, navigation model, screen-by-screen responsibilities
+- `../docs/architecture/database-v2-contract.md` — **canonical** live schema; `../docs/architecture/schema-rationale.md` for why it is shaped that way
+- `../product-spec-obsidian-vault/Production/phase-1/spec.md` — full Phase 1 product spec (data model, privacy, help, connections, events)
 - `../product-spec-obsidian-vault/Production/phase-1/launch-cut.md` — week 1–2 narrowed scope, screen inventory
 - `../product-spec-obsidian-vault/Production/phase-1/week-3-4.md` — week 3–4 additive features
-- `../product-spec-obsidian-vault/Production/phase-1/user-flows.md` — member, mentor, and admin flows with analytics events
-- `../docs/architecture/information-architecture.md` — navigation model, route map, screen-by-screen responsibilities
+- `../product-spec-obsidian-vault/Production/phase-1/user-flows.md` — member, helper, and admin flows with analytics events
+
+> **Caution on the four phase-1 spec files above:** they predate the v2 rebuild and
+> still use retired vocabulary (mentor/mentorship, friendship) — and in places they
+> describe the pre-v2 *product shape*, not just old words. Trust the architecture
+> docs and the code over them on anything structural.
 
 **Runbooks (read when touching the relevant area):**
 - `../docs/runbooks/supabase-conventions.md` — keys, clients, type generation, auth/users trigger, role grants
-- `../docs/runbooks/migration-workflow.md` — branching, db push, type regeneration, prod safety
+- `../docs/runbooks/migration-workflow.md` — forward-only migrations, db push, type regeneration, expand/contract, prod safety
 - `../docs/runbooks/day-0-setup.md` — infra setup record and `/lib` discipline rationale
 - `../docs/presentations/lib-pattern-slides.html` — the `/lib` pattern walkthrough
 
@@ -43,38 +49,28 @@ Start at [`../docs/INDEX.md`](../docs/INDEX.md) for the full wiki.
 app/src/
 ├── app/                  Next.js routes — HTTP + UI layer only
 │   ├── api/              route handlers
-│   ├── (auth)/           sign in / signup / invite landing
-│   └── (member)/         authenticated app shell
-│       ├── help/         v2 Help home, composers, history, detail, offers, settings
-│       ├── messages/     v2 list, Waiting, Ask/Connection thread, context, safety
-│       ├── people/       directory + NL search + direct-Help entry
-│       ├── events/
-│       ├── announcements/
-│       ├── profile/[id]
-│       └── admin/
+│   ├── (auth)/           sign-in, join, password reset
+│   ├── (member)/         authenticated member shell — one folder per route family
+│   └── (admin)/          admin takeover shell (its own route group, not nested
+│                         under (member))
 ├── components/
 │   └── ui/               shadcn primitives (we own this code)
-├── lib/                  business logic, framework-agnostic
-│   ├── conversations/    shared v2 thread contracts and pure behavior
-│   ├── messages/         v2 list/count contracts and pure behavior
-│   ├── connections/      v2 Connection commands and pure behavior
-│   ├── safety/           v2 report/block command boundary
-│   ├── help/             v2 Help domain contracts and pure behavior
-│   ├── outbox/           durable worker job contracts
-│   ├── friendship/
-│   ├── search/
-│   ├── profile/
-│   ├── notifications/
-│   ├── events/
-│   ├── announcements/
-│   └── invite/
+├── lib/                  business logic, framework-agnostic — one folder per domain
 ├── db/                   typed Supabase wrappers + generated database.types.ts
+├── workers/              outbox worker entry points
 └── notify/               Resend wrappers
 
 app/supabase/
 ├── config.toml           Supabase CLI config (project_id = "bridgecircle")
+├── legacy/               pre-v2 history, archived — never push to a shared project
 └── migrations/           forward-only SQL — once applied to any DB, immutable
 ```
+
+The per-domain folders inside `app/` and `lib/` change as features land, so they
+are deliberately not enumerated here — a stale inventory in this file is worse
+than no inventory. Run `ls app/src/lib/` for the current set, and see
+[`../docs/architecture/information-architecture.md`](../docs/architecture/information-architecture.md)
+for which route owns what.
 
 Add new `/lib` folders as features land. Do not create empty placeholders.
 
@@ -102,8 +98,10 @@ See `../docs/runbooks/day-0-setup.md` Step 6 for the canonical example. If you f
 - File storage: Supabase Storage (public `avatars`, private `resumes`)
 - Error tracking: Sentry
 - LLM/search: bounded provider adapters for Help drafting, matching, and profile
-  indexing, with deterministic fallbacks. People search remains a later v2
-  port and must not be copied into Help.
+  indexing, with deterministic fallbacks. Bounded People search is implemented in
+  `lib/people/` (scopes, structured filters, optional query embedding); what stays
+  out of scope is unbounded agentic matching as the default page-load path — see
+  Out Of Scope below and ADR 0009.
 
 Do not introduce alternative providers or frameworks without checking with the user. Do not add Prisma, Drizzle, tRPC, or auth libraries other than Supabase Auth.
 
@@ -119,9 +117,15 @@ pnpm lint         # eslint
 pnpm biome format --write .   # format
 pnpm biome check .            # lint via biome
 pnpm vitest                   # run tests
-pnpm db:types:local           # regenerate types from local v2 during the rebuild
-pnpm check:messages-cutover   # prevent retired Messages URLs/imports from returning
+pnpm db:types:local           # regenerate types from the local database
+pnpm check:help-cutover       # prevent retired Help URLs/imports from returning
+pnpm check:messages-cutover   # same boundary for Messages
 ```
+
+There are 17 `check:*` guard scripts (per-domain `*-boundaries` and `*-cutover`,
+plus `check:tokens`, `check:dev-cutover`, `check:production-cutover`). Run
+`grep '"check:' package.json` for the current list; run the ones covering the
+domain you touched.
 
 Package manager is **pnpm 10.33.2** — do not use npm or yarn.
 
@@ -131,9 +135,9 @@ Before declaring a task done:
 
 - `pnpm biome check . && pnpm lint`
 - `pnpm tsc --noEmit`
-- if you touched SQL during the rebuild: run `pnpm db:types:local` twice and
-  confirm `database.types.ts` is byte-identical, then lint and shadow-diff the
-  local schema per `docs/runbooks/migration-workflow.md`
+- if you touched SQL: run `pnpm db:types:local` twice and confirm
+  `database.types.ts` is byte-identical, then lint and shadow-diff the local
+  schema per `../docs/runbooks/migration-workflow.md`
 - if you touched a route: there is a Vitest covering the `/lib` function (or write one)
 
 ## Working Conventions
@@ -149,38 +153,39 @@ Before declaring a task done:
   transactionally by the v2 command functions and is not a separate UI mode.
 - Identity is user-scoped; organization context and all Help actions are
   membership-scoped. Never substitute a user ID for a membership ID.
-- Field-level privacy UI is week 3+. Until then, hardcode the defaults from `../product-spec-obsidian-vault/Production/phase-1/spec.md` (name/year/city/employer/title/university/major org-visible; contact links friends-only) on the read path.
+- Field-level privacy UI is not built yet (`profile_field_visibility` exists in the schema but no settings surface writes it). Until it lands, hardcode the defaults from `../product-spec-obsidian-vault/Production/phase-1/spec.md` (name/year/city/employer/title/university/major org-visible; contact links connections-only) on the read path.
 - Help lifecycle maintenance owns reminders, 14-day expiry, and the consecutive-
   timeout auto-pause rule through durable outbox work.
 - Default to web-friendly responsive layouts. Admin tables can be desktop-primary.
 
-## Top-Level Routes (post-IA-reorg)
+## Routes And Ownership
 
-| Route | Purpose | Notes |
-|---|---|---|
-| `/` | Home and default post-sign-in destination | v2 composition dashboard over canonical Help, Messages, School, and Home-native projections |
-| `/help` | Help home with **Get help / Give help** modes | Uses v2 fixed API projections only |
-| `/help/ask/[membershipId]` | Private direct-Ask composer | Recipient is membership-scoped |
-| `/help/ask-circle` | Circle-Ask composer | Supports matched or organization-wide reach |
-| `/help/asks` | Member's Help history | Durable status and role-shaped links |
-| `/help/asks/[askId]` | Ask detail or direct-recipient response | Projection is viewer-role shaped |
-| `/help/asks/[askId]/offer` | Circle-offer composer | Private offer note and bounded AI assistance |
-| `/help/settings` | Compatibility redirect to `/settings#helping` | Keeps older links safe; does not own preferences |
-| `/people` | Member exploration — bounded search, All/Open-to-help/In-your-circle scopes, and profile preview | Was `/discover`; folded `/friends` in |
-| `/people/circle` | Managed circle view | Per-row Message and confirmed, mutual Disconnect |
-| `/school` | Member-facing School pulse hub — events + announcements together | Links to `/events` and `/announcements` archives |
-| `/messages` | Canonical Messages root | Waiting, counts, filters/search, keyset list, and responsive workspace use fixed v2 projections |
-| `/messages/[id]` | Unified v2 conversation thread | Ask and Connection origins share history, send/read/typing, context, and safety controls |
-| `/events`, `/events/[id]` | Events list + detail | |
-| `/announcements`, `/announcements/[id]` | Archive | Off top nav post-#55; entry via home banner + notifications |
-| `/profile/[id]` | Profile detail with friendship + helper-ask CTAs | |
-| `/profile/me/*` | Own-profile editing surfaces | |
-| `/admin/*` | Admin — invites, members, events, announcements, analytics | Admin-only nav slot |
+Member navigation is five roots. Each owns its whole path prefix:
 
-Member navigation: **Home · Help · People · Messages · School**. Help owns
-`/help/*`; Messages owns `/messages/*`. `MEMBER_NAV_LINKS` in
-`src/app/(member)/nav-links.ts` is the single source of truth for the desktop
-sidebar, tablet rail, and mobile tab bar.
+| Nav root | Owns |
+|---|---|
+| `/` | Home composition dashboard over other domains' projections |
+| `/help` | `/help/*` — Ask composers, history, detail, offers |
+| `/people` | `/people/*` — directory, bounded search, managed circle |
+| `/messages` | `/messages/*` — conversation list and threads |
+| `/school` | `/school/*` — events, announcements, newsletter |
+
+Outside the nav roots: `/settings`, `/notifications`, `/profile/[id]`, and
+`/profile/me` (one page). Admin lives in its own `(admin)/` route group at
+`/admin/*`, not nested under `(member)/`.
+
+Events, announcements, and newsletter are **School-scoped** (`/school/events/[id]`,
+`/school/announcements`, `/school/newsletter`). There is no top-level `/events` or
+`/announcements`.
+
+`MEMBER_NAV_LINKS` in `src/app/(member)/nav-links.ts` is the single source of truth
+for the desktop sidebar, tablet rail, and mobile tab bar.
+
+**The full route contract — every route, its responsibility, and its ownership
+boundary — lives in
+[`../docs/architecture/information-architecture.md`](../docs/architecture/information-architecture.md).**
+Do not restate per-route detail here; this file drifted precisely because it kept a
+second copy. Update the architecture doc in the same change as a route move.
 
 This is a pre-launch destructive rebuild. Retired `/ask`, `/inbox`, `/search`,
 `/discover`, `/friends`, and `/mentorship/*` routes have no compatibility
@@ -189,7 +194,10 @@ redirects. Do not recreate them. Update callers to the canonical routes;
 
 Vocabulary (ADR 0011 + ADR 0015): user-facing copy says **Ask**, **Help**,
 **Connect**, and **Messages**. The v2 schema uses these concepts directly; no
-legacy mentorship columns or compatibility modules are retained.
+legacy mentorship columns or compatibility modules are retained. The canonical
+retired-vs-current terminology table is
+[`../docs/product/voice-guidelines.md`](../docs/product/voice-guidelines.md) §6.1 —
+read it before writing any user-facing string.
 
 ## Out Of Scope For Phase 1
 

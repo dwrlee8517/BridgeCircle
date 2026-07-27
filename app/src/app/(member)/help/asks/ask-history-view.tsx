@@ -46,7 +46,7 @@ export function AskHistoryView({
           organizationName={organizationName}
           current
           emptyTitle="No current asks"
-          emptyBody="When you ask a person or the circle, its status will stay easy to find here."
+          emptyBody="Asks you send show up here."
         />
 
         <div className="mt-7">
@@ -56,7 +56,7 @@ export function AskHistoryView({
             asks={history}
             organizationName={organizationName}
             emptyTitle="Nothing has ended yet"
-            emptyBody="Resolved, retracted, and quietly closed asks will remain reachable here."
+            emptyBody="Closed asks stay here."
           />
         </div>
 

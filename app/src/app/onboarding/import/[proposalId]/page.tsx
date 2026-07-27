@@ -48,7 +48,7 @@ export default async function ProfileImportReviewPage({
         <p className="text-kicker font-semibold tracking-hero text-text-secondary uppercase">
           Review import
         </p>
-        <h1 className="font-heading mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
           Choose what joins your profile.
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-text-secondary">

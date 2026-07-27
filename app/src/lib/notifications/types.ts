@@ -116,23 +116,23 @@ export function notificationLabel(row: NotificationRow): string {
     case 'ask_received':
       return `${actor} asked for your help`
     case 'ask_accepted':
-      return `${actor} said yes to your ask`
+      return `${actor} accepted your ask`
     case 'ask_declined':
       return `${actor} isn't able to help with this right now`
     case 'ask_reminder':
-      return `${actor}'s ask is still open — when you have a minute`
+      return `${actor}'s ask is still open`
     case 'ask_closed':
-      return 'Your ask closed quietly'
+      return 'Your ask has closed'
     case 'offer_received':
       return `${actor} offered to help`
     case 'offer_accepted':
       return `${actor} accepted your offer to help`
     case 'offer_declined':
-      return `${actor} chose another path this time`
+      return `${actor} won't need your offer this time`
     case 'offer_closed':
       return 'This offer is now closed'
     case 'circle_ask_match':
-      return 'A strong match is ready for your circle ask'
+      return 'An ask matches your experience'
     case 'circle_ask_closed':
       return 'Your circle ask has closed'
     case 'message_received':
@@ -142,7 +142,7 @@ export function notificationLabel(row: NotificationRow): string {
     case 'event_cancelled': {
       const title =
         typeof row.payload.event_title === 'string' ? row.payload.event_title : 'An event'
-      return `${title} was cancelled`
+      return `${title} was canceled`
     }
     case 'event_changed': {
       const title =

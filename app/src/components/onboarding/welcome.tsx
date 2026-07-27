@@ -19,7 +19,7 @@ export function OnboardingWelcome({ name, action }: { name: string; action: () =
         <p className="mt-14 text-xs font-bold tracking-hero text-[var(--cover-accent)] uppercase">
           Welcome to your circle
         </p>
-        <h1 className="font-heading mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
           Welcome, {firstName}.
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed font-medium text-white/85">

@@ -322,7 +322,7 @@ export function CircleAskComposer({
                 value={instruction}
                 maxLength={800}
                 onChange={(event) => setInstruction(event.target.value)}
-                placeholder="Tell it anything — “mention I’m graduating in spring”…"
+                placeholder="Anything the draft should include — “mention I’m graduating in spring”"
                 className="min-h-11 min-w-0 flex-1 rounded-full border-0 bg-card px-4 text-body-sm font-medium text-[var(--text-primary)] shadow-[var(--ring-outline)] outline-none focus-visible:shadow-[0_0_0_2px_var(--focus-ring)] lg:min-h-10"
               />
               <button
@@ -382,7 +382,7 @@ export function CircleAskComposer({
                 <ReachOption
                   selected={reach === 'matched'}
                   title="Good matches"
-                  description="Routed to fitting experience, never browsable."
+                  description="Only shown to people whose experience fits. Never browsable."
                   onSelect={() => selectReach('matched')}
                 />
                 <ReachOption

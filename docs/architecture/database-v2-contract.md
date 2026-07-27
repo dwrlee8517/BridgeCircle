@@ -1,8 +1,8 @@
 # BridgeCircle database v2 contract
 
-**Status:** Foundation, Conversation Primitive, Help, and Messages implemented and verified locally; later domains and remote cutovers pending; not live
+**Status:** **live on both remotes.** Dev cutover 2026-07-17, production cutover 2026-07-24 at `8d9036f`; verified 2026-07-25 as 21/21 migrations with zero pending and 8/8 postflight assertions on each. This document describes the schema now in production.
 **Decision:** [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md)
-**Current live schema:** [Data model — Phase 1 launch](data-model.md)
+**Cutover record:** [Production cutover plan](database-v2-production-cutover-plan.md#execution-record)
 **Approved product behavior:** [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md)
 
 This document is the canonical implementation contract for the pre-launch

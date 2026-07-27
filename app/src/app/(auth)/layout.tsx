@@ -5,7 +5,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="grid min-h-screen bg-background lg:grid-cols-[0.9fr_1.1fr]">
       <section
         aria-label="About BridgeCircle"
-        className="relative hidden overflow-hidden bg-surface-ink p-10 text-surface-ink-foreground lg:flex lg:flex-col lg:justify-between"
+        className="relative hidden overflow-hidden bg-surface-editorial p-10 text-surface-editorial-foreground lg:flex lg:flex-col lg:justify-between"
       >
         <div
           aria-hidden
@@ -40,10 +40,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <p className="text-kicker font-semibold uppercase tracking-hero text-primary-on-dark">
             Verified school circle
           </p>
-          <h1 className="font-heading mt-3 text-5xl font-bold leading-[1.05] tracking-tight">
+          <h1 className="mt-3 text-5xl font-bold leading-[1.05] tracking-tight">
             Build from a circle you already trust.
           </h1>
-          <p className="mt-4 text-base leading-relaxed text-surface-ink-muted">
+          <p className="mt-4 text-base leading-relaxed text-surface-editorial-muted">
             Real help, referrals, events, and local connection for verified communities.
           </p>
         </div>

@@ -45,7 +45,7 @@ Peer dimensions in scope for v1.0:
 - class year (most common)
 - school (for cross-circle events, later phases)
 - current city
-- friend graph (already-connected friends)
+- connection graph (already-connected members)
 
 **Example:** Maren ('22, NYC) writes "I'll go if classmates are there." Iris ('22, NYC) writes the same. They match on `peer_dimension=class_year, peer_value=2022`.
 
@@ -135,13 +135,13 @@ Per voice §10.2: even though there is matching logic underneath, the *condition
 | Match withdrawn | Iris stepped back. | She decided not to go after all. Your RSVP is still conditional — we'll keep watching. |
 | Condition unmatched, event approaching | Your condition wasn't met for the Class of '22 dinner. | No one else has matched yet. Want to go anyway, or skip? — fires 24h before event start. |
 
-Email versions of each follow the existing Civic email templates ([app/src/notify/emails/](../../app/src/notify/emails/)) and respect the same voice ceilings (subject ≤50 chars, body 3–5 sentences).
+Email versions of each follow the shared email kit ([app/src/notify/emails/](../../app/src/notify/emails/)) and respect the same voice ceilings (subject ≤50 chars, body 3–5 sentences).
 
 ---
 
 ## AI extraction (free-text → structured)
 
-Reuse the existing `/lib/asks` LLM infrastructure ([app/src/lib/asks/](../../app/src/lib/asks/)). Add a new module: `/lib/events/extractCondition.ts`.
+Reuse the existing `/lib/help` LLM infrastructure ([app/src/lib/help/](../../app/src/lib/help/)) — the bounded provider adapters in [`providers.ts`](../../app/src/lib/help/providers.ts) with deterministic fallbacks, as used by [`assistance.ts`](../../app/src/lib/help/assistance.ts). Add a new module: `/lib/events/extractCondition.ts`.
 
 **Input:**
 - Raw text from the member
@@ -152,7 +152,7 @@ Reuse the existing `/lib/asks` LLM infrastructure ([app/src/lib/asks/](../../app
 ```ts
 type ExtractedCondition = {
   condition_type: 'peer' | 'profile_filter' | 'help_need'
-  peer?: { dimension: 'class_year' | 'school' | 'city' | 'friends'; value: string | number }
+  peer?: { dimension: 'class_year' | 'school' | 'city' | 'connections'; value: string | number }
   profile?: { field: 'profession' | 'industry' | 'university' | 'major' | 'city'; value: string }
   help?: { topic: string; direction: 'offering' | 'seeking' }
   raw_text: string
@@ -230,7 +230,7 @@ Two trigger paths, both running through `/lib/events/matchConditions.ts`:
 Event-condition matching logic stays bounded — no embeddings,
 no LLM-at-match-time. Structured-to-structured comparison only. This is a
 separate surface from ADR 0009 Ask matching, where hybrid retrieval is accepted
-because the member is asking for a mentor/helper, not resolving an RSVP rule.
+because the member is asking for help, not resolving an RSVP rule.
 
 ---
 
@@ -302,8 +302,8 @@ These are recorded for the post-launch backlog; do not let them creep into v1.
 | API | Two new server actions: `submitConditionAction`, `confirmMatchAction`. Wired through existing event RSVP route. |
 | Background | Post-RSVP trigger via existing Railway worker pattern. |
 | Notifications | Extend `lib/notifications/` with `condition_match` and `condition_unmatched_expiring` types. |
-| Emails | Four templates: `condition-match`, `mutual-deadlock`, `match-withdrawn`, `condition-expiring`. Civic style. |
-| UI | RSVP control gains 4th option ("I'll go if…"); confirm card; per-RSVP visibility toggle; match notification card in `/inbox`; event-detail badge for public conditions. |
+| Emails | Four templates: `condition-match`, `mutual-deadlock`, `match-withdrawn`, `condition-expiring`. Built on the shared kit in `app/src/notify/emails/email-kit.tsx`. |
+| UI | RSVP control gains 4th option ("I'll go if…"); confirm card; per-RSVP visibility toggle; match notification card in `/messages`; event-detail badge for public conditions. |
 | Tests | Unit tests for extraction, matching, deadlock detection. Vitest. |
 
 **Effort estimate:** ~2 weeks for one engineer, including the migration safety pass and pilot copy review.

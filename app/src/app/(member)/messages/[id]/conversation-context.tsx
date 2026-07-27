@@ -57,7 +57,7 @@ export function ConversationContext({
         </Avatar>
         <Link
           href={`/profile/${counterpart.userId}`}
-          className="mt-3 block text-body-md font-bold text-foreground hover:text-primary hover:underline"
+          className="mt-3 block text-body font-bold text-foreground hover:text-primary hover:underline"
         >
           {counterpart.displayName}
         </Link>
@@ -182,7 +182,7 @@ export function ConversationContext({
         <div className="rounded-[14px] border border-border-subtle p-4">
           <p className="text-caption font-bold text-foreground">Stay in each other’s circle</p>
           <p className="mt-1 text-kicker leading-relaxed text-text-secondary">
-            Send a quiet Connection request after this helpful conversation.
+            Send a Connection request. They’ll only see it if they say yes too.
           </p>
           <button
             type="button"

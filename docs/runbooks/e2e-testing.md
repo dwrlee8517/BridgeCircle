@@ -16,9 +16,9 @@ development remains pending until the separately approved clean reset and
 same-SHA deployment in the dev cutover plan.
 
 Focused Help acceptance is recorded in
-[`database-v2-help-test-inventory.md`](../architecture/database-v2-help-test-inventory.md).
+[`database-v2-help-test-inventory.md`](../_archive/database-v2-2026-07/database-v2-help-test-inventory.md).
 Focused Messages acceptance is recorded in
-[`database-v2-messages-test-inventory.md`](../architecture/database-v2-messages-test-inventory.md).
+[`database-v2-messages-test-inventory.md`](../_archive/database-v2-2026-07/database-v2-messages-test-inventory.md).
 
 ## Local hermetic mode
 
@@ -170,8 +170,8 @@ rows. The same smoke may be run against localhost during local preparation.
 
 ## Related documentation
 
-- [Help test inventory](../architecture/database-v2-help-test-inventory.md)
-- [Messages test inventory](../architecture/database-v2-messages-test-inventory.md)
+- [Help test inventory](../_archive/database-v2-2026-07/database-v2-help-test-inventory.md)
+- [Messages test inventory](../_archive/database-v2-2026-07/database-v2-messages-test-inventory.md)
 - [Local seed](seed-dev.md)
 - [Environment model](../architecture/environments.md)
 - [Migration workflow](migration-workflow.md)

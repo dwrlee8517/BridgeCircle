@@ -12,4 +12,4 @@ Local UX entry points:
 - [User flows pointer](user-flows.md)
 - [Information architecture pointer](information-architecture.md)
 
-There is no current UX screenshot review in this folder. The old May 2026 baseline review was archived because it predates the Civic Editorial design-system direction.
+There is no current UX screenshot review in this folder. The old May 2026 baseline review was archived because it predates the current design-system direction (the Toss-baseline brand fork, ADR 0013; Civic Editorial, which followed the May baseline, is itself retired).

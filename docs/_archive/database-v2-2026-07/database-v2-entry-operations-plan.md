@@ -66,9 +66,9 @@ The slice is complete when:
 When sources disagree, use this order:
 
 1. implemented database v2 invariants and security boundaries;
-2. [ADR 0015](../decisions/0015-prelaunch-v2-database-reset.md) and the
-   [database v2 contract](database-v2-contract.md);
-3. [`FLOWS.md`](../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
+2. [ADR 0015](../../decisions/0015-prelaunch-v2-database-reset.md) and the
+   [database v2 contract](../../architecture/database-v2-contract.md);
+3. [`FLOWS.md`](../../experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
    especially sections 0, 1, 7c, 7d, 8, and 9;
 4. accepted Entry, Onboarding, Notifications, Settings, Signed Out, System
    States, and App Shell handoff templates;

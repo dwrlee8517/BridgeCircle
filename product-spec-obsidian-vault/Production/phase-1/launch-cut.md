@@ -1,13 +1,17 @@
 # BridgeCircle Phase 1 Launch Spec
 
-> **Product-model notice (2026-07-14):** This file preserves the original
-> launch-cut sequence and the legacy contract still used by unported domains
-> and both remote databases. The approved
-> redesigned Help/Connection/Messages behavior lives in
-> [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md),
-> and the locally implemented Foundation plus remaining schema target is the
-> [database v2 contract](../../../docs/architecture/database-v2-contract.md)
-> under [ADR 0015](../../../docs/decisions/0015-prelaunch-v2-database-reset.md).
+> **Product-model notice — updated 2026-07-25.** This file preserves the original
+> launch-cut *sequence*, which is still useful. Its data contract is **retired**:
+> the earlier version of this notice (2026-07-14) described the legacy contract as
+> still in use on both remote databases, which is no longer true — **database v2
+> is live on both** (development 2026-07-17, production 2026-07-24).
+>
+> Read the ordering and scope reasoning here; take schema and behavior from the
+> [database v2 contract](../../../docs/architecture/database-v2-contract.md) and
+> [ADR 0011](../../../docs/decisions/0011-two-verbs-one-inbox.md), with redesigned
+> behavior in
+> [`FLOWS.md`](../../../docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md).
+> Code is canonical.
 
 ## Purpose
 

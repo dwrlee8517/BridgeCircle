@@ -409,6 +409,23 @@
   <body>
     <main>
       <header>
+        <div style="border: 2px solid #b45309; background: #fffbeb; color: #451a03; padding: 16px 20px; border-radius: 8px; margin-bottom: 28px;">
+          <p style="margin: 0 0 8px; font-weight: 700;">Archived 2026-07-25 — this describes the retired pre-v2 Ask flow.</p>
+          <p style="margin: 0;">
+            The routes below (<code>/ask</code>, <code>/ask/new</code>, <code>/search</code>) no longer
+            exist and have no redirects. The current flow lives under <code>/help/*</code> — see
+            <a href="../../architecture/information-architecture.md">information-architecture.md</a>
+            for the route contract and
+            <a href="../../decisions/0011-two-verbs-one-inbox.md">ADR 0011</a> for the model.
+            Kept as a visual record of the earlier matching flow.
+          </p>
+          <p style="margin: 8px 0 0;">
+            The source-file links below (<code>app/src/app/(member)/ask/*</code>,
+            <code>app/src/lib/search/*</code>, <code>app/src/lib/asks/*</code>) are intentionally
+            left as written and will not resolve — that code was deleted in the v2 rebuild. They
+            record what the flow used to touch. Use <code>git log</code> to read it.
+          </p>
+        </div>
         <p class="kicker">BridgeCircle product flow</p>
         <h1>How an Ask becomes matched people, then a sent request.</h1>
         <p class="lede">
@@ -742,7 +759,7 @@
             <a href="../../app/src/lib/search/getMemberSearchResults.ts">Shared member search loader</a>
           </li>
           <li>
-            <a href="../decisions/0009-hybrid-ask-matching.md">Target hybrid Ask matching ADR</a>
+            <a href="../../decisions/0009-hybrid-ask-matching.md">Target hybrid Ask matching ADR</a>
           </li>
           <li>
             <a href="../../app/src/lib/search/searchAlumniNL.ts">Current natural-language matching baseline</a>

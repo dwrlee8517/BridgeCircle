@@ -4,8 +4,12 @@
 > acceptance and private-worker verification. The final destructive reset used
 > approved base SHA `e3f36fe6e38caf1711e40cb1f2e5dad875fbc6b9`; production
 > was not touched. Phase 6 is making the resulting topology reproducible in the
-> repository and CD. Production-v2 reset and deployment remain pending separate
-> approval.**
+> repository and CD.**
+>
+> **Update (2026-07-24): the production-v2 reset and deployment have since been
+> executed at SHA `8d9036f89dd1ab55e73b798c4a6333f2768bcb6b`. See the
+> [production cutover plan](../../architecture/database-v2-production-cutover-plan.md#execution-record)
+> for the record; this document remains the development-cutover record only.**
 > This plan moves the already verified `codex/redesign-v2` application,
 > database, and worker to the shared development environment. It authorizes no
 > destructive or remote mutation command by itself.

@@ -1,12 +1,12 @@
 import {
-  CivicButton,
-  CivicButtonRow,
-  CivicEmail,
-  CivicHeading,
-  CivicPlainLink,
-  CivicText,
+  EmailButton,
+  EmailButtonRow,
+  EmailHeading,
+  EmailPlainLink,
+  EmailShell,
+  EmailText,
   greeting,
-} from './civic-email'
+} from './email-kit'
 
 type Props = {
   recipientName: string | null
@@ -32,14 +32,14 @@ export function EventWaitlistPromotedEmail({
   })
 
   return (
-    <CivicEmail
+    <EmailShell
       preview={`A spot opened up for ${eventTitle}`}
       footer="You received this because you were on the waitlist for this BridgeCircle event. If you can no longer attend, update your RSVP so the next person can take the spot."
     >
-      <CivicHeading>You are off the waitlist</CivicHeading>
-      <CivicText>{greeting(recipientName)}</CivicText>
-      <CivicText>
-        A spot opened up for <strong>{eventTitle}</strong>, and you are now confirmed for{' '}
+      <EmailHeading>You&rsquo;re off the waitlist</EmailHeading>
+      <EmailText>{greeting(recipientName)}</EmailText>
+      <EmailText>
+        A spot opened up for <strong>{eventTitle}</strong>, and you&rsquo;re confirmed for{' '}
         <strong>{dateText}</strong>
         {eventLocation ? (
           <>
@@ -48,11 +48,11 @@ export function EventWaitlistPromotedEmail({
           </>
         ) : null}
         .
-      </CivicText>
-      <CivicButtonRow>
-        <CivicButton href={eventUrl}>View event</CivicButton>
-      </CivicButtonRow>
-      <CivicPlainLink href={eventUrl} />
-    </CivicEmail>
+      </EmailText>
+      <EmailButtonRow>
+        <EmailButton href={eventUrl}>View event</EmailButton>
+      </EmailButtonRow>
+      <EmailPlainLink href={eventUrl} />
+    </EmailShell>
   )
 }

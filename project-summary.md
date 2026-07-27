@@ -37,7 +37,7 @@ The strongest wedge is not the profile directory itself. It is:
 
 ## Experience And Design Thesis
 
-The active experience direction is Civic Editorial: a high-trust, member-first interface that feels structured, legible, and personal.
+The active experience direction is the **Toss-baseline BridgeCircle brand fork** (ADR 0013): a high-trust, member-first interface that feels structured, legible, and personal. It replaced Civic Editorial, which is retired.
 
 BridgeCircle should not feel like a generic SaaS dashboard, a donor CRM, or a social feed. The product should express warmth through human context, clear next actions, respectful microcopy, and visible trust signals. The visual system should stay crisp and editorial: strong hierarchy, readable cards, restrained color, and enough density for members to make good decisions quickly.
 

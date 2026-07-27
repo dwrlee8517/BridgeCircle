@@ -193,7 +193,7 @@ export function ConfirmStep({
       <input type="hidden" name="selections" value={selectionsJson} />
 
       {headerBanner ? (
-        <div className="rounded-md border border-accent-sage/25 bg-accent-sage/10 p-3 text-sm text-foreground">
+        <div className="rounded-md border border-palette-green/25 bg-palette-green/10 p-3 text-sm text-foreground">
           {headerBanner}
         </div>
       ) : null}
