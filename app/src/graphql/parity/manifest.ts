@@ -132,4 +132,19 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Pagination is NEW (no /lib cursor equivalent) — diff CONTENTS, not pageInfo: page through the whole connection and compare the concatenated edge nodes (set + order) to listEvents(...). Both are upcoming published events for the org, ordered by starts_at then id. Node is the EventRow subset; viewerRsvp enum-cased.',
   },
+  {
+    feature: 'events',
+    kind: 'mutation',
+    name: 'respondRsvp',
+    document: `mutation ($eventId: ID!, $status: RsvpResponse!) { respondRsvp(eventId: $eventId, status: $status) { status error } }`,
+    variables: { eventId: '<event-id>', status: 'GOING' },
+    lib: {
+      module: '@/lib/events/respondRsvp',
+      fn: 'respondRsvp',
+      argsNote:
+        'respondRsvp(getAppOrigin(), session.userId, session.email, { eventId, status: GOING→"going" | NOT_GOING→"not_going" })',
+    },
+    shapeNotes:
+      'SIDE-EFFECTING: respondRsvp uses the admin client and sends email (confirmation, waitlist promotion) — run against a seeded DB with Resend in test mode, and compare BOTH payload.status (enum-cased resolved status, may be WAITLISTED) AND the resulting event_rsvps row state. payload.error = result.error.toUpperCase() (EVENT_NOT_FOUND | DB_ERROR). GraphQL-only NOT_AUTHENTICATED guard has no /lib equivalent. Input enum RsvpResponse is GOING|NOT_GOING only; WAITLISTED is derived, never submitted.',
+  },
 ]

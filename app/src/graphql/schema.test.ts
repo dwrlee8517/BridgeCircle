@@ -48,6 +48,16 @@ describe('graphql schema', () => {
       expect.arrayContaining(['first', 'after', 'last', 'before']),
     )
   })
+
+  it('exposes the RSVP mutation', () => {
+    expect(sdl).toContain('type RespondRsvpPayload')
+    expect(sdl).toContain('enum RsvpResponse')
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(String(m.respondRsvp?.type)).toBe('RespondRsvpPayload!')
+    expect((m.respondRsvp?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['eventId', 'status']),
+    )
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
