@@ -75,7 +75,18 @@ test('School hub, event detail, announcements, and newsletter form one coherent 
 
   await page.goto('/school/newsletter')
   await expect(page.getByRole('heading', { name: 'Notes worth keeping' })).toBeVisible()
-  await page.getByRole('link', { name: /July 2026/ }).click()
+  // A card's accessible name folds together the month it was published in
+  // ("Issue 18 · August 2026", from now()-relative seed dates) and the issue's
+  // own month (its title, "July 2026"). Those drift apart as the calendar
+  // moves, so a name match on /July 2026/ starts catching the June issue too
+  // once real time passes July — the published-month line of one card and the
+  // title line of another both read "July 2026". Match the title line exactly;
+  // the published-month line always carries an "Issue N · " prefix, so it can
+  // never collide.
+  await page
+    .getByRole('link')
+    .filter({ has: page.getByText('July 2026', { exact: true }) })
+    .click()
   await expect(page).toHaveURL('/school/newsletter/july-2026')
   await expect(page.getByRole('heading', { name: 'A summer return to campus' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'One useful conversation' })).toBeVisible()

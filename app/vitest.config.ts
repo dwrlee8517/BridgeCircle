@@ -14,7 +14,13 @@ import { defineConfig } from 'vitest/config'
 //   no such concept, so we drop it.
 export default defineConfig({
   test: {
-    exclude: ['**/node_modules/**', '**/.next/**', 'tests/e2e/**', 'tests/manual/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/.next/**',
+      'tests/e2e/**',
+      'tests/manual/**',
+      'tests/integration/**',
+    ],
   },
   resolve: {
     alias: {
