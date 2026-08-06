@@ -15,11 +15,23 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     exclude: ['**/node_modules/**', '**/.next/**', 'tests/e2e/**'],
+    server: {
+      deps: {
+        // graphql relies on `instanceof` across its own modules. Vitest would
+        // otherwise load it as both ESM and CJS (two instances of the same
+        // version), so a Pothos-built schema fails printSchema/validate with
+        // "from another module or realm". Inline graphql + Pothos so vitest
+        // serves ONE graphql instance to both. Next bundles consistently, so
+        // this only affects the test runtime.
+        inline: [/@pothos/, 'graphql'],
+      },
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
       'server-only': path.resolve(__dirname, './src/test/server-only-shim.ts'),
     },
+    dedupe: ['graphql'],
   },
 })
