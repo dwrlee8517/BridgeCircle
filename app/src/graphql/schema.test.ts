@@ -33,6 +33,21 @@ describe('graphql schema', () => {
     expect(String(m.createOpenAsk?.type)).toBe('CreateOpenAskPayload!')
     expect(String(m.closeOpenAsk?.type)).toBe('Boolean!')
   })
+
+  it('exposes the Events slice with a Relay keyset connection', () => {
+    expect(sdl).toContain('type Event')
+    expect(sdl).toContain('type EventConnection')
+    expect(sdl).toContain('type EventEdge')
+    expect(sdl).toContain('enum RsvpStatus')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.event?.type)).toBe('Event')
+    expect(String(q.eventsConnection?.type)).toMatch(/^EventConnection!?$/)
+    // The connection exposes the Relay pagination args.
+    expect((q.eventsConnection?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['first', 'after', 'last', 'before']),
+    )
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must

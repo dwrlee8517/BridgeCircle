@@ -103,4 +103,33 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Boolean, identical. false when nothing was closed (wrong id / not owner / already closed).',
   },
+  {
+    feature: 'events',
+    kind: 'query',
+    name: 'event',
+    document: `query ($id: ID!) { event(id: $id) { id title description location startsAt publishedAt goingCount waitlistCount capacity viewerRsvp } }`,
+    variables: { id: '<event-id>' },
+    lib: {
+      module: '@/lib/events/getEvent',
+      fn: 'getEvent',
+      argsNote: 'getEvent(db, id, session.userId)',
+    },
+    shapeNotes:
+      "GraphQL exposes the EventRow subset of getEvent's EventDetail (no endsAt/isPast/isCanceled/createdBy yet). viewerRsvp is enum-cased (going → GOING). null when RLS hides the event.",
+  },
+  {
+    feature: 'events',
+    kind: 'query',
+    name: 'eventsConnection',
+    document: `query ($first: Int, $after: String) { eventsConnection(first: $first, after: $after) { edges { cursor node { id startsAt viewerRsvp } } pageInfo { hasNextPage endCursor } } }`,
+    variables: { first: 20 },
+    lib: {
+      module: '@/lib/events/listEvents',
+      fn: 'listEvents',
+      argsNote:
+        'organizationId = getActiveOrganizationId(db, session.userId); listEvents(db, organizationId, session.userId, { includePast: false })',
+    },
+    shapeNotes:
+      'Pagination is NEW (no /lib cursor equivalent) — diff CONTENTS, not pageInfo: page through the whole connection and compare the concatenated edge nodes (set + order) to listEvents(...). Both are upcoming published events for the org, ordered by starts_at then id. Node is the EventRow subset; viewerRsvp enum-cased.',
+  },
 ]

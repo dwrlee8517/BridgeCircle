@@ -1,4 +1,5 @@
 import { builder } from './builder'
+import './entities/event'
 import './entities/member'
 import './entities/open-ask'
 
