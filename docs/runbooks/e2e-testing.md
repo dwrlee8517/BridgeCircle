@@ -5,7 +5,9 @@
 Playwright verifies rendered member flows across Next.js, server actions,
 Supabase Auth, fixed database APIs, RLS, and Realtime. Use it for browser-visible
 integration truth; use pgTAP and concurrency harnesses for database invariants,
-and Vitest for pure behavior.
+[API-driven integration tests](integration-testing.md) for server actions and
+route handlers in-process (with line coverage, against real RLS), and Vitest for
+pure behavior.
 
 ## Current rebuild status
 

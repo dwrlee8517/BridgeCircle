@@ -30,6 +30,12 @@ no `.env` juggling and no way to point at a remote DB by accident. Only the four
 vars below are needed — Resend and the other outbound services are stubbed — so
 this target does not require the Doppler `dev_local` config the e2e suite uses.
 
+CI runs this suite on every PR — the `Integration (API-driven vs local stack)`
+job in `.github/workflows/ci.yml`, folded into the required `CI gate`. The
+operational guide lives at
+[`docs/runbooks/integration-testing.md`](../../../docs/runbooks/integration-testing.md);
+this file covers the harness internals.
+
 **Troubleshooting**
 
 | Symptom | Cause | Fix |
