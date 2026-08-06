@@ -3,10 +3,12 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/db/database.types'
 import { createClient, createClientWithToken } from '@/db/server'
 import type { Session } from '@/lib/auth/session'
+import { createLoaders, type Loaders } from './loaders'
 
 export type GraphQLContext = {
   supabase: SupabaseClient<Database>
   session: Session | null
+  loaders: Loaders
 }
 
 function bearerToken(request?: Request): string | null {
@@ -39,7 +41,7 @@ export async function buildContext(request?: Request): Promise<GraphQLContext> {
       error || !data.user || !data.user.email
         ? null
         : { userId: data.user.id, email: data.user.email }
-    return { supabase, session }
+    return { supabase, session, loaders: createLoaders(supabase) }
   }
 
   const supabase = await createClient()
@@ -49,5 +51,5 @@ export async function buildContext(request?: Request): Promise<GraphQLContext> {
       ? null
       : { userId: data.user.id, email: data.user.email }
 
-  return { supabase, session }
+  return { supabase, session, loaders: createLoaders(supabase) }
 }
