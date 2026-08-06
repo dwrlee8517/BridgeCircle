@@ -12,7 +12,9 @@ import { schema } from '@/graphql/schema'
  */
 const { handleRequest } = createYoga({
   schema,
-  context: () => buildContext(),
+  // Pass the request so `buildContext` can honor `Authorization: Bearer`
+  // (parity harness / non-browser callers); cookie auth still works otherwise.
+  context: ({ request }) => buildContext(request),
   graphqlEndpoint: '/api/graphql',
   // Next's App Router supplies the WHATWG Response; hand it to Yoga.
   fetchAPI: { Response },

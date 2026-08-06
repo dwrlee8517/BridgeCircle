@@ -20,3 +20,4 @@ export const builder = new SchemaBuilder<{ Context: GraphQLContext }>({
 })
 
 builder.queryType({})
+builder.mutationType({})
