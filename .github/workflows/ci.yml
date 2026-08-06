@@ -89,6 +89,42 @@ jobs:
       - name: Vitest
         run: pnpm vitest run --passWithNoTests
 
+  integration:
+    name: Integration (API-driven vs local stack)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # Same local stack the E2E job boots, minus the services no test needs.
+      # Migrations apply here, so a PR whose migration contradicts the
+      # provisioning writes fails in this job rather than in someone's shell.
+      - name: Start local Supabase stack
+        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+
+      # No Doppler token: unlike the E2E and build jobs, the integration
+      # runner derives every value it needs from `supabase status` and
+      # defaults PROVISION_SECRET to a local-only string, so this job holds
+      # no secrets and cannot be pointed at a remote database.
+      - name: Integration suite
+        env:
+          CI: 'true'
+        run: pnpm test:int
+
   build:
     name: Build (validates types vs. migrations)
     needs: changes
@@ -124,7 +160,7 @@ jobs:
 
   ci-gate:
     name: CI gate
-    needs: [changes, quality, build]
+    needs: [changes, quality, integration, build]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -136,13 +172,14 @@ jobs:
         run: |
           code="${{ needs.changes.outputs.code }}"
           quality="${{ needs.quality.result }}"
+          integration="${{ needs.integration.result }}"
           build="${{ needs.build.result }}"
-          echo "code=$code quality=$quality build=$build"
-          if [ "$quality" = "success" ] && [ "$build" = "success" ]; then
-            echo "CI quality and build jobs passed."
-          elif [ "$code" != "true" ] && [ "$quality" = "skipped" ] && [ "$build" = "skipped" ]; then
+          echo "code=$code quality=$quality integration=$integration build=$build"
+          if [ "$quality" = "success" ] && [ "$integration" = "success" ] && [ "$build" = "success" ]; then
+            echo "CI quality, integration, and build jobs passed."
+          elif [ "$code" != "true" ] && [ "$quality" = "skipped" ] && [ "$integration" = "skipped" ] && [ "$build" = "skipped" ]; then
             echo "Docs-only PR — CI jobs legitimately skipped."
           else
-            echo "::error::CI did not pass (quality: $quality, build: $build)."
+            echo "::error::CI did not pass (quality: $quality, integration: $integration, build: $build)."
             exit 1
           fi

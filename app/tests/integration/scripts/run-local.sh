@@ -9,19 +9,25 @@ set -euo pipefail
 cd "$(dirname "$0")/../../.."   # -> app/
 
 if ! docker info >/dev/null 2>&1; then
-  echo "✖ Docker isn't running. Start Docker Desktop, then \`npx supabase start\`." >&2
+  echo "✖ Docker isn't running. Start Docker Desktop, then \`pnpm db:start\`." >&2
   exit 1
 fi
 
-if ! npx supabase status >/dev/null 2>&1; then
-  echo "✖ Local Supabase isn't up. Run: npx supabase start" >&2
+# `pnpm exec` (not npx) so we use the supabase CLI version pinned in
+# package.json — the same one migrations and the E2E job run against.
+if ! pnpm exec supabase status >/dev/null 2>&1; then
+  echo "✖ Local Supabase isn't up. Run: pnpm db:start" >&2
   exit 1
 fi
 
 # `supabase status -o env` prints KEY="value" lines (API_URL, ANON_KEY,
 # SERVICE_ROLE_KEY, and on newer CLIs PUBLISHABLE_KEY / SECRET_KEY).
+#
+# Keep only assignment lines before eval'ing: pnpm writes notices such as its
+# "Unsupported engine" warning to stdout, and that text contains parentheses
+# that would otherwise be parsed as shell syntax.
 set -a
-eval "$(npx supabase status -o env 2>/dev/null)"
+eval "$(pnpm exec supabase status -o env 2>/dev/null | grep -E '^[A-Z_][A-Z0-9_]*=')"
 set +a
 
 export NEXT_PUBLIC_SUPABASE_URL="${API_URL:-http://127.0.0.1:54321}"

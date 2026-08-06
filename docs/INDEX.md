@@ -69,6 +69,7 @@ How-to guides. Read when touching the relevant area.
 - [Seed development data](runbooks/seed-dev.md) — disposable local v2 seed and remote-cutover boundary
 - [Supabase conventions](runbooks/supabase-conventions.md) — keys, clients, type generation, role grants
 - [Migration workflow](runbooks/migration-workflow.md) — forward-only migrations, local validation gates, `cd.yml` as sole prod owner, expand/contract for destructive changes
+- [Integration testing](runbooks/integration-testing.md) — API-driven, in-process tests of server actions and route handlers against real RLS, with line coverage
 - [E2E testing](runbooks/e2e-testing.md)
 - [Doppler](runbooks/doppler.md) — secrets management
 - [Supabase custom domain](runbooks/supabase-custom-domain.md) — `auth.bridgecircle.org` for the Google consent screen (planned)

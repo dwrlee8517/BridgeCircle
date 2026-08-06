@@ -12,6 +12,14 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated, not authored. `pnpm test:int --coverage` writes an HTML
+    // report here; linting it makes `pnpm lint` fail locally for anyone who
+    // has run coverage, while CI (a clean checkout) passes.
+    "coverage/**",
+    // Supabase CLI scratch, written by `supabase start`. Same problem: it
+    // only exists on a machine with the local stack up, so `pnpm lint` failed
+    // there and passed in CI.
+    "supabase/.temp/**",
   ]),
   {
     // Honor the underscore-prefix convention for intentionally-unused
