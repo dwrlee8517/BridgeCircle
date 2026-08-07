@@ -45,4 +45,19 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Fields come from the selected membership: displayName/preferredName/avatarPath/graduationYear/bio from membership.profile, organizationName from membership.organization.name. name = preferredName ?? displayName (derived). null when unauthenticated or no membership.',
   },
+  {
+    feature: 'people',
+    kind: 'query',
+    name: 'memberProfile',
+    document: `query ($userId: ID!) { memberProfile(userId: $userId) { membershipId userId identity { displayName graduationYear } current { headline employer } about experiences { id employer title } education { id school } skills links { kind value audience } help { openToHelp topics } relationship { state requestId conversationId } sharedContext { kind value } updatedAt } }`,
+    variables: { userId: '<target-user-id>' },
+    lib: {
+      module: '@/db/repositories/people',
+      fn: 'createPeopleRepository(db).getMemberProfile',
+      argsNote:
+        'viewerMembershipId = getMemberContext(db) selected membership; getMemberProfile(viewerMembershipId, userId). GraphQL routes this through the memberProfileByUserId DataLoader — same result, deduped per request.',
+    },
+    shapeNotes:
+      'Returns the MemberProfile on { ok: true }, null on { ok: false, error: "not_available" } (RLS / unavailable). Enums uppercased: link.kind/audience, sharedContext.kind, relationship.state (self→SELF … connected→CONNECTED). relationship union flattened to { state, requestId, conversationId } with durable ids only in the matching state.',
+  },
 ]

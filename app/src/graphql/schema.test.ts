@@ -15,6 +15,25 @@ describe('graphql schema', () => {
     const q = schema.getQueryType()?.getFields() ?? {}
     expect(String(q.me?.type)).toBe('Member')
   })
+
+  it('exposes the profile-detail slice (memberProfile + nested types + enums)', () => {
+    expect(sdl).toContain('type MemberProfile')
+    expect(sdl).toContain('type ProfileExperience')
+    expect(sdl).toContain('type ProfileRelationship')
+    expect(sdl).toContain('enum RelationshipState')
+    expect(sdl).toContain('enum ProfileLinkKind')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.memberProfile?.type)).toBe('MemberProfile')
+    expect((q.memberProfile?.args ?? []).map((a) => a.name)).toContain('userId')
+    // relationship is required and non-null on the profile.
+    const rel = String(
+      (
+        schema.getType('MemberProfile') as { getFields?: () => Record<string, { type: unknown }> }
+      )?.getFields?.()?.relationship?.type,
+    )
+    expect(rel).toBe('ProfileRelationship!')
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must

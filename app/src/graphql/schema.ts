@@ -1,5 +1,6 @@
 import { builder } from './builder'
 import './entities/member'
+import './entities/profile'
 
 /**
  * The executable schema. Entity modules are imported for their registration
