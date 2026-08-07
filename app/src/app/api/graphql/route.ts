@@ -20,7 +20,18 @@ const { handleRequest } = createYoga({
   fetchAPI: { Response },
 })
 
-export { handleRequest as GET, handleRequest as OPTIONS, handleRequest as POST }
+// Wrap Yoga's handler in Next-shaped route handlers. Exporting `handleRequest`
+// directly fails Next's build-time route-type validation: Yoga's
+// `(request, serverContext)` signature isn't assignable to Next's
+// `(NextRequest, { params })`. A thin `(request) => handleRequest(request, {})`
+// wrapper satisfies Next and still hands Yoga the request its context reads.
+function handle(request: Request): Response | Promise<Response> {
+  return handleRequest(request, {})
+}
+
+export const GET = handle
+export const POST = handle
+export const OPTIONS = handle
 
 // Resolvers read cookies (RLS), so the route must never be statically cached,
 // and it needs the Node runtime for the Supabase client.
