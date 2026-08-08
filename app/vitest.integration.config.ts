@@ -38,6 +38,20 @@ export default defineConfig({
       exclude: ['src/lib/**/*.test.ts'],
       reporter: ['text', 'html'],
       reportsDirectory: './coverage/integration',
+      // Ratchet floor, enforced by the CI integration job (it runs with
+      // --coverage). This is collapse protection, not a quality bar: if a
+      // harness/alias/config change makes the suite pass while instrumenting
+      // nothing, or covered tests get skipped, the run fails here. Values sit
+      // just under the current measurement (lines 10.43 / stmts 9.66 /
+      // branches 7.88 / funcs 8.11 on 2026-08-08) so line-shuffling refactors
+      // don't trip it. RAISE these as scale-out lands coverage; never lower
+      // them without saying so in the PR.
+      thresholds: {
+        lines: 10,
+        statements: 9,
+        branches: 7,
+        functions: 8,
+      },
     },
   },
   resolve: {
