@@ -87,7 +87,18 @@ jobs:
         run: pnpm tsc --noEmit
 
       - name: Vitest
-        run: pnpm vitest run --passWithNoTests
+        run: pnpm vitest run --passWithNoTests --coverage
+
+      # Coverage is reported here, not gated — the ratchet floor is on the
+      # integration tier. The artifact feeds the coverage-report job.
+      - name: Upload unit coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-unit
+          path: app/coverage/unit/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: ignore
 
   integration:
     name: Integration (API-driven vs local stack)
@@ -128,6 +139,83 @@ jobs:
         env:
           CI: 'true'
         run: pnpm test:int --coverage
+
+      - name: Upload integration coverage summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-integration
+          path: app/coverage/integration/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Renders the coverage dashboard: a table on the workflow run page, and a
+  # sticky PR comment kept up to date in place (edited, never re-posted, so the
+  # thread doesn't fill with stale numbers). Reporting only — the gate that can
+  # fail a build is the ratchet inside the integration job.
+  coverage-report:
+    name: Coverage report
+    needs: [changes, quality, integration]
+    if: always() && needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      # A tier whose job failed leaves no artifact; the renderer prints
+      # "not run" for it rather than failing the report.
+      - name: Download coverage summaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: app/coverage-artifacts
+        continue-on-error: true
+
+      - name: Render report
+        run: |
+          pnpm exec tsx scripts/coverage-report.ts \
+            --tier "Unit=coverage-artifacts/coverage-unit/coverage-summary.json" \
+            --tier "Integration=coverage-artifacts/coverage-integration/coverage-summary.json" \
+            | tee coverage-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const marker = '<!-- coverage-report -->'
+            const body = marker + '\n' + fs.readFileSync('app/coverage-report.md', 'utf8')
+            const { owner, repo } = context.repo
+            const issue_number = context.issue.number
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number,
+            })
+            const existing = comments.find(
+              (c) => c.user.type === 'Bot' && c.body?.includes(marker),
+            )
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body })
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body })
+            }
 
   build:
     name: Build (validates types vs. migrations)

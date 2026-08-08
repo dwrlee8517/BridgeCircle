@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+# CI coverage-dashboard working files (scripts/coverage-report.ts)
+/coverage-artifacts
+/coverage-report.md
 /test-results
 /playwright-report
 /playwright/.cache
