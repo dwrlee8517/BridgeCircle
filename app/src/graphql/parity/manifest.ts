@@ -75,4 +75,46 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Bounded ranked top-N — NOT paginated. { items, totalCount, capped } maps 1:1 to the repo result. scope enum ALL/OPEN_TO_HELP/IN_CIRCLE → all/open_to_help/in_circle; matchEvidence.kind + relationship.state uppercased; relationship reuses ProfileRelationship (never SELF here). Empty result when unauthenticated / no membership. GraphQL passes no queryEmbedding.',
   },
+  {
+    feature: 'help',
+    kind: 'query',
+    name: 'helpHome',
+    document: `query { helpHome { membershipId organizationId activeAskCount activeAskLimit openToHelp pausedAt pauseReason helperTopics } }`,
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).getHome',
+      argsNote: 'membershipId = getMemberContext(db) selected membership; getHome(membershipId).',
+    },
+    shapeNotes:
+      'Scalar fields map 1:1 to HelpHome. The list projections (recentAsks, directRequests, suggestedAsks) are NOT exposed yet — diff only the scalar/topic fields. null when unauthenticated / no membership.',
+  },
+  {
+    feature: 'help',
+    kind: 'query',
+    name: 'ask',
+    document: `query ($id: ID!) { ask(id: $id) { id kind status question requestMessage reach anonymousUntilAccepted asker { isAnonymous displayName userId } recipient { displayName userId } offerCount conversationId acceptedAt endedAt expiresAt createdAt } }`,
+    variables: { id: '<ask-id>' },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).getAskDetail',
+      argsNote: 'getAskDetail(id) — RLS scopes visibility; no membership arg.',
+    },
+    shapeNotes:
+      "kind/status/reach uppercased. asker/recipient flatten v2's identified|anonymous union into HelpProfile with isAnonymous; userId/headline/avatarPath are null for anonymous asks (the privacy contract). offerCount = offers.length; nested offers[] and history[] are NOT exposed yet.",
+  },
+  {
+    feature: 'help',
+    kind: 'query',
+    name: 'myAsksConnection',
+    document: `query ($first: Int, $after: String) { myAsksConnection(first: $first, after: $after) { edges { cursor node { id status question createdAt } } pageInfo { hasNextPage endCursor } } }`,
+    variables: { first: 20 },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).listMyAsks',
+      argsNote:
+        "membershipId = selected membership; listMyAsks({ membershipId, cursor: decodeHelpCursor(after), limit: min(first, 50) }). GraphQL reuses v2's OWN cursor codec (lib/help/cursors), so edge.cursor === encodeHelpCursor({createdAt,id}) of the node.",
+    },
+    shapeNotes:
+      'TRUE cursor connection (v2 already pages Help). Forward-only — the RPC has no backward mode, so last/before are not supported. Diff page contents against successive listMyAsks calls threading the same cursor; edge.cursor should equal the repo cursor for that row.',
+  },
 ]
