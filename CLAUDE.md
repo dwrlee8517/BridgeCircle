@@ -8,6 +8,12 @@ Claude-Code-specific habits for this repo. Project framing comes from the `@AGEN
 
 These supplement the harness defaults (which already enforce surgical edits, no speculative abstractions, and surfacing assumptions). The items below are the project-specific reinforcements that matter most.
 
+**Check the memory vault before planning.** Project status, the launch plan, and product/business decisions live in the shared vault at `~/Library/Mobile Documents/com~apple~CloudDocs/BridgeCircle Sync/` — see the "Project status and decisions" section in `AGENTS.md` for the jurisdiction split. Don't infer project state from `docs/` alone; parts of it are known-stale.
+
+Catch up in this order: read recent `_log/*.md` entries in the vault (what happened, what it meant, and anything we *reversed*), then drill into `memory/projects/` and `memory/decisions/` — note filenames are timestamped, so newest sorts last. The log is the only record of a change of mind; read it before re-proposing an idea that was already considered and rejected.
+
+Writing to the vault: read the vault's own root `CLAUDE.md` first. The short version — **create a new uniquely-named note, never edit one you didn't author**. iCloud does not merge concurrent edits; it silently forks the file. Prefer superseding over editing shared facts.
+
 **Goal-driven execution.** Convert vague tasks into verifiable goals before coding:
 
 - "Fix the bug" → write a test that reproduces it, then make it pass.

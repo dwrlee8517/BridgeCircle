@@ -4,6 +4,8 @@ A one-page map of what BridgeCircle does and where each behavior is canonically 
 
 If this file disagrees with anything it links to, the linked doc wins.
 
+**For project status, the launch plan, and product decisions, this repo is not the source of truth** — the shared memory vault is: `~/Library/Mobile Documents/com~apple~CloudDocs/BridgeCircle Sync/` (`memory/projects/`, `memory/decisions/`). See `AGENTS.md` → "Which source wins."
+
 ---
 
 ## What BridgeCircle is
