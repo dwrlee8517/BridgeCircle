@@ -2,6 +2,35 @@
 
 Not blockers for launch. Revisit after the product is opened to real members.
 
+## Monorepo restructure: `apps/web` + `apps/mobile` + `packages/`
+
+Adding the Expo shell at `mobile/` ([ADR 0016](../../../docs/decisions/0016-native-mobile-via-expo.md))
+deliberately took the low-churn path: `app/` stayed exactly where it is, `mobile/` installs
+independently with its own lockfile, and there is **no** root `pnpm-workspace.yaml`. That
+last part is not an oversight — pnpm finds its workspace root by walking up, so a root
+workspace file would make installs inside `app/` switch to a root lockfile and break both
+the app-scoped CI jobs (`working-directory: app`, `cache-dependency-path: app/pnpm-lock.yaml`)
+and Railway, whose service root directory is `app/`.
+
+The consequence is that there is currently **no way to share code between web and mobile**.
+The first mobile feature slice will want `app/src/lib/` logic and will otherwise duplicate it.
+
+The restructure, when it happens:
+
+- `app/` → `apps/web`, `mobile/` → `apps/mobile`, shared logic extracted to `packages/`
+  (the `/lib` layer from [ADR 0007](../../../docs/decisions/0007-lib-discipline.md) is
+  already framework-agnostic and dependency-injected, which is what makes this tractable).
+- Root `pnpm-workspace.yaml` + single lockfile; drop `mobile/pnpm-lock.yaml`.
+- Rewrite both GitHub workflows (`working-directory`, lockfile cache paths).
+- Update `playwright.config.ts`, `scripts/`, and the Doppler/worktree invocations.
+- Update ~every docs cross-reference to `app/` — including `AGENTS.md`, `CLAUDE.md`,
+  `app/CLAUDE.md`, and `docs/INDEX.md`.
+- **Manual, external step:** change the Railway service's root directory from `app` to
+  `apps/web` in the dashboard, and coordinate it with the deploy so prod doesn't break.
+
+Best done when no other large branch is in flight, and ideally sequenced with (or after)
+the pending Bun migration so the lockfile churn happens once rather than twice.
+
 ## Cost monitoring on Anthropic API
 
 Current NL search queries hit Haiku up to twice; resume import hits it once.
