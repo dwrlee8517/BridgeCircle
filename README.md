@@ -9,8 +9,14 @@ app/                Next.js application (the product)
   src/              source — see app/CLAUDE.md for the /lib discipline
   supabase/         Postgres migrations
   scripts/          dev seeding + RLS verification scripts
+mobile/             Expo + Expo Router native shell (boots-only scaffold; see mobile/README.md)
 docs/               product specs, runbooks, architecture, and experience docs
 ```
+
+`app/` and `mobile/` install independently, each with its own lockfile. There is no root
+pnpm workspace — see [mobile/README.md](mobile/README.md) for why, and the
+[post-launch backlog](product-spec-obsidian-vault/Prototype/phase-1/post-launch-backlog.md)
+for the `apps/` restructure that changes it.
 
 ## Documentation
 
@@ -28,6 +34,7 @@ Start here depending on what you need:
 | Running and writing E2E tests with Playwright | [docs/runbooks/e2e-testing.md](docs/runbooks/e2e-testing.md) |
 | Full docs index | [docs/INDEX.md](docs/INDEX.md) |
 | Conventions for working in `app/` | [app/CLAUDE.md](app/CLAUDE.md) |
+| Conventions for working in `mobile/` | [mobile/CLAUDE.md](mobile/CLAUDE.md) |
 
 ## Development
 
