@@ -36,6 +36,23 @@ What follows from this — both good and bad. What becomes harder.
 What else we looked at and why we rejected it.
 ```
 
+## ADRs here vs. decisions in the memory vault
+
+Two decision logs exist. They are **not** interchangeable, and keeping the split clean is what stops them drifting apart:
+
+| | Here (`docs/decisions/`) | Memory vault (`memory/decisions/`) |
+|---|---|---|
+| **Scope** | Engineering contracts — how the system is built | Product, business, launch, and GTM decisions |
+| **Examples** | Supabase over Prisma, `/lib` discipline, expand/contract migrations, hybrid Ask matching | Who may give help, launch window, alumni-first sequencing, fail-fast error policy |
+| **Audience** | Anyone writing code | Both maintainers, product and go-to-market |
+| **Lives** | In the repo, versioned with the code | `~/Library/Mobile Documents/com~apple~CloudDocs/BridgeCircle Sync/` |
+
+**Rule of thumb:** if a future engineer needs it to avoid rebuilding the wrong thing, it's an ADR. If a future *founder* needs it to remember what we agreed and why, it's a vault decision.
+
+**When one implies the other, write both and cross-link.** A product decision that changes an engineering contract needs an ADR too — e.g. "only alumni may give help" is a vault decision, but the permission model it requires is an ADR. Reference the vault note by filename in the ADR's Context section.
+
+The vault is the source of truth for project status and timing. If an ADR's framing contradicts a vault decision, the vault is newer.
+
 ## Discipline
 
 - One decision per file. Keep them short (~1 page).

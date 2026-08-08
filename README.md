@@ -24,6 +24,7 @@ Start here depending on what you need:
 
 | Goal | Read |
 | --- | --- |
+| **Project status, launch plan, decisions** | The shared memory vault (not in this repo): `~/Library/Mobile Documents/com~apple~CloudDocs/BridgeCircle Sync/` — see [AGENTS.md](AGENTS.md#project-status-and-decisions-live-in-the-memory-vault) |
 | Product thesis, MVP scope, market framing | [project-summary.md](project-summary.md) |
 | Experience docs and active design system | [docs/experience/README.md](docs/experience/README.md) |
 | What ships in Phase 1 | [product-spec-obsidian-vault/Production/phase-1/launch-cut.md](product-spec-obsidian-vault/Production/phase-1/launch-cut.md) |
