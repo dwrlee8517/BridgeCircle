@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:help.settings @feature:account.settings
 import { expect, test } from "@playwright/test";
 import { signInAs } from "../helpers/auth";
 import { FoundationScenario, type FoundationMember } from "../helpers/foundation";

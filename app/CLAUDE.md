@@ -120,6 +120,7 @@ pnpm vitest                   # run tests
 pnpm db:types:local           # regenerate types from the local database
 pnpm check:help-cutover       # prevent retired Help URLs/imports from returning
 pnpm check:messages-cutover   # same boundary for Messages
+pnpm check:parity             # web ↔ mobile surface manifest (see ../parity/README.md)
 ```
 
 There are 17 `check:*` guard scripts (per-domain `*-boundaries` and `*-cutover`,
@@ -138,6 +139,9 @@ Before declaring a task done:
 - if you touched SQL: run `pnpm db:types:local` twice and confirm
   `database.types.ts` is byte-identical, then lint and shadow-diff the local
   schema per `../docs/runbooks/migration-workflow.md`
+- if you added a `page.tsx`: `pnpm check:parity` — a new route fails until
+  [`parity/features.json`](../parity/features.json) claims it and declares a status
+  for **both** platforms. Mobile is almost always `gated` today, citing ADR 0016
 - if you touched a route: there is a Vitest covering the `/lib` function (or write one)
 
 ## Working Conventions
@@ -157,6 +161,8 @@ Before declaring a task done:
 - Help lifecycle maintenance owns reminders, 14-day expiry, and the consecutive-
   timeout auto-pause rule through durable outbox work.
 - Default to web-friendly responsive layouts. Admin tables can be desktop-primary.
+  This line is load-bearing: it is the cited reason the seven admin surfaces are
+  declared `wont-do` on mobile in [`parity/features.json`](../parity/features.json).
 
 ## Routes And Ownership
 

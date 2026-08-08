@@ -1,0 +1,89 @@
+name: Parity
+
+# Deliberately NO paths-ignore, and deliberately not a job inside ci.yml.
+#
+# ci.yml skips its jobs for docs-only PRs (the `changes` gate). But
+# parity/features.json cites decision documents by path, and check-parity.mjs
+# hard-fails on a decision link that no longer resolves. A PR that renames or
+# deletes docs/decisions/0016-native-mobile-via-expo.md is docs-only — exactly
+# the diff that breaks the link, and exactly the diff ci.yml would skip. So this
+# runs on everything.
+#
+# It can afford to: both scripts use only Node builtins, so there is no install
+# step and the whole workflow is ~20s. Cheap enough to always run rather than
+# needing the gate-job pattern ci.yml uses.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: parity-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  surfaces:
+    name: Surface manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The report reads parity/features.json as it exists on the base ref
+          # via `git show`, which turns an ignorable absolute score into an
+          # attributable delta. Needs real history.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The hard gate: undeclared drift and regressions only. Mobile trailing
+      # web never fails here — see parity/README.md § What counts as failure.
+      - name: Check manifest integrity
+        run: node parity/check-parity.mjs
+
+      # Soft, never gates. Always writes the job summary; the summary is free
+      # and needs no permissions.
+      - name: Parity report
+        id: report
+        if: always()
+        run: node parity/report.mjs --base "${BASE}" | tee /tmp/parity-report.md
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || 'HEAD^' }}
+
+      # Sticky comment, upserted by an HTML marker so it edits in place instead
+      # of accumulating. Posted only when parity actually moved — staying silent
+      # on no-op diffs is what keeps it credible when it does speak.
+      - name: Comment on the PR when parity moved
+        if: always() && github.event_name == 'pull_request' && steps.report.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          marker='<!-- bridgecircle-parity-report -->'
+          {
+            echo "$marker"
+            cat /tmp/parity-report.md
+          } > /tmp/parity-comment.md
+
+          # --jq runs once per page under --paginate, so select-and-stream the
+          # ids and take the first rather than indexing into a per-page array.
+          existing=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$marker\")) | .id" | head -n 1)
+
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing" \
+              -F body=@/tmp/parity-comment.md >/dev/null
+            echo "Updated parity comment $existing."
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" \
+              -F body=@/tmp/parity-comment.md >/dev/null
+            echo "Posted a new parity comment."
+          fi
