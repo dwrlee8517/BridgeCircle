@@ -2,6 +2,18 @@
 
 Wiki entry. Each link is one click to the document. Agents can use this as a manifest — read this file first, then drill into the folder you need.
 
+## Before you trust this index: check the memory vault
+
+**Project status, launch planning, and product/business decisions live outside this repo**, in the shared memory vault:
+
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/BridgeCircle Sync/
+```
+
+It is the source of truth for *what we decided* and *where we are*. This `docs/` tree is the source of truth for *how it's built* (architecture, ADRs, runbooks). Several docs indexed below predate decisions recorded in the vault — notably the Phase 1 spec set, which describes a mentorship-request product rather than the two-verbs/one-inbox product that actually shipped.
+
+Read `memory/projects/` in the vault for the current launch plan and the consolidated, categorized backlog; `memory/decisions/` for decisions. Read the vault's own `CLAUDE.md` before writing to it — iCloud never merges concurrent edits.
+
 ## Start here
 
 - [Brand & product strategy](product/brand-strategy.md) — positioning and north star
