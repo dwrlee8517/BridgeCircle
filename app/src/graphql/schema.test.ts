@@ -150,6 +150,34 @@ describe('graphql schema', () => {
     expect(offerReasons).toContain('WENT_ANOTHER_DIRECTION')
     expect(askReasons).not.toEqual(offerReasons)
   })
+
+  it('exposes the Messages slice with inbox and nested history connections', () => {
+    expect(sdl).toContain('type MessagesCounts')
+    expect(sdl).toContain('type Conversation')
+    expect(sdl).toContain('type ConversationConnection')
+    expect(sdl).toContain('type ConversationMessageConnection')
+    expect(sdl).toContain('enum MessagesFilter')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.conversation?.type)).toBe('Conversation')
+    expect(String(q.messagesCounts?.type)).toBe('MessagesCounts')
+    expect((q.conversationsConnection?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['filter', 'query', 'first', 'after']),
+    )
+
+    // Message history is a NESTED connection on Conversation.
+    const convFields = (
+      schema.getType('Conversation') as {
+        getFields?: () => Record<string, { type: unknown; args?: { name: string }[] }>
+      }
+    )?.getFields?.()
+    const history = convFields?.messagesConnection
+    expect(String(history?.type)).toMatch(/^ConversationMessageConnection!?$/)
+    // Backward paging is the chat idiom — last/before must be present.
+    expect((history?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['last', 'before']),
+    )
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
@@ -161,7 +189,19 @@ describe('parity manifest', () => {
   it.each(
     PARITY_MANIFEST.map((op) => [op.kind, op.name] as const),
   )('schema has %s field %s', (kind, name) => {
-    const fields = kind === 'query' ? queryFields : mutationFields
-    expect(Object.keys(fields)).toContain(name)
+    const roots = kind === 'query' ? queryFields : mutationFields
+
+    // Nested operations are named "rootField.childField" (e.g.
+    // conversation.messagesConnection) — resolve through the root's type so
+    // the guard covers nested connections, not just root fields.
+    const [rootName, childName] = name.split('.')
+    expect(Object.keys(roots)).toContain(rootName)
+    if (!childName) return
+
+    const rootType = String(roots[rootName as string]?.type).replace(/!$/, '')
+    const childFields = (
+      schema.getType(rootType) as { getFields?: () => Record<string, unknown> }
+    )?.getFields?.()
+    expect(Object.keys(childFields ?? {})).toContain(childName)
   })
 })
