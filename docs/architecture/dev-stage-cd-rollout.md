@@ -1,5 +1,15 @@
 # Dev stage + scripted CD — rollout plan
 
+> **Pipeline split (2026-08-08):** `promote` moved out of `cd.yml` into
+> `.github/workflows/promote.yml`, and `cd.yml` gained a `wait-for-ci` job.
+> One `concurrency` group had covered all four stages, so the 12-day pending
+> production approval on run `30233957345` queued and cancelled nine
+> consecutive pushes to `main` — each ran zero jobs, and the dev stage sat on
+> the 2026-07-27 commit throughout. Dev now holds `cd-dev`, production holds
+> `cd-prod`. Rationale and the accepted tradeoffs are in
+> [ADR 0014's amendment](../decisions/0014-scripted-cd-pipeline.md#amendment-2026-08-08--one-pipeline-two-workflows).
+> Every "`cd.yml` promote" reference below now means `promote.yml`.
+
 > **Database-v2 update (2026-07-17):** every application domain has cut over to
 > the v2 development database and the private dev outbox worker is running. The
 > former development hold is spent. Production database reset, worker

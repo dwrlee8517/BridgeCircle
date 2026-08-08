@@ -11,18 +11,26 @@ const migrationSteps = (target: string) => `
   --target=${target} --mode=apply
   --target=${target} --mode=postflight`
 
-const valid = `
+const validDev = `
 name: CD
+concurrency:
+  group: cd-dev
 candidate_sha:
+wait-for-ci
 name: Deploy dev stage
 REQUESTED_CANDIDATE_SHA
 refs/heads/codex/ui-ux-iteration-2
 "$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"
 ALLOW_DEV_CANDIDATE_DEPLOY
 ${migrationSteps('dev')}
-railway up
+railway up`
+
+const validProd = `
 name: Promote to production
-if: github.ref == 'refs/heads/main'
+concurrency:
+  group: cd-prod
+CUTOVER_SHA: \${{ github.event.workflow_run.head_sha }}
+if: github.event.workflow_run.head_branch == 'main'
 environment: production
 DOPPLER_TOKEN_PRD
 ${migrationSteps('production')}
@@ -39,20 +47,39 @@ describe('production workflow ratchet', () => {
   })
 
   it('accepts database-before-code with exact-SHA web and worker deployment', () => {
-    expect(productionWorkflowErrors(valid)).toEqual([])
+    expect(productionWorkflowErrors(validDev, validProd)).toEqual([])
+  })
+
+  it('reads rules from workflow steps, not from comments explaining them', () => {
+    const commented = validProd.replace(
+      'environment: production',
+      '# the promoted commit is the CD run head_sha, never github.sha\nenvironment: production',
+    )
+    expect(productionWorkflowErrors(validDev, commented)).toEqual([])
   })
 
   it.each([
-    valid.replace('environment: production', ''),
-    valid.replace('--target=production --mode=postflight', ''),
-    valid.replace('/api/health', ''),
-    valid.replace('railway up\nrailway up', 'railway up'),
-    valid.replace("if: github.ref == 'refs/heads/main'", ''),
-    valid.replace('refs/heads/codex/ui-ux-iteration-2', 'refs/heads/another-branch'),
-    valid.replace('ALLOW_DEV_CANDIDATE_DEPLOY', ''),
-    `${valid}\nsupabase db reset`,
-  ])('rejects a weakened workflow', (workflow) => {
-    expect(productionWorkflowErrors(workflow)).not.toEqual([])
+    // The split itself: a shared concurrency group is what let one pending
+    // production approval cancel every later push before it reached dev.
+    [validDev, validProd.replace('group: cd-prod', 'group: cd-dev')],
+    [validDev.replace('concurrency:\n  group: cd-dev', ''), validProd],
+    [`${validDev}\nenvironment: production`, validProd],
+    [validDev.replace('wait-for-ci', ''), validProd],
+    [
+      validDev.replace('refs/heads/codex/ui-ux-iteration-2', 'refs/heads/another-branch'),
+      validProd,
+    ],
+    [validDev.replace('ALLOW_DEV_CANDIDATE_DEPLOY', ''), validProd],
+    [`${validDev}\nsupabase db reset`, validProd],
+    [validDev, validProd.replace('environment: production', '')],
+    [validDev, validProd.replace('--target=production --mode=postflight', '')],
+    [validDev, validProd.replace('/api/health', '')],
+    [validDev, validProd.replace('railway up\nrailway up', 'railway up')],
+    [validDev, validProd.replace("if: github.event.workflow_run.head_branch == 'main'", '')],
+    [validDev, validProd.replace('github.event.workflow_run.head_sha', 'github.sha')],
+    [validDev, `${validProd}\nsupabase db reset`],
+  ])('rejects a weakened pipeline', (dev, prod) => {
+    expect(productionWorkflowErrors(dev, prod)).not.toEqual([])
   })
 })
 

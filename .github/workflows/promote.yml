@@ -1,0 +1,234 @@
+# Promote to production — the gated half of the pipeline (ADR 0014).
+#
+#   CD (dev stage + integ) concludes green on main
+#     └─ promote   ── manual approval on the GitHub `production` environment ──
+#                  prod DB push → schema postflight → web + worker
+#
+# Why this is a separate workflow rather than a third job in cd.yml: the
+# approval gate can hold a run indefinitely (one held it for 12 days), and a
+# workflow-level `concurrency` group covers waiting jobs too. Sharing a group
+# with the dev stage meant every push that landed during an open approval
+# queued behind it and was cancelled having run zero jobs — nine commits never
+# reached dev. Two workflows, two groups, one gate.
+#
+# The commit under promotion is the CD run's head SHA, NOT github.sha:
+# workflow_run fires against the default branch tip, which may already have
+# moved on. Everything below reads CUTOVER_SHA.
+#
+# Secrets: DOPPLER_TOKEN_PRD is an environment secret on `production`, so only
+# a job that declares `environment: production` — i.e. only after approval —
+# can read it. RAILWAY_TOKEN and the prod DB URL come from Doppler `prd`.
+
+name: Promote to production
+
+run-name: >-
+  Promote to production — ${{ github.event.workflow_run.display_title }}
+  (${{ github.event.workflow_run.head_sha }})
+
+on:
+  workflow_run:
+    workflows: [CD]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  # Production only. cd.yml owns `cd-dev`; a pending approval here must never
+  # be able to stall the dev stage.
+  group: cd-prod
+  # A promote may be mid-migration. Queue behind it; never cancel it.
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CUTOVER_SHA: ${{ github.event.workflow_run.head_sha }}
+  RAILWAY_PROJECT_ID: 07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1
+  RAILWAY_SERVICE: BridgeCircle
+  RAILWAY_WORKER_SERVICE: BridgeCircle Worker
+  PROD_URL: https://bridgecircle.org
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  promote:
+    name: Promote to production
+    # Only a fully green dev pipeline on main is promotable. The `branches`
+    # filter above already scopes this; the head_branch check restates it so a
+    # weakened trigger cannot silently widen the blast radius.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    # The gate: this job waits for the required reviewer on the GitHub
+    # `production` environment, and only this job receives DOPPLER_TOKEN_PRD.
+    environment: production
+    steps:
+      # Approvals queue, so the commit you approve may be older than the one
+      # production already runs — approving out of order would quietly roll
+      # production back. Advisory only: if prod's health endpoint is
+      # unreadable this warns and continues, because that is exactly when you
+      # most need to be able to deploy.
+      - name: Refuse to move production backwards
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          body=$(curl -sf -m 10 "$PROD_URL/api/health" || true)
+          live=$(echo "$body" | jq -r '.sha // empty' 2>/dev/null || true)
+
+          if [ -z "$live" ]; then
+            echo "::warning::Could not read the live production SHA; skipping the ordering check"
+            exit 0
+          fi
+          if [ "$live" = "$CUTOVER_SHA" ]; then
+            echo "Production already serves $CUTOVER_SHA — this promote is an idempotent redeploy"
+            exit 0
+          fi
+
+          status=$(gh api "repos/$GITHUB_REPOSITORY/compare/$live...$CUTOVER_SHA" --jq '.status' 2>/dev/null) || status=unknown
+          case "$status" in
+            ahead)
+              echo "$CUTOVER_SHA is ahead of the live $live — promoting forward"
+              ;;
+            unknown)
+              echo "::warning::Could not compare $live with $CUTOVER_SHA; skipping the ordering check"
+              ;;
+            *)
+              echo "::error::Production runs $live and $CUTOVER_SHA is '$status' relative to it. Reject this approval and approve the newer promote instead."
+              exit 1
+              ;;
+          esac
+
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.CUTOVER_SHA }} # the exact tested commit, not the branch tip
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10.33.2
+
+      - uses: dopplerhq/cli-action@v4
+
+      - run: pnpm --dir app install --frozen-lockfile
+
+      # CUTOVER_SHA is inherited from the workflow-level env above; the
+      # migration scripts read it to pin their target commit.
+      - name: Validate production database target and migration history
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=preflight
+
+      - name: Dry-run production migrations
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=dry-run
+
+      - name: Apply production migrations
+        env:
+          ALLOW_REMOTE_MIGRATION_PUSH: APPLY production ${{ env.CUTOVER_SHA }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=apply
+
+      - name: Verify production has no pending migrations
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/remote-v2-migrations.ts --target=production --mode=postflight
+
+      - name: Verify production v2 schema invariants
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: doppler run --preserve-env -- pnpm --dir app exec tsx scripts/production-v2-postflight.ts
+
+      - name: Install Railway CLI
+        run: |
+          npm i -g @railway/cli@5.27.1
+          railway --version
+
+      - name: Stamp commit SHA on production
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway variables \
+            --set "COMMIT_SHA=${{ env.CUTOVER_SHA }}" \
+            --service "$RAILWAY_SERVICE" \
+            --environment production \
+            --skip-deploys
+          doppler run --preserve-env -- railway variables \
+            --set "COMMIT_SHA=${{ env.CUTOVER_SHA }}" \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment production \
+            --skip-deploys
+
+      - name: Verify production private worker targets and variable names
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway variable list \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment production \
+            --json | jq -e '
+              . as $variables |
+              $variables.APP_ENV == "prod" and
+              $variables.COMMIT_SHA == "${{ env.CUTOVER_SHA }}" and
+              $variables.NEXT_PUBLIC_APP_URL == "https://bridgecircle.org" and
+              $variables.NEXT_PUBLIC_SUPABASE_URL == "https://edumxwzilfgvamzarwvo.supabase.co" and
+              ([
+                "SUPABASE_SECRET_KEY",
+                "RESEND_API_KEY",
+                "RESEND_FROM",
+                "ANTHROPIC_API_KEY",
+                "VOYAGE_API_KEY"
+              ] | all(. as $key | ($variables[$key] | type == "string" and length > 0)))
+            ' >/dev/null
+
+      - name: Prepare production private worker source bundle
+        run: |
+          worker_bundle="$RUNNER_TEMP/bridgecircle-worker"
+          mkdir "$worker_bundle"
+          cp -R app/. "$worker_bundle/"
+          cp app/railway.worker.json "$worker_bundle/railway.json"
+
+      - name: railway up → production
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway up \
+            --service "$RAILWAY_SERVICE" \
+            --environment production \
+            --ci
+
+      - name: Wait until production serves this commit
+        run: |
+          echo "Polling $PROD_URL/api/health for $CUTOVER_SHA"
+          for i in $(seq 1 60); do
+            body=$(curl -sf -m 10 "$PROD_URL/api/health" || true)
+            sha=$(echo "$body" | jq -r '.sha' 2>/dev/null || true)
+            env=$(echo "$body" | jq -r '.env' 2>/dev/null || true)
+            if [ "$sha" = "$CUTOVER_SHA" ] && [ "$env" = "prod" ]; then
+              echo "Production is serving $CUTOVER_SHA (env: prod)"
+              exit 0
+            fi
+            echo "  attempt $i/60: serving sha=${sha:-<none>} env=${env:-<none>}"
+            sleep 10
+          done
+          echo "::error::Production never reported $CUTOVER_SHA (10 min timeout)"
+          exit 1
+
+      - name: railway up → production worker
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN_PRD }}
+        run: |
+          doppler run --preserve-env -- railway up \
+            "$RUNNER_TEMP/bridgecircle-worker" \
+            --path-as-root \
+            --service "$RAILWAY_WORKER_SERVICE" \
+            --environment production \
+            --ci

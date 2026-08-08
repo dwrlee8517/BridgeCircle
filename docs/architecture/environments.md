@@ -7,7 +7,7 @@ This document explains the current BridgeCircle environment setup, how to develo
 > **Status (2026-07) — two shifts postdate parts of this doc; read these first:**
 >
 > 1. **Secrets moved to Doppler.** [`../runbooks/doppler.md`](../runbooks/doppler.md) is now the source of truth for every env var. The `.env.local` references throughout this doc are **legacy** — local dev pulls env from Doppler (`doppler run -- pnpm dev` against the real dev DB, or `pnpm dev:local` against a local Docker stack). Prod/dev env vars are edited in the Doppler `prd`/`dev` configs and **synced to Railway**, not hand-typed into Railway's Variables tab.
-> 2. **There is now a Railway `dev` stage.** [ADR 0014](../decisions/0014-scripted-cd-pipeline.md) added a deployed dev environment at **`https://dev.bridgecircle.org`** plus a scripted CD pipeline (`.github/workflows/cd.yml`: deploy-dev → integ tests → **manual prod gate** → promote). During the database-v2 release freeze, that workflow is manually disabled, production Railway source deployment is disconnected, and the Supabase GitHub integration is disconnected. The protected migration-only workflow temporarily owns production migrations; the final v2 PR completes database-before-code promotion before CD is re-enabled. Canonical: [`dev-stage-cd-rollout.md`](dev-stage-cd-rollout.md).
+> 2. **There is now a Railway `dev` stage.** [ADR 0014](../decisions/0014-scripted-cd-pipeline.md) added a deployed dev environment at **`https://dev.bridgecircle.org`** plus a scripted CD pipeline in two workflows (`.github/workflows/cd.yml`: wait-for-ci → deploy-dev → integ tests, then **manual prod gate** → `.github/workflows/promote.yml`). During the database-v2 release freeze, that workflow is manually disabled, production Railway source deployment is disconnected, and the Supabase GitHub integration is disconnected. The protected migration-only workflow temporarily owns production migrations; the final v2 PR completes database-before-code promotion before CD is re-enabled. Canonical: [`dev-stage-cd-rollout.md`](dev-stage-cd-rollout.md).
 >
 > So the current topology is **three runtime contexts** — your laptop, the Railway `dev` stage, and Railway `production` — with **no staging tier**. The sections below are being reconciled; where they say "`.env.local`" read "Doppler", and where they imply only prod is on Railway, add the `dev` stage.
 
@@ -410,11 +410,12 @@ Workflow when adding a column or table:
 9. During the release freeze, do not add another legacy production migration;
    finish PR C instead.
 10. After the database-v2 cutover, `cd.yml` validates, dry-runs, and pushes to
-    development, runs hosted integration, waits for production approval, then
-    validates, dry-runs, and pushes production before deploying that same SHA.
+    development and runs hosted integration; `promote.yml` then waits for
+    production approval and validates, dry-runs, and pushes production before
+    deploying that same SHA.
 
 **Do not** run `supabase db push` against production from a developer-linked
-checkout. Only the protected workflow—and later `cd.yml`—owns production.
+checkout. Only the protected workflow—and later `promote.yml`—owns production.
 
 ### Order of operations after the v2 cutover
 
@@ -549,9 +550,12 @@ These exist as concepts in the broader docs but are **not** in the current setup
 - **No staging environment.** There are three runtime contexts — your **laptop**, the Railway **`dev` stage** (`dev.bridgecircle.org`, added by [ADR 0014](../decisions/0014-scripted-cd-pipeline.md)), and Railway **`production`** (`bridgecircle.org`) — but no separate *staging* tier between dev and prod. The scripted CD pipeline's integ gate runs against the `dev` stage before the manual prod promote, which covers the "catch it before prod" role a staging tier would play. Add a real staging tier only when production has real users and a regression has real cost.
 - **CI checks on PRs are wired.** `.github/workflows/ci.yml` runs biome,
   vitest, and `next build`; `.github/workflows/e2e.yml` runs hermetic
-  Playwright. Branch protection requires the aggregate `CI gate` and
-  `E2E gate`, which cover those jobs for code PRs and safely report docs-only
-  skips.
+  Playwright. `e2e.yml` carries an always-report `E2E gate` job built to be a
+  required check (it covers the Playwright job for code PRs and reports a
+  legitimate skip for docs-only ones). `ci.yml` has **no** equivalent gate job
+  — its own header says its checks are not required for merge — so on the
+  deploy path CI is enforced by `cd.yml`'s `wait-for-ci` job instead, which
+  refuses to deploy a commit CI has not passed.
 - **Supabase PR preview branches are paused.** The production GitHub integration
   is disconnected for the v2 cutover, so schema safety comes from clean local
   replay/lint/diff, generated types, hermetic E2E, and reviewed migration SQL.
@@ -571,8 +575,8 @@ These are all good upgrades to make incrementally. None are urgent for launch.
 | Which database does local dev write to? | Local Docker stack via `pnpm dev:local:live` (daily driver) or `pnpm dev:local` (E2E config); `bridgecircle-dev` via `doppler run -- pnpm dev` (`dev_personal`) when you need shared cloud data |
 | Which database does `dev.bridgecircle.org` write to? | `bridgecircle-dev` (Railway `dev` stage, via Doppler `dev`) |
 | Which database does the live site write to? | `bridgecircle` (Railway `production`, via Doppler `prd`) |
-| What triggers a production deploy? | Nothing during the release freeze; final `cd.yml` promotion requires a protected production approval |
-| What triggers a production migration? | Nothing while PR C is being prepared; after v2, the protected `cd.yml` promotion |
+| What triggers a production deploy? | Nothing during the release freeze; final `promote.yml` promotion requires a protected production approval |
+| What triggers a production migration? | Nothing while PR C is being prepared; after v2, the protected `promote.yml` promotion |
 | Where are env vars set for prod? | Doppler `prd` config (synced to Railway `production`) — edit in Doppler, not Railway |
 | Where are env vars set for local dev? | Doppler `dev_personal` / `dev_local` — see [doppler.md](../runbooks/doppler.md) |
 | What's the source of truth for schema? | `supabase/migrations/` files in the repo |

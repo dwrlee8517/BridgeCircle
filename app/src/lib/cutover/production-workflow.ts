@@ -17,12 +17,41 @@ function ordered(haystack: string, markers: string[]): boolean {
   return true
 }
 
-export function productionWorkflowErrors(workflow: string): string[] {
+/** Drops comment lines, so prose explaining a rule cannot trip the rule. */
+function withoutComments(workflow: string): string {
+  return workflow
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*#/.test(line))
+    .join('\n')
+}
+
+/** The workflow-level `concurrency.group`, ignoring any job-level ones. */
+function concurrencyGroup(workflow: string): string | null {
+  const lines = workflow.split(/\r?\n/)
+  const start = lines.indexOf('concurrency:')
+  if (start < 0) return null
+  for (const line of lines.slice(start + 1)) {
+    if (line.trim() === '') continue
+    if (!/^\s/.test(line)) return null // dedented out of the block
+    const group = /^\s+group:\s*(\S+)/.exec(line)
+    if (group) return group[1]
+  }
+  return null
+}
+
+/**
+ * The pipeline is deliberately two workflows: a production approval can hold a
+ * run for days, and a workflow-level `concurrency` group covers waiting jobs,
+ * so a shared group let one pending approval cancel every later push before it
+ * ran a single job. `dev` is .github/workflows/cd.yml, `prod` is promote.yml.
+ */
+export function productionWorkflowErrors(dev: string, prod: string): string[] {
   const errors: string[] = []
-  if (!workflow.includes('environment: production'))
-    errors.push('production approval gate is missing')
-  if (!workflow.includes('DOPPLER_TOKEN_PRD'))
-    errors.push('production Doppler credential is missing')
+  if (!prod.includes('environment: production')) errors.push('production approval gate is missing')
+  if (!prod.includes('DOPPLER_TOKEN_PRD')) errors.push('production Doppler credential is missing')
+  if (dev.includes('environment: production')) {
+    errors.push('the dev workflow must hold no approval gate — it would stall the dev stage')
+  }
   for (const marker of [
     'candidate_sha:',
     'REQUESTED_CANDIDATE_SHA',
@@ -30,25 +59,44 @@ export function productionWorkflowErrors(workflow: string): string[] {
     '"$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"',
     'ALLOW_DEV_CANDIDATE_DEPLOY',
   ]) {
-    if (!workflow.includes(marker)) {
+    if (!dev.includes(marker)) {
       errors.push(`exact-SHA development candidate dispatch is missing: ${marker}`)
     }
   }
-  if (FORBIDDEN_REPEATABLE_DATABASE_COMMAND.test(workflow)) {
-    errors.push('repeatable CD contains a destructive, repair, or seed command')
+  if (!dev.includes('wait-for-ci')) {
+    errors.push('the dev stage must deploy only commits CI has certified')
+  }
+  for (const [label, workflow] of [
+    ['dev', dev],
+    ['production', prod],
+  ] as const) {
+    if (FORBIDDEN_REPEATABLE_DATABASE_COMMAND.test(workflow)) {
+      errors.push(`repeatable ${label} CD contains a destructive, repair, or seed command`)
+    }
   }
 
-  const devStart = workflow.indexOf('name: Deploy dev stage')
-  const prodStart = workflow.indexOf('name: Promote to production')
-  if (devStart < 0 || prodStart < 0 || devStart >= prodStart) {
-    errors.push('dev and production jobs are missing or unordered')
+  const devGroup = concurrencyGroup(dev)
+  const prodGroup = concurrencyGroup(prod)
+  if (!devGroup || !prodGroup || devGroup === prodGroup) {
+    errors.push('dev and production must hold separate concurrency groups')
+  }
+
+  if (!dev.includes('name: Deploy dev stage')) errors.push('the dev deployment job is missing')
+  if (!prod.includes('name: Promote to production')) {
+    errors.push('the production promotion job is missing')
     return errors
   }
-  const dev = workflow.slice(devStart, prodStart)
-  const prod = workflow.slice(prodStart)
 
-  if (!prod.includes("if: github.ref == 'refs/heads/main'")) {
+  if (!prod.includes("github.event.workflow_run.head_branch == 'main'")) {
     errors.push('production promotion must be restricted to main')
+  }
+  // workflow_run fires against the branch tip, which may already have moved
+  // past the commit the dev stage tested.
+  if (!/CUTOVER_SHA:\s*\$\{\{\s*github\.event\.workflow_run\.head_sha\s*\}\}/.test(prod)) {
+    errors.push('production must promote the SHA the dev stage tested')
+  }
+  if (/github\.sha|GITHUB_SHA/.test(withoutComments(prod))) {
+    errors.push('production must never resolve its commit from github.sha')
   }
 
   const migrationOrder = (target: 'dev' | 'production') => [

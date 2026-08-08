@@ -6,10 +6,13 @@ after the database-v2 cutover completed on both remotes.
 ## Setup
 
 `bridgecircle-dev` is a separate shared-development project. The production
-Supabase GitHub integration is disconnected, and
-[`cd.yml`](../../.github/workflows/cd.yml) is the sole owner of production
-migrations and deploys. Nothing else may apply a production migration — not a
-direct CLI push, not the Supabase integration, not a dashboard edit.
+Supabase GitHub integration is disconnected, and the scripted pipeline is the
+sole owner of production migrations and deploys:
+[`cd.yml`](../../.github/workflows/cd.yml) for the dev stage,
+[`promote.yml`](../../.github/workflows/promote.yml) for production behind the
+approval gate ([ADR 0014](../decisions/0014-scripted-cd-pipeline.md)). Nothing
+else may apply a production migration — not a direct CLI push, not the
+Supabase integration, not a dashboard edit.
 
 The migration-ownership transfer that got us here is recorded in
 [`production-migration-ownership-record.md`](../architecture/production-migration-ownership-record.md).
@@ -73,10 +76,11 @@ This is the ordinary workflow, active now:
 2. rebuild, lint, diff, test, and regenerate deterministic types locally
 3. open a PR and require CI + hermetic E2E
 4. merge after review
-5. cd.yml validates and applies the migration to development before code
-6. hosted integration passes for the exact merge SHA
-7. production approval releases the same SHA
-8. cd.yml validates, dry-runs, and pushes ordinary migrations before code
+5. cd.yml waits for CI to pass on the exact merge SHA
+6. cd.yml validates and applies the migration to development before code
+7. hosted integration passes for the exact merge SHA
+8. production approval releases the same SHA
+9. promote.yml validates, dry-runs, and pushes ordinary migrations before code
 ```
 
 The legacy ownership probe is archived at
@@ -86,12 +90,16 @@ it — the `legacy_probe_absent` postflight assertion covers this.
 
 ## Hard rules
 
-- **Do not push to prod outside `cd.yml`.** Direct CLI pushes and the
+- **Do not push to prod outside `promote.yml`.** Direct CLI pushes and the
   disconnected Supabase integration are not production owners.
-- **Do not expect a Supabase Preview check.** Branch protection instead requires
-  the always-report `CI gate` and `E2E gate`. For code changes those gates depend
-  on lint/test, the migration-aware build, and hermetic Playwright; for docs-only
-  changes they report a legitimate skip.
+- **Do not expect a Supabase Preview check.** `e2e.yml`'s always-report
+  `E2E gate` is the job to require: for code changes it depends on hermetic
+  Playwright against a local stack; for docs-only changes it reports a
+  legitimate skip. `ci.yml` has no equivalent gate job — its `quality` and
+  `build` checks skip entirely on docs-only pushes, so requiring them directly
+  would leave a docs PR pending forever. Since 2026-08-08 `cd.yml` waits for a
+  green CI run on the merge SHA before deploying to dev, so CI is enforced on
+  the deploy path whatever branch protection does.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. A local stack *can* be reset destructively — it's throwaway by design — but both remotes' history is append-only.
 - **ADR 0015 is the sole migration-history exception.** Do not use its archive
   or migration-repair procedure as precedent for an ordinary migration.
@@ -101,8 +109,8 @@ it — the `legacy_probe_absent` postflight assertion covers this.
 
 ## Classify the migration before writing it
 
-`cd.yml` applies ordinary migrations before deploying the exact same application
-SHA. The compatibility pattern that is safe still depends on what kind of change
+The pipeline applies ordinary migrations before deploying the exact same
+application SHA (`cd.yml` for dev, `promote.yml` for production). The compatibility pattern that is safe still depends on what kind of change
 is being made.
 
 **Additive** — safe to ship in a single PR. The old code in the deploy window doesn't see the new shape, so it can't break.

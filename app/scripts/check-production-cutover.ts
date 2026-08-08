@@ -15,7 +15,8 @@ function sourceFiles(directory: string): string[] {
 }
 
 const root = resolve('..')
-const workflow = readFileSync(join(root, '.github/workflows/cd.yml'), 'utf8')
+const devWorkflow = readFileSync(join(root, '.github/workflows/cd.yml'), 'utf8')
+const promoteWorkflow = readFileSync(join(root, '.github/workflows/promote.yml'), 'utf8')
 const gitignore = readFileSync(join(root, '.gitignore'), 'utf8')
 const files = Object.fromEntries(
   sourceFiles(resolve('scripts'))
@@ -23,7 +24,7 @@ const files = Object.fromEntries(
     .map((path) => [relative(resolve('.'), path), readFileSync(path, 'utf8')]),
 )
 const errors = [
-  ...productionWorkflowErrors(workflow),
+  ...productionWorkflowErrors(devWorkflow, promoteWorkflow),
   ...cutoverGitignoreErrors(gitignore),
   ...destructiveEntryPointErrors(files),
 ]
