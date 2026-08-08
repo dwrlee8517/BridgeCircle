@@ -363,4 +363,114 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Ephemeral broadcast — THROTTLED is normal under rapid calls, not an error; both PUBLISHED and THROTTLED carry expiresAt. No durable row to diff; assert payload shape only.',
   },
+  {
+    feature: 'school',
+    kind: 'query',
+    name: 'schoolHome',
+    document: `query { schoolHome { organization { id name } events { id slug phase viewerRsvp startsAt goingCount circleGoingCount spotsLeft } announcements { id tag title pinned unread } latestNewsletter { id slug issueNumber title } } }`,
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).getHome',
+      argsNote: 'membershipId = getMemberContext(db) selected membership; getHome(membershipId).',
+    },
+    shapeNotes:
+      'Whole-object diff: events/announcements are bounded whole lists (no cursors in the school repo — plain arrays, same honest-modeling call as peopleSearch). Enums uppercased: phase, format, campus, viewerRsvp, tag. null when unauthenticated / no membership.',
+  },
+  {
+    feature: 'school',
+    kind: 'query',
+    name: 'schoolEvent',
+    document: `query ($id: ID!) { schoolEvent(id: $id) { id slug phase title format campus startsAt endsAt viewerRsvp offerExpiresAt spotsLeft allowWaitlist description locationAddress mapsUrl hostUserId schedule { id position startsAt label } facts { id position label value linkLabel linkUrl } } }`,
+    variables: { id: '<event-id>' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).getEvent',
+      argsNote: 'getEvent(membershipId, eventId).',
+    },
+    shapeNotes:
+      'SchoolEvent = card fields + description/location/schedule/facts (detail extends card in v2; GraphQL mirrors that). schedule/facts keep their integer ids and position ordering.',
+  },
+  {
+    feature: 'school',
+    kind: 'query',
+    name: 'schoolEventAttendees',
+    document: `query ($eventId: ID!) { schoolEventAttendees(eventId: $eventId) { totalCount hiddenCount items { membershipId userId displayName inCircle } } }`,
+    variables: { eventId: '<event-id>' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).listEventAttendees',
+      argsNote: 'listEventAttendees(membershipId, eventId).',
+    },
+    shapeNotes:
+      'Privacy-aware: items are only the attendees visible to the viewer; hiddenCount covers the rest. totalCount = visible + hidden — assert that invariant.',
+  },
+  {
+    feature: 'school',
+    kind: 'query',
+    name: 'schoolAnnouncements',
+    document: `query ($filter: SchoolAnnouncementFilter) { schoolAnnouncements(filter: $filter) { id tag title summary pinned publishedAt unread } }`,
+    variables: { filter: 'ALL' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).listAnnouncements',
+      argsNote: 'listAnnouncements(membershipId, filter.toLowerCase() ?? "all").',
+    },
+    shapeNotes:
+      'unread is viewer-relative (announcement_reads). Cross-check with markAnnouncementRead: after marking, the same row flips unread=false.',
+  },
+  {
+    feature: 'school',
+    kind: 'query',
+    name: 'schoolAnnouncement',
+    document: `query ($id: ID!) { schoolAnnouncement(id: $id) { id tag title body pinned publishedAt authorName } }`,
+    variables: { id: '<announcement-id>' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).getAnnouncement',
+      argsNote: 'getAnnouncement(membershipId, announcementId).',
+    },
+    shapeNotes: 'Field-for-field. null when RLS hides it.',
+  },
+  {
+    feature: 'school',
+    kind: 'query',
+    name: 'newsletterIssue',
+    document: `query ($slug: String!) { newsletterIssue(slug: $slug) { id slug issueNumber title summary publishedAt sections { id position heading body linkLabel linkUrl } } }`,
+    variables: { slug: '<issue-slug>' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).getNewsletterIssue',
+      argsNote:
+        'getNewsletterIssue(membershipId, slug). newsletterIssues (the archive list) maps to listNewsletterIssues(membershipId).',
+    },
+    shapeNotes: 'Keyed by slug, not id. Sections keep integer ids + position ordering.',
+  },
+  {
+    feature: 'school',
+    kind: 'mutation',
+    name: 'respondToSchoolEvent',
+    document: `mutation ($eventId: ID!, $intent: SchoolResponseIntent!) { respondToSchoolEvent(eventId: $eventId, intent: $intent) { result } }`,
+    variables: { eventId: '<event-id>', intent: 'GOING' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).respondToEvent',
+      argsNote: 'respondToEvent(membershipId, eventId, intent.toLowerCase()).',
+    },
+    shapeNotes:
+      "SIDE-EFFECTING — v2's capacity state machine, exposed verbatim. Intents include the waitlist-offer flow (JOIN_WAITLIST / ACCEPT_OFFER / PASS_OFFER); results include FULL, NOT_OPEN, NOT_OFFERED, OFFER_EXPIRED as first-class outcomes, not errors. Test at least: GOING on open event, GOING on full event (→ FULL), JOIN_WAITLIST when allowWaitlist, ACCEPT_OFFER without an offer (→ NOT_OFFERED). Diff the resulting RSVP row and the event's viewerRsvp/goingCount afterward.",
+  },
+  {
+    feature: 'school',
+    kind: 'mutation',
+    name: 'markAnnouncementRead',
+    document: `mutation ($announcementId: ID!) { markAnnouncementRead(announcementId: $announcementId) }`,
+    variables: { announcementId: '<announcement-id>' },
+    lib: {
+      module: '@/db/repositories/school',
+      fn: 'createSchoolRepository(db).markAnnouncementRead',
+      argsNote: 'markAnnouncementRead(membershipId, announcementId).',
+    },
+    shapeNotes:
+      'Returns a bare enum (READ | NOT_AVAILABLE) — the repo result is a string, so no payload wrapper. Idempotent: marking twice stays READ. Cross-check schoolAnnouncements.unread flips to false.',
+  },
 ]
