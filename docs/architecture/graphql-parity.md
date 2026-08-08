@@ -1,6 +1,6 @@
 # GraphQL parity harness — contract
 
-How the GraphQL data plane ([ADR 0014](../decisions/0014-graphql-data-plane.md))
+How the GraphQL data plane ([ADR 0017](../decisions/0017-graphql-data-plane.md))
 is migrated and proven: the **strangler-fig / parallel-run** pattern. Each
 feature is duplicated as GraphQL beside the existing path; integration tests
 prove equivalence; then the old path is deprecated.
