@@ -1,0 +1,10 @@
+web:account.lifecycle
+web:admin.announcements
+web:admin.approvals
+web:admin.events
+web:admin.members
+web:admin.reports
+web:ask.detail
+web:ask.offer
+web:membership.entry
+web:notifications

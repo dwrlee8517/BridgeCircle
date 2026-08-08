@@ -1,0 +1,330 @@
+{
+  "$comment": "BridgeCircle feature-parity manifest. Every user-facing feature is declared here once, with a per-platform status. parity/check-parity.mjs enforces it. Read parity/README.md before editing — in particular, this manifest encodes *intended* parity, so deliberate non-parity is expressed here rather than carried as debt. Run: node parity/check-parity.mjs [--update]",
+  "schemaVersion": 2,
+  "enforce": {
+    "$comment": "Layout (window-class) coverage stays declared-but-unenforced until the Playwright viewport projects and the mobile tablet runner land. Flipping this to true is the commit that ports them. See parity/README.md § Layout coverage.",
+    "layouts": false
+  },
+  "statuses": {
+    "shipped": "Built and wired. Requires tagged test coverage on that platform; missing coverage is a gap.",
+    "planned": "Intended and decided, not yet built. No coverage required; counts against the coverage ratio.",
+    "gated": "Deliberately not yet decided — the decision is deferred, not owed. Requires a 'decision' link. Reported, never a gap.",
+    "wont-do": "Deliberate non-parity. Requires 'reason' and a 'decision' link. Excluded from the coverage ratio."
+  },
+  "features": [
+    {
+      "id": "auth.sign-in",
+      "title": "Email/password + Google sign-in, session handling",
+      "routes": ["/sign-in"],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "auth.password-reset",
+      "title": "Password reset request + update",
+      "routes": ["/reset-password", "/reset-password/update"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "auth.join-invite",
+      "title": "Invite landing + account creation",
+      "routes": ["/join"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "membership.entry",
+      "title": "Pending-approval landing + circle selection",
+      "routes": ["/pending", "/select-circle"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "onboarding",
+      "title": "Onboarding steps, Fast Fill import review, cold-start offers",
+      "routes": ["/onboarding", "/onboarding/import/[proposalId]", "/onboarding/offers/[askId]"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "home.hub",
+      "title": "Home dashboard",
+      "routes": ["/"],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "help.hub",
+      "title": "Help — get-help / give-help surface",
+      "routes": ["/help"],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "help.settings",
+      "title": "Helper availability settings",
+      "routes": ["/help/settings"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "ask.compose",
+      "title": "Direct ask + circle ask composers",
+      "routes": ["/help/ask/[membershipId]", "/help/ask-circle"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "ask.detail",
+      "title": "Ask list + detail lifecycle",
+      "routes": ["/help/asks", "/help/asks/[askId]"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "ask.offer",
+      "title": "Offer-to-help flow",
+      "routes": ["/help/asks/[askId]/offer"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "people.directory",
+      "title": "People directory — browse, search, circle scope",
+      "routes": ["/people", "/people/circle"],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "profile.view",
+      "title": "Profile detail (org/connection/self audiences) + own profile",
+      "routes": ["/profile/[id]", "/profile/me"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "inbox.unified",
+      "title": "Messages inbox — asks, connections, conversations",
+      "routes": ["/messages"],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "dm.conversation",
+      "title": "Conversation thread",
+      "routes": ["/messages/[id]"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications list + unread state",
+      "routes": ["/notifications"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "account.settings",
+      "title": "Account settings — communication, notifications, lifecycle",
+      "routes": ["/settings"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "account.lifecycle",
+      "title": "Deletion scheduling + cancel-delete",
+      "routes": ["/cancel-delete"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "school.hub",
+      "title": "School pulse — events + announcements together",
+      "routes": ["/school"],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "events.detail",
+      "title": "Event detail, RSVP, waitlist offers",
+      "routes": ["/school/events/[id]"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "school.announcements",
+      "title": "Announcements archive + detail",
+      "routes": ["/school/announcements", "/school/announcements/[id]"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "school.newsletter",
+      "title": "Newsletter issues",
+      "routes": ["/school/newsletter", "/school/newsletter/[issue]"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    },
+    {
+      "id": "admin.dashboard",
+      "title": "Admin health overview — the console front page",
+      "routes": ["/admin"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "admin.members",
+      "title": "Admin members directory + console role management",
+      "routes": ["/admin/members"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "admin.invites",
+      "title": "Admin invites",
+      "routes": ["/admin/invite"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "admin.approvals",
+      "title": "Admin membership approvals",
+      "routes": ["/admin/approvals"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "admin.events",
+      "title": "Admin events management",
+      "routes": ["/admin/events", "/admin/events/[id]/edit"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "admin.announcements",
+      "title": "Admin announcements",
+      "routes": ["/admin/announcements"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "admin.reports",
+      "title": "Admin member reports",
+      "routes": ["/admin/reports"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Admin console is desktop-primary by decision — dense tabular editing and bulk actions. See app/CLAUDE.md: 'Admin tables can be desktop-primary.'",
+        "decision": "docs/decisions/0002-web-first-defer-native.md"
+      }
+    },
+    {
+      "id": "shell.navigation",
+      "title": "Member shell navigation (Home · Help · People · Messages · School)",
+      "routes": [],
+      "layouts": ["compact", "medium", "expanded"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "gated",
+        "decision": "docs/decisions/0016-native-mobile-via-expo.md"
+      }
+    }
+  ]
+}

@@ -58,6 +58,7 @@
     "test:db:home-concurrency": "bash scripts/test-home-concurrency.sh",
     "test:db:home-query-plans": "bash scripts/test-home-query-plans.sh",
     "check:tokens": "bash scripts/check-design-tokens.sh",
+    "check:parity": "node ../parity/check-parity.mjs",
     "check:font-size-tokens": "tsx scripts/check-font-size-tokens.ts",
     "test:int": "bash tests/integration/scripts/run-local.sh",
     "test:int:dev": "bash tests/integration/scripts/run-dev.sh",

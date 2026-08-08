@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:admin.dashboard @feature:admin.invites
 import { expect, test } from "@playwright/test";
 import {
   FoundationScenario,
