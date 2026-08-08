@@ -247,4 +247,60 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Returns the resulting state on BOTH success and failure (v2 echoes current prefs on invalid_input) — so diff every field, not just status. Topics are normalized server-side; compare as sets if order is unspecified. Cross-check against helpHome.openToHelp/helperTopics.',
   },
+  {
+    feature: 'messages',
+    kind: 'query',
+    name: 'messagesCounts',
+    document: `query { messagesCounts { all unread myCircle openAsks waiting attention } }`,
+    lib: {
+      module: '@/db/repositories/messages',
+      fn: 'createMessagesRepository(db).getCounts',
+      argsNote: 'getCounts() — no args; RLS scopes it to the caller.',
+    },
+    shapeNotes: 'Field-for-field identical to MessagesCounts. null when unauthenticated.',
+  },
+  {
+    feature: 'messages',
+    kind: 'query',
+    name: 'conversationsConnection',
+    document: `query ($filter: MessagesFilter, $query: String, $first: Int, $after: String) { conversationsConnection(filter: $filter, query: $query, first: $first, after: $after) { edges { cursor node { conversationId kind unreadCount needsReply priority activityAt counterpart { userId displayName } } } pageInfo { hasNextPage endCursor } } }`,
+    variables: { filter: 'ALL', first: 20 },
+    lib: {
+      module: '@/db/repositories/messages',
+      fn: 'createMessagesRepository(db).listConversations',
+      argsNote:
+        'listConversations({ filter: filter.toLowerCase() ?? "all", query: query ?? null, cursor: decodeMessagesCursor(after), limit: min(first, 50) }).',
+    },
+    shapeNotes:
+      'TRUE cursor connection over a THREE-part composite (priority, activityAt, conversationId) — encoded by lib/pagination/messages-cursor (new; v2 had no encoder because server actions passed the object in-process). Forward-only. A malformed/stale cursor decodes to null = page from the beginning, NOT an error — worth an explicit test. filter enum ALL|UNREAD|MY_CIRCLE|OPEN_ASKS → lowercased.',
+  },
+  {
+    feature: 'messages',
+    kind: 'query',
+    name: 'conversation',
+    document: `query ($id: ID!) { conversation(id: $id) { id kind askId canSend readOnlyReason connectionState canRequestConnection viewerLastReadMessageId latestMessageId } }`,
+    variables: { id: '<conversation-id>' },
+    lib: {
+      module: '@/db/repositories/conversations',
+      fn: 'createConversationRepository(db).getDetail',
+      argsNote: 'getDetail(conversationId).',
+    },
+    shapeNotes:
+      'Scalars map 1:1 to ConversationDetail; enums uppercased (readOnlyReason, connectionState, kind). counterpart/askContext sub-objects are NOT fully exposed yet — diff only the listed fields. null when RLS hides it.',
+  },
+  {
+    feature: 'messages',
+    kind: 'query',
+    name: 'conversation.messagesConnection',
+    document: `query ($id: ID!, $last: Int, $before: String) { conversation(id: $id) { messagesConnection(last: $last, before: $before) { edges { cursor node { id kind body createdAt senderUserId } } pageInfo { hasPreviousPage startCursor } } } }`,
+    variables: { id: '<conversation-id>', last: 30 },
+    lib: {
+      module: '@/db/repositories/conversations',
+      fn: 'createConversationRepository(db).listBefore',
+      argsNote:
+        'listBefore({ conversationId, beforeMessageId: before ? Number(before) : null, limit: min(last, 50) }), then REVERSE the rows (the RPC returns newest-first; the connection reads oldest-first).',
+    },
+    shapeNotes:
+      "NESTED connection on Conversation. BACKWARD-only — last/before walks into older history (the chat idiom); forward paging is deliberately not exposed (catching up on new messages is realtime's job via listAfter, not a connection). Cursor is the numeric message id as a string. The user|system union is flattened: senderUserId set for USER, eventType/actorUserId for SYSTEM.",
+  },
 ]

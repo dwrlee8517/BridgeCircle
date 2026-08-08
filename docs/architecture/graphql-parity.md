@@ -87,10 +87,15 @@ manifest."
 
 | Feature | Operations | v2 delegate |
 |---|---|---|
-| members | `me` | `db/repositories/member-context` (`getMemberContext`) |
+| members | `me` | `member-context` (`getMemberContext`) |
+| people | `memberProfile` (via DataLoader), `peopleSearch` (bounded top-N, not a connection) | `people` |
+| help (reads) | `helpHome`, `ask(id)`, `myAsksConnection` (true cursor connection reusing `lib/help/cursors`) | `help` |
+| help (commands) | `createDirectAsk`, `createCircleAsk`, `respondToDirectAsk`, `retractAsk`, `resolveAsk`, `offerToHelp`, `decideOffer`, `saveHelperPreferences` — status enums verbatim (incl. capacity valves), required client idempotency keys | `help` |
+| messages (reads) | `messagesCounts`, `conversationsConnection` (3-part composite cursor, codec in `lib/pagination/messages-cursor`), `conversation(id)`, nested `conversation.messagesConnection` (backward-only, numeric-id cursor) | `messages`, `conversations` |
 
-Slices land feature by feature; each adds a manifest entry here and in
-`app/src/graphql/parity/manifest.ts`.
+The authoritative, always-current list is the manifest itself
+(`app/src/graphql/parity/manifest.ts`) — a schema test guards it against drift.
+This table is the human-readable summary; update it per slice.
 
 ## Known shape conventions
 
