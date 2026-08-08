@@ -3,6 +3,7 @@ import './entities/conversations'
 import './entities/help'
 import './entities/help-mutations'
 import './entities/member'
+import './entities/messages-commands'
 import './entities/people'
 import './entities/profile'
 

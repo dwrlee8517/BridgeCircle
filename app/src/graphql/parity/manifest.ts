@@ -303,4 +303,64 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       "NESTED connection on Conversation. BACKWARD-only — last/before walks into older history (the chat idiom); forward paging is deliberately not exposed (catching up on new messages is realtime's job via listAfter, not a connection). Cursor is the numeric message id as a string. The user|system union is flattened: senderUserId set for USER, eventType/actorUserId for SYSTEM.",
   },
+  {
+    feature: 'messages',
+    kind: 'mutation',
+    name: 'startDirectConversation',
+    document: `mutation ($otherUserId: ID!) { startDirectConversation(otherUserId: $otherUserId) { status conversationId } }`,
+    variables: { otherUserId: '<other-user-id>' },
+    lib: {
+      module: '@/db/repositories/conversations',
+      fn: 'createConversationRepository(db).getOrCreateDirect',
+      argsNote: 'getOrCreateDirect(otherUserId).',
+    },
+    shapeNotes:
+      'READY carries conversationId; CONNECTION_REQUIRED when not mutually connected (the DM gate — connections are mutual). Idempotent by design: repeat calls return the same conversation.',
+  },
+  {
+    feature: 'messages',
+    kind: 'mutation',
+    name: 'sendMessage',
+    document: `mutation ($conversationId: ID!, $body: String!, $clientNonce: String!) { sendMessage(conversationId: $conversationId, body: $body, clientNonce: $clientNonce) { status messageId createdAt } }`,
+    variables: {
+      conversationId: '<conversation-id>',
+      body: 'Thanks — that helps a lot.',
+      clientNonce: '<uuid-v4, REUSE across retries>',
+    },
+    lib: {
+      module: '@/db/repositories/conversations',
+      fn: 'createConversationRepository(db).send',
+      argsNote: 'send({ conversationId, body, clientNonce }).',
+    },
+    shapeNotes:
+      'SIDE-EFFECTING + IDEMPOTENT on clientNonce: replay returns DUPLICATE with the ORIGINAL messageId/createdAt, never a second row — assert exactly one messages row after replay. RATE_LIMITED and CONNECTION_REQUIRED are first-class outcomes. messageId/createdAt null on non-SENT/DUPLICATE terminals.',
+  },
+  {
+    feature: 'messages',
+    kind: 'mutation',
+    name: 'markConversationRead',
+    document: `mutation ($conversationId: ID!, $messageId: Int!) { markConversationRead(conversationId: $conversationId, messageId: $messageId) { status lastReadMessageId lastReadAt } }`,
+    variables: { conversationId: '<conversation-id>', messageId: 42 },
+    lib: {
+      module: '@/db/repositories/conversations',
+      fn: 'createConversationRepository(db).markRead',
+      argsNote: 'markRead({ conversationId, messageId }).',
+    },
+    shapeNotes:
+      'MONOTONIC: an older messageId returns UNCHANGED with the current cursor, never moves it backward — test advance then replay-older. INVALID_CURSOR for a messageId not in the conversation.',
+  },
+  {
+    feature: 'messages',
+    kind: 'mutation',
+    name: 'publishTyping',
+    document: `mutation ($conversationId: ID!, $isTyping: Boolean!) { publishTyping(conversationId: $conversationId, isTyping: $isTyping) { status expiresAt } }`,
+    variables: { conversationId: '<conversation-id>', isTyping: true },
+    lib: {
+      module: '@/db/repositories/conversations',
+      fn: 'createConversationRepository(db).publishTyping',
+      argsNote: 'publishTyping({ conversationId, isTyping }).',
+    },
+    shapeNotes:
+      'Ephemeral broadcast — THROTTLED is normal under rapid calls, not an error; both PUBLISHED and THROTTLED carry expiresAt. No durable row to diff; assert payload shape only.',
+  },
 ]
