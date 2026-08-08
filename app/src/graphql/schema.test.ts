@@ -178,6 +178,28 @@ describe('graphql schema', () => {
       expect.arrayContaining(['last', 'before']),
     )
   })
+
+  it('exposes the Messages commands with per-command status vocabularies', () => {
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(String(m.startDirectConversation?.type)).toBe('StartConversationPayload!')
+    expect(String(m.sendMessage?.type)).toBe('SendMessagePayload!')
+    expect(String(m.markConversationRead?.type)).toBe('MarkReadPayload!')
+    expect(String(m.publishTyping?.type)).toBe('PublishTypingPayload!')
+
+    // sendMessage's idempotency key is client-supplied and required.
+    const nonce = (m.sendMessage?.args ?? []).find((a) => a.name === 'clientNonce')
+    expect(String(nonce?.type)).toBe('String!')
+
+    // DUPLICATE (nonce replay) and RATE_LIMITED are first-class outcomes.
+    const sendStatus = (
+      schema.getType('SendMessageStatus') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    expect(sendStatus).toEqual(
+      expect.arrayContaining(['SENT', 'DUPLICATE', 'RATE_LIMITED', 'CONNECTION_REQUIRED']),
+    )
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
