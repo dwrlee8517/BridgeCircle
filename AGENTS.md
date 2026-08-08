@@ -62,10 +62,14 @@ Three sources, three jurisdictions. Nothing is canonical for everything:
 | Question | Canonical source |
 |---|---|
 | **What is built, and how does it behave?** | The code. Docs may lag. |
-| **How is it built, and why — engineering contracts?** | `docs/` — ADRs, architecture, runbooks. |
+| **How is it built, and why — engineering contracts?** | `docs/` — ADRs, architecture, runbooks — plus `engineering-spec-obsidian-vault/` tech specs for per-subsystem implementation detail. |
 | **What did we decide? What's the plan? Where are we?** | The **memory vault** (`memory/decisions/`, `memory/projects/`). |
 
 So: code beats docs on behavior, and the vault beats both on intent, status, and timing. A vault decision does not mean the code does it yet — it means that's what we agreed to do.
+
+One boundary worth naming, because two things here are both called a "plan". The memory vault is the **executive** vault: roadmap, scope, priority, launch timing — what we decided to do and when. The engineering-spec vault is **engineering-only**: an `Initiatives/` plan there covers just how one already-decided change is sequenced into tasks. Execution mechanics, not intent — it never establishes that work *should* happen, only how it gets built once the memory vault says it does.
+
+So roadmap, launch dates, prioritization, and product/business rationale do **not** belong in the engineering-spec vault, even when they'd explain an initiative. Link the memory-vault decision instead of restating it; a second copy of the roadmap inside the repo is one that will silently go stale.
 
 If you find a conflict, fix the lagging source in the same change and flag it. If a vault decision contradicts a repo doc, the repo doc is stale; update it and note which vault note supersedes it.
 

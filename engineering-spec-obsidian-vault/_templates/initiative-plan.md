@@ -4,6 +4,7 @@ status: active         # active | paused | done | abandoned
 opened: YYYY-MM-DD
 closed:
 product_spec:          # relative link into ../product-spec-obsidian-vault/, if any
+memory_note:           # the memory-vault decision authorizing this work, if any
 tech_spec:             # the Production/ or Prototype/ tech spec this change writes
 ---
 
@@ -20,9 +21,14 @@ state, not a list of activities.
 
 ## Why now
 
-The forcing reason. What is painful today, or what this unblocks. This is the
-section that stops a future session from quietly abandoning the change halfway
-because the motivation was never written down.
+The **engineering** forcing reason — what is painful in the code today, or what
+this unblocks technically. This is the section that stops a future session from
+quietly abandoning the change halfway because the motivation was never written
+down.
+
+Roadmap position, launch timing, and business rationale live in the memory vault
+(the executive one, on iCloud) — link that decision here rather than restating
+it. This vault is engineering-only.
 
 ## Approach
 

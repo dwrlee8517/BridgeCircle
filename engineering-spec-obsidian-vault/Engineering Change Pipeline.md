@@ -45,6 +45,7 @@ note types, four different jobs:
 | A decision, with alternatives and consequences | [`docs/decisions/`](../docs/decisions/) (ADR) | Permanent |
 | How to perform a procedure | [`docs/runbooks/`](../docs/runbooks/) | Durable |
 | Facts about system shape | [`docs/architecture/`](../docs/architecture/) | Durable |
+| **Roadmap, launch timing, priority, business rationale** | **The memory vault** (iCloud) — *not this vault* | Durable |
 
 Tech specs, ADRs, and runbooks are *not* the same thing and should not absorb
 each other. A tech spec that starts explaining how to run migrations should link

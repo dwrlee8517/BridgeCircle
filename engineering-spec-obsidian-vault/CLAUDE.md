@@ -44,6 +44,29 @@ implements, and vice versa.
 - **`_templates/`** — Templates for the four note types above. Copy, don't
   improvise. Not specs; ignore when surveying the vault.
 
+## What does not belong here
+
+This vault is **engineering-only**. It is deliberately narrower than the other
+two:
+
+- The **memory vault** (iCloud, `~/Library/Mobile Documents/com~apple~CloudDocs/BridgeCircle Sync/`)
+  is the *executive* vault — roadmap, launch timing, prioritization, and
+  product/business decisions. It is the source of truth for **whether and when**
+  work happens. See the jurisdiction table in [`AGENTS.md`](../AGENTS.md).
+- The **product vault** holds what we're building for members, and why.
+- **This vault holds only how it gets built**, once the decision already exists.
+
+So an initiative plan says *"here is how this change is sequenced into tasks"* —
+never *"here is why this is a priority this quarter"*. Roadmap position, launch
+dates, and business rationale belong in the memory vault; **link the decision
+rather than restating it**. A second copy of the roadmap inside the repo is a
+copy that goes stale without anyone noticing, and this vault is the wrong place
+to discover that.
+
+The `Why now` section of an initiative plan is the one place that brushes against
+this. Keep it to the *engineering* forcing reason — what is painful in the code
+today, what this unblocks technically — and link out for the product reason.
+
 ## Initiatives — the cross-session handoff protocol
 
 The point of an initiative is that a session with **no memory of the previous
