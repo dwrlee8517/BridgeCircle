@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:people.directory
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { signIn } from '../helpers/auth'

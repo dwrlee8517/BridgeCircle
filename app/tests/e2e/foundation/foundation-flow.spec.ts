@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:auth.join-invite @feature:onboarding @feature:auth.sign-in
 import { expect, test, type Page } from "@playwright/test";
 import { allowHostedDevSeedAcceptance, isRemote } from "../helpers/env";
 import { FoundationScenario } from "../helpers/foundation";

@@ -1,3 +1,4 @@
+// Parity coverage (see parity/README.md): @feature:auth.sign-in
 import { expect, test } from "@playwright/test";
 import {
   FoundationScenario,
