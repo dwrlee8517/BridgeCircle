@@ -1,4 +1,4 @@
-# 0014 — GraphQL as the data plane (code-first, RLS-preserving)
+# 0017 — GraphQL as the data plane (code-first, RLS-preserving)
 
 - **Status:** accepted (phased — ROI gate after Phase 1)
 - **Date:** 2026-08-05
