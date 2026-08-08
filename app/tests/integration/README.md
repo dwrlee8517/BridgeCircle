@@ -31,7 +31,10 @@ vars below are needed — Resend and the other outbound services are stubbed —
 this target does not require the Doppler `dev_local` config the e2e suite uses.
 
 CI runs this suite on every PR — the `Integration (API-driven vs local stack)`
-job in `.github/workflows/ci.yml`, folded into the required `CI gate`. The
+job in `.github/workflows/ci.yml`, folded into the required `CI gate`. CI runs
+with `--coverage`, which arms the ratchet floor in
+`vitest.integration.config.ts`: raise the thresholds when your PR raises
+coverage; never lower them silently. The
 operational guide lives at
 [`docs/runbooks/integration-testing.md`](../../../docs/runbooks/integration-testing.md);
 this file covers the harness internals.

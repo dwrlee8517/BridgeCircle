@@ -120,10 +120,14 @@ jobs:
       # runner derives every value it needs from `supabase status` and
       # defaults PROVISION_SECRET to a local-only string, so this job holds
       # no secrets and cannot be pointed at a remote database.
-      - name: Integration suite
+      # --coverage arms the ratchet floor in vitest.integration.config.ts:
+      # the run fails if coverage of the API surface drops below the committed
+      # thresholds (collapse protection — e.g. a harness or alias change that
+      # makes tests pass while instrumenting nothing).
+      - name: Integration suite (with coverage ratchet)
         env:
           CI: 'true'
-        run: pnpm test:int
+        run: pnpm test:int --coverage
 
   build:
     name: Build (validates types vs. migrations)

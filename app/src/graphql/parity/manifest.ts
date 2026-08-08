@@ -117,4 +117,134 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'TRUE cursor connection (v2 already pages Help). Forward-only — the RPC has no backward mode, so last/before are not supported. Diff page contents against successive listMyAsks calls threading the same cursor; edge.cursor should equal the repo cursor for that row.',
   },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'createDirectAsk',
+    document: `mutation ($recipientMembershipId: ID!, $question: String!, $requestMessage: String!, $clientRequestId: String!) { createDirectAsk(recipientMembershipId: $recipientMembershipId, question: $question, requestMessage: $requestMessage, clientRequestId: $clientRequestId) { status askId activeCount created } }`,
+    variables: {
+      recipientMembershipId: '<recipient-membership-id>',
+      question: 'How did you move from consulting into product?',
+      requestMessage: 'Would value 20 minutes if you have it.',
+      clientRequestId: '<uuid-v4, REUSE across retries>',
+    },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).createDirectAsk',
+      argsNote:
+        'membershipId = getMemberContext(db) selected membership (never client-supplied); createDirectAsk({ membershipId, recipientMembershipId, question, requestMessage, clientRequestId }).',
+    },
+    shapeNotes:
+      'SIDE-EFFECTING + IDEMPOTENT. status uppercased from v2 (CREATED|EXISTING|IDEMPOTENCY_CONFLICT|ACTIVE_LIMIT_REACHED|HELPER_LIMIT_REACHED|INVALID_INPUT|NOT_AVAILABLE) — do NOT collapse to a boolean; the two *_LIMIT_REACHED statuses are the capacity valves and need explicit coverage (seed a member at the active-ask cap). Replaying the same clientRequestId must return EXISTING (created:false), not a second ask; reusing the key with different inputs returns IDEMPOTENCY_CONFLICT. Seed the DB and diff both payload and the resulting asks row. Unauthenticated / no membership → NOT_AVAILABLE (GraphQL-only guard, no repo call).',
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'createCircleAsk',
+    document: `mutation ($question: String!, $reach: HelpReachInput!, $anonymousUntilAccepted: Boolean!, $clientRequestId: String!) { createCircleAsk(question: $question, reach: $reach, anonymousUntilAccepted: $anonymousUntilAccepted, clientRequestId: $clientRequestId) { status askId activeCount created } }`,
+    variables: {
+      question: 'Anyone worked in climate policy?',
+      reach: 'MATCHED',
+      anonymousUntilAccepted: true,
+      clientRequestId: '<uuid-v4, REUSE across retries>',
+    },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).createCircleAsk',
+      argsNote:
+        'membershipId = selected membership; createCircleAsk({ membershipId, question, reach: reach.toLowerCase(), anonymousUntilAccepted, clientRequestId }).',
+    },
+    shapeNotes:
+      "Same idempotency + status semantics as createDirectAsk. reach enum MATCHED|ORGANIZATION → matched|organization. anonymousUntilAccepted drives whether later reads expose the asker identity — cross-check against the ask query's HelpProfile.isAnonymous.",
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'respondToDirectAsk',
+    document: `mutation ($askId: ID!, $decision: AskDecisionInput!, $openingMessage: String, $declineReasonCode: AskDeclineReason, $declineNote: String, $clientNonce: String) { respondToDirectAsk(askId: $askId, decision: $decision, openingMessage: $openingMessage, declineReasonCode: $declineReasonCode, declineNote: $declineNote, clientNonce: $clientNonce) { status askId conversationId } }`,
+    variables: { askId: '<ask-id>', decision: 'ACCEPT' },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).respondToDirectAsk',
+      argsNote:
+        'respondToDirectAsk({ askId, decision: ACCEPT→accept|DECLINE→decline, openingMessage ?? null, declineReasonCode: lowercased ?? null, declineNote ?? null, clientNonce ?? null }). No membership arg — RLS scopes it.',
+    },
+    shapeNotes:
+      'ACCEPT opens a conversation → conversationId is non-null; DECLINE leaves it null. Re-deciding returns ALREADY_DECIDED (not an error). Diff payload AND the asks/conversations rows.',
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'retractAsk',
+    document: `mutation ($askId: ID!) { retractAsk(askId: $askId) { status askId conversationId } }`,
+    variables: { askId: '<ask-id>' },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).retractAsk',
+      argsNote: 'retractAsk(askId).',
+    },
+    shapeNotes: 'RETRACTED on success; ALREADY_DECIDED when the ask already ended.',
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'resolveAsk',
+    document: `mutation ($askId: ID!, $outcomeNote: String) { resolveAsk(askId: $askId, outcomeNote: $outcomeNote) { status askId conversationId } }`,
+    variables: { askId: '<ask-id>', outcomeNote: 'Got what I needed, thank you.' },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).resolveAsk',
+      argsNote: 'resolveAsk({ askId, outcomeNote: outcomeNote ?? null }).',
+    },
+    shapeNotes: 'RESOLVED on success; ALREADY_DECIDED when already ended.',
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'offerToHelp',
+    document: `mutation ($askId: ID!, $offerNote: String!, $clientRequestId: String!) { offerToHelp(askId: $askId, offerNote: $offerNote, clientRequestId: $clientRequestId) { status askId offerId created } }`,
+    variables: {
+      askId: '<circle-ask-id>',
+      offerNote: 'I did this transition in 2021 — happy to talk.',
+      clientRequestId: '<uuid-v4, REUSE across retries>',
+    },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).offerToHelp',
+      argsNote:
+        'membershipId = selected membership; offerToHelp({ askId, membershipId, offerNote, clientRequestId }).',
+    },
+    shapeNotes:
+      'Idempotent on clientRequestId (EXISTING on replay). offerId is null on IDEMPOTENCY_CONFLICT / INVALID_INPUT / NOT_AVAILABLE — the nullability is meaningful, not incidental.',
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'decideOffer',
+    document: `mutation ($offerId: ID!, $decision: AskDecisionInput!, $openingMessage: String, $declineReasonCode: OfferDeclineReason, $declineNote: String, $clientNonce: String) { decideOffer(offerId: $offerId, decision: $decision, openingMessage: $openingMessage, declineReasonCode: $declineReasonCode, declineNote: $declineNote, clientNonce: $clientNonce) { status askId offerId conversationId } }`,
+    variables: { offerId: '<offer-id>', decision: 'ACCEPT' },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).decideOffer',
+      argsNote:
+        'decideOffer({ offerId, decision: ACCEPT→accept|DECLINE→decline, openingMessage ?? null, declineReasonCode: lowercased ?? null, declineNote ?? null, clientNonce ?? null }).',
+    },
+    shapeNotes:
+      'Offer decline reasons are a DIFFERENT enum than ask declines (WENT_ANOTHER_DIRECTION|NOT_RIGHT_FIT|OTHER). ACCEPT opens a conversation. ALREADY_DECIDED on replay.',
+  },
+  {
+    feature: 'help',
+    kind: 'mutation',
+    name: 'saveHelperPreferences',
+    document: `mutation ($openToHelp: Boolean!, $topics: [String!]!) { saveHelperPreferences(openToHelp: $openToHelp, topics: $topics) { status openToHelp pausedAt pauseReason topics } }`,
+    variables: { openToHelp: true, topics: ['product', 'climate'] },
+    lib: {
+      module: '@/db/repositories/help',
+      fn: 'createHelpRepository(db).saveHelperPreferences',
+      argsNote:
+        'membershipId = selected membership; saveHelperPreferences({ membershipId, openToHelp, topics }).',
+    },
+    shapeNotes:
+      'Returns the resulting state on BOTH success and failure (v2 echoes current prefs on invalid_input) — so diff every field, not just status. Topics are normalized server-side; compare as sets if order is unspecified. Cross-check against helpHome.openToHelp/helperTopics.',
+  },
 ]
