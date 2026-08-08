@@ -56,6 +56,34 @@ describe('graphql schema', () => {
     )?.getFields?.()
     expect(String(itemFields?.relationship?.type)).toBe('ProfileRelationship!')
   })
+
+  it('exposes the Help slice with a true cursor connection', () => {
+    expect(sdl).toContain('type HelpHome')
+    expect(sdl).toContain('type HelpAsk')
+    expect(sdl).toContain('type HelpAskSummary')
+    expect(sdl).toContain('type HelpAskConnection')
+    expect(sdl).toContain('type HelpAskEdge')
+    expect(sdl).toContain('enum HelpAskStatus')
+    expect(sdl).toContain('enum HelpAskKind')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.helpHome?.type)).toBe('HelpHome')
+    expect(String(q.ask?.type)).toBe('HelpAsk')
+    expect(String(q.myAsksConnection?.type)).toMatch(/^HelpAskConnection!?$/)
+    expect((q.myAsksConnection?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['first', 'after']),
+    )
+  })
+
+  it('flattens the anonymous/identified asker union behind isAnonymous', () => {
+    const fields = (
+      schema.getType('HelpProfile') as { getFields?: () => Record<string, { type: unknown }> }
+    )?.getFields?.()
+    expect(String(fields?.isAnonymous?.type)).toBe('Boolean!')
+    // Identity-bearing fields stay nullable — they're null for anonymous asks.
+    expect(String(fields?.userId?.type)).toBe('ID')
+    expect(String(fields?.displayName?.type)).toBe('String!')
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
