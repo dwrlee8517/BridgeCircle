@@ -96,6 +96,7 @@ Locked architectural decisions in MADR format.
 - [0013 — Faithful Toss baseline + brand overlay](decisions/0013-toss-baseline-then-brand-overlay.md) — the current design system; two-layer `toss-base` + `bridgecircle` fork
 - [0014 — Scripted CD pipeline](decisions/0014-scripted-cd-pipeline.md) — dev stage → integ gate → prod promote; supersedes the prod side of 0005 + 0008
 - [0015 — Pre-launch v2 database reset](decisions/0015-prelaunch-v2-database-reset.md) — accepted one-time application-schema rebuild and fresh migration baseline
+- [0016 — Native mobile via Expo](decisions/0016-native-mobile-via-expo.md) — boots-only Expo shell at `mobile/`; reverses the "no Expo" clause of 0002, native feature work still gated
 
 ## UI
 

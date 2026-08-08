@@ -47,7 +47,7 @@ What else we looked at and why we rejected it.
 ## Index
 
 - [0001 — Use Supabase end-to-end; no ORM](0001-supabase-not-prisma.md)
-- [0002 — Web-first; defer native mobile](0002-web-first-defer-native.md)
+- [0002 — Web-first; defer native mobile](0002-web-first-defer-native.md) — *accepted*; **partially superseded by 0016** — the "no React Native, no Expo" clause is reversed, the repeat-engagement gate on native features still stands
 - [0003 — Friendship and mentorship as separate tracks](0003-friendship-mentorship-split.md) — *principle accepted; vocabulary + relationship model superseded by 0011*
 - [0004 — Controlled vocabulary, not ethnicity labels, for mentor preference](0004-controlled-vocab-not-ethnicity-labels.md) — *accepted*; title predates ADR 0011 vocabulary — read "mentor preference" as helper-matching preference
 - [0005 — Hybrid Supabase setup (separate dev project + branching integration on prod)](0005-hybrid-supabase-branching.md)
@@ -61,3 +61,4 @@ What else we looked at and why we rejected it.
 - [0013 — Build a complete Toss (TDS) baseline first, then a thin BridgeCircle brand overlay](0013-toss-baseline-then-brand-overlay.md) — *accepted*; supersedes 0012; two-layer tokens (`toss-base` + `bridgecircle-brand`) from official `@toss/tds` docs; Phases A–D live in production theming, Phase E ongoing
 - [0014 — Scripted CD pipeline: dev stage → integ gate → prod promote](0014-scripted-cd-pipeline.md) — *accepted*; commit-precise dev/integ/manual-prod promotion
 - [0015 — Replace the pre-launch application schema with a v2 baseline](0015-prelaunch-v2-database-reset.md) — *accepted*; one-time clean rebuild while no real member data exists
+- [0016 — Native mobile via Expo, starting as a boots-only shell](0016-native-mobile-via-expo.md) — *accepted*; partially supersedes 0002; scaffold + CI pipeline only, native feature work still gated
