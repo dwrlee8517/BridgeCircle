@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "export": "expo export --platform web",
     "doctor": "expo-doctor",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "check:parity": "node ../parity/check-parity.mjs"
   },
   "dependencies": {
     "expo": "~57.0.11",

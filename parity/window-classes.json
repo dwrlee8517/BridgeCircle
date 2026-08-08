@@ -1,0 +1,6 @@
+{
+  "$comment": "Cross-platform window size classes. Web: `detail:` (761px master-detail pivot) and `lg:` (1024px) in app/src/app/globals.css. Mobile: mobile/src/lib/window-class.ts (unit-tested against this file). Playwright viewport projects in app/playwright.config.ts pick widths inside each band. Change all three together.",
+  "compact": { "minWidth": 0, "example": "iPhone 15 / narrow browser" },
+  "medium": { "minWidth": 761, "example": "iPad portrait / mid browser" },
+  "expanded": { "minWidth": 1024, "example": "iPad landscape / desktop browser" }
+}
