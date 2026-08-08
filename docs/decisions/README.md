@@ -62,3 +62,4 @@ What else we looked at and why we rejected it.
 - [0014 — Scripted CD pipeline: dev stage → integ gate → prod promote](0014-scripted-cd-pipeline.md) — *accepted*; commit-precise dev/integ/manual-prod promotion
 - [0015 — Replace the pre-launch application schema with a v2 baseline](0015-prelaunch-v2-database-reset.md) — *accepted*; one-time clean rebuild while no real member data exists
 - [0016 — Native mobile via Expo, starting as a boots-only shell](0016-native-mobile-via-expo.md) — *accepted*; partially supersedes 0002; scaffold + CI pipeline only, native feature work still gated
+- [0017 — GraphQL as the data plane (code-first, RLS-preserving)](0017-graphql-data-plane.md) — *accepted (phased — ROI gate after Phase 1)*; Pothos + Yoga at `/api/graphql`, resolvers delegate to `/lib` under the user-scoped client
