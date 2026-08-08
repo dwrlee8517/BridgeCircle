@@ -1,4 +1,5 @@
 import { builder } from './builder'
+import './entities/conversations'
 import './entities/help'
 import './entities/help-mutations'
 import './entities/member'
