@@ -84,6 +84,72 @@ describe('graphql schema', () => {
     expect(String(fields?.userId?.type)).toBe('ID')
     expect(String(fields?.displayName?.type)).toBe('String!')
   })
+
+  it('exposes the Help command surface with v2 status enums', () => {
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(Object.keys(m)).toEqual(
+      expect.arrayContaining([
+        'createDirectAsk',
+        'createCircleAsk',
+        'respondToDirectAsk',
+        'retractAsk',
+        'resolveAsk',
+        'offerToHelp',
+        'decideOffer',
+        'saveHelperPreferences',
+      ]),
+    )
+    // Payloads are non-null: a command always reports a status.
+    expect(String(m.createDirectAsk?.type)).toBe('CreateAskPayload!')
+    expect(String(m.decideOffer?.type)).toBe('OfferDecisionPayload!')
+
+    // v2's status vocabulary is preserved verbatim, not collapsed to a boolean.
+    const createStatus = schema.getType('CreateAskStatus') as {
+      getValues?: () => { name: string }[]
+    }
+    // Compare as a set — the schema orders enum values alphabetically.
+    expect(
+      createStatus
+        ?.getValues?.()
+        .map((v) => v.name)
+        .sort(),
+    ).toEqual(
+      [
+        'CREATED',
+        'EXISTING',
+        'IDEMPOTENCY_CONFLICT',
+        // The capacity valves — surfaced, not collapsed into a generic failure.
+        'ACTIVE_LIMIT_REACHED',
+        'HELPER_LIMIT_REACHED',
+        'INVALID_INPUT',
+        'NOT_AVAILABLE',
+      ].sort(),
+    )
+  })
+
+  it('requires client-supplied idempotency keys on the create commands', () => {
+    const m = schema.getMutationType()?.getFields() ?? {}
+    for (const name of ['createDirectAsk', 'createCircleAsk', 'offerToHelp']) {
+      const arg = (m[name]?.args ?? []).find((a) => a.name === 'clientRequestId')
+      expect(String(arg?.type), `${name}.clientRequestId`).toBe('String!')
+    }
+  })
+
+  it('keeps ask and offer decline reasons as distinct enums', () => {
+    const askReasons = (
+      schema.getType('AskDeclineReason') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    const offerReasons = (
+      schema.getType('OfferDeclineReason') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    expect(askReasons).toContain('OUTSIDE_EXPERTISE')
+    expect(offerReasons).toContain('WENT_ANOTHER_DIRECTION')
+    expect(askReasons).not.toEqual(offerReasons)
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
