@@ -48,8 +48,16 @@ delete it again, namespaced per run (`it+…` emails, `it-…` slugs).
 ## CI
 
 The `Integration (API-driven vs local stack)` job in [`ci.yml`](../../.github/workflows/ci.yml)
-boots the same local stack the E2E job uses and runs `pnpm test:int` on every
-PR. It is folded into the required `CI gate`. The job holds **no secrets**.
+boots the same local stack the E2E job uses and runs `pnpm test:int --coverage`
+on every PR. It is folded into the required `CI gate`. The job holds **no
+secrets**.
+
+`--coverage` arms a **ratchet floor**: committed thresholds in
+`vitest.integration.config.ts` fail the run if coverage of the API surface
+drops below them. This is collapse protection, not a quality bar — it catches a
+harness or alias change that lets tests pass while instrumenting nothing, and
+it makes coverage monotonic. When you land tests that raise coverage, raise the
+floor in the same PR; never lower it silently.
 
 ## The dev-database target
 

@@ -120,10 +120,14 @@ jobs:
       # runner derives every value it needs from `supabase status` and
       # defaults PROVISION_SECRET to a local-only string, so this job holds
       # no secrets and cannot be pointed at a remote database.
-      - name: Integration suite
+      # --coverage arms the ratchet floor in vitest.integration.config.ts:
+      # the run fails if coverage of the API surface drops below the committed
+      # thresholds (collapse protection — e.g. a harness or alias change that
+      # makes tests pass while instrumenting nothing).
+      - name: Integration suite (with coverage ratchet)
         env:
           CI: 'true'
-        run: pnpm test:int
+        run: pnpm test:int --coverage
 
   build:
     name: Build (validates types vs. migrations)
@@ -158,9 +162,46 @@ jobs:
           NODE_ENV: production
         run: doppler run --preserve-env=NODE_ENV -- pnpm build
 
+  # `mobile/` installs independently of `app/` — there is no root
+  # pnpm-workspace.yaml, because one would make pnpm walk up from `app/` and
+  # switch to a root lockfile, breaking both this workflow's app-scoped jobs
+  # and Railway (whose service root directory is `app/`). See mobile/README.md.
+  mobile:
+    name: Mobile (typecheck & export)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: mobile/pnpm-lock.yaml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: TypeScript
+        run: pnpm typecheck
+
+      # No simulator in CI (and no full Xcode on the dev Mac either), so a
+      # successful Metro bundle is the strongest cheap signal that the app
+      # still builds. Catches broken imports and bad native-module resolution.
+      - name: Expo export
+        run: pnpm export
+
   ci-gate:
     name: CI gate
-    needs: [changes, quality, integration, build]
+    needs: [changes, quality, integration, build, mobile]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -174,12 +215,13 @@ jobs:
           quality="${{ needs.quality.result }}"
           integration="${{ needs.integration.result }}"
           build="${{ needs.build.result }}"
-          echo "code=$code quality=$quality integration=$integration build=$build"
-          if [ "$quality" = "success" ] && [ "$integration" = "success" ] && [ "$build" = "success" ]; then
-            echo "CI quality, integration, and build jobs passed."
-          elif [ "$code" != "true" ] && [ "$quality" = "skipped" ] && [ "$integration" = "skipped" ] && [ "$build" = "skipped" ]; then
+          mobile="${{ needs.mobile.result }}"
+          echo "code=$code quality=$quality integration=$integration build=$build mobile=$mobile"
+          if [ "$quality" = "success" ] && [ "$integration" = "success" ] && [ "$build" = "success" ] && [ "$mobile" = "success" ]; then
+            echo "CI quality, integration, build, and mobile jobs passed."
+          elif [ "$code" != "true" ] && [ "$quality" = "skipped" ] && [ "$integration" = "skipped" ] && [ "$build" = "skipped" ] && [ "$mobile" = "skipped" ]; then
             echo "Docs-only PR — CI jobs legitimately skipped."
           else
-            echo "::error::CI did not pass (quality: $quality, integration: $integration, build: $build)."
+            echo "::error::CI did not pass (quality: $quality, integration: $integration, build: $build, mobile: $mobile)."
             exit 1
           fi

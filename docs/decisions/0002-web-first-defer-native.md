@@ -1,8 +1,14 @@
 # 0002 — Web-first; defer native mobile until repeat-engagement signals
 
-- **Status:** accepted
+- **Status:** accepted — partially superseded by [0016](0016-native-mobile-via-expo.md)
 - **Date:** 2026-04-21
 - **Decider:** Richard
+
+> **Amended 2026-08-08.** [ADR 0016](0016-native-mobile-via-expo.md) reverses the "no
+> React Native, no Expo" clause below: an Expo shell now lives at `mobile/`. The rest of
+> this ADR still holds — the web app remains the product, notifications are still
+> email-only, and native *feature* work is still gated on the repeat-engagement signals
+> described here. 0016 authorizes the scaffold and its build pipeline, not parity.
 
 ## Context
 

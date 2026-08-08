@@ -142,7 +142,7 @@ Before declaring a task done:
 
 ## Working Conventions
 
-- Web-first; mobile responsiveness yes, native mobile no until repeat-engagement signals appear (see `../docs/decisions/0002-web-first-defer-native.md`)
+- Web-first; mobile responsiveness yes. The web app is still the product — native mobile *features* wait on repeat-engagement signals (see `../docs/decisions/0002-web-first-defer-native.md`), even though an Expo shell now exists at `../mobile/` (`../docs/decisions/0016-native-mobile-via-expo.md`)
 - Single-engineer build — prefer the smallest credible thing that ships, not the most general one
 - Connections, Asks, and conversations have distinct gates even though accepted
   interactions share the `conversations` and `messages` primitives. Connections
@@ -203,7 +203,7 @@ read it before writing any user-facing string.
 
 Do not build (without explicit user request):
 
-- native mobile app
+- native mobile *features*. The Expo shell itself now exists at `../mobile/` per [ADR 0016](../docs/decisions/0016-native-mobile-via-expo.md), but it is a boots-only scaffold. Auth, screens, and parity work each still need explicit approval, and the repeat-engagement gate from [ADR 0002](../docs/decisions/0002-web-first-defer-native.md) still governs them.
 - meetup proposals or ambassador role workflows
 - mentorship scheduler or Zoom integration
 - social feed
