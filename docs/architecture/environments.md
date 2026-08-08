@@ -550,12 +550,10 @@ These exist as concepts in the broader docs but are **not** in the current setup
 - **No staging environment.** There are three runtime contexts — your **laptop**, the Railway **`dev` stage** (`dev.bridgecircle.org`, added by [ADR 0014](../decisions/0014-scripted-cd-pipeline.md)), and Railway **`production`** (`bridgecircle.org`) — but no separate *staging* tier between dev and prod. The scripted CD pipeline's integ gate runs against the `dev` stage before the manual prod promote, which covers the "catch it before prod" role a staging tier would play. Add a real staging tier only when production has real users and a regression has real cost.
 - **CI checks on PRs are wired.** `.github/workflows/ci.yml` runs biome,
   vitest, and `next build`; `.github/workflows/e2e.yml` runs hermetic
-  Playwright. `e2e.yml` carries an always-report `E2E gate` job built to be a
-  required check (it covers the Playwright job for code PRs and reports a
-  legitimate skip for docs-only ones). `ci.yml` has **no** equivalent gate job
-  — its own header says its checks are not required for merge — so on the
-  deploy path CI is enforced by `cd.yml`'s `wait-for-ci` job instead, which
-  refuses to deploy a commit CI has not passed.
+  Playwright. Branch protection requires the aggregate `CI gate` and
+  `E2E gate`, which cover those jobs for code PRs and safely report docs-only
+  skips. On the deploy path, `cd.yml`'s `wait-for-ci` job additionally holds
+  the dev stage until CI passes on the merge commit itself.
 - **Supabase PR preview branches are paused.** The production GitHub integration
   is disconnected for the v2 cutover, so schema safety comes from clean local
   replay/lint/diff, generated types, hermetic E2E, and reviewed migration SQL.

@@ -92,14 +92,12 @@ it — the `legacy_probe_absent` postflight assertion covers this.
 
 - **Do not push to prod outside `promote.yml`.** Direct CLI pushes and the
   disconnected Supabase integration are not production owners.
-- **Do not expect a Supabase Preview check.** `e2e.yml`'s always-report
-  `E2E gate` is the job to require: for code changes it depends on hermetic
-  Playwright against a local stack; for docs-only changes it reports a
-  legitimate skip. `ci.yml` has no equivalent gate job — its `quality` and
-  `build` checks skip entirely on docs-only pushes, so requiring them directly
-  would leave a docs PR pending forever. Since 2026-08-08 `cd.yml` waits for a
-  green CI run on the merge SHA before deploying to dev, so CI is enforced on
-  the deploy path whatever branch protection does.
+- **Do not expect a Supabase Preview check.** Branch protection instead requires
+  the always-report `CI gate` and `E2E gate`. For code changes those gates depend
+  on lint/test, the migration-aware build, and hermetic Playwright; for docs-only
+  changes they report a legitimate skip. Since 2026-08-08 `cd.yml` additionally
+  waits for a green CI run on the *merge commit itself* before deploying to dev —
+  the PR gates certify each branch, this certifies what actually landed.
 - **No destructive rollback in this setup.** If a migration ever needs to be rolled back: write a forward-only "revert" migration. A local stack *can* be reset destructively — it's throwaway by design — but both remotes' history is append-only.
 - **ADR 0015 is the sole migration-history exception.** Do not use its archive
   or migration-repair procedure as precedent for an ordinary migration.

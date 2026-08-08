@@ -27,7 +27,8 @@ across two workflow files since the 2026-08-08 amendment below:
 
 ```
 push to main
- └─ ci.yml       lint · types · tests · build (also runs on PRs)
+ └─ ci.yml       lint · types · tests · integration · build · mobile
+                 (also on PRs, where `CI gate` is the required check)
  └─ cd.yml       ① wait-for-ci   block until CI is green for this exact SHA
                  ② deploy-dev    supabase db push → dev DB (idempotent)
                                  railway up → dev env → https://dev.bridgecircle.org
@@ -107,11 +108,12 @@ concurrency group with the stages that must keep flowing.
   green dev run and still waits for a required reviewer on the `production`
   environment.
 - A new `wait-for-ci` job gates the dev stage on CI passing for that exact
-  SHA. Previously both workflows triggered off the same push and ran in
-  parallel, so nothing in the pipeline itself stopped a commit whose lint,
-  types, or tests had already failed from reaching dev. It fails closed — no
-  CI run for the commit means no dev deploy — which is why `cd.yml` and
-  `ci.yml` must keep identical `paths-ignore` lists.
+  SHA. Branch protection's `CI gate` certifies each PR branch, but CD and CI
+  triggered off the same push and ran in parallel, so nothing checked the
+  merge commit *itself* before it deployed — two PRs that each pass alone can
+  break together on `main`. It fails closed — no CI run for the commit means
+  no dev deploy — which is why `cd.yml` and `ci.yml` must keep identical
+  `paths-ignore` lists.
 - Because approvals queue, `promote.yml` refuses to move production backwards:
   it compares the commit under promotion against the SHA production currently
   serves and fails if that would be a rollback. Advisory — if prod's health
