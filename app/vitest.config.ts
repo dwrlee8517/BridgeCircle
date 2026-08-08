@@ -21,6 +21,18 @@ export default defineConfig({
       'tests/manual/**',
       'tests/integration/**',
     ],
+    // Coverage is reported, not gated, on this tier — the ratchet floor lives
+    // on the integration suite. `include` deliberately matches
+    // vitest.integration.config.ts so both tiers measure the SAME denominator
+    // and the dashboard can compare them honestly: unit covers `/lib` depth,
+    // integration covers the action/route surface on top of it.
+    coverage: {
+      provider: 'v8',
+      include: ['src/app/**/actions.ts', 'src/app/**/route.ts', 'src/lib/**'],
+      exclude: ['src/lib/**/*.test.ts'],
+      reporter: ['text', 'json-summary'],
+      reportsDirectory: './coverage/unit',
+    },
     server: {
       deps: {
         // graphql relies on `instanceof` across its own modules. Vitest would

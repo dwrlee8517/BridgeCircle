@@ -36,7 +36,8 @@ export default defineConfig({
       // The API surface this suite is responsible for.
       include: ['src/app/**/actions.ts', 'src/app/**/route.ts', 'src/lib/**'],
       exclude: ['src/lib/**/*.test.ts'],
-      reporter: ['text', 'html'],
+      // json-summary feeds the CI coverage dashboard (scripts/coverage-report.ts).
+      reporter: ['text', 'html', 'json-summary'],
       reportsDirectory: './coverage/integration',
       // Ratchet floor, enforced by the CI integration job (it runs with
       // --coverage). This is collapse protection, not a quality bar: if a

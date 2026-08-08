@@ -59,6 +59,28 @@ harness or alias change that lets tests pass while instrumenting nothing, and
 it makes coverage monotonic. When you land tests that raise coverage, raise the
 floor in the same PR; never lower it silently.
 
+## The coverage dashboard
+
+The `Coverage report` job renders a table onto every workflow run page and into
+a sticky PR comment (edited in place, so the thread never fills with stale
+numbers). It reports both tiers:
+
+| Tier | What it covers |
+|---|---|
+| Unit | `/lib` depth — pure behavior, no database |
+| Integration | the action and route surface, against real RLS |
+
+Both are measured over the **same `include` globs**, so the columns are
+directly comparable and neither flatters itself with a smaller denominator.
+That matters: the integration number alone reads low, because most of `src/lib`
+is covered by unit tests rather than through the API surface.
+
+The job is reporting only — it is deliberately **not** part of the required
+`CI gate`, so a broken dashboard can never block a merge. The gate that can
+fail a build is the ratchet inside the integration job. Rendering lives in
+[`app/scripts/coverage-report.ts`](../../app/scripts/coverage-report.ts); run it
+locally after a coverage run to preview the output.
+
 ## The dev-database target
 
 `pnpm test:int:dev` runs the identical suite against the shared dev database.
