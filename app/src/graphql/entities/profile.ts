@@ -108,7 +108,10 @@ ProfileHelp.implement({
   }),
 })
 
-const ProfileRelationship = builder.objectRef<MemberProfile['relationship']>('ProfileRelationship')
+// Exported so the People directory can reuse the same relationship shape (its
+// PeopleRelationship is the non-'self' subset of this union).
+export const ProfileRelationship =
+  builder.objectRef<MemberProfile['relationship']>('ProfileRelationship')
 ProfileRelationship.implement({
   description: 'Viewer-relative relationship. Durable ids are set only in the matching state.',
   fields: (t) => ({

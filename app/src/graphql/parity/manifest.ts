@@ -60,4 +60,19 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Returns the MemberProfile on { ok: true }, null on { ok: false, error: "not_available" } (RLS / unavailable). Enums uppercased: link.kind/audience, sharedContext.kind, relationship.state (self→SELF … connected→CONNECTED). relationship union flattened to { state, requestId, conversationId } with durable ids only in the matching state.',
   },
+  {
+    feature: 'people',
+    kind: 'query',
+    name: 'peopleSearch',
+    document: `query ($scope: PeopleScope, $query: String, $filters: PeopleFiltersInput, $first: Int) { peopleSearch(scope: $scope, query: $query, filters: $filters, first: $first) { totalCount capped items { membershipId userId displayName openToHelp helperTopics relationship { state } matchEvidence { kind } rankScore } } }`,
+    variables: { scope: 'ALL', first: 25 },
+    lib: {
+      module: '@/db/repositories/people',
+      fn: 'createPeopleRepository(db).list',
+      argsNote:
+        'membershipId = getMemberContext(db) selected membership; list({ membershipId, query: query ?? null, scope: scope.toLowerCase() ?? "all", filters: {…7 keys, absent → null}, queryEmbedding: null, limit: clamp(first ?? 25, 1..50) }).',
+    },
+    shapeNotes:
+      'Bounded ranked top-N — NOT paginated. { items, totalCount, capped } maps 1:1 to the repo result. scope enum ALL/OPEN_TO_HELP/IN_CIRCLE → all/open_to_help/in_circle; matchEvidence.kind + relationship.state uppercased; relationship reuses ProfileRelationship (never SELF here). Empty result when unauthenticated / no membership. GraphQL passes no queryEmbedding.',
+  },
 ]

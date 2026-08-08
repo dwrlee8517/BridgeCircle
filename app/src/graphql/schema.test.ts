@@ -34,6 +34,28 @@ describe('graphql schema', () => {
     )
     expect(rel).toBe('ProfileRelationship!')
   })
+
+  it('exposes the People search slice (peopleSearch + result/item + enums)', () => {
+    expect(sdl).toContain('type PeopleSearchResult')
+    expect(sdl).toContain('type PeopleDirectoryItem')
+    expect(sdl).toContain('type PeopleMatchEvidence')
+    expect(sdl).toContain('enum PeopleScope')
+    expect(sdl).toContain('input PeopleFiltersInput')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    // Bounded result, not a connection — non-null PeopleSearchResult.
+    expect(String(q.peopleSearch?.type)).toBe('PeopleSearchResult!')
+    expect((q.peopleSearch?.args ?? []).map((a) => a.name)).toEqual(
+      expect.arrayContaining(['scope', 'query', 'filters', 'first']),
+    )
+    // The directory item reuses the shared relationship type.
+    const itemFields = (
+      schema.getType('PeopleDirectoryItem') as {
+        getFields?: () => Record<string, { type: unknown }>
+      }
+    )?.getFields?.()
+    expect(String(itemFields?.relationship?.type)).toBe('ProfileRelationship!')
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
