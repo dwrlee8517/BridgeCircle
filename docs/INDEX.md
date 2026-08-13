@@ -55,6 +55,18 @@ What we're building. These now live in the [product-spec Obsidian vault](../prod
 - [Ask mediator ("Let BridgeCircle ask for you")](../product-spec-obsidian-vault/Prototype/ask-mediator.md) — extends the guided ask composer with a mediated send option
 - [No-invite landing](../product-spec-obsidian-vault/Prototype/no-invite-landing.md) — replaces the sign-in rejection (sign-out + red banner) with a stay-signed-in landing page and an admin-reviewed invite-request queue
 
+## Engineering specs, initiatives, and backlog
+
+How it's built. These live in the [engineering-spec Obsidian vault](../engineering-spec-obsidian-vault/) — the implementation-side counterpart to the product vault, read alongside it.
+
+- [Vault structure and handoff protocol](../engineering-spec-obsidian-vault/CLAUDE.md)
+- [Engineering Change Pipeline](../engineering-spec-obsidian-vault/Engineering%20Change%20Pipeline.md) — product spec → tech spec → initiative → tasks → PRs, and which note type to write
+- [`Production/`](../engineering-spec-obsidian-vault/Production/) · [`Prototype/`](../engineering-spec-obsidian-vault/Prototype/) — tech specs, split by implementation status *(none written yet)*
+- [`Initiatives/`](../engineering-spec-obsidian-vault/Initiatives/) — large changes broken into tasks a fresh session can pick up cold
+- [`Backlog/`](../engineering-spec-obsidian-vault/Backlog/README.md) — oddities logged in passing, so they don't derail the task in hand
+
+Architecture reference, ADRs, and runbooks below are **not** in that vault — they stay here and the vault links out to them.
+
 ## Architecture
 
 How the system is shaped. Reference material — facts, not how-to.

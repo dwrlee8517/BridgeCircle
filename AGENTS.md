@@ -38,7 +38,9 @@ If the vault is not present locally, say so rather than guessing at status — i
 
 - [`app/`](app/) — Next.js 16 application. See [`app/CLAUDE.md`](app/CLAUDE.md) for stack, conventions, and commands.
 - [`mobile/`](mobile/) — Expo (SDK 57) + Expo Router native shell. Currently a **boots-only scaffold**: one screen, no auth, no product code. See [`mobile/README.md`](mobile/README.md) and [ADR 0016](docs/decisions/0016-native-mobile-via-expo.md). It installs independently of `app/` — there is intentionally no root pnpm workspace.
-- [`docs/`](docs/) — specs, architecture, runbooks, decisions, experience. **Start at [`docs/INDEX.md`](docs/INDEX.md)** — it indexes every active doc and points to [`docs/_archive/`](docs/_archive/) for superseded ones.
+- [`docs/`](docs/) — architecture, runbooks, decisions, product, experience. **Start at [`docs/INDEX.md`](docs/INDEX.md)** — it indexes every active doc and points to [`docs/_archive/`](docs/_archive/) for superseded ones.
+- [`product-spec-obsidian-vault/`](product-spec-obsidian-vault/) — product specs (what we're building and why), split `Production/` (shipped) · `Prototype/` (not yet built) · `Vision/` (long-horizon).
+- [`engineering-spec-obsidian-vault/`](engineering-spec-obsidian-vault/) — tech specs (how it's built), same split, plus `Initiatives/` (large changes broken into cold-startable tasks) and `Backlog/` (log oddities found in passing instead of chasing them). **Read the two vaults in tandem**: product spec for intent, tech spec for the current shape of the code.
 - [`docs/experience/ui/design-system/`](docs/experience/ui/design-system/) — visual system. The main system is the [`bridgecircle`](docs/experience/ui/design-system/handoff/bridgecircle/) handoff bundle (Toss-baseline brand fork, [ADR 0013](docs/decisions/0013-toss-baseline-then-brand-overlay.md), accepted), where the redesign is designed. **Production already runs the Toss baseline plus the brand fork** — see the theme bridge in [`app/src/app/globals.css`](app/src/app/globals.css) — and `tokens.md` / `components.md` / `states-and-motion.md` are the brand-fork production contracts. **Civic Editorial was fully removed on 2026-07-25** (bundles and docs archived under [`docs/_archive/design-2026-07/`](docs/_archive/design-2026-07/); its token aliases migrated to canonical fork roles). Use the system's tokens and components; do not invent new ones or default to raw shadcn primitives unless explicitly told to.
 - [`project-summary.md`](project-summary.md) — deepest product framing.
 - [`FUNCTIONS.md`](FUNCTIONS.md) — one-page router into specs / architecture / experience.
@@ -60,10 +62,14 @@ Three sources, three jurisdictions. Nothing is canonical for everything:
 | Question | Canonical source |
 |---|---|
 | **What is built, and how does it behave?** | The code. Docs may lag. |
-| **How is it built, and why — engineering contracts?** | `docs/` — ADRs, architecture, runbooks. |
+| **How is it built, and why — engineering contracts?** | `docs/` — ADRs, architecture, runbooks — plus `engineering-spec-obsidian-vault/` tech specs for per-subsystem implementation detail. |
 | **What did we decide? What's the plan? Where are we?** | The **memory vault** (`memory/decisions/`, `memory/projects/`). |
 
 So: code beats docs on behavior, and the vault beats both on intent, status, and timing. A vault decision does not mean the code does it yet — it means that's what we agreed to do.
+
+One boundary worth naming, because two things here are both called a "plan". The memory vault is the **executive** vault: roadmap, scope, priority, launch timing — what we decided to do and when. The engineering-spec vault is **engineering-only**: an `Initiatives/` plan there covers just how one already-decided change is sequenced into tasks. Execution mechanics, not intent — it never establishes that work *should* happen, only how it gets built once the memory vault says it does.
+
+So roadmap, launch dates, prioritization, and product/business rationale do **not** belong in the engineering-spec vault, even when they'd explain an initiative. Link the memory-vault decision instead of restating it; a second copy of the roadmap inside the repo is one that will silently go stale.
 
 If you find a conflict, fix the lagging source in the same change and flag it. If a vault decision contradicts a repo doc, the repo doc is stale; update it and note which vault note supersedes it.
 
