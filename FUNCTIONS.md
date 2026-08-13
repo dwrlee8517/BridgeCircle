@@ -45,6 +45,7 @@ Two parallel ask types run on the same data model: **Advice** (one-off, low-fric
 | Profile enrichment provider chain | [`docs/architecture/profile-enrichment.md`](docs/architecture/profile-enrichment.md) |
 | Phasing, pricing, out-of-scope guardrails | [`docs/product/feature-roadmap.md`](docs/product/feature-roadmap.md) |
 | Voice and copy rules | [`docs/product/voice-guidelines.md`](docs/product/voice-guidelines.md) |
+| How a subsystem is built (tech specs), large changes in flight, and logged oddities | [`engineering-spec-obsidian-vault/`](engineering-spec-obsidian-vault/CLAUDE.md) — read in tandem with the product vault above |
 
 ## Locked workflow invariants
 

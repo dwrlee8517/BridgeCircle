@@ -40,6 +40,19 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
   and [`Testing Suite.md`](Vision/Testing%20Suite.md) (target testing
   architecture: local Supabase + seeds, hermetic E2E on every PR).
 
+## The engineering counterpart
+
+[`engineering-spec-obsidian-vault/`](../engineering-spec-obsidian-vault/CLAUDE.md)
+is the implementation-side sibling, with the same `Production/` / `Prototype/` /
+`Vision/` split. It holds **tech specs** (how a subsystem is actually built),
+plus `Initiatives/` (large engineering changes broken into tasks a fresh session
+can pick up) and `Backlog/` (oddities logged in passing).
+
+Read the two in tandem: a spec here states intent, its tech-spec counterpart
+states the current shape of the code. Tech specs point back at the product spec
+they implement via a `product_spec:` frontmatter field. The pipeline note's
+"Claude code / Tech Spec" stage is where that vault picks up.
+
 ## Conventions
 
 - **Feature specs are placed by implementation status.** A spec goes in
