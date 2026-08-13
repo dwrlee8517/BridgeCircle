@@ -200,6 +200,53 @@ describe('graphql schema', () => {
       expect.arrayContaining(['SENT', 'DUPLICATE', 'RATE_LIMITED', 'CONNECTION_REQUIRED']),
     )
   })
+
+  it('exposes the School slice (hub, event detail, announcements, newsletter)', () => {
+    expect(sdl).toContain('type SchoolHome')
+    expect(sdl).toContain('type SchoolEventCard')
+    expect(sdl).toContain('type SchoolEvent')
+    expect(sdl).toContain('type SchoolEventAttendees')
+    expect(sdl).toContain('type SchoolAnnouncement')
+    expect(sdl).toContain('type NewsletterIssue')
+
+    const q = schema.getQueryType()?.getFields() ?? {}
+    expect(String(q.schoolHome?.type)).toBe('SchoolHome')
+    expect(String(q.schoolEvent?.type)).toBe('SchoolEvent')
+    expect(String(q.newsletterIssue?.type)).toBe('NewsletterIssue')
+    // The archive is keyed by slug, not id.
+    expect((q.newsletterIssue?.args ?? []).map((a) => a.name)).toContain('slug')
+
+    // SchoolEvent extends the card: shares viewerRsvp, adds schedule/facts.
+    const detail = (
+      schema.getType('SchoolEvent') as { getFields?: () => Record<string, { type: unknown }> }
+    )?.getFields?.()
+    expect(String(detail?.viewerRsvp?.type)).toBe('SchoolRsvpStatus!')
+    expect(String(detail?.schedule?.type)).toBe('[SchoolEventScheduleItem!]!')
+    expect(String(detail?.facts?.type)).toBe('[SchoolEventFact!]!')
+  })
+
+  it('exposes the event-capacity state machine verbatim on the RSVP command', () => {
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(String(m.respondToSchoolEvent?.type)).toBe('RespondSchoolEventPayload!')
+    expect(String(m.markAnnouncementRead?.type)).toBe('MarkAnnouncementReadStatus!')
+
+    const intents = (
+      schema.getType('SchoolResponseIntent') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    // The waitlist-offer flow is part of the intent vocabulary.
+    expect(intents).toEqual(
+      expect.arrayContaining(['GOING', 'JOIN_WAITLIST', 'ACCEPT_OFFER', 'PASS_OFFER']),
+    )
+    const results = (
+      schema.getType('SchoolResponseResult') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    // Capacity outcomes are first-class, not errors.
+    expect(results).toEqual(expect.arrayContaining(['FULL', 'NOT_OFFERED', 'OFFER_EXPIRED']))
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must

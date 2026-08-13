@@ -6,6 +6,7 @@ import './entities/member'
 import './entities/messages-commands'
 import './entities/people'
 import './entities/profile'
+import './entities/school'
 
 /**
  * The executable schema. Entity modules are imported for their registration
