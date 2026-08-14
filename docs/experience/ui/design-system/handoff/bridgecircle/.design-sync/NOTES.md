@@ -89,12 +89,30 @@ diff against `list_files` was green the whole time this was wrong, because both
 sides had a file called `colors_and_type.css`. Content-check the files that matter
 after any push.
 
-One number still left alone: the `TOKEN-KINDS.md` header cites the checker's
-"31 of 371", which does not reconcile with the 33 declarations present.
-`check_design_system` is an app-side check with no tool binding here, so it could
-not be re-run and the figure was not invented. The precondition is now satisfied,
-so a run will finally be meaningful — the expected remaining finding is the single
-computed style attribute in `Avatar.dc.html`, which the checker permits.
+### Closed out — zero token findings (2026-08-14)
+
+Richard re-ran `check_design_system` after the sync fix. The first pass took it
+from 22 findings to 6, and the checker then **named those six outright** instead
+of the earlier heuristic reconstruction: `--lh-label` → `@kind font` (the only
+line-height in the type scale written as a unitless ratio, so neither value nor
+name classifies it) and the five motion/easing tokens → `@kind other` (durations
+and curves are none of the five buckets). All six are `:root`-only, so unlike the
+first batch there was nothing to mirror into `.dark`.
+
+Applied, pushed, and read back byte-identical. **The re-run after that reports
+zero token findings.** Total is 39 annotations — 21 color, 12 shadow, 5 other,
+1 font. The one item the checker still reports is the style-attribute note on
+`Avatar.dc.html`, which is permitted by design.
+
+`--weight-regular/-medium/-semibold/-bold` were deliberately left un-annotated:
+a naive scan flags them as bare numerics, but the checker never named them, so it
+classifies them fine. The checker's list is the authority — annotating past it is
+guessing, which is what made the earlier reconstruction 4-for-6.
+
+Note for anyone doing this again: `check_design_system` is app-side, inside the
+Claude Design project. There is no Claude Code tool binding and no repo script, so
+it cannot be run from here — the repo can prepare and sync the annotations, but a
+human has to run the check in the project and report back.
 
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 
