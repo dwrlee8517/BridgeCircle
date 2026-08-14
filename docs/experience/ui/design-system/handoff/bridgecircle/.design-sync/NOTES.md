@@ -48,12 +48,31 @@ remote-authored files outside this sync's scope, left in place by decision rathe
 than missed. Local-only paths are `screenshots/**` (QA evidence, never pushed) and
 gitignored `.DS_Store`.
 
-**Still open:** three files are changed locally and not yet pushed back, so the
-two sides differ until they are — `preview/system-states.html` and
-`preview/decision-dialogs.html` (provenance comments repointed at
-`templates/screens/`), and `templates/TOKEN-KINDS.md` (its prose said "22 unique"
-unclassifiable tokens while listing 21; corrected to 21, with the 21-names →
-33-declarations arithmetic spelled out).
+**Pushed back the same day, closing the loop.** Three files went up —
+`preview/system-states.html` and `preview/decision-dialogs.html` (provenance
+comments repointed at `templates/screens/`) and `templates/TOKEN-KINDS.md` (its
+prose claimed "22 unique" unclassifiable tokens while listing 21; corrected to 21,
+with the 21-names → 33-declarations arithmetic spelled out) — plus a
+`_ds_needs_recompile` sentinel. `TOKEN-KINDS.md` was read back and is byte-
+identical at 3,094 b.
+
+Four files were deleted from the remote in the same plan, all of them finished
+scaffolding for this sync: `templates/sync-plan/{SyncPlan.dc.html,ds-base.js,
+support.js}` — the decision brief plus the runtime duplicated only to render it —
+and `uploads/repo_copy-1786737908051-cmac.html`, a pre-restructure snapshot of
+`Onboarding` that still carried the old per-flow links (`../home/Home.dc.html`).
+Both were actively wrong to keep: the first re-introduced the duplicate runtime
+the flatten removed, the second preserved the paths this sync purged. The brief's
+four decisions survive in the initiative's decisions log, so nothing was lost.
+
+**The two sides are now at parity** — a structural diff against `list_files`
+returns nothing missing locally. Local-only paths are `screenshots/**` (QA
+evidence, never pushed) and gitignored `.DS_Store`.
+
+One number left alone deliberately: the `TOKEN-KINDS.md` header still cites the
+checker's "31 of 371", which does not reconcile with the 33 declarations actually
+present. `check_design_system` was not re-run, so the figure was not invented —
+re-run it and correct it if it disagrees.
 
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 
