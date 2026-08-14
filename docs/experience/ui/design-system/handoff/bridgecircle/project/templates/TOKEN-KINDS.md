@@ -1,10 +1,21 @@
 # Token `@kind` annotations — for the repo, not for this project
 
+> **STATUS — done 2026-08-14.** All 33 declarations are annotated in the repo's
+> `colors_and_type.css` **and that file has been synced up**, so the copy in this
+> project now carries the annotations too (verified byte-identical). Nothing below
+> is outstanding; it is kept as the record of what was applied and why.
+>
+> Worth knowing why this sat unresolved: the annotations were written in the repo
+> in PR #194, but `colors_and_type.css` itself was never pushed. This project kept
+> serving an un-annotated copy — 0 occurrences of `@kind` — so the checker went on
+> reporting all of them. Applying the rules is only half the job; the file has to
+> be re-synced.
+
 `check_design_system` reports 31 of 371 tokens (21 unique) as unclassifiable.
 The fix is a `/* @kind … */` comment after each declaration in
-`colors_and_type.css` — which is **synced design-system source and read-only
-here**. Annotating it in this project would be overwritten by the next
-`/design-sync`, so the edit belongs in the code repo.
+`colors_and_type.css`. Author the change **in the code repo**, never here — this
+copy is overwritten by every `/design-sync` — then sync the file up so the
+annotations actually reach the checker.
 
 Two rules cover every case. Apply them in **both** the `:root` block and the
 `.dark` block — the duplicated declarations are why a count of unique names

@@ -1,8 +1,8 @@
 ---
 initiative: design-templates-syncdown
-status: active
+status: done
 opened: 2026-08-14
-closed:
+closed: 2026-08-14
 product_spec:
 memory_note:
 tech_spec:
@@ -72,9 +72,10 @@ flowchart LR
 
 ## Out of scope
 
-- `templates/sync-plan/**` and `uploads/repo_copy-*.html` — new remote files
+- ~~`templates/sync-plan/**` and `uploads/repo_copy-*.html` — new remote files
   outside the requested scope. Not pulled, not deleted. Raise with Richard
-  separately.
+  separately.~~ **Superseded 2026-08-14** — raised with Richard as planned, and he
+  chose to delete all four rather than vendor them. See the decisions log.
 - The remote README's own "Still to do" list (89 hand-rolled cards, remaining
   avatar sites, 110 hex literals). Those are template-side design work, not this
   sync.
@@ -86,11 +87,12 @@ flowchart LR
 
 | # | Task | Status | Depends on | PR |
 |---|---|---|---|---|
-| 01 | [[Initiatives/design-templates-syncdown/tasks/01-pull-and-flatten\|Pull 39 screens, vendor the runtime, flatten the tree]] | in-progress | — | |
+| 01 | [[Initiatives/design-templates-syncdown/tasks/01-pull-and-flatten\|Pull 39 screens, vendor the runtime, flatten the tree]] | done | — | [#194](https://github.com/dwrlee8517/BridgeCircle/pull/194) |
 
-All 42 files are pulled and verified and the 15 per-flow folders are deleted
-(staged, not yet committed). What remains is step 7 only: commit, open the PR, and
-push the 2 changed specimens back to the remote. See the task's Handoff notes.
+**Closed 2026-08-14.** All 42 files pulled and verified, the 15 per-flow folders
+deleted, PR #194 merged as `c5c4164`, and the specimens pushed back. A structural
+diff against `list_files` now returns nothing missing locally — the two sides are
+at parity.
 
 ## Decisions log
 
@@ -116,6 +118,31 @@ push the 2 changed specimens back to the remote. See the task's Handoff notes.
   so a transcript-only scan misses the largest screens — 8 of the last 12 here.
   The script now reads both. This does not soften the byte-exact invariant: the
   sidecar is the tool's own JSON, untouched. Retyping remains forbidden.
+- **2026-08-14** — The four out-of-scope remote files were **deleted, not
+  vendored** — Richard's call once we looked at what they were. Three were
+  `templates/sync-plan/`: the decision brief for this very sync, plus `ds-base.js`
+  and a second 64 KB `support.js` copied there only so that one page could render.
+  The fourth, `uploads/repo_copy-1786737908051-cmac.html`, was a pre-restructure
+  snapshot of `Onboarding` — a 6-line diff from the canonical copy, and every one
+  of those lines was an old per-flow link (`../home/Home.dc.html`). Keeping either
+  would have contradicted the work: the first restores the duplicate runtime the
+  flatten removed, the second preserves the paths this sync purged. The brief's
+  four decisions are recorded here, so deleting it lost nothing.
+- **2026-08-14** — **The `@kind` annotations had never reached the project.** PR
+  #194 wrote them into the repo's `colors_and_type.css` but never pushed that file,
+  so the remote copy had **0** occurrences of `@kind` against 33 locally — the only
+  difference between the two, with no value drift. `check_design_system` had
+  therefore been reading an un-annotated file the whole time, and re-running it
+  would have re-reported everything regardless of how correct the repo was. Pushed
+  and read back byte-identical. The lesson generalizes: **file-name parity is not
+  content parity** — the `list_files` structural diff was green while this was
+  wrong, because both sides had a file by that name.
+- **2026-08-14** — `TOKEN-KINDS.md` said "22 unique" unclassifiable tokens while
+  enumerating 21; Richard confirmed 21. Fixed locally and pushed back, since the
+  file is remote-authored and would otherwise be clobbered on the next pull. Its
+  header still cites the checker's "31 of 371", which does not reconcile with the
+  33 declarations actually in `colors_and_type.css` — left alone rather than
+  invented, because `check_design_system` was not re-run. Open loose end.
 
 ## Risks and rollback
 

@@ -1,9 +1,9 @@
 ---
 id: design-templates-syncdown/01-pull-and-flatten
 initiative: "[[Initiatives/design-templates-syncdown/plan|Design templates sync-down (flat screens/)]]"
-status: in-progress
+status: done
 depends_on: []
-pr:
+pr: https://github.com/dwrlee8517/BridgeCircle/pull/194
 ---
 
 # 01 — Pull 39 screens, vendor the runtime, flatten the tree

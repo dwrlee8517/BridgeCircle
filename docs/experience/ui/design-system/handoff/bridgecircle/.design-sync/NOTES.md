@@ -48,12 +48,53 @@ remote-authored files outside this sync's scope, left in place by decision rathe
 than missed. Local-only paths are `screenshots/**` (QA evidence, never pushed) and
 gitignored `.DS_Store`.
 
-**Still open:** three files are changed locally and not yet pushed back, so the
-two sides differ until they are — `preview/system-states.html` and
-`preview/decision-dialogs.html` (provenance comments repointed at
-`templates/screens/`), and `templates/TOKEN-KINDS.md` (its prose said "22 unique"
-unclassifiable tokens while listing 21; corrected to 21, with the 21-names →
-33-declarations arithmetic spelled out).
+**Pushed back the same day, closing the loop.** Three files went up —
+`preview/system-states.html` and `preview/decision-dialogs.html` (provenance
+comments repointed at `templates/screens/`) and `templates/TOKEN-KINDS.md` (its
+prose claimed "22 unique" unclassifiable tokens while listing 21; corrected to 21,
+with the 21-names → 33-declarations arithmetic spelled out) — plus a
+`_ds_needs_recompile` sentinel. `TOKEN-KINDS.md` was read back and is byte-
+identical at 3,094 b.
+
+Four files were deleted from the remote in the same plan, all of them finished
+scaffolding for this sync: `templates/sync-plan/{SyncPlan.dc.html,ds-base.js,
+support.js}` — the decision brief plus the runtime duplicated only to render it —
+and `uploads/repo_copy-1786737908051-cmac.html`, a pre-restructure snapshot of
+`Onboarding` that still carried the old per-flow links (`../home/Home.dc.html`).
+Both were actively wrong to keep: the first re-introduced the duplicate runtime
+the flatten removed, the second preserved the paths this sync purged. The brief's
+four decisions survive in the initiative's decisions log, so nothing was lost.
+
+**The two sides are now at parity** — a structural diff against `list_files`
+returns nothing missing locally. Local-only paths are `screenshots/**` (QA
+evidence, never pushed) and gitignored `.DS_Store`.
+
+### The `@kind` annotations had never actually reached the project (2026-08-14)
+
+Chasing the "31 of 371" discrepancy turned up the real problem. The annotations
+were written into the repo's `colors_and_type.css` in PR #194 — but **that file was
+never pushed**. The project kept serving an un-annotated copy: **0** occurrences of
+`@kind` remotely against **33** locally. A diff showed 66 changed lines that were
+*only* those 33 declarations, annotated versus not — no value drift anywhere.
+
+So `check_design_system` had been reading a file with no annotations in it, and
+re-running it would have reported every token as unclassifiable no matter how
+correct the repo was. Applying the rules is only half the job; the file has to be
+re-synced. `colors_and_type.css` was pushed and read back byte-identical
+(31,514 b, 33 `@kind`), and `TOKEN-KINDS.md` now carries a STATUS block recording
+that it is applied and synced, so nobody redoes the work.
+
+**Worth generalizing:** file-name parity is not content parity. The structural
+diff against `list_files` was green the whole time this was wrong, because both
+sides had a file called `colors_and_type.css`. Content-check the files that matter
+after any push.
+
+One number still left alone: the `TOKEN-KINDS.md` header cites the checker's
+"31 of 371", which does not reconcile with the 33 declarations present.
+`check_design_system` is an app-side check with no tool binding here, so it could
+not be re-run and the figure was not invented. The precondition is now satisfied,
+so a run will finally be meaningful — the expected remaining finding is the single
+computed style attribute in `Avatar.dc.html`, which the checker permits.
 
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 
