@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- Screen: System states — The calm state set (FLOWS §8) — not-found/gone, permission-denied, offline/failed load, and loading skeletons in the module's own shape. Pick the state via Tweaks; retry demos the offline → loading path -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./account-menu.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)}
+  @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
+  @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
+</helmet>
+
+<dc-import name="Shell" active="help" title="Help" bell="none" label="Help" hint-size="100%,100vh">
+
+    <div style="flex:1;padding:26px 30px;background:var(--wash-page)">
+
+      <sc-if value="{{ stNotFound }}" hint-placeholder-val="{{ true }}">
+        <div style="min-height:60vh;display:flex;align-items:center;justify-content:center">
+          <div style="max-width:400px;text-align:center;display:grid;justify-items:center;gap:0">
+            <svg width="44" height="44" viewBox="0 0 28 28"><circle cx="11" cy="14" r="9" fill="none" stroke="var(--grey-400)" stroke-width="1.6"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#d1d6db" stroke-width="1.6"></circle></svg>
+            <h1 style="margin:18px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em">This isn&rsquo;t here anymore.</h1>
+            <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--grey-600);font-weight:500;text-wrap:pretty">The ask you followed was retracted, or it closed on its own. Nothing you did &mdash; things just move.</p>
+            <a href="./Help.dc.html" style="margin-top:20px;display:inline-block;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px 24px;font-size:13.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&larr; Back to Help</a>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stDenied }}" hint-placeholder-val="{{ false }}">
+        <div style="min-height:60vh;display:flex;align-items:center;justify-content:center">
+          <div style="max-width:400px;text-align:center;display:grid;justify-items:center;gap:0">
+            <svg width="44" height="44" viewBox="0 0 28 28"><circle cx="14" cy="14" r="9" fill="none" stroke="var(--grey-400)" stroke-width="1.6"></circle><circle cx="14" cy="14" r="3.5" fill="none" stroke="#d1d6db" stroke-width="1.6"></circle></svg>
+            <h1 style="margin:18px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em">This isn&rsquo;t here for you.</h1>
+            <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--grey-600);font-weight:500;text-wrap:pretty">That link points to something private. If someone meant to share it, ask them to send it another way.</p>
+            <a href="./Help.dc.html" style="margin-top:20px;display:inline-block;background:var(--action-weak);color:var(--blue-600);border-radius:12px;padding:12px 24px;font-size:13.5px;font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">&larr; Back to Help</a>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stOffline }}" hint-placeholder-val="{{ false }}">
+        <div style="min-height:60vh;display:flex;align-items:center;justify-content:center">
+          <div style="max-width:400px;text-align:center;display:grid;justify-items:center;gap:0">
+            <svg width="44" height="44" viewBox="0 0 28 28"><circle cx="14" cy="14" r="9" fill="none" stroke="var(--grey-400)" stroke-width="1.6" stroke-dasharray="3.5 4"></circle></svg>
+            <h1 style="margin:18px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em">Couldn&rsquo;t load that.</h1>
+            <p style="margin:9px 0 0;font-size:13.5px;line-height:1.65;color:var(--grey-600);font-weight:500;text-wrap:pretty">Check your connection and try again &mdash; nothing was lost.</p>
+            <button onClick="{{ retry }}" style="margin-top:20px;border:0;background:var(--gradient-primary-btn);color:#fff;border-radius:12px;padding:12px 26px;font-family:var(--font-sans);font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-primary-btn)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Try again</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ stLoading }}" hint-placeholder-val="{{ false }}">
+        <div style="max-width:820px" aria-label="Loading" role="status">
+          <span data-skel="" style="display:block;width:340px;max-width:70%;height:26px;border-radius:9px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+          <span data-skel="" style="display:block;width:220px;height:14px;margin-top:10px;border-radius:7px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+          <span data-skel="" style="display:block;height:120px;margin-top:22px;border-radius:var(--radius-card-xl);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+          <div style="display:grid;gap:12px;margin-top:22px">
+            <div style="display:flex;align-items:center;gap:14px;background:#fff;box-shadow:var(--ring-card);border-radius:16px;padding:16px 18px">
+              <span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              <span style="flex:1;display:grid;gap:8px">
+                <span data-skel="" style="display:block;width:45%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;width:70%;height:11px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;background:#fff;box-shadow:var(--ring-card);border-radius:16px;padding:16px 18px">
+              <span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              <span style="flex:1;display:grid;gap:8px">
+                <span data-skel="" style="display:block;width:38%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;width:62%;height:11px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;background:#fff;box-shadow:var(--ring-card);border-radius:16px;padding:16px 18px">
+              <span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              <span style="flex:1;display:grid;gap:8px">
+                <span data-skel="" style="display:block;width:50%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;width:66%;height:11px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;state&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;not-found&quot;, &quot;options&quot;: [&quot;not-found&quot;, &quot;permission-denied&quot;, &quot;offline&quot;, &quot;loading&quot;], &quot;tsType&quot;: &quot;'not-found' | 'permission-denied' | 'offline' | 'loading'&quot;, &quot;section&quot;: &quot;State&quot;}
+}">
+class Component extends DCLogic {
+  state = { override: null };
+
+  componentWillUnmount() {
+    if (this._retryT) clearTimeout(this._retryT);
+  }
+
+  renderVals() {
+    const st = this.state.override || this.props.state || 'not-found';
+    return {
+      stNotFound: st === 'not-found',
+      stDenied: st === 'permission-denied',
+      stOffline: st === 'offline',
+      stLoading: st === 'loading',
+      // Retry demos the honest path: offline -> loading skeleton -> offline again.
+      retry: () => {
+        this.setState({ override: 'loading' });
+        if (this._retryT) clearTimeout(this._retryT);
+        this._retryT = setTimeout(() => this.setState({ override: null }), 1400);
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
