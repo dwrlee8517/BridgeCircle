@@ -69,10 +69,32 @@ four decisions survive in the initiative's decisions log, so nothing was lost.
 returns nothing missing locally. Local-only paths are `screenshots/**` (QA
 evidence, never pushed) and gitignored `.DS_Store`.
 
-One number left alone deliberately: the `TOKEN-KINDS.md` header still cites the
-checker's "31 of 371", which does not reconcile with the 33 declarations actually
-present. `check_design_system` was not re-run, so the figure was not invented —
-re-run it and correct it if it disagrees.
+### The `@kind` annotations had never actually reached the project (2026-08-14)
+
+Chasing the "31 of 371" discrepancy turned up the real problem. The annotations
+were written into the repo's `colors_and_type.css` in PR #194 — but **that file was
+never pushed**. The project kept serving an un-annotated copy: **0** occurrences of
+`@kind` remotely against **33** locally. A diff showed 66 changed lines that were
+*only* those 33 declarations, annotated versus not — no value drift anywhere.
+
+So `check_design_system` had been reading a file with no annotations in it, and
+re-running it would have reported every token as unclassifiable no matter how
+correct the repo was. Applying the rules is only half the job; the file has to be
+re-synced. `colors_and_type.css` was pushed and read back byte-identical
+(31,514 b, 33 `@kind`), and `TOKEN-KINDS.md` now carries a STATUS block recording
+that it is applied and synced, so nobody redoes the work.
+
+**Worth generalizing:** file-name parity is not content parity. The structural
+diff against `list_files` was green the whole time this was wrong, because both
+sides had a file called `colors_and_type.css`. Content-check the files that matter
+after any push.
+
+One number still left alone: the `TOKEN-KINDS.md` header cites the checker's
+"31 of 371", which does not reconcile with the 33 declarations present.
+`check_design_system` is an app-side check with no tool binding here, so it could
+not be re-run and the figure was not invented. The precondition is now satisfied,
+so a run will finally be meaningful — the expected remaining finding is the single
+computed style attribute in `Avatar.dc.html`, which the checker permits.
 
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 

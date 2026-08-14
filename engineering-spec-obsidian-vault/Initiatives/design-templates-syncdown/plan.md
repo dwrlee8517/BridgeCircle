@@ -128,6 +128,15 @@ at parity.
   would have contradicted the work: the first restores the duplicate runtime the
   flatten removed, the second preserves the paths this sync purged. The brief's
   four decisions are recorded here, so deleting it lost nothing.
+- **2026-08-14** — **The `@kind` annotations had never reached the project.** PR
+  #194 wrote them into the repo's `colors_and_type.css` but never pushed that file,
+  so the remote copy had **0** occurrences of `@kind` against 33 locally — the only
+  difference between the two, with no value drift. `check_design_system` had
+  therefore been reading an un-annotated file the whole time, and re-running it
+  would have re-reported everything regardless of how correct the repo was. Pushed
+  and read back byte-identical. The lesson generalizes: **file-name parity is not
+  content parity** — the `list_files` structural diff was green while this was
+  wrong, because both sides had a file by that name.
 - **2026-08-14** — `TOKEN-KINDS.md` said "22 unique" unclassifiable tokens while
   enumerating 21; Richard confirmed 21. Fixed locally and pushed back, since the
   file is remote-authored and would otherwise be clobbered on the next pull. Its
