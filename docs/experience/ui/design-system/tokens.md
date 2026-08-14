@@ -72,7 +72,7 @@ grey stop in route code.
 | `action-primary-hover` | `blue-600` | Hover |
 | `action-primary-pressed` | `blue-700` | Pressed |
 | `action-weak` | `blue-50` | Tinted secondary action |
-| `action-weak-text` | `blue-600` | Text on weak action |
+| `action-weak-text` | `blue-700` | Text on weak action |
 | `gradient-primary-btn` | `#3b8bf7 -> #2f7ce9` | O8 lead CTA finish |
 | `shadow-primary-btn` | soft blue shadow | Lead CTA elevation |
 
@@ -99,7 +99,11 @@ green cues, but `Send offer` remains its only lead CTA.
 ## Status
 
 Semantic status pairs are `state-{info,success,warning,caution,danger,premium}`
-with `-text` and `-tint` suffixes.
+with `-text` and `-tint` suffixes. `info`, `success`, `warning`, and `danger`
+also carry a `-foreground` role, which is what component code should use for
+copy sitting on the matching tint. `state-categorized` (plus
+`state-categorized-foreground` and `palette-purple-tint`) is a seventh family,
+used by `StatusBadge tone="categorized"`.
 
 Waiting and Declined intentionally use `text-secondary` on `surface-subtle`.
 Do not recreate a `pending-*` role or make a quiet decline look like an error.
@@ -127,9 +131,24 @@ they do not replace the general warning roles.
 | `radius-comfortable` | `12px` | Inputs and buttons |
 | `radius-box` | `14px` | Inner boxes and icon tiles |
 | `radius-bubble` | `18px` | Message bubbles and compact overlays |
-| `radius-large` | `20px` | Cards and sheets |
-| `radius-card-xl` | `22px` | O9 elevated content card |
+| `radius-large` | `16px` | Cards and sheets |
+| `radius-card-xl` | `16px` | O9 elevated content card |
 | `radius-pill` | `9999px` | Capsules, tabs, avatars |
+
+**Decided 2026-08-13.** This contract documented 20px and 22px; production has
+shipped 16px for both since `56002cd` (2026-07-21), which reverted the O6/O9
+card radius without a ledger entry. The drift audit surfaced the conflict,
+Richard compared 20 against 16, and **kept the tighter 16** — so this is a
+confirmed decision, not a documentation lag. O6 and O9 are amended to match in
+the handoff bundle's `OVERRIDES.md`; box 14 and bubble 18 remain
+brand-softened, so only the card tier returns to the TDS value.
+
+Because the two radius values are now identical, `Card variant="elevated"` is
+**not** a distinct shape tier — elevation is carried entirely by
+`shadow-card-elevated`, `ring-card-elevated`, and the `surface-card-elevated`
+gradient. Do not describe the elevated card as a larger radius, and do not
+reintroduce a radius step without changing the token in both the app and the
+bundle.
 
 ## Typography
 
@@ -150,18 +169,46 @@ contributes display letter-spacing only. Numeric data uses `tabular-nums`.
 | `body-lg` | `16 / 24` | `400` |
 | `body` | `14 / 22` | `400` |
 | `body-sm` | `13 / 20` | `400` |
-| `caption`, `label` | `12 / 18` minimum | `400-500` |
+| `caption`, `label`, `kicker` | `12 / 18` | `400-500` |
 
-Do not introduce member-facing text below 12px. Use named Tailwind utilities;
-`pnpm check:tokens` ratchets arbitrary font, tracking, padding, and breakpoint
-literals.
+Supporting roles in the shipped scale, previously undocumented: `page-title`
+(24px), `section-title` (19px), `nav` (15px, the E3 sidebar label), `control`
+(13.5px), `mono-sm` (12px), and the School display sizes `display-event` (36px)
+and `event-date` (52 / 56 / 64px). `kicker` is an alias of `label`.
+
+### The 11px floor
+
+**Revised 2026-08-13.** This contract previously set a 12px floor and claimed
+the sub-12px tokens had been removed. Neither was true: four sub-12px tokens
+ship, and they are used at roughly 81 call sites against 69 at 12px. Rather than
+keep a rule the product has never held, the floor is now **11px**, with a
+narrow legal tier above it:
+
+| Token | Value | Status |
+|---|---:|---|
+| `overline` | `11px` | Legal — uppercase eyebrows, dense metadata |
+| `chip` | `11.5px` | Legal — compact chips and counters |
+| `fine` | `10.5px` | **Scheduled for removal** — migrate to `overline` |
+| `micro` | `10px` | **Scheduled for removal** — migrate to `overline` |
+
+`overline` and `chip` are for short, high-contrast, non-prose labels: eyebrows,
+counters, chips. Never body copy, never the only carrier of a lifecycle state.
+`fine` and `micro` are the genuinely hard-to-read tier and are being retired;
+they remain in `globals.css` with call sites still to migrate, so treat them as
+closed to new use. Do not add a fifth sub-12px token.
+
+Use named Tailwind utilities; `pnpm check:tokens` ratchets arbitrary font,
+tracking, padding, and breakpoint literals, and `pnpm check:font-size-tokens`
+guards the font-size class group registration (see the tailwind-merge note in
+`components.md`).
 
 ## Elevation And Focus
 
 - Default cards compose `ring-card` with `shadow-card`.
-- Major content cards may use `surface-card-elevated`,
-  `ring-card-elevated`, `shadow-card-elevated`, and `radius-card-xl` through
-  `Card variant="elevated"`.
+- Major content cards may use `surface-card-elevated`, `ring-card-elevated`,
+  and `shadow-card-elevated` through `Card variant="elevated"`. The variant also
+  applies `radius-card-xl`, but that token equals `radius-large`, so elevation
+  reads through shadow, ring, and gradient only — not through shape.
 - Outline controls use `ring-outline`.
 - Keyboard focus uses a 2px `focus-ring` outline with a 2px offset, or the
   shared focus ring plus `focus-ring-soft` where a field halo is useful.
@@ -174,10 +221,17 @@ literals.
 | Token | Value |
 |---|---:|
 | `container-reading` | `680px` |
-| `container-shell` | `1320px` max |
 | `sidebar-width` | `240px` |
 | `sidebar-width-rail` | `72px` |
 | `topbar-height` | `66px` |
+
+**The member shell has no maximum width, by decision (2026-08-13).** A
+`container-shell` token claiming a 1320px cap was documented here but never
+defined in `globals.css` and never applied in `(member)/layout.tsx`. Capping the
+shell strands the sidebar against empty gutters on large displays, so the
+unbounded shell is intended behavior. The token has been removed from this
+contract; do not add it. Reading measure is held where it matters by
+`container-reading`, not by a shell cap.
 
 The member shell uses five durable sections: Home, Help, People, Messages, and
 School. There is no global search or command palette; search stays local to

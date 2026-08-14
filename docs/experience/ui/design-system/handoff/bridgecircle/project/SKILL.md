@@ -18,8 +18,9 @@ that isn't in the ledger, propose a new entry; never just freelance it.
 (`--action-give #0b8a57`; one lead commitment CTA, plus scoped supporting cues
 inside the dedicated offer-drafting workflow) · O3 section
 identity — **wash heroes + navy covers** (the saturated bands were retired
-2026-07-12; see Identity system below) · O4 Display XL 40/800 + 12px floor ·
-O6 softer radii (card 20 / box 14 / bubble 18 / control 12) · O7 hairline
+2026-07-12; see Identity system below) · O4 Display XL 40/800 + **11px floor
+(amended 2026-08-13)** · O6 softer radii — **card 16 (amended 2026-08-13)** /
+box 14 / bubble 18 / control 12 · O7 hairline
 `#e6e9ee` + `--border-subtle #eef1f5` + `--ring-card` · E2 avatar palette
 (`--avatar-1..6`, no status meaning).
 
@@ -40,8 +41,18 @@ the pages actually use. Minted: **E5** `--surface-canvas` / `--surface-inset` /
 `--give-tint` (.12) / `--give-tint-weak` (.1) (the translucent green behind
 positive/give pills — alpha so it sits in the surface). Changed:
 `--border-subtle` → `#eef1f5`. Retired: the saturated band anatomy (see
-Identity system). **Dark mode is PARKED — v1 ships light-only** (the `.dark`
-block is unverified raw material; don't build against it). Templates now
+Identity system). **Dark mode is LIVE and adopted from production
+(2026-08-14)** — the 2026-07-12 "v1 ships light-only" call was overtaken by the
+app, which ships a full `.dark` theme, a next-themes provider, and a
+member-facing theme picker. The bundle's old 39-token dark block was a derived
+guess that disagreed with production on 11 of the 12 tokens both defined; it has
+been replaced by 108 declarations generated from production (18 ramp flips + 90
+role overrides) and verified value-for-value. **Design dark surfaces against
+it** — including the washes, `--surface-canvas/-inset` and `--closing-soon-*`,
+which do have dark values (the old block wrongly said they didn't). The only
+tokens without a dark value are the ones production has no opinion on
+(`--border-strong`, `--bp-*`, `--brand-blue`, the semantic anchors,
+`--interactive`, `--font-*`); those inherit `:root`. Templates now
 consume the vars (literals swapped 2026-07-12). 31 pattern specimens cover the
 product patterns (waiting group, ask pills, decision dialogs, system states,
 onboarding chrome, profile slide-over, ask composer, …).
@@ -70,8 +81,10 @@ O8/O9 + amendments):**
   `--shadow-primary-btn` (O8); Messages and ask-drafting me-bubbles share it.
   The dedicated GiveOffer draft bubble is O2's scoped green exception.
 - **Major content cards are elevated**: `--surface-card-elevated` +
-  `--ring-card-elevated` + `--shadow-card-elevated`, radius
-  `--radius-card-xl` 22, rows split on `--divider-row` (O9).
+  `--ring-card-elevated` + `--shadow-card-elevated`, rows split on
+  `--divider-row` (O9). **Radius is not a differentiator** —
+  `--radius-card-xl` equals `--radius-large` (16) as of 2026-08-13, so
+  elevation reads through gradient, ring, and shadow only.
 - **Avatars: the 6 rotating colored pairs (`--avatar-1..6`) are the default**
   for other people (Richard's call); `--avatar-neutral` is an option for
   dense operator surfaces only. Status lives in chips either way; avatar

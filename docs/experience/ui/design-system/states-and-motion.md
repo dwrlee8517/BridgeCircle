@@ -25,7 +25,7 @@ routes for lifecycle states that already exist here.
 | Hover | Pointer is exploring an interactive element | `surface-subtle` or `action-primary-hover` | Color/border change only, unless the element is an interactive card |
 | Selected | Object is the active selection | `primary-tint` or `primary-tint-strong` | No layout shift; use `aria-current`, `aria-selected`, or `aria-pressed` |
 | Unread | Member has not seen new activity | `request-attention`, `warning-tint` | Dot plus stronger text weight; never color alone |
-| Pending | Waiting for member/admin/system decision | `state-warning`, `warning-tint` | Make the owner of the next action clear |
+| Pending | Waiting for member/admin/system decision | `state-muted`, `surface-subtle` | Make the owner of the next action clear. Attention, when warranted, comes from `request-attention` plus a visible action — not from the badge |
 | Accepted | Request, RSVP, or membership succeeded | `state-info` or `state-success` | Prefer calm confirmation over celebratory styling |
 | Declined | Request was rejected or revoked | `state-danger` only when attention is needed | Avoid destructive treatment for routine decline choices |
 | Paused | Member/account/capacity is intentionally inactive | `state-warning-foreground`, `warning-tint` | Explain whether the pause is user-set, admin-set, or automatic |
@@ -39,17 +39,34 @@ common lifecycle words.
 
 | Lifecycle | Badge Tone | Dot | Notes |
 |---|---|---:|---|
-| `pending` | `warn` | Yes | Needs decision or is awaiting response |
+| `pending` | `muted` | No | Awaiting a decision. Deliberately calm — see below |
 | `accepted` | `info` | Yes | Request accepted; thread/action may now exist |
 | `active` | `info` | Yes | Ongoing thread, membership, or selected workflow |
 | `completed` | `open` | Yes | Finished successfully |
-| `declined` | `alert` | Yes | Negative lifecycle state that still matters |
+| `declined` | `muted` | No | Routine decline. Deliberately calm — see below |
 | `revoked` | `alert` | Yes | Admin/account state, not routine user choice |
 | `expired` | `muted` | No | No longer actionable |
 | `paused` | `warn` | Yes | Temporarily inactive or capacity-limited |
 | `unread` | `warn` | Yes | Also needs text weight change |
 | `disabled` | `muted` | No | Include explanation when non-obvious |
 | `error` | `alert` | Yes | Use with nearby recovery copy |
+
+**Corrected 2026-08-13.** This table previously gave `pending` the `warn` tone
+and `declined` the `alert` tone, both with dots — contradicting `StatusBadge`,
+[`tokens.md`](tokens.md), and [`components.md`](components.md), which have all
+described the calm neutral treatment since the fork landed. The shipped
+behavior is correct and intentional:
+
+- **Declining is the most socially fraught action in the product.** Rendering a
+  routine decline in danger red taxes the decliner for using a feature built
+  specifically to make declining cheap. That breaks the two-sided buffer.
+- **Outgoing pending in warning amber invents urgency the asker cannot act on.**
+
+Badge tone names *state*; it does not encode urgency. Where a request genuinely
+needs the member's attention — an *incoming* pending request — carry that with
+`request-attention` and a visible primary action, per the Request Card spec in
+`components.md`, not by escalating the badge. The single `pending` lifecycle
+word covers both incoming and outgoing; do not fork it by tone.
 
 ## Motion Recipes
 
@@ -59,9 +76,25 @@ common lifecycle words.
 | Selection change | `motion-fast` | `ease-standard` | background, border, text color | Inbox rows, table rows, selected cards |
 | Interactive surface hover | `motion-base` | `ease-standard` | background, border, box-shadow, 1px transform | Clickable cards only |
 | Overlay enter | `motion-medium` | `ease-emphasized` | opacity, transform | Dialogs, popovers, menus |
-| Master-detail pane swap | `motion-medium` mobile / `motion-fast` desktop | `ease-emphasized` | opacity, transform | Detail pane keyed on the selection: `animate-in fade-in slide-in-from-right-2 duration-medium ease-emphasized md:slide-in-from-right-0 md:duration-fast` — slide on mobile reveal, pure fade on desktop selection change. Used by inbox, School events, and the events archive. Returning to the list is intentionally instant (re-animating the list would re-mount it and lose scroll position). |
+| Master-detail pane swap | `motion-medium` mobile / `motion-fast` desktop | `ease-emphasized` | opacity, transform | **Not implemented — see below.** Detail pane keyed on the selection: `animate-in fade-in slide-in-from-right-2 duration-medium ease-emphasized md:slide-in-from-right-0 md:duration-fast` — slide on mobile reveal, pure fade on desktop selection change. Returning to the list is intentionally instant (re-animating the list would re-mount it and lose scroll position). |
 | Loading pulse | `motion-slow` repeated | `ease-standard` | opacity | Skeletons only |
 | Error reveal | `motion-fast` | `ease-standard` | opacity | Inline validation and alert text |
+
+**Master-detail status, corrected 2026-08-13.** This recipe previously claimed
+it was "used by inbox, School events, and the events archive." It is used by
+none of them — there is no `animate-in` or `slide-in` anywhere under
+`messages/` or `school/`, and the class string appears exactly once in the app,
+on the Home spotlight (`home-spotlight.tsx`), a surface the recipe does not
+mention. Two of the three named consumers are not two-pane surfaces at all:
+School events navigates route-to-route (`school/page.tsx` →
+`school/events/[id]`) with no shared layout, so the recipe cannot apply there
+as written.
+
+The one genuine master-detail surface is **Messages** —
+`messages-workspace.tsx` renders `ConversationList` beside a detail pane keyed
+on `selectedId`, hiding the list on mobile once a thread is open. That is where
+this recipe belongs if it is built. Until it is, treat the row above as a
+proposal, not a description of production.
 
 Motion rules:
 

@@ -16,11 +16,12 @@ tokens; do not copy inline prototype styles mechanically.
 - Use role tokens such as `action-primary`, `state-success`, and
   `surface-panel` for new surfaces. Base hue tokens remain a compatibility
   layer for existing primitive APIs.
-- Use the approved shape tiers: 12px controls, 14px inner boxes, 18px message
-  bubbles and compact overlays, 20px cards/sheets, 22px elevated cards, and
-  pills where the template calls for a capsule.
+- Use the approved shape tiers: 12px controls, 14px inner boxes, 16px
+  cards/sheets (elevated cards included), 18px message bubbles and compact
+  overlays, and pills where the template calls for a capsule.
 - Important labels must be at least caption/body scale. The smallest allowed
-  size in the scale is 12px.
+  size in the scale is 11px, and only for the `overline`/`chip` eyebrow tier —
+  see the 11px floor in [`tokens.md`](tokens.md).
 - Cards are decision surfaces. Do not use cards as page section wrappers or
   stack cards inside cards unless the inner item is a repeated row/list item.
 - Member screens must expose the next relationship action without requiring
@@ -33,7 +34,7 @@ tokens; do not copy inline prototype styles mechanically.
 | Primitive | Use For | Production Notes |
 |---|---|---|
 | `Button` | Primary actions, secondary actions, destructive actions, icon buttons | Use variants before local classes. `variant="cta"` is the O8 blue-gradient lead action; `variant="give"` is the O2 green Give commitment. Use `asChild` for links. |
-| `Card` | Repeated decision surfaces, modals, compact panels | Default cards use the O7 faint inset edge. Use `variant="elevated"` only for major content cards that need the O9 treatment. |
+| `Card` | Repeated decision surfaces, modals, compact panels | Default cards use the O7 faint inset edge. Use `variant="elevated"` only for major content cards that need the O9 treatment — which is shadow, ring, and gradient only, since both radius tokens are 16px. |
 | `Input`, `Textarea`, `Select` | Forms and filters | Prefer shared primitives over raw fields. Raw search inputs are acceptable only when the shell needs custom layout. |
 | `Badge` | Topics, tags, compact labels | Use for non-status labels. Keep topic labels readable and avoid making critical state depend on tiny mono text. |
 | `StatusBadge` | Semantic state | Use for Help availability, request lifecycle, membership state, RSVP state, and admin status. Uses role and tint tokens so warning text stays readable. |
@@ -44,6 +45,18 @@ tokens; do not copy inline prototype styles mechanically.
 | `EmptyState` | Empty lists and blank sections | Every empty state should name the state and offer the next useful action when possible. |
 | `Skeleton` | Loading placeholders | Match the final layout closely enough that loading does not reflow the page. |
 | `CapacityIndicatorGauge` | Helper/event capacity | Use when a numeric capacity affects a user's decision. |
+| `LifecycleStatusBadge` | Common lifecycle words | Wraps `StatusBadge` with the canonical tone/dot mapping in [`states-and-motion.md`](states-and-motion.md). Prefer it over hand-picking a tone. |
+| `Checkbox`, `RadioGroup` | Boolean and single-choice fields | Shared form primitives; do not rebuild with raw inputs. |
+| `Table` | Tabular data | Admin and operator surfaces. Pair with `.density-pro`. |
+| `QuietNote` | Low-emphasis inline explanation | For the calm "here's why" line beside an action; not for errors. |
+| `CircleMark` | Circle/cohort identity mark | The v2 replacement for tier badges. Carries no status meaning. |
+| `CirclesMotif` | Brand motif | Decorative only. One per surface; never crowds a name or action. |
+| `Wordmark` | BridgeCircle wordmark | Uses `.bc-display`. Do not retype the wordmark as plain text. |
+| `TwoColumn`, `RailSection` | Page scaffold with a side rail | Profile and settings layouts; keeps rail behavior consistent. |
+| `EventTime` | Event date/time rendering | Centralizes School event time formatting. |
+| `FormMessage`, `FieldError` | Form-level and field-level errors | Use instead of ad hoc error paragraphs. |
+| `FormSubmitButton` | Pending-aware submit | Preserves button width while pending, per the state rules below. |
+| `Sonner` | Toasts | The flash/toast surface referenced by the Notification spec. |
 
 ## Variant And State Contract
 
@@ -53,11 +66,11 @@ strings unless the screen pattern is genuinely unique.
 
 | Primitive | Required Variants | Required States |
 |---|---|---|
-| `Button` | `default`, `cta`, `give`, `secondary`, `outline`, `ghost`, `destructive`, `link`; sizes `xs`, `sm`, `default`, `lg`, `icon*` | Hover, active, focus-visible, disabled, aria-invalid, icon spacing |
+| `Button` | `default`, `cta`, `give`, `secondary`, `outline`, `ghost`, `destructive`, `link`; sizes `xs`, `sm`, `default`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg` | Hover, active, focus-visible, disabled, aria-invalid, icon spacing |
 | `Card` | `default`, `elevated`; `default` and `sm` density | Default, background-shift hover where interactive, selected, footer, media edge cases |
 | `Input`, `Textarea`, `Select` | Default and compact only when needed | Focus-visible, disabled, aria-invalid, placeholder, autofill/password-manager tolerance |
 | `Badge` | `default`, `secondary`, `destructive`, `outline`, `ghost`, `link` | Focus-visible, link hover, icon spacing |
-| `StatusBadge` | `info`, `open`, `warn`, `alert`, `muted`, `categorized` | Dot and no-dot, compact and default; Pending and Declined lifecycle states use the calm neutral treatment |
+| `StatusBadge` | `info`, `open`, `warn`, `alert`, `muted`, `categorized`; sizes `sm`, `md` (default) | Dot and no-dot; Pending and Declined lifecycle states use the calm neutral treatment. `size="sm"` renders at 11px `overline` — prefer the 12px `md` default for member-facing state |
 | `LifecycleStatusBadge` | `pending`, `accepted`, `active`, `completed`, `declined`, `revoked`, `expired`, `paused`, `unread`, `disabled`, `error` | Common lifecycle words mapped to canonical tones |
 | `EmptyState` | `default`, `inline` | With icon, without icon, with action, without action |
 | `CapacityIndicatorGauge` | `default`, `compact`, `inline` | Low, medium, high, full, zero-limit handling |
@@ -102,23 +115,35 @@ contract.
 
 ### Person Card
 
-Shared anatomy kit: `app/src/components/ui/person-card.tsx` — `PersonAvatar`,
-`MatchBandBadge`, `RationaleBlock`, `TopicChips`, plus `getInitials` /
-`classYearShort` / `directHelpHref` in `app/src/lib/utils.ts`. (The pre-v2
-`askComposeHref` and `preferredAskType` helpers are gone — per-type ask
-selection is retired, so a Help link needs only a membership id.) There is
-intentionally no single `<PersonCard>` component: each surface owns its layout
-grid, action rail, and availability-badge philosophy, and composes the kit so
-the shared parts cannot drift. Composition:
-`app/src/app/(member)/people/people-directory.tsx` (directory row).
+> **The shared kit is currently unused (verified 2026-08-13).**
+> `app/src/components/ui/person-card.tsx` exports `PersonAvatar`,
+> `MatchBandBadge`, `RationaleBlock`, and `TopicChips`, but **no file in
+> `app/src/` imports any of them**. `people-directory.tsx` — named here as the
+> composition site since PR #99 — reimplements the match band and topic chips
+> inline. The kit was extracted specifically so these parts could not drift, and
+> they have. Resolve it in one direction before relying on this section: either
+> wire `people-directory.tsx` onto the kit, or delete the module and keep this
+> spec as a pure composition contract. Do not add a third inline copy meanwhile.
+
+Helpers that *are* live: `getInitials` / `classYearShort` / `directHelpHref` in
+`app/src/lib/utils.ts`. (The pre-v2 `askComposeHref` and `preferredAskType`
+helpers are gone — per-type ask selection is retired, so a Help link needs only
+a membership id.) There is intentionally no single `<PersonCard>` component:
+each surface owns its layout grid, action rail, and availability-badge
+philosophy.
 
 Supply-side rows (`NextHelpCard` / `AltPickCard` / `SubjectFeedRow` in
 `app/src/app/(member)/help/help-client.tsx`) are a different species — they
 present a person *plus their ask* with "Offer help" actions — and are
 deliberately not part of this kit beyond `getInitials`.
 
-Topic chips are `rounded-sm` quiet chips everywhere (full circles stay
-reserved for avatars, dots, and controls).
+Topic chips ship as `rounded-full` pills (`member-profile-view.tsx`,
+`people-directory.tsx`). This contract previously claimed they were `rounded-sm`
+"everywhere" and that full circles were reserved for avatars, dots, and
+controls; no squared topic chip has ever existed in the app. At the shipped
+~26px chip height a pill clamps to a 13px radius against the 8px that was
+specified, so the two read almost identically — the claim was wrong, but the
+appearance was never the problem. Keep chips on one shape; do not mix.
 
 Purpose: help a member decide whether this person can help, should be asked,
 or is worth opening in profile detail.
@@ -420,8 +445,10 @@ Responsive rules:
 
 Do not:
 
-- Use member-facing text below 12px; the old sub-12px metadata tokens were
-  removed because they were too easy to misuse.
+- Use member-facing text below the 11px floor. `micro` (10px) and `fine`
+  (10.5px) are closed to new use and scheduled for removal; `overline` (11px)
+  and `chip` (11.5px) are legal only for short uppercase eyebrows, counters,
+  and compact chips. See the 11px floor in [`tokens.md`](tokens.md).
 - Put destructive actions in the same visual weight as neutral row actions.
 
 ### Notification
@@ -489,12 +516,21 @@ Shared implementation:
 
 | Piece | Source | Rule |
 |---|---|---|
-| Frame/header | `CivicEmail` | BridgeCircle wordmark plus "Verified alumni network"; no app nav |
-| Typography | `CivicHeading`, `CivicText` | Uses email-safe foreground/muted values and fixed line heights |
-| CTA | `CivicButton`, `CivicButtonRow` | One primary CTA; secondary only for proposal review |
-| Fallback URL | `CivicPlainLink` | Include for action-critical links |
-| Callout/quote | `CivicCallout`, `CivicQuote` | Use for summaries, reasons, and member-provided notes |
+| Frame/header | `EmailShell` | BridgeCircle wordmark plus "Verified alumni network"; no app nav |
+| Typography | `EmailHeading`, `EmailText` | Uses email-safe foreground/muted values and fixed line heights |
+| CTA | `EmailButton`, `EmailButtonRow` | One primary CTA; secondary only for proposal review |
+| Fallback URL | `EmailPlainLink` | Include for action-critical links |
+| Inline link | `EmailLink` | Inline anchors inside body copy |
+| Callout/quote | `EmailCallout`, `EmailQuote` | Use for summaries, reasons, and member-provided notes |
+| Tokens/helpers | `emailTokens`, `emailStyles`, `firstName`, `greeting` | Shared color/type constants and greeting helpers; do not inline equivalents |
 | Plain text | `sendRenderedEmail` | Render every template as both `html` and `text` before sending |
+
+**Corrected 2026-08-13.** These were documented under their pre-fork
+`Civic*` names (`CivicEmail`, `CivicHeading`, `CivicText`, `CivicButton`,
+`CivicButtonRow`, `CivicPlainLink`, `CivicCallout`, `CivicQuote`). Every export
+was renamed in `bd265d1` when Civic Editorial was retired; note that
+`CivicEmail` became `EmailShell`, not `Email`. No `Civic*` email component
+exists.
 
 Email-safe tokens:
 

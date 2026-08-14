@@ -28,10 +28,17 @@ content; `app-shell/account-menu.js` is the shared topbar avatar menu.
 
 ## Opening these
 
-They render in the Claude Design environment (the host provides React). Copies
-edited **there** are canonical; this tree is a byte-faithful mirror pulled via
-DesignSync — re-pull before trusting a local edit. Behavior source is
-`../uploads/FLOWS.md`; allowed Toss deviations are in `../uploads/OVERRIDES.md`.
+They render in the Claude Design environment (the host provides React).
+Behavior source is `../uploads/FLOWS.md`; allowed Toss deviations are in
+`../uploads/OVERRIDES.md`.
+
+**This tree is the source of truth (changed 2026-08-13.)** It began as a
+byte-faithful mirror pulled from Claude Design, and through 2026-07-12 the
+remote copies were canonical. That inverted when 24 of the 27 screens were
+authored **here** — commits `9dcc4a3f` (2026-07-15, asker-side v2 flows) and
+`f03b84f7` (2026-07-16, v2 flow closure) — and a 2026-08-13 diff confirmed the
+remote had answered with nothing since the 07-12 push. So edit templates in the
+repo and push; do not re-pull over local work.
 
 ## Not vendored here
 
