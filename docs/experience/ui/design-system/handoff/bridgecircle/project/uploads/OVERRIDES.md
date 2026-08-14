@@ -37,12 +37,12 @@ PRs #115–#117).
 | O1 | `--font-sans` | Toss Product Sans (proprietary) | **Pretendard** (OFL; production self-hosts Latin subset via `next/font/local`, PR #119) | licensing — mandatory substitute | **applied** |
 | O2 | Action color on the give surface | blue everywhere | **green give composition** — `--action-give` literal `#0b8a57` fill (white ~4.8:1 AA — deliberately NOT this fork's TDS green-700 `#029359`), hover `#077046`; weak `#e7f8f0` + green-500 `#03b26c` text. The dedicated offer-drafting surface may reuse the solid give hue for supporting cues intrinsic to that job: the AI mark, the member's draft bubble, the compact AI-send control, and the completion mark. **Send offer remains the only lead CTA.** Outside that bounded give workflow, solid green remains reserved for the lead give action; passive/status treatments use the weak/text roles. | FL-2 (N identical blue buttons), FL-3 (giving reads transactional) · ADR-C · stabilized GiveOffer template | **applied 2026-07-04, amended 2026-07-13** |
 | O3 | Section identity | none — all surfaces identical | `--identity-ask/give/school` + gradient bands. **Mapping corrected 2026-07-05 against the byte-complete reference:** blue `#3f88f1→#2f73e6→#1f5bcc` (162°) = **Help GET/ASK mode band** (A5 had mislabeled it "School"); green `#23c386→#15a368→#0b8a57` (160°) = **Help GIVE mode band**; **School = `--gradient-band-school`** — the dark band with blue `rgb(73 147 252/.5)` + violet `rgb(114 47 200/.4)` radial glows (the retired Mentor violet survives only as this glow); plain dark `#2a3340→#191f28` (157°) = footers/features. **Band anatomy added (reference):** `--band-glow` radial white overlay, two-circle watermark ~16% white, on-band toggle (white active pill on `--band-toggle-track`), floating cards with `--shadow-band-card`. White band text measured: blue mid ~4.6:1, deep ~6.6:1; give deep ~4.8:1. **Amended again (alternatives, 2026-07-05):** (a) **HELP HERO DECIDED (Richard, 2026-07-05): the 1i wash** (`--wash-get #e3effd` / `--wash-give #e0f5ea`, fading into the canvas, ink text) **with the band variant's pill-toggle geometry** — icons, 13px/9-17px padding, white active pill with mode-colored text (get blue-600 / give `#029a5e`), on the soft `--wash-toggle-track` + hairline ring. **Saturated bands are reserved for onboarding/marketing moments**, not in-product heroes; (b) ambient canvas-top wash `--wash-page`; (c) **School re-corrected per 1h**: the page canvas is LIGHT (grey-100 + wash) and School's identity lives in **navy event covers** — `--cover-event` (`#0d1b36→#122a52` + blue glows), `--cover-texture` dot grid, glass tiles (`--glass-tile` + `--ring-glass`) — deliberately crossing the old "no navy" line, sanctioned for event covers only. ~~`--gradient-band-school` (dark+glows) remains available but 1h supersedes it as School's default.~~ **Amended ×3 (2026-07-12, template audit): BAND ANATOMY RETIRED.** The full Claude Design template set confirmed the saturated bands unused — Help hero is the 1i wash, School + onboarding are navy `--cover-event`. Removed: `--identity-ask/-give/-school`, `--gradient-band-blue/-green/-school`, `--band-glow`, `--band-toggle-track`. Kept: `--gradient-band-dark` (Entry-page backdrop, footers/features), `--wash-toggle-track`, `--shadow-band-card` (cards on dark/cover surfaces). **`--cover-event` scope widened: event covers AND onboarding bookends** (the templates' Welcome/all-set screens). | FL-1 · ADR-C · Field Pro v2 reference · chosen alternatives 1i/1h · 2026-07-12 template audit (DESYNC-TODO) | **applied 2026-07-04, amended 2026-07-05 ×2, 2026-07-12 ×3** |
-| O4 | Type scale ceiling | Display Hero 30/700, floor 10px | new **Display XL 40/800/48** tier (tracking −0.025em) above the TDS scale; label floor raised **10px → 12px** (TDS core roles unchanged) | FL-4 (landing moment undersold) · ADR-C | **applied 2026-07-04** |
+| O4 | Type scale ceiling | Display Hero 30/700, floor 10px | new **Display XL 40/800/48** tier (tracking −0.025em) above the TDS scale; label floor raised **10px → ~~12px~~ 11px (amended 2026-08-13)** (TDS core roles unchanged). **The 12px floor was never held in production** — the 2026-08-13 drift audit counted ~81 sub-12px call sites against 69 at 12px, and `StatusBadge size="sm"` itself renders at 11px. Rather than keep an unenforced rule, the floor drops to **11px**, with a narrow legal tier: `overline` 11px and `chip` 11.5px for short uppercase eyebrows, counters, and compact chips only — never body copy, never the sole carrier of a lifecycle state. `micro` 10px and `fine` 10.5px are **closed to new use and scheduled for removal** (~26 call sites still to migrate). Still above the TDS 10px floor, so this narrows rather than abandons the override. | FL-4 (landing moment undersold) · ADR-C · 2026-08-13 drift audit | **applied 2026-07-04, amended 2026-08-13** |
 | O5 | Warning hue | orange-500 `#fe9800` (bright) | ~~muted ochre ramp (anchor `#c98a1a`)~~ — **TDS orange kept** | ADR-C proposed it; Richard rejected on review | **rejected 2026-07-05** (was applied 2026-07-04) |
-| O6 | Radius tiers | 4 / 8 / 12 / 16 / pill | softer: control 12 / **box 14** / **bubble 18** / **card 20** (`--radius-large` 16→20) / pill; compact 4 + standard 8 stay for small inner elements | ADR-C (Field Pro v2 reference) | **applied 2026-07-04** |
+| O6 | Radius tiers | 4 / 8 / 12 / 16 / pill | softer: control 12 / **box 14** / **bubble 18** / ~~card 20~~ → **card 16 (amended 2026-08-13)** / pill; compact 4 + standard 8 stay for small inner elements. **The card tier returns to the TDS value.** Production shipped 16 from `56002cd` (2026-07-21) without a ledger entry; the 2026-08-13 drift audit surfaced the conflict and Richard reviewed 20 against 16 side by side and **kept the tighter 16**. Box 14 and bubble 18 remain brand-softened, so O6 is partially retained, not rejected. | ADR-C (Field Pro v2 reference) · 2026-08-13 drift audit + Richard's review | **applied 2026-07-04, amended 2026-08-13** |
 | O7 | grey-200 hairline | `#e5e8eb` | `--grey-200` → `#e6e9ee`; new `--border-subtle` ~~`#edf0f2`~~ → **`#eef1f5` (amended 2026-07-12** — the templates used #eef1f5 as the hairline ×149, unanimously across 6 groups; the grey trio collapses to ramp `--grey-200 #e6e9ee` · hairline `--border-subtle #eef1f5` · row split `--divider-row #f4f5f7`**)**; new `--ring-card` inset (5% ink), composed with `--shadow-card` on every card | ADR-C (A6: cards are near-borderless, not borderless) · 2026-07-12 template audit | **applied 2026-07-04, amended 2026-07-12** |
 | O8 | Primary action finish | flat blue-500 fill | **vertical gradient** `--gradient-primary-btn` `#3b8bf7→#2f7ce9` + `--shadow-primary-btn` soft blue glow, on major CTAs (Search, Send, ~~Ask for advice~~ **"Ask for help"** — CTA renamed 2026-07-07, comment reconciled 2026-07-12); flat blue-500 stays valid for small buttons. Member-to-member Messages and ask-drafting me-bubbles share the gradient (`--gradient-bubble-me`); the dedicated give offer-drafting bubble is O2's scoped green exception. | A5 diff item #9 · every chosen alternative (1a/1i/1e) · stabilized GiveOffer template | **applied 2026-07-05, amended 2026-07-13** |
-| O9 | Elevated card treatment | flat white card, radius 20, `#edf0f2` rows | major content cards: `--surface-card-elevated` (`#fff→#fdfdfe`), `--ring-card-elevated` (4.5% ink inset), `--shadow-card-elevated` (layered), **`--radius-card-xl` 22**; rows split on **`--divider-row #f4f5f7`**. The O7 flat-card treatment remains for small/simple cards. | alternatives 1a/1e/1h (identical treatment across all) | **applied 2026-07-05** |
+| O9 | Elevated card treatment | flat white card, radius 20, `#edf0f2` rows | major content cards: `--surface-card-elevated` (`#fff→#fdfdfe`), `--ring-card-elevated` (4.5% ink inset), `--shadow-card-elevated` (layered); rows split on **`--divider-row #f4f5f7`**. The O7 flat-card treatment remains for small/simple cards. **Amended 2026-08-13: ~~`--radius-card-xl` 22~~ → 16, following O6.** Radius is no longer part of this treatment — `--radius-card-xl` now equals `--radius-large`, so elevation reads through gradient, ring, and shadow only. Do not reintroduce a radius step to distinguish elevated cards. | alternatives 1a/1e/1h (identical treatment across all) · 2026-08-13 drift audit | **applied 2026-07-05, amended 2026-08-13** |
 
 ## Extensions
 
@@ -55,6 +55,74 @@ PRs #115–#117).
 | E5 | Template-settled roles | four literals the DC templates settled unanimously, minted verbatim (2026-07-12): **`--surface-canvas #f6f8fa`** · **`--surface-inset #f7f9fc`** quiet inset panels (×13) · **`--icon-muted #c8cfd8`** muted icon strokes (×8) · **`--action-give-text #029a5e`** "Open to help" green text (×34; named in E2 prose since 2026-07-05, never minted). **Evidence correction (§5 pass):** the audit's "×71 page canvas" for `--surface-canvas` was actually the skeleton-shimmer MID-STOP (all 71 occurrences sit inside `linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%)`); templates use `--surface-page` for page canvas. The token stays minted but its real consumer is the shimmer — resolve together with the parked skeleton-drift item. Blue tints `#e2eeff/#eaf3ff/#fbfdff/#f3f8ff` deliberately NOT minted — fold toward `--blue-50`/`--selected-tint` at the next template pass | 2026-07-12 template audit (DESYNC-TODO) · §5 correction | **applied 2026-07-12** |
 | E6 | Closing-soon expiry | **`--closing-soon-text #b26f00` on `--closing-soon-tint rgb(254 152 0 / 0.14)`** — the "Closes in 3d" pill (last-3-days flag). A NEW role, NOT a reopening of O5: `--warning` stays TDS orange; this is the calm expiry hue the templates chose (calm-not-urgent; ×6 template groups, unanimous) | 2026-07-12 template audit · FLOWS §3 uniform 14-day close | **applied 2026-07-12** |
 | E7 | Green translucent tint | **`--give-tint rgb(3 178 108 / 0.12)`** (Answered / Resolved / Going pills, green CTA tints, ×8+ across Help·AskHistory·AskStatus·Home) + **`--give-tint-weak rgb(3 178 108 / 0.1)`** ("Open to help" chips). Alpha on purpose — the tint picks up the surface beneath (inset panels, selected rows) where opaque `--action-give-weak #e7f8f0` reads as a sticker; give-weak keeps its separate weak-BUTTON job (O2). Richard: "mint the pair" (comparison artifact 8cfd6a36); templates + specimens swapped to the vars in the §5 pass | 2026-07-12 specimen authoring (×4 independent extractions) · Richard 2026-07-12 | **applied 2026-07-12** |
+
+## Production parity sweep — 2026-08-13
+
+Resolved-value comparison of this bundle's `colors_and_type.css` against the app's
+`app/src/app/globals.css` (`:root` vs `:root`, `.dark` vs `.dark`, every `var()`
+chain resolved, px/rem normalized). Of **249 shared light-theme tokens, 246 already
+computed identically** — the apparent mismatches were unit style (`14px` vs
+`0.875rem`) or indirection style (bundle names the ramp, production names its
+shadcn bridge var). Three genuinely differed, and **production won all three**
+(each is production-darker, so contrast improves):
+
+| Token | was (bundle) | now (production) | note |
+|---|---|---|---|
+| `--action-weak-text` | `--blue-600` `#2272eb` | `--blue-700` `#1b64da` | tinted-secondary label |
+| `--state-danger-text` | `--red-600` `#e42939` | `--red-700` `#d22030` | matches the -700/-800 depth of the warning/caution roles beside it |
+| `--divider` | `--grey-100` `#f2f4f6` | `var(--divider-row)` `#f4f5f7` | O9 already specified `--divider-row` for row splits; the two collapse to one value |
+
+Light theme is now **249/249 identical** to production.
+
+**Dark theme — RESOLVED 2026-08-14: the fork adopts production's dark values.**
+The finding: SKILL.md and the notes recorded dark as "parked, v1 light-only",
+but production has shipped a full dark theme for a while — 134 tokens under
+`.dark`, a `next-themes` provider in `app/src/app/layout.tsx`, and a
+member-facing picker at `app/src/app/(member)/settings/theme-picker.tsx`. The
+bundle's `.dark` was a 39-token derived guess disagreeing with production on
+**11 of the 12** tokens both defined (`--surface-base` `#101014` vs `#16171d`,
+`--nav-active-bg` flat tint vs gradient, `--hover-tint` .06 vs .04, …). Members
+could switch to a theme the design system said didn't exist, rendered with
+values nobody had verified.
+
+**Decision (Richard, 2026-08-14): production wins, same as the light sweep.** A
+design system documenting a theme no member ever saw is worse than none. The
+block was regenerated **from** production — 108 declarations, 18 ramp flips +
+90 role overrides, in production's own idiom (flip the ramps, override the roles
+that need it) rather than flattened literals — and verified by resolving every
+`var()` chain on both sides: **0 mismatches**. Dark is now a real, buildable
+layer of this fork.
+
+Corrections this pass: the old block claimed none of the 2026-07 tokens had dark
+values — production defines dark for **all** of them (`--wash-get/-give/-page`,
+`--wash-toggle-track`, `--surface-canvas/-inset`, `--closing-soon-text`, and the
+E7 give tints, which are alpha and correctly identical across themes). Tokens
+production has no opinion on are deliberately **not** overridden and inherit
+`:root`: `--border-strong`, `--bp-*`, `--brand-blue`, the `--error/--warning/
+--caution/--success/--info/--premium` anchors, `--interactive`, `--font-*`.
+
+**Status: NOT DONE. Contrast NOT measured.** Richard, 2026-08-14: production's
+dark theme was built as an **experiment**. It ships and members can switch to it,
+but it has never been design-reviewed and none of its contrast pairs have been
+measured. Mirroring it makes this bundle *honest* — it does not make dark
+*approved*, and adopting it is explicitly **not** a design sign-off.
+
+Standing rule until a real dark pass happens: design in light; treat the `.dark`
+block as a factual record of what production renders; do not ship new dark-only
+surfaces or cite dark values as precedent without a WCAG AA pass. Expect the
+values to change — the fix path is *fix production, then re-mirror*, never
+hand-edit the bundle (that is exactly how the 2026-07 drift started).
+
+Unmeasured pairs to check first when the pass happens: `--action-give-text` and
+`--action-give-weak-text` (both `#4dd49b`) on dark surfaces · `--closing-soon-text`
+`#ffbd51` on `--closing-soon-tint` · `--action-weak-text` `#8db9ff` on
+`rgb(100 168 255 / 0.12)` · `--text-faint` `#79808c` on `--surface-base` `#16171d` ·
+every `state-*-text` / `state-*-tint` pair, which still inherit light-theme ramp
+stops. No specimen renders dark yet either, so nothing in the gallery would catch
+a failure visually.
+
+If the fork ever wants a dark treatment that differs from the app, that is a new
+override entry with evidence — not an edit to this block.
 
 ## Pattern guidance (not tokens)
 

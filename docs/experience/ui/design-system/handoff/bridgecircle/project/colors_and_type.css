@@ -4,11 +4,15 @@
 
    Everything here is faithful TDS (see ../../toss-base/) EXCEPT the applied
    entries in uploads/OVERRIDES.md. Applied in this file:
-     O1 Pretendard (inherited substitute)         O6 softer radii (card 20 …)
-     O2 green give action (--action-give*)        O7 hairline #e6e9ee + ring-card
-     O3 wash heroes + navy covers (bands retired) E2 avatar palette (decoupled)
-     O4 display-xl 40/800, 12px floor
+     O1 Pretendard (inherited substitute)         O6 softer radii (box 14,
+     O2 green give action (--action-give*)           bubble 18; card back to 16)
+     O3 wash heroes + navy covers (bands retired) O7 hairline #e6e9ee + ring-card
+     O4 display-xl 40/800, 11px floor             E2 avatar palette (decoupled)
    O5 (ochre warning) was applied then REJECTED 2026-07-05 — TDS orange stays.
+   AMENDED 2026-08-13 (drift audit): O6/O9 card radius 20/22 → 16 (Richard
+   kept the tighter production value); O4 label floor 12px → 11px (the 12px
+   rule was never held — overline 11 / chip 11.5 are now the legal floor
+   tier, micro 10 / fine 10.5 closed to new use). See uploads/OVERRIDES.md.
    Every divergence below carries an [O#]/[E#] tag. Unlogged divergence = drift.
 
    Layers:
@@ -17,7 +21,9 @@
      2. Roles      --surface/text/border/action/state-*
      3. Identity   --wash-* / --cover-* (+ --gradient-band-dark)   [O3]
      4. Type/shape --font-* --radius-* --space-* --shadow-* --motion-*
-   Components consume layers 2–4. Dark mode overrides at the end (provisional).
+   Components consume layers 2–4. Dark mode overrides at the end — adopted
+   from production 2026-08-14 and value-verified against it (no longer
+   provisional, no longer parked).
 
    POLICY (amended 2026-07-13): the token ratchet reads Claude Design DC
    templates as renderings, not token sources. Repeated semantic roles were
@@ -188,7 +194,9 @@
      now: ramp --grey-200 #e6e9ee · hairline --border-subtle #eef1f5 · row split
      --divider-row #f4f5f7. */
   --border-strong: var(--grey-300);
-  --divider:       var(--grey-100);
+  --divider:       var(--divider-row); /* [O9 amended 2026-08-13] was --grey-100
+     (#f2f4f6); production aliases --divider to --divider-row (#f4f5f7), which is
+     what O9 already specifies for row splits. Collapsed to one row-split value. */
 
   /* [O7] Card edge: cards are near-borderless but carry a whisper-faint inset
      ring so they read as objects on the grey canvas. Compose into box-shadow:
@@ -201,7 +209,8 @@
   --action-primary-pressed: var(--blue-700);
   --action-on-primary:      #ffffff;
   --action-weak:            var(--blue-50);  /* tinted secondary */
-  --action-weak-text:       var(--blue-600);
+  --action-weak-text:       var(--blue-700); /* production parity 2026-08-13
+     (was --blue-600 #2272eb; production ships --blue-700 #1b64da) */
   --action-quiet:           var(--grey-100); /* neutral tertiary */
   --action-quiet-text:      var(--grey-700);
   --action-disabled:        var(--grey-200);
@@ -246,7 +255,8 @@
   --state-warning-tint:  var(--orange-50);
   --state-caution-text:  var(--yellow-800);
   --state-caution-tint:  var(--yellow-50);
-  --state-danger-text:   var(--red-600);
+  --state-danger-text:   var(--red-700); /* production parity 2026-08-13 (was
+     --red-600); matches the -700/-800 depth of the warning/caution roles above */
   --state-danger-tint:   var(--red-50);
   --state-premium-text:  var(--purple-600);
   --state-premium-tint:  var(--purple-50);
@@ -305,13 +315,16 @@
   --gradient-bubble-me: var(--gradient-primary-btn); /* Messages + ask me-bubble; GiveOffer is O2 exception */
   --shadow-bubble-me: 0 3px 10px -3px rgb(49 130 246 / 0.4);
 
-  /* [O9] Elevated card treatment (major content cards in 1a/1i/1e/1h):
-     near-white vertical gradient + 4.5% inset ring + layered shadow,
-     radius 22; rows split on the even-lighter --divider-row. */
+  /* [O9, amended 2026-08-13] Elevated card treatment (major content cards
+     in 1a/1i/1e/1h): near-white vertical gradient + 4.5% inset ring +
+     layered shadow; rows split on the even-lighter --divider-row.
+     Radius is NO LONGER a differentiator — --radius-card-xl now equals
+     --radius-large (16), so elevation reads through gradient, ring, and
+     shadow only. Do not reintroduce a radius step here. */
   --surface-card-elevated: linear-gradient(180deg, #ffffff, #fdfdfe);
   --ring-card-elevated: inset 0 0 0 1px rgb(25 31 40 / 0.045);
   --shadow-card-elevated: 0 1px 2px rgb(25 31 40 / 0.04), 0 12px 32px -16px rgb(25 31 40 / 0.14);
-  --radius-card-xl: 22px;
+  --radius-card-xl: 16px;  /* [O9 amended 2026-08-13] was 22 — see O6 */
   --divider-row: #f4f5f7;
 
   /* [O3 amended] Wash heroes (1i "open hero") — THE identity treatment
@@ -369,7 +382,9 @@
 
   /* Type scale — TDS roles, with [O4] applied: a display-xl tier above the
      TDS ceiling for landing/hero moments (FL-4: 30/700 undersells them), and
-     the floor raised 10px → 12px (nothing member-facing below 12px). */
+     the floor raised 10px → 11px (amended 2026-08-13 — the 12px floor was
+     never held in production; overline 11 / chip 11.5 are the legal tier for
+     eyebrows and counters only, micro 10 / fine 10.5 closed to new use). */
   --font-size-display-xl:    40px; --lh-display-xl:    48px; /* w800 · -0.025em [O4] */
   --font-size-display-hero:  30px; --lh-display-hero:  40px; /* w700 */
   --font-size-display-large: 26px; --lh-display-large: 36px; /* w700 */
@@ -388,14 +403,17 @@
   --weight-bold:    700;
   --tracking-tight: -0.02em; /* headings */
 
-  /* Shape — [O6] softened tiers (Field Pro v2 reference): control 12 /
-     box 14 / bubble 18 / card 20 / pill. TDS compact/standard remain for
-     small inner elements. --radius-large is the CARD radius (was TDS 16). */
+  /* Shape — [O6, amended 2026-08-13] control 12 / box 14 / bubble 18 /
+     card 16 / pill. TDS compact/standard remain for small inner elements.
+     The 2026-07-04 override softened the card radius 16 → 20; Richard
+     reviewed both against production on 2026-08-13 and kept the tighter
+     16, so the card tier returns to the TDS value while box 14 and
+     bubble 18 remain brand-softened. --radius-large is the CARD radius. */
   --radius-compact:     4px;
   --radius-standard:    8px;
   --radius-comfortable: 12px;  /* controls */
   --radius-box:         14px;  /* [O6] inner boxes, icon tiles */
-  --radius-large:       20px;  /* [O6] cards, sheets — was 16 */
+  --radius-large:       16px;  /* [O6 amended 2026-08-13] cards, sheets — back to 16 */
   --radius-bubble:      18px;  /* [O6] message bubbles */
   --radius-pill:        9999px;
 
@@ -463,53 +481,185 @@
 }
 
 /* ---------------------------------------------------------------------
-   DARK MODE — PARKED (Richard, 2026-07-12): v1 SHIPS LIGHT-ONLY. The block
-   below is the old DERIVED guess (grey-ramp flip + tint reductions, never
-   verified against real TDS dark), and none of the 2026-07 tokens (washes,
-   --cover-event, --surface-canvas/-inset, --closing-soon-*,
-   --give-tint*) have dark values. Kept as raw material for the future dark
-   iteration — do NOT build against it; nothing in v1 should emit `.dark`.
+   DARK MODE — ⚠ UNFINISHED. MIRRORS PRODUCTION, WHICH IS ITSELF
+   EXPERIMENTAL AND NOT CONTRAST-MEASURED. DO NOT TREAT AS DONE.
+
+   Status (Richard, 2026-08-14): production's dark theme was built as an
+   EXPERIMENT. It ships — there is a real theme picker, so members can turn it
+   on — but it has never been design-reviewed and its contrast pairs have never
+   been measured. This block mirrors it faithfully, which makes the design
+   system HONEST about what members see; it does NOT make dark approved.
+
+   What that means in practice:
+   - Use this block to know what production currently renders in dark.
+   - Do NOT ship new dark-only surfaces against it, and do not cite it as
+     precedent, without a contrast pass first (every text/tint pair to WCAG
+     AA — start with the ones flagged below).
+   - When the real dark pass happens, expect values here to CHANGE. Fixing
+     production and re-mirroring is the intended path; hand-editing this block
+     just re-creates the 2026-07 drift.
+
+   Unmeasured pairs most likely to fail, as a starting list: --action-give-text
+   #4dd49b and --action-give-weak-text #4dd49b on dark surfaces · --closing-soon-text
+   #ffbd51 on --closing-soon-tint · --action-weak-text #8db9ff on
+   rgb(100 168 255 / 0.12) · --text-faint #79808c on --surface-base #16171d ·
+   the state-*-text/-tint pairs, which inherit light-theme ramp stops.
+
+   ---- provenance ----
+   ADOPTED FROM PRODUCTION 2026-08-14. No longer "parked".
+
+   The 2026-07-12 call ("v1 ships light-only") was overtaken by the app:
+   production ships a full dark theme (`.dark` in app/src/app/globals.css,
+   a next-themes provider in app/src/app/layout.tsx, and a member-facing
+   picker at app/src/app/(member)/settings/theme-picker.tsx). The block that
+   used to sit here was a 39-token DERIVED GUESS that disagreed with what
+   ships on 11 of the 12 tokens both defined — a design system describing a
+   theme no member ever saw.
+
+   So this block is now generated FROM production and verified against it:
+   every token below resolves to exactly the value production's `.dark`
+   produces (108 declarations — 18 ramp flips + 90 role overrides; 0
+   mismatches at the 2026-08-14 sweep). Production is the arbiter here, per
+   the repo's code-wins rule.
+
+   Bundle-only tokens production has no opinion on (--border-strong, the
+   --bp-* breakpoints, --brand-blue, the --error/--warning/--caution/
+   --success/--info/--premium semantic anchors, --interactive, --font-sans/
+   --font-mono) are NOT overridden; they inherit :root.
+
+   Re-verify after any token change with the resolved-value sweep described
+   in uploads/OVERRIDES.md ("Production parity sweep").
    ------------------------------------------------------------------- */
 .dark {
-  --surface-page:   #17171c;
-  --surface-base:   #101014;
-  --surface-card:   #1c1e24;
-  --surface-panel:  #16171b;
-  --surface-subtle: #22242b;
+  /* 1 · RAMP FLIPS — the neutral spine inverts; blue/green upper stops lighten
+     and the 50/100 tints become alphas so they sit ON dark surfaces. */
+  --blue-100:  rgb(100 168 255 / 0.2);
+  --blue-50:   rgb(100 168 255 / 0.12);
+  --blue-600:  #7cb3ff;
+  --blue-700:  #90c2ff;
+  --blue-800:  #a6ccff;
+  --blue-900:  #c9e2ff;
+  --green-100: rgb(3 178 108 / 0.2);
+  --green-50:  rgb(3 178 108 / 0.12);
+  --grey-100:  #16171d;
+  --grey-200:  #2e313a;
+  --grey-300:  #454952;
+  --grey-400:  #5c626d;
+  --grey-50:   #282a33;
+  --grey-500:  #79808c;
+  --grey-600:  #9aa0ac;
+  --grey-700:  #b8bcc6;
+  --grey-800:  #d5d8df;
+  --grey-900:  #e7e9ee;
 
-  --text-primary:   var(--grey-100);
-  --text-secondary: var(--grey-400);
-  --text-muted:     var(--grey-500);
-  --text-faint:     var(--grey-600);
-  --text-disabled:  var(--grey-700);
+  /* 2 · SURFACES */
+  --surface-base:          #16171d;
+  --surface-canvas:        #16171d;
+  --surface-card:          #1e2027;
+  --surface-card-elevated: linear-gradient(180deg, #22242c, #1e2027);
+  --surface-inset:         #131419;
+  --surface-subtle:        #282a33;
+  --surface-thread:        #18191f;
 
-  --border:        rgb(255 255 255 / 0.08);
-  --border-strong: rgb(255 255 255 / 0.14);
-  --divider:       rgb(255 255 255 / 0.06);
+  /*    TEXT */
+  --icon-muted: #454952;
 
-  --action-weak:      rgb(49 130 246 / 0.16);
-  --action-weak-text: var(--blue-200);
-  --action-quiet:     rgb(255 255 255 / 0.07);
-  --action-quiet-text: var(--grey-300);
-  --selection:        rgb(49 130 246 / 0.30);
+  /*    BORDERS · DIVIDERS · RINGS */
+  --border:             rgb(255 255 255 / 0.08);
+  --border-subtle:      rgb(255 255 255 / 0.07);
+  --divider:            rgb(255 255 255 / 0.05);
+  --divider-row:        rgb(255 255 255 / 0.05);
+  --ring-avatar:        inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  --ring-card:          inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  --ring-card-elevated: inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  --ring-outline:       inset 0 0 0 1px rgb(255 255 255 / 0.11);
 
-  --state-info-text:    var(--teal-200);    --state-info-tint:    rgb(24 165 165 / 0.14);
-  --state-success-text: var(--green-200);   --state-success-tint: rgb(3 178 108 / 0.14);
-  --state-warning-text: var(--orange-200);  --state-warning-tint: rgb(254 152 0 / 0.14);
-  --state-caution-text: var(--yellow-200);  --state-caution-tint: rgb(255 195 66 / 0.14);
-  --state-danger-text:  var(--red-200);     --state-danger-tint:  rgb(240 68 82 / 0.16);
-  --state-premium-text: var(--purple-200);  --state-premium-tint: rgb(162 52 199 / 0.16);
+  /* 3 · ACTIONS — blue primary, green give */
+  --action-give:           #15c47e;
+  --action-give-hover:     #03b26c;
+  --action-give-text:      #4dd49b;
+  --action-give-weak:      rgb(3 178 108 / 0.12);
+  --action-give-weak-text: #4dd49b;
+  --action-on-give:        #14161b;
+  --action-on-primary:     #101216;
+  --action-primary:        #64a8ff;
+  --action-primary-hover:  #90c2ff;
+  --action-quiet:          #282a33;
+  --action-weak-text:      #8db9ff;
+  --focus-ring:            #64a8ff;
+  --link:                  #64a8ff;
+  --selected-accent:       inset 2px 0 0 #64a8ff;
+  --selected-tint:         rgb(100 168 255 / 0.12);
 
-  --skeleton-base:  #22242b;
-  --skeleton-pulse: #2b2e37;
+  /*    STATES · EXPIRY */
+  --closing-soon-text: #ffbd51;
 
-  /* [E3] pointer states, dark */
-  --hover-tint: rgb(255 255 255 / 0.06);
-  --row-hover:  rgb(255 255 255 / 0.04);
-  --nav-active-bg:   rgb(49 130 246 / 0.16);
-  --nav-active-text: var(--blue-200);
-  --table-header-bg: rgb(255 255 255 / 0.04);
+  /* 4 · IDENTITY — washes and covers (production DOES ship dark values for
+     these; the old parked block wrongly claimed it didn't) */
+  --wash-get:          linear-gradient(180deg, rgb(100 168 255 / 0.06) 0%, rgb(100 168 255 / 0) 100%);
+  --wash-give:         linear-gradient(180deg, rgb(3 178 108 / 0.05) 0%, rgb(3 178 108 / 0) 100%);
+  --wash-page:         radial-gradient(85% 42% at 50% 0%, rgb(100 168 255 / 0.04) 0%, rgb(100 168 255 / 0) 72%);
+  --wash-toggle-track: rgb(255 255 255 / 0.12);
 
-  --shadow-card:   0 2px 8px rgb(0 0 0 / 0.36), 0 0 1px rgb(0 0 0 / 0.5);
-  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.48), 0 0 1px rgb(0 0 0 / 0.6);
+  /*    AVATARS [E2] */
+  --avatar-1-bg:    rgb(100 168 255 / 0.16);
+  --avatar-1-fg:    #90c2ff;
+  --avatar-2-bg:    #2e313a;
+  --avatar-2-fg:    #c6cad2;
+  --avatar-3-bg:    rgb(255 169 39 / 0.14);
+  --avatar-3-fg:    #ffcd80;
+  --avatar-4-bg:    rgb(246 101 112 / 0.14);
+  --avatar-4-fg:    #feafb4;
+  --avatar-5-bg:    rgb(3 178 108 / 0.14);
+  --avatar-5-fg:    #76e4b8;
+  --avatar-6-bg:    #c6cad2;
+  --avatar-6-fg:    #16171d;
+  --avatar-neutral: linear-gradient(135deg, #2e313a, #282a33);
+
+  /* 5 · ELEVATION · SKELETON */
+  --shadow-band-card:     0 20px 44px -14px rgb(0 0 0 / 0.6);
+  --shadow-card:          0 1px 0 rgb(0 0 0 / 0.25);
+  --shadow-card-elevated: 0 1px 0 rgb(0 0 0 / 0.3);
+  --shadow-raised:        0 4px 12px rgb(0 0 0 / 0.4), 0 12px 32px rgb(0 0 0 / 0.35);
+
+  /* 6 · DESKTOP / POINTER [E3] */
+  --hover-tint:      rgb(255 255 255 / 0.04);
+  --nav-active-bg:   linear-gradient(135deg, rgb(100 168 255 / 0.14), rgb(100 168 255 / 0.08));
+  --nav-active-text: #64a8ff;
+  --row-hover:       rgb(255 255 255 / 0.03);
+
+  /* other */
+  --font-size-body: 0.875rem;
+  --font-size-body-lg: 1rem;
+  --font-size-body-sm: 0.8125rem;
+  --font-size-caption: 0.75rem;
+  --font-size-display-hero: 1.875rem;
+  --font-size-display-large: 1.625rem;
+  --font-size-display-xl: 2.5rem;
+  --font-size-heading: 1.25rem;
+  --font-size-heading-large: 1.375rem;
+  --font-size-label: 0.75rem;
+  --font-size-subtitle: 1rem;
+  --grey-opacity-200: rgb(0 27 55 / 0.1);
+  --grey-opacity-700: rgb(3 18 40 / 0.7);
+  --grey-opacity-800: rgb(0 12 30 / 0.8);
+  --lh-body: 1.375rem;
+  --lh-body-lg: 1.5rem;
+  --lh-body-sm: 1.25rem;
+  --lh-caption: 1.125rem;
+  --lh-display-hero: 2.5rem;
+  --lh-display-large: 2.25rem;
+  --lh-display-xl: 3rem;
+  --lh-heading: 1.75rem;
+  --lh-heading-large: 1.875rem;
+  --lh-subtitle: 1.5rem;
+  --space-1: 0.25rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
 }

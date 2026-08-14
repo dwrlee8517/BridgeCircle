@@ -1,13 +1,21 @@
 /* Pretendard (OFL) — self-hosted variable font for --font-sans (O1).
-   Sourced from github.com/orioncactus/pretendard (dist/web/variable/woff2).
-   Registered here additively; the synced token file colors_and_type.css is
-   untouched. Template previews keep loading the CDN dynamic-subset CSS
-   (lighter than this single 2 MB file); this file resolves the family for
-   the design system itself. */
+   VENDORED FROM PRODUCTION 2026-08-14: this is byte-identical to the file the
+   app ships (app/src/app/fonts/PretendardLatinVar.woff2, declared via
+   next/font/local in app/src/app/layout.tsx) — a LATIN-ONLY subset of the
+   Pretendard variable font, weight axis 45–930, 101 KB instead of the 2 MB
+   full Hangul build. No Hangul / CJK glyphs (English-only, per Richard).
+   Regenerate with pyftsubset from `pretendard`'s PretendardVariable.ttf if the
+   covered ranges ever need to change, and re-vendor from the app so the design
+   system and production keep serving the same face.
+
+   Previously this pointed at fonts/PretendardVariable.woff2, which was never
+   vendored (the 2 MB file exceeded DesignSync's 256 KiB read cap), so the
+   @font-face dangled. Template previews additionally load the CDN
+   dynamic-subset CSS, which is why type still rendered. */
 @font-face {
   font-family: 'Pretendard';
-  src: url('fonts/PretendardVariable.woff2') format('woff2-variations');
-  font-weight: 45 920;
+  src: url('fonts/PretendardLatinVar.woff2') format('woff2-variations');
+  font-weight: 45 930;
   font-style: normal;
   font-display: swap;
 }
