@@ -87,6 +87,25 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
+      # `supabase start` pulls its images from Docker Hub, which rate-limits
+      # ANONYMOUS pulls against the runner's shared egress IP — a bucket we
+      # share with every other GitHub Actions job, so it empties at
+      # unpredictable times for reasons unrelated to this repo. It already bit
+      # us: run 31662794821 logged "toomanyrequests: Rate exceeded" and only
+      # passed because the retry happened to land. Authenticated pulls count
+      # against our own account instead.
+      #
+      # Deliberately non-fatal. If the credentials are ever missing, expired, or
+      # unavailable (a fork PR gets no secrets), the login is skipped and the
+      # pull falls back to anonymous — i.e. exactly the old behavior — rather
+      # than failing E2E, which is a REQUIRED check on main.
+      - name: Log in to Docker Hub
+        continue-on-error: true
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       # Boots Postgres + Auth + PostgREST + Storage + Realtime and applies
       # every migration and seed. Studio and the log pipeline aren't needed
       # for tests.
