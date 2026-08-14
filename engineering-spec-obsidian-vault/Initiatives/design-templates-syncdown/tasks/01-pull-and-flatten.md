@@ -16,7 +16,7 @@ Claude Design restructured the BridgeCircle templates on 2026-08-14: the 15
 per-flow folders (`templates/app-shell/`, `templates/help/`, …) were replaced by a
 single flat `templates/screens/`, because Claude Design resolves `<dc-import>`
 against **siblings** — a shared component and the screens using it must sit in the
-same directory. The repo has only 2 of the 41 files.
+same directory. The repo has only 3 of the 41 files.
 
 **The non-obvious part, and the whole reason this task is written out:**
 `DesignSync get_file` returns each file's body into the model context as JSON. If
@@ -39,7 +39,8 @@ Bundle root: `docs/experience/ui/design-system/handoff/bridgecircle/project`
 ## Scope
 
 **In:**
-- Pull 39 files into `templates/screens/` (list below).
+- Pull the outstanding files into `templates/screens/` — the canonical 39-path list
+  is below; 3 are already on disk, so 36 remain, plus `support.js`.
 - Pull `templates/screens/support.js` — the 64 KB compiled dc-runtime. One copy.
 - Delete the 15 per-flow folders (65 files), **after** verification passes.
 - Repoint 5 stale references that would otherwise point at deleted folders.
@@ -57,7 +58,7 @@ Bundle root: `docs/experience/ui/design-system/handoff/bridgecircle/project`
 
 | Path | What changes |
 |---|---|
-| `…/project/templates/screens/*.dc.html` | 31 new files pulled (32 total with the existing `Shell.dc.html`) |
+| `…/project/templates/screens/*.dc.html` | 30 new files pulled (32 total, with `Shell` and `Toast` already down) |
 | `…/project/templates/screens/*.js` | 8 data/menu files + `support.js` pulled (10 total with the existing `ds-base.js`) |
 | `…/project/templates/{app-shell,entry,help,home,messages,my-circle,notifications,onboarding,people,profile,profile-self,profile-slideover,school,settings,system-states}/` | deleted — 65 files |
 | `…/project/preview/system-states.html` | 2 provenance refs → `templates/screens/…` |
@@ -68,7 +69,7 @@ Leave alone: `.design-sync/NOTES.md` line ~224 mentions
 `templates/onboarding/Onboarding.dc.html` — that is dated history of a July fix,
 correct as written.
 
-## The 39 paths
+## The canonical 39 paths (3 already on disk — see below)
 
 31 `.dc.html`, each `templates/screens/<Name>.dc.html`: AnnouncementRead,
 Announcements, AppShell, AskCircle, AskCompose, AskHistory, AskStatus, Avatar,
@@ -84,15 +85,16 @@ SystemStates, Toast
 Plus `templates/screens/support.js` (the runtime, per the plan's decisions log).
 
 **Already on disk, never refetch or clobber:** `Shell.dc.html` (34,856 b),
-`ds-base.js` (925 b).
+`ds-base.js` (925 b), `Toast.dc.html` (1,421 b). So **36** of the 39 remain to pull, plus
+`support.js` — 42 files when done.
 
 ## Steps
 
 1. `DesignSync list_files` on the project → confirm the 39 paths still exist and
    nothing has been renamed since 2026-08-14. → the listing matches the names above
 2. Save the harvest script below to a temp path. → `python3 -m py_compile` clean
-3. `DesignSync get_file` for ~6 paths, then run the script. Repeat until all 40
-   (39 + `support.js`) are down. → each run prints the byte sizes it wrote; it is
+3. `DesignSync get_file` for ~6 paths, then run the script. Repeat until every path in the
+   list below plus `support.js` is on disk. → each run prints the byte sizes it wrote; it is
    idempotent and later-wins, so re-running is safe
 4. Run the verification below. → 42 files, no zero-byte, no truncated fetch,
    `node --check` clean, every `var()` resolves
@@ -113,7 +115,8 @@ recently modified transcript; pass one as `argv[1]` to override.
 import base64, glob, json, os, re, sys
 DEST = "/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project"
 KEEP = re.compile(r"^templates/screens/.+$")
-SKIP = {"templates/screens/Shell.dc.html", "templates/screens/ds-base.js"}
+SKIP = {"templates/screens/Shell.dc.html", "templates/screens/ds-base.js",
+        "templates/screens/Toast.dc.html"}
 PROJ = os.path.expanduser("~/.claude/projects/-Users-richardlee-Developer-BridgeCircle")
 SESSION = sys.argv[1] if len(sys.argv) > 1 else max(
     glob.glob(os.path.join(PROJ, "*.jsonl")), key=os.path.getmtime)
