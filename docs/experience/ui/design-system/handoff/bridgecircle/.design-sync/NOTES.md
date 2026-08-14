@@ -7,6 +7,22 @@ divergence ledger (`uploads/OVERRIDES.md`) and the baseline-test evidence
 (`Help Hub.html`). Direct file push of `project/**`; no converter, no
 `register_assets` (`@dsCard` markers index the cards).
 
+## ⚠ SYNC IN FLIGHT — templates restructure, half pulled (2026-08-14)
+
+The remote restructured `templates/` on 2026-08-14: the 15 per-flow folders are
+gone, replaced by a flat `templates/screens/` (26 screens + shared `Shell`, `Card`,
+`Avatar`, `Toast`, `Screens`). **The repo has 2 of its 41 files.** Do not treat
+either tree as authoritative until this closes.
+
+Remaining work is written up as an initiative — read it before touching
+`templates/`:
+[`Initiatives/design-templates-syncdown/plan.md`](../../../../../../../engineering-spec-obsidian-vault/Initiatives/design-templates-syncdown/plan.md)
+
+Done in PR #194: token `@kind` annotations (33 declarations), both
+`templates/*.md`, and `ds-base.js` base-path verification (`'../..'` is correct).
+Still to do: pull 39 screens + `support.js`, delete the 65 per-flow files, repoint
+5 stale references. `DesignSync` is main-thread only — a subagent cannot do it.
+
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 
 **Current pin: `403a99dc-f481-472b-974d-aea93ee512f9`** (`bridgecircle`,
