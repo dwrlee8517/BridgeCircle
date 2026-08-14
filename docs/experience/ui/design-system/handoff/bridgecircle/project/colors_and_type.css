@@ -395,7 +395,7 @@
   --font-size-body:          14px; --lh-body:          22px; /* w400 */
   --font-size-body-sm:       13px; --lh-body-sm:       20px; /* w400 */
   --font-size-caption:       12px; --lh-caption:       18px; /* w400 */
-  --font-size-label:         12px; --lh-label:         1.5;  /* w500, +tracking when caps — [O4] floor raised from TDS 10px */
+  --font-size-label:         12px; --lh-label:         1.5;  /* @kind font */ /* w500, +tracking when caps — [O4] floor raised from TDS 10px */
 
   --weight-regular: 400;
   --weight-medium:  500;
@@ -433,11 +433,11 @@
   --shadow-raised: 0 4px 12px rgb(2 9 19 / 0.10), 0 12px 32px rgb(2 9 19 / 0.10);
 
   /* Motion — behavior-neutral defaults. */
-  --motion-fast: 100ms;
-  --motion-base: 150ms;
-  --motion-slow: 250ms;
-  --ease-standard: ease-out;
-  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --motion-fast: 100ms; /* @kind other */
+  --motion-base: 150ms; /* @kind other */
+  --motion-slow: 250ms; /* @kind other */
+  --ease-standard: ease-out; /* @kind other */
+  --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1); /* @kind other */
 
   /* ---------------------------------------------------------------- */
   /* 5 · DESKTOP / WIDE VIEWPORT  [E3] — EXTENSION                     */
