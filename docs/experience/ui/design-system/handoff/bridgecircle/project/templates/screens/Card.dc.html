@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @component Card — the two sanctioned card surfaces. Elevated [O9] is the major
+     content card (gradient + ring + shadow; radius is NOT a differentiator since
+     --radius-card-xl == --radius-large 16 as of 2026-08-13). Flat is the quiet
+     card. Every card composes a ring and a shadow — this is that rule, once. -->
+<helmet>
+  <script src="./ds-base.js"></script>
+</helmet>
+<sc-if value="{{ isElevated }}" hint-placeholder-val="{{ true }}">
+  <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">{{ children }}</div>
+</sc-if>
+<sc-if value="{{ isFlat }}" hint-placeholder-val="{{ false }}">
+  <div style="background:var(--surface-card);border-radius:var(--radius-large);overflow:hidden;box-shadow:var(--ring-card),var(--shadow-card)">{{ children }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:180},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;elevated&quot;,&quot;tsType&quot;:&quot;'elevated'|'flat'&quot;,&quot;options&quot;:[&quot;elevated&quot;,&quot;flat&quot;]},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const flat = this.props.variant === 'flat';
+    return { isElevated: !flat, isFlat: flat, children: this.props.children };
+  }
+}
+
+</script>
+</body>
+</html>

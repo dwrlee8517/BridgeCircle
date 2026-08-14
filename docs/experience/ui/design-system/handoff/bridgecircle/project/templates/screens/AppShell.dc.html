@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- Screen: App shell — Blank member screen — the shared Shell (240px sidebar · 66px topbar · bell popover · account menu) with an empty content area. Start any new screen from this file: set the Shell props, replace the dashed block. -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)}</style>
+</helmet>
+
+<dc-import name="Shell" active="home" title="Home" label="Home" bell="menu" msgBadge="{{ msgBadge }}" notificationDot="{{ dot }}" hint-size="100%,100vh">
+  <div style="flex:1;padding:26px 30px">
+    <dc-import name="Card" hint-size="100%,340px">
+      <div style="min-height:340px;display:flex;align-items:center;justify-content:center">
+        <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-faint)">page content &mdash; replace this block</span>
+      </div>
+    </dc-import>
+  </div>
+</dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;messagesUnread&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:0,&quot;max&quot;:99,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Shell&quot;},&quot;notificationDot&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Shell&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      msgBadge: this.props.messagesUnread ?? 3,
+      dot: this.props.notificationDot ?? true
+    };
+  }
+}
+
+</script>
+</body>
+</html>

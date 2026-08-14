@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @component Avatar — the initials circle. One implementation of the [E2] rotating
+     avatar palette (avatar-1..6, no status meaning), the neutral operator variant,
+     and self (--gradient-avatar). Replaces the sc-if av1..av5 ladders that were
+     copied across 16 screens.
+     The single computed style attribute is deliberate and is the only one in this
+     folder: the palette index and the pixel size both arrive as data, so there is
+     no literal that could stand in for them. -->
+<helmet>
+  <script src="./ds-base.js"></script>
+</helmet>
+<span aria-hidden="{{ decorative }}" style="{{ box }}">{{ label }}</span>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:120,&quot;height&quot;:80},&quot;initials&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;IL&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;1&quot;,&quot;tsType&quot;:&quot;'1'|'2'|'3'|'4'|'5'|'6'|'self'|'neutral'&quot;,&quot;options&quot;:[&quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,&quot;5&quot;,&quot;6&quot;,&quot;self&quot;,&quot;neutral&quot;]},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:36,&quot;min&quot;:20,&quot;max&quot;:80,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;},&quot;font&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:14,&quot;min&quot;:9,&quot;max&quot;:32,&quot;unit&quot;:&quot;px&quot;,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const tone = String(p.tone ?? 1);
+    const size = Number(p.size ?? 36);
+    const font = Number(p.font ?? Math.round(size * 0.39));
+    let paint;
+    if (tone === 'self') {
+      paint = 'background:var(--gradient-avatar);color:#fff;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2)';
+    } else if (tone === 'neutral') {
+      paint = 'background:var(--avatar-neutral);color:var(--text-secondary);box-shadow:var(--ring-avatar)';
+    } else {
+      const n = Math.min(6, Math.max(1, parseInt(tone, 10) || 1));
+      paint = 'background:var(--avatar-' + n + '-bg);color:var(--avatar-' + n + '-fg);box-shadow:var(--ring-avatar)';
+    }
+    return {
+      label: p.initials ?? '',
+      decorative: p.initials ? undefined : 'true',
+      box: 'width:' + size + 'px;height:' + size + 'px;flex:none;border-radius:50%;display:flex;'
+        + 'align-items:center;justify-content:center;font-weight:700;font-size:' + font + 'px;'
+        + 'letter-spacing:-0.01em;' + paint
+    };
+  }
+}
+
+</script>
+</body>
+</html>
