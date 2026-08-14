@@ -41,18 +41,22 @@ the pages actually use. Minted: **E5** `--surface-canvas` / `--surface-inset` /
 `--give-tint` (.12) / `--give-tint-weak` (.1) (the translucent green behind
 positive/give pills — alpha so it sits in the surface). Changed:
 `--border-subtle` → `#eef1f5`. Retired: the saturated band anatomy (see
-Identity system). **Dark mode is LIVE and adopted from production
-(2026-08-14)** — the 2026-07-12 "v1 ships light-only" call was overtaken by the
-app, which ships a full `.dark` theme, a next-themes provider, and a
-member-facing theme picker. The bundle's old 39-token dark block was a derived
-guess that disagreed with production on 11 of the 12 tokens both defined; it has
-been replaced by 108 declarations generated from production (18 ramp flips + 90
-role overrides) and verified value-for-value. **Design dark surfaces against
-it** — including the washes, `--surface-canvas/-inset` and `--closing-soon-*`,
-which do have dark values (the old block wrongly said they didn't). The only
-tokens without a dark value are the ones production has no opinion on
-(`--border-strong`, `--bp-*`, `--brand-blue`, the semantic anchors,
-`--interactive`, `--font-*`); those inherit `:root`. Templates now
+Identity system). **Dark mode: ⚠ UNFINISHED — mirrors production, which is
+itself an unvetted experiment (Richard, 2026-08-14).** History: the 2026-07-12
+"v1 ships light-only" call was overtaken by the app, which ships a `.dark`
+theme, a next-themes provider, and a member-facing picker — so members *can*
+turn dark on. The bundle's old 39-token block was a derived guess disagreeing
+with production on 11 of 12 shared tokens, so it was replaced by 108
+declarations generated from production and verified value-for-value. That makes
+the bundle honest about what dark currently renders; it does **not** make dark
+done. **Production's dark theme was built as an experiment and its contrast
+pairs have never been measured.** So: design in **light** by default; read the
+`.dark` block to know what production does today; do **not** ship new dark-only
+surfaces or cite dark values as precedent without a WCAG AA contrast pass
+first. Expect these values to change when the real dark pass happens — fix
+production and re-mirror rather than hand-editing the bundle. Tokens production
+has no opinion on (`--border-strong`, `--bp-*`, `--brand-blue`, the semantic
+anchors, `--interactive`, `--font-*`) inherit `:root`. Templates now
 consume the vars (literals swapped 2026-07-12). 31 pattern specimens cover the
 product patterns (waiting group, ask pills, decision dialogs, system states,
 onboarding chrome, profile slide-over, ask composer, …).

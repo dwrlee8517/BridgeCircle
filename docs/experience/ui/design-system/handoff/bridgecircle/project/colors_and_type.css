@@ -481,7 +481,32 @@
 }
 
 /* ---------------------------------------------------------------------
-   DARK MODE — ADOPTED FROM PRODUCTION 2026-08-14. No longer parked.
+   DARK MODE — ⚠ UNFINISHED. MIRRORS PRODUCTION, WHICH IS ITSELF
+   EXPERIMENTAL AND NOT CONTRAST-MEASURED. DO NOT TREAT AS DONE.
+
+   Status (Richard, 2026-08-14): production's dark theme was built as an
+   EXPERIMENT. It ships — there is a real theme picker, so members can turn it
+   on — but it has never been design-reviewed and its contrast pairs have never
+   been measured. This block mirrors it faithfully, which makes the design
+   system HONEST about what members see; it does NOT make dark approved.
+
+   What that means in practice:
+   - Use this block to know what production currently renders in dark.
+   - Do NOT ship new dark-only surfaces against it, and do not cite it as
+     precedent, without a contrast pass first (every text/tint pair to WCAG
+     AA — start with the ones flagged below).
+   - When the real dark pass happens, expect values here to CHANGE. Fixing
+     production and re-mirroring is the intended path; hand-editing this block
+     just re-creates the 2026-07 drift.
+
+   Unmeasured pairs most likely to fail, as a starting list: --action-give-text
+   #4dd49b and --action-give-weak-text #4dd49b on dark surfaces · --closing-soon-text
+   #ffbd51 on --closing-soon-tint · --action-weak-text #8db9ff on
+   rgb(100 168 255 / 0.12) · --text-faint #79808c on --surface-base #16171d ·
+   the state-*-text/-tint pairs, which inherit light-theme ramp stops.
+
+   ---- provenance ----
+   ADOPTED FROM PRODUCTION 2026-08-14. No longer "parked".
 
    The 2026-07-12 call ("v1 ships light-only") was overtaken by the app:
    production ships a full dark theme (`.dark` in app/src/app/globals.css,

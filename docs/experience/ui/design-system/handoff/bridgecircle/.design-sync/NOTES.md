@@ -97,10 +97,28 @@ migration were closed rather than carried:
   and production now serve the same face. Templates keep loading the CDN
   dynamic-subset CSS as well, unchanged.
 
-Still not closed, and not closable from this account: **whether Daniel can write
-`403a99dc…`**. The project shows as the org's **default** design system in the
-composer picker, which is strong evidence it's shared, but read-vs-write is his
-first push to confirm.
+**Write access — resolved (Richard, 2026-08-14).** Daniel owns this org's
+permissions, so he can write `403a99dc…`; the shared-pin convention holds. The
+project also shows as the org's **default** design system in the composer picker.
+Nothing to verify.
+
+**`toss-base` is Richard's personal project, deliberately outside the org**
+(Richard, 2026-08-14) — not an oversight and not a migration TODO. Its
+`config.json` keeps the pre-org pin `f58b5256…`; syncing it works by pin, it just
+won't appear in the org's Design systems list. Don't "fix" it.
+
+**Dark mode is NOT done and NOT contrast-measured (Richard, 2026-08-14).**
+Production's dark theme was built as an *experiment*: it ships with a real theme
+picker, so members can turn it on, but it has never been design-reviewed and its
+contrast pairs have never been measured. The bundle now mirrors it, which makes
+the design system honest about what dark renders — it is **not** a sign-off.
+Standing rule until a real dark pass: design in light, read `.dark` as a record
+of current behavior, and don't ship new dark-only surfaces or cite dark values as
+precedent without a WCAG AA check. Fix path is *fix production, then re-mirror* —
+hand-editing the bundle is how the 2026-07 drift started. Flagged in
+`colors_and_type.css`, `SKILL.md`, and the ledger, each carrying the same
+starting list of likely-failing pairs. No specimen renders dark either, so the
+gallery can't catch a failure visually.
 
 **Template authorship inverted (2026-08-13 finding).** The remote stopped being
 the source of truth for `templates/**` on 2026-07-15. Commits `9dcc4a3f`

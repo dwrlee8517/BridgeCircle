@@ -101,10 +101,28 @@ production has no opinion on are deliberately **not** overridden and inherit
 `:root`: `--border-strong`, `--bp-*`, `--brand-blue`, the `--error/--warning/
 --caution/--success/--info/--premium` anchors, `--interactive`, `--font-*`.
 
-Not in scope of this adoption: the fork has not audited production's dark
-choices *as design* (contrast pairs are inherited from production untested
-here). If the fork ever wants a dark treatment that differs from the app, that
-is a new override entry with evidence — not an edit to this block.
+**Status: NOT DONE. Contrast NOT measured.** Richard, 2026-08-14: production's
+dark theme was built as an **experiment**. It ships and members can switch to it,
+but it has never been design-reviewed and none of its contrast pairs have been
+measured. Mirroring it makes this bundle *honest* — it does not make dark
+*approved*, and adopting it is explicitly **not** a design sign-off.
+
+Standing rule until a real dark pass happens: design in light; treat the `.dark`
+block as a factual record of what production renders; do not ship new dark-only
+surfaces or cite dark values as precedent without a WCAG AA pass. Expect the
+values to change — the fix path is *fix production, then re-mirror*, never
+hand-edit the bundle (that is exactly how the 2026-07 drift started).
+
+Unmeasured pairs to check first when the pass happens: `--action-give-text` and
+`--action-give-weak-text` (both `#4dd49b`) on dark surfaces · `--closing-soon-text`
+`#ffbd51` on `--closing-soon-tint` · `--action-weak-text` `#8db9ff` on
+`rgb(100 168 255 / 0.12)` · `--text-faint` `#79808c` on `--surface-base` `#16171d` ·
+every `state-*-text` / `state-*-tint` pair, which still inherit light-theme ramp
+stops. No specimen renders dark yet either, so nothing in the gallery would catch
+a failure visually.
+
+If the fork ever wants a dark treatment that differs from the app, that is a new
+override entry with evidence — not an edit to this block.
 
 ## Pattern guidance (not tokens)
 
