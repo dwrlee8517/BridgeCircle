@@ -3,10 +3,10 @@
 ## Comparison target
 
 - Source visual truth:
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/people/People.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/my-circle/MyCircle.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/profile/Profile.dc.html`
-  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/profile/ProfileSelf.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/screens/People.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/screens/MyCircle.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/screens/Profile.dc.html`
+  - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/templates/screens/ProfileSelf.dc.html`
   - `/Users/richardlee/Developer/BridgeCircle/docs/experience/ui/design-system/handoff/bridgecircle/project/uploads/FLOWS.md`, especially §§4, 7, 7b, 7c, and 7d. Where the older profile specimen still shows “Why this match,” the later explicit decision in FLOWS §7 is canonical and removes it from profiles.
 - Implementation routes:
   - `http://localhost:3000/people`

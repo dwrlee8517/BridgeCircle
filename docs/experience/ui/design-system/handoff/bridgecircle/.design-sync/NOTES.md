@@ -7,6 +7,54 @@ divergence ledger (`uploads/OVERRIDES.md`) and the baseline-test evidence
 (`Help Hub.html`). Direct file push of `project/**`; no converter, no
 `register_assets` (`@dsCard` markers index the cards).
 
+## ⚠ SYNC IN FLIGHT — templates restructure, pull complete (2026-08-14)
+
+The remote restructured `templates/` on 2026-08-14: the 15 per-flow folders are
+gone, replaced by a flat `templates/screens/` (26 screens + shared `Shell`, `Card`,
+`Avatar`, `Toast`, `Screens`). Claude Design resolves `<dc-import>` against
+**siblings**, so a shared component and the screens using it must sit in one
+directory — that is what the flat tree buys, and it is what collapsed 13 divergent
+sidebars and 18 divergent topbars into a single `Shell.dc.html`.
+
+The initiative tracking this:
+[`Initiatives/design-templates-syncdown/plan.md`](../../../../../../../engineering-spec-obsidian-vault/Initiatives/design-templates-syncdown/plan.md)
+
+Done in PR #194: token `@kind` annotations (33 declarations), both
+`templates/*.md`, and `ds-base.js` base-path verification (`'../..'` is correct).
+
+**Re-sync log — 2026-08-14, the pull.** All 42 files of `templates/screens/` are
+now on disk and byte-exact: 32 `.dc.html`, 9 data/menu `.js`, plus the one vendored
+`support.js` (64,222 b — the compiled dc-runtime, one copy for the whole flat
+tree). Verification clean: no zero-byte file, no fetch reported `truncated`, every
+`.dc.html` opens `<!DOCTYPE html>` and closes `</html>`, `node --check` passes on
+all 10 `.js`, and every `var(--…)` resolves against `colors_and_type.css`. The 5
+stale per-flow references in `design-qa.md`, `preview/system-states.html`, and
+`preview/decision-dialogs.html` now point at `templates/screens/`.
+
+Two mechanics worth not rediscovering. `DesignSync` is **main-thread only** — a
+subagent cannot see the tool, so this can never be delegated. And `get_file`
+returns bodies into the model context, which must never be retyped into a `Write`;
+content is extracted from the session transcript, or — for results over ~50 KB,
+which the harness spills to `tool-results/*.txt` instead of inlining — from that
+sidecar file. Both are byte-exact; retyping is not.
+
+The 15 per-flow folders (65 files) are deleted, so `templates/screens/` is the
+only tree under `templates/` and there is nothing left to confuse it with.
+
+A structural diff against `list_files` puts the bundle at parity, with exactly
+four remote files deliberately not vendored — `templates/sync-plan/{SyncPlan.dc.html,
+ds-base.js,support.js}` and `uploads/repo_copy-1786737908051-cmac.html`. Those are
+remote-authored files outside this sync's scope, left in place by decision rather
+than missed. Local-only paths are `screenshots/**` (QA evidence, never pushed) and
+gitignored `.DS_Store`.
+
+**Still open:** three files are changed locally and not yet pushed back, so the
+two sides differ until they are — `preview/system-states.html` and
+`preview/decision-dialogs.html` (provenance comments repointed at
+`templates/screens/`), and `templates/TOKEN-KINDS.md` (its prose said "22 unique"
+unclassifiable tokens while listing 21; corrected to 21, with the 21-names →
+33-declarations arithmetic spelled out).
+
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 
 **Current pin: `403a99dc-f481-472b-974d-aea93ee512f9`** (`bridgecircle`,
