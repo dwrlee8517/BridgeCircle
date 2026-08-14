@@ -1,73 +1,42 @@
-# Token `@kind` annotations — for the repo, not for this project
+# Token `@kind` annotations — remaining work
 
-> **STATUS — done 2026-08-14.** All 33 declarations are annotated in the repo's
-> `colors_and_type.css` **and that file has been synced up**, so the copy in this
-> project now carries the annotations too (verified byte-identical). Nothing below
-> is outstanding; it is kept as the record of what was applied and why.
->
-> Worth knowing why this sat unresolved: the annotations were written in the repo
-> in PR #194, but `colors_and_type.css` itself was never pushed. This project kept
-> serving an un-annotated copy — 0 occurrences of `@kind` — so the checker went on
-> reporting all of them. Applying the rules is only half the job; the file has to
-> be re-synced.
+**Status 14 Aug:** the first paste landed. Unclassifiable tokens went from
+**22 → 6**. Groups 1 (`@kind shadow`, the `inset` rings) and 2 (`@kind color`,
+the gradients) are done and need no further attention.
 
-`check_design_system` reports 31 of 371 tokens (21 unique) as unclassifiable.
-The fix is a `/* @kind … */` comment after each declaration in
-`colors_and_type.css`. Author the change **in the code repo**, never here — this
-copy is overwritten by every `/design-sync` — then sync the file up so the
-annotations actually reach the checker.
+Six remain. The checker now names all of them, so this is an exact list rather
+than the reconstruction the earlier version of this file contained.
 
-Two rules cover every case. Apply them in **both** the `:root` block and the
-`.dark` block — the duplicated declarations are why a count of unique names
-undershoots the finding count. In the repo's `colors_and_type.css` the 21 names
-land as **33 declarations**: all 21 in `:root`, and the 12 that `.dark`
-redeclares. The other 9 appear once, so `:root` is the only place to annotate
-them.
+All six are declared in `:root` only — the motion block has no `.dark`
+counterpart — so unlike the first batch there is nothing to mirror.
 
-## `/* @kind shadow */` — composable `box-shadow` values
+## `--lh-label` → `/* @kind font */`
 
-These are rings, meant to be composed with a shadow
-(`box-shadow: var(--ring-card), var(--shadow-card)`). The value is an `inset`
-box-shadow, which the classifier can't tell from a colour.
+`colors_and_type.css:398`
 
-    --ring-card            /* @kind shadow */
-    --ring-card-elevated   /* @kind shadow */
-    --ring-avatar          /* @kind shadow */
-    --ring-outline         /* @kind shadow */
-    --ring-glass           /* @kind shadow */
-    --selected-accent      /* @kind shadow */   inset 2px 0 0 — the left accent bar
-    --nav-active-ring      /* @kind shadow */   value is `none` (kept so
-                                                box-shadow: var(--nav-active-ring)
-                                                renders nothing, per E3 2026-07-06)
+    --font-size-label: 12px; --lh-label: 1.5;  /* @kind font */
 
-## `/* @kind color */` — gradients used as backgrounds
+Every other line-height in the type scale is a px value (`--lh-body-sm: 20px`,
+`--lh-caption: 18px`) and classifies on sight. This one is a unitless ratio, so
+there is nothing in the value to go on and the name does not carry a kind word.
+`font` is the right bucket — it belongs to the type scale, not to spacing.
 
-Every one of these is a paint value; the classifier only fails because
-`linear-gradient(…)` / `radial-gradient(…)` isn't a colour literal.
+## Motion and easing → `/* @kind other */`
 
-    --gradient-band-dark      /* @kind color */
-    --gradient-avatar         /* @kind color */
-    --gradient-primary-btn    /* @kind color */
-    --gradient-bubble-me      /* @kind color */
-    --avatar-neutral          /* @kind color */
-    --surface-card-elevated   /* @kind color */
-    --nav-active-bg           /* @kind color */
-    --wash-get                /* @kind color */
-    --wash-give               /* @kind color */
-    --wash-page               /* @kind color */
-    --wash-toggle-track       /* @kind color */
-    --cover-event             /* @kind color */   3 stacked gradients
-    --cover-texture           /* @kind color */   dot grid; pair with
-                                                  background-size:18px 18px
-    --glass-tile              /* @kind color */
+`colors_and_type.css:436-440`. Durations and easing curves are none of
+color, spacing, radius, shadow or font, so `other` is the honest answer rather
+than forcing them into a bucket.
 
-## After the sync
+    --motion-fast:     100ms;                          /* @kind other */
+    --motion-base:     150ms;                          /* @kind other */
+    --motion-slow:     250ms;                          /* @kind other */
+    --ease-standard:   ease-out;                       /* @kind other */
+    --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1); /* @kind other */
 
-Re-run `check_design_system`. The only finding that should remain is the single
-computed style attribute in `templates/screens/Avatar.dc.html`, which is
-deliberate: the palette index (1–6) and the pixel size both arrive as data, so
-no literal can stand in for them. The checker permits that case.
+## After this paste
 
-If a token above turns out not to be in the reported set, annotating it anyway
-is harmless — `@kind` only tells the compiler what it already should have
-inferred.
+`check_design_system` should report no token findings at all. The only
+remaining item will be the single style-attribute note for
+`templates/screens/Avatar.dc.html`, which is deliberate and permitted: the
+palette index (1–6) and the pixel size both arrive as data, so no literal can
+stand in for them.
