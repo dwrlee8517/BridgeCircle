@@ -7,135 +7,21 @@
 </head>
 <body>
 <x-dc>
-<!-- @template name="Home page" description="Home — the dashboard (FLOWS §2). This-week-in-the-circle rotating spotlight, live ask entry, Waiting on you (same group as Messages), open asks with slot count; rail = school pulse + profile freshness. Nothing completes here except connect accept/decline." -->
+<!-- Screen: Home page — Home — the dashboard (FLOWS §2). This-week-in-the-circle rotating spotlight, live ask entry, Waiting on you (same group as Messages), open asks with slot count; rail = school pulse + profile freshness. Nothing completes here except connect accept/decline. -->
 <helmet>
   <script src="./ds-base.js"></script>
   <script src="./home-data.js"></script>
-  <script src="../notifications/notifications-data.js"></script>
-  <script src="../help/help-data.js"></script>
-  <script src="../school/school-data.js"></script>
-  <script src="../messages/messages-data.js"></script>
+  <script src="./notifications-data.js"></script>
+  <script src="./help-data.js"></script>
+  <script src="./school-data.js"></script>
+  <script src="./messages-data.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}
   @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
   @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
 </helmet>
 
-<div style="display:flex;height:100vh;width:100%" data-screen-label="Home">
-
-  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
-    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
-      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
-      BridgeCircle
-    </span>
-    <nav style="display:flex;flex-direction:column;gap:3px">
-      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
-        Home
-      </a>
-      <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
-        Help
-      </a>
-      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
-        People
-      </a>
-      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
-        <span style="flex:1">Messages</span>
-        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
-      </a>
-      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
-        School
-      </a>
-    </nav>
-    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
-      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
-      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
-    </span>
-  </aside>
-
-  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
-    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 26px;z-index:2">
-      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Home</span>
-      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
-        <span style="position:relative;display:inline-flex">
-          <button onClick="{{ bellToggle }}" aria-label="Notifications" aria-expanded="{{ popOpen }}" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-            <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-            <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
-              <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
-            </sc-if>
-          </button>
-          <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}">
-            <span onClick="{{ popClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
-            <div role="dialog" aria-label="Notifications" style="position:absolute;top:50px;right:0;z-index:31;width:390px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden">
-              <span style="display:flex;align-items:baseline;gap:8px;padding:14px 18px 10px">
-                <b style="font-size:14px;font-weight:800;letter-spacing:-0.02em">Notifications</b>
-                <a href="../notifications/Notifications.dc.html" style="margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">See all &rarr;</a>
-              </span>
-              <sc-if value="{{ popEmpty }}" hint-placeholder-val="{{ false }}">
-                <p style="margin:0;padding:6px 18px 16px;font-size:12.5px;line-height:1.5;color:var(--text-faint);font-weight:500;text-align:left">You&rsquo;re caught up &mdash; the full record lives in <a href="../notifications/Notifications.dc.html" style="color:var(--action-primary);font-weight:700">Notifications</a>.</p>
-              </sc-if>
-              <sc-for list="{{ popItems }}" as="n" hint-placeholder-count="3">
-                <a href="{{ n.href }}" onClick="{{ n.markRead }}" style="display:flex;align-items:center;gap:11px;padding:11px 18px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
-                  <sc-if value="{{ n.av1 }}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-1-bg);color:var(--avatar-1-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
-                  <sc-if value="{{ n.av2 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-2-bg);color:var(--avatar-2-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
-                  <sc-if value="{{ n.av3 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-3-bg);color:var(--avatar-3-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
-                  <sc-if value="{{ n.av4 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-4-bg);color:var(--avatar-4-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
-                  <sc-if value="{{ n.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px">{{ n.i }}</span></sc-if>
-                  <span style="flex:1;min-width:0">
-                    <span style="display:block;font-size:13px;font-weight:800;line-height:1.4">{{ n.actor }} <span style="font-weight:600">{{ n.line }}</span></span>
-                    <sc-if value="{{ n.subShow }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.sub }}</span></sc-if>
-                  </span>
-                  <span style="flex:none;font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ n.when }}</span>
-                </a>
-              </sc-for>
-              <p style="margin:0;padding:10px 18px 12px;border-top:1px solid var(--divider-row);font-size:11px;color:var(--text-faint);font-weight:500;text-align:left">Recent updates stay here for context. Unread ones carry a dot.</p>
-            </div>
-          </sc-if>
-        </span>
-        <span style="position:relative;display:inline-flex">
-          <button onClick="{{ gearToggle }}" aria-label="Account menu" aria-expanded="{{ sPopOpen }}" style="width:40px;height:40px;border-radius:50%;border:0;padding:0;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);color:#fff;font-family:var(--font-sans);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">IL</button>
-          <sc-if value="{{ sPopOpen }}" hint-placeholder-val="{{ false }}">
-            <span onClick="{{ sPopClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
-            <div role="dialog" aria-label="Account" style="position:absolute;top:48px;right:0;z-index:31;width:300px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden;text-align:left">
-              <a href="../profile-self/ProfileSelf.dc.html" style="display:flex;align-items:center;gap:12px;padding:16px 18px 14px;text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
-                <span style="width:42px;height:42px;flex:none;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff">IL</span>
-                <span style="flex:1;min-width:0">
-                  <span style="display:block;font-size:14px;font-weight:800;letter-spacing:-0.01em">Iris Lau</span>
-                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">iris.lau@alum.chadwick.edu</span>
-                </span>
-                <span style="flex:none;color:var(--text-faint);font-size:14px">&rsaquo;</span>
-              </a>
-
-              <span style="display:block;border-top:1px solid var(--divider-row);padding:6px 0">
-                <a href="../profile-self/ProfileSelf.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">View profile</a>
-                <a href="../my-circle/MyCircle.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">My circle</a>
-                <a href="../help/AskHistory.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Your asks</a>
-                <a href="../notifications/Notifications.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Notifications</a>
-                <a href="../settings/Settings.dc.html" style="display:block;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text-secondary);text-decoration:none" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">Settings</a>
-              </span>
-
-              <span style="display:flex;align-items:center;gap:10px;padding:11px 18px;border-top:1px solid var(--divider-row)">
-                <span style="flex:1;min-width:0">
-                  <span style="display:block;font-size:13px;font-weight:700">Open to helping</span>
-                  <span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px">Pausing stops matching &mdash; never announced</span>
-                </span>
-                <sc-if value="{{ qpPauseOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="true" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--green-500);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
-                <sc-if value="{{ qpPauseOff }}" hint-placeholder-val="{{ false }}"><button onClick="{{ qpTogglePause }}" role="switch" aria-checked="false" aria-label="Open to helping" style="width:34px;height:20px;border-radius:var(--radius-pill);background:var(--icon-muted);position:relative;border:0;padding:0;cursor:pointer;flex:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px"><span style="position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgb(25 31 40 / 0.2)"></span></button></sc-if>
-              </span>
-
-              <span style="display:flex;align-items:center;gap:14px;padding:11px 18px 13px;border-top:1px solid var(--divider-row);background:#fbfcfd">
-                <a href="mailto:bridgecircle@chadwick.edu" style="font-size:12.5px;color:var(--text-secondary);font-weight:700;text-decoration:none" style-hover="color:var(--text-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Send feedback</a>
-                <a href="../settings/SignedOut.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--text-secondary);font-weight:700;text-decoration:none" style-hover="color:var(--text-primary)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Sign out</a>
-              </span>
-            </div>
-          </sc-if>
-        </span>
-      </span>
-    </header>
+<dc-import name="Shell" active="home" title="Home" bell="menu" label="Home" hint-size="100%,100vh">
 
     <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
       <div style="max-width:1040px;margin:0 auto;padding:26px 34px 40px;display:grid;gap:14px">
@@ -143,17 +29,17 @@
         <sc-if value="{{ pageLoading }}" hint-placeholder-val="{{ false }}">
           <div aria-label="Loading" role="status" style="display:grid;gap:14px">
             <div>
-              <span data-skel="" style="display:block;width:300px;max-width:60%;height:26px;border-radius:9px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
-              <span data-skel="" style="display:block;width:420px;max-width:80%;height:13px;margin-top:9px;border-radius:7px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;width:300px;max-width:60%;height:26px;border-radius:9px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;width:420px;max-width:80%;height:13px;margin-top:9px;border-radius:7px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
             </div>
-            <span data-skel="" style="display:block;height:150px;border-radius:var(--radius-card-xl);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
-            <span data-skel="" style="display:block;height:52px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <span data-skel="" style="display:block;height:150px;border-radius:var(--radius-card-xl);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+            <span data-skel="" style="display:block;height:52px;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
             <div style="display:grid;grid-template-columns:1fr 320px;gap:14px">
               <div style="display:grid;gap:12px;align-content:start">
-                <span data-skel="" style="display:block;height:84px;border-radius:16px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
-                <span data-skel="" style="display:block;height:84px;border-radius:16px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;height:84px;border-radius:16px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="display:block;height:84px;border-radius:16px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
               </div>
-              <span data-skel="" style="display:block;height:180px;border-radius:16px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;height:180px;border-radius:16px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
             </div>
           </div>
         </sc-if>
@@ -164,21 +50,21 @@
             <p style="margin:6px 0 0;font-size:13.5px;color:var(--grey-600);font-weight:500">You&rsquo;re in. A quiet start is normal &mdash; here are three ways to make the circle yours.</p>
           </div>
           <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);overflow:hidden">
-            <a href="../help/Help.dc.html" style="display:flex;align-items:center;gap:14px;padding:18px 24px;text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+            <a href="./Help.dc.html" style="display:flex;align-items:center;gap:14px;padding:18px 24px;text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
               <span style="flex:1;min-width:0">
                 <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.01em">Anything you&rsquo;re trying to figure out?</b>
                 <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">Ask it the way it comes out &mdash; we&rsquo;ll find who can speak to it.</span>
               </span>
               <span style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700">Ask &rarr;</span>
             </a>
-            <a href="../help/Help.dc.html?mode=give" style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-top:1px solid var(--divider-row);text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+            <a href="./Help.dc.html?mode=give" style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-top:1px solid var(--divider-row);text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
               <span style="flex:1;min-width:0">
                 <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.01em">Want to help someone?</b>
                 <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">A few open asks already match what you told us you know.</span>
               </span>
               <span style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700">See asks &rarr;</span>
             </a>
-            <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-top:1px solid var(--divider-row);text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+            <a href="./People.dc.html" style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-top:1px solid var(--divider-row);text-decoration:none;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
               <span style="flex:1;min-width:0">
                 <b style="display:block;font-size:15px;font-weight:800;letter-spacing:-0.01em">Say hi to your class</b>
                 <span style="display:block;font-size:12.5px;color:var(--grey-600);font-weight:500;margin-top:3px">Class of &rsquo;22 is here &mdash; one hello starts your circle and your Messages.</span>
@@ -186,7 +72,7 @@
               <span style="flex:none;font-size:12.5px;color:var(--action-primary);font-weight:700">See your class &rarr;</span>
             </a>
           </div>
-          <p style="margin:2px 0 0;font-size:12px;color:var(--text-faint);font-weight:500;padding:0 2px">Nothing here is required &mdash; the dashboard fills in as the circle does. The school&rsquo;s events live on <a href="../school/School.dc.html" style="color:var(--action-primary);font-weight:700">School</a>.</p>
+          <p style="margin:2px 0 0;font-size:12px;color:var(--text-faint);font-weight:500;padding:0 2px">Nothing here is required &mdash; the dashboard fills in as the circle does. The school&rsquo;s events live on <a href="./School.dc.html" style="color:var(--action-primary);font-weight:700">School</a>.</p>
         </sc-if>
 
         <sc-if value="{{ pageNormal }}" hint-placeholder-val="{{ true }}">
@@ -239,7 +125,7 @@
             </div>
           </div>
           <sc-if value="{{ pausedShow }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:0;padding:0 2px;font-size:12px;color:var(--text-faint);font-weight:500">You&rsquo;re paused &mdash; flip the switch on <a href="../help/Help.dc.html" style="color:var(--action-primary);font-weight:700">Help&thinsp;&middot;&thinsp;Give</a> when you&rsquo;re ready.</p>
+            <p style="margin:0;padding:0 2px;font-size:12px;color:var(--text-faint);font-weight:500">You&rsquo;re paused &mdash; flip the switch on <a href="./Help.dc.html" style="color:var(--action-primary);font-weight:700">Help&thinsp;&middot;&thinsp;Give</a> when you&rsquo;re ready.</p>
           </sc-if>
         </section>
 
@@ -304,7 +190,7 @@
               <div style="display:flex;align-items:baseline;gap:9px;padding:15px 20px 11px">
                 <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">Your open asks</b>
                 <span style="font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ slotLabel }}</span>
-                <a href="../help/AskHistory.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">View all &rarr;</a>
+                <a href="./AskHistory.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">View all &rarr;</a>
               </div>
               <sc-for list="{{ openAsks }}" as="a" hint-placeholder-count="4">
                 <a href="{{ a.href }}" style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
@@ -331,11 +217,11 @@
             <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);overflow:hidden;box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated)">
               <div style="display:flex;align-items:center;gap:9px;padding:15px 20px 11px">
                 <b style="font-size:15px;font-weight:800;letter-spacing:-0.02em">From the school</b>
-                <a href="../school/School.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">School &rarr;</a>
+                <a href="./School.dc.html" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">School &rarr;</a>
               </div>
               <sc-for list="{{ railEvents }}" as="e" hint-placeholder-count="2">
                 <a href="{{ e.href }}" style="display:flex;align-items:center;gap:12px;padding:11px 20px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
-                  <span style="flex:none;width:40px;height:40px;border-radius:var(--radius-comfortable);background:linear-gradient(180deg,#eef5ff,#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
+                  <span style="flex:none;width:40px;height:40px;border-radius:var(--radius-comfortable);background:linear-gradient(180deg,var(--selected-tint),#e2eeff);box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1">
                     <span style="font-size:9px;font-weight:800;color:var(--blue-600);letter-spacing:0.05em">{{ e.mo }}</span>
                     <span style="font-size:15px;font-weight:800;color:var(--text-primary)">{{ e.dd }}</span>
                   </span>
@@ -362,7 +248,7 @@
               <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:16px 20px 17px">
                 <b style="display:block;font-size:14px;font-weight:800;letter-spacing:-0.02em">Your profile found 2 updates</b>
                 <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:var(--grey-600);font-weight:500">Enrichment spotted a new role and a talk. Only you see this &mdash; approve what&rsquo;s right, ignore the rest.</p>
-                <a href="../profile/Profile.dc.html" style="display:inline-block;margin-top:9px;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Review updates &rarr;</a>
+                <a href="./Profile.dc.html" style="display:inline-block;margin-top:9px;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">Review updates &rarr;</a>
               </div>
             </sc-if>
 
@@ -372,8 +258,7 @@
         </sc-if>
       </div>
     </div>
-  </main>
-</div>
+  </dc-import>
 
 <sc-if value="{{ dlgShow }}" hint-placeholder-val="{{ false }}">
   <div style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px">
@@ -416,9 +301,7 @@
   </div>
 </sc-if>
 
-<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
-</sc-if>
+<dc-import name="Toast" show="{{ toastShow }}" text="{{ toastText }}" hint-size="0,0"></dc-import>
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{
@@ -525,7 +408,7 @@ class Component extends DCLogic {
     const q = this.state.ask.trim();
     if (!q) return;
     try { sessionStorage.setItem('bcQuestion', q); } catch (e) { /* ignore */ }
-    window.location.href = '../help/Help.dc.html';
+    window.location.href = './Help.dc.html';
   }
 
   // The deck — one rotating spotlight over tagged items, ~6-item cap.
@@ -543,8 +426,8 @@ class Component extends DCLogic {
         pill: 'You could help', tone: 'green',
         meta: m.asker.name + ' \u00b7 ' + m.asker.role + ' \u00b7 ' + m.time,
         title: m.q, body: (m.full || [])[0] || '',
-        ctaHref: '../help/GiveOffer.dc.html?id=' + m.id, ctaLabel: 'Offer to help', ctaTone: 'green',
-        moreHref: '../help/Help.dc.html', moreLabel: 'More you could help with'
+        ctaHref: './GiveOffer.dc.html?id=' + m.id, ctaLabel: 'Offer to help', ctaTone: 'green',
+        moreHref: './Help.dc.html', moreLabel: 'More you could help with'
       });
     }
 
@@ -556,7 +439,7 @@ class Component extends DCLogic {
         title: s2.q,
         body: 'Asked to the whole circle, name held back. Questions land here every week \u2014 yours can too.',
         act: true, ctaLabel: 'Ask yours',
-        moreHref: '../help/Help.dc.html', moreLabel: 'Help'
+        moreHref: './Help.dc.html', moreLabel: 'Help'
       });
     }
 
@@ -566,8 +449,8 @@ class Component extends DCLogic {
         pill: 'Events', tone: 'grey',
         meta: ev.mo + ' ' + ev.dd + ' \u00b7 ' + ev.listTime + ' \u00b7 ' + ev.place,
         title: ev.title, body: ev.desc || '',
-        ctaHref: '../school/SchoolEvent.dc.html?id=' + ev.id, ctaLabel: 'See the event', ctaTone: 'blue',
-        moreHref: '../school/School.dc.html', moreLabel: 'All events'
+        ctaHref: './SchoolEvent.dc.html?id=' + ev.id, ctaLabel: 'See the event', ctaTone: 'blue',
+        moreHref: './School.dc.html', moreLabel: 'All events'
       });
     }
 
@@ -576,7 +459,7 @@ class Component extends DCLogic {
       items.push({
         pill: 'Recognition', tone: 'grey', meta: r.meta, title: r.title, body: r.body,
         ctaHref: r.href, ctaLabel: r.label, ctaTone: 'blue',
-        moreHref: '../people/People.dc.html', moreLabel: 'People'
+        moreHref: './People.dc.html', moreLabel: 'People'
       });
     }
 
@@ -586,8 +469,8 @@ class Component extends DCLogic {
         pill: 'School news', tone: 'grey',
         meta: pinned.tag + ' \u00b7 ' + pinned.time,
         title: pinned.title, body: '',
-        ctaHref: '../school/AnnouncementRead.dc.html?id=' + pinned.id, ctaLabel: 'Read it', ctaTone: 'blue',
-        moreHref: '../school/Announcements.dc.html', moreLabel: 'All announcements'
+        ctaHref: './AnnouncementRead.dc.html?id=' + pinned.id, ctaLabel: 'Read it', ctaTone: 'blue',
+        moreHref: './Announcements.dc.html', moreLabel: 'All announcements'
       });
     }
 
@@ -639,7 +522,7 @@ class Component extends DCLogic {
         meta: a.kind === 'direct'
           ? 'To ' + (a.to ? a.to.name : '') + ' \u00b7 sent ' + a.sent
           : (a.anon ? 'Anonymous \u00b7 ' : '') + (a.reach === 'school' ? 'Anyone at Chadwick' : 'Good matches') + ' \u00b7 posted ' + a.sent,
-        href: '../help/AskStatus.dc.html?id=' + a.id,
+        href: './AskStatus.dc.html?id=' + a.id,
         pillWaiting: st === 'waiting' || (st === 'quiet' && a.daysLeft > 3),
         pillOffers: st === 'offers' && offersN > 0,
         offersLabel: offersN === 1 ? '1 offer' : offersN + ' offers',
@@ -656,7 +539,7 @@ class Component extends DCLogic {
       mo: e.mo, dd: e.dd, t: e.short,
       m: e.listTime + ' \u00b7 ' + e.place,
       going: s.rsvp[e.id] !== undefined ? !!s.rsvp[e.id] : !!e.going,
-      href: '../school/SchoolEvent.dc.html?id=' + e.id
+      href: './SchoolEvent.dc.html?id=' + e.id
     }));
     const pinned = (school.announcements || []).find((a) => a.pinned);
 
@@ -760,7 +643,7 @@ class Component extends DCLogic {
       pinnedShow: !!pinned,
       pinnedTitle: pinned ? pinned.title : '',
       pinnedMeta: pinned ? pinned.tag + ' \u00b7 ' + pinned.time : '',
-      pinnedHref: pinned ? '../school/AnnouncementRead.dc.html?id=' + pinned.id : '#',
+      pinnedHref: pinned ? './AnnouncementRead.dc.html?id=' + pinned.id : '#',
       freshShow: (this.props.profileFreshness ?? true) && demo !== 'all-clear',
 
       // dialog

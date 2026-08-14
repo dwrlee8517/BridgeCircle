@@ -7,69 +7,17 @@
 </head>
 <body>
 <x-dc>
-<!-- @template name="People page" description="Directory (1a) in the member shell — full flow: browse, NL search, expandable profile rows, scope filters, pagination" -->
+<!-- Screen: People page — Directory (1a) in the member shell — full flow: browse, NL search, expandable profile rows, scope filters, pagination -->
 <helmet>
   <script src="./ds-base.js"></script>
-  <script src="../app-shell/account-menu.js"></script>
+  <script src="./account-menu.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input{font-family:var(--font-sans)}
   @keyframes bcShimmer{from{background-position:120% 0}to{background-position:-20% 0}}
   @media (prefers-reduced-motion: no-preference){[data-skel]{animation:bcShimmer 1.6s linear infinite}}</style>
 </helmet>
 
-<div style="display:flex;min-height:100vh;width:100%">
-
-  <aside style="width:var(--sidebar-width);flex:none;align-self:flex-start;position:sticky;top:0;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
-    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
-      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
-      BridgeCircle
-    </span>
-
-    <nav style="display:flex;flex-direction:column;gap:3px">
-      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
-        Home
-      </a>
-      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
-        Help
-      </a>
-      <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
-        People
-      </a>
-      <a href="#" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
-        <span style="flex:1">Messages</span>
-        <sc-if value="{{ showBadge }}" hint-placeholder-val="{{ true }}">
-          <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
-        </sc-if>
-      </a>
-      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
-        School
-      </a>
-    </nav>
-
-    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
-      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
-      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
-    </span>
-  </aside>
-
-  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
-    <header style="flex:none;position:sticky;top:0;z-index:10;height:var(--topbar-height);background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:16px;padding:0 30px">
-      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">People</span>
-      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
-        <a href="../notifications/Notifications.dc.html" aria-label="Notifications" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-          <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-          <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
-            <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
-          </sc-if>
-        </a>
-        <bc-account-menu></bc-account-menu>
-      </span>
-    </header>
+<dc-import name="Shell" active="people" title="People" bell="menu" label="People" hint-size="100%,100vh">
 
     <div style="flex:1;padding:26px 30px;background:var(--wash-page)">
       <div style="display:grid;gap:14px">
@@ -77,20 +25,20 @@
         <sc-if value="{{ pageLoading }}" hint-placeholder-val="{{ false }}">
           <div aria-label="Loading" role="status" style="display:grid;gap:14px">
             <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:24px 26px;display:grid;gap:14px">
-              <span data-skel="" style="display:block;width:280px;max-width:60%;height:22px;border-radius:8px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
-              <span data-skel="" style="display:block;height:54px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;width:280px;max-width:60%;height:22px;border-radius:8px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+              <span data-skel="" style="display:block;height:54px;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
               <div style="display:flex;gap:8px">
-                <span data-skel="" style="width:90px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
-                <span data-skel="" style="width:110px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
-                <span data-skel="" style="width:100px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="width:90px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="width:110px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
+                <span data-skel="" style="width:100px;height:28px;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
               </div>
             </div>
-            <span data-skel="" style="display:block;width:200px;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span>
+            <span data-skel="" style="display:block;width:200px;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span>
             <div style="background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);overflow:hidden">
-              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:35%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:55%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
-              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:42%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:60%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
-              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:38%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:52%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
-              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:45%;height:13px;border-radius:6px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:58%;height:11px;border-radius:5px;background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,#eef1f5 25%,#f6f8fa 50%,#eef1f5 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:35%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:55%;height:11px;border-radius:5px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:42%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:60%;height:11px;border-radius:5px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--divider-row)"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:38%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:52%;height:11px;border-radius:5px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></div>
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 22px"><span data-skel="" style="width:44px;height:44px;flex:none;border-radius:50%;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span style="flex:1;display:grid;gap:7px"><span data-skel="" style="display:block;width:45%;height:13px;border-radius:6px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span><span data-skel="" style="display:block;width:58%;height:11px;border-radius:5px;background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></span><span data-skel="" style="width:92px;height:34px;flex:none;border-radius:var(--radius-pill);background:linear-gradient(90deg,var(--border-subtle) 25%,var(--surface-canvas) 50%,var(--border-subtle) 75%);background-size:200% 100%"></span></div>
             </div>
           </div>
         </sc-if>
@@ -147,7 +95,7 @@
                 <sc-if value="{{ p.av5 }}" hint-placeholder-val="{{ false }}"><span style="width:46px;height:46px;flex:none;border-radius:50%;background:var(--avatar-5-bg);color:var(--avatar-5-fg);box-shadow:var(--ring-avatar);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">{{ p.initials }}</span></sc-if>
                 <span style="flex:1;min-width:0">
                   <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                    <a href="../profile/Profile.dc.html?id={{ p.pid }}" onClick="{{ p.stop }}" style="font-size:15px;font-weight:700;color:var(--text-primary);text-decoration:none" style-hover="color:var(--blue-600);text-decoration:underline" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:4px">{{ p.name }}</a>
+                    <a href="./Profile.dc.html?id={{ p.pid }}" onClick="{{ p.stop }}" style="font-size:15px;font-weight:700;color:var(--text-primary);text-decoration:none" style-hover="color:var(--blue-600);text-decoration:underline" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:4px">{{ p.name }}</a>
                     <sc-if value="{{ p.isCircle }}" hint-placeholder-val="{{ false }}">
                       <span style="font-size:11px;font-weight:700;border-radius:var(--radius-pill);padding:2px 9px;color:var(--blue-600);background:var(--blue-50)">In your circle</span>
                     </sc-if>
@@ -223,7 +171,7 @@
                 <span><h3 style="font-size:19px;font-weight:800;letter-spacing:-0.02em;margin:0">{{ sel.name }}</h3><span style="display:block;font-size:12.5px;color:var(--grey-600);margin-top:2px;font-weight:500">{{ sel.meta }}</span></span>
               </div>
               <sc-if value="{{ sel.showWhy }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:14px;background:linear-gradient(180deg,#f3f8ff,#eef5ff);border-radius:13px;padding:12px 14px;box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.14)">
+                <div style="margin-top:14px;background:linear-gradient(180deg,#f3f8ff,var(--selected-tint));border-radius:13px;padding:12px 14px;box-shadow:inset 0 0 0 1px rgb(49 130 246 / 0.14)">
                   <span style="font-size:11px;font-weight:700;color:var(--blue-600)">&#9678; Why this match</span>
                   <p style="margin:7px 0 0;font-size:13px;line-height:1.55;color:#33404e;font-weight:500">{{ sel.why }}</p>
                   <span style="display:block;margin-top:8px;font-size:10.5px;color:var(--text-faint);font-weight:500">From verified profile facts &middot; ranked for &ldquo;{{ echoQuery }}&rdquo;</span>
@@ -247,7 +195,7 @@
                   <button onClick="{{ sel.act }}" style="flex:1;background:var(--action-weak);color:var(--blue-600);border:0;border-radius:12px;padding:12px;font-family:var(--font-sans);font-size:13px;font-weight:700;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">{{ sel.btnLabel }}</button>
                 </sc-if>
               </div>
-              <a href="../profile/Profile.dc.html?id={{ sel.pid }}" style="display:block;text-align:center;margin-top:10px;color:var(--blue-600);font-size:12.5px;font-weight:700;padding:8px;border-radius:10px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">View full profile &rsaquo;</a>
+              <a href="./Profile.dc.html?id={{ sel.pid }}" style="display:block;text-align:center;margin-top:10px;color:var(--blue-600);font-size:12.5px;font-weight:700;padding:8px;border-radius:10px" style-hover="background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">View full profile &rsaquo;</a>
               <p style="margin:10px 0 0;text-align:center;font-size:10.5px;color:var(--text-faint);font-weight:500">Profile auto-updated from public sources &middot; last checked May 2026</p>
             </div>
           </sc-if>
@@ -256,9 +204,7 @@
         </sc-if>
       </div>
     </div>
-  </main>
-
-</div>
+  </dc-import>
 
 <sc-if value="{{ connectOpen }}" hint-placeholder-val="{{ false }}">
   <div style="position:fixed;inset:0;z-index:40">
@@ -310,9 +256,7 @@
   </div>
 </sc-if>
 
-<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
-</sc-if>
+<dc-import name="Toast" show="{{ toastShow }}" text="{{ toastText }}" hint-size="0,0"></dc-import>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{
   &quot;startSearched&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;People&quot;},
@@ -536,7 +480,7 @@ class Component extends DCLogic {
         btnLabel: p.st === 'circle' ? 'Message' : 'Connect',
         act: (e) => {
           e.stopPropagation();
-          if (p.st === 'circle') { window.location.href = '../messages/Messages.dc.html'; return; }
+          if (p.st === 'circle') { window.location.href = './Messages.dc.html'; return; }
           this.setState({ connectFor: p.id, connectMode: 'quick', whyText: '', noteText: '', connNoteError: false });
         },
         showMatch: searched && rank > -1 && rank < 3,
@@ -592,7 +536,7 @@ class Component extends DCLogic {
       notRequested: selP.st !== 'requested' && !st.requested[selP.id],
       btnLabel: selP.st === 'circle' ? 'Message' : 'Connect',
       act: () => {
-        if (selP.st === 'circle') { window.location.href = '../messages/Messages.dc.html'; return; }
+        if (selP.st === 'circle') { window.location.href = './Messages.dc.html'; return; }
         this.setState({ connectFor: selP.id, connectMode: 'quick', whyText: '', noteText: '', connNoteError: false });
       },
     } : {};

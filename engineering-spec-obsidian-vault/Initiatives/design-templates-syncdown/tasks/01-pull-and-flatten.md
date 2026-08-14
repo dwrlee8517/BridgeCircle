@@ -1,7 +1,7 @@
 ---
 id: design-templates-syncdown/01-pull-and-flatten
 initiative: "[[Initiatives/design-templates-syncdown/plan|Design templates sync-down (flat screens/)]]"
-status: ready
+status: in-progress
 depends_on: []
 pr:
 ---
@@ -87,22 +87,10 @@ Plus `templates/screens/support.js` (the runtime, per the plan's decisions log).
 **Already on disk (30 of 42), never refetch or clobber:** everything in
 `templates/screens/` as of commit on branch `sync/design-token-kinds`.
 
-**REMAINING — exactly these 12, and nothing else:**
-
-```
-AskCircle.dc.html
-AskCompose.dc.html
-AskStatus.dc.html
-GiveOffer.dc.html
-Help.dc.html
-Home.dc.html
-Messages.dc.html
-Onboarding.dc.html
-People.dc.html
-Profile.dc.html
-School.dc.html
-support.js
-```
+**REMAINING — none. All 42 are on disk and verified as of 2026-08-14.** The last
+12 (`AskCircle`, `AskCompose`, `AskStatus`, `GiveOffer`, `Help`, `Home`,
+`Messages`, `Onboarding`, `People`, `Profile`, `School`, `support.js`) were pulled
+in this session.
 
 Get the live list any time instead of trusting this one:
 
@@ -233,8 +221,68 @@ PY
 
 ## Handoff notes
 
-*Filled in by the session that does this task, before marking it `done`.*
+### 2026-08-14 — pull, verification, and flatten all done; only the push remains
 
-- **What diverged from the plan:**
-- **What the next task needs to know:**
-- **Logged to `Backlog/`:**
+**Steps 1–6 are complete. Step 7 (commit, PR, push the 2 specimens) has not
+started.** The deletion is staged but nothing is committed yet.
+
+The 65 per-flow files are deleted and `templates/screens/` (42 files) is the only
+tree under `templates/`. A structural diff against `list_files` shows the bundle at
+parity apart from the four files this initiative scoped out on purpose
+(`templates/sync-plan/**`, `uploads/repo_copy-*.html`); local-only paths are
+`screenshots/**` and gitignored `.DS_Store`. As an independent fidelity check,
+`Card.dc.html` — pulled in an *earlier* session, not this one — was re-fetched and
+is byte-identical to the local copy (sha `8ad464a17f91f5ae`, 1,717 b), which is
+some evidence the earlier sessions' 30 files are sound too, not just this
+session's 12.
+
+- **Done:** all 12 outstanding files pulled byte-exact (42 total in
+  `templates/screens/`). Full verification passes — no zero-byte file, no
+  `truncated` fetch, `<!DOCTYPE html>` + `</html>` on every `.dc.html`,
+  `node --check` clean on all 10 `.js`, and `unresolved: none` on the token scan.
+  The 5 stale references are repointed, and `.design-sync/NOTES.md` carries the
+  re-sync log entry.
+
+- **One friction worth recording:** `git rm -r` on the per-flow folders was
+  **denied by the Claude Code permission classifier** on the first two attempts
+  (plain and compound forms) — a harness gate, not a repo or git problem. Richard
+  approved it in chat and the same command then ran clean via `git -C <dir>`. If a
+  later task hits this, ask rather than routing around it with `rm` or a script;
+  that defeats the gate instead of satisfying it.
+
+- **What diverged from the plan:** the harvest script needed one addition. Results
+  over roughly 50 KB are **not inlined in the transcript** — the harness spills
+  them to `~/.claude/projects/<proj>/<session>/tool-results/*.txt` and leaves only
+  a 2 KB preview behind. The transcript-only scan in the plan therefore silently
+  misses every large screen (8 of the 12 here, including `support.js`). The script
+  now scans that sidecar directory too and merges later-wins. Both sources are the
+  tool's own JSON, so both are byte-exact — this widens the extraction path, it
+  does not weaken it. The working copy is at
+  `scratchpad/harvest.py`; fold the addition into the plan's inline copy if this
+  method is used again.
+
+- **Also worth knowing:** the plan says the post-deletion grep should return only
+  the `NOTES.md` history line. It returns that line **plus 8 hits under
+  `docs/_archive/database-v2-2026-07/`**. Those are archived, superseded July
+  plans describing paths that were correct when written — the same category as the
+  `NOTES.md` line, so they were deliberately left alone rather than growing the
+  diff. Expect them in the grep; they are not misses.
+
+- **What the next session needs to know:** resume at step 7, which now pushes
+  **3** files, not 2: `preview/system-states.html`, `preview/decision-dialogs.html`
+  (repointed provenance comments) and `templates/TOKEN-KINDS.md` (count fix, see
+  below), plus a `_ds_needs_recompile` sentinel. That is a write to the shared org
+  project, so confirm with Richard before pushing.
+
+- **TOKEN-KINDS.md had a wrong count, now fixed.** Its prose claimed "22 unique"
+  unclassifiable tokens while enumerating 21 (7 shadow + 14 color). Richard
+  confirmed 21 is correct, so the local copy now says 21 and spells out the
+  arithmetic: the 21 names land as 33 declarations in `colors_and_type.css` — all
+  21 in `:root`, plus the 12 that `.dark` redeclares. Since this is a remote-
+  authored file, the fix has to go back up or it will be clobbered on the next
+  pull. One loose end left deliberately: the header still cites the checker's
+  "31 of 371", which does not reconcile with the 33 declarations actually present.
+  That number was not touched because `check_design_system` was not re-run this
+  session — re-run it and correct the figure if it disagrees.
+
+- **Logged to `Backlog/`:** nothing. Nothing out of scope surfaced.

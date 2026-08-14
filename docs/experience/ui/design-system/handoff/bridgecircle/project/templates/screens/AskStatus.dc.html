@@ -9,56 +9,13 @@
 <x-dc>
 <helmet>
   <script src="./ds-base.js"></script>
-  <script src="../app-shell/account-menu.js"></script>
+  <script src="./account-menu.js"></script>
   <script src="./help-data.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
 </helmet>
 
-<div style="display:flex;height:100vh;width:100%" data-screen-label="Help — ask status">
-
-  <aside style="width:var(--sidebar-width);flex:none;height:100vh;box-sizing:border-box;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
-    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
-      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="#191f28" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="#3182f6" stroke-width="1.7"></circle></svg>
-      BridgeCircle
-    </span>
-    <nav style="display:flex;flex-direction:column;gap:3px">
-      <a href="../home/Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
-        Home
-      </a>
-      <a href="./Help.dc.html" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg);text-decoration:none;cursor:pointer" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
-        Help
-      </a>
-      <a href="../people/People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
-        People
-      </a>
-      <a href="../messages/Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
-        <span style="flex:1">Messages</span>
-        <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">3</span>
-      </a>
-      <a href="../school/School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;font-weight:600;color:var(--text-secondary);text-decoration:none;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke:var(--text-faint);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
-        School
-      </a>
-    </nav>
-    <span style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box)">
-      <span style="width:36px;height:36px;border-radius:50%;background:var(--gradient-avatar);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex:none">IL</span>
-      <span><span style="display:block;font-size:14px;font-weight:700;line-height:1.25">Iris Lau</span><span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">Class of &rsquo;22</span></span>
-    </span>
-  </aside>
-
-  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh">
-    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:13px;padding:0 26px;z-index:2">
-      <a href="./Help.dc.html" aria-label="Back to Help" style="width:38px;height:38px;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
-        <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--text-secondary);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m14 6-6 6 6 6"></path></svg>
-      </a>
-      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">Your ask</span>
-      <span style="margin-left:auto"><bc-account-menu></bc-account-menu></span>
-    </header>
+<dc-import name="Shell" active="help" title="Your ask" backHref="./Help.dc.html" backLabel="Back to Help" bell="none" label="Help — ask status" hint-size="100%,100vh">
 
     <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
       <div style="max-width:var(--container-reading);margin:0 auto;padding:28px 26px 40px">
@@ -162,7 +119,7 @@
                   </span>
                 </sc-if>
                 <sc-if value="{{ o.accepted }}" hint-placeholder-val="{{ false }}">
-                  <a href="../messages/Messages.dc.html" style="display:inline-block;margin-top:12px;font-size:12.5px;color:var(--action-primary);font-weight:700;padding:7px 12px;border-radius:9px;background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Thread started in Messages &rarr;</a>
+                  <a href="./Messages.dc.html" style="display:inline-block;margin-top:12px;font-size:12.5px;color:var(--action-primary);font-weight:700;padding:7px 12px;border-radius:9px;background:var(--blue-50)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">Thread started in Messages &rarr;</a>
                 </sc-if>
                 <sc-if value="{{ o.closed }}" hint-placeholder-val="{{ false }}">
                   <p style="margin:12px 0 0;font-size:12px;color:var(--text-faint);font-weight:600">This ask has been answered &mdash; {{ o.first }} got the no-fault closure.</p>
@@ -189,8 +146,7 @@
 
       </div>
     </div>
-  </main>
-</div>
+  </dc-import>
 
 <sc-if value="{{ dlgRetract }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeDlg }}" style="position:fixed;inset:0;z-index:50;background:rgb(25 31 40 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px">
@@ -244,9 +200,7 @@
   </div>
 </sc-if>
 
-<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:#191f28;color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ toastText }}</div>
-</sc-if>
+<dc-import name="Toast" show="{{ toastShow }}" text="{{ toastText }}" hint-size="0,0"></dc-import>
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;demoClosed&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: false, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Demo states&quot;, &quot;description&quot;: &quot;Force the 14-day silent close (FLOWS §3a.9) — direct asks show the no-fault close + recovery pair; open asks show renew / let it rest.&quot;}}">

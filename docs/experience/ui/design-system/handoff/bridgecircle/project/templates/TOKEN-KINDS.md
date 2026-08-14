@@ -1,14 +1,17 @@
 # Token `@kind` annotations — for the repo, not for this project
 
-`check_design_system` reports 31 of 371 tokens (22 unique) as unclassifiable.
+`check_design_system` reports 31 of 371 tokens (21 unique) as unclassifiable.
 The fix is a `/* @kind … */` comment after each declaration in
 `colors_and_type.css` — which is **synced design-system source and read-only
 here**. Annotating it in this project would be overwritten by the next
 `/design-sync`, so the edit belongs in the code repo.
 
 Two rules cover every case. Apply them in **both** the `:root` block and the
-`.dark` block (the duplicated declarations are why 22 unique tokens produce 31
-findings).
+`.dark` block — the duplicated declarations are why a count of unique names
+undershoots the finding count. In the repo's `colors_and_type.css` the 21 names
+land as **33 declarations**: all 21 in `:root`, and the 12 that `.dark`
+redeclares. The other 9 appear once, so `:root` is the only place to annotate
+them.
 
 ## `/* @kind shadow */` — composable `box-shadow` values
 

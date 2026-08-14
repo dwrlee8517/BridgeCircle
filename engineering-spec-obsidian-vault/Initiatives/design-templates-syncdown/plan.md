@@ -86,7 +86,11 @@ flowchart LR
 
 | # | Task | Status | Depends on | PR |
 |---|---|---|---|---|
-| 01 | [[Initiatives/design-templates-syncdown/tasks/01-pull-and-flatten\|Pull 39 screens, vendor the runtime, flatten the tree]] | ready | — | |
+| 01 | [[Initiatives/design-templates-syncdown/tasks/01-pull-and-flatten\|Pull 39 screens, vendor the runtime, flatten the tree]] | in-progress | — | |
+
+All 42 files are pulled and verified and the 15 per-flow folders are deleted
+(staged, not yet committed). What remains is step 7 only: commit, open the PR, and
+push the 2 changed specimens back to the remote. See the task's Handoff notes.
 
 ## Decisions log
 
@@ -106,6 +110,12 @@ flowchart LR
 - **2026-08-14** — Delegation to a subagent was tried and **failed**: `DesignSync`
   is not available off the main thread. Recorded so nobody spends the three minutes
   again.
+- **2026-08-14** — The extraction path is **wider than the plan assumed**, and the
+  plan's harvest script was incomplete as written. `get_file` results over roughly
+  50 KB are spilled to `tool-results/*.txt` rather than inlined in the transcript,
+  so a transcript-only scan misses the largest screens — 8 of the last 12 here.
+  The script now reads both. This does not soften the byte-exact invariant: the
+  sidecar is the tool's own JSON, untouched. Retyping remains forbidden.
 
 ## Risks and rollback
 
