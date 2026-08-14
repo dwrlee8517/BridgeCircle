@@ -142,7 +142,23 @@ at parity.
   file is remote-authored and would otherwise be clobbered on the next pull. Its
   header still cites the checker's "31 of 371", which does not reconcile with the
   33 declarations actually in `colors_and_type.css` — left alone rather than
-  invented, because `check_design_system` was not re-run. Open loose end.
+  invented, because `check_design_system` was not re-run. ~~Open loose end.~~
+  **Closed 2026-08-14** — see below.
+- **2026-08-14** — **Token kinds are done: zero findings.** Richard re-ran the
+  checker after the sync fix; 22 findings → 6, and the checker named those six
+  outright rather than the earlier heuristic guess. `--lh-label` → `@kind font`,
+  and the five motion/easing tokens → `@kind other`; all `:root`-only, nothing to
+  mirror. Applied, pushed, read back byte-identical, and the following re-run
+  reports **no token findings at all** — only the permitted `Avatar.dc.html`
+  style-attribute note. 39 annotations total (21 color, 12 shadow, 5 other,
+  1 font). The stale "31 of 371" question is moot: the checker's own named list
+  superseded every reconstructed count.
+- **2026-08-14** — `check_design_system` is **app-side only**. It lives in the
+  Claude Design project; there is no Claude Code tool binding and no repo script
+  (`app/scripts/check-design-tokens.sh` is an unrelated Tailwind-literal ratchet).
+  The repo can prepare and sync annotations, but a human has to run the check in
+  the project and report the findings back. Recorded so nobody hunts for a
+  command that does not exist.
 
 ## Risks and rollback
 
