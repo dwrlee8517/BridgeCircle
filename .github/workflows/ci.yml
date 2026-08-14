@@ -124,8 +124,26 @@ jobs:
       # Same local stack the E2E job boots, minus the services no test needs.
       # Migrations apply here, so a PR whose migration contradicts the
       # provisioning writes fails in this job rather than in someone's shell.
+      #
+      # Retried for the same reason as in e2e.yml: the CLI's image pulls depend
+      # on per-IP anonymous rate limits at public.ecr.aws and docker.io, which
+      # other tenants sharing the runner's address can exhaust at any moment.
+      # Note there is deliberately NO Docker Hub login here, unlike e2e.yml —
+      # this job's whole point (see the note below) is that it holds no secrets
+      # and therefore cannot be pointed at a remote database. The retry buys the
+      # robustness without giving that up.
       - name: Start local Supabase stack
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec supabase start -x studio,imgproxy,vector,logflare; then
+              exit 0
+            fi
+            echo "::warning::supabase start failed (attempt ${attempt}/3) — most likely a throttled image pull; retrying"
+            pnpm exec supabase stop || true
+            sleep $(( attempt * 20 ))
+          done
+          echo "::error::supabase start failed 3 times — this is no longer a transient pull throttle"
+          exit 1
 
       # No Doppler token: unlike the E2E and build jobs, the integration
       # runner derives every value it needs from `supabase status` and

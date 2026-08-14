@@ -87,18 +87,17 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
-      # `supabase start` pulls its images from Docker Hub, which rate-limits
-      # ANONYMOUS pulls against the runner's shared egress IP — a bucket we
-      # share with every other GitHub Actions job, so it empties at
-      # unpredictable times for reasons unrelated to this repo. It already bit
-      # us: run 31662794821 logged "toomanyrequests: Rate exceeded" and only
-      # passed because the retry happened to land. Authenticated pulls count
-      # against our own account instead.
+      # PARTIAL mitigation, and worth knowing what it does not cover: the
+      # Supabase CLI pulls from TWO registries — most of the stack from
+      # public.ecr.aws and the rest from docker.io. This login authenticates the
+      # docker.io subset only; the public.ecr.aws pulls stay anonymous, and
+      # authenticating those would need an AWS account, which is not worth it
+      # for the observed impact (see the retry below).
       #
       # Deliberately non-fatal. If the credentials are ever missing, expired, or
       # unavailable (a fork PR gets no secrets), the login is skipped and the
-      # pull falls back to anonymous — i.e. exactly the old behavior — rather
-      # than failing E2E, which is a REQUIRED check on main.
+      # pull falls back to anonymous — exactly the old behavior — rather than
+      # failing E2E, which is a REQUIRED check on main.
       - name: Log in to Docker Hub
         continue-on-error: true
         uses: docker/login-action@v4
@@ -109,8 +108,28 @@ jobs:
       # Boots Postgres + Auth + PostgREST + Storage + Realtime and applies
       # every migration and seed. Studio and the log pipeline aren't needed
       # for tests.
+      #
+      # Retried because both registries rate-limit ANONYMOUS pulls per source
+      # IP, and runners share those addresses with every other GitHub Actions
+      # tenant — so the allowance empties at moments that have nothing to do
+      # with this repo. Observed twice (runs 31662794821 and 31827573332,
+      # "toomanyrequests: Rate exceeded"); both recovered on their own, and no
+      # E2E run has ever actually failed from it. A bounded retry is therefore
+      # the proportionate fix: it removes the coin flip without paying to save
+      # and restore ~2 GB of images on every run, which would cost more time
+      # than the pull it replaces.
       - name: Start local Supabase stack
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec supabase start -x studio,imgproxy,vector,logflare; then
+              exit 0
+            fi
+            echo "::warning::supabase start failed (attempt ${attempt}/3) — most likely a throttled image pull; retrying"
+            pnpm exec supabase stop || true
+            sleep $(( attempt * 20 ))
+          done
+          echo "::error::supabase start failed 3 times — this is no longer a transient pull throttle"
+          exit 1
 
       # The runner and the nested dev server both resolve env from the
       # bridgecircle/dev_local Doppler config (tests/e2e/helpers/env.ts).
