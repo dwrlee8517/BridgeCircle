@@ -84,9 +84,31 @@ SystemStates, Toast
 
 Plus `templates/screens/support.js` (the runtime, per the plan's decisions log).
 
-**Already on disk, never refetch or clobber:** `Shell.dc.html` (34,856 b),
-`ds-base.js` (925 b), `Toast.dc.html` (1,421 b). So **36** of the 39 remain to pull, plus
-`support.js` — 42 files when done.
+**Already on disk (30 of 42), never refetch or clobber:** everything in
+`templates/screens/` as of commit on branch `sync/design-token-kinds`.
+
+**REMAINING — exactly these 12, and nothing else:**
+
+```
+AskCircle.dc.html
+AskCompose.dc.html
+AskStatus.dc.html
+GiveOffer.dc.html
+Help.dc.html
+Home.dc.html
+Messages.dc.html
+Onboarding.dc.html
+People.dc.html
+Profile.dc.html
+School.dc.html
+support.js
+```
+
+Get the live list any time instead of trusting this one:
+
+```bash
+ls -1 docs/experience/ui/design-system/handoff/bridgecircle/project/templates/screens/ | wc -l   # want 42
+```
 
 ## Steps
 
