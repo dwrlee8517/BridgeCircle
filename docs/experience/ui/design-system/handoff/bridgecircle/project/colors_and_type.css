@@ -201,7 +201,7 @@
   /* [O7] Card edge: cards are near-borderless but carry a whisper-faint inset
      ring so they read as objects on the grey canvas. Compose into box-shadow:
      `box-shadow: var(--ring-card), var(--shadow-card);` */
-  --ring-card: inset 0 0 0 1px rgb(25 31 40 / 0.05);
+  --ring-card: inset 0 0 0 1px rgb(25 31 40 / 0.05); /* @kind shadow */
 
   /* Action — ONE color: blue. */
   --action-primary:         var(--blue-500);
@@ -284,23 +284,23 @@
   /* band survives — Entry-page backdrop, footers, feature moments.    */
   /* ---------------------------------------------------------------- */
 
-  --gradient-band-dark: linear-gradient(157deg, #2a3340 0%, #191f28 62%); /* Entry backdrop / footers */
+  --gradient-band-dark: linear-gradient(157deg, #2a3340 0%, #191f28 62%); /* @kind color */ /* Entry backdrop / footers */
   /* [O3] HELP HERO DECIDED (Richard, 2026-07-05): the 1i WASH with the band
      variant's PILL toggle geometry (icons, 13px/9-17 padding, white active
      pill w/ mode-colored text) on a soft white track. */
-  --wash-toggle-track: rgb(255 255 255 / 0.7);
+  --wash-toggle-track: rgb(255 255 255 / 0.7); /* @kind color */
   --shadow-band-card: 0 20px 44px -14px rgb(8 17 38 / 0.40); /* cards floating on dark/cover surfaces */
 
   /* Self/brand avatar + icon tiles: the recurring blue gradient the
      reference uses for the signed-in member's avatar (A5 diff item #4). */
-  --gradient-avatar: linear-gradient(135deg, #3b8bf7, #2272eb);
+  --gradient-avatar: linear-gradient(135deg, #3b8bf7, #2272eb); /* @kind color */
   /* [E2 — Richard's call 2026-07-05] DEFAULT for other people = the 6
      rotating colored pairs (--avatar-1..6 above). Status chips still carry
      status; avatar color is identity-only (no status meaning). The neutral
      gradient (from the alternatives) is demoted to an OPTION for dense
      operator surfaces (admin tables) where 6 hues would be noisy. */
-  --avatar-neutral: linear-gradient(135deg, #eef1f6, #dde3ec);
-  --ring-avatar: inset 0 0 0 1px rgb(25 31 40 / 0.05);
+  --avatar-neutral: linear-gradient(135deg, #eef1f6, #dde3ec); /* @kind color */
+  --ring-avatar: inset 0 0 0 1px rgb(25 31 40 / 0.05); /* @kind shadow */
 
   /* ---------------------------------------------------------------- */
   /* 3b · ALTERNATIVES IDIOM (2026-07-05, from Richard's chosen page   */
@@ -310,9 +310,9 @@
   /* [O8] Primary action FINISH: vertical blue gradient + soft glow
      (A5 diff item #9, embraced by every alternative: Search, Send,
      Ask for help). Flat blue-500 remains valid for small buttons. */
-  --gradient-primary-btn: linear-gradient(180deg, #3b8bf7, #2f7ce9);
+  --gradient-primary-btn: linear-gradient(180deg, #3b8bf7, #2f7ce9); /* @kind color */
   --shadow-primary-btn: 0 2px 6px -1px rgb(49 130 246 / 0.4);
-  --gradient-bubble-me: var(--gradient-primary-btn); /* Messages + ask me-bubble; GiveOffer is O2 exception */
+  --gradient-bubble-me: var(--gradient-primary-btn); /* @kind color */ /* Messages + ask me-bubble; GiveOffer is O2 exception */
   --shadow-bubble-me: 0 3px 10px -3px rgb(49 130 246 / 0.4);
 
   /* [O9, amended 2026-08-13] Elevated card treatment (major content cards
@@ -321,8 +321,8 @@
      Radius is NO LONGER a differentiator — --radius-card-xl now equals
      --radius-large (16), so elevation reads through gradient, ring, and
      shadow only. Do not reintroduce a radius step here. */
-  --surface-card-elevated: linear-gradient(180deg, #ffffff, #fdfdfe);
-  --ring-card-elevated: inset 0 0 0 1px rgb(25 31 40 / 0.045);
+  --surface-card-elevated: linear-gradient(180deg, #ffffff, #fdfdfe); /* @kind color */
+  --ring-card-elevated: inset 0 0 0 1px rgb(25 31 40 / 0.045); /* @kind shadow */
   --shadow-card-elevated: 0 1px 2px rgb(25 31 40 / 0.04), 0 12px 32px -16px rgb(25 31 40 / 0.14);
   --radius-card-xl: 16px;  /* [O9 amended 2026-08-13] was 22 — see O6 */
   --divider-row: #f4f5f7;
@@ -330,9 +330,9 @@
   /* [O3 amended] Wash heroes (1i "open hero") — THE identity treatment
      (decided; the saturated bands are retired): a color wash that fades
      into the canvas, dark ink text on it. */
-  --wash-get:  linear-gradient(180deg, #e3effd 0%, rgb(227 239 253 / 0) 100%);
-  --wash-give: linear-gradient(180deg, #e0f5ea 0%, rgb(224 245 234 / 0) 100%);
-  --wash-page: radial-gradient(85% 42% at 50% 0%, rgb(49 130 246 / 0.055) 0%, rgb(49 130 246 / 0) 72%); /* ambient canvas-top wash (1a/1h) */
+  --wash-get:  linear-gradient(180deg, #e3effd 0%, rgb(227 239 253 / 0) 100%); /* @kind color */
+  --wash-give: linear-gradient(180deg, #e0f5ea 0%, rgb(224 245 234 / 0) 100%); /* @kind color */
+  --wash-page: radial-gradient(85% 42% at 50% 0%, rgb(49 130 246 / 0.055) 0%, rgb(49 130 246 / 0) 72%); /* @kind color */ /* ambient canvas-top wash (1a/1h) */
 
   /* [O3 amended ×2] Navy COVER (1h "punchy cover"): deep navy with blue
      glows + dot-grid texture + glass tiles. Deliberately crosses the old
@@ -342,20 +342,20 @@
   --cover-event:
     radial-gradient(95% 130% at 88% -10%, rgb(73 147 252 / 0.55) 0%, rgb(73 147 252 / 0) 55%),
     radial-gradient(80% 120% at 0% 115%, rgb(49 130 246 / 0.35) 0%, rgb(49 130 246 / 0) 60%),
-    linear-gradient(150deg, #0d1b36 0%, #122a52 100%);
-  --cover-texture: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px); /* use with background-size:18px 18px */
+    linear-gradient(150deg, #0d1b36 0%, #122a52 100%); /* @kind color */
+  --cover-texture: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px); /* @kind color */ /* use with background-size:18px 18px */
   --cover-ink: #0d1b36;       /* text on white-on-cover buttons */
   --cover-accent: #9cc3ff;     /* kickers/labels on the cover */
-  --glass-tile: rgb(255 255 255 / 0.12);
-  --ring-glass: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  --glass-tile: rgb(255 255 255 / 0.12); /* @kind color */
+  --ring-glass: inset 0 0 0 1px rgb(255 255 255 / 0.25); /* @kind shadow */
   /* --gradient-capacity removed 2026-07-12 — sole consumer was the give
      capacity meter, rejected 2026-07-05. */
 
   /* [E3 amended] Selection + nav-active per the alternatives */
   --selected-tint: #eef5ff;                     /* selected list item bg */
-  --selected-accent: inset 2px 0 0 #3182f6;     /* left accent bar */
+  --selected-accent: inset 2px 0 0 #3182f6; /* @kind shadow */     /* left accent bar */
   --surface-thread: #fbfcfd;                    /* chat thread canvas (1e) */
-  --ring-outline: inset 0 0 0 1px #e2e5ea;      /* outline pills / buttons */
+  --ring-outline: inset 0 0 0 1px #e2e5ea; /* @kind shadow */      /* outline pills / buttons */
 
   /* [E2] Avatar identity palette — DECOUPLED from semantic ramps (FL-6:
      a green avatar must not read "success"). Six contrast-verified pairs,
@@ -470,8 +470,8 @@
   /* [E3 amended 2026-07-06] active nav = subtle gradient fill ONLY; the inset
      blue ring was removed (Richard 2026-07-06 — "remove the border"). Token
      kept as `none` so `box-shadow: var(--nav-active-ring)` renders nothing. */
-  --nav-active-bg:   linear-gradient(135deg, #eaf4ff, #e2efff);
-  --nav-active-ring: none;
+  --nav-active-bg:   linear-gradient(135deg, #eaf4ff, #e2efff); /* @kind color */
+  --nav-active-ring: none; /* @kind shadow */
   --nav-active-text: var(--blue-600);
   /* Keyboard focus reuses --focus-ring / --focus-ring-soft (:focus-visible). */
 
@@ -556,7 +556,7 @@
   --surface-base:          #16171d;
   --surface-canvas:        #16171d;
   --surface-card:          #1e2027;
-  --surface-card-elevated: linear-gradient(180deg, #22242c, #1e2027);
+  --surface-card-elevated: linear-gradient(180deg, #22242c, #1e2027); /* @kind color */
   --surface-inset:         #131419;
   --surface-subtle:        #282a33;
   --surface-thread:        #18191f;
@@ -569,10 +569,10 @@
   --border-subtle:      rgb(255 255 255 / 0.07);
   --divider:            rgb(255 255 255 / 0.05);
   --divider-row:        rgb(255 255 255 / 0.05);
-  --ring-avatar:        inset 0 0 0 1px rgb(255 255 255 / 0.06);
-  --ring-card:          inset 0 0 0 1px rgb(255 255 255 / 0.05);
-  --ring-card-elevated: inset 0 0 0 1px rgb(255 255 255 / 0.05);
-  --ring-outline:       inset 0 0 0 1px rgb(255 255 255 / 0.11);
+  --ring-avatar:        inset 0 0 0 1px rgb(255 255 255 / 0.06); /* @kind shadow */
+  --ring-card:          inset 0 0 0 1px rgb(255 255 255 / 0.05); /* @kind shadow */
+  --ring-card-elevated: inset 0 0 0 1px rgb(255 255 255 / 0.05); /* @kind shadow */
+  --ring-outline:       inset 0 0 0 1px rgb(255 255 255 / 0.11); /* @kind shadow */
 
   /* 3 · ACTIONS — blue primary, green give */
   --action-give:           #15c47e;
@@ -588,7 +588,7 @@
   --action-weak-text:      #8db9ff;
   --focus-ring:            #64a8ff;
   --link:                  #64a8ff;
-  --selected-accent:       inset 2px 0 0 #64a8ff;
+  --selected-accent:       inset 2px 0 0 #64a8ff; /* @kind shadow */
   --selected-tint:         rgb(100 168 255 / 0.12);
 
   /*    STATES · EXPIRY */
@@ -596,10 +596,10 @@
 
   /* 4 · IDENTITY — washes and covers (production DOES ship dark values for
      these; the old parked block wrongly claimed it didn't) */
-  --wash-get:          linear-gradient(180deg, rgb(100 168 255 / 0.06) 0%, rgb(100 168 255 / 0) 100%);
-  --wash-give:         linear-gradient(180deg, rgb(3 178 108 / 0.05) 0%, rgb(3 178 108 / 0) 100%);
-  --wash-page:         radial-gradient(85% 42% at 50% 0%, rgb(100 168 255 / 0.04) 0%, rgb(100 168 255 / 0) 72%);
-  --wash-toggle-track: rgb(255 255 255 / 0.12);
+  --wash-get:          linear-gradient(180deg, rgb(100 168 255 / 0.06) 0%, rgb(100 168 255 / 0) 100%); /* @kind color */
+  --wash-give:         linear-gradient(180deg, rgb(3 178 108 / 0.05) 0%, rgb(3 178 108 / 0) 100%); /* @kind color */
+  --wash-page:         radial-gradient(85% 42% at 50% 0%, rgb(100 168 255 / 0.04) 0%, rgb(100 168 255 / 0) 72%); /* @kind color */
+  --wash-toggle-track: rgb(255 255 255 / 0.12); /* @kind color */
 
   /*    AVATARS [E2] */
   --avatar-1-bg:    rgb(100 168 255 / 0.16);
@@ -614,7 +614,7 @@
   --avatar-5-fg:    #76e4b8;
   --avatar-6-bg:    #c6cad2;
   --avatar-6-fg:    #16171d;
-  --avatar-neutral: linear-gradient(135deg, #2e313a, #282a33);
+  --avatar-neutral: linear-gradient(135deg, #2e313a, #282a33); /* @kind color */
 
   /* 5 · ELEVATION · SKELETON */
   --shadow-band-card:     0 20px 44px -14px rgb(0 0 0 / 0.6);
@@ -624,7 +624,7 @@
 
   /* 6 · DESKTOP / POINTER [E3] */
   --hover-tint:      rgb(255 255 255 / 0.04);
-  --nav-active-bg:   linear-gradient(135deg, rgb(100 168 255 / 0.14), rgb(100 168 255 / 0.08));
+  --nav-active-bg:   linear-gradient(135deg, rgb(100 168 255 / 0.14), rgb(100 168 255 / 0.08)); /* @kind color */
   --nav-active-text: #64a8ff;
   --row-hover:       rgb(255 255 255 / 0.03);
 
