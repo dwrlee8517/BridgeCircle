@@ -228,6 +228,7 @@ export type Database = {
         Args: { p_event_id: string; p_membership_id: string }
         Returns: string
       }
+      demo_revoke_sessions: { Args: never; Returns: number }
       disconnect: {
         Args: { p_other_user_id: string }
         Returns: {
@@ -1829,6 +1830,41 @@ export type Database = {
           {
             foreignKeyName: 'conversations_user_b_id_fkey'
             columns: ['user_b_id']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      demo_access_windows: {
+        Row: {
+          armed_by_user_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          revoked_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          armed_by_user_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          revoked_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          armed_by_user_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          revoked_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'demo_access_windows_armed_by_user_id_fkey'
+            columns: ['armed_by_user_id']
             isOneToOne: false
             referencedRelation: 'users'
             referencedColumns: ['id']

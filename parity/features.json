@@ -325,6 +325,17 @@
         "status": "gated",
         "decision": "docs/decisions/0016-native-mobile-via-expo.md"
       }
+    },
+    {
+      "id": "demo.door",
+      "title": "Hosted-dev demo door: armed-window entry (/demo) + operator arm page",
+      "routes": ["/demo/arm"],
+      "web": { "status": "shipped" },
+      "mobile": {
+        "status": "wont-do",
+        "reason": "Operator tooling for the hosted-dev demo door — a dev-environment instrument, never a product surface on any platform.",
+        "decision": "docs/runbooks/demo-door.md"
+      }
     }
   ]
 }
