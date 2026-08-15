@@ -98,6 +98,7 @@ How-to guides. Read when touching the relevant area.
 - [E2E testing](runbooks/e2e-testing.md)
 - [Doppler](runbooks/doppler.md) — secrets management
 - [Supabase custom domain](runbooks/supabase-custom-domain.md) — `auth.bridgecircle.org` for the Google consent screen (planned)
+- [Demo door](runbooks/demo-door.md) — armed, time-boxed no-onboarding demo access on hosted dev (`/demo` + `/demo/arm` + `seed:demo-org`)
 
 ## Decisions
 

@@ -15,6 +15,13 @@
       "port": 3000
     },
     {
+      "name": "demo-door",
+      "cwd": "app",
+      "runtimeExecutable": "doppler",
+      "runtimeArgs": ["run", "-p", "bridgecircle", "-c", "dev_local", "--", "env", "APP_ENV=local", "DEMO_LOGIN_ENABLED=1", "DEMO_USER_EMAIL=demo-member@example.com", "DEMO_ARM_EMAILS=richard@example.com", "NEXT_PUBLIC_APP_URL=http://localhost:3010", "pnpm", "exec", "next", "dev", "-p", "3010"],
+      "port": 3010
+    },
+    {
       "name": "next-dev-preview",
       "cwd": "app",
       "runtimeExecutable": "sh",
