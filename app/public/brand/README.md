@@ -16,6 +16,7 @@ decks, Arcade, social, print).
 | `backdrops/daybreak(-dark).svg` | The standing backdrop pair — bone-into-blue diagonal with a soft light disc behind the motif; 1920x1080 |
 | `backdrops/noon(-dark).svg` | The subtle backdrop for content-dense frames — one faint bloom, motif as a corner signature; 1920x1080 |
 | `backdrops/bloom(-dark).svg` | The mark drawn purely as overlapping pools of light — for a single centered line of type; 1920x1080 |
+| `backdrops/*.png` | The same six backdrops rasterized at 1920x1080 for tools that reject SVG |
 
 Rules:
 
