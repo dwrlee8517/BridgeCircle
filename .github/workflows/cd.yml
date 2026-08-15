@@ -32,10 +32,12 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: cd-main
-  # Never cancel a run that may be mid-promote; queue behind it instead.
-  cancel-in-progress: false
+# Concurrency is per-JOB, not per-workflow (see the 2026-08-14 backlog entry
+# "CD self-jams when a production approval is left pending"): a run parked at
+# the production gate is still "in progress", so a workflow-level group let one
+# unactioned approval silently block every later dev deploy. The dev lane
+# (deploy-dev + integ share cd-dev) and the promote lane (cd-promote) now hold
+# independent locks — a pending promotion never stops dev from shipping.
 
 env:
   RAILWAY_PROJECT_ID: 07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1
@@ -53,6 +55,10 @@ jobs:
     name: Deploy dev stage
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    concurrency:
+      group: cd-dev
+      # Never cancel a mid-flight dev deploy; queue behind it instead.
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v7
         with:
@@ -216,6 +222,11 @@ jobs:
     needs: deploy-dev
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Shares the dev lane with deploy-dev so a newer run's deploy cannot
+    # replace the dev stage underneath an in-flight integ pass.
+    concurrency:
+      group: cd-dev
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: app
@@ -280,6 +291,13 @@ jobs:
     name: Promote to production
     needs: integ
     if: github.ref == 'refs/heads/main'
+    # Its own lane: a promotion waiting at the production gate holds only
+    # cd-promote, never the dev lane. An approval nobody intends to give
+    # should still be cancelled the same day (see runbook note) — but
+    # forgetting no longer stops the pipeline.
+    concurrency:
+      group: cd-promote
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # The gate: this job waits for the required reviewer on the GitHub
