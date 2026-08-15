@@ -281,10 +281,9 @@ describe('Help outbox handlers', () => {
         avatarPath: null,
         graduationYear: 2001,
         topics: ['Product strategy'],
-        lexicalScore: 0.8,
-        semanticScore: 0,
+        score: 0.8,
+        matchedFields: ['topics'],
         matchReason: 'Speaks to Product strategy',
-        evidenceChunkIds: ['70000000-0000-4000-8000-000000000001'],
       },
     ])
     const handlers = createHelpOutboxHandlers(dependencies(repo))
@@ -302,7 +301,7 @@ describe('Help outbox handlers', () => {
           rank: 1,
           score: expect.any(Number),
           reason: 'Speaks to Product strategy',
-          evidence: { chunkIds: ['70000000-0000-4000-8000-000000000001'] },
+          evidence: { matchedFields: ['topics'] },
         },
       ],
     })
@@ -324,10 +323,9 @@ describe('Help outbox handlers', () => {
         avatarPath: null,
         graduationYear: 2001,
         topics: ['Product strategy'],
-        lexicalScore: 0.8,
-        semanticScore: 0,
+        score: 0.8,
+        matchedFields: ['topics'],
         matchReason: 'Speaks to Product strategy',
-        evidenceChunkIds: ['70000000-0000-4000-8000-000000000001'],
       },
     ])
     vi.mocked(repo.consumeAskMatchingProviderBudget).mockResolvedValue('limited')

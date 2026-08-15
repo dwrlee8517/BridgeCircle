@@ -5,7 +5,6 @@ import { readMembershipPreference } from '@/app/_lib/membership-cookie'
 import { createHelpRepository } from '@/db/repositories/help'
 import { getMemberContext } from '@/db/repositories/member-context'
 import { createClient } from '@/db/server'
-import { createVoyageHelpProviderFromEnvironment } from '@/integrations/ai/help-voyage'
 import { findMemberHelpCandidates } from '@/lib/help/matching'
 import { selectedMembership } from '@/lib/membership/selection'
 
@@ -52,18 +51,20 @@ export async function POST(request: Request) {
     }
 
     const repository = createHelpRepository(client)
-    const voyage = createVoyageHelpProviderFromEnvironment()
+    // Deterministic baseline only: providers deliberately null. AI stages come
+    // back through this seam only after beating the baseline-v1 scoreboard on
+    // the golden set (see the help-search-golden-baseline initiative).
     const result = await findMemberHelpCandidates(
       {
         membershipId: membership.membershipId,
         question: parsed.data.question,
-        limit: 10,
+        limit: 5,
         signal: request.signal,
       },
       {
         repository,
-        embeddings: voyage,
-        reranker: voyage,
+        embeddings: null,
+        reranker: null,
       },
     )
 

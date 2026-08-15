@@ -71,7 +71,7 @@ export async function findHelpCandidates(
   dependencies: HelpMatchingDependencies,
 ): Promise<HelpMatchingResult> {
   const question = input.question.trim()
-  const limit = Math.min(10, Math.max(1, input.limit ?? 10))
+  const limit = Math.min(5, Math.max(1, input.limit ?? 5))
   const fallbacks: HelpMatchingFallback[] = []
   if (!question) return emptyResult(fallbacks)
 
@@ -120,7 +120,6 @@ export async function findHelpCandidates(
 
   let ranked = candidates
     .map((candidate) => rankDeterministically(question, candidate))
-    .filter((candidate) => hasDisplayEvidence(candidate))
     .sort(compareCandidates)
 
   let rerankedCount = 0
@@ -174,24 +173,18 @@ export async function findHelpCandidates(
   }
 }
 
+// SQL owns scoring and the display rule (see the deterministic-baseline
+// migration): the deterministic rank is the RPC's score, passed through. This
+// function stays as the seam a future rerank stage blends against.
 export function rankDeterministically(
-  question: string,
+  _question: string,
   candidate: HelpCandidate,
 ): RankedHelpCandidate {
-  const normalizedQuestion = normalize(question)
-  const topicScore = candidate.topics.some((topic) => normalizedQuestion.includes(normalize(topic)))
-    ? 1
-    : 0
-  const lexicalScore = candidate.lexicalScore / (1 + Math.max(0, candidate.lexicalScore))
-  const semanticScore = clamp(candidate.semanticScore)
-  const evidenceScore = candidate.evidenceChunkIds.length > 0 ? 1 : 0
-  const deterministicScore =
-    topicScore * 0.35 + lexicalScore * 0.25 + semanticScore * 0.3 + evidenceScore * 0.1
   return {
     ...candidate,
-    deterministicScore,
+    deterministicScore: candidate.score,
     rerankScore: null,
-    finalScore: deterministicScore,
+    finalScore: candidate.score,
   }
 }
 
@@ -216,16 +209,11 @@ function mergeCandidates(
     merged.set(candidate.membershipId, {
       ...existing,
       topics: unique([...existing.topics, ...candidate.topics]),
-      lexicalScore: Math.max(existing.lexicalScore, candidate.lexicalScore),
-      semanticScore: Math.max(existing.semanticScore, candidate.semanticScore),
-      evidenceChunkIds: unique([...existing.evidenceChunkIds, ...candidate.evidenceChunkIds]),
+      score: Math.max(existing.score, candidate.score),
+      matchedFields: unique([...existing.matchedFields, ...candidate.matchedFields]),
     })
   }
   return Array.from(merged.values())
-}
-
-function hasDisplayEvidence(candidate: RankedHelpCandidate): boolean {
-  return candidate.deterministicScore >= 0.12
 }
 
 function displayEvidence(candidate: RankedHelpCandidate): string[] {
@@ -235,12 +223,13 @@ function displayEvidence(candidate: RankedHelpCandidate): string[] {
   ])
 }
 
+// Score only, deliberately no id tiebreak: Array.sort is stable, so equal
+// scores keep the SQL row order — which encodes the real tiebreaks (pending
+// load, profile recency, membership id). An id tiebreak here would silently
+// invert the load-spreading order for tied candidates (caught by the golden
+// unit case tiebreak-interview-twins).
 function compareCandidates(a: RankedHelpCandidate, b: RankedHelpCandidate): number {
-  return b.finalScore - a.finalScore || a.membershipId.localeCompare(b.membershipId)
-}
-
-function normalize(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ')
+  return b.finalScore - a.finalScore
 }
 
 function unique<T>(values: readonly T[]): T[] {
