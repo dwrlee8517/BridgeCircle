@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- BridgeCircle backdrop: Bloom (light). The mark drawn purely as overlapping pools of light, brightest where they meet. -->
+  <defs>
+    <radialGradient id="bloom-pool" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#c9e2ff" stop-opacity="0.55"/><stop offset="1" stop-color="#c9e2ff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="#fcfdff"/>
+  <circle cx="720" cy="540" r="555" fill="url(#bloom-pool)"/>
+  <circle cx="1200" cy="540" r="555" fill="url(#bloom-pool)"/>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- BridgeCircle backdrop: Bloom (dark). The two circles as pools of blue light on ink. -->
+  <defs>
+    <radialGradient id="bloomdark-pool" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#2465c8" stop-opacity="0.38"/><stop offset="1" stop-color="#2465c8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="#0f1218"/>
+  <circle cx="720" cy="540" r="555" fill="url(#bloomdark-pool)"/>
+  <circle cx="1200" cy="540" r="555" fill="url(#bloomdark-pool)"/>
+</svg>
