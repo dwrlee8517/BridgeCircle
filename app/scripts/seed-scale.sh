@@ -16,8 +16,12 @@ set -euo pipefail
 # generate larger volumes inside a rolled-back transaction to validate indexes.
 # The difference is that this data persists, so you can actually look at it.
 #
-# Every generated row carries a 'dddddddd-' UUID prefix, which is what makes the
-# script re-runnable: it deletes its own previous output before regenerating.
+# Every generated row carries a 'dddddddd-' UUID prefix plus a per-organization
+# discriminator in the fourth UUID group. Populations are org-scoped: rerunning
+# regenerates only the target organization's crowd (deleting its previous
+# output first), so several organizations can hold crowds at the same time.
+# Regenerating a crowd also clears any scene overlays applied on top of it —
+# re-apply scenes afterwards.
 #
 # Usage, from app/:
 #   pnpm seed:scale                      # 1200 members into Chadwick International
@@ -64,29 +68,72 @@ echo "seed-scale: seed='${demo_seed}' (same seed and count always produce the sa
   -v members="$members" \
   -v demo_seed="$demo_seed" \
   -v org_id="$org_id" <<'SQL'
+-- Each organization's crowd carries a 3-hex-char org discriminator in the
+-- fourth UUID group ('8' variant nibble + org_key), so several organizations
+-- can hold populations at once without colliding on the fixed per-n IDs.
+-- 3 hex chars = 1-in-4096 discriminator collision per org pair — acceptable
+-- for a dev tool. Computed in SQL so macOS md5 / Linux md5sum divergence
+-- never enters the picture.
+select substr(md5(:'org_id'), 1, 3) as org_key \gset
+
 begin;
 
--- Remove any previous run's output so the script is re-runnable. Order matters:
--- asks reference conversations with on delete restrict.
+-- Remove the target organization's previous crowd so the script is
+-- re-runnable — and ONLY that organization's: everything anchors on the
+-- memberships of the target org, so another org's population survives.
+--
+-- Deletes are reference-anchored, not just id-prefixed: any ask, room, or
+-- message that TOUCHES a doomed membership/user goes too. That is what lets
+-- scene overlays (which point restrict FKs at crowd rows) never wedge a
+-- regeneration — the cost is that regenerating a crowd clears any scenes
+-- applied on top of it; re-apply them afterwards.
+--
+-- Order matters: asks reference conversations with on delete restrict, so
+-- asks go first.
+create temporary table prev_member on commit drop as
+select id as membership_id, user_id
+from public.organization_memberships
+where organization_id = :'org_id'
+  and id::text like 'dddddddd-1111-%';
+
+create temporary table doomed_conversation on commit drop as
+select id from public.conversations
+where user_a_id in (select user_id from prev_member)
+   or user_b_id in (select user_id from prev_member);
+
 delete from public.ask_offers
-  where ask_id in (select id from public.asks where id::text like 'dddddddd-2222-%');
-delete from public.asks where id::text like 'dddddddd-2222-%';
-delete from public.connections
-  where user_a_id::text like 'dddddddd-0000-%' or user_b_id::text like 'dddddddd-0000-%';
+  where ask_id in (
+    select id from public.asks
+    where organization_id = :'org_id'
+      and (id::text like 'dddddddd-2222-%'
+        or asker_membership_id in (select membership_id from prev_member)
+        or recipient_membership_id in (select membership_id from prev_member)));
+delete from public.asks
+  where organization_id = :'org_id'
+    and (id::text like 'dddddddd-2222-%'
+      or asker_membership_id in (select membership_id from prev_member)
+      or recipient_membership_id in (select membership_id from prev_member));
 delete from public.conversation_reads
-  where conversation_id in (select id from public.conversations where id::text like 'dddddddd-4444-%');
+  where conversation_id in (select id from doomed_conversation);
 delete from public.messages
-  where conversation_id in (select id from public.conversations where id::text like 'dddddddd-4444-%');
-delete from public.conversations where id::text like 'dddddddd-4444-%';
-delete from public.helper_topics where organization_membership_id::text like 'dddddddd-1111-%';
-delete from public.helper_preferences where organization_membership_id::text like 'dddddddd-1111-%';
-delete from public.profile_skills where user_id::text like 'dddddddd-0000-%';
-delete from public.profile_education where user_id::text like 'dddddddd-0000-%';
-delete from public.profile_experiences where user_id::text like 'dddddddd-0000-%';
-delete from public.organization_profiles where organization_membership_id::text like 'dddddddd-1111-%';
-delete from public.organization_memberships where id::text like 'dddddddd-1111-%';
-delete from public.profiles where user_id::text like 'dddddddd-0000-%';
-delete from public.users where id::text like 'dddddddd-0000-%';
+  where conversation_id in (select id from doomed_conversation);
+delete from public.conversations where id in (select id from doomed_conversation);
+delete from public.connections
+  where user_a_id in (select user_id from prev_member)
+     or user_b_id in (select user_id from prev_member);
+delete from public.helper_topics
+  where organization_membership_id in (select membership_id from prev_member);
+delete from public.helper_preferences
+  where organization_membership_id in (select membership_id from prev_member);
+delete from public.profile_skills where user_id in (select user_id from prev_member);
+delete from public.profile_education where user_id in (select user_id from prev_member);
+delete from public.profile_experiences where user_id in (select user_id from prev_member);
+delete from public.organization_profiles
+  where organization_membership_id in (select membership_id from prev_member);
+delete from public.organization_memberships
+  where id in (select membership_id from prev_member);
+delete from public.profiles where user_id in (select user_id from prev_member);
+delete from public.users where id in (select user_id from prev_member);
 
 -- One row per generated member, with every derived attribute resolved up front.
 --
@@ -96,8 +143,8 @@ delete from public.users where id::text like 'dddddddd-0000-%';
 create temporary table demo_member on commit drop as
 select
   n,
-  ('dddddddd-0000-4000-8000-' || lpad(n::text, 12, '0'))::uuid as user_id,
-  ('dddddddd-1111-4000-8000-' || lpad(n::text, 12, '0'))::uuid as membership_id,
+  ('dddddddd-0000-4000-8' || :'org_key' || '-' || lpad(n::text, 12, '0'))::uuid as user_id,
+  ('dddddddd-1111-4000-8' || :'org_key' || '-' || lpad(n::text, 12, '0'))::uuid as membership_id,
 
   -- Class years run 2013 (the first graduating class) to 2026, deliberately
   -- skewed recent: newer alumni adopt an alumni product faster, so the median
@@ -352,7 +399,7 @@ cross join lateral (
   ])[1:1 + (demo_member.misc_roll % 2)])
     with ordinality as entry(name, idx)
 ) as topic
-where preference.organization_membership_id::text like 'dddddddd-1111-%';
+where preference.organization_id = :'org_id';
 
 -- The connection graph. Two properties matter more than the edge count:
 -- clustering (real alumni connect within their class year, which is why cohorts
@@ -412,8 +459,8 @@ where misc_roll % 100 < 22;
 create temporary table demo_ask on commit drop as
 select
   i,
-  ('dddddddd-2222-4000-8000-' || lpad(i::text, 12, '0'))::uuid as ask_id,
-  ('dddddddd-3333-4000-8000-' || lpad(i::text, 12, '0'))::uuid as client_request_id,
+  ('dddddddd-2222-4000-8' || :'org_key' || '-' || lpad(i::text, 12, '0'))::uuid as ask_id,
+  ('dddddddd-3333-4000-8' || :'org_key' || '-' || lpad(i::text, 12, '0'))::uuid as client_request_id,
   asker.membership_id as asker_membership_id,
   asker.n as asker_n,
   hash.hv,
@@ -485,6 +532,7 @@ join lateral (
    and preference.open_to_help
   where member.n <> demo_ask.asker_n
   offset (demo_ask.hv % greatest(1, (select count(*) from public.helper_preferences where open_to_help
+          and organization_id = :'org_id'
           and organization_membership_id::text like 'dddddddd-1111-%')))
   limit 1
 ) recipient on true
@@ -575,13 +623,18 @@ on conflict (user_a_id, user_b_id) do nothing;
 -- ("connected row has inconsistent durable IDs" in db/repositories/people.ts),
 -- so generating connections without rooms breaks the directory for anyone who
 -- has one. Tier 1 creates a room alongside every connection for the same reason.
+-- Room ids are keyed by the participant pair, not row_number(): row numbers
+-- restart at 1 on every run, so they would collide across coexisting crowds.
+-- 48 bits of pair hash inside this org's namespace is far beyond the few
+-- thousand rooms a crowd creates.
 insert into public.conversations (id, user_a_id, user_b_id, created_at, last_message_at)
 select
-  ('dddddddd-4444-4000-8000-' || lpad(
-    (row_number() over (order by link.user_a_id, link.user_b_id))::text, 12, '0'))::uuid,
+  ('dddddddd-4444-4000-8' || :'org_key' || '-' ||
+    substr(md5('room:' || link.user_a_id::text || link.user_b_id::text), 1, 12))::uuid,
   link.user_a_id, link.user_b_id, link.created_at, link.created_at
 from public.connections link
-where (link.user_a_id::text like 'dddddddd-0000-%' or link.user_b_id::text like 'dddddddd-0000-%')
+where (link.user_a_id in (select user_id from demo_member)
+    or link.user_b_id in (select user_id from demo_member))
   and not exists (
     select 1 from public.conversations existing
     where existing.user_a_id = link.user_a_id
@@ -596,7 +649,7 @@ select
   room.id, 'system', 'Connection accepted.', 'connection_accepted',
   'demo:connection_accepted:' || room.id::text, room.user_b_id, room.created_at
 from public.conversations room
-where room.id::text like 'dddddddd-4444-%';
+where room.id::text like 'dddddddd-4444-4000-8' || :'org_key' || '-%';
 
 -- Give the personas who are open to help a Help inbox with something in it.
 -- Counts stay under each helper's pending capacity so the seeded state is one
@@ -607,7 +660,7 @@ insert into public.asks (
   expires_at, created_at
 )
 select
-  ('dddddddd-2222-4000-8000-' || lpad((900000 + row_number() over ())::text, 12, '0'))::uuid,
+  ('dddddddd-2222-4000-8' || :'org_key' || '-' || lpad((900000 + row_number() over ())::text, 12, '0'))::uuid,
   :'org_id'::uuid,
   sender.membership_id,
   'direct', 'waiting',
@@ -620,7 +673,7 @@ select
   end,
   'Happy to work around your schedule.',
   null, false,
-  ('dddddddd-3333-4000-8000-' || lpad((900000 + row_number() over ())::text, 12, '0'))::uuid,
+  ('dddddddd-3333-4000-8' || :'org_key' || '-' || lpad((900000 + row_number() over ())::text, 12, '0'))::uuid,
   now() + interval '12 days',
   now() - ((sender.n % 21) || ' days')::interval
 from public.helper_preferences helper
@@ -639,22 +692,27 @@ SQL
 echo
 echo "seed-scale: done. Population summary:"
 "${psql_base[@]}" -v org_id="$org_id" <<'SQL'
+select substr(md5(:'org_id'), 1, 3) as org_key \gset
 \pset border 2
 select 'members' as metric, count(*)::text as value
-  from public.organization_memberships where id::text like 'dddddddd-1111-%'
+  from public.organization_memberships
+  where organization_id = :'org_id' and id::text like 'dddddddd-1111-%'
 union all
 select 'profiles with a headline',
        count(*) filter (where headline is not null)::text || ' of ' || count(*)::text
-  from public.profiles where user_id::text like 'dddddddd-0000-%'
+  from public.profiles where user_id::text like 'dddddddd-0000-4000-8' || :'org_key' || '-%'
 union all
 select 'open to help',
        count(*) filter (where open_to_help)::text || ' (' ||
        count(*) filter (where paused_at is not null)::text || ' paused)'
-  from public.helper_preferences where organization_membership_id::text like 'dddddddd-1111-%'
+  from public.helper_preferences
+  where organization_id = :'org_id'
+    and organization_membership_id::text like 'dddddddd-1111-%'
 union all
 select 'connections', count(*)::text
   from public.connections
-  where user_a_id::text like 'dddddddd-0000-%' or user_b_id::text like 'dddddddd-0000-%'
+  where user_a_id::text like 'dddddddd-0000-4000-8' || :'org_key' || '-%'
+     or user_b_id::text like 'dddddddd-0000-4000-8' || :'org_key' || '-%'
 union all
 select 'persona circles (min-max)',
        coalesce(min(circle)::text || '-' || max(circle)::text, 'none')
@@ -672,26 +730,33 @@ select 'busiest member connections', max(degree)::text
   from (
     select count(*) as degree
     from (
-      select user_a_id as u from public.connections where user_a_id::text like 'dddddddd-0000-%'
+      select user_a_id as u from public.connections
+        where user_a_id::text like 'dddddddd-0000-4000-8' || :'org_key' || '-%'
       union all
-      select user_b_id from public.connections where user_b_id::text like 'dddddddd-0000-%'
+      select user_b_id from public.connections
+        where user_b_id::text like 'dddddddd-0000-4000-8' || :'org_key' || '-%'
     ) edges group by u
   ) degrees
 union all
 select 'members with no connections',
        (select count(*) from public.organization_memberships m
-         where m.id::text like 'dddddddd-1111-%'
+         where m.organization_id = :'org_id'
+           and m.id::text like 'dddddddd-1111-%'
            and not exists (
              select 1 from public.connections c
              where c.user_a_id = m.user_id or c.user_b_id = m.user_id
            ))::text
 union all
 select 'asks', count(*)::text
-  from public.asks where id::text like 'dddddddd-2222-%'
+  from public.asks
+  where organization_id = :'org_id' and id::text like 'dddddddd-2222-%'
 union all
 select 'class years', min(graduation_year)::text || '-' || max(graduation_year)::text
-  from public.organization_profiles where organization_membership_id::text like 'dddddddd-1111-%'
+  from public.organization_profiles
+  where organization_id = :'org_id'
+    and organization_membership_id::text like 'dddddddd-1111-%'
 union all
 select 'cities', count(distinct city)::text
-  from public.profiles where user_id::text like 'dddddddd-0000-%' and city is not null;
+  from public.profiles
+  where user_id::text like 'dddddddd-0000-4000-8' || :'org_key' || '-%' and city is not null;
 SQL
