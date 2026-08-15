@@ -93,9 +93,11 @@ Properties worth knowing:
 
 - **Deterministic.** Same seed and count always rebuild the same population.
   Every value is a pure function of `(seed, member index)`.
-- **Re-runnable.** Every generated row carries a `dddddddd-` UUID prefix, and
-  the script deletes its previous output before regenerating. Change
-  `DEMO_MEMBERS` and re-run; no reset needed.
+- **Re-runnable and org-scoped.** Every generated row carries a `dddddddd-`
+  UUID prefix plus a per-organization discriminator, and the script deletes
+  only the target organization's previous output before regenerating. Change
+  `DEMO_MEMBERS` and re-run; no reset needed. Several organizations can hold
+  crowds at once, and regenerating one leaves the others untouched.
 - **Additive.** It never modifies Tier 1 rows, and the pgTAP suite still passes
   with the demo population loaded.
 - **Not loginable.** Generated members exist in `public.users` with no

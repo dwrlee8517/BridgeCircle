@@ -71,10 +71,9 @@ Jamie Rowe, curated School content, and then chains `seed-scale.sh` to generate
 a realistic population (default 1200; `DEMO_ORG_MEMBERS=0` skips). Rerun any
 time to reset the org to pristine — visitor leftovers are erased.
 
-**Caveat:** the generated population tier maintains ONE `dddddddd-` population
-per database. Chaining it here moves that population into the demo org; if
-`seed:scale` had previously populated Chadwick International on that database,
-those generated members migrate. Tier 1 personas are untouched.
+Populations are org-scoped: rerunning regenerates only the demo org's crowd
+and clears any scene overlays applied on top of it. A crowd generated into
+another organization on the same database is untouched.
 
 ## Operating it
 

@@ -25,12 +25,10 @@ set -euo pipefail
 #
 # Production use is forbidden — the same guards as seed-scale.sh apply.
 #
-# NOTE: seed-scale.sh maintains ONE generated population per database (every
-# generated row carries the dddddddd- prefix and each run deletes the previous
-# output). Chaining it here therefore MOVES the generated population into the
-# demo organization. On a database where seed:scale previously populated
-# Chadwick International, that population migrates to the demo org — Tier 1
-# personas and their hand-authored fixtures are untouched.
+# Populations are org-scoped: chaining seed-scale.sh here regenerates only the
+# demo organization's crowd. A crowd previously generated into another
+# organization (e.g. Chadwick International) is untouched, as are Tier 1
+# personas and their hand-authored fixtures.
 
 db_url="${SUPABASE_DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}"
 org_id="99999999-9999-4999-8999-999999999999"
