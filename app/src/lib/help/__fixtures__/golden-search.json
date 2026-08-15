@@ -1,0 +1,469 @@
+{
+  "$comment": "Golden question set for Help candidate search, v1 — authored against the Evalfield School corpus (app/supabase/seeds/eval-org.sql, org eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee). Labels drafted by Claude 2026-08-15 (counter-candidate sweep + adversarial review), corrected and APPROVED by Richard 2026-08-15 — including the tuning-phase relabels; review_notes record each resolution. All people references are @eval.test emails (single identifier type). Expectation kinds: top1 (first result is who[0]); hit5 (every who ⊆ top 5); pool_only (top 5 ⊆ members holding any listed topic); pool_hit (top 5 intersects that set); empty (zero results is correct); invariants_only (asserts nothing beyond the universal invariants and must_not_surface — for pure eligibility-gate cases); stable (identical order across two runs in one transaction); order (who[] appear in this relative order among returned results). `also` nests a second expectation. acceptable_surface members are NEUTRAL: never required, never penalized — they mark labeled ambiguity; any OTHER plausible unlabeled candidate discovered later is a dataset bug (fix labels or corpus, never tune the engine to it). must_not_surface violations are HARD failures. Universal invariants checked on every case: the viewer never surfaces; members with no helper row or open_to_help=false never surface. fail_ok: true = the lexical baseline is expected to miss; excluded from pass/fail, always reported (the AI-lift ledger). layers: which test layers run the case (unit replays captured rows; integration hits the real RPC). Editing the corpus voids labels: re-run the sweep and `pnpm eval:search --capture`.",
+  "version": "1.1",
+  "org": "eval",
+  "cases": [
+    {
+      "id": "keyword-consulting",
+      "viewer": "viewer-1@eval.test",
+      "question": "consulting",
+      "regime": "keyword",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-010@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-056@eval.test",
+        "helper-030@eval.test",
+        "helper-136@eval.test",
+        "helper-150@eval.test"
+      ],
+      "must_not_surface": ["helper-055@eval.test", "helper-086@eval.test", "helper-057@eval.test"],
+      "rationale": "Single keyword equal to a declared topic; the rich Consulting anchor must reach the top 5. Maya (never opted in), Gus (opted out), and Otis (aspirant) are the traps.",
+      "review_notes": "RESOLVED (approved by Richard) 2026-08-15 (was top1, relaxed to hit5): the engine ranks Isolde Brennan ('Second-year consultant at Acme Consulting', topics Consulting+First jobs) first. On reflection that is humanly defensible — an active consultant whose title, employer, and topic all say consulting — and seniority is not something lexical search can or should fake. Isolde was already labeled acceptable. Revert to top1 [Ana] if you disagree; the engine would then need an explicit seniority/depth signal. — Approved 2026-08-15."
+    },
+    {
+      "id": "keyword-venture-capital",
+      "viewer": "viewer-1@eval.test",
+      "question": "venture capital",
+      "regime": "keyword",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "top1",
+        "who": ["helper-012@eval.test"],
+        "also": {
+          "kind": "hit5",
+          "who": ["helper-034@eval.test", "helper-138@eval.test"]
+        }
+      },
+      "acceptable_surface": [],
+      "must_not_surface": [
+        "helper-051@eval.test",
+        "helper-071@eval.test",
+        "helper-075@eval.test",
+        "helper-087@eval.test",
+        "helper-058@eval.test"
+      ],
+      "rationale": "All three VC helpers (rich Chloe, partial Wes, sparse Wren) in top 5, Chloe first. Traps: Capital One employer, capital-markets reporter, venture/capital split-phrase, never-a-helper VC, VC aspirant.",
+      "review_notes": ""
+    },
+    {
+      "id": "keyword-medicine",
+      "viewer": "viewer-1@eval.test",
+      "question": "medicine",
+      "regime": "keyword",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-017@eval.test", "helper-032@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-102@eval.test",
+        "helper-137@eval.test",
+        "helper-072@eval.test"
+      ],
+      "must_not_surface": ["helper-060@eval.test"],
+      "rationale": "Rich anchor Hana and sparse Umar both in top 5. Bela (resident at a teaching hospital) is labeled acceptable — a real physician, imperfect but plausible (confirmed by Richard, 2026-08-15). Sela (biomedical PhD, Graduate school helper) is the human-obvious non-answer.",
+      "review_notes": "RESOLVED 2026-08-15: Richard confirmed Bela is very plausible — acceptable stands."
+    },
+    {
+      "id": "stem-consultant",
+      "viewer": "viewer-1@eval.test",
+      "question": "looking for a consultant's perspective before I decide",
+      "regime": "stem-variant",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-010@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-030@eval.test",
+        "helper-056@eval.test",
+        "helper-136@eval.test",
+        "helper-150@eval.test"
+      ],
+      "must_not_surface": ["helper-057@eval.test"],
+      "rationale": "'consultant' must stem-match the Consulting topic; the old substring test failed exactly this shape."
+    },
+    {
+      "id": "stem-teacher",
+      "viewer": "viewer-1@eval.test",
+      "question": "thinking about becoming a teacher",
+      "regime": "stem-variant",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-022@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-117@eval.test",
+        "helper-045@eval.test",
+        "helper-110@eval.test",
+        "helper-125@eval.test"
+      ],
+      "must_not_surface": ["helper-072@eval.test"],
+      "rationale": "'teacher' stems into the Teaching topic; Marco is the rich anchor. Bela's 'teaching hospital' is the stem-collision trap — a physician must not surface for a teaching-career question."
+    },
+    {
+      "id": "sentence-business-school",
+      "viewer": "viewer-1@eval.test",
+      "question": "Should I go to business school after a few years in consulting?",
+      "regime": "sentence-overlap",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-011@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-010@eval.test",
+        "helper-041@eval.test",
+        "helper-048@eval.test",
+        "helper-062@eval.test"
+      ],
+      "must_not_surface": ["helper-076@eval.test"],
+      "rationale": "Full sentence; the Business school anchor must survive the filler words. Ben's MBA signal lives in headline/bio/university, not his job title — realistic, and part of what the case tests. Ana (consultant) is acceptable, not required — the question's decision is the MBA. Dot (Business Manager at a School District) is the split-phrase trap.",
+      "review_notes": "REVIEWED 2026-08-15: kept hit5 rather than top1 — an engine ranking Ana #1 for the consulting half is humanly defensible; flip who[] to top1 to make it strict."
+    },
+    {
+      "id": "sentence-negotiate-offer",
+      "viewer": "viewer-1@eval.test",
+      "question": "How do I negotiate a job offer without losing the offer?",
+      "regime": "sentence-overlap",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-139@eval.test", "helper-035@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-038@eval.test",
+        "helper-128@eval.test",
+        "helper-130@eval.test",
+        "helper-105@eval.test",
+        "helper-124@eval.test"
+      ],
+      "must_not_surface": ["helper-074@eval.test"],
+      "rationale": "'negotiate' stems into the crowded 'Negotiating an offer' topic (65+ holders); the two strongest hand-authored specialists must still make top 5. Dalia's 'seasonal product offering' is the offer-collision trap."
+    },
+    {
+      "id": "coverage-negotiating-startup",
+      "viewer": "viewer-1@eval.test",
+      "question": "negotiating an offer from a startup",
+      "regime": "coverage-ranking",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["member-1204@eval.test", "member-1810@eval.test"],
+        "also": {
+          "kind": "pool_only",
+          "topics": ["Negotiating an offer", "Startups"]
+        }
+      },
+      "acceptable_surface": [],
+      "must_not_surface": [],
+      "rationale": "Exactly two members hold BOTH topics (verified by sweep 2026-08-15); with 65 Negotiating-only and 20+ Startups-only competitors for 5 slots, both must make top 5 — coverage beats single-topic. Top 5 must consist of holders of one of the two topics."
+    },
+    {
+      "id": "coverage-managing-startup",
+      "viewer": "viewer-1@eval.test",
+      "question": "how to manage people for the first time at a startup",
+      "regime": "coverage-ranking",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-146@eval.test"],
+        "also": {
+          "kind": "pool_only",
+          "topics": ["Managing people", "Startups"]
+        }
+      },
+      "acceptable_surface": [],
+      "must_not_surface": ["helper-052@eval.test", "helper-077@eval.test"],
+      "rationale": "Ember is the only Managing people + Startups holder (planted for this case). 'First jobs' holders are deliberately OUTSIDE the pool: that topic means landing your first job, not first-time management — the lexical pull of 'first time' toward them is exactly the confusion this case punishes. Traps: the People Management Group recruiter and the managing/people split-phrase member.",
+      "review_notes": "RESOLVED 2026-08-15: First jobs removed from the pool per review — the strict pool encodes the human reading."
+    },
+    {
+      "id": "locus-mckinsey",
+      "viewer": "viewer-1@eval.test",
+      "question": "anyone from McKinsey?",
+      "regime": "field-locus",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-010@eval.test", "helper-046@eval.test", "helper-045@eval.test"]
+      },
+      "acceptable_surface": [],
+      "must_not_surface": [],
+      "rationale": "The three legitimate McKinsey signals — employer (Ana), employer-only (Freya), headline+history (Elias) — must all surface for a rare proper noun, regardless of their topics."
+    },
+    {
+      "id": "locus-pm-seoul",
+      "viewer": "viewer-1@eval.test",
+      "question": "product management in Seoul",
+      "regime": "field-locus",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "top1",
+        "who": ["helper-047@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-013@eval.test",
+        "helper-033@eval.test",
+        "helper-135@eval.test"
+      ],
+      "must_not_surface": ["helper-070@eval.test"],
+      "rationale": "Topic plus the rare city token must beat topic-only PMs elsewhere. Zane (Production Manager — production/product stem collision) is the trap."
+    },
+    {
+      "id": "locus-insead",
+      "viewer": "viewer-1@eval.test",
+      "question": "INSEAD alumni advice on international MBA programs",
+      "regime": "field-locus",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-048@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-011@eval.test",
+        "helper-041@eval.test",
+        "helper-062@eval.test"
+      ],
+      "must_not_surface": [],
+      "rationale": "Hugo's only strong signal is the university field (C-weight); a rare proper noun there must be enough to reach top 5."
+    },
+    {
+      "id": "sparse-software-engineering",
+      "viewer": "viewer-1@eval.test",
+      "question": "software engineering careers",
+      "regime": "sparse-vs-rich",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-014@eval.test"],
+        "also": {
+          "kind": "pool_only",
+          "topics": ["Software engineering"]
+        }
+      },
+      "acceptable_surface": [
+        "helper-031@eval.test",
+        "helper-100@eval.test",
+        "helper-149@eval.test"
+      ],
+      "must_not_surface": ["helper-085@eval.test"],
+      "rationale": "The rich anchor must surface and the whole top 5 must hold the Software engineering topic — rich wrong answers (keyword-laden non-holders) are excluded structurally. Finn (paused) must be invisible despite a perfect profile.",
+      "review_notes": "RESOLVED (approved by Richard) 2026-08-15: Tara (sparse, topics-only) moved from must_surface to acceptable. With ~24 genuine same-topic helpers competing for 5 slots, requiring the member about whom nothing is known to make top 5 is not how a human would rank — the sparse-vs-rich principle protects sparse RIGHT answers from rich WRONG ones (now asserted via pool_only), not from richer same-topic helpers. If sparse members starving for asks matters (it does, product-wise), the fix is a rotation/exploration mechanism, not a ranking lie. Flag if you want the old label back. — Approved 2026-08-15."
+    },
+    {
+      "id": "sparse-product-management",
+      "viewer": "viewer-1@eval.test",
+      "question": "product management",
+      "regime": "sparse-vs-rich",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-013@eval.test", "helper-033@eval.test"]
+      },
+      "acceptable_surface": [
+        "helper-047@eval.test",
+        "helper-135@eval.test",
+        "helper-068@eval.test"
+      ],
+      "must_not_surface": ["helper-070@eval.test", "helper-073@eval.test"],
+      "rationale": "PM topic holders across tiers beat the stem-collision members: 'Production Manager / production lines' text matches both query stems but is the human-obvious wrong answer.",
+      "review_notes": "RESOLVED 2026-08-15: Ari stays acceptable. PMM is a different job than PM (positioning/GTM vs product ownership) so he is not a must — but he works alongside PMs at the same employer as the PM anchor and can genuinely speak to the role or route the asker; a possible candidate worth asking, per Richard."
+    },
+    {
+      "id": "sparse-consulting-someone",
+      "viewer": "viewer-1@eval.test",
+      "question": "I want to talk to someone in consulting",
+      "regime": "sparse-vs-rich",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-010@eval.test"],
+        "also": {
+          "kind": "pool_only",
+          "topics": ["Consulting"]
+        }
+      },
+      "acceptable_surface": [
+        "helper-030@eval.test",
+        "helper-136@eval.test",
+        "helper-150@eval.test"
+      ],
+      "must_not_surface": ["helper-055@eval.test", "helper-057@eval.test", "helper-086@eval.test"],
+      "rationale": "Sentence form of the consulting lookup: the anchor must surface and the top 5 must all be Consulting topic holders — the never-opted-in rich consultant, the aspirant, and the opted-out ex-consultant are excluded structurally. Note pool_only also excludes Nico (Bain consultant offering Working abroad) from the top 5, which the display cut enforces by design.",
+      "review_notes": "RESOLVED (approved by Richard) 2026-08-15: Sam Whitaker (sparse, topic-only) moved from must_surface to acceptable, same reasoning as sparse-software-engineering. Nico removed from acceptable because pool_only now forbids non-holders in the top 5 — his acceptability is moot under the topic-cut display rule. — Approved 2026-08-15."
+    },
+    {
+      "id": "crowded-managing-people",
+      "viewer": "viewer-1@eval.test",
+      "question": "how do I get better at managing people?",
+      "regime": "crowded-topic",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "pool_only",
+        "topics": ["Managing people"],
+        "also": {
+          "kind": "stable"
+        }
+      },
+      "acceptable_surface": [],
+      "must_not_surface": ["helper-052@eval.test", "helper-077@eval.test"],
+      "rationale": "77 holders compete for 5 slots: every top-5 result must actually hold the topic, and the order must be deterministic across runs. The recruiter at 'People Management Group' (employer collision) and the managing/people split member are the traps."
+    },
+    {
+      "id": "tiebreak-interview-twins",
+      "viewer": "viewer-1@eval.test",
+      "question": "interview practice and mock interviews",
+      "regime": "crowded-topic",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-079@eval.test", "helper-078@eval.test"],
+        "also": {
+          "kind": "order",
+          "who": ["helper-079@eval.test", "helper-078@eval.test"]
+        }
+      },
+      "acceptable_surface": [
+        "helper-039@eval.test",
+        "helper-145@eval.test",
+        "helper-149@eval.test",
+        "helper-151@eval.test",
+        "helper-139@eval.test"
+      ],
+      "must_not_surface": [],
+      "rationale": "The twins are identical except pending load (Dara has 2 seeded waiting asks, Erin 0): both must surface — their headline matches verbatim — and Erin must rank above Dara. This is the load-spreading tiebreak, observable."
+    },
+    {
+      "id": "eligibility-self-actuary",
+      "viewer": "viewer-3@eval.test",
+      "question": "actuarial certification",
+      "regime": "eligibility",
+      "layers": ["integration"],
+      "expect": {
+        "kind": "empty"
+      },
+      "acceptable_surface": [],
+      "must_not_surface": ["viewer-3@eval.test", "helper-109@eval.test"],
+      "rationale": "The viewer is the org's only actuarial helper; the correct answer to their own specialty is empty, never themself. Theo (actuarial analyst, never opted in) must also stay invisible. Question reworded from 'actuarial science exams' during QA: 'science' and 'exams' had legitimate text matches elsewhere (a science teacher, interview-prep helpers), which would have made 'empty' a wrong label."
+    },
+    {
+      "id": "eligibility-capacity",
+      "viewer": "viewer-1@eval.test",
+      "question": "executive coaching",
+      "regime": "eligibility",
+      "layers": ["integration"],
+      "expect": {
+        "kind": "invariants_only"
+      },
+      "acceptable_surface": [],
+      "must_not_surface": ["helper-088@eval.test"],
+      "rationale": "Iona is the only Executive coaching helper and sits permanently at capacity (max_pending=1 with one seeded waiting ask); she would trivially rank #1 if eligible, so her absence proves the gate. Other coaches may legitimately text-match 'coaching' — the case asserts the gate, not emptiness (relabeled from 'empty' during QA)."
+    },
+    {
+      "id": "eligibility-blocked-viewer2",
+      "viewer": "viewer-2@eval.test",
+      "question": "public speaking",
+      "regime": "eligibility",
+      "layers": ["integration"],
+      "expect": {
+        "kind": "invariants_only"
+      },
+      "acceptable_surface": [],
+      "must_not_surface": ["helper-089@eval.test"],
+      "rationale": "viewer-2 blocked Jules, the only Public speaking helper — he must be invisible to this viewer at any rank ('public' may legitimately text-match policy folks, so emptiness is not the assertion; relabeled from 'empty' during QA). Pairs with the next case, where an unblocked viewer sees him."
+    },
+    {
+      "id": "eligibility-unblocked-viewer1",
+      "viewer": "viewer-1@eval.test",
+      "question": "public speaking",
+      "regime": "eligibility",
+      "layers": ["integration"],
+      "expect": {
+        "kind": "hit5",
+        "who": ["helper-089@eval.test"]
+      },
+      "acceptable_surface": [],
+      "must_not_surface": [],
+      "rationale": "Same query, unblocked viewer: Jules surfaces. Together with the previous case this proves blocking is per-pair, not global."
+    },
+    {
+      "id": "null-motorcycles",
+      "viewer": "viewer-1@eval.test",
+      "question": "restoring vintage motorcycles",
+      "regime": "null",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "empty"
+      },
+      "acceptable_surface": [],
+      "must_not_surface": [],
+      "rationale": "Nothing in the corpus relates (verified: zero token hits in the sweep). Returning anyone would mean the display floor is too permissive — empty is the correct, honest answer."
+    },
+    {
+      "id": "stopword-first-job",
+      "viewer": "viewer-1@eval.test",
+      "question": "who can help me with my first job?",
+      "regime": "stopword-heavy",
+      "layers": ["unit", "integration"],
+      "expect": {
+        "kind": "pool_hit",
+        "topics": ["First jobs"]
+      },
+      "acceptable_surface": [
+        "helper-151@eval.test",
+        "helper-040@eval.test",
+        "helper-112@eval.test"
+      ],
+      "must_not_surface": [],
+      "rationale": "After stopword removal only 'first job' carries signal; a First jobs helper must reach top 5 through the filler."
+    },
+    {
+      "id": "mismatch-laid-off",
+      "viewer": "viewer-1@eval.test",
+      "question": "I just got laid off and I'm not sure what to do next",
+      "regime": "vocab-mismatch",
+      "layers": ["unit", "integration"],
+      "fail_ok": true,
+      "expect": {
+        "kind": "pool_hit",
+        "topics": ["Career changes"]
+      },
+      "acceptable_surface": [
+        "helper-037@eval.test",
+        "helper-107@eval.test",
+        "helper-144@eval.test"
+      ],
+      "must_not_surface": [],
+      "rationale": "The right helpers are Career changes people, but the question shares no stems with that phrase or their profiles. The lexical baseline is expected to miss; this is the ledger entry a future semantic stage must flip."
+    },
+    {
+      "id": "mismatch-fresh-start",
+      "viewer": "viewer-1@eval.test",
+      "question": "I feel stuck and want a fresh start somewhere new",
+      "regime": "vocab-mismatch",
+      "layers": ["unit", "integration"],
+      "fail_ok": true,
+      "expect": {
+        "kind": "pool_hit",
+        "topics": ["Career changes", "Working abroad"]
+      },
+      "acceptable_surface": [
+        "helper-037@eval.test",
+        "helper-027@eval.test",
+        "helper-125@eval.test"
+      ],
+      "must_not_surface": [],
+      "rationale": "Pure need-description with zero topic vocabulary; humans read 'career change, maybe relocation' instantly. Second ledger entry for the semantic gap."
+    }
+  ],
+  "deferred_axes": [
+    "korean-bilingual: Songdo pilot questions in Korean or mixed script; the english tsquery config cannot stem Korean — add as fail_ok cases when a Korean-capable corpus tier exists",
+    "typo-tolerance: 'mckinsy' style misspellings; a pg_trgm decision, not part of the v1 baseline",
+    "connections-tier visibility: viewer-1 is already connected to helper-010 in the corpus for when per-tier visibility returns with embeddings"
+  ]
+}

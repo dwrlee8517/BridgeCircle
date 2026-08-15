@@ -111,10 +111,9 @@ const candidateRowSchema = z
     avatar_path: z.string().nullable(),
     graduation_year: z.number().int().nullable(),
     topics: z.array(z.string().min(1).max(100)).max(5),
-    lexical_score: z.number().finite().nonnegative(),
-    semantic_score: z.number().finite(),
+    score: z.number().finite().nonnegative(),
+    matched_fields: z.array(z.string().min(1)),
     match_reason: z.string().min(1),
-    evidence_chunk_ids: z.array(z.guid()),
   })
   .strict()
 
@@ -377,10 +376,9 @@ export function parseHelpCandidateRow(row: unknown): HelpCandidate {
     avatarPath: parsed.avatar_path,
     graduationYear: parsed.graduation_year,
     topics: parsed.topics,
-    lexicalScore: parsed.lexical_score,
-    semanticScore: parsed.semantic_score,
+    score: parsed.score,
+    matchedFields: parsed.matched_fields,
     matchReason: parsed.match_reason,
-    evidenceChunkIds: parsed.evidence_chunk_ids,
   }
 }
 

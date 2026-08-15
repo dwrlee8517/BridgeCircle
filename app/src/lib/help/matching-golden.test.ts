@@ -1,78 +1,112 @@
-import { describe, expect, it, vi } from 'vitest'
-import type { HelpCandidate, HelpRepository } from './contracts'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { describe, expect, it } from 'vitest'
+import { parseHelpCandidateRow } from '@/db/repositories/help'
+import rawSnapshots from './__fixtures__/golden-candidate-snapshots.json'
+import rawFixture from './__fixtures__/golden-search.json'
+import {
+  computeEnginePrint,
+  evaluateCase,
+  type IdentityIndex,
+  lintFixture,
+  parseGoldenFixture,
+} from './golden'
 import { findHelpCandidates } from './matching'
 
-const viewerMembershipId = '20000000-0000-4000-8000-000000000001'
+// Golden dataset, unit layer: replays captured api.search_help_candidates rows
+// through the real TS pipeline (parser -> findHelpCandidates with null
+// providers) and asserts through the shared evaluator — zero database. What
+// this proves: the TS layer preserves the SQL contract (parsing, passthrough
+// scoring, five-slot slice, merge). SQL correctness itself is owned by
+// `pnpm eval:search` against the live local stack.
 
-const goldenCandidates: HelpCandidate[] = [
-  {
-    membershipId: '20000000-0000-4000-8000-000000000002',
-    userId: '10000000-0000-4000-8000-000000000002',
-    displayName: 'Jordan Lee',
-    headline: 'Health product leader',
-    avatarPath: null,
-    graduationYear: 2002,
-    topics: ['Product strategy', 'Career transitions'],
-    lexicalScore: 0.8,
-    semanticScore: 0,
-    matchReason: 'Speaks to Product strategy',
-    evidenceChunkIds: ['70000000-0000-4000-8000-000000000002'],
-  },
-  {
-    membershipId: '20000000-0000-4000-8000-000000000003',
-    userId: '10000000-0000-4000-8000-000000000003',
-    displayName: 'Sam Rivera',
-    headline: 'Operator in digital health',
-    avatarPath: null,
-    graduationYear: 2005,
-    topics: ['Healthcare'],
-    lexicalScore: 0.3,
-    semanticScore: 0,
-    matchReason: 'Speaks to Healthcare',
-    evidenceChunkIds: ['70000000-0000-4000-8000-000000000003'],
-  },
-  {
-    membershipId: '20000000-0000-4000-8000-000000000004',
-    userId: '10000000-0000-4000-8000-000000000004',
-    displayName: 'Taylor Kim',
-    headline: 'Finance leader',
-    avatarPath: null,
-    graduationYear: 2001,
-    topics: [],
-    lexicalScore: 0,
-    semanticScore: 0,
-    matchReason: 'Relevant experience',
-    evidenceChunkIds: [],
-  },
-]
+const appRoot = join(__dirname, '../../..')
 
-describe('Help matching golden fixture', () => {
-  it('ranks visible factual evidence and never pads the result', async () => {
-    const searchCandidates = vi
-      .fn<HelpRepository['searchCandidates']>()
-      .mockResolvedValue(goldenCandidates)
-    const result = await findHelpCandidates(
-      {
-        membershipId: viewerMembershipId,
-        question: 'How do I move from B2B software into health product strategy?',
-        signal: new AbortController().signal,
-      },
-      {
-        repository: { searchCandidates },
-        embeddings: null,
-        reranker: null,
-      },
+const snapshots = rawSnapshots as {
+  enginePrint: string
+  identity: {
+    membershipByEmail: Record<string, string>
+    topicHolders: Record<string, string[]>
+    neverEligible: string[]
+  }
+  cases: Record<string, { viewerMembershipId: string; rows: unknown[] }>
+}
+
+const identity: IdentityIndex = {
+  membershipByEmail: new Map(Object.entries(snapshots.identity.membershipByEmail)),
+  topicHolders: new Map(
+    Object.entries(snapshots.identity.topicHolders).map(([topic, holders]) => [
+      topic,
+      new Set(holders),
+    ]),
+  ),
+  neverEligible: new Set(snapshots.identity.neverEligible),
+}
+
+const emailByMembership = new Map(
+  Object.entries(snapshots.identity.membershipByEmail).map(([email, id]) => [id, email]),
+)
+
+const fixture = parseGoldenFixture(rawFixture)
+const unitCases = fixture.cases.filter((caseDef) => caseDef.layers.includes('unit'))
+
+describe('golden dataset (unit layer)', () => {
+  it('snapshots are fresh — enginePrint matches the corpus, fixture, and migration', async () => {
+    // Keep this file list in sync with enginePrintFiles() in
+    // scripts/eval-help-search.ts.
+    const migrationsDir = join(appRoot, 'supabase/migrations')
+    const migration = readdirSync(migrationsDir).find((name) =>
+      name.endsWith('_help_search_deterministic_baseline.sql'),
     )
-
-    expect(result.candidates.map((candidate) => candidate.displayName)).toEqual([
-      'Jordan Lee',
-      'Sam Rivera',
-    ])
-    expect(result.candidates.every((candidate) => candidate.evidenceChunkIds.length > 0)).toBe(true)
-    expect(result.diagnostics).toEqual({
-      retrievedCount: 3,
-      rerankedCount: 0,
-      fallbacks: ['embedding_unavailable', 'reranker_unavailable'],
-    })
+    const files = [
+      join(appRoot, 'supabase/seeds/eval-org.sql'),
+      join(appRoot, 'src/lib/help/__fixtures__/golden-search.json'),
+      ...(migration ? [join(migrationsDir, migration)] : []),
+    ]
+    const print = await computeEnginePrint(
+      files.map((path) => [path, readFileSync(path, 'utf8')] as const),
+    )
+    expect(
+      print,
+      'golden snapshots are stale — run `pnpm db:reset && pnpm eval:search --capture`',
+    ).toBe(snapshots.enginePrint)
   })
+
+  it('the fixture passes the consistency lint against the captured identity', () => {
+    expect(lintFixture(fixture, identity)).toEqual([])
+  })
+
+  for (const caseDef of unitCases) {
+    it(`replays: ${caseDef.id}`, async () => {
+      const snapshot = snapshots.cases[caseDef.id]
+      expect(snapshot, `no snapshot for ${caseDef.id} — re-run --capture`).toBeDefined()
+      const rows = snapshot.rows.map((row) => parseHelpCandidateRow(row))
+
+      const run = async () =>
+        (
+          await findHelpCandidates(
+            {
+              membershipId: snapshot.viewerMembershipId,
+              question: caseDef.question,
+              signal: new AbortController().signal,
+            },
+            {
+              repository: { searchCandidates: async () => rows },
+              embeddings: null,
+              reranker: null,
+            },
+          )
+        ).candidates.map((candidate) => ({
+          membershipId: candidate.membershipId,
+          email: emailByMembership.get(candidate.membershipId) ?? null,
+        }))
+
+      const result = evaluateCase(caseDef, [await run(), await run()], identity)
+      expect(result.hardFailures).toEqual([])
+      if (!caseDef.fail_ok) {
+        expect(result.expectationFailures).toEqual([])
+      }
+      expect(result.passed).toBe(true)
+    })
+  }
 })

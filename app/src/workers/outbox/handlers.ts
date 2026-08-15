@@ -162,7 +162,7 @@ export function createHelpOutboxHandlers(
         rank: index + 1,
         score: candidate.finalScore,
         reason: candidate.matchReason,
-        evidence: { chunkIds: candidate.evidenceChunkIds },
+        evidence: { matchedFields: candidate.matchedFields },
       }))
       const applied = await dependencies.repository.applyMatches({
         askId: context.askId,
