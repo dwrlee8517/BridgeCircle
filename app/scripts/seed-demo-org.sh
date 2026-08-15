@@ -145,12 +145,16 @@ on conflict (organization_membership_id) do update set
   bio = excluded.bio,
   updated_at = now();
 
+-- Headroom of 10: the chained population seeds 4 waiting asks into Jamie's
+-- inbox, and the help-inbox scene stages 3 more — the persona must stay
+-- inside a capacity the command layer would allow.
 insert into public.helper_preferences (
   organization_membership_id, organization_id, open_to_help,
   max_pending_requests, consecutive_timeouts
-) values (:'membership_id', :'org_id', true, 5, 0)
+) values (:'membership_id', :'org_id', true, 10, 0)
 on conflict (organization_membership_id) do update set
   open_to_help = true,
+  max_pending_requests = excluded.max_pending_requests,
   paused_at = null,
   pause_reason = null;
 
@@ -204,6 +208,9 @@ SQL
 
 if [[ "$members" == "0" ]]; then
   echo "seed-demo-org: skipping population (DEMO_ORG_MEMBERS=0)"
+  if [[ -n "${DEMO_SCENE:-}" ]]; then
+    echo "seed-demo-org: ignoring DEMO_SCENE — scenes stage crowd members, and the crowd was skipped" >&2
+  fi
 else
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   DEMO_ORG_ID="$org_id" DEMO_MEMBERS="$members" SUPABASE_DB_URL="$db_url" \
@@ -228,6 +235,14 @@ order by membership.id
 limit 31
 on conflict (event_id, organization_membership_id) do nothing;
 SQL
+
+  # Optional scene overlays, e.g. DEMO_SCENE=help-inbox,thread — applied after
+  # the crowd exists so scenes can query it. See scripts/scenes/README.md.
+  if [[ -n "${DEMO_SCENE:-}" ]]; then
+    IFS=',' read -ra scene_names <<< "$DEMO_SCENE"
+    SUPABASE_DB_URL="$db_url" DEMO_ALLOW_REMOTE="${DEMO_ALLOW_REMOTE:-0}" \
+      bash "$script_dir/seed-scene.sh" "${scene_names[@]}"
+  fi
 fi
 
 echo
