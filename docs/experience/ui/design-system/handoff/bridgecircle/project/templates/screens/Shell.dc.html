@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @component Shell — the desktop app shell [E3]: sidebar (240 full / 72 rail),
+     topbar, back button, breadcrumb, bell + popover, account menu. This is the
+     ONE copy; it replaces the 24 hand-maintained copies that had drifted into 13
+     different sidebars and 18 different topbars. Screens pass chrome props and
+     put their page content in as children.
+     Nav rows are written out per state with literal styles (rather than one row
+     with a computed style) so the shell paints while the file is still
+     streaming; no style attribute here is computed. <main> owns the scroll for
+     every screen (height:100vh;overflow-y:auto): screens whose content column
+     scrolls internally never overflow it, screens whose page scrolls scroll it,
+     and the sticky topbar stays put either way. -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./account-menu.js"></script>
+  <script src="./notifications-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<div style="display:flex;width:100%;min-height:100vh" data-screen-label="{{ label }}">
+
+  <sc-if value="{{ showFull }}" hint-placeholder-val="{{ true }}">
+  <aside style="width:var(--sidebar-width);flex:none;box-sizing:border-box;height:100vh;align-self:flex-start;position:sticky;top:0;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;padding:22px 16px">
+    <span style="display:flex;align-items:center;gap:9px;padding:6px 10px 26px;font-size:18px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="var(--grey-900)" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="var(--blue-500)" stroke-width="1.7"></circle></svg>
+      BridgeCircle
+    </span>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <sc-if value="{{ onHome }}" hint-placeholder-val="{{ true }}">
+        <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:currentColor;stroke-width:2.1"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+          Home
+        </a>
+      </sc-if>
+      <sc-if value="{{ offHome }}" hint-placeholder-val="{{ false }}">
+        <a href="./Home.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:600;color:var(--text-secondary)" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+          Home
+        </a>
+      </sc-if>
+      <sc-if value="{{ onHelp }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:currentColor;stroke-width:2.1"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+          Help
+        </a>
+      </sc-if>
+      <sc-if value="{{ offHelp }}" hint-placeholder-val="{{ true }}">
+        <a href="./Help.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:600;color:var(--text-secondary)" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+          Help
+        </a>
+      </sc-if>
+      <sc-if value="{{ onPeople }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:currentColor;stroke-width:2.1"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+          People
+        </a>
+      </sc-if>
+      <sc-if value="{{ offPeople }}" hint-placeholder-val="{{ true }}">
+        <a href="./People.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:600;color:var(--text-secondary)" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+          People
+        </a>
+      </sc-if>
+      <sc-if value="{{ onMessages }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:currentColor;stroke-width:2.1"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+          <span style="flex:1">Messages</span>
+          <sc-if value="{{ badgeShow }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+          </sc-if>
+        </a>
+      </sc-if>
+      <sc-if value="{{ offMessages }}" hint-placeholder-val="{{ true }}">
+        <a href="./Messages.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:600;color:var(--text-secondary)" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+          <span style="flex:1">Messages</span>
+          <sc-if value="{{ badgeShow }}" hint-placeholder-val="{{ true }}">
+            <span style="font-size:12px;background:var(--action-primary);color:#fff;font-weight:700;border-radius:var(--radius-pill);padding:1px 8px">{{ badgeCount }}</span>
+          </sc-if>
+        </a>
+      </sc-if>
+      <sc-if value="{{ onSchool }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-current="page" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:700;color:var(--nav-active-text);background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:currentColor;stroke-width:2.1"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+          School
+        </a>
+      </sc-if>
+      <sc-if value="{{ offSchool }}" hint-placeholder-val="{{ true }}">
+        <a href="./School.dc.html" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:var(--radius-box);font-size:15px;text-decoration:none;cursor:pointer;font-weight:600;color:var(--text-secondary)" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;flex:none;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+          School
+        </a>
+      </sc-if>
+    </nav>
+    <a href="./ProfileSelf.dc.html" style="margin-top:auto;display:flex;align-items:center;gap:11px;padding:14px 8px 4px;border-radius:var(--radius-box);text-decoration:none;color:inherit" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+      <dc-import name="Avatar" tone="self" initials="{{ meInitials }}" size="36" hint-size="36px,36px"></dc-import>
+      <span>
+        <span style="display:block;font-size:14px;font-weight:700;line-height:1.25">{{ meName }}</span>
+        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ meMeta }}</span>
+      </span>
+    </a>
+  </aside>
+  </sc-if>
+
+  <sc-if value="{{ showRail }}" hint-placeholder-val="{{ false }}">
+  <aside style="width:72px;flex:none;box-sizing:border-box;height:100vh;align-self:flex-start;position:sticky;top:0;background:var(--surface-card);border-right:1px solid var(--border-subtle);display:flex;flex-direction:column;align-items:center;padding:22px 0">
+    <svg width="26" height="26" viewBox="0 0 28 28" style="flex:none;margin-bottom:22px"><circle cx="11" cy="14" r="9" fill="none" stroke="var(--grey-900)" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="var(--blue-500)" stroke-width="1.7"></circle></svg>
+    <nav style="display:flex;flex-direction:column;gap:6px;align-items:center">
+      <sc-if value="{{ onHome }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-label="Home" aria-current="page" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--nav-active-text);stroke-width:2.1"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ offHome }}" hint-placeholder-val="{{ true }}">
+        <a href="./Home.dc.html" aria-label="Home" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"></path><path d="M9 21v-6h6v6"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ onHelp }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-label="Help" aria-current="page" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--nav-active-text);stroke-width:2.1"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ offHelp }}" hint-placeholder-val="{{ true }}">
+        <a href="./Help.dc.html" aria-label="Help" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M11 14h2a2 2 0 0 0 2-2 2 2 0 0 0-2-2H9.5c-.6 0-1.1.2-1.4.6L3 16"></path><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"></path><path d="m2 15 6 6"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ onPeople }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-label="People" aria-current="page" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--nav-active-text);stroke-width:2.1"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ offPeople }}" hint-placeholder-val="{{ true }}">
+        <a href="./People.dc.html" aria-label="People" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><circle cx="9" cy="8" r="3"></circle><path d="M3 20a6 6 0 0 1 12 0"></path><circle cx="17.5" cy="9.5" r="2.2"></circle><path d="M15 20a4.5 4.5 0 0 1 6.8-3.9"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ onMessages }}" hint-placeholder-val="{{ true }}">
+        <a href="#" aria-label="Messages" aria-current="page" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--nav-active-text);stroke-width:2.1"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ offMessages }}" hint-placeholder-val="{{ false }}">
+        <a href="./Messages.dc.html" aria-label="Messages" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.4 8.4 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ onSchool }}" hint-placeholder-val="{{ false }}">
+        <a href="#" aria-label="School" aria-current="page" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--nav-active-bg)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--nav-active-text);stroke-width:2.1"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ offSchool }}" hint-placeholder-val="{{ true }}">
+        <a href="./School.dc.html" aria-label="School" style="width:44px;height:44px;border-radius:var(--radius-box);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--hover-tint)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:var(--text-faint);stroke-width:1.9"><path d="M12 4 2 9l10 5 10-5-10-5z"></path><path d="M6 11.5V16a6 3 0 0 0 12 0v-4.5"></path></svg>
+        </a>
+      </sc-if>
+    </nav>
+    <span style="margin-top:auto">
+      <dc-import name="Avatar" tone="self" initials="{{ meInitials }}" size="36" hint-size="36px,36px"></dc-import>
+    </span>
+  </aside>
+  </sc-if>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow-y:auto">
+    <header style="flex:none;height:var(--topbar-height);box-sizing:border-box;background:rgb(255 255 255 / 0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:14px;padding:0 26px;position:sticky;top:0;z-index:10">
+      <sc-if value="{{ backLinkShow }}" hint-placeholder-val="{{ false }}">
+        <a href="{{ backHref }}" aria-label="{{ backLabel }}" style="width:38px;height:38px;flex:none;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--text-secondary);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m14 6-6 6 6 6"></path></svg>
+        </a>
+      </sc-if>
+      <sc-if value="{{ backBtnShow }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ backClick }}" aria-label="{{ backLabel }}" style="width:38px;height:38px;flex:none;border:0;border-radius:var(--radius-pill);background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:none;stroke:var(--text-secondary);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="m14 6-6 6 6 6"></path></svg>
+        </button>
+      </sc-if>
+      <span style="font-size:18px;font-weight:700;letter-spacing:-0.02em">{{ title }}</span>
+      <sc-if value="{{ metaShow }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:12.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">&middot; {{ meta }}</span>
+      </sc-if>
+      <sc-if value="{{ crumbShow }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size:12.5px;font-weight:600;color:var(--text-faint)"><a href="{{ crumbHref }}" style="color:inherit" style-hover="color:var(--blue-600)">{{ crumbLabel }}</a> &rsaquo; {{ crumbHere }}</span>
+      </sc-if>
+      <sc-if value="{{ actionShow }}" hint-placeholder-val="{{ false }}">
+        <a href="{{ actionHref }}" style="margin-left:auto;font-size:12.5px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">{{ actionLabel }}</a>
+      </sc-if>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <sc-if value="{{ bellMenu }}" hint-placeholder-val="{{ true }}">
+          <span style="position:relative;display:inline-flex">
+            <button onClick="{{ bellToggle }}" aria-label="Notifications" aria-expanded="{{ popOpen }}" style="width:42px;height:42px;border-radius:var(--radius-pill);border:0;background:var(--surface-subtle);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" style-hover="background:var(--grey-200)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+              <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--text-secondary);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+              <sc-if value="{{ showDot }}" hint-placeholder-val="{{ true }}">
+                <span style="position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px #fff"></span>
+              </sc-if>
+            </button>
+            <sc-if value="{{ popOpen }}" hint-placeholder-val="{{ false }}">
+              <span onClick="{{ popClose }}" style="position:fixed;inset:0;z-index:30;display:block"></span>
+              <div role="dialog" aria-label="Notifications" style="position:absolute;top:50px;right:0;z-index:31;width:390px;background:var(--surface-card);border-radius:18px;box-shadow:var(--ring-card-elevated),0 20px 50px -14px rgb(25 31 40 / 0.3);overflow:hidden">
+                <span style="display:flex;align-items:baseline;gap:8px;padding:14px 18px 10px">
+                  <b style="font-size:14px;font-weight:800;letter-spacing:-0.02em">Notifications</b>
+                  <a href="./Notifications.dc.html" style="margin-left:auto;font-size:12px;color:var(--action-primary);font-weight:700;text-decoration:none" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">See all &rarr;</a>
+                </span>
+                <sc-if value="{{ popEmpty }}" hint-placeholder-val="{{ false }}">
+                  <p style="margin:0;padding:6px 18px 16px;font-size:12.5px;line-height:1.5;color:var(--text-faint);font-weight:500;text-align:left">You&rsquo;re caught up &mdash; the full record lives in <a href="./Notifications.dc.html" style="color:var(--action-primary);font-weight:700">Notifications</a>.</p>
+                </sc-if>
+                <sc-for list="{{ popItems }}" as="n" hint-placeholder-count="3">
+                  <a href="{{ n.href }}" onClick="{{ n.markRead }}" style="display:flex;align-items:center;gap:11px;padding:11px 18px;border-top:1px solid var(--divider-row);color:inherit;text-decoration:none;cursor:pointer;text-align:left" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:-2px">
+                    <sc-if value="{{ n.hasAvatar }}" hint-placeholder-val="{{ true }}">
+                      <dc-import name="Avatar" tone="{{ n.av }}" initials="{{ n.i }}" size="34" hint-size="34px,34px"></dc-import>
+                    </sc-if>
+                    <span style="flex:1;min-width:0">
+                      <span style="display:block;font-size:13px;font-weight:800;line-height:1.4">{{ n.actor }} <span style="font-weight:600">{{ n.line }}</span></span>
+                      <sc-if value="{{ n.subShow }}" hint-placeholder-val="{{ true }}"><span style="display:block;font-size:11.5px;color:var(--text-faint);font-weight:500;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.sub }}</span></sc-if>
+                    </span>
+                    <span style="flex:none;font-size:10.5px;color:var(--text-faint);font-weight:600;font-variant-numeric:tabular-nums">{{ n.when }}</span>
+                  </a>
+                </sc-for>
+                <p style="margin:0;padding:10px 18px 12px;border-top:1px solid var(--divider-row);font-size:11px;color:var(--text-faint);font-weight:500;text-align:left">Recent updates stay here for context. Unread ones carry a dot.</p>
+              </div>
+            </sc-if>
+          </span>
+        </sc-if>
+        <sc-if value="{{ bellCurrent }}" hint-placeholder-val="{{ false }}">
+          <span aria-label="Notifications" aria-current="page" style="width:42px;height:42px;border-radius:var(--radius-pill);background:var(--nav-active-bg);display:flex;align-items:center;justify-content:center;position:relative">
+            <svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:none;stroke:var(--nav-active-text);stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          </span>
+        </sc-if>
+        <bc-account-menu base="." name="{{ meName }}" initials="{{ meInitials }}" email="{{ meEmail }}"></bc-account-menu>
+      </span>
+    </header>
+    {{ children }}
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;'home'|'help'|'people'|'messages'|'school'|'none'&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;help&quot;,&quot;people&quot;,&quot;messages&quot;,&quot;school&quot;,&quot;none&quot;],&quot;section&quot;:&quot;Chrome&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Home&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;meta&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;backHref&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;backLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Back&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;backClick&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;crumbLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;crumbHref&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;#&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;crumbHere&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;actionLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;actionHref&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;#&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;bell&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;menu&quot;,&quot;tsType&quot;:&quot;'menu'|'current'|'none'&quot;,&quot;options&quot;:[&quot;menu&quot;,&quot;current&quot;,&quot;none&quot;],&quot;section&quot;:&quot;Chrome&quot;},&quot;msgBadge&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:0,&quot;max&quot;:99,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;notificationDot&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;rail&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;},&quot;scroll&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;inner&quot;,&quot;tsType&quot;:&quot;'inner'|'page'&quot;,&quot;options&quot;:[&quot;inner&quot;,&quot;page&quot;],&quot;section&quot;:&quot;Layout&quot;},&quot;meName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Iris Lau&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Member&quot;},&quot;meInitials&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;IL&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Member&quot;},&quot;meMeta&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Class of ’22&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Member&quot;},&quot;meEmail&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;iris.lau@alum.chadwick.edu&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Member&quot;},&quot;label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Chrome&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+class Component extends DCLogic {
+  state = { pop: false, notifRead: {}, notifSeen: {} };
+
+  componentDidMount() {
+    try {
+      this.setState({
+        notifRead: JSON.parse(sessionStorage.getItem('bcNotifRead') || '{}'),
+        notifSeen: JSON.parse(sessionStorage.getItem('bcNotifSeen') || '{}')
+      });
+    } catch (e) { /* ignore corrupt state */ }
+  }
+
+  // The unmissable few, each surfaced once (FLOWS §7d).
+  popList() {
+    const items = (window.BCNotifData && window.BCNotifData.items) || [];
+    const s = this.state;
+    return items.filter((n) => n.unmissable && !n.read && !s.notifRead[n.id] && !s.notifSeen[n.id]);
+  }
+
+  closePop() {
+    const seen = { ...this.state.notifSeen };
+    for (const n of this.popList()) seen[n.id] = true;
+    this.setState({ pop: false, notifSeen: seen });
+    try { sessionStorage.setItem('bcNotifSeen', JSON.stringify(seen)); } catch (e) { /* ignore */ }
+  }
+
+  renderVals() {
+    const p = this.props;
+    const s = this.state;
+    const active = p.active ?? 'none';
+    const rail = !!p.rail;
+
+    const items = (window.BCNotifData && window.BCNotifData.items) || [];
+    const unread = items.filter((n) => !n.read && !s.notifRead[n.id]).length;
+    const popItems = this.popList().map((n) => ({
+      href: n.href, when: n.when, i: n.i || '', actor: n.actor, line: n.line || '',
+      subShow: !!n.sub, sub: n.sub || '',
+      hasAvatar: !!n.av, av: String(n.av || 1),
+      markRead: () => {
+        const notifRead = { ...this.state.notifRead, [n.id]: true };
+        this.setState({ notifRead });
+        try { sessionStorage.setItem('bcNotifRead', JSON.stringify(notifRead)); } catch (e) { /* ignore */ }
+      }
+    }));
+
+    const bell = p.bell ?? 'menu';
+    const badge = Number(p.msgBadge ?? 3);
+
+    return {
+      children: p.children,
+      onHome: active === 'home', offHome: active !== 'home',
+      onHelp: active === 'help', offHelp: active !== 'help',
+      onPeople: active === 'people', offPeople: active !== 'people',
+      onMessages: active === 'messages', offMessages: active !== 'messages',
+      onSchool: active === 'school', offSchool: active !== 'school',
+      label: p.label ?? p.title ?? '',
+      title: p.title ?? '',
+      meta: p.meta ?? '', metaShow: !!p.meta,
+      crumbLabel: p.crumbLabel ?? '', crumbHref: p.crumbHref ?? '#',
+      crumbHere: p.crumbHere ?? p.title ?? '', crumbShow: !!p.crumbLabel,
+      backHref: p.backHref ?? '#', backLabel: p.backLabel ?? 'Back',
+      backLinkShow: !!p.backHref, backBtnShow: !p.backHref && !!p.backClick,
+      backClick: p.backClick,
+      actionShow: !!p.actionLabel, actionHref: p.actionHref ?? '#',
+      actionLabel: p.actionLabel ?? '',
+      meName: p.meName ?? 'Iris Lau',
+      meInitials: p.meInitials ?? 'IL',
+      meMeta: p.meMeta ?? 'Class of \u201922',
+      meEmail: p.meEmail ?? 'iris.lau@alum.chadwick.edu',
+      showFull: !rail, showRail: rail,
+      badgeShow: badge > 0, badgeCount: badge,
+      bellMenu: bell === 'menu', bellCurrent: bell === 'current',
+      showDot: (p.notificationDot ?? true) && unread > 0,
+      popOpen: s.pop, popItems, popEmpty: popItems.length === 0,
+      bellToggle: () => { if (s.pop) this.closePop(); else this.setState({ pop: true }); },
+      popClose: () => this.closePop()
+    };
+  }
+}
+
+</script>
+</body>
+</html>

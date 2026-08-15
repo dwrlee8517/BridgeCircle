@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./account-menu.js"></script>
+  <script src="./school-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<dc-import name="Shell" active="school" title="Newsletter" backHref="./School.dc.html" backLabel="Back to School" meta="{{ countLabel }}" bell="none" label="School — newsletter archive" hint-size="100%,100vh">
+
+    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
+      <div style="max-width:var(--container-reading);margin:0 auto;padding:26px 26px 44px;display:grid;gap:12px">
+        <p style="margin:0 0 2px;font-size:12.5px;color:var(--text-faint);font-weight:500">One issue a month &mdash; what moved in the network. Email delivery is a profile preference.</p>
+        <sc-for list="{{ issues }}" as="v" hint-placeholder-count="4">
+          <a href="{{ v.href }}" style="display:block;background:var(--surface-card-elevated);border-radius:var(--radius-card-xl);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:18px 22px;color:inherit;text-decoration:none;cursor:pointer" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+          <span style="display:flex;align-items:baseline;gap:8px">
+            <span style="font-size:11.5px;font-weight:700;color:var(--blue-600)">Issue {{ v.n }}</span>
+            <span style="font-size:11.5px;color:var(--text-faint);font-weight:600">{{ v.month }}</span>
+            <span aria-hidden="true" style="margin-left:auto;color:var(--grey-400);font-size:16px;font-weight:700">&rsaquo;</span>
+          </span>
+          <span style="display:block;font-size:16px;font-weight:800;letter-spacing:-0.02em;margin-top:4px;color:var(--text-primary)">{{ v.headline }}</span>
+          <sc-for list="{{ v.lines }}" as="l" hint-placeholder-count="3">
+            <span style="display:flex;gap:8px;align-items:baseline;margin-top:6px;font-size:12.5px;line-height:1.45;color:var(--grey-600);font-weight:500">
+              <i style="flex:none;width:5px;height:5px;border-radius:50%;background:var(--blue-300);align-self:center"></i>
+              {{ l.t }}
+            </span>
+          </sc-for>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    if (!window.BCSchoolData) {
+      this._poll = setInterval(() => { if (window.BCSchoolData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+  componentWillUnmount() { if (this._poll) clearInterval(this._poll); }
+
+  renderVals() {
+    const issues = (((window.BCSchoolData || {}).newsletter) || {}).issues || [];
+    return {
+      countLabel: issues.length + ' issues',
+      issues: issues.map((v) => ({
+        n: v.n, month: v.month, headline: v.headline,
+        lines: (v.lines || []).map((t) => ({ t })),
+        href: './NewsletterIssue.dc.html?issue=' + v.n
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

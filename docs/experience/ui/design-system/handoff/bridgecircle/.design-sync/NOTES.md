@@ -7,6 +7,113 @@ divergence ledger (`uploads/OVERRIDES.md`) and the baseline-test evidence
 (`Help Hub.html`). Direct file push of `project/**`; no converter, no
 `register_assets` (`@dsCard` markers index the cards).
 
+## ⚠ SYNC IN FLIGHT — templates restructure, pull complete (2026-08-14)
+
+The remote restructured `templates/` on 2026-08-14: the 15 per-flow folders are
+gone, replaced by a flat `templates/screens/` (26 screens + shared `Shell`, `Card`,
+`Avatar`, `Toast`, `Screens`). Claude Design resolves `<dc-import>` against
+**siblings**, so a shared component and the screens using it must sit in one
+directory — that is what the flat tree buys, and it is what collapsed 13 divergent
+sidebars and 18 divergent topbars into a single `Shell.dc.html`.
+
+The initiative tracking this:
+[`Initiatives/design-templates-syncdown/plan.md`](../../../../../../../engineering-spec-obsidian-vault/Initiatives/design-templates-syncdown/plan.md)
+
+Done in PR #194: token `@kind` annotations (33 declarations), both
+`templates/*.md`, and `ds-base.js` base-path verification (`'../..'` is correct).
+
+**Re-sync log — 2026-08-14, the pull.** All 42 files of `templates/screens/` are
+now on disk and byte-exact: 32 `.dc.html`, 9 data/menu `.js`, plus the one vendored
+`support.js` (64,222 b — the compiled dc-runtime, one copy for the whole flat
+tree). Verification clean: no zero-byte file, no fetch reported `truncated`, every
+`.dc.html` opens `<!DOCTYPE html>` and closes `</html>`, `node --check` passes on
+all 10 `.js`, and every `var(--…)` resolves against `colors_and_type.css`. The 5
+stale per-flow references in `design-qa.md`, `preview/system-states.html`, and
+`preview/decision-dialogs.html` now point at `templates/screens/`.
+
+Two mechanics worth not rediscovering. `DesignSync` is **main-thread only** — a
+subagent cannot see the tool, so this can never be delegated. And `get_file`
+returns bodies into the model context, which must never be retyped into a `Write`;
+content is extracted from the session transcript, or — for results over ~50 KB,
+which the harness spills to `tool-results/*.txt` instead of inlining — from that
+sidecar file. Both are byte-exact; retyping is not.
+
+The 15 per-flow folders (65 files) are deleted, so `templates/screens/` is the
+only tree under `templates/` and there is nothing left to confuse it with.
+
+A structural diff against `list_files` puts the bundle at parity, with exactly
+four remote files deliberately not vendored — `templates/sync-plan/{SyncPlan.dc.html,
+ds-base.js,support.js}` and `uploads/repo_copy-1786737908051-cmac.html`. Those are
+remote-authored files outside this sync's scope, left in place by decision rather
+than missed. Local-only paths are `screenshots/**` (QA evidence, never pushed) and
+gitignored `.DS_Store`.
+
+**Pushed back the same day, closing the loop.** Three files went up —
+`preview/system-states.html` and `preview/decision-dialogs.html` (provenance
+comments repointed at `templates/screens/`) and `templates/TOKEN-KINDS.md` (its
+prose claimed "22 unique" unclassifiable tokens while listing 21; corrected to 21,
+with the 21-names → 33-declarations arithmetic spelled out) — plus a
+`_ds_needs_recompile` sentinel. `TOKEN-KINDS.md` was read back and is byte-
+identical at 3,094 b.
+
+Four files were deleted from the remote in the same plan, all of them finished
+scaffolding for this sync: `templates/sync-plan/{SyncPlan.dc.html,ds-base.js,
+support.js}` — the decision brief plus the runtime duplicated only to render it —
+and `uploads/repo_copy-1786737908051-cmac.html`, a pre-restructure snapshot of
+`Onboarding` that still carried the old per-flow links (`../home/Home.dc.html`).
+Both were actively wrong to keep: the first re-introduced the duplicate runtime
+the flatten removed, the second preserved the paths this sync purged. The brief's
+four decisions survive in the initiative's decisions log, so nothing was lost.
+
+**The two sides are now at parity** — a structural diff against `list_files`
+returns nothing missing locally. Local-only paths are `screenshots/**` (QA
+evidence, never pushed) and gitignored `.DS_Store`.
+
+### The `@kind` annotations had never actually reached the project (2026-08-14)
+
+Chasing the "31 of 371" discrepancy turned up the real problem. The annotations
+were written into the repo's `colors_and_type.css` in PR #194 — but **that file was
+never pushed**. The project kept serving an un-annotated copy: **0** occurrences of
+`@kind` remotely against **33** locally. A diff showed 66 changed lines that were
+*only* those 33 declarations, annotated versus not — no value drift anywhere.
+
+So `check_design_system` had been reading a file with no annotations in it, and
+re-running it would have reported every token as unclassifiable no matter how
+correct the repo was. Applying the rules is only half the job; the file has to be
+re-synced. `colors_and_type.css` was pushed and read back byte-identical
+(31,514 b, 33 `@kind`), and `TOKEN-KINDS.md` now carries a STATUS block recording
+that it is applied and synced, so nobody redoes the work.
+
+**Worth generalizing:** file-name parity is not content parity. The structural
+diff against `list_files` was green the whole time this was wrong, because both
+sides had a file called `colors_and_type.css`. Content-check the files that matter
+after any push.
+
+### Closed out — zero token findings (2026-08-14)
+
+Richard re-ran `check_design_system` after the sync fix. The first pass took it
+from 22 findings to 6, and the checker then **named those six outright** instead
+of the earlier heuristic reconstruction: `--lh-label` → `@kind font` (the only
+line-height in the type scale written as a unitless ratio, so neither value nor
+name classifies it) and the five motion/easing tokens → `@kind other` (durations
+and curves are none of the five buckets). All six are `:root`-only, so unlike the
+first batch there was nothing to mirror into `.dark`.
+
+Applied, pushed, and read back byte-identical. **The re-run after that reports
+zero token findings.** Total is 39 annotations — 21 color, 12 shadow, 5 other,
+1 font. The one item the checker still reports is the style-attribute note on
+`Avatar.dc.html`, which is permitted by design.
+
+`--weight-regular/-medium/-semibold/-bold` were deliberately left un-annotated:
+a naive scan flags them as bare numerics, but the checker never named them, so it
+classifies them fine. The checker's list is the authority — annotating past it is
+guessing, which is what made the earlier reconstruction 4-for-6.
+
+Note for anyone doing this again: `check_design_system` is app-side, inside the
+Claude Design project. There is no Claude Code tool binding and no repo script, so
+it cannot be run from here — the repo can prepare and sync the annotations, but a
+human has to run the check in the project and report back.
+
 ## Project pin — migrated to the BridgeCircle org (2026-08-14)
 
 **Current pin: `403a99dc-f481-472b-974d-aea93ee512f9`** (`bridgecircle`,

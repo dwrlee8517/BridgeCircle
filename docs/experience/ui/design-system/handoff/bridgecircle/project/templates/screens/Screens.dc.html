@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="BridgeCircle member app" description="Every screen in the member app (FLOWS §1–§8) built on one shared Shell. Start from this index: AppShell is the blank screen, Shell/Card/Avatar/Toast are the shared parts, the rest are the 26 real screens." -->
+<helmet>
+  <script src="./ds-base.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-canvas);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)}</style>
+</helmet>
+
+<div style="min-height:100vh;padding:56px 32px 80px">
+  <div style="max-width:940px;margin:0 auto">
+    <span style="display:flex;align-items:center;gap:10px;font-size:20px;font-weight:800;letter-spacing:-0.02em">
+      <svg width="28" height="28" viewBox="0 0 28 28" style="flex:none"><circle cx="11" cy="14" r="9" fill="none" stroke="var(--grey-900)" stroke-width="1.7"></circle><circle cx="17" cy="14" r="9" fill="none" stroke="var(--blue-500)" stroke-width="1.7"></circle></svg>
+      BridgeCircle &mdash; member app
+    </span>
+    <p style="margin:14px 0 0;max-width:620px;font-size:15px;line-height:1.7;color:var(--text-secondary);font-weight:500;text-wrap:pretty">26 screens and 4 shared parts. Every screen mounts <b style="font-weight:700">Shell</b> for the sidebar, topbar, bell popover and account menu, so chrome changes happen in one file. Copy this whole folder; edit <b style="font-weight:700">ds-base.js</b> to point at your bound design system.</p>
+
+    <p style="margin:40px 0 12px;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint)">Start here</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">
+      <a href="./AppShell.dc.html" style="display:block;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:14px 16px;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <span style="display:block;font-size:14px;font-weight:700">App shell</span>
+        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Blank screen to copy</span>
+      </a>
+      <a href="./Shell.dc.html" style="display:block;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:14px 16px;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <span style="display:block;font-size:14px;font-weight:700">Shell</span>
+        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Sidebar · topbar · bell</span>
+      </a>
+      <a href="./Card.dc.html" style="display:block;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:14px 16px;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <span style="display:block;font-size:14px;font-weight:700">Card</span>
+        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Elevated · flat</span>
+      </a>
+      <a href="./Avatar.dc.html" style="display:block;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:14px 16px;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <span style="display:block;font-size:14px;font-weight:700">Avatar</span>
+        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Palette 1–6 · self · neutral</span>
+      </a>
+      <a href="./Toast.dc.html" style="display:block;background:var(--surface-card-elevated);border-radius:var(--radius-large);box-shadow:var(--ring-card-elevated),var(--shadow-card-elevated);padding:14px 16px;color:inherit" style-hover="background:var(--row-hover)" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px">
+        <span style="display:block;font-size:14px;font-weight:700">Toast</span>
+        <span style="display:block;font-size:12px;color:var(--text-faint);font-weight:500;margin-top:2px">Confirmation pill</span>
+      </a>
+    </div>
+
+    <p style="margin:40px 0 12px;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint)">Screens</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px">
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">Entry &amp; onboarding &middot; §1</p>
+        <div style="display:grid;gap:2px">
+          <a href="./Entry.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Invite verify</a>
+          <a href="./Onboarding.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Onboarding &mdash; 5 steps</a>
+          <a href="./SignedOut.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Signed out</a>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">Home &middot; §2</p>
+        <div style="display:grid;gap:2px">
+          <a href="./Home.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Dashboard</a>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">Help &middot; §3</p>
+        <div style="display:grid;gap:2px">
+          <a href="./Help.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Help hub</a>
+          <a href="./AskCircle.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Ask the circle</a>
+          <a href="./AskCompose.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Ask &mdash; draft with AI</a>
+          <a href="./AskStatus.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Ask status</a>
+          <a href="./AskHistory.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Your asks</a>
+          <a href="./GiveDirect.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Asked you directly</a>
+          <a href="./GiveOffer.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Offer help</a>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">People &amp; profiles &middot; §4 §7</p>
+        <div style="display:grid;gap:2px">
+          <a href="./People.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Directory</a>
+          <a href="./Profile.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Member profile</a>
+          <a href="./ProfileSelf.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Your profile</a>
+          <a href="./ProfileSlideOver.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Profile slide-over</a>
+          <a href="./MyCircle.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">My circle</a>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">Messages &middot; §5</p>
+        <div style="display:grid;gap:2px">
+          <a href="./Messages.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">One inbox</a>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">School &middot; §6</p>
+        <div style="display:grid;gap:2px">
+          <a href="./School.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Events &amp; announcements</a>
+          <a href="./SchoolEvent.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Event page</a>
+          <a href="./Announcements.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Announcements</a>
+          <a href="./AnnouncementRead.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Announcement</a>
+          <a href="./NewsletterArchive.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Newsletter archive</a>
+          <a href="./NewsletterIssue.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Newsletter issue</a>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-size:13px;font-weight:800">Account &amp; system &middot; §7d §8</p>
+        <div style="display:grid;gap:2px">
+          <a href="./Notifications.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Notifications</a>
+          <a href="./Settings.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Settings</a>
+          <a href="./SystemStates.dc.html" style="font-size:14px;font-weight:600;color:var(--text-secondary);padding:5px 0" style-hover="color:var(--blue-600)">Not found · denied · offline · loading</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+</body>
+</html>
