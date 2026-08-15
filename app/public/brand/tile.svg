@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56" width="56" height="56">
+  <!-- App tile: favicon, home screen, social avatars. Primary tile, mark reversed white. -->
+  <rect width="56" height="56" rx="13" fill="#3182f6"/>
+  <circle cx="20.5" cy="28" r="15" fill="none" stroke="#ffffff" stroke-width="3.4"/>
+  <circle cx="35.5" cy="28" r="15" fill="none" stroke="#ffffff" stroke-width="3.4"/>
+</svg>

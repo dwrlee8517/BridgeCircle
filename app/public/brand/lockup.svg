@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 359 77" width="359" height="77">
-  <!-- BridgeCircle wordmark ("quiet ink", 2026-08 refresh). Pretendard 700, outlined -
-       no font dependency. The name is one continuous word, single ink; never two-tone it. -->
-  <g fill="#e9eaec" transform="translate(0,60.94)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 77" width="440" height="77">
+  <!-- BridgeCircle lockup: tuned-baseline mark + quiet-ink wordmark (2026-08 refresh). -->
+  <g transform="translate(0,9.06) scale(0.9200)">
+    <circle cx="25" cy="32" r="19" fill="none" stroke="#191f28" stroke-width="5"/>
+    <circle cx="39" cy="32" r="19" fill="none" stroke="#3182f6" stroke-width="5"/>
+  </g>
+  <g fill="#191f28" transform="translate(80.64,60.94)">
     <path transform="translate(0.00,0) scale(0.031250,-0.031250)" d="M123 1448L699 1448Q854 1448 962 1401.5Q1070 1355 1124.5 1271.5Q1179 1188 1179 1076Q1179 994 1145.5 930Q1112 866 1053.5 824.5Q995 783 918 766L918 752Q1001 748 1074 704Q1147 660 1191 581.5Q1235 503 1235 399Q1235 283 1178 193Q1121 103 1008.5 51.5Q896 0 737 0L123 0ZM676 247Q761 247 816.5 269.5Q872 292 898 332.5Q924 373 924 429Q924 489 895 537Q866 585 811.5 610.5Q757 636 684 636L423 636L423 247L676 247ZM654 841Q717 841 767.5 864Q818 887 846.5 929Q875 971 875 1028Q875 1082 850 1121.5Q825 1161 776.5 1182.5Q728 1204 660 1204L423 1204L423 841L654 841Z"/>
     <path transform="translate(39.44,0) scale(0.031250,-0.031250)" d="M116 1086L402 1086L402 897L414 897Q443 997 513 1049.5Q583 1102 675 1102Q723 1102 770 1092L770 828Q751 835 713 839.5Q675 844 643 844Q577 844 525 815.5Q473 787 442.5 735.5Q412 684 412 617L412 0L116 0Z"/>
     <path transform="translate(63.13,0) scale(0.031250,-0.031250)" d="M116 1086L412 1086L412 0L116 0ZM264 1229Q220 1229 183 1249Q146 1269 124 1304Q102 1339 102 1379Q102 1420 124 1454.5Q146 1489 183 1509Q220 1529 264 1529Q308 1529 345 1509Q382 1489 403.5 1454.5Q425 1420 425 1379Q425 1339 403.5 1304Q382 1269 345 1249Q308 1229 264 1229Z"/>
