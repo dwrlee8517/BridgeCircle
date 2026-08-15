@@ -1,0 +1,2646 @@
+{
+  "engine": "legacy",
+  "date": "2026-08-15",
+  "corpusMembers": 1203,
+  "enginePrint": "c26a7ef77cae27f12466e557561766fb48782ddb314d740ec154860118e8ba9e",
+  "regimes": [
+    {
+      "regime": "coverage-ranking",
+      "total": 2,
+      "passed": 0,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "crowded-topic",
+      "total": 2,
+      "passed": 0,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "eligibility",
+      "total": 4,
+      "passed": 3,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "field-locus",
+      "total": 3,
+      "passed": 0,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "keyword",
+      "total": 3,
+      "passed": 3,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "null",
+      "total": 1,
+      "passed": 0,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "sentence-overlap",
+      "total": 2,
+      "passed": 1,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "sparse-vs-rich",
+      "total": 3,
+      "passed": 1,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "stem-variant",
+      "total": 2,
+      "passed": 1,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "stopword-heavy",
+      "total": 1,
+      "passed": 0,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "vocab-mismatch",
+      "total": 2,
+      "passed": 2,
+      "hardFailureCount": 0,
+      "expectedMisses": 2
+    }
+  ],
+  "cases": [
+    {
+      "id": "keyword-consulting",
+      "regime": "keyword",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-030@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Sam Whitaker",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000030",
+            "semantic_score": 0,
+            "graduation_year": 2017,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000030"
+          }
+        },
+        {
+          "email": "helper-136@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Usha Rao",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000136",
+            "semantic_score": 0,
+            "graduation_year": 2016,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000136"
+          }
+        },
+        {
+          "email": "helper-150@eval.test",
+          "row": {
+            "topics": [
+              "Consulting",
+              "First jobs"
+            ],
+            "headline": "Second-year consultant",
+            "avatar_path": null,
+            "display_name": "Isolde Brennan",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000150",
+            "semantic_score": 0,
+            "graduation_year": 2023,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000150"
+          }
+        },
+        {
+          "email": "member-1081@eval.test",
+          "row": {
+            "topics": [
+              "Consulting",
+              "Career changes"
+            ],
+            "headline": "Senior Analyst at Civic Institute. Previously Communications at Penn State.",
+            "avatar_path": null,
+            "display_name": "Sage Ashford",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000001081",
+            "semantic_score": 0,
+            "graduation_year": 2001,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001081"
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyword-venture-capital",
+      "regime": "keyword",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-034@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investor",
+            "avatar_path": null,
+            "display_name": "Wes Morrow",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000034",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000034"
+          }
+        },
+        {
+          "email": "helper-138@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Wren Halloway",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000138",
+            "semantic_score": 0,
+            "graduation_year": 2018,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000138"
+          }
+        },
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyword-medicine",
+      "regime": "keyword",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-017@eval.test",
+          "row": {
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Medicine: residency and attending life",
+            "avatar_path": null,
+            "display_name": "Hana Sato",
+            "match_reason": "Speaks to Medicine",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000017",
+            "semantic_score": 0,
+            "graduation_year": 2006,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000017"
+          }
+        },
+        {
+          "email": "helper-032@eval.test",
+          "row": {
+            "topics": [
+              "Medicine"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Umar Aziz",
+            "match_reason": "Speaks to Medicine",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000032",
+            "semantic_score": 0,
+            "graduation_year": 2004,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000032"
+          }
+        },
+        {
+          "email": "helper-072@eval.test",
+          "row": {
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Resident at a teaching hospital",
+            "avatar_path": null,
+            "display_name": "Bela Nagy",
+            "match_reason": "Speaks to Medicine",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000072",
+            "semantic_score": 0,
+            "graduation_year": 2020,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000072"
+          }
+        },
+        {
+          "email": "helper-102@eval.test",
+          "row": {
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Pediatric nurse practitioner",
+            "avatar_path": null,
+            "display_name": "Mina Chowdhury",
+            "match_reason": "Speaks to Medicine",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000102",
+            "semantic_score": 0,
+            "graduation_year": 2013,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000102"
+          }
+        },
+        {
+          "email": "helper-137@eval.test",
+          "row": {
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Med school applications coaching on weekends",
+            "avatar_path": null,
+            "display_name": "Vero Castellanos",
+            "match_reason": "Speaks to Medicine",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000137",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000137"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stem-consultant",
+      "regime": "stem-variant",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stem-teacher",
+      "regime": "stem-variant",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-022@eval.test missing from top 5"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sentence-business-school",
+      "regime": "sentence-overlap",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sentence-negotiate-offer",
+      "regime": "sentence-overlap",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-139@eval.test missing from top 5",
+        "hit5: helper-035@eval.test missing from top 5"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "coverage-negotiating-startup",
+      "regime": "coverage-ranking",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_only: viewer-3@eval.test is outside topics [Negotiating an offer, Startups]",
+        "pool_only: helper-010@eval.test is outside topics [Negotiating an offer, Startups]",
+        "pool_only: helper-011@eval.test is outside topics [Negotiating an offer, Startups]"
+      ],
+      "top5": [
+        {
+          "email": "member-1204@eval.test",
+          "row": {
+            "topics": [
+              "Startups",
+              "Negotiating an offer"
+            ],
+            "headline": "Designer at Bayview Clinic",
+            "avatar_path": null,
+            "display_name": "Avery Eastman",
+            "match_reason": "Speaks to Startups",
+            "lexical_score": 0.0500000007450581,
+            "helper_user_id": "ee000000-0000-4000-8000-000000001204",
+            "semantic_score": 0,
+            "graduation_year": 1989,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001204"
+          }
+        },
+        {
+          "email": "member-1810@eval.test",
+          "row": {
+            "topics": [
+              "Startups",
+              "Negotiating an offer"
+            ],
+            "headline": "Operations Manager at Solara Brands. Previously Computer Science at Ohio State.",
+            "avatar_path": null,
+            "display_name": "Hollis Yamada",
+            "match_reason": "Speaks to Startups",
+            "lexical_score": 0.0500000007450581,
+            "helper_user_id": "ee000000-0000-4000-8000-000000001810",
+            "semantic_score": 0,
+            "graduation_year": 2023,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001810"
+          }
+        },
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        }
+      ]
+    },
+    {
+      "id": "coverage-managing-startup",
+      "regime": "coverage-ranking",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-146@eval.test missing from top 5",
+        "pool_only: viewer-3@eval.test is outside topics [Managing people, Startups]",
+        "pool_only: helper-010@eval.test is outside topics [Managing people, Startups]",
+        "pool_only: helper-011@eval.test is outside topics [Managing people, Startups]",
+        "pool_only: helper-012@eval.test is outside topics [Managing people, Startups]",
+        "pool_only: helper-013@eval.test is outside topics [Managing people, Startups]"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "locus-mckinsey",
+      "regime": "field-locus",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-046@eval.test missing from top 5",
+        "hit5: helper-045@eval.test missing from top 5"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "locus-pm-seoul",
+      "regime": "field-locus",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "top1: expected helper-047@eval.test first, got viewer-3@eval.test"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "locus-insead",
+      "regime": "field-locus",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-048@eval.test missing from top 5"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sparse-software-engineering",
+      "regime": "sparse-vs-rich",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-014@eval.test missing from top 5",
+        "hit5: helper-031@eval.test missing from top 5"
+      ],
+      "top5": [
+        {
+          "email": "member-1528@eval.test",
+          "row": {
+            "topics": [
+              "Software engineering",
+              "Career changes"
+            ],
+            "headline": "Senior Associate at Cobalt Works",
+            "avatar_path": null,
+            "display_name": "Ever Oyelaran",
+            "match_reason": "Speaks to Software engineering",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000001528",
+            "semantic_score": 0,
+            "graduation_year": 2013,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001528"
+          }
+        },
+        {
+          "email": "member-1556@eval.test",
+          "row": {
+            "topics": [
+              "Career changes",
+              "Software engineering"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Cove Pemberton",
+            "match_reason": "Speaks to Career changes",
+            "lexical_score": 0.0500000007450581,
+            "helper_user_id": "ee000000-0000-4000-8000-000000001556",
+            "semantic_score": 0,
+            "graduation_year": 2005,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001556"
+          }
+        },
+        {
+          "email": "member-2065@eval.test",
+          "row": {
+            "topics": [
+              "Career changes",
+              "Software engineering"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Blythe Grimaldi",
+            "match_reason": "Speaks to Career changes",
+            "lexical_score": 0.0500000007450581,
+            "helper_user_id": "ee000000-0000-4000-8000-000000002065",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000002065"
+          }
+        },
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sparse-product-management",
+      "regime": "sparse-vs-rich",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "member-1634@eval.test",
+          "row": {
+            "topics": [
+              "Managing people",
+              "Product management"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Lane Santana",
+            "match_reason": "Speaks to Managing people",
+            "lexical_score": 0.150000005960464,
+            "helper_user_id": "ee000000-0000-4000-8000-000000001634",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001634"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        },
+        {
+          "email": "helper-033@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product manager, consumer apps",
+            "avatar_path": null,
+            "display_name": "Uma Krishnan",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000033",
+            "semantic_score": 0,
+            "graduation_year": 2016,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000033"
+          }
+        },
+        {
+          "email": "helper-047@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product manager, mobility apps",
+            "avatar_path": null,
+            "display_name": "Gita Prasetyo",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000047",
+            "semantic_score": 0,
+            "graduation_year": 2015,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000047"
+          }
+        },
+        {
+          "email": "helper-135@eval.test",
+          "row": {
+            "topics": [
+              "Product management",
+              "First jobs"
+            ],
+            "headline": "APM program graduate",
+            "avatar_path": null,
+            "display_name": "Tove Aldana",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000135",
+            "semantic_score": 0,
+            "graduation_year": 2021,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000135"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sparse-consulting-someone",
+      "regime": "sparse-vs-rich",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-030@eval.test missing from top 5"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "crowded-managing-people",
+      "regime": "crowded-topic",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_only: viewer-3@eval.test is outside topics [Managing people]",
+        "pool_only: helper-010@eval.test is outside topics [Managing people]",
+        "pool_only: helper-011@eval.test is outside topics [Managing people]",
+        "pool_only: helper-012@eval.test is outside topics [Managing people]",
+        "pool_only: helper-013@eval.test is outside topics [Managing people]"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiebreak-interview-twins",
+      "regime": "crowded-topic",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "hit5: helper-079@eval.test missing from top 5",
+        "hit5: helper-078@eval.test missing from top 5",
+        "order: helper-079@eval.test absent from results",
+        "order: helper-078@eval.test absent from results"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-self-actuary",
+      "regime": "eligibility",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "empty: expected zero results, got 40 (first: helper-010@eval.test)"
+      ],
+      "top5": [
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        },
+        {
+          "email": "helper-014@eval.test",
+          "row": {
+            "topics": [
+              "Software engineering"
+            ],
+            "headline": "Software engineering careers and staff+ growth",
+            "avatar_path": null,
+            "display_name": "Elsa Lindqvist",
+            "match_reason": "Speaks to Software engineering",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000014",
+            "semantic_score": 0,
+            "graduation_year": 2013,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000014"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-capacity",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-blocked-viewer2",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-unblocked-viewer1",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-089@eval.test",
+          "row": {
+            "topics": [
+              "Public speaking"
+            ],
+            "headline": "Public speaking and executive presence",
+            "avatar_path": null,
+            "display_name": "Jules Aubert",
+            "match_reason": "Speaks to Public speaking",
+            "lexical_score": 0.100000001490116,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000089",
+            "semantic_score": 0,
+            "graduation_year": 2005,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000089"
+          }
+        },
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        }
+      ]
+    },
+    {
+      "id": "null-motorcycles",
+      "regime": "null",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "empty: expected zero results, got 40 (first: viewer-3@eval.test)"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stopword-first-job",
+      "regime": "stopword-heavy",
+      "passed": false,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_hit: no top-5 result holds any of [First jobs]"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mismatch-laid-off",
+      "regime": "vocab-mismatch",
+      "passed": true,
+      "failOk": true,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_hit: no top-5 result holds any of [Career changes]"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mismatch-fresh-start",
+      "regime": "vocab-mismatch",
+      "passed": true,
+      "failOk": true,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_hit: no top-5 result holds any of [Career changes, Working abroad]"
+      ],
+      "top5": [
+        {
+          "email": "viewer-3@eval.test",
+          "row": {
+            "topics": [
+              "Actuarial science"
+            ],
+            "headline": "Actuary; pensions and longevity risk",
+            "avatar_path": null,
+            "display_name": "Vale Fontaine",
+            "match_reason": "Speaks to Actuarial science",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000003",
+            "semantic_score": 0,
+            "graduation_year": 2010,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000003"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "semantic_score": 0,
+            "graduation_year": 2014,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "semantic_score": 0,
+            "graduation_year": 2011,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "semantic_score": 0,
+            "graduation_year": 2009,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "lexical_score": 0,
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "semantic_score": 0,
+            "graduation_year": 2012,
+            "evidence_chunk_ids": [],
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        }
+      ]
+    }
+  ],
+  "caveat": "Measures the legacy RPC's ranking directly (SQL blend, embedding null). The shipped legacy UX layered a 0.12 display threshold in the app that usually rendered ZERO results for sentence questions, so these numbers are an UPPER bound on legacy user-facing quality."
+}
