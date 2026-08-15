@@ -57,11 +57,16 @@ describe('production workflow ratchet', () => {
 })
 
 describe('destructive entry-point ratchet', () => {
-  it('permits only the guarded one-time reset file', () => {
+  const compliantProdReset =
+    'PRODUCTION_V2_RESET_EXECUTE PRODUCTION_V2_ZERO_DATA_ACK PRODUCTION_V2_RESET_CONFIRM --no-seed --yes supabase db reset'
+  const compliantDevReset =
+    'DEV_RESET_EXECUTE DEV_RESET_CONFIRM validateRemoteExecution --yes supabase db reset'
+
+  it('permits only the guarded reset entry points', () => {
     expect(
       destructiveEntryPointErrors({
-        'scripts/production-v2-reset.ts':
-          'PRODUCTION_V2_RESET_EXECUTE PRODUCTION_V2_ZERO_DATA_ACK PRODUCTION_V2_RESET_CONFIRM --no-seed --yes supabase db reset',
+        'scripts/production-v2-reset.ts': compliantProdReset,
+        'scripts/reset-dev.ts': compliantDevReset,
         'scripts/other.ts': 'safe',
       }),
     ).toEqual([])
@@ -70,10 +75,27 @@ describe('destructive entry-point ratchet', () => {
   it('rejects destructive commands elsewhere', () => {
     expect(
       destructiveEntryPointErrors({
-        'scripts/production-v2-reset.ts':
-          'PRODUCTION_V2_RESET_EXECUTE PRODUCTION_V2_ZERO_DATA_ACK PRODUCTION_V2_RESET_CONFIRM --no-seed --yes',
+        'scripts/production-v2-reset.ts': compliantProdReset,
+        'scripts/reset-dev.ts': compliantDevReset,
         'scripts/other.ts': 'supabase db reset',
       }),
     ).not.toEqual([])
+  })
+
+  it('rejects a dev reset missing a guard marker', () => {
+    expect(
+      destructiveEntryPointErrors({
+        'scripts/production-v2-reset.ts': compliantProdReset,
+        'scripts/reset-dev.ts': compliantDevReset.replace('DEV_RESET_CONFIRM ', ''),
+      }),
+    ).toContainEqual(expect.stringContaining('dev reset is missing guard'))
+  })
+
+  it('rejects an absent dev reset entry point', () => {
+    expect(
+      destructiveEntryPointErrors({
+        'scripts/production-v2-reset.ts': compliantProdReset,
+      }),
+    ).toContainEqual(expect.stringContaining('dev reset is missing guard'))
   })
 })

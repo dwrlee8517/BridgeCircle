@@ -92,6 +92,7 @@ How-to guides. Read when touching the relevant area.
 
 - [Day 0 setup](runbooks/day-0-setup.md) — initial scaffold and `/lib` rationale
 - [Seed development data](runbooks/seed-dev.md) — disposable local v2 seed and remote-cutover boundary
+- [Dev reset](runbooks/dev-reset.md) — routine guarded rebuild of the hosted dev database (`pnpm reset:dev`)
 - [Supabase conventions](runbooks/supabase-conventions.md) — keys, clients, type generation, role grants
 - [Migration workflow](runbooks/migration-workflow.md) — forward-only migrations, local validation gates, `cd.yml` as sole prod owner, expand/contract for destructive changes
 - [Integration testing](runbooks/integration-testing.md) — API-driven, in-process tests of server actions and route handlers against real RLS, with line coverage
