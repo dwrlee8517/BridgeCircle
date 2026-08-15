@@ -73,11 +73,18 @@ export function productionWorkflowErrors(workflow: string): string[] {
   return errors
 }
 
+// The only scripts allowed to hold a destructive database command, each pinned
+// to the guard markers asserted below. Everything else fails the ratchet.
+const DESTRUCTIVE_ENTRY_POINTS = new Set([
+  'scripts/production-v2-reset.ts',
+  'scripts/reset-dev.ts',
+])
+
 export function destructiveEntryPointErrors(files: Record<string, string>): string[] {
   const errors: string[] = []
   for (const [path, content] of Object.entries(files)) {
     if (/supabase[\s\S]{0,80}db[\s\S]{0,80}reset|migration repair/i.test(content)) {
-      if (path !== 'scripts/production-v2-reset.ts') {
+      if (!DESTRUCTIVE_ENTRY_POINTS.has(path)) {
         errors.push(`forbidden destructive database command in ${path}`)
       }
     }
@@ -91,6 +98,19 @@ export function destructiveEntryPointErrors(files: Record<string, string>): stri
     '--yes',
   ]) {
     if (!reset.includes(marker)) errors.push(`production reset is missing guard: ${marker}`)
+  }
+  // The dev reset is routine rather than one-time, so it has no zero-data
+  // premise and seeds on purpose (no --no-seed requirement) — but it must
+  // keep the execute ack, the exact confirmation string, and the shared
+  // remote-target/git guard stack.
+  const devReset = files['scripts/reset-dev.ts'] ?? ''
+  for (const marker of [
+    'DEV_RESET_EXECUTE',
+    'DEV_RESET_CONFIRM',
+    'validateRemoteExecution',
+    '--yes',
+  ]) {
+    if (!devReset.includes(marker)) errors.push(`dev reset is missing guard: ${marker}`)
   }
   return errors
 }

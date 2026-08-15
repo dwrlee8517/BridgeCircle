@@ -13,7 +13,10 @@ search — `pnpm eval:search` auto-seeds it when absent).
 The previous admin-API remote seed script was deleted during the Help cutover.
 It encoded the retired schema and must not be restored as a compatibility
 layer. Every v2 application domain is now ported, so hosted development reuses
-the SQL seed instead of maintaining a second fixture graph.
+the SQL seed instead of maintaining a second fixture graph. Rebuilding the
+hosted dev database is a routine, guarded operation now — see
+[dev-reset.md](dev-reset.md); it replays checked-in migrations plus this seed,
+which is exactly the mechanism the one-time cutover used.
 
 ## Reset and seed the local stack
 

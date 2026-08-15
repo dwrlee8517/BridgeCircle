@@ -78,7 +78,8 @@
     "eval:search": "tsx scripts/eval-help-search.ts",
     "db:types:local": "pnpm exec supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
     "db:types": "pnpm exec supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
-    "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts"
+    "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts",
+    "reset:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/reset-dev.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",
