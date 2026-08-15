@@ -275,6 +275,9 @@ if (capture) {
       2,
     )}\n`,
   )
+  // Same convention as db:types:local — generated files are biome-formatted
+  // so `biome ci` stays green.
+  execFileSync('pnpm', ['exec', 'biome', 'format', '--write', SNAPSHOT_PATH], { stdio: 'ignore' })
   console.log(`\nsnapshots written: ${SNAPSHOT_PATH} (${unitCases.length} unit-layer cases)`)
 }
 
