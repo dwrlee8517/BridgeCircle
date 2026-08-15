@@ -65,6 +65,13 @@ Splitting a deploy pipeline is a change to the thing that ships code, and it
 wants doing deliberately rather than as a side effect of a version bump. The
 immediate jam is cleared, so nothing is on fire.
 
+## Resolution (2026-08-14, same day)
+
+Fixed by option 1 below: concurrency moved from the workflow to the jobs —
+deploy-dev and integ share a `cd-dev` group, promote holds `cd-promote`. A
+promotion waiting at the production gate no longer blocks dev deploys. The
+expiry habit stands: cancel a gate you do not intend to approve the same day.
+
 ## Possible fix
 
 The minimal correct change is to stop letting one waiting job hold the whole
