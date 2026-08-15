@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- BridgeCircle backdrop: Daybreak (light). Bone warming into blue, soft light behind the motif. -->
+  <defs>
+    <linearGradient id="daybreak-bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#f7f4ec"/><stop offset="0.55" stop-color="#f4f6f9"/><stop offset="1" stop-color="#dcebff"/>
+    </linearGradient>
+    <radialGradient id="daybreak-sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#daybreak-bg)"/>
+  <circle cx="1410" cy="360" r="570" fill="url(#daybreak-sun)"/>
+  <circle cx="1290" cy="360" r="285" fill="none" stroke="rgba(25,31,40,0.16)" stroke-width="6"/>
+  <circle cx="1500" cy="360" r="285" fill="none" stroke="rgba(49,130,246,0.45)" stroke-width="7"/>
+</svg>
