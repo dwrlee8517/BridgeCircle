@@ -67,18 +67,18 @@ Asks (both kinds), Ask offers, invites, memberships, RSVPs, events,
 announcements, newsletter issues, account state, admin roles, and helper pause
 reasons. When you add a status to a constraint, add a row for it here too.
 
-## Tier 2: the generated demo population
+## Tier 2: the generated scale population
 
 `app/supabase/seeds/seed.sql` is Tier 1 — small, hand-authored, deterministic,
 and asserted against by pgTAP and the E2E suites. **It must stay small.**
 
-`pnpm seed:demo` is Tier 2: a generated population sized to what one pilot
+`pnpm seed:scale` is Tier 2: a generated population sized to what one pilot
 organization plausibly looks like after a year. It exists so the directory,
 Help, and search surfaces can be judged at realistic scale instead of at eight
 rows. Run it after a reset:
 
 ```bash
-pnpm db:reset && pnpm seed:demo
+pnpm db:reset && pnpm seed:scale
 ```
 
 Knobs, all optional:
