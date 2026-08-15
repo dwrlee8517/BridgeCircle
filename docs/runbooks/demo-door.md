@@ -75,6 +75,27 @@ Populations are org-scoped: rerunning regenerates only the demo org's crowd
 and clears any scene overlays applied on top of it. A crowd generated into
 another organization on the same database is untouched.
 
+## Scenes: staging a mid-story starting state
+
+Demo videos rarely open on an empty app. Scenes are small, composable overlays
+that stage a starting state on top of a fresh reseed — apply them with
+`pnpm seed:scene`, or chain them from the reseed in one command:
+
+```bash
+DEMO_SCENE=help-inbox,thread pnpm seed:demo-org      # reseed + scenes, one go
+pnpm seed:scene help-inbox thread ask-journey        # or apply to an existing org
+```
+
+Current scenes (registry and authoring contract:
+[`app/scripts/scenes/README.md`](../../app/scripts/scenes/README.md)):
+
+- **`help-inbox`** — three waiting asks in Jamie's Help inbox
+- **`thread`** — an accepted-Ask conversation in mid-flow, latest message unread
+- **`ask-journey`** — Jamie's own asks in waiting / accepted / declined states
+
+Two rules of thumb: reseeding clears applied scenes (re-apply what the next
+take needs), and the recording loop is *reseed → scenes → arm → record*.
+
 ## Operating it
 
 1. Sign in on dev with an allowlisted account, open `/demo/arm`.
