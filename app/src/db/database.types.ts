@@ -1182,14 +1182,13 @@ export type Database = {
         Returns: {
           avatar_path: string
           display_name: string
-          evidence_chunk_ids: string[]
           graduation_year: number
           headline: string
           helper_membership_id: string
           helper_user_id: string
-          lexical_score: number
           match_reason: string
-          semantic_score: number
+          matched_fields: string[]
+          score: number
           topics: string[]
         }[]
       }
@@ -1203,14 +1202,13 @@ export type Database = {
         Returns: {
           avatar_path: string
           display_name: string
-          evidence_chunk_ids: string[]
           graduation_year: number
           headline: string
           helper_membership_id: string
           helper_user_id: string
-          lexical_score: number
           match_reason: string
-          semantic_score: number
+          matched_fields: string[]
+          score: number
           topics: string[]
         }[]
       }
