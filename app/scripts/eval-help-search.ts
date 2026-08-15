@@ -68,7 +68,7 @@ const memberCount = Number(
 )
 if (!Number.isFinite(memberCount) || memberCount < 1000) {
   console.error(
-    `Evalfield School corpus missing or partial (${memberCount} members). Fix: pnpm exec supabase db reset`,
+    `Evalfield School corpus missing or partial (${memberCount} members). Fix: pnpm db:reset`,
   )
   process.exit(2)
 }
