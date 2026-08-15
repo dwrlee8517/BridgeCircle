@@ -7,8 +7,8 @@ set -euo pipefail
 #   - the demo organization (slug 'demo', fixed id, auto-join)
 #   - one sign-in-able demo persona the /demo door signs visitors into
 #   - curated School content (one upcoming event, one pinned announcement)
-# and then, unless DEMO_ORG_MEMBERS=0, chains into seed-demo.sh to generate a
-# realistic member population into the demo organization. seed-demo.sh's
+# and then, unless DEMO_ORG_MEMBERS=0, chains into seed-scale.sh to generate a
+# realistic member population into the demo organization. seed-scale.sh's
 # bridge step wires the persona into that population's connection graph and
 # gives them a Help inbox, so the persona lands in a lived-in circle.
 #
@@ -23,12 +23,12 @@ set -euo pipefail
 #   pnpm seed:demo-org                          # local stack
 #   DEMO_ALLOW_REMOTE=1 SUPABASE_DB_URL=... pnpm seed:demo-org
 #
-# Production use is forbidden — the same guards as seed-demo.sh apply.
+# Production use is forbidden — the same guards as seed-scale.sh apply.
 #
-# NOTE: seed-demo.sh maintains ONE generated population per database (every
+# NOTE: seed-scale.sh maintains ONE generated population per database (every
 # generated row carries the dddddddd- prefix and each run deletes the previous
 # output). Chaining it here therefore MOVES the generated population into the
-# demo organization. On a database where seed:demo previously populated
+# demo organization. On a database where seed:scale previously populated
 # Chadwick International, that population migrates to the demo org — Tier 1
 # personas and their hand-authored fixtures are untouched.
 
@@ -40,28 +40,10 @@ membership_id="99999999-1111-4000-8000-000000000001"
 demo_email="${DEMO_USER_EMAIL:-demo-member@example.com}"
 members="${DEMO_ORG_MEMBERS:-1200}"
 
-if ! command -v psql >/dev/null 2>&1; then
-  echo "seed-demo-org: psql is required but was not found on PATH" >&2
-  exit 1
-fi
-
-if [[ "$db_url" == *prod* || "$db_url" == *production* ]]; then
-  echo "seed-demo-org: refusing to run against a URL containing a production identifier" >&2
-  exit 1
-fi
-
-is_local=0
-if [[ "$db_url" == *127.0.0.1* || "$db_url" == *localhost* ]]; then
-  is_local=1
-fi
-
-if (( ! is_local )); then
-  if [[ "${DEMO_ALLOW_REMOTE:-0}" != "1" ]]; then
-    echo "seed-demo-org: target is not local. Re-run with DEMO_ALLOW_REMOTE=1 if that is intended." >&2
-    exit 1
-  fi
-  echo "seed-demo-org: WARNING — running against a non-local database." >&2
-fi
+# The shared guard refuses production outright and requires an explicit
+# DEMO_ALLOW_REMOTE=1 opt-in for any non-local target.
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/seed-guard.sh"
+seed_guard "seed-demo-org" "$db_url"
 
 psql_base=(psql "$db_url" -v ON_ERROR_STOP=1 -X -q)
 
@@ -228,10 +210,10 @@ else
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   DEMO_ORG_ID="$org_id" DEMO_MEMBERS="$members" SUPABASE_DB_URL="$db_url" \
     DEMO_ALLOW_REMOTE="${DEMO_ALLOW_REMOTE:-0}" \
-    bash "$script_dir/seed-demo.sh"
+    bash "$script_dir/seed-scale.sh"
 
   # RSVPs from the generated population, so the curated event does not sit at
-  # zero. Runs after the population exists; reruns of seed-demo.sh delete the
+  # zero. Runs after the population exists; reruns of seed-scale.sh delete the
   # generated memberships, which cascades these rows, so this stays rerunnable.
   "${psql_base[@]}" -v org_id="$org_id" <<'SQL'
 insert into public.event_rsvps (organization_id, event_id, organization_membership_id, status)

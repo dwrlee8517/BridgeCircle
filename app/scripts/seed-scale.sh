@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Tier 2 demo seed.
+# The scale crowd — Tier 2 of the seed pipeline.
 #
-# The checked-in seed (supabase/seeds/seed.sql) is Tier 1: a small, hand-authored,
-# deterministic fixture that the pgTAP suite and the E2E suites assert against.
-# It must stay small.
+# The checked-in seed (the Tier 1 starter cast under supabase/seeds/) is a small,
+# hand-authored, deterministic fixture that the pgTAP suite and the E2E suites
+# assert against. It must stay small.
 #
 # This script is Tier 2: a generated population sized to what one pilot
 # organization plausibly looks like after a year. It exists so the directory,
@@ -20,10 +20,10 @@ set -euo pipefail
 # script re-runnable: it deletes its own previous output before regenerating.
 #
 # Usage, from app/:
-#   pnpm seed:demo                      # 1200 members into Chadwick International
-#   DEMO_MEMBERS=2500 pnpm seed:demo    # a larger population
-#   DEMO_SEED=other pnpm seed:demo      # a different but still reproducible one
-#   DEMO_ORG_ID=1111... pnpm seed:demo  # target Chadwick School instead
+#   pnpm seed:scale                      # 1200 members into Chadwick International
+#   DEMO_MEMBERS=2500 pnpm seed:scale    # a larger population
+#   DEMO_SEED=other pnpm seed:scale      # a different but still reproducible one
+#   DEMO_ORG_ID=1111... pnpm seed:scale  # target Chadwick School instead
 #
 # Generated members exist in public.users only, with no auth.users row, so they
 # are visible in the directory but cannot sign in. Sign in as a Tier 1 persona
@@ -37,30 +37,14 @@ demo_seed="${DEMO_SEED:-bridgecircle}"
 # directory roster, so generating into it will fail the suite.
 org_id="${DEMO_ORG_ID:-22222222-2222-4222-8222-222222222222}"
 
-if ! command -v psql >/dev/null 2>&1; then
-  echo "seed-demo: psql is required but was not found on PATH" >&2
-  exit 1
-fi
+# This writes committed data. The shared guard refuses production outright and
+# requires an explicit DEMO_ALLOW_REMOTE=1 opt-in for any non-local target.
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/seed-guard.sh"
+seed_guard "seed-scale" "$db_url"
 
 if [[ ! "$members" =~ ^[0-9]+$ ]] || (( members < 10 || members > 50000 )); then
-  echo "seed-demo: DEMO_MEMBERS must be an integer between 10 and 50000 (got '$members')" >&2
+  echo "seed-scale: DEMO_MEMBERS must be an integer between 10 and 50000 (got '$members')" >&2
   exit 1
-fi
-
-# This writes committed data. Refuse anything that is not obviously a local
-# disposable stack unless the caller opts in explicitly, and refuse production
-# outright regardless of the opt-in.
-if [[ "$db_url" == *prod* || "$db_url" == *production* ]]; then
-  echo "seed-demo: refusing to run against a URL containing a production identifier" >&2
-  exit 1
-fi
-
-if [[ "$db_url" != *127.0.0.1* && "$db_url" != *localhost* ]]; then
-  if [[ "${DEMO_ALLOW_REMOTE:-0}" != "1" ]]; then
-    echo "seed-demo: target is not local. Re-run with DEMO_ALLOW_REMOTE=1 if that is intended." >&2
-    exit 1
-  fi
-  echo "seed-demo: WARNING — running against a non-local database." >&2
 fi
 
 psql_base=(psql "$db_url" -v ON_ERROR_STOP=1 -X -q)
@@ -69,12 +53,12 @@ organization_name="$("${psql_base[@]}" -t -A -c \
   "select name from public.organizations where id = '${org_id}'")"
 
 if [[ -z "$organization_name" ]]; then
-  echo "seed-demo: organization ${org_id} does not exist. Run 'pnpm db:reset' first." >&2
+  echo "seed-scale: organization ${org_id} does not exist. Run 'pnpm db:reset' first." >&2
   exit 1
 fi
 
-echo "seed-demo: generating ${members} members into ${organization_name}"
-echo "seed-demo: seed='${demo_seed}' (same seed and count always produce the same population)"
+echo "seed-scale: generating ${members} members into ${organization_name}"
+echo "seed-scale: seed='${demo_seed}' (same seed and count always produce the same population)"
 
 "${psql_base[@]}" \
   -v members="$members" \
@@ -653,7 +637,7 @@ commit;
 SQL
 
 echo
-echo "seed-demo: done. Population summary:"
+echo "seed-scale: done. Population summary:"
 "${psql_base[@]}" -v org_id="$org_id" <<'SQL'
 \pset border 2
 select 'members' as metric, count(*)::text as value

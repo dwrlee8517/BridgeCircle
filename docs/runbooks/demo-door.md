@@ -67,13 +67,13 @@ DEMO_ALLOW_REMOTE=1 SUPABASE_DB_URL=<dev pooler url> pnpm seed:demo-org
 ```
 
 Creates the `demo` org (fixed id, auto-join), the sign-in-able persona
-Jamie Rowe, curated School content, and then chains `seed-demo.sh` to generate
+Jamie Rowe, curated School content, and then chains `seed-scale.sh` to generate
 a realistic population (default 1200; `DEMO_ORG_MEMBERS=0` skips). Rerun any
 time to reset the org to pristine — visitor leftovers are erased.
 
 **Caveat:** the generated population tier maintains ONE `dddddddd-` population
 per database. Chaining it here moves that population into the demo org; if
-`seed:demo` had previously populated Chadwick International on that database,
+`seed:scale` had previously populated Chadwick International on that database,
 those generated members migrate. Tier 1 personas are untouched.
 
 ## Operating it

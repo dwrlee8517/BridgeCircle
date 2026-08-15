@@ -71,7 +71,7 @@
     "db:stop": "pnpm exec supabase stop",
     "db:reset": "pnpm exec supabase db reset",
     "db:test": "pnpm exec supabase test db --local",
-    "seed:demo": "bash scripts/seed-demo.sh",
+    "seed:scale": "bash scripts/seed-scale.sh",
     "seed:demo-org": "bash scripts/seed-demo-org.sh",
     "eval:search": "tsx scripts/eval-help-search.ts",
     "db:types:local": "pnpm exec supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
