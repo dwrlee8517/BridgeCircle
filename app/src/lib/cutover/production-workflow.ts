@@ -75,10 +75,7 @@ export function productionWorkflowErrors(workflow: string): string[] {
 
 // The only scripts allowed to hold a destructive database command, each pinned
 // to the guard markers asserted below. Everything else fails the ratchet.
-const DESTRUCTIVE_ENTRY_POINTS = new Set([
-  'scripts/production-v2-reset.ts',
-  'scripts/reset-dev.ts',
-])
+const DESTRUCTIVE_ENTRY_POINTS = new Set(['scripts/production-v2-reset.ts', 'scripts/reset-dev.ts'])
 
 export function destructiveEntryPointErrors(files: Record<string, string>): string[] {
   const errors: string[] = []
