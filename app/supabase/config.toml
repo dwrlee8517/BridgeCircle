@@ -62,7 +62,10 @@ schema_paths = []
 enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seeds/*.sql"]
+# Only the starter cast auto-loads. Other datasets (the eval corpus, the
+# scale crowd, the demo org) are opt-in via their pnpm seed:* commands —
+# new files dropped into seeds/ deliberately do NOT auto-load.
+sql_paths = ["./seeds/seed.sql"]
 
 [db.network_restrictions]
 # Enable management of network restrictions.

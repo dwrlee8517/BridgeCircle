@@ -2,11 +2,13 @@
 
 ## Current rule
 
-The v2 rebuild has one checked-in seed source:
-`app/supabase/seeds/seed.sql`. It targets the local disposable Supabase stack,
-hermetic CI, and the one explicitly authorized disposable hosted-development
-reset. It is applied automatically by `supabase db reset` locally and by the
-approved linked reset during the dev cutover.
+The starter cast, `app/supabase/seeds/seed.sql`, is the only seed that loads
+automatically — `config.toml` names it explicitly. It targets the local
+disposable Supabase stack, hermetic CI, and the explicitly authorized
+disposable hosted-development reset. Every other dataset is opt-in via its own
+command: `pnpm seed:scale` (the generated crowd), `pnpm seed:demo-org` (the
+demo school), and `pnpm seed:eval` (the Evalfield corpus that grades Help
+search — `pnpm eval:search` auto-seeds it when absent).
 
 The previous admin-API remote seed script was deleted during the Help cutover.
 It encoded the retired schema and must not be restored as a compatibility

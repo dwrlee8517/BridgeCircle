@@ -120,3 +120,10 @@ psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "select count(*)
 - **Logged to `Backlog/`:** [[Backlog/2026-08-15-pgtap-failures-preexisting]] —
   two pre-existing pgTAP failures (demo_access_windows FK index; stale api
   allowlist). `pnpm db:test` shows exactly those two; a third failure is real.
+- **Superseded 2026-08-15 (seed-pipeline reorganization):** the auto-load
+  decision above was reversed — `eval-org.sql` no longer loads on every
+  `supabase db reset` (config.toml's seed path now names the starter cast
+  explicitly). The corpus is opt-in via `pnpm seed:eval`, whose wrapper
+  deletes the previous corpus first (making the load rerunnable), and
+  `pnpm eval:search` auto-seeds an absent corpus so the zero-setup property
+  is preserved. Determinism and namespace rules are unchanged.

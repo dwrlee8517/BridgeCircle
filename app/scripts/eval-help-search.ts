@@ -63,12 +63,31 @@ function psql(sql: string): string {
 
 // --- Preconditions ---------------------------------------------------------
 
-const memberCount = Number(
-  psql(`select count(*) from public.organization_memberships where organization_id = '${EVAL_ORG_ID}'`).trim(),
-)
+// The corpus is opt-in (it no longer auto-loads on db reset). An entirely
+// absent org is auto-seeded so eval:search keeps its zero-setup property; a
+// present-but-partial org is NOT silently rebuilt — that shape usually means
+// someone is mid-edit on the corpus, and measuring a mutated corpus without
+// saying so is worse than failing.
+function evalMemberCount(): number {
+  return Number(
+    psql(
+      `select count(*) from public.organization_memberships where organization_id = '${EVAL_ORG_ID}'`,
+    ).trim(),
+  )
+}
+
+let memberCount = evalMemberCount()
+if (memberCount === 0) {
+  console.error('Evalfield School corpus absent — seeding it now (pnpm seed:eval)...')
+  execFileSync('bash', [join(appRoot, 'scripts/seed-eval.sh')], {
+    stdio: 'inherit',
+    env: { ...process.env, SUPABASE_DB_URL: dbUrl },
+  })
+  memberCount = evalMemberCount()
+}
 if (!Number.isFinite(memberCount) || memberCount < 1000) {
   console.error(
-    `Evalfield School corpus missing or partial (${memberCount} members). Fix: pnpm db:reset`,
+    `Evalfield School corpus missing or partial (${memberCount} members). Fix: pnpm seed:eval`,
   )
   process.exit(2)
 }
