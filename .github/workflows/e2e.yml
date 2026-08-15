@@ -2,7 +2,7 @@ name: E2E
 
 # Hermetic E2E on every PR (see product-spec-obsidian-vault/Vision/Testing
 # Suite.md): the suite boots a LOCAL Supabase stack on the runner — migrations
-# + supabase/seeds/*.sql — and drives the app against it. Env comes from the
+# + the starter-cast seed — and drives the app against it. Env comes from the
 # Doppler bridgecircle/dev_local config (local Supabase values + dummied
 # outbound services); DOPPLER_TOKEN_LOCAL is a service token scoped to that
 # config only. No remote project, nothing deployed. The deployed-stage integ
