@@ -271,6 +271,16 @@ jobs:
           PLAYWRIGHT_BASE_URL: https://dev.bridgecircle.org
         run: doppler run --preserve-env -- pnpm test:e2e
 
+      # In-process teardown dies with crashed or cancelled runs; this sweep
+      # removes anything wearing the suite's foundation- prefixes no matter
+      # how the run above ended.
+      - name: Sweep leaked e2e data on the dev stage
+        if: always()
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          E2E_SWEEP_ALLOW_DEV: '1'
+        run: doppler run --preserve-env -- pnpm sweep:e2e
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v7
