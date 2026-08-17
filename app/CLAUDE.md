@@ -97,11 +97,15 @@ See `../docs/runbooks/day-0-setup.md` Step 6 for the canonical example. If you f
 - Background jobs: Railway outbox worker (matching, indexing, Help lifecycle, notification/email delivery)
 - File storage: Supabase Storage (public `avatars`, private `resumes`)
 - Error tracking: Sentry
-- LLM/search: bounded provider adapters for Help drafting, matching, and profile
-  indexing, with deterministic fallbacks. Bounded People search is implemented in
-  `lib/people/` (scopes, structured filters, optional query embedding); what stays
-  out of scope is unbounded agentic matching as the default page-load path — see
-  Out Of Scope below and ADR 0009.
+- LLM/search: **Help candidate search is a deterministic SQL baseline**
+  (2026-08-15) — no embeddings, reranker, or LLM in the search path; the AI
+  provider seam is dormant and only returns after beating the baseline on the
+  golden dataset (`pnpm eval:search`; ADR 0009 amendment; tech spec
+  `../engineering-spec-obsidian-vault/Production/help-candidate-search.md`).
+  Bounded provider adapters remain live for Help drafting and profile
+  indexing. Bounded People search is implemented in `lib/people/` (scopes,
+  structured filters; keyword-only). Unbounded agentic matching as the default
+  page-load path stays out of scope — see Out Of Scope below.
 
 Do not introduce alternative providers or frameworks without checking with the user. Do not add Prisma, Drizzle, tRPC, or auth libraries other than Supabase Auth.
 
@@ -216,8 +220,9 @@ Do not build (without explicit user request):
 - a second standing-Ask model outside the unified v2 `asks` lifecycle
 - direct LinkedIn scraping (browser automation against linkedin.com) — ban risk and ToS breach. The supported path is `lib/enrichment/` (LinkdAPI primary, Bright Data for the monthly sweep, PDL fallback) — see [`../docs/architecture/profile-enrichment.md`](../docs/architecture/profile-enrichment.md) for the full plan.
 - unbounded agentic matching as the default page-load search path. Hybrid Ask
-  matching is allowed only within the bounded ADR 0009 plan: hard gates,
-  permission-safe retrieval, warm-network scoring, fallbacks, and evaluation.
+  matching is allowed only within the bounded ADR 0009 plan — and, per the
+  2026-08-15 amendment, only after beating the deterministic baseline on the
+  golden dataset (`pnpm eval:search`).
 - per-organization or viewer-specific privacy rules
 - fundraising features
 

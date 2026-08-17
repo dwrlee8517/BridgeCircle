@@ -71,7 +71,7 @@ The vault is the source of truth for project status and timing. If an ADR's fram
 - [0006 — NL search via entity extraction, not vector search](0006-nl-search-entity-extraction.md) — superseded by 0009 for Ask matching
 - [0007 — `/lib` discipline: business logic out of route handlers](0007-lib-discipline.md)
 - [0008 — Deploy ordering and the expand/contract migration discipline](0008-deploy-ordering-expand-contract.md)
-- [0009 — Hybrid Ask matching](0009-hybrid-ask-matching.md)
+- [0009 — Hybrid Ask matching](0009-hybrid-ask-matching.md) — amended 2026-08-15: dormant behind the deterministic-baseline + golden-dataset gate
 - [0010 — Horizontal help and the warm-data flywheel](0010-horizontal-help-warm-data-flywheel.md) — *status is per sub-decision*: D1 superseded by 0011, D2 accepted and built, D3 accepted and partly built, D4 directional
 - [0011 — Two verbs, one inbox: Connect / Ask over a single Messages surface](0011-two-verbs-one-inbox.md) — *accepted*; live on both remotes; supersedes 0010 D1 mechanics and 0003's vocabulary/model, preserves distinct-gates principle
 - [0012 — Adopt a TDS-based design system ("Field Pro"), retire Civic Editorial](0012-tds-design-system.md) — *superseded by 0013*; canonical source = Claude Design design-system project synced via DesignSync

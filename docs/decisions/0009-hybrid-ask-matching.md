@@ -1,6 +1,6 @@
 # 0009 — Hybrid Ask matching
 
-- **Status:** accepted
+- **Status:** accepted — amended 2026-08-15: dormant behind the deterministic-baseline gate (see Amendment)
 - **Date:** 2026-06-08
 - **Decider:** Richard
 
@@ -140,3 +140,33 @@ default.
   mode after the hybrid default is working.
 - **Human-mediated matching.** Highest trust for high-stakes asks, but not the
   default self-serve product loop.
+
+## Amendment — 2026-08-15: gated behind the deterministic baseline
+
+The hybrid architecture above remains the accepted design for AI-assisted Ask
+matching, but it is **not the shipped default**. Investigating "search returns
+nothing" on dev (2026-08-14) showed the hybrid pipeline collapsing silently
+when embeddings were absent — and its blend weights had never been validated
+against any baseline. The evaluation this ADR lists as a risk ("requires
+evaluation… representative ask fixtures, expected-good matches") is now the
+**precondition**, and it exists.
+
+What shipped instead (2026-08-15, PR #202):
+
+- Help candidate search runs on a **deterministic lexical baseline** — one
+  weighted profile tsvector per eligible helper, rarity-weighted class-sum
+  scoring, topic bonus, structural display rules. No embeddings, no reranker,
+  no LLM, no AI budget spend. Contract:
+  [database-v2-contract.md](../architecture/database-v2-contract.md); full
+  description:
+  `engineering-spec-obsidian-vault/Production/help-candidate-search.md`.
+- The hybrid stages are **dormant, not deleted**: the provider seam in
+  `app/src/lib/help/matching.ts` and the `p_query_embedding` parameter remain;
+  the candidates route injects null providers. The profile-embedding pipeline
+  (chunks, indexing worker) stays in place for the semantic stage's return.
+- **Re-enabling gate:** any hybrid stage must beat the `baseline-v1` scoreboard
+  on the golden dataset (`app/src/lib/help/__fixtures__/golden-search.json`,
+  `pnpm eval:search`) — in particular flipping the `fail_ok`
+  vocabulary-mismatch cases without regressing the other 23 — at a latency and
+  cost the scoreboard diff justifies. Decision of record: memory vault,
+  `2026-08-15-0022-richard-help-search-deterministic-baseline-before-ai`.
