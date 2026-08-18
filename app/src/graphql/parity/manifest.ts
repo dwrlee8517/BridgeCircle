@@ -473,4 +473,51 @@ export const PARITY_MANIFEST: ParityOperation[] = [
     shapeNotes:
       'Returns a bare enum (READ | NOT_AVAILABLE) — the repo result is a string, so no payload wrapper. Idempotent: marking twice stays READ. Cross-check schoolAnnouncements.unread flips to false.',
   },
+  {
+    feature: 'connections',
+    kind: 'mutation',
+    name: 'sendConnectionRequest',
+    document: `mutation ($recipientUserId: ID!, $introMessage: String, $clientRequestId: String!) { sendConnectionRequest(recipientUserId: $recipientUserId, introMessage: $introMessage, clientRequestId: $clientRequestId) { status requestId } }`,
+    variables: {
+      recipientUserId: '<recipient-user-id>',
+      introMessage: 'We overlapped at Chadwick — would love to connect.',
+      clientRequestId: '<uuid-v4, REUSE across retries>',
+    },
+    lib: {
+      module: '@/db/repositories/connections',
+      fn: 'createConnectionsRepository(db).sendRequest',
+      argsNote:
+        'originOrganizationId = selected membership.organization.id (server-side, never client-supplied); sendRequest({ recipientUserId, originOrganizationId, introMessage ?? null, clientRequestId }).',
+    },
+    shapeNotes:
+      'Idempotent on clientRequestId (replay → EXISTING with the same requestId). The special case is INCOMING_PENDING: when the recipient already sent the viewer a request, the payload carries THEIR pending requestId — no crossing request is created; assert no new connection_requests row. ALREADY_CONNECTED carries no requestId. Seed both directions to cover CREATED, EXISTING, INCOMING_PENDING, ALREADY_CONNECTED.',
+  },
+  {
+    feature: 'connections',
+    kind: 'mutation',
+    name: 'respondToConnectionRequest',
+    document: `mutation ($requestId: ID!, $decision: ConnectionDecisionInput!) { respondToConnectionRequest(requestId: $requestId, decision: $decision) { status connectionId conversationId } }`,
+    variables: { requestId: '<request-id>', decision: 'ACCEPT' },
+    lib: {
+      module: '@/db/repositories/connections',
+      fn: 'createConnectionsRepository(db).respondToRequest',
+      argsNote: 'respondToRequest({ requestId, decision: ACCEPT→accept | DECLINE→decline }).',
+    },
+    shapeNotes:
+      'ACCEPTED carries connectionId AND conversationId (accepting opens the direct conversation — connections are the DM gate; cross-check startDirectConversation now returns READY for the pair). DECLINED carries neither. Re-deciding returns ALREADY_DECIDED with the prior ids when it was an accept, nulls when a decline.',
+  },
+  {
+    feature: 'connections',
+    kind: 'mutation',
+    name: 'disconnect',
+    document: `mutation ($otherUserId: ID!) { disconnect(otherUserId: $otherUserId) { status } }`,
+    variables: { otherUserId: '<other-user-id>' },
+    lib: {
+      module: '@/db/repositories/connections',
+      fn: 'createConnectionsRepository(db).disconnect',
+      argsNote: 'disconnect(otherUserId).',
+    },
+    shapeNotes:
+      'Idempotent: DISCONNECTED on the first call, UNCHANGED when not connected (incl. replay). After disconnecting, cross-check the conversation flips to CONNECTION_REQUIRED read-only and peopleSearch(scope: IN_CIRCLE) drops the member.',
+  },
 ]
