@@ -17,12 +17,51 @@ function ordered(haystack: string, markers: string[]): boolean {
   return true
 }
 
-export function productionWorkflowErrors(workflow: string): string[] {
+/** Drops comment lines, so prose explaining a rule cannot trip the rule. */
+function withoutComments(workflow: string): string {
+  return workflow
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*#/.test(line))
+    .join('\n')
+}
+
+/**
+ * Every `concurrency.group` in a workflow, workflow-level and job-level alike.
+ * `cd.yml` declares its group per job (a workflow-level group would cover a
+ * run that is only waiting), so reading the workflow level alone would miss it.
+ */
+function concurrencyGroups(workflow: string): { name: string; level: 'workflow' | 'job' }[] {
+  const lines = workflow.split(/\r?\n/)
+  const groups: { name: string; level: 'workflow' | 'job' }[] = []
+  for (const [index, line] of lines.entries()) {
+    if (!/^\s*concurrency:\s*$/.test(line)) continue
+    const indent = line.length - line.trimStart().length
+    for (const candidate of lines.slice(index + 1)) {
+      if (candidate.trim() === '') continue
+      if (candidate.length - candidate.trimStart().length <= indent) break // dedented out
+      const group = /^\s+group:\s*(\S+)/.exec(candidate)
+      if (group) {
+        groups.push({ name: group[1], level: indent === 0 ? 'workflow' : 'job' })
+        break
+      }
+    }
+  }
+  return groups
+}
+
+/**
+ * The pipeline is deliberately two workflows: a production approval can hold a
+ * run for days, and a workflow-level `concurrency` group covers waiting jobs,
+ * so a shared group let one pending approval cancel every later push before it
+ * ran a single job. `dev` is .github/workflows/cd.yml, `prod` is promote.yml.
+ */
+export function productionWorkflowErrors(dev: string, prod: string): string[] {
   const errors: string[] = []
-  if (!workflow.includes('environment: production'))
-    errors.push('production approval gate is missing')
-  if (!workflow.includes('DOPPLER_TOKEN_PRD'))
-    errors.push('production Doppler credential is missing')
+  if (!prod.includes('environment: production')) errors.push('production approval gate is missing')
+  if (!prod.includes('DOPPLER_TOKEN_PRD')) errors.push('production Doppler credential is missing')
+  if (dev.includes('environment: production')) {
+    errors.push('the dev workflow must hold no approval gate — it would stall the dev stage')
+  }
   for (const marker of [
     'candidate_sha:',
     'REQUESTED_CANDIDATE_SHA',
@@ -30,25 +69,62 @@ export function productionWorkflowErrors(workflow: string): string[] {
     '"$REQUESTED_CANDIDATE_SHA" != "$GITHUB_SHA"',
     'ALLOW_DEV_CANDIDATE_DEPLOY',
   ]) {
-    if (!workflow.includes(marker)) {
+    if (!dev.includes(marker)) {
       errors.push(`exact-SHA development candidate dispatch is missing: ${marker}`)
     }
   }
-  if (FORBIDDEN_REPEATABLE_DATABASE_COMMAND.test(workflow)) {
-    errors.push('repeatable CD contains a destructive, repair, or seed command')
+  if (!dev.includes('wait-for-ci')) {
+    errors.push('the dev stage must deploy only commits CI has certified')
+  }
+  for (const [label, workflow] of [
+    ['dev', dev],
+    ['production', prod],
+  ] as const) {
+    if (FORBIDDEN_REPEATABLE_DATABASE_COMMAND.test(workflow)) {
+      errors.push(`repeatable ${label} CD contains a destructive, repair, or seed command`)
+    }
   }
 
-  const devStart = workflow.indexOf('name: Deploy dev stage')
-  const prodStart = workflow.indexOf('name: Promote to production')
-  if (devStart < 0 || prodStart < 0 || devStart >= prodStart) {
-    errors.push('dev and production jobs are missing or unordered')
+  const devGroups = concurrencyGroups(dev)
+  const prodGroups = concurrencyGroups(prod)
+  const prodNames = new Set(prodGroups.map((group) => group.name))
+  if (
+    devGroups.length === 0 ||
+    prodGroups.length === 0 ||
+    devGroups.some((group) => prodNames.has(group.name))
+  ) {
+    errors.push('dev and production must hold separate concurrency groups')
+  }
+  // A workflow-level group is held for the whole run, so a job asking for that
+  // same group waits on a lock its own run already owns.
+  for (const [label, groups] of [
+    ['dev', devGroups],
+    ['production', prodGroups],
+  ] as const) {
+    const jobLevel = new Set(
+      groups.filter((group) => group.level === 'job').map((group) => group.name),
+    )
+    if (groups.some((group) => group.level === 'workflow' && jobLevel.has(group.name))) {
+      errors.push(`the ${label} workflow holds a concurrency group its own jobs wait on`)
+    }
+  }
+
+  if (!dev.includes('name: Deploy dev stage')) errors.push('the dev deployment job is missing')
+  if (!prod.includes('name: Promote to production')) {
+    errors.push('the production promotion job is missing')
     return errors
   }
-  const dev = workflow.slice(devStart, prodStart)
-  const prod = workflow.slice(prodStart)
 
-  if (!prod.includes("if: github.ref == 'refs/heads/main'")) {
+  if (!prod.includes("github.event.workflow_run.head_branch == 'main'")) {
     errors.push('production promotion must be restricted to main')
+  }
+  // workflow_run fires against the branch tip, which may already have moved
+  // past the commit the dev stage tested.
+  if (!/CUTOVER_SHA:\s*\$\{\{\s*github\.event\.workflow_run\.head_sha\s*\}\}/.test(prod)) {
+    errors.push('production must promote the SHA the dev stage tested')
+  }
+  if (/github\.sha|GITHUB_SHA/.test(withoutComments(prod))) {
+    errors.push('production must never resolve its commit from github.sha')
   }
 
   const migrationOrder = (target: 'dev' | 'production') => [

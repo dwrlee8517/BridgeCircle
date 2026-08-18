@@ -261,7 +261,7 @@ CI and CD are wired (see [`.github/workflows/`](../../.github/workflows/) and [e
 |---|---|---|
 | `DOPPLER_TOKEN` | `dev` | `ci.yml` (build), `cd.yml` deploy-dev + integ |
 | `DOPPLER_TOKEN_LOCAL` | `dev_local` | `e2e.yml` (PR hermetic suite) — local-stack + dummy values only, never real secrets |
-| `DOPPLER_TOKEN_PRD` | `prd` | `cd.yml` promote job (only that job, gated behind the `production` environment) |
+| `DOPPLER_TOKEN_PRD` | `prd` | `promote.yml` promote job (only that job, gated behind the `production` environment) |
 
 Jobs run `doppler run -- <command>` exactly as you do locally; the token in the env authenticates non-interactively. The `DOPPLER_TOKEN_LOCAL` scoping is deliberate — the E2E runner can read local-stack values and dummies but **never** real dev/prod secrets. Rotate any token through the Doppler dashboard and update the matching GitHub secret in the same step.
 
