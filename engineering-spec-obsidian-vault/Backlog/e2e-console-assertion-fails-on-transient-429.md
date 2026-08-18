@@ -77,3 +77,22 @@ allowlist keeps the assertion honest about what it is actually protecting.
 If the 429s prove common, the deeper fix is upstream — the signup path in this
 spec hits real Supabase auth, so per-run isolation or a seeded session would
 remove the shared rate-limit dependency entirely.
+
+---
+
+## Update — 2026-08-17: why CI was hammered in the first place
+
+The rate-limit exhaustion that triggered this was not ambient CI load. PR #183
+added four empty `.gitkeep` files, which fell outside the docs-only filter's
+allowlist and made a markdown-only PR run the full e2e suite four times. See
+the correction in [[pr-merge-race-strict-branch-plus-slow-ci]]; the filter is
+now fixed.
+
+That removes the *cause of this instance* but not the finding. The assertion
+still cannot distinguish an application error from throttled third-party noise,
+so any future load spike — a busy afternoon, a genuinely code-touching PR
+series — reproduces it. The base rate remains unmeasured.
+
+Distinct from [[2026-08-14-ci-image-pulls-share-anonymous-rate-limits]], which
+is registry pull throttling at container start; this is Supabase **auth**
+throttling mid-test.
