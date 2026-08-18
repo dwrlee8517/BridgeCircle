@@ -25,18 +25,28 @@ function withoutComments(workflow: string): string {
     .join('\n')
 }
 
-/** The workflow-level `concurrency.group`, ignoring any job-level ones. */
-function concurrencyGroup(workflow: string): string | null {
+/**
+ * Every `concurrency.group` in a workflow, workflow-level and job-level alike.
+ * `cd.yml` declares its group per job (a workflow-level group would cover a
+ * run that is only waiting), so reading the workflow level alone would miss it.
+ */
+function concurrencyGroups(workflow: string): { name: string; level: 'workflow' | 'job' }[] {
   const lines = workflow.split(/\r?\n/)
-  const start = lines.indexOf('concurrency:')
-  if (start < 0) return null
-  for (const line of lines.slice(start + 1)) {
-    if (line.trim() === '') continue
-    if (!/^\s/.test(line)) return null // dedented out of the block
-    const group = /^\s+group:\s*(\S+)/.exec(line)
-    if (group) return group[1]
+  const groups: { name: string; level: 'workflow' | 'job' }[] = []
+  for (const [index, line] of lines.entries()) {
+    if (!/^\s*concurrency:\s*$/.test(line)) continue
+    const indent = line.length - line.trimStart().length
+    for (const candidate of lines.slice(index + 1)) {
+      if (candidate.trim() === '') continue
+      if (candidate.length - candidate.trimStart().length <= indent) break // dedented out
+      const group = /^\s+group:\s*(\S+)/.exec(candidate)
+      if (group) {
+        groups.push({ name: group[1], level: indent === 0 ? 'workflow' : 'job' })
+        break
+      }
+    }
   }
-  return null
+  return groups
 }
 
 /**
@@ -75,10 +85,28 @@ export function productionWorkflowErrors(dev: string, prod: string): string[] {
     }
   }
 
-  const devGroup = concurrencyGroup(dev)
-  const prodGroup = concurrencyGroup(prod)
-  if (!devGroup || !prodGroup || devGroup === prodGroup) {
+  const devGroups = concurrencyGroups(dev)
+  const prodGroups = concurrencyGroups(prod)
+  const prodNames = new Set(prodGroups.map((group) => group.name))
+  if (
+    devGroups.length === 0 ||
+    prodGroups.length === 0 ||
+    devGroups.some((group) => prodNames.has(group.name))
+  ) {
     errors.push('dev and production must hold separate concurrency groups')
+  }
+  // A workflow-level group is held for the whole run, so a job asking for that
+  // same group waits on a lock its own run already owns.
+  for (const [label, groups] of [
+    ['dev', devGroups],
+    ['production', prodGroups],
+  ] as const) {
+    const jobLevel = new Set(
+      groups.filter((group) => group.level === 'job').map((group) => group.name),
+    )
+    if (groups.some((group) => group.level === 'workflow' && jobLevel.has(group.name))) {
+      errors.push(`the ${label} workflow holds a concurrency group its own jobs wait on`)
+    }
   }
 
   if (!dev.includes('name: Deploy dev stage')) errors.push('the dev deployment job is missing')

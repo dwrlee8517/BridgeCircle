@@ -50,6 +50,16 @@ describe('production workflow ratchet', () => {
     expect(productionWorkflowErrors(validDev, validProd)).toEqual([])
   })
 
+  it('accepts a dev workflow that declares its group per job', () => {
+    // cd.yml does exactly this: a workflow-level group would also cover a run
+    // parked at an approval, which is the stall the split exists to prevent.
+    const perJobDev = validDev.replace(
+      'concurrency:\n  group: cd-dev',
+      '  deploy-dev:\n    concurrency:\n      group: cd-dev\n  integ:\n    concurrency:\n      group: cd-dev',
+    )
+    expect(productionWorkflowErrors(perJobDev, validProd)).toEqual([])
+  })
+
   it('reads rules from workflow steps, not from comments explaining them', () => {
     const commented = validProd.replace(
       'environment: production',
@@ -63,6 +73,8 @@ describe('production workflow ratchet', () => {
     // production approval cancel every later push before it reached dev.
     [validDev, validProd.replace('group: cd-prod', 'group: cd-dev')],
     [validDev.replace('concurrency:\n  group: cd-dev', ''), validProd],
+    // A run holding `cd-dev` at workflow level is the lock its own job waits on.
+    [`${validDev}\n  deploy-dev:\n    concurrency:\n      group: cd-dev`, validProd],
     [`${validDev}\nenvironment: production`, validProd],
     [validDev.replace('wait-for-ci', ''), validProd],
     [

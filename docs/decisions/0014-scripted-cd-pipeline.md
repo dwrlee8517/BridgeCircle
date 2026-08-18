@@ -97,8 +97,10 @@ concurrency group with the stages that must keep flowing.
 
 - `promote` moves to its own workflow, `.github/workflows/promote.yml`,
   triggered by `workflow_run` when **CD** concludes success on `main`. It
-  holds group `cd-prod`; `cd.yml` holds `cd-dev`. A pending approval can no
-  longer stall the dev stage.
+  holds group `cd-prod` at workflow level; `cd.yml` declares `cd-dev` **per
+  job** (`deploy-dev` and `integ`), never workflow-level — a workflow-level
+  group of the same name would hold the lock its own jobs wait on. A pending
+  approval can no longer stall the dev stage.
 - `workflow_run` fires against the branch tip, not the tested commit, so
   everything in `promote.yml` resolves its commit from
   `github.event.workflow_run.head_sha` (exported as `CUTOVER_SHA`). Using
