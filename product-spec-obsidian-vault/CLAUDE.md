@@ -25,7 +25,9 @@ in Obsidian (Open folder as vault → point it here); Obsidian adds its own
   drafts here; none is authoritative until it ships). Currently holds
   `ask-mediator.md`, `events-conditional-rsvp.md` (Phase 2, unbuilt),
   `no-invite-landing.md` (sign-in rejection → landing page + invite requests),
-  and [`phase-1/post-launch-backlog.md`](Prototype/phase-1/post-launch-backlog.md)
+  `pre-onboarding-experience.md` (locked first look before the circle opens,
+  unbuilt), and
+  [`phase-1/post-launch-backlog.md`](Prototype/phase-1/post-launch-backlog.md)
   (deferred).
 
 - **`Vision/`** — Long-horizon, higher-altitude material: product north stars,
