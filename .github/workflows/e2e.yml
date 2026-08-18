@@ -43,7 +43,7 @@ jobs:
           fi
           files=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD)
           echo "Changed files:"; echo "$files"
-          non_docs=$(echo "$files" | grep -vE '(^docs/|^product-spec-obsidian-vault/|\.md$|^\.gitignore$)' || true)
+          non_docs=$(echo "$files" | grep -vE '(^docs/|^product-spec-obsidian-vault/|^engineering-spec-obsidian-vault/|\.md$|^\.gitignore$)' || true)
           if [ -n "$non_docs" ]; then
             echo "code=true" >> "$GITHUB_OUTPUT"
           else
