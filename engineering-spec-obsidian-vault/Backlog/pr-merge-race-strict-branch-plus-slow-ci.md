@@ -60,3 +60,52 @@ Cheapest first:
 - Longer term, shard Playwright to cut the ~8 min pole. `workers: 1` is
   deliberate (cold-compile timeouts, see the comment at
   `app/playwright.config.ts:29`), so this is not a free change.
+
+---
+
+## Correction — 2026-08-17: the trigger was a filter gap, not CI duration
+
+The diagnosis above is incomplete, and the framing is misleading. Naming the
+root cause here rather than rewriting the entry, so the reasoning error stays
+visible.
+
+Both `.github/workflows/ci.yml` and `e2e.yml` already skip the heavy jobs on
+docs-only PRs. The filter was:
+
+```
+grep -vE '(^docs/|^product-spec-obsidian-vault/|\.md$|^\.gitignore$)'
+```
+
+It lists `^product-spec-obsidian-vault/` but **not**
+`^engineering-spec-obsidian-vault/`, because the engineering vault did not
+exist when it was written. PR #183 created it — including four empty
+`.gitkeep` files, which match none of those alternatives.
+
+So four zero-byte placeholder files, added by that PR, made a 16-file
+markdown-only change look like a code change. That is what ran the full
+~8 minute Playwright suite four times, which exhausted the shared auth rate
+limit behind [[e2e-console-assertion-fails-on-transient-429]], which is what
+failed the run, which is what forced another branch update and another lost
+race.
+
+Verified by replaying the real diff through both filters: the old one emits the
+four `.gitkeep` paths (`code=true`); the new one emits nothing (`code=false`).
+
+**What this changes:**
+
+- The chain was self-inflicted by #183, not a standing property of the repo.
+  Docs-only PRs already merge in about 30 seconds — PR #186 did.
+- The suggestion above to scope the up-to-date requirement by path is largely
+  moot; the mechanism existed and simply had a stale allowlist.
+- Enabling repo auto-merge is still worth doing, but as ordinary insurance
+  rather than the fix for this.
+- The genuinely durable point stands: an allowlist naming specific top-level
+  directories goes stale the moment a directory is added, and fails toward
+  "run everything" quietly.
+
+Fixed by adding `^engineering-spec-obsidian-vault/` to both workflows.
+
+**What is still worth doing:** the two `.md`-adjacent gaps this exposed —
+`.gitkeep` (and any other non-`.md` file in a docs directory) is only covered
+because the vault path is now allowlisted, not because the filter understands
+placeholder files. A future docs directory will hit this again.
