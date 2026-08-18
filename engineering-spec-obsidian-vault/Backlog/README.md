@@ -17,9 +17,20 @@ your task, and it goes in the same diff.
 ## How to log one
 
 Copy [`../_templates/backlog-entry.md`](../_templates/backlog-entry.md) to
-`Backlog/<short-kebab-slug>.md` and fill it in. One finding per file. Keep it
-short — enough that a future session can decide whether to act without
+`Backlog/YYYY-MM-DD-<short-kebab-slug>.md` and fill it in. One finding per file.
+Keep it short — enough that a future session can decide whether to act without
 re-investigating from scratch, and no more.
+
+**Date-prefix the filename** with the day you found it, matching the `date:`
+field in the frontmatter. A sorted listing then reads oldest-first for free,
+which is the ordering you want when triaging: an entry that has sat untouched
+for two months is either more urgent than it looked or no longer real, and
+either way it deserves a second look before the fresh ones.
+
+Two early entries predate this convention and are not prefixed
+(`e2e-console-assertion-fails-on-transient-429`,
+`pr-merge-race-strict-branch-plus-slow-ci`). Leave them — other notes link to
+them by name, and renaming would break those links to buy nothing.
 
 Include the file and line where you saw it (`app/src/lib/asks/createAsk.ts:88`),
 because the single most expensive part of acting on a backlog entry is finding
