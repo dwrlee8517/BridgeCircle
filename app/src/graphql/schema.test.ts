@@ -247,6 +247,37 @@ describe('graphql schema', () => {
     // Capacity outcomes are first-class, not errors.
     expect(results).toEqual(expect.arrayContaining(['FULL', 'NOT_OFFERED', 'OFFER_EXPIRED']))
   })
+
+  it('exposes the Connections commands (the DM gate)', () => {
+    const m = schema.getMutationType()?.getFields() ?? {}
+    expect(String(m.sendConnectionRequest?.type)).toBe('SendConnectionRequestPayload!')
+    expect(String(m.respondToConnectionRequest?.type)).toBe('RespondConnectionPayload!')
+    expect(String(m.disconnect?.type)).toBe('DisconnectPayload!')
+
+    // Idempotency key required on send, like every create command.
+    const key = (m.sendConnectionRequest?.args ?? []).find((a) => a.name === 'clientRequestId')
+    expect(String(key?.type)).toBe('String!')
+
+    // INCOMING_PENDING (a crossing request surfaces the other member's
+    // pending request) is part of the vocabulary.
+    const sendStatus = (
+      schema.getType('SendConnectionRequestStatus') as { getValues?: () => { name: string }[] }
+    )
+      ?.getValues?.()
+      .map((v) => v.name)
+    expect(sendStatus).toEqual(
+      expect.arrayContaining(['CREATED', 'EXISTING', 'INCOMING_PENDING', 'ALREADY_CONNECTED']),
+    )
+
+    // Accepting opens the conversation — the payload carries both ids.
+    const respondFields = (
+      schema.getType('RespondConnectionPayload') as {
+        getFields?: () => Record<string, { type: unknown }>
+      }
+    )?.getFields?.()
+    expect(String(respondFields?.connectionId?.type)).toBe('ID')
+    expect(String(respondFields?.conversationId?.type)).toBe('ID')
+  })
 })
 
 // Guard against manifest drift: every operation the parity harness expects must
