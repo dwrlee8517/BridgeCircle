@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @component Toast — the transient confirmation pill. One implementation of the
+     block that was copied verbatim into 15 screens. Mount it once per screen and
+     drive it from that screen's toastShow / toastText. -->
+<helmet>
+  <script src="./ds-base.js"></script>
+</helmet>
+<sc-if value="{{ show }}" hint-placeholder-val="{{ true }}">
+  <div role="status" aria-live="polite" style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;background:var(--grey-900);color:#fff;font-size:13px;font-weight:600;border-radius:var(--radius-pill);padding:11px 20px;box-shadow:0 10px 30px rgb(25 31 40 / 0.35)">{{ text }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:90},&quot;show&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;text&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Your note went to Ravi — declined kindly.&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { show: this.props.show ?? true, text: this.props.text ?? '' };
+  }
+}
+
+</script>
+</body>
+</html>

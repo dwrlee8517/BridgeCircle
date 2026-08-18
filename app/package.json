@@ -71,10 +71,16 @@
     "db:stop": "pnpm exec supabase stop",
     "db:reset": "pnpm exec supabase db reset",
     "db:test": "pnpm exec supabase test db --local",
-    "seed:demo": "bash scripts/seed-demo.sh",
+    "seed:scale": "bash scripts/seed-scale.sh",
+    "seed:demo-org": "bash scripts/seed-demo-org.sh",
+    "seed:eval": "bash scripts/seed-eval.sh",
+    "seed:scene": "bash scripts/seed-scene.sh",
+    "sweep:e2e": "tsx scripts/sweep-e2e.ts",
+    "eval:search": "tsx scripts/eval-help-search.ts",
     "db:types:local": "pnpm exec supabase gen types typescript --local --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
     "db:types": "pnpm exec supabase gen types typescript --linked --schema public,api > src/db/database.types.ts && tsx scripts/normalize-database-types.ts && biome format --write src/db/database.types.ts",
-    "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts"
+    "cutover:preflight:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/dev-v2-cutover-preflight.ts",
+    "reset:dev": "doppler run -p bridgecircle -c dev -- tsx scripts/reset-dev.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.1",

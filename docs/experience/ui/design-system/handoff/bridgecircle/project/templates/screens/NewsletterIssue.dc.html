@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <script src="./ds-base.js"></script>
+  <script src="./account-menu.js"></script>
+  <script src="./school-data.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <style>body{margin:0;background:var(--surface-page);font-family:var(--font-sans);color:var(--text-primary);-webkit-font-smoothing:antialiased;overflow:hidden} a{color:var(--link);text-decoration:none} a:hover{color:var(--link-hover)} input,textarea,button{font-family:var(--font-sans)}</style>
+</helmet>
+
+<dc-import name="Shell" active="school" title="Newsletter" backClick="{{ goBack }}" bell="none" actionHref="./NewsletterArchive.dc.html" actionLabel="All issues &rarr;" label="School — newsletter issue" hint-size="100%,100vh">
+
+    <div style="flex:1;min-height:0;overflow-y:auto;background:var(--wash-page)">
+      <article style="max-width:var(--container-reading);margin:0 auto;padding:36px 26px 56px">
+        <p style="margin:0;font-size:12.5px;font-weight:700;color:var(--blue-600)">Issue {{ issN }} <span style="color:var(--text-faint);font-weight:600">&middot; {{ issMonth }}</span></p>
+        <h1 style="margin:10px 0 0;font-size:26px;line-height:36px;font-weight:800;letter-spacing:-0.025em;text-wrap:pretty">{{ issHeadline }}</h1>
+        <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="3">
+          <section style="margin-top:28px;border-top:1px solid var(--divider-row);padding-top:22px">
+            <h2 style="margin:0;font-size:17px;font-weight:800;letter-spacing:-0.02em">{{ sec.h }}</h2>
+            <p style="margin:9px 0 0;font-size:14.5px;line-height:1.75;color:var(--text-secondary);font-weight:500;white-space:pre-line;text-wrap:pretty">{{ sec.body }}</p>
+            <sc-if value="{{ sec.linkShow }}" hint-placeholder-val="{{ false }}">
+              <p style="margin:8px 0 0;font-size:13.5px"><a href="{{ sec.href }}" style="font-weight:700" style-focus="outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px">{{ sec.linkLabel }}</a></p>
+            </sc-if>
+          </section>
+        </sc-for>
+        <p style="margin:32px 0 0;border-top:1px solid var(--divider-row);padding-top:14px;font-size:12px;color:var(--text-faint);font-weight:500">Written by the Alumni Office &middot; email delivery is a preference on your profile</p>
+      </article>
+    </div>
+  </dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    if (!window.BCSchoolData) {
+      this._poll = setInterval(() => { if (window.BCSchoolData) { clearInterval(this._poll); this._poll = null; this.forceUpdate(); } }, 80);
+    }
+  }
+  componentWillUnmount() { if (this._poll) clearInterval(this._poll); }
+
+  issue() {
+    const issues = (((window.BCSchoolData || {}).newsletter) || {}).issues || [];
+    let n = null;
+    try { n = new URLSearchParams(window.location.search).get('issue'); } catch (e) { /* ignore */ }
+    return issues.find((v) => String(v.n) === String(n)) || issues[0] || null;
+  }
+
+  renderVals() {
+    const v = this.issue();
+    return {
+      goBack: () => { if (window.history.length > 1) window.history.back(); else window.location.href = './School.dc.html'; },
+      issN: v ? v.n : '', issMonth: v ? v.month : '', issHeadline: v ? v.headline : '',
+      sections: v ? (v.sections || []).map((sec) => ({
+        h: sec.h, body: sec.body,
+        linkShow: !!sec.link,
+        linkLabel: sec.link ? sec.link.label : '',
+        href: sec.link ? sec.link.href : '#'
+      })) : []
+    };
+  }
+}
+</script>
+</body>
+</html>

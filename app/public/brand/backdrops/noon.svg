@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <!-- BridgeCircle backdrop: Noon (light). Near-white with one faint bloom; motif as a corner signature. For dense slides. -->
+  <defs>
+    <radialGradient id="noon-bloom" cx="0.5" cy="0" r="0.75">
+      <stop offset="0" stop-color="#dcebff" stop-opacity="0.8"/><stop offset="1" stop-color="#dcebff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="#fbfcfe"/>
+  <rect width="1920" height="1080" fill="url(#noon-bloom)"/>
+  <circle cx="1668" cy="924" r="78" fill="none" stroke="rgba(25,31,40,0.14)" stroke-width="5"/>
+  <circle cx="1728" cy="924" r="78" fill="none" stroke="rgba(49,130,246,0.35)" stroke-width="5.5"/>
+</svg>

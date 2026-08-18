@@ -5,7 +5,10 @@ import { type NextRequest, NextResponse } from 'next/server'
 // bounced to /sign-in?next=<path>. /reset-password/update is intentionally
 // NOT public — the recovery link signs the user in via /auth/callback first.
 // (The CD readiness probe is /api/health, excluded at the matcher below.)
-const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password']
+// /demo is the hosted-dev demo door: it must be reachable unauthenticated to
+// issue its session, and it enforces its own fail-closed gate (404 unless
+// armed — see src/lib/demo/gate.ts). /demo/arm re-requires a session itself.
+const PUBLIC_PREFIXES = ['/sign-in', '/join', '/auth', '/reset-password', '/demo']
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next()

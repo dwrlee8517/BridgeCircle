@@ -31,14 +31,14 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # The report reads parity/features.json as it exists on the base ref
           # via `git show`, which turns an ignorable absolute score into an
           # attributable delta. Needs real history.
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 

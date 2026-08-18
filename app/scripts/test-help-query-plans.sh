@@ -143,3 +143,92 @@ if [[ "$plan_output" != *"profile_embedding_chunks_search_idx"* ]]; then
 else
   echo "Help query plans use owned-history, direct-feed, and lexical-search indexes"
 fi
+
+# ---------------------------------------------------------------------------
+# Deterministic-baseline latency guard. The baseline computes the weighted
+# helper-card tsvector INLINE per query (no stored document), which is
+# O(eligible helpers) per search. This is the tripwire for the escape hatch
+# (a trigger-maintained document table — see the help-search-golden-baseline
+# initiative, Risks): ~2,000 eligible helpers in a rolled-back transaction,
+# hard ceiling 1000 ms.
+# ---------------------------------------------------------------------------
+latency_output="$("${psql_base[@]}" <<'SQL'
+begin;
+
+insert into public.users (id, onboarding_completed_at)
+select ('82000000-0000-4000-8000-' || lpad(fixture::text, 12, '0'))::uuid, now()
+from generate_series(1, 2000) fixture;
+
+insert into public.organization_memberships (id, user_id, organization_id, status, joined_at)
+select
+  ('82111111-1111-4111-8111-' || lpad(fixture::text, 12, '0'))::uuid,
+  ('82000000-0000-4000-8000-' || lpad(fixture::text, 12, '0'))::uuid,
+  '11111111-1111-4111-8111-111111111111',
+  'active',
+  now()
+from generate_series(1, 2000) fixture;
+
+insert into public.profiles (
+  user_id, display_name, headline, current_employer, current_title, industry, city
+)
+select
+  ('82000000-0000-4000-8000-' || lpad(fixture::text, 12, '0'))::uuid,
+  'Latency Fixture ' || fixture,
+  case when fixture % 2 = 0 then 'Consulting engagements and offer negotiation at scale' end,
+  'Fixture Corp',
+  case when fixture % 3 = 0 then 'Consultant' else 'Analyst' end,
+  'Management consulting',
+  'Planville, TS'
+from generate_series(1, 2000) fixture;
+
+insert into public.helper_preferences (
+  organization_membership_id, organization_id, open_to_help, max_pending_requests
+)
+select
+  ('82111111-1111-4111-8111-' || lpad(fixture::text, 12, '0'))::uuid,
+  '11111111-1111-4111-8111-111111111111',
+  true,
+  100
+from generate_series(1, 2000) fixture;
+
+insert into public.helper_topics (
+  organization_membership_id, organization_id, name, normalized_name, sort_order
+)
+select
+  ('82111111-1111-4111-8111-' || lpad(fixture::text, 12, '0'))::uuid,
+  '11111111-1111-4111-8111-111111111111',
+  case when fixture % 2 = 0 then 'Consulting' else 'Negotiating an offer' end,
+  case when fixture % 2 = 0 then 'consulting' else 'negotiating an offer' end,
+  0
+from generate_series(1, 2000) fixture;
+
+analyze public.organization_memberships;
+analyze public.profiles;
+analyze public.helper_preferences;
+analyze public.helper_topics;
+
+explain (analyze, costs off, timing off, summary on)
+select *
+from private.search_help_candidates(
+  '11111111-1111-4111-8111-111111111111',
+  '10000000-0000-4000-8000-000000000004',
+  'negotiating a consulting offer',
+  null,
+  40
+);
+
+rollback;
+SQL
+)"
+
+baseline_ms="$(printf '%s\n' "$latency_output" | awk '/Execution Time/ {print $3}' | tail -1)"
+if [[ -z "$baseline_ms" ]]; then
+  echo "baseline latency guard could not read an execution time" >&2
+  echo "$latency_output" >&2
+  exit 1
+fi
+if awk -v ms="$baseline_ms" 'BEGIN { exit !(ms > 1000) }'; then
+  echo "deterministic baseline took ${baseline_ms} ms at ~2,000 eligible helpers (ceiling 1000 ms) — time for the stored-document escape hatch" >&2
+  exit 1
+fi
+echo "deterministic baseline search: ${baseline_ms} ms at ~2,000 eligible helpers (ceiling 1000 ms)"

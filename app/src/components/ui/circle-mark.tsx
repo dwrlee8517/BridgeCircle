@@ -19,8 +19,10 @@ export function CircleMark({ className }: { className?: string }) {
       aria-label="In your circle"
       className={cn('inline-block h-[0.72em] w-[1.2em] shrink-0', className)}
     >
-      <circle cx="7.2" cy="6" r="4.4" fill="none" stroke="currentColor" strokeWidth="1.7" />
-      <circle cx="12.8" cy="6" r="4.4" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      {/* Same overlap ratio as the Wordmark mark (2026-08 refresh); stroke
+          stays heavier than proportional because this renders at text size. */}
+      <circle cx="8.4" cy="6" r="4.4" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      <circle cx="11.6" cy="6" r="4.4" fill="none" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   )
 }

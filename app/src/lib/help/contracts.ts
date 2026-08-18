@@ -84,10 +84,9 @@ export type HelpCandidate = {
   avatarPath: string | null
   graduationYear: number | null
   topics: string[]
-  lexicalScore: number
-  semanticScore: number
+  score: number
+  matchedFields: string[]
   matchReason: string
-  evidenceChunkIds: string[]
 }
 
 export type HelpDirectAskTarget = {

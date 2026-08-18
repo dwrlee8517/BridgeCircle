@@ -8,19 +8,20 @@ import { EMAIL_PREFIX, ORG_SLUG_PREFIX, type SeedScope } from './seedScope'
  * "APIs only" rule is about *creation* — every org and account must be born
  * through a real endpoint); cleanup just has to be thorough and namespaced.
  *
- * Cascade map (v2 init migration):
- *  - Deleting an org cascades to its memberships, org profiles, admin role
- *    assignments, asks, events, and the rest of the org-scoped tree.
- *  - Deleting an auth user cascades to public.users and the user-scoped rows
- *    keyed on it (profiles, notifications, conversations, …).
+ * IMPORTANT — this purge is best-effort, not guaranteed. The v2 schema
+ * references organizations and users with `on delete restrict` almost
+ * everywhere (memberships, asks, private.ask_events, …), so a bare org or
+ * auth-user delete on a populated org FAILS — and PostgREST cannot reach the
+ * `private` schema blockers at all. Deleting an auth user does not remove
+ * public.users either; a trigger pseudonymizes it into a tombstone. The
+ * errors below are deliberately not thrown: making them fatal would fail
+ * every teardown of a populated org. Full-fidelity cleanup is
+ * `scripts/sweep-e2e.ts` (psql, dependency-ordered, error-propagating);
+ * local runs wipe residue wholesale via `supabase db reset`. Reworking this
+ * harness onto the psql path is logged in the engineering Backlog.
  *
- * Known residue: v2 has a number of audit/moderation/analytics tables whose
- * `actor_user_id` / `organization_id` are `on delete set null` (see
- * 20260713231344_v2_init.sql). Those rows survive both deletes with null
- * columns and can no longer be matched to the run that made them. We do not
- * chase them: the list is long and drifts with the schema, and the rows are
- * inert. Local runs wipe them wholesale via `supabase db reset`; on the dev
- * target they remain as anonymous audit noise.
+ * Known residue: audit/moderation tables with `on delete set null` keep
+ * anonymous rows; see the sweep script's header for the same accepted list.
  */
 
 const USERS_PAGE_SIZE = 200

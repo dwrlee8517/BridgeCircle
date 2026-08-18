@@ -2,16 +2,21 @@
 
 ## Current rule
 
-The v2 rebuild has one checked-in seed source:
-`app/supabase/seeds/seed.sql`. It targets the local disposable Supabase stack,
-hermetic CI, and the one explicitly authorized disposable hosted-development
-reset. It is applied automatically by `supabase db reset` locally and by the
-approved linked reset during the dev cutover.
+The starter cast, `app/supabase/seeds/seed.sql`, is the only seed that loads
+automatically — `config.toml` names it explicitly. It targets the local
+disposable Supabase stack, hermetic CI, and the explicitly authorized
+disposable hosted-development reset. Every other dataset is opt-in via its own
+command: `pnpm seed:scale` (the generated crowd), `pnpm seed:demo-org` (the
+demo school), and `pnpm seed:eval` (the Evalfield corpus that grades Help
+search — `pnpm eval:search` auto-seeds it when absent).
 
 The previous admin-API remote seed script was deleted during the Help cutover.
 It encoded the retired schema and must not be restored as a compatibility
 layer. Every v2 application domain is now ported, so hosted development reuses
-the SQL seed instead of maintaining a second fixture graph.
+the SQL seed instead of maintaining a second fixture graph. Rebuilding the
+hosted dev database is a routine, guarded operation now — see
+[dev-reset.md](dev-reset.md); it replays checked-in migrations plus this seed,
+which is exactly the mechanism the one-time cutover used.
 
 ## Reset and seed the local stack
 
@@ -67,18 +72,18 @@ Asks (both kinds), Ask offers, invites, memberships, RSVPs, events,
 announcements, newsletter issues, account state, admin roles, and helper pause
 reasons. When you add a status to a constraint, add a row for it here too.
 
-## Tier 2: the generated demo population
+## Tier 2: the generated scale population
 
 `app/supabase/seeds/seed.sql` is Tier 1 — small, hand-authored, deterministic,
 and asserted against by pgTAP and the E2E suites. **It must stay small.**
 
-`pnpm seed:demo` is Tier 2: a generated population sized to what one pilot
+`pnpm seed:scale` is Tier 2: a generated population sized to what one pilot
 organization plausibly looks like after a year. It exists so the directory,
 Help, and search surfaces can be judged at realistic scale instead of at eight
 rows. Run it after a reset:
 
 ```bash
-pnpm db:reset && pnpm seed:demo
+pnpm db:reset && pnpm seed:scale
 ```
 
 Knobs, all optional:
@@ -93,9 +98,11 @@ Properties worth knowing:
 
 - **Deterministic.** Same seed and count always rebuild the same population.
   Every value is a pure function of `(seed, member index)`.
-- **Re-runnable.** Every generated row carries a `dddddddd-` UUID prefix, and
-  the script deletes its previous output before regenerating. Change
-  `DEMO_MEMBERS` and re-run; no reset needed.
+- **Re-runnable and org-scoped.** Every generated row carries a `dddddddd-`
+  UUID prefix plus a per-organization discriminator, and the script deletes
+  only the target organization's previous output before regenerating. Change
+  `DEMO_MEMBERS` and re-run; no reset needed. Several organizations can hold
+  crowds at once, and regenerating one leaves the others untouched.
 - **Additive.** It never modifies Tier 1 rows, and the pgTAP suite still passes
   with the demo population loaded.
 - **Not loginable.** Generated members exist in `public.users` with no

@@ -62,7 +62,7 @@ Reset and re-seed the local stack after a schema change or for a clean slate:
 pnpm db:reset
 ```
 
-That applies migrations in order and then runs `seed.sql`. For the larger generated demo population, follow with `pnpm seed:demo`.
+That applies migrations in order and then runs `seed.sql`. For the larger generated population, follow with `pnpm seed:scale`.
 
 These dev credentials are intentionally checked into the repo. They only work against `bridgecircle-dev`; prod has no test users. See [docs/architecture/environments.md](docs/architecture/environments.md) for the dev/prod isolation model.
 

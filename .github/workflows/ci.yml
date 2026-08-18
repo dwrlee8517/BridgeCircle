@@ -31,7 +31,7 @@ jobs:
     outputs:
       code: ${{ steps.filter.outputs.code }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -57,13 +57,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -93,7 +93,7 @@ jobs:
       # integration tier. The artifact feeds the coverage-report job.
       - name: Upload unit coverage summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-unit
           path: app/coverage/unit/coverage-summary.json
@@ -107,13 +107,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -124,8 +124,26 @@ jobs:
       # Same local stack the E2E job boots, minus the services no test needs.
       # Migrations apply here, so a PR whose migration contradicts the
       # provisioning writes fails in this job rather than in someone's shell.
+      #
+      # Retried for the same reason as in e2e.yml: the CLI's image pulls depend
+      # on per-IP anonymous rate limits at public.ecr.aws and docker.io, which
+      # other tenants sharing the runner's address can exhaust at any moment.
+      # Note there is deliberately NO Docker Hub login here, unlike e2e.yml —
+      # this job's whole point (see the note below) is that it holds no secrets
+      # and therefore cannot be pointed at a remote database. The retry buys the
+      # robustness without giving that up.
       - name: Start local Supabase stack
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec supabase start -x studio,imgproxy,vector,logflare; then
+              exit 0
+            fi
+            echo "::warning::supabase start failed (attempt ${attempt}/3) — most likely a throttled image pull; retrying"
+            pnpm exec supabase stop || true
+            sleep $(( attempt * 20 ))
+          done
+          echo "::error::supabase start failed 3 times — this is no longer a transient pull throttle"
+          exit 1
 
       # No Doppler token: unlike the E2E and build jobs, the integration
       # runner derives every value it needs from `supabase status` and
@@ -142,7 +160,7 @@ jobs:
 
       - name: Upload integration coverage summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-integration
           path: app/coverage/integration/coverage-summary.json
@@ -163,13 +181,13 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -180,7 +198,7 @@ jobs:
       # A tier whose job failed leaves no artifact; the renderer prints
       # "not run" for it rather than failing the report.
       - name: Download coverage summaries
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: coverage-*
           path: app/coverage-artifacts
@@ -195,7 +213,7 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs')
@@ -224,19 +242,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
 
-      - uses: dopplerhq/cli-action@v3
+      - uses: dopplerhq/cli-action@v4
 
       - run: pnpm install --frozen-lockfile
 
@@ -264,13 +282,13 @@ jobs:
       run:
         working-directory: mobile
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm

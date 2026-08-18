@@ -14,10 +14,9 @@ function candidate(id: string, overrides: Partial<HelpCandidate> = {}): HelpCand
     avatarPath: null,
     graduationYear: 2001,
     topics: [],
-    lexicalScore: 0,
-    semanticScore: 0,
+    score: 0,
+    matchedFields: [],
     matchReason: 'Relevant experience',
-    evidenceChunkIds: [],
     ...overrides,
   }
 }
@@ -36,16 +35,39 @@ function embeddings(value: readonly number[] = [0.1, 0.2]): HelpEmbeddingProvide
 }
 
 describe('Help matching', () => {
-  it('keeps exact helper topics strong and uses a stable UUID tie break', () => {
-    const first = candidate('20000000-0000-4000-8000-000000000002', {
-      topics: ['Product strategy'],
-    })
-    const second = candidate('20000000-0000-4000-8000-000000000003', {
-      lexicalScore: 0.2,
-    })
-    expect(rankDeterministically('Advice on product strategy', first).finalScore).toBeGreaterThan(
-      rankDeterministically('Advice on product strategy', second).finalScore,
+  it('passes the SQL score through as the deterministic rank', () => {
+    const ranked = rankDeterministically(
+      'Advice on product strategy',
+      candidate('20000000-0000-4000-8000-000000000002', { score: 0.61 }),
     )
+    expect(ranked.deterministicScore).toBe(0.61)
+    expect(ranked.finalScore).toBe(0.61)
+    expect(ranked.rerankScore).toBeNull()
+  })
+
+  it('preserves SQL ranking and trusts the SQL display rule', async () => {
+    const repo = repository([
+      [
+        candidate('20000000-0000-4000-8000-000000000002', { score: 0.9 }),
+        candidate('20000000-0000-4000-8000-000000000003', { score: 0.4 }),
+        // Zero-score rows are the SQL layer's call: no app-side threshold.
+        candidate('20000000-0000-4000-8000-000000000004', { score: 0 }),
+      ],
+    ])
+    const result = await findHelpCandidates(
+      {
+        membershipId,
+        question: 'Product help',
+        signal: new AbortController().signal,
+      },
+      { repository: repo, embeddings: null, reranker: null },
+    )
+    expect(result.candidates.map((row) => row.membershipId)).toEqual([
+      '20000000-0000-4000-8000-000000000002',
+      '20000000-0000-4000-8000-000000000003',
+      '20000000-0000-4000-8000-000000000004',
+    ])
+    expect(result.diagnostics.fallbacks).toEqual(['embedding_unavailable', 'reranker_unavailable'])
   })
 
   it('does not call a provider until permission-gated retrieval returns a pool', async () => {
@@ -68,7 +90,7 @@ describe('Help matching', () => {
   it('falls back to lexical ranking when the atomic provider budget is exhausted', async () => {
     const row = candidate('20000000-0000-4000-8000-000000000002', {
       topics: ['Product'],
-      lexicalScore: 0.5,
+      score: 0.5,
     })
     const repo = repository([[row]])
     const embeddingProvider = embeddings()
@@ -99,7 +121,7 @@ describe('Help matching', () => {
   it('fails closed when a provider caller omits authorization', async () => {
     const row = candidate('20000000-0000-4000-8000-000000000002', {
       topics: ['Product'],
-      lexicalScore: 0.5,
+      score: 0.5,
     })
     const repo = repository([[row]])
     const embeddingProvider = embeddings()
@@ -123,7 +145,7 @@ describe('Help matching', () => {
   it('enforces the candidate-search budget at the member domain boundary', async () => {
     const row = candidate('20000000-0000-4000-8000-000000000002', {
       topics: ['Product'],
-      lexicalScore: 0.5,
+      score: 0.5,
     })
     const searchCandidates = repository([[row]]).searchCandidates
     const consumeAiBudget = vi.fn<HelpRepository['consumeAiBudget']>(async () => ({
@@ -154,14 +176,14 @@ describe('Help matching', () => {
   it('merges semantic retrieval and reranks only the bounded top pool', async () => {
     const lexical = Array.from({ length: 25 }, (_, index) =>
       candidate(`20000000-0000-4000-8000-${String(index + 2).padStart(12, '0')}`, {
-        lexicalScore: 0.5,
-        evidenceChunkIds: [`70000000-0000-4000-8000-${String(index + 2).padStart(12, '0')}`],
+        score: 0.5,
+        matchedFields: ['topics'],
       }),
     )
     const semantic = [
       candidate('20000000-0000-4000-8000-000000000026', {
-        semanticScore: 0.95,
-        evidenceChunkIds: ['70000000-0000-4000-8000-000000000026'],
+        score: 0.95,
+        matchedFields: ['headline'],
       }),
     ]
     const repo = repository([lexical, semantic])
@@ -187,14 +209,21 @@ describe('Help matching', () => {
     )
     expect(repo.searchCandidates).toHaveBeenCalledTimes(2)
     expect(rerank.mock.calls[0]?.[1]).toHaveLength(20)
-    expect(result.candidates).toHaveLength(10)
+    // The requested limit is clamped to the five-slot display contract.
+    expect(result.candidates).toHaveLength(5)
     expect(result.diagnostics.rerankedCount).toBe(20)
+    // The merge keeps the max score for a member seen in both passes.
+    const merged = result.candidates.find(
+      (row) => row.membershipId === '20000000-0000-4000-8000-000000000026',
+    )
+    expect(merged?.score).toBe(0.95)
+    expect(merged?.matchedFields).toEqual(['topics', 'headline'])
   })
 
   it('falls back to lexical scoring when embedding and reranking fail', async () => {
     const row = candidate('20000000-0000-4000-8000-000000000002', {
       topics: ['Product'],
-      lexicalScore: 0.5,
+      score: 0.5,
     })
     const repo = repository([[row]])
     const embeddingProvider = embeddings()
@@ -219,26 +248,5 @@ describe('Help matching', () => {
     )
     expect(result.candidates).toHaveLength(1)
     expect(result.diagnostics.fallbacks).toEqual(['embedding_failed', 'reranker_failed'])
-  })
-
-  it('never pads a weak pool with evidence-free people', async () => {
-    const repo = repository([
-      [
-        candidate('20000000-0000-4000-8000-000000000002'),
-        candidate('20000000-0000-4000-8000-000000000003', {
-          topics: ['Health'],
-        }),
-      ],
-    ])
-    const result = await findHelpCandidates(
-      {
-        membershipId,
-        question: 'Product help',
-        signal: new AbortController().signal,
-      },
-      { repository: repo, embeddings: null, reranker: null },
-    )
-    expect(result.candidates).toEqual([])
-    expect(result.diagnostics.fallbacks).toEqual(['embedding_unavailable', 'reranker_unavailable'])
   })
 })

@@ -2,7 +2,7 @@ name: E2E
 
 # Hermetic E2E on every PR (see product-spec-obsidian-vault/Vision/Testing
 # Suite.md): the suite boots a LOCAL Supabase stack on the runner — migrations
-# + supabase/seeds/*.sql — and drives the app against it. Env comes from the
+# + the starter-cast seed — and drives the app against it. Env comes from the
 # Doppler bridgecircle/dev_local config (local Supabase values + dummied
 # outbound services); DOPPLER_TOKEN_LOCAL is a service token scoped to that
 # config only. No remote project, nothing deployed. The deployed-stage integ
@@ -29,7 +29,7 @@ jobs:
     outputs:
       code: ${{ steps.filter.outputs.code }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -60,24 +60,24 @@ jobs:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
 
-      - uses: dopplerhq/cli-action@v3
+      - uses: dopplerhq/cli-action@v4
 
       - run: pnpm install --frozen-lockfile
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('app/pnpm-lock.yaml') }}
@@ -87,11 +87,49 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
 
+      # PARTIAL mitigation, and worth knowing what it does not cover: the
+      # Supabase CLI pulls from TWO registries — most of the stack from
+      # public.ecr.aws and the rest from docker.io. This login authenticates the
+      # docker.io subset only; the public.ecr.aws pulls stay anonymous, and
+      # authenticating those would need an AWS account, which is not worth it
+      # for the observed impact (see the retry below).
+      #
+      # Deliberately non-fatal. If the credentials are ever missing, expired, or
+      # unavailable (a fork PR gets no secrets), the login is skipped and the
+      # pull falls back to anonymous — exactly the old behavior — rather than
+      # failing E2E, which is a REQUIRED check on main.
+      - name: Log in to Docker Hub
+        continue-on-error: true
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       # Boots Postgres + Auth + PostgREST + Storage + Realtime and applies
       # every migration and seed. Studio and the log pipeline aren't needed
       # for tests.
+      #
+      # Retried because both registries rate-limit ANONYMOUS pulls per source
+      # IP, and runners share those addresses with every other GitHub Actions
+      # tenant — so the allowance empties at moments that have nothing to do
+      # with this repo. Observed twice (runs 31662794821 and 31827573332,
+      # "toomanyrequests: Rate exceeded"); both recovered on their own, and no
+      # E2E run has ever actually failed from it. A bounded retry is therefore
+      # the proportionate fix: it removes the coin flip without paying to save
+      # and restore ~2 GB of images on every run, which would cost more time
+      # than the pull it replaces.
       - name: Start local Supabase stack
-        run: pnpm exec supabase start -x studio,imgproxy,vector,logflare
+        run: |
+          for attempt in 1 2 3; do
+            if pnpm exec supabase start -x studio,imgproxy,vector,logflare; then
+              exit 0
+            fi
+            echo "::warning::supabase start failed (attempt ${attempt}/3) — most likely a throttled image pull; retrying"
+            pnpm exec supabase stop || true
+            sleep $(( attempt * 20 ))
+          done
+          echo "::error::supabase start failed 3 times — this is no longer a transient pull throttle"
+          exit 1
 
       # The runner and the nested dev server both resolve env from the
       # bridgecircle/dev_local Doppler config (tests/e2e/helpers/env.ts).
@@ -105,7 +143,7 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: app/playwright-report
@@ -113,7 +151,7 @@ jobs:
 
       - name: Upload Playwright traces
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: app/test-results

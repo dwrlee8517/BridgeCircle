@@ -1,0 +1,2540 @@
+{
+  "engine": "baseline-v1",
+  "date": "2026-08-15",
+  "corpusMembers": 1203,
+  "enginePrint": "b6e1500c81c239fc8e70fda4122879396ce9583e43060e31b41a973adc86e644",
+  "regimes": [
+    {
+      "regime": "coverage-ranking",
+      "total": 2,
+      "passed": 2,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "crowded-topic",
+      "total": 2,
+      "passed": 2,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "eligibility",
+      "total": 4,
+      "passed": 4,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "field-locus",
+      "total": 3,
+      "passed": 3,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "keyword",
+      "total": 3,
+      "passed": 3,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "null",
+      "total": 1,
+      "passed": 1,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "sentence-overlap",
+      "total": 2,
+      "passed": 2,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "sparse-vs-rich",
+      "total": 3,
+      "passed": 3,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "stem-variant",
+      "total": 2,
+      "passed": 2,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "stopword-heavy",
+      "total": 1,
+      "passed": 1,
+      "hardFailureCount": 0,
+      "expectedMisses": 0
+    },
+    {
+      "regime": "vocab-mismatch",
+      "total": 2,
+      "passed": 2,
+      "hardFailureCount": 0,
+      "expectedMisses": 2
+    }
+  ],
+  "cases": [
+    {
+      "id": "keyword-consulting",
+      "regime": "keyword",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-150@eval.test",
+          "row": {
+            "score": 0.554545454545455,
+            "topics": [
+              "Consulting",
+              "First jobs"
+            ],
+            "headline": "Second-year consultant",
+            "avatar_path": null,
+            "display_name": "Isolde Brennan",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000150",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000150"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "score": 0.551515151515152,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2014,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "member-1836@eval.test",
+          "row": {
+            "score": 0.545454545454545,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Happy to talk about manufacturing and what comes next",
+            "avatar_path": null,
+            "display_name": "Perry Zielinski",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001836",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 1990,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001836"
+          }
+        },
+        {
+          "email": "helper-030@eval.test",
+          "row": {
+            "score": 0.53030303030303,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Sam Whitaker",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000030",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2017,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000030"
+          }
+        },
+        {
+          "email": "helper-136@eval.test",
+          "row": {
+            "score": 0.53030303030303,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Usha Rao",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000136",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000136"
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyword-venture-capital",
+      "regime": "keyword",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-012@eval.test",
+          "row": {
+            "score": 1.02222222222222,
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investing and founder support",
+            "avatar_path": null,
+            "display_name": "Chloe Zhang",
+            "match_reason": "Speaks to Venture capital",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000012",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2009,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000012"
+          }
+        },
+        {
+          "email": "helper-034@eval.test",
+          "row": {
+            "score": 0.95,
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": "Early-stage investor",
+            "avatar_path": null,
+            "display_name": "Wes Morrow",
+            "match_reason": "Speaks to Venture capital",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000034",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000034"
+          }
+        },
+        {
+          "email": "helper-138@eval.test",
+          "row": {
+            "score": 0.777777777777778,
+            "topics": [
+              "Venture capital"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Wren Halloway",
+            "match_reason": "Speaks to Venture capital",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000138",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2018,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000138"
+          }
+        }
+      ]
+    },
+    {
+      "id": "keyword-medicine",
+      "regime": "keyword",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-017@eval.test",
+          "row": {
+            "score": 0.84,
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Medicine: residency and attending life",
+            "avatar_path": null,
+            "display_name": "Hana Sato",
+            "match_reason": "Speaks to Medicine",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000017",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2006,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000017"
+          }
+        },
+        {
+          "email": "helper-032@eval.test",
+          "row": {
+            "score": 0.7,
+            "topics": [
+              "Medicine"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Umar Aziz",
+            "match_reason": "Speaks to Medicine",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000032",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2004,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000032"
+          }
+        },
+        {
+          "email": "helper-072@eval.test",
+          "row": {
+            "score": 0.7,
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Resident at a teaching hospital",
+            "avatar_path": null,
+            "display_name": "Bela Nagy",
+            "match_reason": "Speaks to Medicine",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000072",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2020,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000072"
+          }
+        },
+        {
+          "email": "helper-102@eval.test",
+          "row": {
+            "score": 0.7,
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Pediatric nurse practitioner",
+            "avatar_path": null,
+            "display_name": "Mina Chowdhury",
+            "match_reason": "Speaks to Medicine",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000102",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000102"
+          }
+        },
+        {
+          "email": "helper-137@eval.test",
+          "row": {
+            "score": 0.7,
+            "topics": [
+              "Medicine"
+            ],
+            "headline": "Med school applications coaching on weekends",
+            "avatar_path": null,
+            "display_name": "Vero Castellanos",
+            "match_reason": "Speaks to Medicine",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000137",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000137"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stem-consultant",
+      "regime": "stem-variant",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-150@eval.test",
+          "row": {
+            "score": 0.554545454545455,
+            "topics": [
+              "Consulting",
+              "First jobs"
+            ],
+            "headline": "Second-year consultant",
+            "avatar_path": null,
+            "display_name": "Isolde Brennan",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000150",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000150"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "score": 0.551515151515152,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2014,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "member-1836@eval.test",
+          "row": {
+            "score": 0.545454545454545,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Happy to talk about manufacturing and what comes next",
+            "avatar_path": null,
+            "display_name": "Perry Zielinski",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001836",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 1990,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001836"
+          }
+        },
+        {
+          "email": "helper-030@eval.test",
+          "row": {
+            "score": 0.53030303030303,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Sam Whitaker",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000030",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2017,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000030"
+          }
+        },
+        {
+          "email": "helper-136@eval.test",
+          "row": {
+            "score": 0.53030303030303,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Usha Rao",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000136",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000136"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stem-teacher",
+      "regime": "stem-variant",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-022@eval.test",
+          "row": {
+            "score": 0.175,
+            "topics": [
+              "Teaching"
+            ],
+            "headline": "Teaching and school leadership",
+            "avatar_path": null,
+            "display_name": "Marco Rossi",
+            "match_reason": "Teaching and school leadership",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000022",
+            "matched_fields": [
+              "headline",
+              "profile"
+            ],
+            "graduation_year": 2008,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000022"
+          }
+        },
+        {
+          "email": "helper-045@eval.test",
+          "row": {
+            "score": 0.125,
+            "topics": [
+              "Teaching"
+            ],
+            "headline": "Ex-McKinsey; now teaching high school science",
+            "avatar_path": null,
+            "display_name": "Elias Vance",
+            "match_reason": "Ex-McKinsey; now teaching high school science",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000045",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2009,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000045"
+          }
+        },
+        {
+          "email": "helper-117@eval.test",
+          "row": {
+            "score": 0.125,
+            "topics": [
+              "Teaching"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Blair Cummings",
+            "match_reason": "Relevant experience",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000117",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000117"
+          }
+        },
+        {
+          "email": "helper-125@eval.test",
+          "row": {
+            "score": 0.125,
+            "topics": [
+              "Career changes",
+              "Teaching"
+            ],
+            "headline": "Second-career teacher after ten years in banking",
+            "avatar_path": null,
+            "display_name": "Jem Barlow",
+            "match_reason": "Second-career teacher after ten years in banking",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000125",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2005,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000125"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sentence-business-school",
+      "regime": "sentence-overlap",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-150@eval.test",
+          "row": {
+            "score": 0.617045454545455,
+            "topics": [
+              "Consulting",
+              "First jobs"
+            ],
+            "headline": "Second-year consultant",
+            "avatar_path": null,
+            "display_name": "Isolde Brennan",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000150",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000150"
+          }
+        },
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "score": 0.615532734274711,
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "Speaks to Business school",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2011,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-048@eval.test",
+          "row": {
+            "score": 0.592811296534018,
+            "topics": [
+              "Business school"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Hugo Marchand",
+            "match_reason": "Speaks to Business school",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000048",
+            "matched_fields": [
+              "credentials",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000048"
+          }
+        },
+        {
+          "email": "helper-062@eval.test",
+          "row": {
+            "score": 0.592426187419769,
+            "topics": [
+              "Business school"
+            ],
+            "headline": "Strategy and planning",
+            "avatar_path": null,
+            "display_name": "Una Björk",
+            "match_reason": "Speaks to Business school",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000062",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2015,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000062"
+          }
+        },
+        {
+          "email": "helper-041@eval.test",
+          "row": {
+            "score": 0.577021822849807,
+            "topics": [
+              "Business school"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Dina Petros",
+            "match_reason": "Speaks to Business school",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000041",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2014,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000041"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sentence-negotiate-offer",
+      "regime": "sentence-overlap",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-139@eval.test",
+          "row": {
+            "score": 0.749316796300189,
+            "topics": [
+              "Negotiating an offer",
+              "Interviewing"
+            ],
+            "headline": "Offer negotiation for engineers",
+            "avatar_path": null,
+            "display_name": "Xola Mthembu",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000139",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2009,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000139"
+          }
+        },
+        {
+          "email": "member-1859@eval.test",
+          "row": {
+            "score": 0.570676546843249,
+            "topics": [
+              "First jobs",
+              "Negotiating an offer"
+            ],
+            "headline": "Senior Engineer at Northwind Retail. Previously Computer Science at UT Austin.",
+            "avatar_path": null,
+            "display_name": "Frankie Zielinski",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001859",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2008,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001859"
+          }
+        },
+        {
+          "email": "member-1937@eval.test",
+          "row": {
+            "score": 0.570676546843249,
+            "topics": [
+              "Negotiating an offer",
+              "First jobs"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Oakley Cardona",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001937",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001937"
+          }
+        },
+        {
+          "email": "helper-035@eval.test",
+          "row": {
+            "score": 0.536052133697709,
+            "topics": [
+              "Negotiating an offer"
+            ],
+            "headline": "HR leader; compensation and offers",
+            "avatar_path": null,
+            "display_name": "Ximena Vargas",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000035",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2008,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000035"
+          }
+        },
+        {
+          "email": "helper-128@eval.test",
+          "row": {
+            "score": 0.531826781585033,
+            "topics": [
+              "Law school",
+              "Negotiating an offer"
+            ],
+            "headline": "Employment attorney",
+            "avatar_path": null,
+            "display_name": "Mara Vidal",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000128",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2008,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000128"
+          }
+        }
+      ]
+    },
+    {
+      "id": "coverage-negotiating-startup",
+      "regime": "coverage-ranking",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "member-1810@eval.test",
+          "row": {
+            "score": 0.884565435732138,
+            "topics": [
+              "Startups",
+              "Negotiating an offer"
+            ],
+            "headline": "Operations Manager at Solara Brands. Previously Computer Science at Ohio State.",
+            "avatar_path": null,
+            "display_name": "Hollis Yamada",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001810",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001810"
+          }
+        },
+        {
+          "email": "member-1204@eval.test",
+          "row": {
+            "score": 0.884565435732138,
+            "topics": [
+              "Startups",
+              "Negotiating an offer"
+            ],
+            "headline": "Designer at Bayview Clinic",
+            "avatar_path": null,
+            "display_name": "Avery Eastman",
+            "match_reason": "Speaks to Negotiating an offer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001204",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 1989,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001204"
+          }
+        },
+        {
+          "email": "helper-025@eval.test",
+          "row": {
+            "score": 0.594444444444444,
+            "topics": [
+              "Startups"
+            ],
+            "headline": "Founding and early startup life",
+            "avatar_path": null,
+            "display_name": "Priya Nair",
+            "match_reason": "Speaks to Startups",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000025",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2010,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000025"
+          }
+        },
+        {
+          "email": "helper-064@eval.test",
+          "row": {
+            "score": 0.566666666666667,
+            "topics": [
+              "Startups"
+            ],
+            "headline": "Angel investing on the side",
+            "avatar_path": null,
+            "display_name": "Wanda Fuchs",
+            "match_reason": "Speaks to Startups",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000064",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2007,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000064"
+          }
+        },
+        {
+          "email": "helper-101@eval.test",
+          "row": {
+            "score": 0.555555555555556,
+            "topics": [
+              "Startups"
+            ],
+            "headline": "Growth marketing",
+            "avatar_path": null,
+            "display_name": "Lior Ben-David",
+            "match_reason": "Speaks to Startups",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000101",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2015,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000101"
+          }
+        }
+      ]
+    },
+    {
+      "id": "coverage-managing-startup",
+      "regime": "coverage-ranking",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-146@eval.test",
+          "row": {
+            "score": 0.875122545319121,
+            "topics": [
+              "Managing people",
+              "Startups"
+            ],
+            "headline": "Scaled a support org from 4 to 40",
+            "avatar_path": null,
+            "display_name": "Ember Nascimento",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000146",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2011,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000146"
+          }
+        },
+        {
+          "email": "helper-025@eval.test",
+          "row": {
+            "score": 0.598611111111111,
+            "topics": [
+              "Startups"
+            ],
+            "headline": "Founding and early startup life",
+            "avatar_path": null,
+            "display_name": "Priya Nair",
+            "match_reason": "Speaks to Startups",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000025",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2010,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000025"
+          }
+        },
+        {
+          "email": "member-1664@eval.test",
+          "row": {
+            "score": 0.569188201884778,
+            "topics": [
+              "Managing people",
+              "First jobs"
+            ],
+            "headline": "Happy to talk about design and what comes next",
+            "avatar_path": null,
+            "display_name": "Lane Thackeray",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001664",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 1993,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001664"
+          }
+        },
+        {
+          "email": "helper-064@eval.test",
+          "row": {
+            "score": 0.566666666666667,
+            "topics": [
+              "Startups"
+            ],
+            "headline": "Angel investing on the side",
+            "avatar_path": null,
+            "display_name": "Wanda Fuchs",
+            "match_reason": "Speaks to Startups",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000064",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2007,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000064"
+          }
+        },
+        {
+          "email": "member-1981@eval.test",
+          "row": {
+            "score": 0.565021535218111,
+            "topics": [
+              "Managing people",
+              "First jobs"
+            ],
+            "headline": "Working on media in Philadelphia",
+            "avatar_path": null,
+            "display_name": "Sage Emerson",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001981",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 1990,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001981"
+          }
+        }
+      ]
+    },
+    {
+      "id": "locus-mckinsey",
+      "regime": "field-locus",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-045@eval.test",
+          "row": {
+            "score": 0.233333333333333,
+            "topics": [
+              "Teaching"
+            ],
+            "headline": "Ex-McKinsey; now teaching high school science",
+            "avatar_path": null,
+            "display_name": "Elias Vance",
+            "match_reason": "Ex-McKinsey; now teaching high school science",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000045",
+            "matched_fields": [
+              "headline",
+              "profile"
+            ],
+            "graduation_year": 2009,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000045"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "score": 0.1,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Strategy consulting; generalist problem-solving careers",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "matched_fields": [
+              "credentials"
+            ],
+            "graduation_year": 2014,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "helper-046@eval.test",
+          "row": {
+            "score": 0.1,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Freya Nilsen",
+            "match_reason": "Relevant experience",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000046",
+            "matched_fields": [
+              "credentials"
+            ],
+            "graduation_year": 2018,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000046"
+          }
+        }
+      ]
+    },
+    {
+      "id": "locus-pm-seoul",
+      "regime": "field-locus",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-047@eval.test",
+          "row": {
+            "score": 0.856732740943267,
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product manager, mobility apps",
+            "avatar_path": null,
+            "display_name": "Gita Prasetyo",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000047",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2015,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000047"
+          }
+        },
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "score": 0.56429710640237,
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        },
+        {
+          "email": "helper-033@eval.test",
+          "row": {
+            "score": 0.556732740943267,
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product manager, consumer apps",
+            "avatar_path": null,
+            "display_name": "Uma Krishnan",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000033",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000033"
+          }
+        },
+        {
+          "email": "helper-135@eval.test",
+          "row": {
+            "score": 0.556732740943267,
+            "topics": [
+              "Product management",
+              "First jobs"
+            ],
+            "headline": "APM program graduate",
+            "avatar_path": null,
+            "display_name": "Tove Aldana",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000135",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2021,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000135"
+          }
+        },
+        {
+          "email": "member-2053@eval.test",
+          "row": {
+            "score": 0.537821827295512,
+            "topics": [
+              "Product management",
+              "Negotiating an offer"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Kendall Grimaldi",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000002053",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2001,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000002053"
+          }
+        }
+      ]
+    },
+    {
+      "id": "locus-insead",
+      "regime": "field-locus",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-011@eval.test",
+          "row": {
+            "score": 0.7,
+            "topics": [
+              "Business school"
+            ],
+            "headline": "MBA admissions and what business school is for",
+            "avatar_path": null,
+            "display_name": "Ben Okonkwo",
+            "match_reason": "MBA admissions and what business school is for",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000011",
+            "matched_fields": [
+              "headline",
+              "profile"
+            ],
+            "graduation_year": 2011,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000011"
+          }
+        },
+        {
+          "email": "helper-048@eval.test",
+          "row": {
+            "score": 0.3,
+            "topics": [
+              "Business school"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Hugo Marchand",
+            "match_reason": "Relevant experience",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000048",
+            "matched_fields": [
+              "credentials"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000048"
+          }
+        },
+        {
+          "email": "helper-024@eval.test",
+          "row": {
+            "score": 0.175,
+            "topics": [
+              "Nonprofit work"
+            ],
+            "headline": "Nonprofit work and mission-driven careers",
+            "avatar_path": null,
+            "display_name": "Owen Gallagher",
+            "match_reason": "Nonprofit work and mission-driven careers",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000024",
+            "matched_fields": [
+              "headline",
+              "profile"
+            ],
+            "graduation_year": 2005,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000024"
+          }
+        },
+        {
+          "email": "helper-069@eval.test",
+          "row": {
+            "score": 0.125,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": "Program management in aerospace",
+            "avatar_path": null,
+            "display_name": "Beth Calloway",
+            "match_reason": "Program management in aerospace",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000069",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2010,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000069"
+          }
+        },
+        {
+          "email": "helper-110@eval.test",
+          "row": {
+            "score": 0.125,
+            "topics": [
+              "Teaching",
+              "Nonprofit work"
+            ],
+            "headline": "Museum education programs",
+            "avatar_path": null,
+            "display_name": "Ursula Meyer",
+            "match_reason": "Museum education programs",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000110",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2009,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000110"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sparse-software-engineering",
+      "regime": "sparse-vs-rich",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-014@eval.test",
+          "row": {
+            "score": 0.599731739353058,
+            "topics": [
+              "Software engineering"
+            ],
+            "headline": "Software engineering careers and staff+ growth",
+            "avatar_path": null,
+            "display_name": "Elsa Lindqvist",
+            "match_reason": "Speaks to Software engineering",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000014",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000014"
+          }
+        },
+        {
+          "email": "member-2065@eval.test",
+          "row": {
+            "score": 0.569870210823928,
+            "topics": [
+              "Career changes",
+              "Software engineering"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Blythe Grimaldi",
+            "match_reason": "Speaks to Software engineering",
+            "helper_user_id": "ee000000-0000-4000-8000-000000002065",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000002065"
+          }
+        },
+        {
+          "email": "member-1556@eval.test",
+          "row": {
+            "score": 0.569870210823928,
+            "topics": [
+              "Career changes",
+              "Software engineering"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Cove Pemberton",
+            "match_reason": "Speaks to Software engineering",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001556",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2005,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001556"
+          }
+        },
+        {
+          "email": "member-1528@eval.test",
+          "row": {
+            "score": 0.569870210823928,
+            "topics": [
+              "Software engineering",
+              "Career changes"
+            ],
+            "headline": "Senior Associate at Cobalt Works",
+            "avatar_path": null,
+            "display_name": "Ever Oyelaran",
+            "match_reason": "Speaks to Software engineering",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001528",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001528"
+          }
+        },
+        {
+          "email": "helper-100@eval.test",
+          "row": {
+            "score": 0.564866760168303,
+            "topics": [
+              "Software engineering"
+            ],
+            "headline": "Payments infrastructure engineer",
+            "avatar_path": null,
+            "display_name": "Kai Watanabe",
+            "match_reason": "Speaks to Software engineering",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000100",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000100"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sparse-product-management",
+      "regime": "sparse-vs-rich",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-013@eval.test",
+          "row": {
+            "score": 0.56429710640237,
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product management in platform teams",
+            "avatar_path": null,
+            "display_name": "Dev Anand",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000013",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000013"
+          }
+        },
+        {
+          "email": "helper-033@eval.test",
+          "row": {
+            "score": 0.556732740943267,
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product manager, consumer apps",
+            "avatar_path": null,
+            "display_name": "Uma Krishnan",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000033",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000033"
+          }
+        },
+        {
+          "email": "helper-047@eval.test",
+          "row": {
+            "score": 0.556732740943267,
+            "topics": [
+              "Product management"
+            ],
+            "headline": "Product manager, mobility apps",
+            "avatar_path": null,
+            "display_name": "Gita Prasetyo",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000047",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2015,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000047"
+          }
+        },
+        {
+          "email": "helper-135@eval.test",
+          "row": {
+            "score": 0.556732740943267,
+            "topics": [
+              "Product management",
+              "First jobs"
+            ],
+            "headline": "APM program graduate",
+            "avatar_path": null,
+            "display_name": "Tove Aldana",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000135",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2021,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000135"
+          }
+        },
+        {
+          "email": "member-2053@eval.test",
+          "row": {
+            "score": 0.537821827295512,
+            "topics": [
+              "Product management",
+              "Negotiating an offer"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Kendall Grimaldi",
+            "match_reason": "Speaks to Product management",
+            "helper_user_id": "ee000000-0000-4000-8000-000000002053",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2001,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000002053"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sparse-consulting-someone",
+      "regime": "sparse-vs-rich",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "member-1836@eval.test",
+          "row": {
+            "score": 0.557649667405765,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Happy to talk about manufacturing and what comes next",
+            "avatar_path": null,
+            "display_name": "Perry Zielinski",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001836",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 1990,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001836"
+          }
+        },
+        {
+          "email": "helper-150@eval.test",
+          "row": {
+            "score": 0.554545454545455,
+            "topics": [
+              "Consulting",
+              "First jobs"
+            ],
+            "headline": "Second-year consultant",
+            "avatar_path": null,
+            "display_name": "Isolde Brennan",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000150",
+            "matched_fields": [
+              "credentials",
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000150"
+          }
+        },
+        {
+          "email": "helper-010@eval.test",
+          "row": {
+            "score": 0.551515151515152,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Strategy consulting; generalist problem-solving careers",
+            "avatar_path": null,
+            "display_name": "Ana Ferreira",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000010",
+            "matched_fields": [
+              "headline",
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2014,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000010"
+          }
+        },
+        {
+          "email": "member-1683@eval.test",
+          "row": {
+            "score": 0.54249815225425,
+            "topics": [
+              "Consulting"
+            ],
+            "headline": "Happy to talk about retail and what comes next",
+            "avatar_path": null,
+            "display_name": "Marlow Ueda",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001683",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001683"
+          }
+        },
+        {
+          "email": "member-1972@eval.test",
+          "row": {
+            "score": 0.54249815225425,
+            "topics": [
+              "Consulting",
+              "Career changes"
+            ],
+            "headline": "Happy to talk about media and what comes next",
+            "avatar_path": null,
+            "display_name": "Winter Delacroix",
+            "match_reason": "Speaks to Consulting",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001972",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2003,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001972"
+          }
+        }
+      ]
+    },
+    {
+      "id": "crowded-managing-people",
+      "regime": "crowded-topic",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-129@eval.test",
+          "row": {
+            "score": 0.525437086692635,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": "Staffing agency owner",
+            "avatar_path": null,
+            "display_name": "Nils Bergman",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000129",
+            "matched_fields": [
+              "credentials",
+              "topics"
+            ],
+            "graduation_year": 2002,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000129"
+          }
+        },
+        {
+          "email": "helper-036@eval.test",
+          "row": {
+            "score": 0.523326388259806,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": "Engineering manager, distributed teams",
+            "avatar_path": null,
+            "display_name": "Yusuf Demir",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000036",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2011,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000036"
+          }
+        },
+        {
+          "email": "helper-046@eval.test",
+          "row": {
+            "score": 0.523326388259806,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Freya Nilsen",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000046",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2018,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000046"
+          }
+        },
+        {
+          "email": "helper-061@eval.test",
+          "row": {
+            "score": 0.523326388259806,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": "Corporate strategy in retail",
+            "avatar_path": null,
+            "display_name": "Tomas Brandt",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000061",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000061"
+          }
+        },
+        {
+          "email": "helper-069@eval.test",
+          "row": {
+            "score": 0.523326388259806,
+            "topics": [
+              "Managing people"
+            ],
+            "headline": "Program management in aerospace",
+            "avatar_path": null,
+            "display_name": "Beth Calloway",
+            "match_reason": "Speaks to Managing people",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000069",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2010,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000069"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tiebreak-interview-twins",
+      "regime": "crowded-topic",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-079@eval.test",
+          "row": {
+            "score": 0.798387096774194,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": "Mock interviews and offer prep",
+            "avatar_path": null,
+            "display_name": "Erin Quill",
+            "match_reason": "Speaks to Interviewing",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000079",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000079"
+          }
+        },
+        {
+          "email": "helper-078@eval.test",
+          "row": {
+            "score": 0.798387096774194,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": "Mock interviews and offer prep",
+            "avatar_path": null,
+            "display_name": "Dara Quinn",
+            "match_reason": "Speaks to Interviewing",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000078",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000078"
+          }
+        },
+        {
+          "email": "helper-058@eval.test",
+          "row": {
+            "score": 0.538709677419355,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": "Analyst hoping to move into venture capital",
+            "avatar_path": null,
+            "display_name": "Pia Kowalski",
+            "match_reason": "Speaks to Interviewing",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000058",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2022,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000058"
+          }
+        },
+        {
+          "email": "helper-039@eval.test",
+          "row": {
+            "score": 0.532258064516129,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Bianca Moretti",
+            "match_reason": "Speaks to Interviewing",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000039",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2018,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000039"
+          }
+        },
+        {
+          "email": "helper-051@eval.test",
+          "row": {
+            "score": 0.532258064516129,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Kira Volkov",
+            "match_reason": "Speaks to Interviewing",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000051",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2017,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000051"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-self-actuary",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": []
+    },
+    {
+      "id": "eligibility-capacity",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-089@eval.test",
+          "row": {
+            "score": 0.2,
+            "topics": [
+              "Public speaking"
+            ],
+            "headline": "Public speaking and executive presence",
+            "avatar_path": null,
+            "display_name": "Jules Aubert",
+            "match_reason": "Public speaking and executive presence",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000089",
+            "matched_fields": [
+              "headline",
+              "profile"
+            ],
+            "graduation_year": 2005,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000089"
+          }
+        },
+        {
+          "email": "helper-079@eval.test",
+          "row": {
+            "score": 0.133333333333333,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": "Mock interviews and offer prep",
+            "avatar_path": null,
+            "display_name": "Erin Quill",
+            "match_reason": "Mock interviews and offer prep",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000079",
+            "matched_fields": [
+              "credentials",
+              "headline"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000079"
+          }
+        },
+        {
+          "email": "helper-078@eval.test",
+          "row": {
+            "score": 0.133333333333333,
+            "topics": [
+              "Interviewing"
+            ],
+            "headline": "Mock interviews and offer prep",
+            "avatar_path": null,
+            "display_name": "Dara Quinn",
+            "match_reason": "Mock interviews and offer prep",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000078",
+            "matched_fields": [
+              "credentials",
+              "headline"
+            ],
+            "graduation_year": 2012,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000078"
+          }
+        },
+        {
+          "email": "helper-037@eval.test",
+          "row": {
+            "score": 0.0833333333333333,
+            "topics": [
+              "Career changes"
+            ],
+            "headline": "Career coach for mid-career pivots",
+            "avatar_path": null,
+            "display_name": "Zoe Laurent",
+            "match_reason": "Career coach for mid-career pivots",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000037",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2006,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000037"
+          }
+        },
+        {
+          "email": "helper-132@eval.test",
+          "row": {
+            "score": 0.0833333333333333,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": null,
+            "avatar_path": null,
+            "display_name": "Quill Andrade",
+            "match_reason": "Relevant experience",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000132",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2020,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000132"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-blocked-viewer2",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-023@eval.test",
+          "row": {
+            "score": 0.166666666666667,
+            "topics": [
+              "Public policy"
+            ],
+            "headline": "Public policy and government careers",
+            "avatar_path": null,
+            "display_name": "Nora Haddad",
+            "match_reason": "Public policy and government careers",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000023",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000023"
+          }
+        },
+        {
+          "email": "helper-121@eval.test",
+          "row": {
+            "score": 0.166666666666667,
+            "topics": [
+              "Public policy"
+            ],
+            "headline": "Policy staffer",
+            "avatar_path": null,
+            "display_name": "Ferris Uddin",
+            "match_reason": "Policy staffer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000121",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2022,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000121"
+          }
+        },
+        {
+          "email": "helper-147@eval.test",
+          "row": {
+            "score": 0.166666666666667,
+            "topics": [
+              "Public policy",
+              "Climate tech"
+            ],
+            "headline": "Climate policy analysis",
+            "avatar_path": null,
+            "display_name": "Fen Alighieri",
+            "match_reason": "Climate policy analysis",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000147",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2020,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000147"
+          }
+        },
+        {
+          "email": "helper-116@eval.test",
+          "row": {
+            "score": 0.0555555555555556,
+            "topics": [
+              "Investment banking"
+            ],
+            "headline": "Corp dev at a public tech company",
+            "avatar_path": null,
+            "display_name": "Ash Patel",
+            "match_reason": "Corp dev at a public tech company",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000116",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000116"
+          }
+        },
+        {
+          "email": "member-1689@eval.test",
+          "row": {
+            "score": 0.0555555555555556,
+            "topics": [
+              "Career changes"
+            ],
+            "headline": "Engineer at Granite Retail. Previously Public Policy at Penn State.",
+            "avatar_path": null,
+            "display_name": "Emory Ueda",
+            "match_reason": "Engineer at Granite Retail. Previously Public Policy at Penn State.",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001689",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2003,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001689"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eligibility-unblocked-viewer1",
+      "regime": "eligibility",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-089@eval.test",
+          "row": {
+            "score": 1.4,
+            "topics": [
+              "Public speaking"
+            ],
+            "headline": "Public speaking and executive presence",
+            "avatar_path": null,
+            "display_name": "Jules Aubert",
+            "match_reason": "Speaks to Public speaking",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000089",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2005,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000089"
+          }
+        },
+        {
+          "email": "helper-023@eval.test",
+          "row": {
+            "score": 0.15,
+            "topics": [
+              "Public policy"
+            ],
+            "headline": "Public policy and government careers",
+            "avatar_path": null,
+            "display_name": "Nora Haddad",
+            "match_reason": "Public policy and government careers",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000023",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2016,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000023"
+          }
+        },
+        {
+          "email": "helper-121@eval.test",
+          "row": {
+            "score": 0.15,
+            "topics": [
+              "Public policy"
+            ],
+            "headline": "Policy staffer",
+            "avatar_path": null,
+            "display_name": "Ferris Uddin",
+            "match_reason": "Policy staffer",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000121",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2022,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000121"
+          }
+        },
+        {
+          "email": "helper-147@eval.test",
+          "row": {
+            "score": 0.15,
+            "topics": [
+              "Public policy",
+              "Climate tech"
+            ],
+            "headline": "Climate policy analysis",
+            "avatar_path": null,
+            "display_name": "Fen Alighieri",
+            "match_reason": "Climate policy analysis",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000147",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2020,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000147"
+          }
+        },
+        {
+          "email": "helper-116@eval.test",
+          "row": {
+            "score": 0.05,
+            "topics": [
+              "Investment banking"
+            ],
+            "headline": "Corp dev at a public tech company",
+            "avatar_path": null,
+            "display_name": "Ash Patel",
+            "match_reason": "Corp dev at a public tech company",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000116",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000116"
+          }
+        }
+      ]
+    },
+    {
+      "id": "null-motorcycles",
+      "regime": "null",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": []
+    },
+    {
+      "id": "stopword-first-job",
+      "regime": "stopword-heavy",
+      "passed": true,
+      "failOk": false,
+      "hardFailures": [],
+      "expectationFailures": [],
+      "top5": [
+        {
+          "email": "helper-040@eval.test",
+          "row": {
+            "score": 0.630681818181818,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": "Mentoring new grads through the first job hunt",
+            "avatar_path": null,
+            "display_name": "Caleb Duran",
+            "match_reason": "Speaks to First jobs",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000040",
+            "matched_fields": [
+              "headline",
+              "topics"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000040"
+          }
+        },
+        {
+          "email": "helper-057@eval.test",
+          "row": {
+            "score": 0.604545454545454,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": "Operations analyst aiming for consulting",
+            "avatar_path": null,
+            "display_name": "Otis Reeves",
+            "match_reason": "Speaks to First jobs",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000057",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000057"
+          }
+        },
+        {
+          "email": "helper-059@eval.test",
+          "row": {
+            "score": 0.604545454545454,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": "Support engineer working toward product management",
+            "avatar_path": null,
+            "display_name": "Ravi Chandra",
+            "match_reason": "Speaks to First jobs",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000059",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000059"
+          }
+        },
+        {
+          "email": "helper-151@eval.test",
+          "row": {
+            "score": 0.596212121212121,
+            "topics": [
+              "First jobs",
+              "Interviewing"
+            ],
+            "headline": "University career services",
+            "avatar_path": null,
+            "display_name": "Juno Castellan",
+            "match_reason": "Speaks to First jobs",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000151",
+            "matched_fields": [
+              "profile",
+              "topics"
+            ],
+            "graduation_year": 2010,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000151"
+          }
+        },
+        {
+          "email": "helper-068@eval.test",
+          "row": {
+            "score": 0.587121212121212,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": "Product marketing for developer tools",
+            "avatar_path": null,
+            "display_name": "Ari Solberg",
+            "match_reason": "Speaks to First jobs",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000068",
+            "matched_fields": [
+              "topics"
+            ],
+            "graduation_year": 2017,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000068"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mismatch-laid-off",
+      "regime": "vocab-mismatch",
+      "passed": true,
+      "failOk": true,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_hit: no top-5 result holds any of [Career changes]"
+      ],
+      "top5": [
+        {
+          "email": "member-1115@eval.test",
+          "row": {
+            "score": 0.0147058823529412,
+            "topics": [
+              "Managing people",
+              "Graduate school"
+            ],
+            "headline": "Happy to talk about climate and what comes next",
+            "avatar_path": null,
+            "display_name": "Linden Beltran",
+            "match_reason": "Happy to talk about climate and what comes next",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001115",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 1992,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001115"
+          }
+        },
+        {
+          "email": "member-1050@eval.test",
+          "row": {
+            "score": 0.0147058823529412,
+            "topics": [
+              "Negotiating an offer"
+            ],
+            "headline": "Happy to talk about climate and what comes next",
+            "avatar_path": null,
+            "display_name": "Rowan Joubert",
+            "match_reason": "Happy to talk about climate and what comes next",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001050",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 1996,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001050"
+          }
+        },
+        {
+          "email": "member-1770@eval.test",
+          "row": {
+            "score": 0.0147058823529412,
+            "topics": [
+              "Software engineering"
+            ],
+            "headline": "Happy to talk about media and what comes next",
+            "avatar_path": null,
+            "display_name": "Rowan Xu",
+            "match_reason": "Happy to talk about media and what comes next",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001770",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 1999,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001770"
+          }
+        },
+        {
+          "email": "member-1664@eval.test",
+          "row": {
+            "score": 0.0147058823529412,
+            "topics": [
+              "Managing people",
+              "First jobs"
+            ],
+            "headline": "Happy to talk about design and what comes next",
+            "avatar_path": null,
+            "display_name": "Lane Thackeray",
+            "match_reason": "Happy to talk about design and what comes next",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001664",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 1993,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001664"
+          }
+        },
+        {
+          "email": "member-1156@eval.test",
+          "row": {
+            "score": 0.0147058823529412,
+            "topics": [
+              "Negotiating an offer"
+            ],
+            "headline": "Happy to talk about finance and what comes next",
+            "avatar_path": null,
+            "display_name": "Noor Caruso",
+            "match_reason": "Happy to talk about finance and what comes next",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001156",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2023,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001156"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mismatch-fresh-start",
+      "regime": "vocab-mismatch",
+      "passed": true,
+      "failOk": true,
+      "hardFailures": [],
+      "expectationFailures": [
+        "pool_hit: no top-5 result holds any of [Career changes, Working abroad]"
+      ],
+      "top5": [
+        {
+          "email": "member-1924@eval.test",
+          "row": {
+            "score": 0.0347826086956522,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": "Working on insurance in New York",
+            "avatar_path": null,
+            "display_name": "Avery Cardona",
+            "match_reason": "Working on insurance in New York",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001924",
+            "matched_fields": [
+              "credentials",
+              "headline"
+            ],
+            "graduation_year": 2011,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001924"
+          }
+        },
+        {
+          "email": "member-1407@eval.test",
+          "row": {
+            "score": 0.0347826086956522,
+            "topics": [
+              "Software engineering",
+              "Managing people"
+            ],
+            "headline": "Working on logistics in New York",
+            "avatar_path": null,
+            "display_name": "Darcy Kimura",
+            "match_reason": "Working on logistics in New York",
+            "helper_user_id": "ee000000-0000-4000-8000-000000001407",
+            "matched_fields": [
+              "credentials",
+              "headline"
+            ],
+            "graduation_year": 2019,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000001407"
+          }
+        },
+        {
+          "email": "helper-040@eval.test",
+          "row": {
+            "score": 0.0217391304347826,
+            "topics": [
+              "First jobs"
+            ],
+            "headline": "Mentoring new grads through the first job hunt",
+            "avatar_path": null,
+            "display_name": "Caleb Duran",
+            "match_reason": "Mentoring new grads through the first job hunt",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000040",
+            "matched_fields": [
+              "headline"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000040"
+          }
+        },
+        {
+          "email": "helper-016@eval.test",
+          "row": {
+            "score": 0.0130434782608696,
+            "topics": [
+              "Investment banking"
+            ],
+            "headline": "Investment banking, coverage and deals",
+            "avatar_path": null,
+            "display_name": "Gloria Mensah",
+            "match_reason": "Investment banking, coverage and deals",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000016",
+            "matched_fields": [
+              "credentials"
+            ],
+            "graduation_year": 2013,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000016"
+          }
+        },
+        {
+          "email": "helper-021@eval.test",
+          "row": {
+            "score": 0.0130434782608696,
+            "topics": [
+              "Journalism"
+            ],
+            "headline": "Reporting and newsroom careers",
+            "avatar_path": null,
+            "display_name": "Lena Fischer",
+            "match_reason": "Reporting and newsroom careers",
+            "helper_user_id": "ee000000-0000-4000-8000-000000000021",
+            "matched_fields": [
+              "credentials"
+            ],
+            "graduation_year": 2010,
+            "helper_membership_id": "ee111111-1111-4111-8111-000000000021"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -32,10 +32,12 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: cd-main
-  # Never cancel a run that may be mid-promote; queue behind it instead.
-  cancel-in-progress: false
+# Concurrency is per-JOB, not per-workflow (see the 2026-08-14 backlog entry
+# "CD self-jams when a production approval is left pending"): a run parked at
+# the production gate is still "in progress", so a workflow-level group let one
+# unactioned approval silently block every later dev deploy. The dev lane
+# (deploy-dev + integ share cd-dev) and the promote lane (cd-promote) now hold
+# independent locks — a pending promotion never stops dev from shipping.
 
 env:
   RAILWAY_PROJECT_ID: 07bf44ac-b1e9-4eb0-bbf7-6e61d9626fa1
@@ -53,8 +55,12 @@ jobs:
     name: Deploy dev stage
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    concurrency:
+      group: cd-dev
+      # Never cancel a mid-flight dev deploy; queue behind it instead.
+      cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
@@ -72,15 +78,15 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: dopplerhq/cli-action@v3
+      - uses: dopplerhq/cli-action@v4
 
       - run: pnpm --dir app install --frozen-lockfile
 
@@ -216,30 +222,35 @@ jobs:
     needs: deploy-dev
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Shares the dev lane with deploy-dev so a newer run's deploy cannot
+    # replace the dev stage underneath an in-flight integ pass.
+    concurrency:
+      group: cd-dev
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: app
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
 
-      - uses: dopplerhq/cli-action@v3
+      - uses: dopplerhq/cli-action@v4
 
       - run: pnpm install --frozen-lockfile
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('app/pnpm-lock.yaml') }}
@@ -260,9 +271,19 @@ jobs:
           PLAYWRIGHT_BASE_URL: https://dev.bridgecircle.org
         run: doppler run --preserve-env -- pnpm test:e2e
 
+      # In-process teardown dies with crashed or cancelled runs; this sweep
+      # removes anything wearing the suite's foundation- prefixes no matter
+      # how the run above ended.
+      - name: Sweep leaked e2e data on the dev stage
+        if: always()
+        env:
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          E2E_SWEEP_ALLOW_DEV: '1'
+        run: doppler run --preserve-env -- pnpm sweep:e2e
+
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: integ-report
           path: app/playwright-report
@@ -270,7 +291,7 @@ jobs:
 
       - name: Upload Playwright traces
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: integ-traces
           path: app/test-results
@@ -280,25 +301,32 @@ jobs:
     name: Promote to production
     needs: integ
     if: github.ref == 'refs/heads/main'
+    # Its own lane: a promotion waiting at the production gate holds only
+    # cd-promote, never the dev lane. An approval nobody intends to give
+    # should still be cancelled the same day (see runbook note) — but
+    # forgetting no longer stops the pipeline.
+    concurrency:
+      group: cd-promote
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 25
     # The gate: this job waits for the required reviewer on the GitHub
     # `production` environment, and only this job receives DOPPLER_TOKEN_PRD.
     environment: production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.sha }}   # promote the exact tested commit, not HEAD
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.33.2
 
-      - uses: dopplerhq/cli-action@v3
+      - uses: dopplerhq/cli-action@v4
 
       - run: pnpm --dir app install --frozen-lockfile
 

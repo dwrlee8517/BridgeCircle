@@ -44,15 +44,23 @@ design-system contract; older HTML visual references are in [`_archive/`](_archi
 Existing production surfaces have three density modes that compose with theme.
 They remain compatibility behavior during route-by-route redesign:
 
-| Class | Use |
-|---|---|
-| (none — default) | Onboarding, auth, profile detail header (single hero surfaces) |
-| `.density-cozy` | Home, ask results, inbox, people search (list-of-cards member surfaces) |
-| `.density-pro` | Admin tables, analytics, ambassador dashboards (operator surfaces) |
+| Class | Intended Use | Actual Adoption (2026-08-13) |
+|---|---|---|
+| (none — default) | Onboarding, auth, profile detail header (single hero surfaces) | Everything not listed below |
+| `.density-cozy` | Home, ask results, inbox, people search (list-of-cards member surfaces) | **Notifications only** (`notifications/page.tsx`) |
+| `.density-pro` | Admin tables, analytics, ambassador dashboards (operator surfaces) | Admin shell (`(admin)/admin/layout.tsx`) — as intended |
 
 What flips with density: legacy type aliases, padding, and shadow weight. What
 does not flip: the BridgeCircle palette, shape tiers, font family, or focus
 styles.
+
+**`.density-cozy` is effectively unadopted.** The intended-use column is the
+original design intent; only the notifications page applies the class, so Home,
+Help results, Messages, and People currently render at default density. Either
+adopt it on those four surfaces or drop the mode — do not cite this table as
+evidence that cozy density ships. The block comment in `globals.css` also points
+at a `density.md` that does not exist; this table is the surface assignment
+matrix.
 
 ## Live Implementation Anchors
 

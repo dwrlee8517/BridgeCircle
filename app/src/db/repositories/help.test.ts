@@ -132,10 +132,9 @@ describe('Help repository projections', () => {
         avatar_path: null,
         graduation_year: 2001,
         topics: ['Product'],
-        lexical_score: 0.4,
-        semantic_score: 0.8,
+        score: 0.9,
+        matched_fields: ['topics', 'headline'],
         match_reason: 'Speaks to Product',
-        evidence_chunk_ids: ['70000000-0000-4000-8000-000000000001'],
       }),
     ).toEqual({
       membershipId,
@@ -145,10 +144,9 @@ describe('Help repository projections', () => {
       avatarPath: null,
       graduationYear: 2001,
       topics: ['Product'],
-      lexicalScore: 0.4,
-      semanticScore: 0.8,
+      score: 0.9,
+      matchedFields: ['topics', 'headline'],
       matchReason: 'Speaks to Product',
-      evidenceChunkIds: ['70000000-0000-4000-8000-000000000001'],
     })
   })
 

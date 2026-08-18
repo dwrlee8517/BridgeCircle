@@ -982,7 +982,37 @@ Append-only. Index `(organization_id, created_at desc, id desc)` and
 All tables in this section live in `private`; client roles have no base-table
 grants.
 
+### Help candidate search (deterministic baseline, 2026-08-15)
+
+`api.search_help_candidates(p_membership_id uuid, p_question text,
+p_query_embedding extensions.vector(1024) default null, p_limit integer
+default 20)` — parameters unchanged since v2, **return table replaced** by the
+deterministic-baseline migration (`20260815090000`): the dead
+`lexical_score` / `semantic_score` / `evidence_chunk_ids` columns are gone,
+replaced by `score double precision` and `matched_fields text[]`
+(`topics | headline | credentials | profile`, weight-class granular). The
+worker wrapper `api.search_ask_matching_candidates(bigint, text,
+extensions.vector, integer)` returns the same shape.
+
+Semantics (full description in the tech spec
+`engineering-spec-obsidian-vault/Production/help-candidate-search.md`):
+eligibility gates unchanged (opt-in, not paused, active, not viewer, not
+blocked, under pending capacity); scoring is a rarity-weighted class sum over
+one weighted tsvector per helper plus a topic bonus (0.5, or 0.8 for two or
+more matched topics; a topic matches only when **all** its lexemes appear in
+the question); display is structural — a topic hit or an A/B/C-class text hit,
+and when three or more candidates hit topics, only topic-hitters display. Ties
+break by pending-ask load, then profile recency, then membership id.
+`p_query_embedding` is accepted and ignored — the seam for a future semantic
+stage, which must beat the baseline on the golden dataset
+(`app/src/lib/help/__fixtures__/golden-search.json`, `pnpm eval:search`)
+before it returns.
+
 ### `private.profile_embedding_chunks`
+
+> **Drift note (2026-08-15):** Help candidate search no longer reads this
+> table — the deterministic baseline searches profile fields directly. The
+> table and its indexing pipeline remain for the future semantic stage.
 
 Preserve the current Voyage 1024-dimensional contract while tightening
 organization and visibility constraints:
