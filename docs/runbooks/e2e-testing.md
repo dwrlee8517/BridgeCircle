@@ -33,7 +33,12 @@ The default local workflow uses:
 - external providers: deterministic fakes or disabled keys;
 - reset: `supabase db reset`, which loads `supabase/seeds/seed.sql`.
 
-From `app/`:
+From `app/`. In a fresh checkout or worktree, `pnpm setup:local --e2e` does
+everything below in one command (deps, Doppler scope, stack, seed, Chromium)
+and verifies a seeded sign-in at the end. CI runs the same steps as separate
+workflow steps rather than through this script, because `e2e.yml` wraps
+`supabase start` in a bounded retry and authenticates Docker Hub first — both
+Actions-specific. Piecemeal:
 
 ```bash
 pnpm db:start
