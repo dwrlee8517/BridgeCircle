@@ -160,9 +160,11 @@ What shipped instead (2026-08-15, PR #202):
   [database-v2-contract.md](../architecture/database-v2-contract.md); full
   description:
   `engineering-spec-obsidian-vault/Production/help-candidate-search.md`.
-- The hybrid stages are **dormant, not deleted**: the provider seam in
-  `app/src/lib/help/matching.ts` and the `p_query_embedding` parameter remain;
-  the candidates route injects null providers. The profile-embedding pipeline
+- The hybrid stages are **dormant, not deleted**: the provider seam
+  (`HelpEmbeddingProvider` / `HelpRerankProvider` in
+  `app/src/lib/help/matching.ts`) and the optional `p_query_embedding` RPC
+  parameter (`app/src/db/repositories/help.ts` → `search_help_candidates`)
+  both remain; the candidates route injects null providers. The profile-embedding pipeline
   (chunks, indexing worker) stays in place for the semantic stage's return.
 - **Re-enabling gate:** any hybrid stage must beat the `baseline-v1` scoreboard
   on the golden dataset (`app/src/lib/help/__fixtures__/golden-search.json`,
